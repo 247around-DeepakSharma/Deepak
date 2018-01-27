@@ -255,7 +255,7 @@
             </div>
             <div class="tab-pane fade in" id="tab3">
                 <?php if (isset($booking_history['spare_parts'])) { $estimate_given = false; $parts_shipped = false; $defective_parts_shipped = FALSE; ?>
-                <div class="col-md-12">
+                <div class="col-md-12" style="margin-top:20px;">
                     <h1 style='font-size:24px;'>Spare Parts Requested By SF</h1>
                     <div class="col-md-12" style="padding-left:1px;">
                         <table class="table  table-striped table-bordered" >
@@ -357,6 +357,9 @@
                                     <th >Shipped date </th>
                                     <th >EDD </th>
                                     <th >Remarks By Partner</th>
+                                    <th >Challan Number </th>
+                                    <th >Challan approx Value </th>
+                                    <th>Challan File</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -368,6 +371,9 @@
                                     <td><?php echo $sp['shipped_date']; ?></td>
                                     <td><?php echo $sp['edd']; ?></td>
                                     <td><?php echo $sp['remarks_by_partner']; ?></td>
+                                    <td><?php echo $sp['partner_challan_number']; ?></td>
+                                    <td><?php echo $sp['challan_approx_value']; ?></td>
+                                    <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY?>/vendor-partner-docs/<?php echo $sp['partner_challan_file']; ?>" target="_blank">Click Here to view</a></td>
                                 </tr>
                                 <?php } ?>
                             </tbody>
@@ -389,6 +395,8 @@
                                     <th >Shipped date </th>
                                     <th >Remarks By SF </th>
                                     <th >Remarks By Partner </th>
+                                    <th>SF Challan Number</th>
+                                    <th>SF Challan File</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -402,6 +410,8 @@
                                     <td><?php echo date('Y-m-d', strtotime($sp['defective_part_shipped_date'])); ?></td>
                                     <td><?php echo $sp['remarks_defective_part_by_sf']; ?></td>
                                     <td><?php echo $sp['remarks_defective_part_by_partner']; ?></td>
+                                    <td><?php echo $sp['sf_challan_number']; ?></td>
+                                    <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY?>/vendor-partner-docs/<?php echo $sp['sf_challan_file']; ?>" target="_blank">Click Here to view</a></td>
                                    
                                 </tr>
                                 <?php } ?>

@@ -12,6 +12,47 @@
     </div>
     <!-- /top tiles -->
     <hr>
+    <!-- Booking Report Start-->
+    <div class="col-md-12 col-sm-12 col-xs-12">
+        <div class="x_panel">
+            <div class="x_title">
+                    <h2>RM Booking Report</h2>
+                    <div class="clearfix"></div>
+                </div>
+    <div class="table-responsive" id="escalation_data" ng-controller="pendngBooking_Controller">
+    <table class="table table-striped table-bordered jambo_table bulk_action">
+    <thead>
+      <tr>
+        <th>S.no</th>
+        <th>RM</th>
+        <th>0 to 2 days(Installation)</th>
+        <th>3 to 5 Days(Installation)</th>
+        <th> >5 Days(Installation)</th>
+        <th>0 to 2 days(Repair)</th>
+        <th>3 to 5 Days(Repair)</th>
+        <th>>5 Days(Repair)</th>
+         <th>Total Pending</th>
+      </tr>
+    </thead>
+    <tbody>
+     <tr ng-repeat="x in pendingBookingByRM | orderBy:'-total_pending'">
+        <td>{{$index+1}}</td>
+        <td><a type="button" id="vendor_{{x.rmID}}" class="btn btn-info" target="_blank" href="<?php echo base_url(); ?>employee/dashboard/pending_full_view_by_sf/{{x.rmID}}">{{x.rm}}</a></td>
+        <td>{{x.last_2_day_installation_booking_count}}</td>
+        <td class="text_warning">{{x.last_3_to_5_days_installation_count}}</td>
+        <td class="text_warning">{{x.more_then_5_days_installation_count}}</td>
+        <td>{{x.last_2_day_repair_booking_count}}</td>
+         <td class="text_warning">{{x.last_3_to_5_days_repair_count}}</td>
+        <td class="text_warning">{{x.more_then_5_days_repair_count}}</td>
+        <td>{{x.total_pending}}</td>
+      </tr>
+    </tbody>
+    </table>
+    <center><img id="loader_gif_pending" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
+                    </div>
+    </div>
+    </div>
+    <!-- Booking Report End-->
     <!-- Missing Pincode Section -->
     <div class="row" style="margin-top:10px;">
         <?php
@@ -909,4 +950,8 @@ $(function() {
     });
 });
     </script>
-
+<style>
+    .text_warning{
+        color:red;
+    }
+    </style>

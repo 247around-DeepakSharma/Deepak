@@ -109,7 +109,7 @@ class Booking_model extends CI_Model {
 
         if($booking_id !=""){
            $where = " `booking_unit_details`.booking_id = '$booking_id' ";
-            $sql = "SELECT distinct(appliance_id), appliance_brand as brand,booking_unit_details.partner_id, service_id, booking_id, appliance_category as category, appliance_capacity as capacity, `booking_unit_details`.`model_number`, appliance_description as description, `booking_unit_details`.`purchase_month`, `booking_unit_details`.`purchase_year`
+            $sql = "SELECT distinct(appliance_id), appliance_brand as brand,booking_unit_details.partner_id, service_id, booking_id, appliance_category as category, appliance_capacity as capacity, `booking_unit_details`.`model_number`, appliance_description as description, `booking_unit_details`.`purchase_month`, `booking_unit_details`.`purchase_year`,booking_unit_details.sub_order_id
             from booking_unit_details Where $where  ";
 
         } else if ($appliance_id != "") {
@@ -126,7 +126,7 @@ class Booking_model extends CI_Model {
 
         foreach ($appliance as $key => $value) {
             // get data from booking unit details table on the basis of appliance id
-            $this->db->select('id as unit_id, pod, price_tags, customer_total, around_net_payable, partner_net_payable, customer_net_payable, customer_paid_basic_charges, customer_paid_extra_charges, customer_paid_parts, booking_status, partner_paid_basic_charges,product_or_services, serial_number, around_paid_basic_charges');
+            $this->db->select('id as unit_id, pod, price_tags, customer_total, serial_number_pic, around_net_payable, partner_net_payable, customer_net_payable, customer_paid_basic_charges, customer_paid_extra_charges, customer_paid_parts, booking_status, partner_paid_basic_charges,product_or_services, serial_number, around_paid_basic_charges');
             $this->db->where('appliance_id', $value['appliance_id']);
             $this->db->where('booking_id', $value['booking_id']);
             $query2 = $this->db->get('booking_unit_details');
@@ -695,7 +695,8 @@ class Booking_model extends CI_Model {
             $service_center_name = ",service_centres.name as vendor_name, service_centres.min_upcountry_distance, service_centres.district as sc_district,service_centres.address, service_centres.state as sf_state, service_centres.pincode, "
 		. "service_centres.primary_contact_name, service_centres.owner_email,service_centres.owner_name, gst_no, "
 		. "service_centres.primary_contact_phone_1,service_centres.primary_contact_phone_2, "
-                    . "service_centres.primary_contact_email,service_centres.owner_phone_1, service_centres.phone_1, service_centres.min_upcountry_distance as municipal_limit ";
+                    . "service_centres.primary_contact_email,service_centres.owner_phone_1, "
+                    . "service_centres.phone_1, service_centres.min_upcountry_distance as municipal_limit, isEngineerApp ";
 	    $service_centre = ", service_centres ";
             $condition = " and booking_details.assigned_vendor_id =  service_centres.id";
             $partner_name = ", partners.public_name  ";
@@ -1107,23 +1108,23 @@ class Booking_model extends CI_Model {
         return $query->result_array();
     }
 
-//       /** get_queries
-//     *
-//     *  @desc : Function to get pending queries according to pagination and vendor availability.
-//     * It can work in different ways:
-//     *
-//     * 1. Return count of pending queries
-//     * 2. Return data for pending queries
-//     *
-//     * Queries which have booking date of future are not shown. Queries with
-//     * empty booking dates are shown.
-//     *
-//     * @param : start and limit for the query
-//     * @param : $status - Completed or Cancelled
-//     * @p_av : Type of queries: Vendor Available or Vendor Not Available
-//     *
-//     *  @return : Count of Queries or Data for Queries
-//     */
+    /** get_queries
+     *
+     *  @desc : Function to get pending queries according to pagination and vendor availability.
+     * It can work in different ways:
+     *
+     * 1. Return count of pending queries
+     * 2. Return data for pending queries
+     *
+     * Queries which have booking date of future are not shown. Queries with
+     * empty booking dates are shown.
+     *
+     * @param : start and limit for the query
+     * @param : $status - Completed or Cancelled
+     * @p_av : Type of queries: Vendor Available or Vendor Not Available
+     *
+     *  @return : Count of Queries or Data for Queries
+     */
 //    function get_queries($limit, $start, $status, $p_av, $booking_id = "") {
 //        $check_vendor_status = "";
 //        $where = "";
@@ -1399,7 +1400,7 @@ class Booking_model extends CI_Model {
     function get_booking_for_review($booking_id,$whereIN=array()) {
         $charges = $this->service_centers_model->getcharges_filled_by_service_center($booking_id,$whereIN);
         foreach ($charges as $key => $value) {
-            $charges[$key]['service_centres'] = $this->vendor_model->getVendor($value['booking_id']);
+           // $charges[$key]['service_centres'] = $this->vendor_model->getVendor($value['booking_id']);
             $charges[$key]['booking'] = $this->getbooking_history($value['booking_id']);
         }
         return $charges;
@@ -2175,34 +2176,6 @@ class Booking_model extends CI_Model {
     function update_appliance_description_details($data,$where){
          $this->db->where($where,FALSE);
          $this->db->update('appliance_product_description', $data);
-    }
-    /*
-     * This function use to get query on the basis of input 
-     * @input string(table),string(required field(comma seprated), array[OPTIONAL](key value pair array with where ),array[OPTIONAL](collection of fileds on which we want to apply group by))
-     * @output array(result of query satisfied the where condition)
-     */
-    
-    function get_search_query($table,$select,$where=array(),$join=array(),$limitArray=array(),$orderBYArray=array()){
-        $this->db->select($select);
-        if(!empty($where)){
-            $this->db->where($where,FALSE);
-        }
-        if(!empty($join)){
-            foreach ($join as $tableName=>$joinCondition){
-                $this->db->join($tableName,$joinCondition);
-            }
-        }
-        if(!empty($limitArray)){
-            if($limitArray['length'] != -1){
-                 $this->db->limit($limitArray['length'], $limitArray['start']);
-            }
-        }
-        if(!empty($orderBYArray)){
-            foreach ($orderBYArray as $fieldName=>$sortingOrder){
-                $this->db->order_by($fieldName, $sortingOrder);
-            }
-        }
-       return $query = $this->db->get($table);   
     }
     
     /**

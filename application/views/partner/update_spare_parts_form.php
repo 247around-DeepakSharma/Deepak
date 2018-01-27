@@ -109,13 +109,12 @@
                 <!-- Close Panel Body -->
             </div>
          </div>
-          
+        <form enctype="multipart/form-data" action="<?php echo base_url(); ?>partner/process_update_spare_parts/<?php echo $spare_parts[0]->booking_id; ?>/<?php echo $spare_parts[0]->id; ?>" class ="form-horizontal" name="update_form" id="update_form"  method="POST">  
            <div class="panel panel-default">
             <div class="panel-heading">
                <h2 class="panel-title"><i class="fa fa-money fa-fw"></i> Update Spare Parts </h2>
             </div>
-            <div class="panel-body">
-                <form enctype="multipart/form-data" action="<?php echo base_url(); ?>partner/process_update_spare_parts/<?php echo $spare_parts[0]->booking_id; ?>/<?php echo $spare_parts[0]->id; ?>" class ="form-horizontal" name="update_form" id="update_form"  method="POST">
+                <div class="panel-body">    
                     <div class="row">
                         <div class="col-md-6">
                             <?php if(!is_null($spare_parts[0]->estimate_cost_given_date) || $spare_parts[0]->request_type == REPAIR_OOW_TAG){ ?>
@@ -222,15 +221,61 @@
                         
                         
                     </div>
-                    <div class="col-md-12 text-center">
-                        <input type="submit"  <?php if(!is_null($spare_parts[0]->estimate_cost_given_date) || $spare_parts[0]->request_type == REPAIR_OOW_TAG){ ?> 
-                        onclick="return check_invoice_amount('<?php echo $spare_parts[0]->purchase_price; ?>')" <?php } ?> value="Update Booking" style="background-color:#2C9D9C; border-color: #2C9D9C; color:#fff;" class="btn btn-md btn-default" />
-                    </div>
-                </form>
-            </div>
+                </div>
            </div>
-          
-          
+            
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                   <h2 class="panel-title"><i class="fa fa-money fa-fw"></i>Upload Challan Details</h2>
+                </div>
+                <div class="panel-body">    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group <?php
+                                    if (form_error('partner_challan_number')) {
+                                        echo 'has-error';
+                                    } ?>">
+                                <label for="partner_challan_number" class="col-md-4">Challan Number</label>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control" id="partner_challan_number" name="partner_challan_number" value = "" placeholder="Please Enter challan Number"  required>
+                                     <?php echo form_error('partner_challan_number'); ?>
+                                </div>  
+                              
+                            </div>   
+                            <div class="form-group <?php
+                                    if (form_error('approx_value')) {
+                                        echo 'has-error';
+                                    } ?>">
+                                <label for="approx_value" class="col-md-4">Approx Value</label>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control" id="approx_value" name="approx_value" value = "" placeholder="Please Enter approx value"  required>
+                                     <?php echo form_error('approx_value'); ?>
+                                </div>  
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group <?php
+                                    if (form_error('challan_file')) {
+                                        echo 'has-error';
+                                    } ?>">
+                               <label for="challan_file" class="col-md-4">Challan File</label>
+                                <div class="col-md-6">
+                                    <input type="file" class="form-control" id="challan_file" name="challan_file">
+                                     <?php echo form_error('challan_file'); ?>
+                                </div>  
+                            </div>
+                        </div>
+                        
+                        
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-12 text-center" style="margin:20px 0px;">
+                <input type="submit"  <?php if (!is_null($spare_parts[0]->estimate_cost_given_date) || $spare_parts[0]->request_type == REPAIR_OOW_TAG) { ?> 
+                           onclick="return check_invoice_amount('<?php echo $spare_parts[0]->purchase_price; ?>')" <?php } ?> value="Update Booking" style="background-color:#2C9D9C; border-color: #2C9D9C; color:#fff;" class="btn btn-md btn-default" />
+            </div>
+        </form>     
       </div>
    </div>
 </div>

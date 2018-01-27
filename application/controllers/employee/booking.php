@@ -192,6 +192,10 @@ class Booking extends CI_Controller {
                 $appliances_details['last_service_date'] = date('Y-m-d H:i:s');
 
                 $services_details['partner_id'] = $booking['partner_id'];
+                if($this->input->post('order_item_id')){
+                    $services_details['sub_order_id'] = trim($this->input->post('order_item_id'));
+                }
+                
 
                 log_message('info', __METHOD__ . "Appliance ID" . print_r($appliance_id, true));
                 /* if appliance id exist the initialize appliance id in array and update appliance 
@@ -2136,8 +2140,8 @@ class Booking extends CI_Controller {
         $this->form_validation->set_rules('appliance_category', 'Appliance Category', 'required');
 
         $this->form_validation->set_rules('partner_paid_basic_charges', 'Please Select Partner Charged', 'required');
-        $this->form_validation->set_rules('booking_primary_contact_no', 'Mobile', 'required|trim|xss_clean|regex_match[/^[7-9]{1}[0-9]{9}$/]');
-        $this->form_validation->set_rules('dealer_phone_number', 'Dealer Mobile Number', 'trim|xss_clean|regex_match[/^[7-9]{1}[0-9]{9}$/]');
+        $this->form_validation->set_rules('booking_primary_contact_no', 'Mobile', 'required|trim|xss_clean|regex_match[/^[6-9]{1}[0-9]{9}$/]');
+        $this->form_validation->set_rules('dealer_phone_number', 'Dealer Mobile Number', 'trim|xss_clean|regex_match[/^[6-9]{1}[0-9]{9}$/]');
         $this->form_validation->set_rules('booking_timeslot', 'Time Slot', 'required|xss_clean');
         $this->form_validation->set_rules('support_file', 'Suppoart File', 'callback_validate_upload_orderId_support_file');
 
@@ -2813,7 +2817,7 @@ class Booking extends CI_Controller {
             $row[] = "<a id='edit' class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_complete_booking_form/".$order_list->booking_id."' title='Edit'><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
         }
         
-        if($this->session->userdata('user_group') === _247AROUND_CALLCENTER){
+        if($this->session->userdata('user_group') !== _247AROUND_ADMIN || $this->session->userdata('user_group') !== _247AROUND_DEVELOPER){
             if($booking_status === _247AROUND_CANCELLED && strtotime($order_list->closed_date) <= strtotime("-1 Months")){
                 $row[] = "<a id='open' class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_convert_booking_to_pending_form/".$order_list->booking_id."/".$booking_status."' title='Open' target='_blank' disabled><i class='fa fa-calendar' aria-hidden='true'></i></a>";
             }else{
@@ -3302,7 +3306,7 @@ class Booking extends CI_Controller {
         }
         
         if($query_status == _247AROUND_CANCELLED){
-            if($this->session->userdata('user_group') === _247AROUND_CALLCENTER && strtotime($order_list->closed_date) <= strtotime("-1 Months")){
+            if(($this->session->userdata('user_group') !== _247AROUND_ADMIN || $this->session->userdata('user_group') !== _247AROUND_DEVELOPER) && strtotime($order_list->closed_date) <= strtotime("-1 Months")){
                 $row[]  = "<a class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/booking/open_cancelled_query/$order_list->booking_id' title = 'Open' target ='_blank' disabled><i class = 'fa fa-calendar' aria-hidden = 'true'></i></a>";
             }else{
                 $row[]  = "<a class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/booking/open_cancelled_query/$order_list->booking_id' title = 'Open' target ='_blank'><i class = 'fa fa-calendar' aria-hidden = 'true'></i></a>";
@@ -3503,8 +3507,10 @@ class Booking extends CI_Controller {
             $onlyName = "booking_id";
         }
         $where = array();
-        if($receieved_Data['partner_id'] != 'option_holder'){
-            $where['booking_details.partner_id'] = $receieved_Data['partner_id'];
+        if(array_key_exists('partner_id', $receieved_Data)){
+            if($receieved_Data['partner_id'] != 'option_holder'){
+                $where['booking_details.partner_id'] = $receieved_Data['partner_id'];
+            }
         }
         return array("inputBulkData"=>$inputBulkData,"fieldName"=>$fieldName,"onlyName"=>$onlyName,"where"=>$where);
     }

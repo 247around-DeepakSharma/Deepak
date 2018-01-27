@@ -1257,7 +1257,7 @@ class Invoice extends CI_Controller {
      * This methd is used to get data from Form.
      */
     function process_invoices_form() {
-         $this->checkUserSession();
+        $this->checkUserSession();
         log_message('info', __FUNCTION__ . " Entering......");
         $details['vendor_partner'] = $this->input->post('partner_vendor');
         $details['invoice_type'] = $this->input->post('invoice_version');
@@ -1265,8 +1265,26 @@ class Invoice extends CI_Controller {
         $details['date_range'] = $this->input->post('daterange');
         $details['vendor_invoice_type'] = $this->input->post('vendor_invoice_type');
         $details['agent_id'] = $this->session->userdata('id');
-
-        $status = $this->generate_vendor_partner_invoices($details);
+        
+        if(count($details['vendor_partner_id']) == 1 && in_array('All', $details['vendor_partner_id'])){
+            $details['vendor_partner_id'] = "All";
+            $status = $this->generate_vendor_partner_invoices($details);
+        }else if(count($details['vendor_partner_id']) > 1 && in_array('All', $details['vendor_partner_id'])){
+            unset($details['vendor_partner_id'][array_search( 'All', $details['vendor_partner_id'] )] );
+            foreach($details['vendor_partner_id'] as $value){
+                $details['vendor_partner_id'] = $value;
+                $status = $this->generate_vendor_partner_invoices($details);
+            }
+        }else if(count($details['vendor_partner_id']) > 1 && !in_array('All', $details['vendor_partner_id'])){
+            foreach($details['vendor_partner_id'] as $value){
+                $details['vendor_partner_id'] = $value;
+                $status = $this->generate_vendor_partner_invoices($details);
+            }
+        }else{
+            $details['vendor_partner_id'] = $details['vendor_partner_id'][0];
+            $status = $this->generate_vendor_partner_invoices($details);
+        }
+        
         if ($status) {
             $output = "Invoice Generated...";
             $userSession = array('success' => $output);
@@ -1308,8 +1326,8 @@ class Invoice extends CI_Controller {
      */
     function generate_vendor_partner_invoices($details) {
         log_message('info', __FUNCTION__ . " Entering...... And Invoice_Details: ". print_r($details,true));
-
-
+        
+        
         if ($details['vendor_partner'] === "vendor") {
             echo "Invoice Generating..";
             log_message('info', "Invoice generate - vendor id: " . print_r($details['vendor_partner_id'], true) . ", Date Range" .
@@ -3223,6 +3241,87 @@ class Invoice extends CI_Controller {
         } else {
             echo PHP_EOL . 'Terminal Access Not Allowed' . PHP_EOL;
             redirect(base_url() . "employee/login");
+        }
+    }
+    
+    function generate_spare_purchase_invoice() {
+        log_message("info", __METHOD__ . " Post " . print_r($this->input->post("spare_id"), true));
+
+        $this->form_validation->set_rules('spare_id', 'Spare ID', 'required|xss_clean');
+        $this->form_validation->set_rules('invoice_date', 'Invoice Date', 'required|xss_clean');
+        $this->form_validation->set_rules('remarks', 'Remarks', 'required|xss_clean');
+        $this->form_validation->set_rules('parts_count', 'Count', 'required|xss_clean');
+        $this->form_validation->set_rules('invoice_id', 'Invoice ID', 'required|xss_clean');
+        $this->form_validation->set_rules('hsn_code', 'HSN Code', 'required|xss_clean');
+        $this->form_validation->set_rules('parts_charge', '', 'required|xss_clean');
+        $validation = $this->form_validation->run();
+        if ($validation) {
+            $spare_id = $this->input->post("spare_id");
+            $w['length'] = -1;
+            $w['where_in'] = array("spare_parts_details.id" => $spare_id);
+            $w['select'] = "spare_parts_details.id, spare_parts_details.booking_id, purchase_price, public_name, spare_parts_details.partner_id, "
+                    . "purchase_invoice_id,sell_invoice_id, sell_price, incoming_invoice_pdf, partners.state";
+            $data = $this->inventory_model->get_spare_parts_query($w);
+
+            $unique_partner = array_unique(array_map(function ($k) {
+                        return $k->partner_id;
+                    }, $data));
+
+            if (count($unique_partner) == 1) {
+                $uni_booking_id = array_unique(array_map(function ($k) {
+                            return $k->booking_id;
+                        }, $data));
+                $invoice_pdf = "";
+                foreach ($data as $sp) {
+                    if (!empty($sp->incoming_invoice_pdf)) {
+                        $invoice_pdf = $sp->incoming_invoice_pdf;
+                    }
+                }
+
+                if (!empty($invoice_pdf)) {
+                    $invoice_date = $this->input->post("invoice_date");
+                    $invoice['invoice_id'] = trim($this->input->post("invoice_id"));
+                    $invoice['vendor_partner'] = "partner";
+                    $invoice['remarks'] = trim($this->input->post("remarks")) . " for Booking id " . implode(", ", $uni_booking_id);
+                    $invoice['parts_count'] = trim($this->input->post("parts_count"));
+                    $invoice['hsn_code'] = trim($this->input->post("hsn_code"));
+                    $invoice['total_amount_collected'] = trim($this->input->post("parts_charge"));
+                    $invoice['type'] = "Parts";
+                    $invoice['invoice_date'] = $invoice['due_date'] = date("Y-m-d", strtotime($invoice_date));
+                    $invoice['from_date'] = $invoice['to_date'] = date("Y-m-d", strtotime($invoice_date));
+                    $invoice['type_code'] = "B";
+                    $invoice['agent_id'] = $this->session->userdata('id');
+                    $invoice['vendor_partner_id'] = $data[0]->partner_id;
+                    $gst_rate = trim($this->input->post('gst_rate'));
+                    $gst_amount = $invoice['total_amount_collected'] * ($gst_rate / 100);
+                    $invoice['amount_collected_paid'] = round(($invoice['total_amount_collected'] - $gst_amount), 2);
+                    $invoice['invoice_file_main'] = $invoice_pdf;
+
+                    $c_s_gst = $this->invoices_model->check_gst_tax_type($data[0]->state);
+                    if ($c_s_gst) {
+
+                        $invoice['cgst_tax_amount'] = $invoice['sgst_tax_amount'] = $gst_amount / 2;
+                        $invoice['cgst_tax_rate'] = $invoice['sgst_tax_rate'] = $gst_rate / 2;
+                    } else {
+                        $invoice['igst_tax_amount'] = $gst_amount;
+                        $invoice['igst_tax_rate'] = $gst_rate;
+                    }
+
+                    $this->invoices_model->action_partner_invoice($invoice);
+                    foreach ($spare_id as $id) {
+
+                        $this->service_centers_model->update_spare_parts(array('id' => $id), array("purchase_invoice_id" => $invoice['invoice_id']));
+                    }
+
+                    echo "Success";
+                } else {
+                    echo "Invoice PDF Not Available";
+                }
+            } else {
+                echo "Please Select Unique Partner Booking";
+            }
+        } else {
+            echo "Please Enter All Field";
         }
     }
 

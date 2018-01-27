@@ -4276,3 +4276,21 @@ ALTER TABLE `bb_unit_details` ADD `qc_svc` VARCHAR(32) NULL DEFAULT NULL AFTER `
 ALTER TABLE `bb_delivery_order_status_report` ADD `qc_svc` VARCHAR(32) NULL DEFAULT NULL AFTER `file_received_date`;
 -- Chhavi 11th Jan
 ALTER TABLE  `sf_not_exist_booking_details` ADD  `invalid_pincode_marked_by` INT( 10 ) NOT NULL AFTER  `is_pincode_valid` ;
+
+--Chhavi
+ALTER TABLE `push_notification_subscribers` ADD `unsubscription_flag` INT(10) NOT NULL DEFAULT '0' AFTER `subscriber_id`;
+ALTER TABLE `push_notification_subscribers` ADD `unsubscription_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `unsubscription_flag`;
+ALTER TABLE `push_notification_subscribers` CHANGE `create_date` `create_date` DATETIME NOT NULL;
+
+--Sachin 20 Jan
+ALTER TABLE `spare_parts_details` ADD `partner_challan_number` VARCHAR(128) NULL AFTER `edd`, ADD `sf_challan_number` VARCHAR(128) NULL AFTER `partner_challan_number`, ADD `partner_challan_file` VARCHAR(128) NULL AFTER `sf_challan_number`, ADD `sf_challan_file` VARCHAR(128) NULL AFTER `partner_challan_file`, ADD `challan_approx_value` VARCHAR(64) NULL AFTER `sf_challan_file`;
+
+--sachin 22 jan
+ALTER TABLE `email_attachment_parser` ADD `partner_id` INT(11) NULL DEFAULT NULL AFTER `id`;
+
+INSERT INTO `email_attachment_parser` (`id`, `partner_id`, `email_received_from`, `email_subject_text`, `email_function_name`, `file_type`, `email_remarks`, `email_send_to`, `qc_svc`, `active`, `create_date`) VALUES (NULL, '247038', 'sachinj@247around.com', 'Bulk Sheet', 'employee/do_background_upload_excel/process_upload_file', 'Aquagrand-Plus-Delivered', 'Aquagrand-Plus', 'sachinj@247around.com', NULL, '1', CURRENT_TIMESTAMP);
+
+INSERT INTO `header_navigation` (`id`, `title`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, 'Upload Aguagrand Plus File', 'employee/bookings_excel/upload_aquagrand_plus_file', '2', '24', 'admin,closure,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
+
+
+INSERT INTO `header_navigation` (`id`, `title`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, 'Show Inventory Stocks', 'employee/inventory/show_inventory_stock_list', '2', '89', 'admin,callcenter,closure,developer,regionalmanager', 'main_nav', '1', CURRENT_TIMESTAMP);

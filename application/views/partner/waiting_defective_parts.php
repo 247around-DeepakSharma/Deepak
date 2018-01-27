@@ -31,6 +31,7 @@
                             <th class="text-center">AWB</th>
                             <th class="text-center">Shipped Date</th>
                             <th class="text-center">Remarks</th>
+                            <th class="text-center">SF Challan File</th>
                             <th colspan="2" class="text-center">Action</th>
                             
                             
@@ -68,6 +69,9 @@
                                     
                                     <td>
                                         <?php echo $row['remarks_defective_part_by_sf']; ?>
+                                    </td>
+                                    <td>
+                                        <?php echo $row['sf_challan_file']; ?>
                                     </td>
                                     <td>
                                         <?php if(!empty($row['defective_part_shipped'])){?>
