@@ -15,7 +15,7 @@
             ?> 
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h1 class="panel-title" ><i class="fa fa-money fa-fw"></i> Review Booking</h1>
+                    <h1 class="panel-title" ><i class="fa fa-money fa-fw"></i> Review Bookings Completed by Technicians</h1>
                 </div>
 
 <?php //print_r($data); ?>
@@ -25,6 +25,7 @@
                             <tr>
                                 <th class="text-center">No</th>
                                 <th class="text-center">Booking ID</th>
+                                <th class="text-center">SF Name</th>
                                 <th class="text-center">Engineer Name</th>
                                 <th class="text-center">Amount Due</th>
                                 <th class="text-center" >Amount Paid  </th>
@@ -45,10 +46,11 @@
                                     <td class="text-center">
                                         <a href="#"> <?php echo $row->booking_id; ?> </a>
                                     </td>
+                                    <td class="text-center"><?php echo $row->sf_name;?></td>
                                     <td class="text-center">
-    <?php if (!empty($row->engineer_name)) {
-        print_r($row->engineer_name[0]['name']);
-    } ?>
+                                    <?php if (!empty($row->engineer_name)) {
+                                        echo $row->engineer_name[0]['name'];
+                                    } ?>
                                     </td>
 
                                     <td class="text-center">
@@ -56,7 +58,7 @@
                                     </td>
                                     <td class="text-center"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo $row->amount_paid ?></td>
                                     <td class="text-center"><?php echo $row->status ?></td>
-                                    <td class="text-center"><?php echo $row->booking_pincode; ?></td>
+                                    <td class="text-center"><?php echo $row->booking_address; ?></td>
                                     <td class="text-center" <?php if($row->booking_pincode != $row->en_pincode){?> style="color: red;" <?php } ?>><?php echo $row->en_address; ?></td>
                                 </tr>
 <?php } ?>
