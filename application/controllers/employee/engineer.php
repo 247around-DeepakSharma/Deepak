@@ -18,6 +18,7 @@ class Engineer extends CI_Controller {
         $this->load->model('service_centers_model');
 
         $this->load->model('partner_model');
+        $this->load->model('vendor_model');
         $this->load->library("pagination");
         $this->load->library('asynchronous_lib');
         $this->load->library('booking_utilities');
@@ -108,7 +109,8 @@ class Engineer extends CI_Controller {
         $where['where_in'] = array("engineer_booking_action.current_status" => array("InProcess", "Completed", "Cancelled"),
             "booking_details.current_status" => array(_247AROUND_PENDING, _247AROUND_RESCHEDULED));
         $data = $this->engineer_model->get_engineer_action_table_list($where, "engineer_booking_action.booking_id, amount_due, engineer_table_sign.amount_paid,"
-                . "engineer_table_sign.pincode as en_pincode, engineer_table_sign.address as en_address, booking_details.booking_pincode");
+                . "engineer_table_sign.pincode as en_pincode, engineer_table_sign.address as en_address, "
+                . "booking_details.booking_pincode, booking_details.assigned_vendor_id, booking_details.booking_address");
        
         foreach ($data as $key => $value) {
             $unitWhere = array("engineer_booking_action.booking_id" => $value->booking_id);
@@ -124,9 +126,12 @@ class Engineer extends CI_Controller {
             if(!empty($ac_data[0]['engineer_id'])){
                 $data[$key]->engineer_name = $this->engineer_model->get_engineers_details(array("id" => $ac_data[0]['engineer_id']), "name");
                 
+                
             } else {
                 $data[$key]->engineer_name = "";
             }
+            
+            $data[$key]->sf_name = $this->vendor_model->getVendorDetails("name", array("id" => $data[0]->assigned_vendor_id))[0]['name'];
         }
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/review_engineer_action', array("data" => $data));
