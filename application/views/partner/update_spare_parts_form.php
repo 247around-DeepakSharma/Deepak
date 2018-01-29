@@ -237,7 +237,7 @@
                                     } ?>">
                                 <label for="partner_challan_number" class="col-md-4">Challan Number</label>
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control" id="partner_challan_number" name="partner_challan_number" value = "" placeholder="Please Enter challan Number"  required>
+                                    <input type="text" class="form-control" id="partner_challan_number" name="partner_challan_number" value = "" placeholder="Please Enter challan Number">
                                      <?php echo form_error('partner_challan_number'); ?>
                                 </div>  
                               
