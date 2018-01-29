@@ -92,6 +92,7 @@
                     <input type="hidden" name="sp_required_id" value='<?php echo json_encode($required_sp_id,TRUE); ?>' />
                     <input type="hidden" name="partner_id" value='<?php echo $booking_history[0]['partner_id']; ?>' />
                     <input type="hidden" name="approval" value='0' />
+                    <input type="hidden" name="count_unit"id ="count_unit" value="<?php echo count($bookng_unit_details);?>" />
                     <?php $count = 0; foreach ($bookng_unit_details as $key1 => $unit_details) { ?>
                     <div class="clonedInput panel panel-info " id="clonedInput1">
                         <div class="panel-body">
@@ -580,20 +581,20 @@
         $(".is_broken_"+div).val(broken);
         
         var div_item_count = $("#count_line_item_"+div).val();
-       
+        var count_unit = $("#count_unit").val();
+        var no  =0;
         if(Number(broken) === 1){
-          
-            for(i = 0; i < Number(div_item_count); i++ ){
-                var int = Number(Number(i) + Number(div) + 1);
-                var amount_due = Number($("#amount_due" + int).text());
-                var price_tags = $("#price_tags" +int ).text();
-                if(amount_due === 0 && price_tags.indexOf("Wall Mount Stand") > -1){
+            for(k =0; k< Number(count_unit); k++){
+                 for(i = 0; i < Number(div_item_count); i++ ){
+                    var amount_due = Number($("#amount_due" + no).text());
+                    var price_tags = $("#price_tags" +no ).text();
+                    if(amount_due === 0 && price_tags.indexOf("Wall Mount Stand") > -1){
+                        
+                         $(".cancelled_"+i+"_"+div).prop('checked', true);
+                    }
                    
-                    //$(".completed_"+i+"_"+div).prop('checked', true);
-                    $(".cancelled_"+i+"_"+div).prop('checked', true);
-                   // $(".completed_"+i+"_"+div).attr('readonly',true); 
-                
-                }
+                    no++;
+                 }
             }
         }
         
