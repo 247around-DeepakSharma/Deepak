@@ -546,7 +546,7 @@ class Service_centers extends CI_Controller {
                 $penalty_select = "CASE WHEN ((count(booking_id) *  penalty_on_booking.penalty_amount) > cap_amount) THEN (cap_amount)
 
                 ELSE (COUNT(booking_id) * penalty_on_booking.penalty_amount) END  AS p_amount";
-                $penalty_where = array('booking_id' => $value['booking_id'],'service_center_id' => $service_center_id);
+                $penalty_where = array('booking_id' => $value['booking_id'],'service_center_id' => $service_center_id,'penalty_on_booking.active' => 1);
                 $p_amount = $this->penalty_model->get_penalty_on_booking_any($penalty_where, $penalty_select, array('CASE'));
                 
                 $is_customer_paid = 1;
@@ -3058,34 +3058,35 @@ class Service_centers extends CI_Controller {
         
         return $output_pdf_file_name;
     }
-function get_learning_collateral_for_bookings(){
-    $booking_id = $this->input->post('booking_id');
-    $data = $this->service_centers_model->get_collateral_for_service_center_bookings($booking_id);
-    if(!empty($data)){
-        $finalString = '<table class="table">
-        <thead>
-          <tr>
-          <th>S.N</th>
-            <th>Document Type</th>
-            <th>File</th>
-          </tr>
-        </thead>
-        <tbody>';
-        $index =0;
-        foreach($data as $collatralData){
-            $url = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$collatralData['file'];
-            $index++;
-            $finalString .= '<tr><td>'.$index.'</td>';
-            $finalString .= '<td>'.$collatralData['collateral_type'].'</td>';
-            $finalString .=  '<td>'.$this->miscelleneous->get_reader_by_file_type($collatralData['document_type'],$url,"400").'</td>';
-            $finalString .='</tr>';
+    
+    function get_learning_collateral_for_bookings(){
+        $booking_id = $this->input->post('booking_id');
+        $data = $this->service_centers_model->get_collateral_for_service_center_bookings($booking_id);
+        if(!empty($data)){
+            $finalString = '<table class="table">
+            <thead>
+              <tr>
+              <th>S.N</th>
+                <th>Document Type</th>
+                <th>File</th>
+              </tr>
+            </thead>
+            <tbody>';
+            $index =0;
+            foreach($data as $collatralData){
+                $url = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$collatralData['file'];
+                $index++;
+                $finalString .= '<tr><td>'.$index.'</td>';
+                $finalString .= '<td>'.$collatralData['collateral_type'].'</td>';
+                $finalString .=  '<td>'.$this->miscelleneous->get_reader_by_file_type($collatralData['document_type'],$url,"400").'</td>';
+                $finalString .='</tr>';
+            }
+           $finalString .='</tbody></table>';
         }
-       $finalString .='</tbody></table>';
+        else{
+            $finalString = "<p style='text-align:center;'>Brand Collateral is not available</p>";
+        }
+
+       echo $finalString;
     }
-    else{
-        $finalString = "<p style='text-align:center;'>Brand Collateral is not available</p>";
-    }
-   
-   echo $finalString;
-}
 }
