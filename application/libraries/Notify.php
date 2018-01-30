@@ -416,6 +416,7 @@ class Notify {
 		    $sms['smsData']['service'] = $query1[0]['services'];
 		    $sms['smsData']['booking_date'] = $query1[0]['booking_date'];
 		    $sms['smsData']['booking_timeslot'] = $query1[0]['booking_timeslot'];
+                    $sms['smsData']['poc_number'] = $query1[0]['primary_contact_phone_1'];
 		    $sms['booking_id'] = $query1[0]['booking_id'];
 		    $sms['type'] = "user";
 		    $sms['type_id'] = $query1[0]['user_id'];
@@ -469,6 +470,7 @@ class Notify {
 		    $sms['smsData']['service'] = $query1[0]['services']. " ".$call_type[0];
 		    $sms['smsData']['booking_date'] = date("d/M", strtotime($query1[0]['booking_date']));
 		    $sms['smsData']['booking_timeslot'] = explode("-",$query1[0]['booking_timeslot'])[1];
+                    $sms['smsData']['poc_number'] = $query1[0]['primary_contact_phone_1'];
 		    $sms['tag'] = "add_new_booking";
 		    
 		    $sms['booking_id'] = $query1[0]['booking_id'];

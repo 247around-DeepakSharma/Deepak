@@ -27,7 +27,7 @@
           	<th>Mobile</th>
           	<th>Alternate Mobile</th>
           	<th>ID Proof</th>
-          	<th>Bank Name</th>
+          	
             <th colspan="3">Actions</th>
           </tr>
 
@@ -39,8 +39,8 @@
             <td><?php echo $row['appliance_name']; ?></td>
             <td><?php echo $row['phone'];?></td>
             <td><?php echo $row['alternate_phone']; ?></td>
-          	<td><?=$row['identity_proof'];?></td>
-          	<td><?=$row['bank_name'];?></td>
+          	<td><?php echo $row['identity_proof'];?></td>
+          	
             <td><?php if($row['active']==1)
                 {
                   echo "<a id='edit' class='btn btn-small btn-primary' "

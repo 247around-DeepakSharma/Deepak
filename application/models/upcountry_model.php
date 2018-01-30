@@ -144,6 +144,7 @@ class Upcountry_model extends CI_Model {
                         $error['upcountry_pincode'] = $res_sb[0]['pincode'];
                         $error['upcountry_distance'] = 0;
                         $error['sf_upcountry_rate'] = $res_sb[0]['upcountry_rate'];
+                        $error['upcountry_remarks'] = UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE; 
                        
                     }
                 } else {
@@ -152,6 +153,7 @@ class Upcountry_model extends CI_Model {
                     $same_pincode_vendor['vendor_id'] = $value['vendor_id'];
                     $same_pincode_vendor['message'] = NOT_UPCOUNTRY_BOOKING;
                     $same_pincode_vendor['upcountry_distance'] = 0;
+                    $same_pincode_vendor['upcountry_remarks'] = CUSTOMER_AND_SUB_OFFICE_HAS_SAME_PINCODE;
                     break;
                 }
             } else {
@@ -160,6 +162,12 @@ class Upcountry_model extends CI_Model {
                 $same_pincode_vendor['vendor_id'] = $value['vendor_id'];
                 $same_pincode_vendor['message'] = NOT_UPCOUNTRY_BOOKING;
                 $same_pincode_vendor['upcountry_distance'] = 0;
+                if(!empty($value['city'])){
+                    $same_pincode_vendor['upcountry_remarks'] = CUSTOMER_DISTRICT_NOT_EXIST_IN_SUB_OFFICE;
+                } else {
+                    $same_pincode_vendor['upcountry_remarks'] = CUSTOMER_PINCODE_NOT_EXIST_IN_INDIA_PINCODE;
+                }
+                
                 break;
             }
         }
@@ -211,6 +219,7 @@ class Upcountry_model extends CI_Model {
             $up_data['vendor_id'] = $upcountry_vendor_details['vendor_id'];
             $up_data['message'] = NOT_UPCOUNTRY_BOOKING;
             $up_data['upcountry_distance'] = 0;
+            $up_data['upcountry_remarks'] = DISTANCE_MINIMUM_FROM_MUNICIPAL_LIMIT;
 
             
         } else if ($upcountry_distance > ($min_threshold_distance)
