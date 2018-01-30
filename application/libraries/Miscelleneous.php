@@ -43,7 +43,7 @@ class Miscelleneous {
         $is_return = 0;
         $mesg1 = array();
 
-        // if $check_vendor is empty then return because we are are providing service in this pincode
+        // if $check_vendor is empty then return because we are not providing service in this pincode
         if (!empty($check_vendor)) {
             // If count is one, means only one vebdor is avaliable in this pincode
             if (count($check_vendor) == 1) {
@@ -55,6 +55,7 @@ class Miscelleneous {
                 } else {
                     $msg['vendor_id'] = $check_vendor[0]['Vendor_ID'];
                     $msg['message'] = NOT_UPCOUNTRY_BOOKING;
+                    $msg['upcountry_remarks'] = NON_UPCOUNTRY_VENDOR;
                     $msg['upcountry_distance'] = 0;
 
                     return $msg;
@@ -80,9 +81,10 @@ class Miscelleneous {
 
                     if (count($mesg1) > 1) {
                         $multiple_vendor['message'] = SF_DOES_NOT_EXIST;
+                        $multiple_vendor['upcountry_remarks'] = MULTIPLE_NON_UPCOUNTRY_VENDOR;
                         return $multiple_vendor;
                     } else {
-
+                        $mesg1[0]['upcountry_remarks'] = NON_UPCOUNTRY_VENDOR;
                         return $mesg1[0];
                     }
                 }
@@ -93,6 +95,7 @@ class Miscelleneous {
 
             $msg['message'] = SF_DOES_NOT_EXIST;
             $msg['vendor_not_found'] = 1;
+            $msg['upcountry_remarks'] = SF_DOES_NOT_EXIST;
 
             return $msg;
         }
@@ -133,7 +136,7 @@ class Miscelleneous {
             $sc_data['service_center_id'] = $service_center_id;
             $sc_data['booking_id'] = $booking_id;
             
-            // $vendor_data = $this->My_CI->vendor_model->getVendorDetails("isEngineerApp", array("id" =>$service_center_id, "isEngineerApp" => 1));
+             $vendor_data = $this->My_CI->vendor_model->getVendorDetails("isEngineerApp", array("id" =>$service_center_id, "isEngineerApp" => 1));
             
             // Unit Details Data
             $where = array('booking_id' => $booking_id);
@@ -149,19 +152,19 @@ class Miscelleneous {
                             "BUG IN ASSIGN ". $booking_id, "SF Assigned but Action table not updated", "");
                     
                 }
-                // if(!empty($vendor_data)){
-                //     $engineer_action['unit_details_id'] = $value['id'];
-                //     $engineer_action['booking_id'] = $booking_id;
-                //     $engineer_action['current_status'] = _247AROUND_PENDING;
-                //     $engineer_action['internal_status'] = _247AROUND_PENDING;
-                //     $engineer_action["create_date"] = date("Y-m-d H:i:s");
+                if(!empty($vendor_data)){
+                     $engineer_action['unit_details_id'] = $value['id'];
+                     $engineer_action['booking_id'] = $booking_id;
+                     $engineer_action['current_status'] = _247AROUND_PENDING;
+                     $engineer_action['internal_status'] = _247AROUND_PENDING;
+                     $engineer_action["create_date"] = date("Y-m-d H:i:s");
                     
-                //     $enID = $this->My_CI->engineer_model->insert_engineer_action($engineer_action);
-                //     if(!$enID){
-                //          $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, DEVELOPER_EMAIL, "", "", 
-                //             "BUG in Enginner Table ". $booking_id, "SF Assigned but Action table not updated", "");
-                //     }
-                // }
+                     $enID = $this->My_CI->engineer_model->insert_engineer_action($engineer_action);
+                     if(!$enID){
+                          $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, DEVELOPER_EMAIL, "", "", 
+                             "BUG in Enginner Table ". $booking_id, "SF Assigned but Action table not updated", "");
+                     }
+                 }
                     
                 //process inventory stock for each unit if price tag is wall mount
                 if ($value['price_tags'] == _247AROUND_WALL_MOUNT__PRICE_TAG) {
@@ -258,6 +261,7 @@ class Miscelleneous {
                     log_message('info', __METHOD__ . " => Customer will pay upcountry charges " . $booking_id);
                     $booking['upcountry_paid_by_customer'] = 1;
                     $booking['partner_upcountry_rate'] = DEFAULT_UPCOUNTRY_RATE;
+                    $booking['upcountry_remarks'] = CUSTOMER_PAID_UPCOUNTRY;
 
                     log_message('info', __METHOD__ . " => Amount due added " . $booking_id);
                     $booking['amount_due'] = $cus_net_payable + ($booking['partner_upcountry_rate'] * $booking['upcountry_distance']);
@@ -275,6 +279,7 @@ class Miscelleneous {
                     $booking['partner_upcountry_rate'] = NULL;
                     $booking['upcountry_paid_by_customer'] = '0';
                     $booking['upcountry_partner_approved'] = '1';
+                    $booking['upcountry_remarks'] = CUSTOMER_AND_PARTNER_BOTH_NOT_PROVIDE_UPCOUNTRY_FOR_THIS_PRICE_TAG;
 
                     log_message('info', __METHOD__ . " => Amount due added " . $booking_id);
                     $booking['amount_due'] = $cus_net_payable;
@@ -290,6 +295,7 @@ class Miscelleneous {
                         log_message('info', __METHOD__ . " => Upcountry Booking Free Booking " . $booking_id);
                         $booking['upcountry_paid_by_customer'] = 0;
                         $booking['amount_due'] = $cus_net_payable;
+                        $booking['upcountry_remarks'] = PARTNER_WILL_PAY_UPCOUNTRY;
                         $this->My_CI->booking_model->update_booking($booking_id, $booking);
                         $return_status = TRUE;
                     } else if ($data['partner_upcountry_approval'] == 1 && $data['message'] == UPCOUNTRY_LIMIT_EXCEED) {
@@ -299,6 +305,7 @@ class Miscelleneous {
                         $booking['internal_status'] = UPCOUNTRY_BOOKING_NEED_TO_APPROVAL;
                         $booking['upcountry_partner_approved'] = '0';
                         $booking['upcountry_paid_by_customer'] = 0;
+                        $booking['upcountry_remarks'] = UPCOUNTRY_BOOKING_NEED_TO_APPROVAL;
                         $booking['amount_due'] = $cus_net_payable;
                         $partner_status = $this->My_CI->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, UPCOUNTRY_BOOKING_NEED_TO_APPROVAL,
                                 $query1[0]['partner_id'], $booking_id);
@@ -372,6 +379,7 @@ class Miscelleneous {
                 $booking['partner_upcountry_rate'] = NULL;
                 $booking['upcountry_paid_by_customer'] = '0';
                 $booking['upcountry_partner_approved'] = '1';
+                $booking['upcountry_remarks'] = $data['upcountry_remarks'];
 
                 log_message('info', __METHOD__ . " => Amount due added " . $booking_id);
                 $booking['amount_due'] = $cus_net_payable;
@@ -389,6 +397,7 @@ class Miscelleneous {
                 $booking['sub_vendor_id'] = $data['sub_vendor_id'];
                 $booking['sf_upcountry_rate'] = $data['sf_upcountry_rate'];
                 $booking['amount_due'] = $cus_net_payable;
+                $booking['upcountry_remarks'] = $data['upcountry_remarks'];
 
                 $this->My_CI->booking_model->update_booking($booking_id, $booking);
 
