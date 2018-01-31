@@ -10,7 +10,7 @@
         white-space: normal;
     }
 </style>
-<div class="right_col" role="main" ng-app="rm_dashboard">
+<div class="right_col ngCloak" role="main" ng-app="rm_dashboard">
         <!-- Booking Report Start-->
     <div class="col-md-12 col-sm-12 col-xs-12">
         <div class="x_panel">
@@ -205,4 +205,7 @@ $(function() {
     .text_warning{
         color:red;
     }
+    [ng\:cloak], [ng-cloak], .ng-cloak {
+  display: none !important;
+}
     </style>

@@ -3,7 +3,7 @@
 <script src="<?php echo base_url(); ?>js/buyback_app/app.js"></script>
 <script src="<?php echo base_url(); ?>js/buyback_app/controller/controllers.js"></script>
 <!-- page content -->
-<div class="right_col" role="main" ng-app="admin_dashboard">
+<div class="right_col ngCloak" role="main" ng-app="admin_dashboard">
     <!-- top tiles -->
     <div class="row tile_count" id="title_count">
         <div class="col-md-12">
@@ -954,4 +954,7 @@ $(function() {
     .text_warning{
         color:red;
     }
+    [ng\:cloak], [ng-cloak], .ng-cloak {
+  display: none !important;
+}
     </style>
