@@ -418,9 +418,16 @@ span.stars span {
     $(function() {
     $('span.stars').stars();
 });
-
-   
-    
+    function  get_brand_collateral(booking_id){
+       $.ajax({
+         type: 'POST',
+         data: {booking_id: booking_id},
+         url: '<?php echo base_url(); ?>employee/service_centers/get_learning_collateral_for_bookings/',
+         success: function (data) {
+             $('#collatral_container').html(data);
+         }
+       });
+   }
 </script>
 
 <!-- show alert message if GST is not updated -->
@@ -441,9 +448,7 @@ span.stars span {
 		}
             }
         );
-    });
-    
-    
+    }); 
 </script>
 <?php } ?>
 <!-- end alert message -->

@@ -2224,4 +2224,23 @@ class Miscelleneous {
             log_message('info', 'Rescheduled- Booking id: ' . $booking_id . " Rescheduled By " . $employeeID . " data " . print_r($data, true));
         }
     } 
+    function get_reader_by_file_type($type,$url,$width){
+        $finalString ='';
+        if($type == 'video'){
+            $finalString = '<video width="'.$width.'" controls>
+  <source src="'.$url.'" type="video/mp4">
+  Your browser does not support HTML5 video.
+</video>';
+        }
+        if($type == 'pdf'){
+            $finalString = '<a target="_blank" href="'.$url.'">View</a>';
+        }
+        if($type == 'audio'){
+            $finalString = '<audio controls>
+  <source src="'.$url.'" type="audio/ogg">
+Your browser does not support the audio element.
+</audio>';
+        }
+        return $finalString;
+    }
 }

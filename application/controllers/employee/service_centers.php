@@ -97,8 +97,8 @@ class Service_centers extends CI_Controller {
         if($this->session->userdata('is_update') == 1){
             //$data['engineer_details'] = $this->vendor_model->get_engineers($service_center_id);
             $data['spare_parts_data'] = $this->service_centers_model->get_updated_spare_parts_booking($service_center_id);
-
         }
+        //$data['collateral'] = $this->service_centers_model->get_collateral_for_service_center_bookings($service_center_id);
         $data['service_center_id'] = $service_center_id;
         $this->load->view('service_centers/pending_on_tab', $data);
     }
@@ -3053,5 +3053,34 @@ class Service_centers extends CI_Controller {
         
         return $output_pdf_file_name;
     }
-
+function get_learning_collateral_for_bookings(){
+    $booking_id = $this->input->post('booking_id');
+    $data = $this->service_centers_model->get_collateral_for_service_center_bookings($booking_id);
+    if(!empty($data)){
+        $finalString = '<table class="table">
+        <thead>
+          <tr>
+          <th>S.N</th>
+            <th>Document Type</th>
+            <th>File</th>
+          </tr>
+        </thead>
+        <tbody>';
+        $index =0;
+        foreach($data as $collatralData){
+            $url = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$collatralData['file'];
+            $index++;
+            $finalString .= '<tr><td>'.$index.'</td>';
+            $finalString .= '<td>'.$collatralData['collateral_type'].'</td>';
+            $finalString .=  '<td>'.$this->miscelleneous->get_reader_by_file_type($collatralData['document_type'],$url,"400").'</td>';
+            $finalString .='</tr>';
+        }
+       $finalString .='</tbody></table>';
+    }
+    else{
+        $finalString = "<p style='text-align:center;'>Brand Collateral is not available</p>";
+    }
+   
+   echo $finalString;
+}
 }
