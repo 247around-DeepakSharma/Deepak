@@ -557,3 +557,45 @@
   </div>
 </div>
 <?php } ?>
+<?php if($this->session->userdata('is_engineer_app') == 1){ ?>
+<div role="tabpanel" class="tab-pane" id="bookings_on_approval">
+    <div class="container-fluid">
+        <div class="row" >
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div id="review_html">
+                            
+                        </div>
+                           <div id="loading1" style="text-align: center;">
+                               <img src="<?php echo base_url();?>images/loader.gif" style="width:60px;" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<?php } ?>
+
+<?php if($this->session->userdata('is_engineer_app') == 1){ ?>
+<script>
+    get_review_table();
+    function get_review_table(){
+        console.log("data");
+        $.ajax({
+            type: "POST",
+            processData: false,
+            contentType: false,
+            url: "<?php echo base_url() ?>service_center/review",
+            success: function (data) {
+                $("#loading1").css("display", "none");
+                $("#review_html").html(data);
+                console.log(data);
+                
+            }
+          });
+    }
+</script>
+
+<?php } ?>

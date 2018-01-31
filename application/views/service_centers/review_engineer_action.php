@@ -1,7 +1,6 @@
-<?php if($this->uri->segment(3)){ $sn_no =  $this->uri->segment(3) +1; } else{ $sn_no = 1;} ?>
 <div class="container-fluid">
 
-   <div class="row" style="margin-top: 40px;">
+   <div class="row" style="margin-top: 10px;">
       <div class="col-md-12">
       <?php if ($this->session->userdata('success')) {
                     echo '<div class="alert alert-success alert-dismissible" role="alert" style="width: 60%;margin-left: 20%;margin-top: -49px;">
@@ -15,7 +14,7 @@
                ?> 
          <div class="panel panel-default">
             <div class="panel-heading">
-                <h1 class="panel-title" ><i class="fa fa-money fa-fw"></i> Review Booking</h1>
+                <h1 class="panel-title" ><i class="fa fa-money fa-fw"></i> Review Bookings Completed by Technicians</h1>
             </div>
              
              <?php //print_r($data);?>
@@ -63,7 +62,7 @@
                                     </td>
                                     
                                 </tr>
-                                <?php $sn_no++; } ?>
+                                <?php } ?>
                             </tbody>
                         </table>
                         </div>
@@ -99,9 +98,9 @@ $('.appliance_broken').css('pointer-events','none');
 
 }
     
-$(document).on("click", ".reject-booking", function () {
-
-});
+//$(document).on("click", ".reject-booking", function () {
+//
+//});
     
 $(document).ready(function() {
     //called when key is pressed in textbox

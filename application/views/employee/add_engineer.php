@@ -72,18 +72,18 @@
                             <!-- end div -->
                             <div class="col-md-6">
 
-                                <div class="form-group <?php if( form_error('phone_type') ) { echo 'has-error';} ?>">
+<!--                                <div class="form-group <?php //if( form_error('phone_type') ) { echo 'has-error';} ?>">
                                     <label for="phone type" class="col-md-4">Phone Type </label>
                                     <div class="col-md-6">
                                         <select type="text" class="form-control"  id="phone_type" name="phone_type"  >
-                                            <option disabled <?php echo isset($data[0]['phone_type'])?'':'selected'?>>Select Phone type</option>
-                                            <option  <?php echo (isset($data[0]['phone_type']) && $data[0]['phone_type'] == 'Android' )?"selected":(set_value('phone_type') == 'Android')?"selected":'';   ?>>Android</option>
-                                            <option <?php echo (isset($data[0]['phone_type']) && $data[0]['phone_type'] == 'Non-Android' )?"selected":(set_value('phone_type') == 'Non-Android')?"selected":'';   ?>>Non-Android</option>
-                                            <option <?php echo (isset($data[0]['phone_type']) && $data[0]['phone_type'] == 'Apple' )?"selected":(set_value('phone_type') == 'Apple')?"selected":'';   ?>>Apple</option>
+                                            <option disabled <?php //echo isset($data[0]['phone_type'])?'':'selected'?>>Select Phone type</option>
+                                            <option  <?php //echo (isset($data[0]['phone_type']) && $data[0]['phone_type'] == 'Android' )?"selected":(set_value('phone_type') == 'Android')?"selected":'';   ?>>Android</option>
+                                            <option <?php //echo (isset($data[0]['phone_type']) && $data[0]['phone_type'] == 'Non-Android' )?"selected":(set_value('phone_type') == 'Non-Android')?"selected":'';   ?>>Non-Android</option>
+                                            <option <?php //echo (isset($data[0]['phone_type']) && $data[0]['phone_type'] == 'Apple' )?"selected":(set_value('phone_type') == 'Apple')?"selected":'';   ?>>Apple</option>
                                         </select>
                                     </div>
-                                    <?php echo form_error('phone_type'); ?>
-                                </div>
+                                    <?php //echo form_error('phone_type'); ?>
+                                </div>-->
                                 <div class="form-group <?php if( form_error('service_id') ) { echo 'has-error';} ?>">
                                     <label for="Appliances" class="col-md-4">Appliances *</label>
                                     <div class="col-md-6">
@@ -150,7 +150,7 @@
 
 
                                  <div class="form-group <?php if( form_error('file') ) { echo 'has-error';} ?>">
-                                    <label for="Identity Picture" class="col-md-4">ID Photo</label>
+                                    <label for="Identity Picture" class="col-md-4">ID Photo *</label>
                                     <div class="col-md-6" >
                                        <input type="file" class="form-control" name="file" >
                                     </div>
@@ -170,6 +170,7 @@
 
                                     <?php echo form_error('file'); ?>
                                 </div>
+                                <input type="hidden" name="identity_uploaded" value="<?php if(isset($data[0]['identity_proof_pic'])){ echo $data[0]['identity_proof_pic'];} ?>" />
 
                             </div>
                             <!-- end -->
@@ -323,11 +324,11 @@
                         minlength: 10,
                         number: true
                     },
-                alternate_phone:{
-
-                    minlength: 10,
-                    number: true
-                    },
+//                alternate_phone:{
+//
+//                    minlength: 10,
+//                    number: true
+//                    },
                 service_center_id:"required"
 //                bank_ifsc_code: {
 //                        required: true,

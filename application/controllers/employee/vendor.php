@@ -1965,11 +1965,14 @@ class vendor extends CI_Controller {
                 $data['name'] = $this->input->post('name');
                 $data['phone'] = $this->input->post('phone');
                 $data['alternate_phone'] = $this->input->post('alternate_phone');
-                $data['phone_type'] = $this->input->post('phone_type');
-                //$data['address'] = $this->input->post('address');
                 $data['identity_proof'] = $this->input->post('identity_proof');
                 $data['identity_proof_number'] = $this->input->post('identity_id_number');
-                $data['identity_proof_pic'] = $this->input->post('file');
+                if($this->input->post('identity_file')){
+                    $data['identity_proof_pic'] = $this->input->post('identity_file');
+                }
+                
+                 //$data['address'] = $this->input->post('address');
+                //$data['phone_type'] = $this->input->post('phone_type');
 //	    $data['bank_name'] = $this->input->post('bank_name');
 //	    $data['bank_ac_no'] = $this->input->post('bank_account_no');
 //	    $data['bank_ifsc_code'] = $this->input->post('bank_ifsc_code');
@@ -2053,17 +2056,17 @@ class vendor extends CI_Controller {
             if (empty($is_phone) || $is_phone[0]['id'] == $engineer_id) {
                 $data['name'] = $this->input->post('name');
                 $data['phone'] = $this->input->post('phone');
-                $data['alternate_phone'] = $this->input->post('alternate_phone');
-                $data['phone_type'] = $this->input->post('phone_type');
+                $data['alternate_phone'] = $this->input->post('alternate_phone');             
                 $data['identity_proof'] = $this->input->post('identity_proof');
                 $data['identity_proof_number'] = $this->input->post('identity_id_number');
+                if($this->input->post('identity_file')){
+                    $data['identity_proof_pic'] = $this->input->post('identity_file');
+                }
+                //$data['phone_type'] = $this->input->post('phone_type');
 //	    $data['bank_name'] = $this->input->post('bank_name');
 //	    $data['bank_ac_no'] = $this->input->post('bank_account_no');
 //	    $data['bank_ifsc_code'] = $this->input->post('bank_ifsc_code');
 //	    $data['bank_holder_name'] = $this->input->post('bank_holder_name');
-                if ($this->input->post('file')) {
-                    $data['identity_proof_pic'] = $this->input->post('file');
-                }
 //            if($this->input->post('bank_proof_pic')){
 //	    $data['bank_proof_pic'] = $this->input->post('bank_proof_pic');
 //            }
@@ -2275,7 +2278,7 @@ class vendor extends CI_Controller {
 		} else {
 		    $pic = str_replace(' ', '-', $this->input->post('name')) . "_" . str_replace(' ', '', $this->input->post('identity_proof')) . "_" . uniqid(rand());
 		    $picName = $pic . "." . $extension;
-		    $_POST['file'] = $picName;
+		    $_POST['identity_file'] = $picName;
                     //Uploading to S3
 		    $bucket = BITBUCKET_DIRECTORY;
 		    $directory = "engineer-id-proofs/" . $picName;
@@ -2288,7 +2291,12 @@ class vendor extends CI_Controller {
 		    . 'Maximum file size is 2 MB.');
 		return FALSE;
 	    }
-	}
+        } else {
+            $identity_uploaded = $this->input->post("identity_uploaded");
+            if(empty($identity_uploaded)){
+                return FALSE;
+            }
+        }
     }
 
      /**

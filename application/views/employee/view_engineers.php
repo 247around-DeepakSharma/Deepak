@@ -47,7 +47,7 @@
           	<th>Mobile</th>
           	<th>Alternate Mobile Number</th>
           	<th>ID Proof</th>
-          	<th>Bank Name</th>
+          	
             <th colspan="3">Action</th>
           	
           </tr>
@@ -73,11 +73,7 @@
                 </button>
 
             </td>
-          	<td><?=$row['identity_proof'];?></td>
-          	<td>
-          	    <?=$row['bank_name'];?>
-               
-          	</td>          	
+          	<td><?php echo $row['identity_proof'];?></td>
           	<td><?php if($row['active']==1)
                 {
                   echo "<a id='edit' class='btn btn-small btn-primary' "

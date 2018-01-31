@@ -58,19 +58,19 @@
                                     <?php echo form_error('phone'); ?>
                                 </div>
                                 
-                                <div class="form-group <?php if( form_error('phone_type') ) { echo 'has-error';} ?>">
+<!--                                <div class="form-group <?php //if( form_error('phone_type') ) { echo 'has-error';} ?>">
                                     <label for="phone type" class="col-md-4">Phone Type </label>
                                     <div class="col-md-6">
                                         <select type="text" class="form-control"  id="phone_type" name="phone_type"  >
-                                            <option disabled <?php echo isset($data[0]['phone_type'])?'':'selected'?>>Select Phone type</option>
-                                            <option  <?php echo (isset($data[0]['phone_type']) && $data[0]['phone_type'] == 'Android' )?"selected":(set_value('phone_type') == 'Android')?"selected":'';   ?>>Android</option>
-                                            <option <?php echo (isset($data[0]['phone_type']) && $data[0]['phone_type'] == 'Windows' )?"selected":(set_value('phone_type') == 'Windows')?"selected":'';   ?>>Windows</option>
-                                            <option <?php echo (isset($data[0]['phone_type']) && $data[0]['phone_type'] == 'Apple' )?"selected":(set_value('phone_type') == 'Apple')?"selected":'';   ?>>Apple</option>
-                                            <option <?php echo (isset($data[0]['phone_type']) && $data[0]['phone_type'] == 'Other' )?"selected":(set_value('phone_type') == 'Other')?"selected":'';   ?>>Other</option>
+                                            <option disabled <?php //echo isset($data[0]['phone_type'])?'':'selected'?>>Select Phone type</option>
+                                            <option  <?php //echo (isset($data[0]['phone_type']) && $data[0]['phone_type'] == 'Android' )?"selected":(set_value('phone_type') == 'Android')?"selected":'';   ?>>Android</option>
+                                            <option <?php //echo (isset($data[0]['phone_type']) && $data[0]['phone_type'] == 'Windows' )?"selected":(set_value('phone_type') == 'Windows')?"selected":'';   ?>>Windows</option>
+                                            <option <?php //echo (isset($data[0]['phone_type']) && $data[0]['phone_type'] == 'Apple' )?"selected":(set_value('phone_type') == 'Apple')?"selected":'';   ?>>Apple</option>
+                                            <option <?php //echo (isset($data[0]['phone_type']) && $data[0]['phone_type'] == 'Other' )?"selected":(set_value('phone_type') == 'Other')?"selected":'';   ?>>Other</option>
                                         </select>
                                     </div>
-                                    <?php echo form_error('phone_type'); ?>
-                                </div>
+                                    <?php //echo form_error('phone_type'); ?>
+                                </div>-->
                                
                             </div>
                             <!-- end div -->
@@ -153,7 +153,7 @@
                                     
                                     <?php echo form_error('file'); ?>
                                 </div>
-
+                                <input type="hidden" name="identity_uploaded" value="<?php if(isset($data[0]['identity_proof_pic'])){ echo $data[0]['identity_proof_pic'];} ?>" />
                             </div>
                             <!-- end -->
                             <div class="col-md-6 <?php if( form_error('identity_id_number') ) { echo 'has-error';} ?>">
@@ -304,12 +304,12 @@
                         number: true,
                         regx: /^[6-9]{1}[0-9]{9}$/
                     },
-                alternate_phone:{
-                    
-                    minlength: 10,
-                    number: true,
-                    regx: /^[6-9]{1}[0-9]{9}$/
-                    },
+//                alternate_phone:{
+//                    
+//                    minlength: 10,
+//                    number: true,
+//                    regx: /^[6-9]{1}[0-9]{9}$/
+//                    },
                 
 //                bank_ifsc_code: {
 //                       // required: true,

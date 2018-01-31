@@ -2049,14 +2049,17 @@ class Booking extends CI_Controller {
             $this->notify->insert_state_change($booking_id, _247AROUND_PENDING, $status, "", $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
             if (!empty($assigned_vendor_id)) {
 
-                $this->miscelleneous->assign_upcountry_booking($booking_id, $this->session->userdata('id'), $this->session->userdata('employee_id'));
-            }
-            //Creating Job Card to Booking ID
-            $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
-            if (!empty($assigned_vendor_id)) {
-                $this->booking_utilities->lib_send_mail_to_vendor($booking_id, "");
-            }
+                $up_flag = 1;
 
+                $url = base_url() . "employee/vendor/update_upcountry_and_unit_in_sc/" . $booking_id . "/" . $up_flag;
+                $async_data['booking'] = array();
+                $this->asynchronous_lib->do_background_process($url, $async_data);
+
+                $this->booking_utilities->lib_send_mail_to_vendor($booking_id, "");
+            } else {
+                $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
+            }
+            
             $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
             $send['booking_id'] = $booking_id;
             $send['state'] = "OpenBooking";
