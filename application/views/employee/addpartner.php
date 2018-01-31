@@ -59,6 +59,7 @@
                         <li><a id="3" href="#tabs-3" ><span class="panel-title" onclick="alert('Please Add Basic Details FIrst')">Operation Region</span></a></li>
                         <li><a id="4" href="#tabs-4" ><span class="panel-title" onclick="alert('Please Add Basic Details FIrst')">Contracts</span></a></li>
                         <li><a id="5" href="#tabs-5" ><span class="panel-title" onclick="alert('Please Add Basic Details FIrst')">Brand Mapping</span></a></li>
+                        <li><a id="6" href="#tabs-6" ><span class="panel-title" onclick="alert('Please Add Basic Details FIrst')">Brand Collateral</span></a></li>
                         <?php
                             }
                             else{
@@ -68,6 +69,7 @@
                         <li><a id="3" href="#tabs-3" onclick="load_form(this.id)"><span class="panel-title">Operation Region</span></a></li>
                         <li><a id="4" href="#tabs-4" onclick="load_form(this.id)"><span class="panel-title">Contracts</span></a></li>
                         <li><a id="5" href="#tabs-5" onclick="load_form(this.id)"><span class="panel-title">Brand Mapping</span></a></li>
+                        <li><a id="6" href="#tabs-6" onclick="load_form(this.id)"><span class="panel-title">Brand Collateral</span></a></li>
                         <?php
                             }
                             ?>
@@ -1114,6 +1116,7 @@
                     <table class="table">
                         <thead>
                             <tr>
+                                <th>S.N</th>
                                 <th>Contract Type</th>
                                 <th>Contract File</th>
                                 <th>Description</th>
@@ -1123,9 +1126,13 @@
                         </thead>
                         <tbody>
                             <?php
+                            $index = 0;
                                 foreach($results['partner_contracts'] as $value){
+                                    $index ++;
+                                    if($value['collateral_tag'] == CONTRACT){
                                 ?>
                             <tr>
+                                <td><?php echo $index; ?></td>
                                 <td><?php echo $value['collateral_type'] ?></td>
                                 <td><a target="_blank" href=<?php echo "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$value['file']?>><?php echo $value['file'] ?></a></td>
                                 <td><?php echo $value['document_description'] ?></td>
@@ -1135,6 +1142,7 @@
                             <tr>
                                 <?php
                                     }
+                                  }
                                     }
                                     ?>
                     </table>
@@ -1190,6 +1198,130 @@
                     </div>
                 </form>
              </div>
+            <div class="clear"></div>
+             <div id="container_6" style="display:none;" class="form_container">
+               <form name="l_c_form" class="form-horizontal" id ="l_c_form" action="<?php echo base_url() ?>employee/partner/process_partner_learning_collaterals" method="POST" enctype="multipart/form-data">
+                    <?php
+                        if(isset($query[0]['id'])){
+                            if($query[0]['id']){
+                            ?>
+                    <input type="hidden" id="partner_id" name="partner_id" value=<?php echo  $query[0]['id']?>>
+                    <?php
+                        }
+                        }
+                        ?>
+                    <div class="col-md-12">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <p><b>Brand Collateral</b></p>
+                            </div>
+                           <div class="panel-body">
+                               <div class="col-md-6" style="width: 49%;">
+                                <div class="form-group">
+                                <label for="Services">Select Appliance *</label>
+                                <p id="brand_mapping_holder" style="display:none;"><?php echo json_encode($results['brand_mapping']);?></p>
+                                <select class="form-control" id="l_c_service" name="l_c_service" onchange="get_brand_category_capacity_model_for_service(this.value,<?php echo  $query[0]['id']?>)" disabled=""> 
+                                </select>
+                                </div>
+                                   <div class="form-group">
+                                <label for="Services">Select Catagory *</label>
+                                <select class="form-control" id="l_c_category" name="l_c_category[]" multiple="multiple" disabled="">
+                                </select>
+                                </div>
+                                <div class="form-group">
+                                <label for="Services">Select File *</label>
+                                <input type="file" class="form-control"  name="l_c_file" id="l_c_file" disabled="">
+                                </div>
+                                   <div class="form-group">
+                                <label for="Services">Select Request Type*</label>
+                                <select class="form-control" id="l_c_request_type" name="l_c_request_type[]" multiple="multiple" disabled="">
+                                    <option value="installation">Installation</option>
+                                    <option value="repair">Repair</option>
+                                    </select>
+                                </div>
+                                   </div>
+                               <div class="col-md-6" style="float:right; width: 49%;">
+                                   <div class="form-group">
+                                <label for="Services">Select Brand *</label>
+                                <select class="form-control" id="l_c_brands" name="l_c_brands[]" multiple="multiple" disabled="">
+                                </select>
+                                </div>
+                                   <div class="form-group">
+                                       <label for="Services">Select Capacity</label><div class="checkbox" style="float:right;"><input disabled="disabled" onchange="select_all_capacity()" id="capacity_all" type="checkbox" value="">Select All</div>
+                                <select class="form-control" id="l_c_capacity" name="l_c_capacity[]" multiple="multiple" disabled="">
+                                </select>
+                                </div>
+                                   <div class="form-group">
+                                <label for="Services">Select Collateral Type*</label>
+                                <select class="form-control" id="l_c_type" name="l_c_type" disabled="">
+                                </select>
+                                </div>
+                                <div class="form-group">
+                                <label for="description">Description</label>
+                                <input type="text" class="form-control" id="l_c_description" name="description" disabled="" placeholder="Add Description">
+                                </select>
+                                </div>
+                                   </div>
+                               <div class="clear"></div>
+                             
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clear clear_bottom">
+                        <br>
+                        <center><input type="button" onclick="validate_l_c_form()" value="<?php if (isset($query[0]['id'])) {
+                            echo "Update Learning Collateral";
+                            } else {
+                            echo "Save Learning Collateral";
+                            } ?>" class="btn btn-primary" id="submit_l_c_btn">
+                            <?php echo "<a class='btn btn-small btn-primary' href=" . base_url() . "employee/partner/viewpartner>Cancel</a>"; ?>
+                        </center>
+                    </div>
+                </form>
+                 <div id="exist_documents">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>S.N</th>
+                                <th>Document Type</th>
+                                <th>Appliance</th>
+                                <th>Brand</th>
+                                <th>Category</th>
+                                <th>Capacity</th>
+                                <th>Request Type</th>
+                                <th>File</th>
+                                <th>Description</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            $index = 0;
+                                foreach($results['partner_contracts'] as $value){
+                                    if($value['collateral_tag'] == LEARNING_DOCUMENT){
+                                        $index++;
+                                        $url = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$value['file'];
+                                ?>
+                            <tr>
+                                <td><?php echo $index?></td>
+                                <td><?php echo $value['collateral_type'] ?></td>
+                                <td><?php echo $value['services'] ?></td>
+                                <td><?php echo $value['brand'] ?></td>
+                                <td><?php echo $value['category'] ?></td>
+                                <td><?php echo $value['capacity'] ?></td>
+                                <td><?php echo $value['request_type'] ?></td>
+                                <td><?php echo $this->miscelleneous->get_reader_by_file_type($value['document_type'],$url,"200")?></td>
+                                <td><?php echo $value['document_description'] ?></td>
+                                <td><?php echo $value['start_date'] ?></td>
+                            </tr>
+                            <tr>
+                                <?php
+                                    }
+                                  }
+                                    ?>
+                    </table>
+                </div>
+             </div>
              <div class="clear"></div>
         </div>
     </div>
@@ -1215,7 +1347,27 @@
     });
     $('#account_manager').select2({
         placeholder: "Select Account Managers"
-    });    
+    }); 
+    $('#l_c_brands').select2({
+        placeholder: "Select Brand",
+        allowClear: true,
+        tags: true
+    });
+    $('#l_c_category').select2({
+        placeholder: "Select category",
+        allowClear: true,
+        tags: true
+    });
+    $('#l_c_capacity').select2({
+        placeholder: "Select Capacity",
+        allowClear: true,
+        tags: true
+    });
+     $('#l_c_request_type').select2({
+        placeholder: "Select Request Type",
+        allowClear: true,
+        tags: true
+    });
     //$( ".agreement_start_date" ).datepicker({ dateFormat: 'yy-mm-dd' });
     //$("#agreement_end_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0});
     $("#grace_period_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0});
@@ -1451,6 +1603,9 @@
                 document.getElementById(i).style.background='#fff';
             }
        }
+       if(tab_id == 6){
+           get_partner_services();
+       }
     }
     function add_more_fields(id){
       var buttonIdArray =  id.split("_");
@@ -1462,6 +1617,113 @@
     document.getElementById("cloned").appendChild(clone); 
     //var targetDiv = document.getElementById("contract_holder_"+(id_number+1)).getElementsByClassName("contract_type")[0];
     //targetDiv.id = "contract_type_"+(id_number+1);
+    }
+    function create_drop_down(brandMappingJson){
+        var brandDropdownString  = '';
+        var categoryDropdownString  = '';
+        var capacityDropdownString  = '';
+        var collateral_typeDropdownString ='<option value="">Select Collateral</option>';
+        var obj = JSON.parse(brandMappingJson);
+        for(var i=0;i<obj.brand.length;i++){
+                var brandDropdownString = brandDropdownString+"<option value='"+obj.brand[i].brand+"'>"+obj.brand[i].brand+"</option>";
+        }
+        for(var i=0;i<obj.category.length;i++){
+                var categoryDropdownString = categoryDropdownString+"<option value='"+obj.category[i].category+"'>"+obj.category[i].category+"</option>";
+        }
+        for(var i=0;i<obj.capacity.length;i++){
+                var capacityDropdownString = capacityDropdownString+"<option value='"+obj.capacity[i].capacity+"'>"+obj.capacity[i].capacity+"</option>";
+        }
+        for(var i=0;i<obj.collateral_type.length;i++){
+                var collateral_typeDropdownString = collateral_typeDropdownString+"<option value='"+obj.collateral_type[i].id+"_"+obj.collateral_type[i].collateral_type+"'>"+obj.collateral_type[i].collateral_type+"</option>";
+        }
+        if(brandDropdownString !== ''){
+            document.getElementById("l_c_brands").disabled = false;
+            document.getElementById("l_c_brands").innerHTML = brandDropdownString;
+        }
+        if(categoryDropdownString !== ''){
+            document.getElementById("l_c_category").disabled = false;
+            document.getElementById("l_c_file").disabled = false;
+            document.getElementById("l_c_description").disabled = false;
+            document.getElementById("capacity_all").disabled = false;
+            document.getElementById("l_c_request_type").disabled = false;
+            document.getElementById("l_c_category").innerHTML = categoryDropdownString;
+            
+        }
+        if(capacityDropdownString !== ''){
+            document.getElementById("l_c_capacity").disabled = false;
+            document.getElementById("l_c_capacity").innerHTML = capacityDropdownString;
+        }
+        if(collateral_typeDropdownString !== ''){
+            document.getElementById("l_c_type").disabled = false;
+            document.getElementById("l_c_type").innerHTML = collateral_typeDropdownString;
+        }
+    }
+    function get_brand_category_capacity_model_for_service(service,partner){
+        $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/partner/get_service_details',
+                data: {partner_id: partner, service_id: service},
+                success: function (data) {
+                    create_drop_down(data);
+                }
+            });
+    }
+    function validate_l_c_form(){
+    service = $("#l_c_service").val();
+    brands = $("#l_c_brands").val();
+    category = $("#l_c_category").val();
+    collateral_type = $("#l_c_type").val();
+    request_type = $("#l_c_request_type").val();
+    file = $("#l_c_file").val();
+    if(service && brands && category && collateral_type && file && request_type){
+       document.getElementById("l_c_form").submit();
+    }
+    else{
+        alert("Please Select All mendatory Fields");
+    }
+    }
+    function 
+    get_partner_services(){
+        var serviceDropdownString = '<option value="">Select Appliance</option>';
+        var partner = $("#partner_id").val();
+        $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/partner/get_partner_services',
+                data: {partner_id: partner},
+                success: function (data) {
+                    var obj = JSON.parse(data);
+                    for(var i=0;i<obj.length;i++){
+                        serviceDropdownString = serviceDropdownString+"<option value='"+obj[i].service_id+"'>"+obj[i].services+"</option>";
+                    }
+                    if(serviceDropdownString !== '<option value="">Select Appliance</option>'){
+                        document.getElementById("l_c_service").disabled = false;
+                        document.getElementById("l_c_service").innerHTML = serviceDropdownString;
+                    }
+                    else{
+                        alert("This Partner Does'nt have any Appliance yet");
+                    }
+                }
+            });
+    }
+    function select_all_capacity(){
+   if ($('#capacity_all').is(":checked"))
+{
+ $('#l_c_capacity option').prop('selected', true);
+ $('#l_c_capacity').select2({
+        placeholder: "All Selected",
+        allowClear: true,
+        tags: true
+    });
+}
+else{
+     $('#l_c_capacity option').prop('selected', false);
+     $('#l_c_capacity').select2({
+        placeholder: "Select All",
+        allowClear: true,
+        tags: true
+    });
+    }
+
     }
 </script>
 <?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>

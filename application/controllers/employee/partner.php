@@ -817,8 +817,11 @@ class Partner extends CI_Controller {
         $where = array('partner_id' => $id);
         $results['partner_operation_region'] = $this->partner_model->get_partner_operation_region($where);
         $results['brand_mapping'] = $this->partner_model->get_partner_specific_details($where, "service_id, brand, active");
-       
-        $results['partner_contracts'] = $this->reusable_model->get_search_result_data("collateral", 'collateral.document_description,collateral.file,collateral.start_date,collateral.end_date,collateral_type.collateral_type', array("entity_id" => $id, "entity_type" => "partner"), array("collateral_type" => "collateral_type.id=collateral.collateral_id"), NULL, NULL, NULL, NULL);
+        $results['partner_contracts'] = $this->reusable_model->get_search_result_data("collateral", 'collateral.document_description,collateral.file,collateral.start_date,'
+                . 'collateral.end_date,collateral_type.collateral_type,collateral_type.collateral_tag,services.services,collateral.brand,collateral.category,collateral.capacity,'
+                . 'collateral_type.document_type,collateral.request_type',
+                array("entity_id" => $id, "entity_type" => "partner"), array("collateral_type" => "collateral_type.id=collateral.collateral_id","services"=>"services.id=collateral.appliance_id"), 
+                NULL, NULL, NULL, NULL);
         $results['collateral_type'] = $this->reusable_model->get_search_result_data("collateral_type", '*', array("collateral_tag" => "Contract"), NULL, NULL, array("collateral_type" => "ASC"), NULL, NULL);
         $employee_list = $this->employee_model->get_employee_by_group(array("groups NOT IN ('developer') AND active = '1'" => NULL));
         $this->miscelleneous->load_nav_header();
@@ -3662,5 +3665,151 @@ class Partner extends CI_Controller {
         
         return $res;
     }
-
+    /*
+     * This function is used for Partner Brand Collateral section to get brand category capacity collateral type for apartner
+     */
+    function get_service_details(){
+        $service_id = $this->input->post('service_id');
+        $partner_id = $this->input->post('partner_id');
+        $data['brand'] = $this->reusable_model->get_search_result_data("service_centre_charges","DISTINCT brand",array('service_id'=>$service_id,'partner_id'=>$partner_id),NULL,NULL,NULL,NULL,NULL,array());
+        $data['category'] = $this->reusable_model->get_search_result_data("service_centre_charges","DISTINCT category",array('service_id'=>$service_id,'partner_id'=>$partner_id),NULL,NULL,NULL,NULL,NULL,array());
+        $data['capacity'] = $this->reusable_model->get_search_result_data("service_centre_charges","DISTINCT capacity",array('service_id'=>$service_id,'partner_id'=>$partner_id),NULL,NULL,NULL,NULL,NULL,array());
+        $data['collateral_type'] = $this->reusable_model->get_search_result_data("collateral_type","id,concat(collateral_type, '_', document_type) as collateral_type",array('collateral_tag'=>LEARNING_DOCUMENT),NULL,NULL,NULL,NULL,NULL,array());
+        echo json_encode($data);
+    }
+    /*
+     * This function is used to get service for a partner in brand collateral
+     * called by ajax
+     */
+    function get_partner_services(){
+        $partner_id = $this->input->post('partner_id');
+        $data = $this->reusable_model->get_search_result_data("service_centre_charges","DiSTINCT service_centre_charges.service_id,services.services",array('service_centre_charges.partner_id'=>$partner_id),
+                array("services"=>"service_centre_charges.service_id = services.id"),NULL,NULL,NULL,NULL,array());
+        echo json_encode($data);
+    }
+    /*
+     * This function is used to validate brand collateral file
+     */
+    function brand_collaterals_file_validations($file,$formatType){
+        $type = $file['type'];
+        if (strpos($type, $formatType) === false) {
+            $this->session->set_userdata('error', "Please Choose Correct File For Collateral Type");
+             return false;
+        }
+        else if (strpos($type, 'video') !== false) {
+//            if (strpos($type, 'mp4') === false) {
+//                $this->session->set_userdata('error', "Only Mp4 is allowed for video type file");
+//                return false;
+//            }
+            if($file['size']>10000000){
+                $this->session->set_userdata('error', "Video File Size Must be less then 100MB");
+                return false;
+            }
+        }
+        else if (strpos($type, 'audio') !== false) {
+//            if (strpos($type, 'mp3') === false) {
+//                $this->session->set_userdata('error', "Only Mp3 is allowed for audio type file");
+//                return false;
+//            }
+            if($file['size']>5000000){
+                $this->session->set_userdata('error', "Audio File Size Must be less then 50MB");
+                return false;
+            }
+        }
+       else if (strpos($type, 'pdf') !== false) {
+            if($file['size']>5000000){
+                $this->session->set_userdata('error', "Pdf File Size Must be less then 50MB");
+                return false;
+            }
+        }
+        else{
+            $this->session->set_userdata('error', "File Type Only Should be audio,video and pdf");
+            return false;
+        }
+        return true;
+    }
+    /*
+     * This function is used to process brand collaterals uploading form.
+     * This function creates every posible combination of service,category,brand,capacity on the basis of input against the input file and save in database
+     */
+    function process_partner_learning_collaterals(){
+        $contract_typeTemp = $this->input->post('l_c_type');
+        $tArray = explode("_",$contract_typeTemp);
+        $contract_type = $tArray[0];
+        $partner = $this->input->post('partner_id');
+        $validation =  $this->brand_collaterals_file_validations($_FILES['l_c_file'],$tArray[2]);
+        if($validation){
+            if (($_FILES['l_c_file']['error'] != 4) && !empty($_FILES['l_c_file']['tmp_name'])) {
+                    $tmpFile = $_FILES['l_c_file']['tmp_name'];
+                    $contract_file = "Partner-" . $partner . '-Brand_Collateral_' . $contract_type . "_" . date('Y-m-d') . "." .$_FILES['l_c_file']['name'];
+                    move_uploaded_file($tmpFile, TMP_FOLDER . $contract_file);
+                    //Upload files to AWS
+                    $bucket = BITBUCKET_DIRECTORY;
+                    $directory_xls = "vendor-partner-docs/" . $contract_file;
+                    $this->s3->putObjectFile(TMP_FOLDER . $contract_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $attachment_contract = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $contract_file;
+                    //Logging success for file uppload
+                    log_message('info', __FUNCTION__ . ' Learning Collateral FILE is being uploaded sucessfully.');
+            }
+            $l_c_capacity =array();
+            $l_c_brands = $this->input->post('l_c_brands');
+            $l_c_category = $this->input->post('l_c_category');
+            $appliance_id = $this->input->post('l_c_service');
+            $request_type = $this->input->post('l_c_request_type');
+            $description = '';
+            if($this->input->post('l_c_capacity') && !empty($this->input->post('l_c_capacity'))){
+              $l_c_capacity = $this->input->post('l_c_capacity');  
+            }
+             if($this->input->post('description') && $this->input->post('description') !=''){
+                 $description = $this->input->post('description');
+             }
+            foreach($l_c_category as $category){
+                if(!empty($this->input->post('l_c_brands'))){
+                    foreach($l_c_brands as $brands){
+                        foreach($request_type as $requestType){
+                        if(!empty($l_c_capacity)){
+                            foreach($l_c_capacity as $capacity){
+                                $temp['brand'] = $brands;
+                                $temp['collateral_id'] = $contract_type;
+                                $temp['category'] = $category;
+                                $temp['appliance_id'] = $appliance_id;
+                                $temp['entity_id'] = $partner;
+                                $temp['entity_type'] = 'partner';
+                                $temp['start_date'] = date('Y-m-d');
+                                $temp['capacity'] = $capacity;
+                                $temp['document_description'] = $description;
+                                $temp['file'] = $contract_file;
+                                $temp['request_type'] = $requestType;
+                                $data[] = $temp;
+                            }
+                        }
+                        else{
+                                $temp['brand'] = $brands;
+                                $temp['collateral_id'] = $contract_type;
+                                $temp['category'] = $category;
+                                $temp['appliance_id'] = $appliance_id;
+                                $temp['entity_id'] = $partner;
+                                $temp['entity_type'] = 'partner';
+                                $temp['start_date'] = date('Y-m-d');
+                                $temp['capacity'] = NULL;
+                                $temp['document_description'] = $description;
+                                $temp['file'] = $contract_file;
+                                $temp['request_type'] = $requestType;
+                                $data[] = $temp;
+                        }
+                    }
+                    }
+                }
+            }
+            $id = $this->reusable_model->insert_batch('collateral',$data);
+            if($id){
+                $msg =  "Learning Collateral has been uploded successfully ";
+            }
+            else{
+                $msg =  "Something went Wrong Please try again or contact to admin";
+            }
+                $this->session->set_userdata('success', $msg);
+            }
+        redirect(base_url() . 'employee/partner/editpartner/' . $partner);
+    }
 }
