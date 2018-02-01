@@ -495,7 +495,7 @@ class Partner extends CI_Controller {
                 $msg = "Partner Updated Successfully";
                 $this->session->set_userdata('success', $msg);
                 //Adding details in Booking State Change
-                $this->notify->insert_state_change('', PARTNER_UPDATED, PARTNER_UPDATED, 'Partner ID : ' . $partner_id, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+                //$this->notify->insert_state_change('', PARTNER_UPDATED, PARTNER_UPDATED, 'Partner ID : ' . $partner_id, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
                 //Sending Mail for Updated details
                 $html = "<p>Following Partner has been Updated :</p><ul>";
                 foreach ($edit_partner_data['partner'] as $key => $value) {
