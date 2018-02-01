@@ -89,7 +89,7 @@
                                                 if (isset($query[0]['name'])) {
                                                     echo $query[0]['name'];
                                                 }
-                                                ?>" placeholder="Public Name">
+                                                ?>" placeholder="Public Name" onchange="remove_white_space(this.value)">
                                             <?php echo form_error('name'); ?>
                                         </div>
                                     </div>
@@ -1658,6 +1658,10 @@
 
         });
     });
+    function remove_white_space(name){
+        newValue = name.replace(/\s+$/, '');
+        $('#name').val(newValue);
+    }
     
     $(document).ready(function () {
         var regxp = /^(\s*|\d+)$/;
