@@ -99,8 +99,8 @@ class Service_centers extends CI_Controller {
         if($this->session->userdata('is_update') == 1){
             //$data['engineer_details'] = $this->vendor_model->get_engineers($service_center_id);
             $data['spare_parts_data'] = $this->service_centers_model->get_updated_spare_parts_booking($service_center_id);
-
         }
+        //$data['collateral'] = $this->service_centers_model->get_collateral_for_service_center_bookings($service_center_id);
         $data['service_center_id'] = $service_center_id;
         $this->load->view('service_centers/pending_on_tab', $data);
     }
@@ -152,13 +152,16 @@ class Service_centers extends CI_Controller {
                     $unitWhere = array("engineer_booking_action.booking_id" => $booking_id, 
                         "engineer_booking_action.unit_details_id" => $u['unit_id'], "service_center_id" => $data['booking_history'][0]['assigned_vendor_id']);
                     $en = $this->engineer_model->getengineer_action_data("engineer_booking_action.*", $unitWhere);
-                    $bookng_unit_details[$key1]['quantity'][$key2]['en_serial_number'] = $en[0]['serial_number'];
-                    $bookng_unit_details[$key1]['quantity'][$key2]['en_serial_number_pic'] = $en[0]['serial_number_pic'];
-                    $bookng_unit_details[$key1]['quantity'][$key2]['en_is_broken'] = $en[0]['is_broken'];
-                    $bookng_unit_details[$key1]['quantity'][$key2]['en_internal_status'] = $en[0]['internal_status'];
-                    if($en[0]['is_broken'] == 1){
-                        $broken = 1;
+                    if(!empty($en)){
+                        $bookng_unit_details[$key1]['quantity'][$key2]['en_serial_number'] = $en[0]['serial_number'];
+                        $bookng_unit_details[$key1]['quantity'][$key2]['en_serial_number_pic'] = $en[0]['serial_number_pic'];
+                        $bookng_unit_details[$key1]['quantity'][$key2]['en_is_broken'] = $en[0]['is_broken'];
+                        $bookng_unit_details[$key1]['quantity'][$key2]['en_internal_status'] = $en[0]['internal_status'];
+                        if($en[0]['is_broken'] == 1){
+                            $broken = 1;
+                        }
                     }
+                    
                 }
                $bookng_unit_details[$key1]['is_broken'] = $broken; 
                  
@@ -3055,5 +3058,34 @@ class Service_centers extends CI_Controller {
         
         return $output_pdf_file_name;
     }
-
+function get_learning_collateral_for_bookings(){
+    $booking_id = $this->input->post('booking_id');
+    $data = $this->service_centers_model->get_collateral_for_service_center_bookings($booking_id);
+    if(!empty($data)){
+        $finalString = '<table class="table">
+        <thead>
+          <tr>
+          <th>S.N</th>
+            <th>Document Type</th>
+            <th>File</th>
+          </tr>
+        </thead>
+        <tbody>';
+        $index =0;
+        foreach($data as $collatralData){
+            $url = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$collatralData['file'];
+            $index++;
+            $finalString .= '<tr><td>'.$index.'</td>';
+            $finalString .= '<td>'.$collatralData['collateral_type'].'</td>';
+            $finalString .=  '<td>'.$this->miscelleneous->get_reader_by_file_type($collatralData['document_type'],$url,"400").'</td>';
+            $finalString .='</tr>';
+        }
+       $finalString .='</tbody></table>';
+    }
+    else{
+        $finalString = "<p style='text-align:center;'>Brand Collateral is not available</p>";
+    }
+   
+   echo $finalString;
+}
 }

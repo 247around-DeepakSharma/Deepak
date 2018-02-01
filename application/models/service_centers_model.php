@@ -681,5 +681,37 @@ class Service_centers_model extends CI_Model {
         $query = $this->db->query($sql);
         return $query->result_array();
     }
-    
+    /*
+     * This function is used to get collateral files against a booking id
+    */
+    function get_collateral_for_service_center_bookings($booking_id){
+        $collateralData = array();
+        $bookingDataSql = "SELECT booking_id,partner_id,service_id,appliance_brand,appliance_category,appliance_capacity, "
+                . "(CASE price_tags WHEN FIND_IN_SET('repair', price_tags)>0 THEN 'installation' ELSE 'repair' END) as request_type FROM booking_unit_details WHERE booking_id='".$booking_id."' GROUP BY"
+                . " request_type";
+        $query = $this->db->query($bookingDataSql);
+        $data =  $query->result_array();
+        if(!empty($data)){
+            foreach($data as $bookingData){
+                $where['entity_id'] = $bookingData['partner_id'];
+                $where['appliance_id'] = $bookingData['service_id'];
+                $where['request_type'] = $bookingData['request_type'];
+                if($bookingData['appliance_brand']){
+                    $where['brand'] = $bookingData['appliance_brand'];
+                }
+                if($bookingData['appliance_category']){
+                    $where['category'] = $bookingData['appliance_category'];
+                }
+                if($bookingData['appliance_capacity']){
+                    $where['capacity'] = $bookingData['appliance_capacity'];
+                }
+            }
+            $this->db->select('collateral.*,collateral_type.*');
+            $this->db->where($where);
+            $this->db->join("collateral_type","collateral_type.id=collateral.collateral_id");
+            $query2 = $this->db->get('collateral');
+            $collateralData =  $query2->result_array();
+        }
+        return $collateralData;
+    }
 }

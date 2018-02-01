@@ -2,6 +2,7 @@
 include('email_template_constant.php');
 include('spare_parts_constant.php');
 include('push_notifications_constant.php');
+include('upcountry_constant.php');
 /*
 |--------------------------------------------------------------------------
 | File and Directory Modes
@@ -185,8 +186,6 @@ define('SYS_HEALTH_EMAIL','health@247around.com');
 define('NEW_SF_CRM',"New SF CRM");
 //Define Ols CRM Contstant for SF
 define('OLD_SF_CRM',"Old SF CRM");
-//Define Upcountry threshold
-define('UPCOUNTRY_DISTANCE_THRESHOLD',500);
 //Define New Partner Lead
 define('_247AROUND_NEW_PARTNER_LEAD','New_Lead');
 //Define Constant for Snapdeal Delivered Excel File Type
@@ -207,8 +206,6 @@ define('_247AROUND_VENDOR_PINCODE','Vendor-Pincode');
 define('_247AROUND_SF_PRICE_LIST','SF-Price-List');
 //Define Constant for Partner Appliance Details
 define('_247AROUND_PARTNER_APPLIANCE_DETAILS','Partner-Appliance-Details');
-//Define Upcountry distance Must be grater than 50(UP and DOWN both)
-define('UPCOUNTRY_MIN_DISTANCE',50);
 define('OEM', "OEM");
 //Define New SF Creation
 define('NEW_SF_ADDED','New SF Added');
@@ -218,18 +215,6 @@ define('SF_UPDATED','SF Updated');
 define('NEW_PARTNER_ADDED','New Partner Added');
 //Define Edit SF State
 define('PARTNER_UPDATED','Partner Updated');
-//Define NOT UPCOUNTRY BOOKING
-define('NOT_UPCOUNTRY_BOOKING','NOT UPCOUNTRY BOOKING');
-//Define SF NOT EXIST IN Pincode Table
-define('SF_DOES_NOT_EXIST','SF DOES NOT EXIST IN VENDOR PINCODE MAPPING FILE');
-//Define UPCOUNTRY BOOKING
-define('UPCOUNTRY_BOOKING','UPCOUNTRY BOOKING');
-//Define UPCOUNTRY Disatnce Limit Exceed
-define('UPCOUNTRY_LIMIT_EXCEED','UPCOUNTRY LIMIT EXCEED');
-//Define UPCOUNTRY BOOKING
-define('UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE','UPCOUNTRY DISTANCE CAN NOT CALCULATE');
-//Define  UPCOUNTRY_BOOKING_NEED_TO_APPROVAL
-define('UPCOUNTRY_BOOKING_NEED_TO_APPROVAL','UPCOUNTRY BOOKING NEED TO APPROVAL');
 define('IS_DEFAULT_ENGINEER', TRUE);
 define('DEFAULT_ENGINEER', 24700001);
 define("UPCOUNTRY_CHARGES_APPROVED", "Upcountry Charges Approved");
@@ -269,8 +254,6 @@ define("PENALTY_ON_COMPLETED_BOOKING", TRUE);
 define("PENALTY_ON_CANCELLED_BOOKING", TRUE);
 
 define ('SF_UNAVAILABLE_SMS_NOT_SENT', 'SMS Not Sent To Customer For Installation');
-//Upcountry Cap For Partner
-define ('UPCOUNTRY_DISTANCE_CAP', '200');
 // Booking is not updated by service center
 define("BOOKING_IS_NOT_UPDATED_BY_SERVICE_CENTER_ID", 2);
 // Incentive Cut - Reschedule without reason
@@ -540,6 +523,8 @@ define('PUSH_NOTIFICATION_API_KEY','3d15cad629128ac894c9a73a0ff5852b');
 define('PUSH_NOTIFICATION_SUBSCRIBER_LIST_SEND_NOTIFICATION_URL','https://pushcrew.com/api/v1/send/list');
 
 define('BUYBACK','buyback');
-
+//Collateral 
+define('LEARNING_DOCUMENT','Brand_Collateral');
+define('CONTRACT','contract');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
