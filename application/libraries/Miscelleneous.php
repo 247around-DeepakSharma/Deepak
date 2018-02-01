@@ -1800,9 +1800,8 @@ class Miscelleneous {
 
     function table_updated_history_view($orignalTable, $triggeredTable, $entityID) {
         $finalData = array();
-        $orderByArray[$triggeredTable . '.id,' . $triggeredTable . '.update_date'] = 'DESC';
         $joinArray = array("employee" => "employee.id=" . $triggeredTable . ".agent_id");
-        $triggeredTableData = $this->My_CI->reusable_model->get_search_result_data($triggeredTable, $triggeredTable . ".*,employee.full_name", array($triggeredTable.".id" => $entityID), $joinArray, NULL, $orderByArray, NULL, NULL);
+        $triggeredTableData = $this->My_CI->reusable_model->get_search_result_data($triggeredTable, $triggeredTable . ".*,employee.full_name", array($triggeredTable.".id" => $entityID), $joinArray, NULL,NULL, NULL, NULL);
         $orignalTableData = $this->My_CI->reusable_model->get_search_result_data($orignalTable, "*", array($orignalTable.".id" => $entityID), NULL, NULL, NULL, NULL, NULL);
         array_unshift($triggeredTableData,$orignalTableData[0]);
         if(count($triggeredTableData)>1){
