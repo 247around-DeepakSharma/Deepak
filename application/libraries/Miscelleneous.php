@@ -296,7 +296,7 @@ class Miscelleneous {
                         log_message('info', __METHOD__ . " => Upcountry Booking Free Booking " . $booking_id);
                         $booking['upcountry_paid_by_customer'] = 0;
                         $booking['amount_due'] = $cus_net_payable;
-                        $booking['upcountry_remarks'] = PARTNER_WILL_PAY_UPCOUNTRY;
+                        $booking['upcountry_remarks'] = PARTNER_PAID_UPCOUNTRY;
                         $this->My_CI->booking_model->update_booking($booking_id, $booking);
                         $return_status = TRUE;
                     } else if ($data['partner_upcountry_approval'] == 1 && $data['message'] == UPCOUNTRY_LIMIT_EXCEED) {

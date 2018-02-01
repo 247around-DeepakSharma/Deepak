@@ -219,7 +219,7 @@ class Upcountry_model extends CI_Model {
             $up_data['vendor_id'] = $upcountry_vendor_details['vendor_id'];
             $up_data['message'] = NOT_UPCOUNTRY_BOOKING;
             $up_data['upcountry_distance'] = 0;
-            $up_data['upcountry_remarks'] = DISTANCE_MINIMUM_FROM_MUNICIPAL_LIMIT;
+            $up_data['upcountry_remarks'] = DISTANCE_WITHIN_MUNICIPAL_LIMIT;
 
             
         } else if ($upcountry_distance > ($min_threshold_distance)
