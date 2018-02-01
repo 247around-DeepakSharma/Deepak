@@ -205,3 +205,6 @@ div.item {
 	display: inline-block;
 	margin-left: 5px;
 }
+.nav-sm .nav.side-menu li a i{
+    font-size: 18px!important;
+}
