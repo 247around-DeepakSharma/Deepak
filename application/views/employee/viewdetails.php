@@ -171,7 +171,7 @@
                         <td><?php echo $booking_history[0]['cancellation_reason']; ?></td>
                     </tr>
                     <tr>
-                        <th colspan="1"><a href="#" title="Upcountry Logic" data-toggle="popover" data-html="true" data-trigger="hover" data-content="<?php echo UPCOUNTRY_LOGIC;?>">Upcountry <i class="fa fa-info-circle" aria-hidden="true"></i></a></th>
+                        <th colspan="1">Upcountry</th>
                         <td colspan="3">
                             <div class="col-md-12">
                                 <div class="col-md-4"> <input type="text" class="form-control" id="txtSource" value="<?php echo $booking_history[0]['city'].", ".
@@ -549,12 +549,8 @@
         max-width:600px;
     }
 </style>
-<script type="text/javascript">
-    $(document).ready(function(){
-        $('[data-toggle="popover"]').popover({
-            container: 'body'
-        });   
-    });
+
+<script type="text/javascript">    
     function outbound_call(phone_number){
         var confirm_call = confirm("Call Customer ?");
     
