@@ -498,8 +498,8 @@ class Partner extends CI_Controller {
                     $lead_details = $is_valid['lead'];
                     $this->jsonResponseString['response'] = array(
                         "247aroundBookingID" => $lead_details['booking_id'],
-                        "247aroundBookingStatus" => $lead_details['partner_internal_status'],
-                        "247aroundBookingRemarks" => $lead_details['booking_remarks']);
+                        "247aroundBookingStatus" => $lead_details['current_status'],
+                        "247aroundBookingRemarks" => $lead_details['partner_internal_status']);
                     $this->sendJsonResponse(array(SUCCESS_CODE, SUCCESS_MSG));
                 } else {
                     log_message('info', __METHOD__ . ":: Request validation fails. " . print_r($is_valid, true));
