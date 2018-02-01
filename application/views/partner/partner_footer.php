@@ -1,5 +1,5 @@
 <!-- footer content -->
-<footer style="margin-left: 0px;">
+<footer>
     <div class="pull-right">
         <a href="#">247AROUND</a>
     </div>
@@ -13,9 +13,35 @@
 <script src="<?php echo base_url() ?>js/bootstrap-progressbar.min.js"></script>  
 <!-- Custom Theme Scripts -->
 <script src="<?php echo base_url() ?>js/dashboard_custom.js"></script>
+ <!-- iCheck -->
+<script src="<?php echo base_url() ?>assest/iCheck/icheck.min.js"></script>
 <!-- Datatable JS-->
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/pdfmake.min.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/vfs_fonts.js"></script>
-<script type="text/javascript" src="https://cdn.datatables.net/v/bs/jszip-2.5.0/dt-1.10.16/af-2.2.2/b-1.5.1/b-colvis-1.5.1/b-flash-1.5.1/b-html5-1.5.1/b-print-1.5.1/cr-1.4.1/fc-3.2.4/fh-3.1.3/kt-2.3.2/r-2.2.1/rr-1.2.3/sc-1.4.3/sl-1.2.4/datatables.min.js"></script>
-</body>
+<script type="text/javascript" src="<?php echo base_url() ?>assest/DataTables/datatables.min.js"></script>
+<script type="text/javascript">
+    
+    function submit_button() {
+        var phone = $("#phone_number").val();
+
+        if (phone.length !== 10) {
+            return false;
+
+        }
+        intRegex = /^[6-9]{1}[0-9]{9}$/;
+        if (intRegex.test(phone))
+        {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    function checkStringLength() {
+        var searched_text = $("#searched_text").val();
+        if (searched_text.length < 9) {
+            alert("Enter Atleast 8 Character For Booking ID");
+            return false;
+        }
+
+    }
+</script>
 </html>

@@ -2032,9 +2032,9 @@ class Booking_model extends CI_Model {
      *  @param : void()
      *  @return :array()
      */
-    function get_partner_logo(){
-        $this->db->select('partner_logo, alt_text');
-        $this->db->where('partner_logo !=' , 'Null');
+    function get_partner_logo($select,$where){
+        $this->db->select($select);
+        $this->db->where($where);
         $query = $this->db->get('partner_brand_logo');
         return $query->result_array();
     }

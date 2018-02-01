@@ -53,7 +53,9 @@ class Service_centers extends CI_Controller {
      * @return: void
      */
     function index() {
-        $data['partner_logo'] = $this->booking_model->get_partner_logo();
+        $select = "partner_logo,alt_text";
+        $where = array('partner_logo IS NOT NULL' => NULL);
+        $data['partner_logo'] = $this->booking_model->get_partner_logo($select, $where);
         $this->load->view('service_centers/service_center_login' ,$data);
     }
 

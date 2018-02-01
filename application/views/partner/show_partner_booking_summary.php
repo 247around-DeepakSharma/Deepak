@@ -1,103 +1,37 @@
-<style>
-    .table>tbody>tr>td, .table>tbody>tr>th, 
-    .table>tfoot>tr>td, .table>tfoot>tr>th, 
-    .table>thead>tr>td, .table>thead>tr>th{
-    padding: 4px;
-    }
-</style>
-<div class="row">
-    <div class="col-md-8 col-md-offset-2 col-sm-12 col-xs-12">
-        <table class="table table-striped table-bordered table-hover text-center" style="font-size:12px">
-            <thead>
-                <th class="text-center">Month</th>
-                <th class="text-center">Completed Booking</th>
-                <th class="text-center">Cancelled booking</th>
-                <th  style="border: 1px solid #fff;"></th>
-                <td style="border-top: 1px solid #fff;border-bottom: 1px solid #fff;
-                    <?php if(empty($this->session->userdata('is_prepaid'))){ ?> border-right: 1px solid #fff; <?php }?>"></td>
-                <?php if(!empty($this->session->userdata('is_prepaid'))){ ?>
-                <th class="text-center">Prepaid Amount</th>
-                <?php } ?>
-            </thead>
-            <tbody>
-                <?php foreach ($bookings_count as $val) { ?> 
-                <tr>
-                    <td><?php echo $val['month']; ?></td>
-                    <td><?php echo $val['completed']; ?></td>
-                    <td><?php echo $val['cancelled']; ?></td>
-                    <td style="border:0px;border:0px;background-color: #fff;"></td>
-                    <td style="border-top: 1px solid #fff;background-color: #fff;border-bottom: 1px solid #fff;border-left: 1px solid #fff; 
-                        <?php if(empty($this->session->userdata('is_prepaid'))){ ?> border-right: 1px solid #fff; <?php }?>"></td>
-                    <?php if(!empty($this->session->userdata('is_prepaid'))){ ?>
-                    <td style="border:0px;border:0px;background-color: #fff;"></td>
-                    <?php } ?>
-                </tr>
-                <?php } ?>
-                <tr style="background-color:#fff; ">
-                    <td style="border: 1px solid #fff;"></td>
-                    <td style="border: 1px solid #fff;"></td>
-                    <td style="border: 1px solid #fff;"></td>
-                    <td style="border-top: 1px solid #fff;border-bottom: 1px solid #fff;border-right: 1px solid #fff;"></td>
-                    <td style="border-top: 1px solid #fff;background-color: #fff;border-bottom: 1px solid #fff;border-left: 1px solid #fff;
-                        <?php if(empty($this->session->userdata('is_prepaid'))){ ?> border-right: 1px solid #fff; <?php }?>"></td>
-                    <?php if(!empty($this->session->userdata('is_prepaid'))){ ?>
-                    <td style="border-top: 1px solid #fff;border-bottom: 1px solid #fff;border-left: 1px solid #fff;"></td>
-                    <?php } ?>
-                </tr>
-                <tr style="background-color:#fff;">
-                    <td style="border: 1px solid #fff;"></td>
-                    <td style="border: 1px solid #fff;"></td>
-                    <td style="border: 1px solid #fff;"></td>
-                    <td style="border-top: 1px solid #fff;border-bottom: 1px solid #fff;border-right: 1px solid #fff;"></td>
-                    <td style="border-top: 1px solid #fff;background-color: #fff;border-bottom: 1px solid #fff;border-left: 1px solid #fff;
-                        <?php if(empty($this->session->userdata('is_prepaid'))){ ?> border-right: 1px solid #fff; <?php }?>"></td>
-                    <?php if(!empty($this->session->userdata('is_prepaid'))){ ?>
-                    <td style="border-top: 1px solid #fff;border-bottom: 1px solid #fff;border-left: 1px solid #fff;"><?php echo $prepaid_amount['prepaid_amount'];?></td>
-                    <?php } ?>
-                </tr>
-                <tr style="background-color:#fff; ">
-                    <td style="border-top: 1px solid #fff;border-right: 1px solid #fff;border-left: 1px solid #fff;"></td>
-                    <td style="border-top: 1px solid #fff;border-right: 1px solid #fff;border-left: 1px solid #fff;"></td>
-                    <td style="border-top: 1px solid #fff;border-left: 1px solid #fff;border-right: 1px solid #fff;"></td>
-                    <td style="border-top: 1px solid #fff;border-bottom: 1px solid #fff;border-right: 1px solid #fff;"></td>
-                    <td style="border-top: 1px solid #fff;background-color: #fff;border-bottom: 1px solid #fff;border-left: 1px solid #fff;
-                        <?php if(empty($this->session->userdata('is_prepaid'))){ ?> border-right: 1px solid #fff; <?php }?>"></td>
-                    <?php if(!empty($this->session->userdata('is_prepaid'))){ ?>
-                    <td style="border-top: 1px solid #fff;border-bottom: 1px solid #fff;border-left: 1px solid #fff;"></td>
-                    <?php } ?>
-                </tr>
-                <tr>
-                    <td rowspan='2' class="text-center" style="padding-top: 16px;">
-                        <strong>Escalation (%)</strong>
-                    </td>
-                    <td >
-                        <strong>Installation</strong>
-                    </td>
-                    <td>
-                        <strong>Repair</strong>
-                    </td>
-                    <td style="border-top: 1px solid #fff;border-bottom: 1px solid #fff;border-right: 1px solid #fff;"></td>
-                    <td style="border-top: 1px solid #fff;background-color: #fff;border-bottom: 1px solid #fff;border-left: 1px solid #fff;
-                        <?php if(empty($this->session->userdata('is_prepaid'))){ ?> border-right: 1px solid #fff; <?php }?>"></td>
-                    <?php if(!empty($this->session->userdata('is_prepaid'))){ ?>
-
-                    <td style="border-top: 1px solid #fff;border-bottom: 1px solid #fff;border-left: 1px solid #fff;"></td>
-                    <?php } ?>
-                </tr>
-                <tr>
-                    <td><?php echo sprintf("%1\$.2f",($escalation_percentage[0]['unique_installation_escalate_percentage'])); ?></td>
-                    <td><?php echo sprintf("%1\$.2f",($escalation_percentage[0]['unique_repair_escalate_percentage'])); ?></td>
-                    <td style="border-top: 1px solid #fff;background-color: #fff;border-bottom: 1px solid #fff;border-right: 1px solid #fff;"></td>
-                    <td style="border-top: 1px solid #fff;background-color: #fff;border-bottom: 1px solid #fff;border-left: 1px solid #fff;
-                        <?php if(empty($this->session->userdata('is_prepaid'))){ ?> border-right: 1px solid #fff; <?php }?>"></td>
-                    <?php if(!empty($this->session->userdata('is_prepaid'))){ ?>
-
-                    <td style="border-top: 1px solid #fff;background-color: #fff;border-left: 1px solid #fff;"></td>
-                    <?php } ?>
-                </tr>
-            </tbody>
-        </table>
+<!-- top tiles -->
+<div class="row tile_count">
+    <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
+        <span class="count_top">Completed Booking</span>
+        <div class="count"><?php echo $completed_booking ;?></div>
+        <?php if($completed_booking_percentage_change >= 0) { ?> 
+        <span class="count_bottom" title="<?php echo $last_month_completed_booking; ?>"><i class="green"><i class="fa fa-sort-asc"></i><?php echo sprintf("%1\$.2f",($completed_booking_percentage_change)); ?>%</i> From last month</span>
+        <?php } else { ?> 
+        <span class="count_bottom" title="<?php echo $last_month_completed_booking; ?>"><i class="red"><i class="fa fa-desc"></i><?php echo sprintf("%1\$.2f",($completed_booking_percentage_change)); ?>%</i> From last month</span>
+        <?php } ?>
     </div>
+    <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
+        <span class="count_top">Cancelled Booking</span>
+        <div class="count"><?php echo $cancelled_booking ;?></div>
+        <?php if($cancelled_booking_percentage_change >= 0) { ?> 
+        <span class="count_bottom" title="<?php echo $last_month_cancelled_booking; ?>"><i class="green"><i class="fa fa-sort-asc"></i><?php echo sprintf("%1\$.2f",($cancelled_booking_percentage_change)); ?>%</i> From last month</span>
+        <?php } else { ?> 
+        <span class="count_bottom" title="<?php echo $last_month_cancelled_booking; ?>"><i class="red"><i class="fa fa-desc"></i><?php echo sprintf("%1\$.2f",($cancelled_booking_percentage_change)); ?>%</i> From last month</span>
+        <?php } ?>
+    </div>
+    <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
+        <span class="count_top">Installation Escalation</span>
+        <div class="count"><?php echo sprintf("%1\$.2f",($escalation_percentage[0]['unique_installation_escalate_percentage'])); ?></div>
+    </div>
+    <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
+        <span class="count_top">Repair Escalation</span>
+        <div class="count"><?php echo sprintf("%1\$.2f",($escalation_percentage[0]['unique_repair_escalate_percentage'])); ?></div>
+    </div>
+    <?php if (!empty($this->session->userdata('is_prepaid'))) { ?>
+        <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
+            <span class="count_top">Prepaid Amount ( Rs.)</span>
+            <div class="count"><?php echo $prepaid_amount['prepaid_amount'];?></div>
+        </div>
+    <?php } ?>
 </div>
 <?php  if(!empty($prepaid_amount['prepaid_msg'])){ ?>
 <script src="<?php echo base_url(); ?>js/around_notify.js"></script>
@@ -118,16 +52,4 @@
     });
 </script>
 <?php } ?>
-
-<style>
-    @keyframes blink {
-    50% { opacity: 0.0; }
-    }
-    @-webkit-keyframes blink {
-    50% { opacity: 0.0; }
-    }
-    .blink {
-    animation: blink 1s step-start 0s infinite;
-    -webkit-animation: blink 1s step-start 0s infinite;
-    }
-</style>
+<!-- /top tiles -->
