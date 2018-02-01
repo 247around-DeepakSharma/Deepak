@@ -3083,6 +3083,8 @@ class Api extends CI_Controller {
             $data["booking_id"] = $requestData["bookingID"];
             $data["cancellation_reason"] = $requestData["cancellationReason"];
             $data['engineer_id'] = $requestData["engineer_id"];
+            $data['current_status'] = "InProcess";
+            $data['internal_status'] = _247AROUND_CANCELLED;
             $data["closed_date"] = date("Y-m-d H:i:s");
             $this->engineer_model->update_engineer_table($data, array( "booking_id" =>$requestData["bookingID"] ));
            

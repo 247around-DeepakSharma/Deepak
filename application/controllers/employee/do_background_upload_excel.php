@@ -525,7 +525,11 @@ class Do_background_upload_excel extends CI_Controller {
 
                                 $count_booking_inserted++;
 
-                                $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY, $booking['query_remarks'], _247AROUND_DEFAULT_AGENT, _247AROUND_DEFAULT_AGENT_NAME, _247AROUND);
+                                if(empty($this->session->userdata('id'))){
+                                    $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY, $booking['query_remarks'], _247AROUND_DEFAULT_AGENT, _247AROUND_DEFAULT_AGENT_NAME, _247AROUND);
+                                }else{
+                                    $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY, '', $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+                                }
                             } else {
                                 log_message('info', __FUNCTION__ . ' => ERROR: Booking is not inserted in booking details: '
                                         . print_r($value, true));

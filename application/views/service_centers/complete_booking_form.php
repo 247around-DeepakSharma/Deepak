@@ -577,27 +577,32 @@
     
     function check_broken(div){
         
-        var broken = $("#broken_"+ div).val();
-        $(".is_broken_"+div).val(broken);
-        
+        var broken = Number($("#broken_"+ div).val());
+      
         var div_item_count = $("#count_line_item_"+div).val();
         var count_unit = $("#count_unit").val();
-        var no  =0;
-        if(Number(broken) === 1){
-            for(k =0; k< Number(count_unit); k++){
-                 for(i = 0; i < Number(div_item_count); i++ ){
-                    var amount_due = Number($("#amount_due" + no).text());
-                    var price_tags = $("#price_tags" +no ).text();
-                    if(amount_due === 0 && price_tags.indexOf("Wall Mount Stand") > -1){
-                        
-                         $(".cancelled_"+i+"_"+div).prop('checked', true);
-                    }
+        var no  = 0;
+        
+           for(k =0; k< Number(count_unit); k++){
+            for(i = 0; i < Number(div_item_count); i++ ){
+
+                if(broken === 1){
+                    $(".is_broken_"+no).val("1");
+                } else {
+
+                     $(".is_broken_"+no).val("0");
+                }
+
+               var amount_due = Number($("#amount_due" + no).text());
+               var price_tags = $("#price_tags" +no ).text();
+               if(amount_due === 0 && price_tags.indexOf("Wall Mount Stand") > -1 && broken === 1){
+
+                    $(".cancelled_"+i+"_"+div).prop('checked', true);
+               }
                    
-                    no++;
-                 }
+               no++;
             }
         }
-        
     }
     
 </script>

@@ -1291,6 +1291,8 @@ function get_data_for_partner_callback($booking_id) {
     function get_serviceability_by_pincode(){
         $sql = "SELECT vendor_pincode_mapping.City, vendor_pincode_mapping.State, vendor_pincode_mapping.Pincode,GROUP_CONCAT( DISTINCT services.services SEPARATOR ',') as appliance
                 FROM vendor_pincode_mapping JOIN services ON services.id = vendor_pincode_mapping.Appliance_ID 
+                JOIN service_centres on service_centres.id = vendor_pincode_mapping.Vendor_ID AND service_centres.active = 1
+                WHERE service_centres.active = 1
                 GROUP BY vendor_pincode_mapping.Pincode
                 ORDER BY vendor_pincode_mapping.City";
         return $this->db->query($sql);

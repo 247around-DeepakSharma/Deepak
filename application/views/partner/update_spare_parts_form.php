@@ -175,7 +175,7 @@
                                     if (form_error('awb')) {
                                         echo 'has-error';
                                     } ?>">
-                               <label for="awb" class="col-md-4">AWB</label>
+                               <label for="awb" class="col-md-4">AWB*</label>
                                 <div class="col-md-6">
                                     <input type="text" class="form-control" id="awb" name="awb" value = "" placeholder="Please Enter AWB"  required>
                                      <?php echo form_error('awb'); ?>
@@ -186,7 +186,7 @@
                                     if (form_error('courier_name')) {
                                         echo 'has-error';
                                     } ?>">
-                               <label for="courier" class="col-md-4">Courier Name</label>
+                               <label for="courier" class="col-md-4">Courier Name*</label>
                                 <div class="col-md-6">
                                     <input type="text" class="form-control" id="courier_name" name="courier_name" value = "" placeholder="Please Enter courier Name"  required>
                                     <?php echo form_error('courier_name'); ?>
@@ -246,7 +246,7 @@
                                     if (form_error('approx_value')) {
                                         echo 'has-error';
                                     } ?>">
-                                <label for="approx_value" class="col-md-4">Approx Value</label>
+                                <label for="approx_value" class="col-md-4">Approx Value*</label>
                                 <div class="col-md-6">
                                     <input type="text" class="form-control" id="approx_value" name="approx_value" value = "" placeholder="Please Enter approx value"  required>
                                      <?php echo form_error('approx_value'); ?>

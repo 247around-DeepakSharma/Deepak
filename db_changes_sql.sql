@@ -4246,9 +4246,7 @@ ALTER TABLE `spare_parts_details` ADD `old_status` VARCHAR(64) NULL DEFAULT NULL
 
 
 --Abhay Anand
-ALTER TABLE `service_center_booking_action` ADD `serial_number_pic` VARCHAR(256) NULL DEFAULT NULL AFTER `reschedule_request_date`, ADD `is_broken` INT(1) NULL DEFAULT NULL AFTER `serial_number_pic`;
-ALTER TABLE `booking_unit_details` ADD `serial_number_pic` VARCHAR(256) NULL DEFAULT NULL AFTER `serial_number`, ADD `is_broken` INT(1) NOT NULL DEFAULT '0' AFTER `serial_number_pic`;
-
+ 
 
 --Abhay
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'distance_pincode_api', 'Requested Municipal Limit', 'Please Find Attachment', 'noreply@247around.com', '', '', 'anuj@247around.com, abhaya@247around.com', '1', '2018-01-12 13:05:00');
@@ -4294,3 +4292,9 @@ INSERT INTO `header_navigation` (`id`, `title`, `link`, `level`, `parent_ids`, `
 
 
 INSERT INTO `header_navigation` (`id`, `title`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, 'Show Inventory Stocks', 'employee/inventory/show_inventory_stock_list', '2', '89', 'admin,callcenter,closure,developer,regionalmanager', 'main_nav', '1', CURRENT_TIMESTAMP);
+
+
+
+--Abhay
+ALTER TABLE `booking_details` ADD `upcountry_remarks` VARCHAR(128) NULL DEFAULT NULL AFTER `upcountry_price`;
+

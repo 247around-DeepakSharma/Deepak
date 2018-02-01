@@ -202,6 +202,7 @@
                                 <th>Upcountry District </th>
                                 <th>Upcountry Pincode </th>
                                 <th>Municipal Limit </th>
+                                <th>Upcountry Remarks </th>
                             </tr>
                             </thead
                         <tbody>
@@ -215,7 +216,8 @@
                                 <td><?php if($booking_history[0]['is_upcountry'] == 1){ echo $booking_history[0]["upcountry_distance"]." KM";} ?></td>
                                 <td> <?php if(!is_null($booking_history[0]['sub_vendor_id'])){ ?><?php if(isset($dhq[0]['district'])){echo $dhq[0]['district'];}?><?php } ?></td>
                                 <td><?php if(isset($dhq[0]['pincode'])){ echo $dhq[0]['pincode'];} ?></td>
-                                <td><?php if($booking_history[0]['is_upcountry'] == 1){ echo $booking_history[0]["municipal_limit"];}  ?></td>
+                                <td><?php if($booking_history[0]['is_upcountry'] == 1){ echo $booking_history[0]["municipal_limit"]." KM";}  ?></td>
+                                <td><?php echo $booking_history[0]["upcountry_remarks"];  ?></td>
                             </tr>
                         </tbody>
                     </table>
@@ -542,7 +544,13 @@
         <?php } ?>
     </div>
 </div>
-<script type="text/javascript">
+    <style type="text/css">
+    .popover{
+        max-width:600px;
+    }
+</style>
+
+<script type="text/javascript">    
     function outbound_call(phone_number){
         var confirm_call = confirm("Call Customer ?");
     
