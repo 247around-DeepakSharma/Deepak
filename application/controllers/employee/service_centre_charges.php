@@ -425,6 +425,7 @@ class service_centre_charges extends CI_Controller {
     function show_partner_service_price() {
 
         $data['partners'] = $this->partner_model->get_all_partner_source();
+        $data['source_code'] = json_encode(array_column($data['partners'], 'code','partner_id'));
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/show_partner_services_price', $data);
     }
@@ -436,10 +437,30 @@ class service_centre_charges extends CI_Controller {
      *  @return : array()
      */
     function show_partner_price() {
-        $data['partner_id'] = $this->input->post('partner_id');
-        $data['service_id'] = $this->input->post('service_id');
-        $data['service_category'] = $this->input->post('service_category');
-        $partner['price_data'] = $this->service_centre_charges_model->get_partner_price_data($data);
+        
+        $partner_id = $this->input->post('partner_id');
+        $service_id = $this->input->post('service_id');
+        $service_category = $this->input->post('service_category');
+        $brand = $this->input->post('brand');
+        $where = array();
+        if(!empty($partner_id)){
+            $where['partner_id'] = $partner_id;
+        }
+        if(!empty($service_id)){
+            $where['service_id'] = $service_id;
+        }
+        if(!empty($service_category)){
+            $where['service_category'] = $service_category;
+        }
+        if(!empty($brand)){
+            $where['brand'] = $brand;
+        }
+        if(!empty($where)){
+            $partner['price_data'] = $this->service_centre_charges_model->get_partner_price_data($where);
+        }else{
+            $partner['price_data'] = array();
+        }
+        
         $this->load->view('employee/show_partner_services_price', $partner);
     }
 

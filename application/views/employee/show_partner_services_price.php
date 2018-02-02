@@ -10,9 +10,7 @@
                                 <select class="form-control" id="partners" name="partners" >
                                     <option selected disabled>Select Partner</option>
                                     <?php foreach ($partners as $key => $value) { ?>
-
                                         <option value="<?php echo $value['partner_id'] ?>"> <?php echo $value['source']; ?></option>
-
                                     <?php } ?>
                                 </select>
                             </th>
@@ -20,14 +18,18 @@
                             <th>
                                 <select class="form-control"  id="service_id" name="service_id" >
                                     <option selected disabled >Select Appliance</option>
-
                                 </select>
                             </th>
 
                             <th>
                                 <select class="form-control" id="service_category" name="service_category" >
                                     <option selected disabled  >Select Service Category</option>
-
+                                </select>
+                            </th>
+                            
+                            <th>
+                                <select class="form-control" id="brand" name="brand" >
+                                    <option selected disabled  >Select Brand</option>
                                 </select>
                             </th>
 
@@ -46,7 +48,9 @@
         $("#partners").select2();
         $("#service_id").select2();
         $("#service_category").select2();
-
+        $("#brand").select2();
+        
+        var partner_id_with_source_code = <?php echo $source_code;?>;
         $('#partners').on('change', function () {
             var partner = $(this).val();
             if (partner) {
@@ -87,14 +91,30 @@
                         $('#service_category').select2().html(html);
                     }
                 });
+                
+                if($('#service_id').val()){
+                    var post = {};
+                    post['service_id'] = $('#service_id').val();
+                    post['source_code'] = partner_id_with_source_code[$('#partners').val()];
+                    $.ajax({
+                        type: 'POST',
+                        url: '<?php echo base_url() ?>employee/booking/getBrandForService',
+                        data: post,
+                        success: function (response) {
+                            var data1 = jQuery.parseJSON(response);
+                            $("#brand").html(data1.brand);
+                        }
+                    });
+                }
             }
         });
 
-        $('#service_category, #partners').on('change', function () {
+        $('#service_category, #partners,#brand').on('change', function () {
             var postdata = {};
             postdata['partner_id'] = $('#partners').val();
             postdata['service_id'] = $('#service_id').val();
             postdata['service_category'] = $('#service_category').val();
+            postdata['brand'] = $('#brand').val();
 
             if (postdata) {
                 $('#loader_gif').css('display', 'inherit');
@@ -122,6 +142,7 @@
         <table class="table table-striped table-bordered" >
             <th>No.</th>
             <th>Service Category</th>
+            <th>Brand</th>
             <th>Category</th>
             <th>Capacity</th>
             <th>Customer Total</th>
@@ -137,6 +158,7 @@
                     <tr>
                         <td><?php echo $i; ?></td>
                         <td><?php echo $value['service_category'] ?></td>
+                        <td><?php echo $value['brand'] ?></td>
                         <td><?php echo $value['category'] ?></td>
                         <td><?php echo $value['capacity'] ?></td>
                         <td><?php echo $value['customer_total'] ?></td>
