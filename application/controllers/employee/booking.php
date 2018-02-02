@@ -141,6 +141,7 @@ class Booking extends CI_Controller {
             $purchase_year = $this->input->post('purchase_year');
             // All purchase month comming in array eg-- array([0]=> Jan, [1]=> Feb)
             $months = $this->input->post('purchase_month');
+            $order_item_id = $this->input->post('order_item_id');
 
             $appliance_id_array = $this->input->post('appliance_id');
             $appliance_id = array();
@@ -193,9 +194,7 @@ class Booking extends CI_Controller {
                 $appliances_details['last_service_date'] = date('Y-m-d H:i:s');
 
                 $services_details['partner_id'] = $booking['partner_id'];
-                if($this->input->post('order_item_id')){
-                    $services_details['sub_order_id'] = trim($this->input->post('order_item_id'));
-                }
+                $services_details['sub_order_id'] = trim($order_item_id[$key]);
                 
 
                 log_message('info', __METHOD__ . "Appliance ID" . print_r($appliance_id, true));
