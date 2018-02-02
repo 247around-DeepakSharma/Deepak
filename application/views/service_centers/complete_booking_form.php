@@ -99,10 +99,10 @@
                             <div class="row">
                                 <div class="col-md-12">
                                     <div <?php if($this->session->userdata('is_engineer_app') == 1){?> class="col-md-8" <?php } else { ?> class="col-md-12" <?php } ?> >
-                                        <div class="form-group col-md-4" style="<?php if($this->session->userdata('is_engineer_app') == 1){?>width:29.32%;
+                                        <div class="form-group col-md-4" style="<?php if($this->session->userdata('is_engineer_app') == 1){?>width:26.32%;
                                             <?php } else {?> width:26.32%;<?php }?>">
                                             <div class="col-md-12" style="padding-left:0px;">
-                                                <!--                                            <label> Is Appliance Broken</label>-->
+                                                <label> Is Broken</label>
                                                 <select type="text" class="form-control appliance_broken" id="<?php echo "broken_".$key1?>" name="broken[]" onchange="check_broken('<?php echo $key1;?>')" required>
                                                     <option selected disabled>Is Broken</option>
                                                     <option  value="1">Yes</option>
@@ -114,6 +114,7 @@
                                         <div class="form-group col-md-4" style="<?php if($this->session->userdata('is_engineer_app') == 1){?>width:29.32%;
                                             <?php } else {?> width:26.32%;<?php }?>">
                                             <div class="col-md-12 ">
+                                                 <label> Brand</label>
                                                 <select type="text" disabled="" class="form-control appliance_brand"    name="appliance_brand[]" id="appliance_brand_1" >
                                                     <option selected disabled><?php echo $unit_details['brand']; ?></option>
                                                 </select>
@@ -121,6 +122,7 @@
                                         </div>
                                         <div class="form-group col-md-4" style="width:29.3%">
                                             <div class="col-md-12 ">
+                                                <label> Category</label>
                                                 <select type="text" disabled="" class="form-control appliance_category"   id="appliance_category_1" name="appliance_category[]"  >
                                                     <option selected disabled><?php echo $unit_details['category']; ?></option>
                                                 </select>
@@ -128,6 +130,7 @@
                                         </div>
                                         <div class="form-group col-md-4"style="width:29.2%" style=" padding-right: 0px;">
                                             <div class="col-md-12">
+                                                <label> Capacity</label>
                                                 <select type="text" disabled="" class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity[]" >
                                                     <?php if (!empty($unit_details['capacity'])) { ?>
                                                     <option selected disabled><?php echo $unit_details['capacity']; ?></option>
