@@ -373,7 +373,7 @@ class Buyback {
                     "gst_amount" => $gst_amount));
                 // Insert state change
                 if (!empty($this->My_CI->session->userdata('service_center_id'))) {
-                    $this->insert_bb_state_change($order_id, _247AROUND_COMPLETED, _247AROUND_BB_DELIVERED, $this->POST_DATA['cp_id'], Null, $this->POST_DATA['cp_id']);
+                    $this->insert_bb_state_change($order_id, _247AROUND_COMPLETED, _247AROUND_BB_DELIVERED, $this->POST_DATA['agent_id'], Null, $this->POST_DATA['cp_id']);
                 } else {
                     $this->insert_bb_state_change($order_id, _247AROUND_COMPLETED, _247AROUND_BB_DELIVERED, $this->My_CI->session->userdata('id'), _247AROUND, Null);
                 }
