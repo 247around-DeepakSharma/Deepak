@@ -517,6 +517,8 @@ class bookings_excel extends CI_Controller {
                                 $is_price['is_upcountry'] = $prices[0]['is_upcountry'];
                                 $flag = array('1');
                             }
+                            
+                            $unit_details['booking_status'] = _247AROUND_FOLLOWUP;
 
 
                             $booking['potential_value'] = '';
