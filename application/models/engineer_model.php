@@ -69,9 +69,17 @@ class Engineer_model extends CI_Model {
     }
     
     function insert_engineer_action_sign($data){
-         $this->db->insert("engineer_table_sign", $data);
-          return $this->db->insert_id();
-     }
+        $this->db->insert("engineer_table_sign", $data);
+        return $this->db->insert_id();
+    }
+    
+    function get_engineer_sign($select, $where){
+        $this->db->select($select);
+        $this->db->where($where);
+        $query = $this->db->get("engineer_table_sign");
+        return $query->result_array();
+        
+    }
      
      function get_engineer_action_table_list($post, $select) {
         $this->_get_engineer_action_table_list($post, $select);

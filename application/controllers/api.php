@@ -3019,10 +3019,10 @@ class Api extends CI_Controller {
             }
            
 
-            if($value['pod'] == "1" || count($unitDetails) == 1){
+            if($value['pod'] == "1"){
                 if(isset($value["serialNo"])){
                     $data['serial_number'] = $value["serialNo"];
-                    $sn_pic_url = $value['bookingID']."_" . $value["unitID"]."_serialNO".".png";
+                    $sn_pic_url = $value['bookingID']."_" . $value["unitID"]."_serialNO_".rand(10,100).".png";
                     
                     $this->generate_image($value["serialNoImage"],$sn_pic_url );
                     
@@ -3041,7 +3041,7 @@ class Api extends CI_Controller {
         }
         
         if($validation){
-            $sign_pic_url = $booking_id."_sign".".png";
+            $sign_pic_url = $booking_id."_sign_".rand(10,100).".png";
                    
             $this->generate_image($requestData["SignatureEncode"],$sign_pic_url );
             
@@ -3057,8 +3057,13 @@ class Api extends CI_Controller {
             }
             $en["service_center_id"] = $requestData['service_center_id'];
             $en["engineer_id"] = $requestData['engineer_id'];
-                    
-            $this->engineer_model->insert_engineer_action_sign($en);
+            $is_exist = $this->engineer_model->get_engineer_sign("id", array("service_center_id" => $requestData['service_center_id'], "booking_id" => $booking_id));
+            if(!empty($is_exist)){
+                $this->engineer_model->update_engineer_action_sig(array("id"=> $is_exist[0]['id']), $en);
+            } else {
+                $this->engineer_model->insert_engineer_action_sign($en);
+            }
+            
             $this->notify->insert_state_change($booking_id, ENGINEER_COMPLETE_STATUS, _247AROUND_PENDING, "Booking Updated By Engineer From App", 
                     $requestData['sc_agent_id'], "", NULL, $requestData['service_center_id']);
             
