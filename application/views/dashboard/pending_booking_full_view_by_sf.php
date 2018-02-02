@@ -31,7 +31,7 @@
       </tr>
     </thead>
     <tbody>
-     <tr ng-repeat="y in pendingBookingByRMFullView | limitTo:totalBookings |orderBy:'-total_pending_installation' ">
+     <tr ng-repeat="y in pendingBookingByRMFullView  |orderBy:'-total_pending_installation' | limitTo:totalBookings ">
         <td>{{$index+1}}</td>
         <td>{{y.name}}</td>
         <td><button ng-click="createBookingIDView(y.last_2_days_installation_booking_list)" type="button" class="btn btn-info btn-lg" style='margin: 0px;padding: 0px 6px;' data-toggle="modal" data-target="#pendingBookingDetails">{{y.last_2_days_installation_pending}}</button></td>
@@ -58,7 +58,7 @@
       </tr>
     </thead>
     <tbody>
-     <tr ng-repeat="y in pendingBookingByRMFullView | limitTo:totalBookingsRepair |orderBy:'-total_pending_repair'">
+     <tr ng-repeat="y in pendingBookingByRMFullView  |orderBy:'-total_pending_repair' | limitTo:totalBookingsRepair">
         <td>{{$index+1}}</td>
         <td>{{y.name}}</td>
          <td><button ng-click="createBookingIDView(y.last_2_days_repair_booking_list)" type="button" class="btn btn-info btn-lg" style='margin: 0px;padding: 0px 6px;' data-toggle="modal" data-target="#pendingBookingDetails">{{y.last_2_days_repair_pending}}</button></td>

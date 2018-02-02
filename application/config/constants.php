@@ -523,6 +523,8 @@ define('PUSH_NOTIFICATION_API_KEY','3d15cad629128ac894c9a73a0ff5852b');
 define('PUSH_NOTIFICATION_SUBSCRIBER_LIST_SEND_NOTIFICATION_URL','https://pushcrew.com/api/v1/send/list');
 
 define('BUYBACK','buyback');
-
+//Collateral 
+define('LEARNING_DOCUMENT','Brand_Collateral');
+define('CONTRACT','contract');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

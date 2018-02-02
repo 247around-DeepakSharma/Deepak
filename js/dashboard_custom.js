@@ -107,9 +107,14 @@ function init_sidebar() {
         if ($BODY.hasClass('nav-md')) {
             $SIDEBAR_MENU.find('li.active ul').hide();
             $SIDEBAR_MENU.find('li.active').addClass('active-sm').removeClass('active');
+            $('.side_menu_list_title').hide();
+            $MENU_TOGGLE.html("<i class='fa fa-arrow-right' aria-hidden='true'></i>");
         } else {
             $SIDEBAR_MENU.find('li.active-sm ul').show();
             $SIDEBAR_MENU.find('li.active-sm').addClass('active').removeClass('active-sm');
+            $('.side_menu_list_title').show();
+            $MENU_TOGGLE.html("<i class='fa fa-arrow-left' aria-hidden='true'></i>");
+            
         }
 
         $BODY.toggleClass('nav-md nav-sm');
@@ -118,13 +123,13 @@ function init_sidebar() {
     });
 
     // check active menu
-    $SIDEBAR_MENU.find('a[href="' + CURRENT_URL + '"]').parent('li').addClass('current-page');
-
-    $SIDEBAR_MENU.find('a').filter(function () {
-        return this.href == CURRENT_URL;
-    }).parent('li').addClass('current-page').parents('ul').slideDown(function () {
-        setContentHeight();
-    }).parent().addClass('active');
+//    $SIDEBAR_MENU.find('a[href="' + CURRENT_URL + '"]').parent('li').addClass('current-page');
+//
+//    $SIDEBAR_MENU.find('a').filter(function () {
+//        return this.href == CURRENT_URL;
+//    }).parent('li').addClass('current-page').parents('ul').slideDown(function () {
+//        setContentHeight();
+//    }).parent().addClass('active');
 
     // recompute content when resizing
     $(window).smartresize(function () {

@@ -86,7 +86,9 @@ class Login extends CI_Controller {
                 redirect(base_url() . "employee/login");
             }
         } else {
-            $data['partner_logo'] = $this->booking_model->get_partner_logo();
+            $select = "partner_logo,alt_text";
+            $where = array('partner_logo IS NOT NULL' => NULL);
+            $data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where);
             $this->load->view('employee/login',$data);
         }
     }
@@ -107,7 +109,9 @@ class Login extends CI_Controller {
      *  @return : Error on Admin Login Page
      */
     function loadView($output) {
-        $data['partner_logo'] = $this->booking_model->get_partner_logo();
+        $select = "partner_logo,alt_text";
+        $where = array('partner_logo IS NOT NULL' => NULL);
+        $data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where);
         $data['error'] = $output;
         $this->load->view('employee/login', $data);
     }
@@ -195,7 +199,9 @@ class Login extends CI_Controller {
         //$this->session->sess_destroy();
         $sess = $this->session->userdata('dealer_id');
         if(isset($sess)){
-            $data['partner_logo'] = $this->booking_model->get_partner_logo();
+            $select = "partner_logo,alt_text";
+            $where = array('partner_logo IS NOT NULL' => NULL);
+            $data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where);
             $this->load->view('dealers/login' ,$data);
         } else {
             echo $this->session->userdata('userType');

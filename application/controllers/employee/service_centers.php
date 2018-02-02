@@ -53,7 +53,9 @@ class Service_centers extends CI_Controller {
      * @return: void
      */
     function index() {
-        $data['partner_logo'] = $this->booking_model->get_partner_logo();
+        $select = "partner_logo,alt_text";
+        $where = array('partner_logo IS NOT NULL' => NULL);
+        $data['partner_logo'] = $this->booking_model->get_partner_logo($select, $where);
         $this->load->view('service_centers/service_center_login' ,$data);
     }
 
@@ -97,8 +99,8 @@ class Service_centers extends CI_Controller {
         if($this->session->userdata('is_update') == 1){
             //$data['engineer_details'] = $this->vendor_model->get_engineers($service_center_id);
             $data['spare_parts_data'] = $this->service_centers_model->get_updated_spare_parts_booking($service_center_id);
-
         }
+        //$data['collateral'] = $this->service_centers_model->get_collateral_for_service_center_bookings($service_center_id);
         $data['service_center_id'] = $service_center_id;
         $this->load->view('service_centers/pending_on_tab', $data);
     }
@@ -544,7 +546,7 @@ class Service_centers extends CI_Controller {
                 $penalty_select = "CASE WHEN ((count(booking_id) *  penalty_on_booking.penalty_amount) > cap_amount) THEN (cap_amount)
 
                 ELSE (COUNT(booking_id) * penalty_on_booking.penalty_amount) END  AS p_amount";
-                $penalty_where = array('booking_id' => $value['booking_id'],'service_center_id' => $service_center_id);
+                $penalty_where = array('booking_id' => $value['booking_id'],'service_center_id' => $service_center_id,'penalty_on_booking.active' => 1);
                 $p_amount = $this->penalty_model->get_penalty_on_booking_any($penalty_where, $penalty_select, array('CASE'));
                 
                 $is_customer_paid = 1;
@@ -2024,7 +2026,7 @@ class Service_centers extends CI_Controller {
                         //update order details table
                         $order_details_update_id = $this->bb_model->update_bb_order_details(array('partner_order_id' => $order_id, 'assigned_cp_id' => $cp_id), array('is_delivered' => '1'));
                         if (!empty($order_details_update_id)) {
-                            $this->buyback->insert_bb_state_change($order_id, _247AROUND_BB_IN_PROCESS, $remarks, $this->session->userdata('id'), _247AROUND, Null);
+                            $this->buyback->insert_bb_state_change($order_id, _247AROUND_BB_IN_PROCESS, $remarks, $this->session->userdata('service_center_agent_id'), NULL, $cp_id);
                             $this->session->set_userdata('success', 'Order has been updated successfully');
                             redirect(base_url() . 'service_center/buyback/bb_order_details');
                         } else {
@@ -2096,6 +2098,7 @@ class Service_centers extends CI_Controller {
         $data['service_id'] = rawurldecode($service_id);
         $data['city'] = rawurldecode($city);
         $data['cp_id'] = rawurldecode($cp_id);
+        $data['agent_id'] = $this->session->userdata('service_center_agent_id');
         
         $response = $this->buyback->process_update_received_bb_order_details($data);
 
@@ -2123,7 +2126,7 @@ class Service_centers extends CI_Controller {
         $data['service_id'] = rawurldecode($service_id);
         $data['city'] = rawurldecode($city);
         $data['cp_id'] = $this->session->userdata('service_center_id');
-
+        $agent_id = $this->session->userdata('service_center_agent_id');
         $request_data['select'] = "bb_cp_order_action.current_status";
         $request_data['length'] = -1;
         $request_data['where_in'] = array();
@@ -2147,7 +2150,7 @@ class Service_centers extends CI_Controller {
             $update_id = $this->cp_model->update_bb_cp_order_action($update_where, $update_data);
             if ($update_id) {
                 $this->buyback->insert_bb_state_change($data['order_id'], _247AROUND_BB_IN_PROCESS, _247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS, 
-                        $data['cp_id'], Null, $data['cp_id']);
+                        $agent_id, Null, $data['cp_id']);
 
                 $this->session->set_userdata('success', 'Order has been updated successfully');
                 redirect(base_url() . 'service_center/buyback/bb_order_details');
@@ -3056,5 +3059,35 @@ class Service_centers extends CI_Controller {
         
         return $output_pdf_file_name;
     }
+    
+    function get_learning_collateral_for_bookings(){
+        $booking_id = $this->input->post('booking_id');
+        $data = $this->service_centers_model->get_collateral_for_service_center_bookings($booking_id);
+        if(!empty($data)){
+            $finalString = '<table class="table">
+            <thead>
+              <tr>
+              <th>S.N</th>
+                <th>Document Type</th>
+                <th>File</th>
+              </tr>
+            </thead>
+            <tbody>';
+            $index =0;
+            foreach($data as $collatralData){
+                $url = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$collatralData['file'];
+                $index++;
+                $finalString .= '<tr><td>'.$index.'</td>';
+                $finalString .= '<td>'.$collatralData['collateral_type'].'</td>';
+                $finalString .=  '<td>'.$this->miscelleneous->get_reader_by_file_type($collatralData['document_type'],$url,"400").'</td>';
+                $finalString .='</tr>';
+            }
+           $finalString .='</tbody></table>';
+        }
+        else{
+            $finalString = "<p style='text-align:center;'>Brand Collateral is not available</p>";
+        }
 
+       echo $finalString;
+    }
 }

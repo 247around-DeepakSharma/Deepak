@@ -3351,7 +3351,7 @@ class vendor extends CI_Controller {
     function get_sc_charges_list(){
         log_message('info', __FUNCTION__.' Used by :'.$this->session->userdata('employee_id'));
         $sc_charges_data = $this->service_centre_charges_model->get_service_caharges_data("partner_id,services,category,capacity,service_category,vendor_basic_charges,"
-                . "vendor_tax_basic_charges,vendor_total,customer_net_payable",array("partner_id <> " => _247AROUND_DEMO_PARTNER));
+                . "vendor_tax_basic_charges,vendor_total,customer_net_payable",array("partner_id <> " => _247AROUND_DEMO_PARTNER , "service_category NOT IN ('".REPEAT_BOOKING_TAG."','".SPARE_PART_BOOKING_TAG."')" => NULL));
         $partner_id_array = array_unique(array_column($sc_charges_data, 'partner_id'));
         foreach($partner_id_array as $partnerID){
             $booking_sources_array[$partnerID] = '';

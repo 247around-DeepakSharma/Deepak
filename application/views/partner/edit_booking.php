@@ -1,23 +1,10 @@
-<style type="text/css">
-    /* example styles for validation form demo */
-    .err {
-    color: red;
-    }
-    #booking_form .form-group label.error {
-    color: #FB3A3A;
-    display: inline-block;
-    margin: 4px 0 5px 125px;
-    padding: 0;
-    text-align: left;
-    width: 220px;
-    }
+<style>
     .col-md-3{
         width: 25%;
     }
-    
     #dealer_list{
         float:left;
-        width:88%;
+        width:92%;
         max-height: 300px;
         list-style:none;
         margin-top:0px;
@@ -31,27 +18,18 @@
     }
     #dealer_list li{padding: 10px; border-bottom: #bbb9b9 1px solid;}
     #dealer_list li:hover{background:#e9ebee;cursor: pointer;}
-    
-    
 </style>
-<div id="page-wrapper" >
-    <div class="container-fluid" >
-        <form name="myForm" class="form-horizontal" id ="booking_form" action="<?php echo base_url()?>partner/process_update_booking/<?php echo $booking_history[0]['booking_id']; ?>"  method="POST" enctype="multipart/form-data">
-            <div class="panel panel-info" style="margin-top:20px;">
-                <div class="panel-heading">Step 1</div>
-                <div class="panel-body">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <?php if($this->session->userdata('success')) {
-                                echo '<div class="alert alert-danger alert-dismissible" role="alert">
-                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                    <strong>' . $this->session->userdata('success') . '</strong>
-                                </div>';
-                                }
-                                ?>
-                           
+<div class="right_col" role="main">
+    <form name="myForm" class="form-horizontal" id ="booking_form" action="<?php echo base_url()?>partner/process_update_booking/<?php echo $booking_history[0]['booking_id']; ?>"  method="POST" enctype="multipart/form-data">
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>Step 1</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                            
                             <div class="col-md-4 ">
                                 <div class="form-group col-md-12   <?php if( form_error('booking_primary_contact_no') ) { echo 'has-error';} ?>">
                                     <label for="booking_primary_contact_no">Mobile *</label>
@@ -62,7 +40,7 @@
                             
                             <div class="col-md-4" >
                                 <div class="form-group col-md-12 <?php if( form_error('user_name') ) { echo 'has-error';} ?>">
-                                    <label for="booking_primary_contact_no">Name *</label>
+                                    <label for="name">Name *</label>
                                     <input type="hidden" name="user_id" id="user_id" value="<?php if(isset($booking_history[0]['user_id'])){ echo $booking_history[0]['user_id']; } ?>" />
                                     <input type="hidden" name="assigned_vendor_id" id="assigned_vendor_id" value="<?php if(isset($booking_history[0]['assigned_vendor_id'])){ echo $booking_history[0]['assigned_vendor_id']; }  ?>" />
                                     <input type="hidden" name="upcountry_data" id="upcountry_data" value="" />
@@ -74,10 +52,11 @@
                                     <?php echo form_error('user_name'); ?>
                                 </div>
                             </div>
+                            
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 <?php if( form_error('service_id') ) { echo 'has-error';} ?>">
-                                    <label for="Appliance">Appliance * <span id="error_appliance" style="color: red;"></span></label>
-                                    <select type="text" class="form-control"  id="service_name" name="service_id"   required onchange="return get_brands(), get_category(), get_capacity()" readonly >
+                                    <label for="service_name">Appliance * <span id="error_appliance" style="color: red;"></span></label>
+                                    <select class="form-control"  id="service_name" name="service_id"   required onchange="return get_brands(), get_category(), get_capacity()">
                                         <option selected disabled>Select Appliance</option>
                                         <?php foreach ($appliances as $values) { ?>
                                         <option <?php if(count($appliances) ==1){echo "selected";} ?>  data-id="<?php echo $values->services;?>" value=<?= $values->id; ?> <?php if($booking_history[0]['service_id'] == $values->id){ echo "selected";} ?>>
@@ -88,8 +67,9 @@
                                     <span id="error_pincode" style="color: red;"></span>
                                 </div>
                             </div>
-                        </div>
-                         <div class="col-md-12">
+                         
+                            <div class="clearfix"></div>
+                            
                             <div class="col-md-4">
                                 <div class="form-group col-md-12  <?php if( form_error('booking_pincode') ) { echo 'has-error';} ?> ">
                                     <label for="booking_pincode">Pincode *   <span id="error_pincode" style="color: red;"></span></label>
@@ -97,55 +77,54 @@
                                     <?php echo form_error('booking_pincode'); ?>
                                 </div>
                             </div>
-                            <div class="col-md-4 ">
+                            
+                           <div class="col-md-4 ">
                                 <div class="form-group col-md-12  <?php if( form_error('city') ) { echo 'has-error';} ?>">
-                                    <label for="city ">City * <span id="error_city" style="color: red;"></span><span style="color:grey;display:none" id="city_loading">Loading ...</span></label>
-                                    
-                                    <select type="text" class="form-control"  id="booking_city" name="city" required >
-
-                                        <option value="<?php echo $booking_history[0]['city']; ?>" selected><?php echo $booking_history[0]['city']; ?></option>
-                                            
+                                    <label for="booking_city">City * <span id="error_city" style="color: red;"></span><span style="color:grey;display:none" id="city_loading">Loading ...</span></label>
+                                    <select class="form-control"  id="booking_city" name="city" required >
+                                        <option value="<?php echo $booking_history[0]['city']; ?>" selected><?php echo $booking_history[0]['city']; ?></option>         
                                     </select>
                                     <?php echo form_error('city'); ?>
                                 </div>
                             </div>
                             
                             <input type="hidden" name="appliance_name" id="appliance_name" value=""/>
+                            
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 <?php if( form_error('appliance_brand') ) { echo 'has-error';} ?>">
-                                    <label for="appliance_brand">Brand *  <span id="error_brand" style="color: red;"><span style="color:grey;display:none" id="brand_loading">Loading ...</span></label>
-                                    
-                                    <select type="text" class="form-control appliance_brand"    name="appliance_brand" id="appliance_brand_1" required onchange="return get_category()">
+                                    <label for="appliance_brand_1">Brand *  <span id="error_brand" style="color: red;"><span style="color:grey;display:none" id="brand_loading">Loading ...</span></label>  
+                                    <select class="form-control appliance_brand"    name="appliance_brand" id="appliance_brand_1" required onchange="return get_category()">
                                         <option selected disabled value="option1">Select Brand</option>
                                     </select>
                                     <?php echo form_error('appliance_brand'); ?>
                                 </div>
                             </div>
-                         </div>
-                         <div class="col-md-12">
-                            <div class="col-md-4 col-md-12">
+                            
+                            <div class="clearfix"></div>
+                            
+                            <div class="col-md-4">
                                 <div class="form-group col-md-12 <?php if( form_error('appliance_category') ) { echo 'has-error';} ?>">
-                                    <label for="appliance_category">Category * <span id="error_category" style="color: red;"> <span style="color:grey;display:none" id="category_loading">Loading ...</span></label>
-                                   
-                                    <select type="text" class="form-control appliance_category"   id="appliance_category_1" name="appliance_category"   required onchange="return get_capacity()">
+                                    <label for="appliance_category_1">Category * <span id="error_category" style="color: red;"> <span style="color:grey;display:none" id="category_loading">Loading ...</span></label>
+                                    <select class="form-control appliance_category"   id="appliance_category_1" name="appliance_category"   required onchange="return get_capacity()">
                                         <option selected disabled value="option1">Select Appliance Category</option>
                                     </select>
                                     <?php echo form_error('appliance_category'); ?>
                                 </div>
                             </div>
-                            <div class="col-md-4 col-md-12">
+                            
+                            <div class="col-md-4">
                                 <div class="form-group col-md-12 <?php if( form_error('appliance_capacity') ) { echo 'has-error';} ?>">
-                                    <label for="appliance_capacity">Capacity  <span id="error_capacity" style="color: red;"> <span style="color:grey;display:none" id="capacity_loading">Loading ...</span></label>
-                                   
-                                    <select type="text" class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity" onchange="return get_models(), getPrice()">
+                                    <label for="appliance_capacity_1">Capacity  <span id="error_capacity" style="color: red;"> <span style="color:grey;display:none" id="capacity_loading">Loading ...</span></label>
+                                    <select class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity" onchange="return get_models(), getPrice()">
                                         <option selected disabled value="option1">Select Appliance Capacity</option>
                                     </select>
                                     <?php echo form_error('appliance_capacity'); ?>
                                 </div>
                             </div>
-                            <div class="col-md-4 col-md-12">
+                            
+                            <div class="col-md-4">
                                 <div class="form-group col-md-12 <?php if( form_error('model_number') ) { echo 'has-error';} ?>">
-                                    <label for="Model Number">Model Number  <span id="error_model" style="color: red;"></label>
+                                    <label for="model_number_1">Model Number  <span id="error_model" style="color: red;"></label>
                                     <span id="model_number_2">
                                     <select class="form-control"  name="model_number" id="model_number_1" >
                                         <option selected disabled>Select Model</option>
@@ -154,25 +133,23 @@
                                     <?php echo form_error('model_number'); ?>
                                 </div>
                             </div>
-                            <div class="col-md-4 col-md-12">
-                               
+                            
+                            <div class="clearfix"></div>
+                            
+                            <div class="col-md-4">
                                 <div class="form-group col-md-12  <?php if( form_error('booking_date') ) { echo 'has-error';} ?>">
-                                    <label for="Booking Date ">Booking Date *</label>
-                                    <input type="date" class="form-control"  id="booking_date" name="booking_date"  value = "<?php echo date('Y-m-d', strtotime($booking_history[0]['booking_date'])); ?>"  >
-                                    <!--   -->
+                                    <label for="booking_date">Booking Date *</label>
+                                    <input type="text" class="form-control"  id="booking_date" name="booking_date"  value = "<?php echo date('Y-m-d', strtotime($booking_history[0]['booking_date'])); ?>">
                                     <?php echo form_error('booking_date'); ?>
                                 </div>
-                            
                             </div>
                              
                             <div class="col-md-4 ">
                                 <div class="form-group col-md-12  <?php if( form_error('partner_source') ) { echo 'has-error';} ?>">
-                                    <label for="Partner source ">Seller Channel*  <span id="error_seller" style="color: red;"></label>
-                                     
-                                    <select type="text" class="form-control"  id="partner_source" name="partner_source" >
+                                    <label for="partner_source">Seller Channel*  <span id="error_seller" style="color: red;"></label>
+                                    <select class="form-control"  id="partner_source" name="partner_source" >
                                         <option value="">Please select seller channel</option>
                                         <option <?php if(set_value('partner_source') == "Amazon"){ echo "selected";} else if($booking_history[0]['partner_source'] == 'Amazon') { echo "selected";} ?>>Amazon</option>
-<!--                                        <option <?php //if(set_value('partner_source') == "CallCenter"){ echo "selected";} else if($booking_history[0]['partner_source'] == 'CallCenter') { echo "selected";} ?>>CallCenter</option>-->
                                         <option <?php if(set_value('partner_source') == "Ebay"){ echo "selected";} else if($booking_history[0]['partner_source'] == 'Ebay') { echo "selected";} ?>>Ebay</option>
                                         <option <?php if(set_value('partner_source') == "Flipkart"){ echo "selected";} else if($booking_history[0]['partner_source'] == 'Flipkart') { echo "selected";} ?>>Flipkart</option>
                                         <option <?php if(set_value('partner_source') == "Offline"){ echo "selected";} else if($booking_history[0]['partner_source'] == 'Offline') { echo "selected";} ?>>Offline</option>
@@ -181,9 +158,7 @@
                                         <option <?php if(set_value('partner_source') == "Shopclues"){ echo "selected";} else if($booking_history[0]['partner_source'] == 'Shopclues') { echo "selected";} ?>>Shopclues</option>
                                         <option <?php if(set_value('partner_source') == "TataCliq"){ echo "selected";} else if($booking_history[0]['partner_source'] == 'TataCliq') { echo "selected";} ?>>TataCliq</option>
                                         <option <?php if(set_value('partner_source') == "Snapdeal"){ echo "selected";} else if($booking_history[0]['partner_source'] == 'Snapdeal') { echo "selected";} ?>>Snapdeal</option>
-                                        
                                     </select>
-                                    <!--   -->
                                     <?php echo form_error('booking_date'); ?>
                                 </div>
                             </div>
@@ -192,225 +167,285 @@
                                     }, $unit_details));
                                     
                                     ?>
-                            <div class="col-md-4 col-md-12">
+                            <div class="col-md-4">
                                 <div class="form-group col-md-5 ">
-                                    <label for="Appliance unit ">Unit* <span id="error_seller" style="color: red;"></label>
-                                     
-                                    <select type="text" style="width:55%" class="form-control" onchange="final_price()"  id="appliance_unit" name="appliance_unit" >
+                                    <label for="appliance_unit">Unit* <span id="error_seller" style="color: red;"></label>
+                                    <select style="width:55%" class="form-control" onchange="final_price()"  id="appliance_unit" name="appliance_unit" >
                                       
                                         <?php for($i =1; $i <26; $i++) { ?>
                                         <option value="<?php echo $i;?>" <?php if(count($unique_appliance) == $i){ echo "selected";} ?>><?php echo $i; ?></option>
                                         <?php }?>
-                                       
-                                       
-                                        
                                     </select>
-                                    <!--   -->
-                                    
                                 </div>
-
-<!--                                <div class="form-group col-md-7  <?php //if( form_error('product_type') ) { echo 'has-error';} ?>">
-                                     <label for="Product Type">Product Type *</label>
-                                   <?php //if(empty($booking_history[0]['assigned_vendor_id'])){ ?>
-                                     <label class="radio-inline">
-                                        <input type="radio" name="product_type" value="Delivered" checked>Delivered
-                                      </label>
-                                      <label class="radio-inline">
-                                          <input type="radio" name="product_type" value="Shipped">Shipped
-                                      </label>
-                                   <?php //} else  {?>
-                                    <label class="radio-inline">
-                                        <input type="radio" name="product_type" value="Delivered" checked>Delivered
-                                      </label>
-                                   <?php //} ?>
-                                    <?php //echo form_error('product_type'); ?>
-                                </div>-->
                             </div>
                             
-                            <!-- end col-md-6 -->
-                        </div>
+                            <div class="clearfix"></div>
                     </div>
                 </div>
             </div>
-                        <!-- end -->
-            <div class="panel panel-info" style="margin-top:20px;">
-                <div class="panel-heading">Step 2</div>
-                <div class="panel-body">
-                    <div class="row">
+        </div>
+        
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>Step 2</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
                         <div class="col-md-12">
-
-                            <div class="form-group">
-                                <div  class="col-md-12">
-                                    <table class="table priceList table-striped table-bordered" name="priceList" id="priceList">
-                                        <tr class="text-center">
-                                            <th class="text-center">Service Category</th>
-                                            <th class="text-center">Final Charges</th>
-                                            <th class="text-center" id='selected_service'>Selected Services</th>
-                                        </tr>
-                                    </table>
-                                </div>
+                            <div  class="form-group col-md-12">
+                                <table class="table priceList table-striped table-bordered" id="priceList">
+                                    <tr class="text-center">
+                                        <th class="text-center">Service Category</th>
+                                        <th class="text-center">Final Charges</th>
+                                        <th class="text-center" id='selected_service'>Selected Services</th>
+                                    </tr>
+                                </table>
                             </div>
-                           
-                                <div class="col-md-4 ">
-                                <div class="form-group col-md-12  ">
-                                    <label for="Grand total">Grand Total *</label>
-                                    <input  type="text" class="form-control"  name="grand_total" id="grand_total" value = "<?php echo set_value('grand_total'); ?>" placeholder="0.00" readonly >
-                                    
-                                </div>
-                            </div> 
-                           
                         </div>
+
+                        <div class="col-md-4">
+                            <div class="form-group col-md-12  ">
+                                <label for="grand_total">Grand Total *</label>
+                                <input  type="text" class="form-control"  name="grand_total" id="grand_total" value = "<?php echo set_value('grand_total'); ?>" placeholder="0.00" readonly >
+
+                            </div>
+                        </div> 
+
                     </div>
                 </div>
             </div>
-            <!-- row End  -->
-            <div class="clonedInput panel panel-info " id="clonedInput1">
-                <div class="panel-heading">
-                    Step 3
-                </div>
-                <div class="panel-body">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="col-md-3 ">
-                                <div class="form-group col-md-12    <?php if( form_error('order_id') ) { echo 'has-error';} ?>">
-                                    <label for="order id">Order ID * <span id="error_order_id" style="color:red"></span></label>
-                                    <input class="form-control" name= "order_id" value="<?php if(!empty(set_value('order_id'))){ echo set_value('order_id'); } else { echo $booking_history[0]['order_id'];} ?>" placeholder ="Please Enter Order ID" id="order_id"  />
-                                    
-                                </div>
+        </div>
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>Step 3</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="col-md-3 ">
+                            <div class="form-group col-md-12    <?php if (form_error('order_id')) {echo 'has-error';} ?>">
+                                <label for="order_id">Order ID * <span id="error_order_id" style="color:red"></span></label>
+                                <input class="form-control" name= "order_id" value="<?php if (!empty(set_value('order_id'))) {
+                                        echo set_value('order_id');
+                                    } else {
+                                        echo $booking_history[0]['order_id'];
+                                    } ?>" placeholder ="Please Enter Order ID" id="order_id"/>
                             </div>
-                            <div class="col-md-3 ">
-                                <div class="form-group col-md-12  <?php if( form_error('serial_number') ) { echo 'has-error';} ?>">
-                                    <label for="serial NUmber">Serial Number * <span id="error_serial_number" style="color:red"></span></label>
-                                    <input  type="text" class="form-control"  name="serial_number" id="serial_number" value = "<?php if(!empty(set_value('serial_number'))){ echo set_value('serial_number'); } else { echo $unit_details[0]['serial_number'];} ?>" placeholder="Enter Serial Number" >
-                                    
-                                </div>
-                            </div> 
-                            <div class="col-md-3 ">
-                                <div class="form-group col-md-12  <?php if( form_error('dealer_phone_number') ) { echo 'has-error';} ?>">
-                                    <label for="dealer_phone_number">Dealer Phone Number  <span id="error_dealer_phone_number" style="color:red"></span></label>
-                                    <input  type="text" class="form-control"  name="dealer_phone_number" id="dealer_phone_number" value = "<?php if(isset($dealer_data)){echo $dealer_data['dealer_phone_number_1'] ;}?>" placeholder="Enter Dealer Phone Number" autocomplete="off">
-                                    <div id="dealer_phone_suggesstion_box"></div>
-                                </div>
+                        </div>
+
+                        <div class="col-md-3 ">
+                            <div class="form-group col-md-12  <?php if (form_error('serial_number')) {echo 'has-error';} ?>">
+                                <label for="serial_number">Serial Number * <span id="error_serial_number" style="color:red"></span></label>
+                                <input  type="text" class="form-control"  name="serial_number" id="serial_number" value = "<?php if (!empty(set_value('serial_number'))) {
+                                        echo set_value('serial_number');
+                                    } else {
+                                        echo $unit_details[0]['serial_number'];
+                                    } ?>" placeholder="Enter Serial Number" >
                             </div>
-                            <div class="col-md-3 ">
-                                <div class="form-group col-md-12  <?php if( form_error('dealer_name') ) { echo 'has-error';} ?>">
-                                    <label for="dealer_name">Dealer Name *  <span id="error_dealer_name" style="color:red"></span></label>
-                                    <input  type="text" class="form-control"  name="dealer_name" id="dealer_name" value = "<?php if(isset($dealer_data)){echo $dealer_data['dealer_name'] ;}?>" placeholder="Enter Dealer Name" autocomplete="off">
-                                    <input type="hidden" name="dealer_id" id="dealer_id" value="<?php if(isset($dealer_data)){echo $dealer_data['dealer_id'] ;}?>">
-                                     <div id="dealer_name_suggesstion_box"></div>
-                                </div>
-                            </div> 
-                            
-                            <div class="col-md-6 ">
-                                <div class="form-group col-md-12  <?php if( form_error('purchase_month') ) { echo 'has-error';} ?>">
-                                    <label for="Date of Purchase">Date of Purchase</label>
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <select  type="text" class=" form-control "   name="purchase_month" id="purchase_month_1" >
-                                                
-                                                <?php //$current_month = date("M"); for($i = 0; $i< 12; $i++){ ?>
-<!--                                                <option  <?php //if(set_value('purchase_month') == date('M', strtotime("+ $i month"))){ echo "selected";} 
-                                                  //else if(date('M', strtotime("+ $i month")) == $current_month){ echo "selected";}
-                                                  //else if(date('M', strtotime("+ $i month")) == $unit_details[0]['purchase_month']){ echo "selected";}?> >
-                                                    <?php// echo date('M', strtotime("+ $i month")); ?>
-                                                </option>-->
-                                                <?php //}  ?>
-                                                <option selected="selected" value="" disabled=""> Select Month</option>
-                                                <option <?php if(set_value('purchase_month') === "Jan"){ echo "selected";} else if($unit_details[0]['purchase_month'] === "Jan"){ echo "selected";} ?> >Jan</option>
-                                                <option <?php if(set_value('purchase_month') === "Feb"){ echo "selected";} else if($unit_details[0]['purchase_month'] === "Feb"){ echo "selected";} ?>>Feb</option>
-                                                <option <?php if(set_value('purchase_month') === "Mar"){ echo "selected";} else if($unit_details[0]['purchase_month'] === "Mar"){ echo "selected";} ?>>Mar</option>
-                                                <option <?php if(set_value('purchase_month') === "Apr"){ echo "selected";} else if($unit_details[0]['purchase_month'] === "Apr"){ echo "selected";} ?>>Apr</option>
-                                                <option <?php if(set_value('purchase_month') === "May"){ echo "selected";} else if($unit_details[0]['purchase_month'] === "May"){ echo "selected";} ?>>May</option>
-                                                <option <?php if(set_value('purchase_month') === "Jun"){ echo "selected";} else if($unit_details[0]['purchase_month'] === "Jun"){ echo "selected";} ?>>Jun</option>
-                                                <option <?php if(set_value('purchase_month') === "July"){ echo "selected";} else if($unit_details[0]['purchase_month'] === "July"){ echo "selected";} ?> >July</option>
-                                                <option <?php if(set_value('purchase_month') === "Aug"){ echo "selected";} else if($unit_details[0]['purchase_month'] === "Aug"){ echo "selected";} ?>>Aug</option>
-                                                <option <?php if(set_value('purchase_month') === "Sept"){ echo "selected";} else if($unit_details[0]['purchase_month'] === "Sept"){ echo "selected";} ?>>Sept</option>
-                                                <option <?php if(set_value('purchase_month') === "Oct"){ echo "selected";} else if($unit_details[0]['purchase_month'] === "Oct"){ echo "selected";} ?>>Oct</option>
-                                                <option <?php if(set_value('purchase_month') === "Nov"){ echo "selected";} else if($unit_details[0]['purchase_month'] === "Nov"){ echo "selected";} ?>>Nov</option>
-                                                <option <?php if(set_value('purchase_month') === "Dec"){ echo "selected";} else if($unit_details[0]['purchase_month'] === "Dec"){ echo "selected";}?>>Dec</option>
-                                            </select>
-                                            <p><?php echo form_error('purchase_month'); ?></p>
-                                        </div> 
-                                        <div class="col-md-6">
-                                            <select  type="text" class="form-control "   name="purchase_year" id="purchase_year_1" >
-                                                 <?php $current_year = date('Y'); for($i = 0; $i> -26; $i--){ ?>
-                                                <option  <?php if(set_value('purchase_year') == date("Y",strtotime($i." year"))){ echo "selected";} 
-                                                  else if(date("Y",strtotime($i." year")) == $current_year){ echo "selected";}
-                                                  else if(date("Y",strtotime($i." year")) == $unit_details[0]['purchase_year']){ echo "selected";}?> >
-                                                    <?php echo date("Y",strtotime($i." year")); ?>
+                        </div> 
+
+                        <div class="col-md-3 ">
+                            <div class="form-group col-md-12  <?php if (form_error('dealer_phone_number')) {echo 'has-error';} ?>">
+                                <label for="dealer_phone_number">Dealer Phone Number  <span id="error_dealer_phone_number" style="color:red"></span></label>
+                                <input  type="text" class="form-control"  name="dealer_phone_number" id="dealer_phone_number" value = "<?php if (isset($dealer_data)) {
+                                        echo $dealer_data['dealer_phone_number_1'];
+                                    } ?>" placeholder="Enter Dealer Phone Number" autocomplete="off">
+                                <div id="dealer_phone_suggesstion_box"></div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 ">
+                            <div class="form-group col-md-12  <?php if (form_error('dealer_name')) {echo 'has-error';} ?>">
+                                <label for="dealer_name">Dealer Name *  <span id="error_dealer_name" style="color:red"></span></label>
+                                <input  type="text" class="form-control"  name="dealer_name" id="dealer_name" value = "<?php if (isset($dealer_data)) {
+                                        echo $dealer_data['dealer_name'];
+                                    } ?>" placeholder="Enter Dealer Name" autocomplete="off">
+                                                                    <input type="hidden" name="dealer_id" id="dealer_id" value="<?php if (isset($dealer_data)) {
+                                        echo $dealer_data['dealer_id'];
+                                    } ?>">
+                                <div id="dealer_name_suggesstion_box"></div>
+                            </div>
+                        </div> 
+
+                        <div class="col-md-6 ">
+                            <div class="form-group col-md-12  <?php if (form_error('purchase_month')) { echo 'has-error';} ?>">
+                                <label for="purchase_month_1">Date of Purchase</label>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <select class="form-control" name="purchase_month" id="purchase_month_1">
+                                            <option selected="selected" value="" disabled=""> Select Month</option>
+                                            <option <?php if (set_value('purchase_month') === "Jan") {
+                                                echo "selected";
+                                            } else if ($unit_details[0]['purchase_month'] === "Jan") {
+                                                echo "selected";
+                                            } ?> >Jan</option>
+                                            <option <?php if (set_value('purchase_month') === "Feb") {
+                                                echo "selected";
+                                            } else if ($unit_details[0]['purchase_month'] === "Feb") {
+                                                echo "selected";
+                                            } ?>>Feb</option>
+                                            <option <?php if (set_value('purchase_month') === "Mar") {
+                                                echo "selected";
+                                            } else if ($unit_details[0]['purchase_month'] === "Mar") {
+                                                echo "selected";
+                                            } ?>>Mar</option>
+                                            <option <?php if (set_value('purchase_month') === "Apr") {
+                                                echo "selected";
+                                            } else if ($unit_details[0]['purchase_month'] === "Apr") {
+                                                echo "selected";
+                                            } ?>>Apr</option>
+                                            <option <?php if (set_value('purchase_month') === "May") {
+                                                echo "selected";
+                                            } else if ($unit_details[0]['purchase_month'] === "May") {
+                                                echo "selected";
+                                            } ?>>May</option>
+                                            <option <?php if (set_value('purchase_month') === "Jun") {
+                                                echo "selected";
+                                            } else if ($unit_details[0]['purchase_month'] === "Jun") {
+                                                echo "selected";
+                                            } ?>>Jun</option>
+                                            <option <?php if (set_value('purchase_month') === "July") {
+                                                echo "selected";
+                                            } else if ($unit_details[0]['purchase_month'] === "July") {
+                                                echo "selected";
+                                            } ?> >July</option>
+                                            <option <?php if (set_value('purchase_month') === "Aug") {
+                                                echo "selected";
+                                            } else if ($unit_details[0]['purchase_month'] === "Aug") {
+                                                echo "selected";
+                                            } ?>>Aug</option>
+                                            <option <?php if (set_value('purchase_month') === "Sept") {
+                                                echo "selected";
+                                            } else if ($unit_details[0]['purchase_month'] === "Sept") {
+                                                echo "selected";
+                                            } ?>>Sept</option>
+                                            <option <?php if (set_value('purchase_month') === "Oct") {
+                                                echo "selected";
+                                            } else if ($unit_details[0]['purchase_month'] === "Oct") {
+                                                echo "selected";
+                                            } ?>>Oct</option>
+                                            <option <?php if (set_value('purchase_month') === "Nov") {
+                                                echo "selected";
+                                            } else if ($unit_details[0]['purchase_month'] === "Nov") {
+                                                echo "selected";
+                                            } ?>>Nov</option>
+                                            <option <?php if (set_value('purchase_month') === "Dec") {
+                                                echo "selected";
+                                            } else if ($unit_details[0]['purchase_month'] === "Dec") {
+                                                echo "selected";
+                                            } ?>>Dec</option>
+                                        </select>
+                                        <p><?php echo form_error('purchase_month'); ?></p>
+                                    </div> 
+
+                                    <div class="col-md-6">
+                                        <select class="form-control" name="purchase_year" id="purchase_year_1" >
+                                            <?php $current_year = date('Y'); for ($i = 0; $i > -26; $i--) { ?>
+                                                <option  <?php
+                                                    if (set_value('purchase_year') == date("Y", strtotime($i . " year"))) {
+                                                        echo "selected";
+                                                    } else if (date("Y", strtotime($i . " year")) == $current_year) {
+                                                        echo "selected";
+                                                    } else if (date("Y", strtotime($i . " year")) == $unit_details[0]['purchase_year']) {
+                                                        echo "selected";
+                                                    }
+                                                    ?> >
+                                                    <?php echo date("Y", strtotime($i . " year")); ?>
                                                 </option>
-                                                <?php }  ?>
-                                            </select>
-                                        </div>
+                                            <?php } ?>
+                                        </select>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                 <div class="form-group col-md-12  <?php if( form_error('query_remarks') ) { echo 'has-error';} ?>">
-                                     <label for="landmark ">Remarks  <span id="error_remarks" style="color: red;"></label>
-                                    <textarea class="form-control" rows="2" id="remarks" name="query_remarks"  placeholder="Enter Problem Description" ><?php if(set_value('query_remarks')) { echo set_value('query_remarks'); } else { echo $booking_history[0]['booking_remarks'];} ?></textarea>
-                                    <?php echo form_error('query_remarks'); ?>
-                                </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group col-md-12  <?php if (form_error('query_remarks')) {echo 'has-error';} ?>">
+                                <label for="remarks">Remarks  <span id="error_remarks" style="color: red;"></label>
+                                <textarea class="form-control" rows="2" id="remarks" name="query_remarks"  placeholder="Enter Problem Description" ><?php if (set_value('query_remarks')) {
+                                        echo set_value('query_remarks');
+                                    } else {
+                                        echo $booking_history[0]['booking_remarks'];
+                                    } ?>
+                                </textarea>
+                                <?php echo form_error('query_remarks'); ?>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="panel panel-info" style="margin-top:20px;">
-                <div class="panel-heading">Step 4</div>
-                <div class="panel-body">
-                    <div class="row">
-                        <div class="col-md-12">
-                           
-                            <div class="col-md-4 ">
-                                <div class="form-group col-md-12  <?php if( form_error('alternate_phone_number') ) { echo 'has-error';} ?>">
-                                    <label for="alternate_phone_number ">Alternate Mobile</label>
-                                    <input type="text" class="form-control booking_alternate_contact_no"  id="booking_alternate_contact_no" name="alternate_phone_number" value = "<?php if(set_value('alternate_phone_number')){ echo set_value('alternate_phone_number'); } else { echo $booking_history[0]['booking_alternate_contact_no'];} ?>" placeholder ="Please Enter Alternate Contact No" >
-                                    <?php echo form_error('alternate_phone_number'); ?>
-                                </div>
+        </div>
+        <div class="clearfix"></div>
+        
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>Step 4</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        
+                        <div class="col-md-4 ">
+                            <div class="form-group col-md-12  <?php if( form_error('alternate_phone_number') ) { echo 'has-error';} ?>">
+                                <label for="booking_alternate_contact_no">Alternate Mobile</label>
+                                <input type="text" class="form-control booking_alternate_contact_no"  id="booking_alternate_contact_no" name="alternate_phone_number" value = "<?php if(set_value('alternate_phone_number')){ echo set_value('alternate_phone_number'); } else { echo $booking_history[0]['booking_alternate_contact_no'];} ?>" placeholder ="Please Enter Alternate Contact No" >
+                                <?php echo form_error('alternate_phone_number'); ?>
                             </div>
-                            <div class="col-md-4 ">
-                                <div class="form-group col-md-12  <?php if( form_error('user_email') ) { echo 'has-error';} ?>">
-                                    <label for="user_email ">Email </label>
-                                    <input type="email" class="form-control"  id="booking_user_email" name="user_email" value = "<?php if(set_value('user_email')){ echo set_value('user_email'); } else { echo $booking_history[0]['user_email'];} ?>" placeholder="Please Enter User Email">
-                                    <?php echo form_error('user_email'); ?>
-                                </div>
-                            </div>
+                        </div>
                             
-                            <div class="col-md-4 ">
-                                <div class="form-group col-md-12  <?php if( form_error('landmark') ) { echo 'has-error';} ?>">
-                                    <label for="landmark ">Landmark </label>
-                                    <input type="text" class="form-control" id="landmark" name="landmark" value = "<?php if(set_value('landmark')){ echo set_value('landmark'); } else { echo $booking_history[0]['booking_landmark'];} ?>" placeholder="Enter Any Landmark">
-                                    <?php echo form_error('landmark'); ?>
-                                </div>
+                        <div class="col-md-4 ">
+                            <div class="form-group col-md-12  <?php if( form_error('user_email') ) { echo 'has-error';} ?>">
+                                <label for="booking_user_email">Email </label>
+                                <input type="email" class="form-control"  id="booking_user_email" name="user_email" value = "<?php if(set_value('user_email')){ echo set_value('user_email'); } else { echo $booking_history[0]['user_email'];} ?>" placeholder="Please Enter User Email">
+                                <?php echo form_error('user_email'); ?>
                             </div>
-                            <div class="col-md-12 ">
-                                <div class="form-group col-md-12  <?php if( form_error('booking_address') ) { echo 'has-error';} ?>">
-                                    <label for="landmark ">Booking Address *  <span id="error_address" style="color: red;"></label>
-                                    <textarea class="form-control" rows="2" id="booking_address" name="booking_address" placeholder="Please Enter Address"  required ><?php if(set_value('booking_address')){ echo set_value('booking_address'); } else { echo $booking_history[0]['booking_address'];} ?></textarea>
-                                    <?php echo form_error('booking_address'); ?>
-                                </div>
-                            </div>
-                           
                         </div>
+                            
+                        <div class="col-md-4 ">
+                            <div class="form-group col-md-12  <?php if( form_error('landmark') ) { echo 'has-error';} ?>">
+                                <label for="landmark">Landmark </label>
+                                <input type="text" class="form-control" id="landmark" name="landmark" value = "<?php if(set_value('landmark')){ echo set_value('landmark'); } else { echo $booking_history[0]['booking_landmark'];} ?>" placeholder="Enter Any Landmark">
+                                <?php echo form_error('landmark'); ?>
+                            </div>
+                        </div>
+                            
+                        <div class="col-md-12 ">
+                            <div class="form-group col-md-12  <?php if( form_error('booking_address') ) { echo 'has-error';} ?>">
+                                <label for="booking_address">Booking Address *  <span id="error_address" style="color: red;"></label>
+                                <textarea class="form-control" rows="2" id="booking_address" name="booking_address" placeholder="Please Enter Address"  required ><?php if(set_value('booking_address')){ echo set_value('booking_address'); } else { echo $booking_history[0]['booking_address'];} ?></textarea>
+                                <?php echo form_error('booking_address'); ?>
+                            </div>
+                        </div>
+                        
                     </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="form-group  col-md-12" >
-                    <center>
-                        <input type="hidden" name="product_type" value="Delivered"/>
-                        <input type="submit" id="submitform" class="btn btn-primary "<?php if(count($unique_appliance) > 1){ echo "disabled";}?> onclick="return check_validation()" value="Submit Booking">
-                    </center>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_content">
+                        <center>
+                            <input type="hidden" name="product_type" value="Delivered"/>
+                            <input type="submit" id="submitform" class="btn btn-success "<?php if(count($unique_appliance) > 1){ echo "disabled";}?> onclick="return check_validation()" value="Submit Booking">
+                        </center>
+                    </div>
                 </div>
             </div>
-        </form>
-        <!-- end Panel Body  -->
-    </div>
+        </div>
+    </form>
 </div>
+
 <script type="text/javascript">
     function check_validation(){
-         var exp1 = /^[6-9]{1}[0-9]{9}$/;
+        var exp1 = /^[6-9]{1}[0-9]{9}$/;
         var order_id =  $('#order_id').val();
         var booking_address = $('#booking_address').val();
         var mobile_number = $('#booking_primary_contact_no').val();
@@ -541,9 +576,7 @@
             document.getElementById(input_id).style.borderColor = color;
             document.getElementById(error_id).innerHTML = message;
     }
-</script>
-<?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
-<script type="text/javascript">
+    
     $("#booking_city").select2({
          tags: true
     });
@@ -554,16 +587,32 @@
     $("#appliance_category_1").select2();
     $("#partner_source").select2();
     var today = new Date();
-    $("#booking_date").datepicker({
-        dateFormat: 'yy-mm-dd', 
-        minDate: today.getHours() >= 12 ? 1 : 0,
-        beforeShowDay: function(date) {
-            var day = date.getDay();
-            return [(day !== 0), ''];
-        }
+//    $("#booking_date").datetimepicker({
+//        dateFormat: 'yy-mm-dd', 
+//        minDate: today.getHours() >= 12 ? 1 : 0,
+//        beforeShowDay: function(date) {
+//            var day = date.getDay();
+//            return [(day !== 0), ''];
+//        }
+//    });
+    
+    $('#booking_date').daterangepicker({
+                autoUpdateInput: false,
+                singleDatePicker: true,
+                showDropdowns: true,
+                minDate:today,
+                locale:{
+                    format: 'DD-MM-YYYY'
+                }
+            });
+            
+    $('#booking_date').on('apply.daterangepicker', function(ev, picker) {
+        $(this).val(picker.startDate.format('DD-MM-YYYY'));
     });
-    
-    
+
+    $('#booking_date').on('cancel.daterangepicker', function(ev, picker) {
+        $(this).val('');
+    });
     get_brands();
     
     //This funciton is used to get Distinct Brands for selected service for Logged Partner
@@ -920,10 +969,8 @@
         
     
   }
-    
-</script>
-<script>
-    $(document).ready(function(){
+  
+   $(document).ready(function(){
         $("#dealer_phone_number").keyup(function(){
             var partner_id = '<?php echo $this->session->userdata('partner_id')?>';
             if(partner_id !== undefined){
@@ -965,36 +1012,35 @@
         $("#dealer_name_suggesstion_box").hide();
     }
     
-function dealer_setup(partner_id,search_term,search_filed){
-                
-    if(search_term === ""){
-        $("#dealer_id").val("");
-        $("#dealer_name").val("");
-        $("#dealer_phone_number").val("");
-        $("#dealer_phone_suggesstion_box").hide();
-        $("#dealer_name_suggesstion_box").hide();
-    }else{
+    function dealer_setup(partner_id,search_term,search_filed){
 
-        $.ajax({
-            type: "POST",
-            url: baseUrl + "/employee/partner/get_dealer_details",
-            data: {partner_id: partner_id, search_term: search_term,dealer_field: search_filed},
-            beforeSend: function () {
-                //$("#search-box").css("background","#FFF url(LoaderIcon.gif) no-repeat 165px");
-            },
-            success: function (data) {
-                if(search_filed === "dealer_phone_number_1"){
-                    $("#dealer_phone_suggesstion_box").show();
-                    $("#dealer_phone_suggesstion_box").html(data);
-                    $("#dealer_phone_number").css("background", "#FFF");
-               } else {
-                    $("#dealer_name_suggesstion_box").show();
-                    $("#dealer_name_suggesstion_box").html(data);
-                    $("#dealer_name").css("background", "#FFF");
-               }
-            }
-        });
+        if(search_term === ""){
+            $("#dealer_id").val("");
+            $("#dealer_name").val("");
+            $("#dealer_phone_number").val("");
+            $("#dealer_phone_suggesstion_box").hide();
+            $("#dealer_name_suggesstion_box").hide();
+        }else{
+
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/employee/partner/get_dealer_details",
+                data: {partner_id: partner_id, search_term: search_term,dealer_field: search_filed},
+                beforeSend: function () {
+                    //$("#search-box").css("background","#FFF url(LoaderIcon.gif) no-repeat 165px");
+                },
+                success: function (data) {
+                    if(search_filed === "dealer_phone_number_1"){
+                        $("#dealer_phone_suggesstion_box").show();
+                        $("#dealer_phone_suggesstion_box").html(data);
+                        $("#dealer_phone_number").css("background", "#FFF");
+                   } else {
+                        $("#dealer_name_suggesstion_box").show();
+                        $("#dealer_name_suggesstion_box").html(data);
+                        $("#dealer_name").css("background", "#FFF");
+                   }
+                }
+            });
+        }
     }
-}
-
 </script>

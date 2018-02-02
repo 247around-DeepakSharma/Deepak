@@ -1800,9 +1800,8 @@ class Miscelleneous {
 
     function table_updated_history_view($orignalTable, $triggeredTable, $entityID) {
         $finalData = array();
-        $orderByArray[$triggeredTable . '.id,' . $triggeredTable . '.update_date'] = 'DESC';
         $joinArray = array("employee" => "employee.id=" . $triggeredTable . ".agent_id");
-        $triggeredTableData = $this->My_CI->reusable_model->get_search_result_data($triggeredTable, $triggeredTable . ".*,employee.full_name", array($triggeredTable.".id" => $entityID), $joinArray, NULL, $orderByArray, NULL, NULL);
+        $triggeredTableData = $this->My_CI->reusable_model->get_search_result_data($triggeredTable, $triggeredTable . ".*,employee.full_name", array($triggeredTable.".id" => $entityID), $joinArray, NULL,NULL, NULL, NULL);
         $orignalTableData = $this->My_CI->reusable_model->get_search_result_data($orignalTable, "*", array($orignalTable.".id" => $entityID), NULL, NULL, NULL, NULL, NULL);
         array_unshift($triggeredTableData,$orignalTableData[0]);
         if(count($triggeredTableData)>1){
@@ -2233,4 +2232,23 @@ class Miscelleneous {
             log_message('info', 'Rescheduled- Booking id: ' . $booking_id . " Rescheduled By " . $employeeID . " data " . print_r($data, true));
         }
     } 
+    function get_reader_by_file_type($type,$url,$width){
+        $finalString ='';
+        if($type == 'video'){
+            $finalString = '<video width="'.$width.'" controls>
+  <source src="'.$url.'" type="video/mp4">
+  Your browser does not support HTML5 video.
+</video>';
+        }
+        if($type == 'pdf'){
+            $finalString = '<a target="_blank" href="'.$url.'">View</a>';
+        }
+        if($type == 'audio'){
+            $finalString = '<audio controls>
+  <source src="'.$url.'" type="audio/ogg">
+Your browser does not support the audio element.
+</audio>';
+        }
+        return $finalString;
+    }
 }
