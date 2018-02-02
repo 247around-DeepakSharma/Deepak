@@ -29,6 +29,7 @@
                                 <th class="text-center">Engineer Name</th>
                                 <th class="text-center">Amount Due</th>
                                 <th class="text-center" >Amount Paid  </th>
+                                <th class="text-center" >Broken  </th>
                                 <th class="text-center" >Status</th>
                                 <th class="text-center" >Booking Pincode</th>
                                 <th class="text-center" >Engineer Address</th>
@@ -57,6 +58,7 @@
                                         <i class="fa fa-inr" aria-hidden="true"></i> <?php echo $row->amount_due; ?>
                                     </td>
                                     <td class="text-center"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo $row->amount_paid ?></td>
+                                    <td class="text-center"><?php if($row->is_broken ==1){ echo "Yes"; } else { echo "No";} ?></td>
                                     <td class="text-center"><?php echo $row->status ?></td>
                                     <td class="text-center"><?php echo $row->booking_address; ?></td>
                                     <td class="text-center" <?php if($row->booking_pincode != $row->en_pincode){?> style="color: red;" <?php } ?>><?php echo $row->en_address; ?></td>
