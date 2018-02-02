@@ -184,11 +184,11 @@ class Partner extends CI_Controller {
                         $is_partner_id = $this->miscelleneous->_allot_source_partner_id_for_pincode($service_id, $distict_details['state'], $requestData['brand'], $this->partner['id']);
 
                         if (!empty($is_partner_id) && !empty($service_id)) {
-                            $this->partner['id'] = $is_partner_id['partner_id'];
+                           
 
-                            $this->initialized_variable->fetch_partner_data($this->partner['id']);
+                            $this->initialized_variable->fetch_partner_data($is_partner_id['partner_id']);
 
-                            $booking['partner_id'] = $this->initialized_variable->get_partner_data()[0]['id'];
+                            $booking['partner_id'] = $is_partner_id['partner_id'];
                             $booking['source'] = $this->initialized_variable->get_partner_data()[0]['code'];
                             $booking['create_date'] = date("Y-m-d H:i:s");
 
@@ -197,24 +197,30 @@ class Partner extends CI_Controller {
                             $appliance_details['brand'] = $unit_details['appliance_brand'] = $requestData['brand'];
 
                             $appliance_details['model_number'] = $unit_details['model_number'] = (isset($requestData['model']) ? $requestData['model'] : "");
+                            $category = $capacity = "";
+                            if(isset($requestData['category'])){
+                                $category = $requestData['category'];
+                            }
+                            
+                            if(isset($requestData['subCategory'])){
+                                $capacity = $requestData['subCategory'];
+                            }
 
                             //Product description
                             $appliance_details['description'] = $unit_details['appliance_description'] = $requestData['productType'];
 
                             //Check for all optional parameters before setting them
-                            $appliance_details['category'] = $unit_details['appliance_category'] = isset($lead_details['service_appliance_data']['category']) ? $lead_details['service_appliance_data']['category'] : '';
+                            $appliance_details['category'] = $unit_details['appliance_category'] = isset($lead_details['service_appliance_data']['category']) ? $lead_details['service_appliance_data']['category'] : $category;
 
-//                        }
-
-                            $appliance_details['capacity'] = $unit_details['appliance_capacity'] = isset($lead_details['service_appliance_data']['capacity']) ? $lead_details['service_appliance_data']['capacity'] : '';
-
+                            $appliance_details['capacity'] = $unit_details['appliance_capacity'] = isset($lead_details['service_appliance_data']['capacity']) ? $lead_details['service_appliance_data']['capacity'] : $capacity;
+             
 
                             if ($this->initialized_variable->get_partner_data()[0]['partner_type'] == OEM) {
                                 //if partner type is OEM then sent appliance brand in argument
-                                $prices = $this->partner_model->getPrices($service_id, $unit_details['appliance_category'], $unit_details['appliance_capacity'], $booking['partner_id'], 'Installation & Demo', $unit_details['appliance_brand'], false);
+                                $prices = $this->partner_model->getPrices($service_id, $unit_details['appliance_category'], $unit_details['appliance_capacity'], $booking['partner_id'], $requestData['requestType'], $unit_details['appliance_brand'], false);
                             } else {
                                 //if partner type is not OEM then dose not sent appliance brand in argument
-                                $prices = $this->partner_model->getPrices($service_id, $unit_details['appliance_category'], $unit_details['appliance_capacity'], $booking['partner_id'], 'Installation & Demo', "", false);
+                                $prices = $this->partner_model->getPrices($service_id, $unit_details['appliance_category'], $unit_details['appliance_capacity'], $booking['partner_id'], $requestData['requestType'], "", false);
                             }
                             $booking['amount_due'] = '0';
 
@@ -224,6 +230,7 @@ class Partner extends CI_Controller {
                                 log_message('info', __FUNCTION__ . " => Prices Found");
                                 $unit_details['price_tags'] = $prices[0]['service_category'];
                                 $unit_details['id'] = $prices[0]['id'];
+                                
                                 $unit_details['around_paid_basic_charges'] = $unit_details['around_net_payable'] = "0.00";
                                 $unit_details['partner_paid_basic_charges'] = $prices[0]['partner_net_payable'];
                                 $unit_details['partner_net_payable'] = $prices[0]['partner_net_payable'];
@@ -231,7 +238,9 @@ class Partner extends CI_Controller {
                                 $is_price['customer_net_payable'] = $prices[0]['customer_net_payable'];
                                 $is_price['is_upcountry'] = $prices[0]['is_upcountry'];
                             }
-
+                            if(isset($requestData['itemID'])){
+                                $unit_details['sub_order_id'] = $requestData['itemID'];
+                            }
                             $booking['booking_primary_contact_no'] = $requestData['mobile'];
                             $booking['booking_alternate_contact_no'] = (isset($requestData['alternatePhone']) ? $requestData['alternatePhone'] : "");
 
@@ -241,7 +250,7 @@ class Partner extends CI_Controller {
                             $booking['booking_address'] = $requestData['address'] . ", " . (isset($requestData['landmark']) ? $requestData['landmark'] : "");
                             $booking['delivery_date'] = $this->getDateTime($requestData['deliveryDate']);
                             $booking['request_type'] = $requestData['requestType'];
-                            $booking['query_remarks'] = (isset($requestData['remarks']) ? $requestData['remarks'] : "");
+                            $booking['query_remarks'] = (isset($requestData['remarks']) ? $requestData['remarks'] : $requestData['requestType']);
 
 
                             //Add this as a Query now
@@ -280,7 +289,7 @@ class Partner extends CI_Controller {
                             $booking['type'] = "Query";
                             $booking['booking_date'] = '';
                             $booking['booking_timeslot'] = '';
-                            $booking['partner_source'] = 'STS';
+                            $booking['partner_source'] = $requestData['partnerName'].'-STS';
                             $booking['amount_due'] = '';
                             $booking['booking_remarks'] = '';
                             $booking['state'] = $distict_details['state'];
@@ -309,7 +318,7 @@ class Partner extends CI_Controller {
                                 $this->booking_model->addunitdetails($unit_details);
                             }
 
-                            $p_login_details = $this->dealer_model->entity_login(array('entity_id' => $this->partner['id'], "user_id" => 'STS'));
+                            $p_login_details = $this->dealer_model->entity_login(array('entity_id' => $this->partner['id'], "user_id" => strtolower($booking['partner_source'])));
 
                             $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY, $booking['query_remarks'], $p_login_details[0]['agent_id'], $requestData['partnerName'], $this->partner['id']);
 
@@ -706,7 +715,10 @@ class Partner extends CI_Controller {
         }
 
         //Check for Request type
-        $valid_request_types = array("Installation", "Demo", "Installation and Demo");
+        $valid_request_types = array("Installation", "Installation & Demo","Repair - In Warranty",
+            "Uninstallation", "Validation", "Visit Inspection", "Repair - In Warranty", "Repair - Out Of Warranty",
+            "Gas Recharge", "Wet Service", "Repair - In Warranty (Home Visit)", "Repair - In Warranty (Service Center Visit)",
+            "Repair - Out Of Warranty (Home Visit)", "Repair - Out Of Warranty (Service Center Visit)");
         if (($flag === TRUE) &&
                 (in_array($request['requestType'], $valid_request_types) == FALSE)) {
             $resultArr['code'] = ERR_INVALID_REQUEST_TYPE_CODE;
@@ -774,17 +786,18 @@ class Partner extends CI_Controller {
             $lead = $this->partner_model->get_order_id_for_partner($this->partner['id'], $request['orderID']);
             if (!is_null($lead)) {
                 //order id found, check booking id
-                if ($lead['booking_id'] != $request['247aroundBookingID']) {
-                    log_message('info', "Lead details: " . print_r($lead, true));
-
-                    $resultArr['code'] = ERR_INVALID_BOOKING_ID_CODE;
-                    $resultArr['msg'] = ERR_INVALID_BOOKING_ID_MSG;
-
-                    $flag = FALSE;
-                } else {
-                    //Everything fine, return lead information
-                    $resultArr['lead'] = $lead;
-                }
+//                if ($lead['booking_id'] != $request['247aroundBookingID']) {
+//                    log_message('info', "Lead details: " . print_r($lead, true));
+//
+//                    $resultArr['code'] = ERR_INVALID_BOOKING_ID_CODE;
+//                    $resultArr['msg'] = ERR_INVALID_BOOKING_ID_MSG;
+//
+//                    $flag = FALSE;
+//                } else {
+//                    
+//                }
+                //Everything fine, return lead information
+                $resultArr['lead'] = $lead;
             } else {
                 //Order id not found
                 $resultArr['code'] = ERR_ORDER_ID_NOT_FOUND_CODE;
