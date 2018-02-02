@@ -2780,8 +2780,8 @@ class Service_centers extends CI_Controller {
         $row = array();
         
         //Getting Details from Booking Sources
-        $booking_sources = $this->partner_model->get_booking_sources_by_price_mapping_id($charges_list->partner_id);
-        $code_source = $booking_sources[0]['code'];
+//        $booking_sources = $this->partner_model->get_booking_sources_by_price_mapping_id($charges_list->partner_id);
+//        $code_source = $booking_sources[0]['code'];
 
         //Calculating vendor base charge 
         $vendor_base_charge = $charges_list->vendor_total / (1 + ($charges_list->rate / 100));
@@ -2789,7 +2789,7 @@ class Service_centers extends CI_Controller {
         $vendor_tax = $charges_list->vendor_total - $vendor_base_charge;
         
         $row[] = $no;
-        $row[] = $code_source;
+        //$row[] = $code_source;
         $row[] = $charges_list->product;
         $row[] = $charges_list->category;
         $row[] = $charges_list->capacity;
