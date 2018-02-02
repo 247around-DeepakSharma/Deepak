@@ -210,14 +210,11 @@
                         <th>Booking Age</th>
                         <th>Status</th>
                         <th>Service Centre</th>
-                        <th>Call</th>
                         <th>View</th>
                         <th>Reschedule</th>
                         <th>Cancel</th>
                         <th>Complete</th>
                         <th>Job Card</th>
-                        <th>Mail</th>
-                        <th>Reminder Mail</th>
                         <th>Edit Booking</th>
                         <th>Re-assign</th>
                         <th>Escalate</th>

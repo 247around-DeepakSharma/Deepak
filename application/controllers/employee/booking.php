@@ -141,6 +141,7 @@ class Booking extends CI_Controller {
             $purchase_year = $this->input->post('purchase_year');
             // All purchase month comming in array eg-- array([0]=> Jan, [1]=> Feb)
             $months = $this->input->post('purchase_month');
+            $order_item_id = $this->input->post('order_item_id');
 
             $appliance_id_array = $this->input->post('appliance_id');
             $appliance_id = array();
@@ -193,9 +194,7 @@ class Booking extends CI_Controller {
                 $appliances_details['last_service_date'] = date('Y-m-d H:i:s');
 
                 $services_details['partner_id'] = $booking['partner_id'];
-                if($this->input->post('order_item_id')){
-                    $services_details['sub_order_id'] = trim($this->input->post('order_item_id'));
-                }
+                $services_details['sub_order_id'] = trim($order_item_id[$key]);
                 
 
                 log_message('info', __METHOD__ . "Appliance ID" . print_r($appliance_id, true));
@@ -3089,9 +3088,9 @@ class Booking extends CI_Controller {
             $sn = "";
         }
         
-        $call_btn = "<button type='button' class='btn btn-sm btn-color' onclick='";
-        $call_btn .= "outbound_call(".'"'.$order_list->booking_primary_contact_no.'"';
-        $call_btn .= ")' '><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>";
+//        $call_btn = "<button type='button' class='btn btn-sm btn-color' onclick='";
+//        $call_btn .= "outbound_call(".'"'.$order_list->booking_primary_contact_no.'"';
+//        $call_btn .= ")' '><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>";
         
         if ($order_list->current_status == 'Completed' && empty($order_list->rating_stars )){
             $rating_btn_disabled = "";
@@ -3138,35 +3137,35 @@ class Booking extends CI_Controller {
             }
         }
         
-        if (!is_null($order_list->assigned_vendor_id) && !is_null($order_list->booking_jobcard_filename) && ($order_list->mail_to_vendor == 0)) {
-            $mail =  "<a  id='b_notes" . $no . "' class='btn btn-sm btn-color' onclick='show(this.id)' title='Mail'><i class='fa fa-envelope-o' aria-hidden='true'></i></a>";
-            $mail .= "<div class='dialog' id='bookingMailForm" . $no . "'>";
-            $mail .= "<form class='mailform'>";
-            $mail .= "<textarea style='width:200px;height:80px;' id='valueFromMyButton" . $no . "' name='valueFromMyButton" . $no . "' placeholder='Enter Additional Notes'></textarea>";
-            $mail .= "<input type='hidden' id='booking_id" . $no . "' name='booking_id" . $no . "' value=$order_list->booking_id >";
-            $mail .= "<div align='center'>";
-            $mail .= "<a id='btnOK" . $no . "' class='btn btn-sm btn-success' onclick='send_email_to_vendor(" . $no . ");'>Ok</a>";
-            $mail .= "</div>";
-            $mail .= "</form>";
-            $mail .= "</div>";
-        } else {
-            $mail = "<a class='btn btn-sm btn-color disabled' href='" . base_url() . "employee/bookingjobcard/send_mail_to_vendor/$order_list->booking_id' title='Mail'><i class='fa fa-envelope-o' aria-hidden='true' ></i></a>";
-        }
+//        if (!is_null($order_list->assigned_vendor_id) && !is_null($order_list->booking_jobcard_filename) && ($order_list->mail_to_vendor == 0)) {
+//            $mail =  "<a  id='b_notes" . $no . "' class='btn btn-sm btn-color' onclick='show(this.id)' title='Mail'><i class='fa fa-envelope-o' aria-hidden='true'></i></a>";
+//            $mail .= "<div class='dialog' id='bookingMailForm" . $no . "'>";
+//            $mail .= "<form class='mailform'>";
+//            $mail .= "<textarea style='width:200px;height:80px;' id='valueFromMyButton" . $no . "' name='valueFromMyButton" . $no . "' placeholder='Enter Additional Notes'></textarea>";
+//            $mail .= "<input type='hidden' id='booking_id" . $no . "' name='booking_id" . $no . "' value=$order_list->booking_id >";
+//            $mail .= "<div align='center'>";
+//            $mail .= "<a id='btnOK" . $no . "' class='btn btn-sm btn-success' onclick='send_email_to_vendor(" . $no . ");'>Ok</a>";
+//            $mail .= "</div>";
+//            $mail .= "</form>";
+//            $mail .= "</div>";
+//        } else {
+//            $mail = "<a class='btn btn-sm btn-color disabled' href='" . base_url() . "employee/bookingjobcard/send_mail_to_vendor/$order_list->booking_id' title='Mail'><i class='fa fa-envelope-o' aria-hidden='true' ></i></a>";
+//        }
         
-        if (!is_null($order_list->assigned_vendor_id) && !is_null($order_list->booking_jobcard_filename) && ($order_list->mail_to_vendor)) {
-            $r_mail = "<a id='r_notes" . $no . "' class='btn btn-sm btn-color' onclick='show(this.id)' title='Remainder Mail' ><i class='fa fa-clock-o' aria-hidden='true'></i></a>";
-            $r_mail .= "<div class='dialog' id='reminderMailForm" . $no . "'>";
-            $r_mail .= "<form class='remindermailform'>";
-            $r_mail .= "<textarea style='width:200px;height:80px;' id='reminderMailButton" . $no . "' name='reminderMailButton" . $no . "' placeholder='Enter Additional Notes'></textarea>";
-            $r_mail .= "<input type='hidden' id='booking_id" . $no . "' name='booking_id" . $no . "' value=$order_list->booking_id >";
-            $r_mail .= "<div align='center'>";
-            $r_mail .= "<a id='btnOK" . $no . "' class='btn btn-sm btn-success' onclick='send_reminder_email_to_vendor(" . $no . ");'>Ok</a>";
-            $r_mail .= "</div>";
-            $r_mail .= "</form>";
-            $r_mail .= "</div>";
-        } else {
-            $r_mail = "<a class='btn btn-sm btn-color disabled' href = '" . base_url() . "employee/bookingjobcard/send_reminder_mail_to_vendor/$order_list->booking_id ' title = 'Reminder Mail'><i class='fa fa-clock-o' aria-hidden='true'></i></a>";
-        }
+//        if (!is_null($order_list->assigned_vendor_id) && !is_null($order_list->booking_jobcard_filename) && ($order_list->mail_to_vendor)) {
+//            $r_mail = "<a id='r_notes" . $no . "' class='btn btn-sm btn-color' onclick='show(this.id)' title='Remainder Mail' ><i class='fa fa-clock-o' aria-hidden='true'></i></a>";
+//            $r_mail .= "<div class='dialog' id='reminderMailForm" . $no . "'>";
+//            $r_mail .= "<form class='remindermailform'>";
+//            $r_mail .= "<textarea style='width:200px;height:80px;' id='reminderMailButton" . $no . "' name='reminderMailButton" . $no . "' placeholder='Enter Additional Notes'></textarea>";
+//            $r_mail .= "<input type='hidden' id='booking_id" . $no . "' name='booking_id" . $no . "' value=$order_list->booking_id >";
+//            $r_mail .= "<div align='center'>";
+//            $r_mail .= "<a id='btnOK" . $no . "' class='btn btn-sm btn-success' onclick='send_reminder_email_to_vendor(" . $no . ");'>Ok</a>";
+//            $r_mail .= "</div>";
+//            $r_mail .= "</form>";
+//            $r_mail .= "</div>";
+//        } else {
+//            $r_mail = "<a class='btn btn-sm btn-color disabled' href = '" . base_url() . "employee/bookingjobcard/send_reminder_mail_to_vendor/$order_list->booking_id ' title = 'Reminder Mail'><i class='fa fa-clock-o' aria-hidden='true'></i></a>";
+//        }
         
         if(is_null($order_list->assigned_vendor_id)){
             $d_btn = "disabled";
@@ -3208,20 +3207,17 @@ class Booking extends CI_Controller {
         $row[] = $no.$sn;
         $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id</a>";
         $row[] = "<a class='col-md-12' href='".base_url()."employee/user/finduser?phone_number=".$order_list->phone_number."'>$order_list->customername</a>"."<b>".$order_list->booking_primary_contact_no."</b>";
-        $row[] = $order_list->services;
+        $row[] = "<b>".$order_list->services."</b>"."<br>".$order_list->request_type;
         $row[] = $order_list->booking_date." / ".$order_list->booking_timeslot;
         $row[] = date_diff(date_create(date('Y-m-d',strtotime($order_list->create_date))),date_create(date('Y-m-d')))->format("%R%a days");
         $row[] = $escalation." ".$order_list->partner_internal_status;
         $row[] = "<a target = '_blank' href='".base_url()."employee/vendor/viewvendor/".$order_list->assigned_vendor_id."'>$sf</a>";
-        $row[] = $call_btn;
         $row[] = "<a id ='view' class ='btn btn-sm btn-color' href='".base_url()."employee/booking/viewdetails/".$order_list->booking_id."' title = 'view' target = '_blank'><i class = 'fa fa-eye' aria-hidden = 'true'></i></a>";
         $row[] = "<a target = '_blank' id = 'edit' class = 'btn btn-sm btn-color' "
             . "href=" . base_url() . "employee/booking/get_reschedule_booking_form/$order_list->booking_id title='Reschedule'><i class = 'fa fa-calendar' aria-hidden='true' ></i></a>";
         $row[] = "<a target = '_blank' id = 'cancel' class = 'btn btn-sm btn-color' href = '".base_url()."employee/booking/get_cancel_form/".$order_list->booking_id."' title = 'Cancel'><i class = 'fa fa-times' aria-hidden = 'true'></i></a>";
         $row[] = $complete;
         $row[] ="<a target = '_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/bookingjobcard/prepare_job_card_using_booking_id/$order_list->booking_id' title = 'Job Card'> <i class = 'fa fa-file-pdf-o' aria-hidden = 'true' ></i></a>";
-        $row[] = $mail;
-        $row[] = $r_mail;
         $row[] = "<a target ='_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/booking/get_edit_booking_form/$order_list->booking_id' title = 'Edit Booking'> <i class = 'fa fa-pencil-square-o' aria-hidden = 'true'></i></a>";
         $row[] = "<a target ='_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/vendor/get_reassign_vendor_form/$order_list->booking_id ' title = 'Re-assign' $d_btn> <i class = 'fa fa-repeat' aria-hidden = 'true'></i></a>";
         $row[] = "<a target = '_blank' class = 'btn btn-sm btn-color' href = '".base_url()."employee/vendor/get_vendor_escalation_form/$order_list->booking_id' title = 'Escalate' $esc><i class='fa fa-circle' aria-hidden='true'></i></a>";

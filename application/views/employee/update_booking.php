@@ -124,12 +124,6 @@
                                             <div id="dealer_phone_suggesstion_box"></div>
                                       </div>
                                  </div>
-                                <div class="form-group ">
-                                     <label for="order_item_id" class="col-md-4">Order Item Id </label>
-                                      <div class="col-md-6">
-                                          <input class="form-control" name= "order_item_id" value="<?php if(isset($unit_details[0]['sub_order_id'])){ echo $unit_details[0]['sub_order_id']; } ?>" placeholder="Enter Order Item Id" id="order_item_id"/>
-                                      </div>
-                                 </div>
                                 <!--  end col-md-6  -->
                             </div>
                             <!--  start col-md-6  -->
@@ -315,8 +309,14 @@
                                         <div class="form-group ">
                                             <label for="type" class="col-md-4">Appliance Description </label>
                                             <div class="col-md-6">
-                                                <textarea  type="text" class="form-control"  name="appliance_description[]" id="description_1" placeholder="Enter Description"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> ><?php if(isset($unit_details[0]['description'])) { echo $unit_details[0]['description']; } ?></textarea>
+                                                <textarea  class="form-control"  name="appliance_description[]" id="description_1" placeholder="Enter Description"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> ><?php if(isset($unit_details[0]['description'])) { echo $unit_details[0]['description']; } ?></textarea>
                                             </div>
+                                        </div>
+                                        <div class="form-group ">
+                                            <label for="order_item_id" class="col-md-4">Order Item Id </label>
+                                             <div class="col-md-6">
+                                                 <input class="form-control" name= "order_item_id[]" value="<?php if(isset($unit_details[0]['sub_order_id'])){ echo $unit_details[0]['sub_order_id']; } ?>" placeholder="Enter Order Item Id" id="order_item_id_1"/>
+                                             </div>
                                         </div>
 <!--                                         <div class="form-group ">
                                             <label for="type" class="col-md-4">Appliance Tag</label>
@@ -527,6 +527,12 @@
                                                 <div class="col-md-6">
                                                     <input  type="text" class="form-control"  name="appliance_description[]" id="<?php echo "description".$number;?>"  value = "<?php if(isset($booking_unit_details['description'])) { echo $booking_unit_details['description']; } ?>"  placeholder="Enter Description"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> >
                                                 </div>
+                                            </div>
+                                            <div class="form-group ">
+                                                <label for="order_item_id" class="col-md-4">Order Item Id </label>
+                                                 <div class="col-md-6">
+                                                     <input class="form-control" name= "order_item_id[]" placeholder="Enter Order Item Id" value = "<?php if(isset($booking_unit_details['sub_order_id'])) { echo $booking_unit_details['sub_order_id']; } ?>" id="<?php echo "order_item_id_".$number ;?>"/>
+                                                 </div>
                                             </div>
                                             <!--<div class="form-group <?php //if( form_error('appliance_tags') ) { echo 'has-error';} ?>">
                                                 <label for="type" class="col-md-4">Appliance Tag</label>
@@ -797,7 +803,6 @@
 <script type="text/javascript">
     var regex = /^(.+?)(\d+)$/i;
     var cloneIndex= $(".clonedInput").length +1;
-    
     function clone(){
        $(this).parents(".clonedInput").clone()
     .appendTo(".cloned")
@@ -815,6 +820,7 @@
            .on('click', 'button.remove', remove);
     
            $('#priceList_'+cloneIndex).html("");
+           $('#order_item_id_'+cloneIndex).val("");
        cloneIndex++;
        return false;
     }
