@@ -3,6 +3,7 @@ include('email_template_constant.php');
 include('spare_parts_constant.php');
 include('push_notifications_constant.php');
 include('upcountry_constant.php');
+include('email_tag_constant.php');
 /*
 |--------------------------------------------------------------------------
 | File and Directory Modes
@@ -217,8 +218,6 @@ define('NEW_PARTNER_ADDED','New Partner Added');
 define('PARTNER_UPDATED','Partner Updated');
 define('IS_DEFAULT_ENGINEER', TRUE);
 define('DEFAULT_ENGINEER', 24700001);
-define("UPCOUNTRY_CHARGES_APPROVED", "Upcountry Charges Approved");
-define("UPCOUNTRY_CHARGES_NOT_APPROVED", "Upcountry Charges Not Approved");
 
 //Customer will pay upcountry charges as per the below rate
 define("DEFAULT_UPCOUNTRY_RATE", 3);
@@ -341,17 +340,6 @@ define('CANCELLED_QUERY_PROMOTINAL_SMS_2','cancelled_query_promotional_sms_2');
 define('BOOKING_NOT_EXIST_PROMOTINAL_SMS_1','booking_not_exist_promotional_sms_1');
 define('BOOKING_NOT_EXIST_PROMOTINAL_SMS_2','booking_not_exist_promotional_sms_2');
 
-//invoice email tag
-define('PARTNER_INVOICE_DETAILED_EMAIL_TAG','partner_invoice_detailed');
-define('PARTNER_RECEIPT_VOUCHER_EMAIL_TAG','partner_receipt_voucher');
-define('CASH_DETAILS_INVOICE_FOR_VENDORS_EMAIL_TAG','cash_details_invoices_for_vendors');
-define("BUYBACK_DETAILS_INVOICE_FOR_VENDORS_EMAIL_TAG", "buyback_details_invoices_for_vendors");
-define('FOC_DETAILS_INVOICE_FOR_VENDORS_EMAIL_TAG','foc_details_invoices_for_vendors');
-define('NEGATIVE_FOC_INVOICE_FOR_VENDORS_EMAIL_TAG','negative_foc_invoice_for_vendors');
-define('BRACKETS_INVOICE_EMAIL_TAG','send_brackets_invoice_mail');
-define('DRAFT_BRACKETS_INVOICE_EMAIL_TAG','send_draft_brackets_invoice_mail');
-define('CRM_SETUP_INVOICE_EMAIL_TAG','crm_setup_invoice');
-define('BRACKETS_CREDIT_NOTE_INVOICE_EMAIL_TAG','brackets_credit_note_invoice');
 
 //miss call rating sms
 define('MISSED_CALL_RATING_SMS','missed_call_rating_sms');
@@ -446,8 +434,6 @@ define('LA_BALANCE_EMAIL_SUBJECT', "Amazon_Ext_buyback SVC Balance '701485101000
 
 define('FILE_UPLOAD_SUCCESS_STATUS', 'Success');
 define('FILE_UPLOAD_FAILED_STATUS', 'Failed');
-define("NOT_UPCOUNTRY_PRICE_TAG", "-1");
-define("PARTNER_PROVIDE_UPCOUNTRY_PRICE_TAG", "1");
 
 define("REPEAT_BOOKING_TAG", "Repeat Booking");
 define("_247AROUND_PRODUCT_TAG", "Product"); 

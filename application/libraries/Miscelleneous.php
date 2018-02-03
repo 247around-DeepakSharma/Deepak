@@ -156,6 +156,7 @@ class Miscelleneous {
                 if(!empty($vendor_data)){
                      $engineer_action['unit_details_id'] = $value['id'];
                      $engineer_action['booking_id'] = $booking_id;
+                     $engineer_action['service_center_id'] = $service_center_id;
                      $engineer_action['current_status'] = _247AROUND_PENDING;
                      $engineer_action['internal_status'] = _247AROUND_PENDING;
                      $engineer_action["create_date"] = date("Y-m-d H:i:s");

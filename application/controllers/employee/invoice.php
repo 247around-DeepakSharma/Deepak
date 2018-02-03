@@ -2673,17 +2673,19 @@ class Invoice extends CI_Controller {
             $type = "Cash"; 
             $sd = date("Y-m-d", strtotime($from_date));
             $ed = date("Y-m-d", strtotime($to_date));
+            $email_tag = CRM_SETUP_INVOICE_EMAIL_TAG;
            
             if($description == QC_INVOICE_DESCRIPTION){
                 $hsn_code = QC_HSN_CODE;
                 $type = "Buyback";
+                $email_tag = SWEETENER_INVOCIE_EMAIL_TAG;
   
             }
             $invoice_date = date("Y-m-d");
             $invoice_id = $this->create_invoice_id_to_insert("Around");
             
             $response = $this->generate_partner_additional_invoice($partner_data[0], $description,
-            $amount, $invoice_id, $sd, $ed, $invoice_date, $hsn_code, "Tax Invoice");
+            $amount, $invoice_id, $sd, $ed, $invoice_date, $hsn_code, "Tax Invoice", $email_tag);
             $basic_sc_charge = $response['meta']['total_taxable_value'];
             $invoice_details = array(
                 'invoice_id' => $invoice_id,
@@ -2868,7 +2870,7 @@ class Invoice extends CI_Controller {
                 }
                 $data['type'] = PARTNER_VOUCHER;
                 $response = $this->generate_partner_additional_invoice($entity[0], PARTNER_ADVANCE_DESCRIPTION,
-                        $amount, $data['invoice_id'], $date,  $date,  $date, HSN_CODE, "Receipt Voucher");
+                        $amount, $data['invoice_id'], $date,  $date,  $date, HSN_CODE, "Receipt Voucher", ADVANCE_RECEIPT_EMAIL_TAG);
                 
                 $data['cgst_tax_amount'] = $data['sgst_tax_amount'] = $response['meta']['cgst_total_tax_amount'];
                 $data['igst_tax_amount'] = $response['meta']['igst_total_tax_amount'];
@@ -2920,7 +2922,7 @@ class Invoice extends CI_Controller {
      * @return Array
      */
     function generate_partner_additional_invoice($partner_data, $description,
-            $amount, $invoice_id, $sd, $ed, $invoice_date, $hsn_code, $invoice_type){
+            $amount, $invoice_id, $sd, $ed, $invoice_date, $hsn_code, $invoice_type, $email_tag){
         log_message("info", __METHOD__." Partner ID ".$partner_data['id']);
         $data = array();
         $data[0]['description'] =  $description;
@@ -2955,13 +2957,13 @@ class Invoice extends CI_Controller {
             $response['meta']['copy_file'] = $convert['copy_file'];
             $response['meta']['invoice_file_excel'] = $invoice_id.".xlsx";
             
-            $email_template = $this->booking_model->get_booking_email_template(PARTNER_INVOICE_DETAILED_EMAIL_TAG);
+            $email_template = $this->booking_model->get_booking_email_template($email_tag);
             $subject = vsprintf($email_template[4], array($partner_data['company_name'], $sd, $ed));
             $message = $email_template[0];
             $email_from = $email_template[2];
 
-            $to = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID;
-            $cc = "";
+            $to = $email_template[1];
+            $cc = $email_template[3];
            
             $this->upload_invoice_to_S3($invoice_id, false);
            
