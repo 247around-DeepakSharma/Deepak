@@ -1343,7 +1343,7 @@ class Inventory extends CI_Controller {
         if ($this->form_validation->run()) {
             $data = $this->input->post();
             
-            $unit = $this->booking_model->get_unit_details(array("booking_id" => $data['booking_id'],'partner_id' => ZOPPER_ID, 'price_tags' => REPAIR_IN_WARRANTY_TAG));
+            $unit = $this->booking_model->get_unit_details(array("booking_id" => $data['booking_id'], 'price_tags' => REPAIR_IN_WARRANTY_TAG));
             if (!empty($unit)) {
                
                 $success = $this->insert_zopper_form_data();
@@ -1387,9 +1387,9 @@ class Inventory extends CI_Controller {
 
                         $sent  = $this->create_zopper_excel_sheet($unit,$success['id'], $data );
                         if($sent){
-                            $userSession = array('success' => "Thanks To Update Booking Price. Estimate Sent to Zopper");
+                            $userSession = array('success' => "Thanks To Update Booking Price. Estimate Sent to Partner");
                         } else {
-                            $userSession = array('success' => "Thanks To Update Booking Price.  Estimate did not send to Zopper");
+                            $userSession = array('success' => "Thanks To Update Booking Price.  Estimate did not send to Partner");
                         }
                     } else {
                         $userSession = array('success' => "Thanks To Update Booking Price.");
@@ -1405,7 +1405,7 @@ class Inventory extends CI_Controller {
                 }
                
             } else {
-                $userSession = array('success' => "Please Check, Zopper Repair in warranty Booking only allow");
+                $userSession = array('success' => "Please Check, Repair in warranty Booking only allow");
                 $this->session->set_userdata($userSession);
                 redirect(base_url() . "employee/inventory/update_part_price_details");
             }
@@ -1459,7 +1459,9 @@ class Inventory extends CI_Controller {
             $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
             $sfIDArray = explode(",",$sfIDList);
         }
-        $booking_details = $this->booking_model->get_bookings_by_status($where, "users.name, services, order_id",$sfIDArray);
+        $booking_details = $this->booking_model->get_bookings_by_status($where, "users.name, services, order_id, booking_details.partner_id",$sfIDArray);
+        
+        $partner_data = $this->partner_model->getpartner_details("company_name, address, state, district, pincode, public_name ", array("partners.id" => $booking_details[0]->partner_id ));
         $data['name'] = $booking_details[0]->name;
         $data['booking_id'] = $booking_id;
         $data['services'] = $booking_details[0]->services;
@@ -1468,6 +1470,8 @@ class Inventory extends CI_Controller {
         $data['remarks'] = $this->input->post("estimate_remarks");
         $data['order_id'] = $booking_details[0]->order_id;
         $data['date'] = date("jS M, Y");
+        $data['company_name'] = $partner_data[0]['company_name'];
+        $data['company_address'] = $partner_data[0]['address'].", ".$partner_data[0]['district'].", Pincode ".$partner_data[0]['state'];
         
         $l_data = array();
        
@@ -1572,7 +1576,7 @@ class Inventory extends CI_Controller {
         $emailtemplate = $this->booking_model->get_booking_email_template("zopper_estimate_send");
         if (!empty($template)) {
            
-            $subject = vsprintf($emailtemplate[4], $data['name']);
+            $subject = vsprintf($emailtemplate[4], array($partner_data[0]['public_name'], $data['name']));
           //  $emailBody = vsprintf($emailtemplate[0], $estimate_cost);
             $json_result = $this->miscelleneous->convert_excel_to_pdf(TMP_FOLDER.$output_file_excel,$booking_id, "jobcards-pdf");
             $pdf_response = json_decode($json_result,TRUE);
