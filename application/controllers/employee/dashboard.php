@@ -66,6 +66,8 @@ class Dashboard extends CI_Controller {
             $where = array('active' => 1,'type'=> 'service',"role like '%"._247AROUND_CLOSURE."%'" => NULL);
         }else if($this->session->userdata('user_group') == _247AROUND_CALLCENTER){
             $where = array('active' => 1,'type'=> 'service',"role like '%"._247AROUND_CALLCENTER."%'" => NULL);
+        }else if($this->session->userdata('user_group') == _247AROUND_RM){
+            $where = array('active' => 1,'type'=> 'service',"role like '%"._247AROUND_RM."%'" => NULL);
         }else{
             $where = array('active' => 1,'type'=> 'service');
         }
