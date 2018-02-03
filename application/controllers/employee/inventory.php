@@ -1086,9 +1086,15 @@ class Inventory extends CI_Controller {
             $flag = true;
             switch ($requestType){
                 case 'CANCEL_PARTS':
+                case 'QUOTE_REQUEST_REJECTED';
                     $where = array('id' => $id );
                     $data = array('status' => "Cancelled");
-                    $new_state = "Spare Parts Cancelled";
+                    if($requestType == "CANCEL_PARTS"){
+                        $new_state = SPARE_PARTS_CANCELLED;
+                    } else {
+                        $new_state = REQUESTED_QUOTE_REJECTED;
+                    }
+                    
                     $old_state = "Spare Parts Requested";
                     $sc_data['current_status'] = "Pending";
                     $sc_data['internal_status'] = "Pending";
@@ -1099,7 +1105,7 @@ class Inventory extends CI_Controller {
                 case 'CANCEL_COMPLETED_BOOKING_PARTS':
                     $where = array('id' => $id );
                     $data = array('status' => "Cancelled");
-                    $new_state = "Spare Parts Cancelled";
+                    $new_state = SPARE_PARTS_CANCELLED;
                     $old_state = "Spare Parts Requested";
                     $sc_data['current_status'] = "InProcess";
                     $sc_data['internal_status'] = "Completed";

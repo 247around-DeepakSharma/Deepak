@@ -140,7 +140,8 @@ class ApiDataRequest extends CI_Controller {
                 $row[] = "<button id='btn_oow_".$sp_list->id."' "
                     . "class = 'btn btn-sm btn-info' onclick='update_spare_estimate_cost(".$c .")' >Submit</button>";
             }
-            
+            $row[] = "<button id='btn_reject_".$sp_list->id."' "
+                    . "class = 'btn btn-sm btn-danger' onclick='reject_oow_model(".$c .")' >Reject</button>";
 
             $output[] = $row;
         }
