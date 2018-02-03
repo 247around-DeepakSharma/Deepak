@@ -417,9 +417,9 @@ function get_data_for_partner_callback($booking_id) {
         $post['where'] = array('booking_details.partner_id' => $partner_id, 'DATE(booking_details.create_date) = CURDATE()' => NULL);
         $today_booking = $this->booking_model->get_bookings_by_status($post, 'DISTINCT current_status,booking_details.create_date,booking_details.closed_date,booking_details.request_type');
 
-        $post['where'] = array('booking_details.partner_id' => $partner_id, 'DATE(booking_details.create_date) = CURDATE()-1' => NULL);
+        $post['where'] = array('booking_details.partner_id' => $partner_id, 'DATE(booking_details.create_date) = DATE(DATE_SUB(NOW(), INTERVAL 1 DAY))' => NULL);
         $yesterday_booking = $this->booking_model->get_bookings_by_status($post, 'DISTINCT current_status,booking_details.create_date,booking_details.closed_date,booking_details.request_type');
-
+        
         if (count($today_booking) !== 0 || count($yesterday_booking) !== 0) {
             $result['current_month_installation_booking_requested'] = 0;
             $result['current_month_installation_booking_completed'] = 0;
