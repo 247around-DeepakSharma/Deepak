@@ -1232,9 +1232,8 @@ class Miscelleneous {
      * This Functiotn is used to send sf not found email to associated rm
      */
 
-    function send_sf_not_found_email_to_rm($booking, $rm_email) {
+    function send_sf_not_found_email_to_rm($booking, $rm_email,$subject) {
         $cc = SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC;
-        $subject = "SF Not Exist in the Pincode " . $booking['booking_pincode'];
         $tempPartner = $this->My_CI->reusable_model->get_search_result_data("partners", "public_name", array('id' => $booking['partner_id']), NULL, NULL, NULL, NULL, NULL);
         $booking['partner_name'] = NULL;
         if (!empty($tempPartner)) {
@@ -1261,7 +1260,13 @@ class Miscelleneous {
             if (empty($rm_email)) {
                 $rm_email[0]['official_email'] = NULL;
             }
-            $this->send_sf_not_found_email_to_rm($booking, $rm_email[0]['official_email']);
+            $subject = "SF Not Exist in the Pincode " . $booking['booking_pincode'];
+            $this->send_sf_not_found_email_to_rm($booking, $rm_email[0]['official_email'],$subject);
+        }else{
+            $rm = $this->My_CI->employee_model->get_rm_details();
+            $rm_emails = implode(',', array_column($rm, 'official_email'));
+            $subject = "Pincode Not Exist In India Pincode" . $booking['booking_pincode'];
+            $this->send_sf_not_found_email_to_rm($booking, $rm_emails,$subject);
         }
         if (array_key_exists('partner_id', $booking)) {
             $notFoundSfArray['partner_id'] = $booking['partner_id'];
