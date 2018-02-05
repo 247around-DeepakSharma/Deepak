@@ -115,7 +115,7 @@
                               </td>
 <!--                              <td style="text-align: left;white-space: inherit;"> <?php //echo $value['service_centres'][0]['name']; ?></td>
                               </td>-->
-                              <td style="text-align: left;white-space: inherit;">
+                              <td style="text-align: left;white-space: inherit; <?php if($value['unit_details'][0]['mismatch_pincode'] == 1){ echo "background-color:red;";}?>">
                                  <table  class="table table-condensed">
                                     <thead>
                                         <th class="jumbotron" >Brand</th>

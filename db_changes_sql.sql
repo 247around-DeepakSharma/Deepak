@@ -4234,3 +4234,6 @@ ALTER TABLE `booking_details` ADD `upcountry_remarks` VARCHAR(128) NULL DEFAULT 
 ALTER TABLE `engineer_table_sign` ADD `cancellation_reason` VARCHAR(128) NULL DEFAULT NULL AFTER `create_date`, ADD `remarks` VARCHAR(128) NULL DEFAULT NULL AFTER `cancellation_reason`;
 ALTER TABLE `engineer_table_sign` ADD `closed_date` DATETIME NULL DEFAULT NULL AFTER `remarks`;
 ALTER TABLE `engineer_table_sign` ADD `latitude` VARCHAR(128) NULL DEFAULT NULL AFTER `closed_date`, ADD `longitude` VARCHAR(128) NULL DEFAULT NULL AFTER `latitude`;
+
+ALTER TABLE `engineer_table_sign` ADD `mismatch_pincode` INT(1) NULL DEFAULT NULL AFTER `longitude`;
+ALTER TABLE `service_center_booking_action` ADD `mismatch_pincode` INT(1) NULL DEFAULT NULL AFTER `update_date`;

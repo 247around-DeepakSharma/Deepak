@@ -36,7 +36,7 @@
                        <tbody>
                            <tbody>
                                 <?php  foreach($data as $key =>$row){?>
-                               <tr>
+                               <tr <?php if($row->mismatch_pincode == 1){ echo "style='color:red;'";} ?>>
                                     <td class="text-center">
                                         <?php echo $key +1; ?>
                                     </td>
