@@ -2963,7 +2963,7 @@ class Api extends CI_Controller {
             $post['column_search'] = array('engineer_booking_action.booking_id', 'booking_details.booking_primary_contact_no',
                 'booking_alternate_contact_no');
             $select = "services.services, booking_address, booking_details.booking_id, booking_details.booking_primary_contact_no, "
-                    . "users.name as customername,engineer_booking_action.current_status, booking_details.amount_due";
+                    . "users.name as customername,engineer_booking_action.current_status, booking_details.amount_due, booking_details.booking_remarks";
             
             
             $data = $this->engineer_model->get_engineer_action_table_list($post, $select);
@@ -3048,13 +3048,17 @@ class Api extends CI_Controller {
             $en["amount_paid"] = $requestData["amountPaid"];
             $en["booking_id"] = $booking_id;
             $en["signature"] = $sign_pic_url;
+            $en['closed_date'] = date("Y-m-d H:i:s");
             if(!empty($requestData['location']) ){
                 $location = json_decode($requestData['location'], true);
                 $en["pincode"] = $location['pincode'];
                 $en["city"] = $location['city'];
                 $en["address"] = $location['address'];
+                $en["latitude"] = $location['latitude'];
+                $en["longitude"] = $location['longitude'];
                
             }
+            $en["remarks"] = $requestData['remarks'];
             $en["service_center_id"] = $requestData['service_center_id'];
             $en["engineer_id"] = $requestData['engineer_id'];
             $is_exist = $this->engineer_model->get_engineer_sign("id", array("service_center_id" => $requestData['service_center_id'], "booking_id" => $booking_id));
@@ -3086,12 +3090,33 @@ class Api extends CI_Controller {
         if(!empty($requestData["bookingID"]) && !empty($requestData["cancellationReason"])){
             
             $data["booking_id"] = $requestData["bookingID"];
-            $data["cancellation_reason"] = $requestData["cancellationReason"];
             $data['engineer_id'] = $requestData["engineer_id"];
             $data['current_status'] = "InProcess";
             $data['internal_status'] = _247AROUND_CANCELLED;
             $data["closed_date"] = date("Y-m-d H:i:s");
             $this->engineer_model->update_engineer_table($data, array( "booking_id" =>$requestData["bookingID"] ));
+            
+            $en["amount_paid"] = $requestData["amountPaid"];
+            $en["remarks"] = $requestData["cancellationReason"];
+            $en['closed_date'] = date("Y-m-d H:i:s");
+  
+            if(!empty($requestData['location']) ){
+                $location = json_decode($requestData['location'], true);
+                $en["pincode"] = $location['pincode'];
+                $en["city"] = $location['city'];
+                $en["address"] = $location['address'];
+                $en["latitude"] = $location['latitude'];
+                $en["longitude"] = $location['longitude'];
+               
+            }
+            $en["service_center_id"] = $requestData['service_center_id'];
+            $en["engineer_id"] = $requestData['engineer_id'];
+            $is_exist = $this->engineer_model->get_engineer_sign("id", array("service_center_id" => $requestData['service_center_id'], "booking_id" => $data["booking_id"]));
+            if(!empty($is_exist)){
+                $this->engineer_model->update_engineer_action_sig(array("id"=> $is_exist[0]['id']), $en);
+            } else {
+                $this->engineer_model->insert_engineer_action_sign($en);
+            }
            
             $this->notify->insert_state_change($requestData["bookingID"], $requestData["cancellationReason"], _247AROUND_PENDING, 
                     "Booking Cancelled By Engineer From App", 
