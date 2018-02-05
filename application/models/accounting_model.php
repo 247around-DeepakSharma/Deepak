@@ -148,7 +148,7 @@ class accounting_model extends CI_Model {
                     vpi.total_amount_collected,(total_amount_collected - vpi.tds_amount) as net_amount,
                     vpi.tds_amount, tds_rate ,abs(vpi.amount_collected_paid) as amount_collected_paid,sc.gst_no ";
         } else {
-            $select = "company_name,company_type,name_on_pan,pan_no,SUM(ph.tds_amount) as tds_amount,
+            $select = "company_name,company_type,name_on_pan,pan_no,SUM(tds_amount) as tds_amount,
                     tds_rate";
             $group_by = " GROUP BY sc.id";
         }
