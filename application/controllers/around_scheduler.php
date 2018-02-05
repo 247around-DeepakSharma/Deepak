@@ -896,26 +896,33 @@ class Around_scheduler extends CI_Controller {
      * @desc This method is used to send notification email to partner whose account type is prepaid and have low balance.
      */
     function send_notification_for_low_balance() {
-        $partner_details = $this->partner_model->getpartner_details("partners.id, "
+        $partner_details = $this->partner_model->getpartner_details("partners.id, public_name, "
                 . "is_active,invoice_email_to, invoice_email_cc, owner_phone_1 ",
-                array('is_prepaid' => 1,'is_active' => 1));
+                array('is_prepaid' => 1,'is_active' => 1, "partners.id" => "247010"));
         foreach ($partner_details as $value) {
             $final_amount = $this->miscelleneous->get_partner_prepaid_amount($value['id']);
             if ($final_amount['is_notification']) {
                 log_message("info", "Partner Id ".$value['id'] );
+                
+                if($final_amount['prepaid_amount'] > 0 ){
+                    $email_template = $this->booking_model->get_booking_email_template("low_prepaid_amount");
+                    $sms['tag'] = "prepaid_low_balance";
+                } else {
+                    $email_template = $this->booking_model->get_booking_email_template("low_prepaid_amount");
+                    $sms['tag'] = "prepaid_negative_balance";
+                }
                 //Get Email Template
-                $email_template = $this->booking_model->get_booking_email_template("low_prepaid_amount");
+               
                 $message = vsprintf($email_template[0], array("Rs. ".$final_amount["prepaid_amount"]));
                 $to = $value['invoice_email_to'];
                 $cc = $value['invoice_email_cc']. ", ".$email_template[3];
-                $subject = $email_template[4];
+                $subject = vsprintf($email_template[4], array($value["public_name"]));
                     
                 $sms['smsData']['prepaid_amount'] = "Rs. ".$final_amount["prepaid_amount"];
-
                 $sms['booking_id'] = "";
                 $sms['type'] = "partner";
                 $sms['type_id'] = $value["id"];
-                $sms['tag'] = "prepaid_low_balance";
+                
                 $sms['phone_no'] = $value['owner_phone_1'];
                 //SEnd SMS
                 $this->notify->send_sms_msg91($sms);
