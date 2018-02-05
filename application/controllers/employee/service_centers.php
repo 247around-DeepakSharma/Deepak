@@ -191,6 +191,7 @@ class Service_centers extends CI_Controller {
             if(!empty($sig_table)){
                 $data['signature'] = $sig_table[0]['signature'];
                 $data['amount_paid'] = $sig_table[0]['amount_paid'];
+                $data['mismatch_pincode'] = $sig_table[0]['mismatch_pincode'];
             }
             
         }
@@ -234,6 +235,7 @@ class Service_centers extends CI_Controller {
             $upcountry_charges = $this->input->post("upcountry_charges");
             $serial_number_pic  = $this->input->post("serial_number_pic");
             $broken = $this->input->post("appliance_broken");
+            $mismatch_pincode = $this->input->post("mismatch_pincode");
             $is_update_spare_parts = FALSE;
             $sp_required_id = json_decode($this->input->post("sp_required_id"), true);
 
@@ -248,6 +250,7 @@ class Service_centers extends CI_Controller {
                  $data['unit_details_id'] = $unit_id;
                  $data['closed_date'] = date('Y-m-d H:i:s');
                  $data['is_broken'] = $broken[$unit_id];
+                 $data['mismatch_pincode'] = $mismatch_pincode;
                  
 //                 if(!empty($approval)){
 //                    $unitWhere = array("engineer_booking_action.booking_id" => $booking_id, "engineer_booking_action.unit_details_id" => $unit_id);

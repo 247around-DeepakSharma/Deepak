@@ -23,6 +23,7 @@
 <input type="hidden" name="partner_id" value='<?php echo $booking_history[0]['partner_id']; ?>' />
 <input type="hidden" name="approval" value='1' />
 <input type="hidden" name="amount_paid" id="amount_paid" value="<?php echo $booking_history[0]["amount_paid"];?>" />
+<input type="hidden" name="mismatch_pincode" id="mismatch_pincode" value="<?php echo $mismatch_pincode;?>" />
 <div class="" >
     <div class="panel panel-info">
         <div class="panel-heading">Approve Booking (Amount Paid By Customer <strong><i class="fa fa-inr" aria-hidden="true"></i><?php echo $amount_paid;?></strong>)

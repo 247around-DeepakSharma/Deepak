@@ -3049,9 +3049,13 @@ class Api extends CI_Controller {
             $en["booking_id"] = $booking_id;
             $en["signature"] = $sign_pic_url;
             $en['closed_date'] = date("Y-m-d H:i:s");
+            $bookinghistory = $this->booking_model->getbooking_history($booking_id);
             if(!empty($requestData['location']) ){
                 $location = json_decode($requestData['location'], true);
                 $en["pincode"] = $location['pincode'];
+                if($bookinghistory[0]['booking_pincode'] != $location['pincode']){
+                    $en['mismatch_pincode']  = 1;
+                }
                 $en["city"] = $location['city'];
                 $en["address"] = $location['address'];
                 $en["latitude"] = $location['latitude'];
@@ -3099,7 +3103,7 @@ class Api extends CI_Controller {
             $en["amount_paid"] = $requestData["amountPaid"];
             $en["remarks"] = $requestData["cancellationReason"];
             $en['closed_date'] = date("Y-m-d H:i:s");
-  
+            $bookinghistory = $this->booking_model->getbooking_history($requestData["bookingID"]);
             if(!empty($requestData['location']) ){
                 $location = json_decode($requestData['location'], true);
                 $en["pincode"] = $location['pincode'];
@@ -3107,6 +3111,9 @@ class Api extends CI_Controller {
                 $en["address"] = $location['address'];
                 $en["latitude"] = $location['latitude'];
                 $en["longitude"] = $location['longitude'];
+                if($bookinghistory[0]['booking_pincode'] != $location['pincode']){
+                    $en['mismatch_pincode']  = 1;
+                }
                
             }
             $en["service_center_id"] = $requestData['service_center_id'];

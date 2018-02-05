@@ -39,7 +39,7 @@ class Engineer extends CI_Controller {
     function review_engineer_action_form(){
       
         $where['where'] = array("engineer_booking_action.current_status" => "InProcess");
-        $data = $this->engineer_model->get_engineer_action_table_list($where, "engineer_booking_action.booking_id, amount_due, engineer_table_sign.amount_paid, engineer_table_sign.remarks");
+        $data = $this->engineer_model->get_engineer_action_table_list($where, "engineer_booking_action.booking_id, amount_due, engineer_table_sign.amount_paid, engineer_table_sign.remarks, engineer_table_sign.mismatch_pincode");
        
         foreach ($data as $key => $value) {
             $unitWhere = array("engineer_booking_action.booking_id" => $value->booking_id);
@@ -93,10 +93,12 @@ class Engineer extends CI_Controller {
             "service_center_id" => $data['booking_history'][0]['assigned_vendor_id']));
         if (!empty($sig_table)) {
             $data['signature'] = $sig_table[0]['signature'];
+            $data['mismatch_pincode'] = $sig_table[0]['mismatch_pincode'];
             $data['amount_paid'] = $sig_table[0]['amount_paid'];
         } else {
              $data['amount_paid'] = 0;
              $data['signature'] ="";
+             $data['mismatch_pincode'] = 0;
         }
 
         $data['bookng_unit_details'] = $bookng_unit_details;

@@ -93,6 +93,7 @@
                     <input type="hidden" name="partner_id" value='<?php echo $booking_history[0]['partner_id']; ?>' />
                     <input type="hidden" name="approval" value='0' />
                     <input type="hidden" name="count_unit"id ="count_unit" value="<?php echo count($bookng_unit_details);?>" />
+                    <input type="hidden" name="mismatch_pincode" id="mismatch_pincode" value="<?php if(isset($mismatch_pincode)) { echo $mismatch_pincode; }?>" />
                     <?php $count = 0; foreach ($bookng_unit_details as $key1 => $unit_details) { ?>
                     <div class="clonedInput panel panel-info " id="clonedInput1">
                         <div class="panel-body">
