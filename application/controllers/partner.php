@@ -1524,13 +1524,20 @@ class Partner extends CI_Controller {
 //                                            $message = "Booking ID " . $booking['booking_id'] . " Booking City: " . $booking['city'] . " <br/>  Booking Pincode: " . $booking['booking_pincode'];
 //                                            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
 
-                                            $this->vendor_model->insert_booking_details_sf_not_exist(array(
-                                                "booking_id" => $booking['booking_id'],
-                                                "city" => $booking['city'],
-                                                "pincode" => $booking['booking_pincode'],
-                                                "service_id" => $booking['service_id'],
-                                                "partner_id" => $booking['partner_id']
-                                            ));
+//                                            $this->vendor_model->insert_booking_details_sf_not_exist(array(
+//                                                "booking_id" => $booking['booking_id'],
+//                                                "city" => $booking['city'],
+//                                                "pincode" => $booking['booking_pincode'],
+//                                                "service_id" => $booking['service_id'],
+//                                                "partner_id" => $booking['partner_id']
+//                                            ));
+                                            $this->miscelleneous->sf_not_exist_for_pincode(array(
+                                                    "booking_id" => $booking['booking_id'],
+                                                    "city" => $booking['city'],
+                                                    "booking_pincode" => $booking['booking_pincode'],
+                                                    "service_id" => $booking['service_id'],
+                                                    "partner_id" => $booking['partner_id']
+                                                ));
                                         }
                                         break;
                                 }

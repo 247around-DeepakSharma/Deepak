@@ -40,6 +40,10 @@
                                     <?= $row['booking_pincode']; ?>
                                 </td>
                             <input type="hidden" name="sf_status[<?= $row['booking_id']; ?>]" value="<?php echo $results[$count][0]['sf_status']; ?>" />
+                            <input type="hidden" name="pincode[<?= $row['booking_id']; ?>]" value="<?php echo $row['booking_pincode']; ?>" />
+                            <input type="hidden" name="partner_id[<?= $row['booking_id']; ?>]" value="<?php echo $row['partner_id']; ?>" />
+                            <input type="hidden" name="service_id[<?= $row['booking_id']; ?>]" value="<?php echo $row['service_id']; ?>" />
+                            <input type="hidden" name="city[<?= $row['booking_id']; ?>]" value="<?php echo $row['district']; ?>" />
 
                                 <td style="width:200px;">
                                     <select type="text" class="js-example form-control" id="service_center<?php echo $count; ?>" name="service_center[<?= $row['booking_id']; ?>]" value="<?php echo set_value('service_center'); ?>">
