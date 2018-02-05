@@ -39,7 +39,7 @@ class Engineer extends CI_Controller {
     function review_engineer_action_form(){
       
         $where['where'] = array("engineer_booking_action.current_status" => "InProcess");
-        $data = $this->engineer_model->get_engineer_action_table_list($where, "engineer_booking_action.booking_id, amount_due, engineer_table_sign.amount_paid");
+        $data = $this->engineer_model->get_engineer_action_table_list($where, "engineer_booking_action.booking_id, amount_due, engineer_table_sign.amount_paid, engineer_table_sign.remarks");
        
         foreach ($data as $key => $value) {
             $unitWhere = array("engineer_booking_action.booking_id" => $value->booking_id);
@@ -109,9 +109,10 @@ class Engineer extends CI_Controller {
         
         $where['where_in'] = array("engineer_booking_action.current_status" => array("InProcess", "Completed", "Cancelled"),
             "booking_details.current_status" => array(_247AROUND_PENDING, _247AROUND_RESCHEDULED));
+        
         $data = $this->engineer_model->get_engineer_action_table_list($where, "engineer_booking_action.booking_id, amount_due, engineer_table_sign.amount_paid,"
                 . "engineer_table_sign.pincode as en_pincode, engineer_table_sign.address as en_address, "
-                . "booking_details.booking_pincode, booking_details.assigned_vendor_id, booking_details.booking_address");
+                . "booking_details.booking_pincode, booking_details.assigned_vendor_id, booking_details.booking_address, engineer_booking_action.remarks");
        
         foreach ($data as $key => $value) {
             $is_broken = false;

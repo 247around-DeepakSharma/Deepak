@@ -4230,3 +4230,7 @@ ALTER TABLE `collateral` ADD `brand` VARCHAR(100) NULL DEFAULT NULL AFTER `docum
 ALTER TABLE `collateral_type` ADD `document_type` VARCHAR(30) NULL DEFAULT NULL AFTER `collateral_type`;
 --Abhay
 ALTER TABLE `booking_details` ADD `upcountry_remarks` VARCHAR(128) NULL DEFAULT NULL AFTER `upcountry_price`;
+
+ALTER TABLE `engineer_table_sign` ADD `cancellation_reason` VARCHAR(128) NULL DEFAULT NULL AFTER `create_date`, ADD `remarks` VARCHAR(128) NULL DEFAULT NULL AFTER `cancellation_reason`;
+ALTER TABLE `engineer_table_sign` ADD `closed_date` DATETIME NULL DEFAULT NULL AFTER `remarks`;
+ALTER TABLE `engineer_table_sign` ADD `latitude` VARCHAR(128) NULL DEFAULT NULL AFTER `closed_date`, ADD `longitude` VARCHAR(128) NULL DEFAULT NULL AFTER `latitude`;
