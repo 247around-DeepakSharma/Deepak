@@ -1,4 +1,4 @@
- <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&key=AIzaSyB4pxS4j-_NBuxwcSwSFJ2ZFU-7uep1hKc"></script>
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&key=AIzaSyB4pxS4j-_NBuxwcSwSFJ2ZFU-7uep1hKc"></script>
 <script src="<?php echo base_url();?>js/googleScript.js"></script> 
 <style type="text/css">
     th,td{
@@ -35,6 +35,13 @@
             <div class="hidden-xs">SMS History</div>
         </button>
     </div>
+    <?php if($this->session->userdata('is_engineer_app') == 1){ ?>
+    <div class="btn-group" role="group">
+        <button type="button" id="following" class="btn btn-default" href="#tab6" data-toggle="tab">
+            <div class="hidden-xs">Engineer Action</div>
+        </button>
+    </div>
+    <?php } ?>
 </div>
 <div class="well">
     <div class="tab-content">
@@ -474,6 +481,58 @@
             <div class="text-danger">No Data Found</div>
             <?php } ?>
         </div>
+            <?php if($this->session->userdata('is_engineer_app') == 1){ ?>
+            <div class="tab-pane fade in" id="tab6">
+                <?php if($engineer_action_not_exit) { ?>
+
+                <table class="table  table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>Service Category</th>
+                        <th>Broken</th>
+                        <th>Serial Number</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach($unit_details as $unit){?>
+                    <tr>
+                        <td><?php echo $unit["price_tags"];?></td>
+                        <td><?php if($unit['en_is_broken'] ==1){ echo "Yes"; } else { echo "No";} ?></td>
+                        <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $unit['en_serial_number_pic'];?>" target="_blank"><?php  echo $unit['en_serial_number']; ?></a></td>
+                        
+                        <td><?php  echo $unit['en_current_status']." / ".$unit['en_internal_status']; ?></td>
+                    </tr>
+                    <?php }?>
+                </tbody>
+                </table>
+                <?php if(isset($signature_details)){ ?>
+                <table class="table  table-striped table-bordered">
+                    <tr>
+                        <th>Amount Paid</th>
+                        <th>Customer Signature</th>
+                        <th>Closed Date</th>
+                        <th>Closing Address</th>
+                        <th>Remarks</th>
+                    </tr>
+                    <tbody>
+                        <tr>
+                            <td><?php echo $signature_details[0]['amount_paid']; ?></td>
+                            <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $signature_details[0]['signature'];?>" target="_blank">Click Here</a></td>
+                            <td><?php echo $signature_details[0]['closed_date']; ?></td>
+                            <td><?php echo $signature_details[0]['address']; ?></td>
+                            <td><?php echo $signature_details[0]['remarks']; ?></td>
+                            
+                        </tr>
+                    
+                    </tbody>
+                </table>
+                <?php }?>
+                <?php } else {
+                    echo "Engineer Action Not Found";
+                } ?>
+            </div>
+            <?php } ?>
     </div>
 </div>
 <style type="text/css">

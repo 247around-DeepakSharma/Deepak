@@ -1307,15 +1307,42 @@ class Booking extends CI_Controller {
     function viewdetails($booking_id) {
         $data['booking_history'] = $this->booking_model->getbooking_filter_service_center($booking_id);
         if(!empty($data['booking_history'])){
+            $engineer_action_not_exit = false;
             $unit_where = array('booking_id' => $booking_id);
-            $data['unit_details'] = $this->booking_model->get_unit_details($unit_where);
+            $booking_unit_details = $this->booking_model->get_unit_details($unit_where);
             $data['penalty'] = $this->penalty_model->get_penalty_on_booking_by_booking_id($booking_id);
             if (!is_null($data['booking_history'][0]['sub_vendor_id'])) {
                 $data['dhq'] = $this->upcountry_model->get_sub_service_center_details(array('id' => $data['booking_history'][0]['sub_vendor_id']));
             }
             
+            foreach($booking_unit_details as $key1 => $b){
+
+                $unitWhere = array("engineer_booking_action.booking_id" => $booking_id, 
+                    "engineer_booking_action.unit_details_id" => $b['id'], "service_center_id" => $data['booking_history'][0]['assigned_vendor_id']);
+                $en = $this->engineer_model->getengineer_action_data("engineer_booking_action.*", $unitWhere);
+                if(!empty($en)){
+                    $booking_unit_details[$key1]['en_serial_number'] = $en[0]['serial_number'];
+                    $booking_unit_details[$key1]['en_serial_number_pic'] = $en[0]['serial_number_pic'];
+                    $booking_unit_details[$key1]['en_is_broken'] = $en[0]['is_broken'];
+                    $booking_unit_details[$key1]['en_internal_status'] = $en[0]['internal_status'];
+                    $booking_unit_details[$key1]['en_current_status'] = $en[0]['current_status'];
+                    
+                    $engineer_action_not_exit = true;
+                } 
+        }
+        if(isset($engineer_action_not_exit)){
+            $sig_table = $this->engineer_model->getengineer_sign_table_data("*", array("booking_id" => $booking_id,
+            "service_center_id" => $data['booking_history'][0]['assigned_vendor_id']));
+            $data['signature_details'] = $sig_table;
+        }
+        
+        $data['engineer_action_not_exit'] = $engineer_action_not_exit;
+        
+        $data['unit_details'] = $booking_unit_details;
+        
+            
         }else{
-            $data['booking_history'] = "";
+            $data['booking_history'] = array();
         }
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/viewdetails', $data);
