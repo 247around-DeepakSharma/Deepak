@@ -136,7 +136,9 @@
                                             <th>Model Number</th>
                                             <th>Serial Number</th>
                                             <th>Description</th>
+                                            <th>Purchase Date</th>
                                             <th>Call Type</th>
+                                            
                                             <?php if ($booking_history[0]['current_status'] != "Completed") { ?>
                                                 <?php if ($booking_history[0]['is_upcountry'] == 1) { ?>
                                                     <th>Upcountry Charges</th>
@@ -165,6 +167,7 @@
                                                     <td><?php echo $unit_detail['model_number'] ?></td>
                                                     <td><?php echo $unit_detail['serial_number'] ?></td>
                                                     <td><?php echo $unit_detail['appliance_description'] ?></td>
+                                                    <td><?php if(!empty($unit_detail['purchase_month'])) {echo $unit_detail['purchase_month']."-". $unit_detail['purchase_year'];} else { echo $unit_detail['purchase_year'];}?></td>
                                                         <?php if ($booking_history[0]['current_status'] != "Completed") { ?>
                                                         <td><?php print_r($unit_detail['price_tags']); ?></td>
                                                             <?php if ($booking_history[0]['is_upcountry'] == 1) { ?>
