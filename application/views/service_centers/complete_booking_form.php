@@ -135,8 +135,9 @@
                                                 <select type="text" disabled="" class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity[]" >
                                                     <?php if (!empty($unit_details['capacity'])) { ?>
                                                     <option selected disabled><?php echo $unit_details['capacity']; ?></option>
+                                                    <?php } ?>
                                                 </select>
-                                                <?php } ?>
+                                                
                                             </div>
                                         </div>
                                         <div class="col-md-12" style="padding-left:0px;">
