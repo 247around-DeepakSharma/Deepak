@@ -3058,25 +3058,31 @@ class Service_centers extends CI_Controller {
             system(" chmod 777 " . TMP_FOLDER.$sf_details[0]['signature_file']);
             $cell = 'B46';
             $signature_file = TMP_FOLDER.$sf_details[0]['signature_file'];
+        }else{
+            $template = "";
         }
         
-        //generate pdf file 
-        $output_file = "delivery_challan_" .$excel_data['booking_id']."_".$spare_id."_". date('d_M_Y_H_i_s');
-        $excel_file = $this->miscelleneous->generate_excel_data($template, $output_file, $excel_data, false,$cell,$signature_file);
-        $output_pdf_file_name = $excel_file;
-        if (file_exists($excel_file)) {
-            $json_result = $this->miscelleneous->convert_excel_to_pdf($excel_file, $excel_data['booking_id'], 'vendor-partner-docs');
-            log_message('info', __FUNCTION__ . ' PDF JSON RESPONSE' . print_r($json_result, TRUE));
-            $pdf_response = json_decode($json_result, TRUE);
+       if(!empty($template)){
+            //generate pdf file 
+            $output_file = "delivery_challan_" .$excel_data['booking_id']."_".$spare_id."_". date('d_M_Y_H_i_s');
+            $excel_file = $this->miscelleneous->generate_excel_data($template, $output_file, $excel_data, false,$cell,$signature_file);
+            $output_pdf_file_name = $excel_file;
+            if (file_exists($excel_file)) {
+                $json_result = $this->miscelleneous->convert_excel_to_pdf($excel_file, $excel_data['booking_id'], 'vendor-partner-docs');
+                log_message('info', __FUNCTION__ . ' PDF JSON RESPONSE' . print_r($json_result, TRUE));
+                $pdf_response = json_decode($json_result, TRUE);
 
-            if ($pdf_response['response'] === 'Success') {
-                $output_pdf_file_name = $pdf_response['output_pdf_file'];
-                log_message('info', __FUNCTION__ . ' Generated PDF File Name' . $output_pdf_file_name);
-            } else if ($pdf_response['response'] === 'Error') {
+                if ($pdf_response['response'] === 'Success') {
+                    $output_pdf_file_name = $pdf_response['output_pdf_file'];
+                    log_message('info', __FUNCTION__ . ' Generated PDF File Name' . $output_pdf_file_name);
+                } else if ($pdf_response['response'] === 'Error') {
 
-                log_message('info', __FUNCTION__ . ' Error in Generating PDF File');
+                    log_message('info', __FUNCTION__ . ' Error in Generating PDF File');
+                }
             }
-        }
+       }else{
+           $output_pdf_file_name = "";
+       }
         
         return $output_pdf_file_name;
     }
