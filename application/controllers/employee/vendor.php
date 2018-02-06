@@ -15,6 +15,7 @@ require_once BASEPATH . 'libraries/spout-2.4.3/src/Spout/Autoloader/autoload.php
 
 class vendor extends CI_Controller {
    var  $vendorPinArray = array();
+   var  $notFoundCityStateArray = array();
    var  $filePath = "";
    var $existServices=array();
     function __Construct() {
@@ -4571,15 +4572,30 @@ class vendor extends CI_Controller {
            */
           function update_vendor_pin_code_file($file,$vendorID){
                     $deleteMsg = $this->vendor_model->delete_vendor_pin_codes(array('Vendor_ID'=>$vendorID));
+                    $pincodeArray = array_unique(array_column($this->vendorPinArray, 'pincode'));
+                    $pincodeData = $this->reusable_model->get_search_result_data("india_pincode","pincode,district,state",NULL,NULL,NULL,NULL,array('pincode'=>$pincodeArray),NULL,array('pincode','district'));
+                    foreach($pincodeData as $pinData){
+                        $pincodeDataArray[$pinData['pincode']][] = array("city"=>$pinData['district'],"state"=>$pinData['state']);
+                    }
+                    $this->notFoundCityStateArray = array_diff($pincodeArray,array_keys($pincodeDataArray));
                     if($deleteMsg == TRUE){
                               $finalInsertArray = array();
                               foreach($this->vendorPinArray as $key=>$data){
                                         $insertArray['Vendor_ID'] = $vendorID;
                                         $insertArray['Appliance_ID'] = $this->existServices[$data['appliance']];
                                         $insertArray['Pincode'] = $data['pincode'];
-                                        $insertArray['City'] = $data['city'];
-                                        $insertArray['State'] = $data['state'];
+                                        $insertArray['City']  = NULL;
+                                        $insertArray['State']  = NULL;
+                                        if(array_key_exists($data['pincode'], $pincodeDataArray)){
+                                            foreach($pincodeDataArray[$data['pincode']] as $pin_codes_data){
+                                                $insertArray['City']  = $pin_codes_data['city'];
+                                                $insertArray['State']  = $pin_codes_data['state'];
                                         $finalInsertArray[] = $insertArray;
+                              }
+                                        } 
+                                        else{
+                                            $finalInsertArray[] = $insertArray;
+                                        }
                               }
                               if(!empty($finalInsertArray)){
                                        $affectedRows =  $this->vendor_model->insert_vendor_pincode_in_bulk($finalInsertArray);
@@ -4627,10 +4643,6 @@ class vendor extends CI_Controller {
                                                        log_message('info', __FUNCTION__ . ' Uploaded Data ' . print_r($this->vendorPinArray, TRUE));
                                                        if($finalMsg == 'Successfully Done'){
                                                            $fileStatus = 'Success';
-                                                           //$cc = "anuj@247around.com";
-                                                            //$to = "chhavid@247around.com";
-                                                            //$subject = "Vendor pincode mapping file upload";
-                                                            //$this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $this->vendorPinArray, "");
                                                        }
                                         }
                                         else{
@@ -4647,6 +4659,12 @@ class vendor extends CI_Controller {
                     }
                     $this->vendor_model->update_file_status($fileStatus,$this->filePath);
                     $msg['final_msg'] = $finalMsg;
+                    if(!empty($this->notFoundCityStateArray)){
+                        $msg['final_msg'] = "City And States Are Not Found For Below Pincodes, Please Enter <br>";
+                        $msg['final_msg'] .= implode(",",$this->notFoundCityStateArray);
+                        $this->session->set_userdata($msg);
+                        redirect(base_url()."employee/vendor/is_pincode_available_in_india_pincode_table");
+                    }
                     $this->session->set_userdata($msg);
                     redirect(base_url()."employee/vendor/upload_pin_code_vendor/".$vendorID);
           }
@@ -4674,7 +4692,7 @@ class vendor extends CI_Controller {
            * If yes then it will redirect the pincode to add pincode in india pincode table form
            * if not then it will return false
            */
-          function is_pincode_available_in_india_pincode_table($pincode){
+          function is_pincode_available_in_india_pincode_table($pincode=''){
                   $state  =   $this->vendor_model->get_state_from_india_pincode($pincode);
                   if(empty($state['state'])){
                      $states  =   $this->vendor_model->getall_state();
