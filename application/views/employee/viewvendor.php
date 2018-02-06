@@ -121,9 +121,13 @@
           </tr>
 
           
-          <?php foreach($query as $key =>$row){?>
+          <?php 
+          $x = 0;
+          foreach($query as $key =>$row){
+              $x++;
+              ?>
           <tr>
-            <td><?=$row['id'];?></td>
+            <td><?php echo $x;?></td>
             <td><a href="<?php echo base_url();?>employee/vendor/editvendor/<?=$row['id'];?>"><?=$row['name'];?></a></td>
             <td class="text-center">
                     <a href="javascript:void(0)" class="btn btn-md btn-success" onclick='return login_to_vendor(<?php echo $row['id']?>)'  <?php echo ($row['active'] == 0)?'disabled=""':'' ?> title="<?php echo strtolower($row['sc_code']) . " / " . strtolower($row['sc_code']);  ?>">Login</a>
