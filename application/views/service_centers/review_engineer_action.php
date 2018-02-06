@@ -27,6 +27,7 @@
                             <th class="text-center">Engineer Name</th>
                             <th class="text-center">Amount Due</th>
                             <th class="text-center" >Amount Paid  </th>
+                            <th class="text-center" >Remarks  </th>
                             <th class="text-center" >Status</th>
                             <th class="text-center" >Submit</th>
                            </tr>
@@ -35,7 +36,7 @@
                        <tbody>
                            <tbody>
                                 <?php  foreach($data as $key =>$row){?>
-                               <tr>
+                               <tr <?php if($row->mismatch_pincode == 1){ echo "style='color:red;'";} ?>>
                                     <td class="text-center">
                                         <?php echo $key +1; ?>
                                     </td>
@@ -50,7 +51,8 @@
                                           <i class="fa fa-inr" aria-hidden="true"></i> <?php echo $row->amount_due; ?>
                                     </td>
                                     <td class="text-center"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo $row->amount_paid?></td>
-                                     <td class="text-center"><?php echo $row->status?></td>
+                                    <td class="text-center"><?php echo $row->remarks;?></td>
+                                    <td class="text-center"><?php echo $row->status; ?></td>
                                     <td class="text-center">
                                         <?php if($row->status == _247AROUND_COMPLETED) {?>
                                         <button onclick="openmodel('<?php echo $row->booking_id;?>')" class='btn btn-sm btn-success'><i class='fa fa-check' aria-hidden='true'></i>

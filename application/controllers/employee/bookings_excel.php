@@ -517,6 +517,8 @@ class bookings_excel extends CI_Controller {
                                 $is_price['is_upcountry'] = $prices[0]['is_upcountry'];
                                 $flag = array('1');
                             }
+                            
+                            $unit_details['booking_status'] = _247AROUND_FOLLOWUP;
 
 
                             $booking['potential_value'] = '';
@@ -560,7 +562,11 @@ class bookings_excel extends CI_Controller {
                                     $unit_id = $this->booking_model->addunitdetails($unit_details);
                                 }
                                 $this->insert_booking_in_partner_leads($booking, $unit_details, $user, $lead_details['Product']);
-                                $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY, '', $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+                                if(empty($this->session->userdata('id'))){
+                                    $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY, $booking['query_remarks'], _247AROUND_DEFAULT_AGENT, _247AROUND_DEFAULT_AGENT_NAME, _247AROUND);
+                                }else{
+                                    $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY, '', $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+                                }
                                 //Reset
                                 if (empty($booking['state'])) {
                                     //$to = NITS_ANUJ_EMAIL_ID;

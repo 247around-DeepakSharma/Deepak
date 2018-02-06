@@ -45,7 +45,7 @@
             </div>
         </div>-->
 
-        <h1 style='font-size:24px;'>Booking History</h1>
+<!--        <h1 style='font-size:24px;'>Booking History</h1>-->
 
         <table  class="table table-striped table-bordered">
           <tr>

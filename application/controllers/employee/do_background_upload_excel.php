@@ -473,6 +473,8 @@ class Do_background_upload_excel extends CI_Controller {
                         $is_price['customer_net_payable'] = $prices[0]['customer_net_payable'];
                         $is_price['is_upcountry'] = $prices[0]['is_upcountry'];
                     }
+                    
+                    $unit_details['booking_status'] = _247AROUND_FOLLOWUP;
 
                     $booking['order_id'] = $value['sub_order_id'];
 
@@ -482,10 +484,10 @@ class Do_background_upload_excel extends CI_Controller {
                     $booking['request_type'] = 'Installation & Demo';
                     $booking['booking_primary_contact_no'] = $phone[0];
                     $booking['create_date'] = date('Y-m-d H:i:s');
-                    $booking['current_status'] = "FollowUp";
+                    $booking['current_status'] = _247AROUND_FOLLOWUP;
                     $booking['type'] = "Query";
                     $booking['booking_address'] = $value['customer_address'];
-                    $booking['city'] = !empty($value['city'])?$value['city']:$distict_details['district'];;
+                    $booking['city'] = !empty($value['city'])?$value['city']:$distict_details['district'];
                     $booking['state'] = $distict_details['state'];
                     $booking['district'] = $distict_details['district'];
                     $booking['taluk'] = $distict_details['taluk'];
@@ -525,7 +527,11 @@ class Do_background_upload_excel extends CI_Controller {
 
                                 $count_booking_inserted++;
 
-                                $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY, $booking['query_remarks'], _247AROUND_DEFAULT_AGENT, _247AROUND_DEFAULT_AGENT_NAME, _247AROUND);
+                                if(empty($this->session->userdata('id'))){
+                                    $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY, $booking['query_remarks'], _247AROUND_DEFAULT_AGENT, _247AROUND_DEFAULT_AGENT_NAME, _247AROUND);
+                                }else{
+                                    $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY, '', $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+                                }
                             } else {
                                 log_message('info', __FUNCTION__ . ' => ERROR: Booking is not inserted in booking details: '
                                         . print_r($value, true));

@@ -93,16 +93,17 @@
                     <input type="hidden" name="partner_id" value='<?php echo $booking_history[0]['partner_id']; ?>' />
                     <input type="hidden" name="approval" value='0' />
                     <input type="hidden" name="count_unit"id ="count_unit" value="<?php echo count($bookng_unit_details);?>" />
+                    <input type="hidden" name="mismatch_pincode" id="mismatch_pincode" value="<?php if(isset($mismatch_pincode)) { echo $mismatch_pincode; }?>" />
                     <?php $count = 0; foreach ($bookng_unit_details as $key1 => $unit_details) { ?>
                     <div class="clonedInput panel panel-info " id="clonedInput1">
                         <div class="panel-body">
                             <div class="row">
                                 <div class="col-md-12">
                                     <div <?php if($this->session->userdata('is_engineer_app') == 1){?> class="col-md-8" <?php } else { ?> class="col-md-12" <?php } ?> >
-                                        <div class="form-group col-md-4" style="<?php if($this->session->userdata('is_engineer_app') == 1){?>width:29.32%;
+                                        <div class="form-group col-md-4" style="<?php if($this->session->userdata('is_engineer_app') == 1){?>width:26.32%;
                                             <?php } else {?> width:26.32%;<?php }?>">
                                             <div class="col-md-12" style="padding-left:0px;">
-                                                <!--                                            <label> Is Appliance Broken</label>-->
+                                                <label> Is Broken</label>
                                                 <select type="text" class="form-control appliance_broken" id="<?php echo "broken_".$key1?>" name="broken[]" onchange="check_broken('<?php echo $key1;?>')" required>
                                                     <option selected disabled>Is Broken</option>
                                                     <option  value="1">Yes</option>
@@ -114,6 +115,7 @@
                                         <div class="form-group col-md-4" style="<?php if($this->session->userdata('is_engineer_app') == 1){?>width:29.32%;
                                             <?php } else {?> width:26.32%;<?php }?>">
                                             <div class="col-md-12 ">
+                                                 <label> Brand</label>
                                                 <select type="text" disabled="" class="form-control appliance_brand"    name="appliance_brand[]" id="appliance_brand_1" >
                                                     <option selected disabled><?php echo $unit_details['brand']; ?></option>
                                                 </select>
@@ -121,6 +123,7 @@
                                         </div>
                                         <div class="form-group col-md-4" style="width:29.3%">
                                             <div class="col-md-12 ">
+                                                <label> Category</label>
                                                 <select type="text" disabled="" class="form-control appliance_category"   id="appliance_category_1" name="appliance_category[]"  >
                                                     <option selected disabled><?php echo $unit_details['category']; ?></option>
                                                 </select>
@@ -128,6 +131,7 @@
                                         </div>
                                         <div class="form-group col-md-4"style="width:29.2%" style=" padding-right: 0px;">
                                             <div class="col-md-12">
+                                                <label> Capacity</label>
                                                 <select type="text" disabled="" class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity[]" >
                                                     <?php if (!empty($unit_details['capacity'])) { ?>
                                                     <option selected disabled><?php echo $unit_details['capacity']; ?></option>

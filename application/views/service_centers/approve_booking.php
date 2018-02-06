@@ -23,9 +23,10 @@
 <input type="hidden" name="partner_id" value='<?php echo $booking_history[0]['partner_id']; ?>' />
 <input type="hidden" name="approval" value='1' />
 <input type="hidden" name="amount_paid" id="amount_paid" value="<?php echo $booking_history[0]["amount_paid"];?>" />
+<input type="hidden" name="mismatch_pincode" id="mismatch_pincode" value="<?php echo $mismatch_pincode;?>" />
 <div class="" >
     <div class="panel panel-info">
-        <div class="panel-heading">Approve Booking (Amount Paid By Customer <strong><i class="fa fa-inr" aria-hidden="true"></i><?php echo $engineer[0]["amount_paid"];?></strong>)
+        <div class="panel-heading">Approve Booking (Amount Paid By Customer <strong><i class="fa fa-inr" aria-hidden="true"></i><?php echo $amount_paid;?></strong>)
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
 
         </div>
@@ -38,9 +39,9 @@
                                 <div class="col-md-12">
                                     <div class="col-md-8">
                                        
-                                        <div class="form-group col-md-4" style="width:29%;">
+                                        <div class="form-group col-md-4" style="width:28%;">
                                         <div class="col-md-12">
-<!--                                            <label > Is Appliance Broken</label>-->
+                                           <label > Is Broken</label>
                                             <select type="text" class="form-control appliance_broken"   id="broken" name="broken[]" required>
                                                 <option selected disabled>Is Broken</option>
                                                 <option <?php if($unit_details['is_broken'] == 1){ echo "selected";}?> >Yes</option>
@@ -50,12 +51,14 @@
                                     </div>
                                     <div class="form-group col-md-4" style="width:29%;">
                                         <div class="col-md-12 ">
+                                            <label > Brand</label>
                                             <select type="text" disabled="" class="form-control appliance_brand"    name="appliance_brand[]" id="appliance_brand_1" >
                                                 <option selected disabled><?php echo $unit_details['brand']; ?></option>
                                             </select>
                                         </div>
                                     </div>
                                     <div class="form-group col-md-4" style="width:29%;">
+                                        <label > Category</label>
                                         <div class="col-md-12 ">
                                             <select type="text" disabled="" class="form-control appliance_category"   id="appliance_category_1" name="appliance_category[]"  >
                                                 <option selected disabled><?php echo $unit_details['category']; ?></option>
@@ -66,6 +69,7 @@
                                     <div class="form-group col-md-4" style=" padding-right: 0px;width:26%;">
                                         <div class="col-md-12">
                                             <?php if (!empty($unit_details['capacity'])) { ?>
+                                            <label > Capacity</label>
                                             <select type="text" disabled="" class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity[]" >
                                                 <option selected disabled><?php echo $unit_details['capacity']; ?></option>
                                             </select>

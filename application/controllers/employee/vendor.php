@@ -1158,6 +1158,10 @@ class vendor extends CI_Controller {
         $agent_id =  $this->input->post('agent_id');
         $agent_name =  $this->input->post('agent_name');
         $agent_type =  $this->input->post('agent_type');
+        $pincode = $this->input->post('pincode');
+        $partner_id = $this->input->post('partner_id');
+        $service_id = $this->input->post('service_id');
+        $city = $this->input->post('city');
         $url = base_url() . "employee/do_background_process/assign_booking";
         $sf_status = $this->input->post("sf_status");
         $count = 0;
@@ -1174,7 +1178,8 @@ class vendor extends CI_Controller {
                         $count++;
                                
                         if($sf_status[$booking_id] == "SF_NOT_EXIST"){
-                            $this->send_mail_when_sf_not_exist($booking_id);
+                            //$this->send_mail_when_sf_not_exist($booking_id);
+                            $this->miscelleneous->sf_not_exist_for_pincode(array('booking_id' => $booking_id, 'booking_pincode' => $pincode[$booking_id], 'city' => $city[$booking_id], 'service_id' => $service_id[$booking_id],'partner_id'=>$partner_id[$booking_id]));
                         }
                     } else {
                         log_message('info', __METHOD__ . "=> Not Assign for Sc "
@@ -3351,7 +3356,7 @@ class vendor extends CI_Controller {
     function get_sc_charges_list(){
         log_message('info', __FUNCTION__.' Used by :'.$this->session->userdata('employee_id'));
         $sc_charges_data = $this->service_centre_charges_model->get_service_caharges_data("partner_id,services,category,capacity,service_category,vendor_basic_charges,"
-                . "vendor_tax_basic_charges,vendor_total,customer_net_payable",array("partner_id <> " => _247AROUND_DEMO_PARTNER));
+                . "vendor_tax_basic_charges,vendor_total,customer_net_payable",array("partner_id <> " => _247AROUND_DEMO_PARTNER , "service_category NOT IN ('".REPEAT_BOOKING_TAG."','".SPARE_PART_BOOKING_TAG."')" => NULL));
         $partner_id_array = array_unique(array_column($sc_charges_data, 'partner_id'));
         foreach($partner_id_array as $partnerID){
             $booking_sources_array[$partnerID] = '';

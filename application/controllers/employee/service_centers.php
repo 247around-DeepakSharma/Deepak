@@ -117,17 +117,41 @@ class Service_centers extends CI_Controller {
         $booking_id =base64_decode(urldecode($code));
         $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
         $unit_where = array('booking_id'=>$booking_id, 'pay_to_sf' => '1');
-        $data['unit_details'] = $this->booking_model->get_unit_details($unit_where);
+        $booking_unit_details = $this->booking_model->get_unit_details($unit_where);
         $data['booking_state_change_data'] = $this->booking_model->get_booking_state_change_by_id($booking_id);
         $data['sms_sent_details'] = $this->booking_model->get_sms_sent_details($booking_id);
-        // This is commented because we are not showing in booking details
-//        $data['upcountry_details'] = $this->upcountry_model->upcountry_booking_list(
-//                $this->session->userdata('service_center_id'), $booking_id,true, 
-//                $data['booking_history'][0]['upcountry_paid_by_customer']);
 
         if (!is_null($data['booking_history'][0]['sub_vendor_id'])) {
             $data['dhq'] = $this->upcountry_model->get_sub_service_center_details(array('id' => $data['booking_history'][0]['sub_vendor_id']));
         }
+        $engineer_action_not_exit = false;
+        if($this->session->userdata('is_engineer_app') == 1){
+            foreach($booking_unit_details as $key1 => $b){
+
+                    $unitWhere = array("engineer_booking_action.booking_id" => $booking_id, 
+                        "engineer_booking_action.unit_details_id" => $b['id'], "service_center_id" => $data['booking_history'][0]['assigned_vendor_id']);
+                    $en = $this->engineer_model->getengineer_action_data("engineer_booking_action.*", $unitWhere);
+                    if(!empty($en)){
+                        $booking_unit_details[$key1]['en_serial_number'] = $en[0]['serial_number'];
+                        $booking_unit_details[$key1]['en_serial_number_pic'] = $en[0]['serial_number_pic'];
+                        $booking_unit_details[$key1]['en_is_broken'] = $en[0]['is_broken'];
+                        $booking_unit_details[$key1]['en_internal_status'] = $en[0]['internal_status'];
+                        $booking_unit_details[$key1]['en_current_status'] = $en[0]['current_status'];
+
+                        $engineer_action_not_exit = true;
+                    } 
+            }
+            if(isset($engineer_action_not_exit)){
+                $sig_table = $this->engineer_model->getengineer_sign_table_data("*", array("booking_id" => $booking_id,
+                "service_center_id" => $data['booking_history'][0]['assigned_vendor_id']));
+                $data['signature_details'] = $sig_table;
+            }
+        }
+        
+        $data['engineer_action_not_exit'] = $engineer_action_not_exit;
+        
+        $data['unit_details'] = $booking_unit_details;
+        
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/booking_details', $data);
     }
@@ -171,6 +195,7 @@ class Service_centers extends CI_Controller {
             if(!empty($sig_table)){
                 $data['signature'] = $sig_table[0]['signature'];
                 $data['amount_paid'] = $sig_table[0]['amount_paid'];
+                $data['mismatch_pincode'] = $sig_table[0]['mismatch_pincode'];
             }
             
         }
@@ -214,6 +239,7 @@ class Service_centers extends CI_Controller {
             $upcountry_charges = $this->input->post("upcountry_charges");
             $serial_number_pic  = $this->input->post("serial_number_pic");
             $broken = $this->input->post("appliance_broken");
+            $mismatch_pincode = $this->input->post("mismatch_pincode");
             $is_update_spare_parts = FALSE;
             $sp_required_id = json_decode($this->input->post("sp_required_id"), true);
 
@@ -228,6 +254,7 @@ class Service_centers extends CI_Controller {
                  $data['unit_details_id'] = $unit_id;
                  $data['closed_date'] = date('Y-m-d H:i:s');
                  $data['is_broken'] = $broken[$unit_id];
+                 $data['mismatch_pincode'] = $mismatch_pincode;
                  
 //                 if(!empty($approval)){
 //                    $unitWhere = array("engineer_booking_action.booking_id" => $booking_id, "engineer_booking_action.unit_details_id" => $unit_id);
@@ -546,7 +573,7 @@ class Service_centers extends CI_Controller {
                 $penalty_select = "CASE WHEN ((count(booking_id) *  penalty_on_booking.penalty_amount) > cap_amount) THEN (cap_amount)
 
                 ELSE (COUNT(booking_id) * penalty_on_booking.penalty_amount) END  AS p_amount";
-                $penalty_where = array('booking_id' => $value['booking_id'],'service_center_id' => $service_center_id);
+                $penalty_where = array('booking_id' => $value['booking_id'],'service_center_id' => $service_center_id,'penalty_on_booking.active' => 1);
                 $p_amount = $this->penalty_model->get_penalty_on_booking_any($penalty_where, $penalty_select, array('CASE'));
                 
                 $is_customer_paid = 1;
@@ -2026,7 +2053,7 @@ class Service_centers extends CI_Controller {
                         //update order details table
                         $order_details_update_id = $this->bb_model->update_bb_order_details(array('partner_order_id' => $order_id, 'assigned_cp_id' => $cp_id), array('is_delivered' => '1'));
                         if (!empty($order_details_update_id)) {
-                            $this->buyback->insert_bb_state_change($order_id, _247AROUND_BB_IN_PROCESS, $remarks, $this->session->userdata('id'), _247AROUND, Null);
+                            $this->buyback->insert_bb_state_change($order_id, _247AROUND_BB_IN_PROCESS, $remarks, $this->session->userdata('service_center_agent_id'), NULL, $cp_id);
                             $this->session->set_userdata('success', 'Order has been updated successfully');
                             redirect(base_url() . 'service_center/buyback/bb_order_details');
                         } else {
@@ -2098,6 +2125,7 @@ class Service_centers extends CI_Controller {
         $data['service_id'] = rawurldecode($service_id);
         $data['city'] = rawurldecode($city);
         $data['cp_id'] = rawurldecode($cp_id);
+        $data['agent_id'] = $this->session->userdata('service_center_agent_id');
         
         $response = $this->buyback->process_update_received_bb_order_details($data);
 
@@ -2125,7 +2153,7 @@ class Service_centers extends CI_Controller {
         $data['service_id'] = rawurldecode($service_id);
         $data['city'] = rawurldecode($city);
         $data['cp_id'] = $this->session->userdata('service_center_id');
-
+        $agent_id = $this->session->userdata('service_center_agent_id');
         $request_data['select'] = "bb_cp_order_action.current_status";
         $request_data['length'] = -1;
         $request_data['where_in'] = array();
@@ -2149,7 +2177,7 @@ class Service_centers extends CI_Controller {
             $update_id = $this->cp_model->update_bb_cp_order_action($update_where, $update_data);
             if ($update_id) {
                 $this->buyback->insert_bb_state_change($data['order_id'], _247AROUND_BB_IN_PROCESS, _247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS, 
-                        $data['cp_id'], Null, $data['cp_id']);
+                        $agent_id, Null, $data['cp_id']);
 
                 $this->session->set_userdata('success', 'Order has been updated successfully');
                 redirect(base_url() . 'service_center/buyback/bb_order_details');
@@ -2779,8 +2807,8 @@ class Service_centers extends CI_Controller {
         $row = array();
         
         //Getting Details from Booking Sources
-        $booking_sources = $this->partner_model->get_booking_sources_by_price_mapping_id($charges_list->partner_id);
-        $code_source = $booking_sources[0]['code'];
+//        $booking_sources = $this->partner_model->get_booking_sources_by_price_mapping_id($charges_list->partner_id);
+//        $code_source = $booking_sources[0]['code'];
 
         //Calculating vendor base charge 
         $vendor_base_charge = $charges_list->vendor_total / (1 + ($charges_list->rate / 100));
@@ -2788,7 +2816,7 @@ class Service_centers extends CI_Controller {
         $vendor_tax = $charges_list->vendor_total - $vendor_base_charge;
         
         $row[] = $no;
-        $row[] = $code_source;
+        //$row[] = $code_source;
         $row[] = $charges_list->product;
         $row[] = $charges_list->category;
         $row[] = $charges_list->capacity;
@@ -3058,34 +3086,35 @@ class Service_centers extends CI_Controller {
         
         return $output_pdf_file_name;
     }
-function get_learning_collateral_for_bookings(){
-    $booking_id = $this->input->post('booking_id');
-    $data = $this->service_centers_model->get_collateral_for_service_center_bookings($booking_id);
-    if(!empty($data)){
-        $finalString = '<table class="table">
-        <thead>
-          <tr>
-          <th>S.N</th>
-            <th>Document Type</th>
-            <th>File</th>
-          </tr>
-        </thead>
-        <tbody>';
-        $index =0;
-        foreach($data as $collatralData){
-            $url = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$collatralData['file'];
-            $index++;
-            $finalString .= '<tr><td>'.$index.'</td>';
-            $finalString .= '<td>'.$collatralData['collateral_type'].'</td>';
-            $finalString .=  '<td>'.$this->miscelleneous->get_reader_by_file_type($collatralData['document_type'],$url,"400").'</td>';
-            $finalString .='</tr>';
+    
+    function get_learning_collateral_for_bookings(){
+        $booking_id = $this->input->post('booking_id');
+        $data = $this->service_centers_model->get_collateral_for_service_center_bookings($booking_id);
+        if(!empty($data)){
+            $finalString = '<table class="table">
+            <thead>
+              <tr>
+              <th>S.N</th>
+                <th>Document Type</th>
+                <th>File</th>
+              </tr>
+            </thead>
+            <tbody>';
+            $index =0;
+            foreach($data as $collatralData){
+                $url = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$collatralData['file'];
+                $index++;
+                $finalString .= '<tr><td>'.$index.'</td>';
+                $finalString .= '<td>'.$collatralData['collateral_type'].'</td>';
+                $finalString .=  '<td>'.$this->miscelleneous->get_reader_by_file_type($collatralData['document_type'],$url,"400").'</td>';
+                $finalString .='</tr>';
+            }
+           $finalString .='</tbody></table>';
         }
-       $finalString .='</tbody></table>';
+        else{
+            $finalString = "<p style='text-align:center;'>Brand Collateral is not available</p>";
+        }
+
+       echo $finalString;
     }
-    else{
-        $finalString = "<p style='text-align:center;'>Brand Collateral is not available</p>";
-    }
-   
-   echo $finalString;
-}
 }

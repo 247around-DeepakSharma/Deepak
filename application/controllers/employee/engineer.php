@@ -39,7 +39,7 @@ class Engineer extends CI_Controller {
     function review_engineer_action_form(){
       
         $where['where'] = array("engineer_booking_action.current_status" => "InProcess");
-        $data = $this->engineer_model->get_engineer_action_table_list($where, "engineer_booking_action.booking_id, amount_due, engineer_table_sign.amount_paid");
+        $data = $this->engineer_model->get_engineer_action_table_list($where, "engineer_booking_action.booking_id, amount_due, engineer_table_sign.amount_paid, engineer_table_sign.remarks, engineer_table_sign.mismatch_pincode");
        
         foreach ($data as $key => $value) {
             $unitWhere = array("engineer_booking_action.booking_id" => $value->booking_id);
@@ -70,8 +70,6 @@ class Engineer extends CI_Controller {
         $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
 
         $bookng_unit_details = $this->booking_model->getunit_details($booking_id);
-        $data['engineer'] = $this->engineer_model->getengineer_sign_table_data("*", array("booking_id" => $booking_id, "service_center_id" =>
-            $data['booking_history'][0]['assigned_vendor_id']));
 
         foreach($bookng_unit_details as $key1 => $b){
             $broken = 0;
@@ -95,7 +93,12 @@ class Engineer extends CI_Controller {
             "service_center_id" => $data['booking_history'][0]['assigned_vendor_id']));
         if (!empty($sig_table)) {
             $data['signature'] = $sig_table[0]['signature'];
+            $data['mismatch_pincode'] = $sig_table[0]['mismatch_pincode'];
             $data['amount_paid'] = $sig_table[0]['amount_paid'];
+        } else {
+             $data['amount_paid'] = 0;
+             $data['signature'] ="";
+             $data['mismatch_pincode'] = 0;
         }
 
         $data['bookng_unit_details'] = $bookng_unit_details;
@@ -108,21 +111,27 @@ class Engineer extends CI_Controller {
         
         $where['where_in'] = array("engineer_booking_action.current_status" => array("InProcess", "Completed", "Cancelled"),
             "booking_details.current_status" => array(_247AROUND_PENDING, _247AROUND_RESCHEDULED));
+        
         $data = $this->engineer_model->get_engineer_action_table_list($where, "engineer_booking_action.booking_id, amount_due, engineer_table_sign.amount_paid,"
                 . "engineer_table_sign.pincode as en_pincode, engineer_table_sign.address as en_address, "
-                . "booking_details.booking_pincode, booking_details.assigned_vendor_id, booking_details.booking_address");
+                . "booking_details.booking_pincode, booking_details.assigned_vendor_id, booking_details.booking_address, engineer_booking_action.remarks");
        
         foreach ($data as $key => $value) {
+            $is_broken = false;
             $unitWhere = array("engineer_booking_action.booking_id" => $value->booking_id);
-            $ac_data = $this->engineer_model->getengineer_action_data("engineer_booking_action.engineer_id, internal_status,", $unitWhere);
+            $ac_data = $this->engineer_model->getengineer_action_data("engineer_booking_action.engineer_id, internal_status,engineer_booking_action.is_broken", $unitWhere);
             $status = _247AROUND_CANCELLED;
             foreach ($ac_data as $ac_table) {
                 if($ac_table['internal_status'] == _247AROUND_COMPLETED){
                     $status = _247AROUND_COMPLETED;
                 }
+                if($ac_table['is_broken'] ==  1){
+                    $is_broken = true;
+                }
             }
            
             $data[$key]->status = $status;
+            $data[$key]->is_broken = $is_broken;
             if(!empty($ac_data[0]['engineer_id'])){
                 $data[$key]->engineer_name = $this->engineer_model->get_engineers_details(array("id" => $ac_data[0]['engineer_id']), "name");
                 
