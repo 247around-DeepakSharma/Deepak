@@ -4237,3 +4237,12 @@ ALTER TABLE `engineer_table_sign` ADD `latitude` VARCHAR(128) NULL DEFAULT NULL 
 
 ALTER TABLE `engineer_table_sign` ADD `mismatch_pincode` INT(1) NULL DEFAULT NULL AFTER `longitude`;
 ALTER TABLE `service_center_booking_action` ADD `mismatch_pincode` INT(1) NULL DEFAULT NULL AFTER `update_date`;
+
+-- sachin 06 feb
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'partner_login_details', 'Partner ERP URL and Login - 247around', 'Dear Partner,<br><br>
+As discussed, please find below your login details.<br><br>
+URL: <a href="https://www.aroundhomzapp.com/partner/login">https://www.aroundhomzapp.com/partner/login</a><br><br>
+<b>Username: </b>%s<br><b>Password: </b>%s<br><br>
+Please use the ERP panel for your closures going forward. In case of any issues, write to us or call us.<br><br>
+Regards,<br> 247around Team', 'noreply@247around.com', '', '', '', '1', CURRENT_TIMESTAMP);
