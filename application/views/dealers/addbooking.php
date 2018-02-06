@@ -393,8 +393,9 @@
             document.getElementById('remarks').style.borderColor = "green";
             document.getElementById('error_remarks').innerHTML = "";  
         }
-        
-       return send_post_request();
+        $('#submitform').attr('disabled', true);
+        $('#submitform').val("Please wait.....");
+        return send_post_request();
     }
     
     
@@ -861,6 +862,7 @@
                 processData: false,  // tell jQuery not to process the data
                 contentType: false,   // tell jQuery not to set contentType
                 beforeSend: function(){
+                    
                     $('body').loadingModal({
                     position: 'auto',
                     text: 'Loading Please Wait...',
