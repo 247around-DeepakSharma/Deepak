@@ -1511,7 +1511,7 @@ class Partner extends CI_Controller {
             if (!empty($updated_unit_id)) {
                 log_message('info', __METHOD__ . " UNIT ID: " . print_r($updated_unit_id, true));
                 $sf_id = $this->reusable_model->get_search_query('booking_details','assigned_vendor_id',array('booking_id'=>$booking_id),NULL,NULL,NULL,NULL,NULL)->result_array();
-                if(!empty($sf_id)){
+                if(!empty($sf_id[0]['assigned_vendor_id'])){
                     $inventory_details = array('receiver_entity_id' => $sf_id[0]['assigned_vendor_id'],
                                                 'receiver_entity_type' => _247AROUND_SF_STRING,
                                                 'stock' => 1,

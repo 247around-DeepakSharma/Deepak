@@ -2310,12 +2310,13 @@ class Booking_model extends CI_Model {
      * @param array $agent_details
      */
     function process_inventory($result,$agent_details) {
+        log_message("info",__METHOD__." ". print_r($result,TRUE));
         /* check if booking is assigned to sf
          * if booking is assigned then update the inventory stock
          * else do not perform any action on inventory
          */
         $sf_id = $this->reusable_model->get_search_query('booking_details', 'assigned_vendor_id', array('booking_id' => $result['booking_id']), NULL, NULL, NULL, NULL, NULL)->result_array();
-        if (!empty($sf_id)) {
+        if (!empty($sf_id[0]['assigned_vendor_id'])) {
             $match = array();
             preg_match('/[0-9]+/', $result['appliance_capacity'], $match);
             if (!empty($match)) {
@@ -2334,6 +2335,8 @@ class Booking_model extends CI_Model {
 
                 $this->miscelleneous->process_inventory_stocks($data);
             }
+        }else{
+            log_message("info",__METHOD__." SF Id is Empty");
         }
     }
 
