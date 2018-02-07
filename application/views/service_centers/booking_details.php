@@ -238,6 +238,8 @@
                     <?php } ?>
                 </tbody>
             </table>
+            
+            <div style="margin-top:20px;" id="sf_payout"></div>
             <?php }else{?> 
             <div class="text-danger">No Data Found</div>
             <?php }?>
@@ -474,6 +476,63 @@
             <div class="text-danger">No Data Found</div>
             <?php } ?>
         </div>
+
+            <?php if($this->session->userdata('is_engineer_app') == 1){ ?>
+            <div class="tab-pane fade in" id="tab6">
+                <?php if($engineer_action_not_exit) { ?>
+
+                <table class="table  table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>Service Category</th>
+                        <th>Broken</th>
+                        <th>Serial Number</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach($unit_details as $unit){?>
+                    <tr>
+                        <td><?php echo $unit["price_tags"];?></td>
+                        <td><?php if($unit['en_is_broken'] ==1){ echo "Yes"; } else { echo "No";} ?></td>
+                        <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $unit['en_serial_number_pic'];?>" target="_blank"><?php  echo $unit['en_serial_number']; ?></a></td>
+                        
+                        <td><?php  echo $unit['en_current_status']." / ".$unit['en_internal_status']; ?></td>
+                    </tr>
+                    <?php }?>
+                </tbody>
+                </table>
+                <?php if(isset($signature_details)){ ?>
+                <table class="table  table-striped table-bordered">
+                    <tr>
+                        <th>Amount Paid</th>
+                        <th>Customer Signature</th>
+                        <th>Closed Date</th>
+                        <th>Closing Address</th>
+                        <th>Remarks</th>
+                    </tr>
+                    <tbody>
+                        <?php if(!empty($signature_details)){ ?>
+                        <tr>
+                            
+                            <td><?php echo $signature_details[0]['amount_paid']; ?></td>
+                            <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $signature_details[0]['signature'];?>" target="_blank">Click Here</a></td>
+                            <td><?php echo $signature_details[0]['closed_date']; ?></td>
+                            <td><?php echo $signature_details[0]['address']; ?></td>
+                            <td><?php echo $signature_details[0]['remarks']; ?></td>
+                            
+                        </tr>
+                        <?php } ?>
+                    
+                    </tbody>
+                </table>
+                <?php }?>
+                <?php } else {
+                    echo "Engineer Action Not Found";
+                } ?>
+            </div>
+            <?php } ?>
+
     </div>
 </div>
 <style type="text/css">
@@ -514,5 +573,16 @@
             // $(".tab").addClass("active"); // instead of this do the below 
             $(this).removeClass("btn-default").addClass("btn-primary");
         });
+        
+
+        $.ajax({
+          type: 'POST',
+          url: '<?php echo base_url(); ?>employee/service_centers/get_sf_payout/<?php echo $booking_history[0]['booking_id']; ?>/<?php echo $booking_history[0]['assigned_vendor_id'];?>/<?php echo $booking_history[0]['amount_due'];?>',
+          success: function (data) {
+             console.log(data);
+             $("#sf_payout").html(data);
+          }
+        });
+    
     });
 </script>

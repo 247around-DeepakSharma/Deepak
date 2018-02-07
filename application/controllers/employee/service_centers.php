@@ -508,17 +508,17 @@ class Service_centers extends CI_Controller {
     /**
      * @desc: this is used to display completed booking for specific service center
      */
-    function completed_booking($offset = 0, $page = 0, $booking_id=""){
+    function completed_booking($offset = 0, $page = 0, $booking_id = "") {
         $this->checkUserSession();
-    if ($page == 0) {
-        $page = 50;
-    }
+        if ($page == 0) {
+            $page = 50;
+        }
 
         $service_center_id = $this->session->userdata('service_center_id');
 
         $offset = ($this->uri->segment(3) != '' ? $this->uri->segment(3) : 0);
         $config['base_url'] = base_url() . 'service_center/completed_booking';
-        $config['total_rows'] = $this->service_centers_model->getcompleted_or_cancelled_booking("count","",$service_center_id,"Completed", $booking_id);
+        $config['total_rows'] = $this->service_centers_model->getcompleted_or_cancelled_booking("count", "", $service_center_id, "Completed", $booking_id);
 
         $config['per_page'] = $page;
         $config['uri_segment'] = 3;
@@ -529,35 +529,12 @@ class Service_centers extends CI_Controller {
 
         $data['count'] = $config['total_rows'];
         $bookings = $this->service_centers_model->getcompleted_or_cancelled_booking($config['per_page'], $offset, $service_center_id, "Completed", $booking_id);
-        if(!empty($bookings)){
+        if (!empty($bookings)) {
             foreach ($bookings as $key => $value) {
-                $where['where'] = array('booking_unit_details.booking_id' => $value['booking_id']);
-                $where['length'] = -1;
-                $select = "(vendor_basic_charges + vendor_st_or_vat_basic_charges "
-                        . "+ vendor_extra_charges + vendor_st_extra_charges+ vendor_parts+ vendor_st_parts) as sf_earned";
-                $b_earned = $this->booking_model->get_bookings_by_status($where, $select);
-                $unit_amount = 0;
-                foreach($b_earned as $earn){
-                    $unit_amount += $earn->sf_earned;
-                }
-               
-                $penalty_select = "CASE WHEN ((count(booking_id) *  penalty_on_booking.penalty_amount) > cap_amount) THEN (cap_amount)
 
-                ELSE (COUNT(booking_id) * penalty_on_booking.penalty_amount) END  AS p_amount";
-                $penalty_where = array('booking_id' => $value['booking_id'],'service_center_id' => $service_center_id,'penalty_on_booking.active' => 1);
-                $p_amount = $this->penalty_model->get_penalty_on_booking_any($penalty_where, $penalty_select, array('CASE'));
-                
-                $is_customer_paid = 1;
-                if(empty($value['amount_due'])){
-                    $is_customer_paid = 0;
-                }
-                $upcountry = $this->upcountry_model->upcountry_booking_list($service_center_id, $value['booking_id'], true, $is_customer_paid);
-                $sf_earned = $unit_amount -$p_amount[0]['p_amount'] + $upcountry[0]['upcountry_price'];
-                if($p_amount[0]['p_amount'] > 0){
-                    $bookings[$key]['penalty'] = true;
-                }
-                $bookings[$key]['sf_earned'] = $sf_earned;
-               
+                $res =$this->miscelleneous->get_SF_payout($value['booking_id'], $service_center_id, $value['amount_due']);
+                $bookings[$key]['sf_earned'] = $res['sf_earned'];
+                $bookings[$key]['penalty'] = $res['penalty'];
             }
         }
         $data['bookings'] = $bookings;
@@ -565,7 +542,12 @@ class Service_centers extends CI_Controller {
 
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/completed_booking', $data);
-
+    }
+    
+    function get_sf_payout($booking_id, $service_center_id, $amount_due){
+        $res = $this->miscelleneous->get_SF_payout($booking_id, $service_center_id, $amount_due);
+        echo "Total SF Payout &nbsp;&nbsp;<i class='fa fa-inr'></i> <b>".$res['sf_earned']."</b>";
+        
     }
 
     /**

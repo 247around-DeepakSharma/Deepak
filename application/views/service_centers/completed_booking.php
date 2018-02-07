@@ -7,7 +7,7 @@
                 </div>
 
                 <div class="panel-body">
-                    <div class="table-responsive">
+                   
                         <table class="table table-bordered table-hover table-striped">
                             <thead>
                                 <tr>
@@ -52,7 +52,7 @@
                                            
 
                                             <td><?php echo date('d-m-Y', strtotime($row['closed_date'])); ?></td>
-                                             <td data-popover="true" style="position: absolute; border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 140px;" data-html=true data-content=" <?php if ($status == "Completed")
+                                             <td data-popover="true" style="position: absolute; border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 110px;" data-html=true data-content=" <?php if ($status == "Completed")
                                                             echo $row['closing_remarks'];
                                                           else 
                                                             echo $row['cancellation_reason'];  
@@ -76,7 +76,7 @@
                                             </td>-->
                                             <?php if ($status === "Completed") { ?> 
                                                      <td>
-                                                <?php echo  "Rs. ".$row['sf_earned']; ?>
+                                                <?php echo  "<i class='fa fa-inr'></i> ".round($row['sf_earned'],2); ?>
                                                     </td>
                                                     <td><?php if(!empty($row['rating_stars'])) 
                                                         { echo $row['rating_stars']."/<b>5</b>"; } 
@@ -90,7 +90,7 @@
                                         <?php $count++; } ?>
                             </tbody>
                         </table>
-                    </div>
+                   
                      <?php if(!empty($links)){ ?><div class="custom_pagination" style="float:left;margin-top: 20px;margin-bottom: 20px;"> <?php if(isset($links)){echo $links;} ?></div> <?php } ?>
                    
                 </div>
