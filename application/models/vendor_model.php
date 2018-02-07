@@ -1841,8 +1841,7 @@ class vendor_model extends CI_Model {
      function update_file_status($status,$fileName){
          $data=array('result'=>$status);
          $this->db->where('file_name',$fileName);
-        $this->db->update("file_uploads",$data);
-        echo $this->db->last_query();
+        return $this->db->update("file_uploads",$data);
      }
      
      function get_vendor_with_bank_details($select,$where){
@@ -1854,4 +1853,11 @@ class vendor_model extends CI_Model {
         $sql = $this->db->get('service_centres');
         return $sql->result_array();
      }
+     /*
+      * Delete data from vendor_pincode_mapping on the basis of ids
+      */
+     function delete_vendor_pin_codes_in_bulk($whereIN){
+          $this->db->where_in('id', $whereIN);
+          return $this->db->delete('vendor_pincode_mapping'); 
+    }
 }
