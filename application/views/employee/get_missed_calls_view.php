@@ -43,7 +43,7 @@
               <ul style="list-style-type: none;">
               <?php foreach($updation_reason as $value){?>
                   <li>
-                      <input type="radio" name="updation_reason" value="<?php echo $value['reason']?>">&nbsp;&nbsp;&nbsp;&nbsp;<?php echo $value['reason']?>
+                      <input type="radio" name="updation_reason" value="<?php echo $value['reason']?>" required="">&nbsp;&nbsp;&nbsp;&nbsp;<?php echo $value['reason']?>
                   </li> 
               <?php }?>
               </ul>
@@ -71,7 +71,7 @@
         </div>
          <?php
                     if ($this->session->flashdata('cancel_leads')) {
-                        echo '<div class="alert alert-success alert-dismissible" role="alert" style="margin-top:10px;width:25%;margin-left:1%;margin-bottom:-10px;">
+                        echo '<div class="alert alert-success alert-dismissible" role="alert" style="margin-top:10px;margin-left:1%;margin-bottom:-10px;">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -81,7 +81,7 @@
                     ?>
          <?php
                     if ($this->session->flashdata('update_leads')) {
-                        echo '<div class="alert alert-success alert-dismissible" role="alert" style="margin-top:10px;width:25%;margin-left:1%;margin-bottom:-10px;">
+                        echo '<div class="alert alert-success alert-dismissible" role="alert" style="margin-top:10px;margin-left:1%;margin-bottom:-10px;">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -128,13 +128,13 @@
                             </td>
                             <td style="text-align: center"><?php echo $value['updation_reason'];?></td>
                             <td style="text-align: center">
-                                <a href="javascript:void(0)" onclick="return update_partner_missed_calls(<?php echo $value['id']?>,<?php echo $value['phone']?>)" class="btn btn-sm btn-success" title="Create Booking" > <i class="fa fa-book" aria-hidden="true"></i></a>
+                                <a href="#" onclick="return update_partner_missed_calls(<?php echo $value['id']?>,<?php echo $value['phone']?>)" class="btn btn-sm btn-success" title="Create Booking" > <i class="fa fa-book" aria-hidden="true"></i></a>
                             </td>
                             <td style="text-align: center">
-                                <a href="javascript:void(0)" class="btn btn-sm btn-warning" title="Cancel Lead" onclick="return assign_id(<?php echo $value['id'] ?>)" data-toggle="modal" data-target="#cancelmodal"> <i class="fa fa-times" aria-hidden="true"></i></a>
+                                <a href="#" class="btn btn-sm btn-warning" title="Cancel Lead" onclick="return assign_id(<?php echo $value['id'] ?>)" data-toggle="modal" data-target="#cancelmodal"> <i class="fa fa-times" aria-hidden="true"></i></a>
                             </td>
                             <td style="text-align: center">
-                                <a href="javascript:void(0)" class="btn btn-sm btn-primary" title="Update Lead" onclick="return assign_id_update(<?php echo $value['id'] ?>)" data-toggle="modal" data-target="#updatemodal"> <i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
+                                <a href="#" class="btn btn-sm btn-primary" title="Update Lead" onclick="return assign_id_update(<?php echo $value['id'] ?>)" data-toggle="modal" data-target="#updatemodal"> <i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
                             </td>
                             <td style="text-align: center">
                                 <button type="button" onclick="outbound_call(<?php echo $value['phone'] ?>)" class="btn btn-sm btn-info"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>
@@ -147,6 +147,8 @@
         </div>
     </div>
 </div>
+<?php if($this->session->userdata('cancel_leads')){$this->session->unset_userdata('cancel_leads');}?>
+<?php if($this->session->userdata('update_leads')){$this->session->unset_userdata('update_leads');}?>
 <script type="text/javascript">
     function outbound_call(phone_number){
         var confirm_call = confirm("Call Customer ?");

@@ -38,3 +38,4 @@ define('SPARE_PART_BOOKING_TAG','Spare Parts');
 define('REQUESTED_QUOTE_REJECTED','Requested Quote Rejected');
 
 define("SPARE_PARTS_CANCELLED", "Spare Parts Cancelled");
+

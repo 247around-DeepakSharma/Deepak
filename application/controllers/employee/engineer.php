@@ -70,8 +70,6 @@ class Engineer extends CI_Controller {
         $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
 
         $bookng_unit_details = $this->booking_model->getunit_details($booking_id);
-        $data['engineer'] = $this->engineer_model->getengineer_sign_table_data("*", array("booking_id" => $booking_id, "service_center_id" =>
-            $data['booking_history'][0]['assigned_vendor_id']));
 
         foreach($bookng_unit_details as $key1 => $b){
             $broken = 0;
@@ -96,6 +94,9 @@ class Engineer extends CI_Controller {
         if (!empty($sig_table)) {
             $data['signature'] = $sig_table[0]['signature'];
             $data['amount_paid'] = $sig_table[0]['amount_paid'];
+        } else {
+             $data['amount_paid'] = 0;
+             $data['signature'] ="";
         }
 
         $data['bookng_unit_details'] = $bookng_unit_details;
@@ -113,16 +114,21 @@ class Engineer extends CI_Controller {
                 . "booking_details.booking_pincode, booking_details.assigned_vendor_id, booking_details.booking_address");
        
         foreach ($data as $key => $value) {
+            $is_broken = false;
             $unitWhere = array("engineer_booking_action.booking_id" => $value->booking_id);
-            $ac_data = $this->engineer_model->getengineer_action_data("engineer_booking_action.engineer_id, internal_status,", $unitWhere);
+            $ac_data = $this->engineer_model->getengineer_action_data("engineer_booking_action.engineer_id, internal_status,engineer_booking_action.is_broken", $unitWhere);
             $status = _247AROUND_CANCELLED;
             foreach ($ac_data as $ac_table) {
                 if($ac_table['internal_status'] == _247AROUND_COMPLETED){
                     $status = _247AROUND_COMPLETED;
                 }
+                if($ac_table['is_broken'] ==  1){
+                    $is_broken = true;
+                }
             }
            
             $data[$key]->status = $status;
+            $data[$key]->is_broken = $is_broken;
             if(!empty($ac_data[0]['engineer_id'])){
                 $data[$key]->engineer_name = $this->engineer_model->get_engineers_details(array("id" => $ac_data[0]['engineer_id']), "name");
                 

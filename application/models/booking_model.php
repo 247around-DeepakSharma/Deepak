@@ -132,6 +132,7 @@ class Booking_model extends CI_Model {
 
             $this->db->order_by("price_tags","desc");
 
+
             $query2 = $this->db->get('booking_unit_details');
 
             $result = $query2->result_array();

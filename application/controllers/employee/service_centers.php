@@ -2006,7 +2006,7 @@ class Service_centers extends CI_Controller {
                         //update order details table
                         $order_details_update_id = $this->bb_model->update_bb_order_details(array('partner_order_id' => $order_id, 'assigned_cp_id' => $cp_id), array('is_delivered' => '1'));
                         if (!empty($order_details_update_id)) {
-                            $this->buyback->insert_bb_state_change($order_id, _247AROUND_BB_IN_PROCESS, $remarks, $this->session->userdata('id'), _247AROUND, Null);
+                            $this->buyback->insert_bb_state_change($order_id, _247AROUND_BB_IN_PROCESS, $remarks, $this->session->userdata('service_center_agent_id'), NULL, $cp_id);
                             $this->session->set_userdata('success', 'Order has been updated successfully');
                             redirect(base_url() . 'service_center/buyback/bb_order_details');
                         } else {
@@ -2078,6 +2078,7 @@ class Service_centers extends CI_Controller {
         $data['service_id'] = rawurldecode($service_id);
         $data['city'] = rawurldecode($city);
         $data['cp_id'] = rawurldecode($cp_id);
+        $data['agent_id'] = $this->session->userdata('service_center_agent_id');
         
         $response = $this->buyback->process_update_received_bb_order_details($data);
 
@@ -2105,7 +2106,7 @@ class Service_centers extends CI_Controller {
         $data['service_id'] = rawurldecode($service_id);
         $data['city'] = rawurldecode($city);
         $data['cp_id'] = $this->session->userdata('service_center_id');
-
+        $agent_id = $this->session->userdata('service_center_agent_id');
         $request_data['select'] = "bb_cp_order_action.current_status";
         $request_data['length'] = -1;
         $request_data['where_in'] = array();
@@ -2129,7 +2130,7 @@ class Service_centers extends CI_Controller {
             $update_id = $this->cp_model->update_bb_cp_order_action($update_where, $update_data);
             if ($update_id) {
                 $this->buyback->insert_bb_state_change($data['order_id'], _247AROUND_BB_IN_PROCESS, _247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS, 
-                        $data['cp_id'], Null, $data['cp_id']);
+                        $agent_id, Null, $data['cp_id']);
 
                 $this->session->set_userdata('success', 'Order has been updated successfully');
                 redirect(base_url() . 'service_center/buyback/bb_order_details');
