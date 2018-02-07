@@ -41,6 +41,7 @@ class vendor extends CI_Controller {
         $this->load->library("session");
         $this->load->library('s3');
         $this->load->library('email');
+        $this->load->library('push_notification_lib');
         $this->load->helper('download');
         $this->load->library('user_agent');
         $this->load->dbutil();
@@ -1170,6 +1171,12 @@ class vendor extends CI_Controller {
                     if ($assigned) {
                         //Insert log into booking state change
                        $this->notify->insert_state_change($booking_id, ASSIGNED_VENDOR, _247AROUND_PENDING, "Service Center Id: " . $service_center_id, $agent_id, $agent_name, _247AROUND);
+                       //Send Push Notification
+                       $receiverArray['vendor'] = array($service_center_id); 
+                       $notificationTextArray['url'] = array($booking_id);
+                       $notificationTextArray['msg'] = array($booking_id);
+                       $this->push_notification_lib->create_and_send_push_notiifcation(BOOKING_ASSIGN_TO_VENDOR,$receiverArray,$notificationTextArray);
+                       //End Push Notification
                         $count++;
                                
                         if($sf_status[$booking_id] == "SF_NOT_EXIST"){
