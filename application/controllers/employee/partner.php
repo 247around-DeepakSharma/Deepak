@@ -2395,6 +2395,24 @@ class Partner extends CI_Controller {
                             if ($this->partner_model->update_login_details($data, $where)) {
                                 //Log Message
                                 log_message('info', __FUNCTION__ . ' Partner Login has been updated for id : ' . $partner_id . ' with values ' . print_r($data, TRUE));
+                                
+                                //Getting template from Database to send mail
+                                $login_template = $this->booking_model->get_booking_email_template("partner_login_details");
+                                if (!empty($login_template)) {
+
+                                    $login_email['username'] = $data['user_id'];
+                                    $login_email['password'] = $data['clear_password'];
+
+                                    $login_subject = $login_template[4];
+                                    $login_emailBody = vsprintf($login_template[0], $login_email);
+
+                                    $this->notify->sendEmail($login_template[2], $data['email'], $login_template[3], "",$login_subject, $login_emailBody, "");
+
+                                    log_message('info', $login_subject . " Email Send successfully" . $login_emailBody);
+                                } else {
+                                    //Logging Error
+                                    log_message('info', " Error in Getting Email Template for New Vendor Login credentials Mail");
+                                }
                             } else {
                                 //Log Message
                                 log_message('info', __FUNCTION__ . ' Error in updating Partner Login for id : ' . $partner_id . ' with values ' . print_r($data, TRUE));
@@ -2429,6 +2447,23 @@ class Partner extends CI_Controller {
                             if ($s1) {
                                 //Log Message
                                 log_message('info', __FUNCTION__ . ' Partner Login has been Added for id : ' . $partner_id . ' with values ' . print_r($data, TRUE));
+                                //Getting template from Database to send mail
+                                $login_template = $this->booking_model->get_booking_email_template("partner_login_details");
+                                if (!empty($login_template)) {
+
+                                    $login_email['username'] = $data['user_id'];
+                                    $login_email['password'] = $data['clear_password'];
+
+                                    $login_subject = $login_template[4];
+                                    $login_emailBody = vsprintf($login_template[0], $login_email);
+
+                                    $this->notify->sendEmail($login_template[2], $data['email'], $login_template[3], "",$login_subject, $login_emailBody, "");
+
+                                    log_message('info', $login_subject . " Email Send successfully" . $login_emailBody);
+                                } else {
+                                    //Logging Error
+                                    log_message('info', " Error in Getting Email Template for New Vendor Login credentials Mail");
+                                }
                             } else {
                                 //Log Message
                                 log_message('info', __FUNCTION__ . ' Error in Adding Partner Login Details for id : ' . $partner_id . ' with values ' . print_r($data, TRUE));

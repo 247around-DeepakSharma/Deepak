@@ -135,8 +135,9 @@
                                                 <select type="text" disabled="" class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity[]" >
                                                     <?php if (!empty($unit_details['capacity'])) { ?>
                                                     <option selected disabled><?php echo $unit_details['capacity']; ?></option>
+                                                    <?php } ?>
                                                 </select>
-                                                <?php } ?>
+                                                
                                             </div>
                                         </div>
                                         <div class="col-md-12" style="padding-left:0px;">
@@ -202,7 +203,7 @@
                                                                 name="<?php echo "parts_cost[" . $price['unit_id'] . "]" ?>"  value = "0" >
                                                         </td>
                                                         <input type="hidden" name="<?php echo "appliance_broken[" . $price['unit_id'] . "]" ?>" 
-                                                            class="<?php echo "is_broken_".$count;?>" value=""/>
+                                                            class="<?php echo "is_broken_".$count;?>" value="" />
                                                         <td>
                                                             <div class="row">
                                                                 <div class="col-md-12">
@@ -515,6 +516,11 @@
             return false;
         }
         if (flag === 0) {
+
+            $('#submitform').attr('disabled', true);
+            $('#submitform').val("Please wait.....");
+              
+
             return true;
     
         } else if (flag === 1) {

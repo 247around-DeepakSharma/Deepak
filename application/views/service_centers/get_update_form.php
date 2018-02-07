@@ -192,7 +192,7 @@
                         </div>
                     </div>
                     <div class="col-md-6 col-md-offset-2">
-                        <input type="submit"  value="Update Booking" style="background-color: #2C9D9C; border-color: #2C9D9C; "  class="btn btn-danger btn-large">
+                        <input type="submit"  value="Update Booking" id="submitform" style="background-color: #2C9D9C; border-color: #2C9D9C; "  class="btn btn-danger btn-large">
                     </div>
                 </form>
             </div>
@@ -292,6 +292,8 @@
           return false;
           
       } else if(checkbox_value === 1){
+          $('#submitform').attr('disabled', true);
+          $('#submitform').val("Please wait.....");
           return true;
           
       }

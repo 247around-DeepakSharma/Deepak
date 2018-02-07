@@ -587,6 +587,10 @@
                 
             return false;
        <?php } ?>
+        $('#submitform').attr('disabled', true);
+        $('#submitform').val("Please wait.....");
+        
+        return true;
         
        
     }
