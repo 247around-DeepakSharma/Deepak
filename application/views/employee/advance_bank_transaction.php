@@ -53,6 +53,8 @@
                   },
                   submitHandler: function(form) {
                       form.submit();
+                      $('#submitform').attr('disabled', true);
+                      $('#submitform').val("Please wait.....");
                   }
     
               });
@@ -189,7 +191,7 @@
                 </div>
             </div>
             <div class="col-md-12" style="text-align: center;">
-                <input type= "submit"  class="btn btn-danger btn-lg"  value ="Save" >
+                <input type= "submit" id="submitform"  class="btn btn-danger btn-lg"  value ="Save" >
             </div>
         </form>
     </div>

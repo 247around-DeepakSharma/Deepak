@@ -32,4 +32,10 @@ define('SPARE_PARTS_DELIVERED', 'Spare Parts Delivered to SF');
 define('SPARE_PARTS_SHIPPED', 'Spare Parts Shipped by Partner');
 // Spare Reschedule 
 define('SPARE_RESCHEDULED', 'Spare_Rescheduled');
+
 define('SPARE_PART_BOOKING_TAG','Spare Parts');
+
+define('REQUESTED_QUOTE_REJECTED','Requested Quote Rejected');
+
+define("SPARE_PARTS_CANCELLED", "Spare Parts Cancelled");
+

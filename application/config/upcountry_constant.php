@@ -18,6 +18,14 @@ define('UPCOUNTRY_BOOKING_NEED_TO_APPROVAL','UPCOUNTRY BOOKING NEED TO APPROVAL'
 //Upcountry Cap For Partner
 define ('UPCOUNTRY_DISTANCE_CAP', '200');
 
+define("UPCOUNTRY_CHARGES_APPROVED", "Upcountry Charges Approved");
+
+define("UPCOUNTRY_CHARGES_NOT_APPROVED", "Upcountry Charges Not Approved");
+
+define("NOT_UPCOUNTRY_PRICE_TAG", "-1");
+
+define("PARTNER_PROVIDE_UPCOUNTRY_PRICE_TAG", "1");
+
 
 //Upcountry booking, charges paid by Customer
 define("CUSTOMER_PAID_UPCOUNTRY", "Upcountry Booking, Charges To Be Paid By Customer");

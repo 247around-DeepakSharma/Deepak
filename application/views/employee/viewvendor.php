@@ -121,9 +121,13 @@
           </tr>
 
           
-          <?php foreach($query as $key =>$row){?>
+          <?php 
+          $x = 0;
+          foreach($query as $key =>$row){
+              $x++;
+              ?>
           <tr>
-            <td><?=$row['id'];?></td>
+            <td><?php echo $x;?></td>
             <td><a href="<?php echo base_url();?>employee/vendor/editvendor/<?=$row['id'];?>"><?=$row['name'];?></a></td>
             <td class="text-center">
                     <a href="javascript:void(0)" class="btn btn-md btn-success" onclick='return login_to_vendor(<?php echo $row['id']?>)'  <?php echo ($row['active'] == 0)?'disabled=""':'' ?> title="<?php echo strtolower($row['sc_code']) . " / " . strtolower($row['sc_code']);  ?>">Login</a>
@@ -185,7 +189,10 @@
                        if(array_key_exists("blocked_count", $push_notification[$row['id']])){
                         $tooltipText = $tooltipText.", Blocked: ".$push_notification[$row['id']]['blocked_count'];
                       }
-                  if(isset($push_notification[$row['id']]['blocked_count']) && !isset($push_notification[$row['id']]['subscription_count'])){
+                      if(array_key_exists("unsubscription_count", $push_notification[$row['id']])){
+                        $tooltipText = $tooltipText.", Unsubscriptions: ".$push_notification[$row['id']]['unsubscription_count'];
+                      }
+                  if(isset($push_notification[$row['id']]['blocked_count']) && !isset($push_notification[$row['id']]['subscription_count'])  && !isset($push_notification[$row['id']]['unsubscription_count'])){
                       echo '<button type="button" class="btn btn-info btn-lg glyphicon glyphicon-ban-circle" data-toggle="tooltip" data-placement="left" title="'.$tooltipText.'" style="padding: 11px 6px;margin: 0px 10px;"></button>';
                   }
                   else{

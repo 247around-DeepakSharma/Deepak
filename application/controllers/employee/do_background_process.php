@@ -60,6 +60,13 @@ class Do_background_process extends CI_Controller {
 
                     $upcountry_status = $this->miscelleneous->assign_upcountry_booking($booking_id, $agent_id, $agent_name);
                     if ($upcountry_status) {
+                        //Send Push Notification
+                        //Send To Vendor
+                        $receiverArrayVendor['vendor'] = array($service_center_id); 
+                        $notificationTextArrayVendor['url'] = array($booking_id);
+                        $notificationTextArrayVendor['msg'] = array($booking_id);
+                        $this->push_notification_lib->create_and_send_push_notiifcation(BOOKING_ASSIGN_TO_VENDOR,$receiverArrayVendor,$notificationTextArrayVendor);
+                        //End Push Notification
                         log_message('info', __FUNCTION__ . " => Continue Process" . $booking_id);
                         $this->miscelleneous->send_sms_create_job_card($upcountry_status);
                     }
@@ -289,6 +296,7 @@ class Do_background_process extends CI_Controller {
      */
     function send_asyn_push_notification(){
         $title = $msg = $url = $notification_type = $subscriberArray = NULL;
+         $auto_hide =0;
          if($this->input->post('title')){
             $title = $this->input->post('title');
         }
@@ -304,7 +312,10 @@ class Do_background_process extends CI_Controller {
         if($this->input->post('subscriberArray')){
             $subscriberArray = $this->input->post('subscriberArray');
         }
-        $this->push_notification_lib->send_push_notification($title,$msg,$url,$notification_type,$subscriberArray);
+        if($this->input->post('auto_hide')){
+            $auto_hide = $this->input->post('auto_hide');
+        }
+        $this->push_notification_lib->send_push_notification($title,$msg,$url,$notification_type,$subscriberArray,$auto_hide);
     }
 
     /* end controller */

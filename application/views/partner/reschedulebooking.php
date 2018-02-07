@@ -1,11 +1,13 @@
-<div id="page-wrapper">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-lg-12">
-                <h1 class="page-header">
-                    Reschedule Booking 
-                </h1>
-                <form class="form-horizontal" action="<?php echo base_url()?>employee/partner/process_reschedule_booking/<?php echo $data[0]['booking_id'] ?>" method="POST" >
+<div class="right_col" role="main">
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>Reschedule Booking</h2>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <form class="form-horizontal" action="<?php echo base_url()?>employee/partner/process_reschedule_booking/<?php echo $data[0]['booking_id'] ?>" method="POST" >
                     <div class="col-md-12">
                         <div class="col-md-6">
                             <div class="form-group <?php if( form_error('name') ) { echo 'has-error';} ?>">
@@ -30,10 +32,10 @@
                             </div>
                             <hr style="width:200%;">
                             <div class="form-group  <?php if( form_error('booking_date') ) { echo 'has-error';} ?>">
-                                <label for="reason" class="col-md-4"> New Booking Date</label>
+                                <label for="reason" class="col-md-4"> New Booking Date *</label>
                                 <div class="col-md-6">
                                     <div class="input-group input-append date">
-                                        <input id="booking_date" class="form-control" placeholder="Select Date" name="booking_date" type="text" value = "<?php echo set_value('booking_date'); ?>" required readonly='true' style="background-color:#fff;">
+                                        <input id="booking_date" class="form-control" placeholder="Select Date" name="booking_date" type="text" value = "<?php echo set_value('booking_date'); ?>" required readonly style="background-color:#fff;">
                                         <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                     </div>
                                     <?php echo form_error('booking_date'); ?>
@@ -61,15 +63,32 @@
                     </div>
                     <div>
                         <center>
-                            <input type="submit" value="Reschedule Booking" class="btn btn-danger" style="background-color: #2C9D9C;border-color: #2C9D9C;">
+                            <input type="submit" value="Reschedule Booking" class="btn btn-success">
                         </center>
                     </div>
                 </form>
+                </div>
             </div>
         </div>
     </div>
 </div>
 <script type="text/javascript">
-    $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0});
-    
+    var today = new Date();
+    $('#booking_date').daterangepicker({
+                autoUpdateInput: false,
+                singleDatePicker: true,
+                showDropdowns: true,
+                minDate:today,
+                locale:{
+                    format: 'DD-MM-YYYY'
+                }
+            });
+            
+    $('#booking_date').on('apply.daterangepicker', function(ev, picker) {
+        $(this).val(picker.startDate.format('DD-MM-YYYY'));
+    });
+
+    $('#booking_date').on('cancel.daterangepicker', function(ev, picker) {
+        $(this).val('');
+    });
 </script>

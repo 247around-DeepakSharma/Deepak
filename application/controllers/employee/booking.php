@@ -46,6 +46,7 @@ class Booking extends CI_Controller {
         $this->load->library('partner_sd_cb');
         $this->load->library('asynchronous_lib');
         $this->load->library("initialized_variable");
+        $this->load->library("push_notification_lib");
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
             return TRUE;
         } else {
@@ -880,6 +881,11 @@ class Booking extends CI_Controller {
             //get the unit details data and update the inventory stock
             $booking_details = $this->reusable_model->get_search_query('booking_details', 'booking_details.assigned_vendor_id,booking_unit_details.price_tags,booking_unit_details.appliance_capacity', array('booking_details.booking_id' => $booking_id,"booking_unit_details.price_tags like '%"._247AROUND_WALL_MOUNT__PRICE_TAG."%'" => NULL,'booking_details.assigned_vendor_id IS NOT null'=>NULL), array('booking_unit_details'=>'booking_details.booking_id = booking_unit_details.booking_id'), NULL, NULL, NULL, NULL)->result_array();
             if (!empty($booking_details)) { 
+            //Send Push Notification
+            $receiverArray['vendor'] = array($booking_details[0]['assigned_vendor_id']);
+            $notificationTextArray['msg'] = array($booking_id,"Cancel");
+            $this->push_notification_lib->create_and_send_push_notiifcation(BOOKING_UPDATED_BY_247AROUND,$receiverArray,$notificationTextArray);
+            //End Push Notification
                 //process each unit if price tag is wall mount
                 foreach($booking_details as $value){
                     $match = array();
@@ -965,6 +971,12 @@ class Booking extends CI_Controller {
         } else {
             log_message('info', __FUNCTION__ . " Update booking  " . print_r($data, true));
             $this->booking_model->update_booking($booking_id, $data);
+            //Send Push Notification
+            $vendorData = $this->vendor_model->getVendor($booking_id);
+            $receiverArray['vendor']= array($vendorData[0]['id']);
+            $notificationTextArray['msg'] = array($booking_id,"Rescheduled");
+            $this->push_notification_lib->create_and_send_push_notiifcation(BOOKING_UPDATED_BY_247AROUND,$receiverArray,$notificationTextArray);
+            //End Sending Push Notification
             $this->booking_model->increase_escalation_reschedule($booking_id, "count_reschedule");
 
             //Log this state change as well for this booking
@@ -1295,15 +1307,42 @@ class Booking extends CI_Controller {
     function viewdetails($booking_id) {
         $data['booking_history'] = $this->booking_model->getbooking_filter_service_center($booking_id);
         if(!empty($data['booking_history'])){
+            $engineer_action_not_exit = false;
             $unit_where = array('booking_id' => $booking_id);
-            $data['unit_details'] = $this->booking_model->get_unit_details($unit_where);
+            $booking_unit_details = $this->booking_model->get_unit_details($unit_where);
             $data['penalty'] = $this->penalty_model->get_penalty_on_booking_by_booking_id($booking_id);
             if (!is_null($data['booking_history'][0]['sub_vendor_id'])) {
                 $data['dhq'] = $this->upcountry_model->get_sub_service_center_details(array('id' => $data['booking_history'][0]['sub_vendor_id']));
             }
             
+            foreach($booking_unit_details as $key1 => $b){
+
+                $unitWhere = array("engineer_booking_action.booking_id" => $booking_id, 
+                    "engineer_booking_action.unit_details_id" => $b['id'], "service_center_id" => $data['booking_history'][0]['assigned_vendor_id']);
+                $en = $this->engineer_model->getengineer_action_data("engineer_booking_action.*", $unitWhere);
+                if(!empty($en)){
+                    $booking_unit_details[$key1]['en_serial_number'] = $en[0]['serial_number'];
+                    $booking_unit_details[$key1]['en_serial_number_pic'] = $en[0]['serial_number_pic'];
+                    $booking_unit_details[$key1]['en_is_broken'] = $en[0]['is_broken'];
+                    $booking_unit_details[$key1]['en_internal_status'] = $en[0]['internal_status'];
+                    $booking_unit_details[$key1]['en_current_status'] = $en[0]['current_status'];
+                    
+                    $engineer_action_not_exit = true;
+                } 
+        }
+        if(isset($engineer_action_not_exit)){
+            $sig_table = $this->engineer_model->getengineer_sign_table_data("*", array("booking_id" => $booking_id,
+            "service_center_id" => $data['booking_history'][0]['assigned_vendor_id']));
+            $data['signature_details'] = $sig_table;
+        }
+        
+        $data['engineer_action_not_exit'] = $engineer_action_not_exit;
+        
+        $data['unit_details'] = $booking_unit_details;
+        
+            
         }else{
-            $data['booking_history'] = "";
+            $data['booking_history'] = array();
         }
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/viewdetails', $data);
@@ -1615,7 +1654,13 @@ class Booking extends CI_Controller {
         $data['admin_remarks'] = date("F j") . "  :-" . $admin_remarks;
         log_message('info', __FUNCTION__ . " Booking_id " . $booking_id . " Update service center action table: " . print_r($data, true));
         $this->vendor_model->update_service_center_action($booking_id, $data);
-
+        //Send Push Notification
+        // get Assigned Vendor
+        $vendorData = $this->vendor_model->getVendor($booking_id);
+        $receiverArray['vendor']= array($vendorData[0]['id']);
+        $notificationTextArray['msg'] = array($booking_id,"Rejected");
+        $this->push_notification_lib->create_and_send_push_notiifcation(BOOKING_UPDATED_BY_247AROUND,$receiverArray,$notificationTextArray);
+        //End Push Notification
         $this->notify->insert_state_change($booking_id, "Rejected", "InProcess_Completed", $admin_remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
     }
 
@@ -1643,6 +1688,7 @@ class Booking extends CI_Controller {
                 log_message('info', __FUNCTION__ . " Approved Booking: " . print_r($data, true));
                 $this->asynchronous_lib->do_background_process($url, $data);
             }
+            $this->push_notification_lib->send_booking_completion_notification_to_partner($approved_booking);
         } else {
             //Logging
             log_message('info', __FUNCTION__ . ' Approved Booking Empty from Post');

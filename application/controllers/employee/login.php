@@ -24,6 +24,7 @@ class Login extends CI_Controller {
         $this->load->library('user_agent');
         $this->load->library('notify');
         $this->load->library("miscelleneous");
+        $this->load->library("push_notification_lib");
         $this->load->driver('cache');
     }
 
@@ -60,6 +61,7 @@ class Login extends CI_Controller {
                 $this->session->sess_create();
                 $this->setSession($login[0]['employee_id'], $login[0]['id'], $login[0]['phone'],$login[0]['official_email'],$login[0]['full_name']);
                 $this->miscelleneous->set_header_navigation_in_cache();
+                $this->push_notification_lib->get_unsubscribers_by_cookies();
                 //Saving Login Details in Database
                 $data['browser'] = $this->agent->browser();
                 $data['agent_string'] = $this->agent->agent_string();
@@ -84,7 +86,9 @@ class Login extends CI_Controller {
                 redirect(base_url() . "employee/login");
             }
         } else {
-            $data['partner_logo'] = $this->booking_model->get_partner_logo();
+            $select = "partner_logo,alt_text";
+            $where = array('partner_logo IS NOT NULL' => NULL);
+            $data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where);
             $this->load->view('employee/login',$data);
         }
     }
@@ -105,7 +109,9 @@ class Login extends CI_Controller {
      *  @return : Error on Admin Login Page
      */
     function loadView($output) {
-        $data['partner_logo'] = $this->booking_model->get_partner_logo();
+        $select = "partner_logo,alt_text";
+        $where = array('partner_logo IS NOT NULL' => NULL);
+        $data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where);
         $data['error'] = $output;
         $this->load->view('employee/login', $data);
     }
@@ -193,7 +199,9 @@ class Login extends CI_Controller {
         //$this->session->sess_destroy();
         $sess = $this->session->userdata('dealer_id');
         if(isset($sess)){
-            $data['partner_logo'] = $this->booking_model->get_partner_logo();
+            $select = "partner_logo,alt_text";
+            $where = array('partner_logo IS NOT NULL' => NULL);
+            $data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where);
             $this->load->view('dealers/login' ,$data);
         } else {
             echo $this->session->userdata('userType');
@@ -304,6 +312,7 @@ class Login extends CI_Controller {
     function allow_log_in_to_partner($partner_id){
         //Getting partner details
         $this->session->sess_create();
+        $this->session->set_userdata(array("login_by"=>_247AROUND_EMPLOYEE_STRING));
        // $partner_id = $this->input->post('partner_id');
         $data['entity'] = "partner";
         $data['entity_id'] = $partner_id;
@@ -407,7 +416,7 @@ class Login extends CI_Controller {
     function allow_log_in_to_vendor($vendor_id) {
         //Getting vendor details
         $this->session->sess_create();
-       
+        $this->session->set_userdata(array("login_by"=>_247AROUND_EMPLOYEE_STRING));
         $agent = $this->service_centers_model->get_sc_login_details_by_id($vendor_id);
         if (!empty($agent)) {
             //get sc details now
@@ -715,18 +724,6 @@ function user_role_management(){
         else{
             echo "Something Went Wrong";
         }
-    }
-    function save_push_notification_subscribers(){
-        $data['subscriber_id'] = $this->input->post('subscriberID');
-        $data['entity_id'] = $this->session->userdata('id');
-        $data['entity_type'] = $this->session->all_userdata()['userType'];
-        $data['browser'] = $this->agent->browser();
-        $data['device'] = "Desktop";
-        $is_mobile = $this->agent->is_mobile();
-        if($is_mobile){
-            $data['device'] = "Mobile";
-        }
-       $this->reusable_model->insert_into_table("push_notification_subscribers",$data);
     }
 }
 /* End of file welcome.php */

@@ -44,6 +44,7 @@
           	<th class='jumbotron' style="text-align: center">PoC Phone</th>
           	<th class='jumbotron' style="text-align: center">PoC Email</th>
                 <th class='jumbotron' style="text-align: center">Customer Care Phone</th>
+                <th class='jumbotron' style="text-align: center">Prepaid</th>
                 <th class='jumbotron' style="text-align: center">Go To Invoice Page</th>
                 <th  class='jumbotron' style="text-align: center">Action</th>
                 <th class='jumbotron' style="text-align: center">Generate Price</th>
@@ -54,7 +55,7 @@
           </tr>
 
           
-          <?php foreach($query as $key =>$row){?>
+          <?php foreach($query as $key =>$row){ ?>
           <tr>
             <td><?=($key+1).'.';?></td>
             <td>
@@ -63,7 +64,7 @@
                 <strong><?php echo $row['public_name'] ; ?> (<b><?php echo $row['code'] ; ?></b>)</strong>
             </td>
             <td>
-                <a href="javascript:void(0)" class="btn btn-sm btn-success"  onclick='return login_to_partner(<?php echo $row['id']?>)' >Login</a>  
+                <a href="javascript:void(0)" class="btn btn-sm btn-success"  onclick='return login_to_partner(<?php echo $row['id']?>)'  title="<?php echo isset($row['clear_text']) && $row['clear_text']?$row['user_name'].'/'.$row['clear_text']:'';?>">Login</a>  
             </td>
            
                 <td>
@@ -85,22 +86,23 @@
           	</td>
           	<td><?=$row['primary_contact_email'];?></td>
                 <td><?=$row['customer_care_contact'];?></td>
-                <td><a href="<?php echo base_url(); ?>employee/invoice/invoice_summary/partner/<?php echo $row['id']; ?>" target="_blank" class="btn btn-info">Invoice</a></td>
+                <td><?php if($row['is_prepaid'] == 1){?> <i class="fa fa-credit-card fa-2x" aria-hidden="true"></i><?php }?></td>
+                <td><a href="<?php echo base_url(); ?>employee/invoice/invoice_summary/partner/<?php echo $row['id']; ?>" target="_blank" ><img style="width:30px;" src="<?php echo base_url();?>images/invoice_icon.png" /></a></td>
                 
           	<td><?php if($row['is_active']==1){ ?>
-                  <a class="btn btn-md btn-danger" href="<?php echo base_url() ?>employee/partner/deactivate/<?php echo $row['id'] ?>">Deactivate</a>       
+                  <a class="btn btn-md btn-primary" href="<?php echo base_url() ?>employee/partner/deactivate/<?php echo $row['id'] ?>"><i class="fa fa-check" aria-hidden="true"></i></a>       
                 <?php } else {?>
-                 <a class="btn btn-md btn-primary" href="<?php echo base_url() ?>employee/partner/activate/<?php echo $row['id'] ?>">Activate</a>                
+                 <a class="btn btn-md btn-danger" href="<?php echo base_url() ?>employee/partner/activate/<?php echo $row['id'] ?>"><i class="fa fa-ban" aria-hidden="true"></i></a>                
                 <?php } ?>
             </td>
             <td>
-                <a href="<?php echo base_url();?>employee/service_centre_charges/generate_service_charges_view/<?php echo $row['id'];?>" class="btn btn-md btn-success">Gen. Price</a>  
+                <a href="<?php echo base_url();?>employee/service_centre_charges/generate_service_charges_view/<?php echo $row['id'];?>" ><img style="width:36px;" src="<?php echo base_url();?>images/rupees.png"</a>  
             </td>
              <td>
-                <a href="<?php echo base_url();?>employee/service_centre_charges/show_charge_list/<?php echo $row['id'];?>" class="btn btn-md btn-primary">Modify Price</a>  
+                 <a href="<?php echo base_url();?>employee/service_centre_charges/show_charge_list/<?php echo $row['id'];?>" ><img style="width:36px;" src="<?php echo base_url();?>images/edit_prices.png" /></a>  
             </td>
             <td>
-                <a href="<?php echo base_url();?>BookingSummary/send_leads_summary_mail_to_partners/<?php echo $row['id'];?>" class="btn btn-md btn-color">Send Mail</a>  
+                <a href="<?php echo base_url();?>BookingSummary/send_leads_summary_mail_to_partners/<?php echo $row['id'];?>" class="btn btn-md btn-color"><i class="fa fa-envelope" aria-hidden="true"></i></a>  
             </td>
             <td>  <button type="button" class="btn btn-info btn-lg fa fa-eye" data-toggle="modal" data-target="#history_view" onclick="get_history_view(<?php echo $row['id']?>)" style="padding: 11px 6px;margin: 0px 10px;"></button></td>
           <td align="center">

@@ -53,7 +53,9 @@ class Service_centers extends CI_Controller {
      * @return: void
      */
     function index() {
-        $data['partner_logo'] = $this->booking_model->get_partner_logo();
+        $select = "partner_logo,alt_text";
+        $where = array('partner_logo IS NOT NULL' => NULL);
+        $data['partner_logo'] = $this->booking_model->get_partner_logo($select, $where);
         $this->load->view('service_centers/service_center_login' ,$data);
     }
 
@@ -75,7 +77,9 @@ class Service_centers extends CI_Controller {
         }
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/pending_booking', $data);
-        
+        if(!$this->session->userdata("login_by")){
+            $this->load->view('employee/header/push_notification');
+        }
     }
     
     function get_header_summary(){
@@ -95,8 +99,8 @@ class Service_centers extends CI_Controller {
         if($this->session->userdata('is_update') == 1){
             //$data['engineer_details'] = $this->vendor_model->get_engineers($service_center_id);
             $data['spare_parts_data'] = $this->service_centers_model->get_updated_spare_parts_booking($service_center_id);
-
         }
+        //$data['collateral'] = $this->service_centers_model->get_collateral_for_service_center_bookings($service_center_id);
         $data['service_center_id'] = $service_center_id;
         $this->load->view('service_centers/pending_on_tab', $data);
     }
@@ -531,17 +535,17 @@ class Service_centers extends CI_Controller {
     /**
      * @desc: this is used to display completed booking for specific service center
      */
-    function completed_booking($offset = 0, $page = 0, $booking_id=""){
+    function completed_booking($offset = 0, $page = 0, $booking_id = "") {
         $this->checkUserSession();
-    if ($page == 0) {
-        $page = 50;
-    }
+        if ($page == 0) {
+            $page = 50;
+        }
 
         $service_center_id = $this->session->userdata('service_center_id');
 
         $offset = ($this->uri->segment(3) != '' ? $this->uri->segment(3) : 0);
         $config['base_url'] = base_url() . 'service_center/completed_booking';
-        $config['total_rows'] = $this->service_centers_model->getcompleted_or_cancelled_booking("count","",$service_center_id,"Completed", $booking_id);
+        $config['total_rows'] = $this->service_centers_model->getcompleted_or_cancelled_booking("count", "", $service_center_id, "Completed", $booking_id);
 
         $config['per_page'] = $page;
         $config['uri_segment'] = 3;
@@ -552,35 +556,12 @@ class Service_centers extends CI_Controller {
 
         $data['count'] = $config['total_rows'];
         $bookings = $this->service_centers_model->getcompleted_or_cancelled_booking($config['per_page'], $offset, $service_center_id, "Completed", $booking_id);
-        if(!empty($bookings)){
+        if (!empty($bookings)) {
             foreach ($bookings as $key => $value) {
-                $where['where'] = array('booking_unit_details.booking_id' => $value['booking_id']);
-                $where['length'] = -1;
-                $select = "(vendor_basic_charges + vendor_st_or_vat_basic_charges "
-                        . "+ vendor_extra_charges + vendor_st_extra_charges+ vendor_parts+ vendor_st_parts) as sf_earned";
-                $b_earned = $this->booking_model->get_bookings_by_status($where, $select);
-                $unit_amount = 0;
-                foreach($b_earned as $earn){
-                    $unit_amount += $earn->sf_earned;
-                }
-               
-                $penalty_select = "CASE WHEN ((count(booking_id) *  penalty_on_booking.penalty_amount) > cap_amount) THEN (cap_amount)
 
-                ELSE (COUNT(booking_id) * penalty_on_booking.penalty_amount) END  AS p_amount";
-                $penalty_where = array('booking_id' => $value['booking_id'],'service_center_id' => $service_center_id,'penalty_on_booking.active' => 1);
-                $p_amount = $this->penalty_model->get_penalty_on_booking_any($penalty_where, $penalty_select, array('CASE'));
-                
-                $is_customer_paid = 1;
-                if(empty($value['amount_due'])){
-                    $is_customer_paid = 0;
-                }
-                $upcountry = $this->upcountry_model->upcountry_booking_list($service_center_id, $value['booking_id'], true, $is_customer_paid);
-                $sf_earned = $unit_amount -$p_amount[0]['p_amount'] + $upcountry[0]['upcountry_price'];
-                if($p_amount[0]['p_amount'] > 0){
-                    $bookings[$key]['penalty'] = true;
-                }
-                $bookings[$key]['sf_earned'] = $sf_earned;
-               
+                $res =$this->miscelleneous->get_SF_payout($value['booking_id'], $service_center_id, $value['amount_due']);
+                $bookings[$key]['sf_earned'] = $res['sf_earned'];
+                $bookings[$key]['penalty'] = $res['penalty'];
             }
         }
         $data['bookings'] = $bookings;
@@ -588,7 +569,12 @@ class Service_centers extends CI_Controller {
 
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/completed_booking', $data);
-
+    }
+    
+    function get_sf_payout($booking_id, $service_center_id, $amount_due){
+        $res = $this->miscelleneous->get_SF_payout($booking_id, $service_center_id, $amount_due);
+        echo "Total SF Payout &nbsp;&nbsp;<i class='fa fa-inr'></i> <b>".$res['sf_earned']."</b>";
+        
     }
 
     /**
@@ -2801,8 +2787,8 @@ class Service_centers extends CI_Controller {
         $row = array();
         
         //Getting Details from Booking Sources
-        $booking_sources = $this->partner_model->get_booking_sources_by_price_mapping_id($charges_list->partner_id);
-        $code_source = $booking_sources[0]['code'];
+//        $booking_sources = $this->partner_model->get_booking_sources_by_price_mapping_id($charges_list->partner_id);
+//        $code_source = $booking_sources[0]['code'];
 
         //Calculating vendor base charge 
         $vendor_base_charge = $charges_list->vendor_total / (1 + ($charges_list->rate / 100));
@@ -2810,7 +2796,7 @@ class Service_centers extends CI_Controller {
         $vendor_tax = $charges_list->vendor_total - $vendor_base_charge;
         
         $row[] = $no;
-        $row[] = $code_source;
+        //$row[] = $code_source;
         $row[] = $charges_list->product;
         $row[] = $charges_list->category;
         $row[] = $charges_list->capacity;
@@ -3087,4 +3073,34 @@ class Service_centers extends CI_Controller {
         return $output_pdf_file_name;
     }
 
+function get_learning_collateral_for_bookings(){
+    $booking_id = $this->input->post('booking_id');
+    $data = $this->service_centers_model->get_collateral_for_service_center_bookings($booking_id);
+    if(!empty($data)){
+        $finalString = '<table class="table">
+        <thead>
+          <tr>
+          <th>S.N</th>
+            <th>Document Type</th>
+            <th>File</th>
+          </tr>
+        </thead>
+        <tbody>';
+        $index =0;
+        foreach($data as $collatralData){
+            $url = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$collatralData['file'];
+            $index++;
+            $finalString .= '<tr><td>'.$index.'</td>';
+            $finalString .= '<td>'.$collatralData['collateral_type'].'</td>';
+            $finalString .=  '<td>'.$this->miscelleneous->get_reader_by_file_type($collatralData['document_type'],$url,"400").'</td>';
+            $finalString .='</tr>';
+        }
+       $finalString .='</tbody></table>';
+    }
+    else{
+        $finalString = "<p style='text-align:center;'>Brand Collateral is not available</p>";
+    }
+   
+   echo $finalString;
+}
 }

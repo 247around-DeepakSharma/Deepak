@@ -16,6 +16,7 @@
 </style>
 <div class="right_col ngCloak" role="main" ng-app="rm_dashboard">
 
+
     <!-- top tiles -->
     <div class="row tile_count" id="title_count">
         <div class="col-md-12">
@@ -24,6 +25,7 @@
     </div>
     <!-- /top tiles -->
     <!-- Booking Report Start-->
+
     <div class="col-md-12 col-sm-12 col-xs-12">
         <div class="x_panel">
             <div class="x_title">
@@ -485,4 +487,11 @@
         });
     
     }
+
 </script>
+    <style>
+    [ng\:cloak], [ng-cloak], .ng-cloak {
+  display: none !important;
+}
+    </style>
+

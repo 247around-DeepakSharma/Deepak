@@ -886,15 +886,23 @@ class Invoice extends CI_Controller {
         return true;
     }
     
-    function send_email_with_invoice($email_from, $to, $cc, $message, $subject, $output_file_excel, $pdf_attachement) {
+    function send_email_with_invoice($email_from, $to, $cc, $message, $subject, $output_file_excel, $pdf_attachement, $multipleResponse = array()) {
         $this->email->clear(TRUE);
         $this->email->from($email_from, '247around Team');
         $this->email->to($to);
         $this->email->cc($cc);
-        //attach detailed invoice
-        $this->email->attach($output_file_excel, 'attachment');
-        //attach mail invoice
-        $this->email->attach($pdf_attachement, 'attachment');
+        
+        if(!empty($multipleResponse)){
+            foreach ($multipleResponse as $value) {
+                 $this->email->attach($value['pdf'], 'attachment');
+                 $this->email->attach($value['excel'], 'attachment');
+            }
+        } else {
+            //attach detailed invoice
+            $this->email->attach($output_file_excel, 'attachment');
+            //attach mail invoice
+            $this->email->attach($pdf_attachement, 'attachment');
+        }
         $this->email->message($message);
         $this->email->subject($subject);
         $mail_ret = $this->email->send();
@@ -1897,49 +1905,145 @@ class Invoice extends CI_Controller {
         }
     }
     
-    function generate_buyback_invoices($details, $is_regenerate){
+    function generate_buyback_invoices($details, $is_regenerate) {
         log_message('info', __FUNCTION__ . " Entering...." . print_r($details, true) . ' is_regenerate: ' . $is_regenerate);
         $vendor_id = $details['vendor_partner_id'];
         $custom_date = explode("-", $details['date_range']);
         $from_date = $custom_date[0];
         $to_date = $custom_date[1];
         $invoice_type = $details['invoice_type'];
-        $invoices = $this->invoices_model->get_buyback_invoice_data($vendor_id, $from_date, $to_date, $is_regenerate);
-       
-        if($invoices){
-            if (isset($details['invoice_id'])) {
-                log_message('info', __FUNCTION__ . " Re-Generate Cash Invoice ID: " . $details['invoice_id']);
-                echo "Re-Generate Cash Invoice ID: " . $details['invoice_id'] . PHP_EOL;
-
-                $invoices['meta']['invoice_id'] = $details['invoice_id'];
-            } else {
-                $invoices['meta']['invoice_id'] = $this->create_invoice_id_to_insert("Around");
-
-                log_message('info', __FUNCTION__ . " New Invoice ID Generated: " . $invoices['meta']['invoice_id']);
-                echo " New Invoice ID Generated: " . $invoices['meta']['invoice_id'] . PHP_EOL;
-            }
+        $owner_email = "";
+        $primary_contact_email = "";
+        $company_name ="";
+        $sd = $ed ="";
             
-            $status = $this->send_request_to_create_main_excel($invoices, $invoice_type);
-            if ($status) {
+        $response = array();
+        for ($a = 0; $a < 2; $a++) {
+            //$a 1 means For profit
+            //$a 0 means for Loss
+            $invoices = $this->invoices_model->get_buyback_invoice_data($vendor_id, $from_date, $to_date, $is_regenerate, $a);
+            if ($invoices) {
+                if (isset($details['invoice_id'])) {
+                    log_message('info', __FUNCTION__ . " Re-Generate Cash Invoice ID: " . $details['invoice_id']);
+                    echo "Re-Generate Cash Invoice ID: " . $details['invoice_id'] . PHP_EOL;
 
-                log_message('info', __FUNCTION__ . ' Invoice File is created. invoice id' . $invoices['meta']['invoice_id']);
-                $this->generate_buyback_detailed_invoices($vendor_id, $invoices['annexure_data'], $invoices['meta'], $invoice_type, $details['agent_id'], $from_date, $to_date);
-                return true;
+                    $invoices['meta']['invoice_id'] = $details['invoice_id'];
+                } else {
+                    if($invoice_type != 'final'){
+                        if(empty($response)){
+                        
+                        $invoices['meta']['invoice_id'] = $this->create_invoice_id_to_insert("Around");
+                        
+                        } else if(isset($response[0]['invoice_id'])){
+                            $temp = $this->_get_partial_invoice_id("Around");
+                            $explode = explode($temp, $response[0]['invoice_id']);
+                            $invoices['meta']['invoice_id'] = trim($temp . sprintf("%'.04d\n", ($explode[1] + 1)));
+                        }
+                    } else {
+                       $invoices['meta']['invoice_id'] = $this->create_invoice_id_to_insert("Around");
+                    }
+
+                    log_message('info', __FUNCTION__ . " New Invoice ID Generated: " . $invoices['meta']['invoice_id']);
+                    echo " New Invoice ID Generated: " . $invoices['meta']['invoice_id'] . PHP_EOL;
+                }
+
+                $status = $this->send_request_to_create_main_excel($invoices, $invoice_type);
+                if ($status) {
+
+                    log_message('info', __FUNCTION__ . ' Invoice File is created. invoice id' . $invoices['meta']['invoice_id']);
+                    $res = $this->generate_buyback_detailed_invoices($vendor_id, $invoices['annexure_data'], $invoices['meta'], $invoice_type, $details['agent_id'], $from_date, $to_date);
+                    if(!empty($res)){
+                        $owner_email = $invoices['meta']['owner_email'];
+                        $primary_contact_email = $invoices['meta']['primary_contact_email'];
+                        $company_name = $invoices['meta']['company_name'];
+                        $sd = $invoices['meta']['sd'];
+                        $ed = $invoices['meta']['ed'];
+                        array_push($response, $res);
+                    }
+                    
+                   
+                } else {
+
+                    log_message('info', __FUNCTION__ . ' Invoice File is not created. invoice id' . $invoices['meta']['invoice_id']);
+                    echo ' Invoice File is not created. invoice id' . $invoices['meta']['invoice_id'] . PHP_EOL;
+                   
+                }
             } else {
-                
-                log_message('info', __FUNCTION__ . ' Invoice File is not created. invoice id' . $invoices['meta']['invoice_id']);
-                echo ' Invoice File is not created. invoice id' . $invoices['meta']['invoice_id']. PHP_EOL;
-                return false;
+                log_message('info', __FUNCTION__ . "=> Data Not Found for Cash Invoice" . print_r($details));
+
+                echo "Data Not Found for Cash Invoice" . PHP_EOL;
+
+               
             }
+        }
+        
+        if(!empty($response)){
+            if($invoice_type == "final"){
+                $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_id);
+                $rem_email_id = "";
+                if (!empty($rm_details)) {
+                    $rem_email_id = ", " . $rm_details[0]['official_email'];
+                }
+                $to = $owner_email. ", " . $primary_contact_email;
+                
+                $cc = ANUJ_EMAIL_ID . $rem_email_id.",".ACCOUNTANT_EMAILID;
+                
+
+                //get email template from database
+                $email_template = $this->booking_model->get_booking_email_template(BUYBACK_DETAILS_INVOICE_FOR_VENDORS_EMAIL_TAG);
+                $subject = vsprintf($email_template[4], array($company_name,$sd,$ed));
+                $message = $email_template[0];
+                $email_from = $email_template[2];
+
+                $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, "", "", $response);
+                
+            
+            } else {
+                   $buyback_invoice_id ="";
+                   $str = "";
+                    foreach($response as $value){
+                        $buyback_invoice_id .= $value['invoice_id']."-";
+                            if (explode('.', $value['pdf'])[1] === 'pdf') {
+                        $output_file_pdf = TMP_FOLDER . $value['invoice_id'] . '-draft.pdf';
+
+                        $cmd = "curl https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/invoices-excel/" . $value['pdf'] . " -o " . $output_file_pdf;
+                        exec($cmd);
+
+                        $str .= ' ' . TMP_FOLDER . $value['invoice_id']  . '.zip ' . TMP_FOLDER . $value['invoice_id']  . '-draft.xlsx' . ' ' . TMP_FOLDER . $value['invoice_id']  . '-draft.pdf'
+                                . ' ' . $value['excel'];
+                    } else {
+                        $str .= " ".TMP_FOLDER . $value['invoice_id']  . '-draft.xlsx' . ' ' . $value['invoice_id']  . ".xlsx ";
+                    }
+                }
+                
+                    system('zip '. TMP_FOLDER.$buyback_invoice_id.".zip ". $str);
+                    
+                    header('Content-Description: File Transfer');
+                    header('Content-Type: application/octet-stream');
+                    header("Content-Disposition: attachment; filename=\"$buyback_invoice_id.zip\"");
+                    readfile(TMP_FOLDER . $buyback_invoice_id. '.zip');
+                    $res1 = 0;
+                    system(" chmod 777 " . TMP_FOLDER . $buyback_invoice_id . '.zip ', $res1);
+                    exec("rm -rf " . escapeshellarg(TMP_FOLDER . $buyback_invoice_id . '.zip'));
+                    foreach ($response as $value1) {
+                        exec("rm -rf " . escapeshellarg(TMP_FOLDER . "copy_" . $value1['invoice_id'] . "-draft.xlsx"));
+                        exec("rm -rf " . escapeshellarg(TMP_FOLDER . $value1['invoice_id'] . '-draft.pdf'));
+                        exec("rm -rf " . escapeshellarg(TMP_FOLDER . $value1['invoice_id'] . '-detailed.xlsx'));
+                        exec("rm -rf " . escapeshellarg(TMP_FOLDER . $value1['invoice_id'] . '-draft.xlsx'));
+                    }
+            }
+            foreach ($response as $file) {
+                foreach($file['files'] as $files){
+                    exec("rm -rf " . escapeshellarg($files));
+                }
+            }
+
+            return true;
         } else {
-            log_message('info', __FUNCTION__ . "=> Data Not Found for Cash Invoice" . print_r($details));
-
-            echo "Data Not Found for Cash Invoice" . PHP_EOL;
-
-            return FALSE;
+            return false;
         }
     }
-    
+
     function generate_buyback_detailed_invoices($vendor_id, $data, $meta, $invoice_type, $agent_id,$from_date, $to_date){
         log_message('info', __FUNCTION__ . " Entering...." );
         $files = array();
@@ -1955,28 +2059,13 @@ class Invoice extends CI_Controller {
 
         log_message('info', 'Excel data: ' . print_r($meta, true));
          if ($invoice_type === "final") {
-
-            $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_id);
-            $rem_email_id = "";
-            if (!empty($rm_details)) {
-                $rem_email_id = ", " . $rm_details[0]['official_email'];
-            }
-                $to = $meta['owner_email'] . ", " . $meta['primary_contact_email'];
+            $out['pdf'] = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/invoices-excel/".$output_file_main;
+            $out['excel'] = $output_file_excel;
+            $out['invoice_id'] = $meta['invoice_id'];
             
-            $cc = ANUJ_EMAIL_ID . $rem_email_id.",".ACCOUNTANT_EMAILID;
-            $pdf_attachement = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/invoices-excel/".$output_file_main;
-                
-            //get email template from database
-            $email_template = $this->booking_model->get_booking_email_template(BUYBACK_DETAILS_INVOICE_FOR_VENDORS_EMAIL_TAG);
-            $subject = vsprintf($email_template[4], array($meta['company_name'],$meta['sd'],$meta['ed']));
-            $message = $email_template[0];
-            $email_from = $email_template[2];
-                
-            $mail_ret = $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, $output_file_excel, $pdf_attachement);
-
             //Send SMS to PoC/Owner
             $this->send_invoice_sms("Buyback",  $meta['sd'], $meta['sub_total_amount'], $meta['owner_phone_1'], $vendor_id);
-
+            
            //Upload Excel files to AWS
             $this->upload_invoice_to_S3($meta['invoice_id']);
             $gst_amount = (array_sum(array_column($data, 'gst_amount')));
@@ -2003,7 +2092,7 @@ class Invoice extends CI_Controller {
                 //Amount needs to be collected from Vendor
                 'amount_collected_paid' =>$meta['sub_total_amount'],
                 //Mail has not 
-                'mail_sent' => $mail_ret,
+                'mail_sent' => 1,
                 //SMS has been sent or not
                 'sms_sent' => 1,
                 //Add 1 month to end date to calculate due date
@@ -2019,18 +2108,21 @@ class Invoice extends CI_Controller {
 
 
             $this->update_invoice_id_in_buyback($data, $meta['invoice_id'], $invoice_type, "cp_invoice_id");
-        } else {
             
-            $this->download_invoice_files($meta['invoice_id'], $output_file_excel, $output_file_main);
+        } else {
+            $out['invoice_id'] = $meta['invoice_id'];
+            $out['excel'] = $output_file_excel;
+            $out['pdf'] = $output_file_main;
+            //$this->download_invoice_files($meta['invoice_id'], $output_file_excel, $output_file_main);
         }
-        
-        //Delete XLS files now
-        foreach ($files as $file_name) {
-            exec("rm -rf " . escapeshellarg($file_name));
-        }
+        $out['files'] = $files;
+        //Do not Delete XLS files now
+//        foreach ($files as $file_name) {
+//            exec("rm -rf " . escapeshellarg($file_name));
+//        }
         unset($meta);
         unset($invoice_details);
-        return true;
+        return $out;
 
     }
 
@@ -2443,18 +2535,8 @@ class Invoice extends CI_Controller {
      */
     function create_invoice_id_to_insert($start_name) {
         log_message('info', __FUNCTION__ . " Entering....");
-        $current_month = date('m');
-        // 3 means March Month
-        if ($current_month > 3) {
-            $financial = date('y'). (date('y') + 1);
-        } else {
-            $financial = (date('y') - 1) .  date('y');
-        }
-
-        //Make sure it is unique
-        $invoice_id_tmp = $start_name . "-"  . $financial . "-" ;
+        $invoice_id_tmp = $this->_get_partial_invoice_id($start_name);
         $where = "( invoice_id LIKE '%".$invoice_id_tmp."%' )";
-     
         $invoice_no_temp = $this->invoices_model->get_invoices_details($where);
 
         $invoice_no = 1;
@@ -2471,6 +2553,19 @@ class Invoice extends CI_Controller {
    
         return trim($invoice_id_tmp . sprintf("%'.04d\n", $invoice_no));
   
+    }
+    
+    function _get_partial_invoice_id($start_name){
+        $current_month = date('m');
+        // 3 means March Month
+        if ($current_month > 3) {
+            $financial = date('y'). (date('y') + 1);
+        } else {
+            $financial = (date('y') - 1) .  date('y');
+        }
+
+        return $start_name . "-"  . $financial . "-" ;
+        
     }
 
     /**
@@ -2673,17 +2768,19 @@ class Invoice extends CI_Controller {
             $type = "Cash"; 
             $sd = date("Y-m-d", strtotime($from_date));
             $ed = date("Y-m-d", strtotime($to_date));
+            $email_tag = CRM_SETUP_INVOICE_EMAIL_TAG;
            
             if($description == QC_INVOICE_DESCRIPTION){
                 $hsn_code = QC_HSN_CODE;
                 $type = "Buyback";
+                $email_tag = SWEETENER_INVOCIE_EMAIL_TAG;
   
             }
             $invoice_date = date("Y-m-d");
             $invoice_id = $this->create_invoice_id_to_insert("Around");
             
             $response = $this->generate_partner_additional_invoice($partner_data[0], $description,
-            $amount, $invoice_id, $sd, $ed, $invoice_date, $hsn_code, "Tax Invoice");
+            $amount, $invoice_id, $sd, $ed, $invoice_date, $hsn_code, "Tax Invoice", $email_tag);
             $basic_sc_charge = $response['meta']['total_taxable_value'];
             $invoice_details = array(
                 'invoice_id' => $invoice_id,
@@ -2868,7 +2965,7 @@ class Invoice extends CI_Controller {
                 }
                 $data['type'] = PARTNER_VOUCHER;
                 $response = $this->generate_partner_additional_invoice($entity[0], PARTNER_ADVANCE_DESCRIPTION,
-                        $amount, $data['invoice_id'], $date,  $date,  $date, HSN_CODE, "Receipt Voucher");
+                        $amount, $data['invoice_id'], $date,  $date,  $date, HSN_CODE, "Receipt Voucher", ADVANCE_RECEIPT_EMAIL_TAG);
                 
                 $data['cgst_tax_amount'] = $data['sgst_tax_amount'] = $response['meta']['cgst_total_tax_amount'];
                 $data['igst_tax_amount'] = $response['meta']['igst_total_tax_amount'];
@@ -2920,7 +3017,7 @@ class Invoice extends CI_Controller {
      * @return Array
      */
     function generate_partner_additional_invoice($partner_data, $description,
-            $amount, $invoice_id, $sd, $ed, $invoice_date, $hsn_code, $invoice_type){
+            $amount, $invoice_id, $sd, $ed, $invoice_date, $hsn_code, $invoice_type, $email_tag){
         log_message("info", __METHOD__." Partner ID ".$partner_data['id']);
         $data = array();
         $data[0]['description'] =  $description;
@@ -2955,13 +3052,13 @@ class Invoice extends CI_Controller {
             $response['meta']['copy_file'] = $convert['copy_file'];
             $response['meta']['invoice_file_excel'] = $invoice_id.".xlsx";
             
-            $email_template = $this->booking_model->get_booking_email_template(PARTNER_INVOICE_DETAILED_EMAIL_TAG);
+            $email_template = $this->booking_model->get_booking_email_template($email_tag);
             $subject = vsprintf($email_template[4], array($partner_data['company_name'], $sd, $ed));
             $message = $email_template[0];
             $email_from = $email_template[2];
 
-            $to = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID;
-            $cc = "";
+            $to = $email_template[1];
+            $cc = $email_template[3];
            
             $this->upload_invoice_to_S3($invoice_id, false);
            

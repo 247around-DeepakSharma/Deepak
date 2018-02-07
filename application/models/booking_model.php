@@ -129,7 +129,10 @@ class Booking_model extends CI_Model {
             $this->db->select('id as unit_id, pod, price_tags, customer_total, serial_number_pic, around_net_payable, partner_net_payable, customer_net_payable, customer_paid_basic_charges, customer_paid_extra_charges, customer_paid_parts, booking_status, partner_paid_basic_charges,product_or_services, serial_number, around_paid_basic_charges');
             $this->db->where('appliance_id', $value['appliance_id']);
             $this->db->where('booking_id', $value['booking_id']);
-            $this->db->order_by("price_tags","asc");
+
+            $this->db->order_by("price_tags","desc");
+
+
             $query2 = $this->db->get('booking_unit_details');
 
             $result = $query2->result_array();
@@ -2033,9 +2036,9 @@ class Booking_model extends CI_Model {
      *  @param : void()
      *  @return :array()
      */
-    function get_partner_logo(){
-        $this->db->select('partner_logo, alt_text');
-        $this->db->where('partner_logo !=' , 'Null');
+    function get_partner_logo($select,$where){
+        $this->db->select($select);
+        $this->db->where($where);
         $query = $this->db->get('partner_brand_logo');
         return $query->result_array();
     }

@@ -71,7 +71,7 @@
             <thead>
                 <tr>
                     <th class="jumbotron">S.N.</th>
-                    <th class="jumbotron"style="text-align: center" >SC CODE</th>
+<!--                    <th class="jumbotron"style="text-align: center" >SC CODE</th>-->
                     <th class="jumbotron"style="text-align: center" >PRODUCT</th>
                     <th class="jumbotron"style="text-align: center" >CATEGORY</th>
                     <th class="jumbotron"style="text-align: center" >CAPACITY</th>

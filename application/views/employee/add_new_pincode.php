@@ -40,7 +40,7 @@
                     <div class="form-group">
                            <label for="pincode" class="col-md-4">Pincode*</label>
                            <div class="col-md-6">
-                               <input type="text" class="form-control" id="pincode" name="pincode" <?php if (isset($pincode)) { echo "value =".$pincode." readonly='' required";   } ?>>
+                               <input type="text" class="form-control" id="pincode" name="pincode" <?php if (!empty($pincode)) { echo "value =".$pincode." readonly='' required";   } else{}?>>
                            </div>
                         </div>  
                      <div class="form-group <?php if( form_error('vendor_id') ) { echo 'has-error';} ?>">

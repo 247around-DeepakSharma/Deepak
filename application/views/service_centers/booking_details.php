@@ -245,6 +245,8 @@
                     <?php } ?>
                 </tbody>
             </table>
+            
+            <div style="margin-top:20px;" id="sf_payout"></div>
             <?php }else{?> 
             <div class="text-danger">No Data Found</div>
             <?php }?>
@@ -481,6 +483,7 @@
             <div class="text-danger">No Data Found</div>
             <?php } ?>
         </div>
+
             <?php if($this->session->userdata('is_engineer_app') == 1){ ?>
             <div class="tab-pane fade in" id="tab6">
                 <?php if($engineer_action_not_exit) { ?>
@@ -516,7 +519,11 @@
                         <th>Remarks</th>
                     </tr>
                     <tbody>
+
+                        <?php if(!empty($signature_details)){ ?>
                         <tr>
+                            
+
                             <td><?php echo $signature_details[0]['amount_paid']; ?></td>
                             <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $signature_details[0]['signature'];?>" target="_blank">Click Here</a></td>
                             <td><?php echo $signature_details[0]['closed_date']; ?></td>
@@ -524,6 +531,9 @@
                             <td><?php echo $signature_details[0]['remarks']; ?></td>
                             
                         </tr>
+
+                        <?php } ?>
+
                     
                     </tbody>
                 </table>
@@ -533,6 +543,7 @@
                 } ?>
             </div>
             <?php } ?>
+
     </div>
 </div>
 <style type="text/css">
@@ -573,5 +584,16 @@
             // $(".tab").addClass("active"); // instead of this do the below 
             $(this).removeClass("btn-default").addClass("btn-primary");
         });
+        
+
+        $.ajax({
+          type: 'POST',
+          url: '<?php echo base_url(); ?>employee/service_centers/get_sf_payout/<?php echo $booking_history[0]['booking_id']; ?>/<?php echo $booking_history[0]['assigned_vendor_id'];?>/<?php echo $booking_history[0]['amount_due'];?>',
+          success: function (data) {
+             console.log(data);
+             $("#sf_payout").html(data);
+          }
+        });
+    
     });
 </script>
