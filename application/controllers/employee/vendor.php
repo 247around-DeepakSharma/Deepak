@@ -4576,7 +4576,7 @@ class vendor extends CI_Controller {
                     foreach($pincodeData as $pinData){
                         $pincodeDataArray[$pinData['pincode']][] = array("city"=>$pinData['district'],"state"=>$pinData['state']);
                     }
-                    $this->notFoundCityStateArray = array_diff($pincodeArray,array_keys($pincodeDataArray));
+                    $this->notFoundCityStateArray = array_values(array_diff($pincodeArray,array_keys($pincodeDataArray)));
                     if($deleteMsg == TRUE){
                               $finalInsertArray = array();
                               foreach($this->vendorPinArray as $key=>$data){
@@ -4656,16 +4656,15 @@ class vendor extends CI_Controller {
                     else{
                         
                     }
-                    $this->vendor_model->update_file_status($fileStatus,$this->filePath);
-                    $msg['final_msg'] = $finalMsg;
+                    $this->vendor_model->update_file_status($fileStatus,$this->filePath); 
                     if(!empty($this->notFoundCityStateArray)){
-                        $msg['final_msg'] = "City And States Are Not Found For Below Pincodes, Please Enter <br>";
-                        $msg['final_msg'] .= implode(",",$this->notFoundCityStateArray);
-                        $this->session->set_userdata($msg);
-                        redirect(base_url()."employee/vendor/is_pincode_available_in_india_pincode_table");
+                        $this->add_multiple_entry_in_india_pincode($this->notFoundCityStateArray);
                     }
-                    $this->session->set_userdata($msg);
-                    redirect(base_url()."employee/vendor/upload_pin_code_vendor/".$vendorID);
+                    else{
+                        $msg['final_msg'] = $finalMsg;
+                        $this->session->set_userdata($msg);
+                        redirect(base_url()."employee/vendor/upload_pin_code_vendor/".$vendorID);
+                    }
           }
           /*
            * This function use to create pincode update form
@@ -4873,5 +4872,70 @@ class vendor extends CI_Controller {
         $appliance  = $this->reusable_model->get_search_result_data("vendor_pincode_mapping","CONCAT(vendor_pincode_mapping.Appliance_ID,'__',services.services) as service",
         array("Vendor_ID"=>$vendorID),array("services"=>"services.id=vendor_pincode_mapping.Appliance_ID"),NULL,NULL,NULL,NULL,array("Appliance_ID"));
         echo json_encode($appliance);
+        }
+        /*
+         * This Function is used to open multiple pincode form, (Pincode which are not available in india pincode and someone try to add those in vendor pincode table)
+         */
+        function add_multiple_entry_in_india_pincode($pincodeArray){
+            $states  =   $this->vendor_model->getall_state();
+            $city  =   $this->vendor_model->getDistrict_from_india_pincode();
+            $this->miscelleneous->load_nav_header();
+            $this->load->view('employee/add_multiple_new_pincode',array('pincodeArray'=>$pincodeArray,'states'=>$states,'city'=>$city));
+        }
+        /*
+         * This is a helper function for  add multiple pincode this is used to update city and state for pincode which was not available in india pincode table intially
+         */
+        private function update_vendor_pincode_mapping_table($finalArray){
+            $pincodesArray = array_column($finalArray, 'pincode');
+            //get data from vendor_pincode_mapping where pincode in lisr
+            $vendorMappingData = $this->reusable_model->get_search_result_data("vendor_pincode_mapping","*",NULL,NULL,NULL,NULL,array('pincode'=>$pincodesArray),NULL,array());
+            foreach($finalArray as $pinData){
+                $pincodeDataArray[$pinData['pincode']][] = array("city"=>$pinData['district'],"state"=>$pinData['state']);
+            }
+            foreach($vendorMappingData as $key=>$data){
+                                        $idArray[] = $data['id'];
+                                        $vendorID  = $data['Vendor_ID'];
+                                        $insertArray['Vendor_ID'] = $data['Vendor_ID'];
+                                        $insertArray['Appliance_ID'] = $data['Appliance_ID'];
+                                        $insertArray['Pincode'] = $data['Pincode'];
+                                        $insertArray['City']  = NULL;
+                                        $insertArray['State']  = NULL;
+                                        if(array_key_exists($data['Pincode'], $pincodeDataArray)){
+                                            foreach($pincodeDataArray[$data['Pincode']] as $pin_codes_data){
+                                                $insertArray['City']  = $pin_codes_data['city'];
+                                                $insertArray['State']  = $pin_codes_data['state'];
+                                                $finalInsertArray[] = $insertArray;
+                                                }
+                                        } 
+                                        else{
+                                            $finalInsertArray[] = $insertArray;
+                                        }
+                              }
+                              if(!empty($idArray)){
+                                    $deleteMsg = $this->vendor_model->delete_vendor_pin_codes_in_bulk($idArray);
+                                    if($deleteMsg){
+                                            $this->vendor_model->insert_vendor_pincode_in_bulk($finalInsertArray);
+                                            $msg['final_msg'] = "Successfully Done";
+                                            $this->session->set_userdata($msg);
+                                            redirect(base_url()."employee/vendor/upload_pin_code_vendor/".$vendorID);
+                                    }
+                              }
+            }
+            /*
+             * This function used to update multiple pincode data in india pincode table
+             */
+        function add_multiple_pincode(){
+            $pincodeCount = $this->input->post('pincode_count');
+            for($i=0;$i<$pincodeCount;$i++){
+                $cityArray = $this->input->post('city_'.$i);
+                foreach($cityArray as $city){
+                $dataArray['district'] = $city;
+                $dataArray['state'] = $this->input->post('states_'.$i);
+                $dataArray['pincode'] = $this->input->post('pincode_'.$i);
+                $finalArray[] = $dataArray; 
+                }
+            }
+            $this->reusable_model->insert_batch("india_pincode",$finalArray);
+            $this->update_vendor_pincode_mapping_table($finalArray);
         }
 }
