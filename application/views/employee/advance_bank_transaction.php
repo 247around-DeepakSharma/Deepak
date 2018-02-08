@@ -52,9 +52,10 @@
                       tds_amount: "Please enter TDS"
                   },
                   submitHandler: function(form) {
-                      form.submit();
-                      $('#submitform').attr('disabled', true);
                       $('#submitform').val("Please wait.....");
+                      form.submit();
+                      
+                      
                   }
     
               });
@@ -109,7 +110,7 @@
             </div>';
             }
             ?>
-        <form name="myForm1" id="myForm1" class="form-horizontal" action="<?php echo base_url()?>employee/invoice/process_advance_payment" method="POST">
+        <form name="myForm1" onSubmit="document.getElementById('submitform').disabled=true;" id="myForm1" class="form-horizontal" action="<?php echo base_url()?>employee/invoice/process_advance_payment" method="POST">
             <h1>Add Advance Payment Transaction</h1>
             
             <div class="form-group ">
