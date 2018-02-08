@@ -4374,7 +4374,7 @@ class vendor extends CI_Controller {
                     $join = array("service_centres"=>"service_centres.id = pm.Vendor_ID","services"=>"services.id=pm.Appliance_ID");
                     $orderBYArray = array("services.services"=>"ASC");
                     $pincodeArray = $this->reusable_model->get_search_result_data("vendor_pincode_mapping pm","pm.Pincode,service_centres.name as Vendor_Name,services.services as Appliance",
-                            array("pm.Vendor_ID"=>$vendorID),$join,NULL,$orderBYArray,NULL,array('Appliance','pm.Pincode'));
+                            array("pm.Vendor_ID"=>$vendorID),$join,NULL,$orderBYArray,NULL,NULL,array('Appliance','pm.Pincode'));
                     $config = array('template' => "vendor_pin_code.xlsx", 'templateDir' => __DIR__ . "/../excel-templates/");
                     log_message('info', __FUNCTION__ . ' Download Data ' . print_r($pincodeArray, TRUE));
                     $this->miscelleneous->downloadExcel($pincodeArray,$config);
