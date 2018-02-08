@@ -4276,7 +4276,7 @@ ALTER TABLE `bb_delivery_order_status_report` ADD `qc_svc` VARCHAR(32) NULL DEFA
 ALTER TABLE  `sf_not_exist_booking_details` ADD  `invalid_pincode_marked_by` INT( 10 ) NOT NULL AFTER  `is_pincode_valid` ;
 
 --Chhavi
-ALTER TABLE `push_notification_subscribers` ADD `unsubscription_flag` INT(10) NOT NULL DEFAULT '0' AFTER `subscriber_id`;
+ALTER TABLE `push_notification_subscribers` ADD `unsubscription_flag` INT(10) NOT NULL DEFAULT '0' AFTER `entity_type`;
 ALTER TABLE `push_notification_subscribers` ADD `unsubscription_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `unsubscription_flag`;
 ALTER TABLE `push_notification_subscribers` CHANGE `create_date` `create_date` DATETIME NOT NULL;
 
@@ -4300,6 +4300,15 @@ ALTER TABLE `booking_details` ADD `upcountry_remarks` VARCHAR(128) NULL DEFAULT 
 ALTER TABLE `push_notification_subscribers` CHANGE `create_date` `create_date` DATETIME NOT NULL;
 INSERT INTO `header_navigation` (`id`, `title`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, 'Show Inventory Stocks', 'employee/inventory/show_inventory_stock_list', '2', '89', 'admin,callcenter,closure,developer,regionalmanager', 'main_nav', '1', CURRENT_TIMESTAMP);
 
+
 --Chhavi
 ALTER TABLE `collateral` ADD `brand` VARCHAR(100) NULL DEFAULT NULL AFTER `document_description`, ADD `appliance_id` INT(20) NULL DEFAULT NULL AFTER `brand`, ADD `category` VARCHAR(100) NULL DEFAULT NULL AFTER `appliance_id`, ADD `capacity` VARCHAR(100) NULL DEFAULT NULL AFTER `category`;
 ALTER TABLE `collateral_type` ADD `document_type` VARCHAR(30) NULL DEFAULT NULL AFTER `collateral_type`;
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'partner_login_details', 'Partner ERP URL and Login - 247around', 'Dear Partner,<br><br>
+As discussed, please find below your login details.<br><br>
+URL: <a href="https://www.aroundhomzapp.com/partner/login">https://www.aroundhomzapp.com/partner/login</a><br><br>
+<b>Username: </b>%s<br><b>Password: </b>%s<br><br>
+Please use the ERP panel for your closures going forward. In case of any issues, write to us or call us.<br><br>
+Regards,<br> 247around Team', 'noreply@247around.com', '', '', '', '1', CURRENT_TIMESTAMP);ALTER TABLE  `push_notification_logs` CHANGE  `title`  `title` VARCHAR( 1024 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL ;
+ALTER TABLE  `push_notification_logs` CHANGE  `title`  `title` VARCHAR( 1024 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL ;
+ALTER TABLE  `collateral` ADD  `request_type` VARCHAR( 20 ) NULL AFTER  `capacity` ;

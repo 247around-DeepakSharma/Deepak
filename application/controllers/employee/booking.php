@@ -972,12 +972,6 @@ class Booking extends CI_Controller {
         } else {
             log_message('info', __FUNCTION__ . " Update booking  " . print_r($data, true));
             $this->booking_model->update_booking($booking_id, $data);
-            //Send Push Notification
-            $vendorData = $this->vendor_model->getVendor($booking_id);
-            $receiverArray['vendor']= array($vendorData[0]['id']);
-            $notificationTextArray['msg'] = array($booking_id,"Rescheduled");
-            $this->push_notification_lib->create_and_send_push_notiifcation(BOOKING_UPDATED_BY_247AROUND,$receiverArray,$notificationTextArray);
-            //End Sending Push Notification
             $this->booking_model->increase_escalation_reschedule($booking_id, "count_reschedule");
 
             //Log this state change as well for this booking
