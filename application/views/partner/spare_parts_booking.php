@@ -7,22 +7,22 @@ if ($this->uri->segment(4)) {
 ?>
 <?php if(empty($is_ajax)) { ?>
 <div class="right_col" role="main">
+        <?php
+        if ($this->session->userdata('success')) {
+            echo '<div class="alert alert-success alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <strong>' . $this->session->userdata('success') . '</strong>
+                        </div>';
+        }
+        ?>
     <div class="row">
 <?php } ?>
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
                 <div class="x_title">
                     <h2>Pending Spares On <?php echo $this->session->userdata('partner_name') ?></h2>
-                    <?php
-                    if ($this->session->userdata('success')) {
-                        echo '<div class="alert alert-success alert-dismissible" role="alert">
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                            <strong>' . $this->session->userdata('success') . '</strong>
-                        </div>';
-                    }
-                    ?>
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content">
@@ -113,6 +113,26 @@ if ($this->uri->segment(4)) {
         </div>
 <?php if(empty($is_ajax)) { ?> 
     </div>
+    
+    <div id="myModal2" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title" id="modal-title">Reject Parts</h4>
+                </div>
+                <div class="modal-body">
+                    <textarea rows="3" class="form-control" id="textarea" placeholder="Enter Remarks"></textarea>
+                </div>
+                <input type="hidden" id="url">
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" onclick="reject_parts()">Send</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal" >Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 <?php } ?>
 <div class="clearfix"></div>
@@ -177,6 +197,42 @@ if ($this->uri->segment(4)) {
 
             }
         });
+    }
+    
+    $(document).on("click", ".open-adminremarks", function () {
+        
+        var booking_id = $(this).data('booking_id');
+        var url = $(this).data('url');
+        $('#modal-title').text("Reject Part For Booking -" + booking_id);
+        $('#textarea').val("");
+        $("#url").val(url);
+        
+    });
+    
+    function reject_parts(){
+        var remarks =  $('#textarea').val();
+        if(remarks !== ""){
+            var url =  $('#url').val();
+       
+            $.ajax({
+                type:'POST',
+                url:url,
+                data:{remarks:remarks,courier_charge:0},
+                success: function(data){
+              
+                    if(data === "Success"){
+                        //  $("#"+booking_id+"_1").hide()
+                        $('#myModal2').modal('hide');
+                        alert("Updated Successfully");
+                        location.reload();
+                    } else {
+                        alert("Spare Parts Cancellation Failed!");
+                    }
+                }
+            });
+        } else {
+            alert("Please Enter Remarks");
+        }
     }
 </script>
 <?php if ($this->session->userdata('success')) {

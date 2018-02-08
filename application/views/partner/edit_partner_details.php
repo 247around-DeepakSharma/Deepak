@@ -76,6 +76,24 @@
 </style>
 
 <div class="right_col" role="main">
+    <?php
+    if ($this->session->flashdata('success_msg')) {
+        echo '<div class="alert alert-success alert-dismissible" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <strong>' . $this->session->flashdata('success_msg') . '</strong>
+                    </div>';
+    }
+    if ($this->session->flashdata('error_msg')) {
+        echo '<div class="alert alert-danger alert-dismissible" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <strong>' . $this->session->flashdata('error_msg') . '</strong>
+                    </div>';
+    }
+    ?>
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
@@ -85,24 +103,6 @@
                 </div>
                 <div class="x_content">
                     <br />
-                    <?php
-                    if ($this->session->flashdata('success_msg')) {
-                        echo '<div class="alert alert-success alert-dismissible" role="alert">
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                        <strong>'.$this->session->flashdata('success_msg').'</strong>
-                    </div>';
-                    }
-                    if ($this->session->flashdata('error_msg')) {
-                        echo '<div class="alert alert-danger alert-dismissible" role="alert">
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                        <strong>'.$this->session->flashdata('error_msg').'</strong>
-                    </div>';
-                    }
-                    ?>
                     <form id="profile-details-form" class="form-horizontal form-label-left" action="<?php echo base_url();?>employee/partner/process_partner_edit_details" method="post">
 
                         <div class="panel panel-default">
@@ -357,3 +357,5 @@
         </div>
     </div>
 </div>
+<?php if ($this->session->userdata('success_msg')) {$this->session->unset_userdata('success_msg');} ?>
+<?php if ($this->session->userdata('error_msg')) {$this->session->unset_userdata('error_msg');} ?>
