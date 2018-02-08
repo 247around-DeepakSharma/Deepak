@@ -284,7 +284,7 @@
     .navigation_li{
     font: normal 16px/16px Century Gothic;
     list-style: none;
-    padding: 15px 0px 6px 42px;
+    padding: 7px 0px 6px 42px;
     }
     .navigation_li a:hover {
     background: none;
