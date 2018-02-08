@@ -11,7 +11,7 @@
         <div class="panel panel-info" style="margin-top:20px;">
             <div class="panel-heading">Complete Booking</div>
             <div class="panel-body">
-                <form name="myForm" class="form-horizontal" id ="booking_form" action="<?php echo base_url() ?>employee/service_centers/process_complete_booking/<?php echo $booking_id; ?>"  method="POST" enctype="multipart/form-data">
+                <form name="myForm" onSubmit="document.getElementById('submitform').disabled=true;" class="form-horizontal" id ="booking_form" action="<?php echo base_url() ?>employee/service_centers/process_complete_booking/<?php echo $booking_id; ?>"  method="POST" enctype="multipart/form-data">
                     <div class="row">
                         <div class="col-md-12">
                             <div class="col-md-6">
@@ -103,7 +103,7 @@
                                             <?php } else {?> width:26.32%;<?php }?>">
                                             <div class="col-md-12" style="padding-left:0px;">
                                                 <label> Is Broken</label>
-                                                <select type="text" class="form-control appliance_broken" id="<?php echo "broken_".$key1?>" name="broken[]" onchange="check_broken('<?php echo $key1;?>')" required>
+                                                <select type="text" class="form-control appliance_broken" id="<?php echo "broken_".$key1?>" name="broken[]" onchange="check_broken('<?php echo $key1;?>')" >
                                                     <option selected disabled>Is Broken</option>
                                                     <option  value="1">Yes</option>
                                                     <option value="0">No</option>
@@ -331,7 +331,7 @@
                     </div>
                     <div class="form-group  col-md-12" >
                         <center style="margin-top:60px;">
-                            <input type="submit" id="submitform"  onclick="return onsubmit_form('<?php echo $booking_history[0]['upcountry_paid_by_customer']; ?>', '<?php echo $count; ?>', '<?php echo $key1?>')" class="btn btn-lg" style="background-color: #2C9D9A;
+                            <input type="submit" id="submitform"  onclick="return onsubmit_form('<?php echo $booking_history[0]['upcountry_paid_by_customer']; ?>', '<?php echo $count; ?>', '<?php echo count($bookng_unit_details)?>')" class="btn btn-lg" style="background-color: #2C9D9A;
                                 border-color: #2C9D9A; color:#fff;" value="Complete Booking">
                     </div>
                     </center>
@@ -379,8 +379,10 @@
         var div_count = 0;
         var is_completed_checkbox = [];
         var serial_number_tmp = [];
+       
         for(m= 0; m< Number(appliance_count); m++){
             var isbroken = $("#broken_"+ m).val();
+          
             if(isbroken === null){
                 alert("Please Select Is Broken DropDown");
                 document.getElementById("broken_"+ m).style.borderColor = "red";
@@ -514,11 +516,7 @@
             return false;
         }
         if (flag === 0) {
-
-            $('#submitform').attr('disabled', true);
             $('#submitform').val("Please wait.....");
-              
-
             return true;
     
         } else if (flag === 1) {

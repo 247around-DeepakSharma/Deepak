@@ -17,7 +17,7 @@
         }
     }
     ?>
-<form name="myForm" class="form-horizontal" id ="booking_form" action="<?php echo base_url() ?>employee/service_centers/process_complete_booking/<?php echo $booking_id; ?>"  method="POST" enctype="multipart/form-data">
+<form name="myForm" class="form-horizontal" id ="booking_form" action="<?php echo base_url() ?>employee/service_centers/process_complete_booking/<?php echo $booking_id; ?>" onSubmit="document.getElementById('submitform').disabled=true;" method="POST" enctype="multipart/form-data">
 <input type="hidden" id="spare_parts_required" name="spare_parts_required" value="<?php echo $flag; ?>" />
 <input type="hidden" name="sp_required_id" value='<?php echo json_encode($required_sp_id, TRUE); ?>' />
 <input type="hidden" name="partner_id" value='<?php echo $booking_history[0]['partner_id']; ?>' />

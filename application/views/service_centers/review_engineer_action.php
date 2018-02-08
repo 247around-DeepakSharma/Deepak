@@ -253,7 +253,7 @@ function onsubmit_form(upcountry_flag, number_of_div) {
         return false;
     }
     if (flag === 0) {
-        $('#submitform').attr('disabled', true);
+       
         $('#submitform').val("Please wait.....");
         return true;
 
