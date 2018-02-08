@@ -64,9 +64,13 @@ class Push_Notification extends CI_Controller {
         }
     }
      function get_notifications(){
+         $topNavColor = '#2c9d9c';
          $entity_id = $this->input->post('entity_id');
          $entity_type = $this->input->post('entity_type');
-         $notificationString = '<li style="text-align:center;font:bold 20px Century Gothic;background: #2c9d9c; padding: 7px;color: #fff;margin-bottom: 10px;">Notifications</li>';
+         if($entity_type == 'partner'){
+             $topNavColor = '#2a3f54';
+         }
+         $notificationString = '<li  style="text-align:center;font:bold 20px Century Gothic;background: '.$topNavColor.'; padding: 7px;color: #fff;margin-bottom: 10px;">Notifications</li>';
          $data = $this->reusable_model->get_search_result_data("push_notification_subscribers p","push_notification_logs.*",array("p.entity_type"=>$entity_type,"p.entity_id"=>$entity_id),
                  array("push_notification_logs"=>"FIND_IN_SET(p.subscriber_id,push_notification_logs.subscriber_ids)"),NULL,NULL,NULL,NULL,array("push_notification_logs.id"));
          if($data){
