@@ -1016,8 +1016,8 @@ class Around_scheduler extends CI_Controller {
         log_message('info',__METHOD__);
         $data = array();
         $mail_server = SMS_DEACTIVATION_MAIL_SERVER;
-        $email = QC_BALANCE_READ_EMAIL;
-        $password = QC_BALANCE_READ_EMAIL_PASSWORD;
+        $email = 'sachinj@247around.com';
+        $password = 'sachinj';
         //create connection for email
         $conn = $this->email_data_reader->create_email_connection($mail_server,$email,$password);
         if($conn != 'FALSE'){
@@ -1044,6 +1044,19 @@ class Around_scheduler extends CI_Controller {
                 preg_match_all($pattern_new, $email_body, $match);
                 if(!empty($match) && isset($match[1][0])){
                    $data['la_balance'] = $match[1][0];
+                }
+            }
+            
+            //get emails for Mobile Balance
+            $mobile_condition = 'SINCE "'.date("d M Y",strtotime(date("Y-m-d"))).'" SUBJECT "'.MOBILE_BALANCE_EMAIL_SUBJECT.'"';
+            $mobile_email_data = $this->email_data_reader->get_emails($mobile_condition);
+            if(!empty($mobile_email_data)){
+                $email_body = $mobile_email_data[0]['body'];
+                $match = array();
+                $pattern_new = '/\bRs. (\d*\.?\d+)/';
+                preg_match_all($pattern_new, $email_body, $match);
+                if(!empty($match) && isset($match[1][0])){
+                   $data['mobile_balance'] = $match[1][0];
                 }
             }
             

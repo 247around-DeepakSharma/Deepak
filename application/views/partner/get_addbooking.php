@@ -40,7 +40,7 @@
                                 </div>';
     }
     ?>
-    <form name="myForm" class="form-horizontal" id ="booking_form" action="<?php echo base_url()?>employee/partner/process_addbooking"  method="POST" enctype="multipart/form-data">
+    <form name="myForm" class="form-horizontal" onSubmit="document.getElementById('submitform').disabled=true;" id ="booking_form" action="<?php echo base_url()?>employee/partner/process_addbooking"  method="POST" enctype="multipart/form-data">
         <div class="row">
             <div class="col-md-12 col-sm-12 col-xs-12">
                 <div class="x_panel">
@@ -587,7 +587,7 @@
                 
             return false;
        <?php } ?>
-        $('#submitform').attr('disabled', true);
+        
         $('#submitform').val("Please wait.....");
         
         return true;
