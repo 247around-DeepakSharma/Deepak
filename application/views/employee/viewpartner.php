@@ -90,19 +90,19 @@
                 <td><a href="<?php echo base_url(); ?>employee/invoice/invoice_summary/partner/<?php echo $row['id']; ?>" target="_blank" ><img style="width:30px;" src="<?php echo base_url();?>images/invoice_icon.png" /></a></td>
                 
           	<td><?php if($row['is_active']==1){ ?>
-                  <a class="btn btn-md btn-primary" href="<?php echo base_url() ?>employee/partner/deactivate/<?php echo $row['id'] ?>"><i class="fa fa-check" aria-hidden="true"></i></a>       
+                  <a class="btn btn-sm btn-primary" href="<?php echo base_url() ?>employee/partner/deactivate/<?php echo $row['id'] ?>"><i class="fa fa-check" aria-hidden="true"></i></a>       
                 <?php } else {?>
-                 <a class="btn btn-md btn-danger" href="<?php echo base_url() ?>employee/partner/activate/<?php echo $row['id'] ?>"><i class="fa fa-ban" aria-hidden="true"></i></a>                
+                 <a class="btn btn-sm btn-danger" href="<?php echo base_url() ?>employee/partner/activate/<?php echo $row['id'] ?>"><i class="fa fa-ban" aria-hidden="true"></i></a>                
                 <?php } ?>
             </td>
             <td>
-                <a href="<?php echo base_url();?>employee/service_centre_charges/generate_service_charges_view/<?php echo $row['id'];?>" ><img style="width:36px;" src="<?php echo base_url();?>images/rupees.png"</a>  
+                <a  class="btn btn-sm btn-primary" href="<?php echo base_url();?>employee/service_centre_charges/generate_service_charges_view/<?php echo $row['id'];?>">Gen Charge</a>  
             </td>
              <td>
-                 <a href="<?php echo base_url();?>employee/service_centre_charges/show_charge_list/<?php echo $row['id'];?>" ><img style="width:36px;" src="<?php echo base_url();?>images/edit_prices.png" /></a>  
+                 <a  class="btn btn-sm btn-warning" href="<?php echo base_url();?>employee/service_centre_charges/show_charge_list/<?php echo $row['id'];?>"  >Modify Charge</a>  
             </td>
             <td>
-                <a href="<?php echo base_url();?>BookingSummary/send_leads_summary_mail_to_partners/<?php echo $row['id'];?>" class="btn btn-md btn-color"><i class="fa fa-envelope" aria-hidden="true"></i></a>  
+                <a href="<?php echo base_url();?>BookingSummary/send_leads_summary_mail_to_partners/<?php echo $row['id'];?>" class="btn btn-sm btn-color"><i class="fa fa-envelope" aria-hidden="true"></i></a>  
             </td>
             <td>  <button type="button" class="btn btn-info btn-lg fa fa-eye" data-toggle="modal" data-target="#history_view" onclick="get_history_view(<?php echo $row['id']?>)" style="padding: 11px 6px;margin: 0px 10px;"></button></td>
           <td align="center">
