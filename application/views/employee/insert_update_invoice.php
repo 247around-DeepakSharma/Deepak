@@ -322,7 +322,7 @@
                         <div class="clearfix" ></div>
                         <div class="col-md-offset-5" style ="margin-top: 40px; margin-bottom: 20px;">
                             <?php if (isset($invoice_details[0]['invoice_id'])) {} else {?> <a href="javascript:void(0)" onclick="fetch_invoice_id()" class="btn btn-md btn-success" >Fetch Invoice ID</a><?php  } ?>
-                            <input type="submit" value="<?php if (isset($invoice_details[0]['invoice_id'])) { echo "Update Invoice"; } else { echo "Insert Invoice";}?>" class="btn btn-md btn-primary" />
+                            <input type="submit" id="submitform" value="<?php if (isset($invoice_details[0]['invoice_id'])) { echo "Update Invoice"; } else { echo "Insert Invoice";}?>" class="btn btn-md btn-primary" />
                         </div>
                     </div>
                 </div>
@@ -424,4 +424,13 @@
             document.getElementById("type_code").options[6].disabled = false;
         }
     }
+    
+    $('#submitform').on('click', function() {
+        var $this = $(this);
+        $this.button('loading');
+          setTimeout(function() {
+             $this.button('reset');
+         }, 5000);
+      });
+
 </script>

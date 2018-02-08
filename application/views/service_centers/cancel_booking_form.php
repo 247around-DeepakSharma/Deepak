@@ -8,7 +8,14 @@
        if (reason === '' ) {
            alert("Cancellation reason is missing");
            return false;
-       }
+       } 
+        $('#submitform').attr('disabled', true);
+        $('#submitform').val("Please wait.....");
+              
+
+        return true;
+          
+       
    }
    
 </script>
@@ -35,7 +42,7 @@
                         foreach($reason as $key =>$data1){?>
                      <div class="radio">
                         <label>
-                        <input type="radio"onclick="check()" name="cancellation_reason" id="<?php echo " cancellation_reason ".$count; $count++;?>" value="<?php  echo $data1->reason;?>" required>
+                        <input type="radio" name="cancellation_reason" id="<?php echo " cancellation_reason ".$count; $count++;?>" value="<?php  echo $data1->reason;?>" required>
                         <?php  echo $data1->reason;?>
                         </label>
                      </div>
@@ -70,7 +77,7 @@
                     <?php if($isdisable) { ?>
                     <p style="margin-bottom:60px;"> <strong> You are unable to cancel this booking because Spare Parts Shipped.</strong></p>
                     <?php } else { ?>
-                        <input type="submit" value="Cancel Booking" style="background-color: #2C9D9C; border-color: #2C9D9C; " onclick="return(check_text())" class="btn btn-danger btn-large">
+                    <input type="submit" id="submitform" value="Cancel Booking" style="background-color: #2C9D9C; border-color: #2C9D9C; " onclick="return(check_text())" class="btn btn-danger btn-large">
                     <?php }?>
                      
                     

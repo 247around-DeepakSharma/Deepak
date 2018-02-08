@@ -78,7 +78,8 @@ function partner_vendor1(vendor_partner_id){
                         if(vendor_partner === "vendor"){
                         var fd = new FormData(document.getElementById("myForm1"));
                             fd.append("label", "WEBUPLOAD");
-
+                            $('#submitform').attr('disabled', true);
+                            $('#submitform').val("Please wait.....");
                             $.ajax({
                                     type: 'POST',
                                     url: '<?php echo base_url() ?>employee/invoice/process_invoices_form',
@@ -87,6 +88,8 @@ function partner_vendor1(vendor_partner_id){
                                     contentType: false,
                                     success: function (data) {
                                       console.log(data);
+                                      $('#submitform').attr('disabled', false);
+                                      $('#submitform').val("Generate Invoice");
 
                                     }
                                   });
@@ -99,8 +102,10 @@ function partner_vendor1(vendor_partner_id){
                       
                         
                     } else {
-
+                        
                         form.submit();
+                        $('#submitform').attr('disabled', true);
+                        $('#submitform').val("Please wait.....");
                     }
                     
                     
@@ -237,10 +242,10 @@ color: red;
               <span id="errms5"></span>
 
               <div class="col-md-12 col-md-offset-1" style="margin-top:20px;" >
-                  <input type= "submit"  class="btn btn-danger btn-lg" value ="Generate Invoice"  >
+                  <input type= "submit" id="submitform"  class="btn btn-danger btn-lg" value ="Generate Invoice"  >
         </div>
           </form>
-
+ 
   </div>
 </div>
 
@@ -248,7 +253,7 @@ color: red;
 <?php if($this->session->userdata('error')) { $this->session->unset_userdata('error'); } ?>
     <script type="text/javascript">
      $("#name").select2();
-  
+    
     </script>
    
 
