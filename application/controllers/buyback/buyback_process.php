@@ -1965,7 +1965,7 @@ class Buyback_process extends CI_Controller {
     
     function get_bb_svc_balance(){
         $this->table = 'bb_svc_balance';
-        $this->select = 'tv_balance,la_balance,(tv_balance+la_balance) as total_balance';
+        $this->select = 'tv_balance,la_balance,mobile_balance,(tv_balance+la_balance+mobile_balance) as total_balance';
         $this->order_by = array('create_date' => 'DESC');
         $this->limit = array('length' => 1,'start' => 0);
         $data = $this->reusable_model->get_search_query($this->table,$this->select , NULL,NULL, $this->limit ,$this->order_by,NULL,NULL);

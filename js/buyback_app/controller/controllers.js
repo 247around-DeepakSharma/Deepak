@@ -581,12 +581,14 @@ buyback_dashboard.controller('bb_balance', function ($scope, $http) {
             if( data === 'no data found'){
                 $scope.tv_balance = '0';
                 $scope.la_balance = '0';
+                $scope.mobile_balance = '0';
                 $scope.total_balance = '0';
                 $scope.showLoader = false;
                 $scope.showBuybackBalance = true;
             }else{
                 $scope.tv_balance = data.tv_balance;
                 $scope.la_balance = data.la_balance;
+                $scope.mobile_balance = data.mobile_balance;
                 $scope.total_balance = data.total_balance;
                 $scope.showLoader = false;
                 $scope.showBuybackBalance = true;
