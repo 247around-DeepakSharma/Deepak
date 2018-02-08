@@ -431,6 +431,7 @@ define("TAT_BREACH_DAYS", "-45 days");
 // QC Balance Read Email Constant
 define('TV_BALANCE_EMAIL_SUBJECT', "Amazon_Ext_buyback SVC Balance '7014851010000071' Notification");
 define('LA_BALANCE_EMAIL_SUBJECT', "Amazon_Ext_buyback SVC Balance '7014851010000029' Notification");
+define('MOBILE_BALANCE_EMAIL_SUBJECT', "Amazon_Ext_buyback SVC Balance '7014851010000091' Notification");
 
 define('FILE_UPLOAD_SUCCESS_STATUS', 'Success');
 define('FILE_UPLOAD_FAILED_STATUS', 'Failed');

@@ -4,7 +4,9 @@
 <script src="<?php echo base_url(); ?>js/buyback_app/app.js"></script>
 <script src="<?php echo base_url(); ?>js/buyback_app/controller/controllers.js"></script>
 <style>
-    
+    .col-md-3{
+        width: 24%;
+    }
 </style>
 <div class="right_col" role="main" ng-app="buyback_dashboard">
     <?php if($this->session->userdata('user_group') === 'admin'){ ?>
@@ -16,15 +18,19 @@
             </div>
             <div ng-if="showBuybackBalance">
                 <div class="col-md-12" style="margin-bottom:10px;" ng-cloak="">
-                    <div class="col-md-4 text-center la_balance">
+                    <div class="col-md-3 text-center la_balance">
                         <b>LA Balance : </b>
                         Rs. <span>{{la_balance}}</span>
                     </div>
-                    <div class="col-md-4 text-center tv_balance">
+                    <div class="col-md-3 text-center tv_balance">
                         <b>TV Balance : </b>
                         Rs. <span>{{tv_balance}}</span>
                     </div>
-                    <div class="col-md-4 text-center total_balance">
+                    <div class="col-md-3 text-center tv_balance">
+                        <b>Mobile Balance : </b>
+                        Rs. <span>{{mobile_balance}}</span>
+                    </div>
+                    <div class="col-md-3 text-center total_balance">
                         <b>Total Balance : </b>
                         Rs. <span>{{total_balance}}</span>
                     </div>
