@@ -130,6 +130,12 @@ class Miscelleneous {
         $assigned = $this->My_CI->vendor_model->assign_service_center_for_booking($booking_id, $b);
         if ($assigned) {
             log_message('info', __FUNCTION__ . " Assigned...... booking_id " . $booking_id);
+            //Send Push Notification
+            $receiverArrayVendor['vendor'] = array($service_center_id); 
+            $notificationTextArrayVendor['url'] = array($booking_id);
+            $notificationTextArrayVendor['msg'] = array($booking_id);
+             $this->My_CI->push_notification_lib->create_and_send_push_notiifcation(BOOKING_ASSIGN_TO_VENDOR,$receiverArrayVendor,$notificationTextArrayVendor);
+            //End Sending Push Notification
             // Data to be insert in service center
             $sc_data['current_status'] = "Pending";
             $sc_data['update_date'] = date('Y-m-d H:i:s');
