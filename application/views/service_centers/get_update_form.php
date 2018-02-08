@@ -5,7 +5,7 @@
                 <h2 class="page-header">
                     Update Booking
                 </h2>
-                <form class="form-horizontal" name="myForm" action="<?php echo base_url() ?>employee/service_centers/process_update_booking" method="POST" onsubmit="return submitForm();" enctype="multipart/form-data">
+                <form class="form-horizontal" name="myForm" action="<?php echo base_url() ?>employee/service_centers/process_update_booking" method="POST" onSubmit="document.getElementById('submitform').disabled=true;" enctype="multipart/form-data">
                     <div class="col-md-12" style="margin-left:-31px;">
                           <div class="col-md-3">
                         <input type="text" class="form-control"   value = "<?php if (isset($bookinghistory[0]['booking_id'])) {echo $bookinghistory[0]['booking_id']; }?>"  disabled>
@@ -192,7 +192,7 @@
                         </div>
                     </div>
                     <div class="col-md-6 col-md-offset-2">
-                        <input type="submit"  value="Update Booking" id="submitform" style="background-color: #2C9D9C; border-color: #2C9D9C; "  class="btn btn-danger btn-large">
+                        <input type="submit"  value="Update Booking" id="submitform" style="background-color: #2C9D9C; border-color: #2C9D9C; " onclick="return submitForm();"   class="btn btn-danger btn-large">
                     </div>
                 </form>
             </div>
@@ -292,7 +292,7 @@
           return false;
           
       } else if(checkbox_value === 1){
-          $('#submitform').attr('disabled', true);
+          
           $('#submitform').val("Please wait.....");
           return true;
           

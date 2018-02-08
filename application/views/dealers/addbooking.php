@@ -36,7 +36,7 @@
 </style>
 <div id="page-wrapper" >
     <div class="container-fluid" >
-        <form name="myForm" class="form-horizontal" id ="booking_form" action="#"  method="POST" enctype="multipart/form-data">
+        <form name="myForm" class="form-horizontal" id ="booking_form" action="#" onSubmit="document.getElementById('submitform').disabled=true;"  method="POST" enctype="multipart/form-data">
             <div class="panel panel-info" style="margin-top:20px;">
                 <div class="panel-heading">Step 1</div>
                 <div class="panel-body">
@@ -393,7 +393,7 @@
             document.getElementById('remarks').style.borderColor = "green";
             document.getElementById('error_remarks').innerHTML = "";  
         }
-        $('#submitform').attr('disabled', true);
+       
         $('#submitform').val("Please wait.....");
         return send_post_request();
     }
