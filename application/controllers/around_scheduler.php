@@ -898,7 +898,7 @@ class Around_scheduler extends CI_Controller {
     function send_notification_for_low_balance() {
         $partner_details = $this->partner_model->getpartner_details("partners.id, public_name, "
                 . "is_active,invoice_email_to, invoice_email_cc, owner_phone_1 ",
-                array('is_prepaid' => 1,'is_active' => 1, "partners.id" => "247010"));
+                array('is_prepaid' => 1,'is_active' => 1));
         foreach ($partner_details as $value) {
             $final_amount = $this->miscelleneous->get_partner_prepaid_amount($value['id']);
             if ($final_amount['is_notification']) {
