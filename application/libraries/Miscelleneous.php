@@ -2042,6 +2042,11 @@ class Miscelleneous {
             if($already_rescheduled !=1){
                 $this->reject_reschedule_request($booking_id,$escalation_reason_id,$remarks,$id,$employeeID);
             }
+            //Send Push Notification
+            $receiverArray['vendor']= array($vendor_id);
+            $notificationTextArray['msg'] = array($booking_id,"Cancelled");
+            $this->My_CI->push_notification_lib->create_and_send_push_notiifcation(BOOKING_UPDATED_BY_247AROUND,$receiverArray,$notificationTextArray);
+            //End Sending Push Notification
             $isEscalationDone =  $this->process_escalation($booking_id,$vendor_id,$escalation_reason_id,$remarks,TRUE,$id,$employeeID);
            return $isEscalationDone;
         }
@@ -2228,6 +2233,12 @@ class Miscelleneous {
             $data['current_status'] = "Pending";
             log_message('info', __FUNCTION__ . " update service cenetr action table: " . print_r($data, true));
             $this->My_CI->vendor_model->update_service_center_action($booking_id, $data);
+            //Send Push Notification
+            $vendorData = $this->My_CI->vendor_model->getVendor($booking_id);
+            $receiverArray['vendor']= array($vendorData[0]['id']);
+            $notificationTextArray['msg'] = array($booking_id,"Rescheduled");
+            $this->My_CI->push_notification_lib->create_and_send_push_notiifcation(BOOKING_UPDATED_BY_247AROUND,$receiverArray,$notificationTextArray);
+            //End Sending Push Notification
             $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
             $this->My_CI->asynchronous_lib->do_background_process($url, $send);
             //Log this state change as well for this booking
