@@ -69,11 +69,13 @@
         <div class="hidden-xs">Penalty</div>
     </button>
 </div>
+    <?php if($engineer_action_not_exit) { ?>
 <div class="btn-group" role="group">
     <button type="button" class="btn btn-default" href="#tab6" data-toggle="tab">
         <div class="hidden-xs">Engineer Action</div>
     </button>
 </div>
+    <?php } ?>
 </div>
 <div class="well">
     <div class="tab-content">
@@ -169,9 +171,10 @@
             </div>
         </div>
         <div class="tab-pane fade in" id="upcountry">
-            <?php if(!empty($booking_history[0]['vendor_name'])){?>
+            
             <div class="row">
                 <div class="col-md-12">
+                    <?php if(!empty($booking_history[0]['vendor_name'])){?>
                     <table class="table  table-striped table-bordered">
                         <thead>
                             <tr>
@@ -587,7 +590,7 @@
                     </div>
                 </div>
             </div>
-            <div class="tab-pane fade in" id="tab6">
+           
                 <?php if($engineer_action_not_exit) { ?>
 
                 <table class="table  table-striped table-bordered">
@@ -633,10 +636,9 @@
                     </tbody>
                 </table>
                 <?php }?>
-                <?php } else {
-                    echo "Engineer Action Not Found";
-                } ?>
+                
             </div>
+        <?php } ?>
         </div>
     </div>
 </div>
