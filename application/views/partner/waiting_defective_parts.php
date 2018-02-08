@@ -5,22 +5,22 @@
 } ?>
 <?php if(empty($is_ajax)) { ?>
 <div class="right_col" role="main">
+        <?php
+        if ($this->session->userdata('success')) {
+            echo '<div class="alert alert-success alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <strong>' . $this->session->userdata('success') . '</strong>
+                        </div>';
+        }
+        ?>
     <div class="row">
 <?php } ?>
 <div class="col-md-12 col-sm-12 col-xs-12">
     <div class="x_panel">
         <div class="x_title">
             <h2>Defective Parts Shipped By SF</h2>
-            <?php
-            if ($this->session->userdata('success')) {
-                echo '<div class="alert alert-success alert-dismissible" role="alert">
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                            <strong>' . $this->session->userdata('success') . '</strong>
-                        </div>';
-            }
-            ?>
             <div class="clearfix"></div>
         </div>
         <div class="x_content">
