@@ -1276,11 +1276,21 @@ class invoices_model extends CI_Model {
        
     }
     
-    function get_buyback_invoice_data($vendor_id, $from_date, $to_date_tmp, $is_regenerate){
+    /**
+     * @desc Generate Buyback Invoice
+     * @param int $vendor_id SF id
+     * @param String $from_date Start Date
+     * @param String $to_date_tmp End date
+     * @param int $is_regenerate 0 means regenerate false, 1 means regenerate true 
+     * @param int $profit_loss 0 means for loss and 1 means for profit
+     * @return boolean
+     */
+    function get_buyback_invoice_data($vendor_id, $from_date, $to_date_tmp, $is_regenerate, $profit_loss){
         log_message("info", __METHOD__);
         $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
-        $annexure_data = $this->_buyback_invoice_query($vendor_id, $from_date, $to_date, $is_regenerate, true);
-        $commission_charge = $this->_buyback_invoice_query($vendor_id, $from_date, $to_date, $is_regenerate, false);
+        $annexure_data = $this->_buyback_invoice_query($vendor_id, $from_date, $to_date, $is_regenerate, true, $profit_loss);
+       
+        $commission_charge = $this->_buyback_invoice_query($vendor_id, $from_date, $to_date, $is_regenerate, false, $profit_loss);
 
         $meta['sub_total_amount'] = $meta['total_qty'] = 0;
         
@@ -1319,10 +1329,15 @@ class invoices_model extends CI_Model {
         }
     }
     
-    function _buyback_invoice_query($vendor_id, $from_date, $to_date, $is_regenerate, $is_unit){
+    function _buyback_invoice_query($vendor_id, $from_date, $to_date, $is_regenerate, $is_unit, $profitLoss){
         $is_foc_null = "";
         if ($is_regenerate == 0) {
                 $is_foc_null = " AND cp_invoice_id IS NULL ";
+        }
+        if($profitLoss == 1){
+            $profit_loss_where = ' AND CASE WHEN (cp_claimed_price > 0) THEN ((`partner_basic_charge` + `partner_tax_charge` + `partner_sweetner_charges`) <=  (cp_claimed_price)) ELSE ((`partner_basic_charge` + `partner_tax_charge` + `partner_sweetner_charges`) <=  (`cp_basic_charge` + cp_tax_charge)) END ';
+        } else {
+            $profit_loss_where = ' AND CASE WHEN (cp_claimed_price > 0) THEN ((`partner_basic_charge` + `partner_tax_charge` + `partner_sweetner_charges`) >  (cp_claimed_price + cp_tax_charge)) ELSE ((`partner_basic_charge` + `partner_tax_charge` + `partner_sweetner_charges`) >  (`cp_basic_charge` + cp_tax_charge)) END ';
         }
         $select = " COUNT(bb_unit_details.id) as qty, SUM(CASE WHEN ( bb_unit_details.cp_claimed_price > 0) 
                 THEN (bb_unit_details.cp_claimed_price) 
@@ -1353,7 +1368,7 @@ class invoices_model extends CI_Model {
                 AND acknowledge_date >= '$from_date' AND `acknowledge_date`< '$to_date'
                 AND sc.id = assigned_cp_id
                 AND bb_order_details.partner_order_id =  bb_unit_details.partner_order_id
-                AND bb_unit_details.service_id = services.id $is_foc_null $group_by ";
+                AND bb_unit_details.service_id = services.id $profit_loss_where  $is_foc_null $group_by ";
         
         $query = $this->db->query($sql);
         return $query->result_array();

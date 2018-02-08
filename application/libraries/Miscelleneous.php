@@ -2249,23 +2249,64 @@ class Miscelleneous {
             log_message('info', 'Rescheduled- Booking id: ' . $booking_id . " Rescheduled By " . $employeeID . " data " . print_r($data, true));
         }
     } 
-    function get_reader_by_file_type($type,$url,$width){
-        $finalString ='';
-        if($type == 'video'){
-            $finalString = '<video width="'.$width.'" controls>
-  <source src="'.$url.'" type="video/mp4">
+    function get_reader_by_file_type($type, $url, $width) {
+        $finalString = '';
+        if ($type == 'video') {
+            $finalString = '<video width="' . $width . '" controls>
+  <source src="' . $url . '" type="video/mp4">
   Your browser does not support HTML5 video.
 </video>';
         }
-        if($type == 'pdf'){
-            $finalString = '<a target="_blank" href="'.$url.'">View</a>';
+        if ($type == 'pdf') {
+            $finalString = '<a target="_blank" href="' . $url . '">View</a>';
         }
-        if($type == 'audio'){
+        if ($type == 'audio') {
             $finalString = '<audio controls>
-  <source src="'.$url.'" type="audio/ogg">
+  <source src="' . $url . '" type="audio/ogg">
 Your browser does not support the audio element.
 </audio>';
         }
         return $finalString;
     }
+    
+    function get_SF_payout($booking_id, $service_center_id, $amount_due){
+       
+        $where['where'] = array('booking_unit_details.booking_id' =>$booking_id);
+        $where['length'] = -1;
+        $select = "(vendor_basic_charges + vendor_st_or_vat_basic_charges "
+                . "+ vendor_extra_charges + vendor_st_extra_charges+ vendor_parts+ vendor_st_parts) as sf_earned";
+        $b_earned = $this->My_CI->booking_model->get_bookings_by_status($where, $select);
+        $unit_amount = 0;
+        foreach($b_earned as $earn){
+            $unit_amount += $earn->sf_earned;
+        }
+        
+        $penalty_select = "CASE WHEN ((count(booking_id) *  penalty_on_booking.penalty_amount) > cap_amount) THEN (cap_amount)
+
+        ELSE (COUNT(booking_id) * penalty_on_booking.penalty_amount) END  AS p_amount";
+        $penalty_where = array('booking_id' => $booking_id,'service_center_id' => $service_center_id,'penalty_on_booking.active' => 1);
+        $p_amount = $this->My_CI->penalty_model->get_penalty_on_booking_any($penalty_where, $penalty_select, array('CASE'));
+        
+        $is_customer_paid = 1;
+        if(empty($amount_due)){
+            $is_customer_paid = 0;
+        }
+        $upcountry = $this->My_CI->upcountry_model->upcountry_booking_list($service_center_id, $booking_id, true, $is_customer_paid);
+        $up_charges = 0;
+        if(!empty($upcountry)){
+            if($upcountry[0]['count_booking'] == 0){
+                $upcountry[0]['count_booking'] = 1;
+            }
+            $up_charges = $upcountry[0]['upcountry_price']/$upcountry[0]['count_booking'];
+        }
+        $return['sf_earned'] = $unit_amount -$p_amount[0]['p_amount'] + $up_charges;
+        if($p_amount[0]['p_amount'] > 0){
+            $return['penalty'] = TRUE;
+        } else{
+            $return['penalty'] = FALSE;
+        }
+        
+        return $return;
+    }
+
 }
