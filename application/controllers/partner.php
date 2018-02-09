@@ -1448,11 +1448,11 @@ class Partner extends CI_Controller {
                     $return_id = $this->booking_model->addbooking($booking);
                     if (!empty($return_id)) {
                         //Send Push Notification to Partner
-                        if($booking['partner_id'] !=''){
-                            $receiverArrayPartner['partner'] = array($booking['partner_id']); 
-                            $notificationTextArrayPartner['msg'] = array($booking['booking_id']);
-                            $this->push_notification_lib->create_and_send_push_notiifcation(NEW_BOOKING_FOR_PARTNER,$receiverArrayPartner,$notificationTextArrayPartner);
-                        }
+//                        if($booking['partner_id'] !=''){
+//                            $receiverArrayPartner['partner'] = array($booking['partner_id']); 
+//                            $notificationTextArrayPartner['msg'] = array($booking['booking_id']);
+//                            $this->push_notification_lib->create_and_send_push_notiifcation(NEW_BOOKING_FOR_PARTNER,$receiverArrayPartner,$notificationTextArrayPartner);
+//                        }
                         //End Push Notification
                         $customer_net_payable = 0;
                         for ($i = 0; $i < $requestData['appliance_unit']; $i++) {

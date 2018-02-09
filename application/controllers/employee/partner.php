@@ -562,7 +562,7 @@ class Partner extends CI_Controller {
                     //Create Login For Partner
                     $loginData['partner_id'] = $partner_id;
                     $loginData['choice'][] = 1;
-                    $loginData['username'][] = str_replace(" ","_",$return_data['partner']['company_name']);
+                    $loginData['username'][] = str_replace(" ","_",$return_data['partner']['public_name']);
                     $loginData['id'] = array("","","","","");
                     $loginData['email'][] = $return_data['partner']['owner_email'];
                     $loginData['password'][] = $temp_rand = mt_rand(100000, 999999);

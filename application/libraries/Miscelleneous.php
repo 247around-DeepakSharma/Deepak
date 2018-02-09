@@ -131,8 +131,7 @@ class Miscelleneous {
         if ($assigned) {
             log_message('info', __FUNCTION__ . " Assigned...... booking_id " . $booking_id);
             //Send Push Notification
-            $receiverArrayVendor['vendor'] = array($service_center_id); 
-            $notificationTextArrayVendor['url'] = array($booking_id);
+            $receiverArrayVendor['vendor'] = array($service_center_id);
             $notificationTextArrayVendor['msg'] = array($booking_id);
              $this->My_CI->push_notification_lib->create_and_send_push_notiifcation(BOOKING_ASSIGN_TO_VENDOR,$receiverArrayVendor,$notificationTextArrayVendor);
             //End Sending Push Notification

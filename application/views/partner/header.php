@@ -197,7 +197,7 @@
                         <ul class="nav navbar-nav navbar-right">
                              <li><div class="dropdown" style="float:right;margin: 19px 14px 0px 0px;">
                                     <a class=" dropdown-toggle fa fa-bell" id="notification_holder"  data-toggle="dropdown" onclick="get_notifications(<?php echo $this->session->userdata('partner_id'); ?>,'partner')"></a>
-                                    <ul class="dropdown-menu" role="menu" aria-labelledby="notification_holder" id="notification_container" style="width: 350px;padding-top: 0px;margin-top: 32px;border: 1px solid #2c9d9c;"> 
+                                    <ul class="dropdown-menu" role="menu" aria-labelledby="notification_holder" id="notification_container" style="width: 350px;padding-top: 0px;margin-top: 12px;border: 1px solid #2a3f54;"> 
                                     <center><img id="loader_gif_escalation" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
                                     </ul>
   </div></li>
