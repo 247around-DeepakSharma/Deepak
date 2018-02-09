@@ -962,13 +962,17 @@ class service_centre_charges extends CI_Controller {
     function generate_service_charges(){
        
         $form_data = $this->input->post();
-        $where = array("service_id" => $form_data['service_id'], 'partner_id' => $form_data['partner_id'], 
-            
-            'service_category LIKE "%'.$form_data['request_type'].'%"' => NULL);
+        $where = array("service_id" => $form_data['service_id'], 'partner_id' => $form_data['partner_id']);
         
         $where_in['category'] = $form_data['category'];
         if(!isset($form_data['free'])){
             $form_data['free'] = 0;
+            if (stristr($form_data['request_type'], "Installation") && $form_data['product_or_services'] == "Service") {
+                $service_category = $form_data['request_type']." (Free)";
+            } else {
+                $service_category = $form_data['request_type'];
+            }
+            $where['service_category'] = $service_category;
         }
         if(!isset($form_data['free_upcountry'])){
             $form_data['free_upcountry'] = 0;
@@ -978,15 +982,18 @@ class service_centre_charges extends CI_Controller {
         }
         if(!isset($form_data['paid'])){
             $form_data['paid'] = 0;
+            if (stristr($form_data['request_type'], "Installation") && $form_data['product_or_services'] == "Service") {
+                $service_category = $form_data['request_type']." (Paid)";
+            } else {
+                $service_category = $form_data['request_type'];
+            }
+            $where['service_category'] = $service_category;
         }
         if(!isset($form_data['free_pod'])){
             $form_data['free_pod'] = 0;
         }
         if(!isset($form_data['paid_pod'])){
             $form_data['paid_pod'] = 0;
-        }
-        if(!isset($form_data['paid'])){
-            $form_data['paid'] = 0;
         }
         if(!empty($form_data['brand'])){
             $where_in['brand'] = $form_data['brand'];
@@ -1077,7 +1084,12 @@ class service_centre_charges extends CI_Controller {
                 if($free_paid == "free"){
                     $str = "free";
                     if($data['product_or_services'] == "Service"){
-                        $data['service_category'] = $data['service_category']." (Free)";
+                        if (stristr($data['service_category'], "Installation")) {
+                            $data['service_category'] = $data['service_category']." (Free)";
+                        } else {
+                            $data['service_category'] = $data['service_category'];
+                        }
+                        
                         $data['tax_code'] = "ST";
                     }
                     $data['pod'] = $form_data['free_pod'];
@@ -1100,7 +1112,11 @@ class service_centre_charges extends CI_Controller {
                 } else if($free_paid == "paid"){
                     $str = "paid";
                     if($data['product_or_services'] == "Service"){
-                        $data['service_category'] = $data['service_category']." (Paid)";
+                        if (stristr($data['service_category'], "Installation")) {
+                            $data['service_category'] = $data['service_category']." (Paid)";
+                        } else {
+                            $data['service_category'] = $data['service_category'];
+                        }
                         $data['tax_code'] = "ST";
                     }
                     $data['pod'] = $form_data['paid_pod'];
@@ -1170,20 +1186,44 @@ class service_centre_charges extends CI_Controller {
     }
     
     function price_table(){
+        //log_message("info", json_encode($_POST, true));
       //Do not try to un-comment
       //  $str = '{"service_id":"46","partner_id":"247010","brand":["Belco","Ego Vision","Wybor"],"category":["TV-LED"],"capacity":["16 Inch"],"request_type":"Installation & Demo","product_or_services":"","free":"1","label":"WEBUPLOAD"}';
       //  $_POST = json_decode($str, TRUE);
         $form_data = $this->input->post();
-        $where = array("service_id" => $form_data['service_id'], 'partner_id' => $form_data['partner_id'], 
-            
-            'service_category LIKE "%'.$form_data['request_type'].'%"' => NULL);
+        $where = array("service_id" => $form_data['service_id'], 'partner_id' => $form_data['partner_id']);
         if(isset($form_data['paid']) && isset($form_data['free'])){
-           
+            if (stristr($form_data['request_type'], "Installation")) {
+                
+                $paid_service_category = $form_data['request_type']." (Free)";
+                $free_service_category = $form_data['request_type']." (Paid)";
+                
+                $where_in['service_category'] = array($paid_service_category, $free_service_category, $form_data['request_type']);
+            } else {
+                $where['service_category'] = $form_data['request_type'];
+            } 
+
         } else if(isset($form_data['paid']) && !isset($form_data['free'])){
             $where['customer_net_payable > 0'] = NULL;
+            if (stristr($form_data['request_type'], "Installation")) {
+                
+                $where['service_category'] = $form_data['request_type']." (Paid)";
+            } else {
+                $where['service_category'] = $form_data['request_type'];
+            }
         } else if(!isset($form_data['paid']) && isset($form_data['free'])){
             $where['partner_net_payable > 0 '] = NULL;
+            
+            if (stristr($form_data['request_type'], "Installation")) {
+                
+                $where['service_category'] = $form_data['request_type']." (Free)";
+            } else {
+                $where['service_category'] = $form_data['request_type'];
+            }
+            
         }
+        
+        
         
         $where_in['category'] = $form_data['category'];
         if(!empty($form_data['brand'])){
