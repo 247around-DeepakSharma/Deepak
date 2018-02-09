@@ -1,5 +1,25 @@
 <?php if(empty($is_ajax)) { ?>
 <div class="right_col" role="main">
+        <?php
+        if ($this->session->userdata('success')) {
+            echo '<div class="alert alert-success alert-dismissible" role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                    <strong>' . $this->session->userdata('success') . '</strong>
+                                </div>';
+        }
+        ?>
+        <?php
+        if ($this->session->userdata('error')) {
+            echo '<div class="alert alert-danger alert-dismissible partner_error" role="alert">
+                       <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                           <span aria-hidden="true">&times;</span>
+                       </button>
+                       <strong>' . $this->session->userdata('error') . '</strong>
+                   </div>';
+        }
+        ?>
     <div class="row">
 <?php } ?>
 <div class="col-md-12 col-sm-12 col-xs-12">
@@ -7,25 +27,6 @@
         <div class="x_title">
             <h2>Approve/Reject Upcountry Charges</h2>
             <div class="clearfix"></div>
-            <?php if($this->session->userdata('success')) {
-                                echo '<div class="alert alert-success alert-dismissible" role="alert">
-                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                    <strong>' . $this->session->userdata('success') . '</strong>
-                                </div>';
-                                }
-                                ?>
-                                <?php
-                if ($this->session->userdata('error')) {
-                    echo '<div class="alert alert-danger alert-dismissible partner_error" role="alert">
-                       <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                           <span aria-hidden="true">&times;</span>
-                       </button>
-                       <strong>' . $this->session->userdata('error') . '</strong>
-                   </div>';
-                }
-            ?>
         </div>
         <div class="x_content">
             <table class="table table-bordered table-hover table-striped">
