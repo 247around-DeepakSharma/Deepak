@@ -2339,6 +2339,18 @@ class Booking_model extends CI_Model {
             log_message("info",__METHOD__." SF Id is Empty");
         }
     }
+    
+    function getbooking_state_change_by_any($where){
+        $this->db->where($where);
+        $this->db->order_by('booking_state_change.id');
+        $query = $this->db->get('booking_state_change');
+
+        if($query->num_rows){
+            return $query->result_array();
+        } else {
+            return false;
+        }
+    }
 
 }
     
