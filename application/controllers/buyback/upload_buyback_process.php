@@ -15,6 +15,9 @@ class Upload_buyback_process extends CI_Controller {
     var $Columfailed = "";
     var $upload_sheet_data = array();
     var $email_send_to = "";
+    var $price_quote_data = array();
+    var $price_data = array();
+    var $order_key_city_arr = array();
 
     /**
      * load list modal and helpers
@@ -695,4 +698,213 @@ class Upload_buyback_process extends CI_Controller {
         }
     }
     
+    /**
+     * @desc used to show the view to upload highest quote data
+     * @param void
+     * @return void
+     */
+    function highest_quote_price_sheet_upload() {
+
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $this->load->view('buyback/highest_quote_price_sheet_upload');
+        $this->load->view('dashboard/dashboard_footer');
+    }
+    
+    /**
+     * @desc used to process the uploaded highest price quote sheet
+     * @param void
+     * @return $response JSON
+     */
+    function proces_upload_bb_price_quote(){
+        log_message('info', __FUNCTION__);
+        $return = $this->partner_utilities->validate_file($_FILES);
+        if ($return == "true") {
+            //Making process for file upload
+            $pathinfo = pathinfo($_FILES["file"]["name"]);
+            if ($pathinfo['extension'] == 'xlsx') {
+                $inputFileName = $_FILES['file']['tmp_name'];
+                $inputFileExtn = 'Excel2007';
+            } else {
+                $inputFileName = $_FILES['file']['tmp_name'];
+                $inputFileExtn = 'Excel5';
+            }
+            
+            //Processing File
+            $response = $this->process_price_quote_upload_file($inputFileName, $inputFileExtn);
+            
+            if(!empty($response)){
+                //send mail 
+                $template = $this->booking_model->get_booking_email_template("buyback_price_sheet_with_quote");
+                $body = $template[0];
+                $to = NITS_ANUJ_EMAIL_ID;
+                $from = $template[2];
+                $cc = $template[3];
+                $subject = $template[4];
+                $attachment = $response;
+                
+                $sendmail = $this->notify->sendEmail($from, $to, $cc, "", $subject, $body, $attachment);
+                
+                //check if this file is uploaded by email
+                $email_message_id = !($this->input->post('email_message_id') === NULL)?$this->input->post('email_message_id'):'';
+                
+                if ($sendmail) {
+                    log_message('info', __FUNCTION__ . ' Mail has been send successfully');
+                    unlink($response);
+                    $this->miscelleneous->update_file_uploads($_FILES["file"]["name"], $_FILES['file']['tmp_name'],_247AROUND_BB_PRICE_QUOTE,FILE_UPLOAD_SUCCESS_STATUS,$email_message_id);
+                    $msg = "File Created Successfully And Mailed To Registed Email";
+                    $response = array("code" => '247', "msg" => $msg);
+                } else {
+                    log_message('info', __FUNCTION__ . 'Error in Sending Mail');
+                    $this->miscelleneous->update_file_uploads($_FILES["file"]["name"], $_FILES['file']['tmp_name'],_247AROUND_BB_PRICE_QUOTE,FILE_UPLOAD_FAILED_STATUS,$email_message_id);
+                    $msg = "Error In sending Email";
+                    $response = array("code" => '-247', "msg" => $msg);
+                }
+                
+                //return response
+                echo json_encode($response);
+            } else {
+                $msg = "Something went wrong!!! Please Try Again...";
+                $response = array("code" => '-247', "msg" => $msg);
+                echo json_encode($response);
+            }
+        }else{
+            $msg = $return['error'];
+            $response = array("code" => '-247', "msg" => $msg);
+            echo json_encode($response);
+        }
+    }
+    
+    /**
+     * @desc used to extract the uploaded file information
+     * @param $inputFileName string
+     * @param $inputFileExtn string
+     * @return $new_price_sheet string
+     */
+    function process_price_quote_upload_file($inputFileName, $inputFileExtn){
+        log_message('info', __FUNCTION__);
+        try {
+            $objReader = PHPExcel_IOFactory::createReader($inputFileExtn);
+            $objPHPExcel = $objReader->load($inputFileName);
+            
+            //read all sheet data
+            foreach ($objPHPExcel->getAllSheets() as $sheet) {
+                $highestRow = $sheet->getHighestDataRow();
+                $highestColumn = $sheet->getHighestDataColumn();
+                $headings = $sheet->rangeToArray('A1:' . $highestColumn . 1, NULL, TRUE, FALSE, FALSE);
+                $headings_new = array();
+                
+                foreach ($headings as $heading) {
+                    $heading = str_replace(array("/", "(", ")", " ", "."), "", $heading);
+                    array_push($headings_new, array_map('strtolower', str_replace(array(" "), "_", $heading)));
+                }
+                
+                //process the file data to compare 
+                $this->do_action_on_file_data($sheet, $highestRow, $highestColumn, $headings_new);
+            }
+            
+            unset($objPHPExcel,$objReader);
+            
+            $new_price_sheet = $this->update_price_sheet_with_new_quote();
+            
+            return $new_price_sheet;
+            
+        }catch (Exception $e) {
+            die('Error loading file "' . pathinfo($inputFileName, PATHINFO_BASENAME) . '": ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * @desc used to check if uploaded price sheet exist in our database
+     * @param $sheet object
+     * @param $highestRow string
+     * @param $highestColumn string
+     * @param $headings_new array
+     * @return void
+     */
+    function do_action_on_file_data($sheet, $highestRow, $highestColumn, $headings_new){
+        log_message('info', __FUNCTION__);
+        for ($row = 2, $i = 0; $row <= $highestRow; $row++, $i++) {
+            $rowData_array = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row, NULL, TRUE, FALSE);
+            $rowData = array_combine($headings_new[0], $rowData_array[0]);
+            
+            $order_key_need_to_check = strtolower(str_replace(array("_",":"," ","-","|","/"), "", array_shift($rowData)));
+           
+            //make order key and city arrray and push this data to array $this->price_quote_data for comparison
+            foreach($rowData as $city => $price){
+                $tmp_arr = array();
+                $tmp_arr['order_key'] = $order_key_need_to_check;
+                $tmp_arr['city'] = $city;
+                $tmp_arr['new_price_quote'] = $price;
+
+                array_push($this->price_quote_data, $tmp_arr);
+            }
+        }
+    }
+    
+    /**
+     * @desc used to compare the data with our database and update the price sheet
+     * @param void
+     * @return $response
+     */
+    function update_price_sheet_with_new_quote() {
+        log_message('info', __FUNCTION__);
+        $post_data = array('length' => 1,
+            'start' => 0,
+            'file_type' => _247AROUND_BB_PRICE_LIST);
+        //get the latest uploaded price sheet
+        $latest_upload_price_sheet_file_name = $this->reporting_utils->get_uploaded_file_history($post_data)[0]->file_name;
+        $s3_bucket_file = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . urlencode($latest_upload_price_sheet_file_name);
+        //copy the uploaded file to our system
+        if (file_exists(TMP_FOLDER . $latest_upload_price_sheet_file_name)) {
+            unlink(TMP_FOLDER . $latest_upload_price_sheet_file_name);
+            //get signature file from s3 and save it to server
+            copy($s3_bucket_file, TMP_FOLDER . $latest_upload_price_sheet_file_name);
+        } else {
+            //get signature file from s3 and save it to server
+            copy($s3_bucket_file, TMP_FOLDER . $latest_upload_price_sheet_file_name);
+        }
+
+        //start adding new cell value on actual price sheet
+        if (pathinfo(TMP_FOLDER . $latest_upload_price_sheet_file_name)['extension'] == 'xlsx') {
+            $inputFileName1 = TMP_FOLDER . $latest_upload_price_sheet_file_name;
+            $inputFileExtn1 = 'Excel2007';
+        } else {
+            $inputFileName1 = TMP_FOLDER . $latest_upload_price_sheet_file_name;
+            $inputFileExtn1 = 'Excel5';
+        }
+        $objReader1 = PHPExcel_IOFactory::createReader($inputFileExtn1);
+        $objPHPExcel1 = $objReader1->load($inputFileName1);
+
+        //get first sheet 
+        $sheet = $objPHPExcel1->getSheet(0);
+        //get total number of rows
+        $highestRow = $sheet->getHighestDataRow();
+        
+        $order_key_city_arr = array_map(function (array $elem) { unset($elem['new_price_quote']);return $elem;},$this->price_quote_data);
+        
+        for ($row = 2, $i = 0; $row <= $highestRow; $row++, $i++) {
+            $order_key = strtolower(str_replace(array("_",":"," ","-","|","/"), "", $sheet->getCell('K' . $row)->getValue()));
+            $city = strtolower($sheet->getCell('J' . $row)->getValue());
+            $search = array_keys($order_key_city_arr, array("order_key" => $order_key, "city" => $city));
+            if(!empty($search)){
+                $sheet->setCellValue('Y' . $row, $this->price_quote_data[$search[0]]['new_price_quote']);
+            }
+        }
+        
+        // Write the file
+        $file_name = TMP_FOLDER . "updated_price_sheet_".date('Y_m_d_H_i_s').".xls";
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel1, 'Excel5');
+        $objWriter->save($file_name);
+        
+        if(file_exists($file_name)){
+            $response = $file_name;
+        }else{
+            $response = FALSE;
+        }
+        
+        unlink(TMP_FOLDER . $latest_upload_price_sheet_file_name);
+        
+        return $response;
+    }
+
 }
