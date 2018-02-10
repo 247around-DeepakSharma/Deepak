@@ -69,11 +69,13 @@
         <div class="hidden-xs">Penalty</div>
     </button>
 </div>
+    <?php if($engineer_action_not_exit) { ?>
 <div class="btn-group" role="group">
     <button type="button" class="btn btn-default" href="#tab6" data-toggle="tab">
         <div class="hidden-xs">Engineer Action</div>
     </button>
 </div>
+    <?php } ?>
 </div>
 <div class="well">
     <div class="tab-content">
@@ -169,9 +171,10 @@
             </div>
         </div>
         <div class="tab-pane fade in" id="upcountry">
-            <?php if(!empty($booking_history[0]['vendor_name'])){?>
+            
             <div class="row">
                 <div class="col-md-12">
+                    <?php if(!empty($booking_history[0]['vendor_name'])){?>
                     <table class="table  table-striped table-bordered">
                         <thead>
                             <tr>
@@ -306,6 +309,7 @@
                                     <?php } else {   ?>
                                     <td><?php  print_r($unit_detail['price_tags']); ?></td>
                                     <td><?php if($unit_detail['pay_to_sf'] ==1){ echo "YES"; } else { echo "NO";} ?></td>
+                                    <td><?php if($unit_detail['is_broken'] ==1){ echo "Yes"; } else { echo "No";} ?></td>
                                     <td><?php  print_r($unit_detail['customer_total']); ?></td>
                                     <td><?php print_r($unit_detail['partner_net_payable']);  ?></td>
                                     <td><?php print_r($unit_detail['around_net_payable']);  ?></td>
@@ -587,7 +591,7 @@
                     </div>
                 </div>
             </div>
-            <div class="tab-pane fade in" id="tab6">
+           
                 <?php if($engineer_action_not_exit) { ?>
 
                 <table class="table  table-striped table-bordered">
@@ -633,10 +637,9 @@
                     </tbody>
                 </table>
                 <?php }?>
-                <?php } else {
-                    echo "Engineer Action Not Found";
-                } ?>
+                
             </div>
+        <?php } ?>
         </div>
     </div>
 </div>

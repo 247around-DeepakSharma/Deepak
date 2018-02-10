@@ -502,6 +502,8 @@
       console.log(data);
     if(data === "success"){
          $('body').loadingModal('destroy');
+         $("#div_duplicate").css("display","none");
+         $("#duplicate_data").html("");
           swal("Thanks!", "Charges Inserted successfully!", "success");
     } else {
         $("#div_duplicate").css("display","block");

@@ -131,8 +131,7 @@ class Miscelleneous {
         if ($assigned) {
             log_message('info', __FUNCTION__ . " Assigned...... booking_id " . $booking_id);
             //Send Push Notification
-            $receiverArrayVendor['vendor'] = array($service_center_id); 
-            $notificationTextArrayVendor['url'] = array($booking_id);
+            $receiverArrayVendor['vendor'] = array($service_center_id);
             $notificationTextArrayVendor['msg'] = array($booking_id);
              $this->My_CI->push_notification_lib->create_and_send_push_notiifcation(BOOKING_ASSIGN_TO_VENDOR,$receiverArrayVendor,$notificationTextArrayVendor);
             //End Sending Push Notification
@@ -242,6 +241,7 @@ class Miscelleneous {
     }
 
     function _assign_upcountry_booking($booking_id, $data, $query1, $agent_id, $agent_name) {
+       
         $unit_details = $this->My_CI->booking_model->get_unit_details(array('booking_id' => $booking_id));
         $cus_net_payable = 0;
         foreach ($unit_details as $value) {
@@ -297,7 +297,14 @@ class Miscelleneous {
                     $return_status = TRUE;
                     break;
                 } else if (!empty($is_upcountry)) {
-
+                    // Upcountry charges once approved should not be asked to approve again
+                    if($data['partner_upcountry_approval'] == 1 && $data['message'] == UPCOUNTRY_LIMIT_EXCEED){
+                        $is_approved = $this->My_CI->booking_model->getbooking_state_change_by_any(array("booking_id" =>$booking_id, "new_state" =>UPCOUNTRY_CHARGES_APPROVED));
+                        if(!empty($is_approved)){
+                            $data['message'] = UPCOUNTRY_BOOKING;
+                        }
+                    }
+                   
                     if ($data['message'] !== UPCOUNTRY_LIMIT_EXCEED) {
 
                         log_message('info', __METHOD__ . " => Upcountry Booking Free Booking " . $booking_id);
@@ -355,7 +362,6 @@ class Miscelleneous {
                             $to = $data['upcountry_approval_email'];
                             $cc = NITS_ANUJ_EMAIL_ID.",".$partner_am_email;
                         }
-
                         $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message1, "");
 
                         $return_status = FALSE;
