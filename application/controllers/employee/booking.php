@@ -1972,122 +1972,127 @@ class Booking extends CI_Controller {
      */
     function process_convert_booking_to_pending_form($booking_id, $status) {
         log_message('info', __FUNCTION__ . " Booking id: " . $booking_id . " status: " . $status . " Done By " . $this->session->userdata('employee_id'));
-
-        $data['booking_date'] = date('d-m-Y', strtotime($this->input->post('booking_date')));
-        $data['booking_timeslot'] = $this->input->post('booking_timeslot');
-        $data['current_status'] = 'Pending';
-        $data['internal_status'] = "Booking Opened From ".$status;
-        $data['update_date'] = date("Y-m-d H:i:s");
-        $data['cancellation_reason'] = NULL;
-        $data['closed_date'] = NULL;
-        $data['vendor_rating_stars'] = NULL;
-        $data['vendor_rating_comments'] = NULL;
-        $data['amount_paid'] = NULL;
-        $data['rating_stars'] = NULL;
-        $data['rating_comments'] = NULL;
-        $data['closing_remarks'] = NULL;
-        $data['booking_jobcard_filename'] = NULL;
-        $data['mail_to_vendor'] = 0;
-        //$data['booking_remarks'] = $this->input->post('reason');
-        //check partner status from partner_booking_status_mapping table  
-        $partner_id = $this->input->post('partner_id');
-        $partner_status = $this->booking_utilities->get_partner_status_mapping_data($data['current_status'], $data['internal_status'], $partner_id, $booking_id);
-        if (!empty($partner_status)) {
-            $data['partner_current_status'] = $partner_status[0];
-            $data['partner_internal_status'] = $partner_status[1];
-        }
-
-        if ($data['booking_timeslot'] == "Select") {
-            echo "Please Select Booking Timeslot.";
+        $this->form_validation->set_rules('booking_date', 'Booking Date', 'required|xss_clean');
+        $this->form_validation->set_rules('booking_timeslot', 'Booking Time Slot', 'required|xss_clean');
+        if ($this->form_validation->run() === false) {
+            $this->get_convert_booking_to_pending_form($booking_id, $status);
         } else {
-            log_message('info', __FUNCTION__ . " Convert booking, data : " . print_r($data, true));
-            $this->booking_model->update_booking($booking_id, $data);
-            
-            $assigned_vendor_id = $this->input->post("assigned_vendor_id");
-            if (!empty($assigned_vendor_id)) {
-                $service_center_data['internal_status'] = "Pending";
-                $service_center_data['current_status'] = "Pending";
-                $service_center_data['update_date'] = date("Y-m-d H:i:s");
-                $service_center_data['serial_number'] = "";
-                $service_center_data['cancellation_reason'] = NULL;
-                $service_center_data['reschedule_reason'] = NULL;
-                $service_center_data['admin_remarks'] = NULL;
-                $service_center_data['service_center_remarks'] = $service_center_data['admin_remarks'] = NULL;
-                $service_center_data['booking_date'] = $service_center_data['booking_timeslot'] = NUll;
-                $service_center_data['closed_date'] = NULL;
-                $service_center_data['service_charge'] = $service_center_data['additional_service_charge'] = $service_center_data['parts_cost'] = "0.00";
-                log_message('info', __FUNCTION__ . " Convert booking, Service center data : " . print_r($service_center_data, true));
-                $this->vendor_model->update_service_center_action($booking_id, $service_center_data);
-                //if booking status is cancelled then do action on inventory
-                if ($status === _247AROUND_CANCELLED) {
-                    //get the unit details data and update the inventory stock
-                    $booking_unit_details = $this->reusable_model->get_search_query('booking_unit_details', 'booking_unit_details.price_tags,booking_unit_details.appliance_capacity', array('booking_unit_details.booking_id' => $booking_id, "booking_unit_details.price_tags like '%" . _247AROUND_WALL_MOUNT__PRICE_TAG . "%'" => NULL), NULL, NULL, NULL, NULL, NULL)->result_array();
-                    if (!empty($booking_unit_details)) {
-                        //process each unit if price tag is wall mount
-                        foreach ($booking_unit_details as $value) {
-                            $match = array();
-                            //get the size from the capacity to know the part number
-                            preg_match('/[0-9]+/', $value['appliance_capacity'], $match);
-                            if (!empty($match)) {
-                                if ($match[0] <= 32) {
-                                    $data['part_number'] = LESS_THAN_32_BRACKETS_PART_NUMBER;
-                                } else if ($match[0] > 32) {
-                                    $data['part_number'] = GREATER_THAN_32_BRACKETS_PART_NUMBER;
+            $data['booking_date'] = date('d-m-Y', strtotime($this->input->post('booking_date')));
+            $data['booking_timeslot'] = $this->input->post('booking_timeslot');
+            $data['current_status'] = 'Pending';
+            $data['internal_status'] = "Booking Opened From " . $status;
+            $data['update_date'] = date("Y-m-d H:i:s");
+            $data['cancellation_reason'] = NULL;
+            $data['closed_date'] = NULL;
+            $data['vendor_rating_stars'] = NULL;
+            $data['vendor_rating_comments'] = NULL;
+            $data['amount_paid'] = NULL;
+            $data['rating_stars'] = NULL;
+            $data['rating_comments'] = NULL;
+            $data['closing_remarks'] = NULL;
+            $data['booking_jobcard_filename'] = NULL;
+            $data['mail_to_vendor'] = 0;
+            //$data['booking_remarks'] = $this->input->post('reason');
+            //check partner status from partner_booking_status_mapping table  
+            $partner_id = $this->input->post('partner_id');
+            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($data['current_status'], $data['internal_status'], $partner_id, $booking_id);
+            if (!empty($partner_status)) {
+                $data['partner_current_status'] = $partner_status[0];
+                $data['partner_internal_status'] = $partner_status[1];
+            }
+
+            if ($data['booking_timeslot'] == "Select") {
+                echo "Please Select Booking Timeslot.";
+            } else {
+                log_message('info', __FUNCTION__ . " Convert booking, data : " . print_r($data, true));
+                $this->booking_model->update_booking($booking_id, $data);
+
+                $assigned_vendor_id = $this->input->post("assigned_vendor_id");
+                if (!empty($assigned_vendor_id)) {
+                    $service_center_data['internal_status'] = "Pending";
+                    $service_center_data['current_status'] = "Pending";
+                    $service_center_data['update_date'] = date("Y-m-d H:i:s");
+                    $service_center_data['serial_number'] = "";
+                    $service_center_data['cancellation_reason'] = NULL;
+                    $service_center_data['reschedule_reason'] = NULL;
+                    $service_center_data['admin_remarks'] = NULL;
+                    $service_center_data['service_center_remarks'] = $service_center_data['admin_remarks'] = NULL;
+                    $service_center_data['booking_date'] = $service_center_data['booking_timeslot'] = NUll;
+                    $service_center_data['closed_date'] = NULL;
+                    $service_center_data['service_charge'] = $service_center_data['additional_service_charge'] = $service_center_data['parts_cost'] = "0.00";
+                    log_message('info', __FUNCTION__ . " Convert booking, Service center data : " . print_r($service_center_data, true));
+                    $this->vendor_model->update_service_center_action($booking_id, $service_center_data);
+                    //if booking status is cancelled then do action on inventory
+                    if ($status === _247AROUND_CANCELLED) {
+                        //get the unit details data and update the inventory stock
+                        $booking_unit_details = $this->reusable_model->get_search_query('booking_unit_details', 'booking_unit_details.price_tags,booking_unit_details.appliance_capacity', array('booking_unit_details.booking_id' => $booking_id, "booking_unit_details.price_tags like '%" . _247AROUND_WALL_MOUNT__PRICE_TAG . "%'" => NULL), NULL, NULL, NULL, NULL, NULL)->result_array();
+                        if (!empty($booking_unit_details)) {
+                            //process each unit if price tag is wall mount
+                            foreach ($booking_unit_details as $value) {
+                                $match = array();
+                                //get the size from the capacity to know the part number
+                                preg_match('/[0-9]+/', $value['appliance_capacity'], $match);
+                                if (!empty($match)) {
+                                    if ($match[0] <= 32) {
+                                        $data['part_number'] = LESS_THAN_32_BRACKETS_PART_NUMBER;
+                                    } else if ($match[0] > 32) {
+                                        $data['part_number'] = GREATER_THAN_32_BRACKETS_PART_NUMBER;
+                                    }
+
+                                    $data['receiver_entity_id'] = $assigned_vendor_id;
+                                    $data['receiver_entity_type'] = _247AROUND_SF_STRING;
+                                    $data['stock'] = -1;
+                                    $data['booking_id'] = $booking_id;
+                                    $data['agent_id'] = $this->session->userdata('id');
+                                    $data['agent_type'] = _247AROUND_EMPLOYEE_STRING;
+
+                                    $this->miscelleneous->process_inventory_stocks($data);
                                 }
-
-                                $data['receiver_entity_id'] = $assigned_vendor_id;
-                                $data['receiver_entity_type'] = _247AROUND_SF_STRING;
-                                $data['stock'] = -1;
-                                $data['booking_id'] = $booking_id;
-                                $data['agent_id'] = $this->session->userdata('id');
-                                $data['agent_type'] = _247AROUND_EMPLOYEE_STRING;
-
-                                $this->miscelleneous->process_inventory_stocks($data);
                             }
                         }
                     }
                 }
+
+
+                $unit_details['booking_status'] = _247AROUND_PENDING;
+                $unit_details['vendor_to_around'] = "0.00";
+                $unit_details['around_to_vendor'] = "0.00";
+                $unit_details['ud_closed_date'] = NULL;
+
+                log_message('info', __FUNCTION__ . " Convert Unit Details - data : " . print_r($unit_details, true));
+
+                $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
+
+                $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.old_status", array('booking_id' => $booking_id), false);
+                foreach ($spare as $sp) {
+                    //Update Spare parts details table
+                    $this->service_centers_model->update_spare_parts(array('id' => $sp['id']), array('status' => $sp['old_status']));
+                }
+
+                //Log this state change as well for this booking          
+                $this->notify->insert_state_change($booking_id, _247AROUND_PENDING, $status, "", $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+                if (!empty($assigned_vendor_id)) {
+
+                    $up_flag = 1;
+
+                    $url = base_url() . "employee/vendor/update_upcountry_and_unit_in_sc/" . $booking_id . "/" . $up_flag;
+                    $async_data['booking'] = array();
+                    $this->asynchronous_lib->do_background_process($url, $async_data);
+
+                    $this->booking_utilities->lib_send_mail_to_vendor($booking_id, "");
+                } else {
+                    $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
+                }
+
+                $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
+                $send['booking_id'] = $booking_id;
+                $send['state'] = "OpenBooking";
+                $this->asynchronous_lib->do_background_process($url, $send);
+
+                log_message('info', $status . ' Booking Opened - Booking id: ' . $booking_id . " Opened By: " . $this->session->userdata('employee_id') . " => " . print_r($data, true));
+
+                redirect(base_url() . DEFAULT_SEARCH_PAGE);
             }
-
-
-            $unit_details['booking_status'] = _247AROUND_PENDING;
-            $unit_details['vendor_to_around'] = "0.00";
-            $unit_details['around_to_vendor'] = "0.00";
-            $unit_details['ud_closed_date'] = NULL;
-
-            log_message('info', __FUNCTION__ . " Convert Unit Details - data : " . print_r($unit_details, true));
-
-            $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
-            
-            $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.old_status", array('booking_id' => $booking_id ), false);
-            foreach($spare as $sp){
-                //Update Spare parts details table
-                $this->service_centers_model->update_spare_parts(array('id'=> $sp['id']), array('status' => $sp['old_status']));
-            }
-
-            //Log this state change as well for this booking          
-            $this->notify->insert_state_change($booking_id, _247AROUND_PENDING, $status, "", $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
-            if (!empty($assigned_vendor_id)) {
-
-                $up_flag = 1;
-
-                $url = base_url() . "employee/vendor/update_upcountry_and_unit_in_sc/" . $booking_id . "/" . $up_flag;
-                $async_data['booking'] = array();
-                $this->asynchronous_lib->do_background_process($url, $async_data);
-
-                $this->booking_utilities->lib_send_mail_to_vendor($booking_id, "");
-            } else {
-                $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
-            }
-            
-            $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
-            $send['booking_id'] = $booking_id;
-            $send['state'] = "OpenBooking";
-            $this->asynchronous_lib->do_background_process($url, $send);
-
-            log_message('info', $status . ' Booking Opened - Booking id: ' . $booking_id . " Opened By: " . $this->session->userdata('employee_id') . " => " . print_r($data, true));
-
-            redirect(base_url() . DEFAULT_SEARCH_PAGE);
         }
     }
 

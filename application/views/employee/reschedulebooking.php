@@ -42,7 +42,7 @@
                       <label for="reason" class="col-md-4"> New Booking Date</label>
                       <div class="col-md-6">
                         <div class="input-group input-append date">
-                                    <input id="booking_date" class="form-control" placeholder="Select Date" name="booking_date" type="text" value = "<?php echo set_value('booking_date'); ?>" required readonly='true' style="background-color:#fff;">
+                            <input id="booking_date" class="form-control" placeholder="Select Date" name="booking_date" type="text" value = "<?php echo set_value('booking_date'); ?>" required="">
                                     <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                         </div>
                             <?php echo form_error('booking_date'); ?>
@@ -52,11 +52,11 @@
                     <div class="form-group <?php if( form_error('booking_timeslot') ) { echo 'has-error';} ?>">
                       <label for="reason" class="col-md-4">New Booking Timeslot</label>
                       <div class="col-md-6">
-                        <select type="text" name="booking_timeslot" class= "form-control" value="<?php echo set_value('booking_timeslot'); ?>" >
-                        <option>Select</option>
-                        <option>10AM-1PM</option>
-                        <option>1PM-4PM</option>
-                        <option>4PM-7PM</option>
+                        <select name="booking_timeslot" class= "form-control" required="" >
+                            <option value="">Select</option>
+                            <option>10AM-1PM</option>
+                            <option>1PM-4PM</option>
+                            <option>4PM-7PM</option>
                         </select>
                         <?php echo form_error('booking_timeslot'); ?>
                       </div>
