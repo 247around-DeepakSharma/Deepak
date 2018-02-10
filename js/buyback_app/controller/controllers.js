@@ -708,3 +708,16 @@ rm_dashboard.controller('pendngBooking_Controller', function ($scope, $http) {
             $scope.pendingBookingByRM = response.data;
      });
 });
+
+//price quote file upload
+uploadfile.controller('uploadPriceQuoteFile', ['$scope', 'fileUpload', function ($scope, fileUpload) {
+
+        $scope.uploadFile = function () {
+            var file = $scope.myFile;
+            var file_date = ''
+            $scope.ShowSpinnerStatus = true;
+            var uploadUrl = baseUrl + "/buyback/upload_buyback_process/proces_upload_bb_price_quote";
+            fileUpload.uploadFileToUrl($scope, file, uploadUrl,file_date);
+        };
+
+    }]);
