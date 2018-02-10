@@ -96,6 +96,9 @@
             .nav-sm .container.body .right_col{
                 margin-left: 40px;
             }
+            .navbar-brand, .navbar-nav > li > a{
+                line-height: 24px;
+            }
             .right_col{
                 min-height: 600px!important;
                 margin-top: 50px!important;
@@ -161,6 +164,12 @@
             .navbar-brand > img{
                 padding: 0px 2px;
             }
+            .form-control{
+                font-size: 13px;
+            }
+            ul.bar_tabs{
+                background: transparent;
+            }
             @media (max-width: 768px) {
                 .navbar-fixed-top {
                   position: static;
@@ -195,16 +204,19 @@
                             <a id="menu_toggle"><i class="fa fa-bars"></i></a>
                         </div>-->
                         <ul class="nav navbar-nav navbar-right">
-                             <li><div class="dropdown" style="float:right;margin: 19px 14px 0px 0px;">
+                             <li><div class="dropdown" style="float:right;margin: 16px 14px 0px 0px;">
                                     <a class=" dropdown-toggle fa fa-bell" id="notification_holder"  data-toggle="dropdown" onclick="get_notifications(<?php echo $this->session->userdata('partner_id'); ?>,'partner')"></a>
                                     <ul class="dropdown-menu" role="menu" aria-labelledby="notification_holder" id="notification_container" style="width: 350px;padding-top: 0px;margin-top: 12px;border: 1px solid #2a3f54;"> 
-                                    <center><img id="loader_gif_escalation" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
+                                    <center>
+                                        <img id="loader_gif_escalation" src="<?php echo base_url(); ?>images/loadring.gif" >
+                                    </center>
                                     </ul>
-  </div></li>
+                                </div>
+                             </li>
                             <li class="">
                                 <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                                 <?php echo $partner_name; ?>
-                                <span class=" fa fa-angle-down"></span>
+                                    <span><i class="fa fa-angle-down"></i></span>
                                 </a>
                                 <ul class="dropdown-menu dropdown-usermenu pull-right">
                                     <li><a href="<?php echo base_url() ?>employee/partner/show_partner_edit_details_form"><i class="fa fa-edit pull-right"></i> Edit Details</a></li>
