@@ -3169,28 +3169,29 @@ class Partner extends CI_Controller {
         if(!empty($data['bookings_count']) && count($data['bookings_count']) == 2){
             $data['completed_booking'] = $data['bookings_count'][1]['completed'];
             $data['last_month_completed_booking'] = $data['bookings_count'][0]['completed'];
-            $data['completed_booking_percentage_change'] = (($data['bookings_count'][1]['completed']/$data['bookings_count'][0]['completed'])*100)-100;
+            //$data['completed_booking_percentage_change'] = (($data['bookings_count'][1]['completed']/$data['bookings_count'][0]['completed'])*100)-100;
             $data['cancelled_booking'] = $data['bookings_count'][1]['cancelled'];
             $data['last_month_cancelled_booking'] = $data['bookings_count'][0]['cancelled'];
-            $data['cancelled_booking_percentage_change'] = (($data['bookings_count'][1]['cancelled']/$data['bookings_count'][0]['cancelled'])*100)-100;
+            //$data['cancelled_booking_percentage_change'] = (($data['bookings_count'][1]['cancelled']/$data['bookings_count'][0]['cancelled'])*100)-100;
         }else if(!empty($data['bookings_count']) && count($data['bookings_count']) == 1){
             $data['completed_booking'] = $data['bookings_count'][0]['completed'];
             $data['last_month_completed_booking'] = 0;
-            $data['completed_booking_percentage_change'] = (($data['bookings_count'][0]['completed']/$data['bookings_count'][0]['completed'])*100)-100;
+            //$data['completed_booking_percentage_change'] = (($data['bookings_count'][0]['completed']/$data['bookings_count'][0]['completed'])*100)-100;
             $data['cancelled_booking'] = $data['bookings_count'][0]['cancelled'];
             $data['last_month_cancelled_booking'] = 0;
-            $data['cancelled_booking_percentage_change'] = (($data['bookings_count'][0]['cancelled']/$data['bookings_count'][0]['cancelled'])*100)-100;
+            //$data['cancelled_booking_percentage_change'] = (($data['bookings_count'][0]['cancelled']/$data['bookings_count'][0]['cancelled'])*100)-100;
         }else{
              $data['completed_booking'] = 0;
-             $data['completed_booking_percentage_change'] = 0;
+             //$data['completed_booking_percentage_change'] = 0;
              $data['last_month_completed_booking'] = 0;
              $data['cancelled_booking'] = 0;
              $data['last_month_cancelled_booking'] = 0;
-             $data['cancelled_booking_percentage_change'] = 0;
+             //$data['cancelled_booking_percentage_change'] = 0;
              
         }
         //get escalation percentage
         $data['escalation_percentage'] = $this->partner_model->get_booking_escalation_percantage($partner_id);
+        $data['pincode_covered'] = $this->vendor_model->get_vendor_mapping_data(array(),'count(vendor_pincode_mapping.id) as pincode')[0]['pincode'];
         if (!empty($this->session->userdata('is_prepaid'))) {
             $data['prepaid_amount'] = $this->get_prepaid_amount($partner_id);
         }

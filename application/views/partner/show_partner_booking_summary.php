@@ -3,20 +3,22 @@
     <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
         <span class="count_top">Completed Booking</span>
         <div class="count"><?php echo $completed_booking ;?></div>
-        <?php if($completed_booking_percentage_change >= 0) { ?> 
-        <span class="count_bottom" title="<?php echo $last_month_completed_booking; ?>"><i class="green"><i class="fa fa-sort-asc"></i><?php echo sprintf("%1\$.2f",($completed_booking_percentage_change)); ?>%</i> From last month</span>
-        <?php } else { ?> 
-        <span class="count_bottom" title="<?php echo $last_month_completed_booking; ?>"><i class="red"><i class="fa fa-desc"></i><?php echo sprintf("%1\$.2f",($completed_booking_percentage_change)); ?>%</i> From last month</span>
-        <?php } ?>
+        <span class="count_bottom" title="<?php echo $last_month_completed_booking; ?>"><?php echo $last_month_completed_booking; ?> in last month</span>
+        <?php //if($completed_booking_percentage_change >= 0) { ?> 
+<!--        <span class="count_bottom" title="//<?php //echo $last_month_completed_booking; ?>"><i class="green"><i class="fa fa-sort-asc"></i><?php //echo sprintf("%1\$.2f",($completed_booking_percentage_change)); ?>%</i> From last month</span>-->
+       <?php //} else { ?> 
+<!--        <span class="count_bottom" title="//<?php //echo $last_month_completed_booking; ?>"><i class="red"><i class="fa fa-desc"></i><?php //echo sprintf("%1\$.2f",($completed_booking_percentage_change)); ?>%</i> From last month</span>-->
+        <?php //} ?>
     </div>
     <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
         <span class="count_top">Cancelled Booking</span>
         <div class="count"><?php echo $cancelled_booking ;?></div>
-        <?php if($cancelled_booking_percentage_change >= 0) { ?> 
-        <span class="count_bottom" title="<?php echo $last_month_cancelled_booking; ?>"><i class="green"><i class="fa fa-sort-asc"></i><?php echo sprintf("%1\$.2f",($cancelled_booking_percentage_change)); ?>%</i> From last month</span>
-        <?php } else { ?> 
-        <span class="count_bottom" title="<?php echo $last_month_cancelled_booking; ?>"><i class="red"><i class="fa fa-desc"></i><?php echo sprintf("%1\$.2f",($cancelled_booking_percentage_change)); ?>%</i> From last month</span>
-        <?php } ?>
+        <span class="count_bottom" title="<?php echo $last_month_cancelled_booking; ?>"><?php echo $last_month_cancelled_booking; ?> in last month</span>
+        <?php //if($cancelled_booking_percentage_change >= 0) { ?> 
+<!--        <span class="count_bottom" title="<?php //echo $last_month_cancelled_booking; ?>"><i class="green"><i class="fa fa-sort-asc"></i><?php //echo sprintf("%1\$.2f",($cancelled_booking_percentage_change)); ?>%</i> From last month</span>-->
+        <?php //} else { ?> 
+<!--        <span class="count_bottom" title="<?php //echo $last_month_cancelled_booking; ?>"><i class="red"><i class="fa fa-desc"></i><?php //echo sprintf("%1\$.2f",($cancelled_booking_percentage_change)); ?>%</i> From last month</span>-->
+        <?php //} ?>
     </div>
     <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
         <span class="count_top">Installation Escalation</span>
@@ -25,6 +27,10 @@
     <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
         <span class="count_top">Repair Escalation</span>
         <div class="count"><?php echo sprintf("%1\$.2f",($escalation_percentage[0]['unique_repair_escalate_percentage'])); ?></div>
+    </div>
+    <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
+        <span class="count_top">Pincode Covered</span>
+        <div class="count"><?php echo $pincode_covered; ?></div>
     </div>
     <?php if (!empty($this->session->userdata('is_prepaid'))) { ?>
         <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
