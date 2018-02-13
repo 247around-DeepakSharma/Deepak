@@ -54,9 +54,9 @@
                     </div>     
 
                     <div class="form-group ">
-                        <input type= "submit"  class=" col-md-3 col-md-offset-4 btn btn-primary btn-md" value ="Save">
+                        <input type= "submit"  class=" col-md-3 col-md-offset-4 btn btn-primary btn-md" value ="Save" onclick="this.disabled=true;this.value='Submitting...'; this.form.submit();">
                     </div>
-
+                </form>
             </div>
         </div>
     </div>
