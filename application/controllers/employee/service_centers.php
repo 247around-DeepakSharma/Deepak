@@ -879,7 +879,7 @@ class Service_centers extends CI_Controller {
                     $day = $this->input->post('days');
                     $sc_remarks = $this->input->post('sc_remarks');
                     $spare_shipped = $this->input->post("spare_shipped");
-                    if ($spare_shipped) {
+                    if (!$spare_shipped) {
                         if ($day == 2) {
                             $booking_id = $this->input->post('booking_id');
                             $_POST['cancellation_reason'] = CUSTOMER_NOT_REACHABLE;
