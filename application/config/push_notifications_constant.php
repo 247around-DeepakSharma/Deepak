@@ -5,3 +5,4 @@ define('BOOKING_UPDATED_BY_247AROUND','booking_updated_by_247Around');
 define('BOOKING_COMPLETED_FOR_PARTNER','booking_completed_for_partner');
 define('NEW_BOOKING_FOR_PARTNER','new_booking_from_partner');
 define('NEW_PINCODE_ADDED','new_pincode_added');
+define('PAN_DETAILS_REQUEST','pan_details_request');
