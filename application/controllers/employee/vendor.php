@@ -4459,10 +4459,23 @@ class vendor extends CI_Controller {
                    }
                    return TRUE;
           }
+          function send_push_notification_if_new_pincode_added($vendorID){
+              $currentPincodeCount = $this->reusable_model->get_search_result_data('vendor_pincode_mapping','COUNT(DISTINCT pincode) as current_count ',array('Vendor_ID'=>$vendorID),NULL,NULL,NULL,NULL
+                      ,NULL,array());
+              $oldPincodeCount = $currentPincodeCount[0]['current_count'];
+              $newPincodesCount = count(array_unique(array_column($this->vendorPinArray, 'pincode')));
+              if($newPincodesCount>$oldPincodeCount){
+                  $newPincodes = $newPincodesCount - $oldPincodeCount;
+                  $notificationTextArray['title'] = array((string)$newPincodes);
+                  // Send Push Notification to vendors and partners
+                  $this->push_notification_lib->create_and_send_push_notiifcation(NEW_PINCODE_ADDED,array(),$notificationTextArray);
+              }
+          }
           /*
            * This function is used to Update vendor pincode mapping table on the basis of uploded excel
            */
-          function update_vendor_pin_code_file($file,$vendorID){
+          function update_vendor_pin_code_file($vendorID){
+                    $this->send_push_notification_if_new_pincode_added($vendorID);
                     $deleteMsg = $this->vendor_model->delete_vendor_pin_codes(array('Vendor_ID'=>$vendorID));
                     $pincodeArray = array_unique(array_column($this->vendorPinArray, 'pincode'));
                     $pincodeData = $this->reusable_model->get_search_result_data("india_pincode","pincode,district,state",NULL,NULL,NULL,NULL,array('pincode'=>$pincodeArray),NULL,array('pincode','district'));
@@ -4531,7 +4544,7 @@ class vendor extends CI_Controller {
                                         if($msgVerfied == 1){
                                                        $fileStatus = 'Failure';
                                                        $this->manage_pincode_not_found_sf_table();
-                                                       $finalMsg = $updateMsg = $this->update_vendor_pin_code_file($_FILES,$vendorID);
+                                                       $finalMsg = $updateMsg = $this->update_vendor_pin_code_file($vendorID);
                                                        log_message('info', __FUNCTION__ . ' Uploaded Data ' . print_r($this->vendorPinArray, TRUE));
                                                        if($finalMsg == 'Successfully Done'){
                                                            $fileStatus = 'Success';
@@ -4584,8 +4597,12 @@ class vendor extends CI_Controller {
            * if not then it will return false
            */
           function is_pincode_available_in_india_pincode_table($pincode=''){
+              $stateArray = array();
+              if(!empty($pincode)){
                   $state  =   $this->vendor_model->get_state_from_india_pincode($pincode);
-                  if(empty($state['state'])){
+                  $stateArray = $state['state'];
+              }
+                  if(empty($stateArray)){
                      $states  =   $this->vendor_model->getall_state();
                      $city  =   $this->vendor_model->getDistrict_from_india_pincode();
                      $this->miscelleneous->load_nav_header();
