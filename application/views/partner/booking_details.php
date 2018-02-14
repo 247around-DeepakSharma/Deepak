@@ -159,7 +159,7 @@
                                                 <?php } ?>
                                         </tr>
                                         <tbody>
-                                                    <?php foreach ($unit_details as $unit_detail) { ?>
+                                                    <?php foreach ($unit_details as $key => $unit_detail) { ?>
                                                 <tr>
                                                     <td><?php echo $unit_detail['appliance_brand'] ?></td>
                                                     <td><?php echo $unit_detail['appliance_category'] ?></td>
@@ -170,7 +170,7 @@
                                                     <td><?php if(!empty($unit_detail['purchase_month'])) {echo $unit_detail['purchase_month']."-". $unit_detail['purchase_year'];} else { echo $unit_detail['purchase_year'];}?></td>
                                                         <?php if ($booking_history[0]['current_status'] != "Completed") { ?>
                                                         <td><?php print_r($unit_detail['price_tags']); ?></td>
-                                                            <?php if ($booking_history[0]['is_upcountry'] == 1) { ?>
+                                                            <?php if($key == 0){ if ($booking_history[0]['is_upcountry'] == 1) { ?>
                                                             <td><?php
                                                                 if ($booking_history[0]['upcountry_paid_by_customer'] == 0) {
                                                                     echo "0";
@@ -179,13 +179,13 @@
                                                                 }
                                                                 ?>
                                                             </td>
-                                                        <?php } ?>
+                                                        <?php }else{ echo "<td></td>";}}else { echo "<td></td>";} ?>
                                                         <td><?php
                                                         if ($booking_history[0]['upcountry_paid_by_customer'] == 0) {
                                                             echo $unit_detail['customer_net_payable'];
-                                                        } else {
+                                                        }else if($key == 0) {{
                                                             echo ($booking_history[0]['upcountry_distance'] * DEFAULT_UPCOUNTRY_RATE) + $unit_detail['customer_net_payable'];
-                                                        }
+                                                        }}else{ echo $unit_detail['customer_net_payable'];}
                                                         ?></td>
                                                         <?php } else { ?>
                                                         <td><?php print_r($unit_detail['price_tags']); ?></td>
@@ -198,8 +198,12 @@
                                                         <td><?php
                                                         if ($booking_history[0]['upcountry_paid_by_customer'] == 0) {
                                                             echo ($unit_detail['customer_paid_basic_charges'] + $unit_detail['customer_paid_extra_charges'] + $unit_detail['customer_paid_parts']);
-                                                        } else {
+                                                        } else if($key == 0){
                                                             echo ($unit_detail['customer_paid_basic_charges'] + $unit_detail['customer_paid_extra_charges'] + $unit_detail['customer_paid_parts'] + $booking_history[0]['customer_paid_upcountry_charges']);
+                                                        }else {
+                                                                echo ($unit_detail['customer_paid_basic_charges'] 
+                                                         + $unit_detail['customer_paid_extra_charges'] 
+                                                         + $unit_detail['customer_paid_parts']);
                                                         }
                                                         ?>
                                                         </td>
