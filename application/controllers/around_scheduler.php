@@ -32,6 +32,7 @@ class Around_scheduler extends CI_Controller {
         $this->load->library('buyback');
         $this->load->library('email_data_reader');
         $this->load->library('miscelleneous');
+        $this->load->library('push_notification_lib');
         $this->load->helper(array('form', 'url', 'file'));
         $this->load->dbutil();
     }
@@ -668,32 +669,45 @@ class Around_scheduler extends CI_Controller {
 
             $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $body, "");
         }
+        if(!empty($data['id'])){
+            $idArray = explode(",",$data['id']);
+             //Send Push Notification
+            $receiverArray['vendor'] = $idArray;
+            $this->push_notification_lib->create_and_send_push_notiifcation(PAN_DETAILS_REQUEST,$receiverArray,array());
+            //End Push Notification
+        }
         log_message('info', __METHOD__ . '=> EXIT...');
     }
 
     function send_mail_for_pan_notification() {
+        $idArray = array();
         log_message('info', __METHOD__ . '=> Entering...');
-
         $select = "id,name,CONCAT(primary_contact_email,',',owner_email) as email";
         $where = array("(pan_no IS Null OR pan_no = '')" => null, 'active' => 1);
         $data = $this->vendor_model->getVendorDetails($select, $where);
         if (!empty($data)) {
             foreach ($data as $val) {
+                $idArray[] = $val['id']; 
                 $rm_mail = $this->vendor_model->get_rm_sf_relation_by_sf_id($val['id'])[0]['official_email'];
-
                 $template = $this->booking_model->get_booking_email_template("pan_notification");
                 $body = $template[0];
                 $to = $val['email'];
                 $from = $template[2];
                 $cc = $template[3] . ',' . $rm_mail;
                 $subject = vsprintf($template[4], $val['name']);
-
                 $this->notify->sendEmail($from, $to, $cc, '', $subject, $body, "");
             }
+        }
+        if(!empty($idArray)){
+             //Send Push Notification
+            $receiverArray['vendor'] = $idArray;
+            $this->push_notification_lib->create_and_send_push_notiifcation(PAN_DETAILS_REQUEST,$receiverArray,array());
+            //End Push Notification
         }
     }
 
     function send_mail_for_bank_details_notification() {
+        $idArray = array();
         log_message('info', __METHOD__ . '=> Entering...');
         $where = array("(account_holders_bank_details.bank_name IS NULL   
                          OR account_holders_bank_details.bank_account IS NULL 
@@ -710,17 +724,22 @@ class Around_scheduler extends CI_Controller {
         $data = array_merge($data_1,$data_2);
          if (!empty($data)) {
             foreach ($data as $val) {
+                $idArray[] = $val['id'];
                 $rm_mail = $this->vendor_model->get_rm_sf_relation_by_sf_id($val['id'])[0]['official_email'];
-
                 $template = $this->booking_model->get_booking_email_template("bank_details_notification");
                 $body = $template[0];
                 $to = $val['email'];
                 $from = $template[2];
                 $cc = $template[3] . ',' . $rm_mail;
                 $subject = vsprintf($template[4], $val['name']);
-
                 $this->notify->sendEmail($from, $to, $cc, '', $subject, $body, "");
             }
+        }
+        if(!empty($idArray)){
+             //Send Push Notification
+            $receiverArray['vendor'] = $idArray;
+            $this->push_notification_lib->create_and_send_push_notiifcation(PAN_DETAILS_REQUEST,$receiverArray,array());
+            //End Push Notification
         }
     }
 
