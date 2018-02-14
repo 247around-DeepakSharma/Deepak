@@ -2116,7 +2116,13 @@ class Miscelleneous {
             //inserts vendor escalation details
             $escalation_id = $this->My_CI->vendor_model->insertVendorEscalationDetails($escalation);
             if ($escalation_id) {
-                $escalation_policy_details = $this->My_CI->vendor_model->getEscalationPolicyDetails($escalation['escalation_reason']);                     
+                $escalation_policy_details = $this->My_CI->vendor_model->getEscalationPolicyDetails($escalation['escalation_reason']);     
+                //Send Push Notification
+                $receiverArray['vendor']= array($vendor_id);
+                $notificationTextArray['title'] = array($booking_id);
+                $notificationTextArray['msg'] = array($booking_id,$escalation_policy_details[0]['escalation_reason']);
+                $this->My_CI->push_notification_lib->create_and_send_push_notiifcation(BOOKING_ESCALATION_VENDOR,$receiverArray,$notificationTextArray);
+                //End Sending Push Notification
                 // Update escalation flag and return userDeatils
                 $userDetails = $this->My_CI->vendor_model->updateEscalationFlag($escalation_id, $escalation_policy_details, $escalation['booking_id']);
                 log_message('info', "User Details " . print_r($userDetails, TRUE));
