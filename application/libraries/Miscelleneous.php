@@ -2323,5 +2323,12 @@ Your browser does not support the audio element.
         
         return $return;
     }
-
+function get_district_covered_by_vendors(){
+    // below query - SELECT Vendor_ID as vendorID, GROUP_CONCAT(DISTINCT city) as district FROM (vendor_pincode_mapping) GROUP BY Vendor_ID
+    $data = $this->My_CI->reusable_model->get_search_result_data("vendor_pincode_mapping","Vendor_ID as vendorID,GROUP_CONCAT(DISTINCT city) as district",NULL,NULL,NULL,NULL,NULL,NULL,array('Vendor_ID'));
+    foreach($data as $values){
+       $finalArray[$values['vendorID']] = $values['district'];
+    }
+    return $finalArray;
+}
 }
