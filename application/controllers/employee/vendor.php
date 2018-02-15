@@ -3115,6 +3115,13 @@ class vendor extends CI_Controller {
             $whereIN =array("id"=>explode(",",$serviceCenters));
         }
         $vendor = $this->vendor_model->getVendorDetails($select, $where,'name',$whereIN);
+        $districArray = $this->miscelleneous->get_district_covered_by_vendors();
+        foreach($vendor as $index=>$values){
+            $vendor[$index]['covered_state'] = '';
+            if(array_key_exists($values['id'], $districArray)){
+                $vendor[$index]['covered_state'] = $districArray[$values['id']];
+            }
+        }
         log_message('info', __FUNCTION__);
 
         $template = 'SF_List_Template.xlsx';
