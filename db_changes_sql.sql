@@ -4248,3 +4248,7 @@ Please use the ERP panel for your closures going forward. In case of any issues,
 Regards,<br> 247around Team', 'noreply@247around.com', '', '', '', '1', CURRENT_TIMESTAMP);ALTER TABLE  `push_notification_logs` CHANGE  `title`  `title` VARCHAR( 1024 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL ;
 ALTER TABLE  `push_notification_logs` CHANGE  `title`  `title` VARCHAR( 1024 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL ;
 ALTER TABLE  `collateral` ADD  `request_type` VARCHAR( 20 ) NULL AFTER  `capacity` ;
+
+
+-- sachin 09 feb
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'buyback_price_sheet_with_quote', 'Updated Buyback Price Sheet', 'Please find the updated highest price quote buyback sheet in the attached file', 'noreply@247around.com', '', '', '', '1', CURRENT_TIMESTAMP);

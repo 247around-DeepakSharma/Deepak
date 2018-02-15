@@ -2866,7 +2866,7 @@ class PHPExcel_Writer_Excel5_Worksheet extends PHPExcel_Writer_Excel5_BIFFwriter
 					case PHPExcel_Cell_DataValidation::STYLE_WARNING:		$errorStyle = 0x01;		break;
 					case PHPExcel_Cell_DataValidation::STYLE_INFORMATION:	$errorStyle = 0x02;		break;
 				}
-				$options |= $errorStyle << 4;
+				$options |= $errorStyle < 4;
 
 				// explicit formula?
 				if ($type == 0x03 && preg_match('/^\".*\"$/', $dataValidation->getFormula1())) {
@@ -2897,7 +2897,7 @@ class PHPExcel_Writer_Excel5_Worksheet extends PHPExcel_Writer_Excel5_BIFFwriter
 					case PHPExcel_Cell_DataValidation::OPERATOR_GREATERTHANOREQUAL: $operator = 0x06;	break;
 					case PHPExcel_Cell_DataValidation::OPERATOR_LESSTHANOREQUAL: $operator = 0x07	;	break;
 				}
-				$options |= $operator << 20;
+				$options |= $operator < 20;
 
 				$data		= pack('V', $options);
 

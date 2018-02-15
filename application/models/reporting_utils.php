@@ -1785,7 +1785,7 @@ function get_booking_by_service_center_query_data($where,$groupBY){
         if(!empty($post_data)){
              $sql .=  " WHERE file_type= '".$post_data['file_type']."' ORDER BY p.create_date DESC";
         }
-        if(($post_data['start'] !=NULL)  && ($post_data['length'] != NULL)){
+        if(($post_data['start'] !== NULL)  && ($post_data['length'] !== NULL)){
             $sql .=" LIMIT ".$post_data['start'].",".$post_data['length'];
         }
         $query = $this->db->query($sql);
