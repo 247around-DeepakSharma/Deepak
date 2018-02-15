@@ -1254,7 +1254,11 @@ class Around_scheduler extends CI_Controller {
 
                 $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $body, "");
                 log_message("info", __METHOD__ . " " . $value['name'] . " Email Sent");
-               
+                //Send Push Notification
+                $receiverArray['vendor'] = array($value['id']);
+                $notificationTextArray['msg'] = array($sp['booking_id'],$sp['age_of_part_pending']);
+                $this->push_notification_lib->create_and_send_push_notiifcation(PENDING_SPARE_VENDOR,$receiverArray,$notificationTextArray);
+                //End Push Notification
             }
         }
     }

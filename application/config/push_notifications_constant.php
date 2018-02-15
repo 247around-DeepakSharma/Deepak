@@ -7,3 +7,4 @@ define('NEW_BOOKING_FOR_PARTNER','new_booking_from_partner');
 define('NEW_PINCODE_ADDED','new_pincode_added');
 define('PAN_DETAILS_REQUEST','pan_details_request');
 define('BOOKING_ESCALATION_VENDOR','booking_escalation_to_vendor');
+define('PENDING_SPARE_VENDOR','pending_spare_part_to_vendor');
