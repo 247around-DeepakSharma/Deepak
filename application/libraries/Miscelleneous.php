@@ -1175,14 +1175,19 @@ class Miscelleneous {
      */
     function get_partner_prepaid_amount($partner_id, $getAll = FALSE) {
         //Get Partner details
-
+        log_message("info",__METHOD__."  Prepaid Amount Request for Partner ". $partner_id);
         $partner_details = $this->My_CI->partner_model->getpartner_details("is_active, is_prepaid,prepaid_amount_limit,"
                 . "grace_period_date,prepaid_notification_amount, partner_type ", array('partners.id' => $partner_id));
+        
+        log_message("info",__METHOD__."  Prepaid Amount Requested for Partner Data". print_r($partner_details, true));
+        
         if(!empty($partner_details) && ($partner_details[0]['is_prepaid'] == 1 || !empty($getAll))){
+            log_message("info",__METHOD__."  Prepaid Partner Found id ". $partner_id);
             //Get Partner invoice amout
             $invoice_amount = $this->My_CI->invoices_model->get_invoices_details(array('vendor_partner' => 'partner', 'vendor_partner_id' => $partner_id,
                 'settle_amount' => 0), 'SUM(CASE WHEN (type_code = "B") THEN ( amount_collected_paid + `amount_paid`) WHEN (type_code = "A" ) '
                     . 'THEN ( amount_collected_paid -`amount_paid`) END)  AS amount');
+            log_message("info",__METHOD__."  Prepaid Partner id ".$partner_id." Invoice Amount " . print_r($invoice_amount, true));
             $where = array(
                 'partner_id' => $partner_id,
                 'partner_invoice_id is null' => NULL,
@@ -1192,6 +1197,7 @@ class Miscelleneous {
             );
             // sum of partner payable amount whose booking is in followup, pending and completed(Invoice not generated) state.
             $service_amount = $this->My_CI->booking_model->get_unit_details($where, false, 'SUM(partner_net_payable) as amount');
+            log_message("info",__METHOD__."  Prepaid Partner id ".$partner_id." Service Amount " . print_r($service_amount, true));
             // calculate final amount of partner
             $final_amount = -($invoice_amount[0]['amount'] + ($service_amount[0]['amount'] * (1 + SERVICE_TAX_RATE)));
 
@@ -1227,6 +1233,7 @@ class Miscelleneous {
                 //$d['active'] = 1;
             }
             $d['partner_type'] = $partner_details[0]['partner_type'];
+            log_message("info",__METHOD__."  Prepaid Partner id ".$partner_id." Return Prepaid data " . print_r($d, true));
             return $d;
         } else {
             $d['is_notification'] = false;
@@ -1236,7 +1243,7 @@ class Miscelleneous {
             if(!empty($partner_details)){
                  $d['partner_type'] = $partner_details[0]['partner_type'];
             }
-           
+            log_message("info",__METHOD__."  Prepaid Partner id ".$partner_id." Return false Prepaid data " . print_r($d, true));
             return $d;
         }
     }
