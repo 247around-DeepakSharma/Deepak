@@ -928,18 +928,17 @@ class Around_scheduler extends CI_Controller {
             if ($final_amount['is_notification']) {
                 
                 if($final_amount['prepaid_amount'] > 0 ){
-                    
                     $sms['tag'] = "prepaid_low_balance";
                 } else {
-                   
                     $sms['tag'] = "prepaid_negative_balance";
-
                 }
-                
-                
+                //Send Push Notification
+                $receiverArray['partner'] = array($value['id']);
+                $notificationTextArray['msg'] = array($final_amount['prepaid_amount']);
+                $this->push_notification_lib->create_and_send_push_notiifcation(LOW_PREPAID_AMOUNT,$receiverArray,$notificationTextArray);
+                //End Push Notification
                 //Get Email Template
                 $email_template = $this->booking_model->get_booking_email_template("low_prepaid_amount");
-                
                 $message = vsprintf($email_template[0], array("Rs. ".$final_amount["prepaid_amount"]));
                 $to = $value['invoice_email_to'];
                 $cc = $value['invoice_email_cc']. ", ".$email_template[3];
