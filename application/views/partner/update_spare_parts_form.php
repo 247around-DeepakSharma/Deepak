@@ -233,7 +233,7 @@
                                 if (form_error('approx_value')) { echo 'has-error'; } ?>">
                                 <label for="approx_value" class="col-md-4">Approx Value*</label>
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control" id="approx_value" name="approx_value" value = "" placeholder="Please Enter approx value"  required>
+                                    <input type="number" class="form-control" id="approx_value" name="approx_value" value = "" placeholder="Please Enter approx value"  required>
                                      <?php echo form_error('approx_value'); ?>
                                 </div>  
                             </div>
