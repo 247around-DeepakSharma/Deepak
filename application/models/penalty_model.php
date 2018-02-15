@@ -200,16 +200,7 @@ class Penalty_model extends CI_Model {
         return $this->db->insert_id();
     }
 
-    /**
-     * Applies penalty on SF for bookings which have not been updated today
-     * This is triggered from CRON.
-     * 
-     * @return boolean
-     */
-    function penalty_on_service_center_for_update_booking() {
-        log_message('info', __FUNCTION__);
-
-
+    function get_update_booking_penalty_data(){
         $sql = "SELECT SC.service_center_id AS assigned_vendor_id, CONCAT(  '', GROUP_CONCAT( DISTINCT (
 
                 BD.booking_id
@@ -229,7 +220,17 @@ class Penalty_model extends CI_Model {
                 ";
 
         $query = $this->db->query($sql);
-        
+        return $query;
+    }
+    /**
+     * Applies penalty on SF for bookings which have not been updated today
+     * This is triggered from CRON.
+     * 
+     * @return boolean
+     */
+    function penalty_on_service_center_for_update_booking() {
+        log_message('info', __FUNCTION__);
+        $query = $this->get_update_booking_penalty_data();
         if ($query->num_rows > 0) {
             $result = $query->result_array();
             foreach ($result as $value) {
