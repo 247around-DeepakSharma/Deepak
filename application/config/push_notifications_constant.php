@@ -9,3 +9,4 @@ define('PAN_DETAILS_REQUEST','pan_details_request');
 define('BOOKING_ESCALATION_VENDOR','booking_escalation_to_vendor');
 define('PENDING_SPARE_VENDOR','pending_spare_part_to_vendor');
 define('UPDATE_BOOKING_TO_AVOID_PENALTY','update_booking_request_vendor');
+define('LOW_PREPAID_AMOUNT','low_prepaid_amount');
