@@ -120,11 +120,11 @@ class accounting_model extends CI_Model {
                 . "`sgst_tax_amount`,`cgst_tax_rate`,"
                 . "`igst_tax_rate`,`sgst_tax_rate`,`tds_rate`,"
                 . "`tds_amount`,`upcountry_price`,`penalty_amount`,"
-                . "`credit_penalty_amount`,`courier_charges`,`num_bookings` "
+                . "`credit_penalty_amount`,`courier_charges`,`num_bookings`,vpi.type,vpi.type_code "
                 . " FROM vendor_partner_invoices as vpi LEFT JOIN service_centres as sc ON vendor_partner = 'vendor' "
                 . " AND sc.id = vpi.vendor_partner_id LEFT JOIN partners ON vendor_partner = 'partner' "
                 . " AND partners.id = vpi.vendor_partner_id WHERE "
-                . " type_code = '$payment_type' AND vpi.type NOT IN ('".BUYBACK_VOUCHER."', '".PARTNER_VOUCHER."','".BUYBACK."') AND  vendor_partner = '$partner_vendor' $where";
+                . " type_code = '$payment_type' AND vpi.type NOT IN ('".BUYBACK_VOUCHER."', '".PARTNER_VOUCHER."') AND  vendor_partner = '$partner_vendor' $where";
         
         $query = $this->db->query($sql);
         $data = $query->result_array();
@@ -142,13 +142,13 @@ class accounting_model extends CI_Model {
     function get_tds_accounting_report($from_date, $to_date, $report_type,$invoice_data_by) {
         $group_by = "";
         if($report_type == "draft"){
-            $select = "company_name, company_type, vpi.invoice_id, vpi.invoice_date,name_on_pan,
+            $select = "name,company_name, company_type, vpi.invoice_id, vpi.invoice_date,name_on_pan,
                     pan_no, owner_name, vpi.total_service_charge, 
                     vpi.total_additional_service_charge, vpi.service_tax,
                     vpi.total_amount_collected,(total_amount_collected - vpi.tds_amount) as net_amount,
                     vpi.tds_amount, tds_rate ,abs(vpi.amount_collected_paid) as amount_collected_paid,sc.gst_no ";
         } else {
-            $select = "company_name,company_type,name_on_pan,pan_no,SUM(ph.tds_amount) as tds_amount,
+            $select = "name,company_name,company_type,name_on_pan,pan_no,SUM(tds_amount) as tds_amount,
                     tds_rate";
             $group_by = " GROUP BY sc.id";
         }
