@@ -977,11 +977,11 @@ class Partner extends CI_Controller {
        
         $invoice['unbilled_amount'] = $unbilled_amount;
         $invoice['unbilled_data'] = $unbilled_data;
-        $invoice['invoice_amount'] = $this->invoices_model->getsummary_of_invoice("partner",array('id' => $partner_id))[0];
+        $invoice['invoice_amount'] = $this->invoices_model->get_summary_invoice_amount("partner", $partner_id)[0];
       
         $select = "partner_logo,alt_text";
-        $where = array('partner_logo IS NOT NULL' => NULL,'partner_id' => $this->session->userdata('partner_id'));
-        $header_data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where);
+        $where1 = array('partner_logo IS NOT NULL' => NULL,'partner_id' => $this->session->userdata('partner_id'));
+        $header_data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where1);
         $this->load->view('partner/header',$header_data);
         $this->load->view('partner/invoice_summary', $invoice);
         $this->load->view('partner/partner_footer');

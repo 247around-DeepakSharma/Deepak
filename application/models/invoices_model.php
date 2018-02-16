@@ -61,7 +61,7 @@ class invoices_model extends CI_Model {
      */
     function getInvoicingData($data,$join = false) {
         $this->db->where($data);
-        $this->db->order_by('from_date', "desc");
+        $this->db->order_by('invoice_date', "desc");
         $query = $this->db->get('vendor_partner_invoices');
         $return_data = $query->result_array();
         
@@ -171,7 +171,7 @@ class invoices_model extends CI_Model {
      * @return: Array()
      */
     function getsummary_of_invoice($vendor_partner, $where, $due_date_flag = false) {
-        $array = array();
+       
         if ($vendor_partner == "vendor") {
             $select = "service_centres.name, service_centres.id, service_centres.on_off, service_centres.active, account_holders_bank_details.is_verified, service_centres.pan_no, service_centres.service_tax_no, service_centres.tin_no, service_centres.cst_no, service_centres.contract_file, service_centres.gst_no";
             if($where){
@@ -198,54 +198,44 @@ class invoices_model extends CI_Model {
             $due_date_status = "";
         }
 
-        foreach ($data as $value) {
+        foreach ($data as $key => $value) {
 
+            $result = $this->get_summary_invoice_amount($vendor_partner, $value['id'], $due_date_status);
+           
+            $data[$key]['vendor_partner'] = $vendor_partner;
+            $data[$key]['final_amount'] = $result[0]['final_amount'];
+            $data[$key]['amount_collected_paid'] = $result[0]['amount_collected_paid'];
+            $data[$key]['is_stand'] = $result[0]['is_stand'];
+            if (isset($value['name'])) {
+               
+                $data[$key]['count_spare_part'] = $this->get_pending_defective_parts($value['id'])[0]['count'];
+            } else if (isset($value['public_name'])) {
+                $data[$key]['name'] = $value['public_name'];
+               
+                $data[$key]['is_verified'] = 1;
+            }
 
+            $result[0]['id'] = $value['id'];
+        }
+        
+        return $data;
+    }
+    
+    function get_summary_invoice_amount($vendor_partner, $vendor_partner_id, $otherWhere =""){
             $sql = "SELECT COALESCE(SUM(`amount_collected_paid` ),0) as amount_collected_paid, "
                     . " CASE WHEN (SELECT count(id) FROM vendor_partner_invoices "
-                    . " WHERE type_code ='A' AND type = 'Stand' AND `settle_amount` = 0 AND vendor_partner_id = $value[id] "
-                    . " AND vendor_partner = '$vendor_partner' $due_date_status ) "
+                    . " WHERE type_code ='A' AND type = 'Stand' AND `settle_amount` = 0 AND vendor_partner_id = '$vendor_partner_id' "
+                    . " AND vendor_partner = '$vendor_partner' $otherWhere ) "
                     . " THEN(1) ELSE 0 END as is_stand FROM  `vendor_partner_invoices` "
-                    . " WHERE vendor_partner_id = $value[id] AND vendor_partner = '$vendor_partner' $due_date_status";
+                    . " WHERE vendor_partner_id = '$vendor_partner_id' AND vendor_partner = '$vendor_partner' $otherWhere";
 
 
             $data = $this->db->query($sql);
             $result = $data->result_array();
             
-            $bank_transactions = $this->getbank_transaction_summary($vendor_partner, $value['id']);
-
-            $result[0]['vendor_partner'] = $vendor_partner;
-
-            if (isset($value['name'])) {
-                $result[0]['name'] = $value['name'];
-                $result[0]['on_off'] = $value['on_off'];
-                $result[0]['active'] = $value['active'];
-                $result[0]['is_verified'] = $value['is_verified'];
-                $result[0]['pan_no'] = $value['pan_no'];
-                $result[0]['service_tax_no'] = $value['service_tax_no'];
-                $result[0]['tin_no'] = $value['tin_no'];
-                $result[0]['cst_no'] = $value['cst_no'];
-                $result[0]['gst_no'] = $value['gst_no'];
-                $result[0]['contract_file'] = $value['contract_file'];
-                $result[0]['count_spare_part'] = $this->get_pending_defective_parts($value['id'])[0]['count'];
-            } else if (isset($value['public_name'])) {
-                $result[0]['name'] = $value['public_name'];
-                $result[0]['address'] = $value['address'];
-                $result[0]['pincode'] = $value['pincode'];
-                $result[0]['district'] = $value['district'];
-                $result[0]['state'] = $value['state'];
-                $result[0]['seller_code'] = $value['seller_code'];
-                $result[0]['invoice_email_cc'] = $value['invoice_email_cc'];
-                $result[0]['invoice_email_to'] = $value['invoice_email_to'];
-                $result[0]['is_verified'] = 1;
-            }
-
-            $result[0]['id'] = $value['id'];
-            $result[0]['final_amount'] = $result[0]['amount_collected_paid'] - $bank_transactions[0]['credit_amount'] + $bank_transactions[0]['debit_amount'];
-
-            array_push($array, $result[0]);
-        }
-        return $array;
+            $bank_transactions = $this->getbank_transaction_summary($vendor_partner, $vendor_partner_id);
+            $result[0]['final_amount'] = round($result[0]['amount_collected_paid'] - $bank_transactions[0]['credit_amount'] + $bank_transactions[0]['debit_amount'],0);
+            return $result;
     }
     
     function get_pending_defective_parts($service_center_id){
@@ -1211,71 +1201,66 @@ class invoices_model extends CI_Model {
         log_message("info", __METHOD__);
         $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
         $data = $this->get_vendor_cash_invoice_data($vendor_id, $from_date, $to_date, $is_regenerate);
-        if(!empty($data)){
+        if (!empty($data)) {
             $commission_charge = array();
             $meta = $data[0];
             $commission_charge[0]['description'] = "Commission Charge";
-          
-            $commission_charge[0]['toal_amount'] = (array_sum(array_column($data, 'toal_amount')));
-            
-            $meta['upcountry_charge'] =  $meta['upcountry_booking'] = $meta['upcountry_distance'] =  $meta['total_sgst_tax_amount'] =  
-                     $meta['total_cgst_tax_amount'] = $meta['total_igst_tax_amount'] = $meta['igst_tax_rate'] = 
-                     $meta['sgst_tax_rate'] = $meta['sgst_tax_rate'] =  0;
-            $from_date_tmp = date('Y-m-d', strtotime('-1 months', strtotime($from_date)));
-            $upcountry_data = $this->upcountry_model->upcountry_cash_invoice($vendor_id, $from_date_tmp, $to_date, $is_regenerate);
-            if (!empty($upcountry_data)) {
-                  $commission_charge[0]['toal_amount'] += $upcountry_data[0]['total_upcountry_price'];
-                  $meta['upcountry_charge'] = $upcountry_data[0]['total_upcountry_price'];
-                  $meta['upcountry_booking'] = $upcountry_data[0]['total_booking'];
-                  $meta['upcountry_distance'] = $upcountry_data[0]['total_distance'];
-            }
-            
-            $tax_charge = $this->booking_model->get_calculated_tax_charge( $commission_charge[0]['toal_amount'], DEFAULT_TAX_RATE);
-            $commission_charge[0]['taxable_value'] = round($commission_charge[0]['toal_amount']  - $tax_charge,0);
-            $c_s_gst =$this->check_gst_tax_type($meta['state']);
-            $meta['cgst_tax_rate'] = $meta['sgst_tax_rate'] =   $meta['cgst_total_tax_amount']  = $meta['sgst_total_tax_amount'] =
-                     $meta['total_igst_tax_amount']= $meta['igst_tax_rate'] = $meta['igst_total_tax_amount'] = 0;
-            if($c_s_gst){
-                $meta['invoice_template'] = "247around_Tax_Invoice_Intra_State.xlsx";
-                $commission_charge[0]['cgst_rate'] = $commission_charge[0]['sgst_rate'] =  $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = 9;
-                $commission_charge[0]['cgst_tax_amount'] = $commission_charge[0]['sgst_tax_amount'] =  
-                        $meta['cgst_total_tax_amount'] =  $meta['sgst_total_tax_amount'] =  round($tax_charge/2,0);
-                
+            $total_amount_invoice = (array_sum(array_column($data, 'toal_amount')));
+            if ($total_amount_invoice > 0) {
+                $commission_charge[0]['toal_amount'] = $total_amount_invoice;
 
+                $meta['upcountry_charge'] = $meta['upcountry_booking'] = $meta['upcountry_distance'] = $meta['total_sgst_tax_amount'] = $meta['total_cgst_tax_amount'] = $meta['total_igst_tax_amount'] = $meta['igst_tax_rate'] = $meta['sgst_tax_rate'] = $meta['sgst_tax_rate'] = 0;
+                $from_date_tmp = date('Y-m-d', strtotime('-1 months', strtotime($from_date)));
+                $upcountry_data = $this->upcountry_model->upcountry_cash_invoice($vendor_id, $from_date_tmp, $to_date, $is_regenerate);
+                if (!empty($upcountry_data)) {
+                    $commission_charge[0]['toal_amount'] += $upcountry_data[0]['total_upcountry_price'];
+                    $meta['upcountry_charge'] = $upcountry_data[0]['total_upcountry_price'];
+                    $meta['upcountry_booking'] = $upcountry_data[0]['total_booking'];
+                    $meta['upcountry_distance'] = $upcountry_data[0]['total_distance'];
+                }
+
+                $tax_charge = $this->booking_model->get_calculated_tax_charge($commission_charge[0]['toal_amount'], DEFAULT_TAX_RATE);
+                $commission_charge[0]['taxable_value'] = round($commission_charge[0]['toal_amount'] - $tax_charge, 0);
+                $c_s_gst = $this->check_gst_tax_type($meta['state']);
+                $meta['cgst_tax_rate'] = $meta['sgst_tax_rate'] = $meta['cgst_total_tax_amount'] = $meta['sgst_total_tax_amount'] = $meta['total_igst_tax_amount'] = $meta['igst_tax_rate'] = $meta['igst_total_tax_amount'] = 0;
+                if ($c_s_gst) {
+                    $meta['invoice_template'] = "247around_Tax_Invoice_Intra_State.xlsx";
+                    $commission_charge[0]['cgst_rate'] = $commission_charge[0]['sgst_rate'] = $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = 9;
+                    $commission_charge[0]['cgst_tax_amount'] = $commission_charge[0]['sgst_tax_amount'] = $meta['cgst_total_tax_amount'] = $meta['sgst_total_tax_amount'] = round($tax_charge / 2, 0);
+                } else {
+                    $meta['invoice_template'] = "247around_Tax_Invoice_Inter_State.xlsx";
+                    $commission_charge[0]['igst_tax_amount'] = $meta['igst_total_tax_amount'] = round($tax_charge, 0);
+                    $commission_charge[0]['igst_rate'] = $meta['igst_tax_rate'] = DEFAULT_TAX_RATE;
+                }
+
+                $meta['reverse_charge_type'] = "N";
+                $meta['reverse_charge'] = '';
+                $meta['invoice_type'] = 'Tax Invoice';
+
+                $meta['total_qty'] = $meta['total_rate'] = $commission_charge[0]['qty'] = $commission_charge[0]['rate'] = "";
+                $commission_charge[0]['hsn_code'] = COMMISION_CHARGE_HSN_CODE;
+                $meta['total_taxable_value'] = $commission_charge[0]['taxable_value'];
+                $meta['sub_total_amount'] = round($commission_charge[0]['toal_amount'], 0);
+
+                $meta['price_inword'] = convert_number_to_words($meta['sub_total_amount']);
+                $meta['sd'] = date("jS M, Y", strtotime($from_date));
+                $meta['ed'] = date('jS M, Y', strtotime($to_date_tmp));
+                $meta['invoice_date'] = date("jS M, Y");
+                $meta['reference_invoice_id'] = "";
+                $meta['state_code'] = $this->get_state_code(array('state' => $meta['state']))[0]['state_code'];
+                $r_data['booking'] = $commission_charge;
+                $r_data['meta'] = $meta;
+                $r_data['upcountry'] = $upcountry_data;
+
+                return $r_data;
             } else {
-                $meta['invoice_template'] = "247around_Tax_Invoice_Inter_State.xlsx";
-                $commission_charge[0]['igst_tax_amount'] = $meta['igst_total_tax_amount'] = round($tax_charge,0);
-                $commission_charge[0]['igst_rate'] = $meta['igst_tax_rate'] = DEFAULT_TAX_RATE;
-           
+                return FALSE;
             }
-            
-            $meta['reverse_charge_type'] = "N";
-            $meta['reverse_charge'] = '';
-            $meta['invoice_type'] = 'Tax Invoice';
-           
-            $meta['total_qty'] =  $meta['total_rate'] = $commission_charge[0]['qty'] = $commission_charge[0]['rate'] = "";
-            $commission_charge[0]['hsn_code'] = COMMISION_CHARGE_HSN_CODE;
-            $meta['total_taxable_value'] = $commission_charge[0]['taxable_value'];
-            $meta['sub_total_amount'] =  round($commission_charge[0]['toal_amount'],0);
-           
-            $meta['price_inword'] = convert_number_to_words($meta['sub_total_amount']);
-            $meta['sd'] = date("jS M, Y", strtotime($from_date));
-            $meta['ed'] = date('jS M, Y', strtotime($to_date_tmp));
-            $meta['invoice_date'] = date("jS M, Y");
-            $meta['reference_invoice_id'] = "";
-            $meta['state_code'] = $this->get_state_code(array('state'=> $meta['state']))[0]['state_code'];
-            $r_data['booking'] = $commission_charge;
-            $r_data['meta'] = $meta;
-            $r_data['upcountry'] = $upcountry_data;
-            
-            return $r_data;  
-           
         } else {
             return FALSE;
         }
-       
     }
-    
+
     /**
      * @desc Generate Buyback Invoice
      * @param int $vendor_id SF id
