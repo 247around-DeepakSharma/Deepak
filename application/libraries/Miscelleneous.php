@@ -361,6 +361,11 @@ class Miscelleneous {
                             $subject = "Upcountry Charges Approval Required - Booking ID " . $query1[0]['booking_id'];
                             $to = $data['upcountry_approval_email'];
                             $cc = NITS_ANUJ_EMAIL_ID.",".$partner_am_email;
+                            //Send Push Notification
+                        $receiverArray['partner'] = array($query1[0]['partner_id']);
+                        $notificationTextArray['msg'] = array($booking_id);
+                        $this->push_notification_lib->create_and_send_push_notiifcation(UPCOUNTRY_APPROVAL,$receiverArray,$notificationTextArray);
+                        //End Push Notification
                         }
                         $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message1, "");
 
