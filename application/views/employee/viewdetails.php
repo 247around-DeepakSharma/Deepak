@@ -224,7 +224,7 @@
                                         <div class="col-md-4"> <button class="btn btn-success" onclick="GetRoute()">Get Route</button></div>
                                     </div>
                                     <div class="col-md-12">
-                                        <div id="dvDistance"></div>
+                                        <div id="dvDistance" style="display:none;"></div>
                                         <br/>
                                         <div id="dvMap" style=" height: 200px">
                                         </div>

@@ -977,11 +977,11 @@ class Partner extends CI_Controller {
        
         $invoice['unbilled_amount'] = $unbilled_amount;
         $invoice['unbilled_data'] = $unbilled_data;
-        $invoice['invoice_amount'] = $this->invoices_model->getsummary_of_invoice("partner",array('id' => $partner_id))[0];
+        $invoice['invoice_amount'] = $this->invoices_model->get_summary_invoice_amount("partner", $partner_id)[0];
       
         $select = "partner_logo,alt_text";
-        $where = array('partner_logo IS NOT NULL' => NULL,'partner_id' => $this->session->userdata('partner_id'));
-        $header_data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where);
+        $where1 = array('partner_logo IS NOT NULL' => NULL,'partner_id' => $this->session->userdata('partner_id'));
+        $header_data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where1);
         $this->load->view('partner/header',$header_data);
         $this->load->view('partner/invoice_summary', $invoice);
         $this->load->view('partner/partner_footer');
@@ -1215,6 +1215,31 @@ class Partner extends CI_Controller {
             }
         }
     }
+    
+    function check_escalation_already_applied(){
+        if($this->input->post("escalation_reason_id")){
+            $escalation_reason_id = $this->input->post("escalation_reason_id");
+            $booking_id= $this->input->post('booking_id');
+            if(!empty($escalation_reason_id)){
+                $where = array("booking_id" => $booking_id, "escalation_reason" => $escalation_reason_id,
+                "create_date >=  curdate() " => NULL,  "create_date  between (now() - interval ".PARTNER_PENALTY_NOT_APPLIED_WITH_IN." minute) and now()" => NULL);
+                $data =$this->vendor_model->getvendor_escalation_log($where, "*");
+                log_message("info", $this->db->last_query());
+                if(empty($data)){
+                    return true;
+                } else {
+                    $this->form_validation->set_message('check_escalation_already_applied', 'Booking is already escalated.');
+                    return false;
+                }
+            } else {
+              $this->form_validation->set_message('check_escalation_already_applied', 'The Escalation Reason field is required');
+              return false;  
+            }
+        } else {
+            $this->form_validation->set_message('check_escalation_already_applied', 'The Escalation Reason field is required');
+            return false;
+        }    
+    }
 
     /**
      * @desc: Load escalation form  in the partner panel. Partner esclates on booking.
@@ -1239,10 +1264,10 @@ class Partner extends CI_Controller {
     function process_escalation($booking_id) {
         log_message('info', __FUNCTION__ . ' booking_id: ' . $booking_id);
         $this->checkUserSession();
-        $this->form_validation->set_rules('escalation_reason_id', 'Escalation Reason', 'trim|required');
+        $this->form_validation->set_rules('escalation_reason_id', 'Escalation Reason', 'callback_check_escalation_already_applied');
 
         if ($this->form_validation->run() == FALSE) {
-            $this->escalation_form($booking_id);
+            echo validation_errors();
         } else {
 
             $escalation['escalation_reason'] = $this->input->post('escalation_reason_id');
@@ -1323,6 +1348,7 @@ class Partner extends CI_Controller {
             }
 
             log_message('info', __FUNCTION__ . " Exiting");
+            echo "success";
         }
     }
 
@@ -1511,7 +1537,7 @@ class Partner extends CI_Controller {
             if (!empty($updated_unit_id)) {
                 log_message('info', __METHOD__ . " UNIT ID: " . print_r($updated_unit_id, true));
                 $sf_id = $this->reusable_model->get_search_query('booking_details','assigned_vendor_id',array('booking_id'=>$booking_id),NULL,NULL,NULL,NULL,NULL)->result_array();
-                if(!empty($sf_id)){
+                if(!empty($sf_id[0]['assigned_vendor_id'])){
                     $inventory_details = array('receiver_entity_id' => $sf_id[0]['assigned_vendor_id'],
                                                 'receiver_entity_type' => _247AROUND_SF_STRING,
                                                 'stock' => 1,
@@ -2395,6 +2421,24 @@ class Partner extends CI_Controller {
                             if ($this->partner_model->update_login_details($data, $where)) {
                                 //Log Message
                                 log_message('info', __FUNCTION__ . ' Partner Login has been updated for id : ' . $partner_id . ' with values ' . print_r($data, TRUE));
+                                
+                                //Getting template from Database to send mail
+                                $login_template = $this->booking_model->get_booking_email_template("partner_login_details");
+                                if (!empty($login_template)) {
+
+                                    $login_email['username'] = $data['user_id'];
+                                    $login_email['password'] = $data['clear_password'];
+
+                                    $login_subject = $login_template[4];
+                                    $login_emailBody = vsprintf($login_template[0], $login_email);
+
+                                    $this->notify->sendEmail($login_template[2], $data['email'], $login_template[3], "",$login_subject, $login_emailBody, "");
+
+                                    log_message('info', $login_subject . " Email Send successfully" . $login_emailBody);
+                                } else {
+                                    //Logging Error
+                                    log_message('info', " Error in Getting Email Template for New Vendor Login credentials Mail");
+                                }
                             } else {
                                 //Log Message
                                 log_message('info', __FUNCTION__ . ' Error in updating Partner Login for id : ' . $partner_id . ' with values ' . print_r($data, TRUE));
@@ -2429,6 +2473,23 @@ class Partner extends CI_Controller {
                             if ($s1) {
                                 //Log Message
                                 log_message('info', __FUNCTION__ . ' Partner Login has been Added for id : ' . $partner_id . ' with values ' . print_r($data, TRUE));
+                                //Getting template from Database to send mail
+                                $login_template = $this->booking_model->get_booking_email_template("partner_login_details");
+                                if (!empty($login_template)) {
+
+                                    $login_email['username'] = $data['user_id'];
+                                    $login_email['password'] = $data['clear_password'];
+
+                                    $login_subject = $login_template[4];
+                                    $login_emailBody = vsprintf($login_template[0], $login_email);
+
+                                    $this->notify->sendEmail($login_template[2], $data['email'], $login_template[3], "",$login_subject, $login_emailBody, "");
+
+                                    log_message('info', $login_subject . " Email Send successfully" . $login_emailBody);
+                                } else {
+                                    //Logging Error
+                                    log_message('info', " Error in Getting Email Template for New Vendor Login credentials Mail");
+                                }
                             } else {
                                 //Log Message
                                 log_message('info', __FUNCTION__ . ' Error in Adding Partner Login Details for id : ' . $partner_id . ' with values ' . print_r($data, TRUE));
@@ -2639,7 +2700,7 @@ class Partner extends CI_Controller {
             }
             echo $option;
         } else {
-            $booking = array('booking_id' => NULL, 'booking_pincode' => $pincode, 'city' => NULL, 'service_id' => $service_id, 'partner_id' => $this->session->userdata('partner_id'));
+            $booking = array('booking_id' => 'Not_Generated', 'booking_pincode' => $pincode, 'city' => $post_city, 'service_id' => $service_id, 'partner_id' => $this->session->userdata('partner_id'));
             $this->miscelleneous->sf_not_exist_for_pincode($booking);
             echo 'ERROR';
         }

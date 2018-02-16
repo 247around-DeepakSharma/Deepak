@@ -9,7 +9,7 @@
             <div class="panel-heading"><center><span style="font-weight: bold; font-size: 120%">Booking Report Form</span></center></div>
 
             <div class="panel-body">
-                <form class="form-horizontal" action="<?php echo base_url() ?>employee/vendor/process_get_vendor_escalation_form" method="POST" >
+                <form class="form-horizontal" action="<?php echo base_url() ?>employee/vendor/process_vendor_escalation_form" method="POST" >
                     <div class="form-group">
                         <label for="BookingId" class="col-md-2">Booking ID</label>
                         <div class="col-md-6">
@@ -54,9 +54,9 @@
                     </div>     
 
                     <div class="form-group ">
-                        <input type= "submit"  class=" col-md-3 col-md-offset-4 btn btn-primary btn-md" value ="Save">
+                        <input type= "submit"  class=" col-md-3 col-md-offset-4 btn btn-primary btn-md" value ="Save" onclick="this.disabled=true;this.value='Submitting...'; this.form.submit();">
                     </div>
-
+                </form>
             </div>
         </div>
     </div>

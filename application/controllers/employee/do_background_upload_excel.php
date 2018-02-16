@@ -487,7 +487,7 @@ class Do_background_upload_excel extends CI_Controller {
                     $booking['current_status'] = _247AROUND_FOLLOWUP;
                     $booking['type'] = "Query";
                     $booking['booking_address'] = $value['customer_address'];
-                    $booking['city'] = !empty($value['city'])?$value['city']:$distict_details['district'];;
+                    $booking['city'] = !empty($value['city'])?$value['city']:$distict_details['district'];
                     $booking['state'] = $distict_details['state'];
                     $booking['district'] = $distict_details['district'];
                     $booking['taluk'] = $distict_details['taluk'];

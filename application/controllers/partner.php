@@ -718,7 +718,8 @@ class Partner extends CI_Controller {
         $valid_request_types = array("Installation", "Installation & Demo","Repair - In Warranty",
             "Uninstallation", "Validation", "Visit Inspection", "Repair - In Warranty", "Repair - Out Of Warranty",
             "Gas Recharge", "Wet Service", "Repair - In Warranty (Home Visit)", "Repair - In Warranty (Service Center Visit)",
-            "Repair - Out Of Warranty (Home Visit)", "Repair - Out Of Warranty (Service Center Visit)");
+            "Repair - Out Of Warranty (Home Visit)", "Repair - Out Of Warranty (Service Center Visit)", "Installation & Demo (Free)", 
+            "Installation & Demo (Paid)");
         if (($flag === TRUE) &&
                 (in_array($request['requestType'], $valid_request_types) == FALSE)) {
             $resultArr['code'] = ERR_INVALID_REQUEST_TYPE_CODE;
@@ -1523,13 +1524,20 @@ class Partner extends CI_Controller {
 //                                            $message = "Booking ID " . $booking['booking_id'] . " Booking City: " . $booking['city'] . " <br/>  Booking Pincode: " . $booking['booking_pincode'];
 //                                            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
 
-                                            $this->vendor_model->insert_booking_details_sf_not_exist(array(
-                                                "booking_id" => $booking['booking_id'],
-                                                "city" => $booking['city'],
-                                                "pincode" => $booking['booking_pincode'],
-                                                "service_id" => $booking['service_id'],
-                                                "partner_id" => $booking['partner_id']
-                                            ));
+//                                            $this->vendor_model->insert_booking_details_sf_not_exist(array(
+//                                                "booking_id" => $booking['booking_id'],
+//                                                "city" => $booking['city'],
+//                                                "pincode" => $booking['booking_pincode'],
+//                                                "service_id" => $booking['service_id'],
+//                                                "partner_id" => $booking['partner_id']
+//                                            ));
+                                            $this->miscelleneous->sf_not_exist_for_pincode(array(
+                                                    "booking_id" => $booking['booking_id'],
+                                                    "city" => $booking['city'],
+                                                    "booking_pincode" => $booking['booking_pincode'],
+                                                    "service_id" => $booking['service_id'],
+                                                    "partner_id" => $booking['partner_id']
+                                                ));
                                         }
                                         break;
                                 }

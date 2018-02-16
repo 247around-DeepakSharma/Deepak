@@ -130,12 +130,6 @@ class User_model extends CI_Model {
         $this->db->update('handyman', $update);
     }
 
-    /** @description* This funtion is used to search user and his booking
-     *  @param : String phone number
-     *  @param String $start (optional)
-     *  @param String $end (optional)
-     *  @return : array(user details)
-     */
     function search_user($phone_number, $start ="", $end = "") {
         $limit = "";
         if($start !=""){
@@ -167,15 +161,7 @@ class User_model extends CI_Model {
         $query = $this->db->get('users');
         return $query->result_array();
     }
-
-    /* function total_user_count($userName) {
-      $this->db->select('user_id');
-      $this->db->like('name', $userName);
-      $this->db->from('users');
-      $query = $this->db->get();
-      $result = $query->result_array();
-      return count($result);
-      } */
+ 
 
     /** @description : Function to search booking with booking id from find user page
      *  @param : booking id

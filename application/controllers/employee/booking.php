@@ -141,6 +141,7 @@ class Booking extends CI_Controller {
             $purchase_year = $this->input->post('purchase_year');
             // All purchase month comming in array eg-- array([0]=> Jan, [1]=> Feb)
             $months = $this->input->post('purchase_month');
+            $order_item_id = $this->input->post('order_item_id');
 
             $appliance_id_array = $this->input->post('appliance_id');
             $appliance_id = array();
@@ -193,9 +194,7 @@ class Booking extends CI_Controller {
                 $appliances_details['last_service_date'] = date('Y-m-d H:i:s');
 
                 $services_details['partner_id'] = $booking['partner_id'];
-                if($this->input->post('order_item_id')){
-                    $services_details['sub_order_id'] = trim($this->input->post('order_item_id'));
-                }
+                $services_details['sub_order_id'] = trim($order_item_id[$key]);
                 
 
                 log_message('info', __METHOD__ . "Appliance ID" . print_r($appliance_id, true));
@@ -297,7 +296,7 @@ class Booking extends CI_Controller {
             if (!empty($updated_unit_id)) {
                 log_message('info', __METHOD__ . " UNIT ID: " . print_r($updated_unit_id, true));
                 $sf_id = $this->reusable_model->get_search_query('booking_details','assigned_vendor_id',array('booking_id'=>$booking_id),NULL,NULL,NULL,NULL,NULL)->result_array();
-                if(!empty($sf_id)){
+                if(!empty($sf_id[0]['assigned_vendor_id'])){
                     $inventory_details = array('receiver_entity_id' => $sf_id[0]['assigned_vendor_id'],
                                                 'receiver_entity_type' => _247AROUND_SF_STRING,
                                                 'stock' => 1,
@@ -1973,122 +1972,127 @@ class Booking extends CI_Controller {
      */
     function process_convert_booking_to_pending_form($booking_id, $status) {
         log_message('info', __FUNCTION__ . " Booking id: " . $booking_id . " status: " . $status . " Done By " . $this->session->userdata('employee_id'));
-
-        $data['booking_date'] = date('d-m-Y', strtotime($this->input->post('booking_date')));
-        $data['booking_timeslot'] = $this->input->post('booking_timeslot');
-        $data['current_status'] = 'Pending';
-        $data['internal_status'] = "Booking Opened From ".$status;
-        $data['update_date'] = date("Y-m-d H:i:s");
-        $data['cancellation_reason'] = NULL;
-        $data['closed_date'] = NULL;
-        $data['vendor_rating_stars'] = NULL;
-        $data['vendor_rating_comments'] = NULL;
-        $data['amount_paid'] = NULL;
-        $data['rating_stars'] = NULL;
-        $data['rating_comments'] = NULL;
-        $data['closing_remarks'] = NULL;
-        $data['booking_jobcard_filename'] = NULL;
-        $data['mail_to_vendor'] = 0;
-        //$data['booking_remarks'] = $this->input->post('reason');
-        //check partner status from partner_booking_status_mapping table  
-        $partner_id = $this->input->post('partner_id');
-        $partner_status = $this->booking_utilities->get_partner_status_mapping_data($data['current_status'], $data['internal_status'], $partner_id, $booking_id);
-        if (!empty($partner_status)) {
-            $data['partner_current_status'] = $partner_status[0];
-            $data['partner_internal_status'] = $partner_status[1];
-        }
-
-        if ($data['booking_timeslot'] == "Select") {
-            echo "Please Select Booking Timeslot.";
+        $this->form_validation->set_rules('booking_date', 'Booking Date', 'required|xss_clean');
+        $this->form_validation->set_rules('booking_timeslot', 'Booking Time Slot', 'required|xss_clean');
+        if ($this->form_validation->run() === false) {
+            $this->get_convert_booking_to_pending_form($booking_id, $status);
         } else {
-            log_message('info', __FUNCTION__ . " Convert booking, data : " . print_r($data, true));
-            $this->booking_model->update_booking($booking_id, $data);
-            
-            $assigned_vendor_id = $this->input->post("assigned_vendor_id");
-            if (!empty($assigned_vendor_id)) {
-                $service_center_data['internal_status'] = "Pending";
-                $service_center_data['current_status'] = "Pending";
-                $service_center_data['update_date'] = date("Y-m-d H:i:s");
-                $service_center_data['serial_number'] = "";
-                $service_center_data['cancellation_reason'] = NULL;
-                $service_center_data['reschedule_reason'] = NULL;
-                $service_center_data['admin_remarks'] = NULL;
-                $service_center_data['service_center_remarks'] = $service_center_data['admin_remarks'] = NULL;
-                $service_center_data['booking_date'] = $service_center_data['booking_timeslot'] = NUll;
-                $service_center_data['closed_date'] = NULL;
-                $service_center_data['service_charge'] = $service_center_data['additional_service_charge'] = $service_center_data['parts_cost'] = "0.00";
-                log_message('info', __FUNCTION__ . " Convert booking, Service center data : " . print_r($service_center_data, true));
-                $this->vendor_model->update_service_center_action($booking_id, $service_center_data);
-                //if booking status is cancelled then do action on inventory
-                if ($status === _247AROUND_CANCELLED) {
-                    //get the unit details data and update the inventory stock
-                    $booking_unit_details = $this->reusable_model->get_search_query('booking_unit_details', 'booking_unit_details.price_tags,booking_unit_details.appliance_capacity', array('booking_unit_details.booking_id' => $booking_id, "booking_unit_details.price_tags like '%" . _247AROUND_WALL_MOUNT__PRICE_TAG . "%'" => NULL), NULL, NULL, NULL, NULL, NULL)->result_array();
-                    if (!empty($booking_unit_details)) {
-                        //process each unit if price tag is wall mount
-                        foreach ($booking_unit_details as $value) {
-                            $match = array();
-                            //get the size from the capacity to know the part number
-                            preg_match('/[0-9]+/', $value['appliance_capacity'], $match);
-                            if (!empty($match)) {
-                                if ($match[0] <= 32) {
-                                    $data['part_number'] = LESS_THAN_32_BRACKETS_PART_NUMBER;
-                                } else if ($match[0] > 32) {
-                                    $data['part_number'] = GREATER_THAN_32_BRACKETS_PART_NUMBER;
+            $data['booking_date'] = date('d-m-Y', strtotime($this->input->post('booking_date')));
+            $data['booking_timeslot'] = $this->input->post('booking_timeslot');
+            $data['current_status'] = 'Pending';
+            $data['internal_status'] = "Booking Opened From " . $status;
+            $data['update_date'] = date("Y-m-d H:i:s");
+            $data['cancellation_reason'] = NULL;
+            $data['closed_date'] = NULL;
+            $data['vendor_rating_stars'] = NULL;
+            $data['vendor_rating_comments'] = NULL;
+            $data['amount_paid'] = NULL;
+            $data['rating_stars'] = NULL;
+            $data['rating_comments'] = NULL;
+            $data['closing_remarks'] = NULL;
+            $data['booking_jobcard_filename'] = NULL;
+            $data['mail_to_vendor'] = 0;
+            //$data['booking_remarks'] = $this->input->post('reason');
+            //check partner status from partner_booking_status_mapping table  
+            $partner_id = $this->input->post('partner_id');
+            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($data['current_status'], $data['internal_status'], $partner_id, $booking_id);
+            if (!empty($partner_status)) {
+                $data['partner_current_status'] = $partner_status[0];
+                $data['partner_internal_status'] = $partner_status[1];
+            }
+
+            if ($data['booking_timeslot'] == "Select") {
+                echo "Please Select Booking Timeslot.";
+            } else {
+                log_message('info', __FUNCTION__ . " Convert booking, data : " . print_r($data, true));
+                $this->booking_model->update_booking($booking_id, $data);
+
+                $assigned_vendor_id = $this->input->post("assigned_vendor_id");
+                if (!empty($assigned_vendor_id)) {
+                    $service_center_data['internal_status'] = "Pending";
+                    $service_center_data['current_status'] = "Pending";
+                    $service_center_data['update_date'] = date("Y-m-d H:i:s");
+                    $service_center_data['serial_number'] = "";
+                    $service_center_data['cancellation_reason'] = NULL;
+                    $service_center_data['reschedule_reason'] = NULL;
+                    $service_center_data['admin_remarks'] = NULL;
+                    $service_center_data['service_center_remarks'] = $service_center_data['admin_remarks'] = NULL;
+                    $service_center_data['booking_date'] = $service_center_data['booking_timeslot'] = NUll;
+                    $service_center_data['closed_date'] = NULL;
+                    $service_center_data['service_charge'] = $service_center_data['additional_service_charge'] = $service_center_data['parts_cost'] = "0.00";
+                    log_message('info', __FUNCTION__ . " Convert booking, Service center data : " . print_r($service_center_data, true));
+                    $this->vendor_model->update_service_center_action($booking_id, $service_center_data);
+                    //if booking status is cancelled then do action on inventory
+                    if ($status === _247AROUND_CANCELLED) {
+                        //get the unit details data and update the inventory stock
+                        $booking_unit_details = $this->reusable_model->get_search_query('booking_unit_details', 'booking_unit_details.price_tags,booking_unit_details.appliance_capacity', array('booking_unit_details.booking_id' => $booking_id, "booking_unit_details.price_tags like '%" . _247AROUND_WALL_MOUNT__PRICE_TAG . "%'" => NULL), NULL, NULL, NULL, NULL, NULL)->result_array();
+                        if (!empty($booking_unit_details)) {
+                            //process each unit if price tag is wall mount
+                            foreach ($booking_unit_details as $value) {
+                                $match = array();
+                                //get the size from the capacity to know the part number
+                                preg_match('/[0-9]+/', $value['appliance_capacity'], $match);
+                                if (!empty($match)) {
+                                    if ($match[0] <= 32) {
+                                        $data['part_number'] = LESS_THAN_32_BRACKETS_PART_NUMBER;
+                                    } else if ($match[0] > 32) {
+                                        $data['part_number'] = GREATER_THAN_32_BRACKETS_PART_NUMBER;
+                                    }
+
+                                    $data['receiver_entity_id'] = $assigned_vendor_id;
+                                    $data['receiver_entity_type'] = _247AROUND_SF_STRING;
+                                    $data['stock'] = -1;
+                                    $data['booking_id'] = $booking_id;
+                                    $data['agent_id'] = $this->session->userdata('id');
+                                    $data['agent_type'] = _247AROUND_EMPLOYEE_STRING;
+
+                                    $this->miscelleneous->process_inventory_stocks($data);
                                 }
-
-                                $data['receiver_entity_id'] = $assigned_vendor_id;
-                                $data['receiver_entity_type'] = _247AROUND_SF_STRING;
-                                $data['stock'] = -1;
-                                $data['booking_id'] = $booking_id;
-                                $data['agent_id'] = $this->session->userdata('id');
-                                $data['agent_type'] = _247AROUND_EMPLOYEE_STRING;
-
-                                $this->miscelleneous->process_inventory_stocks($data);
                             }
                         }
                     }
                 }
+
+
+                $unit_details['booking_status'] = _247AROUND_PENDING;
+                $unit_details['vendor_to_around'] = "0.00";
+                $unit_details['around_to_vendor'] = "0.00";
+                $unit_details['ud_closed_date'] = NULL;
+
+                log_message('info', __FUNCTION__ . " Convert Unit Details - data : " . print_r($unit_details, true));
+
+                $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
+
+                $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.old_status", array('booking_id' => $booking_id), false);
+                foreach ($spare as $sp) {
+                    //Update Spare parts details table
+                    $this->service_centers_model->update_spare_parts(array('id' => $sp['id']), array('status' => $sp['old_status']));
+                }
+
+                //Log this state change as well for this booking          
+                $this->notify->insert_state_change($booking_id, _247AROUND_PENDING, $status, "", $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+                if (!empty($assigned_vendor_id)) {
+
+                    $up_flag = 1;
+
+                    $url = base_url() . "employee/vendor/update_upcountry_and_unit_in_sc/" . $booking_id . "/" . $up_flag;
+                    $async_data['booking'] = array();
+                    $this->asynchronous_lib->do_background_process($url, $async_data);
+
+                    $this->booking_utilities->lib_send_mail_to_vendor($booking_id, "");
+                } else {
+                    $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
+                }
+
+                $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
+                $send['booking_id'] = $booking_id;
+                $send['state'] = "OpenBooking";
+                $this->asynchronous_lib->do_background_process($url, $send);
+
+                log_message('info', $status . ' Booking Opened - Booking id: ' . $booking_id . " Opened By: " . $this->session->userdata('employee_id') . " => " . print_r($data, true));
+
+                redirect(base_url() . DEFAULT_SEARCH_PAGE);
             }
-
-
-            $unit_details['booking_status'] = _247AROUND_PENDING;
-            $unit_details['vendor_to_around'] = "0.00";
-            $unit_details['around_to_vendor'] = "0.00";
-            $unit_details['ud_closed_date'] = NULL;
-
-            log_message('info', __FUNCTION__ . " Convert Unit Details - data : " . print_r($unit_details, true));
-
-            $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
-            
-            $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.old_status", array('booking_id' => $booking_id ), false);
-            foreach($spare as $sp){
-                //Update Spare parts details table
-                $this->service_centers_model->update_spare_parts(array('id'=> $sp['id']), array('status' => $sp['old_status']));
-            }
-
-            //Log this state change as well for this booking          
-            $this->notify->insert_state_change($booking_id, _247AROUND_PENDING, $status, "", $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
-            if (!empty($assigned_vendor_id)) {
-
-                $up_flag = 1;
-
-                $url = base_url() . "employee/vendor/update_upcountry_and_unit_in_sc/" . $booking_id . "/" . $up_flag;
-                $async_data['booking'] = array();
-                $this->asynchronous_lib->do_background_process($url, $async_data);
-
-                $this->booking_utilities->lib_send_mail_to_vendor($booking_id, "");
-            } else {
-                $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
-            }
-            
-            $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
-            $send['booking_id'] = $booking_id;
-            $send['state'] = "OpenBooking";
-            $this->asynchronous_lib->do_background_process($url, $send);
-
-            log_message('info', $status . ' Booking Opened - Booking id: ' . $booking_id . " Opened By: " . $this->session->userdata('employee_id') . " => " . print_r($data, true));
-
-            redirect(base_url() . DEFAULT_SEARCH_PAGE);
         }
     }
 
@@ -3110,9 +3114,9 @@ class Booking extends CI_Controller {
             $sn = "";
         }
         
-        $call_btn = "<button type='button' class='btn btn-sm btn-color' onclick='";
-        $call_btn .= "outbound_call(".'"'.$order_list->booking_primary_contact_no.'"';
-        $call_btn .= ")' '><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>";
+//        $call_btn = "<button type='button' class='btn btn-sm btn-color' onclick='";
+//        $call_btn .= "outbound_call(".'"'.$order_list->booking_primary_contact_no.'"';
+//        $call_btn .= ")' '><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>";
         
         if ($order_list->current_status == 'Completed' && empty($order_list->rating_stars )){
             $rating_btn_disabled = "";
@@ -3159,35 +3163,35 @@ class Booking extends CI_Controller {
             }
         }
         
-        if (!is_null($order_list->assigned_vendor_id) && !is_null($order_list->booking_jobcard_filename) && ($order_list->mail_to_vendor == 0)) {
-            $mail =  "<a  id='b_notes" . $no . "' class='btn btn-sm btn-color' onclick='show(this.id)' title='Mail'><i class='fa fa-envelope-o' aria-hidden='true'></i></a>";
-            $mail .= "<div class='dialog' id='bookingMailForm" . $no . "'>";
-            $mail .= "<form class='mailform'>";
-            $mail .= "<textarea style='width:200px;height:80px;' id='valueFromMyButton" . $no . "' name='valueFromMyButton" . $no . "' placeholder='Enter Additional Notes'></textarea>";
-            $mail .= "<input type='hidden' id='booking_id" . $no . "' name='booking_id" . $no . "' value=$order_list->booking_id >";
-            $mail .= "<div align='center'>";
-            $mail .= "<a id='btnOK" . $no . "' class='btn btn-sm btn-success' onclick='send_email_to_vendor(" . $no . ");'>Ok</a>";
-            $mail .= "</div>";
-            $mail .= "</form>";
-            $mail .= "</div>";
-        } else {
-            $mail = "<a class='btn btn-sm btn-color disabled' href='" . base_url() . "employee/bookingjobcard/send_mail_to_vendor/$order_list->booking_id' title='Mail'><i class='fa fa-envelope-o' aria-hidden='true' ></i></a>";
-        }
+//        if (!is_null($order_list->assigned_vendor_id) && !is_null($order_list->booking_jobcard_filename) && ($order_list->mail_to_vendor == 0)) {
+//            $mail =  "<a  id='b_notes" . $no . "' class='btn btn-sm btn-color' onclick='show(this.id)' title='Mail'><i class='fa fa-envelope-o' aria-hidden='true'></i></a>";
+//            $mail .= "<div class='dialog' id='bookingMailForm" . $no . "'>";
+//            $mail .= "<form class='mailform'>";
+//            $mail .= "<textarea style='width:200px;height:80px;' id='valueFromMyButton" . $no . "' name='valueFromMyButton" . $no . "' placeholder='Enter Additional Notes'></textarea>";
+//            $mail .= "<input type='hidden' id='booking_id" . $no . "' name='booking_id" . $no . "' value=$order_list->booking_id >";
+//            $mail .= "<div align='center'>";
+//            $mail .= "<a id='btnOK" . $no . "' class='btn btn-sm btn-success' onclick='send_email_to_vendor(" . $no . ");'>Ok</a>";
+//            $mail .= "</div>";
+//            $mail .= "</form>";
+//            $mail .= "</div>";
+//        } else {
+//            $mail = "<a class='btn btn-sm btn-color disabled' href='" . base_url() . "employee/bookingjobcard/send_mail_to_vendor/$order_list->booking_id' title='Mail'><i class='fa fa-envelope-o' aria-hidden='true' ></i></a>";
+//        }
         
-        if (!is_null($order_list->assigned_vendor_id) && !is_null($order_list->booking_jobcard_filename) && ($order_list->mail_to_vendor)) {
-            $r_mail = "<a id='r_notes" . $no . "' class='btn btn-sm btn-color' onclick='show(this.id)' title='Remainder Mail' ><i class='fa fa-clock-o' aria-hidden='true'></i></a>";
-            $r_mail .= "<div class='dialog' id='reminderMailForm" . $no . "'>";
-            $r_mail .= "<form class='remindermailform'>";
-            $r_mail .= "<textarea style='width:200px;height:80px;' id='reminderMailButton" . $no . "' name='reminderMailButton" . $no . "' placeholder='Enter Additional Notes'></textarea>";
-            $r_mail .= "<input type='hidden' id='booking_id" . $no . "' name='booking_id" . $no . "' value=$order_list->booking_id >";
-            $r_mail .= "<div align='center'>";
-            $r_mail .= "<a id='btnOK" . $no . "' class='btn btn-sm btn-success' onclick='send_reminder_email_to_vendor(" . $no . ");'>Ok</a>";
-            $r_mail .= "</div>";
-            $r_mail .= "</form>";
-            $r_mail .= "</div>";
-        } else {
-            $r_mail = "<a class='btn btn-sm btn-color disabled' href = '" . base_url() . "employee/bookingjobcard/send_reminder_mail_to_vendor/$order_list->booking_id ' title = 'Reminder Mail'><i class='fa fa-clock-o' aria-hidden='true'></i></a>";
-        }
+//        if (!is_null($order_list->assigned_vendor_id) && !is_null($order_list->booking_jobcard_filename) && ($order_list->mail_to_vendor)) {
+//            $r_mail = "<a id='r_notes" . $no . "' class='btn btn-sm btn-color' onclick='show(this.id)' title='Remainder Mail' ><i class='fa fa-clock-o' aria-hidden='true'></i></a>";
+//            $r_mail .= "<div class='dialog' id='reminderMailForm" . $no . "'>";
+//            $r_mail .= "<form class='remindermailform'>";
+//            $r_mail .= "<textarea style='width:200px;height:80px;' id='reminderMailButton" . $no . "' name='reminderMailButton" . $no . "' placeholder='Enter Additional Notes'></textarea>";
+//            $r_mail .= "<input type='hidden' id='booking_id" . $no . "' name='booking_id" . $no . "' value=$order_list->booking_id >";
+//            $r_mail .= "<div align='center'>";
+//            $r_mail .= "<a id='btnOK" . $no . "' class='btn btn-sm btn-success' onclick='send_reminder_email_to_vendor(" . $no . ");'>Ok</a>";
+//            $r_mail .= "</div>";
+//            $r_mail .= "</form>";
+//            $r_mail .= "</div>";
+//        } else {
+//            $r_mail = "<a class='btn btn-sm btn-color disabled' href = '" . base_url() . "employee/bookingjobcard/send_reminder_mail_to_vendor/$order_list->booking_id ' title = 'Reminder Mail'><i class='fa fa-clock-o' aria-hidden='true'></i></a>";
+//        }
         
         if(is_null($order_list->assigned_vendor_id)){
             $d_btn = "disabled";
@@ -3229,20 +3233,17 @@ class Booking extends CI_Controller {
         $row[] = $no.$sn;
         $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id</a>";
         $row[] = "<a class='col-md-12' href='".base_url()."employee/user/finduser?phone_number=".$order_list->phone_number."'>$order_list->customername</a>"."<b>".$order_list->booking_primary_contact_no."</b>";
-        $row[] = $order_list->services;
+        $row[] = "<b>".$order_list->services."</b>"."<br>".$order_list->request_type;
         $row[] = $order_list->booking_date." / ".$order_list->booking_timeslot;
         $row[] = date_diff(date_create(date('Y-m-d',strtotime($order_list->create_date))),date_create(date('Y-m-d')))->format("%R%a days");
         $row[] = $escalation." ".$order_list->partner_internal_status;
         $row[] = "<a target = '_blank' href='".base_url()."employee/vendor/viewvendor/".$order_list->assigned_vendor_id."'>$sf</a>";
-        $row[] = $call_btn;
         $row[] = "<a id ='view' class ='btn btn-sm btn-color' href='".base_url()."employee/booking/viewdetails/".$order_list->booking_id."' title = 'view' target = '_blank'><i class = 'fa fa-eye' aria-hidden = 'true'></i></a>";
         $row[] = "<a target = '_blank' id = 'edit' class = 'btn btn-sm btn-color' "
             . "href=" . base_url() . "employee/booking/get_reschedule_booking_form/$order_list->booking_id title='Reschedule'><i class = 'fa fa-calendar' aria-hidden='true' ></i></a>";
         $row[] = "<a target = '_blank' id = 'cancel' class = 'btn btn-sm btn-color' href = '".base_url()."employee/booking/get_cancel_form/".$order_list->booking_id."' title = 'Cancel'><i class = 'fa fa-times' aria-hidden = 'true'></i></a>";
         $row[] = $complete;
         $row[] ="<a target = '_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/bookingjobcard/prepare_job_card_using_booking_id/$order_list->booking_id' title = 'Job Card'> <i class = 'fa fa-file-pdf-o' aria-hidden = 'true' ></i></a>";
-        $row[] = $mail;
-        $row[] = $r_mail;
         $row[] = "<a target ='_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/booking/get_edit_booking_form/$order_list->booking_id' title = 'Edit Booking'> <i class = 'fa fa-pencil-square-o' aria-hidden = 'true'></i></a>";
         $row[] = "<a target ='_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/vendor/get_reassign_vendor_form/$order_list->booking_id ' title = 'Re-assign' $d_btn> <i class = 'fa fa-repeat' aria-hidden = 'true'></i></a>";
         $row[] = "<a target = '_blank' class = 'btn btn-sm btn-color' href = '".base_url()."employee/vendor/get_vendor_escalation_form/$order_list->booking_id' title = 'Escalate' $esc><i class='fa fa-circle' aria-hidden='true'></i></a>";

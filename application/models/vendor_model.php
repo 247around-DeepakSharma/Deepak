@@ -1860,4 +1860,11 @@ class vendor_model extends CI_Model {
           $this->db->where_in('id', $whereIN);
           return $this->db->delete('vendor_pincode_mapping'); 
     }
+    
+    function getvendor_escalation_log($where, $select){
+        $this->db->where($where);
+        $this->db->select($select);
+        $query =  $this->db->get("vendor_escalation_log");
+        return $query->result_array();
+    }
 }

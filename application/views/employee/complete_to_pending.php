@@ -41,7 +41,7 @@
                   <label for="booking_date" class="col-md-2">New Booking Date</label>
                   <div class="col-md-6">
                     <div class="input-group input-append date">
-                                    <input id="booking_date" class="form-control" name="booking_date" type="text" value = "<?php echo set_value('booking_date'); ?>" required readonly='true'>
+                        <input id="booking_date" class="form-control" name="booking_date" type="text" value = "<?php echo set_value('booking_date'); ?>" required="">
                                     <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                     </div>
                         <?php echo form_error('booking_date'); ?>
@@ -50,16 +50,16 @@
 
 
                 <div class="form-group <?php if( form_error('booking_timeslot') ) { echo 'has-error';} ?>">
-                  <label for="booking_timeslot" class="col-md-2">New Booking Timeslot</label>
-                  <div class="col-md-6">
-                    <select type="text" class="form-control" name="booking_timeslot" value="<?php echo set_value('booking_timeslot'); ?>" >
-                    <option>Select</option>
-                    <option>10AM-1PM</option>
-                    <option>1PM-4PM</option>
-                    <option>4PM-7PM</option>
-                    </select>
-                    <?php echo form_error('booking_timeslot'); ?>
-                  </div>
+                    <label for="booking_timeslot" class="col-md-2">New Booking Timeslot</label>
+                    <div class="col-md-6">
+                        <select class="form-control" name="booking_timeslot" required="">
+                            <option value="">Select</option>
+                            <option>10AM-1PM</option>
+                            <option>1PM-4PM</option>
+                            <option>4PM-7PM</option>
+                        </select>
+                        <?php echo form_error('booking_timeslot'); ?>
+                    </div>
                 </div>
                   
                   <input type="hidden" class="form-control" id="partner_id" name="partner_id" value = "<?php if (isset($partner_id)) {echo $partner_id; } ?>" >

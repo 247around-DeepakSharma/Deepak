@@ -896,23 +896,31 @@ class Around_scheduler extends CI_Controller {
      * @desc This method is used to send notification email to partner whose account type is prepaid and have low balance.
      */
     function send_notification_for_low_balance() {
+        log_message("info",__METHOD__." Entering...");
         $partner_details = $this->partner_model->getpartner_details("partners.id, public_name, "
                 . "is_active,invoice_email_to, invoice_email_cc, owner_phone_1 ",
                 array('is_prepaid' => 1,'is_active' => 1));
+        
+        log_message("info",__METHOD__." All Active Prepaid Partner ". print_r($partner_details, true));
+        
         foreach ($partner_details as $value) {
+            log_message("info",__METHOD__." Active Prepaid Partner ID". $value['id']);
             $final_amount = $this->miscelleneous->get_partner_prepaid_amount($value['id']);
             if ($final_amount['is_notification']) {
-                log_message("info", "Partner Id ".$value['id'] );
                 
                 if($final_amount['prepaid_amount'] > 0 ){
-                    $email_template = $this->booking_model->get_booking_email_template("low_prepaid_amount");
+                    
                     $sms['tag'] = "prepaid_low_balance";
                 } else {
-                    $email_template = $this->booking_model->get_booking_email_template("low_prepaid_amount");
+                   
                     $sms['tag'] = "prepaid_negative_balance";
+
                 }
+                
+                
                 //Get Email Template
-               
+                $email_template = $this->booking_model->get_booking_email_template("low_prepaid_amount");
+                
                 $message = vsprintf($email_template[0], array("Rs. ".$final_amount["prepaid_amount"]));
                 $to = $value['invoice_email_to'];
                 $cc = $value['invoice_email_cc']. ", ".$email_template[3];
@@ -924,19 +932,20 @@ class Around_scheduler extends CI_Controller {
                 $sms['type_id'] = $value["id"];
                 
                 $sms['phone_no'] = $value['owner_phone_1'];
-                //SEnd SMS
+                //Send SMS
                 $this->notify->send_sms_msg91($sms);
+                log_message("info",__METHOD__." SMS Sent Active Prepaid Partner ID". $value['id']);
                 //Send tempalte
                 $sendmail = $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "");
                 if ($sendmail) {
-                    log_message('info', __FUNCTION__ . 'Mail has been send successfully. Partner id => '. $value['id']);
+                    log_message('info', __METHOD__ . 'Mail has been send successfully. Partner id => '. $value['id']);
                 } else {
-                    log_message('info', __FUNCTION__ . 'Error in Sending Mail to partner Partner Id => '. $value['id']);
+                    log_message('info', __METHOD__ . 'Error in Sending Mail to partner Partner Id => '. $value['id']);
                 }
               
             } 
         }
-            
+        log_message("info",__METHOD__." EXit...");   
         
     }
     /**
@@ -1044,6 +1053,19 @@ class Around_scheduler extends CI_Controller {
                 preg_match_all($pattern_new, $email_body, $match);
                 if(!empty($match) && isset($match[1][0])){
                    $data['la_balance'] = $match[1][0];
+                }
+            }
+            
+            //get emails for Mobile Balance
+            $mobile_condition = 'SINCE "'.date("d M Y",strtotime(date("Y-m-d"))).'" SUBJECT "'.MOBILE_BALANCE_EMAIL_SUBJECT.'"';
+            $mobile_email_data = $this->email_data_reader->get_emails($mobile_condition);
+            if(!empty($mobile_email_data)){
+                $email_body = $mobile_email_data[0]['body'];
+                $match = array();
+                $pattern_new = '/\bRs. (\d*\.?\d+)/';
+                preg_match_all($pattern_new, $email_body, $match);
+                if(!empty($match) && isset($match[1][0])){
+                   $data['mobile_balance'] = $match[1][0];
                 }
             }
             

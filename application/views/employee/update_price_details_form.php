@@ -113,7 +113,7 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
-                                    <label for="remarks">Send Estimate to Zopper </label>
+                                    <label for="remarks">Send Estimate to Partner </label>
                                     <input type="checkbox" class="form-control" id="send_estimate" name="estimate_sent" value = "1" >
                                 </div>
                             </div>
