@@ -326,40 +326,11 @@ function get_data_for_partner_callback($booking_id) {
     }
     
     //Return all leads shared by Partner in the last 30 days in CSV
-    function get_partner_leads_csv_for_summary_email($partner_id)
-    {
+    function get_partner_leads_csv_for_summary_email($partner_id){
         
-        if($partner_id != 247027){
-            
         return $query = $this->db->query("SELECT distinct '' AS 'Unique id',
             order_id AS 'Sub Order ID',
-            booking_details.create_date AS 'Referred Date and Time', 
-            ud.appliance_brand AS 'Brand', 
-            IFNULL(model_number,'') AS 'Model',
-            services AS 'Product', 
-            ud.appliance_description As 'Description',
-            name As 'Customer', 
-            home_address AS 'Customer Address', 
-            booking_pincode AS 'Pincode', 
-            booking_details.city As 'City', 
-            booking_primary_contact_no AS Phone, 
-            user_email As 'Email ID', 
-            request_type AS 'Call Type (Installation /Table Top Installation/Demo/ Service)', 
-            partner_internal_status AS 'Status By Brand', 
-            CASE WHEN(current_status = 'Rescheduled') THEN (reschedule_reason) ELSE ('') END AS 'Remarks by Brand',
-            'Service sent to vendor' AS 'Status by Partner', 
-            booking_date As 'Scheduled Appointment Date(DD/MM/YYYY)', 
-            booking_timeslot AS 'Scheduled Appointment Time(HH:MM:SS)', 
-            partner_internal_status AS 'Final Status'
-            FROM  booking_details , booking_unit_details AS ud, services, users
-            WHERE booking_details.booking_id = ud.booking_id 
-            AND booking_details.service_id = services.id 
-            AND booking_details.user_id = users.user_id
-            AND booking_details.partner_id = $partner_id
-            AND booking_details.create_date > (CURDATE() - INTERVAL 1 MONTH)");
-        } else {
-            return $query = $this->db->query("SELECT distinct '' AS 'Unique id',
-            order_id AS 'Sub Order ID',
+            booking_details.booking_id AS '247BookingID',
             booking_details.create_date AS 'Referred Date and Time', 
             ud.appliance_brand AS 'Brand', 
             IFNULL(model_number,'') AS 'Model',
@@ -374,7 +345,7 @@ function get_data_for_partner_callback($booking_id) {
             user_email As 'Email ID', 
             request_type AS 'Call Type (Installation /Table Top Installation/Demo/ Service)', 
             partner_internal_status AS 'Status By Brand', 
-            CASE WHEN(current_status = 'Rescheduled') THEN (reschedule_reason) ELSE ('') END AS 'Remarks by Brand',
+            CASE WHEN(current_status = 'Completed' || current_status = 'Cancelled') THEN (closing_remarks) ELSE (reschedule_reason) END AS 'Remarks',
             'Service sent to vendor' AS 'Status by Partner', 
             booking_date As 'Scheduled Appointment Date(DD/MM/YYYY)', 
             booking_timeslot AS 'Scheduled Appointment Time(HH:MM:SS)', 
@@ -385,7 +356,6 @@ function get_data_for_partner_callback($booking_id) {
             AND booking_details.user_id = users.user_id
             AND booking_details.partner_id = $partner_id
             AND booking_details.create_date > (CURDATE() - INTERVAL 1 MONTH)");
-        }
     } 
     
     //Return all leads shared by Partner in the last 30 days
