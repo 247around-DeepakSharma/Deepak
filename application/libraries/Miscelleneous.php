@@ -2092,21 +2092,22 @@ class Miscelleneous {
     function process_escalation($booking_id,$vendor_id,$escalation_reason_id,$remarks,$checkValidation,$id,$employeeID){
         log_message('info',__FUNCTION__);
         $escalation['booking_id'] = $booking_id;
-        $escalation['vendor_id'] = $vendor_id;
-        //Get SF to RM relation if present
-        $cc = "";
-        $rm = $this->My_CI->vendor_model->get_rm_sf_relation_by_sf_id($escalation['vendor_id']);
-        if(!empty($rm)){
-            foreach($rm as $key=>$value){
-                if($key == 0){
-                    $cc .= "";
-                }else{
-                    $cc .= ",";
-                }
-                $cc .= $this->My_CI->employee_model->getemployeefromid($value['agent_id'])[0]['official_email'];
-            }
-        }
+        $escalation['vendor_id'] = $vendor_id;       
         if ($checkValidation) {
+            //Get SF to RM relation if present
+            $cc = "";
+            $rm = $this->My_CI->vendor_model->get_rm_sf_relation_by_sf_id($escalation['vendor_id']);
+            if(!empty($rm)){
+                foreach($rm as $key=>$value){
+                    if($key == 0){
+                        $cc .= "";
+                    }else{
+                        $cc .= ",";
+                    }
+                    $cc .= $this->My_CI->employee_model->getemployeefromid($value['agent_id'])[0]['official_email'];
+                }
+            }
+        
             $escalation['escalation_reason'] = $escalation_reason_id;
             $this->My_CI->booking_model->increase_escalation_reschedule($escalation['booking_id'], "count_escalation");
             $booking_date_timeslot = $this->My_CI->vendor_model->getBookingDateFromBookingID($escalation['booking_id']);
@@ -2167,6 +2168,8 @@ class Miscelleneous {
             else{
                 return FALSE;
             }
+        } else {
+            return FALSE;
         }
     }
      /**
