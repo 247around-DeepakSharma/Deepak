@@ -1010,6 +1010,11 @@ class Service_centers extends CI_Controller {
                 
                 $status = SPARE_PARTS_REQUESTED;
                 $sc_data['internal_status'] = $reason;
+                //Send Push Notification
+               $receiverArray['partner'] = array($data['partner_id']);
+               $notificationTextArray['msg'] = array($data['parts_requested'],$booking_id);
+               $this->push_notification_lib->create_and_send_push_notiifcation(SPARE_PART_REQUEST_TO_PARTNER,$receiverArray,$notificationTextArray);
+               //End Push Notification
             }
 
             if (isset($_FILES["invoice_image"])) {
