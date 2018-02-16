@@ -134,10 +134,10 @@
                     <h4 class="modal-title" id="myModalLabel">Escalate Form</h4>
                 </div>
                 <div class="modal-body">
-                    <center>
-                        <h4 id ="failed_validation" style="color:red;margin-top: 0px;margin-bottom: 35px;"></h4>
-                    </center>
+                    
                     <form class="form-horizontal" action="#" method="POST" target="_blank" >
+                         <h4 class="col-md-offset-3" id ="failed_validation" style="color:red;margin-top: 0px;margin-bottom: 35px;"></h4>
+                        <h4 class="col-md-offset-3" id ="success_validation" style="color:green;margin-top: 0px;margin-bottom: 35px;"></h4>
                         <div class="form-group">
                             <label for="ec_booking_id" class="col-md-2">Booking Id</label>
                             <div class="col-md-6">
@@ -189,10 +189,17 @@
                 $.ajax({
                     type: 'POST',
                     url: '<?php echo base_url() ?>partner/process_escalation/'+booking_id,
-                    data: {escalation_reason_id: escalation_id,escalation_remarks:remarks},
+                    data: {escalation_reason_id: escalation_id,escalation_remarks:remarks,  booking_id:booking_id},
                     success: function (data) {
-                      //console.log(data);
-                      $('#myModal').modal('toggle');
+                        if(data === "success"){
+                            $("#failed_validation").text("");
+                            $("#success_validation").text("Booking Escalated");
+                            location.reload();
+                            $('#myModal').modal('toggle');
+                       } else {
+                           $("#success_validation").text("");
+                           $("#failed_validation").html(data);
+                       }
                     }
                   });
 
