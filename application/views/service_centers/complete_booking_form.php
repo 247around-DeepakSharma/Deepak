@@ -103,9 +103,9 @@
                                         <div class="form-group col-md-4" style="<?php if($this->session->userdata('is_engineer_app') == 1){?>width:26.32%;
                                             <?php } else {?> width:26.32%;<?php }?>">
                                             <div class="col-md-12" style="padding-left:0px;">
-                                                <label> Is Broken</label>
+                                                <label> Product Found Broken</label>
                                                 <select type="text" class="form-control appliance_broken" id="<?php echo "broken_".$key1?>" name="broken[]" onchange="check_broken('<?php echo $key1;?>')" >
-                                                    <option selected disabled>Is Broken</option>
+                                                    <option selected disabled>Product Found Broken</option>
                                                     <option  value="1">Yes</option>
                                                     <option value="0">No</option>
                                                 </select>
