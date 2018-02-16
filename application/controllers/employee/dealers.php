@@ -41,7 +41,7 @@ class Dealers extends CI_Controller {
         log_message("info", __METHOD__);
         $this->checkDealerSession();
         $phone = $this->input->post("phone_number");
-        $user_data = $this->user_model->search_user($phone);
+        $user_data = $this->user_model->get_users_by_any(array('phone_number'=> $phone));
         if(!empty($user_data)){
             $appliance_data = $this->get_appliance_data();
             $array = array('code'=>'0001', 'user_data' => $user_data, 'appliance_data' => $appliance_data);
