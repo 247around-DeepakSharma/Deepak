@@ -1274,28 +1274,100 @@ class Around_scheduler extends CI_Controller {
      * This function is used to Approve rescheduled requests Automatically
      * If we did'nt get any miss call for fake reschedule within 4 hours of reschedule request then we will automatically approve that rescheduled request
      */
-function auto_approval_for_booking_rescheduled_request(){
-    date_default_timezone_set('Asia/Calcutta');
-    //Get Current Rescheduled request Bookings
-    $reviewBookingsArray = $this->booking_model->review_reschedule_bookings_request();
-    $id = _247AROUND_DEFAULT_AGENT;
-    $employeeID = _247AROUND_DEFAULT_AGENT_NAME;
-    $partner_id =_247AROUND;
-    if(!empty($reviewBookingsArray)){
-        foreach($reviewBookingsArray as $bookingData){
-                $rescheduledTime = date_create($bookingData['reschedule_request_date']);
-                $currentTime = date_create();
-                $diff  = date_diff( $rescheduledTime, $currentTime);
-                $timeDiffInHours = $diff->h;
-                // IF request Time is greater then 4 hours then approvad the rescheduled
-                if($timeDiffInHours>4){
-                    $reschedule_booking_id[] = $bookingData['booking_id'];
-                    $reschedule_booking_date[$bookingData['booking_id']] = $bookingData['reschedule_date_request'];
-                    $reschedule_reason[$bookingData['booking_id']] = $bookingData['reschedule_reason'];
-                }
+    function auto_approval_for_booking_rescheduled_request(){
+        date_default_timezone_set('Asia/Calcutta');
+        //Get Current Rescheduled request Bookings
+        $reviewBookingsArray = $this->booking_model->review_reschedule_bookings_request();
+        $id = _247AROUND_DEFAULT_AGENT;
+        $employeeID = _247AROUND_DEFAULT_AGENT_NAME;
+        $partner_id =_247AROUND;
+        if(!empty($reviewBookingsArray)){
+            foreach($reviewBookingsArray as $bookingData){
+                    $rescheduledTime = date_create($bookingData['reschedule_request_date']);
+                    $currentTime = date_create();
+                    $diff  = date_diff( $rescheduledTime, $currentTime);
+                    $timeDiffInHours = $diff->h;
+                    // IF request Time is greater then 4 hours then approvad the rescheduled
+                    if($timeDiffInHours>4){
+                        $reschedule_booking_id[] = $bookingData['booking_id'];
+                        $reschedule_booking_date[$bookingData['booking_id']] = $bookingData['reschedule_date_request'];
+                        $reschedule_reason[$bookingData['booking_id']] = $bookingData['reschedule_reason'];
+                    }
+            }
+            $this->miscelleneous->approved_rescheduled_bookings($reschedule_booking_id,$reschedule_booking_date,$reschedule_reason,$partner_id,$id,$employeeID);
         }
-        $this->miscelleneous->approved_rescheduled_bookings($reschedule_booking_id,$reschedule_booking_date,$reschedule_reason,$partner_id,$id,$employeeID);
     }
-}
+    
+     /**
+    * @desc     used to get all the unread email's from installations@247around.com
+    * @param    void()
+    * @return   void() 
+    */
+    function get_unread_email_details() {
+        log_message('info', __METHOD__ . " Entering...");
+        
+        $mail_server = SMS_DEACTIVATION_MAIL_SERVER;
+        $email = EMAIL_ATTACHMENT_READER_EMAIL;
+        $password = EMAIL_ATTACHMENT_READER_PASSWORD;
+        
+        //create email connection
+        $conn = $this->email_data_reader->create_email_connection($mail_server, $email, $password);
+        if ($conn != 'FALSE') {
+            log_message('info', __METHOD__ . " Email connection created successfully.");
+            //get the email list according to search condition
+            $email_search_condition = 'UNSEEN';
+            $email_list = $this->email_data_reader->get_emails($email_search_condition);
+
+            if (!empty($email_list)) {
+                log_message("info",__METHOD__." Emails Found");
+                
+                $template1 = array(
+                    'table_open' => '<table border="1" cellpadding="2" cellspacing="0" class="mytable">'
+                );
+
+                $this->table->set_template($template1);
+
+                $this->table->set_heading(array('From', 'Subject', 'attachment'));
+                foreach ($email_list as $email) {
+                    $attachments = array();
+                    if (!empty($email['attachments'])) {
+                        foreach ($email['attachments'] as $attachment) {
+                            if (!empty($attachment['file_name'])) {
+                                array_push($attachments, $attachment['file_name']);
+                            }
+                        }
+                    }
+                    
+                    $this->table->add_row($email['from'], $email['subject'], implode(',', $attachments));
+                }
+
+                $this->table->set_template($template1);
+                $html_table = $this->table->generate();
+
+                //get template from database
+                $template = $this->booking_model->get_booking_email_template("get_unread_email_template");
+                $body = vsprintf($template[0], $html_table);
+
+                $to = DEVELOPER_EMAIL;
+                $from = $template[2];
+                $cc = $template[3];
+                $subject = $template[4];
+
+                $this->notify->sendEmail($from, $to, $cc, "", $subject, $body, "");
+            }
+        } else {
+            log_message('info', __METHOD__ . "Error in creating email connection");
+            $subject = "Error in creating email connection for reading email";
+            $msg = "There was some error in creating connection to email server to get the details of unread emails";
+            $msg .= "<br><b>File Name: </b> " . __CLASS__;
+            $msg .= "<br><b>Function Name: </b> " . __METHOD__;
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, DEVELOPER_EMAIL, '', "", $subject, $msg, "");
+        }
+        
+        //close email connection
+        $this->email_data_reader->close_email_connection();
+        log_message('info', __METHOD__ . " Existing...");
+    }
+
 }
 
