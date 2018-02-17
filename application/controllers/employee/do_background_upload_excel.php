@@ -476,7 +476,13 @@ class Do_background_upload_excel extends CI_Controller {
                     
                     $unit_details['booking_status'] = _247AROUND_FOLLOWUP;
 
-                    $booking['order_id'] = $value['sub_order_id'];
+                    if (isset($value['order_item_id']) && !empty($value['order_item_id'])) {
+                        $booking['order_id'] = $value['sub_order_id'] . "-" . $value['order_item_id'];
+                    } else if (isset($value['item_id']) && !empty($value['item_id'])) {
+                        $booking['order_id'] = $value['sub_order_id'] . "-" . $value['item_id'];
+                    } else {
+                        $booking['order_id'] = $value['sub_order_id'];
+                    }
 
                     $ref_date = !empty($value['referred_date_and_time'])?PHPExcel_Shared_Date::ExcelToPHPObject($value['referred_date_and_time']):PHPExcel_Shared_Date::ExcelToPHPObject();
                     $booking['reference_date'] = $ref_date->format('Y-m-d H:i:s');
@@ -492,6 +498,12 @@ class Do_background_upload_excel extends CI_Controller {
                     $booking['district'] = $distict_details['district'];
                     $booking['taluk'] = $distict_details['taluk'];
                     $booking['quantity'] = '1';
+                    
+                    if (isset($value['order_item_id'])) {
+                        $unit_details['sub_order_id'] = $value['order_item_id'];
+                    } else if (isset($value['item_id'])) {
+                        $unit_details['sub_order_id'] = $value['item_id'];
+                    }
 
 
                     //check partner status from partner_booking_status_mapping table  
@@ -1248,7 +1260,7 @@ class Do_background_upload_excel extends CI_Controller {
         
         //check file type
         $upload_file_type = $this->input->post('file_type');
-        
+        $partner_id = $this->input->post('partner_id');
         if(!empty($this->input->post('email_send_to'))){
             $this->email_send_to = $this->input->post('email_send_to');
         }
@@ -1403,7 +1415,7 @@ class Do_background_upload_excel extends CI_Controller {
     }
     
     /**
-     * @desc: This function is used to make data for satya file
+     * @desc: This function is used to make data for uploaded file
      * @param $data array
      * @param void 
      */
@@ -1454,6 +1466,14 @@ class Do_background_upload_excel extends CI_Controller {
         $tmpArr['call_type_installation_table_top_installationdemo_service'] = '';
         $tmpArr['partner_source'] = $data['partner_source'];
         
+        if(isset($data['order_item_id']) && !empty($data['order_item_id'])){
+            $tmpArr['order_item_id'] = $data['order_item_id'];
+        }else if(isset($data['item_id']) && !empty($data['item_id'])){
+            $tmpArr['order_item_id'] = $data['item_id'];
+        }else{
+            $tmpArr['order_item_id'] = '';
+        }
+        
         array_push($this->finalArray, $tmpArr);
     }
     
@@ -1463,17 +1483,21 @@ class Do_background_upload_excel extends CI_Controller {
      * @param $return_response array
      */
     function check_column_exist($data){
-        $subArray = $this->get_sub_array($data['actual_header_data'][0],array('sub_order_id','product','product_type','customer_name','customer_address','pincode','phone'));
-        $is_all_header_present = array_diff(array_values($subArray),$data['header_data']);
-        if(!empty($is_all_header_present)){
-            $this->ColumnFailed = "<b>".implode($is_all_header_present, ',')." </b> column does not exist.Please correct these and upload again. <br><br><b> For reference,Please use previous successfully upload file from CRM</b>";
-            $return_response['status'] = FALSE;
-            $return_response['msg'] = $this->ColumnFailed;
-        }else{
-            $return_response['status'] = TRUE;
-            $return_response['msg'] = '';
+        foreach($data['actual_header_data'] as $key => $value){
+            //check all header in the file are as per our database
+            $subArray = $this->get_sub_array($value,array('sub_order_id','product','product_type','customer_name','customer_address','pincode','phone'));
+            $is_all_header_present = array_diff(array_values($subArray),$data['header_data']);
+            if(empty($is_all_header_present)){
+                $return_response['status'] = TRUE;
+                $return_response['msg'] = '';
+                $return_response['key'] = $key;
+                break;
+            }else{
+                $this->Columfailed = "<b>".implode($is_all_header_present, ',')." </b> column does not exist.Please correct these and upload again. <br><br><b> For reference,Please use previous successfully upload file from CRM</b>";
+                $return_response['status'] = FALSE;
+                $return_response['msg'] = $this->Columfailed;
+            }
         }
-        
         return $return_response;
     }
     
@@ -1488,7 +1512,7 @@ class Do_background_upload_excel extends CI_Controller {
                 $rowData = array_combine($data['header_data'], $rowData_array[0]);
                 $rowData['partner_source'] = $this->input->post('partner_source');
                 $rowData['partner_id'] = $this->input->post('partner_id');;
-                $this->get_final_file_data($rowData,$data['actual_header_data'][0]);
+                $this->get_final_file_data($rowData,$data['actual_header_data'][$response['key']]);
             }
             
             if(!empty($this->finalArray)){
@@ -1503,6 +1527,11 @@ class Do_background_upload_excel extends CI_Controller {
         }
         
         return $response;
+    }
+    
+    function upload_partner_booking_file(){
+        $this->miscelleneous->load_nav_header();
+	$this->load->view('employee/upload_partner_booking_file');
     }
 
 }

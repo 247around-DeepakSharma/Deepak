@@ -130,17 +130,36 @@ class User_model extends CI_Model {
         $this->db->update('handyman', $update);
     }
 
-    /** @description* This funtion is used to search user and his booking
-     *  @param : String phone number
-     *  @param String $start (optional)
-     *  @param String $end (optional)
-     *  @return : array(user details)
-     */
-    function search_user($phone_number) {
+    function search_user($phone_number, $start ="", $end = "") {
+        $limit = "";
+        if($start !=""){
+            $limit = " LIMIT $start, $end ";
+        }
+        $sql = "SELECT u.name,u.pincode,u.city, u.state, u.user_email, "
+                . " bd.user_id, bd.*, "
+                . " u.phone_number,home_address,u.alternate_phone_number, services.services FROM booking_details as bd, users as u, services "
+                . " WHERE (bd.booking_primary_contact_no = '$phone_number' "
+                . " OR bd.booking_alternate_contact_no = '$phone_number'"
+                . " OR u.phone_number = '$phone_number') AND bd.user_id = u.user_id "
+                . " AND services.id = bd.service_id  ORDER BY bd.create_date desc  $limit";
+       
+        $query = $this->db->query($sql);
+       
+        if($query->num_rows > 0){
+            return $query->result_array();
+            
+        } else {
+           
+            return $this->get_users_by_any(array('users.phone_number' => $phone_number));
+            
+        }
+    }
+    
+    function get_users_by_any($where){
         $this->db->select('name,pincode,city,state, user_email,user_id, home_address, phone_number,alternate_phone_number ');
-        $this->db->where("phone_number", $phone_number);
+        $this->db->where($where);
         $query = $this->db->get('users');
-        return $query->result_array(); 
+        return $query->result_array();
     }
  
 

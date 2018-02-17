@@ -566,6 +566,7 @@ class Service_centers extends CI_Controller {
                 $bookings[$key]['penalty'] = $res['penalty'];
             }
         }
+        $data['serial_number'] = $offset;
         $data['bookings'] = $bookings;
         $data['status'] = "Completed";
 

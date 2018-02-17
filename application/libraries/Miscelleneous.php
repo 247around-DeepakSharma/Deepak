@@ -1093,7 +1093,7 @@ class Miscelleneous {
      */
 
     function _allot_source_partner_id_for_pincode($service_id, $state, $brand, $default_partner) {
-        log_message('info', __FUNCTION__ . ' ' . $service_id, $state, $brand);
+        log_message('info', __FUNCTION__ . ' ' . $service_id, $state, $brand, $api =false);
         $data = [];
         $flag = FALSE;
 
@@ -1110,7 +1110,7 @@ class Miscelleneous {
                     $data['source'] = $partner_array[0]['code'];
                     $flag = FALSE;
                 } else {
-                    if ($value['partner_id'] == 247041) {
+                    if ($value['partner_id'] == 247041 && !$api) {
                         return false;
                     } else {
                         $flag = TRUE;

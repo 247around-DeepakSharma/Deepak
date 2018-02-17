@@ -181,7 +181,8 @@ class Partner extends CI_Controller {
                         //Assigning Booking Source and Partner ID for Brand Requested
                         // First we send Service id and Brand and get Partner_id from it
                         // Now we send state, partner_id and service_id 
-                        $is_partner_id = $this->miscelleneous->_allot_source_partner_id_for_pincode($service_id, $distict_details['state'], $requestData['brand'], $this->partner['id']);
+                        $is_partner_id = $this->miscelleneous->_allot_source_partner_id_for_pincode($service_id, 
+                                $distict_details['state'], $requestData['brand'], $this->partner['id'], true);
 
                         if (!empty($is_partner_id) && !empty($service_id)) {
                            
@@ -265,8 +266,10 @@ class Partner extends CI_Controller {
                             $dd = date("d");
                             $booking['booking_id'] = str_pad($booking['user_id'], 4, "0", STR_PAD_LEFT) . $yy . $mm . $dd;
                             $booking['booking_id'] .= (intval($this->booking_model->getBookingCountByUser($booking['user_id'])) + 1);
+                            
+                            $booking_id = $booking['source'] . "-" . $booking['booking_id'] . $random_code;
 
-                            $unit_details['booking_id'] = $booking['booking_id'] = "Q-" . $booking['source'] . "-" . $booking['booking_id'] . $random_code;
+                            $unit_details['booking_id'] = $booking['booking_id'] = "Q-" . $booking_id;
 
                             $booking['quantity'] = '1';
 
@@ -331,7 +334,7 @@ class Partner extends CI_Controller {
                             //Send response
                             $this->jsonResponseString['response'] = array(
                                 "orderID" => $booking['order_id'],
-                                "247aroundBookingID" => $booking['booking_id'],
+                                "247aroundBookingID" => $booking_id,
                                 "247aroundBookingStatus" => $booking['current_status']);
                             $this->sendJsonResponse(array(SUCCESS_CODE, SUCCESS_MSG));
                         } else {
