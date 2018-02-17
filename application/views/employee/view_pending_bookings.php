@@ -210,15 +210,15 @@
                         <th>Booking Age</th>
                         <th>Status</th>
                         <th>Service Centre</th>
-                        <th>View</th>
-                        <th>Reschedule</th>
-                        <th>Cancel</th>
-                        <th>Complete</th>
-                        <th>Job Card</th>
-                        <th>Edit Booking</th>
-                        <th>Re-assign</th>
-                        <th>Escalate</th>
-                        <th>Remove Penalty</th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
                     </tr>
                     <tbody></tbody>
                 </thead>
