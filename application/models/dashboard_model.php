@@ -259,7 +259,7 @@ class dashboard_model extends CI_Model {
         $sql = "SELECT DATE_FORMAT(closed_date, '%b') AS month,DATE_FORMAT(closed_date, '%Y') AS year, COUNT(*) as completed_booking
                 FROM booking_details
                 WHERE $where
-                AND closed_date >= (NOW() - INTERVAL 12 MONTH)
+                AND closed_date >= (NOW() - INTERVAL 13 MONTH)
                 GROUP BY DATE_FORMAT(closed_date, '%m-%Y') 
                 ORDER BY YEAR(closed_date),MONTH(closed_date)";
         $query = $this->db->query($sql);
