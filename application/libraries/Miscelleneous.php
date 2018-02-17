@@ -1092,8 +1092,8 @@ class Miscelleneous {
      *
      */
 
-    function _allot_source_partner_id_for_pincode($service_id, $state, $brand, $default_partner) {
-        log_message('info', __FUNCTION__ . ' ' . $service_id, $state, $brand, $api =false);
+    function _allot_source_partner_id_for_pincode($service_id, $state, $brand, $default_partner, $api =false) {
+        log_message('info', __FUNCTION__ . ' ' . $service_id, $state, $brand);
         $data = [];
         $flag = FALSE;
 
@@ -1110,7 +1110,7 @@ class Miscelleneous {
                     $data['source'] = $partner_array[0]['code'];
                     $flag = FALSE;
                 } else {
-                    if ($value['partner_id'] == 247041 && !$api) {
+                    if ($value['partner_id'] == VIDEOTEX && !$api) {
                         return false;
                     } else {
                         $flag = TRUE;
