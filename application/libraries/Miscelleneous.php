@@ -1098,6 +1098,7 @@ class Miscelleneous {
                     $data['source'] = $partner_array[0]['code'];
                     $flag = FALSE;
                 } else {
+                    //if partner is videotex then do not make any booking from file_upload
                     if ($value['partner_id'] == 247041) {
                         return false;
                     } else {
