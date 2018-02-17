@@ -242,7 +242,7 @@
                     <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
                         <div class="menu_section">
                             <ul class="nav side-menu">
-                                <li><a href="<?php echo base_url(); ?>partner/get_user_form" data-toggle="tooltip" data-placement="right" title="" data-original-title="Advance Search"><i class="fa fa-search"></i><span class="side_menu_list_title">Advance Search</span></a></li>
+                                <li><a href="<?php echo base_url(); ?>partner/get_user_form" data-toggle="tooltip" data-placement="right" title="" data-original-title="Advanced Search"><i class="fa fa-search"></i><span class="side_menu_list_title">Advanced Search</span></a></li>
                                 <li>
                                     <a data-toggle="tooltip" data-placement="right" title="" data-original-title="Bookings"><i class="fa fa-book"></i> <span class="side_menu_list_title">Bookings</span><span class="fa fa-chevron-down"></span></a>
                                     <ul class="nav child_menu" style="display:none!important;">

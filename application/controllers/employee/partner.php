@@ -3252,7 +3252,7 @@ class Partner extends CI_Controller {
         }
         //get escalation percentage
         $data['escalation_percentage'] = $this->partner_model->get_booking_escalation_percantage($partner_id);
-        $data['pincode_covered'] = $this->reusable_model->get_search_query('vendor_pincode_mapping','distinct count(pincode) as pincode',NULL,NULL,NULL,NULL,NULL,NULL)->result_array()[0]['pincode'];
+        $data['pincode_covered'] = $this->reusable_model->get_search_query('vendor_pincode_mapping','count(distinct pincode) as pincode',NULL,NULL,NULL,NULL,NULL,NULL)->result_array()[0]['pincode'];
         if (!empty($this->session->userdata('is_prepaid'))) {
             $data['prepaid_amount'] = $this->get_prepaid_amount($partner_id);
         }
