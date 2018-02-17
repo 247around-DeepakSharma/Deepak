@@ -1836,12 +1836,18 @@ class Booking_model extends CI_Model {
                 }
             } else if(!is_null($value['service_center_id'])){
                 // For Service center
-                $this->db->select("CONCAT('Agent Id: ',service_centers_login.id ) As full_name , CONCAT('SF Id: ',service_centres.id ) As source");
+                if ($this->session->userdata('userType') == 'employee') {
+                    $this->db->select("service_centers_login.full_name,service_centres.name as source ");
+                 } else {
+                     $this->db->select("CONCAT('Agent Id: ',service_centers_login.id ) As full_name , CONCAT('SF Id: ',service_centres.id ) As source");
+                 }
                 $this->db->from('service_centers_login');
                 $this->db->where('service_centers_login.id', $value['agent_id']);
                 $this->db->join('service_centres', 'service_centres.id = service_centers_login.service_center_id');
+          
                 $query1 = $this->db->get();
                 $data1 = $query1->result_array();
+                
                 $data[$key]['full_name'] = isset($data1[0]['full_name'])?$data1[0]['full_name']:'';
                 $data[$key]['source'] = isset($data1[0]['source'])?$data1[0]['source']:'';
             }
