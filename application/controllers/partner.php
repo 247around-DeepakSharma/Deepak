@@ -181,7 +181,8 @@ class Partner extends CI_Controller {
                         //Assigning Booking Source and Partner ID for Brand Requested
                         // First we send Service id and Brand and get Partner_id from it
                         // Now we send state, partner_id and service_id 
-                        $is_partner_id = $this->miscelleneous->_allot_source_partner_id_for_pincode($service_id, $distict_details['state'], $requestData['brand'], $this->partner['id']);
+                        $is_partner_id = $this->miscelleneous->_allot_source_partner_id_for_pincode($service_id, 
+                                $distict_details['state'], $requestData['brand'], $this->partner['id'], true);
 
                         if (!empty($is_partner_id) && !empty($service_id)) {
                            
