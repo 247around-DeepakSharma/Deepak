@@ -10,6 +10,7 @@ class Push_Notification extends CI_Controller {
         parent::__Construct();
         $this->load->model('reusable_model');
         $this->load->library('miscelleneous');
+	$this->load->library('user_agent');
     }
     // This function is used to get notification center data and create a view for notifictaion center
      function send_pushcrew_notification(){
