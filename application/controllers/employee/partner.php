@@ -1726,7 +1726,7 @@ class Partner extends CI_Controller {
         $this->form_validation->set_rules('awb', 'AWB', 'trim|required');
         $this->form_validation->set_rules('incoming_invoice', 'Invoice', 'callback_spare_incoming_invoice');
         //$this->form_validation->set_rules('partner_challan_number', 'Partner Challan Number', 'trim|required');
-        $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required');
+        $this->form_validation->set_rules('approx_value', 'Spare Cost (Approximate)', 'trim|required');
 
         if ($this->form_validation->run() == FALSE) {
             log_message('info', __FUNCTION__ . '=> Form Validation is not updated by Partner ' . $this->session->userdata('partner_id') .
