@@ -182,7 +182,7 @@
                                 if (form_error('courier_name')) {echo 'has-error';} ?>">
                                 <label for="courier" class="col-md-4">Courier Name*</label>
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control" id="courier_name" name="courier_name" value = "" placeholder="Please Enter courier Name"  required>
+                                    <input type="text" class="form-control" id="courier_name" name="courier_name" value = "" placeholder="Please Enter Courier Name"  required>
                                     <?php echo form_error('courier_name'); ?>
                                 </div>
                             </div>
@@ -215,25 +215,25 @@
             <div class="col-md-12 col-sm-12 col-xs-12">
                 <div class="x_panel">
                     <div class="x_title">
-                        <h2>Update Challan Details</h2>
+                        <h2>Update Delivery Challan Details</h2>
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content">
                         <div class="col-md-6">
                             <div class="form-group <?php
                                 if (form_error('partner_challan_number')) { echo 'has-error'; } ?>">
-                                <label for="partner_challan_number" class="col-md-4">Challan Number</label>
+                                <label for="partner_challan_number" class="col-md-4">Delivery Challan Number</label>
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control" id="partner_challan_number" name="partner_challan_number" value = "" placeholder="Please Enter challan Number">
+                                    <input type="text" class="form-control" id="partner_challan_number" name="partner_challan_number" value = "" placeholder="Please Enter Delivery Challan Number">
                                      <?php echo form_error('partner_challan_number'); ?>
                                 </div>  
                               
                             </div>   
                             <div class="form-group <?php
                                 if (form_error('approx_value')) { echo 'has-error'; } ?>">
-                                <label for="approx_value" class="col-md-4">Approx Value*</label>
+                                <label for="approx_value" class="col-md-4">Spare Cost (Approximate)*</label>
                                 <div class="col-md-6">
-                                    <input type="number" class="form-control" id="approx_value" name="approx_value" value = "" placeholder="Please Enter approx value"  required>
+                                    <input type="number" class="form-control" id="approx_value" name="approx_value" value = "" placeholder="Please Enter Spare Cost (approx)"  required>
                                      <?php echo form_error('approx_value'); ?>
                                 </div>  
                             </div>
@@ -241,7 +241,7 @@
                         <div class="col-md-6">
                             <div class="form-group <?php
                                 if (form_error('challan_file')) { echo 'has-error'; } ?>">
-                                <label for="challan_file" class="col-md-4">Challan File</label>
+                                <label for="challan_file" class="col-md-4">Delivery Challan File</label>
                                 <div class="col-md-6">
                                     <input type="file" class="form-control" id="challan_file" name="challan_file">
                                      <?php echo form_error('challan_file'); ?>

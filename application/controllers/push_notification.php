@@ -81,7 +81,7 @@ class Push_Notification extends CI_Controller {
             }
          }
          else{
-             $notificationString = $notificationString.'<li class="no_new_notification">No new Notification </li>';
+             $notificationString = $notificationString.'<li class="no_new_notification">No new notification </li>';
          }
          echo $notificationString;
    }
