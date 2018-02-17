@@ -38,6 +38,7 @@ class Invoice extends CI_Controller {
         $this->load->library("session");
         $this->load->library('s3');
         $this->load->library('table');
+        $this->load->library('push_notification_lib');
 
     }
 
@@ -1775,6 +1776,11 @@ class Invoice extends CI_Controller {
         if (!empty($invoices)) {
 
             $invoices['meta']['invoice_id'] = $this->create_invoice_id_to_insert("Around");
+            //Send Push Notification
+            $receiverArray['partner'] = array($partner_id);
+            $notificationTextArray['msg'] = array($invoices['meta']['invoice_id'],abs($invoices['meta']['sub_total_amount']));
+            $this->push_notification_lib->create_and_send_push_notiifcation(INVOICE_CREATED_PARTNER,$receiverArray,$notificationTextArray);
+            //End Push Notification
             $hsn_code = $invoices['booking'][0]['hsn_code'];
             log_message('info', __FUNCTION__ . ' Invoice id ' . $invoices['meta']['invoice_id']);
             

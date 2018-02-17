@@ -100,9 +100,9 @@ class push_notification_lib {
                      $this->Pu_N->asynchronous_lib->do_background_process($sendUrl, $data);
                 }
                 else{
-                    log_message('info', __FUNCTION__ . "Push Notification Reciever Is not available");
+                    log_message('info', __FUNCTION__ . "Push Notification Reciever Is not available For ".print_r($receiverArray,true));
                 }
-            }
+            } 
             else{
                 log_message('info', __FUNCTION__ . "Push Notification Template Not Found ".$templateTag);
             }
