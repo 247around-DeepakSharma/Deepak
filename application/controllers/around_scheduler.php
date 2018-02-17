@@ -1024,8 +1024,8 @@ class Around_scheduler extends CI_Controller {
         log_message('info',__METHOD__);
         $data = array();
         $mail_server = SMS_DEACTIVATION_MAIL_SERVER;
-        $email = 'sachinj@247around.com';
-        $password = 'sachinj';
+        $email = QC_BALANCE_READ_EMAIL;
+        $password = QC_BALANCE_READ_EMAIL_PASSWORD;
         //create connection for email
         $conn = $this->email_data_reader->create_email_connection($mail_server,$email,$password);
         if($conn != 'FALSE'){
