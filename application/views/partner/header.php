@@ -227,7 +227,7 @@
                             <li class="col-md-4">
                                 <form method="POST" class="navbar-form navbar-left" role="search" action="<?php echo base_url(); ?>partner/search" onsubmit="return checkStringLength()">
                                     <div class="form-group">
-                                        <input type="text" class="form-control" id="searched_text" placeholder="Search Booking ID or Mobile" name="searched_text" style="width: 110%;border-radius:25px 25px 25px 25px">
+                                        <input type="text" class="form-control" id="searched_text" placeholder="Search Booking ID or Mobile" name="searched_text" style="width: 130%;border-radius:25px 25px 25px 25px">
                                     </div> 
                                 </form>
                             </li>
@@ -275,7 +275,7 @@
                                         <li><a href="<?php echo base_url(); ?>partner/download_sf_list_excel">Service Center List</a></li>
                                     </ul>
                                 </li>
-                                <li><a href="<?php echo base_url(); ?>employee/partner/get_contact_us_page/<?php echo $this->session->userdata('partner_id'); ?>" data-toggle="tooltip" data-placement="right" title="" data-original-title="Contact Us"><i class="fa fa-phone"></i><span class="side_menu_list_title">Contact Us</span></a></li>
+                                <li><a href="<?php echo base_url(); ?>employee/partner/get_contact_us_page" data-toggle="tooltip" data-placement="right" title="" data-original-title="Contact Us"><i class="fa fa-phone"></i><span class="side_menu_list_title">Contact Us</span></a></li>
                             </ul>
                         </div>
                     </div>
