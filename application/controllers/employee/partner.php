@@ -3252,7 +3252,7 @@ class Partner extends CI_Controller {
         }
         //get escalation percentage
         $data['escalation_percentage'] = $this->partner_model->get_booking_escalation_percantage($partner_id);
-        $data['pincode_covered'] = $this->reusable_model->get_search_query('vendor_pincode_mapping','distinct count(vendor_pincode_mapping.id) as pincode',NULL,NULL,NULL,NULL,NULL,NULL)->result_array()[0]['pincode'];
+        $data['pincode_covered'] = $this->reusable_model->get_search_query('vendor_pincode_mapping','count(distinct pincode) as pincode',NULL,NULL,NULL,NULL,NULL,NULL)->result_array()[0]['pincode'];
         if (!empty($this->session->userdata('is_prepaid'))) {
             $data['prepaid_amount'] = $this->get_prepaid_amount($partner_id);
         }
@@ -3357,7 +3357,7 @@ class Partner extends CI_Controller {
     }
 
     public function get_contact_us_page() {
-        $partner_id = $this->session->userdata($this->session->userdata('partner_id'));
+        $partner_id = $this->session->userdata('partner_id');
         $data['account_manager_details'] = $this->miscelleneous->get_am_data($partner_id);
         $data['rm_details'] = $this->employee_model->get_employee_by_group(array('groups' => 'regionalmanager', 'active' => 1));
         $select = "partner_logo,alt_text";
