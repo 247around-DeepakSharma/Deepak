@@ -11,6 +11,9 @@ class Miscelleneous {
         $this->My_CI->load->library('asynchronous_lib');
         $this->My_CI->load->library('booking_utilities');
         $this->My_CI->load->library('notify');
+        $this->My_CI->load->library('push_notification_lib');
+        $this->My_CI->load->library('send_grid_api');
+
         $this->My_CI->load->library('s3');
         $this->My_CI->load->library('PHPReport');
         $this->My_CI->load->model('vendor_model');
