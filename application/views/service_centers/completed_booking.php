@@ -27,7 +27,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php $count = 1; ?>
+                                <?php $count = $serial_number +1; ?>
                                     <?php foreach($bookings as $key =>$row){?>
                                         <tr>
                                             <td>
@@ -38,7 +38,7 @@
                                                    class="fa fa-road" aria-hidden="true"></i><?php } ?>
                                             </td>
                                             <td>
-                                               <?php if(isset($row['penalty'])) { ?> <image src="<?php echo base_url();?>images/icon_image.png" /> <?php } ?><?php echo $row['booking_id']; ?>
+                                               <?php if(!empty($row['penalty'])) {  ?> <image src="<?php echo base_url();?>images/icon_image.png" /> <?php } ?><?php echo $row['booking_id']; ?>
                                             </td>
                                             <td>
                                                 <?php echo $row['customername'];?>
