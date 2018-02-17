@@ -3357,7 +3357,7 @@ class Partner extends CI_Controller {
     }
 
     public function get_contact_us_page() {
-        $partner_id = $this->session->userdata($this->session->userdata('partner_id'));
+        $partner_id = $this->session->userdata('partner_id');
         $data['account_manager_details'] = $this->miscelleneous->get_am_data($partner_id);
         $data['rm_details'] = $this->employee_model->get_employee_by_group(array('groups' => 'regionalmanager', 'active' => 1));
         $select = "partner_logo,alt_text";
