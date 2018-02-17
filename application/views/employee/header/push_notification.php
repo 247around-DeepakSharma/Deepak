@@ -26,7 +26,7 @@
   function saveSubscriberID(subscriberID){
         $.ajax({
             type: 'POST',
-            url: '<?php echo base_url(); ?>employee/push_notification/save_push_notification_subscribers',
+            url: '<?php echo base_url(); ?>push_notification/save_push_notification_subscribers',
             data: {subscriberID: subscriberID},
             success: function (response) {
             }
