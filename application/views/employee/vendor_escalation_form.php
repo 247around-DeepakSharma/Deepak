@@ -15,6 +15,15 @@
                </div>';
                }
                ?>  
+          <?php if($this->session->userdata('error')) {
+               echo '<div class="alert alert-danger alert-dismissible" role="alert">
+                   <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                       <span aria-hidden="true">&times;</span>
+                   </button>
+                   <strong>' . $this->session->userdata('error') . '</strong>
+               </div>';
+               }
+               ?>  
          <div class="col-md-6">
             <h1 class="page-header">
                Vendor Escalate Form
@@ -82,3 +91,4 @@
    $(".js-example-basic-multiple").select2();
 </script>
 <?php if($this->session->userdata('success')){$this->session->unset_userdata('success'); }?>
+<?php if($this->session->userdata('error')){$this->session->unset_userdata('error'); }?>

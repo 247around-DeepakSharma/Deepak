@@ -361,6 +361,11 @@ class Miscelleneous {
                             $subject = "Upcountry Charges Approval Required - Booking ID " . $query1[0]['booking_id'];
                             $to = $data['upcountry_approval_email'];
                             $cc = NITS_ANUJ_EMAIL_ID.",".$partner_am_email;
+                            //Send Push Notification
+                        $receiverArray['partner'] = array($query1[0]['partner_id']);
+                        $notificationTextArray['msg'] = array($booking_id);
+                        $this->push_notification_lib->create_and_send_push_notiifcation(UPCOUNTRY_APPROVAL,$receiverArray,$notificationTextArray);
+                        //End Push Notification
                         }
                         $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message1, "");
 
@@ -1176,14 +1181,19 @@ class Miscelleneous {
      */
     function get_partner_prepaid_amount($partner_id, $getAll = FALSE) {
         //Get Partner details
-
+        log_message("info",__METHOD__."  Prepaid Amount Request for Partner ". $partner_id);
         $partner_details = $this->My_CI->partner_model->getpartner_details("is_active, is_prepaid,prepaid_amount_limit,"
                 . "grace_period_date,prepaid_notification_amount, partner_type ", array('partners.id' => $partner_id));
+        
+        log_message("info",__METHOD__."  Prepaid Amount Requested for Partner Data". print_r($partner_details, true));
+        
         if(!empty($partner_details) && ($partner_details[0]['is_prepaid'] == 1 || !empty($getAll))){
+            log_message("info",__METHOD__."  Prepaid Partner Found id ". $partner_id);
             //Get Partner invoice amout
             $invoice_amount = $this->My_CI->invoices_model->get_invoices_details(array('vendor_partner' => 'partner', 'vendor_partner_id' => $partner_id,
                 'settle_amount' => 0), 'SUM(CASE WHEN (type_code = "B") THEN ( amount_collected_paid + `amount_paid`) WHEN (type_code = "A" ) '
                     . 'THEN ( amount_collected_paid -`amount_paid`) END)  AS amount');
+            log_message("info",__METHOD__."  Prepaid Partner id ".$partner_id." Invoice Amount " . print_r($invoice_amount, true));
             $where = array(
                 'partner_id' => $partner_id,
                 'partner_invoice_id is null' => NULL,
@@ -1193,6 +1203,7 @@ class Miscelleneous {
             );
             // sum of partner payable amount whose booking is in followup, pending and completed(Invoice not generated) state.
             $service_amount = $this->My_CI->booking_model->get_unit_details($where, false, 'SUM(partner_net_payable) as amount');
+            log_message("info",__METHOD__."  Prepaid Partner id ".$partner_id." Service Amount " . print_r($service_amount, true));
             // calculate final amount of partner
             $final_amount = -($invoice_amount[0]['amount'] + ($service_amount[0]['amount'] * (1 + SERVICE_TAX_RATE)));
 
@@ -1228,6 +1239,7 @@ class Miscelleneous {
                 //$d['active'] = 1;
             }
             $d['partner_type'] = $partner_details[0]['partner_type'];
+            log_message("info",__METHOD__."  Prepaid Partner id ".$partner_id." Return Prepaid data " . print_r($d, true));
             return $d;
         } else {
             $d['is_notification'] = false;
@@ -1237,7 +1249,7 @@ class Miscelleneous {
             if(!empty($partner_details)){
                  $d['partner_type'] = $partner_details[0]['partner_type'];
             }
-           
+            log_message("info",__METHOD__."  Prepaid Partner id ".$partner_id." Return false Prepaid data " . print_r($d, true));
             return $d;
         }
     }
@@ -2093,21 +2105,22 @@ class Miscelleneous {
     function process_escalation($booking_id,$vendor_id,$escalation_reason_id,$remarks,$checkValidation,$id,$employeeID){
         log_message('info',__FUNCTION__);
         $escalation['booking_id'] = $booking_id;
-        $escalation['vendor_id'] = $vendor_id;
-        //Get SF to RM relation if present
-        $cc = "";
-        $rm = $this->My_CI->vendor_model->get_rm_sf_relation_by_sf_id($escalation['vendor_id']);
-        if(!empty($rm)){
-            foreach($rm as $key=>$value){
-                if($key == 0){
-                    $cc .= "";
-                }else{
-                    $cc .= ",";
-                }
-                $cc .= $this->My_CI->employee_model->getemployeefromid($value['agent_id'])[0]['official_email'];
-            }
-        }
+        $escalation['vendor_id'] = $vendor_id;       
         if ($checkValidation) {
+            //Get SF to RM relation if present
+            $cc = "";
+            $rm = $this->My_CI->vendor_model->get_rm_sf_relation_by_sf_id($escalation['vendor_id']);
+            if(!empty($rm)){
+                foreach($rm as $key=>$value){
+                    if($key == 0){
+                        $cc .= "";
+                    }else{
+                        $cc .= ",";
+                    }
+                    $cc .= $this->My_CI->employee_model->getemployeefromid($value['agent_id'])[0]['official_email'];
+                }
+            }
+        
             $escalation['escalation_reason'] = $escalation_reason_id;
             $this->My_CI->booking_model->increase_escalation_reschedule($escalation['booking_id'], "count_escalation");
             $booking_date_timeslot = $this->My_CI->vendor_model->getBookingDateFromBookingID($escalation['booking_id']);
@@ -2174,6 +2187,8 @@ class Miscelleneous {
             else{
                 return FALSE;
             }
+        } else {
+            return FALSE;
         }
     }
      /**
@@ -2327,5 +2342,12 @@ Your browser does not support the audio element.
         
         return $return;
     }
-
+function get_district_covered_by_vendors(){
+    // below query - SELECT Vendor_ID as vendorID, GROUP_CONCAT(DISTINCT city) as district FROM (vendor_pincode_mapping) GROUP BY Vendor_ID
+    $data = $this->My_CI->reusable_model->get_search_result_data("vendor_pincode_mapping","Vendor_ID as vendorID,GROUP_CONCAT(DISTINCT city) as district",NULL,NULL,NULL,NULL,NULL,NULL,array('Vendor_ID'));
+    foreach($data as $values){
+       $finalArray[$values['vendorID']] = $values['district'];
+    }
+    return $finalArray;
+}
 }

@@ -41,9 +41,9 @@
                                        
                                         <div class="form-group col-md-4" style="width:28%;">
                                         <div class="col-md-12">
-                                           <label > Is Broken</label>
+                                           <label > Product Found Broken</label>
                                             <select type="text" class="form-control appliance_broken"   id="broken" name="broken[]" required>
-                                                <option selected disabled>Is Broken</option>
+                                                <option selected disabled>Product Found Broken</option>
                                                 <option <?php if($unit_details['is_broken'] == 1){ echo "selected";}?> >Yes</option>
                                                 <option <?php if($unit_details['is_broken'] == 0){ echo "selected";}?>>No</option>
                                             </select>

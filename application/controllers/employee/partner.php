@@ -977,11 +977,11 @@ class Partner extends CI_Controller {
        
         $invoice['unbilled_amount'] = $unbilled_amount;
         $invoice['unbilled_data'] = $unbilled_data;
-        $invoice['invoice_amount'] = $this->invoices_model->getsummary_of_invoice("partner",array('id' => $partner_id))[0];
+        $invoice['invoice_amount'] = $this->invoices_model->get_summary_invoice_amount("partner", $partner_id)[0];
       
         $select = "partner_logo,alt_text";
-        $where = array('partner_logo IS NOT NULL' => NULL,'partner_id' => $this->session->userdata('partner_id'));
-        $header_data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where);
+        $where1 = array('partner_logo IS NOT NULL' => NULL,'partner_id' => $this->session->userdata('partner_id'));
+        $header_data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where1);
         $this->load->view('partner/header',$header_data);
         $this->load->view('partner/invoice_summary', $invoice);
         $this->load->view('partner/partner_footer');
@@ -1215,6 +1215,31 @@ class Partner extends CI_Controller {
             }
         }
     }
+    
+    function check_escalation_already_applied(){
+        if($this->input->post("escalation_reason_id")){
+            $escalation_reason_id = $this->input->post("escalation_reason_id");
+            $booking_id= $this->input->post('booking_id');
+            if(!empty($escalation_reason_id)){
+                $where = array("booking_id" => $booking_id, "escalation_reason" => $escalation_reason_id,
+                "create_date >=  curdate() " => NULL,  "create_date  between (now() - interval ".PARTNER_PENALTY_NOT_APPLIED_WITH_IN." minute) and now()" => NULL);
+                $data =$this->vendor_model->getvendor_escalation_log($where, "*");
+                log_message("info", $this->db->last_query());
+                if(empty($data)){
+                    return true;
+                } else {
+                    $this->form_validation->set_message('check_escalation_already_applied', 'Booking is already escalated.');
+                    return false;
+                }
+            } else {
+              $this->form_validation->set_message('check_escalation_already_applied', 'The Escalation Reason field is required');
+              return false;  
+            }
+        } else {
+            $this->form_validation->set_message('check_escalation_already_applied', 'The Escalation Reason field is required');
+            return false;
+        }    
+    }
 
     /**
      * @desc: Load escalation form  in the partner panel. Partner esclates on booking.
@@ -1239,10 +1264,10 @@ class Partner extends CI_Controller {
     function process_escalation($booking_id) {
         log_message('info', __FUNCTION__ . ' booking_id: ' . $booking_id);
         $this->checkUserSession();
-        $this->form_validation->set_rules('escalation_reason_id', 'Escalation Reason', 'trim|required');
+        $this->form_validation->set_rules('escalation_reason_id', 'Escalation Reason', 'callback_check_escalation_already_applied');
 
         if ($this->form_validation->run() == FALSE) {
-            $this->escalation_form($booking_id);
+            echo validation_errors();
         } else {
 
             $escalation['escalation_reason'] = $this->input->post('escalation_reason_id');
@@ -1323,6 +1348,7 @@ class Partner extends CI_Controller {
             }
 
             log_message('info', __FUNCTION__ . " Exiting");
+            echo "success";
         }
     }
 

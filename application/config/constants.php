@@ -516,5 +516,8 @@ define('BUYBACK','buyback');
 //Collateral 
 define('LEARNING_DOCUMENT','Brand_Collateral');
 define('CONTRACT','contract');
+//Same penalty can not be levied within 120 minute
+define('AROUND_PENALTY_NOT_APPLIED_WITH_IN','120');
+define('PARTNER_PENALTY_NOT_APPLIED_WITH_IN','120');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
