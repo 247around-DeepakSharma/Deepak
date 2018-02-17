@@ -178,6 +178,8 @@ define("ZOPPER_ID", 247012);
 define("AKAI_ID", 247034);
 //AKAI ID
 define("AQUAGRAND_PLUS_ID", 247038);
+// Videotext ID
+ define("VIDEOTEX", 247041);
 //Define Developer Email id
 define('DEVELOPER_EMAIL','anuj@247around.com, abhaya@247around.com, sachinj@247around.com, chhavid@247around.com');
 //Define Email ID to send system health emails
