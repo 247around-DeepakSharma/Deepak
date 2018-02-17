@@ -41,6 +41,14 @@ class Push_Notification extends CI_Controller {
         $data['entity_id'] = $this->session->userdata('id');
         $data['entity_type'] = $this->session->all_userdata()['userType'];
         $data['browser'] = $this->agent->browser();
+        if($data['entity_type']=='service_center'){
+            $data['entity_id'] = $this->session->userdata('service_center_id');
+            $data['entity_type'] = 'vendor';
+        }
+        else if($data['entity_type']=='partner'){
+            $data['entity_id'] = $this->session->userdata('partner_id');
+            $data['entity_type'] = 'partner';
+        }
         $data['device'] = "Desktop";
         if($data['subscriber_id'] == -1){
             $data['unsubscription_flag'] = 1;
