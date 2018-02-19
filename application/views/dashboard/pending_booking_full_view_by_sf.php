@@ -10,7 +10,7 @@
         white-space: normal;
     }
 </style>
-<div class="right_col" role="main" ng-app="rm_Bookings">
+<div class="right_col" role="main" ng-app="rm_Bookings" ng-cloak="">
     <input type="text" value="<?php echo $rm;  ?>" id="rm_id_holder" style="display:none;">
     <div class="col-md-12 col-sm-12 col-xs-12">
         <div class="x_panel">
@@ -18,7 +18,7 @@
                 <h2>Installation Bookings</h2>
                 <div class="clearfix"></div>
             </div>
-    <div class="table-responsive" id="pending_report" ng-controller="rm_PendingBookingControllerInstallation">
+    <div class="table-responsive" id="pending_report" ng-controller="rm_PendingBookingControllerInstallation" ng-cloak="">
     <table class="table table-striped table-bordered jambo_table bulk_action">
     <thead>
       <tr>
@@ -97,3 +97,8 @@
     <script>
         
         </script>
+        <style>
+            [ng\:cloak], [ng-cloak], .ng-cloak {
+  display: none !important;
+}
+            </style>
