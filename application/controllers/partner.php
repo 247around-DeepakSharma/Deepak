@@ -1219,6 +1219,32 @@ class Partner extends CI_Controller {
 
         echo $response;
     }
+    /**
+     * @desc This is only used to send api response for Paytm
+     * @param Array $code
+     */
+    function sendPaytmJsonResponse($code) {
+        $this->jsonResponseString['code'] = $code[0];
+        $this->jsonResponseString['result'] = $code[1];
+
+        $responseData =  $this->jsonResponseString;
+
+        //$activity = array('activity' => 'sending response', 'data' => json_encode($responseData), 'time' => $this->microtime_float());
+        //$this->apis->log_partner_activity($activity);
+        $activity = array(
+            'partner_id' => $this->partner['id'],
+            'activity' => $this->requestUrl,
+            'header' => $this->header,
+            'json_request_data' => $this->jsonRequestData,
+            'json_response_string' => json_encode($responseData));
+        $this->partner_model->log_partner_activity($activity);
+
+        header('Content-Type: application/json');
+        //header('Content-type:application/json;charset=utf-8');
+        $response = json_encode($responseData, JSON_UNESCAPED_SLASHES);
+
+        echo $response;
+    }
 
     function getallheaders() {
         //Use this if you are using Nginx
@@ -2059,5 +2085,119 @@ class Partner extends CI_Controller {
             $this->notify->sendEmail($email_from, $email_id, "", $bcc, $subject, $message, "");
         }
     }
+    
+    function getTimeslotRequest(){
+        $auth = $this->checkAuthentication();
+        if($auth){
+            log_message('info', __METHOD__ . ":: Token validated (Partner ID: " . $this->partner['id'] . ")");
+
+            $input_d = $this->get_requestedData();
+             if ($input_d) {
+                $this->jsonRequestData = $input_d;
+                $requestData = json_decode($input_d, TRUE);
+                 $is_valid = $this->validateTimeSlotRequest($requestData);
+                if ($is_valid['result'] == TRUE) {
+                    
+                        $this->jsonResponseString = array(
+                            "success" => TRUE,
+                            "msg" => "Slots have been sent successfully.",
+                            "data" => array("SlotList"=> $is_valid['SlotList']));
+
+                        $this->sendPaytmJsonResponse(array(SUCCESS_CODE, SUCCESS_MSG));
+                } else {
+                    $this->jsonResponseString['success'] = FALSE;
+                    $this->sendPaytmJsonResponse(array($is_valid['code'], $is_valid['msg']));
+                }
+             }
+        }
+    }
+    
+    function validateTimeSlotRequest($request){
+        log_message('info', "Entering: " . __METHOD__);
+
+        //Lead will store the booking entry if it exists
+        $resultArr = array("result" => FALSE, "code" => NULL, "msg" => NULL);
+        $flag = TRUE;
+
+        //Validate Partner Name
+        if ($request['partnerName'] != $this->partner['public_name']) {
+            $resultArr['code'] = ERR_INVALID_PARTNER_NAME_CODE;
+            $resultArr['msg'] = ERR_INVALID_PARTNER_NAME_MSG;
+
+            $flag = FALSE;
+        }
+
+        if (($flag === TRUE) && (!isset($request['247BookingID']))) {
+            $resultArr['code'] = ERR_MANDATORY_PARAMETER_MISSING_CODE;
+            $resultArr['msg'] = ERR_MANDATORY_PARAMETER_MISSING_MSG;
+
+            $flag = FALSE;
+        }
+        
+        if(isset($request['247BookingID'])){
+            $join["service_centres"] = "service_centres.id = booking_details.assigned_vendor_id";
+            $data = $this->reusable_model->get_search_result_data("booking_details","service_centres.non_working_days, "
+                    . "booking_details.booking_date, booking_details.booking_timeslot",array("booking_details.booking_id"=>$request['247BookingID']),
+                     $join,NULL,NULL,NULL,NULL,array());
+            
+            if(!empty($data)){
+               // $workingDate = array();
+                //$nextDay = date("Y-m-d", strtotime('+1 day', strtotime($data[0]['booking_date'])));
+                $nextDay = date("Y-m-d", strtotime('+1 day'));
+                if(!empty($data[0]['non_working_days'])){
+                    $non_workng_days = explode(",", $data[0]['non_working_days']);
+                    
+                    $resultArr['SlotList'] = $this->getWorkingDays($non_workng_days, $nextDay);
+                                    } else {
+                    $resultArr['SlotList'] = $this->getWorkingDays(array(), $nextDay);
+                } 
+            } else{
+                 // Not Assigned
+                $resultArr['code'] = ERR_BOOKING_NOT_ASSIGNED_CODE;
+                $resultArr['msg'] = ERR_BOOKING_NOT_ASSIGNED_MSG;
+                $flag = FALSE;
+               
+            }
+            
+        }
+
+        //If code is still empty, it means data is valid.
+        if ($resultArr['code'] == "") {
+            $resultArr['result'] = TRUE;
+        }
+
+        return $resultArr;
+    }
+    /*
+     * @desc This is used to return next working days with timeslot in Array
+     */
+    function getWorkingDays($nonWorkingDays, $date, $workingDate = array()){
+      
+       for ($i = 0; $i< 3; $i++){
+           if (!in_array(date("l", strtotime('+'.$i.' day', strtotime($date))), $nonWorkingDays)){
+               $slot = array();
+               
+               $slot1 = strtotime(date("Y-m-d 10:00:00", strtotime('+'.$i.' day', strtotime($date))));
+               $slot2 = strtotime(date("Y-m-d 13:00:00", strtotime('+'.$i.' day', strtotime($date))));
+               $slot3 = strtotime(date("Y-m-d 16:00:00", strtotime('+'.$i.' day', strtotime($date))));
+               $slot4 = strtotime(date("Y-m-d 19:00:00", strtotime('+'.$i.' day', strtotime($date))));
+               
+               array_push($slot, array("StartTimeDisplay" => "10 AM", "EndTimeDisplay" => "1 PM", "StartTime"=> $slot1, "EndTime" => $slot2, "IsActive" => FALSE));
+               array_push($slot, array("StartTimeDisplay" => "1 PM", "EndTimeDisplay" => "4 PM", "StartTime"=> $slot2, "EndTime" => $slot3, "IsActive" => TRUE));
+               array_push($slot, array("StartTimeDisplay" => "4 PM", "EndTimeDisplay" => "7 PM", "StartTime"=> $slot3, "EndTime" => $slot4, "IsActive" => TRUE));
+               
+               array_push($workingDate, array("Slot" =>$slot));
+               
+           } 
+       }
+        
+       if(count($workingDate) < 2){
+            return $this->getWorkingDays($nonWorkingDays, date("Y-m-d", strtotime('+'.$i.' day', strtotime($date))),$workingDate);
+   
+       } else {
+            return $workingDate;
+       }
+    }
+    
 
 }
