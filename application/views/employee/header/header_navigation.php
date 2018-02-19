@@ -314,10 +314,10 @@
     .navigation_li a:hover {
     background: none;
 }
-.normal{
+.Normal{
     background: url(<?php echo base_url() ?>/images/logo_small.png) 7px 3px no-repeat;
 }    
-.important{
+.Important{
     background: url(<?php echo base_url() ?>/images/i.png) 7px 3px no-repeat;
 }
 .no_new_notification{
