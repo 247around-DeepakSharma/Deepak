@@ -517,7 +517,7 @@ define('PUSH_NOTIFICATION_SUBSCRIBER_LIST_SEND_NOTIFICATION_URL','https://pushcr
 define('BUYBACK','buyback');
 //Collateral 
 define('LEARNING_DOCUMENT','Brand_Collateral');
-define('CONTRACT','contract');
+define('CONTRACT','Contract');
 //Same penalty can not be levied within 120 minute
 define('AROUND_PENALTY_NOT_APPLIED_WITH_IN','120');
 define('PARTNER_PENALTY_NOT_APPLIED_WITH_IN','120');
