@@ -157,7 +157,7 @@
                 <td>
                         <?php
                         if ($row['on_off'] == 1) { ?>
-                            <a id='edit' class='btn btn-small btn-danger' href="<?php base_url() ?>temporary_on_off_vendor/<?php echo $row['id']?>/0" <?php if($row['active'] == 0){echo 'disabled';}?>>Off</a>
+                    <a id='edit' class='btn btn-small btn-danger' onclick="pendingBookings(<?php echo $row['id']?>,'T')"  <?php if($row['active'] == 0){echo 'disabled';}?>>Off</a>
                         <?php } else { ?>
                             <a id='edit' class='btn btn-small btn-success' href="<?php base_url() ?>temporary_on_off_vendor/<?php echo $row['id']?>/1" <?php if($row['active'] == 0){echo 'disabled';}?>>On</a>
                         <?php }
@@ -166,7 +166,7 @@
                     
           	<td><?php if($row['active']==1)
                 {
-                  echo "<a id='edit' class='btn btn-small btn-danger' onclick ='pendingBookings(".$row['id'].")'>Deactivate</a>";                
+                  echo "<a id='edit' class='btn btn-small btn-danger' onclick =pendingBookings(".$row['id'].",'P')>Deactivate</a>";                
                 }
                 else
                 {
@@ -316,18 +316,37 @@
                 }
             });
      }
-      function pendingBookings(vendorID){
+     function tempVendorOff(vendorID){
+         $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/vendor/temporary_on_off_vendor/'+vendorID+'/0',
+                success: function(response) {
+                    location.reload();
+                }
+            });
+     }
+      function pendingBookings(vendorID,tempPermanent){
          $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url(); ?>employee/vendor/pending_bookings_on_vendor/' + vendorID,
                 success: function(response) {
                     if(response>0){
-                        if(confirm("This Service Center have "+response+" Pending Queries, are you sure you want to delete this vendor")){
+                        if(confirm("This Service Center have "+response+" Pending Bookings, are you sure you want to delete this vendor")){
+                            if(tempPermanent == 'P'){
                               permanentVendorOff(vendorID);
+                           }
+                           else{
+                               tempVendorOff(vendorID)
+                           }
                         }
                     }
                     else{
-                        permanentVendorOff(vendorID);
+                        if(tempPermanent == 'P'){
+                            permanentVendorOff(vendorID);
+                        }
+                        else{
+                            tempVendorOff(vendorID);
+                        }
                     }
                 }
             });
