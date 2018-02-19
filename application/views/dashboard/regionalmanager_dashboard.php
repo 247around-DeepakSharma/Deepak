@@ -14,7 +14,7 @@
         display: none !important;
     }
 </style>
-<div class="right_col ngCloak" role="main" ng-app="rm_dashboard">
+<div class="right_col ngCloak" role="main" ng-app="rm_dashboard" ng-cloak="">
 
 
     <!-- top tiles -->
@@ -32,7 +32,7 @@
                 <h2>RM Booking Report</h2>
                 <div class="clearfix"></div>
             </div>
-            <div class="table-responsive" id="escalation_data" ng-controller="pendngBooking_Controller">
+            <div class="table-responsive" id="escalation_data" ng-controller="pendngBooking_Controller" ng-cloak="">
                 <table class="table table-striped table-bordered jambo_table bulk_action">
                     <thead>
                         <tr>
@@ -66,7 +66,7 @@
         </div>
     </div>
     <!-- Booking Report End-->
-    <div class="row" ng-controller="rm_dashboardController">
+    <div class="row" ng-controller="rm_dashboardController" ng-cloak="">
         <?php
         if ($this->session->userdata("wrong_pincode_msg")) {
             echo "<p style='color: green;text-align: center;font-size: 18px;'>" . $this->session->userdata("wrong_pincode_msg") . "</p>";
@@ -125,7 +125,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr ng-repeat="y in escalationAllRMData|orderBy:!mytoggle?'-esclation_per':'-total_escalation'">
+                                <tr ng-repeat="y in escalationAllRMData|orderBy:!mytoggle?'-esclation_per':'-total_escalation'" ng-cloak="">
                                     <td>{{$index + 1}}</td>
                                     <td><a type="button" id="vendor_{{y.vendor_id}}" class="btn btn-info" target="_blank" href="<?php echo base_url(); ?>employee/dashboard/escalation_full_view/{{y.rm_id}}/{{y.startDate}}/{{y.endDate}}">{{y.rm_name}}</a></td>
                                     <td>{{y.total_booking}}</td>
@@ -487,11 +487,5 @@
         });
     
     }
-
 </script>
-    <style>
-    [ng\:cloak], [ng-cloak], .ng-cloak {
-  display: none !important;
-}
-    </style>
 
