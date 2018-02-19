@@ -1752,7 +1752,8 @@ class Partner extends CI_Controller {
                 $data['partner_internal_status'] = $partner_status[1];
             }
             $this->booking_model->update_booking($booking['booking_id'], $data);
-            $p_login_details = $this->dealer_model->entity_login(array('entity_id' => $this->partner['id'], "user_id" => 'STS'));
+           
+            $p_login_details = $this->dealer_model->entity_login(array('entity_id' => $this->partner['id'], "user_id" => strtolower($this->partner['public_name']."-STS")));
             $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, PRODUCT_DELIVERED, $data['query_remarks'], $p_login_details[0]['agent_id'], $this->partner['public_name'], $this->partner['id']);
 
             $this->jsonResponseString['response'] = NULL;
