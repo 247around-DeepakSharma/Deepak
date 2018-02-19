@@ -19,7 +19,7 @@
                     <h2>RM Booking Report</h2>
                     <div class="clearfix"></div>
                 </div>
-    <div class="table-responsive" id="escalation_data" ng-controller="pendngBooking_Controller">
+    <div class="table-responsive" id="escalation_data" ng-controller="pendngBooking_Controller" ng-cloak="">
     <table class="table table-striped table-bordered jambo_table bulk_action">
     <thead>
       <tr>
@@ -77,7 +77,7 @@ if($this->session->userdata("wrong_pincode_msg")){
     </div>
     <!-- End Missing Pincode Section -->
     <!-- Escalation Start-->
-    <div class="table-responsive" id="escalation_data" ng-controller="admin_escalationController">
+    <div class="table-responsive" id="escalation_data" ng-controller="admin_escalationController" ng-cloak="">
     <input type="text" id="session_id_holder" style="display:none;" value="<?php if($this->session->userdata('user_group') == 'regionalmanager') {echo $this->session->userdata('id');} ?>">
    <button type="button"class="btn btn-default" style="float:right" data-toggle="tooltip"data-placement="left"title="To calculate escalation percentage, logic use current months booking and current month escalation ">?</button>
     <button type="button" class="btn btn-info" ng-click="mytoggle=!mytoggle" id="order_by_toggal" onclick="change_toggal_text()"style="float:right">Sort By Number Of Escalation</button>
