@@ -911,20 +911,23 @@ class Around_scheduler extends CI_Controller {
                 if($final_amount['prepaid_amount'] > 0 ){
                     
                     $sms['tag'] = "prepaid_low_balance";
+                    $email_template = $this->booking_model->get_booking_email_template("low_prepaid_amount");
                 } else {
                    
                     $sms['tag'] = "prepaid_negative_balance";
+                    $email_template = $this->booking_model->get_booking_email_template("negative_prepaid_balance");
 
                 }
                 
-                
-                //Get Email Template
-                $email_template = $this->booking_model->get_booking_email_template("low_prepaid_amount");
-                
+                $receiverArray['partner'] = array($value['id']);
+                $notificationTextArray['msg'] = array($final_amount['prepaid_amount']);
+                $this->push_notification_lib->create_and_send_push_notiifcation(LOW_PREPAID_AMOUNT,$receiverArray,$notificationTextArray);
+                 
+
                 $message = vsprintf($email_template[0], array("Rs. ".$final_amount["prepaid_amount"]));
                 $to = $value['invoice_email_to'];
                 $cc = $value['invoice_email_cc']. ", ".$email_template[3];
-                $subject = vsprintf($email_template[4], array($value["public_name"]));
+                $subject = vsprintf($email_template[4], array($value["public_name"], "Rs. ".$final_amount["prepaid_amount"]));
                     
                 $sms['smsData']['prepaid_amount'] = "Rs. ".$final_amount["prepaid_amount"];
                 $sms['booking_id'] = "";
