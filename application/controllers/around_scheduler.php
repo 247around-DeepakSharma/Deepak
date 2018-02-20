@@ -908,7 +908,7 @@ class Around_scheduler extends CI_Controller {
             $final_amount = $this->miscelleneous->get_partner_prepaid_amount($value['id']);
             if ($final_amount['is_notification']) {
                 
-                if($final_amount['prepaid_amount'] > 0 ){
+                if($final_amount['active'] > 0 ){
                     
                     $sms['tag'] = "prepaid_low_balance";
                     $email_template = $this->booking_model->get_booking_email_template("low_prepaid_amount");
