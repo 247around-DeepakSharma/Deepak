@@ -35,10 +35,11 @@ select[multiple], select[size]{
 <div id="page-wrapper" >
    <div class="container" >
       	<div class="panel panel-info" style="margin-top:20px;">
-         	<div class="panel-heading">Assign Vendor to Pincode</div>
+            <div class="panel-heading">Assign Vendor to Pincode
                 <div class="pull-right">
                     <p><span style="padding: 8px 12px;margin: 10px;" class="appliance_checked_container">Requested Appliances</span><span style="padding: 8px 12px;"  class="vendor_exists_services">Appliances SF Already Servicing</span></p>
                 </div>
+            </div>
          	<div class="panel-body">
         		
          		<div class="row">

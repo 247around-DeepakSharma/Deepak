@@ -28,6 +28,7 @@ $this->session->set_userdata('rm_id',$rmID);
                 <div class="x_title">
                     <h2>Missing Pincodes</h2>
                     <a id="download_pin_code" class="btn btn-info" href="download_missing_sf_pincode_excel/<?php echo $rmID ?>" style="float:right">Download Excel</a>
+                    <a id="download_pin_code" class="btn btn-success" href="<?php echo base_url(); ?>employee/vendor/insert_pincode_form" style="float:right">Add New Pincode</a>
                     <div class="clearfix"></div>
                 </div>
 

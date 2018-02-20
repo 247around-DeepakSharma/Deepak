@@ -196,7 +196,7 @@ define('_247AROUND_SNAPDEAL_SHIPPED','Snapdeal-Shipped');
 //Define Constant for Paytm Shipped Excel File Type
 define('_247AROUND_PAYTM_DELIVERED','Paytm-Delivered');
 //Define Constant for Satya File 
-define('_247AROUND_SATYA_DELIVERED','Satya-Delivered');
+define('_247AROUND_SATYA_DELIVERED','Wybor-Delivered');
 //Define Constant for Akai File 
 define('_247AROUND_AKAI_DELIVERED','Akai-Delivered');
 //Define Constant for Aquagrand File 
