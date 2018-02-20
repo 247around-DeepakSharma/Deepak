@@ -35,6 +35,11 @@
             <div class="hidden-xs">SMS History</div>
         </button>
     </div>
+    <div class="btn-group" role="group">
+        <button type="button" id="following" class="btn btn-default" href="#tab7" data-toggle="tab">
+            <div class="hidden-xs">Penalty</div>
+        </button>
+    </div>
     <?php if($this->session->userdata('is_engineer_app') == 1){ ?>
     <div class="btn-group" role="group">
         <button type="button" id="following" class="btn btn-default" href="#tab6" data-toggle="tab">
@@ -538,6 +543,59 @@
                 } ?>
             </div>
             <?php } ?>
+            
+            <div class="tab-pane fade in" id="tab7">
+                <div class="row">
+                    <div class="col-md-12">
+                        <?php if (!empty($penalty)) { ?>
+                        <table  class="table table-striped table-bordered">
+                            <tr>
+                                <th >Date</th>
+                                <th >Status</th>
+                                <th >Penalty Amount</th>
+                                <th >Penalty On SF</th>
+                                <th >Agent Name</th>
+                                <th >Remarks</th>
+                            </tr>
+                            <?php foreach ($penalty as $key => $value){?>
+                            <?php if($penalty[$key]['active'] == 1){?>
+                            <tr>
+                                <td><?php
+                                    $old_date = $penalty[$key]['create_date'];
+                                    $old_date_timestamp = strtotime($old_date);
+                                    $new_date = date('j F, Y g:i A', $old_date_timestamp);
+                                    echo $new_date;
+                                    ?>
+                                </td>
+                                <td><?php echo 'Penalty Added' ?></td>
+                                <td><?php echo $penalty[$key]['penalty_amount']; ?></td>
+                                <td><?php echo $penalty[$key]['sf_name']; ?></td>
+                                <td><?php echo $penalty[$key]['agent_name']; ?></td>
+                                <td><?php echo $penalty[$key]['remarks']; ?></td>
+                            </tr>
+                            <?php }else if($penalty[$key]['active'] == 0){?>
+                            <tr>
+                                <td><?php
+                                    $old_date = $penalty[$key]['penalty_remove_date'];
+                                    $old_date_timestamp = strtotime($old_date);
+                                    $new_date = date('j F, Y g:i A', $old_date_timestamp);
+                                    echo $new_date;
+                                    ?>
+                                </td>
+                                <td><?php echo 'Penalty Removed' ?></td>
+                                <td><?php echo $penalty[$key]['penalty_amount']; ?></td>
+                                <td><?php echo $penalty[$key]['sf_name']; ?></td>
+                                <td><?php echo $penalty[$key]['agent_name']; ?></td>
+                                <td><?php echo $penalty[$key]['penalty_remove_reason']; ?></td>
+                            </tr>
+                            <?php }?>
+                            <?php }?>
+                        </table>
+                        <?php } else { echo "Penalty Not Found";?>
+                        <?php } ?>
+                    </div>
+                </div>
+            </div>
     </div>
 </div>
 <style type="text/css">
