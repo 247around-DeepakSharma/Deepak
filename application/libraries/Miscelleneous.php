@@ -1257,7 +1257,7 @@ class Miscelleneous {
      */
 
     function send_sf_not_found_email_to_rm($booking, $rm_email,$subject) {
-        $cc = SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC;
+        $cc = NITS_ANUJ_EMAIL_ID;
         $tempPartner = $this->My_CI->reusable_model->get_search_result_data("partners", "public_name", array('id' => $booking['partner_id']), NULL, NULL, NULL, NULL, NULL);
         $booking['partner_name'] = NULL;
         if (!empty($tempPartner)) {
@@ -1279,7 +1279,7 @@ class Miscelleneous {
         if (!empty($result)) {
             $notFoundSfArray['rm_id'] = $result[0]['rm_id'];
             $notFoundSfArray['state'] = $result[0]['state'];
-            $query = $this->My_CI->reusable_model->get_search_query("employee", "official_email", array('id' => $result[0]['rm_id']), NULL, NULL, NULL, NULL, NULL);
+            $query = $this->My_CI->reusable_model->get_search_query("employee", "official_email", array('id' => $result[0]['rm_id'],'active' => 1), NULL, NULL, NULL, NULL, NULL);
             $rm_email = $query->result_array();
             if (empty($rm_email)) {
                 $rm_email[0]['official_email'] = NULL;

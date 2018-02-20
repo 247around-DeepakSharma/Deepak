@@ -1571,11 +1571,11 @@ class Partner extends CI_Controller {
                         }
 
                         //if state is not found
-                        if (empty($booking['state'])) {
-                            $to = NITS_ANUJ_EMAIL_ID;
-                            $message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
-                            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", 'Pincode Not Found', $message, "");
-                        }
+//                        if (empty($booking['state'])) {
+//                            $to = NITS_ANUJ_EMAIL_ID;
+//                            $message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
+//                            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", 'Pincode Not Found', $message, "");
+//                        }
 
                         //Send response
                         $this->jsonResponseString['response'] = array(
