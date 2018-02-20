@@ -2054,7 +2054,8 @@ class Miscelleneous {
         $whereArray["service_center_booking_action.internal_status"] = "Reschedule"; 
         $bookingDetails = $this->get_fake_reschedule_booking_details($userPhone,$bookingID,$whereArray);
         if(empty($bookingDetails)){
-            $bookingDetails = $this->get_fake_reschedule_booking_details($userPhone,$bookingID,array());
+            $where["service_center_booking_action.internal_status"] = "Pending"; 
+            $bookingDetails = $this->get_fake_reschedule_booking_details($userPhone,$bookingID,$where);
             $already_rescheduled  = 1;
         }
         $numberOfBookings = count($bookingDetails);
