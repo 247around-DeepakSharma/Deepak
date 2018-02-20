@@ -344,7 +344,7 @@
     <div  style="background-color: #fff;">
         <div class="row">
             <div class="col-md-12" style="text-align: center;margin-top: 30px;margin-bottom: 30px;">
-                Copyright@2015-2016 Blackmelon Advance Technology Co. Pvt. Ltd., All rights reserved.
+                Copyright@2015-<?php echo date("Y"); ?> Blackmelon Advance Technology Co. Pvt. Ltd., All rights reserved.
             </div>
         </div>
 
