@@ -114,7 +114,6 @@
           	<th class="jumbotron">Permanent</th>
                 <th class="jumbotron">Add Pin Code</th>
                 <th class="jumbotron">Resend Login Details</th>
-                <th class="jumbotron">View History</th>
                 <?php if(isset($push_notification)){ ?>
                 <th class="jumbotron">Notifications</th>
                 <?php }?>
@@ -157,7 +156,7 @@
                 <td>
                         <?php
                         if ($row['on_off'] == 1) { ?>
-                            <a id='edit' class='btn btn-small btn-danger' href="<?php base_url() ?>temporary_on_off_vendor/<?php echo $row['id']?>/0" <?php if($row['active'] == 0){echo 'disabled';}?>>Off</a>
+                    <a id='edit' class='btn btn-small btn-danger' onclick="pendingBookings(<?php echo $row['id']?>,'T')"  <?php if($row['active'] == 0){echo 'disabled';}?>>Off</a>
                         <?php } else { ?>
                             <a id='edit' class='btn btn-small btn-success' href="<?php base_url() ?>temporary_on_off_vendor/<?php echo $row['id']?>/1" <?php if($row['active'] == 0){echo 'disabled';}?>>On</a>
                         <?php }
@@ -166,7 +165,7 @@
                     
           	<td><?php if($row['active']==1)
                 {
-                  echo "<a id='edit' class='btn btn-small btn-danger' onclick ='pendingBookings(".$row['id'].")'>Deactivate</a>";                
+                  echo "<a id='edit' class='btn btn-small btn-danger' onclick =pendingBookings(".$row['id'].",'P')>Deactivate</a>";                
                 }
                 else
                 {
@@ -177,7 +176,7 @@
             </td>
             <td><button type="button" class="btn btn-small btn-success" id="<?php echo $row['id']; ?>" data-toggle="modal" data-target="#pin_code" onclick="createPinCodeForm(this.id,<?php echo "'".$row['name']."'"  ?>)">Pin Code</button></td>
             <td><a class="btn btn-warning" href="<?php echo base_url();?>employee/vendor/resend_login_details/vendor/<?php echo $row['id']?>">Resend Login Details</a></td>
-            <td>  <button type="button" class="btn btn-info btn-lg fa fa-eye" data-toggle="modal" data-target="#history_view" onclick="get_history_view(<?php echo $row['id']?>)" style="padding: 11px 6px;margin: 0px 10px;"></button></td>
+<!--            <td>  <button type="button" class="btn btn-info btn-lg fa fa-eye" data-toggle="modal" data-target="#history_view" onclick="get_history_view(<?php echo $row['id']?>)" style="padding: 11px 6px;margin: 0px 10px;"></button></td>-->
           <?php if(isset($push_notification)){ ?>
           <td align="center">
               <?php 
@@ -316,18 +315,37 @@
                 }
             });
      }
-      function pendingBookings(vendorID){
+     function tempVendorOff(vendorID){
+         $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/vendor/temporary_on_off_vendor/'+vendorID+'/0',
+                success: function(response) {
+                    location.reload();
+                }
+            });
+     }
+      function pendingBookings(vendorID,tempPermanent){
          $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url(); ?>employee/vendor/pending_bookings_on_vendor/' + vendorID,
                 success: function(response) {
                     if(response>0){
-                        if(confirm("This Service Center have "+response+" Pending Queries, are you sure you want to delete this vendor")){
+                        if(confirm("This Service Center have "+response+" Pending Bookings, are you sure you want to delete this vendor")){
+                            if(tempPermanent == 'P'){
                               permanentVendorOff(vendorID);
+                           }
+                           else{
+                               tempVendorOff(vendorID)
+                           }
                         }
                     }
                     else{
-                        permanentVendorOff(vendorID);
+                        if(tempPermanent == 'P'){
+                            permanentVendorOff(vendorID);
+                        }
+                        else{
+                            tempVendorOff(vendorID);
+                        }
                     }
                 }
             });

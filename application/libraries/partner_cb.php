@@ -67,8 +67,8 @@ class partner_cb {
      * @return: funtion name
      */
     function callback_array($partner_id, $state) {
-	$snapdeal_partner_id = 1;
-        $jeeves_partner_id = 247030;
+	$snapdeal_partner_id = SNAPDEAL_ID;
+        $jeeves_partner_id = JEEEVES_ID;
 
 	$callback_array = array();
 
@@ -84,6 +84,12 @@ class partner_cb {
 	$callback_array[$jeeves_partner_id]['Rescheduled'] = 'update_jeeves_status_schedule_booking';
         $callback_array[$jeeves_partner_id]['Completed'] = 'update_jeeves_status_schedule_booking';
 	$callback_array[$jeeves_partner_id]['Cancelled'] = 'update_jeeves_status_schedule_booking';
+        
+        $callback_array[PAYTM]['Pending'] = 'bookingUpdateStatusCallback';
+	$callback_array[PAYTM]['FollowUp'] = 'bookingUpdateStatusCallback';
+	$callback_array[PAYTM]['Rescheduled'] = 'bookingUpdateStatusCallback';
+        $callback_array[PAYTM]['Completed'] = 'bookingUpdateStatusCallback';
+	$callback_array[PAYTM]['Cancelled'] = 'bookingUpdateStatusCallback';
 
 	if (isset($callback_array[$partner_id][$state])) {
 	    return $callback_array[$partner_id][$state];
@@ -98,11 +104,12 @@ class partner_cb {
      * @return: library name
      */
     function get_callback_library($partner_id) {
-	$snapdeal_partner_id = 1;
+	$snapdeal_partner_id = SNAPDEAL_ID;
         $jeeves_partner_id = 247030;
 
 	$library[$snapdeal_partner_id] = 'partner_sd_cb';
         $library[$jeeves_partner_id] = 'partner_sd_cb';
+        $library[PAYTM] = 'paytm_cb';
 
 	return $library[$partner_id];
     }

@@ -10,6 +10,7 @@ class Pdfconverter extends CI_Controller {
         parent::__Construct();
         
         $this->load->library('s3');
+        $this->load->library('notify');
     }
     
     

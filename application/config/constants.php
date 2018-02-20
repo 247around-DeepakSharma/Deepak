@@ -291,6 +291,7 @@ define('ERR_INVALID_PARTNER_NAME_CODE', -1015);
 define('ERR_INVALID_JSON_INPUT_CODE', -1016);
 define('ERR_INVALID_PRODUCT_TYPE_CODE', -1017);
 define('ERR_INVALID_SERVICE_AREA_CODE', -1021);
+define('ERR_BOOKING_NOT_ASSIGNED_CODE', -1022);
 
 define('ERR_BOOKING_NOT_INSERTED_MSG', 'Booking Insertion Failed');
 define('ERR_GENERIC_ERROR_MSG', 'Unknown Error');
@@ -312,6 +313,7 @@ define('ERR_INVALID_PARTNER_NAME_MSG', 'Invalid Partner Name');
 define('ERR_INVALID_JSON_INPUT_MSG', 'Invalid JSON Input');
 define('ERR_INVALID_PRODUCT_TYPE_MSG', 'DENIED BY VENDOR');
 define('ERR_INVALID_SERVICE_AREA_MSG', 'Non Serviceable Area');
+define('ERR_BOOKING_NOT_ASSIGNED_MSG', 'Engineer Not Assigned');
 
 //ICICI Bank name constant
 define('ICICI_BANK_NAME', 'ICICI Bank Ltd');
@@ -517,9 +519,10 @@ define('PUSH_NOTIFICATION_SUBSCRIBER_LIST_SEND_NOTIFICATION_URL','https://pushcr
 define('BUYBACK','buyback');
 //Collateral 
 define('LEARNING_DOCUMENT','Brand_Collateral');
-define('CONTRACT','contract');
+define('CONTRACT','Contract');
 //Same penalty can not be levied within 120 minute
 define('AROUND_PENALTY_NOT_APPLIED_WITH_IN','120');
 define('PARTNER_PENALTY_NOT_APPLIED_WITH_IN','120');
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
