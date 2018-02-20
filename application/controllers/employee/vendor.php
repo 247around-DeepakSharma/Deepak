@@ -2392,6 +2392,7 @@ class vendor extends CI_Controller {
                     $appliance['Appliance_ID'] = $temp[0];
                     $tempVendor =  explode("__",$receivedData['vendor_id']);
                     $appliance['Vendor_ID'] = $tempVendor[0];
+                    $appliance['Vendor_Name'] = $tempVendor[1];
                     $appliance['Pincode'] = $receivedData['pincode'];
                               foreach($areaArray as $areaData){
                                   $appliance['state'] = $areaData['state'] ;
@@ -2420,48 +2421,44 @@ class vendor extends CI_Controller {
      *  @param : Array of $_POST data
      *  @return : void
      */
-    function process_add_vendor_to_pincode_form(){
-        log_message('info',__FUNCTION__);
-        if($this->input->post()){
+    function process_add_vendor_to_pincode_form() {
+        log_message('info', __FUNCTION__);
+        if ($this->input->post()) {
             $this->form_validation->set_rules('pincode', 'Pincode', 'trim|required|numeric|min_length[6]|max_length[6]');
             $this->form_validation->set_rules('vendor_id', 'Vendor_ID', 'required');
             if ($this->form_validation->run() == FALSE) {
-                      $this->miscelleneous->load_nav_header();
-                      $this->load->view('employee/add_vendor_to_pincode');
-            }
-            else{
-                    $displayMsgArray['pincode'] = $this->input->post('pincode');
-                    $areaArray = $this->vendor_model->get_india_pincode_distinct_area_data($this->input->post('pincode'));
-                    $data =  $this->get_structured_array_for_vendor_pincode_processing($this->input->post(),$areaArray);
-                    $this->miscelleneous->update_pincode_not_found_sf_table($data);
-                    foreach ($data as $value) {
-                              $result = $this->vendor_model->check_vendor_details($value);
-                              if($result == 'true'){
-                                        $value['create_date'] = date('Y-m-d h:i:s');
-                                        $vendor_id = $this->vendor_model->insert_vendor_pincode_mapping($value);
-                                        if(!empty($vendor_id)){
-                                            log_message('info',__FUNCTION__.'Vendor assigned to Pincode in vendor_picode_mapping table. '.print_r($value,TRUE));
-                                            $displayMsgArray['success'][] = $value; 
-                                        }
-                                        else{
-                                            $displayMsgArray['failed'][] = $value; 
-                                            log_message('info',__FUNCTION__.' Error in adding vendor to pincode in vendor_pincode_mapping table '.print_r($value,TRUE));
-                                        }
-                              } 
-                              else {
-                                    log_message('info',__FUNCTION__.'Vendor already assigned to '.$value['Appliance'] );
-                                    $displayMsgArray['already_exist'][] = $value; 
-                              }
+                $this->miscelleneous->load_nav_header();
+                $this->load->view('employee/add_vendor_to_pincode');
+            } else {
+                $displayMsgArray['pincode'] = $this->input->post('pincode');
+                $areaArray = $this->vendor_model->get_india_pincode_distinct_area_data($this->input->post('pincode'));
+                $data = $this->get_structured_array_for_vendor_pincode_processing($this->input->post(), $areaArray);
+                $this->miscelleneous->update_pincode_not_found_sf_table($data);
+                foreach ($data as $value) {
+                    $result = $this->vendor_model->check_vendor_details($value);
+                    if ($result == 'true') {
+                        $value['create_date'] = date('Y-m-d h:i:s');
+                        $vendor_id = $this->vendor_model->insert_vendor_pincode_mapping($value);
+                        if (!empty($vendor_id)) {
+                            log_message('info', __FUNCTION__ . 'Vendor assigned to Pincode in vendor_picode_mapping table. ' . print_r($value, TRUE));
+                            $displayMsgArray['success'][] = $value;
+                        } else {
+                            $displayMsgArray['failed'][] = $value;
+                            log_message('info', __FUNCTION__ . ' Error in adding vendor to pincode in vendor_pincode_mapping table ' . print_r($value, TRUE));
+                        }
+                    } else {
+                        log_message('info', __FUNCTION__ . 'Vendor already assigned to ' . $value['Appliance']);
+                        $displayMsgArray['already_exist'][] = $value;
                     }
-                    $finalMsg = $this->get_pincode_form_display_msg($displayMsgArray);
-                    $this->session->set_userdata('pincode_msg',$finalMsg);
-                   redirect(base_url() . 'employee/booking/view_queries/FollowUp/p_nav');
+                }
+                $finalMsg = $this->get_pincode_form_display_msg($displayMsgArray);
+                $this->session->set_userdata('pincode_msg', $finalMsg);
+                redirect(base_url() . 'employee/booking/view_queries/FollowUp/p_nav');
             }
-
         }
     }
 
-     /**
+    /**
      *  @desc : This function is used get vendor services based on vendor id
      * Call: This function is called using AJAX from Vendor Pincode adding form.
      *  @param : Vendor ID
@@ -4626,9 +4623,13 @@ class vendor extends CI_Controller {
                }
                $insertResult = $this->vendor_model->insert_india_pincode_in_batch($insertArray);
                if($insertResult){
-                   $finalMsg = $insertResult." Rows has been inserted for the pincode ".$pincode." , Now You can assign SF to ".$pincode;
-                   $this->session->set_userdata('pincode_msg',$finalMsg);
-                   redirect(base_url() . 'employee/booking/view_queries/FollowUp/p_nav');
+//                   $finalMsg = $insertResult." Rows has been inserted for the pincode ".$pincode." , Now You can assign SF to ".$pincode;
+//                   $this->session->set_userdata('pincode_msg',$finalMsg);
+//                   redirect(base_url() . 'employee/booking/view_queries/FollowUp/p_nav');
+                   
+                   $_POST['pincode'] = $pincode;
+                   $_POST['service'] = '';
+                   $this->insert_pincode_form();
                }
           }  
     function save_file_into_database($newZipFileName, $csv, $status) {
