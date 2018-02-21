@@ -17,7 +17,7 @@ class paytm_payment_lib {
         $output = curl_exec ($ch); // execute echo $output;
         return $output;
     }
-    function create_qr_code_response($status,$statusMsg,$dataArray=NULL){
+    private function create_qr_code_response($status,$statusMsg,$dataArray=NULL){
         $responseArray['status']  = $status;
         $responseArray['status_msg']  = $statusMsg;
         if(!empty($dataArray)){
@@ -62,8 +62,8 @@ class paytm_payment_lib {
         $data_string = json_encode($paramlist);
         $checkSum = $this->P_P->paytm_inbuilt_function_lib->getChecksumFromString($data_string ,PAYTM_MERCHANT_KEY); 
         $headers = array('Content-Type:application/json','merchantGuid: '.MERCHANT_GUID,'mid: '.MID,'checksumhash:'.$checkSum); 
-        //$output = $this->send_curl_request($data_string,$headers,QR_CODE_URL);
-        $output= '{"requestGuid":null,"orderId":null,"status":"SUCCESS","statusCode":"QR_0001","statusMessage":"SUCCESS","response":{"path":"iVBORw0KGgoAAAANSUhEUgAAAeAAAAHgAQAAAABVr4M4AAABXklEQVR42u3cO3aDMBAAQFH5GDmqOaqP4QrF4RmsX3ASuuyowlijcp+kXTblEyPBQfCcuvGRH2+n9f/b1+/H472fNcEwDMfGUxVP7yvOeUnpsuJr+XYfMwzDMLxH1mmbNr+icLHkXMdmGIZhuMPdxhWGYRj+GR48wjAMw8fH/rwt+Zc7AxiG4QD425RTHXp/ma+CYRj+31iJFwzD8Ml6z2uZXJra3H0eHvthGIaD43baVB37c1v5BMMwHBwXZaGpEV0iqlkdhmEY3vell4Oq+/SccHtdmsIwDIfFeZBcKnarqbwXWMorAhiG4ei4G+MPlfITF8d+GIbhoHhc7lRsZ5sK0SI2wzAMh8ZHLUZy9cVnU3UPwzAcHY+TS6n/UKlq2wTDMAyPGjRdhjcAGYZhGH7XYmTLM23xdinXgWEYjo67Y3+LU9tiBIZhODx+02KkydI3G1cYhuGg+MSAY+BPn84D/CQLePgAAAAASUVORK5CYII=","encryptedData":"281005040101OAFUY7DFX3F8","qrData":"281005040101OAFUY7DFX3F8"}}';
+        $output = $this->send_curl_request($data_string,$headers,QR_CODE_URL);
+        //$output= '{"requestGuid":null,"orderId":null,"status":"SUCCESS","statusCode":"QR_0001","statusMessage":"SUCCESS","response":{"path":"iVBORw0KGgoAAAANSUhEUgAAAeAAAAHgAQAAAABVr4M4AAABXklEQVR42u3cO3aDMBAAQFH5GDmqOaqP4QrF4RmsX3ASuuyowlijcp+kXTblEyPBQfCcuvGRH2+n9f/b1+/H472fNcEwDMfGUxVP7yvOeUnpsuJr+XYfMwzDMLxH1mmbNr+icLHkXMdmGIZhuMPdxhWGYRj+GR48wjAMw8fH/rwt+Zc7AxiG4QD425RTHXp/ma+CYRj+31iJFwzD8Ml6z2uZXJra3H0eHvthGIaD43baVB37c1v5BMMwHBwXZaGpEV0iqlkdhmEY3vell4Oq+/SccHtdmsIwDIfFeZBcKnarqbwXWMorAhiG4ei4G+MPlfITF8d+GIbhoHhc7lRsZ5sK0SI2wzAMh8ZHLUZy9cVnU3UPwzAcHY+TS6n/UKlq2wTDMAyPGjRdhjcAGYZhGH7XYmTLM23xdinXgWEYjo67Y3+LU9tiBIZhODx+02KkydI3G1cYhuGg+MSAY+BPn84D/CQLePgAAAAASUVORK5CYII=","encryptedData":"281005040101OAFUY7DFX3F8","qrData":"281005040101OAFUY7DFX3F8"}}';
         $outputArray = json_decode($output,true);
         if($outputArray['statusCode'] == 'QR_0001'){
             $imgPath = $this->P_P->miscelleneous->generate_image($outputArray['response']['path'], "QR_".$bookingID."_".$amount.".png",QR_CODE_S3_FOLDER);
@@ -79,5 +79,51 @@ class paytm_payment_lib {
         else{
             return array('is_success'=>0,'msg'=>QR_CODE_FAILURE,'data'=>array());
         }
+    }
+       /*
+     * This function is used to genrate qr code for (booking_id+amount) using paytm API
+     * @input parameter - booking_id,amount
+     * @output paramenter - 1) Status - (Success or Failure)
+                                                   2) status_message (reason of failure in case of failure or Success msg)
+                                                   3) QR Image Url
+                                                   4) QR Image name
+                                                   5) Database Record ID (after saving QR code in database, it will return databse id)
+     * @conditions -1) If same booking_id and amount is already exist in db then return already exist and all data (no need to create new QR Code) 
+                                  2) If booking_id is already exists and amount is different then 
+                                      a) Create new QR Code
+                                      b) Inactive previous code against the requested id
+                                      c) Update new QR Code id in booking details
+                                  3) If booking_id and amount is new 
+                                       a) Genrate QR code
+                                       b) Add QR code id in booking details table 
+                                                     
+     */
+    function generate_qr_code($bookingID,$amount){
+            //Check if any qr code already there with same booking and amount
+            $bookingAmountData = $this->P_P->paytm_payment_model->get_qr_code("*",array('booking_id'=>$bookingID,"amount"=>$amount,'is_active'=>1));
+            // if yes then generate response with existing data
+            if(!empty($bookingAmountData)){
+                $response = $this->create_qr_code_response(SUCCESS_STATUS,QR_ALREADY_EXISTS_MSG,$bookingAmountData);
+            }
+            //if not then
+            else{
+                //Inactive all qr code with same booking id diff amount
+                $this->P_P->paytm_payment_model->inactive_qr_code(array('booking_id'=>$bookingID,'transaction_id'=>NULL),array('is_active'=>0));
+                //Generate qr code
+                $resultArray = $this->process_generate_qr_code($bookingID,$amount);
+                if($resultArray['is_success'] == 1){
+                    $response = $this->create_qr_code_response(SUCCESS_STATUS,QR_CREATED_SUCCESSFULLY_MSG, array($resultArray['data']));
+                }
+                else{
+                    $response = $this->create_qr_code_response(FAILURE_STATUS,$resultArray['msg']);
+                }
+            }
+        echo  $response;
+    }
+     function payment_callback_handling(){
+        
+    }
+    function refund_process(){
+        
     }
 }
