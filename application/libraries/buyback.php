@@ -129,6 +129,9 @@ class Buyback {
         if (stristr($this->POST_DATA['subcat'], "Tv")) {
             $appliance_name = 'Television';
         }
+        if (stristr($this->POST_DATA['subcat'], "mobile")) {
+            $appliance_name = 'Mobile';
+        }
 
         if (!empty($appliance_name)) {
             $service_id = $this->My_CI->booking_model->getServiceId($appliance_name);
