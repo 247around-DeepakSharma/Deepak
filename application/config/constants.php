@@ -4,6 +4,7 @@ include('spare_parts_constant.php');
 include('push_notifications_constant.php');
 include('upcountry_constant.php');
 include('email_tag_constant.php');
+include('paytm_payment_constant.php');
 /*
 |--------------------------------------------------------------------------
 | File and Directory Modes
