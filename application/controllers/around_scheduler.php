@@ -1298,7 +1298,7 @@ class Around_scheduler extends CI_Controller {
         }
     }
     
-     /**
+    /**
     * @desc     used to get all the unread email's from installations@247around.com
     * @param    void()
     * @return   void() 
@@ -1340,8 +1340,7 @@ class Around_scheduler extends CI_Controller {
                     
                     $this->table->add_row($email['from'], $email['subject'], implode(',', $attachments));
                 }
-
-                $this->table->set_template($template1);
+                
                 $html_table = $this->table->generate();
 
                 //get template from database
@@ -1367,6 +1366,109 @@ class Around_scheduler extends CI_Controller {
         //close email connection
         $this->email_data_reader->close_email_connection();
         log_message('info', __METHOD__ . " Existing...");
+    }
+    
+    /**
+    * @desc     used to send the reminder to sf and rm to update signature file
+    * @param    void()
+    * @return   void() 
+    */
+    function notification_for_sf_signature(){
+        log_message('info', __METHOD__ . '=> Entering...');
+        $rm_details = $this->employee_model->get_rm_details();
+        foreach ($rm_details as $rm){
+            $sf_list = $this->vendor_model->get_employee_relation($rm['id']);
+            $select = "group_concat(name) as name,group_concat(primary_contact_email,',',owner_email) as email";
+            $where = array('is_gst_doc' => 0, 'active' => 1,'(is_signature_doc IS null OR is_signature_doc = 0)' => NULL,'(signature_file IS Null OR signature_file = "")' => NULL,"id IN(".$sf_list[0]['service_centres_id'].")" => NULL);
+            $data = $this->vendor_model->getVendorDetails($select, $where);
+            if(!empty($data[0]['email'])){
+                log_message("info",__METHOD__." Data Found ".print_r($data,true));
+                //send mail to sf
+                $sf_template = $this->booking_model->get_booking_email_template("sf_signature_notification");
+                $sf_body = $sf_template[0];
+                $sf_to = $sf_template[1];
+                $sf_from = $sf_template[2];
+                $sf_cc = $sf_template[3];
+                $sf_bcc = $data[0]['name'];
+                $sf_subject = $sf_template[4];
+                $this->notify->sendEmail($sf_from, $sf_to, $sf_cc, $sf_bcc, $sf_subject, $sf_body, "");
+                
+                //send sf_list to rm
+                $template1 = array(
+                    'table_open' => '<table border="1" cellpadding="2" cellspacing="0" class="mytable">'
+                );
+
+                $this->table->set_template($template1);
+
+                $this->table->set_heading(array('SF Name'));
+                foreach (explode(',', $data[0]['name']) as $value) {
+                    $this->table->add_row($value);
+                }
+
+                $html_table = $this->table->generate();
+                $rm_template = $this->booking_model->get_booking_email_template("sf_signature_notification_for_rm");
+                $rm_body = vsprintf($rm_template[0], $html_table);
+                $rm_to = $rm['official_email'].",".$rm_template[1];
+                $rm_from = $rm_template[2];
+                $rm_cc = $rm_template[3];
+                $rm_subject = $rm_template[4];
+                $this->notify->sendEmail($rm_from, $rm_to, $rm_cc, '', $rm_subject, $rm_body, "");
+            }else{
+                log_message("info",__METHOD__." No Data Found For RM ".$rm['full_name']);
+            }
+        }
+    }
+    
+    
+    /**
+    * @desc     used to send the reminder to sf and rm to update GST file
+    * @param    void()
+    * @return   void() 
+    */
+    function notification_for_sf_gst(){
+        log_message('info', __METHOD__ . '=> Entering...');
+        $rm_details = $this->employee_model->get_rm_details();
+        foreach ($rm_details as $rm){
+            $sf_list = $this->vendor_model->get_employee_relation($rm['id']);
+            $select = "group_concat(name) as name,group_concat(primary_contact_email,',',owner_email) as email";
+            $where = array('is_gst_doc IS NULL' => NULL, 'active' => 1,"id IN(".$sf_list[0]['service_centres_id'].")" => NULL);
+            $data = $this->vendor_model->getVendorDetails($select, $where);
+            if(!empty($data[0]['email'])){
+                log_message("info",__METHOD__." Data Found ".print_r($data,true));
+                //send mail to sf
+                $sf_template = $this->booking_model->get_booking_email_template("gst_notification");
+                $sf_body = $sf_template[0];
+                $sf_to = $sf_template[1];
+                $sf_from = $sf_template[2];
+                $sf_cc = $sf_template[3];
+                $sf_bcc = $data[0]['name'];
+                $sf_subject = $sf_template[4];
+                $this->notify->sendEmail($sf_from, $sf_to, $sf_cc, $sf_bcc, $sf_subject, $sf_body, "");
+                
+                //send sf_list to rm
+                $template1 = array(
+                    'table_open' => '<table border="1" cellpadding="2" cellspacing="0" class="mytable">'
+                );
+
+                $this->table->set_template($template1);
+
+                $this->table->set_heading(array('SF Name'));
+                foreach (explode(',', $data[0]['name']) as $value) {
+                    $this->table->add_row($value);
+                }
+
+                $html_table = $this->table->generate();
+                $rm_template = $this->booking_model->get_booking_email_template("sf_gst_notification_for_rm");
+                $rm_body = vsprintf($rm_template[0], $html_table);
+                $rm_to = $rm['official_email'].",".$rm_template[1];
+                $rm_from = $rm_template[2];
+                $rm_cc = $rm_template[3];
+                $rm_subject = $rm_template[4];
+                $this->notify->sendEmail($rm_from, $rm_to, $rm_cc, '', $rm_subject, $rm_body, "");
+            }else{
+                log_message("info",__METHOD__." No Data Found For RM ".$rm['full_name']);
+            }
+        }
     }
 
 }
