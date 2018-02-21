@@ -151,7 +151,7 @@ class Service_centers extends CI_Controller {
         $data['engineer_action_not_exit'] = $engineer_action_not_exit;
         
         $data['unit_details'] = $booking_unit_details;
-        
+        $data['penalty'] = $this->penalty_model->get_penalty_on_booking_by_booking_id($booking_id);
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/booking_details', $data);
     }
@@ -2184,19 +2184,21 @@ class Service_centers extends CI_Controller {
         $data = $this->reusable_model->get_search_result_data("service_centres","id as service_center_id,company_name,address as company_address,pan_no as company_pan_number"
                 . ",is_gst_doc as is_gst,gst_no as company_gst_number,gst_file as gst_certificate_file,signature_file",
                array("id"=>$this->session->userdata('service_center_id')),NULL,NULL,NULL,NULL,NULL,array());
-        if($data[0]['is_gst'] == NULL){
-            $this->load->view('service_centers/header');
-            $this->load->view('service_centers/gst_update_form');
-        } else {
+        //echo "<pre>";        print_r($data);exit();
+        if($data[0]['is_gst'] == 1 && !empty($data[0]['gst_certificate_file'])){
             $this->load->view('service_centers/header'); 
             $this->load->view('service_centers/gst_details_view', $data[0]);
+        } else {
+            $this->load->view('service_centers/header');
+            $this->load->view('service_centers/gst_update_form',$data[0]);
+            
         }
     }
     /**
      * @desc This is used to insert gst for data.
      */
     function process_gst_update() {
-        
+
         //$this->checkUserSession();
         log_message('info', __METHOD__ . $this->session->userdata('service_center_id'));
         $this->load->library('table');
@@ -2205,18 +2207,20 @@ class Service_centers extends CI_Controller {
         $this->form_validation->set_rules('company_address', 'Company Address', 'trim|required');
         $this->form_validation->set_rules('pan_number', 'PAN NUmber', 'required|trim|min_length[10]|max_length[10]');
         $this->form_validation->set_rules('is_gst', 'Have You GST No.', 'required');
-        $this->form_validation->set_rules('signature_file', 'Signature file', 'callback_upload_signature');
+        if(empty($this->input->post('is_signature_aval'))){
+            $this->form_validation->set_rules('signature_file', 'Signature file', 'callback_upload_signature');
+        }
 
         if ($this->form_validation->run() === false) {
             $this->gst_update_form();
         } else {
-           
+
             $status_flag = true;
             $is_gst = $this->input->post('is_gst');
             $is_gst_number = NULL;
             $gst_file_name = NULL;
             $gst_number = NULL;
-            
+
             if ($is_gst == 1) {
                 $this->form_validation->set_rules('gst_number', 'Company GST Number', 'required|trim|min_length[15]|max_length[15]|regex_match[/^[0-9]{2}[a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[0-9]{1}[a-zA-Z]{1}[a-zA-Z0-9]{1}/]');
                 $this->form_validation->set_rules('file', 'Company GST File', 'callback_upload_gst_certificate_file');
@@ -2231,8 +2235,14 @@ class Service_centers extends CI_Controller {
                     $gst_number = $this->input->post('gst_number');
                 }
             }
-            
-            
+
+            if (!empty($this->input->post('is_signature_doc'))) {
+                $gst_details['signature_file'] = $this->input->post('signature_file_name');
+                $sc['is_signature_doc'] = 1;
+                $sc['signature_file'] = $gst_details['signature_file'];
+            }
+
+
             // It not Accessed When validation failed above
             if ($status_flag) {
                 $gst_details['service_center_id'] = $this->session->userdata('service_center_id');
@@ -2243,43 +2253,39 @@ class Service_centers extends CI_Controller {
                 $gst_details['company_gst_number'] = $gst_number;
                 $gst_details['gst_certificate_file'] = $gst_file_name;
                 $gst_details['create_date'] = date('Y-m-d H:i:s');
-                $gst_details['signature_file'] = $this->input->post('signature_file_name');
+
                 $sc['is_gst_doc'] = $gst_details['is_gst'];
                 $sc['gst_no'] = $gst_details['company_gst_number'];
                 $sc['gst_file'] = $gst_details['gst_certificate_file'];
-                $sc['signature_file'] = $gst_details['signature_file'];
+
                 $sc['agent_id'] = _247AROUND_DEFAULT_AGENT;
-                   $this->vendor_model->edit_vendor($sc, $this->session->userdata('service_center_id'));
+                $this->vendor_model->edit_vendor($sc, $this->session->userdata('service_center_id'));
 
-                    $template = array(
-                        'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
-                    );
+                $template = array(
+                    'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
+                );
 
-                    $this->table->set_template($template);
+                $this->table->set_template($template);
 
-                    $this->table->set_heading(array('SC Name', 'Company Name', 'Company Address', 'Pan', 'IS GST', 'GST NUmber', 'GST FILE', 'Signature File'));
-                    $this->table->add_row($this->session->userdata('service_center_name'), $gst_details['company_name'], 
-                            $gst_details['company_address'], $gst_details['company_pan_number'], 
-                            !empty($gst_details['is_gst']) ? "YES" : "NO", $gst_details['company_gst_number'], 
-                            !empty($sc['gst_file']) ? "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $sc['gst_file'] : '',
-                            !empty($sc['signature_file']) ? "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $sc['signature_file'] : '');
+                $this->table->set_heading(array('SC Name', 'Company Name', 'Company Address', 'Pan', 'IS GST', 'GST NUmber', 'GST FILE', 'Signature File'));
+                $this->table->add_row($this->session->userdata('service_center_name'), $gst_details['company_name'], $gst_details['company_address'], $gst_details['company_pan_number'], !empty($gst_details['is_gst']) ? "YES" : "NO", $gst_details['company_gst_number'], !empty($sc['gst_file']) ? "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $sc['gst_file'] : '', !empty($sc['signature_file']) ? "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $sc['signature_file'] : '');
 
-                    $to = NITS_ANUJ_EMAIL_ID;
-                    
-                    $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($this->session->userdata('service_center_id'));
-                    $cc = $rm_details[0]['official_email'];
-                    
-                    $subject = "GST Form Updated By " . $this->session->userdata('service_center_name');
-                    $message  = "";
-                    $message .= $this->table->generate();
+                $to = NITS_ANUJ_EMAIL_ID;
 
-                    $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
+                $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($this->session->userdata('service_center_id'));
+                $cc = $rm_details[0]['official_email'];
 
-                    redirect(base_url() . "service_center/gst_details");
+                $subject = "GST Form Updated By " . $this->session->userdata('service_center_name');
+                $message = "";
+                $message .= $this->table->generate();
+
+                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
+
+                redirect(base_url() . "service_center/gst_details");
             }
         }
     }
-    
+
     function upload_signature() {
         $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "bmp", "BMP", "GIF", "PNG");
         $temp = explode(".", $_FILES["signature_file"]["name"]);
@@ -2298,6 +2304,7 @@ class Service_centers extends CI_Controller {
                         $bucket = BITBUCKET_DIRECTORY;
                         $directory = "vendor-partner-docs/" . $picName;
                         $this->s3->putObjectFile($_FILES["signature_file"]["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
+                        $_POST['is_signature_doc'] = 1;
                         return TRUE;
                     }
                 } else {
