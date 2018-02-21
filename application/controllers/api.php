@@ -3024,7 +3024,7 @@ class Api extends CI_Controller {
                     $data['serial_number'] = $value["serialNo"];
                     $sn_pic_url = $value['bookingID']."_" . $value["unitID"]."_serialNO_".rand(10,100).".png";
                     
-                    $this->generate_image($value["serialNoImage"],$sn_pic_url );
+                    $this->miscelleneous->generate_image($value["serialNoImage"],$sn_pic_url,"engineer-uploads");
                     
                     $data["serial_number_pic"] = $sn_pic_url;
                     
@@ -3043,7 +3043,7 @@ class Api extends CI_Controller {
         if($validation){
             $sign_pic_url = $booking_id."_sign_".rand(10,100).".png";
                    
-            $this->generate_image($requestData["SignatureEncode"],$sign_pic_url );
+            $this->miscelleneous->generate_image($requestData["SignatureEncode"],$sign_pic_url,"engineer-uploads");
             
             $en["amount_paid"] = $requestData["amountPaid"];
             $en["booking_id"] = $booking_id;
@@ -3135,20 +3135,6 @@ class Api extends CI_Controller {
             $this->sendJsonResponse(array('0019', 'Failure'));
         }
         
-    }
-    
-    function generate_image($base64, $image_name){
-        $binary = base64_decode($base64);
-        $image_path = TMP_FOLDER . $image_name;
-        $file = fopen($image_path, 'wb');
-        fwrite($file, $binary);
-        fclose($file);
-        
-        $s3directory = "engineer-uploads/" . $image_name;
-
-        $this->s3->putObjectFile(TMP_FOLDER.$image_name, BITBUCKET_DIRECTORY, $s3directory, S3::ACL_PUBLIC_READ);
-        
-        unlink($image_path);
     }
 
     function adjust_zero_pricing($old_pricing) {
