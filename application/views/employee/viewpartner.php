@@ -28,7 +28,8 @@
         <h1>Partners</h1>
         <?php if($this->session->userdata('user_group') != 'closure'){?>
         <div class="pull-right" style="margin:0px 30px 20px 0px;">
-            <a href="<?php echo base_url();?>employee/partner/get_add_partner_form"><input class="btn btn-primary" type="Button" value="Add Partner"></a>
+            <a href="<?php echo base_url();?>employee/partner/get_add_partner_form"><input class="btn btn-sm btn-primary" type="Button" value="Add Partner"></a>
+            <a href="<?php echo base_url();?>employee/partner/download_partner_summary_details" class="btn btn-sm btn-success">Download Partner List</a>
 <!--            <a href="<?php echo base_url();?>employee/partner/upload_partner_brand_logo"><input class="btn btn-primary" type="Button" value="Upload Partner Brand Logo" style="margin-left:10px;"></a>-->
         </div>
         <?php }?>

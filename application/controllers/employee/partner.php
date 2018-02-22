@@ -3886,4 +3886,35 @@ class Partner extends CI_Controller {
             }
         redirect(base_url() . 'employee/partner/editpartner/' . $partner);
     }
+    
+    /**
+     * @desc: This function is used to download the partner details 
+     * @params: void
+     * @return: string
+     */
+    function download_partner_summary_details(){
+        $select = "partners.id,public_name,company_type,primary_contact_name,primary_contact_email,primary_contact_phone_1,owner_name,owner_email,owner_phone_1,gst_number,pan";
+        $where = array('is_active' => 1);
+        $partner_details = $this->partner_model->getpartner_details($select,$where);
+        $template = 'partner_summary_details.xlsx';
+        $output_file = "partner_summary_details". date('d_M_Y_H_i_s');
+        $generated_file = $this->miscelleneous->generate_excel_data($template,$output_file,$partner_details);
+        
+        if (file_exists($generated_file)) {
+            header('Content-Description: File Transfer');
+            header('Content-Type: application/octet-stream');
+            header('Content-Disposition: attachment; filename="' . basename($generated_file) . '"');
+            header('Expires: 0');
+            header('Cache-Control: must-revalidate');
+            header('Pragma: public');
+            header('Content-Length: ' . filesize($generated_file));
+            readfile($generated_file);
+            
+            $res1 = 0;
+            system(" chmod 777 " . $generated_file , $res1);
+            unlink($generated_file);
+        }else{
+            echo "Please Try Afain!!! Error in generating file";
+        }
+    }
 }
