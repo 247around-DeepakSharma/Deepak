@@ -530,6 +530,5 @@ define("BOOKING_NOT_UPDATED_PENALTY_CRITERIA", 2);
 define('AROUND_PENALTY_NOT_APPLIED_WITH_IN','120');
 define('PARTNER_PENALTY_NOT_APPLIED_WITH_IN','120');
 
-define("BOOKING_NOT_UPDATED_PENALTY_CRITERIA", 2);
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
