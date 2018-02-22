@@ -1364,16 +1364,16 @@ class Buyback_process extends CI_Controller {
     
     public function download_price_list_data() {
        
-        $service_id = $this->service_centre_charges_model->get_bb_charges(array('bb_charges.partner_id' => '247024', 'service_id != 46' => NULL, 
+        $service_id = $this->service_centre_charges_model->get_bb_charges(array('bb_charges.partner_id' => AMAZON_SELLER_ID, 
             'visible_to_partner' => 1, 'bb_shop_address.active' =>1 ), 'service_id', true, true);
         foreach ($service_id as $value) {
-            $where = array('service_id' => $value['service_id'], 'bb_charges.partner_id' => '247024', 'visible_to_partner' => 1,'bb_shop_address.active' =>1 );
+            $where = array('service_id' => $value['service_id'], 'bb_charges.partner_id' => AMAZON_SELLER_ID, 'visible_to_partner' => 1,'bb_shop_address.active' =>1 );
             $select = "category,brand, physical_condition, working_condition , city AS location , partner_total";
             $data = $this->service_centre_charges_model->get_bb_charges($where, $select, true, true);
             $excel_file[$value['service_id']] = $this->generate_bb_price_data($value['service_id'],$data);
             unset($data);
         }
-        $excel_file['46'] = $this->generate_tv_price_sheet();
+        //$excel_file['46'] = $this->generate_tv_price_sheet();
         
         $main_excel = $this->combined_excel_sheets($excel_file);
 
