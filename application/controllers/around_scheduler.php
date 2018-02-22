@@ -738,7 +738,7 @@ class Around_scheduler extends CI_Controller {
         if(!empty($idArray)){
              //Send Push Notification
             $receiverArray['vendor'] = $idArray;
-            $this->push_notification_lib->create_and_send_push_notiifcation(PAN_DETAILS_REQUEST,$receiverArray,array());
+            $this->push_notification_lib->create_and_send_push_notiifcation(BANK_DETAILS_REQUEST,$receiverArray,array());
             //End Push Notification
         }
     }
