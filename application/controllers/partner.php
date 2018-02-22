@@ -1992,7 +1992,7 @@ class Partner extends CI_Controller {
         $email_id = $this->input->post("email_id");
         //log_message("info",__METHOD__." Pincode Data ".print_r($_FILES, true));
         $array = array();
-        $file_name = "sample pin codes.xlsx";
+        $file_name = $this->input->post("file_name");
         $array['file']['tmp_name'] = TMP_FOLDER.$file_name;
         $array['file']['name'] = $file_name;
         $data = $this->miscelleneous->excel_to_Array_converter($array);

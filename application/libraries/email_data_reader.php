@@ -80,6 +80,8 @@ class email_data_reader  {
                 $from = $header->fromaddress;
                 //get email subject
                 $subject = $header->subject;
+                //get email host
+                $host = $header->from[0]->host;
                 //get email structure
                 $structure = imap_fetchstructure($this->connection, $emails[$i]);
                 //if structure is not empty then get email body
@@ -153,7 +155,7 @@ class email_data_reader  {
                 }
                 
                 //make return array
-                array_push($response, array('email_message_id'=>$message_id, 'email_no' => $emails[$i], 'from' => $from, 'subject' => $subject, 'body' => $body,'attachments' =>$return_attachments_details));
+                array_push($response, array('email_message_id'=>$message_id, 'email_no' => $emails[$i], 'from' => $from,'host' => $host, 'subject' => $subject, 'body' => $body,'attachments' =>$return_attachments_details));
             }
         }
         
