@@ -33,25 +33,25 @@
         </div>
         <?php }?>
         
-        <table style="width:98%;" class="table table-striped table-bordered">
+        <table class="table table-striped table-bordered">
           
           <tr>
           	<th class='jumbotron'>ID</th>
-                <th width="200px;" class='jumbotron' style="text-align: center">Company Name</th>
-                <th width="200px;" class='jumbotron' style="text-align: center">Login</th>
-                <th width="500px;" class='jumbotron' style="text-align: center">Appliances/Brands</th>
+                <th class='jumbotron' style="text-align: center">Company Name</th>
+                <th class='jumbotron' style="text-align: center">Login</th>
+                <th class='jumbotron' style="text-align: center">Appliances/Brands</th>
           	<th class='jumbotron' style="text-align: center">PoC Name</th>
           	<th class='jumbotron' style="text-align: center">PoC Phone</th>
           	<th class='jumbotron' style="text-align: center">PoC Email</th>
                 <th class='jumbotron' style="text-align: center">Customer Care Phone</th>
                 <th class='jumbotron' style="text-align: center">Prepaid</th>
                 <th class='jumbotron' style="text-align: center">Go To Invoice Page</th>
-                <th  class='jumbotron' style="text-align: center">Action</th>
+                <th class='jumbotron' style="text-align: center">Action</th>
                 <th class='jumbotron' style="text-align: center">Generate Price</th>
                 <th class='jumbotron' style="text-align: center">Modify Price</th>
                 <th class='jumbotron' style="text-align: center">Send Summary Email</th>
                 <th class='jumbotron' style="text-align: center">View History</th>
-                 <th class='jumbotron' style="text-align: center">Notifications</th>
+                <th class='jumbotron' style="text-align: center">Notifications</th>
           </tr>
 
           
@@ -64,7 +64,7 @@
                 <strong><?php echo $row['public_name'] ; ?> (<b><?php echo $row['code'] ; ?></b>)</strong>
             </td>
             <td>
-                <a href="javascript:void(0)" class="btn btn-sm btn-success"  onclick='return login_to_partner(<?php echo $row['id']?>)' >Login</a>  
+                <a href="javascript:void(0)" class="btn btn-sm btn-success"  onclick='return login_to_partner(<?php echo $row['id']?>)' title="login"><i class="fa fa-sign-in" aria-hidden="true"></i></a>  
             </td>
            
                 <td>
@@ -87,24 +87,24 @@
           	<td><?=$row['primary_contact_email'];?></td>
                 <td><?=$row['customer_care_contact'];?></td>
                 <td><?php if($row['is_prepaid'] == 1){?> <i class="fa fa-credit-card fa-2x" aria-hidden="true"></i><?php }?></td>
-                <td><a href="<?php echo base_url(); ?>employee/invoice/invoice_summary/partner/<?php echo $row['id']; ?>" target="_blank" ><img style="width:30px;" src="<?php echo base_url();?>images/invoice_icon.png" /></a></td>
+                <td><a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>employee/invoice/invoice_summary/partner/<?php echo $row['id']; ?>" target="_blank" title="Go To Invoice"><i class="fa fa-inr" aria-hidden="true"></i></a></td>
                 
           	<td><?php if($row['is_active']==1){ ?>
-                  <a class="btn btn-sm btn-primary" href="<?php echo base_url() ?>employee/partner/deactivate/<?php echo $row['id'] ?>"><i class="fa fa-check" aria-hidden="true"></i></a>       
+                    <a class="btn btn-sm btn-primary" href="<?php echo base_url() ?>employee/partner/deactivate/<?php echo $row['id'] ?>" title="Deactivate"><i class="fa fa-check" aria-hidden="true"></i></a>       
                 <?php } else {?>
-                 <a class="btn btn-sm btn-danger" href="<?php echo base_url() ?>employee/partner/activate/<?php echo $row['id'] ?>"><i class="fa fa-ban" aria-hidden="true"></i></a>                
+                    <a class="btn btn-sm btn-danger" href="<?php echo base_url() ?>employee/partner/activate/<?php echo $row['id'] ?>" title="Activate"><i class="fa fa-ban" aria-hidden="true"></i></a>                
                 <?php } ?>
             </td>
             <td>
-                <a  class="btn btn-sm btn-primary" href="<?php echo base_url();?>employee/service_centre_charges/generate_service_charges_view/<?php echo $row['id'];?>">Gen Charge</a>  
+                <a  class="btn btn-sm btn-success" href="<?php echo base_url();?>employee/service_centre_charges/generate_service_charges_view/<?php echo $row['id'];?>" title="Generate charge"><i class="fa fa-plus" aria-hidden="true"></i></a>  
             </td>
              <td>
-                 <a  class="btn btn-sm btn-warning" href="<?php echo base_url();?>employee/service_centre_charges/show_charge_list/<?php echo $row['id'];?>"  >Modify Charge</a>  
+                 <a  class="btn btn-sm btn-warning" href="<?php echo base_url();?>employee/service_centre_charges/show_charge_list/<?php echo $row['id'];?>" title="Modify charge"><i class="fa fa-pencil" aria-hidden="true"></i></a>  
             </td>
             <td>
-                <a href="<?php echo base_url();?>BookingSummary/send_leads_summary_mail_to_partners/<?php echo $row['id'];?>" class="btn btn-sm btn-color"><i class="fa fa-envelope" aria-hidden="true"></i></a>  
+                <a href="<?php echo base_url();?>BookingSummary/send_leads_summary_mail_to_partners/<?php echo $row['id'];?>" class="btn btn-sm btn-color" title="Send Summary Email"><i class="fa fa-envelope" aria-hidden="true"></i></a>  
             </td>
-            <td>  <button type="button" class="btn btn-info btn-lg fa fa-eye" data-toggle="modal" data-target="#history_view" onclick="get_history_view(<?php echo $row['id']?>)" style="padding: 11px 6px;margin: 0px 10px;"></button></td>
+            <td>  <button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#history_view" onclick="get_history_view(<?php echo $row['id']?>)" title="View History"><i class="fa fa-eye" aria-hidden="true"></i></button></td>
           <td align="center">
               <?php 
               if(array_key_exists($row['id'],$push_notification)){
@@ -116,14 +116,14 @@
                         $tooltipText = $tooltipText.", Blocked: ".$push_notification[$row['id']]['blocked_count'];
                       }
                   if(isset($push_notification[$row['id']]['blocked_count']) && !isset($push_notification[$row['id']]['subscription_count'])){
-                      echo '<button type="button" class="btn btn-info btn-lg glyphicon glyphicon-ban-circle" data-toggle="tooltip" data-placement="left" title="'.$tooltipText.'" style="padding: 11px 6px;margin: 0px 10px;"></button>';
+                      echo '<button type="button" class="btn btn-sm btn-info" data-toggle="tooltip" data-placement="left" title="'.$tooltipText.'"></button>';
                   }
                   else{
-                      echo '<button type="button" class="btn btn-info btn-lg " data-toggle="tooltip" data-placement="left" title="'.$tooltipText.'" style="padding: 11px 6px;margin: 0px 10px;"><i class="fa fa-bell" aria-hidden="true"></i></button>';
+                      echo '<button type="button" class="btn btn-sm btn-info" data-toggle="tooltip" data-placement="left" title="'.$tooltipText.'"><i class="fa fa-bell" aria-hidden="true"></i></button>';
                   }
               }
               else{
-                  echo '<button type="button" class="btn btn-info btn-lg " style="padding: 11px 6px;margin: 0px 10px;"><i class="fa fa-spinner" aria-hidden="true"></i></button>';
+                  echo '<button type="button" class="btn btn-sm btn-info title="Notification"><i class="fa fa-spinner" aria-hidden="true"></i></button>';
               }
               ?>
           </td>
