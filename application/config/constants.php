@@ -169,6 +169,8 @@ define('CUSTOMER_NOT_REACHABLE','Customer not reachable / Customer not picked ph
 define('_247_AROUND_DEFAULT_BRACKETS_ORDER_ID',201611000001);
 //Snapdeal ID
 define('SNAPDEAL_ID',1);
+//Snapdeal host
+define('SNAPDEAL_HOST','snapdeal.com');
 //Jeeves ID
 define("JEEEVES_ID", 247030);
 //Wybor ID
