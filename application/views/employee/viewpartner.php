@@ -64,7 +64,7 @@
                 <strong><?php echo $row['public_name'] ; ?> (<b><?php echo $row['code'] ; ?></b>)</strong>
             </td>
             <td>
-                <a href="javascript:void(0)" class="btn btn-sm btn-success"  onclick='return login_to_partner(<?php echo $row['id']?>)' title="login"><i class="fa fa-sign-in" aria-hidden="true"></i></a>  
+                <a href="javascript:void(0)" class="btn btn-sm btn-success"  onclick='return login_to_partner(<?php echo $row['id']?>)' title="<?php echo isset($row['clear_text']) && $row['clear_text']?$row['user_name'].'/'.$row['clear_text']:'';?>"><i class="fa fa-sign-in" aria-hidden="true"></i></a>  
             </td>
            
                 <td>
