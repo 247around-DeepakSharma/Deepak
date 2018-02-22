@@ -76,295 +76,300 @@ class Partner extends CI_Controller {
             if ($input_d) {
                 $this->jsonRequestData = $input_d;
                 $requestData = json_decode($input_d, TRUE);
+                if (!(json_last_error() === JSON_ERROR_NONE)) {
+                    log_message('info', __METHOD__ . ":: Invalid JSON");
 
-                if (!empty($requestData['brand'])) {
-                    //Sanitizing Brands Before Adding
-                    $requestData['brand'] = preg_replace('/[^A-Za-z0-9 ]/', '', $requestData['brand']);
-                }
-                //Check whether the required details are present in the request
-                //And request doesn't exist in database
-                $is_valid = $this->validate_submit_request_data($requestData);
-                if ($is_valid['result'] == TRUE) {
-                    log_message('info', __METHOD__ . ":: Request validated");
-
-                    //Search for user
-                    //Insert user if phone number doesn't exist
-                    $output = $this->user_model->search_user($requestData['mobile']);
-                    $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($requestData['pincode']));
-
-
-                    if (empty($output)) {
-                        log_message('info', $requestData['mobile'] . ' does not exist');
-
-                        //User doesn't exist
-                        $user['name'] = $requestData['name'];
-                        $user['phone_number'] = $requestData['mobile'];
-                        $user['alternate_phone_number'] = (isset($requestData['alternatePhone']) ? $requestData['alternatePhone'] : "");
-                        $user['user_email'] = (isset($requestData['email']) ? $requestData['email'] : "");
-
-                        isset($requestData['landmark']) ?
-                                        ($address = $requestData['address'] . ", " . $requestData['landmark']) :
-                                        ($address = $requestData['address']);
-
-                        $user['home_address'] = $address;
-                        $user['pincode'] = $requestData['pincode'];
-                        $user['city'] = $requestData['city'];
-
-                        $user['state'] = $distict_details['state'];
-
-                        $user_id = $this->user_model->add_user($user);
-
-                        //echo print_r($user, true), EOL;
-                        //Add sample appliances for this user
-                        $count = $this->booking_model->getApplianceCountByUser($user_id);
-
-                        //Add sample appliances if user has < 5 appliances in wallet
-                        if ($count < 5) {
-                            $this->booking_model->addSampleAppliances($user_id, 5 - intval($count));
-                        }
-                    } else {
-                        log_message('info', $requestData['mobile'] . ' exists');
-                        //User exists
-                        $user['name'] = $requestData['name'];
-                        $user['user_email'] = (isset($requestData['email']) ? $requestData['email'] : "");
-                        $user_id = $output[0]['user_id'];
+                    //Invalid json
+                    $this->jsonRequestData = $input_d;
+                    $this->sendJsonResponse(array(ERR_INVALID_JSON_INPUT_CODE, ERR_INVALID_JSON_INPUT_MSG));
+                } else {
+                    if (!empty($requestData['brand'])) {
+                        //Sanitizing Brands Before Adding
+                        $requestData['brand'] = preg_replace('/[^A-Za-z0-9 ]/', '', $requestData['brand']);
                     }
+                    //Check whether the required details are present in the request
+                    //And request doesn't exist in database
+                    $is_valid = $this->validate_submit_request_data($requestData);
+                    if ($is_valid['result'] == TRUE) {
+                        log_message('info', __METHOD__ . ":: Request validated");
 
-                    //if productType is valid then proceed else send invalid json response 
-                    $is_productType_valid = $this->validate_product_type($requestData);
+                        //Search for user
+                        //Insert user if phone number doesn't exist
+                        $output = $this->user_model->search_user($requestData['mobile']);
+                        $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($requestData['pincode']));
 
-                    if (!isset($is_productType_valid['error'])) {
-                        log_message('info', 'Product type: ' . $requestData['product']);
-                        $prod = trim($requestData['product']);
 
-                        //check service_id exist or not
-                        $service_appliance_data = $this->booking_model->get_service_id_by_appliance_details(trim($requestData['productType']));
-                        $service_id = "";
-                        if (!empty($service_appliance_data)) {
-                            log_message('info', __FUNCTION__ . " Get Service ID  ");
+                        if (empty($output)) {
+                            log_message('info', $requestData['mobile'] . ' does not exist');
 
-                            $service_id = $service_appliance_data[0]['service_id'];
-                            $lead_details['service_appliance_data'] = $service_appliance_data[0];
-                            $lead_details['Product'] = $service_appliance_data[0]['services'];
+                            //User doesn't exist
+                            $user['name'] = $requestData['name'];
+                            $user['phone_number'] = $requestData['mobile'];
+                            $user['alternate_phone_number'] = (isset($requestData['alternatePhone']) ? $requestData['alternatePhone'] : "");
+                            $user['user_email'] = (isset($requestData['email']) ? $requestData['email'] : "");
+
+                            isset($requestData['landmark']) ?
+                                            ($address = $requestData['address'] . ", " . $requestData['landmark']) :
+                                            ($address = $requestData['address']);
+
+                            $user['home_address'] = $address;
+                            $user['pincode'] = $requestData['pincode'];
+                            $user['city'] = $requestData['city'];
+
+                            $user['state'] = $distict_details['state'];
+
+                            $user_id = $this->user_model->add_user($user);
+
+                            //echo print_r($user, true), EOL;
+                            //Add sample appliances for this user
+                            $count = $this->booking_model->getApplianceCountByUser($user_id);
+
+                            //Add sample appliances if user has < 5 appliances in wallet
+                            if ($count < 5) {
+                                $this->booking_model->addSampleAppliances($user_id, 5 - intval($count));
+                            }
                         } else {
-                            if (stristr($prod, "Washing Machine") || stristr($prod, "WashingMachine") || stristr($prod, "Dryer")) {
-                                $lead_details['Product'] = 'Washing Machine';
-                            }
-                            if (stristr($prod, "Television") || stristr($prod, "Monitor")) {
-                                $lead_details['Product'] = 'Television';
-                            }
-                            if (stristr($prod, "Airconditioner") || stristr($prod, "Air Conditioner")) {
-                                $lead_details['Product'] = 'Air Conditioner';
-                            }
-                            if (stristr($prod, "Refrigerator")) {
-                                $lead_details['Product'] = 'Refrigerator';
-                            }
-                            if (stristr($prod, "Microwave")) {
-                                $lead_details['Product'] = 'Microwave';
-                            }
-                            if (stristr($prod, "Purifier")) {
-                                $lead_details['Product'] = 'Water Purifier';
-                            }
-                            if (stristr($prod, "Chimney")) {
-                                $lead_details['Product'] = 'Chimney';
-                            }
-
-                            if (stristr($prod, "Geyser")) {
-                                $lead_details['Product'] = 'Geyser';
-                            }
-
-
-                            log_message('info', 'Product type matched: ' . $lead_details['Product']);
-
-                            $service_id = $this->booking_model->getServiceId($lead_details['Product']);
+                            log_message('info', $requestData['mobile'] . ' exists');
+                            //User exists
+                            $user['name'] = $requestData['name'];
+                            $user['user_email'] = (isset($requestData['email']) ? $requestData['email'] : "");
+                            $user_id = $output[0]['user_id'];
                         }
-                        //Assigning Booking Source and Partner ID for Brand Requested
-                        // First we send Service id and Brand and get Partner_id from it
-                        // Now we send state, partner_id and service_id 
-                        $is_partner_id = $this->miscelleneous->_allot_source_partner_id_for_pincode($service_id, 
-                                $distict_details['state'], $requestData['brand'], $this->partner['id'], true);
 
-                        if (!empty($is_partner_id) && !empty($service_id)) {
-                           
+                        //if productType is valid then proceed else send invalid json response 
+                        $is_productType_valid = $this->validate_product_type($requestData);
 
-                            $this->initialized_variable->fetch_partner_data($is_partner_id['partner_id']);
+                        if (!isset($is_productType_valid['error'])) {
+                            log_message('info', 'Product type: ' . $requestData['product']);
+                            $prod = trim($requestData['product']);
 
-                            $booking['partner_id'] = $is_partner_id['partner_id'];
-                            $booking['source'] = $this->initialized_variable->get_partner_data()[0]['code'];
-                            $booking['create_date'] = date("Y-m-d H:i:s");
+                            //check service_id exist or not
+                            $service_appliance_data = $this->booking_model->get_service_id_by_appliance_details(trim($requestData['productType']));
+                            $service_id = "";
+                            if (!empty($service_appliance_data)) {
+                                log_message('info', __FUNCTION__ . " Get Service ID  ");
 
-                            $unit_details['partner_id'] = $booking['partner_id'];
-                            $booking['order_id'] = $requestData['orderID'];
-                            $appliance_details['brand'] = $unit_details['appliance_brand'] = $requestData['brand'];
-
-                            $appliance_details['model_number'] = $unit_details['model_number'] = (isset($requestData['model']) ? $requestData['model'] : "");
-                            $category = $capacity = "";
-                            if(isset($requestData['category'])){
-                                $category = $requestData['category'];
-                            }
-                            
-                            if(isset($requestData['subCategory'])){
-                                $capacity = $requestData['subCategory'];
-                            }
-
-                            //Product description
-                            $appliance_details['description'] = $unit_details['appliance_description'] = $requestData['productType'];
-
-                            //Check for all optional parameters before setting them
-                            $appliance_details['category'] = $unit_details['appliance_category'] = isset($lead_details['service_appliance_data']['category']) ? $lead_details['service_appliance_data']['category'] : $category;
-
-                            $appliance_details['capacity'] = $unit_details['appliance_capacity'] = isset($lead_details['service_appliance_data']['capacity']) ? $lead_details['service_appliance_data']['capacity'] : $capacity;
-             
-
-                            if ($this->initialized_variable->get_partner_data()[0]['partner_type'] == OEM) {
-                                //if partner type is OEM then sent appliance brand in argument
-                                $prices = $this->partner_model->getPrices($service_id, $unit_details['appliance_category'], $unit_details['appliance_capacity'], $booking['partner_id'], $requestData['requestType'], $unit_details['appliance_brand'], false);
+                                $service_id = $service_appliance_data[0]['service_id'];
+                                $lead_details['service_appliance_data'] = $service_appliance_data[0];
+                                $lead_details['Product'] = $service_appliance_data[0]['services'];
                             } else {
-                                //if partner type is not OEM then dose not sent appliance brand in argument
-                                $prices = $this->partner_model->getPrices($service_id, $unit_details['appliance_category'], $unit_details['appliance_capacity'], $booking['partner_id'], $requestData['requestType'], "", false);
+                                if (stristr($prod, "Washing Machine") || stristr($prod, "WashingMachine") || stristr($prod, "Dryer")) {
+                                    $lead_details['Product'] = 'Washing Machine';
+                                }
+                                if (stristr($prod, "Television") || stristr($prod, "Monitor")) {
+                                    $lead_details['Product'] = 'Television';
+                                }
+                                if (stristr($prod, "Airconditioner") || stristr($prod, "Air Conditioner")) {
+                                    $lead_details['Product'] = 'Air Conditioner';
+                                }
+                                if (stristr($prod, "Refrigerator")) {
+                                    $lead_details['Product'] = 'Refrigerator';
+                                }
+                                if (stristr($prod, "Microwave")) {
+                                    $lead_details['Product'] = 'Microwave';
+                                }
+                                if (stristr($prod, "Purifier")) {
+                                    $lead_details['Product'] = 'Water Purifier';
+                                }
+                                if (stristr($prod, "Chimney")) {
+                                    $lead_details['Product'] = 'Chimney';
+                                }
+
+                                if (stristr($prod, "Geyser")) {
+                                    $lead_details['Product'] = 'Geyser';
+                                }
+
+
+                                log_message('info', 'Product type matched: ' . $lead_details['Product']);
+
+                                $service_id = $this->booking_model->getServiceId($lead_details['Product']);
                             }
-                            $booking['amount_due'] = '0';
+                            //Assigning Booking Source and Partner ID for Brand Requested
+                            // First we send Service id and Brand and get Partner_id from it
+                            // Now we send state, partner_id and service_id 
+                            $is_partner_id = $this->miscelleneous->_allot_source_partner_id_for_pincode($service_id, $distict_details['state'], $requestData['brand'], $this->partner['id'], true);
 
-                            //log_message('info', __FUNCTION__ . " => Prices Check ". print_r($prices));
-                            $is_price = array();
-                            if (!empty($prices) && count($prices) == 1) {
-                                log_message('info', __FUNCTION__ . " => Prices Found");
-                                $unit_details['price_tags'] = $prices[0]['service_category'];
-                                $unit_details['id'] = $prices[0]['id'];
-                                
-                                $unit_details['around_paid_basic_charges'] = $unit_details['around_net_payable'] = "0.00";
-                                $unit_details['partner_paid_basic_charges'] = $prices[0]['partner_net_payable'];
-                                $unit_details['partner_net_payable'] = $prices[0]['partner_net_payable'];
-                                $booking['amount_due'] = $prices[0]['customer_net_payable'];
-                                $is_price['customer_net_payable'] = $prices[0]['customer_net_payable'];
-                                $is_price['is_upcountry'] = $prices[0]['is_upcountry'];
-                            }
-                            if(isset($requestData['itemID'])){
-                                $unit_details['sub_order_id'] = $requestData['itemID'];
-                            }
-                            $booking['booking_primary_contact_no'] = $requestData['mobile'];
-                            $booking['booking_alternate_contact_no'] = (isset($requestData['alternatePhone']) ? $requestData['alternatePhone'] : "");
-
-                            $booking['city'] = $requestData['city'];
-                            $booking['booking_pincode'] = trim($requestData['pincode']);
-
-                            $booking['booking_address'] = $requestData['address'] . ", " . (isset($requestData['landmark']) ? $requestData['landmark'] : "");
-                            $booking['delivery_date'] = $this->getDateTime($requestData['deliveryDate']);
-                            $booking['request_type'] = $requestData['requestType'];
-                            $booking['query_remarks'] = (isset($requestData['remarks']) ? $requestData['remarks'] : $requestData['requestType']);
+                            if (!empty($is_partner_id) && !empty($service_id)) {
 
 
-                            //Add this as a Query now
-                            $booking['booking_id'] = '';
-                            $appliance_details['user_id'] = $booking['user_id'] = $user_id;
-                            $appliance_details['service_id'] = $unit_details['service_id'] = $booking['service_id'] = $service_id;
-                            log_message('info', __METHOD__ . ":: Service ID: " . $booking['service_id']);
-                            //echo "Service ID: " . $booking['service_id'] . PHP_EOL;
-                            $random_code = mt_rand(100, 999);   //return 3 digit random code to make booking id unique
-                            $yy = date("y");
-                            $mm = date("m");
-                            $dd = date("d");
-                            $booking['booking_id'] = str_pad($booking['user_id'], 4, "0", STR_PAD_LEFT) . $yy . $mm . $dd;
-                            $booking['booking_id'] .= (intval($this->booking_model->getBookingCountByUser($booking['user_id'])) + 1);
-                            
-                            $booking_id = $booking['source'] . "-" . $booking['booking_id'] . $random_code;
+                                $this->initialized_variable->fetch_partner_data($is_partner_id['partner_id']);
 
-                            $unit_details['booking_id'] = $booking['booking_id'] = "Q-" . $booking_id;
+                                $booking['partner_id'] = $is_partner_id['partner_id'];
+                                $booking['source'] = $this->initialized_variable->get_partner_data()[0]['code'];
+                                $booking['create_date'] = date("Y-m-d H:i:s");
 
-                            $booking['quantity'] = '1';
+                                $unit_details['partner_id'] = $booking['partner_id'];
+                                $booking['order_id'] = $requestData['orderID'];
+                                $appliance_details['brand'] = $unit_details['appliance_brand'] = $requestData['brand'];
 
-                            $appliance_details['tag'] = $appliance_details['brand'] . " " . $lead_details['Product'];
-                            $appliance_details['purchase_month'] = $unit_details['purchase_month'] = date('M');
-                            $appliance_details['purchase_year'] = $unit_details['purchase_year'] = date('Y');
+                                $appliance_details['model_number'] = $unit_details['model_number'] = (isset($requestData['model']) ? $requestData['model'] : "");
+                                $category = $capacity = "";
+                                if (isset($requestData['category'])) {
+                                    $category = $requestData['category'];
+                                }
 
-                            $appliance_details['last_service_date'] = date('Y-m-d');
-                            //$booking['potential_value'] = '';
-                            //Check vendor Availabilty for pincode and service id
-                            $is_sms = $this->miscelleneous->check_upcountry($booking, $lead_details['Product'], $is_price, "delivered");
-                            if ($is_sms) {
-                                $booking['sms_count'] = 1;
-                                $booking['internal_status'] = _247AROUND_FOLLOWUP;
-                            } else {
-                                $booking['internal_status'] = SF_UNAVAILABLE_SMS_NOT_SENT;
-                            }
+                                if (isset($requestData['subCategory'])) {
+                                    $capacity = $requestData['subCategory'];
+                                }
 
-                            $booking['current_status'] = _247AROUND_FOLLOWUP;
-                            $booking['type'] = "Query";
-                            $booking['booking_date'] = '';
-                            $booking['booking_timeslot'] = '';
-                            $booking['partner_source'] = $requestData['partnerName'].'-STS';
-                            $booking['amount_due'] = '';
-                            $booking['booking_remarks'] = '';
-                            $booking['state'] = $distict_details['state'];
-                            $booking['district'] = $distict_details['district'];
-                            $booking['taluk'] = $distict_details['taluk'];
-                            $unit_details['booking_status'] = _247AROUND_FOLLOWUP;
+                                //Product description
+                                $appliance_details['description'] = $unit_details['appliance_description'] = $requestData['productType'];
 
-                            //check partner status from partner_booking_status_mapping table 
-                            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $booking['partner_id'], $booking['booking_id']);
-                            if (!empty($partner_status)) {
-                                $booking['partner_current_status'] = $partner_status[0];
-                                $booking['partner_internal_status'] = $partner_status[1];
-                            }
+                                //Check for all optional parameters before setting them
+                                $appliance_details['category'] = $unit_details['appliance_category'] = isset($lead_details['service_appliance_data']['category']) ? $lead_details['service_appliance_data']['category'] : $category;
 
-                            //Insert query
+                                $appliance_details['capacity'] = $unit_details['appliance_capacity'] = isset($lead_details['service_appliance_data']['capacity']) ? $lead_details['service_appliance_data']['capacity'] : $capacity;
+
+
+                                if ($this->initialized_variable->get_partner_data()[0]['partner_type'] == OEM) {
+                                    //if partner type is OEM then sent appliance brand in argument
+                                    $prices = $this->partner_model->getPrices($service_id, $unit_details['appliance_category'], $unit_details['appliance_capacity'], $booking['partner_id'], $requestData['requestType'], $unit_details['appliance_brand'], false);
+                                } else {
+                                    //if partner type is not OEM then dose not sent appliance brand in argument
+                                    $prices = $this->partner_model->getPrices($service_id, $unit_details['appliance_category'], $unit_details['appliance_capacity'], $booking['partner_id'], $requestData['requestType'], "", false);
+                                }
+                                $booking['amount_due'] = '0';
+
+                                //log_message('info', __FUNCTION__ . " => Prices Check ". print_r($prices));
+                                $is_price = array();
+                                if (!empty($prices) && count($prices) == 1) {
+                                    log_message('info', __FUNCTION__ . " => Prices Found");
+                                    $unit_details['price_tags'] = $prices[0]['service_category'];
+                                    $unit_details['id'] = $prices[0]['id'];
+
+                                    $unit_details['around_paid_basic_charges'] = $unit_details['around_net_payable'] = "0.00";
+                                    $unit_details['partner_paid_basic_charges'] = $prices[0]['partner_net_payable'];
+                                    $unit_details['partner_net_payable'] = $prices[0]['partner_net_payable'];
+                                    $booking['amount_due'] = $prices[0]['customer_net_payable'];
+                                    $is_price['customer_net_payable'] = $prices[0]['customer_net_payable'];
+                                    $is_price['is_upcountry'] = $prices[0]['is_upcountry'];
+                                }
+                                if (isset($requestData['itemID'])) {
+                                    $unit_details['sub_order_id'] = $requestData['itemID'];
+                                }
+                                $booking['booking_primary_contact_no'] = $requestData['mobile'];
+                                $booking['booking_alternate_contact_no'] = (isset($requestData['alternatePhone']) ? $requestData['alternatePhone'] : "");
+
+                                $booking['city'] = $requestData['city'];
+                                $booking['booking_pincode'] = trim($requestData['pincode']);
+
+                                $booking['booking_address'] = $requestData['address'] . ", " . (isset($requestData['landmark']) ? $requestData['landmark'] : "");
+                                $booking['delivery_date'] = $this->getDateTime($requestData['deliveryDate']);
+                                $booking['request_type'] = $requestData['requestType'];
+                                $booking['query_remarks'] = (isset($requestData['remarks']) ? $requestData['remarks'] : $requestData['requestType']);
+
+
+                                //Add this as a Query now
+                                $booking['booking_id'] = '';
+                                $appliance_details['user_id'] = $booking['user_id'] = $user_id;
+                                $appliance_details['service_id'] = $unit_details['service_id'] = $booking['service_id'] = $service_id;
+                                log_message('info', __METHOD__ . ":: Service ID: " . $booking['service_id']);
+                                //echo "Service ID: " . $booking['service_id'] . PHP_EOL;
+                                $random_code = mt_rand(100, 999);   //return 3 digit random code to make booking id unique
+                                $yy = date("y");
+                                $mm = date("m");
+                                $dd = date("d");
+                                $booking['booking_id'] = str_pad($booking['user_id'], 4, "0", STR_PAD_LEFT) . $yy . $mm . $dd;
+                                $booking['booking_id'] .= (intval($this->booking_model->getBookingCountByUser($booking['user_id'])) + 1);
+
+                                $booking_id = $booking['source'] . "-" . $booking['booking_id'] . $random_code;
+
+                                $unit_details['booking_id'] = $booking['booking_id'] = "Q-" . $booking_id;
+
+                                $booking['quantity'] = '1';
+
+                                $appliance_details['tag'] = $appliance_details['brand'] . " " . $lead_details['Product'];
+                                $appliance_details['purchase_month'] = $unit_details['purchase_month'] = date('M');
+                                $appliance_details['purchase_year'] = $unit_details['purchase_year'] = date('Y');
+
+                                $appliance_details['last_service_date'] = date('Y-m-d');
+                                //$booking['potential_value'] = '';
+                                //Check vendor Availabilty for pincode and service id
+                                $is_sms = $this->miscelleneous->check_upcountry($booking, $lead_details['Product'], $is_price, "delivered");
+                                if ($is_sms) {
+                                    $booking['sms_count'] = 1;
+                                    $booking['internal_status'] = _247AROUND_FOLLOWUP;
+                                } else {
+                                    $booking['internal_status'] = SF_UNAVAILABLE_SMS_NOT_SENT;
+                                }
+
+                                $booking['current_status'] = _247AROUND_FOLLOWUP;
+                                $booking['type'] = "Query";
+                                $booking['booking_date'] = '';
+                                $booking['booking_timeslot'] = '';
+                                $booking['partner_source'] = $requestData['partnerName'] . '-STS';
+                                $booking['amount_due'] = '';
+                                $booking['booking_remarks'] = '';
+                                $booking['state'] = $distict_details['state'];
+                                $booking['district'] = $distict_details['district'];
+                                $booking['taluk'] = $distict_details['taluk'];
+                                $unit_details['booking_status'] = _247AROUND_FOLLOWUP;
+
+                                //check partner status from partner_booking_status_mapping table 
+                                $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $booking['partner_id'], $booking['booking_id']);
+                                if (!empty($partner_status)) {
+                                    $booking['partner_current_status'] = $partner_status[0];
+                                    $booking['partner_internal_status'] = $partner_status[1];
+                                }
+
+                                //Insert query
 //                        echo print_r($booking, true) . "<br><br>";
 //                        echo print_r($appliance_details, true) . "<br><br>";exit();
-                            $this->booking_model->addbooking($booking);
+                                $this->booking_model->addbooking($booking);
 
-                            //echo print_r($booking, true) . "<br><br>";
-                            $unit_details['appliance_id'] = $this->booking_model->addappliance($appliance_details);
+                                //echo print_r($booking, true) . "<br><br>";
+                                $unit_details['appliance_id'] = $this->booking_model->addappliance($appliance_details);
 
-                            if (!empty($prices)) {
-                                $this->booking_model->insert_data_in_booking_unit_details($unit_details, $booking['state'], 0);
-                            } else {
-                                $this->booking_model->addunitdetails($unit_details);
-                            }
+                                if (!empty($prices)) {
+                                    $this->booking_model->insert_data_in_booking_unit_details($unit_details, $booking['state'], 0);
+                                } else {
+                                    $this->booking_model->addunitdetails($unit_details);
+                                }
 
-                            $p_login_details = $this->dealer_model->entity_login(array('entity_id' => $this->partner['id'], "user_id" => strtolower($booking['partner_source'])));
+                                $p_login_details = $this->dealer_model->entity_login(array('entity_id' => $this->partner['id'], "user_id" => strtolower($booking['partner_source'])));
 
-                            $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY, $booking['query_remarks'], $p_login_details[0]['agent_id'], $requestData['partnerName'], $this->partner['id']);
+                                $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY, $booking['query_remarks'], $p_login_details[0]['agent_id'], $requestData['partnerName'], $this->partner['id']);
 
-                           // if (empty($booking['state'])) {
+                                // if (empty($booking['state'])) {
                                 //$to = NITS_ANUJ_EMAIL_ID;
                                 //$message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
                                 //$this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", 'Pincode Not Found', $message, "");
-                           // }
-
-                            //Send response
-                            $this->jsonResponseString['response'] = array(
-                                "orderID" => $booking['order_id'],
-                                "247aroundBookingID" => $booking_id,
-                                "247aroundBookingStatus" => $booking['current_status']);
-                            $this->sendJsonResponse(array(SUCCESS_CODE, SUCCESS_MSG));
+                                // }
+                                //Send response
+                                $this->jsonResponseString['response'] = array(
+                                    "orderID" => $booking['order_id'],
+                                    "247aroundBookingID" => $booking_id,
+                                    "247aroundBookingStatus" => $booking['current_status']);
+                                $this->sendJsonResponse(array(SUCCESS_CODE, SUCCESS_MSG));
+                            } else {
+                                $this->jsonResponseString['response'] = NULL;
+                                $this->sendJsonResponse(array(ERR_INVALID_SERVICE_AREA_CODE, ERR_INVALID_SERVICE_AREA_MSG));
+                            }
                         } else {
+                            log_message('info', __METHOD__ . ":: Request validation fails for product type. " . print_r($requestData['productType'], true));
+
                             $this->jsonResponseString['response'] = NULL;
-                            $this->sendJsonResponse(array(ERR_INVALID_SERVICE_AREA_CODE, ERR_INVALID_SERVICE_AREA_MSG));
+                            $this->sendJsonResponse(array(ERR_INVALID_PRODUCT_TYPE_CODE, ERR_INVALID_PRODUCT_TYPE_MSG));
                         }
                     } else {
-                        log_message('info', __METHOD__ . ":: Request validation fails for product type. " . print_r($requestData['productType'], true));
+                        log_message('info', __METHOD__ . ":: Request validation fails. " . print_r($is_valid, true));
 
-                        $this->jsonResponseString['response'] = NULL;
-                        $this->sendJsonResponse(array(ERR_INVALID_PRODUCT_TYPE_CODE, ERR_INVALID_PRODUCT_TYPE_MSG));
-                    }
-                } else {
-                    log_message('info', __METHOD__ . ":: Request validation fails. " . print_r($is_valid, true));
+                        //Request validation fails
+                        //If it is because of pre-existing order id, return booking id as a part of response
+                        if ($is_valid['code'] == ERR_ORDER_ID_EXISTS_CODE) {
+                            log_message('info', "Reason: ERR_ORDER_ID_EXISTS_CODE");
 
-                    //Request validation fails
-                    //If it is because of pre-existing order id, return booking id as a part of response
-                    if ($is_valid['code'] == ERR_ORDER_ID_EXISTS_CODE) {
-                        log_message('info', "Reason: ERR_ORDER_ID_EXISTS_CODE");
+                            $lead_details = $is_valid['lead'];
+                            $this->jsonResponseString['response'] = array(
+                                "247aroundBookingID" => $lead_details['booking_id'],
+                                "247aroundBookingStatus" => $lead_details['current_status'],
+                                "247aroundBookingRemarks" => $lead_details['query_remarks']);
 
-                        $lead_details = $is_valid['lead'];
-                        $this->jsonResponseString['response'] = array(
-                            "247aroundBookingID" => $lead_details['booking_id'],
-                            "247aroundBookingStatus" => $lead_details['current_status'],
-                            "247aroundBookingRemarks" => $lead_details['query_remarks']);
-
-                        $this->sendJsonResponse(array($is_valid['code'], $is_valid['msg']));
-                    } else {
-                        $this->jsonResponseString['response'] = NULL;
-                        $this->sendJsonResponse(array($is_valid['code'], $is_valid['msg']));
+                            $this->sendJsonResponse(array($is_valid['code'], $is_valid['msg']));
+                        } else {
+                            $this->jsonResponseString['response'] = NULL;
+                            $this->sendJsonResponse(array($is_valid['code'], $is_valid['msg']));
+                        }
                     }
                 }
             }
@@ -1987,7 +1992,7 @@ class Partner extends CI_Controller {
         $email_id = $this->input->post("email_id");
         //log_message("info",__METHOD__." Pincode Data ".print_r($_FILES, true));
         $array = array();
-        $file_name = "sample pin codes.xlsx";
+        $file_name = $this->input->post("file_name");
         $array['file']['tmp_name'] = TMP_FOLDER.$file_name;
         $array['file']['name'] = $file_name;
         $data = $this->miscelleneous->excel_to_Array_converter($array);
@@ -2202,5 +2207,53 @@ class Partner extends CI_Controller {
        }
     }
     
+    function test() {
+        //Initialize constant
+        $appName = "24x7Around";
+        $secretKey = "Z1DBK3EH01ZUMPJU";
+        $salt = "QW8QQW4VVKQEQYXVRRY3TTKMTXRHNCNSOPSXFZFF9LI37ZZZXQUSDUN8EGFTRQKN";
+        $appConstant = "6VFKKLZ1Y4";
+        $url = "http://sandbox.servify.in:5009/api/v1/ServiceRequest/fulfillRequest";
+        
+        //JSON with the Application Constant and the current unix timestamp in milliseconds
+        $app = json_encode(array("appC" => $appConstant, "tzU" => time()), true);
+        
+        //Using the SECRET_KEY and SALT, constructed a key using the PBKDF2 function
+        $key = hash_pbkdf2("sha256", $secretKey, $salt, 100000, 16);
+        
+        //Encrypt the stringified JSON with the key, and an initialization vector (iv).
+        $ivSize = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_CBC);
+        $iv = mcrypt_create_iv($ivSize, MCRYPT_RAND);
+        //$encryptionMethod = "AES256";
+        
+        $encryptedMessage = mcrypt_encrypt(MCRYPT_RIJNDAEL_128, $key, $app,  MCRYPT_MODE_CBC, $iv);
+        
+        $postData = '{
+            "ReferenceID": "D1WQI15",
+            "Status": "PNDNG_ASGN,
+            "RequestDetails": {
+                "Reason": "ENA", 
+                "Remarks": "Engineer not availble"
+            }
+        }';
+        
+       
+        
+        $ch = curl_init($url);
+        curl_setopt_array($ch, array(
+             CURLOPT_POST => TRUE,
+             CURLOPT_RETURNTRANSFER => TRUE,
+             CURLOPT_HTTPHEADER => array(
+                'app: ' . $appName,
+                'dr9se2q: ' . $key,
+                'co1cx2: ' . $encryptedMessage
+            ),
+            CURLOPT_POSTFIELDS => $postData
+        ));
+
+        // Send the request
+        $response = curl_exec($ch);
+        print_r($response);
+    }
 
 }
