@@ -39,7 +39,7 @@
                                     <td>
                                         <?php
                                             echo "<a class='btn btn-sm btn-primary' "
-                                            . "href=" . base_url() . "partner/booking_details/$row[booking_id]/" . $this->session->userdata('partner_id') . " target='_blank'title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";
+                                            . "href=" . base_url() . "partner/booking_details/$row[booking_id]/". " target='_blank'title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";
                                             ?>
                                     </td>
                                     <td>
