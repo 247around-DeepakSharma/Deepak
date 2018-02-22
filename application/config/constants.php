@@ -179,7 +179,9 @@ define("AKAI_ID", 247034);
 //AKAI ID
 define("AQUAGRAND_PLUS_ID", 247038);
 // Videotext ID
- define("VIDEOTEX", 247041);
+define("VIDEOTEX", 247041);
+ //Amzaon
+define("AMAZON_SELLER_ID", 247024);
 //Define Developer Email id
 define('DEVELOPER_EMAIL','anuj@247around.com, abhaya@247around.com, sachinj@247around.com, chhavid@247around.com');
 //Define Email ID to send system health emails
@@ -519,6 +521,7 @@ define('BUYBACK','buyback');
 //Collateral 
 define('LEARNING_DOCUMENT','Brand_Collateral');
 define('CONTRACT','Contract');
+define("BOOKING_NOT_UPDATED_PENALTY_CRITERIA", 2);
 //Same penalty can not be levied within 120 minute
 define('AROUND_PENALTY_NOT_APPLIED_WITH_IN','120');
 define('PARTNER_PENALTY_NOT_APPLIED_WITH_IN','120');
