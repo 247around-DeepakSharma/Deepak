@@ -18,6 +18,22 @@ class paytm_payment_lib {
         $this->save_api_response_in_log_table($activity,$output,$data_string,_247AROUND,json_encode($headers));
         return $output;
     }
+    function save_api_response_in_log_table($activity,$response=NULL,$request=NULL,$partner_id=NULL,$header=NULL){
+        $logData['activity'] = $activity;
+        if($response != NULL){
+            $logData['json_response_string'] = $response;
+        }
+        if($partner_id != NULL){
+            $logData['partner_id'] = $partner_id;
+        }
+        if($request != NULL){
+            $logData['json_request_data'] = $request;
+        }
+        if($header != NULL){
+            $logData['header'] = $header;
+        }
+        $this->P_P->reusable_model->insert_into_table("log_partner_table",$logData);
+    }
     /*
      * This is a helper function for generate_qr_code_function
      * It use to create response for qr code generation process
@@ -247,20 +263,10 @@ class paytm_payment_lib {
         $where['order_id'] = $order_id;
         $this->P_P->reusable_model->update_table("paytm_payment_qr_code",$updateData,$where);
     }
-    function save_api_response_in_log_table($activity,$response=NULL,$request=NULL,$partner_id=NULL,$header=NULL){
-        $logData['activity'] = $activity;
-        if($response != NULL){
-            $logData['json_response_string'] = $response;
-        }
-        if($partner_id != NULL){
-            $logData['partner_id'] = $partner_id;
-        }
-        if($request != NULL){
-            $logData['json_request_data'] = $request;
-        }
-        if($header != NULL){
-            $logData['header'] = $header;
-        }
-        $this->P_P->reusable_model->insert_into_table("log_partner_table",$logData);
+    /*
+     * This Function is used to process paytm cashback
+     */
+    function paytm_cashback($booking_id,$amount){
+        
     }
 }
