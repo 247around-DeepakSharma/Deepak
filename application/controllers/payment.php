@@ -8,22 +8,31 @@ class Payment extends CI_Controller {
         parent::__Construct();
         $this->load->library('paytm_payment_lib');
         $this->load->model('reusable_model');
+        $this->load->library('authentication_lib');
     }
     /*
      * This function is used to handle paytm callback after transaction against any qr code
      * @input - Paytm response in json
      */
     function paytm_payment_call_back(){
-        $json = '{"type": null,"requestGuid": null,"orderId": "PG-1672651712311_1743613161","status": null,"statusCode": "SUCCESS","statusMessage": "SUCCESS","response": {"userGuid": "c529fdf0-9af7-11e3-852b-000c292554b0","walletSystemTxnId": "63","timestamp": 1444308992384,"cashBackStatus": null,"cashBackMessage": null,"state": null,"heading": ""},"metadata": null}';
-        //Save Paytm Response in log table
-        $this->paytm_payment_lib->save_callback_response_in_log_table("paytm_transaction_callback",$json,NULL,NULL,NULL);
-        $jsonArray = json_decode($json,true);
-        //If Payment is done successfully 
-        if($jsonArray['statusCode'] == 'SUCCESS'){
-            //Save Callback Data In Callback Table
-            $insertID = $this->paytm_payment_lib->save_call_back_data_in_callback_table($jsonArray);
-            //Update Transaction Id Against QR Code in Qr Table
-            $this->paytm_payment_lib->update_transaction_id_against_qr($jsonArray['orderId'],$insertID);
+        $authArray = $this->authentication_lib->checkAPIAuthentication();
+        if($authArray[0] == true){
+            $json = file_get_contents('php://input');
+            //$json = '{"type": null,"requestGuid": null,"orderId": "PG-1672651712311_1743613161","status": null,"statusCode": "SUCCESS","statusMessage": "SUCCESS","response": {"userGuid":"247939278","pgTxnId":"6934721772","timestamp":1492662625972,"cashBackStatus":null,"cashBackMessage":null,"state":null,"heading":null,"walletSysTransactionId":null,"walletSystemTxnId":"XXXXXXXXXXXX","comment":null,"posId":null,"txnAmount":35,"merchantOrderId":"SS-1536021712314311_396298775","uniqueReferenceLabel":null,"uniqueReferenceValue":null,"pccCode":null},"metadata": null}';
+            //Save Paytm Response in log table
+            $this->paytm_payment_lib->save_api_response_in_log_table("paytm_transaction_callback",$json,NULL,NULL,json_decode($authArray[1]));
+            $jsonArray = json_decode($json,true);
+            //If Payment is done successfully 
+            if($jsonArray['statusCode'] == 'SUCCESS'){
+                //Save Callback Data In Callback Table
+                $insertID = $this->paytm_payment_lib->CALLBACK_save_call_back_data_in_callback_table($jsonArray);
+                //Get Booking id from orderid
+                $booking_id = explode("_",$jsonArray['response']['merchantOrderId'])[0];
+                //Update Transaction table Id Against QR Code in Qr Table
+                $this->paytm_payment_lib->update_transaction_id_in_qr_table($jsonArray['response']['merchantOrderId'],$insertID);
+                //Update Transaction table Id Against Booking id in booking details
+                $this->reusable_model->update_table("booking_details",array('payment_txn_id'=>$insertID,'payment_method'=>PAYTM_PAYMENT_METHOD_FOR_QR),array('booking_id'=>$booking_id));
+            }
         }
     }
 }
