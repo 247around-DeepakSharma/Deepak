@@ -602,6 +602,7 @@ class Service_centers extends CI_Controller {
         $data['count'] = $config['total_rows'];
         $data['bookings'] = $this->service_centers_model->getcompleted_or_cancelled_booking($config['per_page'], $offset, $service_center_id, "Cancelled", $booking_id);
         $data['status'] = "Cancelled";
+        $data['serial_number'] = $offset;
 
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/completed_booking', $data);
