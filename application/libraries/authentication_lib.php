@@ -9,7 +9,7 @@ class authentication_lib {
         log_message('info', __FUNCTION__ . "=> Entering ");
         $h = $this->getallheaders();
         if (empty($h)) {
-            log_message('info', __METHOD__ . ":: Empty Header: " . $token);
+            log_message('info', __METHOD__ . ":: Empty Header: ");
             return array(ERR_GENERIC_ERROR_CODE, ERR_GENERIC_ERROR_MSG);
         } else {
             $token = $h['Authorization'];
