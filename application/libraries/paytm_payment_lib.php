@@ -243,7 +243,7 @@ class paytm_payment_lib {
         $data['booking_id'] = $booking_id;
         $data['paytm_order_id'] = $jsonArray['orderId'];
         $data['order_id'] = $orderID;
-        $data['txn_id'] = $jsonArray['response']['walletSystemTxnId'];
+        $data['txn_id'] = $jsonArray['response']['walletSysTransactionId'];
         $data['paid_amount'] = $jsonArray['response']['txnAmount'];
         $data['user_guid'] = $jsonArray['response']['userGuid'];
         $data['cash_back_status'] = $jsonArray['response']['cashBackStatus'];
