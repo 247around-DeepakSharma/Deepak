@@ -15,7 +15,7 @@ class paytm_payment_lib {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); 
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers); 
         $output = curl_exec ($ch); // execute echo $output;
-        $this->save_callback_response_in_log_table($activity,$output,$data_string,_247AROUND,json_encode($headers));
+        $this->save_api_response_in_log_table($activity,$output,$data_string,_247AROUND,json_encode($headers));
         return $output;
     }
     /*
@@ -123,7 +123,7 @@ class paytm_payment_lib {
      * It Create request json with all required parameters for Paytm API
      * @output - msg-"Is QR Generated Or Not",success or failure msg,Paytm ApI Response Data
      */
-    private function process_generate_qr_code($bookingID,$amount){
+    private function QR_process_generate_qr_code($bookingID,$amount){
         log_message('info', __FUNCTION__ . "Function Start");
         //Create Parameters List
         $paramlist = $this->QR_create_qr_parameters($bookingID,$amount);
@@ -154,7 +154,7 @@ class paytm_payment_lib {
      * @input - $booking_id and $amount
      * @output - array which contains flag (is_exist) and 2nd is Existing Data
      */
-    private function is_qr_code_already_exists_for_input($bookingID,$amount){
+    private function QR_is_qr_code_already_exists_for_input($bookingID,$amount){
         log_message('info', __FUNCTION__ . "booking_id".$bookingID.", Amount ".$amount);
         // Check if qr code already there for same bookingid and amount 
         $where['booking_id'] = $bookingID;
@@ -197,7 +197,7 @@ class paytm_payment_lib {
     function generate_qr_code($bookingID,$amount=0){
             log_message('info', __FUNCTION__ . "booking_id".$bookingID.", Amount ".$amount);
             //Check if any qr code already there with same booking and amount
-            $existBooking = $this->is_qr_code_already_exists_for_input($bookingID,$amount);
+            $existBooking = $this->QR_is_qr_code_already_exists_for_input($bookingID,$amount);
             // if yes then generate response with existing data
             if($existBooking['is_exist'] == 1){
                 return $this->QR_create_qr_code_response(SUCCESS_STATUS,QR_ALREADY_EXISTS_MSG,$existBooking['data']);
@@ -207,7 +207,7 @@ class paytm_payment_lib {
                 //Inactive all active qr code with same booking_id and diff amount where transaction_id is null
                 $this->P_P->paytm_payment_model->inactive_qr_code(array('booking_id'=>$bookingID,'transaction_id'=>NULL),array('is_active'=>0));
                 //Generate qr code
-                $resultArray = $this->process_generate_qr_code($bookingID,$amount);
+                $resultArray = $this->QR_process_generate_qr_code($bookingID,$amount);
                 // IF QR code Generated Successfully
                 if($resultArray['is_success'] == 1){
                     return $this->QR_create_qr_code_response(SUCCESS_STATUS,$resultArray['msg'], array($resultArray['data']));
@@ -218,25 +218,36 @@ class paytm_payment_lib {
                 }
             }
     }
-    function save_call_back_data_in_callback_table($jsonArray){
-        $data['order_id'] = $jsonArray['orderId'];
+    /*
+     * This function is used to save paytm call back response in callback table 
+     */
+    function CALLBACK_save_call_back_data_in_callback_table($jsonArray){
+        $orderID = $jsonArray['response']['merchantOrderId'];
+        $booking_id = explode("_",$orderID)[0];
+        $data['booking_id'] = $booking_id;
+        $data['paytm_order_id'] = $jsonArray['orderId'];
+        $data['order_id'] = $orderID;
+        $data['txn_id'] = $jsonArray['response']['walletSystemTxnId'];
+        $data['paid_amount'] = $jsonArray['response']['txnAmount'];
         $data['user_guid'] = $jsonArray['response']['userGuid'];
-        $data['txn_id'] = $jsonArray['response']['walletSysTransactionId'];
         $data['cash_back_status'] = $jsonArray['response']['cashBackStatus'];
         $data['cash_back_message'] = $jsonArray['response']['cashBackMessage'];
-        $data['cash_back_status'] = $jsonArray['response']['state'];
         $data['create_date'] = date("Y-m-d h:i:s");
         $insertID = $this->P_P->reusable_model->insert_into_table("paytm_transaction_callback",$data);
         return $insertID;
     }
-    function update_transaction_id_against_qr($order_id,$insertID){
+    /*
+     * This Function is used to update transaction table id in qr table
+     * If any qr is not active and we found a transaction against that qr code then update its is_active flag from 0 to 1
+     */
+    function CALLBACK_update_transaction_id_in_qr_table($order_id,$insertID){
         $updateData['transaction_id'] = $insertID;
-        $updateData['is_payment_done'] = 1;
+        $updateData['is_active'] = 1;
         $updateData['payment_date'] = date("Y-m-d h:i:s");
         $where['order_id'] = $order_id;
         $this->P_P->reusable_model->update_table("paytm_payment_qr_code",$updateData,$where);
     }
-    function save_callback_response_in_log_table($activity,$response=NULL,$request=NULL,$partner_id=NULL,$header=NULL){
+    function save_api_response_in_log_table($activity,$response=NULL,$request=NULL,$partner_id=NULL,$header=NULL){
         $logData['activity'] = $activity;
         if($response != NULL){
             $logData['json_response_string'] = $response;
