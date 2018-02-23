@@ -610,8 +610,15 @@ function get_data_for_partner_callback($booking_id) {
      * @return: void
      */
     function activate($id) {
-        $sql = "Update partners set is_active= 1 where id='$id'";
-        $this->db->query($sql);
+        $this->db->where(array("id" => $id));
+        $this->db->update("partners", array('is_active' => 1));
+        if ($this->db->affected_rows() > 0) {
+            $res = TRUE;
+        } else {
+            $res = False;
+        }
+        
+        return $res;
     }
 
     /**
@@ -622,8 +629,15 @@ function get_data_for_partner_callback($booking_id) {
      * @return: void
      */
     function deactivate($id) {
-        $sql = "Update partners set is_active= 0 where id='$id'";
-        $this->db->query($sql);
+        $this->db->where(array("id" => $id));
+        $this->db->update("partners", array('is_active' => 0));
+        if ($this->db->affected_rows() > 0) {
+            $res = TRUE;
+        } else {
+            $res = False;
+        }
+        
+        return $res;
     }
     /**
      * @desc: This function edits partner's details

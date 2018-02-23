@@ -23,9 +23,27 @@
 
 <div  id="page-wrapper">
     <div class="row">
-      <div >
+      <div>
        
         <h1>Partners</h1>
+        <?php
+            if ($this->session->userdata('success')) {
+                echo '<div class="alert alert-success alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <strong>' . $this->session->userdata('success') . '</strong>
+                        </div>';
+            }
+            if ($this->session->userdata('error')) {
+                echo '<div class="alert alert-danger alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <strong>' . $this->session->userdata('error') . '</strong>
+                        </div>';
+            }
+        ?>
         <?php if($this->session->userdata('user_group') != 'closure'){?>
         <div class="pull-right" style="margin:0px 30px 20px 0px;">
             <a href="<?php echo base_url();?>employee/partner/get_add_partner_form"><input class="btn btn-sm btn-primary" type="Button" value="Add Partner"></a>
@@ -157,6 +175,8 @@
       
     </div>
   </div>
+<?php if($this->session->userdata('success')){$this->session->unset_userdata('success');}?>
+<?php if($this->session->userdata('error')){$this->session->unset_userdata('error');}?>
 <script>
     function get_history_view(partnerID){
      $.ajax({

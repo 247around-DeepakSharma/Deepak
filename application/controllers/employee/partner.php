@@ -755,17 +755,27 @@ class Partner extends CI_Controller {
             $am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
         }
 
-        //send email
-        $email_template = $this->booking_model->get_booking_email_template("partner_activate_email");
-        $to = $get_partner_details[0]['primary_contact_email'] . "," . $get_partner_details[0]['owner_email'];
-        $cc = NITS_ANUJ_EMAIL_ID . "," . $am_email;
-        $subject = $email_template[4];
-        $message = $email_template[0];
+        $result = $this->partner_model->activate($id);
 
-        $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "");
-        $this->partner_model->activate($id);
-        //Storing State change values in Booking_State_Change Table
-        $this->notify->insert_state_change('', _247AROUND_PARTNER_ACTIVATED, _247AROUND_PARTNER_DEACTIVATED, 'Partner ID = ' . $id, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+        if (!empty($result)) {
+
+            //Storing State change values in Booking_State_Change Table
+            $this->notify->insert_state_change('', _247AROUND_PARTNER_ACTIVATED, _247AROUND_PARTNER_DEACTIVATED, 'Partner ID = ' . $id, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+            //send email
+            $email_template = $this->booking_model->get_booking_email_template("partner_activate_email");
+            $to = $get_partner_details[0]['primary_contact_email'] . "," . $get_partner_details[0]['owner_email'];
+            $cc = $email_template[3] . "," . $am_email;
+            $subject = $email_template[4];
+            $message = $email_template[0];
+
+            $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "");
+            $this->session->set_userdata(array('success' => 'Partner Activated Successfully'));
+            log_message("info", __METHOD__ . " Partner Id " . $id . " Updated by " . $this->session->userdata('id'));
+        } else {
+            $this->session->set_userdata(array('error' => 'Error In Activating Partner'));
+            log_message("info", __METHOD__ . " Error In Updating Partner Id " . $id . " by " . $this->session->userdata('id'));
+        }
+
         redirect(base_url() . 'employee/partner/viewpartner', 'refresh');
     }
 
@@ -785,19 +795,27 @@ class Partner extends CI_Controller {
             $am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
         }
 
-        //send email
+        $result = $this->partner_model->deactivate($id);
+        if (!empty($result)) {
 
-        $email_template = $this->booking_model->get_booking_email_template("partner_deactivate_email");
-        $to = $get_partner_details[0]['primary_contact_email'] . "," . $get_partner_details[0]['owner_email'];
-        $cc = NITS_ANUJ_EMAIL_ID . "," . $am_email;
-        $subject = $email_template[4];
-        $message = $email_template[0];
+            //Storing State change values in Booking_State_Change Table
+            $this->notify->insert_state_change('', _247AROUND_PARTNER_DEACTIVATED, _247AROUND_PARTNER_ACTIVATED, 'Partner ID = ' . $id, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
 
-        $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "");
+            //send email
 
-        $this->partner_model->deactivate($id);
-        //Storing State change values in Booking_State_Change Table
-        $this->notify->insert_state_change('', _247AROUND_PARTNER_DEACTIVATED, _247AROUND_PARTNER_ACTIVATED, 'Partner ID = ' . $id, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+            $email_template = $this->booking_model->get_booking_email_template("partner_deactivate_email");
+            $to = $get_partner_details[0]['primary_contact_email'] . "," . $get_partner_details[0]['owner_email'];
+            $cc = $email_template[3] . "," . $am_email;
+            $subject = $email_template[4];
+            $message = $email_template[0];
+
+            $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "");
+            $this->session->set_userdata(array('success' => 'Partner De-activated Successfully'));
+            log_message("info", __METHOD__ . " Partner Id " . $id . " Updated by " . $this->session->userdata('id'));
+        } else {
+            $this->session->set_userdata(array('error' => 'Error In De-activating Partner'));
+            log_message("info", __METHOD__ . " Error In Updating Partner Id " . $id . " by " . $this->session->userdata('id'));
+        }
 
 
         redirect(base_url() . 'employee/partner/viewpartner', 'refresh');
