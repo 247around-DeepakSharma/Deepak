@@ -3209,11 +3209,15 @@ class vendor extends CI_Controller {
      */
     function remove_image(){
         $data = $this->input->post();
+        if($data['type'] == 'cancelled_cheque_file'){
+                $this->reusable_model->update_table("account_holders_bank_details",array('cancelled_cheque_file'=>''),array('entity_type'=>'SF','entity_id'=>$data['id']));
+        }
+        else{
         $vendor = [];
         $vendor[$data['type']] = '';
         //Making Database Entry as Null
         $this->vendor_model->edit_vendor($vendor, $data['id']);
-        
+        }
         //Logging 
         log_message('info',__FUNCTION__.' Following Images has been removed sucessfully: '.print_r($data, TRUE));
         echo TRUE;
