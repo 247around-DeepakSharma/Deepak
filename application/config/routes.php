@@ -141,6 +141,7 @@ $route['partner/download_partner_summary/(:any)'] = 'BookingSummary/send_leads_s
 $route['partner/download_sf_list_excel'] = 'employee/partner/download_sf_list_excel';
 $route['partner/serviceability_list'] = 'employee/partner/get_serviceability_by_pincode';
 $route['partner/banktransaction'] = 'employee/partner/get_bank_transaction';
+$route['partner/download_sf_declaration/(:any)'] = 'employee/partner/download_sf_declaration/$1';
 
 $route['pass-through-rating-missed-call'] = 'api/pass_through_rating_missed_call';
 $route['pass-through-fake-reschedule-call'] = 'api/pass_through_fake_reschedule_call';
