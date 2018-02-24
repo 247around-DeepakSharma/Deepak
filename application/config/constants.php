@@ -297,7 +297,6 @@ define('ERR_INVALID_JSON_INPUT_CODE', -1016);
 define('ERR_INVALID_PRODUCT_TYPE_CODE', -1017);
 define('ERR_INVALID_SERVICE_AREA_CODE', -1021);
 define('ERR_BOOKING_NOT_ASSIGNED_CODE', -1022);
-define('ERR_INVALID_PRODUCT_CODE', -1023);
 
 define('ERR_BOOKING_NOT_INSERTED_MSG', 'Booking Insertion Failed');
 define('ERR_GENERIC_ERROR_MSG', 'Unknown Error');
@@ -305,7 +304,6 @@ define('ERR_INVALID_AUTH_TOKEN_MSG', 'Invalid Auth Token');
 define('ERR_MOBILE_NUM_MISSING_MSG', 'Mobile Number Missing');
 define('ERR_ORDER_ID_EXISTS_MSG', 'Order ID Exists');
 define('ERR_MANDATORY_PARAMETER_MISSING_MSG', 'Mandatory Parameter is Missing');
-define('ERR_INVALID_PRODUCT_MSG', 'Invalid Product');
 define('ERR_INVALID_REQUEST_TYPE_MSG', 'Invalid Request Type');
 //define('ERR_ORDER_ID_NOT_FOUND_MSG', 'Order ID Not Found');
 define('ERR_INVALID_BOOKING_ID_MSG', 'Invalid Booking ID');
