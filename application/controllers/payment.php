@@ -18,7 +18,7 @@ class Payment extends CI_Controller {
         $authArray = $this->authentication_lib->checkAPIAuthentication();
         if($authArray[0] == true){
             $json = file_get_contents('php://input');
-            //$json = '{"type": null,"requestGuid": null,"orderId": "PG-1672651712311_1743613161","status": null,"statusCode": "SUCCESS","statusMessage": "SUCCESS","response": {"userGuid":"247939278","pgTxnId":"6934721772","timestamp":1492662625972,"cashBackStatus":null,"cashBackMessage":null,"state":null,"heading":null,"walletSysTransactionId":null,"walletSystemTxnId":"XXXXXXXXXXXX","comment":null,"posId":null,"txnAmount":35,"merchantOrderId":"SS-1536021712314311_396298775","uniqueReferenceLabel":null,"uniqueReferenceValue":null,"pccCode":null},"metadata": null}';
+            //$json = '{"type": null,"requestGuid": null,"orderId": "PG-1672651712311_1743613161","status": null,"statusCode": "SUCCESS","statusMessage": "SUCCESS","response": {"userGuid":"247939278","pgTxnId":"6934721772","timestamp":1492662625972,"cashBackStatus":null,"cashBackMessage":null,"state":null,"heading":null,"walletSysTransactionId":"qwewdjskcnjk","walletSystemTxnId":"XXXXXXXXXXXX","comment":null,"posId":null,"txnAmount":400,"merchantOrderId":"SP-1664331712271_user_download_118832829","uniqueReferenceLabel":null,"uniqueReferenceValue":null,"pccCode":null},"metadata": null}';
             //Save Paytm Response in log table
             $this->paytm_payment_lib->save_api_response_in_log_table("paytm_transaction_callback",$json,NULL,NULL,json_decode($authArray[1]));
             $jsonArray = json_decode($json,true);
@@ -29,10 +29,13 @@ class Payment extends CI_Controller {
                 //Get Booking id from orderid
                 $booking_id = explode("_",$jsonArray['response']['merchantOrderId'])[0];
                 //Update Transaction table Id Against QR Code in Qr Table
-                $this->paytm_payment_lib->update_transaction_id_in_qr_table($jsonArray['response']['merchantOrderId'],$insertID);
+                $this->paytm_payment_lib->CALLBACK_update_transaction_id_in_qr_table($jsonArray['response']['merchantOrderId'],$insertID);
                 //Update Transaction table Id Against Booking id in booking details
-                $this->reusable_model->update_table("booking_details",array('payment_txn_id'=>$insertID,'payment_method'=>PAYTM_PAYMENT_METHOD_FOR_QR),array('booking_id'=>$booking_id));
+                $this->paytm_payment_lib->CALLBACK_update_payment_method_in_booking_details($jsonArray['response']['merchantOrderId'],$booking_id);
             }
         }
+    }
+    function test($bookingID,$amount){
+        echo $this->paytm_payment_lib->paytm_cashback($bookingID,$amount);
     }
 }
