@@ -755,17 +755,27 @@ class Partner extends CI_Controller {
             $am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
         }
 
-        //send email
-        $email_template = $this->booking_model->get_booking_email_template("partner_activate_email");
-        $to = $get_partner_details[0]['primary_contact_email'] . "," . $get_partner_details[0]['owner_email'];
-        $cc = NITS_ANUJ_EMAIL_ID . "," . $am_email;
-        $subject = $email_template[4];
-        $message = $email_template[0];
+        $result = $this->partner_model->activate($id);
 
-        $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "");
-        $this->partner_model->activate($id);
-        //Storing State change values in Booking_State_Change Table
-        $this->notify->insert_state_change('', _247AROUND_PARTNER_ACTIVATED, _247AROUND_PARTNER_DEACTIVATED, 'Partner ID = ' . $id, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+        if (!empty($result)) {
+
+            //Storing State change values in Booking_State_Change Table
+            $this->notify->insert_state_change('', _247AROUND_PARTNER_ACTIVATED, _247AROUND_PARTNER_DEACTIVATED, 'Partner ID = ' . $id, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+            //send email
+            $email_template = $this->booking_model->get_booking_email_template("partner_activate_email");
+            $to = $get_partner_details[0]['primary_contact_email'] . "," . $get_partner_details[0]['owner_email'];
+            $cc = $email_template[3] . "," . $am_email;
+            $subject = $email_template[4];
+            $message = $email_template[0];
+
+            $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "");
+            $this->session->set_userdata(array('success' => 'Partner Activated Successfully'));
+            log_message("info", __METHOD__ . " Partner Id " . $id . " Updated by " . $this->session->userdata('id'));
+        } else {
+            $this->session->set_userdata(array('error' => 'Error In Activating Partner'));
+            log_message("info", __METHOD__ . " Error In Updating Partner Id " . $id . " by " . $this->session->userdata('id'));
+        }
+
         redirect(base_url() . 'employee/partner/viewpartner', 'refresh');
     }
 
@@ -785,19 +795,27 @@ class Partner extends CI_Controller {
             $am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
         }
 
-        //send email
+        $result = $this->partner_model->deactivate($id);
+        if (!empty($result)) {
 
-        $email_template = $this->booking_model->get_booking_email_template("partner_deactivate_email");
-        $to = $get_partner_details[0]['primary_contact_email'] . "," . $get_partner_details[0]['owner_email'];
-        $cc = NITS_ANUJ_EMAIL_ID . "," . $am_email;
-        $subject = $email_template[4];
-        $message = $email_template[0];
+            //Storing State change values in Booking_State_Change Table
+            $this->notify->insert_state_change('', _247AROUND_PARTNER_DEACTIVATED, _247AROUND_PARTNER_ACTIVATED, 'Partner ID = ' . $id, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
 
-        $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "");
+            //send email
 
-        $this->partner_model->deactivate($id);
-        //Storing State change values in Booking_State_Change Table
-        $this->notify->insert_state_change('', _247AROUND_PARTNER_DEACTIVATED, _247AROUND_PARTNER_ACTIVATED, 'Partner ID = ' . $id, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+            $email_template = $this->booking_model->get_booking_email_template("partner_deactivate_email");
+            $to = $get_partner_details[0]['primary_contact_email'] . "," . $get_partner_details[0]['owner_email'];
+            $cc = $email_template[3] . "," . $am_email;
+            $subject = $email_template[4];
+            $message = $email_template[0];
+
+            $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "");
+            $this->session->set_userdata(array('success' => 'Partner De-activated Successfully'));
+            log_message("info", __METHOD__ . " Partner Id " . $id . " Updated by " . $this->session->userdata('id'));
+        } else {
+            $this->session->set_userdata(array('error' => 'Error In De-activating Partner'));
+            log_message("info", __METHOD__ . " Error In Updating Partner Id " . $id . " by " . $this->session->userdata('id'));
+        }
 
 
         redirect(base_url() . 'employee/partner/viewpartner', 'refresh');
@@ -3917,4 +3935,79 @@ class Partner extends CI_Controller {
             echo "Please Try Afain!!! Error in generating file";
         }
     }
+    /**
+     * @desc: This function is used to download SF declaration who don't have GST number hen Partner update spare parts
+     * @params: String $sf_id
+     * @return: void
+     */
+    
+    function download_sf_declaration($sf_id) {
+        $this->checkUserSession();
+        $sf_details = $this->vendor_model->getVendorDetails('id,name,address,owner_name,is_signature_doc,signature_file', array('id' => trim($sf_id)));
+        $template = 'sf_without_gst_declaration.xlsx';
+        $output_pdf_file = "";
+        $excel_file = "";
+        if (!empty($sf_details[0]['signature_file'])) {
+            $excel_data['sf_name'] = $sf_details[0]['name'];
+            $excel_data['sf_address'] = $sf_details[0]['address'];
+            $excel_data['sf_owner_name'] = $sf_details[0]['owner_name'];
+            $excel_data['date'] = date('Y-m-d');
+            $cell = 'B21';
+            if (file_exists($sf_details[0]['signature_file'])) {
+                $signature_file = TMP_FOLDER . $sf_details[0]['signature_file'];
+            } else {
+                $s3_bucket = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $sf_details[0]['signature_file'];
+                //get signature file from s3 and save it to server
+                copy($s3_bucket, TMP_FOLDER . $sf_details[0]['signature_file']);
+                system(" chmod 777 " . TMP_FOLDER . $sf_details[0]['signature_file']);
+                $signature_file = TMP_FOLDER . $sf_details[0]['signature_file'];
+            }
+            $output_file = "sf_declaration_" . $sf_details[0]['id'] . "_" . date('d_M_Y_H_i_s');
+            $excel_file = $this->miscelleneous->generate_excel_data($template, $output_file, $excel_data, false, $cell, $signature_file);
+            //generate pdf
+            if (file_exists($excel_file)) {
+                $json_result = $this->miscelleneous->convert_excel_to_pdf($excel_file, $sf_details[0]['id'], 'vendor-partner-docs');
+                log_message('info', __FUNCTION__ . ' PDF JSON RESPONSE' . print_r($json_result, TRUE));
+                $pdf_response = json_decode($json_result, TRUE);
+
+                if ($pdf_response['response'] === 'Success') {
+                    $output_pdf_file = $pdf_response['output_pdf_file'];
+                    unlink($excel_file);
+                    log_message('info', __FUNCTION__ . ' Generated PDF File Name' . $excel_file);
+                } else if ($pdf_response['response'] === 'Error') {
+
+                    log_message('info', __FUNCTION__ . ' Error in Generating PDF File');
+                }
+            } else {
+                log_message("info", "File Not Generated for " . $sf_details[0]['id']);
+            }
+
+            if (!empty($output_pdf_file)) {
+                $s3_bucket = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $output_pdf_file;
+                //get pdf file from s3 and save it to server
+                copy($s3_bucket, TMP_FOLDER . $output_pdf_file);
+                system(" chmod 777 " . TMP_FOLDER . $output_pdf_file);
+
+                if (file_exists(TMP_FOLDER . $output_pdf_file)) {
+                    header('Content-Description: File Transfer');
+                    header('Content-Type: application/octet-stream');
+                    header('Content-Disposition: attachment; filename="' . basename(TMP_FOLDER . $output_pdf_file) . '"');
+                    header('Expires: 0');
+                    header('Cache-Control: must-revalidate');
+                    header('Pragma: public');
+                    header('Content-Length: ' . filesize(TMP_FOLDER . $output_pdf_file));
+                    readfile(TMP_FOLDER . $output_pdf_file);
+
+                    unlink(TMP_FOLDER . $output_pdf_file);
+                }
+            } else {
+                log_message("info", "Error In generating Declaration file SF ID: ".$sf_details[0]['id']);
+                echo "Some Error Occured!!! Please Try Again";
+            }
+        } else {
+            log_message("info", "SF Id ".$sf_details[0]['id'] . " does not have signature file");
+            echo "Invalid Request";
+        }
+    }
+
 }

@@ -10,17 +10,22 @@ class authentication_lib {
         $h = $this->getallheaders();
         if (empty($h)) {
             log_message('info', __METHOD__ . ":: Empty Header: ");
-            return array(ERR_GENERIC_ERROR_CODE, ERR_GENERIC_ERROR_MSG);
+            return array(false,ERR_GENERIC_ERROR_CODE, ERR_GENERIC_ERROR_MSG);
         } else {
             $token = $h['Authorization'];
             //Validate token
             $this->partner = $this->A_N->partner_model->validate_partner($token);
             if ($this->partner) {
-                return true;
+                if($h['merchantGuid'] == MERCHANT_GUID){
+                  return array(true,$h);  
+                }
+                else {
+                     return array(false,ERR_INVALID_MERCHANT_GUID, ERR_INVALID_MERCHANT_GUID_MSG);
+                }
             } else {
                 log_message('info', __METHOD__ . ":: Invalid token: " . $token);
                 //invalid token
-                return array(ERR_INVALID_AUTH_TOKEN_CODE, ERR_INVALID_AUTH_TOKEN_MSG);
+                return array(false,ERR_INVALID_AUTH_TOKEN_CODE, ERR_INVALID_AUTH_TOKEN_MSG);
             }
         }
     }
