@@ -449,7 +449,8 @@ define('FILE_UPLOAD_FAILED_STATUS', 'Failed');
 define("REPEAT_BOOKING_TAG", "Repeat Booking");
 define("_247AROUND_PRODUCT_TAG", "Product"); 
 
-
+//mobile id
+define("_247AROUND_MOBILE_SERVICE_ID",'54');
 //tv service id
 define("_247AROUND_TV_SERVICE_ID",'46');
 //washing_machine service id
@@ -530,5 +531,12 @@ define("BOOKING_NOT_UPDATED_PENALTY_CRITERIA", 2);
 define('AROUND_PENALTY_NOT_APPLIED_WITH_IN','120');
 define('PARTNER_PENALTY_NOT_APPLIED_WITH_IN','120');
 define("MAKE_CUTOMER_PAYMENT_INVOICE_GREATER_THAN", 5);
+
+//tv SVC
+define('TV_SVC', "7014851010000071");
+//LA SVC
+define('LA_SVC', "7014851010000029");
+//Mobile SVC
+define('MOBILE_SVC', "7014851010000091");
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
