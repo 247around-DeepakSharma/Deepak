@@ -35,7 +35,10 @@ class Payment extends CI_Controller {
             }
         }
     }
-    function test($bookingID,$amount){
+    function test_cashback($bookingID,$amount){
         echo $this->paytm_payment_lib->paytm_cashback($bookingID,$amount);
+    }
+    function test_QR($bookingID,$qr_for,$amount=0,$contact=NULL){
+        echo $this->paytm_payment_lib->generate_qr_code($bookingID,$qr_for,$amount,$contact);
     }
 }
