@@ -16,7 +16,12 @@ class authentication_lib {
             //Validate token
             $this->partner = $this->A_N->partner_model->validate_partner($token);
             if ($this->partner) {
-                return array(true,$h);
+                if($h['merchantGuid'] == MERCHANT_GUID){
+                  return array(true,$h);  
+                }
+                else {
+                     return array(false,ERR_INVALID_MERCHANT_GUID, ERR_INVALID_MERCHANT_GUID_MSG);
+                }
             } else {
                 log_message('info', __METHOD__ . ":: Invalid token: " . $token);
                 //invalid token
