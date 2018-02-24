@@ -2214,39 +2214,40 @@ class Partner extends CI_Controller {
         $salt = "QW8QQW4VVKQEQYXVRRY3TTKMTXRHNCNSOPSXFZFF9LI37ZZZXQUSDUN8EGFTRQKN";
         $appConstant = "6VFKKLZ1Y4";
         $url = "http://sandbox.servify.in:5009/api/v1/ServiceRequest/fulfillRequest";
+       
         
         //JSON with the Application Constant and the current unix timestamp in milliseconds
-        $app = json_encode(array("appC" => $appConstant, "tzU" => time()), true);
+        $app = json_encode(array("appC" => $appConstant, "tzU" => time() * 1000), true);
         
         //Using the SECRET_KEY and SALT, constructed a key using the PBKDF2 function
         $key = hash_pbkdf2("sha256", $secretKey, $salt, 100000, 16);
+
+        $encryptedMessage = $this->encrypt_e_openssl($app, $key); 
+        $fromtime = strtotime(date("Y-m-d 10:00:00", strtotime('+1 day')));
+        $totime = strtotime(date("Y-m-d 13:00:00", strtotime('+1 day')));
+        $array = array(
+            "ReferenceID" => "SP-1656351802244124" , 
+            "Status" => "RESCHED_RQST", 
+            "RequestDetails" => array( 
+                "ScheduledFromTime"=> $fromtime,
+                "ScheduledToTime"=> $totime
+               
+                )
+            );
         
-        //Encrypt the stringified JSON with the key, and an initialization vector (iv).
-        $ivSize = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_CBC);
-        $iv = mcrypt_create_iv($ivSize, MCRYPT_RAND);
-        //$encryptionMethod = "AES256";
+        $postData = json_encode($array, true);
         
-        $encryptedMessage = mcrypt_encrypt(MCRYPT_RIJNDAEL_128, $key, $app,  MCRYPT_MODE_CBC, $iv);
-        
-        $postData = '{
-            "ReferenceID": "D1WQI15",
-            "Status": "PNDNG_ASGN,
-            "RequestDetails": {
-                "Reason": "ENA", 
-                "Remarks": "Engineer not availble"
-            }
-        }';
-        
+        $iv   = "@@@@&&&&####$$$$";
        
-        
         $ch = curl_init($url);
         curl_setopt_array($ch, array(
              CURLOPT_POST => TRUE,
              CURLOPT_RETURNTRANSFER => TRUE,
              CURLOPT_HTTPHEADER => array(
+                'Content-Type: application/json',
                 'app: ' . $appName,
-                'dr9se2q: ' . $key,
-                'co1cx2: ' . $encryptedMessage
+                'dr9se2q: ' . $encryptedMessage,
+                'co1cx2: ' . $iv
             ),
             CURLOPT_POSTFIELDS => $postData
         ));
