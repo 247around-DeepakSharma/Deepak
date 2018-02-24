@@ -989,14 +989,14 @@ class PHPReport {
     function insertImage($cell =false, $imagePath = false){
         if($imagePath){
             $objDrawing = new PHPExcel_Worksheet_Drawing();
-            $objDrawing->setName('SC Signature');
-            $objDrawing->setDescription('Signature');
+            $objDrawing->setName('QR CODE');
+            $objDrawing->setDescription('QR');
             $objDrawing->setPath($imagePath);
-            $objDrawing->setOffsetX(120);                     //setOffsetX works properly
-            $objDrawing->setOffsetY(10);                     //setOffsetY works properly
+            $objDrawing->setOffsetX(100);                     //setOffsetX works properly
+            $objDrawing->setOffsetY(1);                     //setOffsetY works properly
             $objDrawing->setCoordinates($cell);
-            $objDrawing->setWidth(100);  
-            $objDrawing->setHeight(70);  
+            $objDrawing->setWidth(110);  
+            $objDrawing->setHeight(65);  
             $objDrawing->setWorksheet($this->objPHPExcel->getActiveSheet());
         }
 
