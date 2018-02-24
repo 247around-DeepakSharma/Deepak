@@ -297,6 +297,7 @@ define('ERR_INVALID_JSON_INPUT_CODE', -1016);
 define('ERR_INVALID_PRODUCT_TYPE_CODE', -1017);
 define('ERR_INVALID_SERVICE_AREA_CODE', -1021);
 define('ERR_BOOKING_NOT_ASSIGNED_CODE', -1022);
+define('ERR_INVALID_PRODUCT_CODE', -1023);
 
 define('ERR_BOOKING_NOT_INSERTED_MSG', 'Booking Insertion Failed');
 define('ERR_GENERIC_ERROR_MSG', 'Unknown Error');
@@ -319,6 +320,7 @@ define('ERR_INVALID_JSON_INPUT_MSG', 'Invalid JSON Input');
 define('ERR_INVALID_PRODUCT_TYPE_MSG', 'DENIED BY VENDOR');
 define('ERR_INVALID_SERVICE_AREA_MSG', 'Non Serviceable Area');
 define('ERR_BOOKING_NOT_ASSIGNED_MSG', 'Engineer Not Assigned');
+define('ERR_INVALID_PRODUCT_MSG', 'Invalid Product');
 
 //ICICI Bank name constant
 define('ICICI_BANK_NAME', 'ICICI Bank Ltd');
@@ -530,6 +532,6 @@ define("BOOKING_NOT_UPDATED_PENALTY_CRITERIA", 2);
 //Same penalty can not be levied within 120 minute
 define('AROUND_PENALTY_NOT_APPLIED_WITH_IN','120');
 define('PARTNER_PENALTY_NOT_APPLIED_WITH_IN','120');
-
+define("MAKE_CUTOMER_PAYMENT_INVOICE_GREATER_THAN", 5);
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

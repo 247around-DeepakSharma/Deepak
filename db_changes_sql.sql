@@ -4332,3 +4332,12 @@ ALTER TABLE  `collateral` ADD  `request_type` VARCHAR( 20 ) NULL AFTER  `capacit
 
 -- sachin 09 feb
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'buyback_price_sheet_with_quote', 'Updated Buyback Price Sheet', 'Please find the updated highest price quote buyback sheet in the attached file', 'noreply@247around.com', '', '', '', '1', CURRENT_TIMESTAMP);
+
+
+
+
+--ABhay
+ALTER TABLE `booking_unit_details` ADD `user_invoice_id` VARCHAR(128) NULL DEFAULT NULL AFTER `partner_invoice_id`;
+ALTER TABLE `booking_details` ADD `paid_by_customer` INT(1) NULL DEFAULT NULL AFTER `qr_code_id`;
+ALTER TABLE `booking_details` ADD `service_promise_date` DATETIME NULL DEFAULT NULL AFTER `paid_by_customer`;
+
