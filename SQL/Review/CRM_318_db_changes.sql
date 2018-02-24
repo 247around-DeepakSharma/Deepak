@@ -35,3 +35,5 @@ ALTER TABLE `paytm_payment_qr_code`
 --
 ALTER TABLE `paytm_payment_qr_code`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;COMMIT;
+
+ALTER TABLE `paytm_payment_qr_code` ADD `update_date` TIMESTAMP on update CURRENT_TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `payment_date`;
