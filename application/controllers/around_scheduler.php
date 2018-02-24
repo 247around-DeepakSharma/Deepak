@@ -1477,6 +1477,7 @@ class Around_scheduler extends CI_Controller {
     /**
      * @desc This is used to refund cashback for those customer who had paid through Paytm
      */
+
 //    function paytm_payment_cashback(){
 //        $rules = $this->paytm_payment_model->get_paytm_cashback_rules(array("active" => 1, "tag" => PAYTM_CASHBACK_TAG));
 //        if(!empty($rules)){
@@ -1518,5 +1519,7 @@ class Around_scheduler extends CI_Controller {
 //            log_message("info",__METHOD__. " Cashback Rules not found");
 //        }        
 //    }
+
+
 }
 

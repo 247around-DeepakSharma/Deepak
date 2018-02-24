@@ -22,6 +22,10 @@ class User_invoice extends CI_Controller {
     }
     /**
      * @desc
+
+    }
+    /**
+     * 
      * @param String $booking_id
      */
     function payment_invoice_for_customer($booking_id) {
@@ -31,6 +35,7 @@ class User_invoice extends CI_Controller {
                 . "users.name, users.home_address, users.phone_number,users.user_email, users.pincode, users.city, users.state, booking_details.amount_due, "
                 . "booking_details.amount_paid, booking_details.quantity, request_type, services, booking_details.quantity, booking_primary_contact_no,  "
                 . "sc_code, booking_details.user_id, booking_details.closed_date, booking_details.assigned_vendor_id, owner_email, primary_contact_email";
+
         $request['where'] = array("booking_details.booking_id" => $booking_id, 'amount_paid > ' . MAKE_CUTOMER_PAYMENT_INVOICE_GREATER_THAN => NULL);
         $request['length'] = -1;
         $data = $this->booking_model->get_bookings_by_status($request, $select);
@@ -84,6 +89,7 @@ class User_invoice extends CI_Controller {
                 log_message('info', __FUNCTION__ . ' Invoice File is created. invoice id' . $response['meta']['invoice_id']);
                 $convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($response['meta']['invoice_id'], "final");
                 $output_pdf_file_name = $convert['main_pdf_file_name'];
+
                 
                 $email_template = $this->booking_model->get_booking_email_template("customer_paid_invoice_to_vendor");
                 $subject = $email_template[4];
@@ -111,6 +117,7 @@ class User_invoice extends CI_Controller {
                     $this->notify->send_sms_msg91($sms);
                 }
                
+
                 $agent_id = $this->session->userdata('id');
 
                 $this->insert_payment_invoice($booking_id, $response, $data[0]->user_id, $data[0]->closed_date, $agent_id, $convert);
@@ -175,5 +182,5 @@ class User_invoice extends CI_Controller {
             
             return true;
     }
-    
+
 }

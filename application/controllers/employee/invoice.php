@@ -680,7 +680,9 @@ class Invoice extends CI_Controller {
     }
 
     function upload_invoice_to_S3($invoice_id, $detailed = true){
+
         $this->invoice_lib->upload_invoice_to_S3($invoice_id, $detailed);
+
     }
     
     function generate_partner_upcountry_excel($partner_id, $data, $meta) {

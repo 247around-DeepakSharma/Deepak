@@ -50,6 +50,7 @@ class Booking_utilities {
         //log_message('info', "PHP report");
         $booking_details = $this->My_CI->booking_model->getbooking_history($booking_id, "join");
         if (!empty($booking_details)) {
+
             $qr = $this->get_qr_code_response($booking_details[0]['booking_id'], $booking_details[0]['amount_due'], 
                     $booking_details[0]['primary_contact_phone_1'], $booking_details[0]['user_id'], 
                     $booking_details[0]['booking_primary_contact_no']);
@@ -165,6 +166,7 @@ class Booking_utilities {
         }
         log_message('info', __FUNCTION__ . " => Exiting, Booking ID: " . $booking_id);
     }
+
     /**
      * @desc This function is  used to genearte QR code for JOB CARD
      * @param String $booking_id
@@ -195,6 +197,7 @@ class Booking_utilities {
             }
             
         }
+
 
         $result = json_decode($response, TRUE);
 
