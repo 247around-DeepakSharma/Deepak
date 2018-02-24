@@ -190,8 +190,6 @@ class Partner extends CI_Controller {
                             $is_partner_id = $this->miscelleneous->_allot_source_partner_id_for_pincode($service_id, $distict_details['state'], $requestData['brand'], $this->partner['id'], true);
 
                             if (!empty($is_partner_id) && !empty($service_id)) {
-
-
                                 $this->initialized_variable->fetch_partner_data($is_partner_id['partner_id']);
 
                                 $booking['partner_id'] = $is_partner_id['partner_id'];
@@ -219,7 +217,6 @@ class Partner extends CI_Controller {
                                 $appliance_details['category'] = $unit_details['appliance_category'] = isset($lead_details['service_appliance_data']['category']) ? $lead_details['service_appliance_data']['category'] : $category;
 
                                 $appliance_details['capacity'] = $unit_details['appliance_capacity'] = isset($lead_details['service_appliance_data']['capacity']) ? $lead_details['service_appliance_data']['capacity'] : $capacity;
-
 
                                 if ($this->initialized_variable->get_partner_data()[0]['partner_type'] == OEM) {
                                     //if partner type is OEM then sent appliance brand in argument
@@ -1990,10 +1987,9 @@ class Partner extends CI_Controller {
         log_message("info",__METHOD__. " Enterring.. ".$this->input->post("email_id"));
         //$_FILES =  $this->input->post("file");
         $email_id = $this->input->post("email_id");
+        $file_name = $this->input->post("file_name");
         //log_message("info",__METHOD__." Pincode Data ".print_r($_FILES, true));
         $array = array();
-        
-        $file_name = $this->input->post("file_name");
         $array['file']['tmp_name'] = TMP_FOLDER.$file_name;
         $array['file']['name'] = $file_name;
         $data = $this->miscelleneous->excel_to_Array_converter($array);

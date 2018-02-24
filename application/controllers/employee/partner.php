@@ -1744,7 +1744,7 @@ class Partner extends CI_Controller {
         $this->form_validation->set_rules('awb', 'AWB', 'trim|required');
         $this->form_validation->set_rules('incoming_invoice', 'Invoice', 'callback_spare_incoming_invoice');
         //$this->form_validation->set_rules('partner_challan_number', 'Partner Challan Number', 'trim|required');
-        $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required');
+        $this->form_validation->set_rules('approx_value', 'Spare Cost (Approximate)', 'trim|required');
 
         if ($this->form_validation->run() == FALSE) {
             log_message('info', __FUNCTION__ . '=> Form Validation is not updated by Partner ' . $this->session->userdata('partner_id') .
@@ -3270,7 +3270,7 @@ class Partner extends CI_Controller {
         }
         //get escalation percentage
         $data['escalation_percentage'] = $this->partner_model->get_booking_escalation_percantage($partner_id);
-        $data['pincode_covered'] = $this->vendor_model->get_vendor_mapping_data(array(),'count(vendor_pincode_mapping.id) as pincode')[0]['pincode'];
+        $data['pincode_covered'] = $this->reusable_model->get_search_query('vendor_pincode_mapping','count(distinct pincode) as pincode',NULL,NULL,NULL,NULL,NULL,NULL)->result_array()[0]['pincode'];
         if (!empty($this->session->userdata('is_prepaid'))) {
             $data['prepaid_amount'] = $this->get_prepaid_amount($partner_id);
         }
@@ -3374,11 +3374,12 @@ class Partner extends CI_Controller {
         return $d;
     }
 
-    public function get_contact_us_page($partner_id) {
+    public function get_contact_us_page() {
+        $partner_id = $this->session->userdata('partner_id');
         $data['account_manager_details'] = $this->miscelleneous->get_am_data($partner_id);
         $data['rm_details'] = $this->employee_model->get_employee_by_group(array('groups' => 'regionalmanager', 'active' => 1));
         $select = "partner_logo,alt_text";
-        $where = array('partner_logo IS NOT NULL' => NULL,'partner_id' => $this->session->userdata('partner_id'));
+        $where = array('partner_logo IS NOT NULL' => NULL,'partner_id' => $partner_id);
         $header_data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where);
         $this->load->view('partner/header',$header_data);
         $this->load->view('partner/contact_us', $data);

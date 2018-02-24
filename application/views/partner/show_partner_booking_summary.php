@@ -22,11 +22,11 @@
     </div>
     <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
         <span class="count_top">Installation Escalation</span>
-        <div class="count"><?php echo sprintf("%1\$.2f",($escalation_percentage[0]['unique_installation_escalate_percentage'])); ?></div>
+        <div class="count"><?php echo sprintf("%1\$.2f",($escalation_percentage[0]['unique_installation_escalate_percentage'])); ?> %</div>
     </div>
     <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
         <span class="count_top">Repair Escalation</span>
-        <div class="count"><?php echo sprintf("%1\$.2f",($escalation_percentage[0]['unique_repair_escalate_percentage'])); ?></div>
+        <div class="count"><?php echo sprintf("%1\$.2f",($escalation_percentage[0]['unique_repair_escalate_percentage'])); ?> %</div>
     </div>
     <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
         <span class="count_top">Pincode Covered</span>

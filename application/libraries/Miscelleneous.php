@@ -11,6 +11,9 @@ class Miscelleneous {
         $this->My_CI->load->library('asynchronous_lib');
         $this->My_CI->load->library('booking_utilities');
         $this->My_CI->load->library('notify');
+        $this->My_CI->load->library('push_notification_lib');
+        $this->My_CI->load->library('send_grid_api');
+
         $this->My_CI->load->library('s3');
         $this->My_CI->load->library('PHPReport');
         $this->My_CI->load->model('vendor_model');
@@ -1091,7 +1094,7 @@ class Miscelleneous {
      *
      */
 
-    function _allot_source_partner_id_for_pincode($service_id, $state, $brand, $default_partner) {
+    function _allot_source_partner_id_for_pincode($service_id, $state, $brand, $default_partner, $api =false) {
         log_message('info', __FUNCTION__ . ' ' . $service_id, $state, $brand);
         $data = [];
         $flag = FALSE;
@@ -1109,7 +1112,7 @@ class Miscelleneous {
                     $data['source'] = $partner_array[0]['code'];
                     $flag = FALSE;
                 } else {
-                    if ($value['partner_id'] == 247041) {
+                    if ($value['partner_id'] == VIDEOTEX && !$api) {
                         return false;
                     } else {
                         $flag = TRUE;

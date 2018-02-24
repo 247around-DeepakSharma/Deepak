@@ -181,10 +181,9 @@ define("AKAI_ID", 247034);
 //AKAI ID
 define("AQUAGRAND_PLUS_ID", 247038);
 // Videotext ID
- define("VIDEOTEX", 247041);
+define("VIDEOTEX", 247041);
  //Amzaon
- define("AMAZON_SELLER_ID", 247024);
-
+define("AMAZON_SELLER_ID", 247024);
 //Define Developer Email id
 define('DEVELOPER_EMAIL','anuj@247around.com, abhaya@247around.com, sachinj@247around.com, chhavid@247around.com');
 //Define Email ID to send system health emails
