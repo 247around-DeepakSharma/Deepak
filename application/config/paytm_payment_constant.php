@@ -14,3 +14,4 @@ define('QR_CODE_FAILURE','Error From Paytm');
 define('AMOUNT_ZERO_ERROR','Amount should not be 0');
 define('MERCHANT_CONTACT','8826186751');
 define('PAYTM_PAYMENT_METHOD_FOR_QR','Paytm QR Code');
+define("PAYTM_CASHBACK_TAG", "Paytm");
