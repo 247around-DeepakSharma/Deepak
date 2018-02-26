@@ -14,7 +14,7 @@ class Payment extends CI_Controller {
      * This function is used to handle paytm callback after transaction against any qr code
      * @input - Paytm response in json
      */
-    function paytm_payment_call_back(){
+    function paytm_payment_callback(){
         log_message('info', __FUNCTION__ . "Function Start");
         $authArray = $this->authentication_lib->checkAPIAuthentication();
         if($authArray[0] == true){
