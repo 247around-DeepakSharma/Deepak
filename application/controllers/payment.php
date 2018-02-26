@@ -29,14 +29,14 @@ class Payment extends CI_Controller {
                 //Get Booking id from orderid
                 $booking_id = explode("_",$jsonArray['response']['merchantOrderId'])[0];
                 //Update Transaction table Id Against QR Code in Qr Table
-                $this->paytm_payment_lib->CALLBACK_update_transaction_id_in_qr_table($jsonArray['response']['merchantOrderId'],$insertID);
+                $msg =$this->paytm_payment_lib->CALLBACK_update_transaction_id_in_qr_table($jsonArray['response']['merchantOrderId'],$insertID);
                 //Update Transaction table Id Against Booking id in booking details
                 $this->paytm_payment_lib->CALLBACK_update_payment_method_in_booking_details($jsonArray['response']['merchantOrderId'],$booking_id);
-                return "Success";
+                echo $msg;
             }
         }
         else{
-            return $authArray[2];
+            echo  $authArray[2];
         }
     }
     function test_cashback($bookingID,$amount){
