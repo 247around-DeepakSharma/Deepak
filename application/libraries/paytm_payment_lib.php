@@ -1,4 +1,9 @@
 <?php
+/*
+ * This library handles payment communication with Paytm 
+ * In this library we are using Version 2.0 of paytm API
+ * Reffrence_document - 
+ */
 class paytm_payment_lib {
     public function __construct() {
         $this->P_P = & get_instance();
@@ -69,7 +74,7 @@ class paytm_payment_lib {
           $data['amount'] = $amount;  
         }
         $data['order_id'] = $parameterList['request']['orderId'];
-        $data['qr_for'] = $parameterList['request']['posId'];
+        $data['channel'] = $parameterList['request']['posId'];
         $data['txn_response_contact'] = $parameterList['request']['merchantContactNO'];
         $data['qr_data'] = $success_response['response']['qrData'];
         $data['qr_path'] = $success_response['response']['path'];
@@ -126,16 +131,16 @@ class paytm_payment_lib {
         }
     }
     /*
-     * This is a helper function to generate_qr_code function
+     * This is a helper function For generate_qr_code function
      * It is use to communicate with Paytm to generate QR code
-     * @input - $booking_id,$amount
+     * @input - $booking_id,$channel(Channel for sales eg -"job_card,app,user_download" etc),$amount
      * It Create request json with all required parameters for Paytm API
      * @output - msg-"Is QR Generated Or Not",success or failure msg,Paytm ApI Response Data
      */
-    private function QR_process_generate_qr_code($bookingID,$qr_for,$amount,$contact){
+    private function QR_process_generate_qr_code($bookingID,$channel,$amount,$contact){
         log_message('info', __FUNCTION__ . "Function Start");
         //Create Parameters List
-        $paramlist = $this->QR_create_qr_parameters($bookingID,$qr_for,$amount,$contact);
+        $paramlist = $this->QR_create_qr_parameters($bookingID,$channel,$amount,$contact);
         log_message('info', __FUNCTION__ . "Parameters List".print_r($paramlist,true));
         $data_string = json_encode($paramlist);
         //Create Checksum for requested Body
@@ -144,11 +149,10 @@ class paytm_payment_lib {
         $headers = array('Content-Type:application/json','merchantGuid: '.MERCHANT_GUID,'mid: '.MID,'checksumhash:'.$checkSum); 
         //Send Curl request to paytm API
         $output = $this->send_curl_request($data_string,$headers,QR_CODE_URL,"QR_Code_generation");
-        //$output= '{"requestGuid":null,"orderId":null,"status":"SUCCESS","statusCode":"QR_0001","statusMessage":"SUCCESS","response":{"path":"iVBORw0KGgoAAAANSUhEUgAAAeAAAAHgAQAAAABVr4M4AAABXklEQVR42u3cO3aDMBAAQFH5GDmqOaqP4QrF4RmsX3ASuuyowlijcp+kXTblEyPBQfCcuvGRH2+n9f/b1+/H472fNcEwDMfGUxVP7yvOeUnpsuJr+XYfMwzDMLxH1mmbNr+icLHkXMdmGIZhuMPdxhWGYRj+GR48wjAMw8fH/rwt+Zc7AxiG4QD425RTHXp/ma+CYRj+31iJFwzD8Ml6z2uZXJra3H0eHvthGIaD43baVB37c1v5BMMwHBwXZaGpEV0iqlkdhmEY3vell4Oq+/SccHtdmsIwDIfFeZBcKnarqbwXWMorAhiG4ei4G+MPlfITF8d+GIbhoHhc7lRsZ5sK0SI2wzAMh8ZHLUZy9cVnU3UPwzAcHY+TS6n/UKlq2wTDMAyPGjRdhjcAGYZhGH7XYmTLM23xdinXgWEYjo67Y3+LU9tiBIZhODx+02KkydI3G1cYhuGg+MSAY+BPn84D/CQLePgAAAAASUVORK5CYII=","encryptedData":"281005040101OAFUY7DFX3F8","qrData":"281005040101OAFUY7DFX3F8"}}';
         $outputArray = json_decode($output,true);
         // QR_001 -> SUCCESS, QR-1020 -> IF QR already exist for same input
         //In both case save into databse 
-        if($outputArray['statusCode'] == 'QR_0001' || $outputArray['statusCode'] == 'QR_1020'){
+        if($outputArray['statusCode'] == SUCCESS_PAYTM_QR_RESPONSE || $outputArray['statusCode'] == ALREADY_GENERATED_PAYTM_QR_RESPONSE){
             log_message('info', __FUNCTION__ . "Function End with Success");
             return $this->QR_generation_success_handler($outputArray,$bookingID,$amount,$paramlist);
         }
@@ -159,74 +163,30 @@ class paytm_payment_lib {
     }
     /*
      * This is a helper function for generate_qr_code function
-     * It check is Qr code Already Exist For Booking iD and Amount
-     * @input - $booking_id and $amount
+     * It check is Qr code Already Exist For Booking iD, Amount,Channel and Contact
+     * @input - $booking_id, $channel(Channel of Sale eg - Job_card,App,user_download etc) $amount,$contact(Contact for transaction notification)
      * @output - array which contains flag (is_exist) and 2nd is Existing Data
      */
-    private function QR_is_qr_code_already_exists_for_input($bookingID,$qr_for,$amount,$contact){
-        log_message('info', __FUNCTION__ . "booking_id".$bookingID.", Amount ".$amount.", QR_For ".$qr_for);
+    private function QR_is_qr_code_already_exists_for_input($bookingID,$channel,$amount,$contact){
+        log_message('info', __FUNCTION__ . "booking_id".$bookingID.", Amount ".$amount.", Channel ".$channel);
         // Check if qr code already there for same bookingid and amount 
         $where['booking_id'] = $bookingID;
         $where['transaction_id'] = NULL;
-        $where['qr_for'] = $qr_for;
+        $where['channel'] = $channel;
         $where['amount'] = NULL;
+        $where['txn_response_contact'] = $contact;
         if($amount != 0){
             $where['amount'] = $amount;
          }
          $existingBookingData = $this->P_P->paytm_payment_model->get_qr_code("*",$where);
          //If data Exists
          if(!empty($existingBookingData)){
-             //Update Contact Info
-             $this->P_P->reusable_model->update_table("paytm_payment_qr_code",array('txn_response_contact'=>$contact),array('id'=>$existingBookingData[0]['id']));
              log_message('info', __FUNCTION__ . "Function End With QR Code Exists".print_r($existingBookingData,true));
              return array('is_exist'=>1,'data'=>$existingBookingData);
          }
          //If not
          log_message('info', __FUNCTION__ . "Function End With QR Code Not Exists");
          return array('is_exist'=>0,'data'=>array());
-    }
-       /*
-     * This function is used to genrate qr code for (booking_id+amount) using paytm API
-     * @input parameter - booking_id,amount
-     * @output paramenter - 1) Status - (Success or Failure)
-                                                   2) status_message (reason of failure in case of failure or Success msg)
-                                                   3) QR Image Url
-                                                   4) QR Image name
-                                                   5) Database Record ID (after saving QR code in database, it will return databse id)
-     * @conditions -1) If same booking_id and amount is already exist in db then return already exist and all data (no need to create new QR Code) 
-                                  2) If booking_id is already exists and amount is different then 
-                                      a) Create new QR Code
-                                      b) Inactive previous code against the requested id
-                                      c) Update new QR Code id in booking details
-                                  3) If booking_id and amount is new 
-                                       a) Genrate QR code
-                                       b) Add QR code id in booking details table 
-                                                     
-     */
-    function generate_qr_code($bookingID,$qr_for,$amount=0,$contact=NULL){
-            log_message('info', __FUNCTION__ . "booking_id".$bookingID.", Amount ".$amount.", qr_for ".$qr_for.", Contact no ".$contact);
-            //Check if any qr code already there with same booking and amount
-            if($contact == NULL){
-                $contact = MERCHANT_CONTACT;
-            }
-            $existBooking = $this->QR_is_qr_code_already_exists_for_input($bookingID,$qr_for,$amount,$contact);
-            // if yes then generate response with existing data
-            if($existBooking['is_exist'] == 1){
-                return $this->QR_create_qr_code_response(SUCCESS_STATUS,QR_ALREADY_EXISTS_MSG,$existBooking['data']);
-            }
-            //if not then
-            else{
-                //Generate qr code
-                $resultArray = $this->QR_process_generate_qr_code($bookingID,$qr_for,$amount,$contact);
-                // IF QR code Generated Successfully
-                if($resultArray['is_success'] == 1){
-                    return $this->QR_create_qr_code_response(SUCCESS_STATUS,$resultArray['msg'], array($resultArray['data']));
-                }
-                //If not able to Generate QR Code
-                else{
-                    return $this->QR_create_qr_code_response(FAILURE_STATUS,$resultArray['msg']);
-                }
-            }
     }
     /*
      * This function is used to save paytm call back response in callback table 
@@ -235,12 +195,19 @@ class paytm_payment_lib {
         $orderID = $jsonArray['response']['merchantOrderId'];
         $booking_id = explode("_",$orderID)[0];
         $data['booking_id'] = $booking_id;
+        // Unique id genereted by paytm for each order
         $data['paytm_order_id'] = $jsonArray['orderId'];
+        // Order id provided by merchant (247Around) at the time of qr generation (Unique for each qr)
         $data['order_id'] = $orderID;
+        // transaction id provided by paytm (Unique for each transaction)
         $data['txn_id'] = $jsonArray['response']['walletSysTransactionId'];
+        // How much amount has been received by current transaction
         $data['paid_amount'] = $jsonArray['response']['txnAmount'];
+        //Guid For user
         $data['user_guid'] = $jsonArray['response']['userGuid'];
+       // Does paytm generrate any cashback for current transaction
         $data['cash_back_status'] = $jsonArray['response']['cashBackStatus'];
+        // Details of cashback
         $data['cash_back_message'] = $jsonArray['response']['cashBackMessage'];
         $data['create_date'] = date("Y-m-d h:i:s");
         $insertID = $this->P_P->reusable_model->insert_into_table("paytm_transaction_callback",$data);
@@ -253,12 +220,19 @@ class paytm_payment_lib {
         $updateData['transaction_id'] = $insertID;
         $updateData['payment_date'] = date("Y-m-d h:i:s");
         $where['order_id'] = $order_id;
-        $this->P_P->reusable_model->update_table("paytm_payment_qr_code",$updateData,$where);
+        $affected_rows  = $this->P_P->reusable_model->update_table("paytm_payment_qr_code",$updateData,$where);
+        if($affected_rows>0){
+            return SUCCESS_STATUS;
+        }
+        return FAILURE_STATUS;
     }
+    /*
+     * This function is used to update payment Channel against booking_id
+     */
     function CALLBACK_update_payment_method_in_booking_details($order_id,$booking_id){
         $data = $this->P_P->reusable_model->get_search_result_data("paytm_payment_qr_code",'qr_for',array('order_id'=>$order_id),NULL,NULL,NULL,NULL,NULL,array());
         if(!empty($data)){
-            $this->P_P->reusable_model->update_table("booking_details",array('payment_method'=>$data[0]['qr_for']),array('booking_id'=>$booking_id));
+            $this->P_P->reusable_model->update_table("booking_details",array('payment_method'=>$data[0]['channel']),array('booking_id'=>$booking_id));
         }
     }
     function CASHBACK_create_cashback_response($status,$msg){
@@ -319,7 +293,7 @@ class paytm_payment_lib {
         }
     }
     /*
-     * This Function is used to process paytm cashback
+     * This Function is used to process paytm cashback against A Transaction
      */
     function paytm_cashback($booking_id,$amount){
         //get paytm payment details against bookingid 
@@ -338,5 +312,40 @@ class paytm_payment_lib {
                     return $this->CASHBACK_create_cashback_response(FAILURE_STATUS,$resultArray['msg']);
                 }
         }
+    }
+      /*
+     * This function is used to genrate qr code using paytm API
+     * @input parameter - booking_id,amount,Channel(Through which channel payment happens eg - "job_card","app","user_download" etc),contact(transaction notification)
+     * @output paramenter - 1) Status - (Success or Failure)
+                                                   2) status_message (reason of failure in case of failure or Success msg)
+                                                   3) QR Image Url
+                                                   4) QR Image name
+                                                   5) Database Record ID (after saving QR code in database, it will return databse id)
+                                                     
+     */
+    function generate_qr_code($bookingID,$channel,$amount,$contact){
+            if($amount !=0){
+                $amount = number_format((float)$amount, 2, '.', '');
+            }
+            log_message('info', __FUNCTION__ . "booking_id".$bookingID.", Amount ".$amount.", Channel ".$channel.", Contact no ".$contact);
+            //Check if any qr code already there with same booking and amount
+            $existBooking = $this->QR_is_qr_code_already_exists_for_input($bookingID,$channel,$amount,$contact);
+            // if yes then generate response with existing data
+            if($existBooking['is_exist'] == 1){
+                return $this->QR_create_qr_code_response(SUCCESS_STATUS,QR_ALREADY_EXISTS_MSG,$existBooking['data']);
+            }
+            //if not then
+            else{
+                //Generate qr code
+                $resultArray = $this->QR_process_generate_qr_code($bookingID,$channel,$amount,$contact);
+                // IF QR code Generated Successfully
+                if($resultArray['is_success'] == 1){
+                    return $this->QR_create_qr_code_response(SUCCESS_STATUS,$resultArray['msg'], array($resultArray['data']));
+                }
+                //If not able to Generate QR Code
+                else{
+                    return $this->QR_create_qr_code_response(FAILURE_STATUS,$resultArray['msg']);
+                }
+            }
     }
 }
