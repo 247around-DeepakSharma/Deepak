@@ -2057,6 +2057,7 @@ class vendor extends CI_Controller {
                     $login["entity_id"] = $engineer_id;
                     $login["user_id"] = $data['phone'];
                     $login["password"] = md5($data['phone']);
+                    $login["create_date"] = date("Y-m-d H:i:s");
                     $login["active"] = 1;
                     $login["clear_password"] = $data['phone'];
 
