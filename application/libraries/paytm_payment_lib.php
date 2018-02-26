@@ -89,17 +89,17 @@ class paytm_payment_lib {
     /*
      * This Function is used to create QR Generate API Parameters For Paytm
      */
-    private function QR_create_qr_parameters($bookingID,$qr_for,$amount,$contact){
+    private function QR_create_qr_parameters($bookingID,$channel,$amount,$contact){
         log_message('info', __FUNCTION__ . " Function Start");
         $paramlist['request']['requestType'] = QR_CODE_REQUEST_TYPE;
         $paramlist['request']['merchantContactNO'] = $contact;
-        $paramlist['request']['posId'] = $qr_for;
+        $paramlist['request']['posId'] = $channel;
         if($amount != 0){
             $paramlist['request']['amount'] = $amount; 
         }
         $paramlist['request']['currency'] = "INR";
         $paramlist['request']['merchantGuid'] = MERCHANT_GUID;
-        $paramlist['request']['orderId'] = $bookingID."_".$qr_for."_".rand();
+        $paramlist['request']['orderId'] = $bookingID."_".$channel."_".rand();
         $paramlist['request']['Validity'] = "30";
         $paramlist['request']['industryType'] = "RETAIL";
         $paramlist['request']['orderDetails'] = $bookingID;
@@ -230,7 +230,7 @@ class paytm_payment_lib {
      * This function is used to update payment Channel against booking_id
      */
     function CALLBACK_update_payment_method_in_booking_details($order_id,$booking_id){
-        $data = $this->P_P->reusable_model->get_search_result_data("paytm_payment_qr_code",'qr_for',array('order_id'=>$order_id),NULL,NULL,NULL,NULL,NULL,array());
+        $data = $this->P_P->reusable_model->get_search_result_data("paytm_payment_qr_code",'channel',array('order_id'=>$order_id),NULL,NULL,NULL,NULL,NULL,array());
         if(!empty($data)){
             $this->P_P->reusable_model->update_table("booking_details",array('payment_method'=>$data[0]['channel']),array('booking_id'=>$booking_id));
         }
