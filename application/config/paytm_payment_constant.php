@@ -21,3 +21,8 @@ define('CASHBACK_API_version','1.0');
 define('CASHBACK_URL','https://trust-uat.paytm.in/wallet-web/refundWalletTxn');
 define('ERR_INVALID_MERCHANT_GUID', 0000);
 define('ERR_INVALID_MERCHANT_GUID_MSG', "Authentication Failed - 'Wrong MerchantGuid'");
+define('QR_CODE_VALIDITY', "30");
+define('SUCCESS_PAYTM_QR_RESPONSE', "QR_0001");
+define('ALREADY_GENERATED_PAYTM_QR_RESPONSE', "QR_1020");
+define('CHECK_STATUS_URL','https://trust-uat.paytm.in/wallet-web/checkStatus');
+define('CHECK_STATUS_SUCCESS_CODE','SS_001');
