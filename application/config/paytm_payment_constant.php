@@ -19,3 +19,5 @@ define("PAYTM_CASHBACK_TAG", "Paytm");
 define('CASHBACK_TRANSACTION_NOT_FOUND_MSG','There is not any payment from paytm against this booking id');
 define('CASHBACK_API_version','1.0');
 define('CASHBACK_URL','https://trust-uat.paytm.in/wallet-web/refundWalletTxn');
+define('ERR_INVALID_MERCHANT_GUID', 0000);
+define('ERR_INVALID_MERCHANT_GUID_MSG', "Authentication Failed - 'Wrong MerchantGuid'");

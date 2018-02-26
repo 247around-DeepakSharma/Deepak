@@ -1,13 +1,13 @@
 uploadfile.service('fileUpload', ['$http', function ($http) {
-    this.uploadFileToUrl = function($scope,file, uploadUrl,file_date){
+    this.uploadFileToUrl = function($scope,file, uploadUrl,file_date,qc_svc){
         var fd = new FormData();
         fd.append('file', file);
         if(file_date !== ''){
             fd.append('file_received_date',file_date);
         }
-//        if(qc_svc !== ''){
-//            fd.append('qc_svc',qc_svc);
-//        }
+        if(qc_svc !== ''){
+            fd.append('qc_svc',qc_svc);
+        }
         
         $http.post(uploadUrl, fd, {
             transformRequest: angular.identity,

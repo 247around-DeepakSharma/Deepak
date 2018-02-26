@@ -148,7 +148,7 @@ function callAPI($apiURL, $requestParamList)
     $JsonData          = json_encode($requestParamList);
     $postData          = urlencode($JsonData);
     $ch                = curl_init($apiURL);
-    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, “POST”);
     curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);

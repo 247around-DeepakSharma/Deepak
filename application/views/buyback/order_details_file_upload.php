@@ -96,9 +96,9 @@
                                             <input type="text" placeholder="File Date" ng-model="file_date.received_date" class="form-control" id="file_date" name="file_date"/>
                                         </div>
                                         
-<!--                                        <div class="col-md-4 col-sm-12 col-xs-12">
+                                        <div class="col-md-4 col-sm-12 col-xs-12">
                                             <input type="text" placeholder="SVC Number" ng-model="file_date.qc_svc" class="form-control" id="qc_svc" name="qc_svc"/>
-                                        </div>-->
+                                        </div>
                                     </div>
                                     <div class="ln_solid"></div>
                                     <div class="form-group">

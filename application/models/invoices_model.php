@@ -624,42 +624,36 @@ class invoices_model extends CI_Model {
         }
     }
     
-    function _set_partner_excel_invoice_data($result, $sd, $ed, $invoice_type, 
-            $invoice_date = false, $is_customer = false, $customer_state =false){
-            $c_s_gst =$this->check_gst_tax_type($result[0]['state'], $customer_state);
+    function _set_partner_excel_invoice_data($result, $sd, $ed, $invoice_type, $invoice_date = false){
+         $c_s_gst =$this->check_gst_tax_type($result[0]['state']);
             
             $meta['total_qty'] = $meta['total_rate'] =  $meta['total_taxable_value'] =  
                     $meta['cgst_total_tax_amount'] = $meta['sgst_total_tax_amount'] =   $meta['igst_total_tax_amount'] =  $meta['sub_total_amount'] = 0;
             $meta['total_ins_charge'] = $meta['total_parts_charge'] =  $meta['total_parts_tax'] =  $meta['total_inst_tax'] = 0;
             $meta['igst_tax_rate'] =$meta['cgst_tax_rate'] = $meta['sgst_tax_rate'] = 0;
             $parts_count = 0;
-            $meta["invoice_template"] = $this->get_invoice_tempate($result[0]['gst_number'], $is_customer, $c_s_gst);
             foreach ($result as $key => $value) {
-                if($is_customer && empty($result[0]['gst_number'])){
-                   
-                    $meta['total_taxable_value'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * 0.18)));
-                } else if($c_s_gst){
-
+                
+                if($c_s_gst){
+                    $meta['invoice_template'] = "247around_Tax_Invoice_Intra_State.xlsx";
                     $result[$key]['cgst_rate'] =  $result[$key]['sgst_rate'] = 9;
                     $result[$key]['cgst_tax_amount'] = sprintf("%1\$.2f",($value['taxable_value'] * 0.09));
                     $result[$key]['sgst_tax_amount'] = sprintf("%1\$.2f",($value['taxable_value'] * 0.09));
                     $meta['cgst_total_tax_amount'] +=  $result[$key]['cgst_tax_amount'];
                     $meta['sgst_total_tax_amount'] += $result[$key]['sgst_tax_amount'];
                     $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = 9;
-                    $meta['total_taxable_value'] += $value['taxable_value'];
                    
                 } else {
-                    
+                    $meta['invoice_template'] = "247around_Tax_Invoice_Inter_State.xlsx";
                     $result[$key]['igst_rate'] =  $meta['igst_tax_rate'] = DEFAULT_TAX_RATE;
                     $result[$key]['igst_tax_amount'] = sprintf("%1\$.2f",($value['taxable_value'] * 0.18));
                     $meta['igst_total_tax_amount'] +=  $result[$key]['igst_tax_amount'];
-                    $meta['total_taxable_value'] += $value['taxable_value'];
                 }
                 
                 $result[$key]['toal_amount'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * 0.18)));
                 $meta['total_qty'] += $value['qty'];
                 $meta['total_rate'] += $value['rate'];
-               
+                $meta['total_taxable_value'] += $value['taxable_value'];
                 $meta['sub_total_amount'] += $result[$key]['toal_amount'];
                 if($value['product_or_services'] == "Service"){
                     
@@ -709,34 +703,6 @@ class invoices_model extends CI_Model {
                 "meta" => $meta,
                 "booking" => $result
             );
-    }
-    
-    function get_invoice_tempate($gst_number, $is_customer, $c_s_gst){
-        log_message("info", __METHOD__. " Gst Number ". $gst_number. " Customer ". $is_customer. " C_S_GST ". $c_s_gst);
-        if(empty($gst_number) && !empty($is_customer)){
-            
-            return "Customer_FOC_Bill_of_Supply.xlsx";
-            
-        } else if(!empty ($is_customer)){
-            
-            if(!empty($c_s_gst)){
-                
-                 return  "247around_Tax_Invoice_Intra_State.xlsx";
-                 
-            } else {
-                
-                return "Customer_Tax_Invoice_Inter_State.xlsx";
-            }
-            
-        }else if(!empty($c_s_gst)){
-            
-           return  "247around_Tax_Invoice_Intra_State.xlsx";
-           
-        }else {
-            
-            return "247around_Tax_Invoice_Inter_State.xlsx";
-        } 
-            
     }
     
     /**
@@ -1490,30 +1456,18 @@ class invoices_model extends CI_Model {
         return $query->result_array();
     }
     
-    function check_gst_tax_type($state, $customer_state) {
-        if (!empty($customer_state)) {
-            if ((strcasecmp($state, $customer_state) == 0) ||
-                    (strcasecmp($state, $customer_state) == 0)) {
-                //If matched return true;
-                // CGST & SGST
-                return TRUE;
-            } else {
-                //IGST
-                return FALSE;
-            }
+    function check_gst_tax_type($state) {
+        if ((strcasecmp($state, "DELHI") == 0) ||
+                (strcasecmp($state, "New Delhi") == 0)) {
+            //If matched return true;
+            // CGST & SGST
+            return TRUE;
         } else {
-            if ((strcasecmp($state, "DELHI") == 0) ||
-                    (strcasecmp($state, "New Delhi") == 0)) {
-                //If matched return true;
-                // CGST & SGST
-                return TRUE;
-            } else {
-                //IGST
-                return FALSE;
-            }
+            //IGST
+            return FALSE;
         }
     }
-
+    
     function get_state_code($where){
         $this->db->select("state_code, state");
         $this->db->where($where);

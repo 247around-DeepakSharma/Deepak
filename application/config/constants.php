@@ -304,6 +304,7 @@ define('ERR_INVALID_AUTH_TOKEN_MSG', 'Invalid Auth Token');
 define('ERR_MOBILE_NUM_MISSING_MSG', 'Mobile Number Missing');
 define('ERR_ORDER_ID_EXISTS_MSG', 'Order ID Exists');
 define('ERR_MANDATORY_PARAMETER_MISSING_MSG', 'Mandatory Parameter is Missing');
+define('ERR_INVALID_PRODUCT_MSG', 'Invalid Product');
 define('ERR_INVALID_REQUEST_TYPE_MSG', 'Invalid Request Type');
 //define('ERR_ORDER_ID_NOT_FOUND_MSG', 'Order ID Not Found');
 define('ERR_INVALID_BOOKING_ID_MSG', 'Invalid Booking ID');
@@ -318,7 +319,6 @@ define('ERR_INVALID_JSON_INPUT_MSG', 'Invalid JSON Input');
 define('ERR_INVALID_PRODUCT_TYPE_MSG', 'DENIED BY VENDOR');
 define('ERR_INVALID_SERVICE_AREA_MSG', 'Non Serviceable Area');
 define('ERR_BOOKING_NOT_ASSIGNED_MSG', 'Engineer Not Assigned');
-define('ERR_INVALID_PRODUCT_MSG', 'Invalid Product');
 
 //ICICI Bank name constant
 define('ICICI_BANK_NAME', 'ICICI Bank Ltd');
@@ -449,8 +449,7 @@ define('FILE_UPLOAD_FAILED_STATUS', 'Failed');
 define("REPEAT_BOOKING_TAG", "Repeat Booking");
 define("_247AROUND_PRODUCT_TAG", "Product"); 
 
-//mobile id
-define("_247AROUND_MOBILE_SERVICE_ID",'54');
+
 //tv service id
 define("_247AROUND_TV_SERVICE_ID",'46');
 //washing_machine service id
@@ -530,13 +529,6 @@ define("BOOKING_NOT_UPDATED_PENALTY_CRITERIA", 2);
 //Same penalty can not be levied within 120 minute
 define('AROUND_PENALTY_NOT_APPLIED_WITH_IN','120');
 define('PARTNER_PENALTY_NOT_APPLIED_WITH_IN','120');
-define("MAKE_CUTOMER_PAYMENT_INVOICE_GREATER_THAN", 5);
 
-//tv SVC
-define('TV_SVC', "7014851010000071");
-//LA SVC
-define('LA_SVC', "7014851010000029");
-//Mobile SVC
-define('MOBILE_SVC', "7014851010000091");
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

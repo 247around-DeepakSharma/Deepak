@@ -252,14 +252,6 @@
                         <div class="panel-heading">
                             <button class="clone btn btn-sm btn-info">Add</button>
                             <button class="remove btn btn-sm btn-info">Remove</button>
-                            <p class="pull-right"><?php if(!is_null($booking_history[0]['paid_by_customer'])){ 
-                                if($booking_history[0]['paid_by_customer'] == 1) { 
-                                    echo "<b style='margin-right:100px'>Paid By Customer</b>";} 
-                                    else { 
-                                        echo "<b style='margin-right:100px'>Free For Customer</b>"; 
-                                        
-                                    }
-                                } ?></p>
                         </div>
                         <div class="panel-body">
                             <div class="row">

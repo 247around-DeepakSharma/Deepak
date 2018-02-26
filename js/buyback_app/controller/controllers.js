@@ -7,16 +7,20 @@ uploadfile.controller('uploadOrderDetailsFile', ['$scope', 'fileUpload', functio
             //var file_date = $scope.file_date.received_date;
             $scope.ShowSpinnerStatus = true;
             var file_date = $('#file_date').val();
-//            var qc_svc = $('#qc_svc').val();
+            var qc_svc = $('#qc_svc').val();
             if(file_date === ''){
                 $scope.ShowSpinnerStatus = false;
                 $scope.errorMsg = true;
                 $scope.msg = "Please Select File Received Date To Continue";
+            }else if(qc_svc === ''){
+                $scope.ShowSpinnerStatus = false;
+                $scope.errorMsg = true;
+                $scope.msg = "Please Fill SVC Number To Continue";
             }else {
                 $scope.errorMsg = false;
                 //console.log(file_date);
                 var uploadUrl = baseUrl + "/buyback/upload_buyback_process/process_upload_order";
-                fileUpload.uploadFileToUrl($scope, file, uploadUrl,file_date);
+                fileUpload.uploadFileToUrl($scope, file, uploadUrl,file_date,qc_svc);
             }
         };
 
