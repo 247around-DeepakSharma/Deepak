@@ -17,11 +17,11 @@ class Payment extends CI_Controller {
     function paytm_payment_callback(){
         log_message('info', __FUNCTION__ . "Function Start");
         $authArray = $this->authentication_lib->checkAPIAuthentication();
-        if($authArray[0] == true){
             $json = file_get_contents('php://input');
+        $this->paytm_payment_lib->save_api_response_in_log_table("paytm_transaction_callback",$json,NULL,NULL,json_encode($authArray[1]));
+        if($authArray[0] == true){
             //$json = '{"type": null,"requestGuid": null,"orderId": "PG-1672651712311_1743613161","status": null,"statusCode": "SUCCESS","statusMessage": "SUCCESS","response": {"userGuid":"247939278","pgTxnId":"6934721772","timestamp":1492662625972,"cashBackStatus":null,"cashBackMessage":null,"state":null,"heading":null,"walletSysTransactionId":"qwewdjskcnjk","walletSystemTxnId":"XXXXXXXXXXXX","comment":null,"posId":null,"txnAmount":400,"merchantOrderId":"SP-1664331712271_user_download_118832829","uniqueReferenceLabel":null,"uniqueReferenceValue":null,"pccCode":null},"metadata": null}';
             //Save Paytm Response in log table
-            $this->paytm_payment_lib->save_api_response_in_log_table("paytm_transaction_callback",$json,NULL,NULL,json_encode($authArray[1]));
             $jsonArray = json_decode($json,true);
             //If Payment is done successfully 
             if($jsonArray['statusCode'] == 'SUCCESS'){
