@@ -18,3 +18,5 @@ define('PAYTM_PAYMENT_METHOD_FOR_QR','Paytm QR Code');
 define('CASHBACK_TRANSACTION_NOT_FOUND_MSG','There is not any payment from paytm against this booking id');
 define('CASHBACK_API_version','1.0');
 define('CASHBACK_URL','https://trust-uat.paytm.in/wallet-web/refundWalletTxn');
+define('ERR_INVALID_MERCHANT_GUID', 0000);
+define('ERR_INVALID_MERCHANT_GUID_MSG', "Authentication Failed - 'Wrong MerchantGuid'");

@@ -16,7 +16,7 @@ class authentication_lib {
             //Validate token
             $this->partner = $this->A_N->partner_model->validate_partner($token);
             if ($this->partner) {
-                if($h['merchantGuid'] == MERCHANT_GUID){
+                if($h['Merchantguid'] == MERCHANT_GUID){
                   return array(true,$h);  
                 }
                 else {
