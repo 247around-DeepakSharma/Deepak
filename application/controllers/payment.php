@@ -15,6 +15,7 @@ class Payment extends CI_Controller {
      * @input - Paytm response in json
      */
     function paytm_payment_call_back(){
+        log_message('info', __FUNCTION__ . "Function Start");
         $authArray = $this->authentication_lib->checkAPIAuthentication();
         if($authArray[0] == true){
             $json = file_get_contents('php://input');
@@ -38,11 +39,15 @@ class Payment extends CI_Controller {
         else{
             echo  $authArray[2];
         }
+        log_message('info', __FUNCTION__ . "Function End");
     }
     function test_cashback($bookingID,$amount){
         echo $this->paytm_payment_lib->paytm_cashback($bookingID,$amount);
     }
     function test_QR($bookingID,$qr_for,$amount=0,$contact=NULL){
         echo $this->paytm_payment_lib->generate_qr_code($bookingID,$qr_for,$amount,$contact);
+    }
+     function check_status(){
+        echo $this->paytm_payment_lib->check_status();
     }
 }
