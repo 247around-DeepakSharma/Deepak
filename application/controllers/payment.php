@@ -32,7 +32,11 @@ class Payment extends CI_Controller {
                 $this->paytm_payment_lib->CALLBACK_update_transaction_id_in_qr_table($jsonArray['response']['merchantOrderId'],$insertID);
                 //Update Transaction table Id Against Booking id in booking details
                 $this->paytm_payment_lib->CALLBACK_update_payment_method_in_booking_details($jsonArray['response']['merchantOrderId'],$booking_id);
+                return "Success";
             }
+        }
+        else{
+            return $authArray[2];
         }
     }
     function test_cashback($bookingID,$amount){
