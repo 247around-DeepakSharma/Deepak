@@ -68,6 +68,11 @@ class Engineer_model extends CI_Model {
         $this->db->update("engineer_booking_action", $data);
     }
     
+    function update_engineer_action_sig($data, $where){
+        $this->db->where($where);
+        $this->db->update("engineer_table_sign", $data);
+    }
+    
     function insert_engineer_action_sign($data){
         $this->db->insert("engineer_table_sign", $data);
         return $this->db->insert_id();
