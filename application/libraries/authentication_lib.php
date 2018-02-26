@@ -20,12 +20,12 @@ class authentication_lib {
                   return array(true,$h);  
                 }
                 else {
-                     return array(false,ERR_INVALID_MERCHANT_GUID, ERR_INVALID_MERCHANT_GUID_MSG);
+                     return array(false,$h,ERR_INVALID_MERCHANT_GUID, ERR_INVALID_MERCHANT_GUID_MSG);
                 }
             } else {
                 log_message('info', __METHOD__ . ":: Invalid token: " . $token);
                 //invalid token
-                return array(false,ERR_INVALID_AUTH_TOKEN_CODE, ERR_INVALID_AUTH_TOKEN_MSG);
+                return array(false,$h,ERR_INVALID_AUTH_TOKEN_CODE, ERR_INVALID_AUTH_TOKEN_MSG);
             }
         }
     }
