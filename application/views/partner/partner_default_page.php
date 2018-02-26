@@ -1,3 +1,6 @@
+<link rel="stylesheet" href="<?php echo base_url();?>css/jquery.loading.css">
+
+<script src="<?php echo base_url();?>js/jquery.loading.js"></script>
 <div class="right_col" role="main">
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
