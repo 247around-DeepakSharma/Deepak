@@ -30,13 +30,12 @@ class Booking_utilities {
 	$this->My_CI->load->model('employee_model');
 	$this->My_CI->load->model('booking_model');
 	$this->My_CI->load->model('reporting_utils');
-        $this->My_CI->load->library('paytm_payment_lib');
     }
 
     public function lib_prepare_job_card_using_booking_id($booking_id) {
 	log_message('info', __FUNCTION__ . " => Entering, Booking ID: " . $booking_id);
 
-        $template = 'BookingJobCard_Template-v9.xlsx';
+        $template = 'BookingJobCard_Template-v8.xlsx';
         //set absolute path to directory with template files
         $templateDir = FCPATH . "application/controllers/excel-templates/";
         //set config for report
@@ -50,7 +49,6 @@ class Booking_utilities {
         //log_message('info', "PHP report");
         $booking_details = $this->My_CI->booking_model->getbooking_history($booking_id);
         if (!empty($booking_details)) {
-            $qr = $this->get_qr_code_response($booking_details[0]['booking_id'], $booking_details[0]['amount_due']);
             $unit_where = array('booking_id' => $booking_id, 'pay_to_sf' => '1');
             $unit_details = $this->My_CI->booking_model->get_unit_details($unit_where);
             $meta = array();
@@ -75,11 +73,6 @@ class Booking_utilities {
                 $array['price_tags'] = $value['price_tags'];
                 $array['customer_net_payable'] = $value['customer_net_payable'];
                 array_push($booking_unit_details, $array);
-            }
-            if($qr){
-                $booking_details[0]['qr_message'] = "Scan QR To Pay Through Paytm";
-            } else {
-                $booking_details[0]['qr_message'] = "";
             }
             $R->load(array(
                 array(
@@ -126,14 +119,7 @@ class Booking_utilities {
                 system(" chmod 777 " . $output_file_excel, $res1);
                 unlink($output_file_excel);
             }
-            if(!empty($qr)){
-                log_message("info", __METHOD__. " QR is not empty");
-                $R->render('excel', $output_file_excel, "F4",$qr);
-            } else {
-                log_message("info", __METHOD__. " QR is empty");
-                $R->render('excel', $output_file_excel);
-            }
-            
+            $R->render('excel', $output_file_excel);
             $res1 = 0;
             system(" chmod 777 " . $output_file_excel, $res1);
             $output_file_pdf = $output_file . ".pdf";
@@ -158,36 +144,10 @@ class Booking_utilities {
             }
         
 
-         //   exec("rm -rf " . escapeshellarg($output_file_excel));
+            exec("rm -rf " . escapeshellarg($output_file_excel));
         }
+
         log_message('info', __FUNCTION__ . " => Exiting, Booking ID: " . $booking_id);
-    }
-    
-    function get_qr_code_response($booking_id, $amount_due){
-        log_message("info", __METHOD__. " Booking id ". $booking_id. " Due ".$amount_due);
-        $response = $this->My_CI->paytm_payment_lib->generate_qr_code($booking_id, 0);
-
-        $result = json_decode($response, TRUE);
-
-        if($result['status'] == SUCCESS_STATUS){
-            $qrImage = $result['qr_image'];
-            if(file_exists(TMP_FOLDER.$qrImage)){
-                
-                return TMP_FOLDER.$qrImage;
-                
-            } else {
-                
-                if(copy(S3_URL.$result['qr_url'], TMP_FOLDER.$qrImage)){
-                    return TMP_FOLDER.$qrImage;
-                } else {
-                    log_message("info", __METHOD__. " QR Download Failed". print_r($result, true));
-                    return false;
-                }
-            }
-        } else {
-            log_message("info", __METHOD__. " QR Failed ". print_r($result, true));
-            return false;
-        }
     }
 
     //This function sends email/sms to the assigned vendor

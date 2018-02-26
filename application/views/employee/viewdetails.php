@@ -166,13 +166,6 @@
                             <td style="max-width:200px;"><?php echo $booking_history[0]['cancellation_reason']; ?></td>
                         </tr>
                         <tr>
-                            <th>Service Promise Date</th>
-                            <td ><?php echo $booking_history[0]['service_promise_date'];?></td>
-                            <th >Paid By Customer(STS)</th>
-                            <td ><?php if(!is_null($booking_history[0]['paid_by_customer'])) { if($booking_history[0]['paid_by_customer'] == 1){ echo "Paid By Customer"; } 
-                            else {echo "Free For Customer";}} ?></td>
-                        </tr>
-                        <tr>
                             <th>Closing Remarks</th>
                             <td colspan="3"><?php echo $booking_history[0]['closing_remarks'];?></td>
                         </tr>

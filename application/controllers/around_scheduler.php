@@ -21,7 +21,6 @@ class Around_scheduler extends CI_Controller {
         $this->load->model('employee_model');
         $this->load->model('reusable_model');
         $this->load->model('dashboard_model');
-        $this->load->model('paytm_payment_model');
         $this->load->model('bb_model');
         $this->load->model('cp_model');
         $this->load->model('reporting_utils');
@@ -33,7 +32,6 @@ class Around_scheduler extends CI_Controller {
         $this->load->library('buyback');
         $this->load->library('email_data_reader');
         $this->load->library('miscelleneous');
-        $this->load->library('paytm_payment_lib');
         $this->load->library('push_notification_lib');
         $this->load->helper(array('form', 'url', 'file'));
         $this->load->dbutil();
@@ -919,12 +917,16 @@ class Around_scheduler extends CI_Controller {
     function send_notification_for_low_balance() {
         log_message("info",__METHOD__." Entering...");
         $partner_details = $this->partner_model->getpartner_details("partners.id, public_name, "
-                . "is_active,invoice_email_to, invoice_email_cc, owner_phone_1 ",
+                . "is_active,invoice_email_to, invoice_email_cc, owner_phone_1 ,account_manager_id",
                 array('is_prepaid' => 1,'is_active' => 1));
         log_message("info",__METHOD__." All Active Prepaid Partner ". print_r($partner_details, true));
         
         foreach ($partner_details as $value) {
             log_message("info",__METHOD__." Active Prepaid Partner ID". $value['id']);
+            $am_email = "";
+            if (!empty($value['account_manager_id'])) {
+                $am_email = $this->employee_model->getemployeefromid($value['account_manager_id'])[0]['official_email'];
+            }
             $final_amount = $this->miscelleneous->get_partner_prepaid_amount($value['id']);
             if ($final_amount['is_notification']) {
                 
@@ -945,7 +947,7 @@ class Around_scheduler extends CI_Controller {
                  
                 $message = vsprintf($email_template[0], array("Rs. ".$final_amount["prepaid_amount"]));
                 $to = $value['invoice_email_to'];
-                $cc = $value['invoice_email_cc']. ", ".$email_template[3];
+                $cc = $value['invoice_email_cc']. ", ".$email_template[3].",".$am_email;
                 $subject = vsprintf($email_template[4], array($value["public_name"], "Rs. ".$final_amount["prepaid_amount"]));
                     
                 $sms['smsData']['prepaid_amount'] = "Rs. ".$final_amount["prepaid_amount"];
@@ -1474,50 +1476,6 @@ class Around_scheduler extends CI_Controller {
             }
         }
     }
-    
-    /**
-     * @desc This is used to refund cashback for those customer who had paid through Paytm
-     */
-    function paytm_payment_cashback(){
-        $rules = $this->paytm_payment_model->get_paytm_cashback_rules(array("active" => 1, "tag" => PAYTM_CASHBACK_TAG));
-        if(!empty($rules)){
-            $below_criteria_amount = $rules[0]['below_criteria_amount'];
-            $p['where'] = array("booking_details.current_status" => _247AROUND_COMPLETED, "amount_paid < $below_criteria_amount" => NULL, 
-                "closed_date >= '".date('Y-m-d')."' " => NULL,
-                "payment_txn_id IS NOT NULL" => NULL);
-            $p['length'] = -1;
-            $data = $this->booking_model->get_bookings_by_status($p, "booking_details.booking_id, payment_txn_id, amount_paid");
-            if(!empty($data)){
-                if(!empty($data[0]->payment_txn_id)){
-                    $refund_amount = 0;
-                    if(!empty($rules[0]['cashback_amount_percentage'])){
-                        
-                        $refund_amount = ($data[0]->amount_paid * $rules[0]['cashback_amount_percentage'])/100;
-                        
-                    } else if(!empty($rules[0]['cashback_amount'])){
-                        
-                        $refund_amount = $rules[0]['cashback_amount'];
-                    }
-                    
-                    if($refund_amount > 0){
-                        $status = $this->paytm_payment_lib->paytm_cashback($data[0]->booking_id, $refund_amount);
-                        if($status == SUCCESS_STATUS){
-                            log_message("info",__METHOD__. " Cashback success for booking id ". $data[0]->booking_id);
-                        } else {
-                            log_message("info",__METHOD__. " Refund Cashback Failed ".$data[0]->booking_id);
-                        }
-                    } else {
-                        log_message("info",__METHOD__. " Refund Amount is zero hence, We will not refund cashback ".$data[0]->booking_id);
-                    }
-                } else {
-                     log_message("info",__METHOD__. " Payment txn is empty");
-                }
-            } else {
-                log_message("info",__METHOD__. " Paid Booking Not Found");
-            }
-        } else {
-            log_message("info",__METHOD__. " Cashback Rules not found");
-        }        
-    }
+
 }
 
