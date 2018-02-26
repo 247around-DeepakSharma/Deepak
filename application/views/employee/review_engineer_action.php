@@ -46,7 +46,7 @@
     <?php echo $key + 1; ?>
                                     </td>
                                     <td class="text-center">
-                                        <a href="<?php echo base_url();?>employeeO/booking/viewdetails/<?php echo $row->booking_id; ?>"> <?php echo $row->booking_id; ?> </a>
+                                        <a href="<?php echo base_url();?>employee/booking/viewdetails/<?php echo $row->booking_id; ?>"> <?php echo $row->booking_id; ?> </a>
                                     </td>
                                     <td class="text-center"><?php echo $row->sf_name;?></td>
                                     <td class="text-center">

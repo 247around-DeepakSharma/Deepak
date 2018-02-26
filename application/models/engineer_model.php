@@ -108,7 +108,7 @@ class Engineer_model extends CI_Model {
          $this->db->join('booking_unit_details', 'booking_unit_details.booking_id = service_center_booking_action.booking_id '
                 . ' AND booking_unit_details.id = service_center_booking_action.unit_details_id ');
         
-        $this->db->join('engineer_table_sign', 'booking_details.booking_id = engineer_booking_action.booking_id '
+        $this->db->join('engineer_table_sign', 'booking_details.booking_id = engineer_table_sign.booking_id '
                 . ' AND booking_details.assigned_vendor_id = engineer_table_sign.service_center_id ', 'left');
        
         $this->db->join('users', 'users.user_id = booking_details.user_id', 'left');

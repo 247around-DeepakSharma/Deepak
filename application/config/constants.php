@@ -512,8 +512,8 @@ define('ACCOUNTANT_EMAILID',"adityag@247around.com" );
 //Booking Rescheduled Confirmation SMS Constant
 define('BOOKING_RESCHEDULED_CONFIRMATION_SMS','rescheduled_confirmation_sms');
 
-define('ENGINEER_COMPLETE_STATUS',"InProcess_Complete" );
-define('ENGINEER_CANCELLED_STATUS',"InProcess_Cancelled" );
+define('ENGINEER_COMPLETE_STATUS',"InProcess_Engg_Completed" );
+define('ENGINEER_CANCELLED_STATUS',"InProcess_Engg_Cancelled" );
 
 define('PINCODE_FILE_PASSSWORD',"247around" );
 //Chavi

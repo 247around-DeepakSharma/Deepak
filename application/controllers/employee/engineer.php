@@ -114,7 +114,7 @@ class Engineer extends CI_Controller {
         
         $data = $this->engineer_model->get_engineer_action_table_list($where, "engineer_booking_action.booking_id, amount_due, engineer_table_sign.amount_paid,"
                 . "engineer_table_sign.pincode as en_pincode, engineer_table_sign.address as en_address, "
-                . "booking_details.booking_pincode, booking_details.assigned_vendor_id, booking_details.booking_address, engineer_booking_action.remarks");
+                . "booking_details.booking_pincode, booking_details.assigned_vendor_id, booking_details.booking_address, engineer_table_sign.remarks");
        
         foreach ($data as $key => $value) {
             $is_broken = false;
