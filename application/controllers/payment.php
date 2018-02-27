@@ -47,7 +47,8 @@ class Payment extends CI_Controller {
     function test_QR($bookingID,$qr_for,$amount=0,$contact=NULL){
         echo $this->paytm_payment_lib->generate_qr_code($bookingID,$qr_for,$amount,$contact);
     }
-     function check_status(){
-        echo $this->paytm_payment_lib->check_status();
+     function check_status($order_id){
+        echo $this->paytm_payment_lib->check_status_from_order_id($order_id);
+    }
     }
 }
