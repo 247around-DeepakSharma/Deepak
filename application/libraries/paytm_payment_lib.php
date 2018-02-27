@@ -200,7 +200,7 @@ class paytm_payment_lib {
         // Order id provided by merchant (247Around) at the time of qr generation (Unique for each qr)
         $data['order_id'] = $orderID;
         // transaction id provided by paytm (Unique for each transaction)
-        $data['txn_id'] = $jsonArray['response']['walletSysTransactionId'];
+        $data['txn_id'] = $jsonArray['response']['walletSystemTxnId'];
         // How much amount has been received by current transaction
         $data['paid_amount'] = $jsonArray['response']['txnAmount'];
         //Guid For user
