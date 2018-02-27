@@ -85,7 +85,7 @@ class reusable_model extends CI_Model {
     }
     
     function insert_into_table($table,$data){
-        $this->db->insert($table, $data);
+        $this->db->insert_ignore($table, $data);
         return $this->db->insert_id();
     }
     
