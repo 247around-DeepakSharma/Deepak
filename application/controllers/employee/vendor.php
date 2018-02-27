@@ -1190,7 +1190,7 @@ class vendor extends CI_Controller {
             }
         }
 
-        //Send mail and SMS to SF in background
+        //Send mail /SMS to SF and and update upcountry in background
         $async_data['booking_id'] = $service_center;
         $async_data['agent_id'] =  $agent_id;
         $async_data['agent_name'] = $agent_name;
@@ -2057,6 +2057,7 @@ class vendor extends CI_Controller {
                     $login["entity_id"] = $engineer_id;
                     $login["user_id"] = $data['phone'];
                     $login["password"] = md5($data['phone']);
+                    $login["create_date"] = date("Y-m-d H:i:s");
                     $login["active"] = 1;
                     $login["clear_password"] = $data['phone'];
 

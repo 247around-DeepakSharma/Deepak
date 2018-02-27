@@ -1214,7 +1214,7 @@ class CI_DB_driver {
 
        	$CI->email->send();
         //echo $CI->email->print_debugger();
-        echo $error->show_error($heading, $message, 'custom_error');
+        echo $error->show_error($heading, $message, 'error_db');
 		
 		exit;
 	}

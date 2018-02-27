@@ -21,6 +21,7 @@ class Around_scheduler extends CI_Controller {
         $this->load->model('employee_model');
         $this->load->model('reusable_model');
         $this->load->model('dashboard_model');
+        $this->load->model('paytm_payment_model');
         $this->load->model('bb_model');
         $this->load->model('cp_model');
         $this->load->model('reporting_utils');
@@ -32,6 +33,7 @@ class Around_scheduler extends CI_Controller {
         $this->load->library('buyback');
         $this->load->library('email_data_reader');
         $this->load->library('miscelleneous');
+        $this->load->library('paytm_payment_lib');
         $this->load->library('push_notification_lib');
         $this->load->helper(array('form', 'url', 'file'));
         $this->load->dbutil();
@@ -1476,6 +1478,50 @@ class Around_scheduler extends CI_Controller {
             }
         }
     }
-
+    
+    /**
+     * @desc This is used to refund cashback for those customer who had paid through Paytm
+     */
+    function paytm_payment_cashback(){
+        $rules = $this->paytm_payment_model->get_paytm_cashback_rules(array("active" => 1, "tag" => PAYTM_CASHBACK_TAG));
+        if(!empty($rules)){
+            $below_criteria_amount = $rules[0]['below_criteria_amount'];
+            $p['where'] = array("booking_details.current_status" => _247AROUND_COMPLETED, "amount_paid < $below_criteria_amount" => NULL, 
+                "closed_date >= '".date('Y-m-d')."' " => NULL,
+                "payment_txn_id IS NOT NULL" => NULL);
+            $p['length'] = -1;
+            $data = $this->booking_model->get_bookings_by_status($p, "booking_details.booking_id, payment_txn_id, amount_paid");
+            if(!empty($data)){
+                if(!empty($data[0]->payment_txn_id)){
+                    $refund_amount = 0;
+                    if(!empty($rules[0]['cashback_amount_percentage'])){
+                        
+                        $refund_amount = ($data[0]->amount_paid * $rules[0]['cashback_amount_percentage'])/100;
+                        
+                    } else if(!empty($rules[0]['cashback_amount'])){
+                        
+                        $refund_amount = $rules[0]['cashback_amount'];
+                    }
+                    
+                    if($refund_amount > 0){
+                        $status = $this->paytm_payment_lib->paytm_cashback($data[0]->booking_id, $refund_amount);
+                        if($status == SUCCESS_STATUS){
+                            log_message("info",__METHOD__. " Cashback success for booking id ". $data[0]->booking_id);
+                        } else {
+                            log_message("info",__METHOD__. " Refund Cashback Failed ".$data[0]->booking_id);
+                        }
+                    } else {
+                        log_message("info",__METHOD__. " Refund Amount is zero hence, We will not refund cashback ".$data[0]->booking_id);
+                    }
+                } else {
+                     log_message("info",__METHOD__. " Payment txn is empty");
+                }
+            } else {
+                log_message("info",__METHOD__. " Paid Booking Not Found");
+            }
+        } else {
+            log_message("info",__METHOD__. " Cashback Rules not found");
+        }        
+    }
 }
 
