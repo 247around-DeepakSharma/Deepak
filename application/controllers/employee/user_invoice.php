@@ -17,6 +17,11 @@ class User_invoice extends CI_Controller {
         $this->load->model("invoices_model");
         $this->load->model("booking_model");
         $this->load->library("invoice_lib");
+        $this->load->library('miscelleneous');
+
+    }
+    /**
+     * @desc
 
     }
     /**
@@ -29,7 +34,8 @@ class User_invoice extends CI_Controller {
                 . "service_centres.pincode as sf_pincode, service_centres.district as sf_district, service_centres.state as sf_state, service_centres.gst_no, service_centres.owner_phone_1, "
                 . "users.name, users.home_address, users.phone_number,users.user_email, users.pincode, users.city, users.state, booking_details.amount_due, "
                 . "booking_details.amount_paid, booking_details.quantity, request_type, services, booking_details.quantity, booking_primary_contact_no,  "
-                . "sc_code, booking_details.user_id, booking_details.closed_date";
+                . "sc_code, booking_details.user_id, booking_details.closed_date, booking_details.assigned_vendor_id, owner_email, primary_contact_email";
+
         $request['where'] = array("booking_details.booking_id" => $booking_id, 'amount_paid > ' . MAKE_CUTOMER_PAYMENT_INVOICE_GREATER_THAN => NULL);
         $request['length'] = -1;
         $data = $this->booking_model->get_bookings_by_status($request, $select);
@@ -83,26 +89,34 @@ class User_invoice extends CI_Controller {
                 log_message('info', __FUNCTION__ . ' Invoice File is created. invoice id' . $response['meta']['invoice_id']);
                 $convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($response['meta']['invoice_id'], "final");
                 $output_pdf_file_name = $convert['main_pdf_file_name'];
-//                
-//                $email_template = $this->booking_model->get_booking_email_template("customer_payment_invoice");
-//                $subject = vsprintf($email_template[4], array($meta['company_name'], $f_date, $t_date));
-//                $message = $email_template[0];
-//                $email_from = $email_template[2];
-////
-//                $to = $data[0]['invoice_email_to'];
-//                $cc = $data[0]['invoice_email_cc'];
-//                $this->upload_invoice_to_S3($meta['invoice_id']);
-//                $pdf_attachement_url = 'https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/invoices-excel/' . $output_pdf_file_name;
-//                $sms['tag'] = "customer_payment_invoice";
-//                $sms['smsData']['type'] = $type;
-//                $sms['smsData']['month'] = date('M Y', strtotime($from_date));
-//                $sms['smsData']['amount'] = round($total,0);
-//                $sms['phone_no'] = $owner_phone_1;
-//                $sms['booking_id'] = "";
-//                $sms['type'] = "vendor";
-//                $sms['type_id'] = $vendor_id;
+
+                
+                $email_template = $this->booking_model->get_booking_email_template("customer_paid_invoice_to_vendor");
+                $subject = $email_template[4];
+                $message = $email_template[0];
+                $email_from = $email_template[2];
 //
-//                $this->notify->send_sms_msg91($sms);
+                $to = $data[0]->owner_email;
+                $cc = $data[0]->primary_contact_email;
+                $this->invoice_lib->upload_invoice_to_S3($response['meta']['invoice_id'], false);
+                
+                $pdf_attachement_url = 'https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/invoices-excel/' . $output_pdf_file_name;
+                
+                $this->notify->sendEmail($email_from, $to, $cc, "", $subject, $message, $pdf_attachement_url);
+                
+                $sms['tag'] = "customer_paid_invoice";
+                
+                $tinyUrl = $this->miscelleneous->getShortUrl($pdf_attachement_url);
+                if($tinyUrl){
+                    $sms['smsData']['url'] = $tinyUrl;
+                    $sms['phone_no'] = $response['meta']['customer_phone_number'];
+                    $sms['booking_id'] = $booking_id;
+                    $sms['type'] = "user";
+                    $sms['type_id'] = $data[0]->user_id;
+
+                    $this->notify->send_sms_msg91($sms);
+                }
+               
 
                 $agent_id = $this->session->userdata('id');
 

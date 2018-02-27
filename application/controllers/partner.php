@@ -61,8 +61,8 @@ class Partner extends CI_Controller {
      *
      * API to insert new order in the CRM
      *
-     * @access	public
-     * @return	Success / Error code as per the document
+     * @access  public
+     * @return  Success / Error code as per the document
      */
     public function submitRequest() {
         log_message('info', "Entering: " . __METHOD__);
@@ -191,7 +191,6 @@ class Partner extends CI_Controller {
                             // Now we send state, partner_id and service_id 
                             $is_partner_id = $this->miscelleneous->_allot_source_partner_id_for_pincode($service_id, $distict_details['state'], $requestData['brand'], $this->partner['id'], true);
 
-
                             if (!empty($is_partner_id) ) {
 
 
@@ -222,6 +221,7 @@ class Partner extends CI_Controller {
                                 $appliance_details['category'] = $unit_details['appliance_category'] = isset($lead_details['service_appliance_data']['category']) ? $lead_details['service_appliance_data']['category'] : $category;
 
                                 $appliance_details['capacity'] = $unit_details['appliance_capacity'] = isset($lead_details['service_appliance_data']['capacity']) ? $lead_details['service_appliance_data']['capacity'] : $capacity;
+
 
                                 if ($this->initialized_variable->get_partner_data()[0]['partner_type'] == OEM) {
                                     //if partner type is OEM then sent appliance brand in argument
@@ -398,8 +398,8 @@ class Partner extends CI_Controller {
      *
      * API to cancel an existing order in the CRM
      *
-     * @access	public
-     * @return	Success / Error code as per the document
+     * @access  public
+     * @return  Success / Error code as per the document
      */
     public function cancelRequest() {
         log_message('info', "Entering: " . __METHOD__);
@@ -450,8 +450,8 @@ class Partner extends CI_Controller {
      *
      * Update an existing order for a new timeslot
      *
-     * @access	public
-     * @return	Success / Error code as per the document
+     * @access  public
+     * @return  Success / Error code as per the document
      */
     public function updateRequestTimeslot() {
         log_message('info', "Entering: " . __METHOD__);
@@ -506,8 +506,8 @@ class Partner extends CI_Controller {
      *
      * API to find out the current status of an existing order
      *
-     * @access	public
-     * @return	Success / Error code as per the document
+     * @access  public
+     * @return  Success / Error code as per the document
      */
     public function getRequestStatus() {
         log_message('info', "Entering: " . __METHOD__);
@@ -533,8 +533,8 @@ class Partner extends CI_Controller {
                     $lead_details = $is_valid['lead'];
                     $this->jsonResponseString['response'] = array(
                         "247aroundBookingID" => $lead_details['booking_id'],
-                        "247aroundBookingStatus" => $lead_details['current_status'],
-                        "247aroundBookingRemarks" => $lead_details['partner_internal_status']);
+                        "247aroundBookingStatus" => $lead_details['partner_internal_status'],
+                        "247aroundBookingRemarks" => $lead_details['booking_remarks']);
                     $this->sendJsonResponse(array(SUCCESS_CODE, SUCCESS_MSG));
                 } else {
                     log_message('info', __METHOD__ . ":: Request validation fails. " . print_r($is_valid, true));
@@ -557,8 +557,8 @@ class Partner extends CI_Controller {
      * API to find out details for a booking. This API is used by 247around internally
      * and is not exposed to any partner.
      *
-     * @access	public
-     * @return	Success / Error code as per the document
+     * @access  public
+     * @return  Success / Error code as per the document
      */
     public function getBookingDetails() {
         log_message('info', "Entering: " . __METHOD__);
@@ -621,16 +621,16 @@ class Partner extends CI_Controller {
         //Save header / ip address in DB
         $h = $this->getallheaders();
         if ($h === FALSE) {
-//	    $activity = array('activity' => __METHOD__ . '::Headers', 'data' => NULL);
-//	    $this->partner_model->log_partner_activity($activity);
-//	    $this->sendJsonResponse(array(ERR_GENERIC_ERROR_CODE, ERR_GENERIC_ERROR_MSG));
+//      $activity = array('activity' => __METHOD__ . '::Headers', 'data' => NULL);
+//      $this->partner_model->log_partner_activity($activity);
+//      $this->sendJsonResponse(array(ERR_GENERIC_ERROR_CODE, ERR_GENERIC_ERROR_MSG));
 
             log_message('info', __METHOD__ . "=> " . ERR_GENERIC_ERROR_MSG);
         } else {
             $this->header = json_encode($h);
 
-//	    $activity = array('activity' => __METHOD__ . '::Headers', 'data' => json_encode($h));
-//	    $this->partner_model->log_partner_activity($activity);
+//      $activity = array('activity' => __METHOD__ . '::Headers', 'data' => json_encode($h));
+//      $this->partner_model->log_partner_activity($activity);
 
             $input_d = file_get_contents('php://input');
             $requestData = json_decode($input_d, TRUE);
@@ -1219,8 +1219,8 @@ class Partner extends CI_Controller {
     /**
      * Send final JSON response to Partner
      *
-     * @access	private
-     * @return	Echos the output
+     * @access  private
+     * @return  Echos the output
      */
     function sendJsonResponse($code) {
         $this->jsonResponseString['code'] = $code[0];
@@ -2007,9 +2007,9 @@ class Partner extends CI_Controller {
         log_message("info",__METHOD__. " Enterring.. ".$this->input->post("email_id"));
         //$_FILES =  $this->input->post("file");
         $email_id = $this->input->post("email_id");
-        $file_name = $this->input->post("file_name");
         //log_message("info",__METHOD__." Pincode Data ".print_r($_FILES, true));
         $array = array();
+        $file_name = $this->input->post("file_name");
         $array['file']['tmp_name'] = TMP_FOLDER.$file_name;
         $array['file']['name'] = $file_name;
         $data = $this->miscelleneous->excel_to_Array_converter($array);
@@ -2231,17 +2231,17 @@ class Partner extends CI_Controller {
     }
     
     function encrypt_e($input, $ky) {
-	$key = $ky;
-	$size = mcrypt_get_block_size(MCRYPT_RIJNDAEL_128, 'cbc');
-	$input = pkcs5_pad_e($input, $size);
-	$td = mcrypt_module_open(MCRYPT_RIJNDAEL_128, '', 'cbc', '');
-	$iv = "@@@@&&&&####$$$$";
-	mcrypt_generic_init($td, $key, $iv);
-	$data = mcrypt_generic($td, $input);
-	mcrypt_generic_deinit($td);
-	mcrypt_module_close($td);
-	$data = base64_encode($data);
-	return $data;
+    $key = $ky;
+    $size = mcrypt_get_block_size(MCRYPT_RIJNDAEL_128, 'cbc');
+    $input = pkcs5_pad_e($input, $size);
+    $td = mcrypt_module_open(MCRYPT_RIJNDAEL_128, '', 'cbc', '');
+    $iv = "@@@@&&&&####$$$$";
+    mcrypt_generic_init($td, $key, $iv);
+    $data = mcrypt_generic($td, $input);
+    mcrypt_generic_deinit($td);
+    mcrypt_module_close($td);
+    $data = base64_encode($data);
+    return $data;
 }
     
     function test() {
@@ -2251,25 +2251,29 @@ class Partner extends CI_Controller {
         $salt = "QW8QQW4VVKQEQYXVRRY3TTKMTXRHNCNSOPSXFZFF9LI37ZZZXQUSDUN8EGFTRQKN";
         $appConstant = "6VFKKLZ1Y4";
         $url = "http://sandbox.servify.in:5009/api/v1/ServiceRequest/fulfillRequest";
+       
         
         //JSON with the Application Constant and the current unix timestamp in milliseconds
-        $app = json_encode(array("appC" => $appConstant, "tzU" => time()), true);
+        $app = json_encode(array("appC" => $appConstant, "tzU" => time() * 1000), true);
         
         //Using the SECRET_KEY and SALT, constructed a key using the PBKDF2 function
         $key = hash_pbkdf2("sha256", $secretKey, $salt, 100000, 16);
 
         $encryptedMessage = $this->encrypt_e_openssl($app, $key); 
-        
+        $fromtime = strtotime(date("Y-m-d 10:00:00", strtotime('+1 day')));
+        $totime = strtotime(date("Y-m-d 13:00:00", strtotime('+1 day')));
         $array = array(
-            "ReferenceID" => "OD_45673" , 
+            "ReferenceID" => "SP-1656351802244124" , 
             "Status" => "SRVC_FIN", 
             "RequestDetails" => array( 
                 "Remarks"=> "Installation completed",
-                "Rating"=> "4"
+                 "Rating"=> "4"
                 )
             );
         
         $postData = json_encode($array, true);
+        
+        $iv   = "@@@@&&&&####$$$$";
        
         echo $postData. "<br/>";
         
@@ -2278,9 +2282,10 @@ class Partner extends CI_Controller {
              CURLOPT_POST => TRUE,
              CURLOPT_RETURNTRANSFER => TRUE,
              CURLOPT_HTTPHEADER => array(
+                'Content-Type: application/json',
                 'app: ' . $appName,
-                'dr9se2q: ' . $key,
-                'co1cx2: ' . $encryptedMessage
+                'dr9se2q: ' . $encryptedMessage,
+                'co1cx2: ' . $iv
             ),
             CURLOPT_POSTFIELDS => $postData
         ));

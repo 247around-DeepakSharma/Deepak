@@ -4341,3 +4341,15 @@ ALTER TABLE `booking_unit_details` ADD `user_invoice_id` VARCHAR(128) NULL DEFAU
 ALTER TABLE `booking_details` ADD `paid_by_customer` INT(1) NULL DEFAULT NULL AFTER `qr_code_id`;
 ALTER TABLE `booking_details` ADD `service_promise_date` DATETIME NULL DEFAULT NULL AFTER `paid_by_customer`;
 
+
+--27 FEB ABhay
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'customer_qr_download', '%s', '', '1', CURRENT_TIMESTAMP);
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'customer_paid_invoice_to_vendor', 'Customer Paid Invoice', 'Please Find Attachment', 'billing@247around.com', 'abhaya@247around.com', 'abhaya@247around.com', '', '1', '2016-06-17 00:00:00');
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'customer_paid_invoice', '%s', '', '1', '2018-02-27 19:55:03');
+
+
+--ABhay
+ALTER TABLE `booking_unit_details` ADD `user_invoice_id` VARCHAR(128) NULL DEFAULT NULL AFTER `partner_invoice_id`;
+ALTER TABLE `booking_details` ADD `paid_by_customer` INT(1) NULL DEFAULT NULL AFTER `qr_code_id`;
+ALTER TABLE `booking_details` ADD `service_promise_date` DATETIME NULL DEFAULT NULL AFTER `paid_by_customer`;
+

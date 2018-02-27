@@ -680,17 +680,9 @@ class Invoice extends CI_Controller {
     }
 
     function upload_invoice_to_S3($invoice_id, $detailed = true){
-        $bucket = BITBUCKET_DIRECTORY;
 
-        $directory_xls = "invoices-excel/" . $invoice_id . ".xlsx";
-        $directory_copy_xls = "invoices-excel/copy_" . $invoice_id . ".xlsx";
+        $this->invoice_lib->upload_invoice_to_S3($invoice_id, $detailed);
 
-        $this->s3->putObjectFile(TMP_FOLDER . $invoice_id . ".xlsx", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-        $this->s3->putObjectFile(TMP_FOLDER . "copy_".$invoice_id . ".xlsx", $bucket, $directory_copy_xls, S3::ACL_PUBLIC_READ);
-        if($detailed){
-            $directory_detailed = "invoices-excel/" . $invoice_id . "-detailed.xlsx";
-            $this->s3->putObjectFile(TMP_FOLDER . $invoice_id . "-detailed.xlsx", $bucket, $directory_detailed, S3::ACL_PUBLIC_READ);
-        }
     }
     
     function generate_partner_upcountry_excel($partner_id, $data, $meta) {
@@ -3254,6 +3246,7 @@ class Invoice extends CI_Controller {
                     $invoice['parts_count'] = trim($this->input->post("parts_count"));
                     $invoice['hsn_code'] = trim($this->input->post("hsn_code"));
                     $invoice['total_amount_collected'] = trim($this->input->post("parts_charge"));
+                   
                     $invoice['type'] = "Parts";
                     $invoice['invoice_date'] = $invoice['due_date'] = date("Y-m-d", strtotime($invoice_date));
                     $invoice['from_date'] = $invoice['to_date'] = date("Y-m-d", strtotime($invoice_date));
@@ -3261,8 +3254,9 @@ class Invoice extends CI_Controller {
                     $invoice['agent_id'] = $this->session->userdata('id');
                     $invoice['vendor_partner_id'] = $data[0]->partner_id;
                     $gst_rate = trim($this->input->post('gst_rate'));
-                    $gst_amount = $invoice['total_amount_collected'] * ($gst_rate / 100);
+                    $gst_amount =  $this->booking_model->get_calculated_tax_charge($invoice['total_amount_collected'], $gst_rate); 
                     $invoice['amount_collected_paid'] = round(($invoice['total_amount_collected'] - $gst_amount), 2);
+                    $invoice['parts_cost'] = $invoice['amount_collected_paid'];
                     $invoice['invoice_file_main'] = $invoice_pdf;
 
                     $c_s_gst = $this->invoices_model->check_gst_tax_type($data[0]->state);

@@ -99,7 +99,7 @@ class paytm_payment_lib {
         }
         $paramlist['request']['currency'] = "INR";
         $paramlist['request']['merchantGuid'] = MERCHANT_GUID;
-        $paramlist['request']['orderId'] = $bookingID."_".$channel."_".rand();
+        $paramlist['request']['orderId'] = $bookingID."_".$channel."_".rand(100,1000);
         $paramlist['request']['Validity'] = "30";
         $paramlist['request']['industryType'] = "RETAIL";
         $paramlist['request']['orderDetails'] = $bookingID;
@@ -114,7 +114,7 @@ class paytm_payment_lib {
     private function QR_generation_success_handler($outputArray,$bookingID,$amount,$paramlist){
         log_message('info', __FUNCTION__ . "Function Start");
         //Img name is booking + random number
-        $imgName = "QR_".$bookingID."_".rand().".png";
+        $imgName = "QR_".$bookingID."_".rand(100,1000).".png";
         //Generate Img from QR path
         $imgPath = $this->P_P->miscelleneous->generate_image($outputArray['response']['path'],$imgName,QR_CODE_S3_FOLDER);
         //Save Records into qr table
@@ -200,7 +200,7 @@ class paytm_payment_lib {
         // Order id provided by merchant (247Around) at the time of qr generation (Unique for each qr)
         $data['order_id'] = $orderID;
         // transaction id provided by paytm (Unique for each transaction)
-        $data['txn_id'] = $jsonArray['response']['walletSysTransactionId'];
+        $data['txn_id'] = $jsonArray['response']['walletSystemTxnId'];
         // How much amount has been received by current transaction
         $data['paid_amount'] = $jsonArray['response']['txnAmount'];
         //Guid For user
@@ -249,7 +249,7 @@ class paytm_payment_lib {
         $paramlist['request']['merchantGuid'] = MERCHANT_GUID;
         $paramlist['request']['txnGuid'] = $bookingPaymentDetails[0]['txn_id'];
         $paramlist['request']['currencyCode'] = "INR";
-        $paramlist['request']['refundRefId'] = "R_".$bookingPaymentDetails[0]['booking_id']."_".rand();
+        $paramlist['request']['refundRefId'] = "R_".$bookingPaymentDetails[0]['booking_id']."_".rand(100,1000);
         $paramlist['platformName'] = "PayTM";
         $paramlist['operationType'] = "REFUND_MONEY";
         $paramlist['version'] = CASHBACK_API_version; 
@@ -348,4 +348,110 @@ class paytm_payment_lib {
                 }
             }
     }
+    /*
+     * This is a helper function for check_status_from_order_id
+     * This function is used to create response of check_status_from_order_id function 
+     * @ input - 1) checkstatus Status
+     * 2) StatusMsg - Detailed description of status
+     * 3) Transaction Data - if checkstatus API response is success
+     */
+    function CHECKSTATUS_create_check_status_response($status,$statusMsg,$dataArray=array()){
+        log_message('info', __FUNCTION__ . " Function Start");
+        $responseArray['status']  = $status;
+        $responseArray['status_msg']  = $statusMsg;
+        if(!empty($dataArray)){
+            $responseArray['data'] = $dataArray;
+        }
+        log_message('info', __FUNCTION__ . " Function End With Response".print_r($responseArray,true));
+        return json_encode($responseArray);
+    }
+    /*
+     * This is a helper function for check_status_from_order_id
+     * This function is use to handle success response from paytm checkstatus API,
+     * Save transaction into database
+     * @input - Paytm Response Array
+     * @output - structured response Array
+     */
+    function CHECKSTATUS_checkstatus_success_handler($responseArray){
+        log_message('info', __FUNCTION__ . " Function Start With  ".print_r($responseArray,true));
+        $transactionsArray = $responseArray['response']['txnList'];
+        foreach ($transactionsArray as $transaction){
+            $orderID = $transaction['merchantOrderId'];
+            $data['booking_id'] = explode("_",$orderID)[0];
+            $data['paytm_order_id'] = $orderID;
+            $data['order_id'] = $orderID;
+            $data['txn_id'] = $transaction['txnGuid'];
+            $data['paid_amount'] = $transaction['txnAmount'];
+            $data['user_guid'] = $transaction['ssoId'];
+            $data['paid_amount'] = $transaction['txnAmount'];
+            $data['cashback_amount'] = "";
+            $data['cashback_txn_id'] = $transaction['cashbackTxnId'];
+            $data['create_date'] = date('Y-m-d h:i:s');
+            // Save data into transaction table
+            $this->P_P->reusable_model-> insert_into_table("paytm_transaction_callback",$data);
+        }
+        log_message('info', __FUNCTION__ . " Function End With  ".print_r($data,true));
+        return $data;
+    }
+    /*
+     * This is a helper function for check_status_from_order_id
+     * this function use to create request for checkstatus , send to paytm 
+     * @input - OrderID
+     * @output - Paytm Response Array
+     */ 
+    function CHECKSTATUS_send_check_status_request_from_order_id($order_id){
+        log_message('info', __FUNCTION__ . " Function Start ".$order_id);
+        //This is default requestType to check transaction status from orderID
+        $data['request']['requestType'] = 'merchanttxnid';
+        //This is default txnType to check transaction status from orderID
+        $data['request']['txnType'] = 'withdraw';
+        //Merchant Guid
+        $data['request']['merchantGuid'] = MERCHANT_GUID;
+        //Order ID which we create at the time of qr generation
+        $data['request']['txnId'] = $order_id;
+        //Default Value
+        $data['platformName'] = "PayTM";
+        //Default Value
+        $data['operationType'] = "CHECK_TXN_STATUS";
+        //Create json string of request
+        $data_string  = json_encode($data);
+        //Create Checksum for requested Body
+        $checkSum = $this->P_P->paytm_inbuilt_function_lib->getChecksumFromString($data_string ,PAYTM_MERCHANT_KEY);
+        //Pass Merchant guid in Mid Fields in header
+        $headers = array('Content-Type:application/json','mid: '.MERCHANT_GUID,'checksumhash:'.$checkSum); 
+        //Send Curl request to paytm api
+        $output = $this->send_curl_request($data_string,$headers,CHECK_STATUS_URL,"Process_Check_Status");
+        log_message('info', __FUNCTION__ . " Function End With Data:  ".print_r($output,true));
+        return $outputArray = json_decode($output,true);
+    }
+    /*
+     * This function is used to check transaction status against a order_id
+     * @input - order id which we define at the time of qr generation
+     * @output - Response Contains
+     * 1) Status - Success,Failure Or No Transaction
+     * 2) StatusMsg - Detailed Info About Status
+     * 3) transaction Data(Optional) - Data of transaction , if transaction happens against requested order_id
+     */
+    function check_status_from_order_id($order_id){
+        log_message('info', __FUNCTION__ . " Function Start ".$order_id);
+        //Send Check Status request to paytm
+       $responseArray =  $this->CHECKSTATUS_send_check_status_request_from_order_id($order_id);
+       // If success
+        if($responseArray['statusCode'] == CHECK_STATUS_SUCCESS_CODE){
+            $data = $this->CHECKSTATUS_checkstatus_success_handler($responseArray);
+            log_message('info', __FUNCTION__ . " Function End With Success");
+            return $this->CHECKSTATUS_create_check_status_response(CHECK_STATUS_SUCCESS,CHECK_STATUS_SUCCESS_MSG,$data);
+        }
+        // If transaction not happens against this order id
+        else if($responseArray['statusCode'] == CHECK_STATUS_INVALID_ORDER_ID){
+            log_message('info', __FUNCTION__ . " Function End With No Transaction against Order ID");
+           return  $this->CHECKSTATUS_create_check_status_response(TRANSACTION_NOT_HAPPENS_YET,TRANSACTION_NOT_HAPPENS_YET_MSG);
+        }
+        // Failure
+        else{
+            log_message('info', __FUNCTION__ . " Function End With Failure");
+            return $this->CHECKSTATUS_create_check_status_response(CHECK_STATUS_FAILURE,CHECK_STATUS_FAILURE_MSG);
+        }
+    }
+    
 }
