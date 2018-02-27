@@ -44,6 +44,7 @@ class Partner extends CI_Controller {
         $this->load->library('form_validation');
         $this->load->library('PHPReport');
         $this->load->library('push_notification_lib');
+        // $this->load->library('push_inbuilt_function_lib');
     }
 
     public function index() {
@@ -184,12 +185,13 @@ class Partner extends CI_Controller {
 
                                 $service_id = $this->booking_model->getServiceId($lead_details['Product']);
                             }
-                            //Assigning Booking Source and Partner ID for Brand Requested
+                            if(!empty($service_id)){
+                                //Assigning Booking Source and Partner ID for Brand Requested
                             // First we send Service id and Brand and get Partner_id from it
                             // Now we send state, partner_id and service_id 
                             $is_partner_id = $this->miscelleneous->_allot_source_partner_id_for_pincode($service_id, $distict_details['state'], $requestData['brand'], $this->partner['id'], true);
 
-                            if (!empty($is_partner_id) && !empty($service_id)) {
+                            if (!empty($is_partner_id) ) {
 
 
                                 $this->initialized_variable->fetch_partner_data($is_partner_id['partner_id']);
@@ -255,6 +257,9 @@ class Partner extends CI_Controller {
 
                                 $booking['booking_address'] = $requestData['address'] . ", " . (isset($requestData['landmark']) ? $requestData['landmark'] : "");
                                 $booking['delivery_date'] = $this->getDateTime($requestData['deliveryDate']);
+                                if(isset($requestData['servicePromiseDate'])){
+                                    $booking['service_promise_date'] = $this->getDateTime($requestData['servicePromiseDate']);
+                                }
                                 $booking['request_type'] = $requestData['requestType'];
                                 $booking['query_remarks'] = (isset($requestData['remarks']) ? $requestData['remarks'] : $requestData['requestType']);
 
@@ -304,7 +309,14 @@ class Partner extends CI_Controller {
                                 $booking['district'] = $distict_details['district'];
                                 $booking['taluk'] = $distict_details['taluk'];
                                 $unit_details['booking_status'] = _247AROUND_FOLLOWUP;
-
+                                if(isset($requestData['paidByCustomer'])){
+                                    if(strtolower($requestData['paidByCustomer']) == "yes"){
+                                        $booking['paid_by_customer'] = 1;
+                                    } else {
+                                        $booking['paid_by_customer'] = 0;
+                                    }
+                                }
+                                
                                 //check partner status from partner_booking_status_mapping table 
                                 $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $booking['partner_id'], $booking['booking_id']);
                                 if (!empty($partner_status)) {
@@ -345,6 +357,11 @@ class Partner extends CI_Controller {
                                 $this->jsonResponseString['response'] = NULL;
                                 $this->sendJsonResponse(array(ERR_INVALID_SERVICE_AREA_CODE, ERR_INVALID_SERVICE_AREA_MSG));
                             }
+                            } else {
+                                $this->jsonResponseString['response'] = NULL;
+                                $this->sendJsonResponse(array(ERR_INVALID_PRODUCT_CODE, ERR_INVALID_PRODUCT_MSG));
+                            }
+                            
                         } else {
                             log_message('info', __METHOD__ . ":: Request validation fails for product type. " . print_r($requestData['productType'], true));
 
@@ -2207,6 +2224,26 @@ class Partner extends CI_Controller {
        }
     }
     
+    function encrypt_e_openssl($input, $ky){
+        $iv   = "@@@@&&&&####$$$$";
+        $data = openssl_encrypt($input, "AES-128-CBC", $ky, 0, $iv);
+        return $data;
+    }
+    
+    function encrypt_e($input, $ky) {
+	$key = $ky;
+	$size = mcrypt_get_block_size(MCRYPT_RIJNDAEL_128, 'cbc');
+	$input = pkcs5_pad_e($input, $size);
+	$td = mcrypt_module_open(MCRYPT_RIJNDAEL_128, '', 'cbc', '');
+	$iv = "@@@@&&&&####$$$$";
+	mcrypt_generic_init($td, $key, $iv);
+	$data = mcrypt_generic($td, $input);
+	mcrypt_generic_deinit($td);
+	mcrypt_module_close($td);
+	$data = base64_encode($data);
+	return $data;
+}
+    
     function test() {
         //Initialize constant
         $appName = "24x7Around";
@@ -2227,11 +2264,10 @@ class Partner extends CI_Controller {
         $totime = strtotime(date("Y-m-d 13:00:00", strtotime('+1 day')));
         $array = array(
             "ReferenceID" => "SP-1656351802244124" , 
-            "Status" => "RESCHED_RQST", 
+            "Status" => "SRVC_FIN", 
             "RequestDetails" => array( 
-                "ScheduledFromTime"=> $fromtime,
-                "ScheduledToTime"=> $totime
-               
+                "Remarks"=> "Installation completed",
+                 "Rating"=> "4"
                 )
             );
         
@@ -2239,6 +2275,8 @@ class Partner extends CI_Controller {
         
         $iv   = "@@@@&&&&####$$$$";
        
+        echo $postData. "<br/>";
+        
         $ch = curl_init($url);
         curl_setopt_array($ch, array(
              CURLOPT_POST => TRUE,

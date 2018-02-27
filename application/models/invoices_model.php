@@ -1490,7 +1490,7 @@ class invoices_model extends CI_Model {
         return $query->result_array();
     }
     
-    function check_gst_tax_type($state, $customer_state) {
+    function check_gst_tax_type($state, $customer_state = false) {
         if (!empty($customer_state)) {
             if ((strcasecmp($state, $customer_state) == 0) ||
                     (strcasecmp($state, $customer_state) == 0)) {
