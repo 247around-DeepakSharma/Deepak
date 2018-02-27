@@ -117,7 +117,7 @@
             $.ajax({
                 method: 'POST',
                 data: {'transaction_type':transaction_type,'transaction_date':transaction_date,'transaction_amount':transaction_amount,'transaction_description':transaction_description},
-                url: '<?php echo base_url(); ?>employee/accounting/process_search_bank_reansaction',
+                url: '<?php echo base_url(); ?>employee/accounting/process_search_bank_transaction',
                 success: function (response) {
                     //console.log(response);
                     $('#loader').hide();

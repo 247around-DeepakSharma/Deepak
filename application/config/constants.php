@@ -529,6 +529,6 @@ define("BOOKING_NOT_UPDATED_PENALTY_CRITERIA", 2);
 //Same penalty can not be levied within 120 minute
 define('AROUND_PENALTY_NOT_APPLIED_WITH_IN','120');
 define('PARTNER_PENALTY_NOT_APPLIED_WITH_IN','120');
-
+define("MAKE_CUTOMER_PAYMENT_INVOICE_GREATER_THAN", 5);
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

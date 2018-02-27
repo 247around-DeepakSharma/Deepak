@@ -60,6 +60,7 @@ class paytm_cb {
         $encryptedMessage = mcrypt_encrypt(MCRYPT_RIJNDAEL_128, $key, $app,  MCRYPT_MODE_CBC, $iv);
 
         $this->header = array(
+            'application/x-www-form-urlencoded: application/json',
             "app: " . $this->appName,
             "dr9se2q: " . $key,
             "co1cx2: " . $encryptedMessage,
