@@ -3100,7 +3100,6 @@ class Api extends CI_Controller {
             $data["closed_date"] = date("Y-m-d H:i:s");
             $this->engineer_model->update_engineer_table($data, array( "booking_id" =>$requestData["bookingID"] ));
             
-            $en["amount_paid"] = $requestData["amountPaid"];
             $en["booking_id"] = $requestData["bookingID"];
             $en["remarks"] = $requestData["cancellationReason"];
             $en['closed_date'] = date("Y-m-d H:i:s");
