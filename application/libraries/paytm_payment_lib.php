@@ -437,7 +437,7 @@ class paytm_payment_lib {
         //Send Check Status request to paytm
        $responseArray =  $this->CHECKSTATUS_send_check_status_request_from_order_id($order_id);
        // If success
-        if($responseArray['statusCode'] == CHECK_STATUS_SUCCESS_CODE){
+        if($responseArray['response']['txnList'][0]['status'] == CHECK_STATUS_SUCCESS_CODE){
             $data = $this->CHECKSTATUS_checkstatus_success_handler($responseArray);
             log_message('info', __FUNCTION__ . " Function End With Success");
             return $this->CHECKSTATUS_create_check_status_response(CHECK_STATUS_SUCCESS,CHECK_STATUS_SUCCESS_MSG,$data);
