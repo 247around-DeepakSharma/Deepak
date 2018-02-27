@@ -30,10 +30,10 @@ class Payment extends CI_Controller {
                 //Get Booking id from orderid
                 $booking_id = explode("_",$jsonArray['response']['merchantOrderId'])[0];
                 //Update Transaction table Id Against QR Code in Qr Table
-                $msg =$this->paytm_payment_lib->CALLBACK_update_transaction_id_in_qr_table($jsonArray['response']['merchantOrderId'],$insertID);
+                $this->paytm_payment_lib->CALLBACK_update_transaction_id_in_qr_table($jsonArray['response']['merchantOrderId'],$insertID);
                 //Update Transaction table Id Against Booking id in booking details
                 $this->paytm_payment_lib->CALLBACK_update_payment_method_in_booking_details($jsonArray['response']['merchantOrderId'],$booking_id);
-                echo $msg;
+                echo "SUCCESS";
             }
         }
         else{
@@ -44,10 +44,11 @@ class Payment extends CI_Controller {
     function test_cashback($bookingID,$amount){
         echo $this->paytm_payment_lib->paytm_cashback($bookingID,$amount);
     }
-    function test_QR($bookingID,$qr_for,$amount=0,$contact=NULL){
+    function test_QR($bookingID,$qr_for,$amount,$contact){
         echo $this->paytm_payment_lib->generate_qr_code($bookingID,$qr_for,$amount,$contact);
     }
-     function check_status(){
-        echo $this->paytm_payment_lib->check_status();
+     function check_status($order_id){
+        echo $this->paytm_payment_lib->check_status_from_order_id($order_id);
+    }
     }
 }
