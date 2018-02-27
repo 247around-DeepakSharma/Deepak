@@ -37,7 +37,7 @@ class Payment extends CI_Controller {
             }
         }
         else{
-            echo  $authArray[2];
+            echo  $authArray[3];
         }
         log_message('info', __FUNCTION__ . "Function End");
     }
