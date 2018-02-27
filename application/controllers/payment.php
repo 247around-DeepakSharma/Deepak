@@ -50,5 +50,4 @@ class Payment extends CI_Controller {
      function check_status($order_id){
         echo $this->paytm_payment_lib->check_status_from_order_id($order_id);
     }
-    }
 }
