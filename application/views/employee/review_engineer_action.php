@@ -32,7 +32,7 @@
                                 <th class="text-center" >Broken  </th>
                                 <th class="text-center" >Remarks  </th>
                                 <th class="text-center" >Status</th>
-                                <th class="text-center" >Booking Pincode</th>
+                                <th class="text-center" >Booking Address</th>
                                 <th class="text-center" >Engineer Address</th>
 
                             </tr>
