@@ -87,7 +87,13 @@ if ($this->uri->segment(4)) {
                                             <a href="#" data-toggle="modal" id="<?php echo "spare_parts" . $row['id']; ?>" data-url="<?php echo base_url(); ?>employee/inventory/update_action_on_spare_parts/<?php echo $row['id'] . "/" . $row['booking_id']; ?>/CANCEL_PARTS" data-booking_id="<?php echo $row['booking_id']; ?>" data-target="#myModal2" class="btn btn-sm btn-danger open-adminremarks" title="Reject" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class="fa fa-times" aria-hidden='true'></i></a>
                                         </td>
                                         <td>
-                                            <a class="btn btn-sm btn-success" href="<?php echo base_url();?>partner/download_sf_declaration/<?php echo rawurlencode($row['sf_id'])?>" title="Download Declaration" style="background-color:#2C9D9C; border-color: #2C9D9C;" target="_blank" <?php if(!empty($row['is_gst_doc'])) { echo "disabled";}?>><i class="fa fa-download"></i></a>
+                                            <?php if(!empty($row['is_gst_doc'])){ ?> 
+                                                <a class="btn btn-sm btn-success" href="#" title="GST number available" style="background-color:#2C9D9C; border-color: #2C9D9C; cursor: not-allowed;"><i class="fa fa-check"></i></a>
+                                            <?php }else if(empty ($row['signature_file'])) { ?> 
+                                                <a class="btn btn-sm btn-success" href="#" title="Signature file is not available" style="background-color:#2C9D9C; border-color: #2C9D9C;cursor: not-allowed;"><i class="fa fa-times"></i></a>
+                                            <?php }else{ ?>
+                                                <a class="btn btn-sm btn-success" href="<?php echo base_url();?>partner/download_sf_declaration/<?php echo rawurlencode($row['sf_id'])?>" title="Download Declaration" style="background-color:#2C9D9C; border-color: #2C9D9C;" target="_blank"><i class="fa fa-download"></i></a>
+                                            <?php } ?>
                                         </td>
                                         <td>
                                             <input type="checkbox" class="form-control checkbox_address" name="download_address[]" onclick='check_checkbox(1)' value="<?php echo $row['booking_id']; ?>" />
