@@ -34,3 +34,7 @@ define('TRANSACTION_NOT_HAPPENS_YET','No Transaction');
 define('TRANSACTION_NOT_HAPPENS_YET_MSG',"Transaction does'nt happen yet for this order_id");
 define('CHECK_STATUS_FAILURE','FAILURE');
 define('CHECK_STATUS_FAILURE_MSG','Error From Paytm');
+define("QR_CHANNEL_JOB_CARD", "JOBCARD");
+define("QR_CHANNEL_USER", "USER");
+define("USER_DOWNLOAD_WEBSITE_URL", "http://247around.com/downloadQrCode/");
+

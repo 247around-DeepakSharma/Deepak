@@ -43,6 +43,12 @@ class paytm_cb {
         return $this->post_data($postData);
     }
     
+    function encrypt_e_openssl($input, $ky){
+        $iv   = "@@@@&&&&####$$$$";
+        $data = openssl_encrypt($input, "AES-128-CBC", $ky, 0, $iv);
+        return $data;
+    }
+    
     function post_data($postData) {
         $curl = curl_init();
         
@@ -53,17 +59,16 @@ class paytm_cb {
         $key = hash_pbkdf2("sha256", $this->secretKey, $this->salt, 100000, 16);
         
         //Encrypt the stringified JSON with the key, and an initialization vector (iv).
-        $ivSize = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_CBC);
-        $iv = mcrypt_create_iv($ivSize, MCRYPT_RAND);
+        $iv   = "@@@@&&&&####$$$$";
         //$encryptionMethod = "AES256";
         
-        $encryptedMessage = mcrypt_encrypt(MCRYPT_RIJNDAEL_128, $key, $app,  MCRYPT_MODE_CBC, $iv);
+        $encryptedMessage = $this->encrypt_e_openssl($app, $key); 
 
         $this->header = array(
+            'Content-Type: application/json',
             "app: " . $this->appName,
-            "dr9se2q: " . $key,
-            "co1cx2: " . $encryptedMessage,
-            "content-type: application/json"
+            "dr9se2q: " . $encryptedMessage,
+            "co1cx2: " . $iv
         );
 
         $this->jsonRequestData = json_encode($postData);

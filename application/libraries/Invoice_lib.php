@@ -7,6 +7,7 @@ class Invoice_lib {
 	$this->ci = & get_instance();
         $this->ci->load->library('PHPReport');
         $this->ci->load->library("miscelleneous");
+        $this->ci->load->library('s3');
     }
     
     function create_invoice_id($start_name){
@@ -151,7 +152,17 @@ class Invoice_lib {
        return $output_pdf_file_name;
     }
     
-    function getTinyUrl($url) {
-        return file_get_contents("http://tinyurl.com/api-create.php?url=".$url);
+    function upload_invoice_to_S3($invoice_id, $detailed){
+        $bucket = BITBUCKET_DIRECTORY;
+
+        $directory_xls = "invoices-excel/" . $invoice_id . ".xlsx";
+        $directory_copy_xls = "invoices-excel/copy_" . $invoice_id . ".xlsx";
+
+        $this->ci->s3->putObjectFile(TMP_FOLDER . $invoice_id . ".xlsx", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+        $this->ci->s3->putObjectFile(TMP_FOLDER . "copy_".$invoice_id . ".xlsx", $bucket, $directory_copy_xls, S3::ACL_PUBLIC_READ);
+        if($detailed){
+            $directory_detailed = "invoices-excel/" . $invoice_id . "-detailed.xlsx";
+            $this->ci->s3->putObjectFile(TMP_FOLDER . $invoice_id . "-detailed.xlsx", $bucket, $directory_detailed, S3::ACL_PUBLIC_READ);
+        }
     }
 }
