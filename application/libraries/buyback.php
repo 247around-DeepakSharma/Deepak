@@ -51,8 +51,15 @@ class Buyback {
         $cp_id = NULL;
         if (!empty($cp_data)) {
             //Get Charges list
-            $s_order_key = str_replace(":","",$this->POST_DATA['order_key']);
+            if(stripos('imei', $this->POST_DATA['order_key']) !== FALSE){
+                $file_order_key = rtrim(trim(explode('imei',$this->POST_DATA['order_key'])[0]),":");
+            }else{
+                $file_order_key = $this->POST_DATA['order_key'];
+            }
+            
+            $s_order_key = str_replace(":","",$file_order_key);
             $s_order_key1 = str_replace("_","",$s_order_key);
+            
             $bb_charges = $this->My_CI->service_centre_charges_model->get_bb_charges(array(
                 'partner_id' => $this->POST_DATA['partner_id'],
                 'city' => $cp_data['shop_address_city'],
