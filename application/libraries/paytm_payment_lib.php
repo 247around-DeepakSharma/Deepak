@@ -453,5 +453,17 @@ class paytm_payment_lib {
             return $this->CHECKSTATUS_create_check_status_response(CHECK_STATUS_FAILURE,CHECK_STATUS_FAILURE_MSG);
         }
     }
-    
+    function booking_paytm_payment_data($booking_id){
+        $finalAmount = 0;
+        //Select * From paytm_transaction_callback where booking_id=$booking_id
+        $data = $this->P_P->reusable_model->get_search_result_data("paytm_transaction_callback","*",array("booking_id"=>$booking_id),NULL,NULL,NULL,NULL,NULL,array());
+        if(!empty($data)){
+            foreach($data as $transaction){
+                $finalAmount = $finalAmount+$transaction['paid_amount'];
+                $channel[] = explode("_",$transaction['order_id'])[1];
+            }
+            return array('status'=>true,'data'=>$data,'total_amount'=>$finalAmount,'channels'=>array_values(array_unique($channel)));
+        }
+        return array('status'=>false);
+    }
 }

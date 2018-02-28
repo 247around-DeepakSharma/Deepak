@@ -50,4 +50,10 @@ class Payment extends CI_Controller {
      function check_status($order_id){
         echo $this->paytm_payment_lib->check_status_from_order_id($order_id);
     }
+    function booking_paytm_payment_view($booking_id){
+        $data = $this->paytm_payment_lib->booking_paytm_payment_data($booking_id);
+        $data['booking_id'] = $booking_id;
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/paytm_transaction_against_booking', $data);
+    }
 }
