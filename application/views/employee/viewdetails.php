@@ -119,9 +119,17 @@
                             <th>Booking Date/ Timeslot </th>
                             <td><?php echo $booking_history[0]['booking_date']." / ".$booking_history[0]['booking_timeslot']; ?></td>
                             <th>Amount Due / Paid  </th>
-                            <td><?php echo $booking_history[0]['amount_due']." /  ".$booking_history[0]['amount_paid']; ?></td>
+                            <td><i class="fa fa-rupee"></i> <?php echo $booking_history[0]['amount_due']." / ".$booking_history[0]['amount_paid']; ?></td>
                         </tr>
-                        <tr >
+                        <?php if(isset($booking_history[0]['onlinePaymentAmount'])) { ?>
+                        <tr>
+                            <th>Payment Channel </th>
+                            <td><?php echo $booking_history[0]['channels']; ?></td>
+                            <th>Customer Paid Through Paytm </th>
+                            <td><i class="fa fa-rupee"></i> <?php echo $booking_history[0]['onlinePaymentAmount']; ?></td>
+                        </tr>
+                        <?php } ?>
+                        <tr>
                             <th>Booking Address </th>
                             <td style="max-width:200px;"><?php echo $booking_history[0]['booking_address'];?></td>
                             <th>Booking City/District: </th>
@@ -603,7 +611,9 @@
             </div>
            
                 <?php if($engineer_action_not_exit) { ?>
-
+<div class="tab-pane fade in" id="tab6">
+                <div class="row">
+                    <div class="col-md-12">
                 <table class="table  table-striped table-bordered">
                 <thead>
                     <tr>
@@ -649,6 +659,9 @@
                 <?php }?>
                 
             </div>
+                </div>
+</div>
+                    
         <?php } ?>
         </div>
     </div>

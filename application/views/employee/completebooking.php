@@ -80,6 +80,22 @@
 					</select>
 				    </div>
 				</div>
+                                
+                                <?php if(isset($booking_history[0]['onlinePaymentAmount'])) { ?>
+                                <div class="form-group">
+				    <label for="name" class="col-md-4">Customer Paid Through Paytm</label>
+				    <div class="col-md-6">
+					<input type="text" class="form-control" id="customer_paid_through_paytm" name="customer_paid_through_paytm" value = "<?php
+                                            if (isset($booking_history[0]['onlinePaymentAmount'])) {
+                                                echo $booking_history[0]['onlinePaymentAmount'];
+                                            }
+                                            ?>" readonly="readonly">
+				    </div>
+				</div>
+                                <?php } else { ?>
+                                    <input type="hidden" class="form-control" id="customer_paid_through_paytm" name="customer_paid_through_paytm" value = "0" readonly="readonly">
+                                    
+                                <?php } ?>
 				<!--  end col-md-6  -->
 			    </div>
 			    <!--  start col-md-6  -->
@@ -537,7 +553,7 @@
     
 
     if (Number(number_of_div) > Number(div_count)) {
-        alert();
+        
         alert('Please Select All Services Delivered Or Not Delivered.');
         flag = 1;
         return false;
@@ -585,6 +601,16 @@
         document.getElementById('closing_remarks').style.borderColor = "red";
         flag = 1;
         return false;
+    }
+    var customer_paid_through_paytm = Number($("#customer_paid_through_paytm").val());
+        if(customer_paid_through_paytm > 0){
+        var grand_total_price = $("#grand_total_price").val();
+            
+       if(grand_total_price < customer_paid_through_paytm){
+            alert("Please fill correct amount collected from customer");
+            flag = 1;
+            return false;
+        }
     }
     if (flag === 0) {
         return true;

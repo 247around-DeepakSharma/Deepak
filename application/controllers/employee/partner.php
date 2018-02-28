@@ -564,7 +564,7 @@ class Partner extends CI_Controller {
                     $loginData['choice'][] = 1;
                     $loginData['username'][] = str_replace(" ","_",$return_data['partner']['public_name']);
                     $loginData['id'] = array("","","","","");
-                    $loginData['email'][] = $return_data['partner']['owner_email'];
+                    $loginData['email'][] = $return_data['partner']['primary_contact_email'];
                     $loginData['password'][] = $temp_rand = mt_rand(100000, 999999);
                     $loginData['retype_password'][] = $temp_rand;
                      $sendUrl = base_url().'employee/partner/process_partner_login_details_form';

@@ -75,30 +75,33 @@
                             <tr>
                                  <th>Booking date </th>
                                 <td><?php echo $booking_history[0]['booking_date']; ?></td>
-                                <th>Timeslot: </th>
+                                <th>Timeslot </th>
                                 <td><?php echo $booking_history[0]['booking_timeslot']; ?></td>
                                 
                             </tr>
                            
                             <tr>
+                                <th>Customer Paid Through Paytm</th>
+                                <td><?php if(isset($booking_history[0]['onlinePaymentAmount'])){ echo $booking_history[0]["onlinePaymentAmount"];}?></td>
                                 <th>Amount Paid </th>
                                 <td><?php echo $booking_history[0]['amount_paid']; ?></td>
-                                 <th>Address: </th>
-                                <td><?php echo $booking_history[0]['booking_address']; ?></td>
+                                
                             </tr>
                             
                             <tr>
+                                 <th>Address </th>
+                                <td><?php echo $booking_history[0]['booking_address']; ?></td>
                                 <th>City </th>
                                 <td><?php echo $booking_history[0]['city']; ?></td>
-                                 <th>State: </th>
-                                <td><?php echo $booking_history[0]['state']; ?></td>
+                                 
                             </tr>
                        
                             <tr>
                                 <th>Pincode </th>
                                 <td><?php echo $booking_history[0]['booking_pincode']; ?></td>
-                                <th>Remarks: </th>
-                                <td><?php echo $booking_history[0]['booking_remarks']; ?></td>
+                                <th>State: </th>
+                                <td><?php echo $booking_history[0]['state']; ?></td>
+                                
                             </tr>
                             
                             <tr>
@@ -129,6 +132,8 @@
                                 <td><?php if (!empty($booking_history[0]['rating_comments'])) {
                                     echo $booking_history[0]['rating_comments'];
                                     } ?></td>
+                                <th>Remarks: </th>
+                                <td><?php echo $booking_history[0]['booking_remarks']; ?></td>
                             </tr>
                             <?php if(isset($dhq[0]['district'])){ ?>
                             <tr>
