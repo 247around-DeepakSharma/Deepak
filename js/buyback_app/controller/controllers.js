@@ -7,7 +7,7 @@ uploadfile.controller('uploadOrderDetailsFile', ['$scope', 'fileUpload', functio
             //var file_date = $scope.file_date.received_date;
             $scope.ShowSpinnerStatus = true;
             var file_date = $('#file_date').val();
-//            var qc_svc = $('#qc_svc').val();
+            //var qc_svc = $('#qc_svc').val();
             if(file_date === ''){
                 $scope.ShowSpinnerStatus = false;
                 $scope.errorMsg = true;
