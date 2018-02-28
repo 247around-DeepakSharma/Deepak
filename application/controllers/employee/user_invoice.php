@@ -97,7 +97,7 @@ class User_invoice extends CI_Controller {
                 $email_from = $email_template[2];
 //
                 $to = $data[0]->owner_email;
-                $cc = $data[0]->primary_contact_email;
+                $cc = $email_template[3].",".$data[0]->primary_contact_email;
                 $this->invoice_lib->upload_invoice_to_S3($response['meta']['invoice_id'], false);
                 
                 $pdf_attachement_url = 'https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/invoices-excel/' . $output_pdf_file_name;

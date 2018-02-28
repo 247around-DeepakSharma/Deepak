@@ -47,6 +47,7 @@ class Booking extends CI_Controller {
         $this->load->library('asynchronous_lib');
         $this->load->library("initialized_variable");
         $this->load->library("push_notification_lib");
+        $this->load->library("paytm_payment_lib");
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
             return TRUE;
         } else {
@@ -804,6 +805,14 @@ class Booking extends CI_Controller {
 
             array_push($data['prices'], $prices);
         }
+        
+        $isPaytmTxn = $this->paytm_payment_lib->booking_paytm_payment_data($booking_id);
+       
+        if(!empty($isPaytmTxn)){
+            if($isPaytmTxn['status']){
+                $data['booking_history'][0]['onlinePaymentAmount'] = $isPaytmTxn['total_amount'];
+            }
+        }
 
         $data['upcountry_charges'] = $upcountry_price;
         $this->miscelleneous->load_nav_header();
@@ -1333,6 +1342,15 @@ class Booking extends CI_Controller {
         $data['engineer_action_not_exit'] = $engineer_action_not_exit;
         
         $data['unit_details'] = $booking_unit_details;
+        
+        $isPaytmTxn = $this->paytm_payment_lib->booking_paytm_payment_data($booking_id);
+        
+        if(!empty($isPaytmTxn)){
+            if($isPaytmTxn['status']){
+                $data['booking_history'][0]['onlinePaymentAmount'] = $isPaytmTxn['total_amount'];
+                $data['booking_history'][0]['channels'] = implode(", ", $isPaytmTxn['channels']);
+            }
+        }
         
             
         }else{

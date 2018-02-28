@@ -44,6 +44,7 @@ class Service_centers extends CI_Controller {
         $this->load->library("partner_cb");
         $this->load->library("miscelleneous");
         $this->load->library("push_notification_lib");
+        $this->load->library("paytm_payment_lib");
     }
 
     /**
@@ -148,6 +149,13 @@ class Service_centers extends CI_Controller {
             }
         }
         
+        $isPaytmTxn = $this->paytm_payment_lib->booking_paytm_payment_data($booking_id);
+        if(!empty($isPaytmTxn)){
+            if($isPaytmTxn['status']){
+                $data['booking_history'][0]['onlinePaymentAmount'] = $isPaytmTxn['total_amount'];
+            }
+        }
+        
         $data['engineer_action_not_exit'] = $engineer_action_not_exit;
         
         $data['unit_details'] = $booking_unit_details;
@@ -200,7 +208,14 @@ class Service_centers extends CI_Controller {
             
         }
         
-         $data['bookng_unit_details'] = $bookng_unit_details;
+        $isPaytmTxn = $this->paytm_payment_lib->booking_paytm_payment_data($booking_id);
+        if(!empty($isPaytmTxn)){
+            if($isPaytmTxn['status']){
+                $data['booking_history'][0]['onlinePaymentAmount'] = $isPaytmTxn['total_amount'];
+            }
+        }
+        
+        $data['bookng_unit_details'] = $bookng_unit_details;
         
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/complete_booking_form', $data);
