@@ -186,7 +186,7 @@ class Booking_utilities {
                     $sms['type'] = "user";
                     $sms['type_id'] = $user_id;
                     $sms['tag'] = "customer_qr_download";
-                    $sms['smsData']['url'] = $services;
+                    $sms['smsData']['services'] = $services;
                     $sms['smsData']['url'] = $tinyUrl;
 
                     $sms['phone_no'] = $userPhone;
