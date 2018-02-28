@@ -210,7 +210,8 @@
                         </li>
                         <li><div class="dropdown" style="float:right;margin: 15px 14px 0px 0px;">
                                     <a class=" dropdown-toggle fa fa-bell" id="notification_holder"  data-toggle="dropdown" onclick="get_notifications(<?php echo $this->session->userdata('service_center_id'); ?>,'vendor')"></a>
-                                    <ul class="dropdown-menu" role="menu" aria-labelledby="notification_holder" id="notification_container" style="padding-top: 0px;margin-top: 32px;border: 1px solid #2c9d9c;"> 
+                                    <ul class="dropdown-menu" role="menu" aria-labelledby="notification_holder" id="notification_container" style="padding-top: 0px;margin-top: 34px;border: 1px solid #2c9d9c;
+                                            height: auto;max-height: 650px;overflow-x: hidden;"> 
                                     <center><img id="loader_gif_escalation" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
                                     </ul>
   </div></li>
@@ -269,34 +270,32 @@ function showConfirmDialougeBox(url){
 
 </script>
 <style>
-.nav .open>a, .nav .open>a:focus, .nav .open>a:hover {
+            .nav .open>a, .nav .open>a:focus, .nav .open>a:hover {
     background-color: #2c9d9c;
-    color: #fff;
 }
     .navigation_li{
-    font: normal 16px/16px Century Gothic;
+    font-size:14px;
+    color: #fff;
     list-style: none;
-    padding: 15px 0px 6px 42px;
+    padding: 2px 0px 0px 42px;
     }
     .navigation_li a:hover {
     background: none;
-    color:#fff;
 }
-.navigation_li>li>a:focus, .dropdown-menu>li>a:hover {
-    color: #262626;
-    text-decoration: none;
-    background-color: transparent;
-}
-.normal{
-    background: url(<?php echo base_url() ?>/images/logo_small.png) 7px 3px no-repeat;
+.Normal{
+    background: url(<?php echo base_url() ?>/images/norm_final.png) 7px 5px no-repeat;
 }    
-.important{
-    background: url(<?php echo base_url() ?>/images/i.png) 7px 3px no-repeat;
+.Important{
+    background: url(<?php echo base_url() ?>/images/n_imp_final.png) 7px 13px no-repeat;
 }
 .no_new_notification{
     color: #000;
         text-align: center;
     padding: 3px;
+}
+.navbar-top-links .dropdown-menu li a {
+        margin-left: 14px;
+        padding: 3px 8px;
 }
             </style>
             <script>
