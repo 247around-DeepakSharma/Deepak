@@ -53,7 +53,7 @@ class Booking_utilities {
 
             $qr = $this->get_qr_code_response($booking_details[0]['booking_id'], $booking_details[0]['amount_due'], 
                     $booking_details[0]['primary_contact_phone_1'], $booking_details[0]['user_id'], 
-                    $booking_details[0]['booking_primary_contact_no']);
+                    $booking_details[0]['booking_primary_contact_no'], $booking_details[0]['services']);
             
             $unit_where = array('booking_id' => $booking_id, 'pay_to_sf' => '1');
             $unit_details = $this->My_CI->booking_model->get_unit_details($unit_where);
@@ -174,31 +174,32 @@ class Booking_utilities {
      * @param String $pocNumber
      * @return boolean
      */
-    function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $userPhone){
+    function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $userPhone, $services){
         log_message("info", __METHOD__. " Booking id ". $booking_id. " Due ".$amount_due);
         $response = $this->My_CI->paytm_payment_lib->generate_qr_code($booking_id, QR_CHANNEL_JOB_CARD, 0, $pocNumber);
-        $userDownload = $this->My_CI->paytm_payment_lib->generate_qr_code($booking_id, QR_CHANNEL_USER, 0, $pocNumber);
-        
-        $user = json_decode($userDownload, TRUE);
-        if($user['status'] == SUCCESS_STATUS){
-            $qr_id = $user['qr_id'];
-            $qr_id_encrypted = urlencode(base64_encode($qr_id));
-            $tinyUrl = $this->My_CI->miscelleneous->getShortUrl(USER_DOWNLOAD_WEBSITE_URL.$qr_id_encrypted);
-            if($tinyUrl){
-                $sms['type'] = "user";
-                $sms['type_id'] = $user_id;
-                $sms['tag'] = "customer_qr_download";
-                $sms['smsData']['url'] = $tinyUrl;
+        if($amount_due > 0){
+            $userDownload = $this->My_CI->paytm_payment_lib->generate_qr_code($booking_id, QR_CHANNEL_USER, 0, $pocNumber);
+            $user = json_decode($userDownload, TRUE);
+            if($user['status'] == SUCCESS_STATUS){
+                $qr_id = $user['qr_id'];
+                $qr_id_encrypted = urlencode(base64_encode($qr_id));
+                $tinyUrl = $this->My_CI->miscelleneous->getShortUrl(USER_DOWNLOAD_WEBSITE_URL.$qr_id_encrypted);
+                if($tinyUrl){
+                    $sms['type'] = "user";
+                    $sms['type_id'] = $user_id;
+                    $sms['tag'] = "customer_qr_download";
+                    $sms['smsData']['services'] = $services;
+                    $sms['smsData']['url'] = $tinyUrl;
 
-                $sms['phone_no'] = $userPhone;
-                $sms['booking_id'] = $booking_id;
+                    $sms['phone_no'] = $userPhone;
+                    $sms['booking_id'] = $booking_id;
 
-                $this->My_CI->notify->send_sms_msg91($sms);
+                    $this->My_CI->notify->send_sms_msg91($sms);
+                }
+
             }
-            
         }
-
-
+        
         $result = json_decode($response, TRUE);
 
         if($result['status'] == SUCCESS_STATUS){
