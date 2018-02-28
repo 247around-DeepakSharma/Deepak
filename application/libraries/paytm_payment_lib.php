@@ -373,7 +373,7 @@ class paytm_payment_lib {
      * @output - structured response Array
      */
     function CHECKSTATUS_checkstatus_success_handler($responseArray){
-        log_message('info', __FUNCTION__ . " Function Start With  ".print_r($responseArray));
+        log_message('info', __FUNCTION__ . " Function Start With  ".print_r($responseArray,true));
         $transactionsArray = $responseArray['response']['txnList'];
         foreach ($transactionsArray as $transaction){
             $orderID = $transaction['merchantOrderId'];
@@ -390,7 +390,7 @@ class paytm_payment_lib {
             // Save data into transaction table
             $this->P_P->reusable_model-> insert_into_table("paytm_transaction_callback",$data);
         }
-        log_message('info', __FUNCTION__ . " Function End With  ".print_r($data));
+        log_message('info', __FUNCTION__ . " Function End With  ".print_r($data,true));
         return $data;
     }
     /*
@@ -437,7 +437,7 @@ class paytm_payment_lib {
         //Send Check Status request to paytm
        $responseArray =  $this->CHECKSTATUS_send_check_status_request_from_order_id($order_id);
        // If success
-        if($responseArray['statusCode'] == CHECK_STATUS_SUCCESS_CODE){
+        if($responseArray['response']['txnList'][0]['status'] == CHECK_STATUS_SUCCESS_CODE){
             $data = $this->CHECKSTATUS_checkstatus_success_handler($responseArray);
             log_message('info', __FUNCTION__ . " Function End With Success");
             return $this->CHECKSTATUS_create_check_status_response(CHECK_STATUS_SUCCESS,CHECK_STATUS_SUCCESS_MSG,$data);
