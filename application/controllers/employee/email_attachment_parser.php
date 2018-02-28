@@ -65,7 +65,7 @@ class Email_attachment_parser extends CI_Controller {
                                                     }
                                                 }
                                             }
-                                            $file_upload_response = $this->process_uploading_extract_file($file_details['url'], TMP_FOLDER . $extract_file_name, $val['email_message_id'], $file_details['email_send_to'], $file_details['file_type'], $file_details['qc_svc'], $file_details['partner_id']);
+                                            $file_upload_response = $this->process_uploading_extract_file($file_details['url'], TMP_FOLDER . $extract_file_name, $val['email_message_id'], $file_details['email_send_to'], $file_details['file_type'], $file_details['partner_id']);
 
                                             //delete file from the system after processing
                                             if (file_exists(TMP_FOLDER . $extract_file_name)) {
@@ -119,7 +119,7 @@ class Email_attachment_parser extends CI_Controller {
     * @param    void
     * @return   void
     */
-    private function process_uploading_extract_file($url,$file_path,$email_message_id,$email_send_to,$file_type,$qc_svc,$partner_id){
+    private function process_uploading_extract_file($url,$file_path,$email_message_id,$email_send_to,$file_type,$partner_id){
         log_message('info',__METHOD__."Entering...");
         
         if (function_exists('curl_file_create')) {
@@ -136,11 +136,7 @@ class Email_attachment_parser extends CI_Controller {
             'email_send_to' => $email_send_to,
             'file_type' => $file_type,
             'partner_id' => $partner_id,
-            'partner_source' => $file_type."-excel");        
-        
-        if(!empty($qc_svc)){
-            $post['qc_svc'] = $qc_svc;
-        }
+            'partner_source' => $file_type."-excel");
         
         $ch = curl_init();
         
@@ -168,7 +164,6 @@ class Email_attachment_parser extends CI_Controller {
         if(!empty($url_details)){
             $return_data['partner_id'] = $url_details[0]['partner_id'];
             $return_data['email_send_to'] = $url_details[0]['email_send_to'];
-            $return_data['qc_svc'] = $url_details[0]['qc_svc'];
             $return_data['file_type'] = $url_details[0]['file_type'];
             
             if((stripos($data['subject'],$url_details[0]['email_subject_text']) !== FALSE) && $data['host'] == '247around.com'){

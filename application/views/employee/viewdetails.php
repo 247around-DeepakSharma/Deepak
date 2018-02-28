@@ -39,42 +39,42 @@
 </style>
 <div class="page-wrapper" style="margin-top:35px;">
 <div class="btn-pref btn-group btn-group-justified btn-group-lg" role="group" aria-label="...">
-<div class="btn-group" role="group">
-    <button type="button" class="btn btn-primary" href="#tab1" data-toggle="tab">
-        <div class="hidden-xs">Booking Details</div>
-    </button>
-</div>
-<div class="btn-group" role="group">
-    <button type="button" class="btn btn-default" href="#upcountry" data-toggle="tab">
-        <div class="hidden-xs">SF / Upcountry</div>
-    </button>
-</div>
-<div class="btn-group" role="group">
-    <button type="button" class="btn btn-default" href="#tab2" data-toggle="tab">
-        <div class="hidden-xs">Appliance Details</div>
-    </button>
-</div>
-<div class="btn-group" role="group">
-    <button type="button" class="btn btn-default" href="#tab3" data-toggle="tab">
-        <div class="hidden-xs">Spare Parts</div>
-    </button>
-</div>
-<div class="btn-group" role="group">
-    <button type="button" class="btn btn-default" href="#tab4" data-toggle="tab">
-        <div class="hidden-xs">History / Sms</div>
-    </button>
-</div>
-<div class="btn-group" role="group">
-    <button type="button" class="btn btn-default" href="#tab5" data-toggle="tab">
-        <div class="hidden-xs">Penalty</div>
-    </button>
-</div>
+    <div class="btn-group" role="group">
+        <button type="button" class="btn btn-primary" href="#tab1" data-toggle="tab">
+            <div class="hidden-xs">Booking Details</div>
+        </button>
+    </div>
+    <div class="btn-group" role="group">
+        <button type="button" class="btn btn-default" href="#upcountry" data-toggle="tab">
+            <div class="hidden-xs">SF / Upcountry</div>
+        </button>
+    </div>
+    <div class="btn-group" role="group">
+        <button type="button" class="btn btn-default" href="#tab2" data-toggle="tab">
+            <div class="hidden-xs">Appliance Details</div>
+        </button>
+    </div>
+    <div class="btn-group" role="group">
+        <button type="button" class="btn btn-default" href="#tab3" data-toggle="tab">
+            <div class="hidden-xs">Spare Parts</div>
+        </button>
+    </div>
+    <div class="btn-group" role="group">
+        <button type="button" class="btn btn-default" href="#tab4" data-toggle="tab">
+            <div class="hidden-xs">History / Sms</div>
+        </button>
+    </div>
+    <div class="btn-group" role="group">
+        <button type="button" class="btn btn-default" href="#tab5" data-toggle="tab">
+            <div class="hidden-xs">Penalty</div>
+        </button>
+    </div>
     <?php if($engineer_action_not_exit) { ?>
-<div class="btn-group" role="group">
-    <button type="button" class="btn btn-default" href="#tab6" data-toggle="tab">
-        <div class="hidden-xs">Engineer Action</div>
-    </button>
-</div>
+    <div class="btn-group" role="group">
+        <button type="button" class="btn btn-default" href="#tab6" data-toggle="tab">
+            <div class="hidden-xs">Engineer Action</div>
+        </button>
+    </div>
     <?php } ?>
 </div>
 <div class="well">
@@ -178,7 +178,7 @@
                             <td ><?php echo $booking_history[0]['service_promise_date'];?></td>
                             <th >Paid By Customer(STS)</th>
                             <td ><?php if(!is_null($booking_history[0]['paid_by_customer'])) { if($booking_history[0]['paid_by_customer'] == 1){ echo "Paid By Customer"; } 
-                            else {echo "Free For Customer";}} ?></td>
+                                else {echo "Free For Customer";}} ?></td>
                         </tr>
                         <tr>
                             <th>Closing Remarks</th>
@@ -189,7 +189,6 @@
             </div>
         </div>
         <div class="tab-pane fade in" id="upcountry">
-            
             <div class="row">
                 <div class="col-md-12">
                     <?php if(!empty($booking_history[0]['vendor_name'])){?>
@@ -609,60 +608,54 @@
                     </div>
                 </div>
             </div>
-           
-                <?php if($engineer_action_not_exit) { ?>
-<div class="tab-pane fade in" id="tab6">
+            <?php if($engineer_action_not_exit) { ?>
+            <div class="tab-pane fade in" id="tab6">
                 <div class="row">
                     <div class="col-md-12">
-                <table class="table  table-striped table-bordered">
-                <thead>
-                    <tr>
-                        <th>Service Category</th>
-                        <th>Broken</th>
-                        <th>Serial Number</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach($unit_details as $unit){?>
-                    <tr>
-                        <td><?php echo $unit["price_tags"];?></td>
-                        <td><?php if($unit['en_is_broken'] ==1){ echo "Yes"; } else { echo "No";} ?></td>
-                        <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $unit['en_serial_number_pic'];?>" target="_blank"><?php  echo $unit['en_serial_number']; ?></a></td>
-                        
-                        <td><?php  echo $unit['en_current_status']." / ".$unit['en_internal_status']; ?></td>
-                    </tr>
-                    <?php }?>
-                </tbody>
-                </table>
-                <?php if(isset($signature_details) && !empty($signature_details)){ ?>
-                <table class="table  table-striped table-bordered">
-                    <tr>
-                        <th>Amount Paid</th>
-                        <th>Customer Signature</th>
-                        <th>Closed Date</th>
-                        <th>Closing Address</th>
-                        <th>Remarks</th>
-                    </tr>
-                    <tbody>
-                        <tr>
-                            <td><?php echo $signature_details[0]['amount_paid']; ?></td>
-                            <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $signature_details[0]['signature'];?>" target="_blank">Click Here</a></td>
-                            <td><?php echo $signature_details[0]['closed_date']; ?></td>
-                            <td><?php echo $signature_details[0]['address']; ?></td>
-                            <td><?php echo $signature_details[0]['remarks']; ?></td>
-                            
-                        </tr>
-                       
-                    </tbody>
-                </table>
-                <?php }?>
-                
-            </div>
+                        <table class="table  table-striped table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Service Category</th>
+                                    <th>Broken</th>
+                                    <th>Serial Number</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach($unit_details as $unit){?>
+                                <tr>
+                                    <td><?php echo $unit["price_tags"];?></td>
+                                    <td><?php if($unit['en_is_broken'] ==1){ echo "Yes"; } else { echo "No";} ?></td>
+                                    <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $unit['en_serial_number_pic'];?>" target="_blank"><?php  echo $unit['en_serial_number']; ?></a></td>
+                                    <td><?php  echo $unit['en_current_status']." / ".$unit['en_internal_status']; ?></td>
+                                </tr>
+                                <?php }?>
+                            </tbody>
+                        </table>
+                        <?php if(isset($signature_details) && !empty($signature_details)){ ?>
+                        <table class="table  table-striped table-bordered">
+                            <tr>
+                                <th>Amount Paid</th>
+                                <th>Customer Signature</th>
+                                <th>Closed Date</th>
+                                <th>Closing Address</th>
+                                <th>Remarks</th>
+                            </tr>
+                            <tbody>
+                                <tr>
+                                    <td><?php echo $signature_details[0]['amount_paid']; ?></td>
+                                    <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $signature_details[0]['signature'];?>" target="_blank">Click Here</a></td>
+                                    <td><?php echo $signature_details[0]['closed_date']; ?></td>
+                                    <td><?php echo $signature_details[0]['address']; ?></td>
+                                    <td><?php echo $signature_details[0]['remarks']; ?></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <?php }?>
+                    </div>
                 </div>
-</div>
-                    
-        <?php } ?>
+            </div>
+            <?php } ?>
         </div>
     </div>
 </div>
@@ -686,9 +679,7 @@
                 });
             });
 </script>
- 
 <script type="text/javascript">    
-
     function outbound_call(phone_number){
         var confirm_call = confirm("Call Customer ?");
     
