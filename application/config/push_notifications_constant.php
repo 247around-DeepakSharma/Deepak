@@ -17,3 +17,4 @@ define('UPCOUNTRY_APPROVAL','upcountry_approval_partner');
 define('INVOICE_CREATED_PARTNER','invoice_created_partner');
 define('PENDING_SPARE_PARTS_TO_PARTNER','pending_spare_part_to_partner');
 define('PENDING_INVOICES_TO_PARTNERS_POSTPAID','pending_invoices_to_postpaid_partners');
+define('NOTIFICATIONS_CENTER_LIMIT','25');

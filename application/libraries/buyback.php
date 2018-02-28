@@ -51,8 +51,8 @@ class Buyback {
         $cp_id = NULL;
         if (!empty($cp_data)) {
             //Get Charges list
-            if(stripos('imei', $this->POST_DATA['order_key']) !== FALSE){
-                $file_order_key = rtrim(trim(explode('imei',$this->POST_DATA['order_key'])[0]),":");
+            if(stripos($this->POST_DATA['order_key'],'IMEI') !== FALSE){
+                $file_order_key = rtrim(trim(explode('IMEI',$this->POST_DATA['order_key'])[0]),":");
             }else{
                 $file_order_key = $this->POST_DATA['order_key'];
             }
