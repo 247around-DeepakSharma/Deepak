@@ -1955,5 +1955,180 @@ class Inventory extends CI_Controller {
         $this->load->view("employee/spare_invoice_list", $data);
 
     }
+    
+    /**
+     *  @desc : This function is used to show inventory master list table
+     *  @param : void
+     *  @return : void
+     */
+    function inventory_master_list(){
+        $this->miscelleneous->load_nav_header();
+        $this->load->view("employee/inventory_master_list");
+    }
+    
+    /**
+     *  @desc : This function is used to show inventory master list data
+     *  @param : void
+     *  @return : void
+     */
+    function get_inventory_master_list(){
+        $data = $this->get_master_list_data();
+        
+        $post = $data['post'];
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $this->inventory_model->count_all_inventory_master_list($post),
+            "recordsFiltered" =>  $this->inventory_model->count_filtered_inventory_master_list($post),
+            "data" => $data['data'],
+        );
+        
+        echo json_encode($output);
+    }
+    
+    function get_master_list_data(){
+        $post = $this->get_post_data();
+        $post['column_order'] = array();
+        $post['column_search'] = array('part_name','part_number','services.services','services.id','model_number','serial_number');
+        
+        $select = "inventory_master_list.*,services.services";
+        
+        $list = $this->inventory_model->get_inventory_master_list($post,$select);
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $stock_list) {
+            $no++;
+            $row = $this->get_inventory_master_list_table($stock_list, $no);
+            $data[] = $row;
+        }
+        
+        return array(
+            'data' => $data,
+            'post' => $post
+            
+        );
+    }
+    
+    function get_inventory_master_list_table($stock_list, $no){
+        $row = array();
+        $json_data = json_encode($stock_list);
+        
+        //get agent name
+        if ($stock_list->entity_type === _247AROUND_EMPLOYEE_STRING) {
+            $employe_details = $this->employee_model->getemployeefromid($stock_list->entity_id);
+            $agent_name = $employe_details[0]['full_name'];
+        } else if ($stock_list->entity_type === _247AROUND_PARTNER_STRING) {
+            $partner_details = $this->partner_model->getpartner_details('public_name', array('partners.id' => $stock_list->entity_id));
+            $agent_name = $partner_details[0]['public_name'];
+        } else if ($stock_list->entity_type === _247AROUND_SF_STRING) {
+            $vendor_details = $this->partner_model->getVendorDetails('name', array('id' => $stock_list->entity_id));
+            $agent_name = $vendor_details[0]['public_name'];
+        }else{
+            $agent_name = "";
+        }
+        $row[] = $no;
+        $row[] = $stock_list->services;
+        $row[] = $stock_list->part_name;
+        $row[] = $stock_list->part_number;
+        $row[] = $stock_list->serial_number;
+        $row[] = $stock_list->model_number;
+        $row[] = $stock_list->description;
+        $row[] = $stock_list->size;
+        $row[] = $stock_list->price;
+        $row[] = $stock_list->description;
+        $row[] = $stock_list->entity_type;
+        $row[] = $agent_name;
+        $row[] = "<a href='javascript:void(0)' class ='btn btn-primary' id='edit_master_details' data-id='$json_data'>Edit</a>";
+        
+        return $row;
+    }
+    
+    /**
+     *  @desc : This function is used to perform add/edit action on the inventory_master_list table
+     *  @param : void()
+     *  @return : $response JSON
+     */
+    function process_inventoy_master_list_data() {
+        $submit_type = $this->input->post('submit_type');
+        if(!empty($submit_type)){
+            $data = array('part_name' => $this->input->post('part_name'),
+                      'part_number' => $this->input->post('part_number'),
+                      'serial_number' => $this->input->post('serial_number'),
+                      'model_number' => $this->input->post('model_number'),
+                      'size' => $this->input->post('size'),
+                      'price' => $this->input->post('price'),
+                      'type' => $this->input->post('type'),
+                      'description' => $this->input->post('description'),
+            );
+        
+            $entity_type = $this->input->post('entity_type');
+            $entity_id = $this->input->post('entity_id');
+            $service_id = $this->input->post('service_id');
+            if(!empty($entity_id) && !empty($entity_type)){
+                $data['entity_id'] = $entity_id;
+                $data['entity_type'] = $entity_type;
+            }
+            
+            if(!empty($service_id)){
+                $data['service_id'] = $service_id;
+            }
+
+            switch ($submit_type) {
+                case 'add':
+                    $data['create_date'] = date('Y-m-d H:i:s');
+                    $response = $this->add_inventoy_master_list_data($data);
+                    break;
+                case 'edit':
+                    $response = $this->edit_inventoy_master_list_data($data);
+                    break;
+            }
+        }else{
+            $response['response'] = 'error';
+            $response['msg'] = 'Please Try Again!!!';
+            log_message("info", __METHOD__.'Invalid request type');
+        }
+        
+        
+        echo json_encode($response);
+    }
+    
+    /**
+     *  @desc : This function is used to perform insert action on the partner_file_upload_header_mapping table
+     *  @param : $data array()
+     *  @return : $res array()
+     */
+    function add_inventoy_master_list_data($data) {
+        $response = $this->inventory_model->insert_inventory_master_list_data($data);
+        if (!empty($response)) {
+            $res['response'] = 'success';
+            $res['msg'] = 'Inventory added successfully';
+            log_message("info",  __METHOD__.'Inventory added successfully');
+        } else {
+            $res['response'] = 'error';
+            $res['msg'] = 'Error in inserting inventory details';
+            log_message("info",  __METHOD__.'Error in inserting inventory details');
+        }
+        
+        return $res;
+    }
+    
+    /**
+     *  @desc : This function is used to perform edit action on the partner_file_upload_header_mapping table
+     *  @param : $data array()
+     *  @return : $res array()
+     */
+    function edit_inventoy_master_list_data($data) {
+        $response = $this->inventory_model->update_inventory_master_list_data(array('inventory_id' => $this->input->post('inventory_id')),$data);;
+        if (!empty($response)) {
+            $res['response'] = 'success';
+            $res['msg'] = 'Details has been updated successfully';
+            log_message("info",  __METHOD__.'Details has been updated successfully');
+        } else {
+            $res['response'] = 'error';
+            $res['msg'] = 'Error in updating details';
+            log_message("info",  __METHOD__.'error in updating  details');
+        }
+        
+        return $res;
+    }
 
 }
