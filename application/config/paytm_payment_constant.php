@@ -38,4 +38,6 @@ define("QR_CHANNEL_JOB_CARD", "JOBCARD");
 define("QR_CHANNEL_USER", "USER");
 define("USER_DOWNLOAD_WEBSITE_URL", "http://247around.com/downloadQrCode/");
 define('REFUND_AMOUNT_GRETER_THEN_TRANSACTION_AMOUNT','Refund amount is greater then transaction amount');
+define('TRANSACTION_RESPONSE_FROM_CALLBACK','callback');
+define('TRANSACTION_RESPONSE_FROM_CHECK_STATUS','checkstatus');
 

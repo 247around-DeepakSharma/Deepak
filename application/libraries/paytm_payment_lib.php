@@ -210,6 +210,8 @@ class paytm_payment_lib {
         // Details of cashback
         $data['cash_back_message'] = $jsonArray['response']['cashBackMessage'];
         $data['create_date'] = date("Y-m-d h:i:s");
+        //response_api (From which api we are getting response,check status or callback)
+        $data['response_api'] = TRANSACTION_RESPONSE_FROM_CALLBACK;
         $insertID = $this->P_P->reusable_model->insert_into_table("paytm_transaction_callback",$data);
         return $insertID;
     }
@@ -387,6 +389,8 @@ class paytm_payment_lib {
             $data['cashback_amount'] = "";
             $data['cashback_txn_id'] = $transaction['cashbackTxnId'];
             $data['create_date'] = date('Y-m-d h:i:s');
+            //From Which API We are Getting Response
+            $data['response_api'] = TRANSACTION_RESPONSE_FROM_CHECK_STATUS;
             // Save data into transaction table
             $this->P_P->reusable_model-> insert_into_table("paytm_transaction_callback",$data);
         }
