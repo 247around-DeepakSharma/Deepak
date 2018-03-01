@@ -5,8 +5,8 @@ define('FAILURE_STATUS','FAILURE');
 define('QR_ALREADY_EXISTS_MSG','ALREADY EXISTS');
 define('QR_CREATED_SUCCESSFULLY_MSG','QR GENERATED');
 define('QR_CODE_REQUEST_TYPE','QR_ORDER');
-define('MERCHANT_GUID','dafba0a8-97da-4636-92d6-0e3e13c7bbb0');
-define('MID','BATCPL33992620706070');
+//define('MERCHANT_GUID','dafba0a8-97da-4636-92d6-0e3e13c7bbb0');
+//define('MID','BATCPL33992620706070');
 define('QR_CODE_URL','https://trust-uat.paytm.in/wallet-merchant/v2/createQRCode');
 define('QR_CODE_S3_FOLDER','qr-codes');
 define('QR_CODE_DATABASE_ERROR','Not Saved In Db QR Generated');
@@ -38,4 +38,6 @@ define("QR_CHANNEL_JOB_CARD", "JOBCARD");
 define("QR_CHANNEL_USER", "USER");
 define("USER_DOWNLOAD_WEBSITE_URL", "http://247around.com/downloadQrCode/");
 define('REFUND_AMOUNT_GRETER_THEN_TRANSACTION_AMOUNT','Refund amount is greater then transaction amount');
+define('TRANSACTION_RESPONSE_FROM_CALLBACK','callback');
+define('TRANSACTION_RESPONSE_FROM_CHECK_STATUS','checkstatus');
 
