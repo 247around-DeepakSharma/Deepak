@@ -28,4 +28,10 @@ class paytm_payment_model extends CI_Model {
         $query =  $this->db->get("cashback_rules");
         return $query->result_array();
     }
+    function get_order_id_without_transaction_for_booking_id($booking_id){
+        $query = "SELECT  order_id FROM paytm_payment_qr_code WHERE order_id NOT IN (SELECT order_id FROM paytm_transaction_callback WHERE booking_id='".$booking_id."')"
+                . "AND booking_id ='".$booking_id."'";
+        $query = $this->db->query($query);
+        return $query->result_array();
+    }
 }
