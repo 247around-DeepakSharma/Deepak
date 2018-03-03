@@ -17,3 +17,9 @@ define('UPCOUNTRY_APPROVAL','upcountry_approval_partner');
 define('INVOICE_CREATED_PARTNER','invoice_created_partner');
 define('PENDING_SPARE_PARTS_TO_PARTNER','pending_spare_part_to_partner');
 define('PENDING_INVOICES_TO_PARTNERS_POSTPAID','pending_invoices_to_postpaid_partners');
+define('NOTIFICATIONS_CENTER_LIMIT','25');
+// Add comma Seprated Id if you want to send notification to more then 1 employee
+define('INSTALLATION_MISSED_CALL_NOTIFICATION_EMPLOYYE_IDS','22');
+define('INSTALLATION_MISSED_CALL_NOTIFICATION','installation_missed_call');
+define('POOR_RATING_MISSED_CALL_NOTIFICATION_EMPLOYYE_IDS','19');
+define('POOR_RATING_MISSED_CALL_NOTIFICATION','poor_rating_missed_call');
