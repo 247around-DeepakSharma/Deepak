@@ -86,6 +86,7 @@ class push_notification_lib {
                         $data['msg'] = $templateData[0]['msg'];
                         $data['url'] =    base_url().$templateData[0]['url'];
                         $data['auto_hide'] =   $auto_hide;
+                        $data['notification_tag'] =  $templateData[0]['notification_tag']; 
                         if(array_key_exists('title', $notificationTextArray)){
                             $data['title'] = vsprintf($templateData[0]['title'], $notificationTextArray['title']);
                         }
