@@ -326,7 +326,10 @@ class Do_background_process extends CI_Controller {
         if($this->input->post('auto_hide')){
             $auto_hide = $this->input->post('auto_hide');
         }
-        $this->push_notification_lib->send_push_notification($title,$msg,$url,$notification_type,$subscriberArray,$auto_hide);
+        if($this->input->post('notification_tag')){
+            $notification_tag = $this->input->post('notification_tag');
+        }
+        $this->push_notification_lib->send_push_notification($title,$msg,$url,$notification_type,$subscriberArray,$notification_tag,$auto_hide);
     }
 
     /* end controller */
