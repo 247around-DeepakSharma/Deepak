@@ -891,7 +891,10 @@ class Booking extends CI_Controller {
             $booking_details = $this->reusable_model->get_search_query('booking_details', 'booking_details.assigned_vendor_id,booking_unit_details.price_tags,booking_unit_details.appliance_capacity', array('booking_details.booking_id' => $booking_id,"booking_unit_details.price_tags like '%"._247AROUND_WALL_MOUNT__PRICE_TAG."%'" => NULL,'booking_details.assigned_vendor_id IS NOT null'=>NULL), array('booking_unit_details'=>'booking_details.booking_id = booking_unit_details.booking_id'), NULL, NULL, NULL, NULL)->result_array();
             if (!empty($booking_details)) { 
             //Send Push Notification
+            $rmArray = $this->vendor_model->get_rm_sf_relation_by_sf_id($booking_details[0]['assigned_vendor_id']);
             $receiverArray['vendor'] = array($booking_details[0]['assigned_vendor_id']);
+            $receiverArray['employee'] = array($rmArray[0]['agent_id']);
+            $notificationTextArray['title'] = array("Cancel");
             $notificationTextArray['msg'] = array($booking_id,"Cancel");
             $this->push_notification_lib->create_and_send_push_notiifcation(BOOKING_UPDATED_BY_247AROUND,$receiverArray,$notificationTextArray);
             //End Push Notification
@@ -1669,8 +1672,12 @@ class Booking extends CI_Controller {
         //Send Push Notification
         // get Assigned Vendor
         $vendorData = $this->vendor_model->getVendor($booking_id);
+        //Get RM For Assigned Vendor
+        $rmArray = $this->vendor_model->get_rm_sf_relation_by_sf_id($vendorData[0]['id']);
+        $receiverArray['employee']= array($rmArray[0]['agent_id']);
         $receiverArray['vendor']= array($vendorData[0]['id']);
         $notificationTextArray['msg'] = array($booking_id,"Rejected");
+        $notificationTextArray['title'] = array("Rejected");
         $this->push_notification_lib->create_and_send_push_notiifcation(BOOKING_UPDATED_BY_247AROUND,$receiverArray,$notificationTextArray);
         //End Push Notification
         $this->notify->insert_state_change($booking_id, "Rejected", "InProcess_Completed", $admin_remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
