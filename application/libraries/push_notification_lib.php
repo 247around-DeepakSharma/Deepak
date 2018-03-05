@@ -60,7 +60,9 @@ class push_notification_lib {
                     $data['status_msg'] = $resultArray['message'];
                     $this->Pu_N->reusable_model->insert_into_table("push_notification_logs",$data);
                     if($resultArray['message'] == INVALID_SUBSCRIBER_ID_MSG){
-                        $this->Pu_N->reusable_model->update_table("push_notification_subscribers",array("is_valid"=>0,"valid_date"=>date('Y-m-d h:i:s')),array('subscriber_id'=>$subscriberArray[0]));
+                        //UPDATE push_notification_subscribers SET is_valid=0,valid_date=date('Y-m-d h:i:s'),unsubscription_flag=1,unsubscription_date=date('Y-m-d h:i:s') Where subscriber_id = $subscriber_id;
+                        $this->Pu_N->reusable_model->update_table("push_notification_subscribers",array("is_valid"=>0,"valid_date"=>date('Y-m-d h:i:s'),"unsubscription_flag"=>1,
+                            "unsubscription_date"=>date("Y-m-d h:i:s")),array('subscriber_id'=>$subscriberArray[0]));
                     }
                     else{
                         //Send Email
