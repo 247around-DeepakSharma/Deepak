@@ -16,7 +16,7 @@ class push_notification_lib {
      * @output 2) After Success it will save notification in notification log table
      * Note - We are Using pushcrew 3rd party to send these notifications
      */
-    function send_push_notification($title,$msg,$url,$notification_type,$subscriberArray,$autohide_notification=0){
+    function send_push_notification($title,$msg,$url,$notification_type,$subscriberArray,$notification_tag,$autohide_notification=0){
         log_message('info', __FUNCTION__ . " Function Start");
         if($title && $msg && $url && $notification_type && $subscriberArray){
             $subscriberListArray = Array();
@@ -44,11 +44,32 @@ class push_notification_lib {
                     $data['subscriber_ids'] = implode(",",$subscriberArray);
                     $data['request_id'] =$resultArray['request_id'];
                     $data['notification_type'] =$notification_type;
+                    $data['notification_tag'] =$notification_tag;
+                    $data['status'] =1;
                     $this->Pu_N->reusable_model->insert_into_table("push_notification_logs",$data);
                     log_message('info', __FUNCTION__ . " Function End Notification has been send Successfully");
               }
-
               else{
+                   $data['title'] = $title;
+                    $data['msg'] = $msg;
+                    $data['url'] = $url;
+                    $data['subscriber_ids'] = implode(",",$subscriberArray);
+                    $data['notification_type'] =$notification_type;
+                    $data['notification_tag'] =$notification_tag;
+                    $data['status'] =0;
+                    $data['status_msg'] = $resultArray['message'];
+                    $this->Pu_N->reusable_model->insert_into_table("push_notification_logs",$data);
+                    if($resultArray['message'] == INVALID_SUBSCRIBER_ID_MSG){
+                        $this->Pu_N->reusable_model->update_table("push_notification_subscribers",array("is_valid"=>0,"valid_date"=>date('Y-m-d h:i:s')),array('subscriber_id'=>$subscriberArray[0]));
+                    }
+                    else{
+                        //Send Email
+                        $to = PUSH_NOTIFICATION_ERROR_NOTIFY_EMAIL; 
+                        $cc = PUSH_NOTIFICATION_ERROR_NOTIFY_EMAIL;
+                        $subject = "Error For Push Notification";
+                        $message = "Hi,<br/> We got following error :".$resultArray['message']."For $subscriberArray[0]";
+                        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
+                    }
                   log_message('info', __FUNCTION__ . " Function End Notification has Not been send, status is failure");
               }
         }
