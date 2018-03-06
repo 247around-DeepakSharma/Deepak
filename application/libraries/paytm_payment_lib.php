@@ -213,6 +213,12 @@ class paytm_payment_lib {
         //response_api (From which api we are getting response,check status or callback)
         $data['response_api'] = TRANSACTION_RESPONSE_FROM_CALLBACK;
         $insertID = $this->P_P->reusable_model->insert_into_table("paytm_transaction_callback",$data);
+         //Send Email 
+        $to = TRANSACTION_SUCCESS_TO; 
+        $cc = TRANSACTION_SUCCESS_CC;
+        $subject = "New Transaction From Paytm - ".$data['txn_id'];
+        $message = "Hi,<br/> We got a new transaction from paytm for below:<br/>  BookingID - " .$booking_id.", OrderID - ".$data['order_id'];
+        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
         return $insertID;
     }
     /*
@@ -441,7 +447,15 @@ class paytm_payment_lib {
             //From Which API We are Getting Response
             $data['response_api'] = TRANSACTION_RESPONSE_FROM_CHECK_STATUS;
             // Save data into transaction table
-            $this->P_P->reusable_model-> insert_into_table("paytm_transaction_callback",$data);
+            $insertID = $this->P_P->reusable_model-> insert_into_table("paytm_transaction_callback",$data);
+            if($affectedRows>0){
+                //Send Email 
+                $to = TRANSACTION_SUCCESS_TO; 
+                $cc = TRANSACTION_SUCCESS_CC;
+                $subject = "New Transaction From Paytm - ".$data['txn_id'];
+                $message = "Hi,<br/> We got a new transaction from paytm for below:<br/>  BookingID - " .$booking_id.", OrderID - ".$data['order_id'];
+                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
+            }
         }
         log_message('info', __FUNCTION__ . " Function End With  ".print_r($data,true));
         return $data;

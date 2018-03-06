@@ -38,3 +38,5 @@ define("USER_DOWNLOAD_WEBSITE_URL", "http://247around.com/downloadQrCode/");
 define('REFUND_AMOUNT_GRETER_THEN_TRANSACTION_AMOUNT','Refund amount is greater then transaction amount');
 define('TRANSACTION_RESPONSE_FROM_CALLBACK','callback');
 define('TRANSACTION_RESPONSE_FROM_CHECK_STATUS','checkstatus');
+define('TRANSACTION_SUCCESS_TO','anuj@247around.com');
+define('TRANSACTION_SUCCESS_CC','nits@247around.com');
