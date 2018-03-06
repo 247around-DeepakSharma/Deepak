@@ -523,12 +523,6 @@ buyback_dashboard.controller('bb_dashboard_summary', function ($scope, $http) {
 });
 
 rm_dashboard.controller('rm_dashboardController', function ($scope, $http) {
-    //Missing Pincode Start
-    var pincode_url = baseUrl + "/employee/dashboard/get_pincode_not_found_sf_details/5";
-    $http.get(pincode_url).then(function (response) {
-            $("#pincode_table_data").html(response.data);
-     });
-     // Missing Pincode End
     //Escalation Start
     $scope.loadAllRMView = function(escalation_url){
          $http.get(escalation_url).then(function (response) {
