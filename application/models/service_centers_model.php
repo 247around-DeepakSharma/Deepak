@@ -678,9 +678,9 @@ class Service_centers_model extends CI_Model {
     */
     function get_collateral_for_service_center_bookings($booking_id){
         $collateralData = array();
-        $bookingDataSql = "SELECT booking_id,partner_id,service_id,appliance_brand,appliance_category,appliance_capacity, "
-                . "(CASE price_tags WHEN FIND_IN_SET('repair', price_tags)>0 THEN 'installation' ELSE 'repair' END) as request_type FROM booking_unit_details WHERE booking_id='".$booking_id."' GROUP BY"
-                . " request_type";
+       $bookingDataSql = "SELECT booking_id,partner_id,service_id,appliance_brand,appliance_category,appliance_capacity,price_tags,
+CASE WHEN price_tags like 'Repair%' THEN 'repair' WHEN price_tags like 'Repeat%' THEN 'repair' ELSE 'installation'END as request_type
+FROM booking_unit_details WHERE booking_id='".$booking_id."' GROUP BY request_type";
         $query = $this->db->query($bookingDataSql);
         $data =  $query->result_array();
         if(!empty($data)){
