@@ -75,7 +75,7 @@
         ?>
         <div class="clearfix"></div>
         <div class="col-md-12 col-sm-12 col-xs-12">
-            <div class="x_panel">
+<!--            <div class="x_panel">
                 <div class="x_title">
                     <h2>Missing Pincodes</h2>
                     <a id="download_pin_code" class="btn btn-success" href="<?php echo base_url(); ?>employee/vendor/insert_pincode_form" style="float:right">Add New Pincode</a>
@@ -89,7 +89,31 @@
                     </div>
                 </div>
                 <a class="btn btn-success"  href="<?php echo base_url() ?>employee/dashboard/missing_pincode_full_view" target="_blank" style="float: right;">Full View</a>
+            </div>-->
+ <!-- Missing Pincode Section -->
+    <div class="row" style="margin-top:10px;">
+        <?php
+if($this->session->userdata("wrong_pincode_msg")){
+    echo "<p style='color: green;text-align: center;font-size: 18px;'>".$this->session->userdata("wrong_pincode_msg")."</p>";
+    if($this->session->userdata('wrong_pincode_msg')){$this->session->unset_userdata('wrong_pincode_msg');}
+}
+?>
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>Missing Pincodes</h2>
+                    <a id="download_pin_code" class="btn btn-success" href="<?php echo base_url(); ?>employee/vendor/insert_pincode_form" style="float:right">Add New Pincode</a>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <div class="table-responsive" id="pincode_table_data">
+                        <center><img id="pincode_loader" src="<?php echo base_url(); ?>images/loadring.gif"></center>
+                    </div>
+                </div>
             </div>
+        </div>
+    </div>
+    <!-- End Missing Pincode Section -->
         </div>
         <div class="clearfix"></div>
         <div class="col-md-12 col-sm-12 col-xs-12">
@@ -281,7 +305,18 @@
         around_monthly_data();
         //Rm wise bookings data
         get_bookings_data_by_rm();
+         //missing pincode data
+        get_missing_pincodes();
     });
+    function get_missing_pincodes(){
+        var data = {};
+        url = '<?php echo base_url(); ?>employee/dashboard/get_pincode_not_found_sf_details_admin';
+        data['partner_id'] = '';
+        
+        sendAjaxRequest(data,url,post_request).done(function(response){ 
+            $("#pincode_table_data").html(response);
+        });
+    }
     
     $(function () {
         function cb(start, end) {
