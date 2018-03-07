@@ -17,6 +17,7 @@ define('MERCHANT_CONTACT','8826186751');
 define('PAYTM_PAYMENT_METHOD_FOR_QR','Paytm QR Code');
 define("PAYTM_CASHBACK_TAG", "Paytm");
 define('CASHBACK_TRANSACTION_NOT_FOUND_MSG',"Transaction ID does'nt exist in database");
+define('CASHBACK_ALREADY_DONE_FOR_THIS_TRANSACTION_ID',"Cashback already Processes against this transaction ID");
 define('CASHBACK_API_version','1.0');
 define('CASHBACK_URL','https://trust-uat.paytm.in/wallet-web/refundWalletTxn');
 define('ERR_INVALID_MERCHANT_GUID', 0000);
@@ -40,4 +41,6 @@ define("USER_DOWNLOAD_WEBSITE_URL", "http://247around.com/downloadQrCode/");
 define('REFUND_AMOUNT_GRETER_THEN_TRANSACTION_AMOUNT','Refund amount is greater then transaction amount');
 define('TRANSACTION_RESPONSE_FROM_CALLBACK','callback');
 define('TRANSACTION_RESPONSE_FROM_CHECK_STATUS','checkstatus');
+define('TRANSACTION_SUCCESS_TO','anuj@247around.com');
+define('TRANSACTION_SUCCESS_CC','nits@247around.com');
 

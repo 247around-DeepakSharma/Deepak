@@ -213,6 +213,12 @@ class paytm_payment_lib {
         //response_api (From which api we are getting response,check status or callback)
         $data['response_api'] = TRANSACTION_RESPONSE_FROM_CALLBACK;
         $insertID = $this->P_P->reusable_model->insert_into_table("paytm_transaction_callback",$data);
+         //Send Email 
+        $to = TRANSACTION_SUCCESS_TO; 
+        $cc = TRANSACTION_SUCCESS_CC;
+        $subject = "New Transaction From Paytm - ".$data['txn_id'];
+        $message = "Hi,<br/> We got a new transaction from paytm for below:<br/>  BookingID - " .$booking_id.", OrderID - ".$data['order_id'];
+        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
         return $insertID;
     }
     /*
@@ -244,13 +250,24 @@ class paytm_payment_lib {
         log_message('info', __FUNCTION__ . " Function End With Response".print_r($responseArray,true));
         return json_encode($responseArray);
     }
+    /*
+     * This function is used to create parameters(need to send to paytm api) array
+     * @input - 1) $bookingPaymentDetails - Transaction Payment details Array
+     *                  2) $amount - Amount needs to cashback
+     */
     private function CASHBACK_create_cashback_parameters($bookingPaymentDetails,$amount){
         log_message('info', __FUNCTION__ . " Function Start");
+        //amount need to refund
         $paramlist['request']['amount'] = $amount;
+        //Order_id (Created at the time of qr generation)
         $paramlist['request']['merchantOrderId'] = $bookingPaymentDetails[0]['order_id'];
+        //Merchant GUID
         $paramlist['request']['merchantGuid'] = MERCHANT_GUID;
+        //Transaction_id (Return by paytm at the time of payment)
         $paramlist['request']['txnGuid'] = $bookingPaymentDetails[0]['txn_id'];
+        //Currency
         $paramlist['request']['currencyCode'] = "INR";
+        //Refund id (It must be unique for each cashback)
         $paramlist['request']['refundRefId'] = "R_".$bookingPaymentDetails[0]['booking_id']."_".rand(100,1000);
         $paramlist['platformName'] = "PayTM";
         $paramlist['operationType'] = "REFUND_MONEY";
@@ -258,13 +275,25 @@ class paytm_payment_lib {
         log_message('info', __FUNCTION__ . " Function End");
         return $paramlist;
     }
-    function CASHBACK_generation_success_handler($booking_id,$amount,$paramlist){
-       $where['booking_id'] =  $booking_id;
-       $where['txn_id'] =  $paramlist['request']['txnGuid'];
+    /*
+     * This function is used to handle successfully processing of cashback
+     * @input - 1) @transaction_id - Transaction ID(Return by paytm at the time of qr generation)
+     *                  2) @amount - Amount needs to transafer
+     *                  3) $paramlist = Parameter Array(Requestr array for paytm API)
+     *                  4) @outputArray - Response By Paytm
+     */
+    function CASHBACK_generation_success_handler($transaction_id,$amount,$paramlist,$outputArray){
+       //Create where array (Where we have to update refund in transaction table)
+       $where['txn_id'] =  $transaction_id;
        $where['order_id'] =  $paramlist['request']['merchantOrderId'];
+       //Cashback Amount
        $cashBackData['cashback_amount'] = $amount;
+       //Cashback Transaction ID (Provided by 247Around at the time of request)
        $cashBackData['cashback_txn_id'] = $paramlist['request']['refundRefId'];
-       $cashBackData['cashback_from'] = _247AROUND;
+       //Refund Transaction ID (Provided BY paytm on successfull processing of cashback)
+       $cashBackData['cashback_txn_id_paytm'] = $outputArray['response']['refundTxnGuid'];
+       //Cashback initiated by (Default is _247AROUND)
+       $cashBackData['cashback_from'] = _247AROUND; 
        $cashBackData['cash_back_status'] = "SUCCESS";
        $cashBackData['cashback_date'] = date("Y-m-d h:i:s");
        $db_id = $this->P_P->reusable_model->update_table("paytm_transaction_callback",$cashBackData,$where);
@@ -273,46 +302,72 @@ class paytm_payment_lib {
        }
        return array('is_success'=>0,'msg'=>CASHBACK_DATABASE_ERROR);
     }
-    function CASHBACK_process_cashback($bookingPaymentDetails,$amount,$booking_id){
-        $paramlist = $this->CASHBACK_create_cashback_parameters($bookingPaymentDetails,$amount);
-        $data_string = json_encode($paramlist);
-        //Create Checksum for requested Body
-        $checkSum = $this->P_P->paytm_inbuilt_function_lib->getChecksumFromString($data_string ,PAYTM_MERCHANT_KEY); 
-        //Header Array
-        $headers = array('Content-Type:application/json','mid: '.MID,'checksumhash:'.$checkSum); 
-        //Send Curl request to paytm api
-        //$output = $this->send_curl_request($data_string,$headers,CASHBACK_URL,"Process_Cashback");
-        $output = '{"type": null,"requestGuid": null,"orderId": "TEST_123469933335ff991099","status": "SUCCESS","statusCode": "SUCCESS","statusMessage":"SUCCESS","response": {"refundTxnGuid": "14271439146","refundTxnStatus": "SUCCESS"},"metadata": "Test"}';
-        $outputArray = json_decode($output,true);
-        //IF success
-        if($outputArray['status'] == 'SUCCESS'){
-            log_message('info', __FUNCTION__ . "Function End with Success");
-            return $this->CASHBACK_generation_success_handler($booking_id,$amount,$paramlist);
+    /*
+     * This function is used to process cashback using paytm API
+     * @input - 1) $bookingPaymentDetails - transaction Payment details array
+     *                  2) $amount - (Amount need to transfer)
+     *                  3) $transaction_id - Transaction ID 
+     */
+    function CASHBACK_process_cashback($bookingPaymentDetails,$amount,$transaction_id){
+        //Check is Refund amount less then transaction amount?
+        //IF yes
+        if($bookingPaymentDetails[0]['paid_amount']>$amount){
+            //Create API request Array
+            $paramlist = $this->CASHBACK_create_cashback_parameters($bookingPaymentDetails,$amount);
+            $data_string = json_encode($paramlist);
+            //Create Checksum for requested Body
+            $checkSum = $this->P_P->paytm_inbuilt_function_lib->getChecksumFromString($data_string ,PAYTM_MERCHANT_KEY); 
+            //Header Array
+            $headers = array('Content-Type:application/json','mid: '.MERCHANT_GUID,'checksumhash:'.$checkSum); 
+            //Send Curl request to paytm api
+            $output = $this->send_curl_request($data_string,$headers,CASHBACK_URL,"Process_Cashback");
+            //$output = '{"type": null,"requestGuid": null,"orderId": "TEST_123469933335ff991099","status": "SUCCESS","statusCode": "SUCCESS","statusMessage":"SUCCESS","response": {"refundTxnGuid": "14271439146","refundTxnStatus": "SUCCESS"},"metadata": "Test"}';
+            $outputArray = json_decode($output,true);
+            //IF success
+            if($outputArray['status'] == 'SUCCESS'){
+                log_message('info', __FUNCTION__ . "Function End with Success");
+                return $this->CASHBACK_generation_success_handler($transaction_id,$amount,$paramlist,$outputArray);
+            }
+            else{
+                log_message('info', __FUNCTION__ . "Function End With Failure");
+                  return array('is_success'=>0,'msg'=>QR_CODE_FAILURE);
+            }
         }
         else{
-            log_message('info', __FUNCTION__ . "Function End With Failure");
-              return array('is_success'=>0,'msg'=>QR_CODE_FAILURE);
+            return array('is_success'=>0,'msg'=>REFUND_AMOUNT_GRETER_THEN_TRANSACTION_AMOUNT);
         }
     }
     /*
      * This Function is used to process paytm cashback against A Transaction
+     * @input - 1) @transaction_id - Transaction ID(Transaction ID provided by paytm)
+     *                  2) $amount - How much Amount we have to refund
      */
-    function paytm_cashback($booking_id,$amount){
-        //get paytm payment details against bookingid 
-        //Select * FROM paytm_transaction_callback WHERE booking_id=$booking_id
-        $bookingPaymentDetails = $this->P_P->reusable_model->get_search_result_data("paytm_transaction_callback","*",array('booking_id'=>$booking_id),NULL,NULL,NULL,NULL,NULL,array());
+    function paytm_cashback($transaction_id,$amount){
+        //Check is transaction id exists
+        //Select * FROM paytm_transaction_callback WHERE txn_id=$transaction_id;
+        $bookingPaymentDetails = $this->P_P->reusable_model->get_search_result_data("paytm_transaction_callback","*",array('txn_id'=>$transaction_id),NULL,NULL,NULL,NULL,NULL,array());
+        //If transaction id does'nt exists
         if(empty($bookingPaymentDetails)){
+            //exit function with response not found transaction
             return $this->CASHBACK_create_cashback_response(FAILURE_STATUS,CASHBACK_TRANSACTION_NOT_FOUND_MSG);
         }
         else{
-           $resultArray = $this->CASHBACK_process_cashback($bookingPaymentDetails,$amount,$booking_id);
-            if($resultArray['is_success'] == 1){
-                    return $this->CASHBACK_create_cashback_response(SUCCESS_STATUS,$resultArray['msg']);
-                }
-                //If not able to Generate QR Code
-                else{
-                    return $this->CASHBACK_create_cashback_response(FAILURE_STATUS,$resultArray['msg']);
-                }
+            //Check if cashback already processed against this transaction
+            //IF yes
+            if($bookingPaymentDetails[0]['cashback_txn_id'] != NULL){
+                //exit function with response cashback already processed
+                return $this->CASHBACK_create_cashback_response(FAILURE_STATUS,CASHBACK_ALREADY_DONE_FOR_THIS_TRANSACTION_ID);
+            }
+            //IF not
+            else{
+                $resultArray = $this->CASHBACK_process_cashback($bookingPaymentDetails,$amount,$transaction_id);
+                 if($resultArray['is_success'] == 1){
+                         return $this->CASHBACK_create_cashback_response(SUCCESS_STATUS,$resultArray['msg']);
+                     }
+                     else{
+                         return $this->CASHBACK_create_cashback_response(FAILURE_STATUS,$resultArray['msg']);
+                     }
+            }
         }
     }
       /*
@@ -392,7 +447,15 @@ class paytm_payment_lib {
             //From Which API We are Getting Response
             $data['response_api'] = TRANSACTION_RESPONSE_FROM_CHECK_STATUS;
             // Save data into transaction table
-            $this->P_P->reusable_model-> insert_into_table("paytm_transaction_callback",$data);
+            $insertID = $this->P_P->reusable_model-> insert_into_table("paytm_transaction_callback",$data);
+            if($affectedRows>0){
+                //Send Email 
+                $to = TRANSACTION_SUCCESS_TO; 
+                $cc = TRANSACTION_SUCCESS_CC;
+                $subject = "New Transaction From Paytm - ".$data['txn_id'];
+                $message = "Hi,<br/> We got a new transaction from paytm for below:<br/>  BookingID - " .$booking_id.", OrderID - ".$data['order_id'];
+                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
+            }
         }
         log_message('info', __FUNCTION__ . " Function End With  ".print_r($data,true));
         return $data;
@@ -416,7 +479,7 @@ class paytm_payment_lib {
         //Default Value
         $data['platformName'] = "PayTM";
         //Default Value
-        $data['operationType'] = "CHECK_TXN_STATUS";
+        $data['operationType'] = "CHECK_TXN_STATUS"; 
         //Create json string of request
         $data_string  = json_encode($data);
         //Create Checksum for requested Body

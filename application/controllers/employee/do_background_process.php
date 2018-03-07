@@ -206,9 +206,11 @@ class Do_background_process extends CI_Controller {
             $service_center['current_status'] = $current_status1;
             $unit_details['booking_status'] = $service_center['internal_status'] = $value['internal_status'];
             $unit_details['id'] = $service_center['unit_details_id'] = $value['unit_details_id'];
-
+            //Select closed_date from service_center_booking_action where booking_id = $booking_id;
+            $previousBookingDateArray = $this->reusable_model->get_search_result_data("service_center_booking_action","closed_date",array("booking_id"=>$booking_id),NULL,NULL,NULL,NULL,NULL,array());
+            log_message('info', ": " . " Apple " . print_r($previousBookingDateArray, TRUE));
             $service_center['update_date'] = date('Y-m-d H:i:s');
-            $unit_details['ud_closed_date'] = $service_center['closed_date'] = date("Y-m-d H:i:s");
+            $unit_details['ud_closed_date'] = $service_center['closed_date'] = $previousBookingDateArray[0]['closed_date'];
 //            if (is_null($value['closed_date'])) {
 //                $unit_details['ud_closed_date'] = $service_center['closed_date'] = date("Y-m-d H:i:s");
 //            } else {
@@ -229,7 +231,7 @@ class Do_background_process extends CI_Controller {
             // update price in the booking unit details page
             $this->booking_model->update_unit_details($unit_details);
         }
-        $booking['closed_date'] = date("Y-m-d H:i:s");
+        $booking['closed_date'] = $previousBookingDateArray[0]['closed_date'];
 //        if (is_null($value['closed_date'])) {
 //            $booking['closed_date'] = date("Y-m-d H:i:s");
 //        } else {
@@ -324,7 +326,10 @@ class Do_background_process extends CI_Controller {
         if($this->input->post('auto_hide')){
             $auto_hide = $this->input->post('auto_hide');
         }
-        $this->push_notification_lib->send_push_notification($title,$msg,$url,$notification_type,$subscriberArray,$auto_hide);
+        if($this->input->post('notification_tag')){
+            $notification_tag = $this->input->post('notification_tag');
+        }
+        $this->push_notification_lib->send_push_notification($title,$msg,$url,$notification_type,$subscriberArray,$notification_tag,$auto_hide);
     }
 
     /* end controller */
