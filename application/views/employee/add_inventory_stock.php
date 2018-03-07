@@ -43,15 +43,26 @@
                             </div>
                         </div>
                         <div class="form-group">
+                            <label class="control-label col-sm-3" for="inventory">Inventory Type</label>
+                            <div class="col-sm-9"> 
+                                <select class="form-control" id="inventory" name="inventory" required="">
+                                    <option value="" selected="selected" disabled="">Select Inventory Type</option>
+                                    <?php foreach ($inventory as $val) { ?>
+                                        <option value="<?php echo $val['part_number']; ?>"><?php echo $val['part_name']." (".$val['part_number'].")" ; ?></option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+                        </div>
+<!--                        <div class="form-group">
                             <label class="control-label col-sm-3" for="l_32">Less than 32" Bracket</label>
                             <div class="col-sm-9"> 
                                 <input type="number" class="form-control" id="l_32" name="l_32" placeholder='Less than 32" Bracket' required="">
                             </div>
-                        </div>
+                        </div>-->
                         <div class="form-group">
-                            <label class="control-label col-sm-3" for="g_32">32" And Above Bracket</label>
+                            <label class="control-label col-sm-3" for="quantity">Quantity</label>
                             <div class="col-sm-9">
-                                <input type="number" class="form-control" id="g_32" name="g_32" placeholder='32" And Above Bracket' required="">
+                                <input type="number" class="form-control" id="quantity" name="quantity" placeholder='quantity' required="">
                             </div>
                         </div>
                     </div>
@@ -66,8 +77,16 @@
         </div>
     </div>
     <script>
-    $('#sf_id').select2();
         
+    var sf_id = '<?php echo $sf_id;?>';    
+    $('#sf_id').select2();
+    $('#inventory').select2();
+    
+    if(sf_id){
+        $('#sf_id').val(sf_id);
+        $('#sf_id').trigger('change');
+    }
+    
     $("#inventory_stocks_form_submit_btn").click(function(){
         $('#inventory_stocks_form_submit_btn').val('Processing...');
         event.preventDefault();
