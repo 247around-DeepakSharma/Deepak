@@ -1094,7 +1094,7 @@ class invoices_model extends CI_Model {
             $meta['sc_code'] = $data['booking'][0]['sc_code'];
             $meta['owner_email'] =  $data['booking'][0]['owner_email'];
             $meta['primary_contact_email'] =  $data['booking'][0]['primary_contact_email'];
-            $bankDetails = $this->reusable_model->get_search_result_data("account_holders_bank_details","*",array('entity_id'=>$vendor_id,'entity_type'=>"SF"),NULL,NULL,NULL,NULL,NULL);
+            $bankDetails = $this->reusable_model->get_search_result_data("account_holders_bank_details","*",array('entity_id'=>$vendor_id,'entity_type'=>"SF",'is_active'=>1),NULL,NULL,NULL,NULL,NULL);
             if(empty($bankDetails[0])){
            $bankDetails[0]['beneficiary_name'] = '';
            $bankDetails[0]['bank_account'] = '';

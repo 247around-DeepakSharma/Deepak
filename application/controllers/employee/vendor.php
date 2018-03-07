@@ -3217,7 +3217,7 @@ class vendor extends CI_Controller {
     function remove_image(){
         $data = $this->input->post();
         if($data['type'] == 'cancelled_cheque_file'){
-                $this->reusable_model->update_table("account_holders_bank_details",array('cancelled_cheque_file'=>''),array('entity_type'=>'SF','entity_id'=>$data['id']));
+                $this->reusable_model->update_table("account_holders_bank_details",array('cancelled_cheque_file'=>''),array('entity_type'=>'SF','entity_id'=>$data['id'],'is_active'=>1));
         }
         else{
         $vendor = [];
@@ -4735,6 +4735,27 @@ class vendor extends CI_Controller {
         $data['bank_details'] = $this->reusable_model->get_search_query('account_holders_bank_details','account_holders_bank_details.*,service_centres.name',$where,$join,NULL,NULL,NULL,NULL)->result_array();
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/show_bank_details', $data);
+        if($this->input->post()){
+            if($this->input->post('sf_type') === '1'){
+                $where = array('entity_type' => 'SF','service_centres.active' => 1,'account_holders_bank_details.is_active' => 1);
+            }else if($this->input->post('sf_type') === '0'){
+                $where = array('entity_type' => 'SF','service_centres.active' => 0,'account_holders_bank_details.is_active' => 1);
+            }else if($this->input->post('sf_type') === 'all'){
+                $where = array('entity_type' => 'SF','account_holders_bank_details.is_active' => 1);
+            }
+            
+            $join = array('service_centres' => 'account_holders_bank_details.entity_id = service_centres.id');
+            $data['bank_details'] = $this->reusable_model->get_search_query('account_holders_bank_details','account_holders_bank_details.*,service_centres.name',$where,$join,NULL,NULL,NULL,NULL)->result_array();
+            $data['is_ajax'] = TRUE;
+            echo $this->load->view('employee/show_bank_details', $data);
+        }else{
+            $where = array('entity_type' => 'SF','service_centres.active' => 1,'account_holders_bank_details.is_active' => 1);
+            $join = array('service_centres' => 'account_holders_bank_details.entity_id = service_centres.id');
+            $data['bank_details'] = $this->reusable_model->get_search_query('account_holders_bank_details','account_holders_bank_details.*,service_centres.name',$where,$join,NULL,NULL,NULL,NULL)->result_array();
+            $data['is_ajax'] = FALSE;
+            $this->miscelleneous->load_nav_header();
+            $this->load->view('employee/show_bank_details', $data);
+        }
     }
     
     /**
@@ -4753,7 +4774,7 @@ class vendor extends CI_Controller {
             $update_data = array('is_verified'=> 0,'agent_id' => $this->session->userdata('id'));
         }
         
-        $update = $this->reusable_model->update_table('account_holders_bank_details',$update_data,array('entity_id' => $entity_id,'entity_type' => $entity_type));
+        $update = $this->reusable_model->update_table('account_holders_bank_details',$update_data,array('entity_id' => $entity_id,'entity_type' => $entity_type,'is_active'=>1));
         if(!empty($update)){
             echo "success";
         }else{

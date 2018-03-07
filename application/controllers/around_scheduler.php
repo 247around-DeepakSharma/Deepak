@@ -717,11 +717,13 @@ class Around_scheduler extends CI_Controller {
                          OR account_holders_bank_details.cancelled_cheque_file IS NULL 
                          OR account_holders_bank_details.beneficiary_name IS NULL 
                          OR account_holders_bank_details.account_type IS NULL 
-                         OR (account_holders_bank_details.entity_id IS NULL))" => NULL, 'service_centres.active' => 1,'account_holders_bank_details.entity_type'=>'SF');
+                         OR (account_holders_bank_details.entity_id IS NULL))" => NULL, 'service_centres.active' => 1,'account_holders_bank_details.entity_type'=>'SF','account_holders_bank_details.is_active'=>1);
         $join = array("service_centres"=>"account_holders_bank_details.entity_id=service_centres.id");
         $JoinTypeTableArray = array("service_centres"=>'right');
          $data_1 = $this->reusable_model->get_search_result_data("account_holders_bank_details","service_centres.id,service_centres.name,CONCAT(service_centres.primary_contact_email,',',service_centres.owner_email) as email",$where,$join,NULL,NULL,NULL,$JoinTypeTableArray);
-         $sql = "SELECT service_centres.id,service_centres.name,CONCAT(service_centres.primary_contact_email,',',service_centres.owner_email) as email FROM service_centres WHERE service_centres.id NOT IN (SELECT account_holders_bank_details.entity_id FROM account_holders_bank_details WHERE account_holders_bank_details.entity_type='SF') AND service_centres.active=1";
+         $sql = "SELECT service_centres.id,service_centres.name,CONCAT(service_centres.primary_contact_email,',',service_centres.owner_email) as email FROM service_centres WHERE "
+                 . "service_centres.id NOT IN (SELECT account_holders_bank_details.entity_id FROM account_holders_bank_details WHERE account_holders_bank_details.entity_type='SF' "
+                 . "AND account_holders_bank_details.is_active=1) AND service_centres.active=1";
         $data_2 = $this->reusable_model->execute_custom_select_query($sql);
         $data = array_merge($data_1,$data_2);
          if (!empty($data)) {
@@ -753,7 +755,7 @@ class Around_scheduler extends CI_Controller {
                          AND account_holders_bank_details.ifsc_code IS NOT NULL
                           AND account_holders_bank_details.account_type IS NOT NULL
                          AND account_holders_bank_details.cancelled_cheque_file IS NOT NULL
-                         AND account_holders_bank_details.is_verified = 0 )" => null, 'service_centres.active' => 1,'account_holders_bank_details.entity_type' => 'SF');
+                         AND account_holders_bank_details.is_verified = 0 )" => null, 'service_centres.active' => 1,'account_holders_bank_details.entity_type' => 'SF','account_holders_bank_details.is_active' => 1);
         $join = array("service_centres"=>"account_holders_bank_details.entity_id=service_centres.id");
         $orderBYArray = array('service_centres.name'=>'ASC');
         $data = $this->reusable_model->get_search_result_data("account_holders_bank_details",$select,$where,$join,NULL,$orderBYArray,NULL,NULL);
