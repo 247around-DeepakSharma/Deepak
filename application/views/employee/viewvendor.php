@@ -325,12 +325,16 @@
             });
      }
       function pendingBookings(vendorID,tempPermanent){
+      var tempString = "off TEMPORARILY to";
+      if(tempPermanent == 'P'){
+          var tempString = "off PERMANENTLY to";
+      }
          $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url(); ?>employee/vendor/pending_bookings_on_vendor/' + vendorID,
                 success: function(response) {
                     if(response>0){
-                        if(confirm("This Service Center have "+response+" Pending Bookings, are you sure you want to delete this vendor")){
+                        if(confirm("This Service Center have "+response+" Pending Bookings, are you sure you want to "+tempString+" this vendor")){
                             if(tempPermanent == 'P'){
                               permanentVendorOff(vendorID);
                            }
