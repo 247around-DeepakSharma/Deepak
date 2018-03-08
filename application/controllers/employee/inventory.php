@@ -1783,8 +1783,10 @@ class Inventory extends CI_Controller {
      * @return: void
      * 
      */
-    function update_inventory_stock(){
+    function update_inventory_stock($sf_id = ""){
         $data['sf'] = $this->vendor_model->getVendorDetails('id,name',array('active' => '1'));
+        $data['inventory'] = $this->inventory_model->get_inventory_master_list_data('inventory_id,part_name,part_number');
+        $data['sf_id'] = $sf_id;
         $this->miscelleneous->load_nav_header();
         $this->load->view("employee/add_inventory_stock", $data);
     }
@@ -1795,48 +1797,59 @@ class Inventory extends CI_Controller {
      * @return: void
      * 
      */
-    function process_update_inventory_stock(){
-        $sf_id = $this->input->post('sf_id');
-        if(!empty($sf_id)){
-            //update vendor brackets flag
-            $this->vendor_model->edit_vendor(array('brackets_flag' => 1,'agent_id'=> $this->session->userdata('id')),$sf_id);
-            $inventory_stocks_data = array('receiver_entity_id' => $sf_id,
-                'receiver_entity_type' => _247AROUND_SF_STRING,
-                'agent_id' => $this->session->userdata('id'),
-                'agent_type' => _247AROUND_EMPLOYEE_STRING
-            );
-            //update inventory stocks for less than 32"
-            if($this->input->post('l_32') !== ""){
-                
-                $inventory_stocks_data['stock'] = $this->input->post('l_32');
-                $inventory_stocks_data['part_number'] = LESS_THAN_32_BRACKETS_PART_NUMBER;
-                $return_response = $this->miscelleneous->process_inventory_stocks($inventory_stocks_data);
-            }
-            //update inventory stocks for greater than 32"
-            if($this->input->post('g_32') !== ""){
-                $inventory_stocks_data['stock'] = $this->input->post('g_32');
-                $inventory_stocks_data['part_number'] = GREATER_THAN_32_BRACKETS_PART_NUMBER;
-                $return_response = $this->miscelleneous->process_inventory_stocks($inventory_stocks_data);
-            }
-            
-            if($return_response){
-                $res['response'] = 'success';
-                $res['msg'] = 'Stocks details Updated Successfully';
-                echo json_encode($res);
-            }else{
-                $res['response'] = 'error';
-                $res['msg'] = 'Error In updating stocks. Please Try Again';
-                echo json_encode($res);
-            }
-        }else{
+    function process_update_inventory_stock() {
+
+        $this->form_validation->set_rules('sf_id', 'Service Center', 'trim|required');
+        $this->form_validation->set_rules('inventory', 'Inventory type', 'trim|required');
+        $this->form_validation->set_rules('quantity', 'Quantity', 'trim|required');
+
+        if ($this->form_validation->run() === false) {
             $res['response'] = 'error';
-            $res['msg'] = 'Please Select Service Center';
-            echo json_encode($res);
+            $res['msg'] = 'All fields are required';
+        } else {
+            $sf_id = $this->input->post('sf_id');
+            if (!empty($sf_id)) {
+                //update vendor brackets flag
+                $this->vendor_model->edit_vendor(array('brackets_flag' => 1, 'agent_id' => $this->session->userdata('id')), $sf_id);
+                $inventory_stocks_data = array('receiver_entity_id' => $sf_id,
+                    'receiver_entity_type' => _247AROUND_SF_STRING,
+                    'agent_id' => $this->session->userdata('id'),
+                    'agent_type' => _247AROUND_EMPLOYEE_STRING,
+                    'stock' => $this->input->post('quantity'),
+                    'part_number' => $this->input->post('inventory')
+                );
+                
+                $return_response = $this->miscelleneous->process_inventory_stocks($inventory_stocks_data);
+//                //update inventory stocks for less than 32"
+//                if ($this->input->post('l_32') !== "") {
+//
+//                    $inventory_stocks_data['stock'] = $this->input->post('l_32');
+//                    $inventory_stocks_data['part_number'] = LESS_THAN_32_BRACKETS_PART_NUMBER;
+//                    $return_response = $this->miscelleneous->process_inventory_stocks($inventory_stocks_data);
+//                }
+//                //update inventory stocks for greater than 32"
+//                if ($this->input->post('g_32') !== "") {
+//                    $inventory_stocks_data['stock'] = $this->input->post('g_32');
+//                    $inventory_stocks_data['part_number'] = GREATER_THAN_32_BRACKETS_PART_NUMBER;
+//                    $return_response = $this->miscelleneous->process_inventory_stocks($inventory_stocks_data);
+//                }
+
+                if ($return_response) {
+                    $res['response'] = 'success';
+                    $res['msg'] = 'Stocks details Updated Successfully';
+                } else {
+                    $res['response'] = 'error';
+                    $res['msg'] = 'Error In updating stocks. Please Try Again';
+                }
+            } else {
+                $res['response'] = 'error';
+                $res['msg'] = 'Please Select Service Center';
+            }
         }
-        
-        
+
+        echo json_encode($res);
     }
-    
+
     /**
      *  @desc : This function is used to show inventory stocks data
      *  @param : void
@@ -1935,7 +1948,7 @@ class Inventory extends CI_Controller {
         
         $row[] = $no;
         $row[] = $sf;
-        $row[] = $stock_list->total_stocks;
+        $row[] = ($stock_list->total_stocks >= 0) ? $stock_list->total_stocks: 0;
         
         return $row;
     }
@@ -1954,6 +1967,223 @@ class Inventory extends CI_Controller {
         $this->miscelleneous->load_nav_header();
         $this->load->view("employee/spare_invoice_list", $data);
 
+    }
+    
+    /**
+     *  @desc : This function is used to show inventory master list table
+     *  @param : void
+     *  @return : void
+     */
+    function inventory_master_list(){
+        $this->miscelleneous->load_nav_header();
+        $this->load->view("employee/inventory_master_list");
+    }
+    
+    /**
+     *  @desc : This function is used to show inventory master list data
+     *  @param : void
+     *  @return : void
+     */
+    function get_inventory_master_list(){
+        $data = $this->get_master_list_data();
+        
+        $post = $data['post'];
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $this->inventory_model->count_all_inventory_master_list($post),
+            "recordsFiltered" =>  $this->inventory_model->count_filtered_inventory_master_list($post),
+            "data" => $data['data'],
+        );
+        
+        echo json_encode($output);
+    }
+    
+    function get_master_list_data(){
+        $post = $this->get_post_data();
+        $post['column_order'] = array();
+        $post['column_search'] = array('part_name','part_number','services.services','services.id','model_number','serial_number');
+        
+        $select = "inventory_master_list.*,services.services";
+        
+        $list = $this->inventory_model->get_inventory_master_list($post,$select);
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $stock_list) {
+            $no++;
+            $row = $this->get_inventory_master_list_table($stock_list, $no);
+            $data[] = $row;
+        }
+        
+        return array(
+            'data' => $data,
+            'post' => $post
+            
+        );
+    }
+    
+    function get_inventory_master_list_table($stock_list, $no){
+        $row = array();
+        $json_data = json_encode($stock_list);
+        
+        //get agent name
+        if ($stock_list->entity_type === _247AROUND_EMPLOYEE_STRING) {
+            $employe_details = $this->employee_model->getemployeefromid($stock_list->entity_id);
+            $agent_name = $employe_details[0]['full_name'];
+        } else if ($stock_list->entity_type === _247AROUND_PARTNER_STRING) {
+            $partner_details = $this->partner_model->getpartner_details('public_name', array('partners.id' => $stock_list->entity_id));
+            $agent_name = $partner_details[0]['public_name'];
+        } else if ($stock_list->entity_type === _247AROUND_SF_STRING) {
+            $vendor_details = $this->partner_model->getVendorDetails('name', array('id' => $stock_list->entity_id));
+            $agent_name = $vendor_details[0]['public_name'];
+        }else{
+            $agent_name = "";
+        }
+        $row[] = $no;
+        $row[] = $stock_list->services;
+        $row[] = $stock_list->part_name;
+        $row[] = $stock_list->part_number;
+        $row[] = $stock_list->serial_number;
+        $row[] = $stock_list->model_number;
+        $row[] = $stock_list->description;
+        $row[] = $stock_list->size;
+        $row[] = $stock_list->price;
+        $row[] = $stock_list->description;
+        $row[] = $stock_list->entity_type;
+        $row[] = $agent_name;
+        $row[] = "<a href='javascript:void(0)' class ='btn btn-primary' id='edit_master_details' data-id='$json_data'>Edit</a>";
+        
+        return $row;
+    }
+    
+    /**
+     *  @desc : This function is used to perform add/edit action on the inventory_master_list table
+     *  @param : void()
+     *  @return : $response JSON
+     */
+    function process_inventoy_master_list_data() {
+        $submit_type = $this->input->post('submit_type');
+        if(!empty($submit_type)){
+            $data = array('part_name' => $this->input->post('part_name'),
+                      'part_number' => $this->input->post('part_number'),
+                      'serial_number' => $this->input->post('serial_number'),
+                      'model_number' => $this->input->post('model_number'),
+                      'size' => $this->input->post('size'),
+                      'price' => $this->input->post('price'),
+                      'type' => $this->input->post('type'),
+                      'description' => $this->input->post('description'),
+            );
+        
+            $entity_type = $this->input->post('entity_type');
+            $entity_id = $this->input->post('entity_id');
+            $service_id = $this->input->post('service_id');
+            if(!empty($entity_id) && !empty($entity_type)){
+                $data['entity_id'] = $entity_id;
+                $data['entity_type'] = $entity_type;
+            }
+            
+            if(!empty($service_id)){
+                $data['service_id'] = $service_id;
+            }
+
+            switch ($submit_type) {
+                case 'add':
+                    $data['create_date'] = date('Y-m-d H:i:s');
+                    $response = $this->add_inventoy_master_list_data($data);
+                    break;
+                case 'edit':
+                    $response = $this->edit_inventoy_master_list_data($data);
+                    break;
+            }
+        }else{
+            $response['response'] = 'error';
+            $response['msg'] = 'Please Try Again!!!';
+            log_message("info", __METHOD__.'Invalid request type');
+        }
+        
+        
+        echo json_encode($response);
+    }
+    
+    /**
+     *  @desc : This function is used to perform insert action on the partner_file_upload_header_mapping table
+     *  @param : $data array()
+     *  @return : $res array()
+     */
+    function add_inventoy_master_list_data($data) {
+        $response = $this->inventory_model->insert_inventory_master_list_data($data);
+        if (!empty($response)) {
+            $res['response'] = 'success';
+            $res['msg'] = 'Inventory added successfully';
+            log_message("info",  __METHOD__.'Inventory added successfully');
+        } else {
+            $res['response'] = 'error';
+            $res['msg'] = 'Error in inserting inventory details';
+            log_message("info",  __METHOD__.'Error in inserting inventory details');
+        }
+        
+        return $res;
+    }
+    
+    /**
+     *  @desc : This function is used to perform edit action on the partner_file_upload_header_mapping table
+     *  @param : $data array()
+     *  @return : $res array()
+     */
+    function edit_inventoy_master_list_data($data) {
+        $response = $this->inventory_model->update_inventory_master_list_data(array('inventory_id' => $this->input->post('inventory_id')),$data);;
+        if (!empty($response)) {
+            $res['response'] = 'success';
+            $res['msg'] = 'Details has been updated successfully';
+            log_message("info",  __METHOD__.'Details has been updated successfully');
+        } else {
+            $res['response'] = 'error';
+            $res['msg'] = 'Error in updating details';
+            log_message("info",  __METHOD__.'error in updating  details');
+        }
+        
+        return $res;
+    }
+    
+    /**
+     *  @desc : This function is used to get inventory snapshot for each sf based on last 1 Month bookings 
+     * for that sf 
+     *  @param : void
+     *  @return : $sf_list JSON
+     */
+    function get_inventory_snapshot(){
+        $sf_list = array();
+        
+        //get avg booking for each sf in last 1 month
+        $avg_booking_select = 'assigned_vendor_id,count(DISTINCT booking_details.booking_id),(count(DISTINCT booking_details.booking_id)/30) as avg_booking';
+        $avg_booking_where = array('price_tags like "%'._247AROUND_WALL_MOUNT__PRICE_TAG.'%"' => NULL,
+            "booking_unit_details.create_date >= (NOW() - Interval 30 Day)" => NULL,'assigned_vendor_id IS NOT NULL' =>NULL);
+        $sf_bookings_snapshot = $this->inventory_model->get_inventory_snapshot($avg_booking_select,$avg_booking_where,'assigned_vendor_id');
+        
+        //get total stocks for each sf
+        $inventory_select = "(SELECT SUM(stock) FROM inventory_stocks as s WHERE inventory_stocks.entity_id = s.entity_id ) as total_stocks,service_centres.name,service_centres.id";
+        $inventory_where['length'] = -1;
+        $inventory_count = $this->inventory_model->get_inventory_stock_list($inventory_where,$inventory_select);
+        
+        //get no of days by which brackets whould be exhausted for the sf
+        if(!empty($sf_bookings_snapshot)){
+            foreach ($sf_bookings_snapshot as $value){
+                $key = array_search($value['assigned_vendor_id'], array_column($inventory_count, 'id'));
+                if($key !== FALSE){
+                    
+                    $no_of_days_brackets_exhausted = abs($inventory_count[$key]->total_stocks)/$value['avg_booking'];
+                
+                    $tmp['sf_id'] = $value['assigned_vendor_id'];
+                    $tmp['sf_name'] = $inventory_count[$key]->name;
+                    $tmp['brackets_exhausted_days'] = ($inventory_count[$key]->total_stocks >= 0)? round($no_of_days_brackets_exhausted) : 0;
+                    $tmp['current_stocks'] = ($inventory_count[$key]->total_stocks >= 0)? $inventory_count[$key]->total_stocks : 0;
+                    array_push($sf_list, $tmp);
+                }
+            }
+        }
+        
+        array_multisort(array_column($sf_list,'brackets_exhausted_days'), SORT_ASC, $sf_list);
+        
+        echo json_encode($sf_list);
     }
 
 }

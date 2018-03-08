@@ -445,9 +445,11 @@ class Inventory_model extends CI_Model {
      * @return: $query array
      * 
      */
-    function get_inventory_master_list_data($select,$where){
+    function get_inventory_master_list_data($select,$where = array()){
         $this->db->select($select);
-        $this->db->where($where);
+        if(!empty($where)){
+            $this->db->where($where);
+        }
         $query = $this->db->get('inventory_master_list');
         return $query->result_array();
     }
@@ -596,6 +598,141 @@ class Inventory_model extends CI_Model {
         }
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];
+    }
+    
+    
+    /**
+     * @Desc: This function is used to get data from the inventory_master_list table
+     * @params: $post array
+     * @params: $select string
+     * @return: void
+     * 
+     */
+    function _get_inventory_master_list($post,$select){
+        
+        if (empty($select)) {
+            $select = '*';
+        }
+        $this->db->distinct();
+        $this->db->select($select);
+        $this->db->from('inventory_master_list');
+        $this->db->join('services', 'inventory_master_list.service_id = services.id','left');
+        if (!empty($post['where'])) {
+            $this->db->where($post['where']);
+        }
+        
+        if (!empty($post['search_value'])) {
+            $like = "";
+            foreach ($post['column_search'] as $key => $item) { // loop column 
+                // if datatable send POST for search
+                if ($key === 0) { // first loop
+                    $like .= "( " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+
+        if (!empty($post['order'])) {
+            $this->db->order_by($post['column_order'][$post['order'][0]['column']], $post['order'][0]['dir']);
+        } else {
+            $this->db->order_by('inventory_master_list.service_id','DESC');
+        }
+    }
+    
+    /**
+     *  @desc : This function is used to get inventory master list
+     *  @param : $post string
+     *  @param : $select string
+     *  @return: Array()
+     */
+    function get_inventory_master_list($post, $select = "") {
+        $this->_get_inventory_master_list($post, $select);
+        if ($post['length'] != -1) {
+            $this->db->limit($post['length'], $post['start']);
+        }
+        
+        $query = $this->db->get();
+        return $query->result();
+    }
+    
+    /**
+     *  @desc : This function is used to get total inventory master list
+     *  @param : $post string
+     *  @return: Array()
+     */
+    public function count_all_inventory_master_list($post) {
+        $this->_get_inventory_master_list($post, 'count(distinct(inventory_master_list.inventory_id)) as numrows');
+        $query = $this->db->get();
+        return $query->result_array()[0]['numrows'];
+    }
+    
+    /**
+     *  @desc : This function is used to get total filtered inventory master list
+     *  @param : $post string
+     *  @return: Array()
+     */
+    function count_filtered_inventory_master_list($post){
+        $this->_get_inventory_master_list($post, 'count(distinct(inventory_master_list.inventory_id)) as numrows');
+        $query = $this->db->get();
+        return $query->result_array()[0]['numrows'];
+    }
+    
+    /**
+     * @desc This is used to insert details into inventory_master_list table
+     * @param Array $details
+     * @return string
+     */
+    function insert_inventory_master_list_data($details) {
+      $this->db->insert('inventory_master_list', $details);
+      return $this->db->insert_id();
+    }
+    
+    /**
+     * @desc This is used to update details of inventory_master_list table
+     * @param Array $where
+     * @param Array $data
+     * @return boolean
+     */
+    function update_inventory_master_list_data($where, $data){
+        $this->db->where($where);
+        $this->db->update('inventory_master_list',$data);
+        if($this->db->affected_rows() > 0 ){
+            return TRUE;
+        }else{
+            return FALSE;
+        }
+        
+    }
+    
+    
+    function get_inventory_snapshot($select,$where,$group_by = false){
+        $this->db->select($select);
+        $this->db->from('booking_details');
+        $this->db->join('booking_unit_details', 'booking_details.booking_id = booking_unit_details.booking_id');
+        $this->db->where($where);
+        
+        //RM Specific Bookings
+        if($this->session->userdata('user_group') == 'regionalmanager'){
+            $rm_id = $this->session->userdata('id');
+            $rmServiceCentersData= $this->reusable_model->get_search_result_data("employee_relation","service_centres_id",array("agent_id"=>$rm_id),NULL,NULL,NULL,NULL,NULL);
+            if(!empty($rmServiceCentersData)){
+                $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
+                $sfIDArray = explode(",",$sfIDList);
+
+                $this->db->where_in('booking_details.assigned_vendor_id', $sfIDArray);
+            }
+        }
+        
+        if($group_by){
+            $this->db->group_by($group_by);
+        }
+        
+        $query = $this->db->get();
+        return $query->result_array();
     }
 
 }
