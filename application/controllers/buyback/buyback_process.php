@@ -1984,4 +1984,30 @@ class Buyback_process extends CI_Controller {
     }
     
     
+    /**
+     * @desc: This function is used to get buyback completed orders data 
+     * based on month
+     * @param string
+     * @return array
+     */
+    function get_bb_acknowledge_data_by_month(){
+        $sf_id = $this->input->post('sf_id');
+        $data = $this->bb_model->get_bb_acknowledge_data_by_month($sf_id);
+        $month = [];
+        $year = [];
+        $completed_orders = [];
+        foreach ($data as $value){
+            $temp_str = $value['month']."(".$value['year'].")";
+            array_push($month, $temp_str);
+            array_push($year, $value['year']);
+            array_push($completed_orders, $value['count']);
+        }
+        array_shift($month);
+        array_shift($completed_orders);
+        $json_data['month'] = implode(",", $month);
+        $json_data['count'] = implode(",", $completed_orders);
+        echo json_encode($json_data);
+    }
+    
+    
 }

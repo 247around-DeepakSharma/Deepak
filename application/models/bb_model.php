@@ -428,4 +428,26 @@ class Bb_model extends CI_Model {
         $this->db->insert_batch('bb_delivery_order_status_report', $data);
         return $this->db->insert_id();
     }
+    
+    /**
+     * @desc: This function is used to get buyback completed orders data 
+     * based on month
+     * @param string $sf_id
+     * @return array $acknowledge_data
+     */
+    function get_bb_acknowledge_data_by_month($sf_id = null){
+        $where = "";
+        if(!empty($sf_id)){
+            $where = "AND assigned_cp_id = $sf_id";
+        }
+        $acknowledge_data_sql  = "SELECT DATE_FORMAT(acknowledge_date, '%b') AS month,DATE_FORMAT(acknowledge_date, '%Y') AS year, COUNT(*) as count
+                                FROM bb_order_details
+                                WHERE current_status = 'Completed'
+                                AND acknowledge_date IS NOT NULL AND acknowledge_date >= (NOW() - INTERVAL 13 MONTH) $where
+                                GROUP BY DATE_FORMAT(acknowledge_date, '%m-%Y') 
+                                ORDER BY YEAR(acknowledge_date),MONTH(acknowledge_date)";
+        $acknowledge_data = $this->db->query($acknowledge_data_sql)->result_array();
+        
+        return $acknowledge_data;
+    }
 }
