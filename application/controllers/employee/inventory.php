@@ -38,27 +38,30 @@ class Inventory extends CI_Controller {
      * @return: view
      * 
      */
-    public function get_bracket_add_form() {
+    public function get_bracket_add_form($sf_id = null,$sf_name = null) {
         //Getting ID from Session
         $id = $this->session->userdata('id');
         //Getting Employee Relation if present
         $sf_list = $this->vendor_model->get_employee_relation($id);
-            if (!empty($sf_list)) {
-                // Listing details acc to SF mapped
-                $sf_list = $sf_list[0]['service_centres_id'];
-                $select = "service_centres.name, service_centres.id";
-                $service_center = $this->vendor_model->getVendorDetails($select);
-                $sf_array = explode(',',$sf_list);
-                foreach($service_center as $value){
-                    if(array_search($value['id'],$sf_array)){
-                        $data['vendor'][] = $value;
-                    }
+        if (!empty($sf_list)) {
+            // Listing details acc to SF mapped
+            $sf_list = $sf_list[0]['service_centres_id'];
+            $select = "service_centres.name, service_centres.id";
+            $service_center = $this->vendor_model->getVendorDetails($select);
+            $sf_array = explode(',', $sf_list);
+            foreach ($service_center as $value) {
+                if (array_search($value['id'], $sf_array)) {
+                    $data['vendor'][] = $value;
                 }
-            }else{
-                $select = "service_centres.name, service_centres.id";
-                //Getting all values
-                $data['vendor'] = $this->vendor_model->getVendorDetails($select);
             }
+        } else {
+            $select = "service_centres.name, service_centres.id";
+            //Getting all values
+            $data['vendor'] = $this->vendor_model->getVendorDetails($select);
+        }
+        
+        $data['sf_id'] = urlencode($sf_id);
+        $data['sf_name'] = urldecode($sf_name);
         $this->miscelleneous->load_nav_header();
         $this->load->view("employee/add_brackets", $data);
     }
@@ -2160,22 +2163,23 @@ class Inventory extends CI_Controller {
         $sf_bookings_snapshot = $this->inventory_model->get_inventory_snapshot($avg_booking_select,$avg_booking_where,'assigned_vendor_id');
         
         //get total stocks for each sf
-        $inventory_select = "(SELECT SUM(stock) FROM inventory_stocks as s WHERE inventory_stocks.entity_id = s.entity_id ) as total_stocks,service_centres.name,service_centres.id";
+        $inventory_select = "SUM(IF(inventory_stocks.inventory_id = 1, inventory_stocks.stock, 0)) AS l_32,SUM(IF(inventory_stocks.inventory_id = 2, inventory_stocks.stock, 0)) AS g_32,service_centres.name,service_centres.id";
         $inventory_where['length'] = -1;
+        $inventory_where['group_by'] = 'inventory_stocks.entity_id';
         $inventory_count = $this->inventory_model->get_inventory_stock_list($inventory_where,$inventory_select);
-        
         //get no of days by which brackets whould be exhausted for the sf
         if(!empty($sf_bookings_snapshot)){
             foreach ($sf_bookings_snapshot as $value){
                 $key = array_search($value['assigned_vendor_id'], array_column($inventory_count, 'id'));
                 if($key !== FALSE){
-                    
-                    $no_of_days_brackets_exhausted = abs($inventory_count[$key]->total_stocks)/$value['avg_booking'];
+                    $total_stocks = $inventory_count[$key]->l_32 + $inventory_count[$key]->g_32;
+                    $no_of_days_brackets_exhausted = abs($total_stocks/$value['avg_booking']);
                 
                     $tmp['sf_id'] = $value['assigned_vendor_id'];
                     $tmp['sf_name'] = $inventory_count[$key]->name;
-                    $tmp['brackets_exhausted_days'] = ($inventory_count[$key]->total_stocks >= 0)? round($no_of_days_brackets_exhausted) : 0;
-                    $tmp['current_stocks'] = ($inventory_count[$key]->total_stocks >= 0)? $inventory_count[$key]->total_stocks : 0;
+                    $tmp['brackets_exhausted_days'] = ($total_stocks > 0)? round($no_of_days_brackets_exhausted) : 0;
+                    $tmp['l_32'] = ($total_stocks > 0)? $inventory_count[$key]->l_32 : 0;
+                    $tmp['g_32'] = ($total_stocks > 0)? $inventory_count[$key]->g_32 : 0;
                     array_push($sf_list, $tmp);
                 }
             }
