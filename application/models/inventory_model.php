@@ -467,7 +467,7 @@ class Inventory_model extends CI_Model {
             $select = '*';
         }
         $this->db->distinct();
-        $this->db->select($select);
+        $this->db->select($select,FALSE);
         $this->db->from('inventory_stocks');
         $this->db->join('inventory_master_list','inventory_master_list.inventory_id = inventory_stocks.inventory_id');
         $this->db->join('service_centres', 'inventory_stocks.entity_id = service_centres.id');
@@ -494,6 +494,10 @@ class Inventory_model extends CI_Model {
             $this->db->order_by($post['column_order'][$post['order'][0]['column']], $post['order'][0]['dir']);
         } else {
             $this->db->order_by('inventory_stocks.entity_id','ASC');
+        }
+        
+        if(!empty($post['group_by'])){
+            $this->db->group_by($post['group_by']);
         }
     }
     
@@ -614,7 +618,7 @@ class Inventory_model extends CI_Model {
             $select = '*';
         }
         $this->db->distinct();
-        $this->db->select($select);
+        $this->db->select($select,FALSE);
         $this->db->from('inventory_master_list');
         $this->db->join('services', 'inventory_master_list.service_id = services.id','left');
         if (!empty($post['where'])) {
@@ -640,6 +644,10 @@ class Inventory_model extends CI_Model {
             $this->db->order_by($post['column_order'][$post['order'][0]['column']], $post['order'][0]['dir']);
         } else {
             $this->db->order_by('inventory_master_list.service_id','DESC');
+        }
+        
+        if(!empty($post['group_by'])){
+            $this->db->group_by($post['group_by']);
         }
     }
     
