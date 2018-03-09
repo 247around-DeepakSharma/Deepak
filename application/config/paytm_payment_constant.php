@@ -12,9 +12,9 @@ define('MID_NOT_AVAILABLE_MSG','Mid is not available in header, Authentication F
 /*
  * URL constatnts
  */
-define('CASHBACK_URL','https://trust-uat.paytm.in/wallet-web/refundWalletTxn');
-define('CHECK_STATUS_URL','https://trust-uat.paytm.in/wallet-web/checkStatus');
-define('QR_CODE_URL','https://trust-uat.paytm.in/wallet-merchant/v2/createQRCode');
+define('CASHBACK_URL','https://trust.paytm.in/wallet-web/refundWalletTxn');
+define('CHECK_STATUS_URL','https://trust.paytm.in/wallet-web/checkStatus');
+define('QR_CODE_URL','https://wallet.paytm.in/wallet-merchant/v2/createQRCode');
 define("USER_DOWNLOAD_WEBSITE_URL", "http://247around.com/downloadQrCode/");
 
 /*
