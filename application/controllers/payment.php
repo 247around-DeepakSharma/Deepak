@@ -13,6 +13,10 @@ class Payment extends CI_Controller {
     /*
      * This function is used to handle paytm callback after transaction against any qr code
      * @input - Paytm response in json
+     * Firstly we check header for authentication ,if fais then return with fail
+     * If success then save callback data in table
+     * After this Save callback table id in Qr table
+     * @Output - Success or failure
      */
     function paytm_payment_callback(){
         log_message('info', __FUNCTION__ . "Function Start");
@@ -34,12 +38,13 @@ class Payment extends CI_Controller {
                 //Update Transaction table Id Against Booking id in booking details
                 $this->paytm_payment_lib->CALLBACK_update_payment_method_in_booking_details($jsonArray['response']['merchantOrderId'],$booking_id);
                 echo "SUCCESS";
+                log_message('error', __FUNCTION__ . "Function End With Success :");
             }
         }
         else{
             echo  $authArray[3];
+            log_message('error', __FUNCTION__ . "Function End With Error :".$authArray[3]);
         }
-        log_message('info', __FUNCTION__ . "Function End");
     }
     function test_cashback($bookingID,$amount){
         echo $this->paytm_payment_lib->paytm_cashback($bookingID,$amount);
@@ -50,12 +55,22 @@ class Payment extends CI_Controller {
      function check_status($order_id){
         echo $this->paytm_payment_lib->check_status_from_order_id($order_id);
     }
+    /*
+     * This function use to create view for transactions releated to a booking ID
+     */
     function booking_paytm_payment_view($booking_id){
-        $data = $this->paytm_payment_lib->booking_paytm_payment_data($booking_id);
+        $data = $this->paytm_payment_lib->get_paytm_transaction_data($booking_id);
         $data['booking_id'] = $booking_id;
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/paytm_transaction_against_booking', $data);
     }
+    /*
+     * This function use to check status of transaction (USING CHECKSTATUS API) for a booking id
+     * First it gets order_id(Merchaint order id for Qr) related to a booking , which does'nt have any transaction yet 
+     * Then it send a request to check status API to checkis there any transaction releated to this order_id , IF create failure response and return
+     * IF yes then save that transaction in callback table by mention we got this transaction data via checkstatus API
+     * After that create a table for response and return
+     */
     function get_booking_transaction_status_by_check_status_api($booking_id){
         $resultArray = array();
         $tempHtml = "<table class='table'>";
