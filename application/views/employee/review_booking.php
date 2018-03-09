@@ -27,7 +27,7 @@
 		 <table class="table table-bordered table-hover table-striped">
                   <thead>
                      <tr>
-                        <th>SNo.</th>
+                        <th>S.No.</th>
                         <th>Booking Id</th>
                         <th>Service Center </th>
                         <th>User Name</th>
@@ -42,9 +42,15 @@
                      <?php $sno = 1; foreach ($data as $key => $value) { ?>
                      <tr>
                         <td><?php echo $sno; if($value['is_upcountry'] == 1) { ?>.<i style="color:red; font-size:20px;" onclick="open_upcountry_model('<?php echo $value['assigned_vendor_id'];?>','<?php echo $value['booking_id'];?>', '<?php echo $value['amount_due'];?>')" class="fa fa-road" aria-hidden="true"></i><?php } ?></td>
-                        <td><?php echo $value['booking_id'];  ?></td>
+                        <td>
+                            <a href="<?php echo base_url();?>employee/booking/viewdetails/<?php echo $value['booking_id'];  ?>" target="_blank"><?php echo $value['booking_id'];  ?></a>
+                        </td>
                         <td><?php echo $value['service_center_name'];  ?></td>
-                        <td><?php echo $value['customername'];  ?><br/><?php echo $value['booking_primary_contact_no'];  ?></td>
+                        <td>
+                            <?php echo $value['customername'];  ?>
+                            <br/>
+                            <a href="javascipt:void(0);" onclick="outbound_call(<?php echo $value['booking_primary_contact_no'] ?>)"><?php echo $value['booking_primary_contact_no'];  ?></a>
+                        </td>
                        
                         <td><?php echo $value['initial_booking_date'];  ?></td>
                         <td><?php echo $value['booking_date']." / ".$value['booking_timeslot'] ;  ?></td>
@@ -434,5 +440,24 @@
             }
         });
         return false;
+    }
+    
+    function outbound_call(phone_number){
+        var confirm_call = confirm("Call Customer ?");
+    
+        if (confirm_call == true) {
+    
+             $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/booking/call_customer/' + phone_number,
+                success: function(response) {
+                    //console.log(response);
+    
+                }
+            });
+        } else {
+            return false;
+        }
+    
     }
   </script>
