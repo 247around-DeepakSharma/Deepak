@@ -806,7 +806,7 @@ class Booking extends CI_Controller {
             array_push($data['prices'], $prices);
         }
         
-        $isPaytmTxn = $this->paytm_payment_lib->booking_paytm_payment_data($booking_id);
+        $isPaytmTxn = $this->paytm_payment_lib->get_paytm_transaction_data($booking_id);
        
         if(!empty($isPaytmTxn)){
             if($isPaytmTxn['status']){
@@ -1346,7 +1346,7 @@ class Booking extends CI_Controller {
         
         $data['unit_details'] = $booking_unit_details;
         
-        $isPaytmTxn = $this->paytm_payment_lib->booking_paytm_payment_data($booking_id);
+        $isPaytmTxn = $this->paytm_payment_lib->get_paytm_transaction_data($booking_id);
         
         if(!empty($isPaytmTxn)){
             if($isPaytmTxn['status']){
