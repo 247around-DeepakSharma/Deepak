@@ -482,6 +482,8 @@ define('_247AROUND_SALES_EMAIL','sales@247around.com');
 //vijaya email_id
 define('_247AROUND_VIJAYA_EMAIL','vijaya@247around.com');
 
+//brackets string
+define('BRACKET_STRING','Bracket');
 //less than 32" bracket part number
 define('LESS_THAN_32_BRACKETS_PART_NUMBER','B-24732');
 //greater than 32" bracket part number
