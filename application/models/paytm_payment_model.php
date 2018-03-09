@@ -11,11 +11,6 @@ class paytm_payment_model extends CI_Model {
         $query = $this->db->get("paytm_payment_qr_code"); 
         return $query->result_array();
     }
-    function inactive_qr_code($where,$data){
-       $this->db->where($where);
-       $this->db->update("paytm_payment_qr_code",$data);
-       return $this->db->affected_rows();
-    }
     
     /**
      * @desc This method is used to get cashback rules detais
