@@ -1,10 +1,20 @@
 <?php
+/*
+ * This class use to check authentication using header for coming request 
+ */
 
 class authentication_lib {
     public function __construct() {
         $this->A_N = & get_instance();
         $this->A_N->load->model('partner_model');
     }
+    /*
+     * This is a helper function for paytm_payment_callback, it checks mendetery parameters in header and check for there values as well
+     * First it get all header of request
+     * Then Checks Mid parameters exists in header or not, if not then return failure
+     * If not theen checks is value correct for Mid if not then return failure
+     * If yes then return as success
+     */
    function checkAPIAuthentication() {
         log_message('info', __FUNCTION__ . "=> Entering ");
         $h = $this->getallheaders();
@@ -27,6 +37,10 @@ class authentication_lib {
         }
         }
     }
+    /*
+     * This is a helper function for checkAPIAuthentication
+     * It get all header for request
+     */
     function getallheaders() {
         $headers = array();
         foreach ($_SERVER as $name => $value) {
