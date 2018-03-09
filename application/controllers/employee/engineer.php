@@ -100,7 +100,7 @@ class Engineer extends CI_Controller {
              $data['signature'] ="";
              $data['mismatch_pincode'] = 0;
         }
-        $isPaytmTxn = $this->paytm_payment_lib->booking_paytm_payment_data($booking_id);
+        $isPaytmTxn = $this->paytm_payment_lib->get_paytm_transaction_data($booking_id);
         if(!empty($isPaytmTxn)){
             if($isPaytmTxn['status']){
                 $data['booking_history'][0]['onlinePaymentAmount'] = $isPaytmTxn['total_amount'];
