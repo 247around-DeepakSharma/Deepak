@@ -1686,9 +1686,17 @@ class Miscelleneous {
         } else if ($actionType == 'update') {
             $where['entity_id'] = $bankDetailsArray['entity_id'];
             $where['entity_type'] = $bankDetailsArray['entity_type'];
-            //Checkk is there any entry in bank table for associated entityID and entityType
-            $is_exist = $this->My_CI->reusable_model->get_search_result_count("account_holders_bank_details", "entity_id", $where, NULL, NULL, NULL, NULL, NULL);
-            if ($is_exist > 0) {
+            $where['is_active'] = 1;
+            //Check is there any entry in bank table for associated entityID and entityType
+            $existBankDataArray = $this->My_CI->reusable_model->get_search_result_data("account_holders_bank_details", "*", $where, NULL, NULL, NULL, NULL, NULL);
+            if(!($existBankDataArray[0]['bank_account'] == $bankDetailsArray['bank_account'] AND $existBankDataArray[0]['ifsc_code'] == $bankDetailsArray['ifsc_code'])){
+                //Create New Entry if bank_account or ifsc code change
+                $this->My_CI->reusable_model->insert_into_table('account_holders_bank_details', $bankDetailsArray);
+                return $affectedRows = $this->My_CI->reusable_model->update_table('account_holders_bank_details', array("is_active"=>0,'agent_id'=>$bankDetailsArray['agent_id']),
+                        array('id'=>$existBankDataArray[0]['id']));
+            }
+            else{
+            if (!empty($existBankDataArray)) {
                 //If yes then update that row
                 $agentID = $bankDetailsArray['agent_id'];
                 unset($bankDetailsArray['entity_id']);
@@ -1709,6 +1717,7 @@ class Miscelleneous {
                 }
             }
         }
+    }
     }
 
     /**
@@ -2070,8 +2079,11 @@ class Miscelleneous {
                 $this->reject_reschedule_request($booking_id,$escalation_reason_id,$remarks,$id,$employeeID);
             }
             //Send Push Notification
+            $rmArray = $this->My_CI->get_rm_sf_relation_by_sf_id($vendor_id);
             $receiverArray['vendor']= array($vendor_id);
+            $receiverArray['employee']= array($rmArray[0]['agent_id']);
             $notificationTextArray['msg'] = array($booking_id,"Cancelled");
+            $notificationTextArray['title'] = array("Cancelled(Rescheduled)");
             $this->My_CI->push_notification_lib->create_and_send_push_notiifcation(BOOKING_UPDATED_BY_247AROUND,$receiverArray,$notificationTextArray);
             //End Sending Push Notification
             $isEscalationDone =  $this->process_escalation($booking_id,$vendor_id,$escalation_reason_id,$remarks,TRUE,$id,$employeeID);
@@ -2273,6 +2285,7 @@ class Miscelleneous {
             $vendorData = $this->My_CI->vendor_model->getVendor($booking_id);
             $receiverArray['vendor']= array($vendorData[0]['id']);
             $notificationTextArray['msg'] = array($booking_id,"Rescheduled");
+            $notificationTextArray['title'] = array("Rescheduled");
             $this->My_CI->push_notification_lib->create_and_send_push_notiifcation(BOOKING_UPDATED_BY_247AROUND,$receiverArray,$notificationTextArray);
             //End Sending Push Notification
             $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";

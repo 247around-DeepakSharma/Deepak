@@ -1223,7 +1223,7 @@ class Api extends CI_Controller {
      * @output: None
      */
     public function pass_through() {
-        //log_message('info', "Entering: " . __METHOD__);
+        log_message('info', "Entering: " . __METHOD__);
         
     $activity = array('activity' => 'process exotel request', 'data' => json_encode($_GET), 'time' => $this->microtime_float());
         $this->apis->logTable($activity);
@@ -1257,6 +1257,10 @@ class Api extends CI_Controller {
     //Also, If user has given a missed call on 011-30017601 to confirm installation,
     //tag the booking accordingly.
     if ($callDetails['To'] == PARTNERS_MISSED_CALLED_NUMBER) {
+            //Send Notification to concerned employee for missed call notification
+            $receiverArray['employee'] = explode(",",INSTALLATION_MISSED_CALL_NOTIFICATION_EMPLOYYE_IDS);
+            $this->push_notification_lib->create_and_send_push_notiifcation(INSTALLATION_MISSED_CALL_NOTIFICATION,$receiverArray,array());
+            
             //verify user phone no first
             $this->apis->verifyUserNumber($num);
 
@@ -4349,7 +4353,6 @@ class Api extends CI_Controller {
         $callDetails['DialWhomNumber'] = (isset($_GET['DialWhomNumber'])) ? $_GET['DialWhomNumber'] : null;
         $callDetails['digits'] = (isset($_GET['digits'])) ? $_GET['digits'] : null;
         $callDetails['create_date'] = null;
-
         
         //insert in database
         $insert_id = $this->apis->insertRatingPassthruCall($callDetails);
@@ -4358,7 +4361,12 @@ class Api extends CI_Controller {
             //insert rating if missed call on good number
             if($callDetails['To'] === GOOD_MISSED_CALL_RATING_NUMBER){
                 $this->do_process_for_missed_call_rating($callDetails['from_number']);
-            }        
+            }
+            else if($callDetails['To'] === POOR_MISSED_CALL_RATING_NUMBER){
+                //Send Poor Rating Missed call  Notification to concern Person
+                $receiverArray['employee'] = explode(",",POOR_RATING_MISSED_CALL_NOTIFICATION_EMPLOYYE_IDS);
+                $this->push_notification_lib->create_and_send_push_notiifcation(POOR_RATING_MISSED_CALL_NOTIFICATION,$receiverArray,array());
+            }
             
         }else{
             log_message('info', __METHOD__.'Error In Adding Call Details');
