@@ -322,7 +322,7 @@ class paytm_payment_lib {
             return $this->QR_generation_success_handler($outputArray,$bookingID,$amount,$paramlist);
         }
         else{
-            log_message('info', __FUNCTION__ . "Function End With Failure");
+            log_message('error', __FUNCTION__ . "Function End With Failure ".print_r($outputArray,true));
               return array('is_success'=>0,'msg'=>QR_CODE_FAILURE,'data'=>array());
         }
     }
