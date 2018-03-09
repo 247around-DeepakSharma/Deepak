@@ -445,9 +445,11 @@ class Inventory_model extends CI_Model {
      * @return: $query array
      * 
      */
-    function get_inventory_master_list_data($select,$where){
+    function get_inventory_master_list_data($select,$where = array()){
         $this->db->select($select);
-        $this->db->where($where);
+        if(!empty($where)){
+            $this->db->where($where);
+        }
         $query = $this->db->get('inventory_master_list');
         return $query->result_array();
     }
@@ -704,6 +706,33 @@ class Inventory_model extends CI_Model {
             return FALSE;
         }
         
+    }
+    
+    
+    function get_inventory_snapshot($select,$where,$group_by = false){
+        $this->db->select($select);
+        $this->db->from('booking_details');
+        $this->db->join('booking_unit_details', 'booking_details.booking_id = booking_unit_details.booking_id');
+        $this->db->where($where);
+        
+        //RM Specific Bookings
+        if($this->session->userdata('user_group') == 'regionalmanager'){
+            $rm_id = $this->session->userdata('id');
+            $rmServiceCentersData= $this->reusable_model->get_search_result_data("employee_relation","service_centres_id",array("agent_id"=>$rm_id),NULL,NULL,NULL,NULL,NULL);
+            if(!empty($rmServiceCentersData)){
+                $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
+                $sfIDArray = explode(",",$sfIDList);
+
+                $this->db->where_in('booking_details.assigned_vendor_id', $sfIDArray);
+            }
+        }
+        
+        if($group_by){
+            $this->db->group_by($group_by);
+        }
+        
+        $query = $this->db->get();
+        return $query->result_array();
     }
 
 }

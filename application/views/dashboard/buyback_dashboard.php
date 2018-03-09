@@ -45,7 +45,22 @@
         <center><img id="loader_gif_unit" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
     </div>
     <!-- /top tiles -->
-
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>Buyback Orders<small>Completed</small></h2>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="col-md-12">
+                    <center><img id="bb_completed_orders_loader" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
+                </div>
+                <div class="x_content">
+                    <div id="bb_completed_orders" style="width:100%; height:400px;" ></div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="row" ng-controller="buyback_dashboardController">
 
         <div class="clearfix"></div>
@@ -76,8 +91,11 @@ display: block;
 }
 </style>
 <script>
-
- function login_to_vendor(vendor_id){
+    
+    var post_request = 'POST';
+    var get_request = 'GET';
+    
+    function login_to_vendor(vendor_id){
         var c = confirm('Login to Service Center CRM?');
         if(c){
             $.ajax({
@@ -90,6 +108,79 @@ display: block;
         }else{
             return false;
         }
+    }
+    
+    $(document).ready(function(){
+        
+        //company monthly data
+        bb_completed_orders_monthly_data();
+        
+    });
+    
+    function sendAjaxRequest(postData, url,type) {
+        return $.ajax({
+            data: postData,
+            url: url,
+            type: type
+        });
+    }
+    
+    function bb_completed_orders_monthly_data(){
+        $('#bb_completed_orders_loader').fadeIn();
+        $('#bb_completed_orders').fadeOut();
+        var data = {sf_id:''};
+        url =  '<?php echo base_url(); ?>buyback/buyback_process/get_bb_acknowledge_data_by_month';
+        
+        sendAjaxRequest(data,url,post_request).done(function(response){
+            get_bb_mothly_booking_orders(response);
+        });
+    }
+    
+    function get_bb_mothly_booking_orders(response){
+        
+        $('#bb_completed_orders_loader').hide();
+        var render_div = 'bb_completed_orders';
+        var data = JSON.parse(response);
+        var month = data.month.split(',');
+        var count = JSON.parse("[" + data.count + "]");
+        $('#'+render_div).fadeIn();
+        chart = new Highcharts.Chart({
+            chart: {
+                renderTo: render_div,
+                type: 'column'
+            },
+            title: {
+                text: '',
+                x: -20 //center
+            },
+            xAxis: {
+                categories: month
+            },
+            yAxis: {
+                title: {
+                    text: 'Count'
+                },
+                plotLines: [{
+                        value: 0,
+                        width: 1,
+                        color: '#808080'
+                    }]
+            },
+            plotOptions: {
+                column: {
+                    dataLabels: {
+                        enabled: true,
+                        crop: false,
+                        overflow: 'none'
+                    }
+                }
+            },
+            series: [
+                {
+                    name: 'Completed Orders',
+                    data: count
+                }]
+        });
     }
 </script>
 
