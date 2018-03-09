@@ -154,7 +154,7 @@
 
                 <div class="x_content">
 
-                    <div class="table-responsive" id="escalation_data">
+                    <div class="table-responsive" id="escalation_data" ng-controller="admin_escalationController" ng-cloak="">
                         <input type="text" id="session_id_holder" style="display:none;" value="<?php if ($this->session->userdata('user_group') == 'regionalmanager') {
             echo $this->session->userdata('id');
         } ?>">
