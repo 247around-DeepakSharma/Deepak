@@ -324,11 +324,7 @@ class Booking extends CI_Controller {
                 //2 means booking is getting updated
                 if ($booking['is_send_sms'] == 1) {
                     //Query converted to Booking OR New Booking Inserted
-                    $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
-                    $send['booking_id'] = $booking['booking_id'];
-                    $send['state'] = "Newbooking";
-                    $this->asynchronous_lib->do_background_process($url, $send);
-
+                    
                     //Assign Vendor
                     //log_message("info"," upcountry_data", print_r($upcountry_data). " Booking id ". $booking['booking_id']);
                     switch ($upcountry_data['message']) {

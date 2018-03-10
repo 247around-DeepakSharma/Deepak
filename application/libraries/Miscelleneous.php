@@ -135,6 +135,10 @@ class Miscelleneous {
             $receiverArrayVendor['vendor'] = array($service_center_id);
             $notificationTextArrayVendor['msg'] = array($booking_id);
              $this->My_CI->push_notification_lib->create_and_send_push_notiifcation(BOOKING_ASSIGN_TO_VENDOR,$receiverArrayVendor,$notificationTextArrayVendor);
+             
+            // Send New Booking SMS
+            $this->My_CI->notify->send_sms_email_for_booking($booking_id, "Newbooking" );
+             
             //End Sending Push Notification
             // Data to be insert in service center
             $sc_data['current_status'] = "Pending";
@@ -173,6 +177,8 @@ class Miscelleneous {
                              "BUG in Enginner Table ". $booking_id, "SF Assigned but Action table not updated", "");
                      }
                  }
+                 
+                 
                     
                 //process inventory stock for each unit if price tag is wall mount
                 if ($value['price_tags'] == _247AROUND_WALL_MOUNT__PRICE_TAG) {
