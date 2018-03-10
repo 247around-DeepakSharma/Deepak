@@ -4730,11 +4730,6 @@ class vendor extends CI_Controller {
      * @return: void
      */
     function show_bank_details(){
-        $where = array('entity_type' => 'SF','service_centres.active' => 1);
-        $join = array('service_centres' => 'account_holders_bank_details.entity_id = service_centres.id');
-        $data['bank_details'] = $this->reusable_model->get_search_query('account_holders_bank_details','account_holders_bank_details.*,service_centres.name',$where,$join,NULL,NULL,NULL,NULL)->result_array();
-        $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/show_bank_details', $data);
         if($this->input->post()){
             if($this->input->post('sf_type') === '1'){
                 $where = array('entity_type' => 'SF','service_centres.active' => 1,'account_holders_bank_details.is_active' => 1);
