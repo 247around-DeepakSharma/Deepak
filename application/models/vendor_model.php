@@ -61,8 +61,8 @@ class vendor_model extends CI_Model {
         }
         $sql = "Select service_centres.*,account_holders_bank_details.bank_name,account_holders_bank_details.account_type,account_holders_bank_details.bank_account,"
                 . "account_holders_bank_details.ifsc_code,account_holders_bank_details.cancelled_cheque_file,account_holders_bank_details.beneficiary_name,"
-                . "account_holders_bank_details.is_verified  from service_centres LEFT JOIN account_holders_bank_details ON account_holders_bank_details.entity_id=service_centres.id AND account_holders_bank_details"
-                . ".entity_type='SF ' $where_final AND account_holders_bank_details.is_active=1";
+                . "account_holders_bank_details.is_verified  from service_centres LEFT JOIN account_holders_bank_details ON account_holders_bank_details.entity_id=service_centres.id AND "
+                . "account_holders_bank_details.entity_type='SF ' AND account_holders_bank_details.is_active=1 $where_final";
         $query = $this->db->query($sql);
        return $query->result_array();
     }

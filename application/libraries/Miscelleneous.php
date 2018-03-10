@@ -1691,6 +1691,7 @@ class Miscelleneous {
             $existBankDataArray = $this->My_CI->reusable_model->get_search_result_data("account_holders_bank_details", "*", $where, NULL, NULL, NULL, NULL, NULL);
             if(!($existBankDataArray[0]['bank_account'] == $bankDetailsArray['bank_account'] AND $existBankDataArray[0]['ifsc_code'] == $bankDetailsArray['ifsc_code'])){
                 //Create New Entry if bank_account or ifsc code change
+                $bankDetailsArray['is_verified'] = 0;
                 $this->My_CI->reusable_model->insert_into_table('account_holders_bank_details', $bankDetailsArray);
                 return $affectedRows = $this->My_CI->reusable_model->update_table('account_holders_bank_details', array("is_active"=>0,'agent_id'=>$bankDetailsArray['agent_id']),
                         array('id'=>$existBankDataArray[0]['id']));
