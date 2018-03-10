@@ -302,7 +302,7 @@ class Partner extends CI_Controller {
                                 $booking['type'] = "Query";
                                 $booking['booking_date'] = '';
                                 $booking['booking_timeslot'] = '';
-                                $booking['partner_source'] = $requestData['partnerName'] . '-STS';
+                                $booking['partner_source'] = 'STS';
                                 $booking['amount_due'] = '';
                                 $booking['booking_remarks'] = '';
                                 $booking['state'] = $distict_details['state'];
