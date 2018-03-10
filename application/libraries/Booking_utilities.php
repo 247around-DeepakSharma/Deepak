@@ -177,12 +177,14 @@ class Booking_utilities {
         $response = $this->My_CI->paytm_payment_lib->generate_qr_code($booking_id, QR_CHANNEL_JOB_CARD, 0, $pocNumber);
         if($amount_due > 0){
             $userDownload = $this->My_CI->paytm_payment_lib->generate_qr_code($booking_id, QR_CHANNEL_USER, 0, $pocNumber);
+            log_message("info", __METHOD__. " Booking id ". $booking_id. " User QR Response ".print_r($userDownload, true));
             $user = json_decode($userDownload, TRUE);
             if($user['status'] == SUCCESS_STATUS){
                 $qr_id = $user['qr_id'];
                 $qr_id_encrypted = urlencode(base64_encode($qr_id));
                 $tinyUrl = $this->My_CI->miscelleneous->getShortUrl(USER_DOWNLOAD_WEBSITE_URL.$qr_id_encrypted);
                 if($tinyUrl){
+                    
                     $sms['type'] = "user";
                     $sms['type_id'] = $user_id;
                     $sms['tag'] = "customer_qr_download";
@@ -193,11 +195,13 @@ class Booking_utilities {
                     $sms['booking_id'] = $booking_id;
 
                     $this->My_CI->notify->send_sms_msg91($sms);
+                } else {
+                    log_message("info", __METHOD__. " Booking id ". $booking_id. " Tiny url Not generated");
                 }
 
             }
         }
-        
+        log_message("info", __METHOD__. " Booking id ". $booking_id. " Job QR Response ".print_r($response, true));
         $result = json_decode($response, TRUE);
 
         if($result['status'] == SUCCESS_STATUS){
