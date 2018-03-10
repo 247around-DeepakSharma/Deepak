@@ -68,7 +68,7 @@
                             <tr>
                                 <th >Booking ID </th>
                                 <td><?php echo $booking_history[0]['booking_id']; ?></td>
-                               <th>Amount Due: </th>
+                               <th>Amount Due </th>
                                 <td><?php echo $booking_history[0]['amount_due']; ?></td>
                             </tr>
                           
@@ -99,7 +99,7 @@
                             <tr>
                                 <th>Pincode </th>
                                 <td><?php echo $booking_history[0]['booking_pincode']; ?></td>
-                                <th>State: </th>
+                                <th>State </th>
                                 <td><?php echo $booking_history[0]['state']; ?></td>
                                 
                             </tr>
@@ -107,21 +107,21 @@
                             <tr>
                                 <th>Status </th>
                                 <td><?php echo $booking_history[0]['current_status']." / ". $booking_history[0]['internal_status']; ?></td>
-                                <th>Rescheduled Reason: </th>
+                                <th>Rescheduled Reason </th>
                                 <td><?php echo $booking_history[0]['reschedule_reason']; ?></td>
                             </tr>
                            
                             <tr>
                                 <th>Cancellation Reason </th>
                                 <td><?php echo $booking_history[0]['cancellation_reason']; ?></td>
-                                  <th>Closed date: </th>
+                                  <th>Closed date </th>
                                 <td><?php echo $booking_history[0]['closed_date']; ?></td>
                             </tr>
                            
                             <tr>
                                 <th>Closing Remarks </th>
                                 <td><?php echo $booking_history[0]['closing_remarks']; ?></td>
-                                 <th>Rating: </th>
+                                 <th>Rating </th>
                                 <td><?php if (!empty($booking_history[0]['rating_stars'])) {
                                     echo $booking_history[0]['rating_stars'] . "/5";
                                     } ?></td>
@@ -132,13 +132,14 @@
                                 <td><?php if (!empty($booking_history[0]['rating_comments'])) {
                                     echo $booking_history[0]['rating_comments'];
                                     } ?></td>
-                                <th>Remarks: </th>
+                                <th>Remarks </th>
                                 <td><?php echo $booking_history[0]['booking_remarks']; ?></td>
                             </tr>
                             <?php if(isset($dhq[0]['district'])){ ?>
                             <tr>
                                 <th colspan="1">Upcountry</th>
                                 <td colspan="3">
+                                    <p>Municipal Limit: <?php echo $this->session->userdata('municipal_limit')." KM"; ?></p>
                                     <div class="col-md-12">
                                         <div class="col-md-4"> <input type="hidden" class="form-control" id="txtSource" value="<?php echo $booking_history[0]['city'].", ".
                                             $booking_history[0]['booking_pincode'].", india"; ?>"></div>
