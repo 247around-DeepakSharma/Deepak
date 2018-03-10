@@ -1793,7 +1793,7 @@ class Invoice extends CI_Controller {
                 echo " New Invoice ID Generated: " . $invoices['meta']['invoice_id'] . PHP_EOL;
             }
 
-            $status = $this->send_request_to_create_main_excel($invoices, $invoice_type);
+            $status = $this->invoice_lib->send_request_to_create_main_excel($invoices, $invoice_type);
             if ($status) {
 
                 log_message('info', __FUNCTION__ . ' Invoice File is created. invoice id' . $invoices['meta']['invoice_id']);
@@ -1888,7 +1888,7 @@ class Invoice extends CI_Controller {
                     echo " New Invoice ID Generated: " . $invoices['meta']['invoice_id'] . PHP_EOL;
                 }
 
-                $status = $this->send_request_to_create_main_excel($invoices, $invoice_type);
+                $status = $this->invoice_lib->send_request_to_create_main_excel($invoices, $invoice_type);
                 if ($status) {
 
                     log_message('info', __FUNCTION__ . ' Invoice File is created. invoice id' . $invoices['meta']['invoice_id']);
@@ -2093,7 +2093,7 @@ class Invoice extends CI_Controller {
                             . $invoices['meta']['invoice_id']);
                 }
 
-                $status = $this->send_request_to_create_main_excel($invoices, $invoice_type);
+                $status = $this->invoice_lib->send_request_to_create_main_excel($invoices, $invoice_type);
                 if ($status) {
                     log_message('info', __FUNCTION__ . ' Invoice File is created. invoice id' . $invoices['meta']['invoice_id']);
 
@@ -2903,7 +2903,7 @@ class Invoice extends CI_Controller {
             $response['meta']['ed'] = "";
         }
        
-        $status = $this->send_request_to_create_main_excel($response, "final");
+        $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
         if($status){
             log_message("info", __METHOD__." Partner Advance Excel generated ".$partner_data['id']);
             
@@ -3116,7 +3116,7 @@ class Invoice extends CI_Controller {
 
             $response = $this->invoices_model->_set_partner_excel_invoice_data($data, $sd, $ed, "Tax Invoice",$invoice_date);
             $response['meta']['invoice_id'] = $this->create_invoice_id_to_insert("Around");
-            $status = $this->send_request_to_create_main_excel($response, "final");
+            $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
             if ($status) {
                 log_message("info", __METHOD__ . " Vendor Spare Invoice SF ID" . $sp_data[0]->service_center_id . " Spare Id " . $spare_id);
 
