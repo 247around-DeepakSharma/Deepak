@@ -1359,11 +1359,11 @@ class invoices_model extends CI_Model {
         if($profitLoss == 1){
             $profit_loss_where = ' AND CASE WHEN (cp_claimed_price > 0) THEN ((`partner_basic_charge` + `partner_tax_charge` + `partner_sweetner_charges`) <=  (cp_claimed_price)) ELSE ((`partner_basic_charge` + `partner_tax_charge` + `partner_sweetner_charges`) <=  (`cp_basic_charge` + cp_tax_charge)) END ';
         } else {
-            $profit_loss_where = ' AND CASE WHEN (cp_claimed_price > 0) THEN ((`partner_basic_charge` + `partner_tax_charge` + `partner_sweetner_charges`) >  (cp_claimed_price + cp_tax_charge)) ELSE ((`partner_basic_charge` + `partner_tax_charge` + `partner_sweetner_charges`) >  (`cp_basic_charge` + cp_tax_charge)) END ';
+            $profit_loss_where = ' AND CASE WHEN (cp_claimed_price > 0) THEN ((`partner_basic_charge` + `partner_tax_charge` + `partner_sweetner_charges`) >  (cp_claimed_price)) ELSE ((`partner_basic_charge` + `partner_tax_charge` + `partner_sweetner_charges`) >  (`cp_basic_charge` + cp_tax_charge)) END ';
         }
         $select = " COUNT(bb_unit_details.id) as qty, SUM(CASE WHEN ( bb_unit_details.cp_claimed_price > 0) 
                 THEN (bb_unit_details.cp_claimed_price) 
-                ELSE (bb_unit_details.cp_basic_charge) END ) AS taxable_value, concat('Used ',services) as description, 
+                ELSE (bb_unit_details.cp_basic_charge + cp_tax_charge) END ) AS taxable_value, concat('Used ',services) as description, 
                 CASE WHEN (bb_unit_details.service_id = 46) THEN (8528) 
                 WHEN (bb_unit_details.service_id = 50) THEN (8415)
                 WHEN (bb_unit_details.service_id = 28) THEN (8450)
@@ -1374,7 +1374,7 @@ class invoices_model extends CI_Model {
         if($is_unit){
             $select = " bb_unit_details.id AS unit_id,bb_unit_details.gst_amount, CASE WHEN ( bb_unit_details.cp_claimed_price > 0) 
                 THEN (bb_unit_details.cp_claimed_price) 
-                ELSE (bb_unit_details.cp_basic_charge) END AS cp_charge,partner_tracking_id, city,order_key,
+                ELSE (bb_unit_details.cp_basic_charge + cp_tax_charge) END AS cp_charge,partner_tracking_id, city,order_key,
                 CASE WHEN(acknowledge_date IS NOT NULL) 
                 THEN (DATE_FORMAT( acknowledge_date,  '%d-%m-%Y' ) ) ELSE (DATE_FORMAT(delivery_date,  '%d-%m-%Y' )) END AS delivery_date, order_date,
                 order_date, services, bb_order_details.partner_order_id";
@@ -1393,6 +1393,7 @@ class invoices_model extends CI_Model {
                 AND bb_unit_details.service_id = services.id $profit_loss_where  $is_foc_null $group_by ";
         
         $query = $this->db->query($sql);
+        
         return $query->result_array();
         
     }
