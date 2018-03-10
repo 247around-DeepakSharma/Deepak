@@ -515,7 +515,7 @@ class Invoice extends CI_Controller {
         log_message('info', __METHOD__ . "=> " . $invoice_type . " Partner Id " . $partner_id . ' invoice_type: ' . $invoice_type . ' agent_id: ' . $agent_id);
         $data = $this->invoices_model->getpartner_invoices($partner_id, $f_date, $t_date);
         $files = array();
-        $template = 'Partner_invoice_detail_template-v2.xlsx';
+        $template = 'Partner_invoice_detail_template-v3.xlsx';
 
         $courier = $misc_data['courier'];
         $meta = $misc_data['meta'];

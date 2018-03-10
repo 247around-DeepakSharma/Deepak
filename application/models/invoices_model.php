@@ -276,7 +276,7 @@ class invoices_model extends CI_Model {
         $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
         $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
 
-        $sql1 = "SELECT booking_unit_details.id AS unit_id, `booking_details`.booking_id, "
+        $sql1 = "SELECT booking_unit_details.id AS unit_id, booking_unit_details.sub_order_id, `booking_details`.booking_id, "
                 . "  invoice_email_to,invoice_email_cc, booking_details.rating_stars,  "
                 . " `booking_details`.partner_id, `booking_details`.source,"
                 . " `booking_details`.city, DATE_FORMAT(`booking_unit_details`.ud_closed_date, '%D %b %Y') as closed_date,price_tags, "
