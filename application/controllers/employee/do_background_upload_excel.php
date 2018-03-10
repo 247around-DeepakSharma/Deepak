@@ -499,12 +499,17 @@ class Do_background_upload_excel extends CI_Controller {
                     $booking['taluk'] = $distict_details['taluk'];
                     $booking['quantity'] = '1';
                     
+                    //capture order_item_id if it exist
                     if (isset($value['order_item_id'])) {
                         $unit_details['sub_order_id'] = $value['order_item_id'];
                     } else if (isset($value['item_id'])) {
                         $unit_details['sub_order_id'] = $value['item_id'];
                     }
-
+                    
+                    //capture service_promise_date if it exist
+                    if (isset($value['service_promise_date']) && !empty($value['service_promise_date'])) {
+                        $booking['service_promise_date'] = date('Y-m-d H:i:s', PHPExcel_Shared_Date::ExcelToPHP($value['service_promise_date']));
+                    }
 
                     //check partner status from partner_booking_status_mapping table  
                     $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $booking['partner_id'], $booking['booking_id']);
@@ -1472,6 +1477,12 @@ class Do_background_upload_excel extends CI_Controller {
             $tmpArr['order_item_id'] = $data['item_id'];
         }else{
             $tmpArr['order_item_id'] = '';
+        }
+        
+        if(isset($data['promise_before_date']) && !empty($data['promise_before_date'])){
+            $tmpArr['service_promise_date'] = $data['promise_before_date'];
+        }else{
+            $tmpArr['service_promise_date'] = '';
         }
         
         array_push($this->finalArray, $tmpArr);
