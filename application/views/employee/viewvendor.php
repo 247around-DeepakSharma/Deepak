@@ -191,11 +191,14 @@
                       if(array_key_exists("unsubscription_count", $push_notification[$row['id']])){
                         $tooltipText = $tooltipText.", Unsubscriptions: ".$push_notification[$row['id']]['unsubscription_count'];
                       }
-                  if(isset($push_notification[$row['id']]['blocked_count']) && !isset($push_notification[$row['id']]['subscription_count'])  && !isset($push_notification[$row['id']]['unsubscription_count'])){
+                  if(isset($push_notification[$row['id']]['blocked_count']) && !isset($push_notification[$row['id']]['subscription_count'])){
                       echo '<button type="button" class="btn btn-info btn-lg glyphicon glyphicon-ban-circle" data-toggle="tooltip" data-placement="left" title="'.$tooltipText.'" style="padding: 11px 6px;margin: 0px 10px;"></button>';
                   }
-                  else{
-                      echo '<button type="button" class="btn btn-info btn-lg " data-toggle="tooltip" data-placement="left" title="'.$tooltipText.'" style="padding: 11px 6px;margin: 0px 10px;"><i class="fa fa-bell" aria-hidden="true"></i></button>';
+                  else if(isset($push_notification[$row['id']]['unsubscription_count']) && !isset($push_notification[$row['id']]['subscription_count'])){
+                      echo '<button type="button" class="btn btn-info btn-lg " data-toggle="tooltip" data-placement="left" title="'.$tooltipText.'" style="padding: 11px 6px;margin: 0px 10px;"><i class="fa fa-bell-slash" aria-hidden="true"></i></button>';
+                  }
+                  else if(isset($push_notification[$row['id']]['unsubscription_count']) && isset($push_notification[$row['id']]['subscription_count'])){
+                       echo '<button type="button" class="btn btn-info btn-lg " data-toggle="tooltip" data-placement="left" title="'.$tooltipText.'" style="padding: 11px 6px;margin: 0px 10px;"><i class="fa fa-bell" aria-hidden="true"></i></button>';
                   }
               }
               else{
