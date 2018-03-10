@@ -6,22 +6,22 @@ class push_notification_model extends CI_Model {
     }
     function get_push_notification_subscribers_by_entity($entityType,$entityID=NULL){
         $finalArray = array();
-        $this->db->select('COUNT(subscriber_id) as subscription_count, (CASE WHEN subscriber_id = -1 THEN "Blocked" ELSE "Subscription" END) as subscription_type,entity_id,'
-                . '(CASE WHEN subscriber_id = -1 THEN "0" ELSE unsubscription_flag END) as unsubscription_flag');
+        $this->db->select('entity_id,COUNT(subscriber_id) as subscription_count, (CASE WHEN subscriber_id = -1 THEN "Blocked" ELSE "subscribe" END) as "blocked_status",'
+                . '(CASE WHEN unsubscription_flag = 1 THEN "unsubscribe" ELSE "subscribe" END) as "subscription_status"');
         $this->db->where(array("entity_type"=>$entityType));
-        $this->db->group_by("entity_id,subscription_type,unsubscription_flag");
+        $this->db->group_by("entity_id,subscription_status,blocked_status");
          if(!empty($entityID)){
             $this->db->where(array("entity_id"=>$entityID));
         }
         $query = $this->db->get("push_notification_subscribers");
         $data = $query->result_array();
         foreach($data as $subscriberData){
-            if($subscriberData['subscription_type'] == 'Blocked'){
-                $finalArray[$subscriberData['entity_id']]['blocked_count'] = $subscriberData['subscription_count'];
+            if($subscriberData['blocked_status'] == 'subscribe' && $subscriberData['subscription_status'] == 'subscribe'){
+                $finalArray[$subscriberData['entity_id']]['subscription_count'] = $subscriberData['subscription_count'];
             }
             else{
-                if($subscriberData['subscription_type'] == 'Subscription' && $subscriberData['unsubscription_flag'] == 0){
-                    $finalArray[$subscriberData['entity_id']]['subscription_count'] = $subscriberData['subscription_count'];
+                if($subscriberData['blocked_status'] == 'Blocked'){
+                    $finalArray[$subscriberData['entity_id']]['blocked_count'] = $subscriberData['subscription_count'];
                 }
                 else{
                     $finalArray[$subscriberData['entity_id']]['unsubscription_count'] = $subscriberData['subscription_count'];
