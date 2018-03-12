@@ -272,6 +272,7 @@ class Miscelleneous {
                 $booking['partner_upcountry_rate'] = $data['partner_upcountry_rate'];
 
                 $is_upcountry = $this->My_CI->upcountry_model->is_upcountry_booking($booking_id);
+                
                 if (empty($is_upcountry)) {
                     log_message('info', __METHOD__ . " => Customer will pay upcountry charges " . $booking_id);
                     $booking['upcountry_paid_by_customer'] = 1;
@@ -284,7 +285,8 @@ class Miscelleneous {
 
                     $this->My_CI->booking_model->update_booking($booking_id, $booking);
                     $return_status = TRUE;
-                } else if (array_search(-1, array_column($is_upcountry, 'is_upcountry')) !== False) {
+                } else if (in_array(-1, array_column($is_upcountry, 'is_upcountry')) !== FALSE 
+                        && in_array(1, array_column($is_upcountry, 'is_upcountry')) == FALSE ) {
                     log_message('info', __METHOD__ . " => Customer or Partner does not pay upcountry charges " . $booking_id);
                     $booking['is_upcountry'] = 0;
                     $booking['upcountry_pincode'] = NULL;
@@ -468,6 +470,9 @@ class Miscelleneous {
         $this->My_CI->vendor_model->update_service_center_action($booking_id, $data_vendor);
 
         $this->update_price_while_cancel_booking($booking_id);
+        //Update Engineer table while booking cancelled
+        $en_where1 = array("engineer_booking_action.booking_id" => $booking_id);
+        $this->My_CI->engineer_model->update_engineer_table(array("current_status" => _247AROUND_CANCELLED, "internal_status" =>_247AROUND_CANCELLED), $en_where1);
         
         $spare = $this->My_CI->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status", array('booking_id' => $booking_id, 'status NOT IN ("Completed","Cancelled")' =>NULL ), false);
         foreach($spare as $sp){
@@ -2412,8 +2417,8 @@ function generate_image($base64, $image_name,$directory){
 //        curl_close($curlObj);
 //
 //        if (isset($json->error)) {
-//           
-//            log_message("info". __METHOD__. " Short url not generated ".$json->error->message);
+//          
+//            log_message("info", __METHOD__. " Short url not generated ". print_r($json->error, true));
 //            return false;
 //        } else {
 //            return $json->id;
