@@ -53,8 +53,6 @@ define('TRANSACTION_NOT_HAPPENS_YET_MSG',"Transaction doesn't happen yet for thi
 
 define('CHECK_STATUS_FAILURE','FAILURE');
 define('CHECK_STATUS_FAILURE_MSG','Error From Paytm');
-define('TRANSACTION_NOT_HAPPENS_YET','No Transaction');
-define('TRANSACTION_NOT_HAPPENS_YET_MSG',"Transaction does'nt happen yet for this order_id");
 define('TRANSACTION_RESPONSE_FROM_CHECK_STATUS','checkstatus');
 
 /*
