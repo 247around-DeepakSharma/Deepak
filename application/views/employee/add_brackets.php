@@ -9,12 +9,9 @@
                         <th>S.N.</th>
                         <th>Order Received From</th>
                         <th>Order Given To</th>
-<!--                        <th>19 to 24 inch</th>-->
                         <th>Less Than 32"</th>
                         <th>32" & Above </th>
-<!--                        <th>&gt;43 inch</th>-->
                         <th>Total</th>
-                        <!--<th>Order Given To</th>-->
                     </tr>
                 </thead>
                 <tbody>
@@ -50,21 +47,21 @@
                     }
                     ?>
                 <form name="myForm" class="form-horizontal" id ="brackets"  action='<?php echo base_url() ?>employee/inventory/process_add_brackets_form' method="POST" enctype="form-data">
-                    <?php for ($i = 0; $i < 10; $i++) { ?>		
+                    <?php if(!empty($sf_id)){ $counter = 1;} else{ $counter = 10;} for ($i = 0; $i < $counter; $i++) { ?>		
                         <tr>
                             <td>
-                                <input type="checkbox" name='choice[]' value='<?php echo ($i) ?>' id="check_<?php echo $i ?>" onchange="return validate(this.id)"/>
+                                <input type="checkbox" name='choice[]' value='<?php echo ($i) ?>' id="check_<?php echo $i ?>" onchange="return validate(this.id)" <?php if(!empty($sf_id)){ echo "checked";}?>>
                             </td>
                             <td>
-                                <select name="order_received_from[]" class="order_received_from" id="order_received_from_<?php echo $i ?>" class = "form-control" disabled="">
+                                <select name="order_received_from[]" class="order_received_from" id="order_received_from_<?php echo $i ?>" class = "form-control" <?php if(empty($sf_id)){ echo "disabled";}?>>
                                     <option selected disabled hidden>Select Vendor</option>
                                     <?php foreach ($vendor as $value) { ?>
-                                        <option value="<?php echo $value['id'] ?>"><?php echo $value['name'] ?> </option>
+                                        <option value="<?php echo $value['id'] ?>" <?php if($value['id'] == $sf_id){ echo 'selected';}?>><?php echo $value['name'] ?> </option>
                                     <?php } ?>
                                 </select>
                             </td>
                             <td>
-                                <select name="order_given_to[]" class="order_given_to" id="order_given_to_<?php echo $i ?>" class = "form-control" disabled="">
+                                <select name="order_given_to[]" class="order_given_to" id="order_given_to_<?php echo $i ?>" class = "form-control" <?php if(empty($sf_id)){ echo "disabled";}?>>
                                     <option selected disabled hidden>Select Vendor</option>
                                     <?php foreach ($vendor as $value) { ?>
                                         <option value="<?php echo $value['id'] ?>" <?php if($value['id'] == '10'){ echo 'selected';}?> ><?php echo $value['name'] ?> </option>
@@ -75,10 +72,10 @@
                                 <input typt='text' name='_19_24[]' id ="_19_24_<?php echo $i ?>"   disabled="" class = "form-control" onchange="return add_value(this.id)"/>
                             </td>-->
                             <td>
-                                <input typt='text' name='_26_32[]' id = "_26_32_<?php echo $i ?>" disabled="" class = "form-control" onchange="return add_value(this.id)"/>
+                                <input typt='text' name='_26_32[]' id = "_26_32_<?php echo $i ?>" class = "form-control" onchange="return add_value(this.id)" <?php if(empty($sf_id)){ echo "disabled";}?>/>
                             </td>
                             <td>
-                                <input typt='text' name='_36_42[]' id = "_36_42_<?php echo $i ?>" disabled="" class = "form-control" onchange="return add_value(this.id)"/>
+                                <input typt='text' name='_36_42[]' id = "_36_42_<?php echo $i ?>" class = "form-control" onchange="return add_value(this.id)" <?php if(empty($sf_id)){ echo "disabled";}?>/>
                             </td>
 <!--                            <td>
                                 <input typt='text' name='_43[]' id = "_43__<?php echo $i ?>" disabled="" class = "form-control" onchange="return add_value(this.id)"/>

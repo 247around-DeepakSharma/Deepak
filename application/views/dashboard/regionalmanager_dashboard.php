@@ -217,7 +217,14 @@ if($this->session->userdata("wrong_pincode_msg")){
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
                 <div class="x_title">
-                    <h2>Service Center Brackets Snapshot</h2>
+                    <div class="col-md-6">
+                        <h2>Service Center Brackets Snapshot</h2>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="pull-right">
+                            <a class="btn btn-sm btn-success" href="<?php echo base_url();?>employee/dashboard/brackets_snapshot_full_view" target="_blank">Show All</a>
+                        </div>
+                    </div>
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content">

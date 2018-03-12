@@ -1283,4 +1283,10 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $data =  $this->pending_booking_by_rm($rm_id);
         echo json_encode(array_values($data));
     }
+    
+    function brackets_snapshot_full_view(){
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $this->load->view('dashboard/brackets_snapshot_view');
+        $this->load->view('dashboard/dashboard_footer');
+    }
 }
