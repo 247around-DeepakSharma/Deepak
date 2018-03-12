@@ -324,11 +324,7 @@ class Booking extends CI_Controller {
                 //2 means booking is getting updated
                 if ($booking['is_send_sms'] == 1) {
                     //Query converted to Booking OR New Booking Inserted
-                    $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
-                    $send['booking_id'] = $booking['booking_id'];
-                    $send['state'] = "Newbooking";
-                    $this->asynchronous_lib->do_background_process($url, $send);
-
+                    
                     //Assign Vendor
                     //log_message("info"," upcountry_data", print_r($upcountry_data). " Booking id ". $booking['booking_id']);
                     switch ($upcountry_data['message']) {
@@ -806,7 +802,7 @@ class Booking extends CI_Controller {
             array_push($data['prices'], $prices);
         }
         
-        $isPaytmTxn = $this->paytm_payment_lib->booking_paytm_payment_data($booking_id);
+        $isPaytmTxn = $this->paytm_payment_lib->get_paytm_transaction_data($booking_id);
        
         if(!empty($isPaytmTxn)){
             if($isPaytmTxn['status']){
@@ -891,7 +887,10 @@ class Booking extends CI_Controller {
             $booking_details = $this->reusable_model->get_search_query('booking_details', 'booking_details.assigned_vendor_id,booking_unit_details.price_tags,booking_unit_details.appliance_capacity', array('booking_details.booking_id' => $booking_id,"booking_unit_details.price_tags like '%"._247AROUND_WALL_MOUNT__PRICE_TAG."%'" => NULL,'booking_details.assigned_vendor_id IS NOT null'=>NULL), array('booking_unit_details'=>'booking_details.booking_id = booking_unit_details.booking_id'), NULL, NULL, NULL, NULL)->result_array();
             if (!empty($booking_details)) { 
             //Send Push Notification
+            $rmArray = $this->vendor_model->get_rm_sf_relation_by_sf_id($booking_details[0]['assigned_vendor_id']);
             $receiverArray['vendor'] = array($booking_details[0]['assigned_vendor_id']);
+            $receiverArray['employee'] = array($rmArray[0]['agent_id']);
+            $notificationTextArray['title'] = array("Cancel");
             $notificationTextArray['msg'] = array($booking_id,"Cancel");
             $this->push_notification_lib->create_and_send_push_notiifcation(BOOKING_UPDATED_BY_247AROUND,$receiverArray,$notificationTextArray);
             //End Push Notification
@@ -1343,7 +1342,7 @@ class Booking extends CI_Controller {
         
         $data['unit_details'] = $booking_unit_details;
         
-        $isPaytmTxn = $this->paytm_payment_lib->booking_paytm_payment_data($booking_id);
+        $isPaytmTxn = $this->paytm_payment_lib->get_paytm_transaction_data($booking_id);
         
         if(!empty($isPaytmTxn)){
             if($isPaytmTxn['status']){
@@ -1669,8 +1668,12 @@ class Booking extends CI_Controller {
         //Send Push Notification
         // get Assigned Vendor
         $vendorData = $this->vendor_model->getVendor($booking_id);
+        //Get RM For Assigned Vendor
+        $rmArray = $this->vendor_model->get_rm_sf_relation_by_sf_id($vendorData[0]['id']);
+        $receiverArray['employee']= array($rmArray[0]['agent_id']);
         $receiverArray['vendor']= array($vendorData[0]['id']);
         $notificationTextArray['msg'] = array($booking_id,"Rejected");
+        $notificationTextArray['title'] = array("Rejected");
         $this->push_notification_lib->create_and_send_push_notiifcation(BOOKING_UPDATED_BY_247AROUND,$receiverArray,$notificationTextArray);
         //End Push Notification
         $this->notify->insert_state_change($booking_id, "Rejected", "InProcess_Completed", $admin_remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
@@ -2096,6 +2099,10 @@ class Booking extends CI_Controller {
                     //Update Spare parts details table
                     $this->service_centers_model->update_spare_parts(array('id' => $sp['id']), array('status' => $sp['old_status']));
                 }
+                // Update Engineer Action table Status When Booking Opened
+                $en_where = array("engineer_booking_action.booking_id" => $booking_id);
+                $this->engineer_model->update_engineer_table(array("current_status" => _247AROUND_PENDING, "internal_status" =>_247AROUND_PENDING), $en_where);
+         
 
                 //Log this state change as well for this booking          
                 $this->notify->insert_state_change($booking_id, _247AROUND_PENDING, $status, "", $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);

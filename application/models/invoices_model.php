@@ -276,7 +276,7 @@ class invoices_model extends CI_Model {
         $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
         $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
 
-        $sql1 = "SELECT booking_unit_details.id AS unit_id, `booking_details`.booking_id, "
+        $sql1 = "SELECT booking_unit_details.id AS unit_id, booking_unit_details.sub_order_id, `booking_details`.booking_id, "
                 . "  invoice_email_to,invoice_email_cc, booking_details.rating_stars,  "
                 . " `booking_details`.partner_id, `booking_details`.source,"
                 . " `booking_details`.city, DATE_FORMAT(`booking_unit_details`.ud_closed_date, '%D %b %Y') as closed_date,price_tags, "
@@ -1094,7 +1094,7 @@ class invoices_model extends CI_Model {
             $meta['sc_code'] = $data['booking'][0]['sc_code'];
             $meta['owner_email'] =  $data['booking'][0]['owner_email'];
             $meta['primary_contact_email'] =  $data['booking'][0]['primary_contact_email'];
-            $bankDetails = $this->reusable_model->get_search_result_data("account_holders_bank_details","*",array('entity_id'=>$vendor_id,'entity_type'=>"SF"),NULL,NULL,NULL,NULL,NULL);
+            $bankDetails = $this->reusable_model->get_search_result_data("account_holders_bank_details","*",array('entity_id'=>$vendor_id,'entity_type'=>"SF",'is_active'=>1),NULL,NULL,NULL,NULL,NULL);
             if(empty($bankDetails[0])){
            $bankDetails[0]['beneficiary_name'] = '';
            $bankDetails[0]['bank_account'] = '';
@@ -1359,11 +1359,11 @@ class invoices_model extends CI_Model {
         if($profitLoss == 1){
             $profit_loss_where = ' AND CASE WHEN (cp_claimed_price > 0) THEN ((`partner_basic_charge` + `partner_tax_charge` + `partner_sweetner_charges`) <=  (cp_claimed_price)) ELSE ((`partner_basic_charge` + `partner_tax_charge` + `partner_sweetner_charges`) <=  (`cp_basic_charge` + cp_tax_charge)) END ';
         } else {
-            $profit_loss_where = ' AND CASE WHEN (cp_claimed_price > 0) THEN ((`partner_basic_charge` + `partner_tax_charge` + `partner_sweetner_charges`) >  (cp_claimed_price + cp_tax_charge)) ELSE ((`partner_basic_charge` + `partner_tax_charge` + `partner_sweetner_charges`) >  (`cp_basic_charge` + cp_tax_charge)) END ';
+            $profit_loss_where = ' AND CASE WHEN (cp_claimed_price > 0) THEN ((`partner_basic_charge` + `partner_tax_charge` + `partner_sweetner_charges`) >  (cp_claimed_price)) ELSE ((`partner_basic_charge` + `partner_tax_charge` + `partner_sweetner_charges`) >  (`cp_basic_charge` + cp_tax_charge)) END ';
         }
         $select = " COUNT(bb_unit_details.id) as qty, SUM(CASE WHEN ( bb_unit_details.cp_claimed_price > 0) 
                 THEN (bb_unit_details.cp_claimed_price) 
-                ELSE (bb_unit_details.cp_basic_charge) END ) AS taxable_value, concat('Used ',services) as description, 
+                ELSE (bb_unit_details.cp_basic_charge + cp_tax_charge) END ) AS taxable_value, concat('Used ',services) as description, 
                 CASE WHEN (bb_unit_details.service_id = 46) THEN (8528) 
                 WHEN (bb_unit_details.service_id = 50) THEN (8415)
                 WHEN (bb_unit_details.service_id = 28) THEN (8450)
@@ -1374,7 +1374,7 @@ class invoices_model extends CI_Model {
         if($is_unit){
             $select = " bb_unit_details.id AS unit_id,bb_unit_details.gst_amount, CASE WHEN ( bb_unit_details.cp_claimed_price > 0) 
                 THEN (bb_unit_details.cp_claimed_price) 
-                ELSE (bb_unit_details.cp_basic_charge) END AS cp_charge,partner_tracking_id, city,order_key,
+                ELSE (bb_unit_details.cp_basic_charge + cp_tax_charge) END AS cp_charge,partner_tracking_id, city,order_key,
                 CASE WHEN(acknowledge_date IS NOT NULL) 
                 THEN (DATE_FORMAT( acknowledge_date,  '%d-%m-%Y' ) ) ELSE (DATE_FORMAT(delivery_date,  '%d-%m-%Y' )) END AS delivery_date, order_date,
                 order_date, services, bb_order_details.partner_order_id";
@@ -1393,6 +1393,7 @@ class invoices_model extends CI_Model {
                 AND bb_unit_details.service_id = services.id $profit_loss_where  $is_foc_null $group_by ";
         
         $query = $this->db->query($sql);
+        
         return $query->result_array();
         
     }

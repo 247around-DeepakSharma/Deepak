@@ -291,6 +291,19 @@
             .dropdown-submenu.pull-left{float:none;}.dropdown-submenu.pull-left>.dropdown-menu{left:-100%;margin-left:10px;-webkit-border-radius:6px 0 6px 6px;-moz-border-radius:6px 0 6px 6px;border-radius:6px 0 6px 6px;}
         </style>
         
+        <?php if(ENVIRONMENT === 'production') { ?> 
+            <!-- Global site tag (gtag.js) - Google Analytics -->
+            <script async src="https://www.googletagmanager.com/gtag/js?id=<?php echo _247AROUND_CRM_GGL_ANALYTICS_TAG_ID ; ?>"></script>
+            <script>
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+
+              gtag('config', <?php echo _247AROUND_CRM_GGL_ANALYTICS_TAG_ID ; ?>);
+            </script>
+
+        <?php } ?>
+        
         <script type="text/javascript" src="https://blackmelon.atlassian.net/s/d41d8cd98f00b204e9800998ecf8427e-T/v7ee31/b/4/a44af77267a987a660377e5c46e0fb64/_/download/batch/com.atlassian.jira.collector.plugin.jira-issue-collector-plugin:issuecollector/com.atlassian.jira.collector.plugin.jira-issue-collector-plugin:issuecollector.js?locale=en-US&collectorId=b41bd36b"></script>
 
   <div class="main_search">

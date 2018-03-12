@@ -3,6 +3,16 @@
  * This library handles payment communication with Paytm 
  * In this library we are using Version 2.0 of paytm API
  * Reffrence_document - 
+ * This class has 4 following main functions  
+ *          1) generate_qr_code
+ *          2) check_status_from_order_id
+ *          3) paytm_cashback
+ *          4) get_paytm_transaction_data
+ * This Library Contains Helper function for paytm_payment_callback (Main function in payment controller)
+ * All other functions in this lib are helper functions for above mentioned main functions
+ * All helper functions get start with Process Name (QR,CASHBACK,CHECKSTATUS,CALLBACK)
+ * We are using paytm_inbuilt_function_lib in this lib this library use to create cheksum (Need to send it with paytm request to paytm API)
+ * link for inbuilt paytm functions - https://github.com/Paytm-Payments/Paytm_App_Checksum_Kit_PHP
  */
 class paytm_payment_lib {
     public function __construct() {
@@ -12,8 +22,155 @@ class paytm_payment_lib {
         $this->P_P->load->library('paytm_inbuilt_function_lib');
         $this->P_P->load->library('miscelleneous');
         $this->P_P->load->model('reusable_model');
+        $this->P_P->load->model('partner_model');
     }
-    private function send_curl_request($data_string,$headers,$url,$activity){
+         /*
+     * This function is used to genrate qr code using paytm API
+     * @input parameter - booking_id,amount,Channel(Through which channel payment happens eg - "job_card","app","user_download" etc),contact(transaction notification)
+     * @output paramenter - 1) Status - (Success or Failure)
+                                                   2) status_message (reason of failure in case of failure or Success msg)
+                                                   3) QR Image Url
+                                                   4) QR Image name
+                                                   5) Database Record ID (after saving QR code in database, it will return databse id)
+          * First of all this functions check is there any existing QR Code for requesting parameters
+          * If yes then it returns that existing QR
+          * If not then it creates a request for paytm API and generate QR Code
+          * After that saves QR data in Database and return QR data
+     */
+    function generate_qr_code($bookingID,$channel,$amount,$contact){
+        //Convert amount in decimal number upto 2 digit
+            if($amount !=0){
+                $amount = number_format((float)$amount, 2, '.', '');
+            }
+            log_message('info', __FUNCTION__ . "booking_id".$bookingID.", Amount ".$amount.", Channel ".$channel.", Contact no ".$contact);
+            
+            //Check if any qr code already there with same booking and amount
+            $existBooking = $this->QR_is_qr_code_already_exists_for_input($bookingID,$channel,$amount,$contact);
+            
+            // if yes then generate response with existing data
+            if($existBooking['is_exist'] == 1){
+                return $this->QR_create_qr_code_response(SUCCESS_STATUS,QR_ALREADY_EXISTS_MSG,$existBooking['data']);
+            }
+            
+            //if not then
+            else{
+                //Generate qr code
+                $resultArray = $this->QR_process_generate_qr_code($bookingID,$channel,$amount,$contact);
+                // IF QR code Generated Successfully
+                if($resultArray['is_success'] == 1){
+                    return $this->QR_create_qr_code_response(SUCCESS_STATUS,$resultArray['msg'], array($resultArray['data']));
+                }
+                //If not able to Generate QR Code
+                else{
+                    return $this->QR_create_qr_code_response(FAILURE_STATUS,$resultArray['msg']);
+                }
+            }
+    }
+     /*
+     * This function is used to check transaction status against a order_id
+     * @input - order id which we define at the time of qr generation
+     * @output - Response Contains
+     *      1) Status - Success,Failure Or No Transaction
+     *      2) StatusMsg - Detailed Info About Status
+     *      3) transaction Data(Optional) - Data of transaction , if transaction happens against requested order_id
+      * This function hit paytm check status API
+      * If response is success then it save response in callback table (order_id is unique in callback table, if transaction already exists in db then it will simply ignore this callback response)
+      * If not then it return Failure Msg
+     */
+    function check_status_from_order_id($order_id){
+        log_message('info', __FUNCTION__ . " Function Start ".$order_id);
+        
+        //Send Check Status request to paytm
+       $responseArray =  $this->CHECKSTATUS_send_check_status_request_from_order_id($order_id);
+       
+       // If success
+        if($responseArray['response']['txnList'][0]['status'] == CHECK_STATUS_SUCCESS_CODE){
+            $data = $this->CHECKSTATUS_checkstatus_success_handler($responseArray);
+            log_message('info', __FUNCTION__ . " Function End With Success");
+            return $this->CHECKSTATUS_create_check_status_response(CHECK_STATUS_SUCCESS,CHECK_STATUS_SUCCESS_MSG,$data);
+        }
+        
+        // If transaction not happens against this order id
+        else if($responseArray['statusCode'] == CHECK_STATUS_INVALID_ORDER_ID){
+            log_message('info', __FUNCTION__ . " Function End With No Transaction against Order ID");
+           return  $this->CHECKSTATUS_create_check_status_response(TRANSACTION_NOT_HAPPENS_YET,TRANSACTION_NOT_HAPPENS_YET_MSG);
+        }
+        // Failure
+        else{
+            log_message('info', __FUNCTION__ . " Function End With Failure");
+            return $this->CHECKSTATUS_create_check_status_response(CHECK_STATUS_FAILURE,CHECK_STATUS_FAILURE_MSG);
+        }
+    }
+        /*
+     * This Function is used to process paytm cashback against A Transaction
+     * @input - 1) @transaction_id - Transaction ID(Transaction ID provided by paytm)
+     *                  2) $amount - How much Amount we have to refund
+         * @output - 1) Status - Success or failure
+         *                     2) StatusMsg - Explaination of Status
+         * 1) Firstly function check does transaction id exists in Database, IF not then return with Failure
+         * 2) If yes then checks refund already has been processed against  this transaction or not if yes then return with failure
+         * 3) If not then creates a request to process refund for paytm if response failure then return with failure 
+         * 4) If success thern save refund in database and return with success
+     */
+    function paytm_cashback($transaction_id,$amount){
+        //Check is transaction id exists
+        //Select * FROM paytm_transaction_callback WHERE txn_id=$transaction_id;
+        $bookingPaymentDetails = $this->P_P->reusable_model->get_search_result_data("paytm_transaction_callback","*",array('txn_id'=>$transaction_id),NULL,NULL,NULL,NULL,NULL,array());
+        //If transaction id does'nt exists
+        if(empty($bookingPaymentDetails)){
+            //exit function with response not found transaction
+            return $this->CASHBACK_create_cashback_response(FAILURE_STATUS,CASHBACK_TRANSACTION_NOT_FOUND_MSG);
+        }
+        else{
+            //Check if cashback already processed against this transaction
+            //IF yes
+            if($bookingPaymentDetails[0]['cashback_txn_id'] != NULL){
+                //exit function with response cashback already processed
+                return $this->CASHBACK_create_cashback_response(FAILURE_STATUS,CASHBACK_ALREADY_DONE_FOR_THIS_TRANSACTION_ID);
+            }
+            //IF not
+            else{
+                $resultArray = $this->CASHBACK_process_cashback($bookingPaymentDetails,$amount,$transaction_id);
+                 if($resultArray['is_success'] == 1){
+                         return $this->CASHBACK_create_cashback_response(SUCCESS_STATUS,$resultArray['msg']);
+                     }
+                     else{
+                         return $this->CASHBACK_create_cashback_response(FAILURE_STATUS,$resultArray['msg']);
+                     }
+            }
+        }
+    }
+    /*
+     * This function is used to get all paytm transactions data against a booking id
+     * @output - 1) status - Transaction exist or not 
+     *                     2) Data (Optional)  - Alltransactions array
+     *                     3) total_amount (Optional) - total_amount from all transactions (SUM of all transactions)
+     *                     4) channel (Optional) - comma seprated list of all channels (Through which mediums transactions process) 
+     */
+    function get_paytm_transaction_data($booking_id){
+        $finalAmount = 0;
+        //Select * From paytm_transaction_callback where booking_id=$booking_id
+        $data = $this->P_P->reusable_model->get_search_result_data("paytm_transaction_callback","*",array("booking_id"=>$booking_id),NULL,NULL,NULL,NULL,NULL,array());
+        if(!empty($data)){
+            foreach($data as $transaction){
+                $finalAmount = $finalAmount+$transaction['paid_amount'];
+                $channel[] = explode("_",$transaction['order_id'])[1];
+            }
+            return array('status'=>true,'data'=>$data,'total_amount'=>$finalAmount,'channels'=>array_values(array_unique($channel)));
+        }
+        return array('status'=>false);
+    }
+    /*
+     * This is a helper function for all main function in LIBRARY
+     * This function is use to send request through curl to given url
+     * @inputs - 1) data_string : Parameters in json format (Which needs to send in request)
+     *                    2) headers : Parameters which we needs to send in header
+     *                    3) Url: Address, Where we have to send request
+     *                    4) activity - For which process we are sending this request
+     * @output - response which we get from requested url
+     * This function also save request headers and response data in log table
+     */
+    private function _send_curl_request($data_string,$headers,$url,$activity){
         $ch = curl_init(); 
         curl_setopt($ch, CURLOPT_URL,$url); curl_setopt($ch, CURLOPT_POST, 1); 
         curl_setopt($ch, CURLOPT_POSTFIELDS,$data_string); 
@@ -23,6 +180,14 @@ class paytm_payment_lib {
         $this->save_api_response_in_log_table($activity,$output,$data_string,_247AROUND,json_encode($headers));
         return $output;
     }
+    /*
+     * This function use to save each request and response in log table
+     * @input - 1) activity - For which function we are sending or receiving request
+     *                  2) response - response which we get in revert of request or direct response in case of callback
+     *                  3) request - Request which we send 
+     *                  4) PartnerID - Partner, With whom we are communicating Through request and response
+     *                  5) header - response header
+     */
     function save_api_response_in_log_table($activity,$response=NULL,$request=NULL,$partner_id=NULL,$header=NULL){
         $logData['activity'] = $activity;
         if($response != NULL){
@@ -37,7 +202,7 @@ class paytm_payment_lib {
         if($header != NULL){
             $logData['header'] = $header;
         }
-        $this->P_P->reusable_model->insert_into_table("log_partner_table",$logData);
+        $this->P_P->partner_model->log_partner_activity($logData);
     }
     /*
      * This is a helper function for generate_qr_code_function
@@ -148,7 +313,7 @@ class paytm_payment_lib {
         //Header Array
         $headers = array('Content-Type:application/json','merchantGuid: '.MERCHANT_GUID,'mid: '.MID,'checksumhash:'.$checkSum); 
         //Send Curl request to paytm API
-        $output = $this->send_curl_request($data_string,$headers,QR_CODE_URL,"QR_Code_generation");
+        $output = $this->_send_curl_request($data_string,$headers,QR_CODE_URL,"QR_Code_generation");
         $outputArray = json_decode($output,true);
         // QR_001 -> SUCCESS, QR-1020 -> IF QR already exist for same input
         //In both case save into databse 
@@ -157,7 +322,13 @@ class paytm_payment_lib {
             return $this->QR_generation_success_handler($outputArray,$bookingID,$amount,$paramlist);
         }
         else{
-            log_message('info', __FUNCTION__ . "Function End With Failure");
+             //Send Email 
+        $to = TRANSACTION_SUCCESS_TO; 
+        $cc = TRANSACTION_SUCCESS_CC;
+        $subject = "QR code not generated";
+        $message = "response - ".print_r($outputArray);
+        $this->P_P->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
+            log_message('error', __FUNCTION__ . "Function End With Failure ".print_r($outputArray,true));
               return array('is_success'=>0,'msg'=>QR_CODE_FAILURE,'data'=>array());
         }
     }
@@ -213,6 +384,12 @@ class paytm_payment_lib {
         //response_api (From which api we are getting response,check status or callback)
         $data['response_api'] = TRANSACTION_RESPONSE_FROM_CALLBACK;
         $insertID = $this->P_P->reusable_model->insert_into_table("paytm_transaction_callback",$data);
+         //Send Email 
+        $to = TRANSACTION_SUCCESS_TO; 
+        $cc = TRANSACTION_SUCCESS_CC;
+        $subject = "New Transaction From Paytm - ".$data['txn_id'];
+        $message = "Hi,<br/> We got a new transaction from paytm for below:<br/>  BookingID - " .$booking_id.", OrderID - ".$data['order_id'];
+        $this->P_P->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
         return $insertID;
     }
     /*
@@ -244,13 +421,24 @@ class paytm_payment_lib {
         log_message('info', __FUNCTION__ . " Function End With Response".print_r($responseArray,true));
         return json_encode($responseArray);
     }
+    /*
+     * This function is used to create parameters(need to send to paytm api) array
+     * @input - 1) $bookingPaymentDetails - Transaction Payment details Array
+     *                  2) $amount - Amount needs to cashback
+     */
     private function CASHBACK_create_cashback_parameters($bookingPaymentDetails,$amount){
         log_message('info', __FUNCTION__ . " Function Start");
+        //amount need to refund
         $paramlist['request']['amount'] = $amount;
+        //Order_id (Created at the time of qr generation)
         $paramlist['request']['merchantOrderId'] = $bookingPaymentDetails[0]['order_id'];
+        //Merchant GUID
         $paramlist['request']['merchantGuid'] = MERCHANT_GUID;
+        //Transaction_id (Return by paytm at the time of payment)
         $paramlist['request']['txnGuid'] = $bookingPaymentDetails[0]['txn_id'];
+        //Currency
         $paramlist['request']['currencyCode'] = "INR";
+        //Refund id (It must be unique for each cashback)
         $paramlist['request']['refundRefId'] = "R_".$bookingPaymentDetails[0]['booking_id']."_".rand(100,1000);
         $paramlist['platformName'] = "PayTM";
         $paramlist['operationType'] = "REFUND_MONEY";
@@ -258,13 +446,25 @@ class paytm_payment_lib {
         log_message('info', __FUNCTION__ . " Function End");
         return $paramlist;
     }
-    function CASHBACK_generation_success_handler($booking_id,$amount,$paramlist){
-       $where['booking_id'] =  $booking_id;
-       $where['txn_id'] =  $paramlist['request']['txnGuid'];
+    /*
+     * This function is used to handle successfully processing of cashback
+     * @input - 1) @transaction_id - Transaction ID(Return by paytm at the time of qr generation)
+     *                  2) @amount - Amount needs to transafer
+     *                  3) $paramlist = Parameter Array(Requestr array for paytm API)
+     *                  4) @outputArray - Response By Paytm
+     */
+    function CASHBACK_generation_success_handler($transaction_id,$amount,$paramlist,$outputArray){
+       //Create where array (Where we have to update refund in transaction table)
+       $where['txn_id'] =  $transaction_id;
        $where['order_id'] =  $paramlist['request']['merchantOrderId'];
+       //Cashback Amount
        $cashBackData['cashback_amount'] = $amount;
+       //Cashback Transaction ID (Provided by 247Around at the time of request)
        $cashBackData['cashback_txn_id'] = $paramlist['request']['refundRefId'];
-       $cashBackData['cashback_from'] = _247AROUND;
+       //Refund Transaction ID (Provided BY paytm on successfull processing of cashback)
+       $cashBackData['cashback_txn_id_paytm'] = $outputArray['response']['refundTxnGuid'];
+       //Cashback initiated by (Default is _247AROUND)
+       $cashBackData['cashback_from'] = _247AROUND; 
        $cashBackData['cash_back_status'] = "SUCCESS";
        $cashBackData['cashback_date'] = date("Y-m-d h:i:s");
        $db_id = $this->P_P->reusable_model->update_table("paytm_transaction_callback",$cashBackData,$where);
@@ -273,82 +473,40 @@ class paytm_payment_lib {
        }
        return array('is_success'=>0,'msg'=>CASHBACK_DATABASE_ERROR);
     }
-    function CASHBACK_process_cashback($bookingPaymentDetails,$amount,$booking_id){
-        $paramlist = $this->CASHBACK_create_cashback_parameters($bookingPaymentDetails,$amount);
-        $data_string = json_encode($paramlist);
-        //Create Checksum for requested Body
-        $checkSum = $this->P_P->paytm_inbuilt_function_lib->getChecksumFromString($data_string ,PAYTM_MERCHANT_KEY); 
-        //Header Array
-        $headers = array('Content-Type:application/json','mid: '.MID,'checksumhash:'.$checkSum); 
-        //Send Curl request to paytm api
-        //$output = $this->send_curl_request($data_string,$headers,CASHBACK_URL,"Process_Cashback");
-        $output = '{"type": null,"requestGuid": null,"orderId": "TEST_123469933335ff991099","status": "SUCCESS","statusCode": "SUCCESS","statusMessage":"SUCCESS","response": {"refundTxnGuid": "14271439146","refundTxnStatus": "SUCCESS"},"metadata": "Test"}';
-        $outputArray = json_decode($output,true);
-        //IF success
-        if($outputArray['status'] == 'SUCCESS'){
-            log_message('info', __FUNCTION__ . "Function End with Success");
-            return $this->CASHBACK_generation_success_handler($booking_id,$amount,$paramlist);
-        }
-        else{
-            log_message('info', __FUNCTION__ . "Function End With Failure");
-              return array('is_success'=>0,'msg'=>QR_CODE_FAILURE);
-        }
-    }
     /*
-     * This Function is used to process paytm cashback against A Transaction
+     * This function is used to process cashback using paytm API
+     * @input - 1) $bookingPaymentDetails - transaction Payment details array
+     *                  2) $amount - (Amount need to transfer)
+     *                  3) $transaction_id - Transaction ID 
      */
-    function paytm_cashback($booking_id,$amount){
-        //get paytm payment details against bookingid 
-        //Select * FROM paytm_transaction_callback WHERE booking_id=$booking_id
-        $bookingPaymentDetails = $this->P_P->reusable_model->get_search_result_data("paytm_transaction_callback","*",array('booking_id'=>$booking_id),NULL,NULL,NULL,NULL,NULL,array());
-        if(empty($bookingPaymentDetails)){
-            return $this->CASHBACK_create_cashback_response(FAILURE_STATUS,CASHBACK_TRANSACTION_NOT_FOUND_MSG);
+    function CASHBACK_process_cashback($bookingPaymentDetails,$amount,$transaction_id){
+        //Check is Refund amount less then transaction amount?
+        //IF yes
+        if($bookingPaymentDetails[0]['paid_amount']>$amount){
+            //Create API request Array
+            $paramlist = $this->CASHBACK_create_cashback_parameters($bookingPaymentDetails,$amount);
+            $data_string = json_encode($paramlist);
+            //Create Checksum for requested Body
+            $checkSum = $this->P_P->paytm_inbuilt_function_lib->getChecksumFromString($data_string ,PAYTM_MERCHANT_KEY); 
+            //Header Array
+            $headers = array('Content-Type:application/json','mid: '.MERCHANT_GUID,'checksumhash:'.$checkSum); 
+            //Send Curl request to paytm api
+            $output = $this->_send_curl_request($data_string,$headers,CASHBACK_URL,"Process_Cashback");
+            //$output = '{"type": null,"requestGuid": null,"orderId": "TEST_123469933335ff991099","status": "SUCCESS","statusCode": "SUCCESS","statusMessage":"SUCCESS","response": {"refundTxnGuid": "14271439146","refundTxnStatus": "SUCCESS"},"metadata": "Test"}';
+            $outputArray = json_decode($output,true);
+            //IF success
+            if($outputArray['status'] == 'SUCCESS'){
+                log_message('info', __FUNCTION__ . "Function End with Success");
+                return $this->CASHBACK_generation_success_handler($transaction_id,$amount,$paramlist,$outputArray);
+            }
+            else{
+                log_message('info', __FUNCTION__ . "Function End With Failure");
+                  return array('is_success'=>0,'msg'=>QR_CODE_FAILURE);
+            }
         }
         else{
-           $resultArray = $this->CASHBACK_process_cashback($bookingPaymentDetails,$amount,$booking_id);
-            if($resultArray['is_success'] == 1){
-                    return $this->CASHBACK_create_cashback_response(SUCCESS_STATUS,$resultArray['msg']);
-                }
-                //If not able to Generate QR Code
-                else{
-                    return $this->CASHBACK_create_cashback_response(FAILURE_STATUS,$resultArray['msg']);
-                }
+            return array('is_success'=>0,'msg'=>REFUND_AMOUNT_GRETER_THEN_TRANSACTION_AMOUNT);
         }
-    }
-      /*
-     * This function is used to genrate qr code using paytm API
-     * @input parameter - booking_id,amount,Channel(Through which channel payment happens eg - "job_card","app","user_download" etc),contact(transaction notification)
-     * @output paramenter - 1) Status - (Success or Failure)
-                                                   2) status_message (reason of failure in case of failure or Success msg)
-                                                   3) QR Image Url
-                                                   4) QR Image name
-                                                   5) Database Record ID (after saving QR code in database, it will return databse id)
-                                                     
-     */
-    function generate_qr_code($bookingID,$channel,$amount,$contact){
-            if($amount !=0){
-                $amount = number_format((float)$amount, 2, '.', '');
-            }
-            log_message('info', __FUNCTION__ . "booking_id".$bookingID.", Amount ".$amount.", Channel ".$channel.", Contact no ".$contact);
-            //Check if any qr code already there with same booking and amount
-            $existBooking = $this->QR_is_qr_code_already_exists_for_input($bookingID,$channel,$amount,$contact);
-            // if yes then generate response with existing data
-            if($existBooking['is_exist'] == 1){
-                return $this->QR_create_qr_code_response(SUCCESS_STATUS,QR_ALREADY_EXISTS_MSG,$existBooking['data']);
-            }
-            //if not then
-            else{
-                //Generate qr code
-                $resultArray = $this->QR_process_generate_qr_code($bookingID,$channel,$amount,$contact);
-                // IF QR code Generated Successfully
-                if($resultArray['is_success'] == 1){
-                    return $this->QR_create_qr_code_response(SUCCESS_STATUS,$resultArray['msg'], array($resultArray['data']));
-                }
-                //If not able to Generate QR Code
-                else{
-                    return $this->QR_create_qr_code_response(FAILURE_STATUS,$resultArray['msg']);
-                }
-            }
     }
     /*
      * This is a helper function for check_status_from_order_id
@@ -392,7 +550,15 @@ class paytm_payment_lib {
             //From Which API We are Getting Response
             $data['response_api'] = TRANSACTION_RESPONSE_FROM_CHECK_STATUS;
             // Save data into transaction table
-            $this->P_P->reusable_model-> insert_into_table("paytm_transaction_callback",$data);
+            $insertID = $this->P_P->reusable_model-> insert_into_table("paytm_transaction_callback",$data);
+            if($affectedRows>0){
+                //Send Email 
+                $to = TRANSACTION_SUCCESS_TO; 
+                $cc = TRANSACTION_SUCCESS_CC;   
+                $subject = "New Transaction From Paytm - ".$data['txn_id'];
+                $message = "Hi,<br/> We got a new transaction from paytm for below:<br/>  BookingID - " .$booking_id.", OrderID - ".$data['order_id'];
+                $this->P_P->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
+            }
         }
         log_message('info', __FUNCTION__ . " Function End With  ".print_r($data,true));
         return $data;
@@ -416,7 +582,7 @@ class paytm_payment_lib {
         //Default Value
         $data['platformName'] = "PayTM";
         //Default Value
-        $data['operationType'] = "CHECK_TXN_STATUS";
+        $data['operationType'] = "CHECK_TXN_STATUS"; 
         //Create json string of request
         $data_string  = json_encode($data);
         //Create Checksum for requested Body
@@ -424,50 +590,8 @@ class paytm_payment_lib {
         //Pass Merchant guid in Mid Fields in header
         $headers = array('Content-Type:application/json','mid: '.MERCHANT_GUID,'checksumhash:'.$checkSum); 
         //Send Curl request to paytm api
-        $output = $this->send_curl_request($data_string,$headers,CHECK_STATUS_URL,"Process_Check_Status");
+        $output = $this->_send_curl_request($data_string,$headers,CHECK_STATUS_URL,"Process_Check_Status");
         log_message('info', __FUNCTION__ . " Function End With Data:  ".print_r($output,true));
         return $outputArray = json_decode($output,true);
-    }
-    /*
-     * This function is used to check transaction status against a order_id
-     * @input - order id which we define at the time of qr generation
-     * @output - Response Contains
-     * 1) Status - Success,Failure Or No Transaction
-     * 2) StatusMsg - Detailed Info About Status
-     * 3) transaction Data(Optional) - Data of transaction , if transaction happens against requested order_id
-     */
-    function check_status_from_order_id($order_id){
-        log_message('info', __FUNCTION__ . " Function Start ".$order_id);
-        //Send Check Status request to paytm
-       $responseArray =  $this->CHECKSTATUS_send_check_status_request_from_order_id($order_id);
-       // If success
-        if($responseArray['response']['txnList'][0]['status'] == CHECK_STATUS_SUCCESS_CODE){
-            $data = $this->CHECKSTATUS_checkstatus_success_handler($responseArray);
-            log_message('info', __FUNCTION__ . " Function End With Success");
-            return $this->CHECKSTATUS_create_check_status_response(CHECK_STATUS_SUCCESS,CHECK_STATUS_SUCCESS_MSG,$data);
-        }
-        // If transaction not happens against this order id
-        else if($responseArray['statusCode'] == CHECK_STATUS_INVALID_ORDER_ID){
-            log_message('info', __FUNCTION__ . " Function End With No Transaction against Order ID");
-           return  $this->CHECKSTATUS_create_check_status_response(TRANSACTION_NOT_HAPPENS_YET,TRANSACTION_NOT_HAPPENS_YET_MSG);
-        }
-        // Failure
-        else{
-            log_message('info', __FUNCTION__ . " Function End With Failure");
-            return $this->CHECKSTATUS_create_check_status_response(CHECK_STATUS_FAILURE,CHECK_STATUS_FAILURE_MSG);
-        }
-    }
-    function booking_paytm_payment_data($booking_id){
-        $finalAmount = 0;
-        //Select * From paytm_transaction_callback where booking_id=$booking_id
-        $data = $this->P_P->reusable_model->get_search_result_data("paytm_transaction_callback","*",array("booking_id"=>$booking_id),NULL,NULL,NULL,NULL,NULL,array());
-        if(!empty($data)){
-            foreach($data as $transaction){
-                $finalAmount = $finalAmount+$transaction['paid_amount'];
-                $channel[] = explode("_",$transaction['order_id'])[1];
-            }
-            return array('status'=>true,'data'=>$data,'total_amount'=>$finalAmount,'channels'=>array_values(array_unique($channel)));
-        }
-        return array('status'=>false);
     }
 }

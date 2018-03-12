@@ -7,7 +7,7 @@ uploadfile.controller('uploadOrderDetailsFile', ['$scope', 'fileUpload', functio
             //var file_date = $scope.file_date.received_date;
             $scope.ShowSpinnerStatus = true;
             var file_date = $('#file_date').val();
-//            var qc_svc = $('#qc_svc').val();
+            //var qc_svc = $('#qc_svc').val();
             if(file_date === ''){
                 $scope.ShowSpinnerStatus = false;
                 $scope.errorMsg = true;
@@ -523,12 +523,6 @@ buyback_dashboard.controller('bb_dashboard_summary', function ($scope, $http) {
 });
 
 rm_dashboard.controller('rm_dashboardController', function ($scope, $http) {
-    //Missing Pincode Start
-    var pincode_url = baseUrl + "/employee/dashboard/get_pincode_not_found_sf_details/5";
-    $http.get(pincode_url).then(function (response) {
-            $("#pincode_table_data").html(response.data);
-     });
-     // Missing Pincode End
     //Escalation Start
     $scope.loadAllRMView = function(escalation_url){
          $http.get(escalation_url).then(function (response) {

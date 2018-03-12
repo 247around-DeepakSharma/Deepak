@@ -1,0 +1,1 @@
+UPDATE `push_notification_templates` SET `title` = 'Booking %s By 247Around' WHERE `push_notification_templates`.`notification_tag` = 'booking_updated_by_247Around';

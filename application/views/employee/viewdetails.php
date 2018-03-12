@@ -119,7 +119,9 @@
                             <th>Booking Date/ Timeslot </th>
                             <td><?php echo $booking_history[0]['booking_date']." / ".$booking_history[0]['booking_timeslot']; ?></td>
                             <th>Amount Due / Paid  </th>
-                            <td><i class="fa fa-rupee"></i> <?php echo $booking_history[0]['amount_due']." / ".$booking_history[0]['amount_paid']; ?></td>
+                            <td><i class="fa fa-rupee"></i> <?php echo $booking_history[0]['amount_due']." / ".$booking_history[0]['amount_paid']; ?>
+                            <button style="background-color: #2C9D9C;color:#fff;border-color: #2C9D9C;" type="button" class="btn btn-default" data-toggle="modal" data-target="#paytm_transaction" onclick="get_transaction_status(<?php echo "'".$booking_history[0]['booking_id']."'"?>)">Get Paytm Transaction Status</button>
+                            </td>
                         </tr>
                         <?php if(isset($booking_history[0]['onlinePaymentAmount'])) { ?>
                         <tr>
@@ -491,7 +493,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach ($booking_history['spare_parts'] as $sp) { ?>
+                                    <?php foreach ($booking_history['spare_parts'] as $sp) { if(!empty($sp['parts_shipped'])){ ?>
                                     <tr>
                                         <td><?php echo $sp['parts_shipped']; ?></td>
                                         <td><?php echo $sp['courier_name_by_partner']; ?></td>
@@ -503,7 +505,7 @@
                                         <td><?php echo $sp['challan_approx_value']; ?></td>
                                         <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY?>/vendor-partner-docs/<?php echo $sp['partner_challan_file']; ?>" target="_blank">Click Here to view</a></td>
                                     </tr>
-                                    <?php } ?>
+                                    <?php } } ?>
                                 </tbody>
                             </table>
                         </div>
@@ -659,6 +661,24 @@
         </div>
     </div>
 </div>
+<div id="paytm_transaction" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">New Transactions</h4>
+      </div>
+        <div class="modal-body" id="transaction_response_container" align="center">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
 <script>
     $('document').ready(function () {
         var booking_id = '<?php echo base_url() ?>employee/booking/get_booking_life_cycle/<?php echo $booking_history[0]['booking_id'] ?>';
@@ -730,5 +750,14 @@
                 console.log("Contact Developers For This Issue");
             }
     }
-    
+    function get_transaction_status(booking_id){
+        $.ajax({
+                    method: 'POST',
+                    data: {},
+                    url: '<?php echo base_url(); ?>payment/get_booking_transaction_status_by_check_status_api/'+booking_id,
+                    success: function (response) {
+                        document.getElementById("transaction_response_container").innerHTML = response;
+                    }
+                });
+    }
 </script>
