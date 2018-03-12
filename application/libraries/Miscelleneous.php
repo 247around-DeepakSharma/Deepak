@@ -2090,7 +2090,7 @@ class Miscelleneous {
                 $this->reject_reschedule_request($booking_id,$escalation_reason_id,$remarks,$id,$employeeID);
             }
             //Send Push Notification
-            $rmArray = $this->My_CI->get_rm_sf_relation_by_sf_id($vendor_id);
+            $rmArray = $this->My_CI->vendor_model->get_rm_sf_relation_by_sf_id($vendor_id);
             $receiverArray['vendor']= array($vendor_id);
             $receiverArray['employee']= array($rmArray[0]['agent_id']);
             $notificationTextArray['msg'] = array($booking_id,"Cancelled");
