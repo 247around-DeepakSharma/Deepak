@@ -8,7 +8,7 @@ class push_notification_lib {
         $this->Pu_N->load->library('miscelleneous');
         $this->Pu_N->load->library('asynchronous_lib');
         $this->Pu_N->load->helper('cookie');
-        $this->Pu_N->load->helper('notify');
+        $this->Pu_N->load->library('notify');
     }
     /*
      * This Function is used to send Push Notifications 
