@@ -2099,6 +2099,10 @@ class Booking extends CI_Controller {
                     //Update Spare parts details table
                     $this->service_centers_model->update_spare_parts(array('id' => $sp['id']), array('status' => $sp['old_status']));
                 }
+                // Update Engineer Action table Status When Booking Opened
+                $en_where = array("engineer_booking_action.booking_id" => $booking_id);
+                $this->engineer_model->update_engineer_table(array("current_status" => _247AROUND_PENDING, "internal_status" =>_247AROUND_PENDING), $en_where);
+         
 
                 //Log this state change as well for this booking          
                 $this->notify->insert_state_change($booking_id, _247AROUND_PENDING, $status, "", $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
