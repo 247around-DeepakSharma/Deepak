@@ -237,18 +237,27 @@ if($this->session->userdata("wrong_pincode_msg")){
                                         <tr>
                                             <th>S.no</th>
                                             <th>Service Center Name</th>
-                                            <th>Current Stock</th>
+                                            <th colspan="2">Current Stock</th>
                                             <th>Expected Days Left to Consume Brackets</th>
-                                            <th>Update Stocks</th>
+                                            <th>Order Brackets</th>
+                                        </tr>
+                                        <tr>
+                                            <th></th>
+                                            <th></th>
+                                            <th>Less than 32"</th>
+                                            <th>32" and above</th>
+                                            <th></th>
+                                            <th></th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr ng-repeat="x in bracketsSnapshot | limitTo:quantity">
                                            <td>{{$index+1}}</td>
                                            <td>{{x.sf_name}}</td>
-                                           <td>{{x.current_stocks}}</td>
+                                           <td>{{x.l_32}}</td>
+                                           <td>{{x.g_32}}</td>
                                            <td>{{x.brackets_exhausted_days}}</td>
-                                           <td><a class="btn btn-sm btn-success" href="<?php echo base_url();?>employee/inventory/update_inventory_stock/{{x.sf_id}}" target="_blank">Update Stocks</a></td>
+                                           <td><a class="btn btn-sm btn-success" href="<?php echo base_url();?>employee/inventory/get_bracket_add_form/{{x.sf_id}}/{{x.sf_name}}" target="_blank">Order brackets</a></td>
                                         </tr>
                                     </tbody>
                                 </table>                             
