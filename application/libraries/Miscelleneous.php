@@ -374,7 +374,7 @@ class Miscelleneous {
                             //Send Push Notification
                         $receiverArray['partner'] = array($query1[0]['partner_id']);
                         $notificationTextArray['msg'] = array($booking_id);
-                        $this->push_notification_lib->create_and_send_push_notiifcation(UPCOUNTRY_APPROVAL,$receiverArray,$notificationTextArray);
+                        $this->My_CI->push_notification_lib->create_and_send_push_notiifcation(UPCOUNTRY_APPROVAL,$receiverArray,$notificationTextArray);
                         //End Push Notification
                         }
                         $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message1, "");
