@@ -271,14 +271,14 @@ class Notify {
          * Send correct old_state from the calling function instead, do not change
          * the old state here
          * */
+                   $state_change['old_state'] = $old_state;
+                   if(!empty($booking_id)){
         $booking_state_change = $this->My_CI->booking_model->get_booking_state_change($state_change['booking_id']);
         
         if ($booking_state_change > 0) {
             $state_change['old_state'] = $booking_state_change[count($booking_state_change) - 1]['new_state'];
-        } else { //count($booking_state_change)
-            $state_change['old_state'] = $old_state;
         }
-        
+                    }
 	$insert_id = $this->My_CI->booking_model->insert_booking_state_change($state_change);
         
         if($insert_id){
@@ -469,6 +469,7 @@ class Notify {
 		    $sms['smsData']['service'] = $query1[0]['services']. " ".$call_type[0];
 		    $sms['smsData']['booking_date'] = date("d/M", strtotime($query1[0]['booking_date']));
 		    $sms['smsData']['booking_timeslot'] = explode("-",$query1[0]['booking_timeslot'])[1];
+                    $sms['smsData']['public_name'] = $query1[0]['public_name'];
 		    $sms['tag'] = "add_new_booking";
 		    
 		    $sms['booking_id'] = $query1[0]['booking_id'];

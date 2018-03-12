@@ -324,11 +324,7 @@ class Booking extends CI_Controller {
                 //2 means booking is getting updated
                 if ($booking['is_send_sms'] == 1) {
                     //Query converted to Booking OR New Booking Inserted
-                    $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
-                    $send['booking_id'] = $booking['booking_id'];
-                    $send['state'] = "Newbooking";
-                    $this->asynchronous_lib->do_background_process($url, $send);
-
+                    
                     //Assign Vendor
                     //log_message("info"," upcountry_data", print_r($upcountry_data). " Booking id ". $booking['booking_id']);
                     switch ($upcountry_data['message']) {
@@ -2103,6 +2099,10 @@ class Booking extends CI_Controller {
                     //Update Spare parts details table
                     $this->service_centers_model->update_spare_parts(array('id' => $sp['id']), array('status' => $sp['old_status']));
                 }
+                // Update Engineer Action table Status When Booking Opened
+                $en_where = array("engineer_booking_action.booking_id" => $booking_id);
+                $this->engineer_model->update_engineer_table(array("current_status" => _247AROUND_PENDING, "internal_status" =>_247AROUND_PENDING), $en_where);
+         
 
                 //Log this state change as well for this booking          
                 $this->notify->insert_state_change($booking_id, _247AROUND_PENDING, $status, "", $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
