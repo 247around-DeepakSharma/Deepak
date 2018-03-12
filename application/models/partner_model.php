@@ -349,7 +349,8 @@ function get_data_for_partner_callback($booking_id) {
             'Service sent to vendor' AS 'Status by Partner', 
             booking_date As 'Scheduled Appointment Date(DD/MM/YYYY)', 
             booking_timeslot AS 'Scheduled Appointment Time(HH:MM:SS)', 
-            partner_internal_status AS 'Final Status'
+            partner_internal_status AS 'Final Status',
+            booking_details.closed_date AS 'Completion Date'
             FROM  booking_details , booking_unit_details AS ud, services, users
             WHERE booking_details.booking_id = ud.booking_id 
             AND booking_details.service_id = services.id 
@@ -390,7 +391,8 @@ function get_data_for_partner_callback($booking_id) {
         $post['where'] = array('booking_details.partner_id' => $partner_id, 'DATE(booking_details.create_date) = DATE(DATE_SUB(NOW(), INTERVAL 1 DAY))' => NULL);
         $yesterday_booking = $this->booking_model->get_bookings_by_status($post, 'DISTINCT current_status,booking_details.create_date,booking_details.closed_date,booking_details.request_type');
         
-        if (count($today_booking) !== 0 || count($yesterday_booking) !== 0) {
+        $current_month_status = array_count_values(array_column($current_month_booking, 'current_status'));
+        if (count($today_booking) !== 0 || count($yesterday_booking) !== 0 || (isset($current_month_status['Pending']) && !empty($current_month_status['Pending'])) || (isset($current_month_status['Rescheduled']) && !empty($current_month_status['Rescheduled']))) {
             $result['current_month_installation_booking_requested'] = 0;
             $result['current_month_installation_booking_completed'] = 0;
             $result['current_month_installation_booking_cancelled'] = 0;
