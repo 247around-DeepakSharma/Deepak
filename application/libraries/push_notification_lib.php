@@ -8,6 +8,7 @@ class push_notification_lib {
         $this->Pu_N->load->library('miscelleneous');
         $this->Pu_N->load->library('asynchronous_lib');
         $this->Pu_N->load->helper('cookie');
+        $this->Pu_N->load->library('notify');
     }
     /*
      * This Function is used to send Push Notifications 
@@ -70,7 +71,7 @@ class push_notification_lib {
                         $cc = PUSH_NOTIFICATION_ERROR_NOTIFY_EMAIL;
                         $subject = "Error For Push Notification";
                         $message = "Hi,<br/> We got following error :".$resultArray['message']."For $subscriberArray[0]";
-                        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
+                        $this->Pu_N->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
                     }
                   log_message('info', __FUNCTION__ . " Function End Notification has Not been send, status is failure");
               }
