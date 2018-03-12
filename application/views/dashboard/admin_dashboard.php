@@ -90,7 +90,7 @@
                     </div>
                     <div class="col-md-6">
                         <div class="pull-right">
-                            <a class="btn btn-sm btn-success" href="<?php echo base_url();?>employee/dashboard/brackets_snapshot_full_view" target="_blank">All List</a>
+                            <a class="btn btn-sm btn-success" href="<?php echo base_url();?>employee/dashboard/brackets_snapshot_full_view" target="_blank">Show All</a>
                         </div>
                     </div>
                     <div class="clearfix"></div>
