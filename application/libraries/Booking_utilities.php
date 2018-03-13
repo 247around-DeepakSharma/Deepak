@@ -81,7 +81,7 @@ class Booking_utilities {
                 array_push($booking_unit_details, $array);
             }
             if($qr){
-                $booking_details[0]['qr_message'] = "Scan QR To Pay Through Paytm";
+                $booking_details[0]['qr_message'] = "Get 5% Discount When You Scan QR Code & Pay Through Paytm App";
             } else {
                 $booking_details[0]['qr_message'] = "";
             }
