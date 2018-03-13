@@ -34,10 +34,12 @@ class push_notification_model extends CI_Model {
      * This function is used to get subscriber id by entity_type
      */
     function get_subscriber_by_entity_types($entityTypesArray){
+        $where['unsubscription_flag'] = 0;
+        $where['is_valid'] = 1;
         $this->db->select('DISTINCT(subscriber_id)');
         $this->db->where_in("entity_type",$entityTypesArray);
         $this->db->where_not_in('subscriber_id', -1);
-        $this->db->where('unsubscription_flag', 0);
+        $this->db->where($where);
         $query = $this->db->get("push_notification_subscribers");
         $data = $query->result_array();
         return $data;
@@ -60,7 +62,7 @@ class push_notification_model extends CI_Model {
         foreach($entityIDTypeArray as $entity_type=>$entity_ID_array){
             $tempArray[] = "(entity_type='".$entity_type."' AND entity_id IN (".implode(",",$entity_ID_array)."))";
         }
-      $sql = "SELECT DISTINCT(subscriber_id) FROM push_notification_subscribers WHERE ".implode(" OR ",$tempArray)." AND subscriber_id !=-1 AND unsubscription_flag =0";
+      $sql = "SELECT DISTINCT(subscriber_id) FROM push_notification_subscribers WHERE ".implode(" OR ",$tempArray)." AND subscriber_id !=-1 AND unsubscription_flag =0 AND is_valid=1";
        $query = $this->db->query($sql);
        return $query->result_array();
     }
