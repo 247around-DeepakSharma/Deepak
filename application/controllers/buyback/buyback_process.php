@@ -1369,42 +1369,35 @@ class Buyback_process extends CI_Controller {
     }
     
     public function download_price_list_data() {
-       
-        $service_id = $this->service_centre_charges_model->get_bb_charges(array('bb_charges.partner_id' => AMAZON_SELLER_ID, 
-            'visible_to_partner' => 1, 'bb_shop_address.active' =>1 ), 'service_id', true, true);
-        foreach ($service_id as $value) {
-            $where = array('service_id' => $value['service_id'], 'bb_charges.partner_id' => AMAZON_SELLER_ID, 'visible_to_partner' => 1,'bb_shop_address.active' =>1 );
-            $select = "category,brand, physical_condition, working_condition , city AS location , partner_total";
-            $data = $this->service_centre_charges_model->get_bb_charges($where, $select, true, true);
-            $excel_file[$value['service_id']] = $this->generate_bb_price_data($value['service_id'],$data);
-            unset($data);
-        }
-        //$excel_file['46'] = $this->generate_tv_price_sheet();
-        
-        $main_excel = $this->combined_excel_sheets($excel_file);
 
-        if ($main_excel) {
-            
-            foreach ($excel_file as $value) {
-               
-                unlink($value );
+        $csv_file_name = TMP_FOLDER . "buyback_price_list";
+        $where = array('bb_charges.partner_id' => AMAZON_SELLER_ID, 'visible_to_partner' => 1, 'bb_shop_address.active' => 1);
+        $total_data = $this->service_centre_charges_model->get_bb_charges($where, 'count(bb_charges.id) as total_data', true, true);
+        $row_limit = 500;
+        $counter = round($total_data[0]['total_data'] / $row_limit);
+        $offset = 0;
+        for ($i = 0; $i < $counter; $i++) {
+            $select = "category,brand, physical_condition, working_condition , city AS location , partner_total";
+            $data = $this->service_centre_charges_model->get_bb_charges($where, $select, true, true, $offset, $row_limit, TRUE);
+            if (!empty($data)) {
+                $file_name = $csv_file_name . "_" . $i;
+                $csv_file[$file_name] = $this->generate_bb_csv_price_list($file_name, $data);
             }
-            header('Content-Description: File Transfer');
-            header('Content-Type: application/octet-stream');
-            header('Content-Disposition: attachment; filename="' . basename($main_excel) . '"');
-            header('Expires: 0');
-            header('Cache-Control: must-revalidate');
-            header('Pragma: public');
-            header('Content-Length: ' . filesize($main_excel));
-            readfile($main_excel);
-            
+            $offset += 500;
         }
-        $res1 = 0;
-        system(" chmod 777 " . $main_excel , $res1);
-        unlink($main_excel);
-        exit();
+        
+        $this->load->library('zip');
+        
+        foreach (array_keys($csv_file) as $value) {
+            $this->zip->read_file($value);
+            $res1 = 0;
+            system("chmod 777" . $value, $res1);
+            unlink($value);
+        }
+
+        $this->zip->download('buyback_price_list.zip');
     }
-    
+
     /**
      * @desc This is used to generate TV price sheet
      * @return String
@@ -2007,6 +2000,19 @@ class Buyback_process extends CI_Controller {
         $json_data['month'] = implode(",", $month);
         $json_data['count'] = implode(",", $completed_orders);
         echo json_encode($json_data);
+    }
+    
+    function generate_bb_csv_price_list($file_name,$data){
+        if(file_exists($file_name)){
+            unlink($file_name);
+        }
+        $this->load->dbutil();
+        $this->load->helper('file');
+        $this->delimiter = ",";
+        $this->newline = "\r\n";
+        $this->new_report = $this->dbutil->csv_from_result($data, $this->delimiter, $this->newline);
+        log_message('info', __FUNCTION__ . ' => Rendered CSV');
+        $this->response =  write_file($file_name, $this->new_report);
     }
     
     
