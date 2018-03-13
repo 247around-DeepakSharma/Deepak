@@ -210,7 +210,7 @@ class service_centre_charges_model extends CI_Model {
      * @param $is_distinct default false
      * @return array
      */
-    function get_bb_charges($where='', $select,$is_distinct=False, $join = FALSE){
+    function get_bb_charges($where='', $select,$is_distinct=False, $join = FALSE,$start = null,$limit = null,$is_download = false){
         if($is_distinct){
             $this->db->distinct();
         }
@@ -222,8 +222,19 @@ class service_centre_charges_model extends CI_Model {
         if($join){
             $this->db->join('bb_shop_address', 'bb_shop_address.cp_id = bb_charges.cp_id AND bb_shop_address.shop_address_city = bb_charges.city');
         }
+        
+        if($start !== "" && !empty($limit)){
+            $this->db->limit($limit,$start);
+        }
+        
         $query = $this->db->get("bb_charges");
-        return $query->result_array();
+        
+        if($is_download){
+            return $query;
+        }else{
+            return $query->result_array();
+        }
+        
     }
     
     function get_service_charge_details($where, $select, $order_by){
