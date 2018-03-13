@@ -121,7 +121,7 @@ class push_notification_lib {
                             $data['url'] = vsprintf(base_url().$templateData[0]['url'], $notificationTextArray['url']);
                          } 
                        $sendUrl = base_url().'employee/do_background_process/send_asyn_push_notification';
-//                         $this->Pu_N->asynchronous_lib->do_background_process($sendUrl, $data);
+                       $this->Pu_N->asynchronous_lib->do_background_process($sendUrl, $data);
                 }
             }
                 else{
