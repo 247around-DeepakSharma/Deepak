@@ -355,6 +355,7 @@ function get_data_for_partner_callback($booking_id) {
             WHERE booking_details.booking_id = ud.booking_id 
             AND booking_details.service_id = services.id 
             AND booking_details.user_id = users.user_id
+            AND product_or_services = 'Service'
             AND booking_details.partner_id = $partner_id
             AND booking_details.create_date > (CURDATE() - INTERVAL 1 MONTH)");
     } 
@@ -390,6 +391,12 @@ function get_data_for_partner_callback($booking_id) {
 
         $post['where'] = array('booking_details.partner_id' => $partner_id, 'DATE(booking_details.create_date) = DATE(DATE_SUB(NOW(), INTERVAL 1 DAY))' => NULL);
         $yesterday_booking = $this->booking_model->get_bookings_by_status($post, 'DISTINCT current_status,booking_details.create_date,booking_details.closed_date,booking_details.request_type');
+        
+        $post['where'] = array();
+        $post['where'] = array('booking_details.partner_id' => $partner_id, "booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."')" => NULL);
+       
+        $totalPending = $this->booking_model->get_bookings_by_status($post, 'DISTINCT current_status,booking_details.create_date,booking_details.closed_date,booking_details.request_type');
+
         
         $current_month_status = array_count_values(array_column($current_month_booking, 'current_status'));
         if (count($today_booking) !== 0 || count($yesterday_booking) !== 0 || (isset($current_month_status['Pending']) && !empty($current_month_status['Pending'])) || (isset($current_month_status['Rescheduled']) && !empty($current_month_status['Rescheduled']))) {
@@ -552,6 +559,31 @@ function get_data_for_partner_callback($booking_id) {
                         case _247AROUND_FOLLOWUP:
                             $result['yesterday_installation_booking_followup'] ++;
                             break;
+                    }
+                }
+            }
+            $result['total_zero_to_two_days_repair_booking_pending'] = 0;
+            $result['total_three_to_five_days_repair_booking_pending'] = 0;
+            $result['total_greater_than_5_days_repair_booking_pending'] =0;
+            $result['zero_to_two_days_installation_booking_pending'] = 0;
+            $result['total_three_to_five_days_installation_booking_pending'] = 0;
+            $result['total_greater_than_5_days_installation_booking_pending'] = 0;
+            foreach ($totalPending as $key => $value) {
+                if (strpos($value->request_type, 'Repair') !== false || strpos($value->request_type, 'Repeat') !== false) {
+                    if (date('Y-m-d', strtotime($value->create_date)) <= date('Y-m-d') && (date('Y-m-d', strtotime($value->create_date)) >= date("Y-m-d", strtotime("-2 days")))) {
+                        $result['total_zero_to_two_days_repair_booking_pending'] ++;
+                    } else if ((date("Y-m-d", strtotime($value->create_date)) < date("Y-m-d", strtotime("-2 days"))) && (date("Y-m-d", strtotime($value->create_date)) >= date("Y-m-d", strtotime("-5 days")))) {
+                        $result['total_three_to_five_days_repair_booking_pending'] ++;
+                    } else if (date('Y-m-d', strtotime($value->create_date)) < date('Y-m-d', strtotime("-5 days"))) {
+                        $result['total_greater_than_5_days_repair_booking_pending'] ++;
+                    }
+                } else {
+                    if (date('Y-m-d', strtotime($value->create_date)) <= date('Y-m-d') && (date('Y-m-d', strtotime($value->create_date)) >= date("Y-m-d", strtotime("-2 days")))) {
+                        $result['total_zero_to_two_days_installation_booking_pending'] ++;
+                    } else if ((date("Y-m-d", strtotime($value->create_date)) < date("Y-m-d", strtotime("-2 days"))) && (date("Y-m-d", strtotime($value->create_date)) >= date("Y-m-d", strtotime("-5 days")))) {
+                        $result['total_three_to_five_days_installation_booking_pending'] ++;
+                    } else if (date('Y-m-d', strtotime($value->create_date)) < date('Y-m-d', strtotime("-5 days"))) {
+                        $result['total_greater_than_5_days_installation_booking_pending'] ++;
                     }
                 }
             }
