@@ -256,9 +256,6 @@ class Miscelleneous {
             $cus_net_payable += $value['customer_net_payable'];
         }
         $partner_am_email = "";
-//        if (isset($data['partner_am_id']) && !empty($data['partner_am_id'])) {
-//            $partner_am_email = $this->employee_model->getemployeefromid($data['partner_am_id'])[0]['official_email'];
-//        }
         $return_status = TRUE;
         switch ($data['message']) {
             case UPCOUNTRY_BOOKING:
@@ -343,8 +340,7 @@ class Miscelleneous {
                         $this->My_CI->service_centers_model->delete_booking_id($booking_id);
 
                         $this->My_CI->notify->insert_state_change($booking_id, "Waiting Partner Approval", _247AROUND_PENDING, "Waiting Upcountry to Approval", $agent_id, $agent_name, _247AROUND);
-                        $unit_details = $this->My_CI->booking_model->get_unit_details(array('booking_id' => $booking_id));
-
+                        
                         $up_mail_data['name'] = $query1[0]['name'];
                         $up_mail_data['appliance'] = $query1[0]['services'];
                         $up_mail_data['booking_address'] = $query1[0]['booking_address'];
@@ -362,15 +358,20 @@ class Miscelleneous {
 
                         $message1 = $this->My_CI->load->view('employee/upcountry_approval_template', $up_mail_data, true);
 
-
+                        $rm = $this->My_CI->vendor_model->get_rm_sf_relation_by_sf_id($query1[0]['assigned_vendor_id']);
+                       
+                        $m_email = "";
+                        if(!empty($rm)){
+                            $m_email = ", ".$rm[0]['official_email'];
+                        }
                         if ($booking['upcountry_distance'] > 300) {
                             $subject = "Upcountry Distance More Than 300 - Booking ID " . $query1[0]['booking_id'];
-                            $to = NITS_ANUJ_EMAIL_ID;
+                            $to = NITS_ANUJ_EMAIL_ID.$m_email;
                             $cc = "abhaya@247around.com ,".$partner_am_email;
                         } else {
                             $subject = "Upcountry Charges Approval Required - Booking ID " . $query1[0]['booking_id'];
                             $to = $data['upcountry_approval_email'];
-                            $cc = NITS_ANUJ_EMAIL_ID.",".$partner_am_email;
+                            $cc = NITS_ANUJ_EMAIL_ID.",".$partner_am_email.$m_email;
                             //Send Push Notification
                         $receiverArray['partner'] = array($query1[0]['partner_id']);
                         $notificationTextArray['msg'] = array($booking_id);
