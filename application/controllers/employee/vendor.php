@@ -4727,20 +4727,20 @@ class vendor extends CI_Controller {
         
         if($this->input->post()){
             if($this->input->post('sf_type') === '1'){
-                $where = array('entity_type' => 'SF','service_centres.active' => 1,'account_holders_bank_details.is_active' => 1);
+                $where = array('entity_type' => 'SF','service_centres.active' => 1);
             }else if($this->input->post('sf_type') === '0'){
-                $where = array('entity_type' => 'SF','service_centres.active' => 0,'account_holders_bank_details.is_active' => 1);
+                $where = array('entity_type' => 'SF','service_centres.active' => 0);
             }else if($this->input->post('sf_type') === 'all'){
-                $where = array('entity_type' => 'SF','account_holders_bank_details.is_active' => 1);
+                $where = array('entity_type' => 'SF');
             }
             
-            $join = array('service_centres' => 'account_holders_bank_details.entity_id = service_centres.id');
+            $join = array('service_centres' => 'account_holders_bank_details.entity_id = service_centres.id AND account_holders_bank_details.is_active = 1');
             $data['bank_details'] = $this->reusable_model->get_search_query('account_holders_bank_details','account_holders_bank_details.*,service_centres.name',$where,$join,NULL,NULL,NULL,NULL)->result_array();
             $data['is_ajax'] = TRUE;
             echo $this->load->view('employee/show_bank_details', $data);
         }else{
-            $where = array('entity_type' => 'SF','service_centres.active' => 1,'account_holders_bank_details.is_active' => 1);
-            $join = array('service_centres' => 'account_holders_bank_details.entity_id = service_centres.id');
+            $where = array('entity_type' => 'SF','service_centres.active' => 1);
+            $join = array('service_centres' => 'account_holders_bank_details.entity_id = service_centres.id AND account_holders_bank_details.is_active = 1');
             $data['bank_details'] = $this->reusable_model->get_search_query('account_holders_bank_details','account_holders_bank_details.*,service_centres.name',$where,$join,NULL,NULL,NULL,NULL)->result_array();
             $data['is_ajax'] = FALSE;
             $this->miscelleneous->load_nav_header();
