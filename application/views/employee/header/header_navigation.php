@@ -57,6 +57,19 @@
         <link href="<?php echo base_url() ?>css/sweetalert.css" rel="stylesheet">
         <script src="<?php echo base_url();?>js/sweetalert.min.js"></script>
         <script src="<?php echo base_url();?>js/jquery.loading.js"></script>
+        
+        <?php if(ENVIRONMENT === 'production') { ?> 
+            <!-- Global site tag (gtag.js) - Google Analytics -->
+            <script async src="https://www.googletagmanager.com/gtag/js?id=<?php echo _247AROUND_CRM_GGL_ANALYTICS_TAG_ID; ?>"></script>
+            <script>
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+
+              gtag('config', '<?php echo _247AROUND_CRM_GGL_ANALYTICS_TAG_ID; ?>');
+            </script>
+
+        <?php } ?>
     </head>
     <body>
         <div id="wrapper">
