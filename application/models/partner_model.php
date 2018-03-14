@@ -355,7 +355,7 @@ function get_data_for_partner_callback($booking_id) {
             WHERE booking_details.booking_id = ud.booking_id 
             AND booking_details.service_id = services.id 
             AND booking_details.user_id = users.user_id
-            AND product_or_services = 'Service'
+            AND product_or_services != 'Product'
             AND booking_details.partner_id = $partner_id
             AND booking_details.create_date > (CURDATE() - INTERVAL 1 MONTH)");
     } 
