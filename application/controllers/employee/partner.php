@@ -24,6 +24,7 @@ class Partner extends CI_Controller {
         $this->load->model('penalty_model');
         $this->load->model("inventory_model");
         $this->load->model("service_centre_charges_model");
+        $this->load->model('around_scheduler_model');
         $this->load->library("pagination");
         $this->load->library("session");
         $this->load->library('form_validation');
@@ -4008,6 +4009,32 @@ class Partner extends CI_Controller {
             log_message("info", "SF Id ".$sf_details[0]['id'] . " does not have signature file");
             echo "Invalid Request";
         }
+    }
+    
+    
+    /**
+     * @desc: This function is used to get the details from the email_attachment_parser 
+     * @params: void
+     * @return: JSON
+     */
+    function get_partner_file_details(){
+        $this->partner_id = trim($this->input->post('partner_id'));
+        
+        if(!empty($this->partner_id)){
+            $data = $this->around_scheduler_model->get_data_for_parsing_email_attachments(array('partner_id' => $this->partner_id));
+            if(!empty($data)){
+                $res['msg'] = 'success';
+                $res['data'] = $data[0];
+            }else{
+                $res['msg'] = 'failed';
+                $res['data'] = 'No Data Found';
+            }
+        }else{
+            $res['msg'] = 'failed';
+            $res['data'] = 'No Data Found';
+        }
+        
+        echo json_encode($res);
     }
 
 }
