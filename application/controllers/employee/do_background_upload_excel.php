@@ -505,7 +505,16 @@ class Do_background_upload_excel extends CI_Controller {
                         $unit_details['sub_order_id'] = $value['item_id'];
                     }
 
+                    
+                    //capture service_promise_date if it exist
+                    if (isset($value['service_promise_date']) && !empty($value['service_promise_date'])) {
 
+
+                        $spd = str_replace('/', '-', $value['service_promise_date']);
+
+                        $booking['service_promise_date'] = date("Y-m-d H:i:s", strtotime($spd));
+                    }
+                    
                     //check partner status from partner_booking_status_mapping table  
                     $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $booking['partner_id'], $booking['booking_id']);
                     if (!empty($partner_status)) {
