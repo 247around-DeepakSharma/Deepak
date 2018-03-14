@@ -1846,9 +1846,9 @@ class vendor_model extends CI_Model {
      
      function get_vendor_with_bank_details($select,$where){
          $this->db->select($select,FALSE);
-        $where['account_holders_bank_details.is_active'] = 1;
         $this->db->where($where);
-        $this->db->join('account_holders_bank_details', 'account_holders_bank_details.entity_id = service_centres.id AND account_holders_bank_details.entity_type="SF"','left');
+        $this->db->join('account_holders_bank_details', 'account_holders_bank_details.entity_id = service_centres.id AND account_holders_bank_details.entity_type="SF" AND '
+                . 'account_holders_bank_details.is_active=1','left');
         $sql = $this->db->get('service_centres');
         return $sql->result_array();
      }
