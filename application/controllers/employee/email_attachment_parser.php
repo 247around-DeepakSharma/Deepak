@@ -65,7 +65,7 @@ class Email_attachment_parser extends CI_Controller {
                                                     }
                                                 }
                                             }
-                                            $file_upload_response = $this->process_uploading_extract_file($file_details['url'], TMP_FOLDER . $extract_file_name, $val['email_message_id'], $file_details['email_send_to'], $file_details['file_type'], $file_details['partner_id']);
+                                            $file_upload_response = $this->process_uploading_extract_file($file_details['url'], TMP_FOLDER . $extract_file_name, $val['email_message_id'], $file_details);
 
                                             //delete file from the system after processing
                                             if (file_exists(TMP_FOLDER . $extract_file_name)) {
@@ -82,8 +82,8 @@ class Email_attachment_parser extends CI_Controller {
                                     }
                                 } else {
                                     log_message('info', __METHOD__ . "Attachment Exist But File Not Found in the system for email " . $val['email_message_id']);
-                                    $subject = "Attachment Exist But File Not Found In the System for " . $value['email_subject_text'];
-                                    $msg = "Attachment Exist But File Not Found In the System for " . $value['email_subject_text'];
+                                    $subject = "Attachment Exist But File Not Found In the System for " . $val['subject'];
+                                    $msg = "Attachment Exist But File Not Found In the System for " . $val['subject'];
                                     $msg .= "<br><b>Search Condition </b> : " . $email_search_condition;
                                     $msg .= "<br><b>File Name </b> : " . $extract_file_name;
                                     $this->notify->sendEmail(NOREPLY_EMAIL_ID, _247AROUND_SALES_EMAIL, DEVELOPER_EMAIL . "," . NITS_EMAIL_ID, "", $subject, $msg, "");
@@ -119,7 +119,7 @@ class Email_attachment_parser extends CI_Controller {
     * @param    void
     * @return   void
     */
-    private function process_uploading_extract_file($url,$file_path,$email_message_id,$email_send_to,$file_type,$partner_id){
+    private function process_uploading_extract_file($url,$file_path,$email_message_id,$file_details){
         log_message('info',__METHOD__."Entering...");
         
         if (function_exists('curl_file_create')) {
@@ -133,10 +133,14 @@ class Email_attachment_parser extends CI_Controller {
             'file' => $cFile,
             'file_received_date' => date('Y-m-d'),
             'email_message_id' => $email_message_id,
-            'email_send_to' => $email_send_to,
-            'file_type' => $file_type,
-            'partner_id' => $partner_id,
-            'partner_source' => $file_type."-excel");
+            'email_send_to' => $file_details['email_send_to'],
+            'file_type' => $file_details['file_type'],
+            'partner_id' => $file_details['partner_id'],
+            'partner_source' => $file_details['file_type']."-excel",
+            'is_file_send_back' => $file_details['is_file_send_back'],
+            'file_read_column' => $file_details['file_read_column'],
+            'file_write_column' => $file_details['file_write_column'],
+            'revert_file_email' => $file_details['revert_file_email']);
         
         $ch = curl_init();
         
@@ -165,6 +169,10 @@ class Email_attachment_parser extends CI_Controller {
             $return_data['partner_id'] = $url_details[0]['partner_id'];
             $return_data['email_send_to'] = $url_details[0]['email_send_to'];
             $return_data['file_type'] = $url_details[0]['file_type'];
+            $return_data['is_file_send_back'] = $url_details[0]['send_file_back'];
+            $return_data['file_read_column'] = $url_details[0]['order_id_read_column'];
+            $return_data['file_write_column'] = $url_details[0]['booking_id_write_column'];
+            $return_data['revert_file_email'] = $url_details[0]['revert_file_to_email'];
             
             if((stripos($data['subject'],$url_details[0]['email_subject_text']) !== FALSE) && $data['host'] == '247around.com'){
                 $return_data['url'] = base_url().'employee/do_background_upload_excel/upload_snapdeal_file';
