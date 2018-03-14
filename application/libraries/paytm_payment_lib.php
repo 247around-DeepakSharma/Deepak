@@ -326,8 +326,8 @@ class paytm_payment_lib {
         }
         else{
              //Send Email 
-        $to = TRANSACTION_SUCCESS_TO; 
-        $cc = TRANSACTION_SUCCESS_CC;
+        $to = QR_FAILURE_TO; 
+        $cc = QR_FAILURE_CC;
         $subject = "QR code not generated";
         $message = "response - ".print_r($outputArray);
         $this->P_P->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
