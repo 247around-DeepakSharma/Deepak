@@ -31,6 +31,8 @@ define('QR_CODE_VALIDITY', "30");
 define("QR_CHANNEL_JOB_CARD", "JOBCARD");
 define("QR_CHANNEL_USER", "USER");
 define("QR_CHANNEL_APP", "APP");
+define('QR_FAILURE_TO','chhavid@247around.com');
+define('QR_FAILURE_CC','abhaya@247around.com');
 
 /*
  * Cashback Constatnts
