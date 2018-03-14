@@ -299,7 +299,7 @@ class Do_background_upload_excel extends CI_Controller {
             }
             
 	    //Insert user if phone number doesn't exist
-	    $output = $this->user_model->search_user(trim($phone[0]));
+            $output = $this->user_model->get_users_by_any(array("users.phone_number" => trim($phone[0])));
 	    
             $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($value['pincode']));
             
@@ -1227,7 +1227,7 @@ class Do_background_upload_excel extends CI_Controller {
     function add_user_for_invalid($row_data) {
 	foreach ($row_data as $value) {
             $phone = explode('/', trim($value['phone']));
-            $output = $this->user_model->search_user($phone[0]);
+            $output = $this->user_model->get_users_by_any(array("users.phone_number" => $phone[0]));
             $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim(str_replace(" ", "", trim($value['pincode']))));
 
             if (empty($output)) {
