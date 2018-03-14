@@ -470,6 +470,30 @@ class DatabaseTesting extends CI_Controller {
             echo "File Not Found";
         }
     }
-    
+    /**
+     * @desc This is used to convert jobcard excel to pdf
+     * @param Date $date(Format - 2018-03-14)
+     */
+    function create_jobcards($date) {
+        $booking_id = $this->database_testing_model->get_booking_id_without_pdf_jobcards($date);
+        
+        if (!empty($booking_id)) {
+            foreach ($booking_id as $value) {
+                $url = base_url() .
+                        "employee/bookingjobcard/prepare_job_card_using_booking_id/" .
+                        $value['booking_id'];
+                $ch = curl_init();
+
+                curl_setopt($ch, CURLOPT_URL, $url);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+
+                curl_exec($ch);
+
+                // get HTTP response code
+                curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                curl_close($ch);
+            }
+        }
+    }
 
 }

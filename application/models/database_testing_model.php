@@ -495,5 +495,13 @@ class Database_testing_model extends CI_Model {
 	    return array();
 	}
     }
+    
+    function get_booking_id_without_pdf_jobcards($date) {
+        $sql = "Select booking_id from booking_details WHERE 
+                   `booking_jobcard_filename` LIKE '%.xlsx%' AND `create_date` >= 
+                   '$date' ";
+        $data = $this->db->query($sql)->result_array();
+        return $data;
+    }
 
 }
