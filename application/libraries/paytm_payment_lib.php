@@ -38,6 +38,9 @@ class paytm_payment_lib {
           * After that saves QR data in Database and return QR data
      */
     function generate_qr_code($bookingID,$channel,$amount,$contact){
+            if(empty($contact)){
+                $contact = DEFAULT_MERCHANT_CONTACT_NO;
+           }
         //Convert amount in decimal number upto 2 digit
             if($amount !=0){
                 $amount = number_format((float)$amount, 2, '.', '');
