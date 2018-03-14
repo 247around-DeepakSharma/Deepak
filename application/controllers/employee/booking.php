@@ -684,7 +684,7 @@ class Booking extends CI_Controller {
      */
     function addbooking($phone_number) {
         $data = $this->booking_model->get_city_source();
-        $data['user'] = $this->user_model->search_user($phone_number);
+        $data['user'] = $this->user_model->get_users_by_any(array("users.phone_number" => $phone_number));
         $data['phone_number'] = $phone_number;
         $where_internal_status = array("page" => "FollowUp", "active" => '1');
         $data['follow_up_internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
@@ -1592,7 +1592,7 @@ class Booking extends CI_Controller {
 
         //Get customer id
         $cust_id = '';
-        $user = $this->user_model->search_user($cust_phone);
+        $user = $this->user_model->get_users_by_any(array("users.phone_number" => $cust_phone));
         if ($user) {
             $cust_id = $user[0]['user_id'];
         }
