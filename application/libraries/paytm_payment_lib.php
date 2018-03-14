@@ -38,6 +38,9 @@ class paytm_payment_lib {
           * After that saves QR data in Database and return QR data
      */
     function generate_qr_code($bookingID,$channel,$amount,$contact){
+            if(empty($contact)){
+                $contact = DEFAULT_MERCHANT_CONTACT_NO;
+           }
         //Convert amount in decimal number upto 2 digit
             if($amount !=0){
                 $amount = number_format((float)$amount, 2, '.', '');
@@ -323,8 +326,8 @@ class paytm_payment_lib {
         }
         else{
              //Send Email 
-        $to = TRANSACTION_SUCCESS_TO; 
-        $cc = TRANSACTION_SUCCESS_CC;
+        $to = QR_FAILURE_TO; 
+        $cc = QR_FAILURE_CC;
         $subject = "QR code not generated";
         $message = "response - ".print_r($outputArray);
         $this->P_P->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");

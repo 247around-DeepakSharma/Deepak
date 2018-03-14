@@ -30,6 +30,9 @@ define('PAYTM_PAYMENT_METHOD_FOR_QR','Paytm QR Code');
 define('QR_CODE_VALIDITY', "30");
 define("QR_CHANNEL_JOB_CARD", "JOBCARD");
 define("QR_CHANNEL_USER", "USER");
+define("QR_CHANNEL_APP", "APP");
+define('QR_FAILURE_TO','chhavid@247around.com');
+define('QR_FAILURE_CC','abhaya@247around.com');
 
 /*
  * Cashback Constatnts
@@ -60,4 +63,5 @@ define('TRANSACTION_RESPONSE_FROM_CHECK_STATUS','checkstatus');
 define('TRANSACTION_RESPONSE_FROM_CALLBACK','callback');
 define('TRANSACTION_SUCCESS_TO','anuj@247around.com');
 define('TRANSACTION_SUCCESS_CC','nits@247around.com');
+define("DEFAULT_MERCHANT_CONTACT_NO", "8826423424");
 

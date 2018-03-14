@@ -684,7 +684,7 @@ class Booking extends CI_Controller {
      */
     function addbooking($phone_number) {
         $data = $this->booking_model->get_city_source();
-        $data['user'] = $this->user_model->search_user($phone_number);
+        $data['user'] = $this->user_model->get_users_by_any(array("users.phone_number" => $phone_number));
         $data['phone_number'] = $phone_number;
         $where_internal_status = array("page" => "FollowUp", "active" => '1');
         $data['follow_up_internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
@@ -1592,7 +1592,7 @@ class Booking extends CI_Controller {
 
         //Get customer id
         $cust_id = '';
-        $user = $this->user_model->search_user($cust_phone);
+        $user = $this->user_model->get_users_by_any(array("users.phone_number" => $cust_phone));
         if ($user) {
             $cust_id = $user[0]['user_id'];
         }
@@ -1961,14 +1961,14 @@ class Booking extends CI_Controller {
 
             $this->partner_cb->partner_callback($booking_id);
             //Generate Customer payment Invoice
-//            if($total_amount_paid > MAKE_CUTOMER_PAYMENT_INVOICE_GREATER_THAN && $booking['current_status'] == _247AROUND_COMPLETED){
-//                $invoice_url = base_url() . "employee/user_invoice/payment_invoice_for_customer/".$booking_id;
-//                $payment = array();
-//                $this->asynchronous_lib->do_background_process($invoice_url, $payment);
-//
-//            } else {
-//                log_message("info", " Amount Paid less then 5  for booking ID ". $booking_id. " Amount Paid ". $data[0]['amount_paid']);
-//            }
+            if($total_amount_paid > MAKE_CUTOMER_PAYMENT_INVOICE_GREATER_THAN && $booking['current_status'] == _247AROUND_COMPLETED){
+                $invoice_url = base_url() . "employee/user_invoice/payment_invoice_for_customer/".$booking_id;
+                $payment = array();
+                $this->asynchronous_lib->do_background_process($invoice_url, $payment);
+
+            } else {
+                log_message("info", " Amount Paid less then 5  for booking ID ". $booking_id. " Amount Paid ". $data[0]['amount_paid']);
+            }
         
             redirect(base_url() . 'employee/booking/view_bookings_by_status/Pending');
         } else {

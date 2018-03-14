@@ -96,7 +96,7 @@ class Partner extends CI_Controller {
 
                         //Search for user
                         //Insert user if phone number doesn't exist
-                        $output = $this->user_model->search_user($requestData['mobile']);
+                        $output = $this->user_model->get_users_by_any(array("users.phone_number" => $requestData['mobile']));
                         $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($requestData['pincode']));
 
 
@@ -1342,7 +1342,7 @@ class Partner extends CI_Controller {
 
                     //Search for user
                     //Insert user if phone number doesn't exist
-                    $output = $this->user_model->search_user($requestData['mobile']);
+                    $output = $this->user_model->get_users_by_any(array("users.phone_number" => $requestData['mobile']));
                     $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($requestData['pincode']));
 
                     $user['name'] = $requestData['name'];

@@ -307,7 +307,7 @@ class Do_background_upload_excel extends CI_Controller {
             }
             
 	    //Insert user if phone number doesn't exist
-	    $output = $this->user_model->search_user(trim($phone[0]));
+            $output = $this->user_model->get_users_by_any(array("users.phone_number" => trim($phone[0])));
 	    
             $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($value['pincode']));
             
@@ -516,9 +516,12 @@ class Do_background_upload_excel extends CI_Controller {
                     
                     //capture service_promise_date if it exist
                     if (isset($value['service_promise_date']) && !empty($value['service_promise_date'])) {
-                        $booking['service_promise_date'] = date('Y-m-d H:i:s', PHPExcel_Shared_Date::ExcelToPHP($value['service_promise_date']));
-                    }
 
+                        $spd = str_replace('/', '-', $value['service_promise_date']);
+
+                        $booking['service_promise_date'] = date("Y-m-d H:i:s", strtotime($spd));
+                    }
+                    
                     //check partner status from partner_booking_status_mapping table  
                     $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $booking['partner_id'], $booking['booking_id']);
                     if (!empty($partner_status)) {
@@ -1241,7 +1244,7 @@ class Do_background_upload_excel extends CI_Controller {
     function add_user_for_invalid($row_data) {
 	foreach ($row_data as $value) {
             $phone = explode('/', trim($value['phone']));
-            $output = $this->user_model->search_user($phone[0]);
+            $output = $this->user_model->get_users_by_any(array("users.phone_number" => $phone[0]));
             $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim(str_replace(" ", "", trim($value['pincode']))));
 
             if (empty($output)) {

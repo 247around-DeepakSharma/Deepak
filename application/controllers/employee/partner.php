@@ -268,7 +268,7 @@ class Partner extends CI_Controller {
             redirect(base_url() . "partner/home");
         } else {
             $phone_number = $this->input->post('phone_number');
-            $data['user'] = $this->user_model->search_user($phone_number);
+            $data['user'] = $this->user_model->get_users_by_any(array("users.phone_number" => $phone_number));
             $partner_id = $this->session->userdata('partner_id');
             $partner_data = $this->partner_model->get_partner_code($partner_id);
             $partner_type = $partner_data[0]['partner_type'];
