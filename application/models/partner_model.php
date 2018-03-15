@@ -642,9 +642,9 @@ function get_data_for_partner_callback($booking_id) {
      *         - Id of partner to whom we would like to activate
      * @return: void
      */
-    function activate($id) {
+    function activate($id,$data) {
         $this->db->where(array("id" => $id));
-        $this->db->update("partners", array('is_active' => 1));
+        $this->db->update("partners", $data);
         if ($this->db->affected_rows() > 0) {
             $res = TRUE;
         } else {
@@ -661,9 +661,9 @@ function get_data_for_partner_callback($booking_id) {
      *         - Id of partner to whom we would like to deactivate
      * @return: void
      */
-    function deactivate($id) {
+    function deactivate($id,$data) {
         $this->db->where(array("id" => $id));
-        $this->db->update("partners", array('is_active' => 0));
+        $this->db->update("partners", $data);
         if ($this->db->affected_rows() > 0) {
             $res = TRUE;
         } else {
