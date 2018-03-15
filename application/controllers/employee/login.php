@@ -340,7 +340,7 @@ class Login extends CI_Controller {
      * @param: Partner name
      * @return: void
      */
-    function setPartnerSession($partner_id, $partner_name, $agent_id,$status, $is_prepaid,$is_login_by_247=1) {
+    function setPartnerSession($partner_id, $partner_name, $agent_id,$status, $is_prepaid,$is_login_by_247=1,$logo_img) {
         $userSession = array(
             'session_id' => md5(uniqid(mt_rand(), true)),
             'partner_id' => $partner_id,
@@ -350,7 +350,8 @@ class Login extends CI_Controller {
             'loggedIn' => TRUE,
             'is_prepaid' =>$is_prepaid,
             'userType' => 'partner',
-            'status' => $status
+            'status' => $status,
+            'partner_logo' => $logo_img
         );
 
         $this->session->set_userdata($userSession);
@@ -385,8 +386,16 @@ class Login extends CI_Controller {
             //get partner details now
             $partner_details = $this->partner_model->getpartner($agent[0]['entity_id'],TRUE);
             if($partner_details){
+                $select = "partner_logo,alt_text";
+                $where = array('partner_logo IS NOT NULL' => NULL,'partner_id' => $partner_details[0]['id']);
+                $partner_logo = $this->booking_model->get_partner_logo($select,$where);
+                if(!empty($partner_logo)){
+                    $logo_img = $partner_logo[0]['partner_logo'];
+                }else{
+                    $logo_img = 'images/logo.png';
+                }
                 $this->setPartnerSession($partner_details[0]['id'], $partner_details[0]['public_name'], $agent[0]['agent_id'],
-                        $partner_details[0]['is_active'], $partner_details[0]['is_prepaid'],0);
+                        $partner_details[0]['is_active'], $partner_details[0]['is_prepaid'],0,$logo_img);
                 log_message('info', 'Partner loggedIn  partner id' .
                         $partner_details[0]['id'] . " Partner name" . $partner_details[0]['public_name']);
 

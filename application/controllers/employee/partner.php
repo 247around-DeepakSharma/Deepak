@@ -95,10 +95,7 @@ class Partner extends CI_Controller {
                 $this->session->userdata('partner_name'));
         $data['is_ajax'] = $this->input->post('is_ajax');
         if(empty($this->input->post('is_ajax'))){
-            $select = "partner_logo,alt_text";
-            $where = array('partner_logo IS NOT NULL' => NULL,'partner_id' => $this->session->userdata('partner_id'));
-            $header_data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where);
-            $this->load->view('partner/header',$header_data);
+            $this->load->view('partner/header');
             $this->load->view('partner/pending_booking', $data);
             $this->load->view('partner/partner_footer');
         }else{
@@ -175,10 +172,7 @@ class Partner extends CI_Controller {
 
         log_message('info', 'Partner view ' . $state . ' booking  partner id' . $partner_id . " Partner name" . $this->session->userdata('partner_name') . " data " . print_r($data, true));
 
-        $select = "partner_logo,alt_text";
-        $where = array('partner_logo IS NOT NULL' => NULL,'partner_id' => $this->session->userdata('partner_id'));
-        $header_data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where);
-        $this->load->view('partner/header',$header_data);
+        $this->load->view('partner/header');
         $this->load->view('partner/closed_booking', $data);
         $this->load->view('partner/partner_footer');
     }
@@ -198,10 +192,7 @@ class Partner extends CI_Controller {
         }
         log_message('info', 'Partner view booking details booking  partner id' . $this->session->userdata('partner_id') . " Partner name" . $this->session->userdata('partner_name'));
 
-        $select = "partner_logo,alt_text";
-        $where = array('partner_logo IS NOT NULL' => NULL,'partner_id' => $this->session->userdata('partner_id'));
-        $header_data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where);
-        $this->load->view('partner/header',$header_data);
+        $this->load->view('partner/header');
         $this->load->view('partner/booking_details', $data);
         $this->load->view('partner/partner_footer');
     }
@@ -283,10 +274,7 @@ class Partner extends CI_Controller {
             }
 
             $data['phone_number'] = $phone_number;
-            $select = "partner_logo,alt_text";
-            $where = array('partner_logo IS NOT NULL' => NULL,'partner_id' => $this->session->userdata('partner_id'));
-            $header_data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where);
-            $this->load->view('partner/header',$header_data);
+            $this->load->view('partner/header');
             $this->load->view('partner/get_addbooking', $data);
             $this->load->view('partner/partner_footer');
         }
@@ -755,8 +743,11 @@ class Partner extends CI_Controller {
         if (!empty($get_partner_details[0]['account_manager_id'])) {
             $am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
         }
-
-        $result = $this->partner_model->activate($id);
+        
+        $data = array('is_active' => 1,
+                       'agent_id' => $this->session->userdata('id'),
+                        'update_date' => date('Y-m-d H:i:s'));
+        $result = $this->partner_model->activate($id,$data);
 
         if (!empty($result)) {
 
@@ -795,8 +786,10 @@ class Partner extends CI_Controller {
         if (!empty($get_partner_details[0]['account_manager_id'])) {
             $am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
         }
-
-        $result = $this->partner_model->deactivate($id);
+        $data = array('is_active' => 0,
+                       'agent_id' => $this->session->userdata('id'),
+                        'update_date' => date('Y-m-d H:i:s'));
+        $result = $this->partner_model->deactivate($id,$data);
         if (!empty($result)) {
 
             //Storing State change values in Booking_State_Change Table
@@ -865,10 +858,7 @@ class Partner extends CI_Controller {
      */
     function get_user_form() {
         $this->checkUserSession();
-        $select = "partner_logo,alt_text";
-        $where = array('partner_logo IS NOT NULL' => NULL,'partner_id' => $this->session->userdata('partner_id'));
-        $header_data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where);
-        $this->load->view('partner/header',$header_data);
+        $this->load->view('partner/header');
         $this->load->view('partner/finduser');
         $this->load->view('partner/partner_footer');
     }
@@ -914,10 +904,7 @@ class Partner extends CI_Controller {
                 $data['links'] = $this->pagination->create_links();
 
                 $data['data'] = $output_data;
-                $select = "partner_logo,alt_text";
-                $where = array('partner_logo IS NOT NULL' => NULL,'partner_id' => $this->session->userdata('partner_id'));
-                $header_data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where);
-                $this->load->view('partner/header',$header_data);
+                $this->load->view('partner/header');
                 $this->load->view('partner/bookinghistory', $data);
                 $this->load->view('partner/partner_footer');
             } else {
@@ -930,10 +917,7 @@ class Partner extends CI_Controller {
             $where = array('booking_details.booking_id' => $search_value);
             $Bookings = $this->booking_model->search_bookings($where, $this->session->userdata('partner_id'));
             $data['data'] = json_decode(json_encode($Bookings), True);
-            $select = "partner_logo,alt_text";
-            $header_where = array('partner_logo IS NOT NULL' => NULL,'partner_id' => $this->session->userdata('partner_id'));
-            $header_data['partner_logo'] = $this->booking_model->get_partner_logo($select,$header_where);
-            $this->load->view('partner/header',$header_data);
+            $this->load->view('partner/header');
             $this->load->view('partner/bookinghistory', $data);
             $this->load->view('partner/partner_footer');
         } else if ($search_type === 'order_id') {
@@ -941,10 +925,7 @@ class Partner extends CI_Controller {
             $where = array('order_id' => $search_value);
             $Bookings = $this->booking_model->search_bookings($where, $this->session->userdata('partner_id'));
             $data['data'] = json_decode(json_encode($Bookings), True);
-            $select = "partner_logo,alt_text";
-            $header_where = array('partner_logo IS NOT NULL' => NULL,'partner_id' => $this->session->userdata('partner_id'));
-            $header_data['partner_logo'] = $this->booking_model->get_partner_logo($select,$header_where);
-            $this->load->view('partner/header',$header_data);
+            $this->load->view('partner/header');
             $this->load->view('partner/bookinghistory', $data);
             $this->load->view('partner/partner_footer');
         } else if ($search_type === 'serial_number') {
@@ -953,10 +934,7 @@ class Partner extends CI_Controller {
             $Bookings = $this->booking_model->search_bookings($where, $this->session->userdata('partner_id'));
             $data['data'] = json_decode(json_encode($Bookings), True);
             $data['search'] = "Search";
-            $select = "partner_logo,alt_text";
-            $header_where = array('partner_logo IS NOT NULL' => NULL,'partner_id' => $this->session->userdata('partner_id'));
-            $header_data['partner_logo'] = $this->booking_model->get_partner_logo($select,$header_where);
-            $this->load->view('partner/header',$header_data);
+            $this->load->view('partner/header');
             $this->load->view('partner/bookinghistory', $data);
             $this->load->view('partner/partner_footer');
         } else {
@@ -998,10 +976,7 @@ class Partner extends CI_Controller {
         $invoice['unbilled_data'] = $unbilled_data;
         $invoice['invoice_amount'] = $this->invoices_model->get_summary_invoice_amount("partner", $partner_id)[0];
       
-        $select = "partner_logo,alt_text";
-        $where1 = array('partner_logo IS NOT NULL' => NULL,'partner_id' => $this->session->userdata('partner_id'));
-        $header_data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where1);
-        $this->load->view('partner/header',$header_data);
+        $this->load->view('partner/header');
         $this->load->view('partner/invoice_summary', $invoice);
         $this->load->view('partner/partner_footer');
     }
@@ -1012,10 +987,7 @@ class Partner extends CI_Controller {
          $data2['partner_vendor'] = "partner";
          $data2['partner_vendor_id'] = $partner_id;
          $invoice['bank_statement'] = $this->invoices_model->get_bank_transactions_details('*', $data2);
-         $select = "partner_logo,alt_text";
-         $where = array('partner_logo IS NOT NULL' => NULL,'partner_id' => $partner_id);
-         $header_data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where);
-         $this->load->view('partner/header',$header_data);
+         $this->load->view('partner/header');
          $this->load->view('partner/bank_transaction', $invoice);
          $this->load->view('partner/partner_footer');
     }
@@ -1042,10 +1014,7 @@ class Partner extends CI_Controller {
             $where = array('reason_of' => 'partner');
             $data['reason'] = $this->booking_model->cancelreason($where);
             $data['status'] = $status;
-            $select = "partner_logo,alt_text";
-            $where = array('partner_logo IS NOT NULL' => NULL,'partner_id' => $this->session->userdata('partner_id'));
-            $header_data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where);
-            $this->load->view('partner/header',$header_data);
+            $this->load->view('partner/header');
             $this->load->view('partner/cancel_form', $data);
             $this->load->view('partner/partner_footer');
         } else {
@@ -1167,10 +1136,7 @@ class Partner extends CI_Controller {
         $getbooking = $this->booking_model->getbooking_history($booking_id);
         if ($getbooking) {
 
-            $select = "partner_logo,alt_text";
-            $where = array('partner_logo IS NOT NULL' => NULL,'partner_id' => $this->session->userdata('partner_id'));
-            $header_data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where);
-            $this->load->view('partner/header',$header_data);
+            $this->load->view('partner/header');
             $this->load->view('partner/reschedulebooking', array('data' => $getbooking));
             $this->load->view('partner/partner_footer');
         } else {
@@ -1420,10 +1386,7 @@ class Partner extends CI_Controller {
                 }
             }
 
-            $select = "partner_logo,alt_text";
-            $where = array('partner_logo IS NOT NULL' => NULL,'partner_id' => $this->session->userdata('partner_id'));
-            $header_data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where);
-            $this->load->view('partner/header',$header_data);
+            $this->load->view('partner/header');
             $this->load->view('partner/edit_booking', $data);
             $this->load->view('partner/partner_footer');
         } else {
@@ -1659,10 +1622,7 @@ class Partner extends CI_Controller {
         $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true);
         $data['is_ajax'] = $this->input->post('is_ajax');
         if(empty($this->input->post('is_ajax'))){
-            $select = "partner_logo,alt_text";
-            $where = array('partner_logo IS NOT NULL' => NULL,'partner_id' => $this->session->userdata('partner_id'));
-            $header_data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where);
-            $this->load->view('partner/header',$header_data);
+            $this->load->view('partner/header');
             $this->load->view('partner/spare_parts_booking', $data);
             $this->load->view('partner/partner_footer');
         }else{
@@ -1723,10 +1683,7 @@ class Partner extends CI_Controller {
                 . "serial_number_pic,defective_parts_pic,spare_parts_details.id, booking_details.request_type, purchase_price, estimate_cost_given_date";
 
         $data['spare_parts'] = $this->inventory_model->get_spare_parts_query($where);
-        $select = "partner_logo,alt_text";
-        $where = array('partner_logo IS NOT NULL' => NULL,'partner_id' => $this->session->userdata('partner_id'));
-        $header_data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where);
-        $this->load->view('partner/header',$header_data);
+        $this->load->view('partner/header');
         $this->load->view('partner/update_spare_parts_form', $data);
         $this->load->view('partner/partner_footer');
     }
@@ -1992,10 +1949,7 @@ class Partner extends CI_Controller {
         $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true);
 
 
-        $select = "partner_logo,alt_text";
-        $where = array('partner_logo IS NOT NULL' => NULL,'partner_id' => $this->session->userdata('partner_id'));
-        $header_data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where);
-        $this->load->view('partner/header',$header_data);
+        $this->load->view('partner/header');
         $this->load->view('partner/shipped_spare_part_booking', $data);
         $this->load->view('partner/partner_footer');
     }
@@ -2041,10 +1995,7 @@ class Partner extends CI_Controller {
         $data['internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
         $data['is_ajax'] = $this->input->post('is_ajax');
         if(empty($this->input->post('is_ajax'))){
-            $select = "partner_logo,alt_text";
-            $where = array('partner_logo IS NOT NULL' => NULL,'partner_id' => $this->session->userdata('partner_id'));
-            $header_data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where);
-            $this->load->view('partner/header',$header_data);
+            $this->load->view('partner/header');
             $this->load->view('partner/waiting_defective_parts', $data);
             $this->load->view('partner/partner_footer');
         }else{
@@ -2356,10 +2307,7 @@ class Partner extends CI_Controller {
         $data['count'] = $config['total_rows'];
         $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true);
 
-        $select = "partner_logo,alt_text";
-        $where = array('partner_logo IS NOT NULL' => NULL,'partner_id' => $this->session->userdata('partner_id'));
-        $header_data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where);
-        $this->load->view('partner/header',$header_data);
+        $this->load->view('partner/header');
         $this->load->view('partner/approved_defective_parts', $data);
         $this->load->view('partner/partner_footer');
     }
@@ -2561,10 +2509,7 @@ class Partner extends CI_Controller {
                 . " AND booking_details.current_status IN ('Pending', 'Rescheduled') ";
         $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
         $data['spare_parts'] = $total_rows[0]['total_rows'];
-        $select = "partner_logo,alt_text";
-        $where = array('partner_logo IS NOT NULL' => NULL,'partner_id' => $this->session->userdata('partner_id'));
-        $header_data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where);
-        $this->load->view('partner/header',$header_data);
+        $this->load->view('partner/header');
         $this->load->view('partner/partner_default_page', $data);
         $this->load->view('partner/partner_footer');
         if(!$this->session->userdata("login_by")){
@@ -2583,10 +2528,7 @@ class Partner extends CI_Controller {
         $data['data'] = $this->partner_model->search_booking_history(trim($searched_text), $partner_id);
 
         if (!empty($data['data'])) {
-            $select = "partner_logo,alt_text";
-            $where = array('partner_logo IS NOT NULL' => NULL,'partner_id' => $this->session->userdata('partner_id'));
-            $header_data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where);
-            $this->load->view('partner/header',$header_data);
+            $this->load->view('partner/header');
             $this->load->view('partner/bookinghistory', $data);
             $this->load->view('partner/partner_footer');
         } else {
@@ -2870,10 +2812,7 @@ class Partner extends CI_Controller {
         $data['booking_details'] = $this->upcountry_model->get_waiting_for_approval_upcountry_charges($partner_id);
         $data['is_ajax'] = $this->input->post('is_ajax');
         if(empty($this->input->post('is_ajax'))){
-            $select = "partner_logo,alt_text";
-            $where = array('partner_logo IS NOT NULL' => NULL,'partner_id' => $this->session->userdata('partner_id'));
-            $header_data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where);
-            $this->load->view('partner/header',$header_data);
+            $this->load->view('partner/header');
             $this->load->view('partner/get_waiting_to_approval_upcountry', $data);
             $this->load->view('partner/partner_footer');
         }else{
@@ -2976,10 +2915,7 @@ class Partner extends CI_Controller {
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
         $data['partner_details'] = $this->partner_model->getpartner($partner_id);
-        $select = "partner_logo,alt_text";
-        $where = array('partner_logo IS NOT NULL' => NULL,'partner_id' => $this->session->userdata('partner_id'));
-        $header_data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where);
-        $this->load->view('partner/header',$header_data);
+        $this->load->view('partner/header');
         $this->load->view('partner/edit_partner_details', $data);
         $this->load->view('partner/partner_footer');
     }
@@ -3379,10 +3315,7 @@ class Partner extends CI_Controller {
         $partner_id = $this->session->userdata('partner_id');
         $data['account_manager_details'] = $this->miscelleneous->get_am_data($partner_id);
         $data['rm_details'] = $this->employee_model->get_employee_by_group(array('groups' => 'regionalmanager', 'active' => 1));
-        $select = "partner_logo,alt_text";
-        $where = array('partner_logo IS NOT NULL' => NULL,'partner_id' => $partner_id);
-        $header_data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where);
-        $this->load->view('partner/header',$header_data);
+        $this->load->view('partner/header');
         $this->load->view('partner/contact_us', $data);
         $this->load->view('partner/partner_footer');
     }
@@ -3713,10 +3646,7 @@ class Partner extends CI_Controller {
      */
     function reset_partner_password(){
         $this->checkUserSession();
-        $select = "partner_logo,alt_text";
-        $where = array('partner_logo IS NOT NULL' => NULL,'partner_id' => $this->session->userdata('partner_id'));
-        $header_data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where);
-        $this->load->view('partner/header',$header_data);
+        $this->load->view('partner/header');
         $this->load->view('partner/reset_partner_passsword');
         $this->load->view('partner/partner_footer');
     }
