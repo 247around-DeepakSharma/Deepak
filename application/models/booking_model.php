@@ -274,7 +274,7 @@ class Booking_model extends CI_Model {
      * @return: $query array()
      * 
      */
-    function get_bookings_count_by_any($select, $where, $order_by = "" , $group_by = ""){
+    function get_bookings_count_by_any($select, $where, $order_by = "" , $group_by = "", $is_object = false){
         $this->db->select($select,false);
         $this->db->where($where,false);
         if(!empty($group_by)){
@@ -285,7 +285,11 @@ class Booking_model extends CI_Model {
         }
         $this->db->from('booking_details');
         $query = $this->db->get();
-        return $query->result_array();
+        if($is_object){
+            return $query->result();
+        } else {
+            return $query->result_array();
+        }
     }
     
     function get_advance_search_result_data($table,$select,$where=array(),$join=array(),$limitArray=array(),$orderBYArray=array(),$whereIN=array(),$JoinTypeTableArray=array()){
