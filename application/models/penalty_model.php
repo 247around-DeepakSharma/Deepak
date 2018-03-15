@@ -144,7 +144,7 @@ class Penalty_model extends CI_Model {
             $data['agent_type'] = $value['agent_type'];
             $this->insert_penalty_on_booking($data);
             if ($data['criteria_id'] == BOOKING_NOT_UPDATED_PENALTY_CRITERIA) {
-                $this->booking_model->update_booking($data['booking_id'], array('is_penalty' => '1'));
+                $this->booking_model->update_booking($data['booking_id'], array('is_penalty' => '1', 'dependency_on' => '1'));
             }
 
             return $data;

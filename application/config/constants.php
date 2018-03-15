@@ -532,5 +532,8 @@ define("BOOKING_NOT_UPDATED_PENALTY_CRITERIA", 2);
 define('AROUND_PENALTY_NOT_APPLIED_WITH_IN','120');
 define('PARTNER_PENALTY_NOT_APPLIED_WITH_IN','120');
 define("MAKE_CUTOMER_PAYMENT_INVOICE_GREATER_THAN", 5);
+
+define("DEPENDENCY_ON_AROUND", "Around Dependency");
+define("DEPENDENCY_ON_CUSTOMER", "Customer Dependency");
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
