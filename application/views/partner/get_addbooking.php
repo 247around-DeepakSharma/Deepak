@@ -162,7 +162,7 @@
                             <div class="col-md-4">
                                 <div class="form-group col-md-12  <?php if( form_error('booking_date') ) { echo 'has-error';} ?>">
                                     <label for="booking_date">Booking Date *</label>
-                                    <input type="text" class="form-control"  id="booking_date" name="booking_date"  value = "<?php if(date('H') < '12'){echo  date("Y-m-d");}else{ echo date("Y-m-d", strtotime("+1 day"));} ?>"  >
+                                    <input type="text" class="form-control"  id="booking_date" name="booking_date"  value = "<?php echo date('H') >= 12 ? date("Y-m-d", strtotime("+1 day")):date("Y-m-d", strtotime("+0 day")); ?>"  >
                                     <?php echo form_error('booking_date'); ?>
                                 </div>
                             </div>
@@ -182,7 +182,7 @@
                                         <option <?php if(set_value('partner_source') == "Snapdeal"){ echo "selected";} ?>>Snapdeal</option>
                                         <option <?php if(set_value('partner_source') == "TataCliq"){ echo "selected";} ?>>TataCliq</option>
                                     </select>
-                                    <?php echo form_error('booking_date'); ?>
+                                    <?php echo form_error('partner_source'); ?>
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -619,26 +619,20 @@
     $("#appliance_category_1").select2();
     $("#partner_source").select2();
     var today = new Date();
-//    $("#booking_date").datepicker({
-//        dateFormat: 'yy-mm-dd', 
-//        minDate: today.getHours() >= 12 ? 1 : 0,
-//        beforeShowDay: function(date) {
-//            var day = date.getDay();
-//            return [(day !== 0), ''];
-//        }
-//    });
+    var startDate = today.getHours() >=12 ? today.add(1).day() : today;
+    
     $('#booking_date').daterangepicker({
-        autoUpdateInput: false,
-        singleDatePicker: true,
-        showDropdowns: true,
-        minDate:today,
-        locale:{
-            format: 'DD-MM-YYYY'
-        }
-    });
+                autoUpdateInput: false,
+                singleDatePicker: true,
+                showDropdowns: true,
+                minDate:startDate,
+                locale:{
+                    format: 'YYYY-MM-DD'
+                }
+            });
             
     $('#booking_date').on('apply.daterangepicker', function(ev, picker) {
-        $(this).val(picker.startDate.format('DD-MM-YYYY'));
+        $(this).val(picker.startDate.format('YYYY-MM-DD'));
     });
 
     $('#booking_date').on('cancel.daterangepicker', function(ev, picker) {
