@@ -72,22 +72,8 @@
                                 ?>
                             </td>
                             <td><?php echo $row->appliance_brand; ?></td>
-                            <td><?php
-                                if (!empty($row->status)) {
-                                    switch ($row->status) {
-                                        case "Delivered":
-                                            echo 'Spare Parts Received By SF';
-                                            break;
-                                        case "Shipped":
-                                            echo 'Spare Parts Shipped By ' . $this->session->userdata('partner_name');
-                                            break;
-                                        default :
-                                            echo $row->status;
-                                            break;
-                                    }
-                                } else {
-                                    echo $row->current_status;
-                                }
+                            <td><?php echo $row->partner_internal_status;
+                                
                                 ?></td>
                             <td> 
                                 <?= $row->customername; ?>
