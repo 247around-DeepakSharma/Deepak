@@ -543,7 +543,7 @@ define('LA_SVC', "7014851010000029");
 //Mobile SVC
 define('MOBILE_SVC', "7014851010000091");
 
-define("DEPENDENCY_ON_AROUND", "Around Dependency");
+define("DEPENDENCY_ON_AROUND", "247around Dependency");
 define("DEPENDENCY_ON_CUSTOMER", "Customer Dependency");
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
