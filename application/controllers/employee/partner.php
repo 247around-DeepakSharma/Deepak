@@ -743,8 +743,11 @@ class Partner extends CI_Controller {
         if (!empty($get_partner_details[0]['account_manager_id'])) {
             $am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
         }
-
-        $result = $this->partner_model->activate($id);
+        
+        $data = array('is_active' => 1,
+                       'agent_id' => $this->session->userdata('id'),
+                        'update_date' => date('Y-m-d H:i:s'));
+        $result = $this->partner_model->activate($id,$data);
 
         if (!empty($result)) {
 
@@ -783,8 +786,10 @@ class Partner extends CI_Controller {
         if (!empty($get_partner_details[0]['account_manager_id'])) {
             $am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
         }
-
-        $result = $this->partner_model->deactivate($id);
+        $data = array('is_active' => 0,
+                       'agent_id' => $this->session->userdata('id'),
+                        'update_date' => date('Y-m-d H:i:s'));
+        $result = $this->partner_model->deactivate($id,$data);
         if (!empty($result)) {
 
             //Storing State change values in Booking_State_Change Table
