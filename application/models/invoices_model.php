@@ -279,6 +279,7 @@ class invoices_model extends CI_Model {
         $sql1 = "SELECT booking_unit_details.id AS unit_id, booking_unit_details.sub_order_id, `booking_details`.booking_id, "
                 . "  invoice_email_to,invoice_email_cc, booking_details.rating_stars,  "
                 . " `booking_details`.partner_id, `booking_details`.source,"
+                . "  DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y'), '%D %b %Y') as booking_date, "
                 . " `booking_details`.city, DATE_FORMAT(`booking_unit_details`.ud_closed_date, '%D %b %Y') as closed_date,price_tags, "
                 . " `booking_unit_details`.appliance_capacity,`booking_unit_details`.appliance_category, "
                 . "  booking_details.booking_primary_contact_no,  "
@@ -1318,12 +1319,12 @@ class invoices_model extends CI_Model {
         
         if(!empty($commission_charge)){
             foreach ($commission_charge as $key => $value) {
-                $commission_charge[$key]['rate'] = sprintf("%1\$.2f",$value['taxable_value']/$value['qty']);
+                $commission_charge[$key]['rate'] = round($value['taxable_value']/$value['qty'], 0);
                 $meta['sub_total_amount'] += $value['taxable_value'];
                 $meta['total_qty'] += $value['qty'];
             }
             
-            $meta['sub_total_amount'] = sprintf("%1\$.2f",$meta['sub_total_amount']);
+            $meta['sub_total_amount'] = round($meta['sub_total_amount'], 0);
             $meta['invoice_template'] = "Buyback-v1.xlsx"; 
             
             $meta['sd'] = date("jS M, Y", strtotime($from_date));
@@ -1362,8 +1363,8 @@ class invoices_model extends CI_Model {
             $profit_loss_where = ' AND CASE WHEN (cp_claimed_price > 0) THEN ((`partner_basic_charge` + `partner_tax_charge` + `partner_sweetner_charges`) >  (cp_claimed_price)) ELSE ((`partner_basic_charge` + `partner_tax_charge` + `partner_sweetner_charges`) >  (`cp_basic_charge` + cp_tax_charge)) END ';
         }
         $select = " COUNT(bb_unit_details.id) as qty, SUM(CASE WHEN ( bb_unit_details.cp_claimed_price > 0) 
-                THEN (bb_unit_details.cp_claimed_price) 
-                ELSE (bb_unit_details.cp_basic_charge + cp_tax_charge) END ) AS taxable_value, concat('Used ',services) as description, 
+                THEN (round(bb_unit_details.cp_claimed_price,0)) 
+                ELSE (round(bb_unit_details.cp_basic_charge + cp_tax_charge,0)) END ) AS taxable_value, concat('Used ',services) as description, 
                 CASE WHEN (bb_unit_details.service_id = 46) THEN (8528) 
                 WHEN (bb_unit_details.service_id = 50) THEN (8415)
                 WHEN (bb_unit_details.service_id = 28) THEN (8450)
@@ -1373,8 +1374,8 @@ class invoices_model extends CI_Model {
         $group_by = " GROUP BY bb_unit_details.service_id ";
         if($is_unit){
             $select = " bb_unit_details.id AS unit_id,bb_unit_details.gst_amount, CASE WHEN ( bb_unit_details.cp_claimed_price > 0) 
-                THEN (bb_unit_details.cp_claimed_price) 
-                ELSE (bb_unit_details.cp_basic_charge + cp_tax_charge) END AS cp_charge,partner_tracking_id, city,order_key,
+                THEN (round(bb_unit_details.cp_claimed_price,0)) 
+                ELSE (round(bb_unit_details.cp_basic_charge + cp_tax_charge,0)) END AS cp_charge,partner_tracking_id, city,order_key,
                 CASE WHEN(acknowledge_date IS NOT NULL) 
                 THEN (DATE_FORMAT( acknowledge_date,  '%d-%m-%Y' ) ) ELSE (DATE_FORMAT(delivery_date,  '%d-%m-%Y' )) END AS delivery_date, order_date,
                 order_date, services, bb_order_details.partner_order_id";
