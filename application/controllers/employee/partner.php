@@ -2880,13 +2880,13 @@ class Partner extends CI_Controller {
                 $ext = explode('.', $_FILES["partner_brand_logo"]["name"][$key]);
                 $file_name = $partner_name . preg_replace("/[^a-zA-Z]+/", "", $_FILES["partner_brand_logo"]["name"][$key]) . rand(10, 100) . "." . end($ext);
                 if (!file_exists(FCPATH . 'images/' . $file_name)) {
-                    move_uploaded_file($tmpFile, FCPATH . 'images/' . $file_name);
+                    //move_uploaded_file($tmpFile, FCPATH . 'images/' . $file_name);
                     //Uploading images to S3 
                     $bucket = BITBUCKET_DIRECTORY;
                     $directory = "misc-images/" . $file_name;
-                    $this->s3->putObjectFile(TMP_FOLDER . $file_name, $bucket, $directory, S3::ACL_PUBLIC_READ);
+                    $this->s3->putObjectFile($tmpFile, $bucket, $directory, S3::ACL_PUBLIC_READ);
                     $data['partner_id'] = $partner_id;
-                    $data['partner_logo'] = 'images/' . $file_name;
+                    $data['partner_logo'] = $file_name;
                     $data['alt_text'] = $partner_name;
 
                     //insert partner brand logo path into database
