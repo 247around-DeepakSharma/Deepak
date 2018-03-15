@@ -2155,31 +2155,33 @@ class Inventory extends CI_Controller {
      */
     function get_inventory_snapshot(){
         $sf_list = array();
-        
+       
         //get avg booking for each sf in last 1 month
         $avg_booking_select = 'assigned_vendor_id,count(DISTINCT booking_details.booking_id),(count(DISTINCT booking_details.booking_id)/30) as avg_booking';
-        $avg_booking_where = array('price_tags like "%'._247AROUND_WALL_MOUNT__PRICE_TAG.'%"' => NULL,
+        $avg_booking_where = array('price_tags' => _247AROUND_WALL_MOUNT__PRICE_TAG,
             "booking_unit_details.create_date >= (NOW() - Interval 30 Day)" => NULL,'assigned_vendor_id IS NOT NULL' =>NULL);
         $sf_bookings_snapshot = $this->inventory_model->get_inventory_snapshot($avg_booking_select,$avg_booking_where,'assigned_vendor_id');
-        
+       
         //get total stocks for each sf
         $inventory_select = "SUM(IF(inventory_stocks.inventory_id = 1, inventory_stocks.stock, 0)) AS l_32,SUM(IF(inventory_stocks.inventory_id = 2, inventory_stocks.stock, 0)) AS g_32,service_centres.name,service_centres.id";
         $inventory_where['length'] = -1;
         $inventory_where['group_by'] = 'inventory_stocks.entity_id';
-        $inventory_count = $this->inventory_model->get_inventory_stock_list($inventory_where,$inventory_select);
+        $inventory_count = $this->inventory_model->get_inventory_stock_list($inventory_where,$inventory_select,array(), false);
+      
         //get no of days by which brackets whould be exhausted for the sf
         if(!empty($sf_bookings_snapshot)){
             foreach ($sf_bookings_snapshot as $value){
+               
                 $key = array_search($value['assigned_vendor_id'], array_column($inventory_count, 'id'));
                 if($key !== FALSE){
-                    $total_stocks = $inventory_count[$key]->l_32 + $inventory_count[$key]->g_32;
+                    $total_stocks = $inventory_count[$key]['l_32'] + $inventory_count[$key]['g_32'];
                     $no_of_days_brackets_exhausted = abs($total_stocks/$value['avg_booking']);
                 
                     $tmp['sf_id'] = $value['assigned_vendor_id'];
-                    $tmp['sf_name'] = $inventory_count[$key]->name;
+                    $tmp['sf_name'] = $inventory_count[$key]['name'];
                     $tmp['brackets_exhausted_days'] = ($total_stocks > 0)? round($no_of_days_brackets_exhausted) : 0;
-                    $tmp['l_32'] = ($total_stocks > 0)? $inventory_count[$key]->l_32 : 0;
-                    $tmp['g_32'] = ($total_stocks > 0)? $inventory_count[$key]->g_32 : 0;
+                    $tmp['l_32'] = ($total_stocks > 0)? $inventory_count[$key]['l_32'] : 0;
+                    $tmp['g_32'] = ($total_stocks > 0)? $inventory_count[$key]['g_32'] : 0;
                     array_push($sf_list, $tmp);
                 }
             }
