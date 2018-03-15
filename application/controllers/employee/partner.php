@@ -256,7 +256,7 @@ class Partner extends CI_Controller {
     function get_addbooking_form($phone_number = "") {
         $this->checkUserSession();
         if (!empty($phone_number)) {
-            $_POST['phone_number'] = $phone_number;
+            $_POST['phone_number'] = trim($phone_number);
         }
         $this->form_validation->set_rules('phone_number', 'Phone Number', 'trim|required|regex_match[/^[6-9]{1}[0-9]{9}$/]');
 
@@ -266,7 +266,7 @@ class Partner extends CI_Controller {
             $this->session->set_userdata($userSession);
             redirect(base_url() . "partner/home");
         } else {
-            $phone_number = $this->input->post('phone_number');
+            $phone_number = trim($this->input->post('phone_number'));
             $data['user'] = $this->user_model->get_users_by_any(array("users.phone_number" => $phone_number));
             $partner_id = $this->session->userdata('partner_id');
             $partner_data = $this->partner_model->get_partner_code($partner_id);
@@ -281,7 +281,7 @@ class Partner extends CI_Controller {
                 $data['appliances'] = $services = $this->booking_model->selectservice();
             }
 
-            $data['phone_number'] = $phone_number;
+            $data['phone_number'] = trim($phone_number);
             $select = "partner_logo,alt_text";
             $where = array('partner_logo IS NOT NULL' => NULL,'partner_id' => $this->session->userdata('partner_id'));
             $header_data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where);
@@ -381,29 +381,29 @@ class Partner extends CI_Controller {
         $post['partnerName'] = $this->session->userdata('partner_name');
         $post['partner_id'] = $this->session->userdata('partner_id');
         $post['agent_id'] = $this->session->userdata('agent_id');
-        $post['name'] = $this->input->post('user_name');
-        $post['mobile'] = $this->input->post('booking_primary_contact_no');
+        $post['name'] = trim($this->input->post('user_name'));
+        $post['mobile'] = trim($this->input->post('booking_primary_contact_no'));
         $post['email'] = $this->input->post('user_email');
-        $post['address'] = $this->input->post('booking_address');
-        $post['pincode'] = $this->input->post('booking_pincode');
-        $post['city'] = $this->input->post('city');
-        $post['requestType'] = $this->input->post('prices');
-        $post['landmark'] = $this->input->post('landmark');
+        $post['address'] = trim($this->input->post('booking_address'));
+        $post['pincode'] = trim($this->input->post('booking_pincode'));
+        $post['city'] = trim($this->input->post('city'));
+        $post['requestType'] = trim($this->input->post('prices'));
+        $post['landmark'] = trim($this->input->post('landmark'));
         $post['service_id'] = $this->input->post('service_id');
-        $post['brand'] = $this->input->post('appliance_brand');
+        $post['brand'] = trim($this->input->post('appliance_brand'));
         $post['productType'] = '';
         $post['category'] = $this->input->post('appliance_category');
         $post['capacity'] = $this->input->post('appliance_capacity');
         $post['model'] = $this->input->post('model_number');
-        $post['serial_number'] = $this->input->post('serial_number');
+        $post['serial_number'] = trim($this->input->post('serial_number'));
         $post['purchase_month'] = $this->input->post('purchase_month');
         $post['purchase_year'] = $this->input->post('purchase_year');
         $post['partner_source'] = $this->input->post('partner_source');
-        $post['remarks'] = $this->input->post('query_remarks');
-        $post['orderID'] = $this->input->post('order_id');
+        $post['remarks'] = trim($this->input->post('query_remarks'));
+        $post['orderID'] = trim($this->input->post('order_id'));
         $post['assigned_vendor_id'] = $this->input->post('assigned_vendor_id');
         $post['upcountry_data'] = $this->input->post('upcountry_data');
-        $post['alternate_phone_number'] = $this->input->post('alternate_phone_number');
+        $post['alternate_phone_number'] = trim($this->input->post('alternate_phone_number'));
         $post['booking_date'] = $booking_date;
         $post['partner_type'] = $this->input->post('partner_type');
         $post['appliance_unit'] = $this->input->post('appliance_unit');
@@ -411,9 +411,9 @@ class Partner extends CI_Controller {
         $post['amount_due'] = $this->input->post('grand_total');
         $post['product_type'] = $this->input->post('product_type');
         $post['appliance_name'] = $this->input->post('appliance_name');
-        $post['dealer_name'] = $this->input->post('dealer_name');
-        $post['dealer_phone_number'] = $this->input->post('dealer_phone_number');
-        $post['dealer_id'] = $this->input->post('dealer_id');
+        $post['dealer_name'] = trim($this->input->post('dealer_name'));
+        $post['dealer_phone_number'] = trim($this->input->post('dealer_phone_number'));
+        $post['dealer_id'] = trim($this->input->post('dealer_id'));
         return $post;
     }
 
@@ -427,10 +427,10 @@ class Partner extends CI_Controller {
     }
 
     function set_form_validation() {
-        $this->form_validation->set_rules('user_name', 'User Name', 'required|xss_clean');
+        $this->form_validation->set_rules('user_name', 'User Name', 'trim|required|xss_clean');
         $this->form_validation->set_rules('booking_primary_contact_no', 'Mobile Number', 'trim|required|exact_length[10]|xss_clean');
         $this->form_validation->set_rules('city', 'City', 'trim|required|xss_clean');
-        $this->form_validation->set_rules('booking_address', 'Booking Address', 'required');
+        $this->form_validation->set_rules('booking_address', 'Booking Address', 'trim|required');
         $this->form_validation->set_rules('landmark', 'LandMark', 'trim');
         $this->form_validation->set_rules('appliance_capacity', 'Appliance Capacity', 'trim|xss_clean');
         $this->form_validation->set_rules('alternate_phone_number', 'Alternate Number', 'trim|xss_clean');
@@ -443,7 +443,7 @@ class Partner extends CI_Controller {
         $this->form_validation->set_rules('partner_source', 'Booking Source', 'required');
         $this->form_validation->set_rules('service_id', 'Service Name', 'required');
         $this->form_validation->set_rules('booking_date', 'Booking Date', 'required');
-        $this->form_validation->set_rules('query_remarks', 'Problem Description', 'required');
+        $this->form_validation->set_rules('query_remarks', 'Problem Description', 'trim|required');
         $this->form_validation->set_rules('booking_pincode', 'Booking Pincode', 'trim|required|exact_length[6]');
         $this->form_validation->set_rules('prices', 'Service Category', 'required');
         $this->form_validation->set_rules('grand_total', 'Grand Total', 'trim');
@@ -626,31 +626,31 @@ class Partner extends CI_Controller {
     }
 
     function get_partner_form_data() {
-        $return_data['company_name'] = $this->input->post('company_name');
-        $return_data['company_type'] = $this->input->post('company_type');
-        $return_data['public_name'] = $this->input->post('public_name');
-        $return_data['address'] = $this->input->post('address');
-        $return_data['landmark'] = $this->input->post('landmark');
-        $return_data['state'] = $this->input->post('state');
-        $return_data['district'] = $this->input->post('district');
-        $return_data['pincode'] = $this->input->post('pincode');
-        $return_data['primary_contact_name'] = $this->input->post('primary_contact_name');
-        $return_data['primary_contact_email'] = $this->input->post('primary_contact_email');
-        $return_data['customer_care_contact'] = $this->input->post('customer_care_contact');
-        $return_data['primary_contact_phone_1'] = $this->input->post('primary_contact_phone_1');
-        $return_data['primary_contact_phone_2'] = $this->input->post('primary_contact_phone_2');
-        $return_data['owner_name'] = $this->input->post('owner_name');
-        $return_data['owner_email'] = $this->input->post('owner_email');
-        $return_data['owner_alternate_email'] = $this->input->post('owner_alternate_email');
-        $return_data['owner_phone_1'] = $this->input->post('owner_phone_1');
-        $return_data['owner_phone_2'] = $this->input->post('owner_phone_2');
+        $return_data['company_name'] = trim($this->input->post('company_name'));
+        $return_data['company_type'] = trim($this->input->post('company_type'));
+        $return_data['public_name'] = trim($this->input->post('public_name'));
+        $return_data['address'] = trim($this->input->post('address'));
+        $return_data['landmark'] = trim($this->input->post('landmark'));
+        $return_data['state'] = trim($this->input->post('state'));
+        $return_data['district'] = trim($this->input->post('district'));
+        $return_data['pincode'] = trim($this->input->post('pincode'));
+        $return_data['primary_contact_name'] = trim($this->input->post('primary_contact_name'));
+        $return_data['primary_contact_email'] = trim($this->input->post('primary_contact_email'));
+        $return_data['customer_care_contact'] = trim($this->input->post('customer_care_contact'));
+        $return_data['primary_contact_phone_1'] = trim($this->input->post('primary_contact_phone_1'));
+        $return_data['primary_contact_phone_2'] = trim($this->input->post('primary_contact_phone_2'));
+        $return_data['owner_name'] = trim($this->input->post('owner_name'));
+        $return_data['owner_email'] = trim($this->input->post('owner_email'));
+        $return_data['owner_alternate_email'] = trim($this->input->post('owner_alternate_email'));
+        $return_data['owner_phone_1'] = trim($this->input->post('owner_phone_1'));
+        $return_data['owner_phone_2'] = trim($this->input->post('owner_phone_2'));
         $return_data['summary_email_to'] = $this->input->post('summary_email_to');
         $return_data['summary_email_cc'] = $this->input->post('summary_email_cc');
         $return_data['invoice_email_to'] = $this->input->post('invoice_email_to');
         $return_data['invoice_email_cc'] = $this->input->post('invoice_email_cc');
-        $return_data['invoice_courier_name'] = $this->input->post('invoice_courier_name');
-        $return_data['invoice_courier_address'] = $this->input->post('invoice_courier_address');
-        $return_data['invoice_courier_phone_number'] = $this->input->post('invoice_courier_phone_number');
+        $return_data['invoice_courier_name'] = trim($this->input->post('invoice_courier_name'));
+        $return_data['invoice_courier_address'] = trim($this->input->post('invoice_courier_address'));
+        $return_data['invoice_courier_phone_number'] = trim($this->input->post('invoice_courier_phone_number'));
         $return_data['is_def_spare_required'] = $this->input->post('is_def_spare_required');
         $partner_code = $this->input->post('partner_code');
         $return_data['account_manager_id'] = $this->input->post('account_manager_id');
@@ -757,7 +757,7 @@ class Partner extends CI_Controller {
         
         $data = array('is_active' => 1,
                        'agent_id' => $this->session->userdata('id'),
-                        'update_date' => date('Y-m-d H:i:s'));
+                       'update_date' => date('Y-m-d H:i:s'));
         $result = $this->partner_model->activate($id,$data);
 
         if (!empty($result)) {
@@ -799,7 +799,7 @@ class Partner extends CI_Controller {
         }
         $data = array('is_active' => 0,
                        'agent_id' => $this->session->userdata('id'),
-                        'update_date' => date('Y-m-d H:i:s'));
+                       'update_date' => date('Y-m-d H:i:s'));
         $result = $this->partner_model->deactivate($id,$data);
         if (!empty($result)) {
 
@@ -893,7 +893,7 @@ class Partner extends CI_Controller {
         $search_value = trim($this->input->post('search_value'));
         $search_type = trim($this->input->post('optradio'));
         if ($search_type === 'phone_number') {
-            $phone_number = $this->input->post('phone_number');
+            $phone_number = trim($this->input->post('phone_number'));
         }
 
         if ($phone_number != "") {
@@ -1070,8 +1070,8 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ . " Booking ID: " . print_r($booking_id, true) . ' status: ' . $status);
         $data['closed_date'] = $data['update_date'] = date("Y-m-d H:i:s");
         $data['current_status'] = _247AROUND_CANCELLED;
-        $data['internal_status'] = $data['cancellation_reason'] = $this->input->post('cancellation_reason');
-        $data['closing_remarks'] = $this->input->post('remarks');
+        $data['internal_status'] = $data['cancellation_reason'] = trim($this->input->post('cancellation_reason'));
+        $data['closing_remarks'] = trim($this->input->post('remarks'));
 
         //check partner status from partner_booking_status_mapping table  
         $partner_id = $this->input->post("partner_id");
@@ -1294,7 +1294,7 @@ class Partner extends CI_Controller {
         } else {
 
             $escalation['escalation_reason'] = $this->input->post('escalation_reason_id');
-            $escalation_remarks = $this->input->post('escalation_remarks');
+            $escalation_remarks = trim($this->input->post('escalation_remarks'));
             $bookinghistory = $this->booking_model->getbooking_history($booking_id);
 
             $escalation_reason = $this->vendor_model->getEscalationReason(array('id' => $escalation['escalation_reason']));
@@ -2613,15 +2613,15 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ . "  Partner ID: " . $this->session->userdata('partner_id'));
         $this->checkUserSession();
         $service_id = $this->input->post('service_id');
-        $brand = $this->input->post('brand');
-        $category = $this->input->post('category');
-        $capacity = $this->input->post('capacity');
-        $city = $this->input->post('city');
-        $pincode = $this->input->post('pincode');
+        $brand = trim($this->input->post('brand'));
+        $category = trim($this->input->post('category'));
+        $capacity = trim($this->input->post('capacity'));
+        $city = trim($this->input->post('city'));
+        $pincode = trim($this->input->post('pincode'));
         $service_category = $this->input->post('service_category');
         $partner_id = $this->session->userdata('partner_id');
-        $booking_id = $this->input->post('booking_id');
-        $partner_type = $this->input->post('partner_type');
+        $booking_id = trim($this->input->post('booking_id'));
+        $partner_type = trim($this->input->post('partner_type'));
         $assigned_vendor_id = $this->input->post("assigned_vendor_id");
         $result = array();
 
@@ -3000,26 +3000,26 @@ class Partner extends CI_Controller {
         //store POST data into array
         $partner_data = array();
         $partner_id = $this->input->post('id');
-        $partner_data['company_name'] = $this->input->post('company_name');
-        $partner_data['public_name'] = $this->input->post('public_name');
-        $partner_data['address'] = $this->input->post('address');
-        $partner_data['landmark'] = $this->input->post('landmark');
-        $partner_data['pincode'] = $this->input->post('pincode');
-        $partner_data['district'] = $this->input->post('district');
-        $partner_data['state'] = $this->input->post('state');
-        $partner_data['primary_contact_name'] = $this->input->post('primary_contact_name');
+        $partner_data['company_name'] = trim($this->input->post('company_name'));
+        $partner_data['public_name'] = trim($this->input->post('public_name'));
+        $partner_data['address'] = trim($this->input->post('address'));
+        $partner_data['landmark'] = trim($this->input->post('landmark'));
+        $partner_data['pincode'] = trim($this->input->post('pincode'));
+        $partner_data['district'] = trim($this->input->post('district'));
+        $partner_data['state'] = trim($this->input->post('state'));
+        $partner_data['primary_contact_name'] = trim($this->input->post('primary_contact_name'));
         $partner_data['primary_contact_email'] = $this->input->post('primary_contact_email');
-        $partner_data['primary_contact_phone_1'] = $this->input->post('primary_contact_phone_1');
-        $partner_data['primary_contact_phone_2'] = $this->input->post('primary_contact_phone_2');
-        $partner_data['owner_name'] = $this->input->post('owner_name');
+        $partner_data['primary_contact_phone_1'] = trim($this->input->post('primary_contact_phone_1'));
+        $partner_data['primary_contact_phone_2'] = trim($this->input->post('primary_contact_phone_2'));
+        $partner_data['owner_name'] = trim($this->input->post('owner_name'));
         $partner_data['owner_email'] = $this->input->post('owner_email');
-        $partner_data['owner_phone_1'] = $this->input->post('owner_phone_1');
-        $partner_data['owner_phone_2'] = $this->input->post('owner_phone_2');
+        $partner_data['owner_phone_1'] = trim($this->input->post('owner_phone_1'));
+        $partner_data['owner_phone_2'] = trim($this->input->post('owner_phone_2'));
         $partner_data['owner_alternate_email'] = $this->input->post('owner_alternate_email');
-        $partner_data['pan'] = $this->input->post('pan');
-        $partner_data['tin'] = $this->input->post('tin');
-        $partner_data['registration_no'] = $this->input->post('registration_no');
-        $partner_data['cst_no'] = $this->input->post('cst_no');
+        $partner_data['pan'] = trim($this->input->post('pan'));
+        $partner_data['tin'] = trim($this->input->post('tin'));
+        $partner_data['registration_no'] = trim($this->input->post('registration_no'));
+        $partner_data['cst_no'] = trim($this->input->post('cst_no'));
         $partner_data['spare_notification_email'] = $this->input->post('spare_notification_email');
 
         if (!empty($partner_data) && !empty($partner_id)) {
@@ -3078,8 +3078,8 @@ class Partner extends CI_Controller {
     }
 
     function get_dealer_details() {
-        $partner_id = $this->input->post('partner_id');
-        $search_term = $this->input->post('search_term');
+        $partner_id = trim($this->input->post('partner_id'));
+        $search_term = trim($this->input->post('search_term'));
         $column = $this->input->post("dealer_field");
         $condition = array(
             "where" => array('partner_id' => $partner_id),

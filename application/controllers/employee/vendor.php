@@ -585,25 +585,25 @@ class vendor extends CI_Controller {
     
     function get_vendor_form_data(){
 
-                $vendor_data['company_name'] = $this->input->post('company_name');
-                $vendor_data['name'] = $this->input->post('name');
-                $vendor_data['address'] = $this->input->post('address');
-                $vendor_data['landmark'] = $this->input->post('landmark');
-                $vendor_data['district'] = $this->input->post('district');
-                $vendor_data['state'] = $this->input->post('state');
-                $vendor_data['pincode'] = $this->input->post('pincode');
-                $vendor_data['phone_1'] = $this->input->post('phone_1');
-                $vendor_data['phone_2'] = $this->input->post('phone_2');
+                $vendor_data['company_name'] = trim($this->input->post('company_name'));
+                $vendor_data['name'] = trim($this->input->post('name'));
+                $vendor_data['address'] = trim($this->input->post('address'));
+                $vendor_data['landmark'] = trim($this->input->post('landmark'));
+                $vendor_data['district'] = trim($this->input->post('district'));
+                $vendor_data['state'] = trim($this->input->post('state'));
+                $vendor_data['pincode'] = trim($this->input->post('pincode'));
+                $vendor_data['phone_1'] = trim($this->input->post('phone_1'));
+                $vendor_data['phone_2'] = trim($this->input->post('phone_2'));
                 $vendor_data['email'] = $this->input->post('email');
-                $vendor_data['company_type'] = $this->input->post('company_type');
-                $vendor_data['primary_contact_name'] = $this->input->post('primary_contact_name');
-                $vendor_data['primary_contact_email'] = $this->input->post('primary_contact_email');
-                $vendor_data['primary_contact_phone_1'] = $this->input->post('primary_contact_phone_1');
-                $vendor_data['primary_contact_phone_2'] = $this->input->post('primary_contact_phone_2');
-                $vendor_data['owner_name'] = $this->input->post('owner_name');
-                $vendor_data['owner_email'] = $this->input->post('owner_email');
-                $vendor_data['owner_phone_1'] = $this->input->post('owner_phone_1');
-                $vendor_data['owner_phone_2'] = $this->input->post('owner_phone_2');
+                $vendor_data['company_type'] = trim($this->input->post('company_type'));
+                $vendor_data['primary_contact_name'] = trim($this->input->post('primary_contact_name'));
+                $vendor_data['primary_contact_email'] = trim($this->input->post('primary_contact_email'));
+                $vendor_data['primary_contact_phone_1'] = trim($this->input->post('primary_contact_phone_1'));
+                $vendor_data['primary_contact_phone_2'] = trim($this->input->post('primary_contact_phone_2'));
+                $vendor_data['owner_name'] = trim($this->input->post('owner_name'));
+                $vendor_data['owner_email'] = trim($this->input->post('owner_email'));
+                $vendor_data['owner_phone_1'] = trim($this->input->post('owner_phone_1'));
+                $vendor_data['owner_phone_2'] = trim($this->input->post('owner_phone_2'));
                 
                 $vendor_data['is_pan_doc'] = $this->input->post('is_pan_doc');
 //                $vendor_data['is_cst_doc'] = $this->input->post('is_cst_doc');
@@ -622,8 +622,8 @@ class vendor extends CI_Controller {
                 }
                 
                 if(!empty($vendor_data['is_pan_doc']) && !empty($this->input->post('pan_no')) ){
-                   $vendor_data['pan_no'] = $this->input->post('pan_no');
-                   $vendor_data['name_on_pan'] = $this->input->post('name_on_pan');
+                   $vendor_data['pan_no'] = trim($this->input->post('pan_no'));
+                   $vendor_data['name_on_pan'] = trim($this->input->post('name_on_pan'));
                 }else{
                     $vendor_data['pan_no'] = "";
                     $vendor_data['name_on_pan']= "";
@@ -644,16 +644,16 @@ class vendor extends CI_Controller {
 //                    $vendor_data['service_tax_no'] = "";
 //                }
                 if(!empty($vendor_data['is_gst_doc']) && !empty($this->input->post('gst_no'))){
-                    $vendor_data['gst_no'] = $this->input->post('gst_no');
+                    $vendor_data['gst_no'] = trim($this->input->post('gst_no'));
                 }else{
                     $vendor_data['gst_no'] = NULL;
                 }
              
-                $vendor_data['bank_name'] = $this->input->post('bank_name');
-                $vendor_data['account_type'] = $this->input->post('account_type');
-                $vendor_data['bank_account'] = $this->input->post('bank_account');
-                $vendor_data['ifsc_code'] = $this->input->post('ifsc_code');
-                $vendor_data['beneficiary_name'] = $this->input->post('beneficiary_name');
+                $vendor_data['bank_name'] = trim($this->input->post('bank_name'));
+                $vendor_data['account_type'] = trim($this->input->post('account_type'));
+                $vendor_data['bank_account'] = trim($this->input->post('bank_account'));
+                $vendor_data['ifsc_code'] = trim($this->input->post('ifsc_code'));
+                $vendor_data['beneficiary_name'] = trim($this->input->post('beneficiary_name'));
                 $vendor_data['is_verified'] = $this->input->post('is_verified');
                 if(!empty($this->input->post('contract_file'))){
                     $vendor_data['contract_file'] = $this->input->post('contract_file');
@@ -1683,7 +1683,7 @@ class vendor extends CI_Controller {
         $booking_id= $this->input->post('booking_id');
         $vendor_id = $this->input->post('vendor_id');
         $escalation_reason_id = $this->input->post('escalation_reason_id');
-        $remarks = $this->input->post('remarks');
+        $remarks = trim($this->input->post('remarks'));
         $status = $this->input->post('status');
         
         $checkValidation = $this->checkValidationOnReason();
@@ -1763,8 +1763,8 @@ class vendor extends CI_Controller {
      * @return : displays districts to the view
      */
     function getDistrict($flag = "") {
-        $state = $this->input->post('state');
-        $dis = $this->input->post('district');
+        $state = trim($this->input->post('state'));
+        $dis = trim($this->input->post('district'));
 
         if ($flag == "") {
             $data = $this->vendor_model->getDistrict($state);
@@ -1798,8 +1798,8 @@ class vendor extends CI_Controller {
      * @return : displays pincode to the view
      */
     function getPincode($flag = "") {
-        $district = $this->input->post('district');
-        $pin = $this->input->post('pincode');
+        $district = trim($this->input->post('district'));
+        $pin = trim($this->input->post('pincode'));
         if ($flag == "") {
             $data = $this->vendor_model->getPincode($district);
         } else {
@@ -1841,9 +1841,9 @@ class vendor extends CI_Controller {
      * @return : Array of active areas
      */
     function check_availability_for_vendor() {
-        $data['service_id'] = $this->input->post('service_id');
+        $data['service_id'] = trim($this->input->post('service_id'));
         //$data['city'] = $this->input->post('city');
-        $data['pincode'] = $this->input->post('pincode');
+        $data['pincode'] = trim($this->input->post('pincode'));
         $vendor['vendor'] = $this->vendor_model->getVendorFromVendorMapping($data);
         $this->load->view('employee/searchvendor', $vendor);
     }
@@ -2018,11 +2018,11 @@ class vendor extends CI_Controller {
         if ($engineer_form_validation) {
             $is_phone = $this->engineer_model->get_engineers_details(array("phone" => $this->input->post('phone')), "name, phone");
             if (empty($is_phone)) {
-                $data['name'] = $this->input->post('name');
-                $data['phone'] = $this->input->post('phone');
-                $data['alternate_phone'] = $this->input->post('alternate_phone');
+                $data['name'] = trim($this->input->post('name'));
+                $data['phone'] = trim($this->input->post('phone'));
+                $data['alternate_phone'] = trim($this->input->post('alternate_phone'));
                 $data['identity_proof'] = $this->input->post('identity_proof');
-                $data['identity_proof_number'] = $this->input->post('identity_id_number');
+                $data['identity_proof_number'] = trim($this->input->post('identity_id_number'));
                 if($this->input->post('identity_file')){
                     $data['identity_proof_pic'] = $this->input->post('identity_file');
                 }
@@ -2111,11 +2111,11 @@ class vendor extends CI_Controller {
         if ($engineer_form_validation) {
             $is_phone = $this->engineer_model->get_engineers_details(array("phone" => $this->input->post('phone')), "id, name, phone");
             if (empty($is_phone) || $is_phone[0]['id'] == $engineer_id) {
-                $data['name'] = $this->input->post('name');
-                $data['phone'] = $this->input->post('phone');
-                $data['alternate_phone'] = $this->input->post('alternate_phone');             
+                $data['name'] = trim($this->input->post('name'));
+                $data['phone'] = trim($this->input->post('phone'));
+                $data['alternate_phone'] = trim($this->input->post('alternate_phone'));             
                 $data['identity_proof'] = $this->input->post('identity_proof');
-                $data['identity_proof_number'] = $this->input->post('identity_id_number');
+                $data['identity_proof_number'] = trim($this->input->post('identity_id_number'));
                 if($this->input->post('identity_file')){
                     $data['identity_proof_pic'] = $this->input->post('identity_file');
                 }
@@ -2265,12 +2265,12 @@ class vendor extends CI_Controller {
      */
     function engineer_form_validation(){
 
-        $this->form_validation->set_rules('name', 'Name', 'required|xss_clean');
+        $this->form_validation->set_rules('name', 'Name', 'trim|required|xss_clean');
         $this->form_validation->set_rules('phone', 'Mobile Number', 'trim|numeric|required|xss_clean');
         $this->form_validation->set_rules('alternate_phone', 'Alternate Mobile Number', 'trim|numeric|xss_clean');
-        $this->form_validation->set_rules('identity_id_number', 'ID Number', 'xss_clean');
+        $this->form_validation->set_rules('identity_id_number', 'ID Number', 'trim|xss_clean');
         $this->form_validation->set_rules('identity_proof', 'Identity Proof', 'xss_clean');
-        $this->form_validation->set_rules('bank_account_no', 'Bank Account No', 'numeric|xss_clean');
+        $this->form_validation->set_rules('bank_account_no', 'Bank Account No', 'trim|numeric|xss_clean');
 	$this->form_validation->set_rules('service_id', 'Appliance ', 'xss_clean');
         $this->form_validation->set_rules('file', 'Identity Proof Pic ', 'callback_upload_identity_proof_pic');
 //        $this->form_validation->set_rules('bank_name', 'Bank Name', 'trim|xss_clean');
