@@ -207,7 +207,8 @@
                 <div class="nav_menu">
                     <nav class="navbar navbar-default navbar-fixed-top">
                         <div class="navbar-header">
-                            <a class="navbar-brand" href="#"><img src="<?php echo base_url().$this->session->userdata('partner_logo');?>" alt="partner_logo"></a>
+                            <?php $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$this->session->userdata('partner_logo');?>
+                            <a class="navbar-brand" href="#"><img src="<?php echo $src;?>" alt="partner_logo"></a>
                         </div>
 <!--                        <div class="nav toggle">
                             <a id="menu_toggle"><i class="fa fa-bars"></i></a>

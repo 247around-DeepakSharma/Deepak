@@ -322,9 +322,17 @@ class Login extends CI_Controller {
         if (!empty($agent)) {
             //get partner details now
             $partner_details = $this->partner_model->getpartner($partner_id, false);
+            $select = "partner_logo,alt_text";
+            $where = array('partner_logo IS NOT NULL' => NULL, 'partner_id' => $partner_details[0]['id']);
+            $partner_logo = $this->booking_model->get_partner_logo($select, $where);
+            if (!empty($partner_logo)) {
+                $logo_img = $partner_logo[0]['partner_logo'];
+            } else {
+                $logo_img = 'logo.png';
+            }
 
             $this->setPartnerSession($partner_details[0]['id'], $partner_details[0]['public_name'], 
-                    $agent[0]['agent_id'], $partner_details[0]['is_active'], $partner_details[0]['is_prepaid']);
+                    $agent[0]['agent_id'], $partner_details[0]['is_active'], $partner_details[0]['is_prepaid'],$logo_img);
             log_message('info', 'Partner loggedIn  partner id' .
                     $partner_details[0]['id'] . " Partner name" . $partner_details[0]['public_name']);
             
@@ -340,7 +348,7 @@ class Login extends CI_Controller {
      * @param: Partner name
      * @return: void
      */
-    function setPartnerSession($partner_id, $partner_name, $agent_id,$status, $is_prepaid,$is_login_by_247=1,$logo_img) {
+    function setPartnerSession($partner_id, $partner_name, $agent_id,$status, $is_prepaid,$logo_img,$is_login_by_247=1) {
         $userSession = array(
             'session_id' => md5(uniqid(mt_rand(), true)),
             'partner_id' => $partner_id,
@@ -353,7 +361,7 @@ class Login extends CI_Controller {
             'status' => $status,
             'partner_logo' => $logo_img
         );
-
+        
         $this->session->set_userdata($userSession);
         
         //Saving Login Details in Database
@@ -392,10 +400,10 @@ class Login extends CI_Controller {
                 if(!empty($partner_logo)){
                     $logo_img = $partner_logo[0]['partner_logo'];
                 }else{
-                    $logo_img = 'images/logo.png';
+                    $logo_img = 'logo.png';
                 }
                 $this->setPartnerSession($partner_details[0]['id'], $partner_details[0]['public_name'], $agent[0]['agent_id'],
-                        $partner_details[0]['is_active'], $partner_details[0]['is_prepaid'],0,$logo_img);
+                        $partner_details[0]['is_active'], $partner_details[0]['is_prepaid'],$logo_img,0);
                 log_message('info', 'Partner loggedIn  partner id' .
                         $partner_details[0]['id'] . " Partner name" . $partner_details[0]['public_name']);
 
