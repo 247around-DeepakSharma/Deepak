@@ -176,7 +176,7 @@ class Booking_utilities {
         log_message("info", __METHOD__. " Booking id ". $booking_id. " Due ".$amount_due);
         $response = $this->My_CI->paytm_payment_lib->generate_qr_code($booking_id, QR_CHANNEL_JOB_CARD, 0, $pocNumber);
         if($amount_due > 0){
-            $userDownload = $this->My_CI->paytm_payment_lib->generate_qr_code($booking_id, QR_CHANNEL_USER, 0, $pocNumber);
+            $userDownload = $this->My_CI->paytm_payment_lib->generate_qr_code($booking_id, QR_CHANNEL_SMS, 0, $pocNumber);
             log_message("info", __METHOD__. " Booking id ". $booking_id. " User QR Response ".print_r($userDownload, true));
             $user = json_decode($userDownload, TRUE);
             if($user['status'] == SUCCESS_STATUS){
