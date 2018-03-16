@@ -72,7 +72,7 @@ class Booking extends CI_Controller {
      */
     public function index() {
         if ($this->input->post()) {
-            $primary_contact_no = trim($this->input->post('booking_primary_contact_no'));
+            $primary_contact_no = $this->input->post('booking_primary_contact_no');
             $user_id = $this->input->post("user_id");
             
             //Check Validation
@@ -1772,7 +1772,7 @@ class Booking extends CI_Controller {
         $customer_net_payable = $this->input->post('customer_net_payable');
         $booking_status = $this->input->post('booking_status');
         $total_amount_paid = $this->input->post('grand_total_price');
-        $admin_remarks = trim($this->input->post('admin_remarks'));
+        $admin_remarks = $this->input->post('admin_remarks');
         $serial_number = $this->input->post('serial_number');
         $upcountry_charges = $this->input->post("upcountry_charges");
         $internal_status = "Cancelled";
@@ -2205,7 +2205,7 @@ class Booking extends CI_Controller {
         $this->form_validation->set_rules('source_code', 'Source Code', 'required|xss_clean');
         $this->form_validation->set_rules('type', 'Booking Type', 'required|xss_clean');
         $this->form_validation->set_rules('grand_total_price', 'Total Price', 'required');
-        $this->form_validation->set_rules('city', 'City', 'trim|required|xss_clean');
+        $this->form_validation->set_rules('city', 'City', 'required|xss_clean');
         $this->form_validation->set_rules('booking_date', 'Date', 'required');
         $this->form_validation->set_rules('appliance_brand', 'Appliance Brand', 'required');
         $this->form_validation->set_rules('appliance_category', 'Appliance Category', 'required');
