@@ -376,7 +376,7 @@ class Partner extends CI_Controller {
         $post['address'] = trim($this->input->post('booking_address'));
         $post['pincode'] = trim($this->input->post('booking_pincode'));
         $post['city'] = trim($this->input->post('city'));
-        $post['requestType'] = trim($this->input->post('prices'));
+        $post['requestType'] = $this->input->post('prices');
         $post['landmark'] = trim($this->input->post('landmark'));
         $post['service_id'] = $this->input->post('service_id');
         $post['brand'] = trim($this->input->post('appliance_brand'));

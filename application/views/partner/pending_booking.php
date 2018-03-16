@@ -10,6 +10,14 @@
                             <strong>' . $this->session->userdata('success') . '</strong>
                         </div>';
         }
+        if ($this->session->userdata('error')) {
+            echo '<div class="alert alert-error alert-dismissible" role="alert" style="margin-top: 55px;">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <strong>' . $this->session->userdata('error') . '</strong>
+                        </div>';
+        }
     ?>
     <div class="row">
 <?php } ?>        
@@ -198,3 +206,4 @@
 <?php } ?>
 <div class="clearfix"></div>
 <?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
+<?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>
