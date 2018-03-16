@@ -68,7 +68,7 @@
                                                                                     <?php if (isset($city)) { echo $city;} ?>
                                                                                 </td>
                                                                                 <td style="color:#333;">
-                                                                                    <?php if (isset($partner_name)) {echo $partner_name; }else{ echo "dgg" ; } ?>
+                                                                                    <?php if (isset($partner_name)) {echo $partner_name; }else{ echo "" ; } ?>
                                                                                 </td>
                                                                             </tr>
                                                                         </tbody>
