@@ -99,11 +99,11 @@ class User_invoice extends CI_Controller {
                 $cc = $email_template[3].",".$data[0]->primary_contact_email;
                 
                 
-                $pdf_attachement_url = 'http://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/invoices-excel/' . $output_pdf_file_name;
+                $pdf_attachement_url = 'https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/invoices-excel/' . $output_pdf_file_name;
                 
                 $this->notify->sendEmail($email_from, $to, $cc, "", $subject, $message, $pdf_attachement_url);
                 
-                $customer_attachement_url = 'http://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/invoices-excel/' .$copy_pdf_file_name ;
+                $customer_attachement_url = 'https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/invoices-excel/' .$copy_pdf_file_name ;
                 
                 $sms['tag'] = "customer_paid_invoice";
                 
