@@ -28,10 +28,10 @@ p{
     if($qr){
         ?>
      <tr>
-      <td colspan="2" id="top_row" style="width: 32%;"><img style='padding: 40px 0px 0px 12px;' src='https://aroundhomzapp.com/images/logo.jpg'></td>
+      <td colspan="2" id="top_row" style="width: 32%;"><img style='padding: 40px 0px 0px 12px;width:80px;' src='https://aroundhomzapp.com/images/logo.jpg'></td>
       <td colspan="2" id="top_row" style="text-align: center;"><p style='font-family: sans-serif;font-size: 18px;line-height: 24px;'><b>247AROUND SERVICE JOB CARD</b></p></td>
  <td colspan="2" id="top_row" style="text-align: right;width: 34%;"><p style='font-family: sans-serif;font-size: 12px;'><b>Get 5% Discount When You Scan <br>QR Code & Pay Through Paytm App</b></p> 
-                 <p><img style='padding: 5px 10px;' src=<?php echo $qr?>></p>
+                 <p><img style='padding: 5px 10px;width: 80px;' src=<?php echo $qr?>></p>
    </td>
    </tr>
     <?php
