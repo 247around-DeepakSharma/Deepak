@@ -722,20 +722,19 @@ class invoices_model extends CI_Model {
             
             if(!empty($c_s_gst)){
                 
-                 return  "247around_Tax_Invoice_Intra_State.xlsx";
+                 return  "Customer_Tax_Invoice_Intra_State.xlsx";
                  
             } else {
-                
-                return "Customer_Tax_Invoice_Inter_State.xlsx";
+                 return "Customer_Tax_Invoice_Inter_State.xlsx";  
             }
             
         }else if(!empty($c_s_gst)){
             
-           return  "247around_Tax_Invoice_Intra_State.xlsx";
+            return  "247around_Tax_Invoice_Intra_State.xlsx";
            
         }else {
-            
-            return "247around_Tax_Invoice_Inter_State.xlsx";
+           
+             return "247around_Tax_Invoice_Inter_State.xlsx";  
         } 
             
     }
