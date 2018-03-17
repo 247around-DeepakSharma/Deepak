@@ -27,11 +27,14 @@ p{
     <?php
     if($qr){
         ?>
-     <tr>
-      <td colspan="2" id="top_row" style="width: 32%;"><img style='padding: 40px 0px 0px 12px;width:80px;' src='https://aroundhomzapp.com/images/logo.jpg'></td>
-      <td colspan="2" id="top_row" style="text-align: center;"><p style='font-family: sans-serif;font-size: 22px;line-height: 30px;'><b>247AROUND SERVICE JOB CARD</b></p></td>
- <td colspan="2" id="top_row" style="text-align: right;width: 34%;"><p style='font-family: sans-serif;font-size: 12px;'><b>Get 5% Discount When You Scan <br>QR Code & Pay Through Paytm App</b></p> 
-                 <p><img style='padding: 5px 10px;width: 80px;' src=<?php echo $qr?>></p>
+    <tr style="border-bottom: none;">
+        <td colspan="6" id="top_row" style="text-align: right;"><p style='font-family: sans-serif;font-size: 12px;'><b>Get 5% Discount When You Scan <br>QR Code & Pay Through Paytm App</b></p> 
+   </td>
+        </tr>
+        <tr style="border-top:none;">
+      <td colspan="1" id="top_row"><img style='padding: 0px 0px 0px 12px;width:80px;' src='https://aroundhomzapp.com/images/logo.jpg'></td>
+      <td colspan="4" id="top_row" style="text-align: center;"><p style='font-family: sans-serif;font-size: 22px;line-height: 30px;'><b>247AROUND SERVICE JOB CARD</b></p></td>
+ <td colspan="1" id="top_row" style="text-align: right;"><p><img style='padding: 0px 10px;width: 80px;' src=<?php echo $qr?>></p>
    </td>
    </tr>
     <?php
@@ -159,9 +162,9 @@ foreach($booking_unit_details as $data){
     <td colspan="2"><p></p></td>
   </tr>
    <tr>
-       <td colspan="6"><p style="font-size: 14px;"><b>Book Appliance Service from Qualified Engineers on "247AROUND" App / On Phone - 9555000247 / On
+       <td colspan="6"><p style="font-size: 13px;"><b>Book Appliance Service from Qualified Engineers on "247AROUND" App / On Phone - 9555000247 / On
 Website - www.247around.com</b></p>
-    <p style="font-size: 15px;margin-top: 15px;"><b>Blackmelon Advance Technology Co. Pvt. Ltd.</b></p></td>
+    <p style="font-size: 14px;"><b>Blackmelon Advance Technology Co. Pvt. Ltd.</b></p></td>
   </tr>
 </table>
  
