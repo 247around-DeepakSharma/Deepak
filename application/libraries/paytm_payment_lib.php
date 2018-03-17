@@ -120,6 +120,7 @@ class paytm_payment_lib {
                      else{
                          return $this->CASHBACK_create_cashback_response(FAILURE_STATUS,$resultArray['msg']);
                      }
+    }
     /*
      * This function is used to get all paytm transactions data against a booking id
      * @output - 1) status - Transaction exist or not 
@@ -150,7 +151,7 @@ class paytm_payment_lib {
      * @output - response which we get from requested url
      * This function also save request headers and response data in log table
      */
-    private function _send_curl_request($data_string,$headers,$url,$activity){
+    function _send_curl_request($data_string,$headers,$url,$activity){
         $ch = curl_init(); 
         curl_setopt($ch, CURLOPT_URL,$url); curl_setopt($ch, CURLOPT_POST, 1); 
         curl_setopt($ch, CURLOPT_POSTFIELDS,$data_string); 
@@ -197,7 +198,7 @@ class paytm_payment_lib {
      *                  4) qr_image - Image name of generated QR
      *                  5) qr_path - URL of generated Image
      */
-    private function QR_create_qr_code_response($status,$statusMsg,$dataArray=NULL){
+     function QR_create_qr_code_response($status,$statusMsg,$dataArray=NULL){
         log_message('info', __FUNCTION__ . " Function Start");
         $responseArray['status']  = $status;
         $responseArray['status_msg']  = $statusMsg;
@@ -212,7 +213,7 @@ class paytm_payment_lib {
     /*
      * This function is used to save success response parameters in qr table
      */
-    private function QR_save_qr_record_in_db($bookingID,$amount,$parameterList,$success_response,$imgPath,$imgName){
+     function QR_save_qr_record_in_db($bookingID,$amount,$parameterList,$success_response,$imgPath,$imgName){
         log_message('info', __FUNCTION__ . " Function Start");
         $data['booking_id'] = $bookingID;
         if($amount != 0){
@@ -234,7 +235,7 @@ class paytm_payment_lib {
     /*
      * This Function is used to create QR Generate API Parameters For Paytm
      */
-    private function QR_create_qr_parameters($bookingID,$channel,$amount,$contact){
+     function QR_create_qr_parameters($bookingID,$channel,$amount,$contact){
         log_message('info', __FUNCTION__ . " Function Start");
         $paramlist['request']['requestType'] = QR_CODE_REQUEST_TYPE;
         $paramlist['request']['merchantContactNO'] = $contact;
@@ -256,7 +257,7 @@ class paytm_payment_lib {
     /*
      * This function is used to handle successful creation of qr code
      */
-    private function QR_generation_success_handler($outputArray,$bookingID,$amount,$paramlist){
+     function QR_generation_success_handler($outputArray,$bookingID,$amount,$paramlist){
         log_message('info', __FUNCTION__ . "Function Start");
         //Img name is booking + random number
         $imgName = "QR_".$bookingID."_".rand(100,1000).".png";
@@ -282,7 +283,7 @@ class paytm_payment_lib {
      * It Create request json with all required parameters for Paytm API
      * @output - msg-"Is QR Generated Or Not",success or failure msg,Paytm ApI Response Data
      */
-    private function QR_process_generate_qr_code($bookingID,$channel,$amount,$contact){
+     function QR_process_generate_qr_code($bookingID,$channel,$amount,$contact){
         log_message('info', __FUNCTION__ . "Function Start");
         //Create Parameters List
         $paramlist = $this->QR_create_qr_parameters($bookingID,$channel,$amount,$contact);
@@ -318,7 +319,7 @@ class paytm_payment_lib {
      * @input - $booking_id, $channel(Channel of Sale eg - Job_card,App,user_download etc) $amount,$contact(Contact for transaction notification)
      * @output - array which contains flag (is_exist) and 2nd is Existing Data
      */
-    private function QR_is_qr_code_already_exists_for_input($bookingID,$channel,$amount,$contact){
+     function QR_is_qr_code_already_exists_for_input($bookingID,$channel,$amount,$contact){
         log_message('info', __FUNCTION__ . "booking_id".$bookingID.", Amount ".$amount.", Channel ".$channel);
         // Check if qr code already there for same bookingid and amount 
         $where['booking_id'] = $bookingID;
@@ -406,7 +407,7 @@ class paytm_payment_lib {
      * @input - 1) $bookingPaymentDetails - Transaction Payment details Array
      *                  2) $amount - Amount needs to cashback
      */
-    private function CASHBACK_create_cashback_parameters($bookingPaymentDetails,$amount){
+    function CASHBACK_create_cashback_parameters($bookingPaymentDetails,$amount){
         log_message('info', __FUNCTION__ . " Function Start");
         //amount need to refund
         $paramlist['request']['amount'] = $amount;
