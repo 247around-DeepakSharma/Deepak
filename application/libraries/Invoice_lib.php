@@ -43,19 +43,26 @@ class Invoice_lib {
         
     }
     
-    function send_request_to_create_main_excel($invoices, $invoice_type){
+    function send_request_to_create_main_excel($invoices, $invoice_type, $triplicate = FALSE){
         $invoices['meta']['recipient_type'] = "Original Copy";
         $output_file_excel = TMP_FOLDER . $invoices['meta']['invoice_id'] . "-draft.xlsx";
         $copy_output_file_excel = TMP_FOLDER . "copy_".$invoices['meta']['invoice_id'] . "-draft.xlsx";
         if ($invoice_type == "final") {
             $output_file_excel = TMP_FOLDER . $invoices['meta']['invoice_id'] . ".xlsx";
             $copy_output_file_excel = TMP_FOLDER . "copy_".$invoices['meta']['invoice_id'] . ".xlsx";
+            if($triplicate){
+                $triple_output_file_excel = TMP_FOLDER . "triplicate_".$invoices['meta']['invoice_id'] . ".xlsx";
             }
+        }
 
         $status = $this->generate_invoice_excel($invoices['meta']['invoice_template'],  $invoices['meta'], $invoices['booking'], $output_file_excel);
         if($status){
              $invoices['meta']['recipient_type'] = "Duplicate Copy";
              $this->generate_invoice_excel($invoices['meta']['invoice_template'], $invoices['meta'], $invoices['booking'],$copy_output_file_excel);
+             if($triplicate){
+                $invoices['meta']['recipient_type'] = "Triplicate Copy";
+                $this->generate_invoice_excel($invoices['meta']['invoice_template'], $invoices['meta'], $invoices['booking'],$triple_output_file_excel);
+             }
              return TRUE;
         } else{
             return FALSE;
@@ -115,7 +122,7 @@ class Invoice_lib {
         }
     }
     
-    function send_request_to_convert_excel_to_pdf($invoice_id, $invoice_type, $copy = false){
+    function send_request_to_convert_excel_to_pdf($invoice_id, $invoice_type, $copy = false, $triplicate = FALSE){
         $excel_file_to_convert_in_pdf = $invoice_id.'-draft.xlsx';
         
         if ($invoice_type == "final") {
@@ -127,7 +134,14 @@ class Invoice_lib {
         $copy_invoice = "copy_".$excel_file_to_convert_in_pdf;
         $copy_pdf = $this->_request_to_convert_excel_to_pdf($copy_invoice,$invoice_id, "invoices-excel");
         
-        if($copy){
+        if($triplicate){
+            $triplicate_invoice = "triplicate_".$excel_file_to_convert_in_pdf;
+            $triplicate_pdf = $this->_request_to_convert_excel_to_pdf($triplicate_invoice,$invoice_id, "invoices-excel");
+            
+            $array = array("main_pdf_file_name" =>$copy_pdf, "excel_file" => $excel_file_to_convert_in_pdf, "copy_file" =>$main_pdf,
+                    'triplicate_file' => $triplicate_pdf);
+            
+        } else if($copy){
            $array = array("main_pdf_file_name" =>$copy_pdf, "excel_file" => $excel_file_to_convert_in_pdf, "copy_file" =>$main_pdf );
         } else {
             $array = array("main_pdf_file_name" =>$main_pdf, "excel_file" => $excel_file_to_convert_in_pdf, "copy_file" => $copy_pdf );
@@ -152,7 +166,7 @@ class Invoice_lib {
        return $output_pdf_file_name;
     }
     
-    function upload_invoice_to_S3($invoice_id, $detailed){
+    function upload_invoice_to_S3($invoice_id, $detailed, $triplicate = false){
         $bucket = BITBUCKET_DIRECTORY;
 
         $directory_xls = "invoices-excel/" . $invoice_id . ".xlsx";
@@ -160,6 +174,10 @@ class Invoice_lib {
 
         $this->ci->s3->putObjectFile(TMP_FOLDER . $invoice_id . ".xlsx", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
         $this->ci->s3->putObjectFile(TMP_FOLDER . "copy_".$invoice_id . ".xlsx", $bucket, $directory_copy_xls, S3::ACL_PUBLIC_READ);
+        if($triplicate){
+            $directory_triplicate_xls = "invoices-excel/copy_" . $invoice_id . ".xlsx";
+            $this->ci->s3->putObjectFile(TMP_FOLDER . "triplicate_".$invoice_id . ".xlsx", $bucket, $directory_triplicate_xls, S3::ACL_PUBLIC_READ);
+        }
         if($detailed){
             $directory_detailed = "invoices-excel/" . $invoice_id . "-detailed.xlsx";
             $this->ci->s3->putObjectFile(TMP_FOLDER . $invoice_id . "-detailed.xlsx", $bucket, $directory_detailed, S3::ACL_PUBLIC_READ);
