@@ -2424,5 +2424,45 @@ function generate_image($base64, $image_name,$directory){
 //            return $json->id;
 //        }
     }
-
+function convert_html_to_pdf($html,$booking_id,$filename,$s3_folder){
+        require_once __DIR__ . '/pdf/vendor/autoload.php';
+        $mpdf = new \Mpdf\Mpdf();
+        $mpdf->WriteHTML($html);
+        $tempfilePath = TMP_FOLDER."/".$filename;
+        $mpdf->Output($tempfilePath,'F');
+        if($mpdf){
+        $is_file = $this->My_CI->s3->putObjectFile($tempfilePath, BITBUCKET_DIRECTORY, $s3_folder."/".$filename, S3::ACL_PUBLIC_READ);
+        if($is_file){
+        $response_data = array('response' => 'Success',
+                                                   'response_msg' => 'PDF generated Successfully and uploaded on S3',
+                                                   'output_pdf_file' => $filename,
+                                                   'bucket_dir' => BITBUCKET_DIRECTORY,
+                                                   'id' => $booking_id
+                                                  );
+                            //unlink($tempfilePath);
+                            return  json_encode($response_data);
+        }
+        else {
+                            //return this response when PDF generated successfully but unable to upload on S3
+                            $response_data = array('response' => 'Error',
+                                                   'response_msg' => 'PDF generated Successfully But Unable To Upload on S3',
+                                                   'output_pdf_file' => $filename,
+                                                   'bucket_dir' => BITBUCKET_DIRECTORY,
+                                                   'id' => $booking_id
+                                                   );
+                            return  json_encode($response_data);
+                        }
+        }
+        else{
+             $response_data = array('response' => 'Error',
+                                                   'response_msg' => 'Error In Generating PDF File',
+                                                   );
+             $to = 'vijaya@247around.com';
+            $cc = DEVELOPER_EMAIL;
+            $subject = "Job Card Not Generated";
+            $msg = "There are some issue while creating pdf for booking_id/invoice_id $booking_id. Check the issue and fix it immediately";
+            $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $msg);
+            return json_encode($response_data);
+        }
+}
 }
