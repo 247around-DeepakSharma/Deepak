@@ -1323,10 +1323,13 @@ class Do_background_upload_excel extends CI_Controller {
                     }else{
                         log_message("info", "unable to send file back to partner");
                     }
+                    
+                    //save file and upload on s3
+                    $this->miscelleneous->update_file_uploads($header_data['file_name'],TMP_FOLDER.$header_data['file_name'], $upload_file_type,FILE_UPLOAD_SUCCESS_STATUS,$this->email_message_id);
                 } else {
                     
                     //save file and upload on s3
-                    $this->miscelleneous->update_file_uploads($header_data['file_name'], $file_status['file_tmp_name'], $upload_file_type, FILE_UPLOAD_FAILED_STATUS, $this->email_message_id);
+                    $this->miscelleneous->update_file_uploads($header_data['file_name'], TMP_FOLDER.$header_data['file_name'], $upload_file_type, FILE_UPLOAD_FAILED_STATUS, $this->email_message_id);
                     
                     //get email details 
                     if(empty($this->email_send_to)){
@@ -1344,17 +1347,22 @@ class Do_background_upload_excel extends CI_Controller {
                         $to = $this->email_send_to;
                     }
                     
-                    $cc = DEVELOPER_EMAIL;
+                    $cc = "";
                     $agent_name = !empty($this->session->userdata('emp_name')) ? $this->session->userdata('emp_name') : _247AROUND_DEFAULT_AGENT_NAME;
                     $subject = "Failed! $upload_file_type File uploaded by " . $agent_name;
                     $body = $response['msg'];
                     $body .= "<br> <b>File Name</b> ". $header_data['file_name']; 
-                    $this->notify->sendEmail("noreply@247around.com", $to, $cc, "", $subject, $body, "");
+                    $attachment = TMP_FOLDER.$header_data['file_name'];
+                    $this->notify->sendEmail("noreply@247around.com", $to, $cc, "", $subject, $body, $attachment);
 
                     log_message('info', __FUNCTION__ . " " . $this->ColumnFailed);
                     $this->session->set_flashdata('file_error', $this->ColumnFailed);
                     redirect(base_url() . "employee/booking_excel/$redirect_to");
                 }
+                
+                $res1 = 0;
+                system("chmod 777" . TMP_FOLDER . $header_data['file_name'], $res1);
+                unlink(TMP_FOLDER.$header_data['file_name']);
             } else {
                 $this->session->set_flashdata('file_error', 'Empty file has been uploaded');
                 redirect(base_url() . "employee/booking_excel/$redirect_to");
@@ -1411,7 +1419,9 @@ class Do_background_upload_excel extends CI_Controller {
         }
 
         $file_name = $_FILES["file"]["name"];
-        
+        move_uploaded_file($file['file_tmp_name'],TMP_FOLDER.$file_name);
+        $res1 = 0;
+        system("chmod 777" . TMP_FOLDER . $file_name, $res1);
 
         //  Get worksheet dimensions
         $sheet = $objPHPExcel->getSheet(0);
@@ -1438,7 +1448,6 @@ class Do_background_upload_excel extends CI_Controller {
         $response['sheet'] =  $sheet;
         $response['highest_row'] =  $highestRow;
         $response['highest_column'] =  $highestColumn;
-        $response['object_excel'] =  $objPHPExcel;
         
         return $response;
     }
@@ -1564,9 +1573,6 @@ class Do_background_upload_excel extends CI_Controller {
             if(!empty($this->finalArray)){
                 //process file to insert bookings
                 $this->process_upload_sd_file($this->finalArray,'delivered', $data['file_name'],$this->input->post('partner_id'));
-                
-                //save file and upload on s3
-                $this->miscelleneous->update_file_uploads($data['file_name'],$data['file_tmp_name'], $data['file_type'],FILE_UPLOAD_SUCCESS_STATUS,$this->email_message_id);
             }
             
             $response['status'] = TRUE;
@@ -1586,87 +1592,72 @@ class Do_background_upload_excel extends CI_Controller {
      * @params: $data array
      * @return: boolean response
      */
-    function revert_file_to_partner($data){
-        log_message("info",__METHOD__." Generating File");
-        
-        $post_data = array('length' => 1,
-            'start' => 0,
-            'file_type' => $data['file_type']);
-        //get the latest uploaded price sheet
-        $latest_upload_file_name = $this->reporting_utils->get_uploaded_file_history($post_data)[0]->file_name;
-        $s3_bucket_file = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . urlencode($latest_upload_file_name);
-        //copy the uploaded file to our system
-        if (file_exists(TMP_FOLDER . $latest_upload_file_name)) {
-            unlink(TMP_FOLDER . $latest_upload_file_name);
-            //get signature file from s3 and save it to server
-            copy($s3_bucket_file, TMP_FOLDER . $latest_upload_file_name);
-        } else {
-            //get signature file from s3 and save it to server
-            copy($s3_bucket_file, TMP_FOLDER . $latest_upload_file_name);
-        }
-
+    function revert_file_to_partner($data) {
+        log_message("info", __METHOD__ . " Generating File");
         //start adding new cell value on actual price sheet
-        if (pathinfo(TMP_FOLDER . $latest_upload_file_name)['extension'] == 'xlsx') {
-            $inputFileName1 = TMP_FOLDER . $latest_upload_file_name;
-            $inputFileExtn1 = 'Excel2007';
-        } else {
-            $inputFileName1 = TMP_FOLDER . $latest_upload_file_name;
-            $inputFileExtn1 = 'Excel5';
-        }
-        $objReader1 = PHPExcel_IOFactory::createReader($inputFileExtn1);
-        $objPHPExcel1 = $objReader1->load($inputFileName1);
+        if(file_exists(TMP_FOLDER.$data['file_name'])) {
+            if (pathinfo(TMP_FOLDER . $data['file_name'])['extension'] == 'xlsx') {
+                $inputFileName1 = TMP_FOLDER . $data['file_name'];
+                $inputFileExtn1 = 'Excel2007';
+            } else {
+                $inputFileName1 = TMP_FOLDER . $data['file_name'];
+                $inputFileExtn1 = 'Excel5';
+            }
+            $objReader1 = PHPExcel_IOFactory::createReader($inputFileExtn1);
+            $objPHPExcel1 = $objReader1->load($inputFileName1);
 
-        //get first sheet 
-        $sheet = $objPHPExcel1->getSheet(0);
-        //get total number of rows
-        $highestRow = $sheet->getHighestDataRow();
-        
-        for ($row = 2, $i = 0; $row <= $highestRow; $row++, $i++) {
-            $order_id = $sheet->getCell($this->file_read_column . $row)->getValue();
-            $key = array_search($order_id, array_column($this->send_file_back_data,'order_id'));
-            if($key !== FALSE){
-                $sheet->setCellValue($this->file_write_column . $row, $this->send_file_back_data[$key]['booking_id']);
+            //get first sheet 
+            $sheet = $objPHPExcel1->getSheet(0);
+            //get total number of rows
+            $highestRow = $sheet->getHighestDataRow();
+
+            for ($row = 2, $i = 0; $row <= $highestRow; $row++, $i++) {
+                $order_id = $sheet->getCell($this->file_read_column . $row)->getValue();
+                $key = array_search($order_id, array_column($this->send_file_back_data, 'order_id'));
+                if ($key !== FALSE) {
+                    $sheet->setCellValue($this->file_write_column . $row, $this->send_file_back_data[$key]['booking_id']);
+                }
             }
-        }
-        
-        // Write the file
-        $file_name = TMP_FOLDER . "updated_price_sheet_".date('Y_m_d_H_i_s').".xls";
-        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel1, 'Excel5');
-        $objWriter->save($file_name);
-        
-        if(file_exists($file_name)){
-            //send mail 
-            $template = $this->booking_model->get_booking_email_template("revert_upload_file_to_partner");
-            $body = $template[0];
-            $to = $this->revert_file_email;
-            $from = $template[2];
-            $cc = $template[3].",".$this->email_send_to;
-            $subject = $template[4];
-            $attachment = $file_name;
-            $sendmail = $this->notify->sendEmail($from, $to, $cc, "", $subject, $body, $attachment);
-            if($sendmail){
-                $response = TRUE;
-                log_message("info", "file send to partner with updated booking id's");
-            }else{
+
+            // Write the file
+            $file_name = TMP_FOLDER . "Updated_file_with_booking_id_" . date('Y_m_d_H_i_s') . ".xls";
+            $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel1, 'Excel5');
+            $objWriter->save($file_name);
+
+            if (file_exists($file_name)) {
+                //send mail 
+                $template = $this->booking_model->get_booking_email_template("revert_upload_file_to_partner");
+                $body = $template[0];
+                $to = $this->revert_file_email;
+                $from = $template[2];
+                $cc = $template[3] . "," . $this->email_send_to;
+                $subject = $template[4];
+                $attachment = $file_name;
+                $sendmail = $this->notify->sendEmail($from, $to, $cc, "", $subject, $body, $attachment);
+                if ($sendmail) {
+                    $response = TRUE;
+                    log_message("info", "file send to partner with updated booking id's");
+                } else {
+                    $response = FALSE;
+                    log_message("info", "Error in sending file back to partner with updated booking id's");
+                }
+                $res1 = 0;
+                system("chmod 777" . $file_name, $res1);
+                unlink($file_name);
+            } else {
                 $response = FALSE;
-                log_message("info", "Error in sending file back to partner with updated booking id's");
+                $agent_name = !empty($this->session->userdata('emp_name')) ? $this->session->userdata('emp_name') : _247AROUND_DEFAULT_AGENT_NAME;
+                $subject = "Booking Id didn't update for upload File " . $data['file_name'];
+                $body = "Error In writng booking Id to upload file " . $data['file_name'];
+                $body .= "Agent Name: " . $agent_name;
+                $sendmail = $this->notify->sendEmail(NOREPLY_EMAIL_ID, DEVELOPER_EMAIL, "", "", $subject, $body, "");
             }
-            $res1 = 0;
-            system("chmod 777" . $file_name, $res1);
-            unlink($file_name);
-        }else{
+            
+        } else {
+            log_message("info", "file not found to revert back");
             $response = FALSE;
-            $agent_name = !empty($this->session->userdata('emp_name')) ? $this->session->userdata('emp_name') : _247AROUND_DEFAULT_AGENT_NAME;
-            $subject = "Booking Id didn't update for upload File ".$data['file_name'];
-            $body = "Error In writng booking Id to upload file ". $data['file_name'];
-            $body .= "Agent Name: ".$agent_name;
-            $sendmail = $this->notify->sendEmail(NOREPLY_EMAIL_ID, DEVELOPER_EMAIL, "", "", $subject, $body,"");
         }
-        
-        $res1 = 0;
-        system("chmod 777" . TMP_FOLDER.$latest_upload_file_name, $res1);
-        unlink(TMP_FOLDER . $latest_upload_file_name);
-        
+
         return $response;
     }
 

@@ -52,6 +52,7 @@
                     </div>
                     <div class="form-group">
                         <div class="col-md-4">
+                            <input type= "hidden" id="upload_file_type" value ="" name="file_type">
                             <input type= "submit"  class="btn btn-success btn-md" id="submit_btn" value ="Upload" disabled="">
                         </div>
                     </div>
@@ -84,7 +85,6 @@
     var table;
     var partner = '';
     var partner_id = '';
-    var file_type = '';
     var partner_source = '';
     var is_file_send_back = '';
     var read_column = '';
@@ -100,7 +100,6 @@
         
         var fd = new FormData(document.getElementById("fileinfo"));
         fd.append("label", "WEBUPLOAD");
-        fd.append('file_type',file_type);
         fd.append('partner_id',partner_id);
         fd.append('partner_source',partner_source);
         fd.append('redirect_to','upload_partner_booking_file');
@@ -143,13 +142,13 @@
             $('#file_type').show();
         }else{
             $('#file_type').hide();
-            table.ajax.reload();
         }
     });
     
     $('#file_type').on('change',function(){
         var type = $("#file_type :selected").val();
-        file_type = partner + '-' + type;
+        var file_type = partner + '-' + type;
+        $('#upload_file_type').val(file_type);
         table.ajax.reload();
     });
     
@@ -163,7 +162,7 @@
                 url: "<?php echo base_url(); ?>employee/upload_booking_file/get_upload_file_history",
                 type: "POST",
                 data: function(d){
-                    d.file_type = file_type;
+                    d.file_type = get_upload_file_type();
                 }
             },
             columnDefs: [
@@ -184,13 +183,14 @@
                 dataType:'json',
                 success:function(res){
                     if(res.msg === 'success'){
-                        file_type = res.data.file_type;
+                        $('#upload_file_type').val(res.data.file_type);
                         partner_source = file_type+"-excel";
                         read_column = res.data.order_id_read_column;
                         write_column = res.data.booking_id_write_column;
                         is_file_send_back = res.data.send_file_back;
                         revert_file_email = res.data.revert_file_to_email;
                         $('#submit_btn').attr('disabled',false);
+                        table.ajax.reload();
                     }else if(res.msg === 'failed'){
                         alert("Select Correct Partner");
                     }else{
@@ -199,6 +199,11 @@
                 }
             });
         }
+    }
+    
+    function get_upload_file_type(){
+        var upload_file_type = $('#upload_file_type').val();
+        return upload_file_type;
     }
 </script>
 <?php  if ($this->session->flashdata('file_error')) {$this->session->unset_userdata('file_error');} ?>
