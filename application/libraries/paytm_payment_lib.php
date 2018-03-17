@@ -410,20 +410,20 @@ class paytm_payment_lib {
      * @input - 1) $bookingPaymentDetails - Transaction Payment details Array
      *                  2) $amount - Amount needs to cashback
      */
-    function CASHBACK_create_cashback_parameters($bookingPaymentDetails,$amount){
+    function CASHBACK_create_cashback_parameters($order_id,$transaction_id,$amount){
         log_message('info', __FUNCTION__ . " Function Start");
         //amount need to refund
         $paramlist['request']['amount'] = $amount;
         //Order_id (Created at the time of qr generation)
-        $paramlist['request']['merchantOrderId'] = $bookingPaymentDetails[0]['order_id'];
+        $paramlist['request']['merchantOrderId'] = $order_id;
         //Merchant GUID
         $paramlist['request']['merchantGuid'] = MERCHANT_GUID;
         //Transaction_id (Return by paytm at the time of payment)
-        $paramlist['request']['txnGuid'] = $bookingPaymentDetails[0]['txn_id'];
+        $paramlist['request']['txnGuid'] = $transaction_id;
         //Currency
         $paramlist['request']['currencyCode'] = "INR";
         //Refund id (It must be unique for each cashback)
-        $paramlist['request']['refundRefId'] = "R_".$bookingPaymentDetails[0]['booking_id']."_".rand(100,1000);
+        $paramlist['request']['refundRefId'] = "R_".explode("_",$order_id)[0]."_".rand(100,1000);
         $paramlist['platformName'] = "PayTM";
         $paramlist['operationType'] = "REFUND_MONEY";
         $paramlist['version'] = CASHBACK_API_version; 
@@ -463,12 +463,9 @@ class paytm_payment_lib {
      *                  2) $amount - (Amount need to transfer)
      *                  3) $transaction_id - Transaction ID 
      */
-    function CASHBACK_process_cashback($bookingPaymentDetails,$amount,$transaction_id){
-        //Check is Refund amount less then transaction amount?
-        //IF yes
-        if($bookingPaymentDetails[0]['paid_amount']>$amount){
+    function CASHBACK_process_cashback($order_id,$amount,$transaction_id){
             //Create API request Array
-            $paramlist = $this->CASHBACK_create_cashback_parameters($bookingPaymentDetails,$amount);
+            $paramlist = $this->CASHBACK_create_cashback_parameters($order_id,$transaction_id,$amount);
             $data_string = json_encode($paramlist);
             //Create Checksum for requested Body
             $checkSum = $this->P_P->paytm_inbuilt_function_lib->getChecksumFromString($data_string ,PAYTM_MERCHANT_KEY); 
@@ -487,10 +484,6 @@ class paytm_payment_lib {
                 log_message('info', __FUNCTION__ . "Function End With Failure");
                   return array('is_success'=>0,'msg'=>QR_CODE_FAILURE);
             }
-        }
-        else{
-            return array('is_success'=>0,'msg'=>REFUND_AMOUNT_GRETER_THEN_TRANSACTION_AMOUNT);
-        }
     }
     /*
      * This is a helper function for check_status_from_order_id
