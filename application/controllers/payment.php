@@ -46,8 +46,9 @@ class Payment extends CI_Controller {
             log_message('error', __FUNCTION__ . "Function End With Error :".$authArray[3]);
         }
     }
-    function test_cashback($bookingID,$amount){
-        echo $this->paytm_payment_lib->paytm_cashback($bookingID,$amount);
+    function test_cashback($transaction_id,$order_id,$amount){
+        echo $this->paytm_payment_lib->paytm_cashback($transaction_id,$order_id,$amount);
+        //$this->booking_utilities->lib_prepare_job_card_using_booking_id($bookingID);
     }
     function test_QR($bookingID,$qr_for,$amount,$contact){
         echo $this->paytm_payment_lib->generate_qr_code($bookingID,$qr_for,$amount,$contact);
