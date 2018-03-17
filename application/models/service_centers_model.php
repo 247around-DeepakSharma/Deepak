@@ -394,21 +394,13 @@ class Service_centers_model extends CI_Model {
         //Sanitizing Searched text - Getting only Numbers, Alphabets and '-'
         $searched_text = preg_replace('/[^A-Za-z0-9-]/', '', $searched_text_tmp);
         
-        $where_phone = "AND (`booking_primary_contact_no` = '$searched_text' OR `booking_alternate_contact_no` = '$searched_text')";
-        $where_booking_id = "AND `booking_id` LIKE '%$searched_text%'";
+        $where = "AND (`booking_primary_contact_no` = '$searched_text' OR `booking_alternate_contact_no` = '$searched_text' OR `booking_id` LIKE '%$searched_text%')";
        
-        $sql = "SELECT `booking_id`,`booking_date`,`booking_timeslot`, users.name, services.services, current_status, assigned_engineer_id "
+        $sql = "SELECT `booking_id`,`booking_date`,`booking_timeslot`, users.name, services.services, current_status, assigned_engineer_id,internal_status "
                 . " FROM `booking_details`,users, services "
                 . " WHERE users.user_id = booking_details.user_id "
                 . " AND services.id = booking_details.service_id "
-                . " AND `assigned_vendor_id` = '$service_center_id' ". $where_phone
-
-                . " UNION "
-                . "SELECT `booking_id`,`booking_date`,`booking_timeslot`, users.name, services.services, current_status, assigned_engineer_id "
-                . " FROM `booking_details`,users, services "
-                . " WHERE users.user_id = booking_details.user_id "
-                . " AND services.id = booking_details.service_id "
-                . " AND `assigned_vendor_id` = '$service_center_id' ". $where_booking_id
+                . " AND `assigned_vendor_id` = '$service_center_id' ". $where
                 . " ";
         $query = $this->db->query($sql);
         
