@@ -585,25 +585,25 @@ class vendor extends CI_Controller {
     
     function get_vendor_form_data(){
 
-                $vendor_data['company_name'] = $this->input->post('company_name');
-                $vendor_data['name'] = $this->input->post('name');
-                $vendor_data['address'] = $this->input->post('address');
-                $vendor_data['landmark'] = $this->input->post('landmark');
-                $vendor_data['district'] = $this->input->post('district');
-                $vendor_data['state'] = $this->input->post('state');
-                $vendor_data['pincode'] = $this->input->post('pincode');
-                $vendor_data['phone_1'] = $this->input->post('phone_1');
-                $vendor_data['phone_2'] = $this->input->post('phone_2');
-                $vendor_data['email'] = $this->input->post('email');
+                $vendor_data['company_name'] = trim($this->input->post('company_name'));
+                $vendor_data['name'] = trim($this->input->post('name'));
+                $vendor_data['address'] = trim($this->input->post('address'));
+                $vendor_data['landmark'] = trim($this->input->post('landmark'));
+                $vendor_data['district'] = trim($this->input->post('district'));
+                $vendor_data['state'] = trim($this->input->post('state'));
+                $vendor_data['pincode'] = trim($this->input->post('pincode'));
+                $vendor_data['phone_1'] = trim($this->input->post('phone_1'));
+                $vendor_data['phone_2'] = trim($this->input->post('phone_2'));
+                $vendor_data['email'] = trim($this->input->post('email'));
                 $vendor_data['company_type'] = $this->input->post('company_type');
-                $vendor_data['primary_contact_name'] = $this->input->post('primary_contact_name');
-                $vendor_data['primary_contact_email'] = $this->input->post('primary_contact_email');
-                $vendor_data['primary_contact_phone_1'] = $this->input->post('primary_contact_phone_1');
-                $vendor_data['primary_contact_phone_2'] = $this->input->post('primary_contact_phone_2');
-                $vendor_data['owner_name'] = $this->input->post('owner_name');
-                $vendor_data['owner_email'] = $this->input->post('owner_email');
-                $vendor_data['owner_phone_1'] = $this->input->post('owner_phone_1');
-                $vendor_data['owner_phone_2'] = $this->input->post('owner_phone_2');
+                $vendor_data['primary_contact_name'] = trim($this->input->post('primary_contact_name'));
+                $vendor_data['primary_contact_email'] = trim($this->input->post('primary_contact_email'));
+                $vendor_data['primary_contact_phone_1'] = trim($this->input->post('primary_contact_phone_1'));
+                $vendor_data['primary_contact_phone_2'] = trim($this->input->post('primary_contact_phone_2'));
+                $vendor_data['owner_name'] = trim($this->input->post('owner_name'));
+                $vendor_data['owner_email'] = trim($this->input->post('owner_email'));
+                $vendor_data['owner_phone_1'] = trim($this->input->post('owner_phone_1'));
+                $vendor_data['owner_phone_2'] = trim($this->input->post('owner_phone_2'));
                 
                 $vendor_data['is_pan_doc'] = $this->input->post('is_pan_doc');
 //                $vendor_data['is_cst_doc'] = $this->input->post('is_cst_doc');
@@ -649,11 +649,11 @@ class vendor extends CI_Controller {
                     $vendor_data['gst_no'] = NULL;
                 }
              
-                $vendor_data['bank_name'] = $this->input->post('bank_name');
-                $vendor_data['account_type'] = $this->input->post('account_type');
-                $vendor_data['bank_account'] = $this->input->post('bank_account');
-                $vendor_data['ifsc_code'] = $this->input->post('ifsc_code');
-                $vendor_data['beneficiary_name'] = $this->input->post('beneficiary_name');
+                $vendor_data['bank_name'] = trim($this->input->post('bank_name'));
+                $vendor_data['account_type'] = trim($this->input->post('account_type'));
+                $vendor_data['bank_account'] = trim($this->input->post('bank_account'));
+                $vendor_data['ifsc_code'] = trim($this->input->post('ifsc_code'));
+                $vendor_data['beneficiary_name'] = trim($this->input->post('beneficiary_name'));
                 $vendor_data['is_verified'] = $this->input->post('is_verified');
                 if(!empty($this->input->post('contract_file'))){
                     $vendor_data['contract_file'] = $this->input->post('contract_file');
