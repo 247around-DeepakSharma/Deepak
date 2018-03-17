@@ -682,8 +682,8 @@ class Service_centers extends CI_Controller {
            //Save state change
             
             $agent_id = $this->session->userdata('service_center_agent_id');
-            $agent_name = $this->session->userdata('service_center_agent_id');
-            $service_center_id =$this->session->userdata('service_center_name');
+            $agent_name = $this->session->userdata('service_center_name');
+            $service_center_id =$this->session->userdata('service_center_id');
             
             $this->notify->insert_state_change($booking_id, $new_state, "", $remarks, $agent_id, $agent_name, NULL, $service_center_id);
             
