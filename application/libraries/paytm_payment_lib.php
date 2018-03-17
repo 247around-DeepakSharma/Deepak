@@ -112,34 +112,14 @@ class paytm_payment_lib {
          * 3) If not then creates a request to process refund for paytm if response failure then return with failure 
          * 4) If success thern save refund in database and return with success
      */
-    function paytm_cashback($transaction_id,$amount){
-        //Check is transaction id exists
-        //Select * FROM paytm_transaction_callback WHERE txn_id=$transaction_id;
-        $bookingPaymentDetails = $this->P_P->reusable_model->get_search_result_data("paytm_transaction_callback","*",array('txn_id'=>$transaction_id),NULL,NULL,NULL,NULL,NULL,array());
-        //If transaction id does'nt exists
-        if(empty($bookingPaymentDetails)){
-            //exit function with response not found transaction
-            return $this->CASHBACK_create_cashback_response(FAILURE_STATUS,CASHBACK_TRANSACTION_NOT_FOUND_MSG);
-        }
-        else{
-            //Check if cashback already processed against this transaction
-            //IF yes
-            if($bookingPaymentDetails[0]['cashback_txn_id'] != NULL){
-                //exit function with response cashback already processed
-                return $this->CASHBACK_create_cashback_response(FAILURE_STATUS,CASHBACK_ALREADY_DONE_FOR_THIS_TRANSACTION_ID);
-            }
-            //IF not
-            else{
-                $resultArray = $this->CASHBACK_process_cashback($bookingPaymentDetails,$amount,$transaction_id);
+    function paytm_cashback($transaction_id,$order_id,$amount){
+                $resultArray = $this->CASHBACK_process_cashback($order_id,$amount,$transaction_id);
                  if($resultArray['is_success'] == 1){
                          return $this->CASHBACK_create_cashback_response(SUCCESS_STATUS,$resultArray['msg']);
                      }
                      else{
                          return $this->CASHBACK_create_cashback_response(FAILURE_STATUS,$resultArray['msg']);
                      }
-            }
-        }
-    }
     /*
      * This function is used to get all paytm transactions data against a booking id
      * @output - 1) status - Transaction exist or not 
