@@ -607,7 +607,7 @@ class Miscelleneous {
             $sms['smsData']['brand_service'] = $unit_details[0]['appliance_brand'] . " " . $query[0]['services'];
             $sms['smsData']['sf_phone'] = $query[0]['phone_1'] . ", "
                     . $query[0]['primary_contact_phone_1'] . ", " . $query[0]['owner_phone_1'];
-            $sms['smsData']['sf_address'] = $query[0]['address'];
+            $sms['smsData']['sf_address'] = $query[0]['address'].", ".$query[0]['sf_district'];
             $sms['tag'] = "home_theater_repair";
             $sms['booking_id'] = $query[0]['booking_id'];
             $sms['type'] = "user";
