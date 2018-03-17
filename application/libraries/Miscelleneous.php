@@ -62,7 +62,7 @@ class Miscelleneous {
 
                     return $msg;
                 }
-            } else if (count($check_vendor > 1)) {
+            } else  if (count($check_vendor) > 1) {
                 foreach ($check_vendor as $vendor) {
                     if ($vendor['is_upcountry'] == 1) {
                         $data['vendor_id'] = $vendor['Vendor_ID'];
