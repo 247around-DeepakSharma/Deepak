@@ -29,7 +29,7 @@ p{
         ?>
      <tr>
       <td colspan="2" id="top_row" style="width: 32%;"><img style='padding: 40px 0px 0px 12px;width:80px;' src='https://aroundhomzapp.com/images/logo.jpg'></td>
-      <td colspan="2" id="top_row" style="text-align: center;"><p style='font-family: sans-serif;font-size: 18px;line-height: 24px;'><b>247AROUND SERVICE JOB CARD</b></p></td>
+      <td colspan="2" id="top_row" style="text-align: center;"><p style='font-family: sans-serif;font-size: 22px;line-height: 30px;'><b>247AROUND SERVICE JOB CARD</b></p></td>
  <td colspan="2" id="top_row" style="text-align: right;width: 34%;"><p style='font-family: sans-serif;font-size: 12px;'><b>Get 5% Discount When You Scan <br>QR Code & Pay Through Paytm App</b></p> 
                  <p><img style='padding: 5px 10px;width: 80px;' src=<?php echo $qr?>></p>
    </td>
@@ -39,8 +39,8 @@ p{
     else{
         ?>
  <tr>
-      <td colspan="2" id="top_row" style="width: 32%;"><img style='padding: 5px;' src='https://aroundhomzapp.com/images/logo.jpg'></td>
-      <td colspan="4" id="top_row" style="text-align: left;"><p style='font-family: sans-serif;font-size: 18px;line-height: 24px;'><b>247AROUND SERVICE JOB CARD</b></p></td>
+      <td colspan="2" id="top_row" style="width: 12%;"><img style='padding: 5px;' src='https://aroundhomzapp.com/images/logo.jpg'></td>
+      <td colspan="4" id="top_row" style="text-align: left;"><p style='font-family: sans-serif;font-size: 22px;line-height: 24px;'><b>247AROUND SERVICE JOB CARD</b></p></td>
       </tr>
   <?php
     }
@@ -65,7 +65,7 @@ p{
   </tr>
   <tr>
     <td colspan="1"><p><b>Address</b></p></td>
-    <td colspan="5"><p><?php echo $booking_details[0]['booking_address'].",".
+    <td colspan="5"><p><?php echo $booking_details[0]['booking_address'].",<br>".
                         $booking_details[0]['city'].",".$booking_details[0]['state'].",".$booking_details[0]['booking_pincode']?></p></td>
    
   </tr>
@@ -84,23 +84,23 @@ foreach($booking_unit_details as $data){
     <td ><p><?php echo $booking_unit_details[0]['appliance_capacity']?></p></td>
     <td><p><?php echo $booking_unit_details[0]['appliance_brand']."/".$booking_unit_details[0]['model_number']?></p></td>
     <td colspan="2"><p><?php echo $booking_unit_details[0]['price_tags']?></p></td>
-    <td><p><?php echo $booking_unit_details[0]['customer_net_payable']?></p></td>
+    <td><p><?php echo round($booking_unit_details[0]['customer_net_payable'])?></p></td>
   </tr>
   <?php
   }
   ?>
   <tr>
       <td><p style="font-size:12px;"><b>Service Date</b></p></td>
-    <td ><p><?php echo $booking_details[0]['booking_date']?></p></td>
+    <td ><p><?php echo date("d/M/Y", strtotime($booking_details[0]['booking_date']));?></p></td>
     <td><p><b>Time slot</b></p></td>
     <td><p><?php echo $booking_details[0]['booking_timeslot']?></p></td>
     <td><p><b>Upcountry</b></p></td>
-        <td><p><?php echo $meta['upcountry_charges']?></p></td>
+        <td><p><?php echo round($meta['upcountry_charges'])?></p></td>
   </tr>
   <tr>
     <td colspan="3"></td>
     <td colspan="2"><p><b>Total</b></p></td>
-    <td><p><?php echo "Rs. ". $booking_details[0]['amount_due']?></p></td>
+    <td><p><?php echo "Rs. ". round($booking_details[0]['amount_due'])?></p></td>
   </tr>
   <tr>
     <td><p><b>Appliance</b></p></td>
@@ -134,14 +134,6 @@ foreach($booking_unit_details as $data){
     <td><p></p></td>
     <td><p></p></td>
   </tr>
-  <tr>
-    <td><p><b>3</b></p></td>
-    <td ><p></p></td>
-    <td><p></p></td>
-    <td><p></p></td>
-    <td><p></p></td>
-    <td><p></p></td>
-  </tr>
    <tr>
     <td><p><b>Name</b></p></td>
     <td colspan="2"><p></p></td>
@@ -167,9 +159,9 @@ foreach($booking_unit_details as $data){
     <td colspan="2"><p></p></td>
   </tr>
    <tr>
-    <td colspan="6"><p><b>Book Appliance Service from Qualified Engineers on "247AROUND" App / On Phone - 9555000247 / On
+       <td colspan="6"><p style="font-size: 14px;"><b>Book Appliance Service from Qualified Engineers on "247AROUND" App / On Phone - 9555000247 / On
 Website - www.247around.com</b></p>
-    <p><b>Blackmelon Advance Technology Co. Pvt. Ltd.</b></p></td>
+    <p style="font-size: 15px;margin-top: 15px;"><b>Blackmelon Advance Technology Co. Pvt. Ltd.</b></p></td>
   </tr>
 </table>
  
