@@ -166,12 +166,12 @@
                     <div id="jssor_2" style="position: relative;margin: 4% auto  ;  top: 0px; left: 0px; width: 980px; height: 100px; overflow: hidden; visibility: hidden;">
                         <div data-u="loading" style="position: absolute; top: 0px; left: 0px;">
                             <div style="filter: alpha(opacity=70); opacity: 0.7; position: absolute; display: block; top: 0px; left: 0px; width: 100%; height: 100%;"></div>
-                            <div style="position:absolute;display:block;background:url('images/loading.gif') no-repeat center center;top:0px;left:0px;width:100%;height:100%;"></div>
+                            <div style="position:absolute;display:block;background:url('../../images/loadring.gif') no-repeat center center;top:0px;left:0px;width:100%;height:100%;"></div>
                         </div>
                         <div data-u="slides" style="cursor: default; position: relative; top: 0px; left: 0px; width: 980px; height: 100px; overflow: hidden;">
-                            <?php foreach ($partner_logo as $value) { ?>
+                            <?php foreach ($partner_logo as $value) { $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$value['partner_logo'];?>
                                 <div style="display: none;">
-                                    <img data-u="images" src="<?php echo base_url().$value['partner_logo']; ?>" alt="<?php echo $value['alt_text']; ?>"/>
+                                    <img data-u="images" src="<?php echo $src; ?>" alt="<?php echo $value['alt_text']; ?>"/>
                                 </div>
                             <?php } ?>
                         </div>

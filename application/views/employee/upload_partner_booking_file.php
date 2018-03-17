@@ -52,7 +52,7 @@
                     </div>
                     <div class="form-group">
                         <div class="col-md-4">
-                            <input type= "submit"  class="btn btn-success btn-md" value ="Upload" >
+                            <input type= "submit"  class="btn btn-success btn-md" id="submit_btn" value ="Upload" disabled="">
                         </div>
                     </div>
                 </form>
@@ -86,6 +86,10 @@
     var partner_id = '';
     var file_type = '';
     var partner_source = '';
+    var is_file_send_back = '';
+    var read_column = '';
+    var write_column = '';
+    var revert_file_email = '';
     
     function submitForm() {
         if( partner_id === '<?php echo SNAPDEAL_ID?>'){
@@ -100,6 +104,10 @@
         fd.append('partner_id',partner_id);
         fd.append('partner_source',partner_source);
         fd.append('redirect_to','upload_partner_booking_file');
+        fd.append('is_file_send_back',is_file_send_back);
+        fd.append('file_read_column',read_column);
+        fd.append('file_write_column',write_column);
+        fd.append('revert_file_email',revert_file_email);
         $.ajax({
             url: "<?php echo base_url() ?>employee/do_background_upload_excel/process_upload_file",
             type: "POST",
@@ -125,10 +133,11 @@
     });
     
     $('#partner_id').on('change',function(){
+        
         partner = $("#partner_id :selected").text();
         partner_id = $(this).val();
-        file_type = partner +'-Delivered';
-        partner_source = partner+'-delivered-excel';
+        
+        get_partner_file_details();
         
         if(partner_id === '<?php echo SNAPDEAL_ID ?>'){
             $('#file_type').show();
@@ -164,6 +173,32 @@
                 }
             ]
         });
+    }
+    
+    function get_partner_file_details(){
+        if(partner_id){
+            $.ajax({
+                type:'POST',
+                url:'<?php echo base_url();?>employee/partner/get_partner_file_details',
+                data:{partner_id:partner_id},
+                dataType:'json',
+                success:function(res){
+                    if(res.msg === 'success'){
+                        file_type = res.data.file_type;
+                        partner_source = file_type+"-excel";
+                        read_column = res.data.order_id_read_column;
+                        write_column = res.data.booking_id_write_column;
+                        is_file_send_back = res.data.send_file_back;
+                        revert_file_email = res.data.revert_file_to_email;
+                        $('#submit_btn').attr('disabled',false);
+                    }else if(res.msg === 'failed'){
+                        alert("Select Correct Partner");
+                    }else{
+                        alert("Select Correct Partner");
+                    }
+                }
+            });
+        }
     }
 </script>
 <?php  if ($this->session->flashdata('file_error')) {$this->session->unset_userdata('file_error');} ?>

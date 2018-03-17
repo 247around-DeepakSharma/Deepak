@@ -154,22 +154,21 @@ function get_data_for_partner_callback($booking_id) {
         $where .= "  booking_details.partner_id = '" . $partner_id . "'";
         if(!empty($booking_id)){
             $where .= " AND `booking_details`.booking_id = '".$booking_id."' "
-                    . " AND (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled' OR booking_details.current_status='FollowUp') ";
+                    . " AND (booking_details.current_status IN ('Pending','Rescheduled','FollowUp')) ";
         } else {
-            $where .= " AND (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled') ";
+            $where .= " AND (booking_details.current_status IN ('Pending', 'Rescheduled')) ";
         }
         //do not show bookings for future as of now
         //$where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0";
 
           $query = $this->db->query("Select Distinct services.services,
             users.name as customername, users.phone_number,
-            booking_details.*, status,appliance_brand
+            booking_details.*,appliance_brand
 
             from booking_details
             JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
             LEFT JOIN  `booking_unit_details` ON  `booking_unit_details`.`booking_id` =  `booking_details`.`booking_id`
-            LEFT JOIN spare_parts_details ON spare_parts_details.booking_id = booking_details.booking_id
 
             WHERE
             $where
