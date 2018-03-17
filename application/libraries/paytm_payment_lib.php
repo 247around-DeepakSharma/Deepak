@@ -436,8 +436,9 @@ class paytm_payment_lib {
      */
     function CASHBACK_generation_success_handler($transaction_id,$amount,$paramlist,$outputArray){
        //Create where array (Where we have to update refund in transaction table)
-       $where['txn_id'] =  $transaction_id;
-       $where['order_id'] =  $paramlist['request']['merchantOrderId'];
+       $cashBackData['booking_id'] =  explode("_",$paramlist['request']['merchantOrderId'])[0];
+       $cashBackData['transaction_id'] =  $transaction_id;
+       $cashBackData['order_id'] =  $paramlist['request']['merchantOrderId'];
        //Cashback Amount
        $cashBackData['cashback_amount'] = $amount;
        //Cashback Transaction ID (Provided by 247Around at the time of request)
@@ -447,8 +448,7 @@ class paytm_payment_lib {
        //Cashback initiated by (Default is _247AROUND)
        $cashBackData['cashback_from'] = _247AROUND; 
        $cashBackData['cash_back_status'] = "SUCCESS";
-       $cashBackData['cashback_date'] = date("Y-m-d h:i:s");
-       $db_id = $this->P_P->reusable_model->update_table("paytm_transaction_callback",$cashBackData,$where);
+       $db_id = $this->P_P->reusable_model->insert_into_table("paytm_cashback_details",$cashBackData);
        if($db_id>0){
            return array('is_success'=>1,'msg'=>SUCCESS_STATUS);
        }
