@@ -73,9 +73,18 @@ class Payment extends CI_Controller {
      */
     function get_booking_transaction_status_by_check_status_api($booking_id){
         $resultArray = array();
+        $transactionArray = $this->paytm_payment_lib->get_paytm_transaction_data($booking_id);
+        if($transactionArray['status']){
+            foreach ($transactionArray['data'] as $existTransactions){
+                $finalArray['status'] = 'SUCCESS';
+                $finalArray['data'] = $existTransactions;
+                $resultArray[] = $finalArray    ;
+            }
+        }
         $tempHtml = "<table class='table'>";
         $tempHtml .= "<th>S.N</th>";
          $tempHtml .= "<th>Amount</th>";
+         $tempHtml .= "<th>DateTime</th>";
          $tempHtml .= "<th>Channel</th>";
         $data = $this->paytm_payment_model->get_order_id_without_transaction_for_booking_id($booking_id);
         foreach($data as $order_id){
@@ -92,6 +101,7 @@ class Payment extends CI_Controller {
                     $tempHtml .= "<tr>";
                     $tempHtml .= "<td>".$t."</td>";
                     $tempHtml .= "<td>".$transactionResponse['data']['paid_amount']."</td>";
+                    $tempHtml .= "<td>".$transactionResponse['data']['create_date']."</td>";
                     $tempHtml .= "<td>".explode("_",$transactionResponse['data']['order_id'])[1]."</td>";
                     $tempHtml .= "</tr>";
                 }
