@@ -29,4 +29,11 @@ class paytm_payment_model extends CI_Model {
         $query = $this->db->query($query);
         return $query->result_array();
     }
+    function get_transactions_without_cashback(){
+        $this->db->select("paytm_transaction_callback.*");
+        $this->db->where("paytm_cashback_details.transaction_id IS NULL");
+        $this->db->join('paytm_cashback_details', 'paytm_cashback_details.transaction_id = paytm_transaction_callback.txn_id', 'left');
+        $query = $this->db->get("paytm_transaction_callback");
+        return $query->result_array();
+    }
 }
