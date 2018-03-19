@@ -2331,7 +2331,7 @@ Your browser does not support the audio element.
     
     function get_SF_payout($booking_id, $service_center_id, $amount_due){
        
-        $where['where'] = array('booking_unit_details.booking_id' =>$booking_id);
+        $where['where'] = array('booking_unit_details.booking_id' =>$booking_id, "booking_status != 'Cancelled'" => NULL);
         $where['length'] = -1;
         $select = "(vendor_basic_charges + vendor_st_or_vat_basic_charges "
                 . "+ vendor_extra_charges + vendor_st_extra_charges+ vendor_parts+ vendor_st_parts) as sf_earned";
@@ -2417,6 +2417,15 @@ function generate_image($base64, $image_name,$directory){
         if (isset($json->error)) {
           
             log_message("info", __METHOD__. " Short url not generated ". print_r($json->error, true));
+            $email_template = $this->My_CI->booking_model->get_booking_email_template("google_short_url_generation_failed");
+            $subject = $email_template[4];
+            $message = "long Url - ". $url." Google Response ". $response;
+            $email_from = $email_template[2];
+
+            $to = $email_template[1];
+            $cc = $email_template[3];
+
+            $this->My_CI->notify->sendEmail($email_from, $to, $cc, "", $subject, $message);
             return false;
         } else {
             return $json->id;

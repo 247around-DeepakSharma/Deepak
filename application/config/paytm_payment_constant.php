@@ -65,3 +65,4 @@ define('TRANSACTION_SUCCESS_TO','anuj@247around.com');
 define('TRANSACTION_SUCCESS_CC','nits@247around.com');
 define("DEFAULT_MERCHANT_CONTACT_NO", "8826423424");
 
+define("CASHBACK_REASON_DISCOUNT", "Discount");
