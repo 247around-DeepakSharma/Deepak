@@ -62,3 +62,4 @@ define('TRANSACTION_RESPONSE_FROM_CALLBACK','callback');
 define('TRANSACTION_SUCCESS_TO','anuj@247around.com');
 define('TRANSACTION_SUCCESS_CC','nits@247around.com');
 
+define("CASHBACK_REASON_DISCOUNT", "Discount");

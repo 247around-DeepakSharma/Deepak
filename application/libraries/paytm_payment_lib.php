@@ -112,8 +112,8 @@ class paytm_payment_lib {
          * 3) If not then creates a request to process refund for paytm if response failure then return with failure 
          * 4) If success thern save refund in database and return with success
      */
-    function paytm_cashback($transaction_id,$order_id,$amount){
-                $resultArray = $this->CASHBACK_process_cashback($order_id,$amount,$transaction_id);
+    function paytm_cashback($transaction_id,$order_id,$amount,$cashback_reason){
+                $resultArray = $this->CASHBACK_process_cashback($order_id,$amount,$transaction_id,$cashback_reason);
                  if($resultArray['is_success'] == 1){
                          return $this->CASHBACK_create_cashback_response(SUCCESS_STATUS,$resultArray['msg']);
                      }
@@ -358,9 +358,9 @@ class paytm_payment_lib {
         //Guid For user
         $data['user_guid'] = $jsonArray['response']['userGuid'];
        // Does paytm generrate any cashback for current transaction
-        $data['cash_back_status'] = $jsonArray['response']['cashBackStatus'];
+        $data['cashback_status'] = $jsonArray['response']['cashBackStatus'];
         // Details of cashback
-        $data['cash_back_message'] = $jsonArray['response']['cashBackMessage'];
+        $data['cashback_message'] = $jsonArray['response']['cashBackMessage'];
         $data['create_date'] = date("Y-m-d h:i:s");
         //response_api (From which api we are getting response,check status or callback)
         $data['response_api'] = TRANSACTION_RESPONSE_FROM_CALLBACK;
@@ -434,7 +434,7 @@ class paytm_payment_lib {
      *                  3) $paramlist = Parameter Array(Requestr array for paytm API)
      *                  4) @outputArray - Response By Paytm
      */
-    function CASHBACK_generation_success_handler($transaction_id,$amount,$paramlist,$outputArray){
+    function CASHBACK_generation_success_handler($transaction_id,$amount,$paramlist,$outputArray,$cashback_reason){
        //Create where array (Where we have to update refund in transaction table)
        $cashBackData['booking_id'] =  explode("_",$paramlist['request']['merchantOrderId'])[0];
        $cashBackData['transaction_id'] =  $transaction_id;
@@ -447,7 +447,8 @@ class paytm_payment_lib {
        $cashBackData['cashback_txn_id_paytm'] = $outputArray['response']['refundTxnGuid'];
        //Cashback initiated by (Default is _247AROUND)
        $cashBackData['cashback_from'] = _247AROUND; 
-       $cashBackData['cash_back_status'] = "SUCCESS";
+       $cashBackData['cashback_status'] = "SUCCESS";
+       $cashBackData['cashback_reason'] = $cashback_reason;
        $db_id = $this->P_P->reusable_model->insert_into_table("paytm_cashback_details",$cashBackData);
        if($db_id>0){
            return array('is_success'=>1,'msg'=>SUCCESS_STATUS);
@@ -460,7 +461,7 @@ class paytm_payment_lib {
      *                  2) $amount - (Amount need to transfer)
      *                  3) $transaction_id - Transaction ID 
      */
-    function CASHBACK_process_cashback($order_id,$amount,$transaction_id){
+    function CASHBACK_process_cashback($order_id,$amount,$transaction_id,$cashback_reason){
             //Create API request Array
             $paramlist = $this->CASHBACK_create_cashback_parameters($order_id,$transaction_id,$amount);
             $data_string = json_encode($paramlist);
@@ -475,7 +476,7 @@ class paytm_payment_lib {
             //IF success
             if($outputArray['status'] == 'SUCCESS'){
                 log_message('info', __FUNCTION__ . "Function End with Success");
-                return $this->CASHBACK_generation_success_handler($transaction_id,$amount,$paramlist,$outputArray);
+                return $this->CASHBACK_generation_success_handler($transaction_id,$amount,$paramlist,$outputArray,$cashback_reason);
             }
             else{
                 log_message('info', __FUNCTION__ . "Function End With Failure");
