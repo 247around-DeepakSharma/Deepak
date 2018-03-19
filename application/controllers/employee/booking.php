@@ -164,7 +164,7 @@ class Booking extends CI_Controller {
             //Array ( ['brand'] => Array ( [0] => id_price ) )
             $pricesWithId = $this->input->post("prices");
             $user['user_email'] = $this->input->post('user_email');
-            $user['alternate_phone_number'] = $this->input->post('booking_alternate_contact_no');
+            $user['alternate_phone_number'] = trim($this->input->post('booking_alternate_contact_no'));
             $result = array();
             $result['DEFAULT_TAX_RATE'] = 0;
             foreach ($appliance_brand as $key => $value) {
@@ -541,8 +541,8 @@ class Booking extends CI_Controller {
         $booking['source'] = $this->input->post('source_code');
         $booking['type'] = $this->input->post('type');
         $booking['amount_due'] = $this->input->post('grand_total_price');
-        $booking['booking_address'] = $this->input->post('home_address');
-        $booking['city'] = $this->input->post('city');
+        $booking['booking_address'] = trim($this->input->post('home_address'));
+        $booking['city'] = trim($this->input->post('city'));
         $booking_date = $this->input->post('booking_date');
         $booking['partner_source'] = $this->input->post('partner_source');
         $booking['booking_date'] = date('d-m-Y', strtotime($booking_date));
@@ -552,22 +552,22 @@ class Booking extends CI_Controller {
         $booking['state'] = $distict_details['state'];
         $booking['district'] = $distict_details['district'];
         $booking['taluk'] = $distict_details['taluk'];
-        $booking['booking_primary_contact_no'] = $this->input->post('booking_primary_contact_no');
+        $booking['booking_primary_contact_no'] = trim($this->input->post('booking_primary_contact_no'));
         $booking['order_id'] = $this->input->post('order_id');
-        $booking['booking_alternate_contact_no'] = $this->input->post('booking_alternate_contact_no');
+        $booking['booking_alternate_contact_no'] = trim($this->input->post('booking_alternate_contact_no'));
         $booking['booking_timeslot'] = $this->input->post('booking_timeslot');
         $booking['update_date'] = date("Y-m-d H:i:s");
         $booking['partner_id'] = $this->input->post('partner_id');
         
         if(empty($user_id)){
-            $user['phone_number'] = $booking['booking_primary_contact_no'];
-            $user['name'] = $this->input->post('user_name');
-            $user['user_email'] = $this->input->post('user_email');
-            $user['home_address'] = $booking['booking_address'];
-            $user['city'] = $booking['city'];
-            $user['state'] =  $booking['state'];
-            $user['pincode'] = $booking['booking_pincode'] ;
-            $user['alternate_phone_number'] = $booking['booking_alternate_contact_no'];
+            $user['phone_number'] = trim($booking['booking_primary_contact_no']);
+            $user['name'] = trim($this->input->post('user_name'));
+            $user['user_email'] = trim($this->input->post('user_email'));
+            $user['home_address'] = trim($booking['booking_address']);
+            $user['city'] = trim($booking['city']);
+            $user['state'] =  trim($booking['state']);
+            $user['pincode'] = trim($booking['booking_pincode']) ;
+            $user['alternate_phone_number'] = trim($booking['booking_alternate_contact_no']);
             $user['create_date'] = date("Y-m-d H:i:s");
         
             $user_id = $this->user_model->add_user($user);
