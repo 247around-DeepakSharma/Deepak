@@ -40,3 +40,4 @@ ALTER TABLE `paytm_transaction_callback`
   DROP `cashback_date`;
 ALTER TABLE `paytm_cashback_details` ADD `booking_id` VARCHAR(64) NOT NULL AFTER `id`;
 ALTER TABLE `paytm_cashback_details` ADD `cashback_amount` VARCHAR(64) NOT NULL AFTER `order_id`;
+ALTER TABLE `paytm_cashback_details` ADD `cashback_reason` VARCHAR(64) NOT NULL AFTER `booking_id`;
