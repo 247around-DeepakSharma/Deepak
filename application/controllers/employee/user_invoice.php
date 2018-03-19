@@ -83,6 +83,7 @@ class User_invoice extends CI_Controller {
             $response['meta']['customer_phone_number'] = $data[0]->booking_primary_contact_no;
 
             $response['meta']['invoice_id'] = $invoice_id;
+            $response['meta']['booking_id'] = $booking_id;
             $response['meta']['owner_phone_1'] = $data[0]->owner_phone_1;
 
             $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final", true);
@@ -116,6 +117,8 @@ class User_invoice extends CI_Controller {
                 
                 $tinyUrl = $this->miscelleneous->getShortUrl($customer_attachement_url);
                 if($tinyUrl){
+                    $sms['smsData']['amount'] = $data[0]->amount_paid;
+                    $sms['smsData']['booking_id'] = $booking_id;
                     $sms['smsData']['url'] = $tinyUrl;
                     $sms['phone_no'] = $response['meta']['customer_phone_number'];
                     $sms['booking_id'] = $booking_id;
