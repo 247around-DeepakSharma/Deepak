@@ -2189,7 +2189,7 @@ class Partner extends CI_Controller {
             
             $where = array("service_id" => $service_id);
             $where_in = array("category" => $category);
-            $data = $this->service_centre_charges_model->getServiceCategoryMapping($where, "capacity","capacity");
+            $data = $this->service_centre_charges_model->getServiceCategoryMapping($where, "capacity","capacity", $where_in);
         } else {
             
             $where_in = array("category" => $category);
