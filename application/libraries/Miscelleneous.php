@@ -2332,7 +2332,7 @@ Your browser does not support the audio element.
     
     function get_SF_payout($booking_id, $service_center_id, $amount_due){
        
-        $where['where'] = array('booking_unit_details.booking_id' =>$booking_id);
+        $where['where'] = array('booking_unit_details.booking_id' =>$booking_id, "booking_status != 'Cancelled'" => NULL);
         $where['length'] = -1;
         $select = "(vendor_basic_charges + vendor_st_or_vat_basic_charges "
                 . "+ vendor_extra_charges + vendor_st_extra_charges+ vendor_parts+ vendor_st_parts) as sf_earned";
