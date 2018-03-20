@@ -1119,7 +1119,9 @@ class service_centre_charges extends CI_Controller {
                 $data['check_box'] = 1;
                 $newkey = str_replace(' ', '', $data['category'] . $data['brand'] . $data['capacity'] . $data['service_category']);
                 if (array_key_exists($newkey, $key_data)) {
-                    array_push($duplicate_data, $data);
+                    if($data['service_category'] != SPARE_PART_BOOKING_TAG){
+                        array_push($duplicate_data, $data);
+                    }
                 } else {
                     array_push($stmp, $data);
                 }
