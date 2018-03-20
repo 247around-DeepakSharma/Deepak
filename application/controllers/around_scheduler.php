@@ -1492,7 +1492,7 @@ class Around_scheduler extends CI_Controller {
                 if(($transaction['paid_amount']<$rules[0]['amount_criteria_less_than']) || ($transaction['paid_amount']>$rules[0]['amount_criteria_above_than'])){
                     $cashbackAmount = ($transaction['paid_amount']*$rules[0]['cashback_amount_percentage'])/100;
                     $status = $this->paytm_payment_lib->paytm_cashback($transaction['txn_id'],$transaction['order_id'],$cashbackAmount,CASHBACK_REASON_DISCOUNT);
-                    if($status){
+                    if($status['status'] == 'SUCCESS'){
                         log_message("info",__METHOD__. "Cashback Processed Successfully For ".$transaction['txn_id']);
                     }
                     else{
