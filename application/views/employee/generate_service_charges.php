@@ -40,7 +40,7 @@
             </div>
             <div class="col-md-4">
                 <div class="form-group col-md-12 ">
-                    <label for="Appliance">Capacity *</label>
+                    <label class="col-md-12 " style="padding: 0px;" for="Appliance">Capacity * <div class="pull-right"><input  onchange="selectAllCapacity()" id="capacity_all" type="checkbox" value="">Select All</div></label>
                     <select name="capacity[]" id="capacity" class="form-control select2-multiple2"  multiple>
                       
                     </select>
@@ -284,7 +284,7 @@
             postData['is_mapping'] = 1;
     
             sendAjaxRequest(postData, url).done(function (data) {
-    
+
               $("#category option[value !='Select Category']").remove();
              
               $('#category').append(data).change();
@@ -339,6 +339,26 @@
         });
     }
     
+    
+    function selectAllCapacity(){
+        if ($('#capacity_all').is(":checked")){
+            $('#capacity option').prop('selected', true);
+             $('#capacity').select2MultiCheckboxes({
+                   templateSelection: function(selected, total) {
+                     return "Selected " + selected.length + " of " + total;
+                   }
+                 });
+
+        } else{
+            $('#capacity option').prop('selected', false);
+             $('#capacity').select2MultiCheckboxes({
+               templateSelection: function(selected, total) {
+                 return "Selected " + selected.length + " of " + total;
+               }
+             });
+     
+       }
+    }
     
     
     jQuery(function($) {

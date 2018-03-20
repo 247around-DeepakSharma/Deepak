@@ -1,0 +1,1 @@
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'google_short_url_generation_failed', 'Google Short Url Geneartion failed', 'Long Url - %s', 'noreply@247around.com', 'anuj@247around.com, sachinj@247around.com, chhavid@247around.com', '', '', '1', CURRENT_TIMESTAMP);

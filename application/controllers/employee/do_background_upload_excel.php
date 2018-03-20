@@ -351,9 +351,24 @@ class Do_background_upload_excel extends CI_Controller {
             if ($data) {
                 $booking['partner_id'] = $data['partner_id'];
                 $booking['source'] = $data['source'];
-
-
-                $partner_booking = $this->partner_model->get_order_id_for_partner($booking['partner_id'], $value['sub_order_id']);
+                
+                $check_partner_booking = $this->partner_model->get_order_id_for_partner($booking['partner_id'], $value['sub_order_id']);
+                
+                if(!is_null($check_partner_booking)){
+                    $partner_booking = $check_partner_booking;
+                }else{
+                    if (isset($value['order_item_id']) && !empty($value['order_item_id'])) {
+                        $booking['order_id'] = $value['sub_order_id'] . "-" . $value['order_item_id'];
+                    } else if (isset($value['item_id']) && !empty($value['item_id'])) {
+                        $booking['order_id'] = $value['sub_order_id'] . "-" . $value['item_id'];
+                    } else {
+                        $booking['order_id'] = $value['sub_order_id'];
+                    }
+                    
+                    $partner_booking = $this->partner_model->get_order_id_for_partner($booking['partner_id'], $booking['order_id']);
+                }
+                
+                
                 //log_message('info', print_r($partner_booking, TRUE));
                 //Check whether order id exists or not
                 if (is_null($partner_booking)) {
@@ -483,14 +498,6 @@ class Do_background_upload_excel extends CI_Controller {
                     }
                     
                     $unit_details['booking_status'] = _247AROUND_FOLLOWUP;
-
-                    if (isset($value['order_item_id']) && !empty($value['order_item_id'])) {
-                        $booking['order_id'] = $value['sub_order_id'] . "-" . $value['order_item_id'];
-                    } else if (isset($value['item_id']) && !empty($value['item_id'])) {
-                        $booking['order_id'] = $value['sub_order_id'] . "-" . $value['item_id'];
-                    } else {
-                        $booking['order_id'] = $value['sub_order_id'];
-                    }
 
                     $ref_date = !empty($value['referred_date_and_time'])?PHPExcel_Shared_Date::ExcelToPHPObject($value['referred_date_and_time']):PHPExcel_Shared_Date::ExcelToPHPObject();
                     $booking['reference_date'] = $ref_date->format('Y-m-d H:i:s');

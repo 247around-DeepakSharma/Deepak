@@ -960,19 +960,42 @@ class service_centre_charges extends CI_Controller {
      * @desc Generate Partner/Vendor Service Charge
      */
     function generate_service_charges(){
-       
         $form_data = $this->input->post();
         $where = array("service_id" => $form_data['service_id'], 'partner_id' => $form_data['partner_id']);
         
         $where_in['category'] = $form_data['category'];
-        if(!isset($form_data['free'])){
+       
+        if(isset($form_data['free']) && stristr($form_data['request_type'], "Installation") && $form_data['product_or_services'] == "Service"){
+            
+            $service_category = array($form_data['request_type']." (Free)");
+             
+        } else if(isset($form_data['paid']) && stristr($form_data['request_type'], "Installation") && $form_data['product_or_services'] == "Service"){
+             
+            $service_category = array($form_data['request_type']." (Paid)");
+            
+        } else if(stristr($form_data['request_type'], "Repair") && $form_data['product_or_services'] == "Service"){
+          
+            $service_category = array($form_data['request_type'], SPARE_PART_BOOKING_TAG);
+            
+        } else {
+           
+            $service_category = array($form_data['request_type']);
+        }
+         
+        $where_in['service_category'] = $service_category;
+        
+        if(isset($form_data['free'])){
+            $form_data['free'] = 1;
+            
+        } else {
             $form_data['free'] = 0;
-            if (stristr($form_data['request_type'], "Installation") && $form_data['product_or_services'] == "Service") {
-                $service_category = $form_data['request_type']." (Free)";
-            } else {
-                $service_category = $form_data['request_type'];
-            }
-            $where['service_category'] = $service_category;
+        }
+        
+        if(isset($form_data['paid'])){
+            $form_data['paid'] = 1;
+            
+        } else {
+            $form_data['paid'] = 0;
         }
         if(!isset($form_data['free_upcountry'])){
             $form_data['free_upcountry'] = 0;
@@ -980,15 +1003,7 @@ class service_centre_charges extends CI_Controller {
         if(!isset($form_data['paid_upcountry'])){
             $form_data['paid_upcountry'] = 0;
         }
-        if(!isset($form_data['paid'])){
-            $form_data['paid'] = 0;
-            if (stristr($form_data['request_type'], "Installation") && $form_data['product_or_services'] == "Service") {
-                $service_category = $form_data['request_type']." (Paid)";
-            } else {
-                $service_category = $form_data['request_type'];
-            }
-            $where['service_category'] = $service_category;
-        }
+        
         if(!isset($form_data['free_pod'])){
             $form_data['free_pod'] = 0;
         }
@@ -1001,20 +1016,36 @@ class service_centre_charges extends CI_Controller {
         if(!empty($form_data['capacity'])){
             $where_in['capacity'] = $form_data['capacity'];
         }
+        
         $charges = $this->service_centre_charges_model->get_service_caharges_data("*", $where, "", $where_in);
         $key_data = array();
         foreach($charges as $value){
-            $str ="paid";
-            if($value['partner_net_payable'] > 0){
-                $str = 'free';
-            }
-            $key = str_replace(' ', '', $value['category'].$value['brand'].$value['capacity'].$form_data['request_type'].$str);
-            $key_data[$key]= "";
             
+            $key = str_replace(' ', '', $value['category'].$value['brand'].$value['capacity'].$value['service_category']);
+            $key_data[$key]= "";
         }
-        
+     
         $data = array();
         $existing_key = array();
+        
+        $data['service_category'] = $service_category;
+        $existing_key[] = 'service_category';
+        
+        $data['product_or_services'] = array($form_data['product_or_services']);
+        $existing_key[] = 'product_or_services';
+       
+        $data['partner_id'] = array($form_data['partner_id']);
+        $existing_key[] = 'partner_id';
+        
+        $data['agent_id'] = array($this->session->userdata("id"));
+        $existing_key[] = 'agent_id';
+        
+        $data['service_id'] = array($form_data['service_id']);
+        $existing_key[] = 'service_id';
+        
+        $data['create_date'] = array(date("Y-m-d H:i:s"));
+        $existing_key[] = 'create_date';
+        
         if(!empty($form_data['brand'])){
             $data['brand'] = $form_data['brand'];
             $existing_key[] = 'brand';
@@ -1029,14 +1060,14 @@ class service_centre_charges extends CI_Controller {
              $data['category'] = array("");
              $existing_key[] = 'category';
         }
-         if(!empty($form_data['capacity'])){
+        if(!empty($form_data['capacity'])){
             $data['capacity'] = $form_data['capacity'];
             $existing_key[] = 'capacity';
         } else {
             $data['capacity'] = array("");
             $existing_key[] = 'capacity';
         }
-
+        
        $combos = $this->generate_combinations($data);
        $service_data = $this->generate_service_charges_data($form_data, $combos, $existing_key, $key_data);
        if(!empty($service_data['service_charge'])){
@@ -1051,98 +1082,49 @@ class service_centre_charges extends CI_Controller {
        
     }
     
-    function generate_service_charges_data($form_data, $combos, $existing_key, $key_data){
+    function generate_service_charges_data($form_data, $combos, $existing_key, $key_data) {
         $stmp = array();
         $duplicate_data = array();
-        foreach($combos as  $value){
+        foreach ($combos as $value) {
+          
             $data = array();
-            foreach ($value as $key1 => $value1){
+            foreach ($value as $key1 => $value1) {
                 $data[$existing_key[$key1]] = $value1;
-                
-            }
-            $data['service_id'] = $form_data['service_id'];
-            $data['partner_id'] = $form_data['partner_id'];
-            $data['product_or_services'] = $form_data['product_or_services'];
-            $data['agent_id'] = $this->session->userdata("id");
-            $data['create_date'] = date("Y-m-d H:i:s");
-            $fp = array();
-            if($form_data['free'] == 1 && $form_data['paid'] == 1){
-                $fp[] = "free";
-                $fp[] = "paid";
-                
-            } else if($form_data['free'] == 1){
-                $fp[] = "free";
-                
-            } else if($form_data['paid'] == 1){
-                $fp[] = "paid";
-                
             }
             
-            foreach ($fp as $free_paid){
-                $data['service_category'] = $form_data['request_type'];
+            $fp = array();
+            if ($form_data['free'] == 1 && $form_data['paid'] == 1) {
+                $fp[] = "free";
+                $fp[] = "paid";
+            } else if ($form_data['free'] == 1) {
+                $fp[] = "free";
+            } else if ($form_data['paid'] == 1) {
+                $fp[] = "paid";
+            }
+
+            foreach ($fp as $free_paid) {
                 $data['tax_code'] = "VAT";
-                if($free_paid == "free"){
-                    $str = "free";
-                    if($data['product_or_services'] == "Service"){
-                        if (stristr($data['service_category'], "Installation")) {
-                            $data['service_category'] = $data['service_category']." (Free)";
-                        } else {
-                            $data['service_category'] = $data['service_category'];
-                        }
-                        
-                        $data['tax_code'] = "ST";
+                if ($data['service_category'] == SPARE_PART_BOOKING_TAG) {
+                    $data = $this->add_spare_Parts($data);
+                } else {
+                    if ($free_paid == "free") {
+
+                        $data = $this->generate_price_for_free($data, $form_data);
+                    } else if ($free_paid == "paid") {
+                        $data = $this->generate_price_for_paid($data, $form_data);
                     }
-                    $data['pod'] = $form_data['free_pod'];
-                    $data['is_upcountry'] = $form_data['free_upcountry'];
-                    $data['customer_total'] = $form_data['free_customer_total'];
-                    $data['customer_net_payable'] = 0;
-                    
-                    $data['partner_net_payable'] = $form_data['free_customer_total'];
-                    $vendor_tax = $form_data['free_vendor_total'] * SERVICE_TAX_RATE;
-                    $vendor_total = $form_data['free_vendor_total'] + $vendor_tax;
-                    $data['vendor_basic_charges'] = $form_data['free_vendor_total'];
-                    $data['vendor_total'] = $vendor_total;
-                    $data['vendor_tax_basic_charges'] =$vendor_tax;
-                    if($data['customer_total'] != 0){
-                        $data['vendor_basic_percentage'] = ($vendor_total/$data['customer_total'])*100;
-                    } else {
-                         $data['vendor_basic_percentage'] = 0;
-                     }
-                    
-                } else if($free_paid == "paid"){
-                    $str = "paid";
-                    if($data['product_or_services'] == "Service"){
-                        if (stristr($data['service_category'], "Installation")) {
-                            $data['service_category'] = $data['service_category']." (Paid)";
-                        } else {
-                            $data['service_category'] = $data['service_category'];
-                        }
-                        $data['tax_code'] = "ST";
-                    }
-                    $data['pod'] = $form_data['paid_pod'];
-                    $data['is_upcountry'] = $form_data['paid_upcountry'];
-                    $data['customer_total'] = $form_data['paid_customer_total'];
-                    $data['customer_net_payable'] = $form_data['paid_customer_total'];
-                    $data['partner_net_payable'] = 0;
-                    $data['vendor_total'] =  $form_data['paid_vendor_total'];
-                    $data['vendor_tax_basic_charges'] = $this->booking_model->get_calculated_tax_charge($form_data['paid_vendor_total'], DEFAULT_TAX_RATE );
-                    $data['vendor_basic_charges'] = $data['vendor_total'] - $data["vendor_tax_basic_charges"];
-                    if($data['customer_total'] != 0){
-                        $data['vendor_basic_percentage'] = ($data['vendor_total']/$data['customer_total'])*100;
-                    } else {
-                      $data['vendor_basic_percentage'] = 0;  
-                    }
-                    
                 }
 
                 $data['active'] = 1;
                 $data['check_box'] = 1;
-                $newkey = str_replace(' ', '', $data['category'].$data['brand'].$data['capacity'].$form_data['request_type'].$str);
+                $newkey = str_replace(' ', '', $data['category'] . $data['brand'] . $data['capacity'] . $data['service_category']);
                 if (array_key_exists($newkey, $key_data)) {
-                    array_push($duplicate_data, $data);
+                    if($data['service_category'] != SPARE_PART_BOOKING_TAG){
+                        array_push($duplicate_data, $data);
+                    }
                 } else {
-                    array_push($stmp, $data );
-                }       
+                    array_push($stmp, $data);
+                }
             }
         }
         
@@ -1150,6 +1132,69 @@ class service_centre_charges extends CI_Controller {
             "service_charge" => $stmp);
     }
     
+    function add_spare_Parts($data){
+        $data['product_or_services'] = "Product";
+        $data['tax_code'] = "VAT";
+        $data['pod'] = 0;
+        $data['is_upcountry'] = -1;
+        $data['customer_total'] = 0;
+        $data['customer_net_payable'] = 0;
+        $data['partner_net_payable'] = 0;
+        $data['vendor_total'] = 0;
+        $data['vendor_tax_basic_charges'] = 0;
+        $data['vendor_basic_charges'] = 0;
+        $data['vendor_basic_percentage']  = 0;
+        
+        return $data;
+    }
+
+    function generate_price_for_paid($data, $form_data) {
+        if ($data['product_or_services'] == "Service") {
+
+            $data['tax_code'] = "ST";
+        }
+        $data['pod'] = $form_data['paid_pod'];
+        $data['is_upcountry'] = $form_data['paid_upcountry'];
+        $data['customer_total'] = $form_data['paid_customer_total'];
+        $data['customer_net_payable'] = $form_data['paid_customer_total'];
+        $data['partner_net_payable'] = 0;
+        $data['vendor_total'] = $form_data['paid_vendor_total'];
+        $data['vendor_tax_basic_charges'] = $this->booking_model->get_calculated_tax_charge($form_data['paid_vendor_total'], DEFAULT_TAX_RATE);
+        $data['vendor_basic_charges'] = $data['vendor_total'] - $data["vendor_tax_basic_charges"];
+        if ($data['customer_total'] != 0) {
+            $data['vendor_basic_percentage'] = ($data['vendor_total'] / $data['customer_total']) * 100;
+        } else {
+            $data['vendor_basic_percentage'] = 0;
+        }
+        
+        return $data;
+    }
+    
+    function generate_price_for_free($data, $form_data) {
+        if ($data['product_or_services'] == "Service") {
+
+            $data['tax_code'] = "ST";
+        }
+        $data['pod'] = $form_data['free_pod'];
+        $data['is_upcountry'] = $form_data['free_upcountry'];
+        $data['customer_total'] = $form_data['free_customer_total'];
+        $data['customer_net_payable'] = 0;
+
+        $data['partner_net_payable'] = $form_data['free_customer_total'];
+        $vendor_tax = $form_data['free_vendor_total'] * SERVICE_TAX_RATE;
+        $vendor_total = $form_data['free_vendor_total'] + $vendor_tax;
+        $data['vendor_basic_charges'] = $form_data['free_vendor_total'];
+        $data['vendor_total'] = $vendor_total;
+        $data['vendor_tax_basic_charges'] = $vendor_tax;
+        if ($data['customer_total'] != 0) {
+            $data['vendor_basic_percentage'] = ($vendor_total / $data['customer_total']) * 100;
+        } else {
+            $data['vendor_basic_percentage'] = 0;
+        }
+        
+        return $data;
+    }
+
     function generate_combinations($data, &$all = array(), $group = array(), $value = null, $i = 0) {
         $keys = array_keys($data);
         if (isset($value) === true) {
