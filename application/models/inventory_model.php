@@ -560,7 +560,7 @@ class Inventory_model extends CI_Model {
      *  @param : $sfIDArray array
      *  @return: Array()
      */
-    function get_inventory_stock_list($post, $select = "",$sfIDArray=array()) {
+    function get_inventory_stock_list($post, $select = "",$sfIDArray=array(), $is_object =true) {
         $this->_get_inventory_stocks($post, $select);
         if ($post['length'] != -1) {
             $this->db->limit($post['length'], $post['start']);
@@ -569,7 +569,12 @@ class Inventory_model extends CI_Model {
             $this->db->where_in('inventory_stocks.entity_id', $sfIDArray);
         }
         $query = $this->db->get();
-        return $query->result();
+        if($is_object){
+            return $query->result();
+        } else {
+            return $query->result_array();
+        }
+        
     }
     
     /**

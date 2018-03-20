@@ -274,12 +274,12 @@
         showDropdowns: true,
         minDate:false,
         locale:{
-            format: 'DD-MM-YYYY'
+            format: 'YYYY-MM-DD'
         }
     });
             
     $('#shipment_date').on('apply.daterangepicker', function(ev, picker) {
-        $(this).val(picker.startDate.format('DD-MM-YYYY'));
+        $(this).val(picker.startDate.format('YYYY-MM-DD'));
     });
 
     $('#shipment_date').on('cancel.daterangepicker', function(ev, picker) {
@@ -301,7 +301,7 @@
                 remarks_by_partner: "required",
                 courier_name:"required",
                 awb: "required",
-                shipment_date:"reuired"
+                shipment_date:"required"
                 },
                 messages: {
                 shipped_parts_name: "Please Enter Shipped Parts",

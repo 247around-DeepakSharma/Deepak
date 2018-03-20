@@ -535,11 +535,15 @@ define('AROUND_PENALTY_NOT_APPLIED_WITH_IN','120');
 define('PARTNER_PENALTY_NOT_APPLIED_WITH_IN','120');
 define("MAKE_CUTOMER_PAYMENT_INVOICE_GREATER_THAN", 5);
 
+
 //tv SVC
 define('TV_SVC', "7014851010000071");
 //LA SVC
 define('LA_SVC', "7014851010000029");
 //Mobile SVC
 define('MOBILE_SVC', "7014851010000091");
+
+define("DEPENDENCY_ON_AROUND", "247around Dependency");
+define("DEPENDENCY_ON_CUSTOMER", "Customer Dependency");
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

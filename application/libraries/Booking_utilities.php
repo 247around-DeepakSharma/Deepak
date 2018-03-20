@@ -67,7 +67,7 @@ class Booking_utilities {
                 array_push($booking_unit_details, $array);
             }
             if($qr){
-                $booking_details[0]['qr_message'] = "Scan QR To Pay Through Paytm";
+                $booking_details[0]['qr_message'] = "Get 5% Discount When You Scan QR Code & Pay Through Paytm App";
             } else {
                 $booking_details[0]['qr_message'] = "";
             }
@@ -106,7 +106,7 @@ class Booking_utilities {
         log_message("info", __METHOD__. " Booking id ". $booking_id. " Due ".$amount_due);
         $response = $this->My_CI->paytm_payment_lib->generate_qr_code($booking_id, QR_CHANNEL_JOB_CARD, 0, $pocNumber);
         if($amount_due > 0){
-            $userDownload = $this->My_CI->paytm_payment_lib->generate_qr_code($booking_id, QR_CHANNEL_USER, 0, $pocNumber);
+            $userDownload = $this->My_CI->paytm_payment_lib->generate_qr_code($booking_id, QR_CHANNEL_SMS, 0, $pocNumber);
             log_message("info", __METHOD__. " Booking id ". $booking_id. " User QR Response ".print_r($userDownload, true));
             $user = json_decode($userDownload, TRUE);
             if($user['status'] == SUCCESS_STATUS){

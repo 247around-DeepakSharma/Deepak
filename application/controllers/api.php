@@ -40,6 +40,7 @@ class Api extends CI_Controller {
         $this->load->library('email');
         $this->load->helper(array('form', 'url'));
         $this->load->library('asynchronous_lib');
+        $this->load->library('paytm_payment_lib');
     }
 
     /**
@@ -452,6 +453,10 @@ class Api extends CI_Controller {
                 
             case 'cancelBookingByEngineer':
                 $this->processCancelBookingByEngineer();
+                break;
+            
+            case 'getCustomerQrCode':
+                $this->getCustomerQrCode();
                 break;
                 
             default:
@@ -3139,6 +3144,29 @@ class Api extends CI_Controller {
             $this->sendJsonResponse(array('0019', 'Failure'));
         }
         
+    }
+    /**
+     * @desc This is used to get qr url link from App
+     */
+    function getCustomerQrCode() {
+        log_message("info", __METHOD__. " Entering..");
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        if (!empty($requestData["bookingID"])) {
+
+            $response = $this->paytm_payment_lib->generate_qr_code($requestData["bookingID"], QR_CHANNEL_APP, 
+                    $requestData["amountPaid"], $requestData["engineerNo"]);
+            $result = json_decode($response, TRUE);
+            if ($result['status'] == SUCCESS_STATUS) {
+                $this->jsonResponseString['QrImageUrl'] = S3_URL . $result['qr_url'];
+                $this->sendJsonResponse(array('0000', 'success'));
+            } else {
+                log_message("info", __METHOD__ . " QR Failed " . print_r($result, true));
+                $this->sendJsonResponse(array('0020', 'QR Not Generated'));
+            }
+        } else {
+            log_message("info", __METHOD__ . " Booking ID Not Found " . print_r($result, true));
+            $this->sendJsonResponse(array('0020', 'Booking ID Not Found'));
+        }
     }
 
     function adjust_zero_pricing($old_pricing) {

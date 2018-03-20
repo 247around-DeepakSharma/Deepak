@@ -663,7 +663,7 @@ class Invoice extends CI_Controller {
                 system('zip ' . TMP_FOLDER . $invoice_id . '.zip ' . TMP_FOLDER . $invoice_id . '-draft.xlsx' . ' ' . TMP_FOLDER . $invoice_id . '-draft.pdf'
                         . ' ' . $output_file_excel);
             } else {
-                system('zip ' . TMP_FOLDER . $invoice_id . '.zip ' . TMP_FOLDER . $invoice_id . '-draft.xlsx' . ' ' . $invoice_id . ".xlsx");
+                system('zip ' . TMP_FOLDER . $invoice_id . '.zip ' . TMP_FOLDER . $invoice_id . '-draft.xlsx' . ' ' . $output_file_excel);
             }
 
             header('Content-Description: File Transfer');
@@ -1945,6 +1945,7 @@ class Invoice extends CI_Controller {
                    $buyback_invoice_id ="";
                    $str = "";
                     foreach($response as $value){
+                        
                         $buyback_invoice_id .= $value['invoice_id']."-";
                             if (explode('.', $value['pdf'])[1] === 'pdf') {
                         $output_file_pdf = TMP_FOLDER . $value['invoice_id'] . '-draft.pdf';
@@ -1955,7 +1956,7 @@ class Invoice extends CI_Controller {
                         $str .= ' ' . TMP_FOLDER . $value['invoice_id']  . '.zip ' . TMP_FOLDER . $value['invoice_id']  . '-draft.xlsx' . ' ' . TMP_FOLDER . $value['invoice_id']  . '-draft.pdf'
                                 . ' ' . $value['excel'];
                     } else {
-                        $str .= " ".TMP_FOLDER . $value['invoice_id']  . '-draft.xlsx' . ' ' . $value['invoice_id']  . ".xlsx ";
+                        $str .= " ".TMP_FOLDER . $value['invoice_id']  . '-draft.xlsx' . ' ' .  $value['excel'];
                     }
                 }
                 

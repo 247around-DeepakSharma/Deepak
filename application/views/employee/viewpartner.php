@@ -69,7 +69,6 @@
                 <th class='jumbotron' style="text-align: center">Generate Price</th>
                 <th class='jumbotron' style="text-align: center">Modify Price</th>
                 <th class='jumbotron' style="text-align: center">Send Summary Email</th>
-                <th class='jumbotron' style="text-align: center">View History</th>
                 <th class='jumbotron' style="text-align: center">Notifications</th>
           </tr>
 
@@ -123,7 +122,6 @@
             <td>
                 <a href="<?php echo base_url();?>BookingSummary/send_leads_summary_mail_to_partners/<?php echo $row['id'];?>" class="btn btn-sm btn-color" title="Send Summary Email"><i class="fa fa-envelope" aria-hidden="true"></i></a>  
             </td>
-            <td>  <button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#history_view" onclick="get_history_view(<?php echo $row['id']?>)" title="View History"><i class="fa fa-eye" aria-hidden="true"></i></button></td>
           <td align="center">
               <?php 
               if(array_key_exists($row['id'],$push_notification)){
@@ -157,38 +155,6 @@
         
       </div>
     </div>
-</div>      
-<!-- This model class is used Update History View-->
-  <div class="modal fade" id="history_view" role="dialog">
-    <div class="modal-dialog">
-    
-      <!-- Modal content-->
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
-          <h4 class="modal-title">Updated History View</h4>
-        </div>
-        <div class="modal-body">
-            <div id="table_container"></div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        </div>
-      </div>
-      
-    </div>
-  </div>
+</div>
 <?php if($this->session->userdata('success')){$this->session->unset_userdata('success');}?>
 <?php if($this->session->userdata('error')){$this->session->unset_userdata('error');}?>
-<script>
-    function get_history_view(partnerID){
-     $.ajax({
-                type: 'POST',
-                url: '<?php echo base_url(); ?>employee/vendor/get_partner_vendor_updation_history_view/'+partnerID+'/partners/trigger_partners',
-                success: function(response) {
-                    console.log(response);
-                    $("#table_container").html(response);
-                }
-            });
-     }
-    </script>

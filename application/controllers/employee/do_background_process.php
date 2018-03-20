@@ -206,6 +206,8 @@ class Do_background_process extends CI_Controller {
             $service_center['current_status'] = $current_status1;
             $unit_details['booking_status'] = $service_center['internal_status'] = $value['internal_status'];
             $unit_details['id'] = $service_center['unit_details_id'] = $value['unit_details_id'];
+
+            $service_center['update_date'] = date('Y-m-d H:i:s');
             $unit_details['ud_closed_date'] = $service_center['closed_date'] = date("Y-m-d H:i:s");
  
 //            if (is_null($value['closed_date'])) {
