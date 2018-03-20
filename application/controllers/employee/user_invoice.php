@@ -18,6 +18,7 @@ class User_invoice extends CI_Controller {
         $this->load->model("booking_model");
         $this->load->library("invoice_lib");
         $this->load->library('miscelleneous');
+        $this->load->library("session");
 
     }
     /**
