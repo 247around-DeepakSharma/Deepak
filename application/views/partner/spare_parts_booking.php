@@ -22,8 +22,11 @@ if ($this->uri->segment(4)) {
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
                 <div class="x_title">
-                    <h2>Pending Spares On <?php echo $this->session->userdata('partner_name') ?></h2>
+                    <h2>Pending Spares On <?php echo $this->session->userdata('partner_name') ?> </h2>
+                    <div class="pull-right"><button id="spareDownload" onclick="downloadSpare()" class="btn btn-sm btn-primary">Download Spare</button>
+                        <span style="color:#337ab7" id="messageSpare"></span></div>
                     <div class="clearfix"></div>
+                    
                 </div>
                 <div class="x_content">
                     <form target="_blank"  action="<?php echo base_url(); ?>partner/print_all" name="fileinfo1"  method="POST" enctype="multipart/form-data">
@@ -152,6 +155,33 @@ if ($this->uri->segment(4)) {
             }
         });
     });
+    
+    function downloadSpare(){
+        $("#spareDownload").css("display", "none");
+        $("#messageSpare").text("Download In Progress");
+         $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>file_process/downloadSpareRequestedParts/' + <?php echo $this->session->userdata("partner_id");?>,
+            contentType: false,
+            cache: false,
+            processData: false,
+            success: function (data) {
+                var jsondata = JSON.parse(data);
+                
+                if(jsondata['response'] === "success"){
+                    $("#spareDownload").css("display", "block");
+                    $("#messageSpare").text("");
+                    window.location.href = jsondata['path'];
+                } else if(jsondata['response'] === "failed"){
+                    alert(jsondata['message']);
+                    $("#spareDownload").css("display", "block");
+                    $("#messageSpare").text("");
+                } else {
+                     $("#messageSpare").text("File Download Failed");
+                }
+            }
+        });
+    }
 
     $("#selectall_address").change(function () {
         var d_m = $('input[name="download_courier_manifest[]"]:checked');
