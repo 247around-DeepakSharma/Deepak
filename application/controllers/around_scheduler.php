@@ -921,13 +921,17 @@ class Around_scheduler extends CI_Controller {
     function send_notification_for_low_balance() {
         log_message("info",__METHOD__." Entering...");
         $partner_details = $this->partner_model->getpartner_details("partners.id, public_name, "
-                . "is_active,invoice_email_to, invoice_email_cc, owner_phone_1 ",
+                . "is_active,invoice_email_to, invoice_email_cc, owner_phone_1 ,account_manager_id",
                 array('is_prepaid' => 1,'is_active' => 1));
         
         log_message("info",__METHOD__." All Active Prepaid Partner ". print_r($partner_details, true));
         
         foreach ($partner_details as $value) {
             log_message("info",__METHOD__." Active Prepaid Partner ID". $value['id']);
+            $am_email = "";
+            if (!empty($value['account_manager_id'])) {
+                $am_email = $this->employee_model->getemployeefromid($value['account_manager_id'])[0]['official_email'];
+            }
             $final_amount = $this->miscelleneous->get_partner_prepaid_amount($value['id']);
             if ($final_amount['is_notification']) {
                 if($final_amount['active'] > 0 ){
@@ -946,7 +950,7 @@ class Around_scheduler extends CI_Controller {
 
                 $message = vsprintf($email_template[0], array("Rs. ".$final_amount["prepaid_amount"]));
                 $to = $value['invoice_email_to'];
-                $cc = $value['invoice_email_cc']. ", ".$email_template[3];
+                $cc = $value['invoice_email_cc']. ", ".$email_template[3].",".$am_email;
                 $subject = vsprintf($email_template[4], array($value["public_name"], "Rs. ".$final_amount["prepaid_amount"]));
                     
                 $sms['smsData']['prepaid_amount'] = "Rs. ".$final_amount["prepaid_amount"];

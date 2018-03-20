@@ -1515,6 +1515,12 @@ class Do_background_upload_excel extends CI_Controller {
             $tmpArr['order_item_id'] = '';
         }
         
+        if(isset($data['promise_before_date']) && !empty($data['promise_before_date'])){
+            $tmpArr['service_promise_date'] = $data['promise_before_date'];
+        }else{
+            $tmpArr['service_promise_date'] = '';
+        }
+        
         array_push($this->finalArray, $tmpArr);
     }
     

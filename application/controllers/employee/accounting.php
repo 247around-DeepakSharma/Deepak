@@ -487,7 +487,7 @@ class Accounting extends CI_Controller {
         $this->load->view('employee/search_bank_transaction');
     }
 
-    function process_search_bank_reansaction() {
+    function process_search_bank_transaction() {
         $transaction_type = $this->input->post('transaction_type');
         $transaction_date = $this->input->post('transaction_date');
         $transaction_amount = trim($this->input->post('transaction_amount'));
