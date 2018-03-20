@@ -1488,7 +1488,7 @@ class Around_scheduler extends CI_Controller {
         if(!empty($rules)){
             $transactionArray = $this->paytm_payment_model->get_transactions_without_cashback();
             foreach($transactionArray as $transaction){
-                if(($transaction['paid_amount']<$rules[0]['amount_criteria_less_than']) || ($transaction['paid_amount']>$rules[0]['amount_criteria_above_than'])){
+                if(($transaction['paid_amount']<$rules[0]['amount_criteria_less_than'])){
                     $cashbackAmount = ($transaction['paid_amount']*$rules[0]['cashback_amount_percentage'])/100;
                     $status = $this->paytm_payment_lib->paytm_cashback($transaction['txn_id'],$transaction['order_id'],$cashbackAmount,CASHBACK_REASON_DISCOUNT);
                     $statusArray = json_decode($status,true);
