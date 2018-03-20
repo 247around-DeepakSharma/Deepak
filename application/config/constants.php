@@ -184,9 +184,7 @@ define("AQUAGRAND_PLUS_ID", 247038);
 // Videotext ID
 define("VIDEOTEX", 247041);
  //Amzaon
-define("AMAZON_SELLER_ID", 247024);
-//Define Developer Email id
-define('DEVELOPER_EMAIL','anuj@247around.com, abhaya@247around.com, sachinj@247around.com, chhavid@247around.com');
+ define("AMAZON_SELLER_ID", 247024);
 //Define Email ID to send system health emails
 define('SYS_HEALTH_NAME','247around Health Monitor');
 define('SYS_HEALTH_EMAIL','health@247around.com');
