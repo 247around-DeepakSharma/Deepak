@@ -2001,11 +2001,14 @@ class Booking_model extends CI_Model {
      *  @return :id
      */
     
-    function get_service_id_by_appliance_details($product_description){
+    function get_service_id_by_appliance_details($where = null){
         $this->db->select('apd.*,services');
         $this->db->from('appliance_product_description as apd');
         $this->db->join('services','apd.service_id = services.id');
-        $this->db->where('product_description',$product_description);
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        
         $this->db->where('is_verified',1);
         $query = $this->db->get();
         return $query->result_array();

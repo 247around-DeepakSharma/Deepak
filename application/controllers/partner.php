@@ -145,7 +145,13 @@ class Partner extends CI_Controller {
                             $prod = trim($requestData['product']);
 
                             //check service_id exist or not
-                            $service_appliance_data = $this->booking_model->get_service_id_by_appliance_details(trim($requestData['productType']));
+                            if(!empty($requestData['brand'])){
+                                $where = array('product_description' => trim($requestData['productType']),
+                                                'brand' => $requestData['brand']);
+                            }else{
+                                $where = array('product_description' => trim($requestData['productType']));
+                            }
+                            $service_appliance_data = $this->booking_model->get_service_id_by_appliance_details($where);
                             $service_id = "";
                             if (!empty($service_appliance_data)) {
                                 log_message('info', __FUNCTION__ . " Get Service ID  ");
