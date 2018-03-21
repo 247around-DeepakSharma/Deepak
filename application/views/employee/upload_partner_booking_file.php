@@ -184,7 +184,7 @@
                 success:function(res){
                     if(res.msg === 'success'){
                         $('#upload_file_type').val(res.data.file_type);
-                        partner_source = file_type+"-excel";
+                        partner_source = res.data.file_type+"-excel";
                         read_column = res.data.order_id_read_column;
                         write_column = res.data.booking_id_write_column;
                         is_file_send_back = res.data.send_file_back;

@@ -580,7 +580,7 @@ class submitMultiUnitRequest extends CI_Controller {
         return $resultArr;
     }
     /**
-     * @desc Brand, request type should not be emplty. It request type shuold be Installation & Demo
+     * @desc Brand, request type should not be empty. It's request type should be Installation & Demo
      * @return type
      */
     function validateUnit() {
@@ -619,8 +619,14 @@ class submitMultiUnitRequest extends CI_Controller {
                 break;
             }
 
-           //Get Appliance details from Product type;
-            $appliance_data = $this->booking_model->get_service_id_by_appliance_details(trim($value['productType']));
+           //Get Appliance details from Product type 
+            if(!empty($value['brand'])){
+                $where = array('product_description' => trim($value['productType']),
+                                'brand' => $value['brand']);
+            }else{
+                $where = array('product_description' => trim($value['productType']));
+            }
+            $appliance_data = $this->booking_model->get_service_id_by_appliance_details($where);
             if (!empty($appliance_data)) {
                 $this->ApiData['service_id'] = $appliance_data[0]['service_id'];
                 $this->ApiData['service_name'] = $appliance_data[0]['services'];
