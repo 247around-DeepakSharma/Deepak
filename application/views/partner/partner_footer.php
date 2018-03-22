@@ -36,8 +36,8 @@
     }
     
     function checkStringLength() {
-        var searched_text = $("#searched_text").val().trim;
-        var regex = new RegExp("^[a-zA-Z0-9- ]+$").trim;
+        var searched_text = $("#searched_text").val();
+        var regex = new RegExp("^[a-zA-Z0-9- ]+$");
         if(regex.test(searched_text)){
             if(searched_text.length >= 9){
                 return true;
