@@ -822,8 +822,15 @@ class Do_background_upload_excel extends CI_Controller {
 
 	    $prod = trim($value['product']);
             
+            if(!empty($value['brand'])){
+                $where = array('product_description' => trim(preg_replace('/[^(\x20-\x7F)]*/','', $value['product_type'])),
+                                'brand' => $value['brand']);
+            }else{
+                $where = array('product_description' => trim(preg_replace('/[^(\x20-\x7F)]*/','', $value['product_type'])));
+            }
+            
             //check if service_id already exist or not by using product description
-            $service_appliance_data = $this->booking_model->get_service_id_by_appliance_details(trim(preg_replace('/[^(\x20-\x7F)]*/','', $value['product_type'])));
+            $service_appliance_data = $this->booking_model->get_service_id_by_appliance_details($where);
             
             if(!empty($service_appliance_data)){
                 log_message('info', __FUNCTION__ . "=> Dsecription found");
