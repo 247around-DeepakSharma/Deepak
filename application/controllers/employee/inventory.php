@@ -1087,6 +1087,7 @@ class Inventory extends CI_Controller {
         if(!empty($id)){
             $remarks = $this->input->post("remarks");
             $flag = true;
+            $b = array();
             switch ($requestType){
                 case 'CANCEL_PARTS':
                 case 'QUOTE_REQUEST_REJECTED';
@@ -1094,8 +1095,10 @@ class Inventory extends CI_Controller {
                     $data = array('status' => "Cancelled");
                     if($requestType == "CANCEL_PARTS"){
                         $new_state = SPARE_PARTS_CANCELLED;
+                        $b['internal_status'] = SPARE_PARTS_CANCELLED;
                     } else {
                         $new_state = REQUESTED_QUOTE_REJECTED;
+                        $b['internal_status'] = REQUESTED_QUOTE_REJECTED;
                     }
                     
                     $old_state = "Spare Parts Requested";
@@ -1123,6 +1126,8 @@ class Inventory extends CI_Controller {
                     $new_state = "Courier Invoice Rejected By Admin";
                     $old_state = "Defective Part Shipped By SF";
                     
+                    $b['internal_status'] = "Courier Invoice Rejected By Admin";
+                    
                     break;
                 case 'APPROVE_COURIER_INVOICE':
                     $where_sp = "spare_parts_details.booking_id = '".$booking_id."' "
@@ -1144,6 +1149,8 @@ class Inventory extends CI_Controller {
                     
                     $new_state = "Courier Invoice Approved By Admin";
                     $old_state = "Defective Part Shipped By SF";
+                    
+                    $b['internal_status'] = "Courier Invoice Approved By Admin";
                     $flag = FALSE;
                     break;
                     
@@ -1156,9 +1163,10 @@ class Inventory extends CI_Controller {
                         
                         $this->vendor_model->update_service_center_action($booking_id,$sc_data);
                         
-                        $new_state = "Defective Part Rejected By Partner";
-                        $old_state = "Defective Part Shipped By SF";
-                    
+                        $old_state = "Defective Part Rejected By Partner";
+                        $new_state = "Defective Part Shipped By SF";
+                        
+                        $b['internal_status'] = "Defective Part Shipped By SF";
                         break;
                     
                 CASE 'NOT_REQUIRED_PARTS':
@@ -1201,6 +1209,14 @@ class Inventory extends CI_Controller {
             }
             $this->notify->insert_state_change($booking_id, $new_state,$old_state, $remarks, 
                       $agent_id, $agent_name, $partner_id);
+            
+            $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $b['internal_status'], $partner_id, $booking_id);
+            if (!empty($partner_status)) {
+                $b['partner_current_status'] = $partner_status[0];
+                $b['partner_internal_status'] = $partner_status[1];
+            }
+            
+            $this->booking_model->update_booking($booking_id, $b);
            
             
             echo "Success";
