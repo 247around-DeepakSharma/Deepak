@@ -1302,7 +1302,7 @@ class Do_background_upload_excel extends CI_Controller {
         //check file type
         $upload_file_type = $this->input->post('file_type');
         $partner_id = $this->input->post('partner_id');
-        $this->is_send_file_back = $this->input->post('partner_id');
+        $this->is_send_file_back = $this->input->post('is_file_send_back');
         $this->file_read_column = $this->input->post('file_read_column');
         $this->file_write_column = $this->input->post('file_write_column');
         $this->revert_file_email = $this->input->post('revert_file_email');
