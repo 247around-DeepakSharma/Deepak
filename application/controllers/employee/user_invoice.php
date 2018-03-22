@@ -89,26 +89,31 @@ class User_invoice extends CI_Controller {
 
                 $copy_pdf_file_name = $convert['copy_file'];
                 //$triplicate_pdf_file_name = $convert['triplicate_file'];
-                //
-                //Send invoice to SF
 
-                $email_template = $this->booking_model->get_booking_email_template("customer_paid_invoice_to_vendor");
-                $subject =  vsprintf($email_template[4], array($booking_id));
-                $message = $email_template[0];
-                $email_from = $email_template[2];
+                $pathinfo1 = pathinfo($output_pdf_file_name);
+                if($pathinfo1['extension'] == 'xls' || $pathinfo1['extension'] == 'xlsx'){
+                    log_message("info", __METHOD__. " SF Invoice Pdf is not generated ".$output_pdf_file_name );
+                }  else {
+                    //Send invoice to SF
+                    $email_template = $this->booking_model->get_booking_email_template("customer_paid_invoice_to_vendor");
+                    $subject =  vsprintf($email_template[4], array($booking_id));
+                    $message = $email_template[0];
+                    $email_from = $email_template[2];
 
-                $to = $data[0]->owner_email;
-                $cc = $email_template[3].",".$data[0]->primary_contact_email;
-                $bcc = $email_template[5];
-               
+                    $to = $data[0]->owner_email;
+                    $cc = $email_template[3].",".$data[0]->primary_contact_email;
+                    $bcc = $email_template[5];
+
+
+                    $pdf_attachement_url = 'https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/invoices-excel/' . $output_pdf_file_name;
+                    $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $pdf_attachement_url);
+                }
                 
                 
-                $pdf_attachement_url = 'https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/invoices-excel/' . $output_pdf_file_name;
-                $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $pdf_attachement_url);
-                
-                $customer_attachement_url = 'http://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/invoices-excel/' .$copy_pdf_file_name ;
+                $customer_attachement_url = 'https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/invoices-excel/' .$copy_pdf_file_name ;
                 
                 $sms['tag'] = "customer_paid_invoice";
+                
                 
                 $tinyUrl = $this->miscelleneous->getShortUrl($customer_attachement_url);
                 if($tinyUrl){
@@ -122,23 +127,33 @@ class User_invoice extends CI_Controller {
                     $sms['type_id'] = $data[0]->user_id;
 
                     $this->notify->send_sms_msg91($sms);
+                } else {
+                    log_message("info", __METHOD__. " Short url failed for booking id ". $booking_id);
                 }
-                // Send Invoice to Customer
-                if (filter_var($data[0]->user_email, FILTER_VALIDATE_EMAIL)) {
-                    $email_template = $this->booking_model->get_booking_email_template("customer_paid_invoice");
-                    $subject =  vsprintf($email_template[4], array($booking_id));
-                    $message = $email_template[0];
-                    $email_from = $email_template[2];
-    
-                    $to = $data[0]->user_email;
-                    $cc = $email_template[3];
-                    $bcc = $email_template[5];
+                
+                $pathinfo = pathinfo($copy_pdf_file_name);
+                if($pathinfo['extension'] == 'xls' || $pathinfo['extension'] == 'xlsx'){
+                    log_message("info", __METHOD__. " Invoice Pdf is not generated ".$copy_pdf_file_name );
+                } else {
+                    // Send Invoice to Customer
+                    if (filter_var($data[0]->user_email, FILTER_VALIDATE_EMAIL)) {
+                        $email_template = $this->booking_model->get_booking_email_template("customer_paid_invoice");
+                        $subject =  vsprintf($email_template[4], array($booking_id));
+                        $message = $email_template[0];
+                        $email_from = $email_template[2];
 
-                    $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $customer_attachement_url);
+                        $to = $data[0]->user_email;
+                        $cc = $email_template[3];
+                        $bcc = $email_template[5];
+
+                        $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $customer_attachement_url);
+                    }
                 }
+
 
 
                 $this->insert_payment_invoice($booking_id, $response, $data[0]->assigned_vendor_id, $data[0]->closed_date, $agent_id, $convert);
+
             } else {
                 log_message("info" . __METHOD__ . " Excel Not Created Booking ID" . $booking_id);
             }
