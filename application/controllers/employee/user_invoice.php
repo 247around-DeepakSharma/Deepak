@@ -25,7 +25,7 @@ class User_invoice extends CI_Controller {
      * @desc
      * @param String $booking_id
      */
-    function payment_invoice_for_customer($booking_id) {
+    function payment_invoice_for_customer($booking_id, $agent_id) {
 
         $select = "service_centres.company_name, service_centres.address as sf_address, "
                 . "service_centres.pincode as sf_pincode, service_centres.district as sf_district, service_centres.state as sf_state, service_centres.gst_no, service_centres.owner_phone_1, "
@@ -36,28 +36,20 @@ class User_invoice extends CI_Controller {
         $request['length'] = -1;
         $data = $this->booking_model->get_bookings_by_status($request, $select);
         if (!empty($data)) {
-//            $exist_invoice_id = "";
-//            $unit = $this->booking_model->get_unit_details(array("booking_id" => $booking_id), false, "user_invoice_id");
-//            if (!empty($unit)) {
-//                $unique = array_unique(array_map(function ($k) {
-//                            return $k['user_invoice_id'];
-//                        }, $unit));
-//
-//                foreach ($unique as $value) {
-//                    if (!empty($value)) {
-//                        $exist_invoice_id = $value;
-//                    }
-//                }
-//            }
-//            if (empty($exist_invoice_id)) {
-//                $invoice_id = $this->invoice_lib->create_invoice_id($data[0]->sc_code);
-//            } else {
-//                // Need to chnage
-//                $invoice_id = $exist_invoice_id;
-//            }
+            $prod =  ucwords($data[0]->services) . " (" . $data[0]->request_type . ") ";
+           
+            $unit = $this->booking_model->get_unit_details(array("booking_id" => $booking_id, "booking_status != 'Cancelled' " => NULL));
+            if (!empty($unit)) {
+                $unique = array_unique(array_map(function ($k) {
+                            return $k['price_tags'];
+                        }, $unit));
+
+                $prod = $data[0]->services ." (" .implode(",", $unique).")";
+            }
+
             $invoice_id = $this->invoice_lib->create_invoice_id($data[0]->sc_code);
             $invoice = array();
-            $invoice[0]['description'] = ucwords($data[0]->services) . " (" . $data[0]->request_type . ") ";
+            $invoice[0]['description'] = $prod;
             $tax_charge = $this->booking_model->get_calculated_tax_charge($data[0]->amount_paid, DEFAULT_TAX_RATE);
             $invoice[0]['taxable_value'] = ($data[0]->amount_paid - $tax_charge);
 
@@ -91,26 +83,29 @@ class User_invoice extends CI_Controller {
                 $output_pdf_file_name = $convert['main_pdf_file_name'];
                 $copy_pdf_file_name = $convert['copy_file'];
                 //$triplicate_pdf_file_name = $convert['triplicate_file'];
-                
+                //
+                //Send invoice to SF
                 $email_template = $this->booking_model->get_booking_email_template("customer_paid_invoice_to_vendor");
-                $subject = $email_template[4];
+                $subject =  vsprintf($email_template[4], array($booking_id));
                 $message = $email_template[0];
                 $email_from = $email_template[2];
-//
+
                 $to = $data[0]->owner_email;
                 $cc = $email_template[3].",".$data[0]->primary_contact_email;
+                $bcc = $email_template[5];
+               
                 
                 
                 $pdf_attachement_url = 'https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/invoices-excel/' . $output_pdf_file_name;
+                $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $pdf_attachement_url);
                 
-                $this->notify->sendEmail($email_from, $to, $cc, "", $subject, $message, $pdf_attachement_url);
-                
-                $customer_attachement_url = 'https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/invoices-excel/' .$copy_pdf_file_name ;
+                $customer_attachement_url = 'http://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/invoices-excel/' .$copy_pdf_file_name ;
                 
                 $sms['tag'] = "customer_paid_invoice";
                 
                 $tinyUrl = $this->miscelleneous->getShortUrl($customer_attachement_url);
                 if($tinyUrl){
+                    // Send SMS to customer
                     $sms['smsData']['amount'] = $data[0]->amount_paid;
                     $sms['smsData']['booking_id'] = $booking_id;
                     $sms['smsData']['url'] = $tinyUrl;
@@ -121,20 +116,19 @@ class User_invoice extends CI_Controller {
 
                     $this->notify->send_sms_msg91($sms);
                 }
-                
+                // Send Invoice to Customer
                 if (filter_var($data[0]->user_email, FILTER_VALIDATE_EMAIL)) {
                     $email_template = $this->booking_model->get_booking_email_template("customer_paid_invoice");
-                    $subject = $email_template[4];
+                    $subject =  vsprintf($email_template[4], array($booking_id));
                     $message = $email_template[0];
                     $email_from = $email_template[2];
     
                     $to = $data[0]->user_email;
                     $cc = $email_template[3];
+                    $bcc = $email_template[5];
 
-                    $this->notify->sendEmail($email_from, $to, $cc, "", $subject, $message, $customer_attachement_url);
+                    $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $customer_attachement_url);
                 }
-               
-                $agent_id = $this->session->userdata('id');
 
                 $this->insert_payment_invoice($booking_id, $response, $data[0]->assigned_vendor_id, $data[0]->closed_date, $agent_id, $convert);
             } else {
