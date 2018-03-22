@@ -1962,7 +1962,7 @@ class Booking extends CI_Controller {
             $this->partner_cb->partner_callback($booking_id);
             //Generate Customer payment Invoice
             if($total_amount_paid > MAKE_CUTOMER_PAYMENT_INVOICE_GREATER_THAN && $booking['current_status'] == _247AROUND_COMPLETED){
-                $invoice_url = base_url() . "employee/user_invoice/payment_invoice_for_customer/".$booking_id;
+                $invoice_url = base_url() . "employee/user_invoice/payment_invoice_for_customer/".$booking_id."/".$this->session->userdata('id');
                 $payment = array();
                 $this->asynchronous_lib->do_background_process($invoice_url, $payment);
 
