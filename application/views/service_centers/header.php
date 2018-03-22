@@ -188,9 +188,9 @@
                     <ul class="nav navbar-nav navbar-right">
                         <?php if($is_buyback != 'buyback'){ ?>
                             <li>
-                                <form method="POST" class="navbar-form navbar-left" role="search" action="<?php echo base_url(); ?>service_center/search">
+                                <form method="POST" class="navbar-form navbar-left" role="search" action="<?php echo base_url(); ?>service_center/search" onsubmit="return checkStringLength()">
                                     <div class="form-group">
-                                        <input style="width:118%" type="text" class="form-control pull-right" placeholder="Search Booking ID or Mobile" name="searched_text">
+                                        <input style="width:118%" type="text" class="form-control pull-right" placeholder="Search Booking ID or Mobile" name="searched_text" id="searched_text">
                                     </div>
                                     <!--                      <button type="submit" class="btn btn-default">Submit</button>-->
                                 </form>
@@ -280,6 +280,23 @@ function showConfirmDialougeBox(url){
             window.location.href = url;
         });
 }
+
+function checkStringLength() {
+        var searched_text = $("#searched_text").val();
+        var regex = new RegExp("^[a-zA-Z0-9- ]+$");
+        if(regex.test(searched_text)){
+            if(searched_text.length >= 9){
+                return true;
+            }else{
+                alert("Enter Atleast 8 Character");
+                return false;
+            }
+        }else{
+            alert("Special character not allowed");
+            return false;
+        }
+
+    }
 
 </script>
 <style>
