@@ -333,11 +333,11 @@ function get_data_for_partner_callback($booking_id) {
         
         return $query = $this->db->query("SELECT distinct '' AS 'Unique id',
             order_id AS 'Sub Order ID',
-            booking_details.booking_id AS '247BookingID',
+            (CONCAT('''', booking_details.booking_id)) AS '247BookingID',
             booking_details.create_date AS 'Referred Date and Time', 
             ud.appliance_brand AS 'Brand', 
             IFNULL(model_number,'') AS 'Model',
-            IFNULL(serial_number,'') AS 'Serial Number',
+            CASE WHEN(serial_number IS NULL OR serial_number = '') THEN '' ELSE (CONCAT('''', serial_number))  END AS 'Serial Number',
             services AS 'Product', 
             ud.appliance_description As 'Description',
             name As 'Customer', 
@@ -564,7 +564,7 @@ function get_data_for_partner_callback($booking_id) {
                         case _247AROUND_PENDING:
                         case _247AROUND_RESCHEDULED:
                             if (date('Y-m-d', strtotime($value->booking_date)) == date("Y-m-d", strtotime("-1 days"))){
-                                $result['yesterday_repair_booking_pending'] ++;
+                                $result['yesterday_installation_booking_pending'] ++;
                             }
                             break;
                         case _247AROUND_FOLLOWUP:
