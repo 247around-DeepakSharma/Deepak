@@ -3254,8 +3254,9 @@ class Invoice extends CI_Controller {
                     $invoice['vendor_partner_id'] = $data[0]->partner_id;
                     $gst_rate = trim($this->input->post('gst_rate'));
                     $gst_amount =  $this->booking_model->get_calculated_tax_charge($invoice['total_amount_collected'], $gst_rate); 
-                    $invoice['amount_collected_paid'] = round(($invoice['total_amount_collected'] - $gst_amount), 2);
-                    $invoice['parts_cost'] = $invoice['amount_collected_paid'];
+                    $amount_collected_paid = round(($invoice['total_amount_collected'] - $gst_amount), 2);
+                    $invoice['parts_cost'] = $amount_collected_paid;
+                    
                     $invoice['invoice_file_main'] = $invoice_pdf;
 
                     $c_s_gst = $this->invoices_model->check_gst_tax_type($data[0]->state);
@@ -3267,6 +3268,8 @@ class Invoice extends CI_Controller {
                         $invoice['igst_tax_amount'] = $gst_amount;
                         $invoice['igst_tax_rate'] = $gst_rate;
                     }
+                    
+                    $invoice['amount_collected_paid'] = -$amount_collected_paid;
 
                     $this->invoices_model->action_partner_invoice($invoice);
                     foreach ($spare_id as $id) {
