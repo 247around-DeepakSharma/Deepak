@@ -969,7 +969,12 @@
             var partner_id = '<?php echo $this->session->userdata('partner_id')?>';
             if(partner_id !== undefined){
                  var search_term = $(this).val();
-                 dealer_setup(partner_id, search_term, "dealer_phone_number_1");
+                 var regex = new RegExp("^[0-9 ]+$");
+                 if(regex.test(search_term)){
+                     dealer_setup(partner_id, search_term, "dealer_phone_number_1");
+                 }else{
+                     alert("Please enter correct phone number");
+                 }
             } else{
                 alert("Please Select Partner");
             }
@@ -978,7 +983,12 @@
             var partner_id = '<?php echo $this->session->userdata('partner_id')?>';
             if(partner_id !== undefined){
                 var search_term = $(this).val();
-                dealer_setup(partner_id, search_term, "dealer_name");
+                var regex = new RegExp("^[a-zA-Z ]+$");
+                if(regex.test(search_term)){
+                     dealer_setup(partner_id, search_term, "dealer_name");
+                }else{
+                     alert("Please enter correct name");
+                }
                  
             } else{
                 alert("Please Select Partner");

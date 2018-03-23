@@ -1634,7 +1634,7 @@ class Do_background_upload_excel extends CI_Controller {
             }
 
             // Write the file
-            $file_name = TMP_FOLDER . "Updated_file_with_booking_id_" . date('Y_m_d_H_i_s') . ".xls";
+            $file_name = TMP_FOLDER . "Updated_file_with_booking_id_" .pathinfo($data['file_name'], PATHINFO_FILENAME). ".xls";
             $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel1, 'Excel5');
             $objWriter->save($file_name);
 

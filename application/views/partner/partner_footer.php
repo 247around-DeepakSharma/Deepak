@@ -37,8 +37,16 @@
     
     function checkStringLength() {
         var searched_text = $("#searched_text").val();
-        if (searched_text.length < 9) {
-            alert("Enter Atleast 8 Character For Booking ID");
+        var regex = new RegExp("^[a-zA-Z0-9- ]+$");
+        if(regex.test(searched_text)){
+            if(searched_text.length >= 9){
+                return true;
+            }else{
+                alert("Enter Atleast 8 Character");
+                return false;
+            }
+        }else{
+            alert("Special character not allowed");
             return false;
         }
 
