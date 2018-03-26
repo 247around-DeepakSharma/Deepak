@@ -256,6 +256,12 @@ class Miscelleneous {
         }
         $partner_am_email = "";
         $return_status = TRUE;
+        
+        $rm = $this->My_CI->vendor_model->get_rm_sf_relation_by_sf_id($query1[0]['assigned_vendor_id']);
+        $rm_email = "";
+        if (!empty($rm)) {
+            $rm_email = ", " . $rm[0]['official_email'];
+        }
         switch ($data['message']) {
             case UPCOUNTRY_BOOKING:
             case UPCOUNTRY_LIMIT_EXCEED:
@@ -356,21 +362,15 @@ class Miscelleneous {
                         $up_mail_data['partner_upcountry_rate'] = $booking['partner_upcountry_rate'];
 
                         $message1 = $this->My_CI->load->view('employee/upcountry_approval_template', $up_mail_data, true);
-
-                        $rm = $this->My_CI->vendor_model->get_rm_sf_relation_by_sf_id($query1[0]['assigned_vendor_id']);
-                       
-                        $m_email = "";
-                        if(!empty($rm)){
-                            $m_email = ", ".$rm[0]['official_email'];
-                        }
+                        
                         if ($booking['upcountry_distance'] > 300) {
                             $subject = "Upcountry Distance More Than 300 - Booking ID " . $query1[0]['booking_id'];
-                            $to = NITS_ANUJ_EMAIL_ID.$m_email;
+                            $to = NITS_ANUJ_EMAIL_ID.$rm_email;
                             $cc = "abhaya@247around.com ,".$partner_am_email;
                         } else {
                             $subject = "Upcountry Charges Approval Required - Booking ID " . $query1[0]['booking_id'];
                             $to = $data['upcountry_approval_email'];
-                            $cc = NITS_ANUJ_EMAIL_ID.",".$partner_am_email.$m_email;
+                            $cc = NITS_ANUJ_EMAIL_ID.",".$partner_am_email.$rm_email;
                             //Send Push Notification
                         $receiverArray['partner'] = array($query1[0]['partner_id']);
                         $notificationTextArray['msg'] = array($booking_id);
@@ -430,7 +430,7 @@ class Miscelleneous {
 
                 $this->My_CI->booking_model->update_booking($booking_id, $booking);
 
-                $to = NITS_ANUJ_EMAIL_ID . ", sales@247around.com";
+                $to = NITS_ANUJ_EMAIL_ID . ", sales@247around.com , ". $rm_email;
                 $cc = "sachinj@247around.com, abhaya@247around.com";
                 $message1 = "Upcountry did not calculate for " . $booking_id;
                 $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", 'Upcountry Failed', $message1, "");
