@@ -139,7 +139,7 @@
                 height: 30px;
                 opacity: 1;
                 color: #fff;
-            }
+            } 
         </style>
         
         <?php if(ENVIRONMENT === 'production') { ?> 
