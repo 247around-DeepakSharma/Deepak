@@ -14,7 +14,6 @@ define('ALREADY_GENERATED_PAYTM_QR_RESPONSE', "QR_1020");
 define('CASHBACK_URL','https://trust.paytm.in/wallet-web/refundWalletTxn');
 define('CHECK_STATUS_URL','https://trust.paytm.in/wallet-web/checkStatus');
 define('QR_CODE_URL','https://wallet.paytm.in/wallet-merchant/v2/createQRCode');
-define("USER_DOWNLOAD_WEBSITE_URL", "http://247around.com/downloadQrCode/");
 
 /*
  * Qr Code Constants
