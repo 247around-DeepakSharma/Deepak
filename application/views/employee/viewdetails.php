@@ -453,7 +453,8 @@
                                     <tr>
                                         <th >Estimate Given</th>
                                         <th >Estimate Given Date </th>
-                                        <th >Estimate Invoice</th>
+                                        <th >Purchase Invoice</th>
+                                        <th >Sell Invoice ID</th>
                                         <th >Status </th>
                                     </tr>
                                 </thead>
@@ -463,6 +464,7 @@
                                         <td><?php echo $sp['purchase_price']; ?></td>
                                         <td><?php if(!empty($sp['estimate_cost_given_date'])) { echo date("d-m-Y", strtotime($sp['estimate_cost_given_date'])); } ?></td>
                                         <td><?php if(!is_null($sp['incoming_invoice_pdf'])) { if( $sp['incoming_invoice_pdf'] !== '0'){ ?> <a href="https://s3.amazonaws.com/bookings-collateral/invoices-excel/<?php echo $sp['incoming_invoice_pdf'];  ?> " target="_blank">Click Here</a><?php } } ?></td>
+                                        <td><?php echo $sp['sell_invoice_id'];?></td>
                                         <td><?php echo $sp['status']; ?></td>
                                     </tr>
                                     <?php  } } ?>
