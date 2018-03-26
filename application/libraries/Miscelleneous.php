@@ -2386,7 +2386,7 @@ function generate_image($base64, $image_name,$directory){
         
         $s3directory = $directory."/" . $image_name;
 
-        $this->My_CI->s3->putObjectFile(TMP_FOLDER.$image_name, BITBUCKET_DIRECTORY, $s3directory, S3::ACL_PUBLIC_READ);
+        $this->My_CI->s3->putObjectFile(TMP_FOLDER.$image_name, BITBUCKET_DIRECTORY, $s3directory, S3::ACL_PUBLIC_READ,array(),"binary/octet-stream");
         
         //unlink($image_path);
         return $s3directory;
