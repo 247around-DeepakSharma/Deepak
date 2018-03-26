@@ -110,9 +110,8 @@ class Booking_utilities {
             log_message("info", __METHOD__. " Booking id ". $booking_id. " User QR Response ".print_r($userDownload, true));
             $user = json_decode($userDownload, TRUE);
             if($user['status'] == SUCCESS_STATUS){
-                $qr_id = $user['qr_id'];
-                $qr_id_encrypted = urlencode(base64_encode($qr_id));
-                $tinyUrl = $this->My_CI->miscelleneous->getShortUrl(USER_DOWNLOAD_WEBSITE_URL.$qr_id_encrypted);
+                $url = S3_WEBSITE_URL.$user['qr_url'];
+                $tinyUrl = $this->My_CI->miscelleneous->getShortUrl($url);
                 if($tinyUrl){
                     
                     $sms['type'] = "user";
