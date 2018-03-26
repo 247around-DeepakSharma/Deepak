@@ -115,6 +115,13 @@
         </div>
     </div>
 </div>
+        <script>
+            $(document).on("click", ".open-AddBookDialog", function () {
+                var myBookId = $(this).data('id');
+                $(".modal-body #ec_booking_id").val( myBookId );
+
+            });
+        </script>
 <?php if(empty($is_ajax)) { ?> 
     </div>
     
