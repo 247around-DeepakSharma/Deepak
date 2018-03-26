@@ -102,32 +102,32 @@ class User_invoice extends CI_Controller {
                     $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $pdf_attachement_url);
                 }
                 
-                
-                $customer_attachement_url = 'https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/invoices-excel/' .$copy_pdf_file_name ;
-                
-                $sms['tag'] = "customer_paid_invoice";
-                
-                
-                $tinyUrl = $this->miscelleneous->getShortUrl($customer_attachement_url);
-                if($tinyUrl){
-                    // Send SMS to customer
-                    $sms['smsData']['amount'] = $data[0]->amount_paid;
-                    $sms['smsData']['booking_id'] = $booking_id;
-                    $sms['smsData']['url'] = $tinyUrl;
-                    $sms['phone_no'] = $response['meta']['customer_phone_number'];
-                    $sms['booking_id'] = $booking_id;
-                    $sms['type'] = "user";
-                    $sms['type_id'] = $data[0]->user_id;
-
-                    $this->notify->send_sms_msg91($sms);
-                } else {
-                    log_message("info", __METHOD__. " Short url failed for booking id ". $booking_id);
-                }
-                
                 $pathinfo = pathinfo($copy_pdf_file_name);
                 if($pathinfo['extension'] == 'xls' || $pathinfo['extension'] == 'xlsx'){
                     log_message("info", __METHOD__. " Invoice Pdf is not generated ".$copy_pdf_file_name );
                 } else {
+                    $customer_attachement_url = 'https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/invoices-excel/' .$copy_pdf_file_name ;
+                    
+                    $sms['tag'] = "customer_paid_invoice";
+                
+                
+                    $tinyUrl = $this->miscelleneous->getShortUrl($customer_attachement_url);
+                    if($tinyUrl){
+                        // Send SMS to customer
+                        $sms['smsData']['amount'] = $data[0]->amount_paid;
+                        $sms['smsData']['booking_id'] = $booking_id;
+                        $sms['smsData']['url'] = $tinyUrl;
+                        $sms['phone_no'] = $response['meta']['customer_phone_number'];
+                        $sms['booking_id'] = $booking_id;
+                        $sms['type'] = "user";
+                        $sms['type_id'] = $data[0]->user_id;
+
+                        $this->notify->send_sms_msg91($sms);
+                    } else {
+                        log_message("info", __METHOD__. " Short url failed for booking id ". $booking_id);
+                    }
+                
+                
                     // Send Invoice to Customer
                     if (filter_var($data[0]->user_email, FILTER_VALIDATE_EMAIL)) {
                         $email_template = $this->booking_model->get_booking_email_template("customer_paid_invoice");
