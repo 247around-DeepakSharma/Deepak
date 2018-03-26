@@ -281,6 +281,7 @@ class Booking_model extends CI_Model {
             $this->db->order_by($order_by,false);
         }
         $this->db->from('booking_details');
+        $this->db->join("services", "services.id = booking_details.service_id");
         $query = $this->db->get();
         if($is_object){
             return $query->result();
@@ -422,13 +423,9 @@ class Booking_model extends CI_Model {
      *  @param : void
      *  @return : array with active services
      */
-    function selectservice($format = null) {
+    function selectservice() {
         $query = $this->db->query("Select id,services from services where isBookingActive='1' order by services");
-        if(empty($format)){
-            return $query->result();
-        }else{
-            return $query->result_array();
-        }
+	return $query->result();
     }
 
     /**

@@ -99,49 +99,6 @@
                 min-height: 30px;
             }
             
-            .export_modal .select2-container{width:100%!important;}
-            .export_modal .select2-search__field{width:100%!important;}
-            /* MODAL FADE LEFT RIGHT BOTTOM */
-            .export_modal .modal.fade:not(.in).left .modal-dialog {
-                -webkit-transform: translate3d(-25%, 0, 0);
-                transform: translate3d(-25%, 0, 0);
-            }
-            .export_modal .modal.fade:not(.in).right .modal-dialog {
-                -webkit-transform: translate3d(25%, 0, 0);
-                transform: translate3d(25%, 0, 0);
-            }
-            .export_modal .modal.fade:not(.in).bottom .modal-dialog {
-                -webkit-transform: translate3d(0, 25%, 0);
-                transform: translate3d(0, 25%, 0);
-            }
-            .export_modal .modal.right .modal-dialog {
-                position:absolute;
-                top:0;
-                right:0;
-                margin:0;
-            }
-            .export_modal .modal.right .modal-content {
-                min-height:100vh;
-                border:0;
-                border-radius: 0px;
-            }
-            .export_modal .modal.right .modal-footer {
-                position: fixed;
-                left: 0;
-                right: 0;
-            }
-            .export_modal .modal-header .close {
-                margin-top: -2px;
-                position: absolute;
-                top: 4px;
-                left: -30px;
-                background-color: #183247;
-                width: 30px;
-                height: 30px;
-                opacity: 1;
-                color: #fff;
-            }
-            
         </style>
         <?php if(ENVIRONMENT === 'production') { ?> 
             <!-- Global site tag (gtag.js) - Google Analytics -->
@@ -265,35 +222,6 @@
                 </nav>
             </div>
         </div>
-        
-        <!-- end export data Modal -->
-        <div class="export_modal">
-            <div class="modal fade right" id="sidebar-right" tabindex="-1" role="dialog">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
-                            <h4 class="modal-title" id="main_modal_title">Amazon Price List</h4>
-                        </div>
-                        <div class="modal-body" id="main_modal_body">
-                            <form action="<?php echo base_url();?>buyback/buyback_process/download_price_list_data" method="post" target="_blank" id="sidebar_model_form">
-                                <div class="form-group">
-                                    <select class="form-control" id="modal_service_id" name="service_id[]" multiple="multiple" required=""> 
-                                    </select>
-                                </div>
-                                <div class="modal-footer">
-                                    <div class="text-right">
-                                        <div class="btn btn-default" data-dismiss="modal">Cancel</div>
-                                        <input type="submit" class="btn btn-success" value="Export">
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                        
-                    </div>
-                </div>
-            </div>
-        </div>
         <!-- /top navigation -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/waypoints/2.0.3/waypoints.min.js"></script> 
         <script src="<?php echo base_url(); ?>js/jquery.counterup.min.js"></script> 
@@ -307,39 +235,11 @@
                     url: '<?php echo base_url()?>buyback/buyback_process/search_for_buyback',
                     data: {search:ele.value},
                     success: function (response) {
+                     //console.log(response);
                      $(".right_col").html(response);
                       
                    }
                  });
                 }
             }
-            
-            $("#modal_service_id").select2({
-                placeholder: "Select Appliance",
-                allowClear: true
-            });
-            
-            $(document).ready(function(){
-                $('#export_data').click(function(){
-                    $.ajax({
-                        type: 'GET',
-                        url: '<?php echo base_url() ?>employee/booking/get_service_id',
-                        success: function (response) {
-                            $("#modal_service_id").html(response);
-                        }
-                    });
-                });
-            });
-            
-            $('#sidebar_model_form').submit(function(){
-                $('.sidebar_form_dynamic_field').remove();
-                $("#modal_service_id option:selected").each(function () {
-                    var $this = $(this);
-                    if ($this.length) {
-                     var input = "<input type='hidden' class='sidebar_form_dynamic_field' name='appliance_name["+$this.val().trim()+"]' value='"+$this.text().trim()+ "'>";
-                     var input_field = $(input);
-                     $('#sidebar_model_form').append(input_field);
-                    }
-                });
-            });
-         </script>
+        </script>
