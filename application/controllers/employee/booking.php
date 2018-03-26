@@ -3681,7 +3681,7 @@ class Booking extends CI_Controller {
      */
     function get_service_id(){
         $appliance_list = $this->booking_model->selectservice();
-        $option = '<option selected="" disabled="">Select Appliance</option>';
+        $option = '';
 
         foreach ($appliance_list as $value) {
             $option .= "<option value='" . $value->id . "'";
@@ -3697,59 +3697,63 @@ class Booking extends CI_Controller {
      * @params: void
      * @return: string
      */
-    function download_serviceability_data(){
+    function download_serviceability_data() {
         $service_id = $this->input->post('service_id');
-        $checked_option = $this->input->post('pincode_optradio');
-        $excel_file = array();
-        $col = "services.services as Appliance,vendor_pincode_mapping.City, vendor_pincode_mapping.State ";
-        if($checked_option){
-            $col .= ",vendor_pincode_mapping.Pincode";
-            $template = '247around_serviceability_details_with_pincode.xlsx';
-        }else{
-            $template = '247around_serviceability_details_without_pincode.xlsx';
-        }
-        
-        if(in_array('all', $service_id)){
-            $service_id = array_column($this->booking_model->selectservice(), 'id');
-        }
-        
-        foreach ($service_id as $key => $value) {
-            $where = array('Appliance_ID' => $value);
-            $data = $this->vendor_model->get_pincode_mapping_form_col($col, $where);
-            if(!empty($data)){
-                $excel_file[$key]['service_id'] = $value;
-                $excel_file[$key]['file'] = $this->miscelleneous->generate_excel_data($template, $value, $data);
-                unset($data);
+        if (!empty($service_id)) {
+            $checked_option = $this->input->post('pincode_optradio');
+            $excel_file = array();
+            $col = "services.services as Appliance,vendor_pincode_mapping.City, vendor_pincode_mapping.State ";
+            if ($checked_option) {
+                $col .= ",vendor_pincode_mapping.Pincode";
+                $template = '247around_serviceability_details_with_pincode.xlsx';
+            } else {
+                $template = '247around_serviceability_details_without_pincode.xlsx';
             }
-        }
 
-        $main_excel = $this->combined_excel_sheets($excel_file);
-        
-        if ($main_excel) {
-            
-            header('Content-Description: File Transfer');
-            header('Content-Type: application/octet-stream');
-            header('Content-Disposition: attachment; filename="' . basename($main_excel) . '"');
-            header('Expires: 0');
-            header('Cache-Control: must-revalidate');
-            header('Pragma: public');
-            header('Content-Length: ' . filesize($main_excel));
-            readfile($main_excel);
-            
-            foreach ($excel_file as $key => $value) {
-                if(file_exists($value['file'])){
-                    unlink($value['file']);
+            if (in_array('all', $service_id)) {
+                $service_id = array_column($this->booking_model->selectservice(true), 'id');
+            }
+
+            foreach ($service_id as $key => $value) {
+                $where = array('Appliance_ID' => $value);
+                $data = $this->vendor_model->get_pincode_mapping_form_col($col, $where);
+                if (!empty($data)) {
+                    $excel_file[$key]['service_id'] = $value;
+                    $excel_file[$key]['file'] = $this->miscelleneous->generate_excel_data($template, $value, $data);
+                    unset($data);
                 }
             }
-            
-            $res1 = 0;
-            system(" chmod 777 " . $main_excel , $res1);
-            if(file_exists($main_excel)){
-                unlink($main_excel);
+
+            $main_excel = $this->combined_excel_sheets($excel_file);
+
+            if ($main_excel) {
+
+                header('Content-Description: File Transfer');
+                header('Content-Type: application/octet-stream');
+                header('Content-Disposition: attachment; filename="' . basename($main_excel) . '"');
+                header('Expires: 0');
+                header('Cache-Control: must-revalidate');
+                header('Pragma: public');
+                header('Content-Length: ' . filesize($main_excel));
+                readfile($main_excel);
+
+                foreach ($excel_file as $key => $value) {
+                    if (file_exists($value['file'])) {
+                        unlink($value['file']);
+                    }
+                }
+
+                $res1 = 0;
+                system(" chmod 777 " . $main_excel, $res1);
+                if (file_exists($main_excel)) {
+                    unlink($main_excel);
+                }
             }
+        }else{
+            echo "Empty data submitted";
         }
     }
-    
+
     /**
      * @desc: This function is used to combined the excel sheet
      * @params: array $excel_file_list
