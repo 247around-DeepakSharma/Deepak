@@ -76,14 +76,15 @@ class Do_background_process extends CI_Controller {
         }
 
         //Checking again for Pending Job cards
-        $pending_booking_job_card = $this->database_testing_model->count_pending_bookings_without_job_card();
-        if (!empty($pending_booking_job_card)) {
-            //Creating Job cards for Bookings 
-            foreach ($pending_booking_job_card as $value) {
-                //Prepare job card
-                $this->booking_utilities->lib_prepare_job_card_using_booking_id($value['booking_id']);
-            }
-        }
+        //Disabling this feature temporarily since we are re-generating missed job cards through CRON as well
+//        $pending_booking_job_card = $this->database_testing_model->count_pending_bookings_without_job_card();
+//        if (!empty($pending_booking_job_card)) {
+//            //Creating Job cards for Bookings 
+//            foreach ($pending_booking_job_card as $value) {
+//                //Prepare job card
+//                $this->booking_utilities->lib_prepare_job_card_using_booking_id($value['booking_id']);
+//            }
+//        }
 
 
         log_message('info', __METHOD__ . " => Exiting");
