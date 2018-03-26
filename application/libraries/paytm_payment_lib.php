@@ -360,10 +360,6 @@ class paytm_payment_lib {
         $data['paid_amount'] = $jsonArray['response']['txnAmount'];
         //Guid For user
         $data['user_guid'] = $jsonArray['response']['userGuid'];
-       // Does paytm generrate any cashback for current transaction
-        $data['cashback_status'] = $jsonArray['response']['cashBackStatus'];
-        // Details of cashback
-        $data['cashback_message'] = $jsonArray['response']['cashBackMessage'];
         $data['create_date'] = date("Y-m-d h:i:s");
         //response_api (From which api we are getting response,check status or callback)
         $data['response_api'] = TRANSACTION_RESPONSE_FROM_CALLBACK;
@@ -521,9 +517,6 @@ class paytm_payment_lib {
             $data['txn_id'] = $transaction['txnGuid'];
             $data['paid_amount'] = $transaction['txnAmount'];
             $data['user_guid'] = $transaction['ssoId'];
-            $data['paid_amount'] = $transaction['txnAmount'];
-            $data['cashback_amount'] = "";
-            $data['cashback_txn_id'] = $transaction['cashbackTxnId'];
             $data['create_date'] = date('Y-m-d h:i:s');
             //From Which API We are Getting Response
             $data['response_api'] = TRANSACTION_RESPONSE_FROM_CHECK_STATUS;
