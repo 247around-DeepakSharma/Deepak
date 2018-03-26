@@ -1516,5 +1516,50 @@ class Around_scheduler extends CI_Controller {
                 log_message("info",__METHOD__. "Cashback Rules are not set");
         }
     }
+    /**
+     * @desc: This method is used to send qr sms to customer.
+     * It will send sms only those customer whose booking is assigned to sf.
+     * Booking must be Pending/Reschedule
+     */
+    function send_qrCode_sms_to_customer() {
+        log_message("info", __METHOD__ . " Entering.....");
+        $booking = $this->booking_model->get_bookings_count_by_any("services, assigned_vendor_id, booking_id, "
+                . "user_id, booking_primary_contact_no",
+                array('current_status IN ("' . _247AROUND_PENDING . '", "' . _247AROUND_RESCHEDULED . '") ' => NULL,
+            'amount_due > 0' => NULL, 'assigned_vendor_id IS NOT NULL' => NULL));
+        
+        if (!empty($booking)) {
+            foreach ($booking as $value) {
+                $sf = $this->vendor_model->getVendorContact($value['assigned_vendor_id']);
+                $userDownload = $this->paytm_payment_lib->generate_qr_code($value['booking_id'], QR_CHANNEL_SMS, 0, $sf[0]['primary_contact_phone_1']);
+                log_message("info", __METHOD__ . " Booking id " . $value['booking_id'] . " User QR Response " . print_r($userDownload, true));
+
+                $user = json_decode($userDownload, TRUE);
+                if ($user['status'] == SUCCESS_STATUS) {
+
+                    $url = S3_WEBSITE_URL.$user['qr_url'];
+                    $tinyUrl = $this->miscelleneous->getShortUrl($url);
+                    if ($tinyUrl) {
+
+                        $sms['type'] = "user";
+                        $sms['type_id'] = $value['user_id'];
+                        $sms['tag'] = "customer_qr_download";
+                        $sms['smsData']['services'] = $value['services'];
+                        $sms['smsData']['url'] = $tinyUrl;
+
+                        $sms['phone_no'] = $value['booking_primary_contact_no'];
+                        $sms['booking_id'] = $value['booking_id'];
+
+                        $this->notify->send_sms_msg91($sms);
+                    } else {
+                        log_message("info", __METHOD__ . " Booking id " . $value['booking_id'] . " Tiny url Not generated");
+                    }
+                } else {
+                    log_message("info", __METHOD__ . " QR Not generated for booking id " . $value['booking_id'] );
+                }
+            }
+        }
+    }
+
 }
 
