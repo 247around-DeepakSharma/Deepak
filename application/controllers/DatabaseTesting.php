@@ -479,10 +479,14 @@ class DatabaseTesting extends CI_Controller {
      * @param Date $date(Format - 2018-03-14)
      */
     function create_jobcards($date) {
+        echo __FUNCTION__ . PHP_EOL;
+        
         $booking_id = $this->database_testing_model->get_booking_id_without_pdf_jobcards($date);
         
         if (!empty($booking_id)) {
             foreach ($booking_id as $value) {
+                echo $value['booking_id'] . PHP_EOL;
+                
                 $url = base_url() .
                         "employee/bookingjobcard/prepare_job_card_using_booking_id/" .
                         $value['booking_id'];
