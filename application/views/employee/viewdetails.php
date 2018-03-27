@@ -729,8 +729,11 @@
                 <td ><?php echo $paytm['txn_id']?></td>
                 <td ><?php echo $paytm['create_date']?></td>
                 <td ><?php echo explode("_",$paytm['order_id'])[1]?></td>
-                <td><a target="_blank" style="background-color: #5bc0de;color:#fff;border-color: #5bc0de;" class="btn btn-sm" href="<?php echo S3_WEBSITE_URL."invoices-excel/".$paytm['vendor_invoice_id'].".pdf"?>"
-                       title="Partner Invoice"> <i class="fa fa-file-pdf-o" aria-hidden="true"></i></a></td>
+                <td>
+                    <?php if($paytm['vendor_invoice_id']){?>
+                    <a target="_blank" style="background-color: #5bc0de;color:#fff;border-color: #5bc0de;" class="btn btn-sm" href="<?php echo S3_WEBSITE_URL."invoices-excel/".$paytm['vendor_invoice_id'].".pdf"?>"
+                    title="Partner Invoice"> <i class="fa fa-file-pdf-o" aria-hidden="true"></i></a><?php } ?>
+                </td>
                        <?php 
                         if($this->session->userdata('user_group') == 'admin'){?>
                 <td>
