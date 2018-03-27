@@ -439,7 +439,7 @@
                                                                     }
                                                                     
                                                                     if(is_null($around_net_payable)){
-                                                                        echo "0.00";
+                                                                        echo intval($price['around_net_payable']);
                                                                     } else {
                                                                         echo $around_net_payable;
                                                                     }?>"
@@ -598,9 +598,9 @@
                                                             <?php $i=0; $k=0; foreach ( $prices[0] as  $price) { ?>
                                                             <tr>
                                                                 <td><?php echo $price['service_category']; ?></td>
-                                                                <td><?php echo $price['customer_total']; 
+                                                                <td><?php 
                                                                 
-                                                                $ct = $price['partner_net_payable'];
+                                                                $ct = $price['customer_total'];
                                                               if(isset($unit_details[0]['quantity'])){
                                                                    
                                                                        foreach ($booking_unit_details['quantity'] as  $tags) {
@@ -655,7 +655,7 @@
                                                                         }
                                                                         
                                                                         if(is_null($around_net_payable)){
-                                                                            echo "0.00";
+                                                                             echo intval($price['around_net_payable']);
                                                                         } else {
                                                                             echo $around_net_payable;
                                                                         }?>"
