@@ -543,5 +543,8 @@ define("DEPENDENCY_ON_AROUND", "SPD breach due to 247Around dependency");
 
 define("DEPENDENCY_ON_CUSTOMER", "SPD breach due to customer dependency");
 define("S3_WEBSITE_URL", "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/");
+
+//mobile service id
+define("_247AROUND_MOBILE_SERVICE_ID",'54');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
