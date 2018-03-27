@@ -1355,6 +1355,7 @@ class Booking extends CI_Controller {
         }else{
             $data['booking_history'] = array();
         }
+         $data['paytm_transaction'] = $this->paytm_payment_model->get_paytm_transaction_and_cashback($booking_id);
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/viewdetails', $data);
     }
