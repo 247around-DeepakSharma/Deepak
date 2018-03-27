@@ -23,6 +23,7 @@ class paytm_payment_lib {
         $this->P_P->load->library('miscelleneous');
         $this->P_P->load->model('reusable_model');
         $this->P_P->load->model('partner_model');
+        $this->P_P->load->library("miscelleneous");
     }
      /*
      * This function is used to genrate qr code using paytm API
@@ -378,7 +379,11 @@ class paytm_payment_lib {
         $data['create_date'] = date("Y-m-d h:i:s");
         //response_api (From which api we are getting response,check status or callback)
         $data['response_api'] = TRANSACTION_RESPONSE_FROM_CALLBACK;
+        
         $insertID = $this->P_P->reusable_model->insert_into_table("paytm_transaction_callback",$data);
+        
+        $this->generate_sf_creditnote($booking_id, $jsonArray['response']['txnAmount'], $jsonArray['response']['walletSystemTxnId']);
+        
          //Send Email 
         $to = TRANSACTION_SUCCESS_TO; 
         $cc = TRANSACTION_SUCCESS_CC;
@@ -579,5 +584,11 @@ class paytm_payment_lib {
         $output = $this->_send_curl_request($data_string,$headers,CHECK_STATUS_URL,"Process_Check_Status");
         log_message('info', __FUNCTION__ . " Function End With Data:  ".print_r($output,true));
         return $outputArray = json_decode($output,true);
+    }
+    
+    function generate_sf_creditnote($booking_id, $amount_paid, $walletSystemTxnId){
+        $invoice_url = base_url() . "employee/user_invoice/sf_payment_creditnote/".$booking_id."/".$amount_paid."/".$walletSystemTxnId."/"."247001";
+        $payment = array();
+        $this->P_P->asynchronous_lib->do_background_process($invoice_url, $payment);
     }
 }

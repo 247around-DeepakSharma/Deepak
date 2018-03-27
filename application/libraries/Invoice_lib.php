@@ -14,12 +14,26 @@ class Invoice_lib {
     function create_invoice_id($start_name){
         $invoice_id_tmp = $this->_get_partial_invoice_id($start_name);
         $where = "( invoice_id LIKE '%".$invoice_id_tmp."%' )";
-        $invoice_no_temp = $this->ci->invoices_model->get_invoices_details($where);
+        $invoice_no_temp = $this->ci->invoices_model->get_invoices_details($where, "invoice_id");
+        
+        $new_invoice = $this->ci->invoices_model->get_new_invoice_data($where, "invoice_id");
+        $invoice_array = array();
+        if(!empty($invoice_no_temp) && !empty($new_invoice)){
+            
+           $invoice_array =  array_merge($invoice_no_temp, $new_invoice);
+            
+        } else if(!empty ($invoice_no_temp) || empty($new_invoice)){
+            
+           $invoice_array =  $invoice_no_temp;
+            
+        } else if(empty ($invoice_no_temp) || !empty($new_invoice)){
+            $invoice_array =  $new_invoice;
+        }
 
         $invoice_no = 1;
         $int_invoice = array();
-        if (!empty($invoice_no_temp)) {
-            foreach ($invoice_no_temp as  $value) {
+        if (!empty($invoice_array)) {
+            foreach ($invoice_array as  $value) {
                  $explode = explode($invoice_id_tmp, $value['invoice_id']);
                  array_push($int_invoice, $explode[1] + 1);
             }
