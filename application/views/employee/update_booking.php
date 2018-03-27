@@ -439,7 +439,7 @@
                                                                     }
                                                                     
                                                                     if(is_null($around_net_payable)){
-                                                                        echo intval($price['around_total']);
+                                                                        echo intval($price['around_net_payable']);
                                                                     } else {
                                                                         echo $around_net_payable;
                                                                     }?>"
@@ -655,7 +655,7 @@
                                                                         }
                                                                         
                                                                         if(is_null($around_net_payable)){
-                                                                             echo intval($price['around_total']);
+                                                                             echo intval($price['around_net_payable']);
                                                                         } else {
                                                                             echo $around_net_payable;
                                                                         }?>"
