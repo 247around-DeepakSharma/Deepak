@@ -116,4 +116,80 @@ class Payment extends CI_Controller {
         }
         echo $html;
     }
+    function paytm_transaction_data(){
+        $data['cashback_start_date']  = $data['cashback_end_date'] =  $data['transaction_start_date'] = $data['transaction_end_date'] ='';
+        if($this->input->post('cashback_date')){
+             $cashback_date = explode("-",$this->input->post('cashback_date'));  
+             $data['cashback_start_date'] = $cashback_date[0];
+             $data['cashback_end_date'] = $cashback_date[1];
+        }
+        if($this->input->post('transaction_date')){
+                $transaction_date = explode("-",$this->input->post('transaction_date'));
+                $data['transaction_start_date'] = $transaction_date[0];
+                $data['transaction_end_date'] = $transaction_date[1];
+        }
+        $data['booking_id'] = $this->input->post('booking_id');
+        $data['is_cashback'] = $this->input->post('is_cashback');
+        $finalArray = array();
+        $post['length'] = $this->input->post('length');
+        $post['start'] = $this->input->post('start');
+        $search = $this->input->post('search');
+        $post['search_value'] = $search['value'];
+        $post['order'] = $this->input->post('order');
+        $post['draw'] = $this->input->post('draw');
+        $result = $this->paytm_payment_model->get_all_transactions_with_cashback($data,$post['start'],$post['length']);
+        for($i=0;$i<count($result);$i++){
+            $tempArray = array();
+            $index = $post['start']+($i+1);
+            $tempArray[]= $index;
+            $tempArray[] = $result[$i]['booking_id'];
+            $tempArray[] = $result[$i]['paid_amount'];
+            $tempArray[] = $result[$i]['cashback_amount'];
+            $tempArray[] = '<button type="button" style="background-color: #2C9D9C;border-color: #2C9D9C;" class="btn btn-sm btn-color" data-toggle="modal" '
+                    . 'data-target="#transactionDetails" onclick="showAllTransactions('."'".$result[$i]['booking_id']."'".')"><i class="fa fa-eye" aria-hidden="true"></i></button>';
+            $tempArray[] = '<button type="button" style="background-color: #2C9D9C;border-color: #2C9D9C;" class="btn btn-sm btn-color" data-toggle="modal" '
+                    . 'data-target="#processCashback" onclick="processCashback('."'".$result[$i]['booking_id']."'".')"><i class="fa fa-money" aria-hidden="true"></i></button>';
+            $finalArray[] = $tempArray;
+        }
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $this->paytm_payment_model->get_all_transactions_with_cashback_count($data,$post['start'],$post['length']),
+            "recordsFiltered" => $this->paytm_payment_model->get_all_transactions_with_cashback_count($data,NULL,NULL),
+            "data" => $finalArray,
+        );
+        
+        echo json_encode($output);
+    }
+    function paytm_transaction_view(){
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/paytm_transactions_details');
+    }
+    function get_all_transaction_cashback_for_booking($bookingID){
+        $data = $this->paytm_payment_model->get_paytm_transaction_and_cashback($bookingID);
+        echo json_encode($data);
+    }
+    function process_cashback_by_form(){
+        $response = $this->paytm_payment_lib->paytm_cashback($this->input->post('transaction_id'),$this->input->post('order_id'),$this->input->post('cashback_amount'),
+                $this->input->post('cashback_reason'));
+        $responseArray = json_decode($response,true);
+        echo "<p style='text-align:center'>".$responseArray['status']."</p>";
+        echo "<p style='text-align:center'>".$responseArray['status_msg']."<p>";
+    }
+    function resend_QR_code($booking_id,$regenrate_flag){
+        $msg = "SMS Sending Failed";
+        $booking_details = $this->booking_model->getbooking_history($booking_id, "join");
+        if($booking_details[0]['amount_due']>0){
+            $is_sms = $this->booking_utilities->send_qr_code_sms($booking_details[0]['booking_id'], 
+            $booking_details[0]['primary_contact_phone_1'], $booking_details[0]['user_id'], 
+            $booking_details[0]['booking_primary_contact_no'], $booking_details[0]['services'],$regenrate_flag);
+            if($is_sms){
+                $msg = "SMS Send Successfully";
+            }
+        }
+        else{
+            $msg = "Amount paid by Customer is 0, No need to send QR Code";
+        }
+        echo "<p style='text-align:center;background: #2c9d9c;padding:10px;color:fff;font:20px Century Gothic'>".$msg."</p>";
+         echo '<script>setTimeout(function(){ window.close(); }, 1500);</script>';
+    }
 }

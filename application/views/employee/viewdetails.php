@@ -8,7 +8,7 @@
     }
     tr:nth-child(even) {background-color: #f2f2f2}
     .spare_image {
-    width: 350px;;
+    width: 350px;
     height: 300px;
     background: url('<?php echo base_url() ?>images/loader.gif') 50% no-repeat;
     border: 1px solid black;
@@ -76,6 +76,11 @@
         </button>
     </div>
     <?php } ?>
+<div class="btn-group" role="group">
+    <button type="button" class="btn btn-default" href="#tab7" data-toggle="tab">
+        <div class="hidden-xs">Paytm Transaction</div>
+    </button>
+</div>
 </div>
 <div class="well">
     <div class="tab-content">
@@ -659,8 +664,124 @@
                     </div>
                 </div>
             </div>
-            <?php } ?>
+</div>
+        <?php
+                }
+        ?>   
+        <div class="tab-pane fade in" id="tab7">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div style="background: #2c9d9c;margin-bottom: 20px;">
+                        <a target="_blank" href="<?php echo base_url(); ?>payment/resend_QR_code/<?php echo $booking_history[0]['booking_id']?>/1" class="btn btn-success action_buton" 
+                           >Regenerate and send QR Code</a>
+                               <a target="_blank" href="<?php echo base_url(); ?>payment/resend_QR_code/<?php echo $booking_history[0]['booking_id']?>/0" class="btn btn-success action_buton">
+                                   Resend Same QR Code</a>
+                               <button type="button" class="btn btn-success action_buton">Resend Customer Invoice</button>
+                               </div>
+                         <?php if($paytm_transaction) { ?>   
+                        <hr style="border: 1px solid #2c9d9c;">
+                        <h3>Transaction and Cashback Details</h3>
+                <table class="table  table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>S.N</th>
+                        <th>Paid Amount</th>
+                        <th>Txn ID</th>
+                        <th>Transaction Date</th>
+                        <th>Channel</th>
+                        <th>Vendor<br> Invoice</th>
+                        <th>Initiate<br> Cashback</th>
+                       <th>Cashback</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    $index =1;
+                    foreach($paytm_transaction as $paytm){
+                        $tempPaidArray[] = $paytm['paid_amount'];
+                        ?>
+                    <tr>
+                 <td ><?php echo $index?></td>
+                <td ><?php echo $paytm['paid_amount']?></td>
+                <td ><?php echo $paytm['txn_id']?></td>
+                <td ><?php echo $paytm['create_date']?></td>
+                <td ><?php echo explode("_",$paytm['order_id'])[1]?></td>
+                <td><a target="_blank" class="btn btn-sm btn-color" href="<?php echo S3_WEBSITE_URL."invoices-excel/".$paytm['vendor_invoice_id'].".pdf"?>"
+                       title="Partner Invoice"> <i class="fa fa-file-pdf-o" aria-hidden="true"></i></a></td>
+                <td>
+                <button style="background-color: #2C9D9C;color:#fff;border-color: #2C9D9C;" type="button" class="btn btn-default" data-toggle="modal" data-target="#processCashback" 
+                        onclick="create_cashback_form(<?php echo "'".$paytm['paid_amount']."'"?>,<?php echo "'".$paytm['txn_id']."'"?>,<?php echo "'".$paytm['order_id']."'"?>)"><i class="fa fa-money" aria-hidden="true"></i></button></td>
+                <td ><?php
+                if($paytm['cashback_amount']){
+                    $cashbackAmountArray = explode(",",$paytm['cashback_amount']);
+                    $cashbackReasonArray = explode(",",$paytm['cashback_reason']);
+                    $cashbackFromArray = explode(",",$paytm['cashback_from']);
+                    $cashbackDateArray = explode(",",$paytm['cashback_date']);
+                    $tempCashbackHolder[] = array_sum($cashbackAmountArray);
+                    ?>
+                    <table class="table  table-striped table-bordered">
+                        <tr>
+                                    <th colspan="1">S.N</th>    
+                                     <th colspan="1">Cashback Amount</th>
+                                      <th colspan="2">Cashback BY</th>
+                                      <th colspan="2">Reason</th>
+                                      <th colspan="3">Date</th>
+                                      </tr>
+                    <?php
+                    $cashbackIndex = 1;
+                    foreach($cashbackAmountArray as $index=>$value){
+                        ?>
+                        <tr>
+                            <td colspan="1"><?php echo $cashbackIndex?></td>
+                            <td colspan="1"><?php echo $cashbackAmountArray[$index]?></td>
+                            <td colspan="2"><?php echo $cashbackFromArray[$index]?></td>
+                            <td colspan="2"><?php echo $cashbackReasonArray[$index]?></td>
+                            <td colspan="3"><?php echo $cashbackDateArray[$index]?></td>
+                            </tr>
+                        <?php
+                        $cashbackIndex++;
+                    }
+                    ?></table>
+                            <?php
+                }
+                ?></td>
+                <?php $index++;?>
+                </tr>
+                    <?php
+                    }
+                    ?>
+                </tbody>
+                </table>
+                         <hr style="border: 1px solid #2c9d9c;">
+                                          <h3>Total Paid and Cashback Amount</h3>
+                        </div>
+                            <div class="col-md-6" >
+                                
+                                <table class="table  table-striped table-bordered">
+                            <tr>
+                                <th >Total Paid Amount</th>
+                                 <td><?php echo array_sum($tempPaidArray);?></td>
+                                 <th >Customer Invoice</th>
+                                <td><a target="_blank" class="btn btn-sm btn-color" href="<?php echo S3_WEBSITE_URL."invoices-excel/".$unit_details[0]['user_invoice_id'].".pdf"?>"
+                       title="Partner Invoice"> <i class="fa fa-file-pdf-o" aria-hidden="true"></i></a></td>
+                            </tr>
+                        </table>
+            </div>
+                    <div class="col-md-6" >
+                                <table class="table  table-striped table-bordered" >
+                            <tr>
+                                 <th>Total Cashback Amount </th>
+                                 <td><?php echo array_sum($tempCashbackHolder);?></td>
+                            </tr>
+                        </table>
+                        
+            </div>
+                    
+                            <?php } ?>
+                    </div>
+               </div>     
         </div>
+        
     </div>
 </div>
 <div id="paytm_transaction" class="modal fade" role="dialog">
@@ -681,7 +802,83 @@
 
   </div>
 </div>
+                    <div id="processCashback" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Initiate Cashback</h4>
+      </div>
+<div class="modal-body" id="response_container" style="display:none;">
+            
+        </div>
+        <div class="modal-body" id="form_container">
+        <form>
+            <div class="form-group" style="display:none;">
+      <input type="text" class="form-control" id="form_transaction_id" value="">
+  </div>
+  <div class="form-group" style="display:none;">
+      <input type="text" class="form-control" id="form_order_id" value="">
+  </div>
+             <div class="form-group">
+                 <input type="text" class="form-control" id="form_paid_amount" value="" readonly="">
+  </div>
+             <div class="form-group">
+                 <input type="number" class="form-control" id="form_cashback_amount" value="" placeholder="Cashback Amount" required="">
+  </div>
+             <div class="form-group">
+                 <input type="text" class="form-control" id="form_cashback_reason" value="" placeholder="Cashback Reason" required="">
+  </div>
+            <button type="button" class="btn btn-primary" onclick="process_cashback_form()">Process Cashback</button>
+</form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
 <script>
+ function process_cashback_form(){
+            var cashback_amount = document.getElementById("form_cashback_amount").value;
+            var cashback_reason = document.getElementById("form_cashback_reason").value;
+            var order_id =  document.getElementById("form_order_id").value;
+            var transaction_id = document.getElementById("form_transaction_id").value;
+           var confirm_value = confirm("Are you Sure You want to process a refund for amount "+cashback_amount);
+        if(confirm_value == true){
+            if(cashback_amount && cashback_reason){
+                var url = '<?php echo base_url(); ?>payment/process_cashback_by_form';
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    data: {order_id: order_id, transaction_id: transaction_id, cashback_amount: cashback_amount, cashback_reason: cashback_reason},
+                    success: function (response) {
+                        $('#form_container').hide();
+                        $('#response_container').show();
+                        document.getElementById("response_container").innerHTML = response;
+                      }
+                });
+         }
+         else{
+             alert("Please enter cashback amount and reason");
+         }
+     }
+     else{
+     location.reload();
+     }
+   }
+    function create_cashback_form(paid_amount,transaction_id,order_id){
+    $('#form_container').show();
+        $('#response_container').hide();
+        document.getElementById("form_cashback_amount").value="";
+        document.getElementById("form_cashback_reason").value="";
+        document.getElementById("form_paid_amount").value=paid_amount;
+        document.getElementById("form_order_id").value=order_id;
+        document.getElementById("form_transaction_id").value=transaction_id;
+}
     $('document').ready(function () {
         var booking_id = '<?php echo base_url() ?>employee/booking/get_booking_life_cycle/<?php echo $booking_history[0]['booking_id'] ?>';
                 $.ajax({
@@ -763,3 +960,11 @@
                 });
     }
 </script>
+<style>
+    .action_buton{
+        margin: 10px;
+background-color: #f5f5f5;
+    border-color: #ffffff;
+    color: black;
+    }
+    </style>

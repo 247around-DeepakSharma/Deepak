@@ -24,9 +24,10 @@ class paytm_payment_lib {
         $this->P_P->load->model('reusable_model');
         $this->P_P->load->model('partner_model');
     }
-         /*
+     /*
      * This function is used to genrate qr code using paytm API
-     * @input parameter - booking_id,amount,Channel(Through which channel payment happens eg - "job_card","app","user_download" etc),contact(transaction notification)
+     * @input parameter - booking_id,amount,Channel(Through which channel payment happens eg - "job_card","app","user_download" etc),contact(transaction notification),forceRegenrateFlag(Values
+          * can be 0 and 1 , 1 if you want to deactivate existing code and want to regenrate new QR, by default its 0 and will return already existing code)
      * @output paramenter - 1) Status - (Success or Failure)
                                                    2) status_message (reason of failure in case of failure or Success msg)
                                                    3) QR Image Url
@@ -37,7 +38,7 @@ class paytm_payment_lib {
           * If not then it creates a request for paytm API and generate QR Code
           * After that saves QR data in Database and return QR data
      */
-    function generate_qr_code($bookingID,$channel,$amount,$contact){
+    function generate_qr_code($bookingID,$channel,$amount,$contact,$forceRegenrateFlag=0){
             if(empty($contact)){
                 $contact = DEFAULT_MERCHANT_CONTACT_NO;
            }
@@ -46,9 +47,21 @@ class paytm_payment_lib {
                 $amount = number_format((float)$amount, 2, '.', '');
             }
             log_message('info', __FUNCTION__ . "booking_id".$bookingID.", Amount ".$amount.", Channel ".$channel.", Contact no ".$contact);
+            if($forceRegenrateFlag==1){
+               $where['booking_id'] = $bookingID;
+               $where['transaction_id'] = NULL;
+               $where['channel'] = $channel;
+               $where['amount'] = NULL;
+               $where['txn_response_contact'] = $contact;
+               $data['is_active'] = 0;
+               $this->P_P->reusable_model->update_table("paytm_payment_qr_code",$data,$where);
+               $existBooking['is_exist'] =0;
+            }
             
             //Check if any qr code already there with same booking and amount
-            $existBooking = $this->QR_is_qr_code_already_exists_for_input($bookingID,$channel,$amount,$contact);
+            else{
+                $existBooking = $this->QR_is_qr_code_already_exists_for_input($bookingID,$channel,$amount,$contact);
+            }
             
             // if yes then generate response with existing data
             if($existBooking['is_exist'] == 1){
@@ -69,6 +82,7 @@ class paytm_payment_lib {
                 }
             }
     }
+
      /*
      * This function is used to check transaction status against a order_id
      * @input - order id which we define at the time of qr generation
@@ -330,6 +344,7 @@ class paytm_payment_lib {
         $where['channel'] = $channel;
         $where['amount'] = NULL;
         $where['txn_response_contact'] = $contact;
+        $where['is_active'] = 1;
         if($amount != 0){
             $where['amount'] = $amount;
          }
