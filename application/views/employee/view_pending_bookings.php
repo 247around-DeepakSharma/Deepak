@@ -462,7 +462,9 @@
 
         $("#reminderMailForm"+i).toggle(500);
     }
-
+$('#booking_date').datepicker(
+    {dateFormat: 'dd-mm-yy'}
+ );
 
 </script>
 <?php if ($this->session->userdata('success')) {$this->session->unset_userdata('success');} ?>
