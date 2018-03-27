@@ -713,7 +713,13 @@
                         <th>Transaction Date</th>
                         <th>Channel</th>
                         <th>Vendor<br> Invoice</th>
+                        <?php
+                        if($this->session->userdata('user_group') == 'admin'){
+                        ?>
                         <th>Initiate<br> Cashback</th>
+                        <?php
+                            }
+                        ?>
                        <th>Cashback</th>
                     </tr>
                 </thead>
@@ -731,10 +737,15 @@
                 <td ><?php echo explode("_",$paytm['order_id'])[1]?></td>
                 <td><a target="_blank" style="background-color: #5bc0de;color:#fff;border-color: #5bc0de;" class="btn btn-sm" href="<?php echo S3_WEBSITE_URL."invoices-excel/".$paytm['vendor_invoice_id'].".pdf"?>"
                        title="Partner Invoice"> <i class="fa fa-file-pdf-o" aria-hidden="true"></i></a></td>
+                       <?php 
+                        if($this->session->userdata('user_group') == 'admin'){?>
                 <td>
                 <button style="background-color: #5bc0de;color:#fff;border-color: #5bc0de;padding: 5px 8px;" type="button" class="btn btn-default" data-toggle="modal" data-target="#processCashback" 
-                        onclick="create_cashback_form(<?php echo "'".$paytm['paid_amount']."'"?>,<?php echo "'".$paytm['txn_id']."'"?>,<?php echo "'".$paytm['order_id']."'"?>)"><i class="fa fa-money" aria-hidden="true"></i></button></td>
-                <td ><?php
+                        onclick="create_cashback_form(<?php echo "'".$paytm['paid_amount']."'"?>,<?php echo "'".$paytm['txn_id']."'"?>,<?php echo "'".$paytm['order_id']."'"?>)">
+                        <i class="fa fa-money" aria-hidden="true"></i></button></td>
+                            <?php
+                        }?>
+                        <td ><?php
                 $tempCashbackHolder = array();
                 if($paytm['cashback_amount']){
                     $cashbackAmountArray = explode(",",$paytm['cashback_amount']);
