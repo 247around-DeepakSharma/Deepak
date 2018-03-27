@@ -715,6 +715,7 @@
                 <button style="background-color: #2C9D9C;color:#fff;border-color: #2C9D9C;" type="button" class="btn btn-default" data-toggle="modal" data-target="#processCashback" 
                         onclick="create_cashback_form(<?php echo "'".$paytm['paid_amount']."'"?>,<?php echo "'".$paytm['txn_id']."'"?>,<?php echo "'".$paytm['order_id']."'"?>)"><i class="fa fa-money" aria-hidden="true"></i></button></td>
                 <td ><?php
+                $tempCashbackHolder = array();
                 if($paytm['cashback_amount']){
                     $cashbackAmountArray = explode(",",$paytm['cashback_amount']);
                     $cashbackReasonArray = explode(",",$paytm['cashback_reason']);
