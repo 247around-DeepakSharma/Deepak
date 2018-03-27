@@ -58,6 +58,8 @@
                             <th>CITY</th>
                             <th>Phone</th>
                             <th>Email ID</th>
+                            <th>Order Item Id</th>
+                            <th>Service Promise Date</th>
                             <th>Delivery Date</th>
                             <th>Agent Name</th>
                             <th>Edit</th>
@@ -81,102 +83,163 @@
 
                 <form class="form-horizontal" id="mapping_details">
                     <div class="row">
-                        <div class="form-group">
-                            <label class="control-label col-sm-2 col-sm-offset-1" for="partner_id">Partner</label>
-                            <div class="col-sm-8">
-                                <select class="form-control" id="partner_id" required="" name="partner_id"></select>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4" for="partner_id">Partner*</label>
+                                <div class="col-sm-8">
+                                    <select class="form-control" id="partner_id" required="" name="partner_id"></select>
+                                </div>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="control-label col-sm-2 col-sm-offset-1" for="r_d_a_t">Referred Date and Time:</label>
-                            <div class="col-sm-8"> 
-                                <input type="text" class="form-control" id="r_d_a_t" name="r_d_a_t" placeholder="Referred Date and Time">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="control-label col-sm-2 col-sm-offset-1" for="sub_order_id">Sub Order ID:</label>
-                            <div class="col-sm-8">
-                                <input type="text" class="form-control" id="sub_order_id" name="sub_order_id" placeholder="Sub Order ID" required="">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="control-label col-sm-2 col-sm-offset-1" for="brand">Brand:</label>
-                            <div class="col-sm-8"> 
-                                <input type="text" class="form-control" id="brand" name="brand" placeholder="Brand">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="control-label col-sm-2 col-sm-offset-1" for="model">Model</label>
-                            <div class="col-sm-8"> 
-                                <input type="text" class="form-control" id="model" name="model" placeholder="Model">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="control-label col-sm-2 col-sm-offset-1" for="product">Product</label>
-                            <div class="col-sm-8">
-                                <input type="text" class="form-control" id="product" name="product" placeholder="Product">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="control-label col-sm-2 col-sm-offset-1" for="product_type">Product Type</label>
-                            <div class="col-sm-8"> 
-                                <input type="text" class="form-control" id="product_type" name="product_type" placeholder="Product Type" required="">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="control-label col-sm-2 col-sm-offset-1" for="customer_name">Customer Name</label>
-                            <div class="col-sm-8"> 
-                                <input type="text" class="form-control" id="customer_name" name="customer_name" placeholder="Customer Name" required="">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="control-label col-sm-2 col-sm-offset-1" for="customer_address">Customer Address</label>
-                            <div class="col-sm-8">
-                                <input type="text" class="form-control" id="customer_address" name="customer_address" placeholder="Customer Address" required="">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="control-label col-sm-2 col-sm-offset-1" for="pincode">Pincode</label>
-                            <div class="col-sm-8"> 
-                                <input type="text" class="form-control" id="pincode" name="pincode" placeholder="Pincode">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="control-label col-sm-2 col-sm-offset-1" for="city">CITY</label>
-                            <div class="col-sm-8"> 
-                                <input type="text" class="form-control" id="city" name="city" placeholder="City">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="control-label col-sm-2 col-sm-offset-1" for="phone">Phone</label>
-                            <div class="col-sm-8">
-                                <input type="text" class="form-control" id="phone" name="phone" placeholder="Phone" required="">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="control-label col-sm-2 col-sm-offset-1" for="email_id">Email ID</label>
-                            <div class="col-sm-8"> 
-                                <input type="text" class="form-control" id="email_id" name="email_id" placeholder="Email ID">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="control-label col-sm-2 col-sm-offset-1" for="delivery_date">Delivery Date</label>
-                            <div class="col-sm-8"> 
-                                <input type="text" class="form-control" id="delivery_date" name="delivery_date" placeholder="Delivery Date">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4" for="r_d_a_t">Referred Date and Time</label>
+                                <div class="col-sm-8"> 
+                                    <input type="text" class="form-control" id="r_d_a_t" name="r_d_a_t" placeholder="Referred Date and Time">
+                                </div>
                             </div>
                         </div>
                     </div>
-
-                    <div class="form-group"> 
-                        <div class="col-sm-offset-3 col-sm-10">
-                            <input type="hidden" class="btn btn-success" id="file_upload_header_mapping_id" name='file_upload_header_mapping_id' value="">
-                            <input type="submit" class="btn btn-success" id="mapping_details_submit_btn" name='submit_type' value="Submit">
+                    <div class="clearfix"></div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4" for="sub_order_id">Sub Order ID*</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" id="sub_order_id" name="sub_order_id" placeholder="Sub Order ID" required="">
+                                </div>
+                            </div>
                         </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4" for="brand">Brand</label>
+                                <div class="col-sm-8"> 
+                                    <input type="text" class="form-control" id="brand" name="brand" placeholder="Brand">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4" for="model">Model</label>
+                                <div class="col-sm-8"> 
+                                    <input type="text" class="form-control" id="model" name="model" placeholder="Model">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4" for="product">Product</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" id="product" name="product" placeholder="Product">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4" for="product_type">Product Type*</label>
+                                <div class="col-sm-8"> 
+                                    <input type="text" class="form-control" id="product_type" name="product_type" placeholder="Product Type" required="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4" for="customer_name">Customer Name*</label>
+                                <div class="col-sm-8"> 
+                                    <input type="text" class="form-control" id="customer_name" name="customer_name" placeholder="Customer Name" required="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4" for="customer_address">Customer Address*</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" id="customer_address" name="customer_address" placeholder="Customer Address" required="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4" for="pincode">Pincode*</label>
+                                <div class="col-sm-8"> 
+                                    <input type="text" class="form-control" id="pincode" name="pincode" placeholder="Pincode">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4" for="city">CITY</label>
+                                <div class="col-sm-8"> 
+                                    <input type="text" class="form-control" id="city" name="city" placeholder="City">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4" for="phone">Phone*</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" id="phone" name="phone" placeholder="Phone" required="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4" for="email_id">Email ID</label>
+                                <div class="col-sm-8"> 
+                                    <input type="text" class="form-control" id="email_id" name="email_id" placeholder="Email ID">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4" for="delivery_date">Delivery Date</label>
+                                <div class="col-sm-8"> 
+                                    <input type="text" class="form-control" id="delivery_date" name="delivery_date" placeholder="Delivery Date">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4" for="order_item_id">Order Item Id</label>
+                                <div class="col-sm-8"> 
+                                    <input type="text" class="form-control" id="order_item_id" name="order_item_id" placeholder="Order Item Id">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4" for="spd">Service Before Date</label>
+                                <div class="col-sm-8"> 
+                                    <input type="text" class="form-control" id="spd" name="spd" placeholder="Service Before Date">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="hidden" class="btn btn-success" id="file_upload_header_mapping_id" name='file_upload_header_mapping_id' value="">
+                        <input type="submit" class="btn btn-success" id="mapping_details_submit_btn" name='submit_type' value="Submit">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <p class="pull-left text-danger">* These Fields are required</p>
                     </div>
                 </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
             </div>
         </div>
     </div>
@@ -208,7 +271,7 @@
     $('#add_new_details').click(function(){
         get_partner();
         $("#mapping_details")[0].reset();
-        $('#mapping_details_submit_btn').val('add');
+        $('#mapping_details_submit_btn').val('Add');
         $('#modal_title_action').html("Add New Details");
         $('#file_upload_header_mapping').modal('toggle');
     });
@@ -241,28 +304,34 @@
         $('#phone').val(form_data.phone);
         $('#email_id').val(form_data.email_id);
         $('#delivery_date').val(form_data.delivery_date);
+        $('#order_item_id').val(form_data.order_item_id);
+        $('#spd').val(form_data.spd);
         $('#file_upload_header_mapping_id').val(form_data.id);
-        $('#mapping_details_submit_btn').val('edit');
+        $('#mapping_details_submit_btn').val('Edit');
         $('#modal_title_action').html("Edit Details");
         $('#file_upload_header_mapping').modal('toggle');
            
     });
     
-    $("#mapping_details_submit_btn").click(function(){
+    $("#mapping_details_submit_btn").click(function(event){
         event.preventDefault();
         var arr = {};
 
         var form_data = $("#mapping_details").serializeArray();
         if($('#partner_id').val() === "" || $('#partner_id').val() === undefined || $('#partner_id').val() === null){
             alert("Please select Partner");
+        }else if($('#sub_order_id').val() === ""){
+            alert("Please Fill Sub Order ID Field");
         }else if($('#product_type').val() === ""){
-            alert("Please Fill Product Type");
+            alert("Please Fill Product Type Field");
         }else if($('#customer_name').val() === ""){
-            alert("Please Fill Customer Name");
+            alert("Please Fill Customer Name Field");
+        }else if($('#customer_address').val() === ""){
+            alert("Please Fill Customer Address Field");
         }else if($('#pincode').val() === ""){
-            alert("Please Fill Pincode");
+            alert("Please Fill Pincode Field");
         }else if($('#phone').val() === ""){
-            alert("Please Fill Phone");
+            alert("Please Fill Phone Field");
         }else{
             arr.name = 'submit_type'
             arr.value = $('#mapping_details_submit_btn').val();
