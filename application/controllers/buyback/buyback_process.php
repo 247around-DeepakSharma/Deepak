@@ -1406,7 +1406,7 @@ class Buyback_process extends CI_Controller {
                         }
                         $data = $this->service_centre_charges_model->get_bb_charges($where, $select, true, true, $offset, $row_limit, TRUE);
                         if (!empty($data)) {
-                            $file_name = $csv_file_name . "_" . $i;
+                            $file_name = $csv_file_name . "_" . $i.".csv";
                             $csv_file[$file_name] = $this->generate_bb_csv_price_list($file_name, $data);
                         }
                         $offset += 500;
