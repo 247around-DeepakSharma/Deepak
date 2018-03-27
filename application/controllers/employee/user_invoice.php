@@ -16,17 +16,20 @@ class User_invoice extends CI_Controller {
         $this->load->helper(array('form', 'url'));
         $this->load->model("invoices_model");
         $this->load->model("booking_model");
+        $this->load->model('reusable_model');
         $this->load->library("invoice_lib");
         $this->load->library('miscelleneous');
         $this->load->library("session");
 
     }
+    
     /**
-     * @desc
+     * @desc This method is used to generate Customer invoice on the behalf of Sf
      * @param String $booking_id
+     * @param String $agent_id
      */
     function payment_invoice_for_customer($booking_id, $agent_id) {
-
+        log_message("info",__METHOD__. " Enering .. for booking id ". $booking_id. " agent ID ".$agent_id);
         $select = "service_centres.company_name, service_centres.address as sf_address, "
                 . "service_centres.pincode as sf_pincode, service_centres.district as sf_district, service_centres.state as sf_state, service_centres.gst_no, service_centres.owner_phone_1, "
                 . "users.name, users.home_address, users.phone_number,users.user_email, users.pincode, users.city, users.state, booking_details.amount_due, "
@@ -48,6 +51,7 @@ class User_invoice extends CI_Controller {
             }
 
             $invoice_id = $this->invoice_lib->create_invoice_id($data[0]->sc_code);
+            log_message("info", __METHOD__. " Invoice ID created ". $invoice_id);
             $invoice = array();
             $invoice[0]['description'] = $prod;
             $tax_charge = $this->booking_model->get_calculated_tax_charge($data[0]->amount_paid, DEFAULT_TAX_RATE);
@@ -98,35 +102,29 @@ class User_invoice extends CI_Controller {
                     $bcc = $email_template[5];
 
 
-                    $pdf_attachement_url = 'https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/invoices-excel/' . $output_pdf_file_name;
+                    $pdf_attachement_url = S3_WEBSITE_URL . 'invoices-excel/' . $output_pdf_file_name;
                     $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $pdf_attachement_url);
                 }
                 
                 $pathinfo = pathinfo($copy_pdf_file_name);
                 if($pathinfo['extension'] == 'xls' || $pathinfo['extension'] == 'xlsx'){
                     log_message("info", __METHOD__. " Invoice Pdf is not generated ".$copy_pdf_file_name );
-                } else {
-                    $customer_attachement_url = 'https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/invoices-excel/' .$copy_pdf_file_name ;
+                    $sms['tag'] = "customer_paid_invoice_pdf_not_generated";
                     
-                    $sms['tag'] = "customer_paid_invoice";
-                
-                
-                    $tinyUrl = $this->miscelleneous->getShortUrl($customer_attachement_url);
-                    if($tinyUrl){
-                        // Send SMS to customer
-                        $sms['smsData']['amount'] = $data[0]->amount_paid;
-                        $sms['smsData']['booking_id'] = $booking_id;
-                        $sms['smsData']['url'] = $tinyUrl;
-                        $sms['phone_no'] = $response['meta']['customer_phone_number'];
-                        $sms['booking_id'] = $booking_id;
-                        $sms['type'] = "user";
-                        $sms['type_id'] = $data[0]->user_id;
+                } else {
+                    $customer_attachement_url = S3_WEBSITE_URL . 'invoices-excel/' .$copy_pdf_file_name ;
 
-                        $this->notify->send_sms_msg91($sms);
+                    $tinyUrl = $this->miscelleneous->getShortUrl($customer_attachement_url);
+                    // If invoice links is not generating then we will not send invoice Link in sms
+                    if($tinyUrl){
+
+                        $sms['tag'] = "customer_paid_invoice";
+
                     } else {
+                        $sms['tag'] = "customer_paid_invoice_pdf_not_generated";
+                        
                         log_message("info", __METHOD__. " Short url failed for booking id ". $booking_id);
                     }
-                
                 
                     // Send Invoice to Customer
                     if (filter_var($data[0]->user_email, FILTER_VALIDATE_EMAIL)) {
@@ -142,8 +140,21 @@ class User_invoice extends CI_Controller {
                         $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $customer_attachement_url);
                     }
                 }
+                $sms['smsData']['amount'] = $data[0]->amount_paid;
+                $sms['smsData']['booking_id'] = $booking_id;
+                if($sms['tag'] == "customer_paid_invoice"){
+                    
+                    $sms['smsData']['url'] = $tinyUrl;
+                } 
                 
-              
+                $sms['phone_no'] = $response['meta']['customer_phone_number'];
+                $sms['booking_id'] = $booking_id;
+                $sms['type'] = "user";
+                $sms['type_id'] = $data[0]->user_id;
+                $this->notify->send_sms_msg91($sms);
+                
+                $this->insert_payment_invoice($booking_id, $response, $data[0]->assigned_vendor_id, 
+                      $data[0]->closed_date, $agent_id, $convert, $data[0]->user_id);
             } else {
                 log_message("info" . __METHOD__ . " Excel Not Created Booking ID" . $booking_id);
             }
@@ -152,60 +163,63 @@ class User_invoice extends CI_Controller {
         }
     }
 
-    function insert_payment_invoice($booking_id, $invoice, $sf_id, $closed_date, $agent_id, $convert){
-       $invoice_details = array(
+    function insert_payment_invoice($booking_id, $invoice, $sf_id, $closed_date, $agent_id, $convert, $user_id){
+        $main_invoice = array(
                 'invoice_id' => $invoice['meta']['invoice_id'],
-                'type' => 'User',
-                'type_code' => 'U',
-                'vendor_partner' => 'user',
-                'vendor_partner_id' => $sf_id,
-                'invoice_file_main' => $convert['main_pdf_file_name'],
-                'invoice_file_excel' => $invoice['meta']['invoice_id'] . '.xlsx',
-                'invoice_detailed_excel' => '',
-                'invoice_date' => $closed_date,
-                'from_date' => date("Y-m-d", strtotime($closed_date)),
-                'to_date' => date("Y-m-d", strtotime($closed_date)),
-                'num_bookings' =>  1,
-                "parts_count" => 0,
-                'total_service_charge' => $invoice['meta']['total_taxable_value'],
-                'total_additional_service_charge' => 0,
-                'parts_cost' => 0,
-                'vat' => 0, //No VAT here in Cash invoice
-                'total_amount_collected' => $invoice['meta']['sub_total_amount'],
-                'rating' => 0,
-                'around_royalty' => $invoice['meta']['sub_total_amount'],
-                'amount_collected_paid' => $invoice['meta']['sub_total_amount'],
-                'settle_amount' => 1,
-                'upcountry_price' => 0,
-                'upcountry_distance' => 0,
-                'upcountry_booking' => 0,
-                
-                //Amount needs to be collected from Vendor
-                'amount_collected_paid' => $invoice['meta']['sub_total_amount'],
-                //Mail has not 
-                'mail_sent' => 1,
-                //SMS has been sent or not
-                'sms_sent' => 1,
-                //Add 1 month to end date to calculate due date
-                'due_date' =>$closed_date,
-                //add agent_id
+                'entity_to' => 'user',
+                'bill_to_party' => $user_id,
+                'entity_from' => 'vendor',
+                'bill_from_party' => $sf_id,
+                'booking_id' => $booking_id,
+                'main_invoice_file' => $convert['main_pdf_file_name'],
+                "duplicate_file" => $convert['copy_file'],
+                'invoice_excel' => $invoice['meta']['invoice_id'] . '.xlsx',
+                'triplicate_file' => $convert['triplicate_file'],
+                'invoice_date' => date("Y-m-d H:i:s", strtotime($closed_date)),
+                'from_date' => date("Y-m-d H:i:s", strtotime($closed_date)),
+                'to_date' => date("Y-m-d H:i:s", strtotime($closed_date)),
+                'due_date' => date("Y-m-d H:i:s", strtotime($closed_date)),
+                'total_basic_amount' => $invoice['meta']['total_taxable_value'],
+                'total_invoice_amount' => $invoice['meta']['sub_total_amount'],
                 'agent_id' => $agent_id,
-                "cgst_tax_rate" => $invoice['meta']['cgst_tax_rate'],
-                "sgst_tax_rate" => $invoice['meta']['sgst_tax_rate'],
-                "igst_tax_rate" => $invoice['meta']['igst_tax_rate'],
-                "igst_tax_amount" => $invoice['meta']["igst_total_tax_amount"],
-                "sgst_tax_amount" => $invoice['meta']["sgst_total_tax_amount"],
-                "cgst_tax_amount" => $invoice['meta']["cgst_total_tax_amount"],
-                "hsn_code" => $invoice['booking'][0]['hsn_code'],
-                "invoice_file_pdf" => $convert['copy_file'],
-                "remarks" => $booking_id
+                "total_igst_tax_amount" => $invoice['meta']["igst_total_tax_amount"],
+                "total_sgst_tax_amount" => $invoice['meta']["sgst_total_tax_amount"],
+                "total_cgst_tax_amount" => $invoice['meta']["cgst_total_tax_amount"],
+                'create_date' => date('Y-m-d H:i:s'),
+                "remarks" => ''
             );
 
-            $this->invoices_model->action_partner_invoice($invoice_details);
+        $this->invoices_model->insert_invoice($main_invoice);
+        $invoice_breakup = array();
+        foreach($invoice['booking'] as $value){
+            $invoice_details = array(
+                "invoice_id" => $invoice['meta']['invoice_id'],
+                "description" => $value['description'],
+                "qty" => $value['qty'],
+                "rate" => $value['rate'],
+                "taxable_value" => $value['taxable_value'],
+                "cgst_tax_rate" => (isset($value['cgst_rate']) ? $value['cgst_rate'] : 0),
+                "sgst_tax_rate" => (isset($value['sgst_rate']) ? $value['igst_rate'] : 0),
+                "igst_tax_rate" => (isset($value['igst_rate']) ? $value['igst_rate'] : 0),
+                "cgst_tax_amount" => (isset($value['cgst_tax_amount']) ? $value['cgst_tax_amount'] : 0),
+                "sgst_tax_amount" => (isset($value['sgst_tax_amount']) ? $value['sgst_tax_amount'] : 0),
+                "igst_tax_amount" => (isset($value['igst_tax_amount']) ? $value['igst_tax_amount'] : 0),
+                "hsn_code" => $value['hsn_code'],
+                "toal_amount" => $value['toal_amount'],
+                "create_date" => date('Y-m-d H:i:s')
+                
+            );
             
-            $this->booking_model->update_booking_unit_details_by_any(array('booking_id' => $booking_id), array("user_invoice_id" => $invoice['meta']['invoice_id']));
+            array_push($invoice_breakup, $invoice_details);
+        }
             
-            return true;
+            
+        $this->invoices_model->insert_invoice_breakup($invoice_breakup);
+            
+        $this->booking_model->update_booking_unit_details_by_any(array('booking_id' => $booking_id), array("user_invoice_id" => $invoice['meta']['invoice_id']));
+            
+        return true;
+    }
     }
     
 }
