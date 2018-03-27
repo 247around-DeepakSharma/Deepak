@@ -676,6 +676,8 @@ class bookings_excel extends CI_Controller {
         $row[] = $order_list->city;
         $row[] = $order_list->phone;
         $row[] = $order_list->email_id;
+        $row[] = $order_list->order_item_id;
+        $row[] = $order_list->spd;
         $row[] = $order_list->delivery_date;
         $row[] = $order_list->full_name;
         $row[] = "<a href='javascript:void(0)' class ='btn btn-primary' id='edit_mapping_details' data-id='$json_data'>Edit</a>";
@@ -721,8 +723,10 @@ class bookings_excel extends CI_Controller {
                       'email_id' => $this->input->post('email_id'),
                       'delivery_date' => $this->input->post('delivery_date'),
                       'agent_id' => $this->session->userdata('id'),
+                      'order_item_id' => $this->input->post('order_item_id'),
+                      'spd' => $this->input->post('spd'),
             );
-        switch ($submit_type) {
+        switch (strtolower(trim($submit_type))) {
             case 'add':
                 $data['create_date'] = date('Y-m-d H:i:s');
                 $response = $this->add_file_upload_header_mapping($data);
