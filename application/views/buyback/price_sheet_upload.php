@@ -73,7 +73,7 @@
                 </div>
                 <div class="title_right">
                 <div class="col-md-5 col-sm-5 col-xs-12 form-group pull-right top_search">
-                    <a href="<?php echo base_url();?>buyback/buyback_process/download_price_list_data"><button class="btn btn-info">Download Amazon Price List</button></a>
+                    <a href="" data-toggle="modal" data-target="#sidebar-right" id="export_data"><button class="btn btn-info">Download Amazon Price List</button></a>
                 </div>
               </div>
             </div>

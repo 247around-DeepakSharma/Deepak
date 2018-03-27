@@ -423,9 +423,13 @@ class Booking_model extends CI_Model {
      *  @param : void
      *  @return : array with active services
      */
-    function selectservice() {
+    function selectservice($format = null) {
         $query = $this->db->query("Select id,services from services where isBookingActive='1' order by services");
-	return $query->result();
+        if(empty($format)){
+            return $query->result();
+        }else{
+            return $query->result_array();
+        }
     }
 
     /**
