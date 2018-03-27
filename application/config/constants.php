@@ -447,8 +447,7 @@ define('FILE_UPLOAD_FAILED_STATUS', 'Failed');
 define("REPEAT_BOOKING_TAG", "Repeat Booking");
 define("_247AROUND_PRODUCT_TAG", "Product"); 
 
-//mobile id
-define("_247AROUND_MOBILE_SERVICE_ID",'54');
+
 //tv service id
 define("_247AROUND_TV_SERVICE_ID",'46');
 //washing_machine service id
@@ -545,5 +544,7 @@ define("DEPENDENCY_ON_AROUND", "247around Dependency");
 define("DEPENDENCY_ON_CUSTOMER", "Customer Dependency");
 define("S3_WEBSITE_URL", "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/");
 
+//mobile service id
+define("_247AROUND_MOBILE_SERVICE_ID",'54');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

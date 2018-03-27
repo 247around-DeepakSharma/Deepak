@@ -1396,6 +1396,11 @@ class Buyback_process extends CI_Controller {
                     for ($i = 0; $i < $counter; $i++) {
                         if($key == _247AROUND_MOBILE_SERVICE_ID){
                             $select ="brand as Brand, physical_condition as 'Model' , city AS 'Location' , partner_total as 'Exchange Offer Value'";
+                        }
+                        else if($key == _247AROUND_AC_SERVICE_ID){
+                            $select = "category as Type,brand as Brand, working_condition as 'Working Condition' , city AS 'Location' , partner_total as 'Exchange Offer Value'";
+                        }else if($key == _247AROUND_REFRIGERATOR_SERVICE_ID){
+                            $select = "category as Type,physical_condition as 'Physical Condition', working_condition as 'Working Condition' , city AS 'Location' , partner_total as 'Exchange Offer Value'";
                         }else{
                             $select = "brand as Brand,category as Type, concat(physical_condition, ' | ',working_condition) as 'Product Condition' , city AS 'Location' , partner_total as 'Exchange Offer Value'";
                         }
