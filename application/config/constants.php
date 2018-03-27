@@ -542,6 +542,6 @@ define('MOBILE_SVC', "7014851010000091");
 define("DEPENDENCY_ON_AROUND", "SPD breach due to 247Around dependency");
 
 define("DEPENDENCY_ON_CUSTOMER", "SPD breach due to customer dependency");
-define("S3_WEBSITE_URL", "http://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/");
+define("S3_WEBSITE_URL", "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/");
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
