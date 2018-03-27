@@ -78,7 +78,7 @@
     <?php } ?>
 <div class="btn-group" role="group">
     <button type="button" class="btn btn-default" href="#tab7" data-toggle="tab">
-        <div class="hidden-xs">Paytm Transaction</div>
+        <div class="hidden-xs">Transactions</div>
     </button>
 </div>
 </div>
@@ -671,7 +671,25 @@
         <div class="tab-pane fade in" id="tab7">
                 <div class="row">
                     <div class="col-md-12">
-                        <div style="background: #2c9d9c;margin-bottom: 20px;">
+                        <div style="">
+                            <?php
+                             $paidAmount = $booking_history[0]['amount_paid'];
+                            if(!$booking_history[0]['amount_paid']){
+                                $paidAmount = 0;
+                            }
+                            ?>
+                              <hr style="border: 1px solid #5bc0de;">
+                            <table class="table  table-striped table-bordered">
+                                <tr>
+                                    <th colspan="1">Paid Amount</th>
+                                    <td colspan="3"><?php echo $paidAmount; ?></td>
+                                    <th colspan="1">Customer Invoice</th>
+                                    <td colspan="3"><?php echo $unit_details[0]['user_invoice_id']?></td>
+                                </tr>
+                            </table>
+                             <hr style="border: 1px solid #5bc0de;">
+                        </div>
+                        <div style="background: #5bc0de;margin-bottom: 20px;">
                         <a target="_blank" href="<?php echo base_url(); ?>payment/resend_QR_code/<?php echo $booking_history[0]['booking_id']?>/1" class="btn btn-success action_buton" 
                            >Regenerate and send QR Code</a>
                                <a target="_blank" href="<?php echo base_url(); ?>payment/resend_QR_code/<?php echo $booking_history[0]['booking_id']?>/0" class="btn btn-success action_buton">
@@ -679,8 +697,8 @@
                                <button type="button" class="btn btn-success action_buton">Resend Customer Invoice</button>
                                </div>
                          <?php if($paytm_transaction) { ?>   
-                        <hr style="border: 1px solid #2c9d9c;">
-                        <h3>Transaction and Cashback Details</h3>
+                        <hr style="border: 1px solid #5bc0de;">
+                        <h3>Paytm Transaction and Cashback Details</h3>
                 <table class="table  table-striped table-bordered">
                 <thead>
                     <tr>
@@ -706,10 +724,10 @@
                 <td ><?php echo $paytm['txn_id']?></td>
                 <td ><?php echo $paytm['create_date']?></td>
                 <td ><?php echo explode("_",$paytm['order_id'])[1]?></td>
-                <td><a target="_blank" class="btn btn-sm btn-color" href="<?php echo S3_WEBSITE_URL."invoices-excel/".$paytm['vendor_invoice_id'].".pdf"?>"
+                <td><a target="_blank" style="background-color: #5bc0de;color:#fff;border-color: #5bc0de;" class="btn btn-sm" href="<?php echo S3_WEBSITE_URL."invoices-excel/".$paytm['vendor_invoice_id'].".pdf"?>"
                        title="Partner Invoice"> <i class="fa fa-file-pdf-o" aria-hidden="true"></i></a></td>
                 <td>
-                <button style="background-color: #2C9D9C;color:#fff;border-color: #2C9D9C;" type="button" class="btn btn-default" data-toggle="modal" data-target="#processCashback" 
+                <button style="background-color: #5bc0de;color:#fff;border-color: #5bc0de;padding: 5px 8px;" type="button" class="btn btn-default" data-toggle="modal" data-target="#processCashback" 
                         onclick="create_cashback_form(<?php echo "'".$paytm['paid_amount']."'"?>,<?php echo "'".$paytm['txn_id']."'"?>,<?php echo "'".$paytm['order_id']."'"?>)"><i class="fa fa-money" aria-hidden="true"></i></button></td>
                 <td ><?php
                 $tempCashbackHolder = array();
@@ -753,33 +771,12 @@
                     ?>
                 </tbody>
                 </table>
-                         <hr style="border: 1px solid #2c9d9c;">
-                                          <h3>Total Paid and Cashback Amount</h3>
                         </div>
-                            <div class="col-md-6" >
-                                
-                                <table class="table  table-striped table-bordered">
-                            <tr>
-                                <th >Total Paid Amount</th>
-                                 <td><?php echo array_sum($tempPaidArray);?></td>
-                                 <th >Customer Invoice</th>
-                                <td><a target="_blank" class="btn btn-sm btn-color" href="<?php echo S3_WEBSITE_URL."invoices-excel/".$unit_details[0]['user_invoice_id'].".pdf"?>"
-                       title="Partner Invoice"> <i class="fa fa-file-pdf-o" aria-hidden="true"></i></a></td>
-                            </tr>
-                        </table>
-            </div>
-                    <div class="col-md-6" >
-                                <table class="table  table-striped table-bordered" >
-                            <tr>
-                                 <th>Total Cashback Amount </th>
-                                 <td><?php echo array_sum($tempCashbackHolder);?></td>
-                            </tr>
-                        </table>
-                        
-            </div>
                     
                             <?php } ?>
+                      
                     </div>
+            <hr style="border: 1px solid #5bc0de;">
                </div>     
         </div>
         
