@@ -178,10 +178,20 @@ class Payment extends CI_Controller {
         echo "<p style='text-align:center'>".$responseArray['status_msg']."<p>";
     }
     function resend_QR_code($booking_id,$regenrate_flag){
+        $msg = "SMS Sending Failed";
         $booking_details = $this->booking_model->getbooking_history($booking_id, "join");
-        $booking_details[0]['amount_due'] =250;
-        $this->booking_utilities->get_qr_code_response($booking_details[0]['booking_id'], $booking_details[0]['amount_due'], 
+        if($booking_details[0]['amount_due']>0){
+            $is_sms = $this->booking_utilities->send_qr_code_sms($booking_details[0]['booking_id'], 
             $booking_details[0]['primary_contact_phone_1'], $booking_details[0]['user_id'], 
             $booking_details[0]['booking_primary_contact_no'], $booking_details[0]['services'],$regenrate_flag);
+            if($is_sms){
+                $msg = "SMS Send Successfully";
+            }
+        }
+        else{
+            $msg = "Amount paid by Customer is 0, No need to send QR Code";
+        }
+        echo "<p style='text-align:center;background: #2c9d9c;padding:10px;color:fff;font:20px Century Gothic'>".$msg."</p>";
+         echo '<script>setTimeout(function(){ window.close(); }, 1500);</script>';
     }
 }
