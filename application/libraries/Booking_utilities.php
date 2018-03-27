@@ -206,7 +206,7 @@ class Booking_utilities {
                 
             } else {
                 
-                if(copy(S3_URL.$result['qr_url'], TMP_FOLDER.$qrImage)){
+                if(copy(S3_WEBSITE_URL.$result['qr_url'], TMP_FOLDER.$qrImage)){
                     return TMP_FOLDER.$qrImage;
                 } else {
                     log_message("info", __METHOD__. " QR Download Failed". print_r($result, true));
