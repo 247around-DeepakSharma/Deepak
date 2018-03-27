@@ -1530,15 +1530,21 @@ class Do_background_upload_excel extends CI_Controller {
         $tmpArr['call_type_installation_table_top_installationdemo_service'] = '';
         $tmpArr['partner_source'] = $data['partner_source'];
         
-        if(isset($data['order_item_id']) && !empty($data['order_item_id'])){
-            $tmpArr['order_item_id'] = $data['order_item_id'];
-        }else if(isset($data['item_id']) && !empty($data['item_id'])){
-            $tmpArr['order_item_id'] = $data['item_id'];
+        $order_item_id_arr = explode(',', $header_data['order_item_id']);
+        $order_item_id = "";
+        foreach ($order_item_id_arr as $value){
+            if(isset($data[$value]) && !empty($data[$value])){
+                $order_item_id = $data[$value];
+            }
+        }
+        
+        if(!empty($order_item_id)){
+            $tmpArr['order_item_id'] = $order_item_id;
         }else{
             $tmpArr['order_item_id'] = '';
         }
         
-        if(isset($data['promise_before_date']) && !empty($data['promise_before_date'])){
+        if(isset($data[$header_data['spd']]) && !empty($data[$header_data['spd']])){
             $tmpArr['service_promise_date'] = $data['promise_before_date'];
         }else{
             $tmpArr['service_promise_date'] = '';
