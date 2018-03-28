@@ -34,9 +34,15 @@
      <tr ng-repeat="y in pendingBookingByRMFullView  |orderBy:'-total_pending_installation' | limitTo:totalBookings ">
         <td>{{$index+1}}</td>
         <td>{{y.name}}</td>
-        <td><button ng-click="createBookingIDView(y.last_2_days_installation_booking_list)" type="button" class="btn btn-info btn-lg" style='margin: 0px;padding: 0px 6px;' data-toggle="modal" data-target="#pendingBookingDetails">{{y.last_2_days_installation_pending}}</button></td>
-        <td><button ng-click="createBookingIDView(y.last_3_to_5_days_installation_booking_list)" type="button" class="btn btn-info btn-lg" style='margin: 0px;padding: 0px 6px;' data-toggle="modal" data-target="#pendingBookingDetails">{{y.last_3_to_5_days_installation_pending}}</button></td>
-        <td><button ng-click="createBookingIDView(y.more_then_5_days_installation_booking_list)" type="button" class="btn btn-info btn-lg" style='margin: 0px;padding: 0px 6px;' data-toggle="modal" data-target="#pendingBookingDetails">{{y.more_then_5_days_installation_pending}}</button></td>
+        <td><button ng-click="createBookingIDView(y.last_2_days_installation_booking_list,y.last_2_days_installation_remarks,y.last_2_days_installation_status)" 
+                    type="button" class="btn btn-info btn-lg" style='margin: 0px;padding: 0px 6px;' data-toggle="modal" data-target="#pendingBookingDetails">{{y.last_2_days_installation_pending}}
+            </button></td>
+        <td><button ng-click="createBookingIDView(y.last_3_to_5_days_installation_booking_list,y.last_3_to_5_days_installation_remarks,y.last_3_to_5_days_installation_status)" 
+                    type="button" class="btn btn-info btn-lg" style='margin: 0px;padding: 0px 6px;' data-toggle="modal" data-target="#pendingBookingDetails">{{y.last_3_to_5_days_installation_pending}}
+            </button></td>
+        <td><button ng-click="createBookingIDView(y.more_then_5_days_installation_booking_list,y.more_then_5_days_installation_remarks,y.more_then_5_days_installation_status)" 
+                    type="button" class="btn btn-info btn-lg" style='margin: 0px;padding: 0px 6px;' data-toggle="modal" data-target="#pendingBookingDetails">{{y.more_then_5_days_installation_pending}}
+            </button></td>
         <td>{{ y.total_pending_installation }}</td>
       </tr>
     </tbody>
@@ -61,9 +67,12 @@
      <tr ng-repeat="y in pendingBookingByRMFullView  |orderBy:'-total_pending_repair' | limitTo:totalBookingsRepair">
         <td>{{$index+1}}</td>
         <td>{{y.name}}</td>
-         <td><button ng-click="createBookingIDView(y.last_2_days_repair_booking_list)" type="button" class="btn btn-info btn-lg" style='margin: 0px;padding: 0px 6px;' data-toggle="modal" data-target="#pendingBookingDetails">{{y.last_2_days_repair_pending}}</button></td>
-         <td><button ng-click="createBookingIDView(y.last_3_to_5_days_repair_booking_list)" type="button" class="btn btn-info btn-lg" style='margin: 0px;padding: 0px 6px;' data-toggle="modal" data-target="#pendingBookingDetails">{{y.last_3_to_5_days_repair_pending}}</button></td>
-        <td><button ng-click="createBookingIDView(y.more_then_5_days_repair_booking_list)" type="button" class="btn btn-info btn-lg" style='margin: 0px;padding: 0px 6px;' data-toggle="modal" data-target="#pendingBookingDetails">{{y.more_then_5_days_repair_pending}}</button></td>
+         <td><button ng-click="createBookingIDView(y.last_2_days_repair_booking_list,y.last_2_days_repair_remarks,y.last_2_days_repair_status)" type="button" 
+                     class="btn btn-info btn-lg" style='margin: 0px;padding: 0px 6px;' data-toggle="modal" data-target="#pendingBookingDetails">{{y.last_2_days_repair_pending}}</button></td>
+         <td><button ng-click="createBookingIDView(y.last_3_to_5_days_repair_booking_list,y.last_3_to_5_days_repair_remarks,y.last_3_to_5_days_repair_status)" type="button" 
+                     class="btn btn-info btn-lg" style='margin: 0px;padding: 0px 6px;' data-toggle="modal" data-target="#pendingBookingDetails">{{y.last_3_to_5_days_repair_pending}}</button></td>
+        <td><button ng-click="createBookingIDView(y.more_then_5_days_repair_booking_list,y.more_then_5_days_repair_remarks,y.more_then_5_days_repair_status)" type="button"
+                    class="btn btn-info btn-lg" style='margin: 0px;padding: 0px 6px;' data-toggle="modal" data-target="#pendingBookingDetails">{{y.more_then_5_days_repair_pending}}</button></td>
          <td>{{y.total_pending_repair}}</td>
       </tr>
     </tbody>
@@ -82,7 +91,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title">Booking ID List</h4>
+        <h4 class="modal-title">Booking Details</h4>
       </div>
       <div class="modal-body">
           <p id="booking_id_holder"></p>

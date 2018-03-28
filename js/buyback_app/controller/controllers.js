@@ -677,15 +677,26 @@ $scope.full_view_bookings_repair = function(){
           $('#full_view_repair').text("Show All Vendors Repair");
       }
 }
-$scope.createBookingIDView = function(bookingIDList){
+$scope.createBookingIDView = function(bookingIDList,remarksList,statusList){
     $("#booking_id_holder").html("<p style='font-size: 17px;text-align:center;'>No Booking Found</p>");
     if(bookingIDList !== ''){
             bookingArray = bookingIDList.split(",");
-            var bookingString = '';
+            remarksArray = remarksList.split(",");
+            statusArray = statusList.split(",");
+            var bookingString = '<table class="table  table-striped table-bordered">';
+            bookingString +="<th>S.N</th>";
+            bookingString +="<th>Booking ID</th>";
+            bookingString +="<th>Remarks</th>";
+            bookingString +="<th>Internal Status</th>";
             for(var i=0;i<bookingArray.length;i++){
-                bookingString +="<a style='font-size: 17px;line-height: 24px;padding: 10px 0px;' target='_blank' href='"+baseUrl+"/employee/booking/viewdetails/"+bookingArray[i]+"'>"+(i+1)+") "+bookingArray[i]+"</a>";
-                bookingString +="</br>";
+                bookingString +="<tr>";
+                bookingString +="<td>"+(i+1)+"</td>";
+                bookingString +="<td style='width: 26%;'><a style='font-size: 13px;line-height: 24px;padding: 10px 0px;' target='_blank' href='"+baseUrl+"/employee/booking/viewdetails/"+bookingArray[i]+"'>"+bookingArray[i]+"</a></td>";
+                bookingString +="<td>"+remarksArray[i]+"</td>";
+                bookingString +="<td>"+statusArray[i]+"</td>";
+                bookingString +="</tr>";
             }
+            bookingString += '</table>';
             console.log(bookingString);
             $("#booking_id_holder").html(bookingString);
         }
