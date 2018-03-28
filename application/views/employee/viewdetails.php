@@ -1,3 +1,4 @@
+<?php if(!empty($booking_history)) { ?> 
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&key=AIzaSyB4pxS4j-_NBuxwcSwSFJ2ZFU-7uep1hKc"></script>
 <script src="<?php echo base_url();?>js/googleScript.js"></script> 
 <style type="text/css">
@@ -162,6 +163,14 @@
                             <th>EDD / Delivery Date</th>
                             <td><?php echo $booking_history[0]['estimated_delivery_date']." / ".$booking_history[0]['delivery_date']; ?></td>
                         </tr>
+                        <?php if(!empty($booking_history[0]['dealer_id'])) { ?> 
+                        <tr id="dealer_details">
+                            <th>Dealer Name </th>
+                            <td id="dealer_name"></td>
+                            <th>Dealer Phone Number </th>
+                            <td id="dealer_phone_number"></td>
+                        </tr>
+                        <?php } ?>
                         <tr>
                             <th>Rating Stars </th>
                             <td><?php echo $booking_history[0]['rating_stars']; ?></td>
@@ -978,6 +987,23 @@
                     }
                 });
     }
+    
+    <?php if(!empty($booking_history[0]['dealer_id'])) { ?>
+         $.ajax({
+             method:'GET',
+             url:'<?php echo base_url(); ?>employee/dealers/get_dealer_data/'+<?php echo $booking_history[0]['dealer_id']?>,
+             success:function(response){
+                 obj = JSON.parse(response);
+                 if(obj.msg){
+                    $('#dealer_name').html(obj.data[0].dealer_name);
+                    $('#dealer_phone_number').html(obj.data[0].dealer_phone_number_1);
+                 }else{
+                     $('#dealer_details').hide();
+                 }
+                 
+             }
+         });
+    <?php } ?>
 </script>
 <style>
     .action_buton{
@@ -987,3 +1013,10 @@ background-color: #f5f5f5;
     color: black;
     }
     </style>
+<?php }else { ?>
+    <div class="container">
+        <div class="row">
+            <div class="alert alert-danger text-center"> Booking Id not found</div>
+        </div>
+    </div>
+ <?php } ?>
