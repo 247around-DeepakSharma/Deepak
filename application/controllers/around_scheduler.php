@@ -1485,16 +1485,16 @@ class Around_scheduler extends CI_Controller {
      * @desc This is used to refund cashback for those customer who had paid through Paytm
      */
     function paytm_payment_cashback(){
-        $finalCashbackAmount = 0;
         //get Cashback Rules
         $rules = $this->paytm_payment_model->get_paytm_cashback_rules(array("active" => 1, "tag" => PAYTM_CASHBACK_TAG));
         if(!empty($rules)){
             $transactionArray = $this->paytm_payment_model->get_without_cashback_transactions();
             foreach($transactionArray as $transaction){
+                 $finalCashbackAmount = 0;
                 $cashbackAmount = ($transaction['paid_amount']*$rules[0]['cashback_amount_percentage'])/100;
                 if(($transaction['paid_amount']<$rules[0]['amount_criteria_less_than'])){
                     $finalCashbackAmount = $cashbackAmount;
-                }
+                }   
                 else{
                     if($cashbackAmount>$rules[0]['paytm_cashback_limit']){
                         $finalCashbackAmount = $cashbackAmount-$rules[0]['paytm_cashback_limit'];
