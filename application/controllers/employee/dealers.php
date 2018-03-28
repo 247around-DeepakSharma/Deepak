@@ -681,6 +681,29 @@ class Dealers extends CI_Controller {
             redirect(base_url() . "employee/dealers/show_dealer_list");
         }
     }
+    
+    function get_dealer_data($id = null){
+        
+        $this->checkAdminSession();
+        if(!empty($id)){
+            $where = array('dealer_id'=> trim($id));
+        }else{
+            $where = array();
+        }
+        
+        $select = "dealer_name,dealer_phone_number_1";
+        $data = $this->dealer_model->get_dealer_details($select,$where);
+        
+        if(!empty($data)){
+            $res['msg'] = TRUE;
+            $res['data'] = $data;
+        } else {
+            $res['msg'] = FALSE;
+            $res['data'] = $data;
+        }
+        
+        echo json_encode($res);
+    }
    
 
 }
