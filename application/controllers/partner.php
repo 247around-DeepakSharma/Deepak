@@ -45,6 +45,7 @@ class Partner extends CI_Controller {
         $this->load->library('form_validation');
         $this->load->library('PHPReport');
         $this->load->library('push_notification_lib');
+        $this->load->model('service_centre_charges_model');
         // $this->load->library('push_inbuilt_function_lib');
     }
 
@@ -2335,5 +2336,11 @@ class Partner extends CI_Controller {
         $response = curl_exec($ch);
         print_r($response);
     }
-
+    function download_price_sheet(){
+        $partnerID = $this->session->userdata('partner_id');
+        $where['partner_id'] = $partnerID;
+        $priceArray = $this->service_centre_charges_model->get_partner_price_data($where);
+        $config = array('template' => "Price_Sheet.xlsx", 'templateDir' => __DIR__ . "/excel-templates/");
+        $this->miscelleneous->downloadExcel($priceArray,$config);
+    }
 }

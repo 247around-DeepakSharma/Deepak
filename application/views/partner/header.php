@@ -283,6 +283,7 @@
                                         <li><a href="<?php echo base_url(); ?>partner/download_partner_summary/<?php echo $this->session->userdata('partner_id'); ?>">Summary Report</a></li>
                                         <li><a href="<?php echo base_url(); ?>partner/serviceability_list">Serviceability List</a></li>
                                         <li><a href="<?php echo base_url(); ?>partner/download_sf_list_excel">Service Center List</a></li>
+                                        <li><a href="<?php echo base_url(); ?>partner/download_price_sheet">Price Sheet</a></li>
                                     </ul>
                                 </li>
                                 <li><a href="<?php echo base_url(); ?>employee/partner/get_contact_us_page" data-toggle="tooltip" data-placement="right" title="" data-original-title="Contact Us"><i class="fa fa-phone"></i><span class="side_menu_list_title">Contact Us</span></a></li>
