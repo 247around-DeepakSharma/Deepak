@@ -809,7 +809,7 @@ class Booking extends CI_Controller {
                 $data['booking_history'][0]['onlinePaymentAmount'] = $isPaytmTxn['total_amount'];
             }
         }
-
+        
         $data['upcountry_charges'] = $upcountry_price;
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/completebooking', $data);
@@ -1961,6 +1961,14 @@ class Booking extends CI_Controller {
             $this->asynchronous_lib->do_background_process($url, $send);
 
             $this->partner_cb->partner_callback($booking_id);
+            
+            if ($this->input->post('rating_stars') !== "") {
+                //update rating state
+                $remarks = 'Rating' . ':' . $booking['rating_stars'] . '. ' . $booking['rating_comments'];
+                $this->notify->insert_state_change($booking_id, RATING_NEW_STATE, $status, $remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+                // send sms after rating
+                $this->send_rating_sms($this->input->post('booking_primary_contact_no'), $booking['rating_stars'], $this->input->post('customer_id'), $booking_id);
+            }
             //Generate Customer payment Invoice
             if($total_amount_paid > MAKE_CUTOMER_PAYMENT_INVOICE_GREATER_THAN && $booking['current_status'] == _247AROUND_COMPLETED){
                 $invoice_url = base_url() . "employee/user_invoice/payment_invoice_for_customer/".$booking_id."/".$this->session->userdata('id');
