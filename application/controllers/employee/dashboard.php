@@ -1069,21 +1069,31 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         foreach($installationData as $iData){
             $tempArray['repair_pending'] = 0;
             $tempArray['repair_booking_id_list'] = '';
+            $tempArray['repair_remarks'] = '';
+            $tempArray['repair_internal_status'] = '';
             $tempArray['id'] = $iData['service_center_id'];
             $tempArray['installation_pending'] = $iData['booked'];
             $tempArray['name'] = $iData['service_center_name'];
             $tempArray['installation_booking_id_list'] = $iData['booking_id_list'];
+            $tempArray['installation_remarks'] = $iData['booking_remarks'];
+            $tempArray['installation_internal_status'] = $iData['partner_internal_status'];
             if(array_key_exists($iData['service_center_id'], $repairDataAssociativeArray)){
                 $tempArray['repair_pending'] = $repairDataAssociativeArray[$iData['service_center_id']]['booked'];
                 $tempArray['repair_booking_id_list'] = $repairDataAssociativeArray[$iData['service_center_id']]['booking_id_list'];
+                $tempArray['repair_remarks'] = $repairDataAssociativeArray[$iData['service_center_id']]['booking_remarks'];
+                $tempArray['repair_internal_status'] = $repairDataAssociativeArray[$iData['service_center_id']]['partner_internal_status'];
             }
             $finalArray[$iData['service_center_id']] = $tempArray;
         }
         foreach($extraIDInRepairArray as $id){
             $tempArray['installation_pending'] = 0;
             $tempArray['installation_booking_id_list'] = '';
+            $tempArray['installation_remarks'] = '';
+            $tempArray['installation_internal_status'] = '';
             $tempArray['repair_pending'] = $repairDataAssociativeArray[$id]['booked'];
             $tempArray['repair_booking_id_list'] = $repairDataAssociativeArray[$id]['booking_id_list'];
+            $tempArray['repair_remarks'] = $repairDataAssociativeArray[$id]['booking_remarks'];
+            $tempArray['repair_internal_status'] = $repairDataAssociativeArray[$id]['partner_internal_status'];
             $tempArray['id'] = $id;
             $tempArray['name'] = $repairDataAssociativeArray[$id]['service_center_name'];
             $finalArray[$id] = $tempArray;
@@ -1102,13 +1112,21 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $tempArray['last_3_to_5_days_installation_pending'] = $tempArray['more_then_5_days_repair_pending'] = $tempArray['more_then_5_days_installation_pending'] = 0;
             $tempArray['last_2_days_installation_booking_list'] = $tempArray['last_2_days_repair_booking_list'] = $tempArray['last_3_to_5_days_installation_booking_list'] =
             $tempArray['last_3_to_5_days_repair_booking_list'] =  $tempArray['more_then_5_days_installation_booking_list'] = $tempArray['more_then_5_days_repair_booking_list'] ='';
+            $tempArray['last_2_days_installation_remarks'] = $tempArray['last_2_days_repair_remarks'] = $tempArray['last_3_to_5_days_installation_remarks'] =
+            $tempArray['last_3_to_5_days_repair_remarks'] =  $tempArray['more_then_5_days_installation_remarks'] = $tempArray['more_then_5_days_repair_remarks'] ='';
+            $tempArray['last_2_days_installation_status'] = $tempArray['last_2_days_repair_status'] = $tempArray['last_3_to_5_days_installation_status'] =
+            $tempArray['last_3_to_5_days_repair_status'] =  $tempArray['more_then_5_days_installation_status'] = $tempArray['more_then_5_days_repair_status'] ='';
             $tempVariable = 0;
             if(!empty($finalArray['last2DaysArray'])){
                 if(array_key_exists($id, $finalArray['last2DaysArray'])){
                     $tempArray['last_2_days_repair_pending'] = $finalArray['last2DaysArray'][$id]['repair_pending'];
                     $tempArray['last_2_days_installation_pending'] = $finalArray['last2DaysArray'][$id]['installation_pending'];
                     $tempArray['last_2_days_installation_booking_list'] = $finalArray['last2DaysArray'][$id]['installation_booking_id_list'];
+                    $tempArray['last_2_days_installation_remarks'] = $finalArray['last2DaysArray'][$id]['installation_remarks'];
+                    $tempArray['last_2_days_installation_status'] = $finalArray['last2DaysArray'][$id]['installation_internal_status'];
                     $tempArray['last_2_days_repair_booking_list'] = $finalArray['last2DaysArray'][$id]['repair_booking_id_list'];
+                    $tempArray['last_2_days_repair_remarks'] = $finalArray['last2DaysArray'][$id]['repair_remarks'];
+                    $tempArray['last_2_days_repair_status'] = $finalArray['last2DaysArray'][$id]['repair_internal_status'];
                     $tempArray['id'] = $id;
                     $tempArray['name'] = $finalArray['last2DaysArray'][$id]['name'];
                     $tempVariable++;
@@ -1118,7 +1136,11 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 $tempArray['last_3_to_5_days_repair_pending'] = $finalArray['last3To5DaysArray'][$id]['repair_pending'];
                 $tempArray['last_3_to_5_days_installation_pending'] = $finalArray['last3To5DaysArray'][$id]['installation_pending'];
                 $tempArray['last_3_to_5_days_installation_booking_list'] = $finalArray['last3To5DaysArray'][$id]['installation_booking_id_list'];
+                $tempArray['last_3_to_5_days_installation_remarks'] = $finalArray['last3To5DaysArray'][$id]['installation_remarks'];
+                $tempArray['last_3_to_5_days_installation_status'] = $finalArray['last3To5DaysArray'][$id]['installation_internal_status'];
                 $tempArray['last_3_to_5_days_repair_booking_list'] = $finalArray['last3To5DaysArray'][$id]['repair_booking_id_list'];
+                $tempArray['last_3_to_5_days_repair_remarks'] = $finalArray['last3To5DaysArray'][$id]['repair_remarks'];
+                $tempArray['last_3_to_5_days_repair_status'] = $finalArray['last3To5DaysArray'][$id]['repair_internal_status'];
                 $tempArray['id'] = $id;
                 $tempArray['name'] = $finalArray['last3To5DaysArray'][$id]['name'];
                 $tempVariable++;
@@ -1127,7 +1149,11 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 $tempArray['more_then_5_days_repair_pending'] = $finalArray['moreThen5DaysArray'][$id]['repair_pending'];
                 $tempArray['more_then_5_days_installation_pending'] = $finalArray['moreThen5DaysArray'][$id]['installation_pending'];
                 $tempArray['more_then_5_days_installation_booking_list'] = $finalArray['moreThen5DaysArray'][$id]['installation_booking_id_list'];
+                $tempArray['more_then_5_days_installation_remarks'] = $finalArray['moreThen5DaysArray'][$id]['installation_remarks'];
+                $tempArray['more_then_5_days_installation_status'] = $finalArray['moreThen5DaysArray'][$id]['installation_internal_status'];
                 $tempArray['more_then_5_days_repair_booking_list'] = $finalArray['moreThen5DaysArray'][$id]['repair_booking_id_list'];
+                $tempArray['more_then_5_days_repair_remarks'] = $finalArray['moreThen5DaysArray'][$id]['repair_remarks'];
+                $tempArray['more_then_5_days_repair_status'] = $finalArray['moreThen5DaysArray'][$id]['repair_internal_status'];
                 $tempArray['id'] = $id;
                 $tempArray['name'] = $finalArray['moreThen5DaysArray'][$id]['name'];
                 $tempVariable++;
