@@ -2175,9 +2175,7 @@ class Invoice extends CI_Controller {
             $total_amount_collected = ($data['total_service_charge'] +
                     $data['total_additional_service_charge'] +
                     $data['parts_cost'] + $data['courier_charges'] + $data['upcountry_price'] + $data['credit_penalty_amount'] - $data['penalty_amount']);
-            $gst_rate = $this->input->post('gst_rate');
-            $gst_amount = $total_amount_collected * ($gst_rate / 100);
-            $data['total_amount_collected'] = round(($total_amount_collected + $gst_amount), 0);
+            
 
             $entity_details = array();
             $gst_number = "";
@@ -2190,6 +2188,16 @@ class Invoice extends CI_Controller {
                 $entity_details = $this->partner_model->getpartner_details("gst_number, state", array('partners.id' => $data['vendor_partner_id']));
                 $gst_number = $entity_details[0]['gst_number'];
             }
+            
+            if(empty($gst_number)){
+                $gst_rate = 0;
+            } else {
+                $gst_rate = $this->input->post('gst_rate');
+            }
+            
+            
+            $gst_amount = $total_amount_collected * ($gst_rate / 100);
+            $data['total_amount_collected'] = round(($total_amount_collected + $gst_amount), 0);
 
             $data['rcm'] = 0;
 
@@ -2226,9 +2234,8 @@ class Invoice extends CI_Controller {
                                 $data['cgst_tax_amount'] = $data['sgst_tax_amount'] = $data['sgst_tax_rate'] = $data['cgst_tax_rate'] = 0;
                                 $data['igst_tax_amount'] = 0;
                                 $data['igst_tax_rate'] = 0;
-                            } else {
-                                $data['rcm'] = $gst_amount;
-                            }
+                               // $data['rcm'] = $total_amount_collected * ($this->input->post('gst_rate') / 100);
+                            } 
                         } else {
                             $tds['tds'] = 0;
                             $tds['tds_rate'] = 0;
