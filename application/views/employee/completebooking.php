@@ -453,6 +453,7 @@
 		    <br>
 		    <div class="form-group  col-md-12" >
 			<center>
+                            <input type="hidden" id="customer_id" name="customer_id" value="<?php echo $booking_history[0]['user_id']; ?>">
 			    <input type="submit" id="submitform" onclick="return onsubmit_form('<?php echo $booking_history[0]['upcountry_paid_by_customer']; ?>', '<?php echo $k_count; ?>')" class="btn btn-info" value="Complete Booking">
 			    </div>
 			</center>
