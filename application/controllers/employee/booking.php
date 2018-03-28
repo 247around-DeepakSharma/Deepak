@@ -3260,7 +3260,7 @@ class Booking extends CI_Controller {
         $row[] = "<a class='col-md-12' href='".base_url()."employee/user/finduser?phone_number=".$order_list->phone_number."'>$order_list->customername</a>"."<b>".$order_list->booking_primary_contact_no."</b>";
         $row[] = "<b>".$order_list->services."</b>"."<br>".$order_list->request_type;
         $row[] = $order_list->booking_date." / ".$order_list->booking_timeslot;
-        $row[] = date_diff(date_create(date('Y-m-d',strtotime($order_list->booking_date))),date_create(date('Y-m-d')))->format("%a days");
+        $row[] = date_diff(date_create(date('Y-m-d',strtotime($order_list->initial_booking_date))),date_create(date('Y-m-d')))->format("%a days");
         $row[] = $escalation." ".$order_list->partner_internal_status;
         $row[] = "<a target = '_blank' href='".base_url()."employee/vendor/viewvendor/".$order_list->assigned_vendor_id."'>$sf</a>";
         $row[] = "<a id ='view' class ='btn btn-sm btn-color' href='".base_url()."employee/booking/viewdetails/".$order_list->booking_id."' title = 'view' target = '_blank'><i class = 'fa fa-eye' aria-hidden = 'true'></i></a>";
