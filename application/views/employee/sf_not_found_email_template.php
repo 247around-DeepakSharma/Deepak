@@ -55,6 +55,7 @@
                                                                                 <td style="color:#000;"><b>Booking ID</b></td>
                                                                                 <td style="color:#000;"><b>Booking Pincode</b></td>
                                                                                 <td style="color:#000;"><b>Booking City</b></td>
+                                                                                <td style="color:#000;"><b>Appliance</b></td>
                                                                                 <td style="color:#000;"><b>Partner</b></td>
                                                                             </tr>
                                                                             <tr>
@@ -66,6 +67,9 @@
                                                                                 </td>
                                                                                 <td style="color:#333;">
                                                                                     <?php if (isset($city)) { echo $city;} ?>
+                                                                                </td>
+                                                                                <td style="color:#333;">
+                                                                                    <?php if (isset($service)) { echo $service;} ?>
                                                                                 </td>
                                                                                 <td style="color:#333;">
                                                                                     <?php if (isset($partner_name)) {echo $partner_name; }else{ echo "" ; } ?>

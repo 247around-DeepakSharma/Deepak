@@ -1302,7 +1302,11 @@ class Miscelleneous {
 
     function send_sf_not_found_email_to_rm($booking, $rm_email,$subject) {
         $cc = NITS_ANUJ_EMAIL_ID;
+        $booking['service'] = NULL;
         $tempPartner = $this->My_CI->reusable_model->get_search_result_data("partners", "public_name", array('id' => $booking['partner_id']), NULL, NULL, NULL, NULL, NULL);
+        if(!empty($booking['service_id'])){
+            $booking['service'] = $this->My_CI->reusable_model->get_search_result_data("services", "services", array('id' => $booking['service_id']), NULL, NULL, NULL, NULL, NULL)[0]['services'];
+        }
         $booking['partner_name'] = NULL;
         if (!empty($tempPartner)) {
             $booking['partner_name'] = $tempPartner[0]['public_name'];
