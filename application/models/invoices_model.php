@@ -107,7 +107,7 @@ class invoices_model extends CI_Model {
         $return_data = $query->result_array();
         
         if($join && !empty($return_data)){
-            if($return_data[0]['vendor_partner'] === 'vendor'){
+            if($return_data[0]['vendor_partner'] === 'vendor' || $return_data[0]['vendor_partner'] === 'user'){
                 $details = $this->vendor_model->getVendorDetails("service_centres.company_name as vendor_partner_name",array('service_centres.id'=> $return_data[0]['vendor_partner_id']));
             }
             else if($return_data[0]['vendor_partner'] === 'partner'){
