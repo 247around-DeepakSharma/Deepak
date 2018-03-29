@@ -1510,6 +1510,7 @@ class Around_scheduler extends CI_Controller {
                     }
                 }
             }
+            $this->reusable_model->update_table("paytm_transaction_callback",array("discount_flag"=>1),array('txn_id'=>$transaction['txn_id']));
         }
         else{
                 log_message("info",__METHOD__. "Cashback Rules are not set");
