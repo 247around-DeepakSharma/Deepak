@@ -1300,6 +1300,7 @@ class Do_background_upload_excel extends CI_Controller {
         
         //check file type
         $upload_file_type = $this->input->post('file_type');
+        $redirect_to = $this->input->post('redirect_to');
         $partner_id = $this->input->post('partner_id');
         $this->is_send_file_back = $this->input->post('is_file_send_back');
         $this->file_read_column = $this->input->post('file_read_column');
@@ -1325,14 +1326,13 @@ class Do_background_upload_excel extends CI_Controller {
             if ($header_data['status']) {
                 $header_data = array_merge($header_data,$file_status);
                 $header_data['file_type'] = $upload_file_type;
-                $redirect_to = $this->input->post('redirect_to');
                 $response = $this->process_file_upload($header_data);
                 
                 //if file uploaded successfully then log else send email 
                 if ($response['status']) {
                     log_message("info", "File Uploaded successfully");
                     //now send back file with updated booking id to partner
-                    if(!empty($this->is_send_file_back) && !empty($this->send_file_back_data)){
+                    if(!empty($this->is_send_file_back) && !empty($this->send_file_back_data) && $this->is_send_file_back !== "null"){
                         $this->revert_file_to_partner($header_data);
                     }else{
                         log_message("info", "unable to send file back to partner");
