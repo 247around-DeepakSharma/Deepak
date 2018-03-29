@@ -1490,7 +1490,7 @@ class Around_scheduler extends CI_Controller {
         if(!empty($rules)){
             $transactionArray = $this->paytm_payment_model->get_without_cashback_transactions();
             foreach($transactionArray as $transaction){
-                 $finalCashbackAmount = 0;
+                $finalCashbackAmount = 0;
                 $cashbackAmount = ($transaction['paid_amount']*$rules[0]['cashback_amount_percentage'])/100;
                 if(($transaction['paid_amount']<$rules[0]['amount_criteria_less_than'])){
                     $finalCashbackAmount = $cashbackAmount;
@@ -1511,6 +1511,7 @@ class Around_scheduler extends CI_Controller {
                     }
                 }
             }
+            $this->reusable_model->update_table("paytm_transaction_callback",array("discount_flag"=>1),array('txn_id'=>$transaction['txn_id']));
         }
         else{
                 log_message("info",__METHOD__. "Cashback Rules are not set");
