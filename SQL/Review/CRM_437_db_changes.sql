@@ -1,0 +1,1 @@
+ALTER TABLE `paytm_transaction_callback` ADD `discount_flag` INT(2) NOT NULL DEFAULT '0' AFTER `vendor_invoice_id`;
