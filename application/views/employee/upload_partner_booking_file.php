@@ -1,6 +1,10 @@
 <style>
-    #datatable1_filter,#datatable1_length,#datatable1_info{
+    #datatable1_info{
     display: none;
+    }
+    
+    #datatable1_filter{
+        text-align: right;
     }
 </style>
 <div id="page-wrapper">
@@ -157,6 +161,7 @@
             processing: true,
             serverSide: true,
             order: [],
+            lengthMenu: [[5,10, 25, 50], [5,10, 25, 50]],
             pageLength: 5,
             ajax: {
                 url: "<?php echo base_url(); ?>employee/upload_booking_file/get_upload_file_history",
