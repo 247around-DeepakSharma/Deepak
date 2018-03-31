@@ -734,7 +734,7 @@ class Upload_buyback_process extends CI_Controller {
                 //send mail 
                 $template = $this->booking_model->get_booking_email_template("buyback_price_sheet_with_quote");
                 $body = $template[0];
-                $to = NITS_ANUJ_EMAIL_ID;
+                $to = NITS_ANUJ_EMAIL_ID.",".$this->session->userdata('official_email');
                 $from = $template[2];
                 $cc = $template[3];
                 $subject = $template[4];
@@ -848,7 +848,8 @@ class Upload_buyback_process extends CI_Controller {
         log_message('info', __FUNCTION__);
         $post_data = array('length' => 1,
             'start' => 0,
-            'file_type' => _247AROUND_BB_PRICE_LIST);
+            'file_type' => _247AROUND_BB_PRICE_LIST,
+            'result' => FILE_UPLOAD_SUCCESS_STATUS);
         //get the latest uploaded price sheet
         $latest_upload_price_sheet_file_name = $this->reporting_utils->get_uploaded_file_history($post_data)[0]->file_name;
         $s3_bucket_file = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . urlencode($latest_upload_price_sheet_file_name);
