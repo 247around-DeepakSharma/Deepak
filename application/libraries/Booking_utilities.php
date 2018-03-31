@@ -749,5 +749,38 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
                     </html>";
         $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "");
     }
+    
+    function convert_excel_to_pdf_paidApi($src_format, $dst_format, $files) {
+        //Add Live Secret Key
+        $parameter = array(
+            'Secret' => '278325305',
+        );
+        $parameters = array_change_key_case($parameter);
+        $auth_param = array_key_exists('secret', $parameters) ? 'secret=' . $parameters['secret'] : 'token=' . $parameters['token'];
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_POST, true);
+        curl_setopt($curl, CURLOPT_URL, "https://v2.convertapi.com/{$src_format}/to/{$dst_format}?{$auth_param}");
+
+        if (is_array($files)) {
+            foreach ($files as $index => $file) {
+                $parameters["files[$index]"] = file_exists($file) ? new CurlFile($file) : $file;
+            }
+        } else {
+            $parameters['file'] = file_exists($files) ? new CurlFile($files) : $files;
+        }
+
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $parameters);
+        $response = curl_exec($curl);
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $error = curl_error($curl);
+        curl_close($curl);
+        if ($response && $httpcode >= 200 && $httpcode <= 299) {
+            return json_decode($response);
+            
+        } else {
+            throw new Exception($error . $response, $httpcode);
+        }
+    }
 
 }
