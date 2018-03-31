@@ -1691,19 +1691,13 @@ class Booking extends CI_Controller {
         log_message('info', __FUNCTION__);
         $approved_booking = $this->input->post('approved_booking');
         $url = base_url() . "employee/do_background_process/complete_booking";
-        $agent_id = $this->session->userdata('id');
-        $agent_name = $this->session->userdata('employee_id');
-        $partner_id = $this->input->post('partner_id');
         if (!empty($approved_booking)) {
-            foreach ($approved_booking as $booking_id) {
-                $data = array();
-                $data['booking_id'] = $booking_id;
-                $data['agent_id'] = $agent_id;
-                $data['agent_name'] = $agent_name;
-                $data['partner_id'] = $partner_id;
-                log_message('info', __FUNCTION__ . " Approved Booking: " . print_r($data, true));
-                $this->asynchronous_lib->do_background_process($url, $data);
-            }
+            
+            $data['booking_id'] = $approved_booking;
+            $data['agent_id'] = $this->session->userdata('id');
+            $data['agent_name'] = $this->session->userdata('employee_id');
+            $data['partner_id'] = $this->input->post('partner_id');
+            $this->asynchronous_lib->do_background_process($url, $data);
             $this->push_notification_lib->send_booking_completion_notification_to_partner($approved_booking);
         } else {
             //Logging
@@ -1731,6 +1725,7 @@ class Booking extends CI_Controller {
         log_message('info', __FUNCTION__ . " Booking ID: " . print_r($booking_id, true));
         $data['charges'] = $this->booking_model->get_booking_for_review($booking_id,$whereIN);
         $data['data'] = $this->booking_model->review_reschedule_bookings_request($whereIN);
+        
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/review_booking', $data);
     }
