@@ -1797,6 +1797,10 @@ function get_booking_by_service_center_query_data($where,$groupBY){
             $sql .= " AND file_name LIKE '%".$post_data['search_value']."%' ";
         }
         
+        if(!empty($post_data['result'])){
+            $sql .= " AND result = '".$post_data['result']."' ";
+        }
+        
         $sql .= " ORDER BY p.create_date DESC"; 
         
         if(($post_data['start'] !== NULL)  && ($post_data['length'] !== NULL)){
@@ -1805,7 +1809,7 @@ function get_booking_by_service_center_query_data($where,$groupBY){
         
         
         
-            $query = $this->db->query($sql);
+        $query = $this->db->query($sql);
         return $query->result();
     }
     
