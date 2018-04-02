@@ -2453,16 +2453,21 @@ class Partner extends CI_Controller {
                                 //Log Message
                                 log_message('info', __FUNCTION__ . ' Partner Login has been Added for id : ' . $partner_id . ' with values ' . print_r($data, TRUE));
                                 //Getting template from Database to send mail
+                                $accountManagerData = $this->miscelleneous->get_am_data($partner_id);
                                 $login_template = $this->booking_model->get_booking_email_template("partner_login_details");
                                 if (!empty($login_template)) {
-
                                     $login_email['username'] = $data['user_id'];
                                     $login_email['password'] = $data['clear_password'];
+                                    $cc = $login_template[3];
+                                    if($accountManagerData){
+                                        $accountManagerEmail = $accountManagerData[0]['official_email'];
+                                        $cc = $login_template[3].",".$accountManagerEmail;
+                                    }
 
                                     $login_subject = $login_template[4];
                                     $login_emailBody = vsprintf($login_template[0], $login_email);
 
-                                    $this->notify->sendEmail($login_template[2], $data['email'], $login_template[3], "",$login_subject, $login_emailBody, "");
+                                    $this->notify->sendEmail($login_template[2], $data['email'], $cc, "",$login_subject, $login_emailBody, "");
 
                                     log_message('info', $login_subject . " Email Send successfully" . $login_emailBody);
                                 } else {
