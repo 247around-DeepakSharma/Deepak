@@ -1248,15 +1248,30 @@ function get_data_for_partner_callback($booking_id) {
      * @param String $partner_id
      * @return Array
      */
-    function get_partner_details_with_soucre_code($partner_id=""){
+    function get_partner_details_with_soucre_code($active,$sourceCode,$partner_id=""){
+        $where = array();
+        $this->db->select('partners.*,bookings_sources.code');
         if ($partner_id != "") {
-	        $this->db->where('partners.id', $partner_id);
-	    }
-	    $this->db->select('partners.*,bookings_sources.code');
-            $this->db->join('bookings_sources','partners.id=bookings_sources.partner_id');
-	    $query = $this->db->get('partners');
-
-	    return $query->result_array();
+            $where['partners.id']  = $partner_id;
+        }
+        else{
+            if($active !='All'){
+                $where['partners.is_active'] = $active;
+            }
+             if($sourceCode == 'All'){
+                 
+             }
+             else  if($sourceCode == 0){
+                  $where['bookings_sources.code =""']  = NULL;
+             }
+             else  if($sourceCode == 1){
+                 $where['bookings_sources.code !=""']  = NULL;
+             }
+        }
+        $this->db->join('bookings_sources','partners.id=bookings_sources.partner_id');
+        $this->db->where($where);     
+        $query = $this->db->get('partners');
+        return $query->result_array();
     }
     
     function partner_login_details($where){
