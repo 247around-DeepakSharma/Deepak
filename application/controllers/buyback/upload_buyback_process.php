@@ -126,7 +126,7 @@ class Upload_buyback_process extends CI_Controller {
         } else {
            
             $to = empty($this->email_send_to)?(empty($this->session->userdata('official_email'))?ANUJ_EMAIL_ID:$this->session->userdata('official_email') . ", " . ANUJ_EMAIL_ID):$this->email_send_to;
-            $cc = "abhaya@247around.com , ".NITS_EMAIL_ID;
+            $cc = NITS_EMAIL_ID;
 
             $message = "";
             $agent_name = !empty($this->session->userdata('emp_name'))? $this->session->userdata('emp_name'): _247AROUND_DEFAULT_AGENT_NAME;
@@ -373,7 +373,7 @@ class Upload_buyback_process extends CI_Controller {
             $message = " Please check and upload again.";
             $this->Columfailed .= " column does not exist.";
             $to =  empty($this->email_send_to)?(empty($this->session->userdata('official_email'))?ANUJ_EMAIL_ID:$this->session->userdata('official_email') . ", " . ANUJ_EMAIL_ID):$this->email_send_to;
-            $cc = "abhaya@247around.com,".NITS_EMAIL_ID;
+            $cc = NITS_EMAIL_ID;
             $agent_name = !empty($this->session->userdata('emp_name'))?$this->session->userdata('emp_name'):_247AROUND_DEFAULT_AGENT_NAME;
             $subject = "Failure! Buyback Order is uploaded by " .$agent_name ;
             $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");

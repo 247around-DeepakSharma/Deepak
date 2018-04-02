@@ -67,7 +67,7 @@ class Around_scheduler extends CI_Controller {
                 $message = "Please check SMS tag and phone number. Booking id is : " .
                         $value->booking_id . " Tag is '" . $tag . "' & phone number is :" . $value->booking_primary_contact_no . " Result:"
                         . " " . $status['content'];
-                $to = ANUJ_EMAIL_ID . ", abhaya@247around.com";
+                $to = ANUJ_EMAIL_ID;
 
                 $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "");
             }
@@ -602,7 +602,7 @@ class Around_scheduler extends CI_Controller {
         }
 
         $to = NITS_ANUJ_EMAIL_ID;
-        $cc = "abhaya@247around.com";
+        $cc = "";
 
         $subject = "Jeeves Booking Update Status";
         $message = "Dear Partner,<br/> Attached is the status of the last " . $hour . " hour <br/><br/><br/>";
