@@ -253,7 +253,7 @@ class Do_background_upload_excel extends CI_Controller {
         
         $to = NITS_ANUJ_EMAIL_ID.",".$file_upload_agent_email;
         $from = "noreply@247around.com";
-        $cc = "abhaya@247around.com";
+        $cc = "";
         $bcc = "";
         $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "");
         log_message('info', __FUNCTION__ . "=> Validation ". $validation."  ".$message);
@@ -1148,7 +1148,7 @@ class Do_background_upload_excel extends CI_Controller {
         
 	$to = NITS_ANUJ_EMAIL_ID.",".$file_upload_agent_email;
         $from = "noreply@247around.com";
-	$cc = "abhaya@247around.com";
+	$cc = "";
 	$bcc = "";
 	$subject = "";
            
