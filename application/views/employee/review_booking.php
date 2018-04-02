@@ -116,11 +116,15 @@
                         <tbody>
                            <?php $count =1; foreach ($charges as $key => $value) { ?>
                            <tr>
+                              
                               <td style="text-align: left;white-space: inherit;font-size:80%"><?php echo $count; ?></td>
-                              <td  style="text-align: left;white-space: inherit;"><?php echo $value['booking_id']." <br/><br/>".$value['booking'][0]['vendor_name']; ?><input type="hidden" name="booking_id[]" value="<?php echo $value['booking_id']; ?>" id="<?php echo "booking_id".$count; ?>">
+                              <td  style="text-align: left;white-space: inherit;"><?php echo $value['booking_id']." <br/><br/>".$value['booking'][0]['vendor_name']; ?>
+                                 
+                                  <input type="hidden" name="booking_id[]" value="<?php echo $value['booking_id']; ?>" id="<?php echo "booking_id".$count; ?>">
                               </td>
-<!--                              <td style="text-align: left;white-space: inherit;"> <?php //echo $value['booking'][0]['vendor_name']; ?></td>-->
-                              </td>
+
+                            <input type="hidden" class="form-control" id="partner_id" name="partner_id[<?php echo $value['booking_id']; ?>]" value = "<?php echo $value['booking'][0]['partner_id'];?>" >
+
                               <td style="text-align: left;white-space: inherit; <?php if($value['unit_details'][0]['mismatch_pincode'] == 1){ echo "background-color:red;";}?>">
                                  <table  class="table table-condensed">
                                     <thead>
@@ -206,7 +210,6 @@
                            
                             </tr>
                            <?php $count++; } ?>
-                            <input type="hidden" class="form-control" id="partner_id" name="partner_id" value = "<?php if (isset($data['charges'][0]['booking'][0]['partner_id'])) {echo $data['charges'][0]['booking'][0]['partner_id']; } ?>" >
                         </tbody>
                      </table>
                      <?php if(!empty($charges)){?>

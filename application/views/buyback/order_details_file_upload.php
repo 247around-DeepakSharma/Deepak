@@ -51,8 +51,12 @@
         }
     }
 
-    #datatable1_filter,#datatable1_length,#datatable1_info{
-        display: none;
+    #datatable1_info{
+    display: none;
+    }
+    
+    #datatable1_filter{
+        text-align: right;
     }
 </style>
 <script src="<?php echo base_url(); ?>js/base_url.js"></script>
@@ -171,6 +175,7 @@
                 processing: true, //Feature control the processing indicator.
                 serverSide: true, //Feature control DataTables' server-side processing mode.
                 order: [], //Initial no order.
+                lengthMenu: [[5,10, 25, 50], [5,10, 25, 50]],
                 pageLength: 5,
                 // Load data for the table's content from an Ajax source
                 ajax: {
