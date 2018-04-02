@@ -930,7 +930,7 @@ class Upload_booking_file extends CI_Controller {
             //SEND MAIl
             $to = NITS_ANUJ_EMAIL_ID . ", sales@247around.com, booking@247around.com";
 
-            $cc = "abhaya@247around.com";
+            $cc = "";
             $message1 = "Appliance Not Found. Please chaeck File<br/>";
             $subject = "Appliance Not Found. Please chaeck File";
             $message1 .= $this->table->generate();
@@ -968,7 +968,7 @@ class Upload_booking_file extends CI_Controller {
 
         $to = NITS_ANUJ_EMAIL_ID . ", sales@247around.com";
         $from = NOREPLY_EMAIL_ID;
-        $cc = "abhaya@247around.com";
+        $cc = "";
         $bcc = "";
         $subject = "";
 

@@ -903,7 +903,7 @@ class Service_centers extends CI_Controller {
                             $this->process_cancel_booking($booking_id);
 
                             $to = NITS_ANUJ_EMAIL_ID;
-                            $cc = "abhaya@247around.com";
+                            $cc = "";
                             $bcc = "";
                             $subject = "Auto Cancelled Booking - 3rd Day Customer Not Reachable.";
                             $message = "Auto Cancelled Booking " . $booking_id;
