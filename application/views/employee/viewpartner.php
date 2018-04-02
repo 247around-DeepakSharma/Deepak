@@ -26,6 +26,27 @@
       <div>
        
         <h1>Partners</h1>
+        <form class="form-inline" action="<?php echo base_url();?>employee/partner/viewpartner" method="post">
+<div class="form-group">
+  <label for="Partner Type">Partner Type</label>
+  <select class="form-control" id="partner_type" name="active">
+      <option value="All" <?php if($active == 'All'){echo "selected";} ?>>All</option>
+      <option value="1" <?php if($active == '1'){echo "selected";} ?>>Active</option>
+      <option value="0" <?php if($active == '0'){echo "selected";} ?>>Disabled</option>
+  </select>
+  </div>
+<div class="form-group">
+    <label for="Service Code">Partner Code</label>
+    <select class="form-control" id="partner_sc" name="code">
+        <option value="All" <?php if($code == 'All'){echo "selected";} ?>>All</option>
+   <option value="0" <?php if($code == '0'){echo "selected";} ?>>Without Service Code</option>
+   <option value="1" <?php if($code == '1'){echo "selected";} ?>>With Service Code</option>
+  </select>
+</div>
+<div class="form-group">
+    <input type="submit" value="Apply Filter" class="btn btn-sm btn-success"> 
+    </div>
+        </form>
         <?php
             if ($this->session->userdata('success')) {
                 echo '<div class="alert alert-success alert-dismissible" role="alert">
