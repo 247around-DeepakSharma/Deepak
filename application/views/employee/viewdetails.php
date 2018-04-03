@@ -40,42 +40,42 @@
 </style>
 <div class="page-wrapper" style="margin-top:35px;">
 <div class="btn-pref btn-group btn-group-justified btn-group-lg" role="group" aria-label="...">
-    <div class="btn-group" role="group">
-        <button type="button" class="btn btn-primary" href="#tab1" data-toggle="tab">
-            <div class="hidden-xs">Booking Details</div>
-        </button>
-    </div>
-    <div class="btn-group" role="group">
-        <button type="button" class="btn btn-default" href="#upcountry" data-toggle="tab">
-            <div class="hidden-xs">SF / Upcountry</div>
-        </button>
-    </div>
-    <div class="btn-group" role="group">
-        <button type="button" class="btn btn-default" href="#tab2" data-toggle="tab">
-            <div class="hidden-xs">Appliance Details</div>
-        </button>
-    </div>
-    <div class="btn-group" role="group">
-        <button type="button" class="btn btn-default" href="#tab3" data-toggle="tab">
-            <div class="hidden-xs">Spare Parts</div>
-        </button>
-    </div>
-    <div class="btn-group" role="group">
-        <button type="button" class="btn btn-default" href="#tab4" data-toggle="tab">
-            <div class="hidden-xs">History / Sms</div>
-        </button>
-    </div>
-    <div class="btn-group" role="group">
-        <button type="button" class="btn btn-default" href="#tab5" data-toggle="tab">
-            <div class="hidden-xs">Penalty</div>
-        </button>
-    </div>
+<div class="btn-group" role="group">
+    <button type="button" class="btn btn-primary" href="#tab1" data-toggle="tab">
+        <div class="hidden-xs">Booking Details</div>
+    </button>
+</div>
+<div class="btn-group" role="group">
+    <button type="button" class="btn btn-default" href="#upcountry" data-toggle="tab">
+        <div class="hidden-xs">SF / Upcountry</div>
+    </button>
+</div>
+<div class="btn-group" role="group">
+    <button type="button" class="btn btn-default" href="#tab2" data-toggle="tab">
+        <div class="hidden-xs">Appliance Details</div>
+    </button>
+</div>
+<div class="btn-group" role="group">
+    <button type="button" class="btn btn-default" href="#tab3" data-toggle="tab">
+        <div class="hidden-xs">Spare Parts</div>
+    </button>
+</div>
+<div class="btn-group" role="group">
+    <button type="button" class="btn btn-default" href="#tab4" data-toggle="tab">
+        <div class="hidden-xs">History / Sms</div>
+    </button>
+</div>
+<div class="btn-group" role="group">
+    <button type="button" class="btn btn-default" href="#tab5" data-toggle="tab">
+        <div class="hidden-xs">Penalty</div>
+    </button>
+</div>
     <?php if($engineer_action_not_exit) { ?>
-    <div class="btn-group" role="group">
-        <button type="button" class="btn btn-default" href="#tab6" data-toggle="tab">
-            <div class="hidden-xs">Engineer Action</div>
-        </button>
-    </div>
+<div class="btn-group" role="group">
+    <button type="button" class="btn btn-default" href="#tab6" data-toggle="tab">
+        <div class="hidden-xs">Engineer Action</div>
+    </button>
+</div>
     <?php }  if($booking_history[0]['current_status'] != 'Cancelled'){?>
 <div class="btn-group" role="group">
     <button type="button" class="btn btn-default" href="#tab7" data-toggle="tab">
@@ -195,7 +195,7 @@
                             <td ><?php echo $booking_history[0]['service_promise_date'];?></td>
                             <th >Paid By Customer(STS)</th>
                             <td ><?php if(!is_null($booking_history[0]['paid_by_customer'])) { if($booking_history[0]['paid_by_customer'] == 1){ echo "Paid By Customer"; } 
-                                else {echo "Free For Customer";}} ?></td>
+                            else {echo "Free For Customer";}} ?></td>
                         </tr>
                         <tr>
                             <th>Closing Remarks</th>
@@ -206,6 +206,7 @@
             </div>
         </div>
         <div class="tab-pane fade in" id="upcountry">
+            
             <div class="row">
                 <div class="col-md-12">
                     <?php if(!empty($booking_history[0]['vendor_name'])){?>
@@ -318,7 +319,10 @@
                                 <th>SF Earning</th>
                             </tr>
                             <tbody>
-                                <?php  foreach ( $unit_details as $key =>  $unit_detail) { ?>
+                                <?php $user_invoice_id  = ""; foreach ( $unit_details as $key =>  $unit_detail) { 
+                                   if(!empty($unit_detail['user_invoice_id'])){
+                                       $user_invoice_id = $unit_detail['user_invoice_id'];
+                                   }?>
                                 <tr>
                                     <td><?php echo $unit_detail['appliance_brand']?></td>
                                     <td><?php echo $unit_detail['appliance_category']."/<br/>".$unit_detail['appliance_capacity']?></td>
@@ -469,7 +473,7 @@
                                         <th >Estimate Given</th>
                                         <th >Estimate Given Date </th>
                                         <th >Purchase Invoice</th>
-                                        <th >Sale Invoice ID</th>
+                                        <th >Sell Invoice ID</th>
                                         <th >Status </th>
                                     </tr>
                                 </thead>
@@ -627,53 +631,58 @@
                     </div>
                 </div>
             </div>
-            <?php if($engineer_action_not_exit) { ?>
-            <div class="tab-pane fade in" id="tab6">
+           
+                <?php if($engineer_action_not_exit) { ?>
+<div class="tab-pane fade in" id="tab6">
                 <div class="row">
                     <div class="col-md-12">
-                        <table class="table  table-striped table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>Service Category</th>
-                                    <th>Broken</th>
-                                    <th>Serial Number</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach($unit_details as $unit){?>
-                                <tr>
-                                    <td><?php echo $unit["price_tags"];?></td>
-                                    <td><?php if($unit['en_is_broken'] ==1){ echo "Yes"; } else { echo "No";} ?></td>
-                                    <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $unit['en_serial_number_pic'];?>" target="_blank"><?php  echo $unit['en_serial_number']; ?></a></td>
-                                    <td><?php  echo $unit['en_current_status']." / ".$unit['en_internal_status']; ?></td>
-                                </tr>
-                                <?php }?>
-                            </tbody>
-                        </table>
-                        <?php if(isset($signature_details) && !empty($signature_details)){ ?>
-                        <table class="table  table-striped table-bordered">
-                            <tr>
-                                <th>Amount Paid</th>
-                                <th>Customer Signature</th>
-                                <th>Closed Date</th>
-                                <th>Closing Address</th>
-                                <th>Remarks</th>
-                            </tr>
-                            <tbody>
-                                <tr>
-                                    <td><?php echo $signature_details[0]['amount_paid']; ?></td>
-                                    <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $signature_details[0]['signature'];?>" target="_blank">Click Here</a></td>
-                                    <td><?php echo $signature_details[0]['closed_date']; ?></td>
-                                    <td><?php echo $signature_details[0]['address']; ?></td>
-                                    <td><?php echo $signature_details[0]['remarks']; ?></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <?php }?>
-                    </div>
-                </div>
+                <table class="table  table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>Service Category</th>
+                        <th>Broken</th>
+                        <th>Serial Number</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach($unit_details as $unit){?>
+                    <tr>
+                        <td><?php echo $unit["price_tags"];?></td>
+                        <td><?php if($unit['en_is_broken'] ==1){ echo "Yes"; } else { echo "No";} ?></td>
+                        <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $unit['en_serial_number_pic'];?>" target="_blank"><?php  echo $unit['en_serial_number']; ?></a></td>
+                        
+                        <td><?php  echo $unit['en_current_status']." / ".$unit['en_internal_status']; ?></td>
+                    </tr>
+                    <?php }?>
+                </tbody>
+                </table>
+                <?php if(isset($signature_details) && !empty($signature_details)){ ?>
+                <table class="table  table-striped table-bordered">
+                    <tr>
+                        <th>Amount Paid</th>
+                        <th>Customer Signature</th>
+                        <th>Closed Date</th>
+                        <th>Closing Address</th>
+                        <th>Remarks</th>
+                    </tr>
+                    <tbody>
+                        <tr>
+                            <td><?php echo $signature_details[0]['amount_paid']; ?></td>
+                            <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $signature_details[0]['signature'];?>" target="_blank">Click Here</a></td>
+                            <td><?php echo $signature_details[0]['closed_date']; ?></td>
+                            <td><?php echo $signature_details[0]['address']; ?></td>
+                            <td><?php echo $signature_details[0]['remarks']; ?></td>
+                            
+                        </tr>
+                       
+                    </tbody>
+                </table>
+                <?php }?>
+                
             </div>
+                </div>
+</div>
         <?php
                 }
         ?>   
@@ -683,6 +692,7 @@
                         <div style="">
                             <table class="table  table-striped table-bordered">
                                 <tr>
+
                                     <?php 
                                     $temp = 0;
                                      if(!empty($booking_history[0]['amount_paid'])){$temp++?>
@@ -698,6 +708,7 @@
                                         <th colspan="1">Customer Invoice</th>
                                         <td colspan="3"><?php echo $unit_details[0]['user_invoice_id']?></td>
                                      <?php }?>
+
                                 </tr>
                             </table>
                               <?php if($temp !=0){ ?>
@@ -710,8 +721,13 @@
                            >Regenerate and send QR Code</a>
                                <a target="_blank" href="<?php echo base_url(); ?>payment/resend_QR_code/<?php echo $booking_history[0]['booking_id']?>/0" class="btn btn-success action_buton">
                                    Resend Same QR Code</a>
+                            
+
                             <?php } ?>
-                               <button type="button" class="btn btn-success action_buton">Resend Customer Invoice</button>
+                            <?php if(!empty($user_invoice_id)) { ?>
+                                  <a href="javascript:void(0)" onclick="resendCustomerInvoice('<?php echo $booking_history[0]['booking_id'];?>', '<?php echo $user_invoice_id; ?>')"  class="btn btn-success action_buton">Resend Customer Invoice</a> 
+                                <?php } ?>
+
                                </div>
                          <?php if($paytm_transaction) { ?>   
                         <hr style="border: 1px solid #5bc0de;">
@@ -890,6 +906,22 @@
   </div>
 </div>
 <script>
+ function resendCustomerInvoice(booking_id, invoice_id){
+        alert("Please Wait! we will send invoice to customer via sms or email");
+         var url ="<?php echo base_url();?>employee/user_invoice/resend_customer_invoice/"+ booking_id+"/"+invoice_id;
+         $.ajax({
+             method:'POST',
+             url: url, 
+             success:function(response){
+                 if(response === 'success'){
+                     alert("Success! Invoice Sent Successfully");
+                 } else {
+                     alert("Error! There is some problem to send invoice to customer");
+                 }
+                 
+             }
+         });
+    }
  function process_cashback_form(){
             var cashback_amount = document.getElementById("form_cashback_amount").value;
             var cashback_reason = document.getElementById("form_cashback_reason").value;
@@ -946,7 +978,9 @@
                 });
             });
 </script>
+ 
 <script type="text/javascript">    
+
     function outbound_call(phone_number){
         var confirm_call = confirm("Call Customer ?");
     
@@ -980,6 +1014,7 @@
     
 </script>
 <script>
+    
     function get_invoice_data(invoice_id){
         if (invoice_id){
                 $.ajax({
@@ -1007,6 +1042,8 @@
                     }
                 });
     }
+    
+    
     
     <?php if(!empty($booking_history[0]['dealer_id'])) { ?>
          $.ajax({

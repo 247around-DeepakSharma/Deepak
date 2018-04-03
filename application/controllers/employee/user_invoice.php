@@ -194,10 +194,11 @@ class User_invoice extends CI_Controller {
                 'bill_to_party' => $user_id,
                 'entity_from' => 'vendor',
                 'bill_from_party' => $sf_id,
+                'settle' => 1,
                 'booking_id' => $booking_id,
                 'total_qty' => $invoice['meta']["total_qty"],
-                'main_invoice_file' => $convert['main_pdf_file_name'],
-                "duplicate_file" => $convert['copy_file'],
+                'main_invoice_file' => $convert['copy_file'],
+                "duplicate_file" => $convert['main_pdf_file_name'],
                 'invoice_excel' => $invoice['meta']['invoice_id'] . '.xlsx',
                 'triplicate_file' => $convert['triplicate_file'],
                 'invoice_date' => date("Y-m-d H:i:s", strtotime($closed_date)),
@@ -242,7 +243,7 @@ class User_invoice extends CI_Controller {
             
         $this->invoices_model->insert_invoice_breakup($invoice_breakup);
             
-        $this->booking_model->update_booking_unit_details_by_any(array('booking_id' => $booking_id), array("user_invoice_id" => $invoice['meta']['invoice_id']));
+        $this->booking_model->update_booking_unit_details_by_any(array('booking_id' => $booking_id, "booking_status" => 'Completed'), array("user_invoice_id" => $invoice['meta']['invoice_id']));
             
         return true;
     }
@@ -303,20 +304,20 @@ class User_invoice extends CI_Controller {
                 $convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($response['meta']['invoice_id'], "final", TRUE, FALSE);
                 $this->invoice_lib->upload_invoice_to_S3($response['meta']['invoice_id'], false, false);
                 log_message("info", __METHOD__. " SF Credit note uploaded to s3 for booking ID ".$booking_id." Invoice ID ". $response['meta']['invoice_id']);
-                $output_pdf_file_name = $convert['main_pdf_file_name'];
+                //$output_pdf_file_name = $convert['main_pdf_file_name'];
                 
-                $email_template = $this->booking_model->get_booking_email_template("paytm_payment_voucher");
-                $subject =  vsprintf($email_template[4], array($booking_id));
-                $message = $email_template[0];
-                $email_from = $email_template[2];
-
-                $to = $data[0]->owner_email;
-                $cc = $email_template[3].",".$data[0]->primary_contact_email;
-                $bcc = $email_template[5];
-
-
-                $pdf_attachement_url = S3_WEBSITE_URL. 'invoices-excel/' . $output_pdf_file_name;
-                $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $pdf_attachement_url);
+//                $email_template = $this->booking_model->get_booking_email_template("paytm_payment_voucher");
+//                $subject =  vsprintf($email_template[4], array($booking_id));
+//                $message = $email_template[0];
+//                $email_from = $email_template[2];
+//
+//                $to = $data[0]->owner_email;
+//                $cc = $email_template[3].",".$data[0]->primary_contact_email;
+//                $bcc = $email_template[5];
+//
+//
+//                $pdf_attachement_url = S3_WEBSITE_URL. 'invoices-excel/' . $output_pdf_file_name;
+                //$this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $pdf_attachement_url);
                 
                 $this->insert_sf_credit_note($booking_id, $response, $data[0]->assigned_vendor_id, $sd, $agent_id, $convert, $txnID);
                  
@@ -363,6 +364,69 @@ class User_invoice extends CI_Controller {
         //Insert Invoice
         $this->invoices_model->insert_new_invoice($invoice_details);
         $this->reusable_model->update_table("paytm_transaction_callback", array('vendor_invoice_id' => $invoice['meta']['invoice_id']),array('txn_id' => $txnID));
+    }
+    
+    function resend_customer_invoice($booking_id, $invoice_id) {
+       
+        if (!empty($invoice_id) && !empty($booking_id)) {
+            
+            $invoiceData = $this->invoices_model->get_new_invoice_data(array('invoice_id' => $invoice_id), "main_invoice_file");
+
+            $join["users"] = "users.user_id = booking_details.user_id";
+
+            $data = $this->reusable_model->get_search_result_data("booking_details", "users.user_id,user_email, booking_primary_contact_no, amount_paid", array("booking_details.booking_id" => $booking_id), $join, NULL, NULL, NULL, NULL, array());
+
+            // If invoice links is not generating then we will not send invoice Link in sms
+            $pathinfo = pathinfo($invoiceData[0]['main_invoice_file']);
+            if ($pathinfo['extension'] == 'xls' || $pathinfo['extension'] == 'xlsx') {
+                log_message("info", __METHOD__ . " Invoice Pdf is not generated " . $invoiceData[0]['main_invoice_file']);
+
+                $sms['tag'] = "customer_paid_invoice_pdf_not_generated";
+            } else {
+
+                $customer_attachement_url = S3_WEBSITE_URL . 'invoices-excel/' . $invoiceData[0]['main_invoice_file'];
+
+                $tinyUrl = $this->miscelleneous->getShortUrl($customer_attachement_url);
+                // If invoice links is not generating then we will not send invoice Link in sms
+                if ($tinyUrl) {
+
+                    $sms['tag'] = "customer_paid_invoice";
+                } else {
+                    $sms['tag'] = "customer_paid_invoice_pdf_not_generated";
+
+                    log_message("info", __METHOD__ . " Short url failed for booking id " . $booking_id);
+                }
+
+                $sms['smsData']['amount'] = $data[0]['amount_paid'];
+                $sms['smsData']['booking_id'] = $booking_id;
+                if ($sms['tag'] == "customer_paid_invoice") {
+
+                    $sms['smsData']['url'] = $tinyUrl;
+                }
+
+                $sms['phone_no'] = $data[0]['booking_primary_contact_no'];
+                $sms['booking_id'] = $booking_id;
+                $sms['type'] = "user";
+                $sms['type_id'] = $data[0]['user_id'];
+                $this->notify->send_sms_msg91($sms);
+
+                if (filter_var($data[0]['user_email'], FILTER_VALIDATE_EMAIL)) {
+                    $email_template = $this->booking_model->get_booking_email_template("customer_paid_invoice");
+                    $subject = vsprintf($email_template[4], array($booking_id));
+                    $message = $email_template[0];
+                    $email_from = $email_template[2];
+
+                    $to = $data[0]['user_email'];
+                    $cc = $email_template[3];
+                    $bcc = $email_template[5] . ", " . $this->session->userdata('official_email');
+
+                    $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $customer_attachement_url);
+                }
+            }
+            echo "success";
+        } else {
+            echo "Error";
+        }
     }
 
 
