@@ -126,7 +126,7 @@ class Upload_buyback_process extends CI_Controller {
         } else {
            
             $to = empty($this->email_send_to)?(empty($this->session->userdata('official_email'))?ANUJ_EMAIL_ID:$this->session->userdata('official_email') . ", " . ANUJ_EMAIL_ID):$this->email_send_to;
-            $cc = "abhaya@247around.com , ".NITS_EMAIL_ID;
+            $cc = NITS_EMAIL_ID;
 
             $message = "";
             $agent_name = !empty($this->session->userdata('emp_name'))? $this->session->userdata('emp_name'): _247AROUND_DEFAULT_AGENT_NAME;
@@ -371,7 +371,7 @@ class Upload_buyback_process extends CI_Controller {
             $message = " Please check and upload again.";
             $this->Columfailed .= " column does not exist.";
             $to =  empty($this->email_send_to)?(empty($this->session->userdata('official_email'))?ANUJ_EMAIL_ID:$this->session->userdata('official_email') . ", " . ANUJ_EMAIL_ID):$this->email_send_to;
-            $cc = "abhaya@247around.com,".NITS_EMAIL_ID;
+            $cc = NITS_EMAIL_ID;
             $agent_name = !empty($this->session->userdata('emp_name'))?$this->session->userdata('emp_name'):_247AROUND_DEFAULT_AGENT_NAME;
             $subject = "Failure! Buyback Order is uploaded by " .$agent_name ;
             $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
@@ -734,7 +734,7 @@ class Upload_buyback_process extends CI_Controller {
                 //send mail 
                 $template = $this->booking_model->get_booking_email_template("buyback_price_sheet_with_quote");
                 $body = $template[0];
-                $to = NITS_ANUJ_EMAIL_ID;
+                $to = NITS_ANUJ_EMAIL_ID.",".$this->session->userdata('official_email');
                 $from = $template[2];
                 $cc = $template[3];
                 $subject = $template[4];
@@ -848,7 +848,8 @@ class Upload_buyback_process extends CI_Controller {
         log_message('info', __FUNCTION__);
         $post_data = array('length' => 1,
             'start' => 0,
-            'file_type' => _247AROUND_BB_PRICE_LIST);
+            'file_type' => _247AROUND_BB_PRICE_LIST,
+            'result' => FILE_UPLOAD_SUCCESS_STATUS);
         //get the latest uploaded price sheet
         $latest_upload_price_sheet_file_name = $this->reporting_utils->get_uploaded_file_history($post_data)[0]->file_name;
         $s3_bucket_file = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . urlencode($latest_upload_price_sheet_file_name);

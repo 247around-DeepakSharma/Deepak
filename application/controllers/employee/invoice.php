@@ -149,8 +149,11 @@ class Invoice extends CI_Controller {
             $end_date = $data[0]['to_date'];
             $vendor_partner = $data[0]['vendor_partner'];
             $email = "";
-            $detailed_invoice = $this->input->post("detailed_invoice");
-            $main_invoice = $this->input->post("main_invoice");
+            $detailed_invoice = "";
+            if(!empty($data[0]['invoice_file_main'])){
+                $detailed_invoice = S3_WEBSITE_URL."invoices-excel/".$data[0]['invoice_detailed_excel'];
+            }
+            $main_invoice = S3_WEBSITE_URL."invoices-excel/".$data[0]['invoice_file_main'];
             $email_template = $this->booking_model->get_booking_email_template("resend_invoice");
             // download invoice pdf file to local machine
             if ($vendor_partner == "vendor") {
@@ -161,11 +164,11 @@ class Invoice extends CI_Controller {
                 if (!empty($rm_details)) {
                     $rem_email_id = ", " . $rm_details[0]['official_email'];
                 }
-                $cc = $email_template[3] . $rem_email_id;
+                $cc = $email_template[3] . $rem_email_id. ", ". $this->session->userdata("official_email");
             } else {
                 $getEmail = $this->partner_model->getpartner_details("invoice_email_to", array('partners.id' =>$vendor_partnerId));
                 $to =  $to = $getEmail[0]['invoice_email_to'];
-                $cc = $email_template[3];
+                $cc = $email_template[3]. ", ". $this->session->userdata("official_email");
             }
 
 
@@ -183,7 +186,7 @@ class Invoice extends CI_Controller {
 
 
             log_message('info', "To- EmailId" . print_r($to, true));
-            redirect(base_url() . 'employee/invoice_summary/' . $vendor_partner . "/" . $vendor_partnerId, 'refresh');
+            redirect(base_url() . 'employee/invoice/invoice_summary/' . $vendor_partner . "/" . $vendor_partnerId);
         }
     }
 
@@ -1330,7 +1333,7 @@ class Invoice extends CI_Controller {
             $details['vendor_partner_id'] = $invoice_details[0]['vendor_partner_id'];
             $details['date_range'] = str_replace("-", "/", $invoice_details[0]['from_date']) . "-" . str_replace("-", "/", date('Y-m-d', strtotime($invoice_details[0]['to_date'])));
             $details['agent_id'] = $this->session->userdata('id');
-            
+           
             if ($invoice_details[0]['vendor_partner'] == 'vendor' && $invoice_details[0]['type'] != "Stand") {
                 $exist_invoice_type = "";
                 if ($invoice_details[0]['type'] == "FOC") {
@@ -2174,9 +2177,7 @@ class Invoice extends CI_Controller {
             $total_amount_collected = ($data['total_service_charge'] +
                     $data['total_additional_service_charge'] +
                     $data['parts_cost'] + $data['courier_charges'] + $data['upcountry_price'] + $data['credit_penalty_amount'] - $data['penalty_amount']);
-            $gst_rate = $this->input->post('gst_rate');
-            $gst_amount = $total_amount_collected * ($gst_rate / 100);
-            $data['total_amount_collected'] = round(($total_amount_collected + $gst_amount), 0);
+            
 
             $entity_details = array();
             $gst_number = "";
@@ -2189,6 +2190,16 @@ class Invoice extends CI_Controller {
                 $entity_details = $this->partner_model->getpartner_details("gst_number, state", array('partners.id' => $data['vendor_partner_id']));
                 $gst_number = $entity_details[0]['gst_number'];
             }
+            
+            if(empty($gst_number)){
+                $gst_rate = 0;
+            } else {
+                $gst_rate = $this->input->post('gst_rate');
+            }
+            
+            
+            $gst_amount = $total_amount_collected * ($gst_rate / 100);
+            $data['total_amount_collected'] = round(($total_amount_collected + $gst_amount), 0);
 
             $data['rcm'] = 0;
 
@@ -2198,6 +2209,7 @@ class Invoice extends CI_Controller {
                 $data['cgst_tax_amount'] = $data['sgst_tax_amount'] = $gst_amount / 2;
                 $data['cgst_tax_rate'] = $data['sgst_tax_rate'] = $gst_rate / 2;
             } else {
+
                 $data['igst_tax_amount'] = $gst_amount;
                 $data['igst_tax_rate'] = $gst_rate;
             }
@@ -2219,14 +2231,13 @@ class Invoice extends CI_Controller {
 
                         if ($vendor_partner == "vendor") {
                             $tds = $this->check_tds_sc($entity_details[0], ($total_amount_collected - $data['parts_cost']));
-                            if (!empty($gst_number)) {
+                            if (empty($gst_number)) {
 
                                 $data['cgst_tax_amount'] = $data['sgst_tax_amount'] = $data['sgst_tax_rate'] = $data['cgst_tax_rate'] = 0;
                                 $data['igst_tax_amount'] = 0;
                                 $data['igst_tax_rate'] = 0;
-                            } else {
-                                $data['rcm'] = $gst_amount;
-                            }
+                               // $data['rcm'] = $total_amount_collected * ($this->input->post('gst_rate') / 100);
+                            } 
                         } else {
                             $tds['tds'] = 0;
                             $tds['tds_rate'] = 0;

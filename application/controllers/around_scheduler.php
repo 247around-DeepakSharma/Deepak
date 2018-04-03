@@ -67,7 +67,7 @@ class Around_scheduler extends CI_Controller {
                 $message = "Please check SMS tag and phone number. Booking id is : " .
                         $value->booking_id . " Tag is '" . $tag . "' & phone number is :" . $value->booking_primary_contact_no . " Result:"
                         . " " . $status['content'];
-                $to = ANUJ_EMAIL_ID . ", abhaya@247around.com";
+                $to = ANUJ_EMAIL_ID;
 
                 $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "");
             }
@@ -602,7 +602,7 @@ class Around_scheduler extends CI_Controller {
         }
 
         $to = NITS_ANUJ_EMAIL_ID;
-        $cc = "abhaya@247around.com";
+        $cc = "";
 
         $subject = "Jeeves Booking Update Status";
         $message = "Dear Partner,<br/> Attached is the status of the last " . $hour . " hour <br/><br/><br/>";
@@ -1484,16 +1484,16 @@ class Around_scheduler extends CI_Controller {
      * @desc This is used to refund cashback for those customer who had paid through Paytm
      */
     function paytm_payment_cashback(){
-        $finalCashbackAmount = 0;
         //get Cashback Rules
         $rules = $this->paytm_payment_model->get_paytm_cashback_rules(array("active" => 1, "tag" => PAYTM_CASHBACK_TAG));
         if(!empty($rules)){
-            $transactionArray = $this->paytm_payment_model->get_transactions_without_cashback();
+            $transactionArray = $this->paytm_payment_model->get_without_cashback_transactions();
             foreach($transactionArray as $transaction){
-                    $cashbackAmount = ($transaction['paid_amount']*$rules[0]['cashback_amount_percentage'])/100;
+                $finalCashbackAmount = 0;
+                $cashbackAmount = ($transaction['paid_amount']*$rules[0]['cashback_amount_percentage'])/100;
                 if(($transaction['paid_amount']<$rules[0]['amount_criteria_less_than'])){
                     $finalCashbackAmount = $cashbackAmount;
-                }
+                }   
                 else{
                     if($cashbackAmount>$rules[0]['paytm_cashback_limit']){
                         $finalCashbackAmount = $cashbackAmount-$rules[0]['paytm_cashback_limit'];
@@ -1509,7 +1509,8 @@ class Around_scheduler extends CI_Controller {
                         log_message("error",__METHOD__. "Cashback Process Failed For ".$transaction['txn_id']);
                     }
                 }
-            }
+                $this->reusable_model->update_table("paytm_transaction_callback",array("discount_flag"=>1),array('txn_id'=>$transaction['txn_id']));
+            } 
         }
         else{
                 log_message("info",__METHOD__. "Cashback Rules are not set");

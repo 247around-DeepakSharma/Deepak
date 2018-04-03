@@ -23,10 +23,12 @@ class paytm_payment_lib {
         $this->P_P->load->library('miscelleneous');
         $this->P_P->load->model('reusable_model');
         $this->P_P->load->model('partner_model');
+        $this->P_P->load->library("miscelleneous");
     }
-         /*
+     /*
      * This function is used to genrate qr code using paytm API
-     * @input parameter - booking_id,amount,Channel(Through which channel payment happens eg - "job_card","app","user_download" etc),contact(transaction notification)
+     * @input parameter - booking_id,amount,Channel(Through which channel payment happens eg - "job_card","app","user_download" etc),contact(transaction notification),forceRegenrateFlag(Values
+          * can be 0 and 1 , 1 if you want to deactivate existing code and want to regenrate new QR, by default its 0 and will return already existing code)
      * @output paramenter - 1) Status - (Success or Failure)
                                                    2) status_message (reason of failure in case of failure or Success msg)
                                                    3) QR Image Url
@@ -37,7 +39,7 @@ class paytm_payment_lib {
           * If not then it creates a request for paytm API and generate QR Code
           * After that saves QR data in Database and return QR data
      */
-    function generate_qr_code($bookingID,$channel,$amount,$contact){
+    function generate_qr_code($bookingID,$channel,$amount,$contact,$forceRegenrateFlag=0){
             if(empty($contact)){
                 $contact = DEFAULT_MERCHANT_CONTACT_NO;
            }
@@ -46,9 +48,21 @@ class paytm_payment_lib {
                 $amount = number_format((float)$amount, 2, '.', '');
             }
             log_message('info', __FUNCTION__ . "booking_id".$bookingID.", Amount ".$amount.", Channel ".$channel.", Contact no ".$contact);
+            if($forceRegenrateFlag==1){
+               $where['booking_id'] = $bookingID;
+               $where['transaction_id'] = NULL;
+               $where['channel'] = $channel;
+               $where['amount'] = NULL;
+               $where['txn_response_contact'] = $contact;
+               $data['is_active'] = 0;
+               $this->P_P->reusable_model->update_table("paytm_payment_qr_code",$data,$where);
+               $existBooking['is_exist'] =0;
+            }
             
             //Check if any qr code already there with same booking and amount
-            $existBooking = $this->QR_is_qr_code_already_exists_for_input($bookingID,$channel,$amount,$contact);
+            else{
+                $existBooking = $this->QR_is_qr_code_already_exists_for_input($bookingID,$channel,$amount,$contact);
+            }
             
             // if yes then generate response with existing data
             if($existBooking['is_exist'] == 1){
@@ -69,6 +83,7 @@ class paytm_payment_lib {
                 }
             }
     }
+
      /*
      * This function is used to check transaction status against a order_id
      * @input - order id which we define at the time of qr generation
@@ -330,6 +345,7 @@ class paytm_payment_lib {
         $where['channel'] = $channel;
         $where['amount'] = NULL;
         $where['txn_response_contact'] = $contact;
+        $where['is_active'] = 1;
         if($amount != 0){
             $where['amount'] = $amount;
          }
@@ -360,20 +376,29 @@ class paytm_payment_lib {
         $data['paid_amount'] = $jsonArray['response']['txnAmount'];
         //Guid For user
         $data['user_guid'] = $jsonArray['response']['userGuid'];
-       // Does paytm generrate any cashback for current transaction
-        $data['cashback_status'] = $jsonArray['response']['cashBackStatus'];
-        // Details of cashback
-        $data['cashback_message'] = $jsonArray['response']['cashBackMessage'];
         $data['create_date'] = date("Y-m-d h:i:s");
         //response_api (From which api we are getting response,check status or callback)
         $data['response_api'] = TRANSACTION_RESPONSE_FROM_CALLBACK;
+        
         $insertID = $this->P_P->reusable_model->insert_into_table("paytm_transaction_callback",$data);
+        
+        $this->generate_sf_creditnote($booking_id, $jsonArray['response']['txnAmount'], $jsonArray['response']['walletSystemTxnId']);
+        
          //Send Email 
+        //get rm by booking id
+        $join['service_centres'] ="booking_details.assigned_vendor_id = service_centres.id";
+        $where['booking_details.booking_id'] = $booking_id;
+        $vendorArray = $this->P_P->reusable_model->get_search_result_data("booking_details","service_centres.id,service_centres.name",$where,$join,NULL,NULL,NULL,NULL,array());
+        $RMjoin['employee'] ="employee.id = employee_relation.agent_id";
+        $RMwhere['FIND_IN_SET('.$vendorArray[0]['id'].', employee_relation.service_centres_id)'] = NULL;
+        $RMArray = $this->P_P->reusable_model->get_search_result_data("employee_relation","employee_relation.agent_id,employee.official_email",$RMwhere,$RMjoin,NULL,NULL,NULL,NULL,array());
         $to = TRANSACTION_SUCCESS_TO; 
-        $cc = TRANSACTION_SUCCESS_CC;
-        $subject = "New Transaction From Paytm - ".$data['txn_id'];
-        $message = "Hi,<br/> We got a new transaction from paytm for below:<br/>  BookingID - " .$booking_id.", OrderID - ".$data['order_id'];
+        $cc = TRANSACTION_SUCCESS_CC.",".$RMArray[0]['official_email'];
+        $subject = "New Transaction From Paytm For SF  '".$vendorArray[0]['name']."'";
+        $message = "Hi,<br/> We got a new transaction from Paytm, Details are Below: <br/> BookingID - " .$booking_id.",  <br/> OrderID - ".$data['order_id'].",  <br/> Paid Amount - ".
+               $data['paid_amount'].",  <br/> Service Center - ".$vendorArray[0]['name'];
         $this->P_P->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
+        //End Send Email
         return $insertID;
     }
     /*
@@ -521,9 +546,6 @@ class paytm_payment_lib {
             $data['txn_id'] = $transaction['txnGuid'];
             $data['paid_amount'] = $transaction['txnAmount'];
             $data['user_guid'] = $transaction['ssoId'];
-            $data['paid_amount'] = $transaction['txnAmount'];
-            $data['cashback_amount'] = "";
-            $data['cashback_txn_id'] = $transaction['cashbackTxnId'];
             $data['create_date'] = date('Y-m-d h:i:s');
             //From Which API We are Getting Response
             $data['response_api'] = TRANSACTION_RESPONSE_FROM_CHECK_STATUS;
@@ -571,5 +593,11 @@ class paytm_payment_lib {
         $output = $this->_send_curl_request($data_string,$headers,CHECK_STATUS_URL,"Process_Check_Status");
         log_message('info', __FUNCTION__ . " Function End With Data:  ".print_r($output,true));
         return $outputArray = json_decode($output,true);
+    }
+    
+    function generate_sf_creditnote($booking_id, $amount_paid, $walletSystemTxnId){
+        $invoice_url = base_url() . "employee/user_invoice/sf_payment_creditnote/".$booking_id."/".$amount_paid."/".$walletSystemTxnId."/"."247001";
+        $payment = array();
+        $this->P_P->asynchronous_lib->do_background_process($invoice_url, $payment);
     }
 }

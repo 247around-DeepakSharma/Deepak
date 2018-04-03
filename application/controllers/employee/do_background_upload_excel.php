@@ -253,7 +253,7 @@ class Do_background_upload_excel extends CI_Controller {
         
         $to = NITS_ANUJ_EMAIL_ID.",".$file_upload_agent_email;
         $from = "noreply@247around.com";
-        $cc = "abhaya@247around.com";
+        $cc = "";
         $bcc = "";
         $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "");
         log_message('info', __FUNCTION__ . "=> Validation ". $validation."  ".$message);
@@ -1148,7 +1148,7 @@ class Do_background_upload_excel extends CI_Controller {
         
 	$to = NITS_ANUJ_EMAIL_ID.",".$file_upload_agent_email;
         $from = "noreply@247around.com";
-	$cc = "abhaya@247around.com";
+	$cc = "";
 	$bcc = "";
 	$subject = "";
            
@@ -1301,6 +1301,7 @@ class Do_background_upload_excel extends CI_Controller {
         
         //check file type
         $upload_file_type = $this->input->post('file_type');
+        $redirect_to = $this->input->post('redirect_to');
         $partner_id = $this->input->post('partner_id');
         $this->is_send_file_back = $this->input->post('is_file_send_back');
         $this->file_read_column = $this->input->post('file_read_column');
@@ -1326,14 +1327,13 @@ class Do_background_upload_excel extends CI_Controller {
             if ($header_data['status']) {
                 $header_data = array_merge($header_data,$file_status);
                 $header_data['file_type'] = $upload_file_type;
-                $redirect_to = $this->input->post('redirect_to');
                 $response = $this->process_file_upload($header_data);
                 
                 //if file uploaded successfully then log else send email 
                 if ($response['status']) {
                     log_message("info", "File Uploaded successfully");
                     //now send back file with updated booking id to partner
-                    if(!empty($this->is_send_file_back) && !empty($this->send_file_back_data)){
+                    if(!empty($this->is_send_file_back) && !empty($this->send_file_back_data) && $this->is_send_file_back !== "null"){
                         $this->revert_file_to_partner($header_data);
                     }else{
                         log_message("info", "unable to send file back to partner");
@@ -1530,15 +1530,21 @@ class Do_background_upload_excel extends CI_Controller {
         $tmpArr['call_type_installation_table_top_installationdemo_service'] = '';
         $tmpArr['partner_source'] = $data['partner_source'];
         
-        if(isset($data['order_item_id']) && !empty($data['order_item_id'])){
-            $tmpArr['order_item_id'] = $data['order_item_id'];
-        }else if(isset($data['item_id']) && !empty($data['item_id'])){
-            $tmpArr['order_item_id'] = $data['item_id'];
+        $order_item_id_arr = explode(',', $header_data['order_item_id']);
+        $order_item_id = "";
+        foreach ($order_item_id_arr as $value){
+            if(isset($data[$value]) && !empty($data[$value])){
+                $order_item_id = $data[$value];
+            }
+        }
+        
+        if(!empty($order_item_id)){
+            $tmpArr['order_item_id'] = $order_item_id;
         }else{
             $tmpArr['order_item_id'] = '';
         }
         
-        if(isset($data['promise_before_date']) && !empty($data['promise_before_date'])){
+        if(isset($data[$header_data['spd']]) && !empty($data[$header_data['spd']])){
             $tmpArr['service_promise_date'] = $data['promise_before_date'];
         }else{
             $tmpArr['service_promise_date'] = '';

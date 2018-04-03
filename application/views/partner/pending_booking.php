@@ -1,4 +1,4 @@
-<?php if($this->uri->segment(4)){ $sn_no =  $this->uri->segment(4) +1; } else{ $sn_no = 1;} ?>
+<?php if(is_numeric($this->uri->segment(3)) && !empty($this->uri->segment(3))){ $sn_no =  $this->uri->segment(3) +1; } else{ $sn_no = 1;} ?>
 <?php if(empty($is_ajax)) { ?>
 <div class="right_col" role="main">
     <?php

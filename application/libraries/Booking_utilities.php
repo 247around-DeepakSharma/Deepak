@@ -141,6 +141,11 @@ class Booking_utilities {
             $json_result = $this->My_CI->miscelleneous->convert_excel_to_pdf($output_file_excel,$booking_id, "jobcards-pdf");
             $pdf_response = json_decode($json_result,TRUE);
 
+            //Create html for job card
+           //$html = $this->My_CI->load->view('employee/jobcard_html', array("booking_details"=>$booking_details,"booking_unit_details"=>$booking_unit_details,'meta'=>$meta,'qr'=>$qr),true);        
+           //convert html into pdf
+           //$json_result = $this->My_CI->miscelleneous->convert_html_to_pdf($html,$booking_details[0]['booking_id'],$output_file_pdf,"jobcards-pdf");
+           //$pdf_response = json_decode($json_result,TRUE);
             if($pdf_response['response'] === 'Success'){ 
                 //Update JOb Card Booking
                 $this->My_CI->booking_model->update_booking($booking_id,  array('booking_jobcard_filename'=>$output_file_pdf));
@@ -160,6 +165,28 @@ class Booking_utilities {
         log_message('info', __FUNCTION__ . " => Exiting, Booking ID: " . $booking_id);
     }
 
+    function send_qr_code_sms($booking_id, $pocNumber, $user_id, $userPhone, $services,$regenrate_flag=0){
+        $userDownload = $this->My_CI->paytm_payment_lib->generate_qr_code($booking_id, QR_CHANNEL_SMS, 0, $pocNumber,$regenrate_flag);
+            log_message("info", __METHOD__. " Booking id ". $booking_id. " User QR Response ".print_r($userDownload, true));
+            $user = json_decode($userDownload, TRUE);
+            if($user['status'] == SUCCESS_STATUS){
+                $tinyUrl = $this->My_CI->miscelleneous->getShortUrl(S3_WEBSITE_URL.$user['qr_url']);
+                if($tinyUrl){
+                    $sms['type'] = "user";
+                    $sms['type_id'] = $user_id;
+                    $sms['tag'] = "customer_qr_download";
+                    $sms['smsData']['services'] = $services;
+                    $sms['smsData']['url'] = $tinyUrl;
+                    $sms['phone_no'] = $userPhone;
+                    $sms['booking_id'] = $booking_id;
+                    $this->My_CI->notify->send_sms_msg91($sms);
+                    return true;
+                } else {
+                    log_message("info", __METHOD__. " Booking id ". $booking_id. " Tiny url Not generated");
+                }
+            }
+            return false;
+    }
     /**
      * @desc This function is  used to genearte QR code for JOB CARD
      * @param String $booking_id
@@ -167,33 +194,11 @@ class Booking_utilities {
      * @param String $pocNumber
      * @return boolean
      */
-    function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $userPhone, $services){
+function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $userPhone, $services){
         log_message("info", __METHOD__. " Booking id ". $booking_id. " Due ".$amount_due);
         $response = $this->My_CI->paytm_payment_lib->generate_qr_code($booking_id, QR_CHANNEL_JOB_CARD, 0, $pocNumber);
         if($amount_due > 0){
-            $userDownload = $this->My_CI->paytm_payment_lib->generate_qr_code($booking_id, QR_CHANNEL_SMS, 0, $pocNumber);
-            log_message("info", __METHOD__. " Booking id ". $booking_id. " User QR Response ".print_r($userDownload, true));
-            $user = json_decode($userDownload, TRUE);
-            if($user['status'] == SUCCESS_STATUS){
-                $url = S3_WEBSITE_URL.$user['qr_url'];
-                $tinyUrl = $this->My_CI->miscelleneous->getShortUrl($url);
-                if($tinyUrl){
-                    
-                    $sms['type'] = "user";
-                    $sms['type_id'] = $user_id;
-                    $sms['tag'] = "customer_qr_download";
-                    $sms['smsData']['services'] = $services;
-                    $sms['smsData']['url'] = $tinyUrl;
-
-                    $sms['phone_no'] = $userPhone;
-                    $sms['booking_id'] = $booking_id;
-
-                    $this->My_CI->notify->send_sms_msg91($sms);
-                } else {
-                    log_message("info", __METHOD__. " Booking id ". $booking_id. " Tiny url Not generated");
-                }
-
-            }
+            $this->send_qr_code_sms($booking_id, $pocNumber, $user_id, $userPhone, $services);
         }
         log_message("info", __METHOD__. " Booking id ". $booking_id. " Job QR Response ".print_r($response, true));
         $result = json_decode($response, TRUE);
@@ -206,8 +211,8 @@ class Booking_utilities {
                 
             } else {
                 
-                if(copy(S3_URL.$result['qr_url'], TMP_FOLDER.$qrImage)){
-                    return TMP_FOLDER.$qrImage;
+                if(copy(S3_WEBSITE_URL.$result['qr_url'], TMP_FOLDER.$qrImage)){
+                    return   TMP_FOLDER.$qrImage;
                 } else {
                     log_message("info", __METHOD__. " QR Download Failed". print_r($result, true));
                     return false;
@@ -743,6 +748,39 @@ class Booking_utilities {
                         </body>
                     </html>";
         $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "");
+    }
+    
+    function convert_excel_to_pdf_paidApi($src_format, $dst_format, $files) {
+        //Add Live Secret Key
+        $parameter = array(
+            'Secret' => 'QNUSX329fBIAICLT',
+        );
+        $parameters = array_change_key_case($parameter);
+        $auth_param = array_key_exists('secret', $parameters) ? 'secret=' . $parameters['secret'] : 'token=' . $parameters['token'];
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_POST, true);
+        curl_setopt($curl, CURLOPT_URL, "https://v2.convertapi.com/{$src_format}/to/{$dst_format}?{$auth_param}");
+
+        if (is_array($files)) {
+            foreach ($files as $index => $file) {
+                $parameters["files[$index]"] = file_exists($file) ? new CurlFile($file) : $file;
+            }
+        } else {
+            $parameters['file'] = file_exists($files) ? new CurlFile($files) : $files;
+        }
+
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $parameters);
+        $response = curl_exec($curl);
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $error = curl_error($curl);
+        curl_close($curl);
+        if ($response && $httpcode >= 200 && $httpcode <= 299) {
+            return json_decode($response);
+            
+        } else {
+            throw new Exception($error . $response, $httpcode);
+        }
     }
 
 }

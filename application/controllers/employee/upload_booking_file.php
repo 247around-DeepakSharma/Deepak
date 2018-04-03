@@ -930,7 +930,7 @@ class Upload_booking_file extends CI_Controller {
             //SEND MAIl
             $to = NITS_ANUJ_EMAIL_ID . ", sales@247around.com, booking@247around.com";
 
-            $cc = "abhaya@247around.com";
+            $cc = "";
             $message1 = "Appliance Not Found. Please chaeck File<br/>";
             $subject = "Appliance Not Found. Please chaeck File";
             $message1 .= $this->table->generate();
@@ -968,7 +968,7 @@ class Upload_booking_file extends CI_Controller {
 
         $to = NITS_ANUJ_EMAIL_ID . ", sales@247around.com";
         $from = NOREPLY_EMAIL_ID;
-        $cc = "abhaya@247around.com";
+        $cc = "";
         $bcc = "";
         $subject = "";
 
@@ -1244,7 +1244,9 @@ class Upload_booking_file extends CI_Controller {
     {
         $post_data = array('length' =>$this->input->post('length'),
                            'start' =>$this->input->post('start'),
-                           'file_type' =>trim($this->input->post('file_type')));
+                           'file_type' =>trim($this->input->post('file_type')),
+                           'search_value' => trim($this->input->post('search')['value'])
+                        );
         $list = $this->reporting_utils->get_uploaded_file_history($post_data);
         $table_data = array();
         $no = $post_data['start'];
@@ -1254,7 +1256,7 @@ class Upload_booking_file extends CI_Controller {
             $table_data[] = $row;
         }
         $allRecords = $this->reporting_utils->get_uploaded_file_history();
-        $allFilteredRecords = $this->reporting_utils->get_uploaded_file_history(array('length' =>NULL,'start' =>NULL,'file_type' =>trim($this->input->post('file_type'))));
+        $allFilteredRecords = $this->reporting_utils->get_uploaded_file_history(array('length' =>NULL,'start' =>NULL,'file_type' =>trim($this->input->post('file_type')),'search_value' => trim($this->input->post('search')['value'])));
         $output = array(
             "draw" => $this->input->post('draw'),
             "recordsTotal" => count($allRecords),

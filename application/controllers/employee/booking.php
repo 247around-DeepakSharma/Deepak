@@ -809,7 +809,7 @@ class Booking extends CI_Controller {
                 $data['booking_history'][0]['onlinePaymentAmount'] = $isPaytmTxn['total_amount'];
             }
         }
-
+        
         $data['upcountry_charges'] = $upcountry_price;
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/completebooking', $data);
@@ -1184,7 +1184,7 @@ class Booking extends CI_Controller {
                 $html .= "<td>" . $prices['customer_total'] . "</td>";
                 $html .= "<td><input  type='text' class='form-control partner_discount' name= 'partner_paid_basic_charges[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='partner_paid_basic_charges_" . $i . "_" . $clone_number . "' value = '" . $prices['partner_net_payable'] . "' placeholder='Enter discount' readonly/></td>";
                 $html .= "<td>" . $prices['customer_net_payable'] . "</td>";
-                $html .= "<td><input  type='text' class='form-control discount' name= 'discount[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '0' placeholder='Enter discount' readonly></td>";
+                $html .= "<td><input  type='text' class='form-control discount' name= 'discount[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '". $prices['around_net_payable']."' placeholder='Enter discount' readonly></td>";
                 $html .= "<td><input type='hidden'name ='is_up_val' id='is_up_val_" . $i . "_" . $clone_number . "' value ='" . $prices['is_upcountry'] . "' /><input class='price_checkbox'";
 
                 $html .=" type='checkbox' id='checkbox_" . $i . "_" . $clone_number . "'";
@@ -1355,6 +1355,7 @@ class Booking extends CI_Controller {
         }else{
             $data['booking_history'] = array();
         }
+         $data['paytm_transaction'] = $this->paytm_payment_model->get_paytm_transaction_and_cashback($booking_id);
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/viewdetails', $data);
     }
@@ -1690,19 +1691,13 @@ class Booking extends CI_Controller {
         log_message('info', __FUNCTION__);
         $approved_booking = $this->input->post('approved_booking');
         $url = base_url() . "employee/do_background_process/complete_booking";
-        $agent_id = $this->session->userdata('id');
-        $agent_name = $this->session->userdata('employee_id');
-        $partner_id = $this->input->post('partner_id');
         if (!empty($approved_booking)) {
-            foreach ($approved_booking as $booking_id) {
-                $data = array();
-                $data['booking_id'] = $booking_id;
-                $data['agent_id'] = $agent_id;
-                $data['agent_name'] = $agent_name;
-                $data['partner_id'] = $partner_id;
-                log_message('info', __FUNCTION__ . " Approved Booking: " . print_r($data, true));
-                $this->asynchronous_lib->do_background_process($url, $data);
-            }
+            
+            $data['booking_id'] = $approved_booking;
+            $data['agent_id'] = $this->session->userdata('id');
+            $data['agent_name'] = $this->session->userdata('employee_id');
+            $data['partner_id'] = $this->input->post('partner_id');
+            $this->asynchronous_lib->do_background_process($url, $data);
             $this->push_notification_lib->send_booking_completion_notification_to_partner($approved_booking);
         } else {
             //Logging
@@ -1730,6 +1725,7 @@ class Booking extends CI_Controller {
         log_message('info', __FUNCTION__ . " Booking ID: " . print_r($booking_id, true));
         $data['charges'] = $this->booking_model->get_booking_for_review($booking_id,$whereIN);
         $data['data'] = $this->booking_model->review_reschedule_bookings_request($whereIN);
+        
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/review_booking', $data);
     }
@@ -1960,6 +1956,14 @@ class Booking extends CI_Controller {
             $this->asynchronous_lib->do_background_process($url, $send);
 
             $this->partner_cb->partner_callback($booking_id);
+            
+            if ($this->input->post('rating_stars') !== "") {
+                //update rating state
+                $remarks = 'Rating' . ':' . $booking['rating_stars'] . '. ' . $booking['rating_comments'];
+                $this->notify->insert_state_change($booking_id, RATING_NEW_STATE, $status, $remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+                // send sms after rating
+                $this->send_rating_sms($this->input->post('booking_primary_contact_no'), $booking['rating_stars'], $this->input->post('customer_id'), $booking_id);
+            }
             //Generate Customer payment Invoice
             if($total_amount_paid > MAKE_CUTOMER_PAYMENT_INVOICE_GREATER_THAN && $booking['current_status'] == _247AROUND_COMPLETED){
                 $invoice_url = base_url() . "employee/user_invoice/payment_invoice_for_customer/".$booking_id."/".$this->session->userdata('id');
@@ -3259,7 +3263,7 @@ class Booking extends CI_Controller {
         $row[] = "<a class='col-md-12' href='".base_url()."employee/user/finduser?phone_number=".$order_list->phone_number."'>$order_list->customername</a>"."<b>".$order_list->booking_primary_contact_no."</b>";
         $row[] = "<b>".$order_list->services."</b>"."<br>".$order_list->request_type;
         $row[] = $order_list->booking_date." / ".$order_list->booking_timeslot;
-        $row[] = date_diff(date_create(date('Y-m-d',strtotime($order_list->booking_date))),date_create(date('Y-m-d')))->format("%a days");
+        $row[] = date_diff(date_create(date('Y-m-d',strtotime($order_list->initial_booking_date))),date_create(date('Y-m-d')))->format("%a days");
         $row[] = $escalation." ".$order_list->partner_internal_status;
         $row[] = "<a target = '_blank' href='".base_url()."employee/vendor/viewvendor/".$order_list->assigned_vendor_id."'>$sf</a>";
         $row[] = "<a id ='view' class ='btn btn-sm btn-color' href='".base_url()."employee/booking/viewdetails/".$order_list->booking_id."' title = 'view' target = '_blank'><i class = 'fa fa-eye' aria-hidden = 'true'></i></a>";

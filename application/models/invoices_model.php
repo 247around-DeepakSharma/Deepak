@@ -20,6 +20,47 @@ class invoices_model extends CI_Model {
         $this->db->insert('vendor_partner_invoices', $details);
         return $this->db->insert_id();
     }
+    
+    function action_customer_invoice($details){
+        $this->db->where('invoice_id', $details['invoice_id']);
+        $query = $this->db->get('invoice');
+        if ($query->num_rows > 0) {
+            $this->update_invoice(array('invoice_id' => $details['invoice_id']));
+            return true;
+        } else {
+            return $this->insert_invoice($details);
+           
+        }
+    }
+    
+    function insert_invoice_breakup($invoice_details){
+        return $this->db->insert_batch("invoice_details", $invoice_details);
+    }
+    
+    function get_new_invoice_data($where, $select = "*", $group_by = false) {
+
+        $this->db->select($select, false);
+        $this->db->where($where);
+        if($group_by){
+            $this->db->group_by($group_by);
+        }
+        $query = $this->db->get("invoice");
+        if ($query->num_rows > 0) {
+            return $query->result_array();
+        } else {
+            return FALSE;
+        }
+    }
+    
+    function update_invoice($where, $data){
+        $this->db->where($where);
+        $this->db->update('invoice', $data);
+    }
+    
+    function insert_invoice($details){
+        $this->db->insert('invoice', $details);
+        return $this->db->insert_id();
+    }
 
     /**
      * @desc: If invoice id already exist then update this row otherwise insert invoice details
@@ -66,7 +107,7 @@ class invoices_model extends CI_Model {
         $return_data = $query->result_array();
         
         if($join && !empty($return_data)){
-            if($return_data[0]['vendor_partner'] === 'vendor'){
+            if($return_data[0]['vendor_partner'] === 'vendor' || $return_data[0]['vendor_partner'] === 'user'){
                 $details = $this->vendor_model->getVendorDetails("service_centres.company_name as vendor_partner_name",array('service_centres.id'=> $return_data[0]['vendor_partner_id']));
             }
             else if($return_data[0]['vendor_partner'] === 'partner'){
@@ -637,9 +678,16 @@ class invoices_model extends CI_Model {
             $meta["invoice_template"] = $this->get_invoice_tempate($result[0]['gst_number'], $is_customer, $c_s_gst);
             foreach ($result as $key => $value) {
                 if($is_customer && empty($result[0]['gst_number'])){
-                   
+                  
                     $meta['total_taxable_value'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * 0.18)));
-                } else if($c_s_gst){
+                    $result[$key]['toal_amount'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * 0.18)));
+                    
+                } else if((empty($is_customer)) && empty($result[0]['gst_number'])){
+                   
+                    $meta['total_taxable_value'] = sprintf("%1\$.2f",($value['taxable_value']));
+                    $result[$key]['toal_amount'] = sprintf("%1\$.2f",($value['taxable_value']));
+                    
+                }else if($c_s_gst){
 
                     $result[$key]['cgst_rate'] =  $result[$key]['sgst_rate'] = 9;
                     $result[$key]['cgst_tax_amount'] = sprintf("%1\$.2f",($value['taxable_value'] * 0.09));
@@ -648,16 +696,20 @@ class invoices_model extends CI_Model {
                     $meta['sgst_total_tax_amount'] += $result[$key]['sgst_tax_amount'];
                     $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = 9;
                     $meta['total_taxable_value'] += $value['taxable_value'];
+                    
+                    $result[$key]['toal_amount'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * 0.18)));
                    
                 } else {
-                    
+                   
                     $result[$key]['igst_rate'] =  $meta['igst_tax_rate'] = DEFAULT_TAX_RATE;
                     $result[$key]['igst_tax_amount'] = sprintf("%1\$.2f",($value['taxable_value'] * 0.18));
                     $meta['igst_total_tax_amount'] +=  $result[$key]['igst_tax_amount'];
                     $meta['total_taxable_value'] += $value['taxable_value'];
+                    
+                    $result[$key]['toal_amount'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * 0.18)));
                 }
                 
-                $result[$key]['toal_amount'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * 0.18)));
+                
                 $meta['total_qty'] += $value['qty'];
                 $meta['total_rate'] += $value['rate'];
                
@@ -705,7 +757,6 @@ class invoices_model extends CI_Model {
            
             $meta['state_code'] = $this->get_state_code(array('state' => $result[0]['state']))[0]['state_code'];
             $meta['state'] = $result[0]['state'];
-            
             return array(
                 "meta" => $meta,
                 "booking" => $result

@@ -1,0 +1,1 @@
+ALTER TABLE `paytm_payment_qr_code` ADD `is_active` INT(2) NOT NULL DEFAULT '1' AFTER `payment_date`;

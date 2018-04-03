@@ -1396,12 +1396,17 @@ class Buyback_process extends CI_Controller {
                     for ($i = 0; $i < $counter; $i++) {
                         if($key == _247AROUND_MOBILE_SERVICE_ID){
                             $select ="brand as Brand, physical_condition as 'Model' , city AS 'Location' , partner_total as 'Exchange Offer Value'";
+                        }
+                        else if($key == _247AROUND_AC_SERVICE_ID){
+                            $select = "category as Type,brand as Brand, working_condition as 'Working Condition' , city AS 'Location' , partner_total as 'Exchange Offer Value'";
+                        }else if($key == _247AROUND_TV_SERVICE_ID){
+                            $select = "brand as Brand,SUBSTRING_INDEX(category,'_',1) as Type,SUBSTRING_INDEX(category,'_',-1) as 'Size', city AS 'Location' , partner_total as 'Exchange Offer Value'";
                         }else{
                             $select = "brand as Brand,category as Type, concat(physical_condition, ' | ',working_condition) as 'Product Condition' , city AS 'Location' , partner_total as 'Exchange Offer Value'";
                         }
                         $data = $this->service_centre_charges_model->get_bb_charges($where, $select, true, true, $offset, $row_limit, TRUE);
                         if (!empty($data)) {
-                            $file_name = $csv_file_name . "_" . $i;
+                            $file_name = $csv_file_name . "_" . $i.".csv";
                             $csv_file[$file_name] = $this->generate_bb_csv_price_list($file_name, $data);
                         }
                         $offset += 500;

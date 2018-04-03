@@ -725,7 +725,7 @@ class Booking_model extends CI_Model {
 
         $query = $this->db->query($sql);
         $result = $query->result_array();
-        
+
         $this->db->Select('*');
         $this->db->where('booking_id', $booking_id);
         $query1 = $this->db->get('spare_parts_details');
@@ -848,7 +848,7 @@ class Booking_model extends CI_Model {
     function getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, $brand) {
 
         $this->db->distinct();
-        $this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable, pod, is_upcountry, vendor_basic_percentage');
+        $this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable, pod, is_upcountry, vendor_basic_percentage, around_net_payable');
         $this->db->where('service_id',$service_id);
         $this->db->where('category', $category);
         $this->db->where('active', 1);
@@ -1390,9 +1390,9 @@ class Booking_model extends CI_Model {
 	}
 
 	//Status should NOT be Completed or Cancelled
-    if($status !=""){
-	$this->db->where_not_in('current_status', $status);
-    }
+        if($status !=""){
+            $this->db->where_not_in('current_status', $status);
+        }
 
         $this->db->where_not_in('internal_status', "Reschedule");
 	$query = $this->db->get('service_center_booking_action');
@@ -1415,6 +1415,7 @@ class Booking_model extends CI_Model {
         foreach ($charges as $key => $value) {
            // $charges[$key]['service_centres'] = $this->vendor_model->getVendor($value['booking_id']);
             $charges[$key]['booking'] = $this->getbooking_history($value['booking_id'], "join");
+            
         }
         return $charges;
     }
