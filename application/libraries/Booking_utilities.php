@@ -748,7 +748,7 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
     function convert_excel_to_pdf_paidApi($src_format, $dst_format, $files) {
         //Add Live Secret Key
         $parameter = array(
-            'Secret' => '278325305',
+            'Secret' => 'QNUSX329fBIAICLT',
         );
         $parameters = array_change_key_case($parameter);
         $auth_param = array_key_exists('secret', $parameters) ? 'secret=' . $parameters['secret'] : 'token=' . $parameters['token'];
