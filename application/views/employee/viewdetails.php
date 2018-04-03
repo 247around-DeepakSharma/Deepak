@@ -76,12 +76,13 @@
         <div class="hidden-xs">Engineer Action</div>
     </button>
 </div>
-    <?php } ?>
+    <?php }  if($booking_history[0]['current_status'] != 'Cancelled'){?>
 <div class="btn-group" role="group">
     <button type="button" class="btn btn-default" href="#tab7" data-toggle="tab">
         <div class="hidden-xs">Transactions</div>
     </button>
 </div>
+    <?php }?>
 </div>
 <div class="well">
     <div class="tab-content">
@@ -686,28 +687,36 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div style="">
-                            <?php
-                             $paidAmount = $booking_history[0]['amount_paid'];
-                            if(!$booking_history[0]['amount_paid']){
-                                $paidAmount = 0;
-                            }
-                            ?>
-                              <hr style="border: 1px solid #5bc0de;">
                             <table class="table  table-striped table-bordered">
                                 <tr>
-                                    <th colspan="1">Paid Amount</th>
-                                    <td colspan="3"><?php echo $paidAmount; ?></td>
-                                    <th colspan="1">Customer Invoice</th>
-                                    <td colspan="3"><?php echo $unit_details[0]['user_invoice_id']?></td>
+                                    <?php 
+                                    $temp = 0;
+                                     if(!empty($booking_history[0]['amount_paid'])){$temp++?>
+                                        <th colspan="1">Total Paid Amount</th>
+                                        <td colspan="3"><?php echo $booking_history[0]['amount_paid'];?></td>
+                                     <?php } 
+                                     if(isset($booking_history[0]['onlinePaymentAmount'])){$temp++
+                                     ?>
+                                        <th colspan="1">Paid through Paytm</th>
+                                        <td colspan="3"><?php echo $booking_history[0]['onlinePaymentAmount'];?></td>
+                                     <?php }
+                                     if(!empty($unit_details[0]['user_invoice_id'])){$temp++?>
+                                        <th colspan="1">Customer Invoice</th>
+                                        <td colspan="3"><?php echo $unit_details[0]['user_invoice_id']?></td>
+                                     <?php }?>
                                 </tr>
                             </table>
+                              <?php if($temp !=0){ ?>
                              <hr style="border: 1px solid #5bc0de;">
+                              <?php } ?>
                         </div>
                         <div style="background: #5bc0de;margin-bottom: 20px;">
+                            <?php if($booking_history[0]['current_status'] != 'Cancelled' && $booking_history[0]['current_status'] != 'Completed'){ ?>
                         <a target="_blank" href="<?php echo base_url(); ?>payment/resend_QR_code/<?php echo $booking_history[0]['booking_id']?>/1" class="btn btn-success action_buton" 
                            >Regenerate and send QR Code</a>
                                <a target="_blank" href="<?php echo base_url(); ?>payment/resend_QR_code/<?php echo $booking_history[0]['booking_id']?>/0" class="btn btn-success action_buton">
                                    Resend Same QR Code</a>
+                            <?php } ?>
                                <button type="button" class="btn btn-success action_buton">Resend Customer Invoice</button>
                                </div>
                          <?php if($paytm_transaction) { ?>   
