@@ -318,7 +318,10 @@
                                 <th>SF Earning</th>
                             </tr>
                             <tbody>
-                                <?php  foreach ( $unit_details as $key =>  $unit_detail) { ?>
+                                <?php $user_invoice_id  = ""; foreach ( $unit_details as $key =>  $unit_detail) { 
+                                   if(!empty($unit_detail['user_invoice_id'])){
+                                       $user_invoice_id = $unit_detail['user_invoice_id'];
+                                   }?>
                                 <tr>
                                     <td><?php echo $unit_detail['appliance_brand']?></td>
                                     <td><?php echo $unit_detail['appliance_category']."/<br/>".$unit_detail['appliance_capacity']?></td>
@@ -698,7 +701,8 @@
                                     <th colspan="1">Paid Amount</th>
                                     <td colspan="3"><?php echo $paidAmount; ?></td>
                                     <th colspan="1">Customer Invoice</th>
-                                    <td colspan="3"><?php echo $unit_details[0]['user_invoice_id']?></td>
+                                    <td colspan="3"><?php if(!empty($user_invoice_id)){ ?> <a target="_blank"   href="<?php echo S3_WEBSITE_URL."invoices-excel/".$user_invoice_id.".pdf"?> "
+                    title="Customer Invoice"> <?php echo $user_invoice_id;?></a><?php } ?></td>
                                 </tr>
                             </table>
                              <hr style="border: 1px solid #5bc0de;">
@@ -708,7 +712,9 @@
                            >Regenerate and send QR Code</a>
                                <a target="_blank" href="<?php echo base_url(); ?>payment/resend_QR_code/<?php echo $booking_history[0]['booking_id']?>/0" class="btn btn-success action_buton">
                                    Resend Same QR Code</a>
-                               <button type="button" class="btn btn-success action_buton">Resend Customer Invoice</button>
+                            <?php if(!empty($user_invoice_id)) { ?>
+                            <a href="javascript:void(0)" onclick="resendCustomerInvoice('<?php echo $booking_history[0]['booking_id'];?>', '<?php echo $user_invoice_id; ?>')"  class="btn btn-success action_buton">Resend Customer Invoice</a> 
+                                <?php } ?>
                                </div>
                          <?php if($paytm_transaction) { ?>   
                         <hr style="border: 1px solid #5bc0de;">
@@ -868,6 +874,22 @@
   </div>
 </div>
 <script>
+ function resendCustomerInvoice(booking_id, invoice_id){
+        alert("Please Wait! we will send invoice to customer via sms or email");
+         var url ="<?php echo base_url();?>employee/user_invoice/resend_customer_invoice/"+ booking_id+"/"+invoice_id;
+         $.ajax({
+             method:'POST',
+             url: url, 
+             success:function(response){
+                 if(response === 'success'){
+                     alert("Success! Invoice Sent Successfully");
+                 } else {
+                     alert("Error! There is some problem to send invoice to customer");
+                 }
+                 
+             }
+         });
+    }
  function process_cashback_form(){
             var cashback_amount = document.getElementById("form_cashback_amount").value;
             var cashback_reason = document.getElementById("form_cashback_reason").value;
@@ -960,6 +982,7 @@
     
 </script>
 <script>
+    
     function get_invoice_data(invoice_id){
         if (invoice_id){
                 $.ajax({
@@ -987,6 +1010,8 @@
                     }
                 });
     }
+    
+    
     
     <?php if(!empty($booking_history[0]['dealer_id'])) { ?>
          $.ajax({
