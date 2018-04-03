@@ -478,6 +478,9 @@ class paytm_payment_lib {
        $cashBackData['cashback_status'] = "SUCCESS";
        $cashBackData['cashback_reason'] = $cashback_reason;
        $cashBackData['cashback_medium'] = $cashback_medium;
+       if($this->session->userdata('id')){
+         $cashBackData['agent_id'] = $this->session->userdata('id');
+       }
        $db_id = $this->P_P->reusable_model->insert_into_table("paytm_cashback_details",$cashBackData);
         $to = TRANSACTION_SUCCESS_TO; 
         $cc = TRANSACTION_SUCCESS_CC;
