@@ -385,11 +385,20 @@ class paytm_payment_lib {
         $this->generate_sf_creditnote($booking_id, $jsonArray['response']['txnAmount'], $jsonArray['response']['walletSystemTxnId']);
         
          //Send Email 
+        //get rm by booking id
+        $join['service_centres'] ="booking_details.assigned_vendor_id = service_centres.id";
+        $where['booking_details.booking_id'] = $booking_id;
+        $vendorArray = $this->P_P->reusable_model->get_search_result_data("booking_details","service_centres.id,service_centres.name",$where,$join,NULL,NULL,NULL,NULL,array());
+        $RMjoin['employee'] ="employee.id = employee_relation.agent_id";
+        $RMwhere['FIND_IN_SET('.$vendorArray[0]['id'].', employee_relation.service_centres_id)'] = NULL;
+        $RMArray = $this->P_P->reusable_model->get_search_result_data("employee_relation","employee_relation.agent_id,employee.official_email",$RMwhere,$RMjoin,NULL,NULL,NULL,NULL,array());
         $to = TRANSACTION_SUCCESS_TO; 
-        $cc = TRANSACTION_SUCCESS_CC;
-        $subject = "New Transaction From Paytm - ".$data['txn_id'];
-        $message = "Hi,<br/> We got a new transaction from paytm for below:<br/>  BookingID - " .$booking_id.", OrderID - ".$data['order_id'];
+        $cc = TRANSACTION_SUCCESS_CC.",".$RMArray[0]['official_email'];
+        $subject = "New Transaction From Paytm For SF  '".$vendorArray[0]['name']."'";
+        $message = "Hi,<br/> We got a new transaction from Paytm, Details are Below: <br/> BookingID - " .$booking_id.",  <br/> OrderID - ".$data['order_id'].",  <br/> Paid Amount - ".
+               $data['paid_amount'].",  <br/> Service Center - ".$vendorArray[0]['name'];
         $this->P_P->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
+        //End Send Email
         return $insertID;
     }
     /*
