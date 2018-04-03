@@ -130,8 +130,8 @@ class paytm_payment_lib {
          * 3) If not then creates a request to process refund for paytm if response failure then return with failure 
          * 4) If success thern save refund in database and return with success
      */
-    function paytm_cashback($transaction_id,$order_id,$amount,$cashback_reason){
-                $resultArray = $this->CASHBACK_process_cashback($order_id,$amount,$transaction_id,$cashback_reason);
+    function paytm_cashback($transaction_id,$order_id,$amount,$cashback_reason,$cashback_medium){
+                $resultArray = $this->CASHBACK_process_cashback($order_id,$amount,$transaction_id,$cashback_reason,$cashback_medium);
                  if($resultArray['is_success'] == 1){
                          return $this->CASHBACK_create_cashback_response(SUCCESS_STATUS,$resultArray['msg']);
                      }
@@ -462,7 +462,7 @@ class paytm_payment_lib {
      *                  3) $paramlist = Parameter Array(Requestr array for paytm API)
      *                  4) @outputArray - Response By Paytm
      */
-    function CASHBACK_generation_success_handler($transaction_id,$amount,$paramlist,$outputArray,$cashback_reason){
+    function CASHBACK_generation_success_handler($transaction_id,$amount,$paramlist,$outputArray,$cashback_reason,$cashback_medium){
        //Create where array (Where we have to update refund in transaction table)
        $cashBackData['booking_id'] =  explode("_",$paramlist['request']['merchantOrderId'])[0];
        $cashBackData['transaction_id'] =  $transaction_id;
@@ -477,7 +477,18 @@ class paytm_payment_lib {
        $cashBackData['cashback_from'] = _247AROUND; 
        $cashBackData['cashback_status'] = "SUCCESS";
        $cashBackData['cashback_reason'] = $cashback_reason;
+       $cashBackData['cashback_medium'] = $cashback_medium;
        $db_id = $this->P_P->reusable_model->insert_into_table("paytm_cashback_details",$cashBackData);
+        $to = TRANSACTION_SUCCESS_TO; 
+        $cc = TRANSACTION_SUCCESS_CC;
+        $agent ='';
+        if($this->session->userdata('employee_id')){
+            $agent = $this->session->userdata('employee_id');
+        }
+        $subject = "Cashback Processed For Amount '".$cashBackData['cashback_amount']."'";
+        $message = "Hi,<br/> Cashback Has been Successfully send for below details: <br/> BookingID - " .$cashBackData['booking_id'].", <br/> Cashback Amount - ".
+               $cashBackData['cashback_amount'].",  <br/> Cashback Medium - ".$cashback_medium.",  <br/> Agent ID - ".$agent;
+        $this->P_P->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
        if($db_id>0){
            return array('is_success'=>1,'msg'=>SUCCESS_STATUS);
        }
@@ -489,7 +500,7 @@ class paytm_payment_lib {
      *                  2) $amount - (Amount need to transfer)
      *                  3) $transaction_id - Transaction ID 
      */
-    function CASHBACK_process_cashback($order_id,$amount,$transaction_id,$cashback_reason){
+    function CASHBACK_process_cashback($order_id,$amount,$transaction_id,$cashback_reason,$cashback_medium){
             //Create API request Array
             $paramlist = $this->CASHBACK_create_cashback_parameters($order_id,$transaction_id,$amount);
             $data_string = json_encode($paramlist);
@@ -504,7 +515,7 @@ class paytm_payment_lib {
             //IF success
             if($outputArray['status'] == 'SUCCESS'){
                 log_message('info', __FUNCTION__ . "Function End with Success");
-                return $this->CASHBACK_generation_success_handler($transaction_id,$amount,$paramlist,$outputArray,$cashback_reason);
+                return $this->CASHBACK_generation_success_handler($transaction_id,$amount,$paramlist,$outputArray,$cashback_reason,$cashback_medium);
             }
             else{
                 log_message('info', __FUNCTION__ . "Function End With Failure");
@@ -553,11 +564,19 @@ class paytm_payment_lib {
             $insertID = $this->P_P->reusable_model-> insert_into_table("paytm_transaction_callback",$data);
             if($affectedRows>0){
                 //Send Email 
-                $to = TRANSACTION_SUCCESS_TO; 
-                $cc = TRANSACTION_SUCCESS_CC;   
-                $subject = "New Transaction From Paytm - ".$data['txn_id'];
-                $message = "Hi,<br/> We got a new transaction from paytm for below:<br/>  BookingID - " .$booking_id.", OrderID - ".$data['order_id'];
-                $this->P_P->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
+                //get rm by booking id
+            $join['service_centres'] ="booking_details.assigned_vendor_id = service_centres.id";
+            $where['booking_details.booking_id'] = $booking_id;
+            $vendorArray = $this->P_P->reusable_model->get_search_result_data("booking_details","service_centres.id,service_centres.name",$where,$join,NULL,NULL,NULL,NULL,array());
+            $RMjoin['employee'] ="employee.id = employee_relation.agent_id";
+            $RMwhere['FIND_IN_SET('.$vendorArray[0]['id'].', employee_relation.service_centres_id)'] = NULL;
+            $RMArray = $this->P_P->reusable_model->get_search_result_data("employee_relation","employee_relation.agent_id,employee.official_email",$RMwhere,$RMjoin,NULL,NULL,NULL,NULL,array());
+            $to = TRANSACTION_SUCCESS_TO; 
+            $cc = TRANSACTION_SUCCESS_CC.",".$RMArray[0]['official_email'];
+            $subject = "New Transaction From Paytm For SF  '".$vendorArray[0]['name']."'";
+            $message = "Hi,<br/> We got a new transaction from Paytm, Details are Below: <br/> BookingID - " .$booking_id.",  <br/> OrderID - ".$data['order_id'].",  <br/> Paid Amount - ".
+                   $data['paid_amount'].",  <br/> Service Center - ".$vendorArray[0]['name'];
+            $this->P_P->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
             }
         }
         log_message('info', __FUNCTION__ . " Function End With  ".print_r($data,true));
