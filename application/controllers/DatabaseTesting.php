@@ -474,11 +474,15 @@ class DatabaseTesting extends CI_Controller {
             echo "File Not Found";
         }
     }
+    
+    
     /**
-     * @desc This is used to convert jobcard excel to pdf
+     * @desc This is used to convert jobcard excel to pdf when PDF conversion
+     *      has failed.
+     * 
      * @param Date $date(Format - 2018-03-14)
      */
-    function create_jobcards($date) {
+    function create_jobcards_without_pdf($date) {
         echo __FUNCTION__ . PHP_EOL;
         
         $booking_id = $this->database_testing_model->get_booking_id_without_pdf_jobcards($date);
@@ -500,6 +504,30 @@ class DatabaseTesting extends CI_Controller {
                 // get HTTP response code
                 curl_getinfo($ch, CURLINFO_HTTP_CODE);
                 curl_close($ch);
+            }
+        }
+    }
+    
+    /**
+     * @desc This is used to recreate jobcards which got missed and not created
+     *        at all i.e. both PDF and XLSX files are missing.
+     * 
+     * @param Date $date(Format - 2018-03-14)
+     */
+    function recreate_jobcards() {
+        echo __FUNCTION__ . PHP_EOL;
+        
+        $pending_booking_job_card = $this->database_testing_model->count_pending_bookings_without_job_card();
+        
+        if (!empty($pending_booking_job_card)) {
+            echo 'Pending Job Cards: ' . count($pending_booking_job_card) . PHP_EOL;
+            
+            //Creating Job cards for Bookings 
+            foreach ($pending_booking_job_card as $value) {
+                echo $value['booking_id'] . PHP_EOL;
+                
+                //Prepare job card
+                $this->booking_utilities->lib_prepare_job_card_using_booking_id($value['booking_id']);
             }
         }
     }
