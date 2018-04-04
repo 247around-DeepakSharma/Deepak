@@ -732,7 +732,7 @@ class Partner extends CI_Controller {
             $service_brands[] = $this->partner_model->get_service_brands_for_partner($value['id']);
         }
         $pushNotification = $this->push_notification_model->get_push_notification_subscribers_by_entity(_247AROUND_PARTNER_STRING);
-        $accountManagerArray = $this->reusable_model->get_search_result_data("employee","id,employee_id",NULL,NULL,NULL,array('employee_id'=>"DESC"),NULL,NULL,array());
+        $accountManagerArray = $this->reusable_model->get_search_result_data("employee","id,employee_id",array('active'=>1),NULL,NULL,array('employee_id'=>"DESC"),NULL,NULL,array());
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/viewpartner', array('query' => $query, 'service_brands' => $service_brands,'push_notification' => $pushNotification,'active'=>$active,'partnerType'=>$partnerType,
             'accountManagerArray'=>$accountManagerArray,'ac'=>$ac));
