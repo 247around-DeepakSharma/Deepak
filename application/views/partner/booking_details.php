@@ -440,11 +440,13 @@
                                         <tr>
                                             <th>Back Office Person</th>
                                             <th>Mobile</th>
+                                            <th>Email</th>
                                         </tr>
                                         <tbody>
                                             <tr>
                                                 <td><?php echo $booking_history[0]['primary_contact_name'];?></td>
                                                 <td><?php echo $booking_history[0]['primary_contact_phone_1'];?></td>
+                                                <td><?php echo $booking_history[0]['primary_contact_email'];?></td>
                                             </tr>
                                         </tbody>
                                     </table>
