@@ -28,7 +28,6 @@
         <h1>Partners</h1>
         <form class="form-inline" action="<?php echo base_url();?>employee/partner/viewpartner" method="post">
 <div class="form-group">
-  <label for="Partner Type">Partner Type</label>
   <select class="form-control" id="partner_type" name="active">
       <option value="All" <?php if($active == 'All'){echo "selected";} ?>>All</option>
       <option value="1" <?php if($active == '1'){echo "selected";} ?>>Active</option>
@@ -36,11 +35,14 @@
   </select>
   </div>
 <div class="form-group">
-    <label for="Service Code">Partner Code</label>
-    <select class="form-control" id="partner_sc" name="code">
-        <option value="All" <?php if($code == 'All'){echo "selected";} ?>>All</option>
-   <option value="0" <?php if($code == '0'){echo "selected";} ?>>Without Service Code</option>
-   <option value="1" <?php if($code == '1'){echo "selected";} ?>>With Service Code</option>
+    <label for="Service Code">Partner Type</label>
+    <select class="form-control" id="partner_sc" name="partnerType">
+    <option value="All" <?php if($partnerType == 'All'){echo "selected";} ?>>All</option>
+    <option value="<?php echo OEM;?>" <?php if($partnerType == OEM){echo "selected";} ?>><?php echo OEM?></option>
+    <option value="<?php echo EXTWARRANTYPROVIDERTYPE;?>" <?php if($partnerType == EXTWARRANTYPROVIDERTYPE){echo "selected";} ?>><?php echo EXTWARRANTYPROVIDERTYPE?></option>
+    <option value="<?php echo BUYBACKTYPE;?>" <?php if($partnerType == BUYBACKTYPE){echo "selected";} ?>><?php echo BUYBACKTYPE?></option>
+    <option value="<?php echo INTERNALTYPE;?>" <?php if($partnerType == INTERNALTYPE){echo "selected";} ?>><?php echo INTERNALTYPE?></option>
+    <option value="<?php echo ECOMMERCETYPE;?>" <?php if($partnerType == ECOMMERCETYPE){echo "selected";} ?>><?php echo ECOMMERCETYPE?></option>
   </select>
 </div>
 <div class="form-group">

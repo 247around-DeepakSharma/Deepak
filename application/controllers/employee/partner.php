@@ -719,19 +719,19 @@ class Partner extends CI_Controller {
     function viewpartner($partner_id = "") {
         $service_brands = array();
         $active = 1;
-        $source_code= 1;
+        $partnerType= 'All';
         if($this->input->post()){
            $active = $this->input->post('active');
-           $source_code = $this->input->post('code');
+           $partnerType = $this->input->post('partnerType');
         }
-        $query = $this->partner_model->get_partner_details_with_soucre_code($active,$source_code,$partner_id);
+        $query = $this->partner_model->get_partner_details_with_soucre_code($active,$partnerType,$partner_id);
         foreach ($query as $key => $value) {
             //Getting Appliances and Brands details for partner
             $service_brands[] = $this->partner_model->get_service_brands_for_partner($value['id']);
         }
         $pushNotification = $this->push_notification_model->get_push_notification_subscribers_by_entity(_247AROUND_PARTNER_STRING);
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/viewpartner', array('query' => $query, 'service_brands' => $service_brands,'push_notification' => $pushNotification,'active'=>$active,'code'=>$source_code));
+        $this->load->view('employee/viewpartner', array('query' => $query, 'service_brands' => $service_brands,'push_notification' => $pushNotification,'active'=>$active,'partnerType'=>$partnerType));
     }
 
     /**
