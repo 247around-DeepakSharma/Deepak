@@ -95,8 +95,10 @@
                             <td><?php echo $booking_history[0]['name']; ?></td>
                             <th>Mobile </th>
                             <td>
-                                <?php echo $booking_history[0]['booking_primary_contact_no'] . ' / ' . $booking_history[0]['booking_alternate_contact_no']; ?>
-                                <button type="button" onclick="outbound_call(<?php echo $booking_history[0]['booking_primary_contact_no'] ?>)" class="btn btn-sm btn-info pull-right"><i class="fa fa-phone fa-lg" aria-hidden="true"></i></button>
+                                <a href="javascript:void(0);" onclick="outbound_call(<?php echo $booking_history[0]['booking_primary_contact_no'] ?>)"><?php echo $booking_history[0]['booking_primary_contact_no']; ?></a>
+                                <?php if(!empty($booking_history[0]['booking_alternate_contact_no'])) { ?> 
+                                / <a href="javascript:void(0);" onclick="outbound_call(<?php echo $booking_history[0]['booking_alternate_contact_no'] ?>)"><?php echo $booking_history[0]['booking_alternate_contact_no']; ?></a>   
+                                <?php } ?>
                             </td>
                         </tr>
                         <tr>
