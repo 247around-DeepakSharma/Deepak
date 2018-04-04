@@ -456,6 +456,38 @@ class paytm_payment_lib {
         return $paramlist;
     }
     /*
+     * This function is used to send cashbaack sms and email
+     * 1st email will go to admin, To inform about cashback
+     * 2nd SMS will go to customer, Containing information about his/her cashback
+     * @input - $bookingID,$cashbackAmount,$cashbackMedium (From which medium cashback has been processed eg - crone, cashbackForm) 
+     */
+    function CASHBACK_send_sms_and_email($bookingID,$cashbackAmount,$cashbackMedium){
+        $to = TRANSACTION_SUCCESS_TO; 
+        $cc = TRANSACTION_SUCCESS_CC;
+        $agent ='';
+        if($this->session->userdata('employee_id')){
+            $agent = $this->session->userdata('employee_id');
+        }
+        //Send Email To admin , to inform about cashback
+        $subject = "Cashback Processed For Amount '".$cashbackAmount."'";
+        $message = "Hi,<br/> Cashback Has been Successfully send for below details: <br/> BookingID - " .$bookingID.", <br/> Cashback Amount - ".
+              $cashbackAmount.",  <br/> Cashback Medium - ".$cashbackMedium.",  <br/> Agent ID - ".$agent;
+        $this->P_P->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
+        //End 
+        //Send SMS to Customer
+        $where['booking_id'] = $bookingID;
+        $contactNumberArray = $this->P_P->reusable_model->get_search_result_data("booking_details","booking_primary_contact_no,id",$where,NULL,NULL,NULL,NULL,NULL,array());
+        $sms['type'] = "user";
+        $sms['type_id'] = $contactNumberArray[0]['id'];
+        $sms['tag'] = "cashback_processed_to_customer";
+        $sms['smsData']['amount'] = $cashbackAmount;
+        $sms['smsData']['booking_id'] = $bookingID;
+        $sms['phone_no'] = $contactNumberArray[0]['booking_primary_contact_no']; 
+        $sms['booking_id'] = $bookingID;
+        $this->My_CI->notify->send_sms_msg91($sms);
+        //End
+    }
+    /*
      * This function is used to handle successfully processing of cashback
      * @input - 1) @transaction_id - Transaction ID(Return by paytm at the time of qr generation)
      *                  2) @amount - Amount needs to transafer
@@ -482,16 +514,7 @@ class paytm_payment_lib {
          $cashBackData['agent_id'] = $this->session->userdata('id');
        }
        $db_id = $this->P_P->reusable_model->insert_into_table("paytm_cashback_details",$cashBackData);
-        $to = TRANSACTION_SUCCESS_TO; 
-        $cc = TRANSACTION_SUCCESS_CC;
-        $agent ='';
-        if($this->session->userdata('employee_id')){
-            $agent = $this->session->userdata('employee_id');
-        }
-        $subject = "Cashback Processed For Amount '".$cashBackData['cashback_amount']."'";
-        $message = "Hi,<br/> Cashback Has been Successfully send for below details: <br/> BookingID - " .$cashBackData['booking_id'].", <br/> Cashback Amount - ".
-               $cashBackData['cashback_amount'].",  <br/> Cashback Medium - ".$cashback_medium.",  <br/> Agent ID - ".$agent;
-        $this->P_P->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
+       $this->CASHBACK_send_sms_and_email($cashBackData['booking_id'],$cashBackData['cashback_amount'],$cashback_medium);
        if($db_id>0){
            return array('is_success'=>1,'msg'=>SUCCESS_STATUS);
        }
