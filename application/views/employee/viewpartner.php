@@ -28,6 +28,7 @@
         <h1>Partners</h1>
         <form class="form-inline" action="<?php echo base_url();?>employee/partner/viewpartner" method="post">
 <div class="form-group">
+    <label for="Service Code">Active/Disabled</label>
   <select class="form-control" id="partner_type" name="active">
       <option value="All" <?php if($active == 'All'){echo "selected";} ?>>All</option>
       <option value="1" <?php if($active == '1'){echo "selected";} ?>>Active</option>
@@ -45,6 +46,26 @@
     <option value="<?php echo ECOMMERCETYPE;?>" <?php if($partnerType == ECOMMERCETYPE){echo "selected";} ?>><?php echo ECOMMERCETYPE?></option>
   </select>
 </div>
+            <?php
+            if($this->session->userdata('user_group') == 'admin'){
+            ?>
+ <div class="form-group">
+     <label for="Service Code">Account Manager</label>
+  <select class="form-control" id="accountManager" name="accountManager">
+      <option value="All" <?php if($ac == 'All'){echo "selected";} ?>>All</option>
+          <option value="NULL" <?php if($ac == 'NULL'){echo "selected";} ?>>No One</option>
+      <?php
+      foreach($accountManagerArray as $accountManager){
+          ?>
+      <option value='<?php echo $accountManager['id'] ?>' <?php if($ac == $accountManager['id']){echo "selected";} ?>><?php echo $accountManager['employee_id'] ?></option>
+      <?php
+      }
+      ?>
+  </select>
+  </div>
+            <?php
+            }
+            ?>
 <div class="form-group">
     <input type="submit" value="Apply Filter" class="btn btn-sm btn-success"> 
     </div>
