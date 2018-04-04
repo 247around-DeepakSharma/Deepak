@@ -173,17 +173,36 @@
                                         <div class="col-md-8">
                                             <select name="partner_type" class="form-control" >
                                                 <option selected disabled>Select Partner Type</option>
-                                                <option value="OEM" <?php if (isset($results['partner_code'][0]['partner_type'])) {
-                                                    if ($results['partner_code'][0]['partner_type'] == OEM) {
-                                                        echo "selected";
-                                                    }
-                                                    } ?>>OEM</option>
-                                                <option value="ECOMMERCE" 
+                                                <option value=<?php echo BUYBACKTYPE ?> 
                                                     <?php if (isset($results['partner_code'][0]['partner_type'])) {
-                                                        if ($results['partner_code'][0]['partner_type'] == "ECOMMERCE") {
+                                                        if ($results['partner_code'][0]['partner_type'] == BUYBACKTYPE) {
                                                             echo "selected";
                                                         }
-                                                        } ?> >ECOMMERCE</option>
+                                                        } ?> ><?php echo BUYBACKTYPE ?></option>
+                                                <option value=<?php echo ECOMMERCETYPE ?> 
+                                                    <?php if (isset($results['partner_code'][0]['partner_type'])) {
+                                                        if ($results['partner_code'][0]['partner_type'] == ECOMMERCETYPE) {
+                                                            echo "selected";
+                                                        }
+                                                        } ?> ><?php echo ECOMMERCETYPE ?></option>
+                                                <option value=<?php echo EXTWARRANTYPROVIDERTYPE ?> 
+                                                    <?php if (isset($results['partner_code'][0]['partner_type'])) {
+                                                        if ($results['partner_code'][0]['partner_type'] == EXTWARRANTYPROVIDERTYPE) {
+                                                            echo "selected";
+                                                        }
+                                                        } ?> ><?php echo EXTWARRANTYPROVIDERTYPE ?></option>
+                                                <option value=<?php echo INTERNALTYPE ?> 
+                                                    <?php if (isset($results['partner_code'][0]['partner_type'])) {
+                                                        if ($results['partner_code'][0]['partner_type'] == INTERNALTYPE) {
+                                                            echo "selected";
+                                                        }
+                                                        } ?> ><?php echo INTERNALTYPE ?></option>
+                                                <option value=<?php echo OEM ?> 
+                                                    <?php if (isset($results['partner_code'][0]['partner_type'])) {
+                                                        if ($results['partner_code'][0]['partner_type'] == OEM) {
+                                                            echo "selected";
+                                                        }
+                                                        } ?> ><?php echo OEM ?></option>
                                             </select>
                                             <?php echo form_error('partner_type'); ?>
                                         </div>
