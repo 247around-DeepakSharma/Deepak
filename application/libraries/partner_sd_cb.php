@@ -328,23 +328,43 @@ class partner_sd_cb {
         if (!empty($data['order_id'])) {
             $this->partner = $data['partner_id'];
             $serial_number = "";
+            $CallCompletedDate = "";
             if($data['current_status'] == _247AROUND_COMPLETED){
                 $unit = $this->My_CI->booking_model->get_unit_details(array("booking_id" => $data['booking_id']));
                 if(!empty($unit)){
                     $serial_number = $unit[0]['serial_number'];
+                    $CallCompletedDate = array(
+                        "year" => date('Y', strtotime($data['closed_date'])),
+                        "month" => date('m', strtotime($data['closed_date'])),
+                        "day" => date('d', strtotime($data['closed_date'])),
+                        "hour" => date('H', strtotime($data['closed_date'])),
+                        "minute" => date('i', strtotime($data['closed_date'])));
                 }
             }
-            
-            $postData["data"] = array(
-                "CaseId" => $data['order_id'],
-                "CallStatus" => $data['partner_current_status'],
-                "Remarks" => $data['internal_status'],
-                "SerialNo" => $serial_number,
-                "PurchaseDate" => "",
-                "AppointmentDate" => (!empty($data['closed_date']) ? date('Y/m/d H:i:s', strtotime($data['closed_date'])): date('Y/m/d H:i:s', strtotime($data['booking_date']))),
-                "ModelNo" => ""
-            );
 
+            $appointmentDate = array(
+                "year" => date('Y', strtotime($data['booking_date'])),
+                "month" => date('m', strtotime($data['booking_date'])),
+                "day" => date('d', strtotime($data['booking_date'])),
+                "hour" => date('H', strtotime($data['booking_date'])),
+                "minute" => date('i', strtotime($data['booking_date'])));
+
+            $spd = (empty($data['dependency_on']) ? DEPENDENCY_ON_CUSTOMER: DEPENDENCY_ON_AROUND);
+            $postData = array(
+                "CaseId" => $data['order_id'], //Mandatory in All status
+                "CallStatus" => $data['partner_current_status'], //Mandatory in All status
+                "Remarks" => $data['partner_internal_status'],  //Non-Mandatory
+                "SerialNo" => $serial_number, //Mandatory in  only Call complete Status /other status its optional
+//                "PurchaseDate" => "", //Not mandatory
+                "StatusReason" => $data['partner_internal_status'], //Mandatory in All status
+                "CallCompletedDate" => $CallCompletedDate, //Mandatory in  only Call complete Status /other status its optional
+                "SPDReason" => $spd, // Mandatory for all status
+                //Mandatory in  only Call complete Status /other status its optional
+                "AppointmentDate" => $appointmentDate,
+                "ModelNo" => "", //Optional
+                 "UpdatedBy"=> "247"
+            );
+            
             return $this->post_jeeves_data($postData);
         } else {
             log_message('info', __METHOD__ . "=> Order ID Not Found");
@@ -370,12 +390,12 @@ class partner_sd_cb {
          $curl = curl_init();
 
         $this->header = array(
-//            "x-auth-token: " . X_AUTH_TOKEN,
-//            "x-seller-authz-token: " . X_SELLER_AUTHZ_TOKEN,
+            "Auth-Key: " . JEEVES_AUTH_KEY,
             "content-type: application/json"
         );
 
-        $this->jsonRequestData = json_encode($postData);
+       $this->jsonRequestData = json_encode($postData);
+
 
         curl_setopt_array($curl, array(
             CURLOPT_URL => JEEVES_CB_URL,
@@ -393,7 +413,6 @@ class partner_sd_cb {
         $err = curl_error($curl);
 
         curl_close($curl);
-       
         //Capture both response as well as error messages
         $this->jsonResponseString['response'] = $response;
         $this->jsonResponseString['error'] = $err;
