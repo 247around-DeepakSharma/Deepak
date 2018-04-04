@@ -1,0 +1,1 @@
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'cashback_processed_to_customer', 'Congrats, Your cashback of Rs. %s for Booking ID %s has been processed. Hope to serve you soon again, 9555000247 247Around.', NULL, '1', CURRENT_TIMESTAMP);
