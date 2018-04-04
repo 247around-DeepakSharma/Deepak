@@ -42,6 +42,8 @@ define('CASHBACK_TRANSACTION_NOT_FOUND_MSG',"Transaction ID does'nt exist in dat
 define('CASHBACK_ALREADY_DONE_FOR_THIS_TRANSACTION_ID',"Cashback already Processes against this transaction ID");
 define('CASHBACK_API_version','1.0');
 define('REFUND_AMOUNT_GRETER_THEN_TRANSACTION_AMOUNT','Refund amount is greater then transaction amount');
+define('CASHBACK_FORM','cashback form');
+define('CASHBACK_CRONE','cashback Auto crone');
 
 /*
  * CheckStatus Contants

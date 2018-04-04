@@ -76,12 +76,13 @@
         <div class="hidden-xs">Engineer Action</div>
     </button>
 </div>
-    <?php } ?>
+    <?php }  if($booking_history[0]['current_status'] != 'Cancelled'){?>
 <div class="btn-group" role="group">
     <button type="button" class="btn btn-default" href="#tab7" data-toggle="tab">
         <div class="hidden-xs">Transactions</div>
     </button>
 </div>
+    <?php }?>
 </div>
 <div class="well">
     <div class="tab-content">
@@ -318,7 +319,10 @@
                                 <th>SF Earning</th>
                             </tr>
                             <tbody>
-                                <?php  foreach ( $unit_details as $key =>  $unit_detail) { ?>
+                                <?php $user_invoice_id  = ""; foreach ( $unit_details as $key =>  $unit_detail) { 
+                                   if(!empty($unit_detail['user_invoice_id'])){
+                                       $user_invoice_id = $unit_detail['user_invoice_id'];
+                                   }?>
                                 <tr>
                                     <td><?php echo $unit_detail['appliance_brand']?></td>
                                     <td><?php echo $unit_detail['appliance_category']."/<br/>".$unit_detail['appliance_capacity']?></td>
@@ -686,29 +690,44 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div style="">
-                            <?php
-                             $paidAmount = $booking_history[0]['amount_paid'];
-                            if(!$booking_history[0]['amount_paid']){
-                                $paidAmount = 0;
-                            }
-                            ?>
-                              <hr style="border: 1px solid #5bc0de;">
                             <table class="table  table-striped table-bordered">
                                 <tr>
-                                    <th colspan="1">Paid Amount</th>
-                                    <td colspan="3"><?php echo $paidAmount; ?></td>
-                                    <th colspan="1">Customer Invoice</th>
-                                    <td colspan="3"><?php echo $unit_details[0]['user_invoice_id']?></td>
+
+                                    <?php 
+                                    $temp = 0;
+                                     if(!empty($booking_history[0]['amount_paid'])){$temp++?>
+                                        <th colspan="1">Total Paid Amount</th>
+                                        <td colspan="3"><?php echo $booking_history[0]['amount_paid'];?></td>
+                                     <?php } 
+                                     if(isset($booking_history[0]['onlinePaymentAmount'])){$temp++
+                                     ?>
+                                        <th colspan="1">Paid through Paytm</th>
+                                        <td colspan="3"><?php echo $booking_history[0]['onlinePaymentAmount'];?></td>
+                                     <?php }
+                                     if(!empty($unit_details[0]['user_invoice_id'])){$temp++?>
+                                        <th colspan="1">Customer Invoice</th>
+                                        <td colspan="3"><?php if(!empty($user_invoice_id)){ ?> <a href="<?php echo S3_WEBSITE_URL;?>invoices-excel/<?php echo $user_invoice_id.".pdf"; ?>"></a><?php }?></td>
+                                     <?php }?>
+
                                 </tr>
                             </table>
+                              <?php if($temp !=0){ ?>
                              <hr style="border: 1px solid #5bc0de;">
+                              <?php } ?>
                         </div>
                         <div style="background: #5bc0de;margin-bottom: 20px;">
+                            <?php if($booking_history[0]['current_status'] != 'Cancelled' && $booking_history[0]['current_status'] != 'Completed'){ ?>
                         <a target="_blank" href="<?php echo base_url(); ?>payment/resend_QR_code/<?php echo $booking_history[0]['booking_id']?>/1" class="btn btn-success action_buton" 
                            >Regenerate and send QR Code</a>
                                <a target="_blank" href="<?php echo base_url(); ?>payment/resend_QR_code/<?php echo $booking_history[0]['booking_id']?>/0" class="btn btn-success action_buton">
                                    Resend Same QR Code</a>
-                               <button type="button" class="btn btn-success action_buton">Resend Customer Invoice</button>
+                            
+
+                            <?php } ?>
+                            <?php if(!empty($user_invoice_id)) { ?>
+                                  <a href="javascript:void(0)" onclick="resendCustomerInvoice('<?php echo $booking_history[0]['booking_id'];?>', '<?php echo $user_invoice_id; ?>')"  class="btn btn-success action_buton">Resend Customer Invoice</a> 
+                                <?php } ?>
+
                                </div>
                          <?php if($paytm_transaction) { ?>   
                         <hr style="border: 1px solid #5bc0de;">
@@ -776,6 +795,25 @@
                                       </tr>
                     <?php
                     $cashbackIndex = 1;
+                    if($paytm['paid_amount']>$cashback_rules[0]['amount_criteria_less_than']){
+                               $expectedCashback = ($paytm['paid_amount']*$cashback_rules[0]['cashback_amount_percentage'])/100;
+                               if($expectedCashback>$cashback_rules[0]['paytm_cashback_limit']){
+                                   $cashbackByPaytm = $cashback_rules[0]['paytm_cashback_limit'];
+                               }
+                               else{
+                                   $cashbackByPaytm = $expectedCashback;
+                               }
+                        ?>
+                             <tr>
+                            <td colspan="1"><?php echo $cashbackIndex?></td>
+                            <td colspan="1"><?php echo $cashbackByPaytm;?></td>
+                            <td colspan="2">Paytm</td>
+                            <td colspan="2">Discount</td>
+                            <td colspan="3"></td>
+                            </tr>
+                     <?php
+                     $cashbackIndex++;
+                    }
                     foreach($cashbackAmountArray as $index=>$value){
                         ?>
                         <tr>
@@ -868,6 +906,22 @@
   </div>
 </div>
 <script>
+ function resendCustomerInvoice(booking_id, invoice_id){
+        alert("Please Wait! we will send invoice to customer via sms or email");
+         var url ="<?php echo base_url();?>employee/user_invoice/resend_customer_invoice/"+ booking_id+"/"+invoice_id;
+         $.ajax({
+             method:'POST',
+             url: url, 
+             success:function(response){
+                 if(response === 'success'){
+                     alert("Success! Invoice Sent Successfully");
+                 } else {
+                     alert("Error! There is some problem to send invoice to customer");
+                 }
+                 
+             }
+         });
+    }
  function process_cashback_form(){
             var cashback_amount = document.getElementById("form_cashback_amount").value;
             var cashback_reason = document.getElementById("form_cashback_reason").value;
@@ -960,6 +1014,7 @@
     
 </script>
 <script>
+    
     function get_invoice_data(invoice_id){
         if (invoice_id){
                 $.ajax({
@@ -987,6 +1042,8 @@
                     }
                 });
     }
+    
+    
     
     <?php if(!empty($booking_history[0]['dealer_id'])) { ?>
          $.ajax({

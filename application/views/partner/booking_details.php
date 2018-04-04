@@ -115,7 +115,7 @@
                                                         ?>">
                                                     </div>
                                                 </div>
-                                                <div class="col-md-12"> 
+                                                <div class="col-md-12" style="display:hidden;"> 
                                                     <div id="dvDistance"></div>
                                                     <br/>
                                                     <div id="dvMap" style=" height: 200px">

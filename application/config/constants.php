@@ -212,7 +212,12 @@ define('_247AROUND_VENDOR_PINCODE','Vendor-Pincode');
 define('_247AROUND_SF_PRICE_LIST','SF-Price-List');
 //Define Constant for Partner Appliance Details
 define('_247AROUND_PARTNER_APPLIANCE_DETAILS','Partner-Appliance-Details');
+//Define Partner Type
 define('OEM', "OEM");
+define('EXTWARRANTYPROVIDERTYPE', "EXT_WARRANTY_PROVIDER");
+define('BUYBACKTYPE', "BUYBACK");
+define('INTERNALTYPE', "INTERNAL");
+define('ECOMMERCETYPE', "ECOMMERCE");
 //Define New SF Creation
 define('NEW_SF_ADDED','New SF Added');
 //Define Edit SF State

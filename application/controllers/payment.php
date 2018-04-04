@@ -172,7 +172,7 @@ class Payment extends CI_Controller {
     }
     function process_cashback_by_form(){
         $response = $this->paytm_payment_lib->paytm_cashback($this->input->post('transaction_id'),$this->input->post('order_id'),$this->input->post('cashback_amount'),
-                $this->input->post('cashback_reason'));
+        $this->input->post('cashback_reason'),CASHBACK_FORM);
         $responseArray = json_decode($response,true);
         echo "<p style='text-align:center'>".$responseArray['status']."</p>";
         echo "<p style='text-align:center'>".$responseArray['status_msg']."<p>";
