@@ -38,8 +38,8 @@ class partner_cb {
 
 	// it return data to call partner api, if need to call partner api other wise return false
 	$data = $this->My_CI->partner_model->get_data_for_partner_callback($booking_id);
+      
 	if (!empty($data)) {
-
 	    $call_details = $this->callback_array($data['partner_id'], $data['current_status']);
 	    if ($call_details) {
 
@@ -105,7 +105,7 @@ class partner_cb {
      */
     function get_callback_library($partner_id) {
 	$snapdeal_partner_id = SNAPDEAL_ID;
-        $jeeves_partner_id = 247030;
+        $jeeves_partner_id = JEEEVES_ID;
 
 	$library[$snapdeal_partner_id] = 'partner_sd_cb';
         $library[$jeeves_partner_id] = 'partner_sd_cb';
