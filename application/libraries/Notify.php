@@ -294,7 +294,7 @@ class Notify {
      * @return: true
      */
     function send_sms_email_for_booking($booking_id, $current_status) {
-	
+	log_message("info",__METHOD__);
 	$query1 = $this->My_CI->booking_model->getbooking_filter_service_center($booking_id);
 	if (!empty($query1)) {
 
@@ -333,8 +333,10 @@ class Notify {
 		    $this->send_email($email);
 
 	            $sms['tag'] = "complete_booking";
-		    
+		    $call_type = explode(" ", $query1[0]['request_type']);
 		    $sms['smsData']['service'] = $query1[0]['services'];
+                    $sms['smsData']['call_type'] = $call_type[0];
+                    $sms['smsData']['booking_id'] = $query1[0]['booking_id'];
                     $sms['smsData']['good_rating_number'] = GOOD_MISSED_CALL_RATING_NUMBER;
                     $sms['smsData']['poor_rating_number'] = POOR_MISSED_CALL_RATING_NUMBER;
 		    $sms['booking_id'] = $query1[0]['booking_id'];
@@ -381,12 +383,19 @@ class Notify {
 			//Send internal mails now
 			$this->send_email($email);
 
-			            $call_type = explode(" ", $query1[0]['request_type']);
-                        $sms['smsData']['service'] = $query1[0]['services']. " ".$call_type[0];
+			$call_type = explode(" ", $query1[0]['request_type']);
+                        $sms['smsData']['call_type'] = $call_type[0];
+                        $sms['smsData']['service'] = $query1[0]['services'];
                         $sms['tag'] = "cancel_booking";
                         $sms['booking_id'] = $query1[0]['booking_id'];
                         $sms['type'] = "user";
                         $sms['type_id'] = $query1[0]['user_id'];
+                        
+                        if($query1[0]['partner_id'] == JEEEVES_ID){
+                            $sms['smsData']['name'] = 'www.jeeves.co.in';
+                        }else{
+                            $sms['smsData']['name'] = _247AROUND_DEFAULT_AGENT_NAME;
+                        }
 
                         $this->send_sms_msg91($sms);
 			
@@ -414,11 +423,12 @@ class Notify {
 		    
 		    $sms['tag'] = "reschedule_booking";
 		    $sms['smsData']['service'] = $query1[0]['services'];
-		    $sms['smsData']['booking_date'] = $query1[0]['booking_date'];
-		    $sms['smsData']['booking_timeslot'] = $query1[0]['booking_timeslot'];
+		    $sms['smsData']['booking_date'] = date("d-M-Y", strtotime($query1[0]['booking_date']));
+		    //$sms['smsData']['booking_timeslot'] = $query1[0]['booking_timeslot'];
 		    $sms['booking_id'] = $query1[0]['booking_id'];
 		    $sms['type'] = "user";
 		    $sms['type_id'] = $query1[0]['user_id'];
+                    log_message("info", "sdgsdg ".print_r($sms,true));
 		    $this->send_sms_msg91($sms);
 		    
 
@@ -454,8 +464,10 @@ class Notify {
 
 		case 'Customer not reachable':
                     //Max name length = 15 to fit in 1 SMS
-		    $sms['smsData']['name'] = substr($query1[0]['name'], 0, 15);
-		    $sms['smsData']['service'] = $query1[0]['services'];
+		    //$sms['smsData']['name'] = substr($query1[0]['name'], 0, 15);
+		    //$sms['smsData']['service'] = $query1[0]['services'];
+                    $call_type = explode(" ", $query1[0]['request_type']);
+                    $sms['smsData']['call_type'] = $call_type[0];
 		    $sms['tag'] = "call_not_picked_other";
 		    $sms['booking_id'] = $query1[0]['booking_id'];
 		    $sms['type'] = "user";
@@ -466,9 +478,11 @@ class Notify {
 
 		case 'Newbooking':
 		    $call_type = explode(" ", $query1[0]['request_type']);
-		    $sms['smsData']['service'] = $query1[0]['services']. " ".$call_type[0];
-		    $sms['smsData']['booking_date'] = date("d/M", strtotime($query1[0]['booking_date']));
-		    $sms['smsData']['booking_timeslot'] = explode("-",$query1[0]['booking_timeslot'])[1];
+		    $sms['smsData']['service'] = $query1[0]['services'];
+                    $sms['smsData']['call_type'] = $call_type[0];
+		    $sms['smsData']['booking_date'] = date("d-M-Y", strtotime($query1[0]['booking_date']));
+		    //$sms['smsData']['booking_timeslot'] = explode("-",$query1[0]['booking_timeslot'])[1];
+                    $sms['smsData']['booking_id'] = $query1[0]['booking_id'];
                     $sms['smsData']['public_name'] = $query1[0]['public_name'];
 		    $sms['tag'] = "add_new_booking";
 		    
@@ -564,9 +578,10 @@ class Notify {
     }
 
     function sendTransactionalSmsMsg91($phone_number, $body) {
+        log_message("info",__METHOD__);
         $data = array();
         switch (ENVIRONMENT) {
-	    case 'production':
+	    case 'testing_sachin':
                 $message = urlencode($body);
                 $url = "https://control.msg91.com/api/sendhttp.php?authkey=141750AFjh6p9j58a80789&mobiles="
                         . $phone_number . "&message=" . $message
