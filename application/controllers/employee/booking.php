@@ -995,7 +995,7 @@ class Booking extends CI_Controller {
             $this->vendor_model->update_service_center_action($booking_id, $service_center_data);
 
             $send_data['booking_id'] = $booking_id;
-            $send_data['current_status'] = "Rescheduled";
+            $send_data['state'] = "Rescheduled";
             $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
             $this->asynchronous_lib->do_background_process($url, $send_data);
 
