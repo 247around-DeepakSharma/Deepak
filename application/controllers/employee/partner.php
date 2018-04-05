@@ -3654,6 +3654,11 @@ class Partner extends CI_Controller {
                 //De- Activate this partner in partner_appliace_description
                 $this->partner_model->update_partner_appliance_details(array("partner_id" => $partner_id), array("active" => 0));
             }
+            $eData['partner_id'] = $partner_id;
+            $eData['data'] = $this->input->post();
+            $eData['services'] = $services;
+            $sendUrl = base_url().'employee/do_background_process/send_email_to_sf_on_partner_brand_updation';
+            $this->asynchronous_lib->do_background_process($sendUrl, $eData);
             $msg = "Partner Brand has been Updated Successfully";
             $this->session->set_userdata('success', $msg);
             redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
