@@ -341,6 +341,50 @@ class Do_background_process extends CI_Controller {
         }
         $this->push_notification_lib->send_push_notification($title,$msg,$url,$notification_type,$subscriberArray,$notification_tag,$auto_hide);
     }
+    function send_email_to_sf_on_partner_brand_updation(){
+        $partnerID= $this->input->post('partner_id');
+        $data= $this->input->post('data');
+        $services= $this->input->post('services');
+        log_message('info', __FUNCTION__ . ' Function Start');
+        $partnerArray = $this->reusable_model->get_search_result_data("bookings_sources","source,code",array("partner_id"=>$partnerID),NULL,NULL,NULL,NULL,NULL,array());
+        foreach($services as $serviceDetails){
+            $serviceArray[$serviceDetails['id']] = $serviceDetails['services'];
+        }
+        $tableString = '<table class="table table-bordered" style="border: 1px solid;border-collapse: collapse;">
+        <thead>
+        <tr style="border-bottom: 1px solid #000;">
+        <td style="font-family: Century Gothic;">S.N</td>
+        <td style="font-family: Century Gothic;padding-left: 20px;">Service</td>
+        <td style="font-family: Century Gothic;padding-left: 20px;">Brands</td>
+        </tr>
+        </thead>';
+        $sn = 1;
+        foreach($data['brand'] as $appliance=>$brandArray){
+            $tableString = $tableString.'<tr style="border-bottom: 1px solid #000;">';
+            $tableString = $tableString.'<td style="font-family: Century Gothic;">'.$sn.'</td>';
+            $tableString = $tableString.'<td style="font-family: Century Gothic;padding-left: 20px;">'.$serviceArray[$appliance].'</td>';
+            $tableString = $tableString.'<td style="font-family: Century Gothic;padding-left: 20px;">'.implode(",",array_values($brandArray)).'</td>';
+            $tableString = $tableString.'</tr>';
+            $sn++;
+        }
+        $tableString = $tableString."</table>";
+        $service_centers = $this->vendor_model->select_active_service_center_email();
+        foreach($service_centers as $serviceCentersEmail){
+            $tempArray = array_unique($serviceCentersEmail);
+            $bccTempArray[] = implode(",",$tempArray);
+        }
+       $template = $this->booking_model->get_booking_email_template("partner_information_to_sf");
+       $body = vsprintf($template[0],array($partnerArray[0]['source'],$partnerArray[0]['code'],$tableString));
+       $to = $template[1];
+       $from = $template[2];
+       $cc = $template[3];
+       $subject = $template[4];
+       $bcc = implode(",",$bccTempArray);
+       log_message('info', __FUNCTION__ . 'BCC '.print_r($bcc,true));
+       log_message('info', __FUNCTION__ . 'Body '.print_r($body,true));
+       $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $body, "");
+       log_message('info', __FUNCTION__ . ' Function End');
+}
 
     /* end controller */
 }
