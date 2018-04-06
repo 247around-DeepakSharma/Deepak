@@ -546,12 +546,6 @@ rm_dashboard.controller('rm_dashboardController', function ($scope, $http) {
 //Pending Booking End
 });
 //Missing Pincode Full View
-         rm_missing_pincode.controller('rm_missing_pincode_controller', function ($scope, $http) {
-    var pincode_url = baseUrl + "/employee/dashboard/get_pincode_not_found_sf_details";
-     $http.get(pincode_url).then(function (response) {
-            $("#pincode_table_data_full_view").html(response.data);
-     });
-     });
     bracket_allocation.controller('bracketAllocationController', function ($scope, $http) {
     var bracket_url = baseUrl + "/employee/partner/get_bracket_allocation_form_data";
      $http.get(bracket_url).then(function (response) {
