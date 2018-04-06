@@ -4,7 +4,7 @@ UPDATE `sms_template` SET `template` = 'We have received reschedule request for 
 
 UPDATE `sms_template` SET `template` = 'Dear Customer, we were unable to contact you for your %s. As per policy we will cancel the call after 3 unsuccessful attempts. Kindly call us on @ 9555000247 so that we can fix up an appointment at the earliest. 247around.' WHERE `tag` = 'call_not_picked_other';
 
-UPDATE `sms_template` SET `template` = 'Dear Customer, the %s of your %s has been cancelled in our system. Kindly contact us on 180042525252 in case you want to log a call again. %s' WHERE `tag` = 'cancel_booking';
+UPDATE `sms_template` SET `template` = 'Dear Customer, the %s of your %s has been cancelled in our system. Kindly contact us on %s in case you want to log a call again. %s' WHERE `tag` = 'cancel_booking';
 
 UPDATE `sms_template` SET `template` = 'Dear Customer, Your %s %s is completed now for your booking id %s. If you are HAPPY with the service, give miss call @ 01139588220. If not, give miss call @ 01139588224. 247Around' WHERE `tag` = 'complete_booking';
 
