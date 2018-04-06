@@ -583,7 +583,7 @@ class Notify {
         log_message("info",__METHOD__);
         $data = array();
         switch (ENVIRONMENT) {
-	    case 'testing_sachin':
+	    case 'production':
                 $message = urlencode($body);
                 $url = "https://control.msg91.com/api/sendhttp.php?authkey=141750AFjh6p9j58a80789&mobiles="
                         . $phone_number . "&message=" . $message
