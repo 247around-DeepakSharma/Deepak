@@ -1383,6 +1383,7 @@ function get_booking_by_service_center_query_data($where,$groupBY){
             $data1['service_center_name'] = $value['name'];
             $data1['primary_contact_email'] = $value['primary_contact_email'];
             $data1['owner_email'] = $value['owner_email'];
+            $data1['sf_id'] = $value['id'];
 
             array_push($data, $data1);
         }

@@ -392,8 +392,10 @@ class Notify {
                         $sms['type_id'] = $query1[0]['user_id'];
                         
                         if($query1[0]['partner_id'] == JEEEVES_ID){
-                            $sms['smsData']['name'] = 'www.jeeves.co.in';
+                            $sms['smsData']['number'] = JEEVES_CALLCENTER_NUMBER;
+                            $sms['smsData']['name'] = JEEVES_WEBSITE;
                         }else{
+                            $sms['smsData']['number'] = _247AROUND_CALLCENTER_NUMBER;
                             $sms['smsData']['name'] = _247AROUND_DEFAULT_AGENT_NAME;
                         }
 
@@ -467,7 +469,7 @@ class Notify {
 		    //$sms['smsData']['name'] = substr($query1[0]['name'], 0, 15);
 		    //$sms['smsData']['service'] = $query1[0]['services'];
                     $call_type = explode(" ", $query1[0]['request_type']);
-                    $sms['smsData']['call_type'] = $call_type[0];
+                    $sms['smsData']['service'] = $query1[0]['services']." ".$call_type[0];
 		    $sms['tag'] = "call_not_picked_other";
 		    $sms['booking_id'] = $query1[0]['booking_id'];
 		    $sms['type'] = "user";
