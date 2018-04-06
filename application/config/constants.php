@@ -547,5 +547,12 @@ define("S3_WEBSITE_URL", "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/");
 
 //mobile service id
 define("_247AROUND_MOBILE_SERVICE_ID",'54');
+//247around call center number
+define('_247AROUND_CALLCENTER_NUMBER',9555000247);
+//jeeves call center number
+define('JEEVES_CALLCENTER_NUMBER',180042525252);
+//jeeves websitelink
+define('JEEVES_WEBSITE','www.jeeves.co.in');
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
