@@ -353,7 +353,8 @@ function get_data_for_partner_callback($booking_id) {
             booking_date As 'Scheduled Appointment Date(DD/MM/YYYY)', 
             booking_timeslot AS 'Scheduled Appointment Time(HH:MM:SS)', 
             partner_internal_status AS 'Final Status',
-            booking_details.closed_date AS 'Completion Date'
+            booking_details.closed_date AS 'Completion Date',
+            booking_details.vendor_rating_stars AS 'Rating'
             $dependency
             FROM  booking_details , booking_unit_details AS ud, services, users
             WHERE booking_details.booking_id = ud.booking_id 
