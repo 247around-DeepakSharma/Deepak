@@ -19,6 +19,7 @@
                                         <th class="text-center" data-orderable="false">Call Center Remarks</th>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <th class="text-center" data-orderable="false">Service Center Earning</th>
+                                        <th class="text-center" data-orderable="false">Brands</th>
                                         <!--                                            <th class="text-center">Engineer</th>
                                             <th class="text-center">Re-Assign</th>-->
                                         <?php } ?> 
@@ -90,6 +91,7 @@
                                             <div class="countdown blink" data-popover="true" style="white-space:nowrap;color:#F26722; font-size:13px; overflow:hidden;text-overflow:ellipsis;white-space: initial;" data-html=true data-content="Time Left To Update Booking & Get Incentive" ></div>
                                             <?php } ?>
                                         </td>
+                                        <td style="vertical-align: middle;"> <?= $row->appliance_brand; ?></td>
                                         <!--                                            <td>
                                             <div  id= "<?php //echo 'assign_engineer_div' . $sn_no; ?>" class="form-group " <?php //if (!is_null($row->assigned_engineer_id)) { ?> style="display: none;" <?php //} ?>>
                                                 <select name="engineer[<?php //echo $row->booking_id; ?>]" id="<?php// echo "engineer" . $sn_no ?>" class="form-control engineers_id" <?php // if (!is_null($row->assigned_engineer_id)) { ?> disabled <?php //} ?> style="width:100px;">
@@ -191,6 +193,7 @@
                                         <!--                                            <th class="text-center">Engineer</th>
                                             <th class="text-center">Re-Assign</th>-->
                                         <?php } ?> 
+                                        <th  class="text-center">Brands</th>
                                         <th  class="text-center">Escalation</th>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <th class="text-center" data-orderable="false">Update</th>
@@ -286,6 +289,7 @@
                                             </div>
                                             <?php  echo $row->count_escalation." times"; ?>
                                         </td>
+                                            <td style="vertical-align: middle;"> <?= $row->appliance_brand; ?></td>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <td style="vertical-align: middle;">
                                             <a class="btn btn-sm btn-primary <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } ?>" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="<?php echo base_url(); ?>service_center/update_booking_status/<?php echo urlencode(base64_encode($row->booking_id));?>" ><i class='fa fa-edit' aria-hidden='true'></i></a>
@@ -348,6 +352,7 @@
                                         <!--                                            <th class="text-center">Engineer</th>
                                             <th class="text-center">Re-Assign</th>-->
                                         <?php } ?> 
+                                        <th  class="text-center" >Brands</th>
                                         <th  class="text-center" >Escalation</th>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <th class="text-center" data-orderable="false">Update</th>
@@ -436,6 +441,7 @@
                                             <?php //if (!is_null($row->assigned_engineer_id)) { ?>  <button type="button"  class="btn btn-sm btn-success" onclick="edit_engineer(<?php //echo $sn_no; ?>)"><i class="fa fa-user" aria-hidden='true'></i></button> <?php// } ?>
                                             </td>-->
                                         <?php } ?>
+                                            <td><?php echo $row->appliance_brand;?></td>
                                         <td style="vertical-align: middle;">
                                             <div class="blink">
                                                 <?php if($row->count_escalation > 0){ ?> 
