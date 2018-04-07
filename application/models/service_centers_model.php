@@ -90,6 +90,7 @@ class Service_centers_model extends CI_Model {
                 . " bd.booking_address, "
                 . " bd.booking_pincode, "
                 . " services,"
+                . " (SELECT GROUP_CONCAT(DISTINCT brand.appliance_brand) FROM booking_unit_details brand WHERE brand.booking_id = bd.booking_id GROUP BY brand.booking_id ) as appliance_brand,"
                  . "CASE WHEN (SELECT Distinct 1 FROM booking_unit_details as bu1 WHERE bu1.booking_id = bd.booking_id "
                     . "AND price_tags = 'Wall Mount Stand' AND bu1.service_id = 46 ) THEN (1) ELSE 0 END as is_bracket, " 
                     

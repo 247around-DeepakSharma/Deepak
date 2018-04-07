@@ -212,7 +212,12 @@ define('_247AROUND_VENDOR_PINCODE','Vendor-Pincode');
 define('_247AROUND_SF_PRICE_LIST','SF-Price-List');
 //Define Constant for Partner Appliance Details
 define('_247AROUND_PARTNER_APPLIANCE_DETAILS','Partner-Appliance-Details');
+//Define Partner Type
 define('OEM', "OEM");
+define('EXTWARRANTYPROVIDERTYPE', "EXT_WARRANTY_PROVIDER");
+define('BUYBACKTYPE', "BUYBACK");
+define('INTERNALTYPE', "INTERNAL");
+define('ECOMMERCETYPE', "ECOMMERCE");
 //Define New SF Creation
 define('NEW_SF_ADDED','New SF Added');
 //Define Edit SF State
@@ -546,5 +551,12 @@ define("S3_WEBSITE_URL", "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/");
 
 //mobile service id
 define("_247AROUND_MOBILE_SERVICE_ID",'54');
+//247around call center number
+define('_247AROUND_CALLCENTER_NUMBER',9555000247);
+//jeeves call center number
+define('JEEVES_CALLCENTER_NUMBER',180042525252);
+//jeeves websitelink
+define('JEEVES_WEBSITE','www.jeeves.co.in');
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

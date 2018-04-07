@@ -719,19 +719,23 @@ class Partner extends CI_Controller {
     function viewpartner($partner_id = "") {
         $service_brands = array();
         $active = 1;
-        $source_code= 1;
+        $partnerType= 'All';
+        $ac= 'All';
         if($this->input->post()){
            $active = $this->input->post('active');
-           $source_code = $this->input->post('code');
+           $partnerType = $this->input->post('partnerType');
+           $ac = $this->input->post('accountManager');
         }
-        $query = $this->partner_model->get_partner_details_with_soucre_code($active,$source_code,$partner_id);
+        $query = $this->partner_model->get_partner_details_with_soucre_code($active,$partnerType,$ac,$partner_id);
         foreach ($query as $key => $value) {
             //Getting Appliances and Brands details for partner
             $service_brands[] = $this->partner_model->get_service_brands_for_partner($value['id']);
         }
         $pushNotification = $this->push_notification_model->get_push_notification_subscribers_by_entity(_247AROUND_PARTNER_STRING);
+        $accountManagerArray = $this->reusable_model->get_search_result_data("employee","id,employee_id",array('active'=>1),NULL,NULL,array('employee_id'=>"DESC"),NULL,NULL,array());
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/viewpartner', array('query' => $query, 'service_brands' => $service_brands,'push_notification' => $pushNotification,'active'=>$active,'code'=>$source_code));
+        $this->load->view('employee/viewpartner', array('query' => $query, 'service_brands' => $service_brands,'push_notification' => $pushNotification,'active'=>$active,'partnerType'=>$partnerType,
+            'accountManagerArray'=>$accountManagerArray,'ac'=>$ac));
     }
 
     /**
@@ -3650,6 +3654,11 @@ class Partner extends CI_Controller {
                 //De- Activate this partner in partner_appliace_description
                 $this->partner_model->update_partner_appliance_details(array("partner_id" => $partner_id), array("active" => 0));
             }
+            $eData['partner_id'] = $partner_id;
+            $eData['data'] = $this->input->post();
+            $eData['services'] = $services;
+            $sendUrl = base_url().'employee/do_background_process/send_email_to_sf_on_partner_brand_updation';
+            $this->asynchronous_lib->do_background_process($sendUrl, $eData);
             $msg = "Partner Brand has been Updated Successfully";
             $this->session->set_userdata('success', $msg);
             redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);

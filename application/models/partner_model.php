@@ -353,7 +353,8 @@ function get_data_for_partner_callback($booking_id) {
             booking_date As 'Scheduled Appointment Date(DD/MM/YYYY)', 
             booking_timeslot AS 'Scheduled Appointment Time(HH:MM:SS)', 
             partner_internal_status AS 'Final Status',
-            booking_details.closed_date AS 'Completion Date'
+            booking_details.closed_date AS 'Completion Date',
+            booking_details.vendor_rating_stars AS 'Rating'
             $dependency
             FROM  booking_details , booking_unit_details AS ud, services, users
             WHERE booking_details.booking_id = ud.booking_id 
@@ -1248,9 +1249,9 @@ function get_data_for_partner_callback($booking_id) {
      * @param String $partner_id
      * @return Array
      */
-    function get_partner_details_with_soucre_code($active,$sourceCode,$partner_id=""){
+    function get_partner_details_with_soucre_code($active,$partnerType,$ac,$partner_id=""){
         $where = array();
-        $this->db->select('partners.*,bookings_sources.code');
+        $this->db->select('partners.*,bookings_sources.code,bookings_sources.partner_type');
         if ($partner_id != "") {
             $where['partners.id']  = $partner_id;
         }
@@ -1258,14 +1259,11 @@ function get_data_for_partner_callback($booking_id) {
             if($active !='All'){
                 $where['partners.is_active'] = $active;
             }
-             if($sourceCode == 'All'){
-                 
+             if($partnerType != 'All'){
+                 $where['bookings_sources.partner_type']  = $partnerType;
              }
-             else  if($sourceCode == 0){
-                  $where['bookings_sources.code =""']  = NULL;
-             }
-             else  if($sourceCode == 1){
-                 $where['bookings_sources.code !=""']  = NULL;
+             if($ac != 'All'){
+                 $where['partners.account_manager_id']  = $ac;
              }
         }
         $this->db->join('bookings_sources','partners.id=bookings_sources.partner_id');

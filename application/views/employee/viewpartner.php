@@ -28,7 +28,7 @@
         <h1>Partners</h1>
         <form class="form-inline" action="<?php echo base_url();?>employee/partner/viewpartner" method="post">
 <div class="form-group">
-  <label for="Partner Type">Partner Type</label>
+    <label for="Service Code">Active/Disabled</label>
   <select class="form-control" id="partner_type" name="active">
       <option value="All" <?php if($active == 'All'){echo "selected";} ?>>All</option>
       <option value="1" <?php if($active == '1'){echo "selected";} ?>>Active</option>
@@ -36,13 +36,36 @@
   </select>
   </div>
 <div class="form-group">
-    <label for="Service Code">Partner Code</label>
-    <select class="form-control" id="partner_sc" name="code">
-        <option value="All" <?php if($code == 'All'){echo "selected";} ?>>All</option>
-   <option value="0" <?php if($code == '0'){echo "selected";} ?>>Without Service Code</option>
-   <option value="1" <?php if($code == '1'){echo "selected";} ?>>With Service Code</option>
+    <label for="Service Code">Partner Type</label>
+    <select class="form-control" id="partner_sc" name="partnerType">
+    <option value="All" <?php if($partnerType == 'All'){echo "selected";} ?>>All</option>
+    <option value="<?php echo OEM;?>" <?php if($partnerType == OEM){echo "selected";} ?>><?php echo OEM?></option>
+    <option value="<?php echo EXTWARRANTYPROVIDERTYPE;?>" <?php if($partnerType == EXTWARRANTYPROVIDERTYPE){echo "selected";} ?>><?php echo EXTWARRANTYPROVIDERTYPE?></option>
+    <option value="<?php echo BUYBACKTYPE;?>" <?php if($partnerType == BUYBACKTYPE){echo "selected";} ?>><?php echo BUYBACKTYPE?></option>
+    <option value="<?php echo INTERNALTYPE;?>" <?php if($partnerType == INTERNALTYPE){echo "selected";} ?>><?php echo INTERNALTYPE?></option>
+    <option value="<?php echo ECOMMERCETYPE;?>" <?php if($partnerType == ECOMMERCETYPE){echo "selected";} ?>><?php echo ECOMMERCETYPE?></option>
   </select>
 </div>
+            <?php
+            if($this->session->userdata('user_group') == 'admin'){
+            ?>
+ <div class="form-group">
+     <label for="Service Code">Account Manager</label>
+  <select class="form-control" id="accountManager" name="accountManager">
+      <option value="All" <?php if($ac == 'All'){echo "selected";} ?>>All</option>
+          <option value="NULL" <?php if($ac == 'NULL'){echo "selected";} ?>>No One</option>
+      <?php
+      foreach($accountManagerArray as $accountManager){
+          ?>
+      <option value='<?php echo $accountManager['id'] ?>' <?php if($ac == $accountManager['id']){echo "selected";} ?>><?php echo $accountManager['employee_id'] ?></option>
+      <?php
+      }
+      ?>
+  </select>
+  </div>
+            <?php
+            }
+            ?>
 <div class="form-group">
     <input type="submit" value="Apply Filter" class="btn btn-sm btn-success"> 
     </div>

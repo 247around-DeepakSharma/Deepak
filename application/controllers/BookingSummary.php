@@ -1013,6 +1013,14 @@ EOD;
                     $where = " AND id = '" . $value['id'] . "'";
                     $data['data'] = $this->reporting_utils->send_sc_crimes_report_mail_data($where);
                     if (!empty($data['data']) && $data['data'][0]['not_update'] > 0) {
+                        
+                        //get rm email
+                        $rm_email = "";
+                        $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($value['id']);
+                        if(!empty($rm_details)){
+                            $rm_email = $rm_details[0]['official_email'];
+                        }
+                        
                         $view = $this->load->view('employee/get_crimes', $data, TRUE);
                         $file_data = $this->penalty_model->get_penalty_on_booking_any(array('penalty_on_booking.service_center_id' => $data['data'][0]['service_center_id'],
                             'penalty_on_booking.criteria_id' => '2', 'penalty_on_booking.create_date >=' => date('Y-m-d', strtotime("-1 days"))), 'booking_id');
@@ -1032,7 +1040,7 @@ EOD;
                         $to = $value['primary_contact_email'] . "," . $value['owner_email'];
 
                         $bcc = "";
-                        $cc = "";
+                        $cc = $rm_email;
                         $subject = $value['name'] . " - Bookings Not Updated Report - " . date("d-M-Y");
 
                         $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $view, $file_path . ".txt");
@@ -1078,11 +1086,19 @@ EOD;
         log_message('info', __FUNCTION__);
         $data = $this->reporting_utils->get_unassigned_crimes();
         foreach ($data as $value) {
+
+            //get rm email
+            $rm_email = "";
+            $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($value['sf_id']);
+            if (!empty($rm_details)) {
+                $rm_email = $rm_details[0]['official_email'];
+            }
+            
             $view = $this->load->view('employee/unassigned_table', $value, TRUE);
             $to = $value['primary_contact_email'] . "," . $value['owner_email'];
-            //$to = "abhaya@247around.com";
+            $cc = $rm_email;
             $subject = $value['service_center_name'] . " Assigned Report " . date("d-M-Y");
-            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $view, "");
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $view, "");
         }
     }
 
