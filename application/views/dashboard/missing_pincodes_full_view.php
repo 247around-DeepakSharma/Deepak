@@ -23,22 +23,22 @@
                     <div class="btn-pref btn-group btn-group-justified btn-group-lg" role="group" aria-label="...">
 <div class="btn-group" role="group">
     <button type="button" class="btn btn-success" href="#tab1" data-toggle="tab">
-        <div class="hidden-xs">Group by Pending Queries</div>
+        <div class="hidden-xs"> Pincode Level</div>
     </button>
 </div>
 <div class="btn-group" role="group">
     <button type="button" class="btn btn-success" href="#tab2" data-toggle="tab">
-        <div class="hidden-xs">Group by District</div>
+        <div class="hidden-xs"> District Level</div>
     </button>
 </div>
 <div class="btn-group" role="group">
     <button type="button" class="btn btn-success" href="#tab3" data-toggle="tab">
-        <div class="hidden-xs">Group by Partner</div>
+        <div class="hidden-xs"> Partner Level</div>
     </button>
 </div>
 <div class="btn-group" role="group">
     <button type="button" class="btn btn-success" href="#tab4" data-toggle="tab">
-        <div class="hidden-xs">Group by Appliance</div>
+        <div class="hidden-xs"> Appliance Level</div>
     </button>
 </div>
 </div>
@@ -71,9 +71,9 @@
                                 ?>
                                 </table>
                                 </div>
-                            <div class="tab-pane fade in" id="tab2">B</div>
-                            <div class="tab-pane fade in" id="tab3">C</div>
-                            <div class="tab-pane fade in" id="tab4">D</div>
+                            <div class="tab-pane fade in" id="tab2"></div>
+                            <div class="tab-pane fade in" id="tab3"></div>
+                            <div class="tab-pane fade in" id="tab4"></div>
                             </div>
                         </div>
                     <?php
@@ -100,14 +100,6 @@
       </div>
       <div class="modal-body">
           <table class="table table-bordered" id="mssingPincodeTable">
-    <thead>
-      <tr>
-        <th>Service</th>
-        <th>Pending Query Count</th>
-      </tr>
-    </thead>
-    <tbody>
-    </tbody>
           </table>
       </div>
       <div class="modal-footer">
@@ -126,10 +118,19 @@
         });
     }
     $(document).ready(function(){
-        //get_data_group_by_district();
+        get_data_group_by_district();
         get_data_group_by_partner();
         get_data_group_by_appliance();
     });
+        function get_data_group_by_district(){
+        var data = {};
+         url = '<?php echo base_url(); ?>employee/dashboard/get_missing_pincode_data_group_by_district/<?php echo $agent?>';
+        data = '';
+        post_request = 'post';
+        sendAjaxRequest(data,url,post_request).done(function(response){
+            document.getElementById("tab2").innerHTML = response;
+        });
+    }
     function get_data_group_by_partner(){
          var data = {};
          url = '<?php echo base_url(); ?>employee/dashboard/get_missing_pincode_data_group_by_partner/<?php echo $agent?>';
@@ -147,6 +148,23 @@
         sendAjaxRequest(data,url,post_request).done(function(response){
             document.getElementById("tab4").innerHTML = response;
         });
+    }
+    function group_by_district_for_appliance(data){
+        var tableString = '<table class="table table-bordered" id="mssingPincodeTable">';
+        tableString = tableString += '<tr>';
+        tableString = tableString += '<th>Pincode</th>';
+        tableString = tableString += '<th>Pending Query Count</th>';
+        tableString = tableString += '</tr>';
+        var keys = Object.keys(data);
+        var count = keys.length;
+        for(var i=0;i<count;i++){
+            tableString = tableString += '<tr>';
+            tableString = tableString += '<td>'+keys[i]+'</td>';
+            tableString = tableString += '<td>'+ data[keys[i]]+'</td>';
+            tableString = tableString += '</tr>';
+        }
+        tableString = tableString += '</table>';
+        document.getElementById("mssingPincodeTable").innerHTML = tableString;
     }
     </script>
 

@@ -355,10 +355,11 @@ class Booking extends CI_Controller {
             if(isset($upcountry_data['vendor_not_found'])){
                                 $this->miscelleneous->sf_not_exist_for_pincode(array(
                                     "booking_id" => $booking['booking_id'],
-                                    "city" => $booking['city'],
                                     "booking_pincode" => $booking['booking_pincode'],
-                                     "service_id" => $appliances_details['service_id'],
-                                      "partner_id" => $booking['partner_id']
+                                    "service_id" => $appliances_details['service_id'],
+                                    "partner_id" => $booking['partner_id'],
+                                    "city" => $booking['city'],
+                                    "district" => $booking['district']
                                 ));
                             }
             return $booking;
