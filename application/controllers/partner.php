@@ -1591,10 +1591,11 @@ class Partner extends CI_Controller {
 //                                            ));
                                             $this->miscelleneous->sf_not_exist_for_pincode(array(
                                                     "booking_id" => $booking['booking_id'],
-                                                    "city" => $booking['city'],
                                                     "booking_pincode" => $booking['booking_pincode'],
                                                     "service_id" => $booking['service_id'],
-                                                    "partner_id" => $booking['partner_id']
+                                                    "partner_id" => $booking['partner_id'],
+                                                    "city" => $booking['city'],
+                                                    "district" => $booking['district']
                                                 ));
                                         }
                                         break;
