@@ -12,7 +12,7 @@ ini_set('memory_limit', '-1');
 ini_set('max_execution_time', 36000000);
 
 class Dashboard extends CI_Controller {
-
+  var  $pincodeResult = array();
     /**
      * load modal, library and helper
      */
@@ -673,73 +673,6 @@ class Dashboard extends CI_Controller {
      <?php   
     }
     /*
-     * This is a helper function to create missing pincodes view for rm
-     * This function convert data (which we get directly from db) into a structured format
-     */
-    function get_missing_pincode_data_structured_format($pincodeResult){
-          $structuredArray = array();
-          foreach($pincodeResult as $key=>$data){   
-                    if(array_key_exists($data['pincode'], $structuredArray)){
-                              $structuredArray[$data['pincode']]['totalCount'] = $structuredArray[$data['pincode']]['totalCount']+$data['pincodeCount'];
-                    }
-                    else{
-                        
-                              $structuredArray[$data['pincode']]['totalCount'] = $data['pincodeCount'];
-                    }
-                    $structuredArray[$data['pincode']]['pincode'] = $data['pincode'];
-                    $structuredArray[$data['pincode']]['city'] = $data['city'];
-                    $structuredArray[$data['pincode']]['state'] = $data['state'];
-                    $structuredArray[$data['pincode']]['rm'] = $data['full_name'];
-                    $temp['service_id'] = $data['service_id'];
-                    $temp['pincodeCount'] = $data['pincodeCount'];
-                    $temp['service_name'] = $data['services'];
-                    $structuredArray[$data['pincode']]['service'][] = $temp;
-          }
-        foreach ($structuredArray as $key => $row) {
-            $totalCount[]  = $row['totalCount'];
-        }
-        array_multisort($totalCount, SORT_DESC, $structuredArray);
-            return $structuredArray;
-    }
-    /*
-     * This function use to create the missing pincode RM view
-     * @input Limit - Number which defines how many records will get returned
-     * @output - Table View for missing pincodes 
-     */
-    function get_pincode_not_found_sf_details($limit=NULL){
-        if($this->session->userdata('rm_id')){
-            $agentID = $this->session->userdata('rm_id');
-            if($this->session->userdata('rm_id')){ $this->session->unset_userdata('rm_id'); }
-        }
-        else{
-                $agentID = $this->session->userdata('id');
-        }
-        $pincodeResult =  $this->dashboard_model->get_pincode_data_for_not_found_sf($agentID,NULL);
-        $template = array(
-        'table_open' => '<table  '
-            . ' class="table table-striped table-bordered jambo_table bulk_action">'
-        );
-        $this->table->set_template($template);
-        $this->table->set_heading(array('S.N','Pincode','State','City', 'Pending Bookings','action'));
-        echo $this->get_pincode_form();
-        $this->get_missing_pincode_detailed_view();
-        $structuredPincodeArray = $this->get_missing_pincode_data_structured_format($pincodeResult);
-        $i=1;
-        foreach($structuredPincodeArray as $structuredData){ 
-          if($limit){
-              if($i>$limit){
-                  break;
-              }
-          }
-                   $this->table->add_row($i,$structuredData['pincode'],$structuredData['state'],$structuredData['city'],
-                           "<button onclick='missingPincodeDetailedView(".json_encode($structuredData).")' style='margin: 0px;padding: 0px 6px;' type='button' class='btn btn-info btn-lg' data-toggle='modal' data-target='#missingPincodeDetails'>".$structuredData['totalCount']."</button>",
-                           "<button style='margin: 0px;padding: 6px;' class='btn btn-info ' onclick='submitPincodeForm(".json_encode($structuredData).")'>Add Service Center</button>"
-                           ."<a style='margin: 0px;padding: 6px;float:right;' class='btn btn-info ' href='".base_url()."employee/dashboard/wrong_pincode_handler/".$structuredData['pincode']."'>Wrong Pincode</a>"); 
-                   $i++;
-        }
-        echo $this->table->generate();
-    }
-    /*
      * This function use to create a dashboard for RM
      */
     function rm_dashboard(){
@@ -752,7 +685,45 @@ class Dashboard extends CI_Controller {
      */
     function missing_pincode_full_view(){
         $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
-        $this->load->view('dashboard/missing_pincodes_full_view');
+        $agentID = $this->session->userdata('id');
+        if($this->session->userdata('rm_id')){
+            $agentID = $this->session->userdata('rm_id');
+            if($this->session->userdata('rm_id')){ $this->session->unset_userdata('rm_id'); }
+        }
+        //SELECT sf.pincode, COUNT(sf.pincode) as pincodeCount, sf.state, sf.city FROM (sf_not_exist_booking_details sf) WHERE `sf`.`rm_id` = '11' AND `sf`.`active_flag` = 1 
+        //AND `sf`.`is_pincode_valid` = 1 GROUP BY sf.pincode ORDER BY pincodeCount DESC
+        $select = "sf.pincode,COUNT(sf.pincode) as pincodeCount,sf.state,sf.city,sf.service_id,services.services";
+        $where['sf.rm_id'] = $agentID;
+        $where['sf.active_flag'] = 1;
+        $where['sf.is_pincode_valid'] = 1;
+        $orderBYArray['pincodeCount'] = 'DESC';
+        $groupBY = array('sf.pincode','sf.service_id');
+        $join['services']  = 'sf.service_id=services.id';
+        $JoinTypeTableArray['services'] = 'left';
+        $tempPincode = $this->reusable_model->get_search_result_data("sf_not_exist_booking_details sf",$select,$where,$join,NULL,$orderBYArray,NULL,$JoinTypeTableArray,$groupBY);
+        $finalPincodeArray = array();
+        foreach($tempPincode as $pincodes){
+            if(array_key_exists($pincodes['pincode'], $finalPincodeArray)){
+                $finalPincodeArray[$pincodes['pincode']]['count'] = $finalPincodeArray[$pincodes['pincode']]['count']+$pincodes['pincodeCount'];
+                $finalPincodeArray[$pincodes['pincode']]['state'] = $pincodes['state'];
+                $finalPincodeArray[$pincodes['pincode']]['service_id'][] = $pincodes['service_id'];
+                $finalPincodeArray[$pincodes['pincode']]['services'][] = $pincodes['services'];
+                $finalPincodeArray[$pincodes['pincode']]['city'] = $pincodes['city'];
+                $finalPincodeArray[$pincodes['pincode']]['services_count'][] = $pincodes['pincodeCount'];
+            }
+            else{
+                $finalPincodeArray[$pincodes['pincode']]['count'] = $pincodes['pincodeCount'];
+                $finalPincodeArray[$pincodes['pincode']]['state'] = $pincodes['state'];
+                $finalPincodeArray[$pincodes['pincode']]['service_id'][] = $pincodes['service_id'];
+                $finalPincodeArray[$pincodes['pincode']]['services'][] = $pincodes['services'];
+                $finalPincodeArray[$pincodes['pincode']]['services_count'][] = $pincodes['pincodeCount'];
+                $finalPincodeArray[$pincodes['pincode']]['city'] = $pincodes['city'];
+            }
+        }
+        arsort($finalPincodeArray);
+        $data['pincodeResult'] = $finalPincodeArray;
+        $data['agent'] = $agentID;
+        $this->load->view('dashboard/missing_pincodes_full_view',$data);
         $this->load->view('dashboard/dashboard_footer');
     }
     /*
@@ -778,21 +749,16 @@ class Dashboard extends CI_Controller {
      * It will shows missing pincode pending queries group by rm 
      */
     function get_pincode_not_found_sf_details_admin(){
-        $pincodeResult =  $this->dashboard_model->get_pincode_data_for_not_found_sf();
+        $pincodeResult =  $this->dashboard_model->get_missing_pincode_query_count_by_admin();
         $template = array(
         'table_open' => '<table  '
             . ' class="table table-striped table-bordered jambo_table bulk_action">'
         );
         $this->table->set_template($template);
         $this->table->set_heading(array('S.N','RM', 'Pending Queries'));
-        $rmDataArray = $this->get_missing_pincode_admin_data_structured_format($pincodeResult);
-        $i=1;
-        foreach($rmDataArray as $rm=>$rmData){
-            if($rmData['id']==''){
-                $rmData['id'] = -1;
-            }
-                  $this->table->add_row($i,"<a target='_blank' href=".base_url()."employee/dashboard/missing_pincode_full_view?rm_id=".$rmData['id']." style='margin: 0px;padding: 6px;' class='btn btn-info'>".$rm."</a>",$rmData['count']); 
-                   $i++;
+        for($i=0;$i<count($pincodeResult);$i++){
+            $this->table->add_row($i,"<a target='_blank' href=".base_url()."employee/dashboard/missing_pincode_full_view?rm_id=".$pincodeResult[$i]['id']." "
+                    . "style='margin: 0px;padding: 6px;' class='btn btn-info'>".$pincodeResult[$i]['full_name']."</a>",$pincodeResult[$i]['pincodeCount']); 
         }
         echo $this->table->generate();
     }
@@ -1314,5 +1280,118 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
         $this->load->view('dashboard/brackets_snapshot_view');
         $this->load->view('dashboard/dashboard_footer');
+    }
+    function missing_pincode_group_by_data_helper($dataArray,$groupByKeyName,$secondKeyName){
+        $finalPincodeArray = array();
+            foreach($dataArray as $pincodesData){
+                    if(array_key_exists($pincodesData[$groupByKeyName], $finalPincodeArray)){
+                        $finalPincodeArray[$pincodesData[$groupByKeyName]]['finalCount'] =  $finalPincodeArray[$pincodesData[$groupByKeyName]]['finalCount']+$pincodesData['pincodeCount'];
+                        if(array_key_exists($pincodesData[$secondKeyName],$finalPincodeArray[$pincodesData[$groupByKeyName]][$secondKeyName])){
+                            $finalPincodeArray[$pincodesData[$groupByKeyName]][$secondKeyName][$pincodesData[$secondKeyName]]['count'] =
+                                    $finalPincodeArray[$pincodesData[$groupByKeyName]][$secondKeyName][$pincodesData[$secondKeyName]]['count']+$pincodesData['pincodeCount'];  
+                            if(array_key_exists($pincodesData['pincode'],$finalPincodeArray[$pincodesData[$groupByKeyName]][$secondKeyName][$pincodesData[$secondKeyName]])){
+                                $finalPincodeArray[$pincodesData[$groupByKeyName]][$secondKeyName][$pincodesData[$secondKeyName]]['pincodes'][$pincodesData['pincode']] =
+                                    $finalPincodeArray[$pincodesData[$groupByKeyName]][$secondKeyName][$pincodesData[$secondKeyName]]['pincodes'][$pincodesData['pincode']] +$pincodesData['pincodeCount'];  
+                            }
+                            else{
+                                $finalPincodeArray[$pincodesData[$groupByKeyName]][$secondKeyName][$pincodesData[$secondKeyName]]['pincodes'][$pincodesData['pincode']] = $pincodesData['pincodeCount'];  
+                            }
+                        }
+                        else{
+                            $finalPincodeArray[$pincodesData[$groupByKeyName]][$secondKeyName][$pincodesData[$secondKeyName]]['count'] = $pincodesData['pincodeCount'];  
+                        }
+                    }
+                    else{
+                          $finalPincodeArray[$pincodesData[$groupByKeyName]]['finalCount'] =  $pincodesData['pincodeCount'];
+                          $finalPincodeArray[$pincodesData[$groupByKeyName]][$secondKeyName][$pincodesData[$secondKeyName]]['count'] = $pincodesData['pincodeCount'];
+                          $finalPincodeArray[$pincodesData[$groupByKeyName]][$secondKeyName][$pincodesData[$secondKeyName]]['pincodes'][$pincodesData['pincode']] = $pincodesData['pincodeCount'];
+                 }
+            } 
+            return $finalPincodeArray;
+    }
+    function missing_pincode_group_by_view_helper($finalPincodeArray,$divID,$breakDownKey){
+        ?>
+                    <table class="table table-bordered">
+                                    <tr style="background: #2a3f54;color: #fff;">
+                                        <th>S.N</th>
+                                        <th>District</th>
+                                        <th>Pending Query Count</th>
+                                    </tr>
+                                <?php
+                                $sn = 1;
+                                foreach($finalPincodeArray as $district=>$districtData){
+                                    ?>
+                                    <tr>
+                                        <td><?php echo $sn;?></td>
+                                        <td style="width: 800px;"><button style="margin: 0px;padding: 0px 6px;background: #26b99a;" type="button" class="btn btn-info btn-lg" id="district_level" onclick='$("#<?php echo $divID."_".$sn?>").toggle();'>
+                                            <?php echo $district." +";?></button>   
+                                            <div id="<?php echo $divID."_".$sn?>" style="display: none;">
+                                                <table class="table table-bordered" style="margin-top: 10px;">
+                                                    <tr>
+                                                    <th>Service</th>
+                                                     <th>Pending Query Count</th>
+                                                </tr>
+                                                <?php
+                                                foreach($districtData[$breakDownKey] as $key=>$value) {
+                                                    ?>
+                                                <tr>
+                                                    <td><?php echo $key; ?></td>
+                                                     <td><button onclick='group_by_district_for_appliance(<?php echo json_encode($value['pincodes'])?>)'  style="margin: 0px;padding: 0px 6px;background: #26b99a;" type="button" class="btn btn-info btn-lg" data-toggle="modal" 
+                                                    data-target="#missingPincodeDetails"><?php echo $value['count']; ?></button></td>
+                                                    </tr>
+                                                <?php
+                                                }
+                                                ?>
+                                                </table>
+                                                </div>
+                                        </td>
+                                        <td><?php echo $districtData['finalCount'];?></td>
+                                    </tr>
+                                    <?php
+                                    $sn++;
+                                }
+                                ?>
+                                </table>
+<?php
+    }
+    function get_missing_pincode_data_group_by_district($agentID){
+        $select = "COUNT(sf.pincode) as pincodeCount,services.services,sf.district,sf.pincode";
+        $where['sf.rm_id'] = $agentID;
+        $where['sf.active_flag'] = 1;
+        $where['sf.is_pincode_valid'] = 1;
+        $orderBYArray['pincodeCount'] = 'DESC';
+        $groupBY = array('sf.district,sf.service_id,sf.pincode');
+        $join['services']  = 'sf.service_id=services.id';
+        $JoinTypeTableArray['services'] = 'left';
+        $dataArray = $this->reusable_model->get_search_result_data("sf_not_exist_booking_details sf",$select,$where,$join,NULL,$orderBYArray,NULL,$JoinTypeTableArray,$groupBY);
+        $finalPincodeArray = $this->missing_pincode_group_by_data_helper($dataArray,'district','services');
+        $this->missing_pincode_group_by_view_helper($finalPincodeArray,'district_appliance','services');
+    }
+    function get_missing_pincode_data_group_by_partner($agentID){
+        $select = "partners.public_name,COUNT(sf.pincode) as pincodeCount,services.services,sf.pincode";
+        $where['sf.rm_id'] = $agentID;
+        $where['sf.active_flag'] = 1;
+        $where['sf.is_pincode_valid'] = 1;
+        $orderBYArray['pincodeCount'] = 'DESC';
+        $groupBY = array('partners.public_name','services.services','sf.pincode');
+        $join['services']  = 'sf.service_id=services.id';
+        $join['partners']  = 'sf.partner_id=partners.id';
+        $JoinTypeTableArray['services'] = 'left';
+        $dataArray = $this->reusable_model->get_search_result_data("sf_not_exist_booking_details sf",$select,$where,$join,NULL,$orderBYArray,NULL,$JoinTypeTableArray,$groupBY);
+        $finalPincodeArray = $this->missing_pincode_group_by_data_helper($dataArray,'public_name','services');
+        $this->missing_pincode_group_by_view_helper($finalPincodeArray,'partner_appliance','services');
+    }
+    function get_missing_pincode_data_group_by_appliance($agentID){
+        $select = "COUNT(sf.pincode) as pincodeCount,services.services,sf.district,sf.pincode";
+        $where['sf.rm_id'] = $agentID;
+        $where['sf.active_flag'] = 1;
+        $where['sf.is_pincode_valid'] = 1;
+        $orderBYArray['pincodeCount'] = 'DESC';
+        $groupBY = array('services.services','sf.district','sf.pincode');
+        $join['services']  = 'sf.service_id=services.id';
+        $JoinTypeTableArray['services'] = 'left';
+        $dataArray = $this->reusable_model->get_search_result_data("sf_not_exist_booking_details sf",$select,$where,$join,NULL,$orderBYArray,NULL,$JoinTypeTableArray,$groupBY);
+        $finalPincodeArray = $this->missing_pincode_group_by_data_helper($dataArray,'services','district');
+        $this->missing_pincode_group_by_view_helper($finalPincodeArray,'appliance_district','district');
     }
 }

@@ -289,7 +289,7 @@ class User_invoice extends CI_Controller {
             $response['meta']['owner_phone_1'] = $data[0]->owner_phone_1;
             $response['meta']['invoice_template'] = "paytm_payment_voucher.xlsx";
             $response['meta']['gst_number'] = $data[0]->gst_no;
-            
+            $response['meta']['booking_id'] = $booking_id;
             $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
             
             if ($status) {

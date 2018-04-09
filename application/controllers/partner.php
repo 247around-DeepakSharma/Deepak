@@ -31,6 +31,7 @@ class Partner extends CI_Controller {
         $this->load->model('booking_model');
         $this->load->model('vendor_model');
         $this->load->model('dealer_model');
+        $this->load->model('reusable_model');
         $this->load->model('service_centers_model');
         $this->load->library("miscelleneous");
         $this->load->library('email');
@@ -1591,10 +1592,11 @@ class Partner extends CI_Controller {
 //                                            ));
                                             $this->miscelleneous->sf_not_exist_for_pincode(array(
                                                     "booking_id" => $booking['booking_id'],
-                                                    "city" => $booking['city'],
                                                     "booking_pincode" => $booking['booking_pincode'],
                                                     "service_id" => $booking['service_id'],
-                                                    "partner_id" => $booking['partner_id']
+                                                    "partner_id" => $booking['partner_id'],
+                                                    "city" => $booking['city'],
+                                                    "district" => $booking['district']
                                                 ));
                                         }
                                         break;
@@ -1800,25 +1802,59 @@ class Partner extends CI_Controller {
     }
 
     function updateBookingStatus($booking, $requestData) {
-        if ($booking['type'] == "Query") {
-            $data['query_remarks'] = $requestData->data->remarks;
+        $s_change = $this->booking_model->getbooking_state_change_by_any(array('booking_id' => $booking['booking_id'], "new_state" => PRODUCT_DELIVERED));
+
+        if (!empty($s_change)) {
+
+            $this->jsonResponseString['response'] = NULL;
+            $this->sendJsonResponse(array(ERR_BOOKING_ALREADY_SCHEDULED_CODE, ERR_BOOKING_ALREADY_SCHEDULED_MSG));
+        } else {
+            if (isset($requestData->data->remarks)) {
+                $data['query_remarks'] = $requestData->data->remarks;
+            }
             $data['internal_status'] = PRODUCT_DELIVERED;
-            $data['booking_date'] = '';
             $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], PRODUCT_DELIVERED, $booking['partner_id'], $booking['partner_id']);
             if (!empty($partner_status)) {
                 $data['partner_current_status'] = $partner_status[0];
                 $data['partner_internal_status'] = $partner_status[1];
             }
+
+            if ($booking['type'] == "Query") {
+
+                $data['booking_date'] = '';
+            } else if (!empty($booking['assigned_vendor_id'])) {
+
+                $new_booking_date = date('d-m-Y');
+                if (date('H') > 12) {
+                    $new_booking_date = date('d-m-Y', strtotime("+1 days"));
+                }
+
+                $sf = $this->reusable_model->get_search_result_data("service_centres", "service_centres.non_working_days "
+                        , array("service_centres.id" => $booking['assigned_vendor_id']), NULL, NULL, NULL, NULL, NULL, array());
+
+                if (!empty($sf[0]['non_working_days'])) {
+
+                    $non_workng_days = explode(",", $sf[0]['non_working_days']);
+
+                    $slot = $this->getWorkingDays($non_workng_days, $new_booking_date);
+                    $new_booking_date = date('d-m-Y', $slot[0]['Slot'][0]['StartTime']);
+                }
+
+                $data['booking_date'] = $new_booking_date;
+            }
+
             $this->booking_model->update_booking($booking['booking_id'], $data);
-           
-            $p_login_details = $this->dealer_model->entity_login(array('entity_id' => $this->partner['id'], "user_id" => strtolower($this->partner['public_name']."-STS")));
-            $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, PRODUCT_DELIVERED, $data['query_remarks'], $p_login_details[0]['agent_id'], $this->partner['public_name'], $this->partner['id']);
+
+            $p_login_details = $this->dealer_model->entity_login(array('entity_id' => $this->partner['id'], "user_id" => strtolower($this->partner['public_name'] . "-STS")));
+            $this->notify->insert_state_change($booking['booking_id'], PRODUCT_DELIVERED, _247AROUND_PENDING, PRODUCT_DELIVERED, $p_login_details[0]['agent_id'], $this->partner['public_name'], $this->partner['id']);
+
+            $up_flag = 1;
+            $url = base_url() . "employee/vendor/update_upcountry_and_unit_in_sc/" . $booking['booking_id'] . "/" . $up_flag;
+            $async_data['booking'] = array();
+            $this->asynchronous_lib->do_background_process($url, $async_data);
 
             $this->jsonResponseString['response'] = NULL;
             $this->sendJsonResponse(array(SUCCESS_CODE, SUCCESS_UPDATED_MSG));
-        } else {
-            $this->jsonResponseString['response'] = NULL;
-            $this->sendJsonResponse(array(ERR_BOOKING_ALREADY_SCHEDULED_CODE, ERR_BOOKING_ALREADY_SCHEDULED_MSG));
         }
     }
 
