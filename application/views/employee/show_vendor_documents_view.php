@@ -116,7 +116,7 @@ select { width: 8.5em;height:2em; }
                                 
                                 </td>
                                 <td style="text-align: center">
-                                <?php if(!empty($value['signature_file']) && $value['is_gst_doc'] == 1){
+                                <?php if(!empty($value['signature_file']) && $value['is_signature_doc'] == 1){
                                     $signature++; ?>
                                    <a href='https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/<?php echo $value['signature_file']?>' target="_blank"><img src="<?php echo base_url()?>images/ok.png" width="20" height="20"/></a>
                                 <?php }
