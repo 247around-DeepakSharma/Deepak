@@ -720,6 +720,7 @@ class Dashboard extends CI_Controller {
                 $finalPincodeArray[$pincodes['pincode']]['city'] = $pincodes['city'];
             }
         }
+        arsort($finalPincodeArray);
         $data['pincodeResult'] = $finalPincodeArray;
         $data['agent'] = $agentID;
         $this->load->view('dashboard/missing_pincodes_full_view',$data);
@@ -1322,7 +1323,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                                     ?>
                                     <tr>
                                         <td><?php echo $sn;?></td>
-                                        <td style="width: 800px;"><button style="margin: 0px;padding: 0px 6px;" type="button" class="btn btn-info btn-lg" id="district_level" onclick='$("#<?php echo $divID."_".$sn?>").toggle();'>
+                                        <td style="width: 800px;"><button style="margin: 0px;padding: 0px 6px;background: #26b99a;" type="button" class="btn btn-info btn-lg" id="district_level" onclick='$("#<?php echo $divID."_".$sn?>").toggle();'>
                                             <?php echo $district." +";?></button>   
                                             <div id="<?php echo $divID."_".$sn?>" style="display: none;">
                                                 <table class="table table-bordered" style="margin-top: 10px;">
@@ -1335,7 +1336,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                                                     ?>
                                                 <tr>
                                                     <td><?php echo $key; ?></td>
-                                                     <td><button onclick='group_by_district_for_appliance(<?php echo json_encode($value['pincodes'])?>)'  style="margin: 0px;padding: 0px 6px;" type="button" class="btn btn-info btn-lg" data-toggle="modal" 
+                                                     <td><button onclick='group_by_district_for_appliance(<?php echo json_encode($value['pincodes'])?>)'  style="margin: 0px;padding: 0px 6px;background: #26b99a;" type="button" class="btn btn-info btn-lg" data-toggle="modal" 
                                                     data-target="#missingPincodeDetails"><?php echo $value['count']; ?></button></td>
                                                     </tr>
                                                 <?php
