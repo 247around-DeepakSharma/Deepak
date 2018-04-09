@@ -59,11 +59,11 @@
                                     ?>
                                     <tr>
                                         <td><?php echo $sn;?></td>
-                                        <td><?php echo $pincode;?></td>
+                                        <td><button  onclick='missingPincodeDetailedView(<?php echo json_encode($pincodeData)?>)' style="margin: 0px;padding: 0px 6px;background: #26b99a;" type="button" class="btn btn-info btn-lg" data-toggle="modal" 
+                                                    data-target="#missingPincodeDetails"><?php echo $pincode;?></button></td>
                                         <td><?php echo $pincodeData['state'];?></td>
                                         <td><?php echo $pincodeData['city'];?></td>
-                                        <td><button onclick='missingPincodeDetailedView(<?php echo json_encode($pincodeData)?>)' style="margin: 0px;padding: 0px 6px;" type="button" class="btn btn-info btn-lg" data-toggle="modal" 
-                                                    data-target="#missingPincodeDetails"><?php echo $pincodeData['count'];?></button></td>
+                                        <td><?php echo $pincodeData['count'];?></td>
                                     </tr>   
                                     <?php
                                     $sn++;
