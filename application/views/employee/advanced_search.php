@@ -126,6 +126,9 @@
                                                 <option ng-repeat="y in request_type_list" value="{{y.request_type}}">{{y.request_type}}</option>
                                             </select>
                                         </td>
+                                        <td>
+                                            <button type="button" class="btn btn-success" style="width: 100%;" id="get_result">Get Result</button>
+                                        </td>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -193,7 +196,7 @@
 
 </div>
 <script>
-    $('select').on('change', function(){
-        ad_table.ajax.reload( function ( json ) {} );
-    });
+    $("#get_result").click(function(){
+    ad_table.ajax.reload( function ( json ) {} );
+});
     </script>

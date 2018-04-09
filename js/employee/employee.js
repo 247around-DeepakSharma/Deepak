@@ -129,24 +129,20 @@ var ad_table;
     }
     
     function missingPincodeDetailedView(data){
-        console.log(data);
-        var table = document.getElementById("mssingPincodeTable");
-        var rowCount = table.rows.length;
-        for (var x = rowCount-1; x >0; x--) {
-                     table.deleteRow(x);
-        }
+        var tableString = '<table class="table table-bordered" id="mssingPincodeTable">';
+        tableString = tableString += '<tr>';
+        tableString = tableString += '<th>Appliance</th>';
+        tableString = tableString += '<th>Pending Query</th>';
+        tableString = tableString += '</tr>';
         var count = data.services.length;
-        console.log(data.services[i]);
-        console.log(data.services_count[i]);
         for(var i=0;i<count;i++){
-            var row = table.insertRow(i+1);
-            var cell1 = row.insertCell(0);
-            var cell2 = row.insertCell(1);
-            cell1.innerHTML = data.services[i];
-            cell2.innerHTML = data.services_count[i];
+            tableString = tableString += '<tr>';
+            tableString = tableString += '<td>'+data.services[i]+'</td>';
+            tableString = tableString += '<td>'+ data.services_count[i]+'</td>';
+            tableString = tableString += '</tr>';
         }
-        
-        
+        tableString = tableString += '</table>';
+        document.getElementById("mssingPincodeTable").innerHTML = tableString;
     }
     
      
