@@ -434,7 +434,7 @@ class Miscelleneous {
                 $to = NITS_ANUJ_EMAIL_ID . ", sales@247around.com , ". $rm_email;
                 $cc = "sachinj@247around.com, abhaya@247around.com";
                 $message1 = "Upcountry did not calculate for " . $booking_id;
-                $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", 'Upcountry Failed', $message1, "",UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE);
+                $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", 'Upcountry Failed', $message1, "",UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE_EMAIL_TAG);
 
                 $return_status = TRUE;
                 break;

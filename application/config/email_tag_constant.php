@@ -81,7 +81,7 @@ define('ERROR_IN_CONVERTING_PDF','error_in_converting_pdf');
 define('NO_DATA_FOUND_IN_STATUS_MAPPING_TABLE','no_data_found_in_status_mapping_table');
 define('UPCOUNTRY_APPROVAL_TAG','upcountry_approval_tag');
 define('BOOKING_CANCELLED_NO_UPCOUNTRY_APPROVAL','booking_cancelled_no_upcountry_approval');
-define('UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE','upcountry_distance_can_not_calculate');
+define('UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE_EMAIL_TAG','upcountry_distance_can_not_calculate');
 define('STAG_01_DOWN','stag_01_down');
 define('JOB_CARD_NOT_GENERATED','job_card_not_generated');
 define('QR_NOT_GENERATED','qr_not_generated');
