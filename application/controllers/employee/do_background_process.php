@@ -382,7 +382,7 @@ class Do_background_process extends CI_Controller {
        $bcc = implode(",",$bccTempArray);
        log_message('info', __FUNCTION__ . 'BCC '.print_r($bcc,true));
        log_message('info', __FUNCTION__ . 'Body '.print_r($body,true));
-       $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $body, "");
+       $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $body, "",'partner_information_to_sf');
        log_message('info', __FUNCTION__ . ' Function End');
 }
 

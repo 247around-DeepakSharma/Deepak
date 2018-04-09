@@ -156,7 +156,7 @@ class bookingjobcard extends CI_Controller {
             $bcc = "";
             $attachment = "";
             //$cc = $owner;
-            $is_email = $this->notify->sendEmail($from, $to, $cc, $bcc, $new_sub, $message, $attachment);
+            $is_email = $this->notify->sendEmail($from, $to, $cc, $bcc, $new_sub, $message, $attachment,SERVICE_CENTER_REMINDER_EMAIL);
 	    if ($is_email) {
 		$data['success'] = "Reminder mail sent to Service Center successfully.";
 		$this->session->set_flashdata('email_result', 'Reminder mail sent to Service Center successfully.');

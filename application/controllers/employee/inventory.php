@@ -135,7 +135,7 @@ class Inventory extends CI_Controller {
                         $subject = $template[4];
                         $emailBody = vsprintf($template[0], $email_order_received_from);
                         
-                        $this->notify->sendEmail($template[2], $to, $template[3] . ',' . $this->get_rm_email($data_post['order_received_from']), '', $subject, $emailBody, "");
+                        $this->notify->sendEmail($template[2], $to, $template[3] . ',' . $this->get_rm_email($data_post['order_received_from']), '', $subject, $emailBody, "",'brackets_order_received_from_vendor');
                     }
                     
                     //Logging Email Send to order received from vendor
@@ -168,7 +168,7 @@ class Inventory extends CI_Controller {
 
                         $emailBody = vsprintf($template1[0], $email);
 
-                        $this->notify->sendEmail($template1[2], $to, $template1[3], '', $subject, $emailBody, "");
+                        $this->notify->sendEmail($template1[2], $to, $template1[3], '', $subject, $emailBody, "",'brackets_requested_from_vendor');
                     }
                     //Logging Email Send to order sent to vendor
                     log_message('info', __FUNCTION__ . ' Email has been sent to order_sent_to vendor ' . $vendor_requested_to[0]['company_name']);
@@ -325,7 +325,7 @@ class Inventory extends CI_Controller {
                         $subject = vsprintf($template[4], $order_received_from_email[0]['company_name']);
                         $emailBody = vsprintf($template[0], $email);
                         
-                        $this->notify->sendEmail($template[2], $to , $template[3].','.$this->get_rm_email($order_received_from), '', $subject , $emailBody, $attachment);
+                        $this->notify->sendEmail($template[2], $to , $template[3].','.$this->get_rm_email($order_received_from), '', $subject , $emailBody, $attachment,'brackets_shipment_mail');
                    
                         //Loggin send mail success
             log_message('info',__FUNCTION__.' Shipped mail has been sent to order_received_from vendor '. $emailBody);
@@ -345,7 +345,7 @@ class Inventory extends CI_Controller {
                         $subject = vsprintf($template1[4], $order_received_from_email[0]['company_name']);
                         $emailBody = vsprintf($template1[0], $order_given_to_email);
                         
-                        $this->notify->sendEmail($template1[2], $to , $template1[3], '', $subject , $emailBody, '');
+                        $this->notify->sendEmail($template1[2], $to , $template1[3], '', $subject , $emailBody, '','brackets_shipment_mail_to_order_given_to');
                    
                         //Loggin send mail success
                         log_message('info',__FUNCTION__.' Shipped mail has been sent to order_given_to vendor '. $emailBody);
@@ -456,7 +456,7 @@ class Inventory extends CI_Controller {
                 $email['order_id'] = $order_id;
                 $subject = vsprintf($template[4], $order_received_from_email[0]['company_name']);
                 $emailBody = vsprintf($template[0], $email);
-                $this->notify->sendEmail($template[2], $order_received_from_email_to, $template[3] . ',' . $this->get_rm_email($order_received_from), '', $subject, $emailBody, '');
+                $this->notify->sendEmail($template[2], $order_received_from_email_to, $template[3] . ',' . $this->get_rm_email($order_received_from), '', $subject, $emailBody, '','brackets_received_mail_vendor_order_requested_from');
             }
 
             //Loggin send mail success
@@ -474,7 +474,7 @@ class Inventory extends CI_Controller {
                 $subject = vsprintf($template[4], $order_received_from_email[0]['company_name']);
                 $emailBody = vsprintf($template[0], $email);
 
-                $this->notify->sendEmail($template[2], $order_given_to_email_to, $template[3], '', $subject, $emailBody, '');
+                $this->notify->sendEmail($template[2], $order_given_to_email_to, $template[3], '', $subject, $emailBody, '','brackets_received_mail_vendor_order_given_to');
             }
 
             //Loggin send mail success
@@ -653,7 +653,7 @@ class Inventory extends CI_Controller {
                         $email['total_requested'] = $data['total_requested'];
                         $subject = "Updated Brackets Requested by ".$order_received_from_email[0]['company_name'];
                         $emailBody = vsprintf($template[0], $email);
-                        $this->notify->sendEmail($template[2], $to , $template[3].','.$this->get_rm_email($order_received_from), '', $subject , $emailBody, "");
+                        $this->notify->sendEmail($template[2], $to , $template[3].','.$this->get_rm_email($order_received_from), '', $subject , $emailBody, "",'brackets_order_received_from_vendor');
                    }
             
             //Loggin send mail success
@@ -687,7 +687,7 @@ class Inventory extends CI_Controller {
                         $subject = "Updated Brackets Requested by ".$order_received_from_email[0]['company_name'];
 
                         $emailBody = vsprintf($template[0], $email);
-                        $this->notify->sendEmail($template[2], $to , $template[3], '', $subject , $emailBody, "");
+                        $this->notify->sendEmail($template[2], $to , $template[3], '', $subject , $emailBody, "",'brackets_requested_from_vendor');
                         //Loggin send mail success
                         log_message('info',__FUNCTION__.' Changed Requested mail has been sent to order_given_to vendor '. $to);
                    }
@@ -745,7 +745,7 @@ class Inventory extends CI_Controller {
                         $email['total_requested'] = $brackets_details[0]['total_requested'];
                         $subject = "Brackets Request Cancelled";
                         $emailBody = vsprintf($template[0], $email);
-                        $this->notify->sendEmail($template[2], $to , $template[3].','.$this->get_rm_email($brackets_details[0]['order_received_from']), '', $subject , $emailBody, "");
+                        $this->notify->sendEmail($template[2], $to , $template[3].','.$this->get_rm_email($brackets_details[0]['order_received_from']), '', $subject , $emailBody, "",'cancel_brackets_order_received_from_vendor');
                         //Loggin send mail success
                         log_message('info',__FUNCTION__.' Cancelled Brackets mail has been sent to order_received_from vendor '. $to);
                    }
@@ -780,7 +780,7 @@ class Inventory extends CI_Controller {
                         $subject = "Brackets Request Cancelled";
 
                         $emailBody = vsprintf($template[0], $email);
-                        $this->notify->sendEmail($template[2], $to , $template[3], '', $subject , $emailBody, "");
+                        $this->notify->sendEmail($template[2], $to , $template[3], '', $subject , $emailBody, "",'cancel_brackets_requested_from_vendor');
                         //Loggin send mail success
                         log_message('info',__FUNCTION__.'  Cancelled Brackets mail has been sent to order_given_to vendor '. $to);
                    }
@@ -1007,7 +1007,7 @@ class Inventory extends CI_Controller {
                 $email_to['total_requested'] = $brackets_details[0]['total_requested'];
                 $subject = "Brackets Request Un-Cancelled";
                 $emailBody = vsprintf($template_to[0], $email_to);
-                $this->notify->sendEmail($template_to[2], $to, $template_to[3] . ',' . $this->get_rm_email($brackets_details[0]['order_received_from']), '', $subject, $emailBody, "");
+                $this->notify->sendEmail($template_to[2], $to, $template_to[3] . ',' . $this->get_rm_email($brackets_details[0]['order_received_from']), '', $subject, $emailBody, "",'un-cancel_brackets_order_received_from_vendor');
                 //Loggin send mail success
                 log_message('info', __FUNCTION__ . ' Un-Cancelled Brackets mail has been sent to order_received_from vendor ' . print_r($emailBody,TRUE));
             }
@@ -1040,7 +1040,7 @@ class Inventory extends CI_Controller {
                 $subject = "Brackets Request Un-Cancelled";
 
                 $emailBody = vsprintf($template_from[0], $email_from);
-                $this->notify->sendEmail($template_from[2], $to, $template_from[3], '', $subject, $emailBody, "");
+                $this->notify->sendEmail($template_from[2], $to, $template_from[3], '', $subject, $emailBody, "",'un-cancel_brackets_requested_from_vendor');
                 //Loggin send mail success
                 log_message('info', __FUNCTION__ . '  Cancelled Brackets mail has been sent to order_given_to vendor ' . print_r($emailBody,TRUE));
             }
@@ -1618,7 +1618,7 @@ class Inventory extends CI_Controller {
                 log_message('info', __FUNCTION__ . ' Error in Generating PDF File');
            }
            
-            $this->notify->sendEmail($emailtemplate[2], $emailtemplate[1], $emailtemplate[3], '', $subject, $emailtemplate[0], $attachement_url);
+            $this->notify->sendEmail($emailtemplate[2], $emailtemplate[1], $emailtemplate[3], '', $subject, $emailtemplate[0], $attachement_url,'zopper_estimate_send');
            
             $this->inventory_model->update_zopper_estimate(array('id' => $id), array(
                 "estimate_sent" => 1,

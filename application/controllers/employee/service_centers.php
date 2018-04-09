@@ -907,7 +907,7 @@ class Service_centers extends CI_Controller {
                             $bcc = "";
                             $subject = "Auto Cancelled Booking - 3rd Day Customer Not Reachable.";
                             $message = "Auto Cancelled Booking " . $booking_id;
-                            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "");
+                            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "",AUTO_CANCELLED_BOOKING);
                         } else {
                             $this->default_update(true, true);
                         }
@@ -1550,7 +1550,7 @@ class Service_centers extends CI_Controller {
                 $message .= "Courier Charge ".$this->input->post('courier_charges_by_sf')."<br/>";
                 $message .= "Shipped Date ".$data['defective_part_shipped_date']."<br/>";
                 $attachment = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$defective_courier_receipt;
-                $this->notify->sendEmail($from, $to, $cc, "", $subject, $message, $attachment);
+                $this->notify->sendEmail($from, $to, $cc, "", $subject, $message, $attachment,COURIER_DETAILS);
                 $userSession = array('success' => 'Parts Updated.');
 
                 $this->session->set_userdata($userSession);
@@ -1756,7 +1756,7 @@ class Service_centers extends CI_Controller {
                         $email['order_id'] = $order_id;
                         $subject = vsprintf($template[4], $order_received_from_email[0]['company_name']);
                         $emailBody = vsprintf($template[0], $email);
-                        $this->notify->sendEmail($template[2], $to , $template[3].','.$this->get_rm_email($order_received_from), '', $subject , $emailBody, $attachment);
+                        $this->notify->sendEmail($template[2], $to , $template[3].','.$this->get_rm_email($order_received_from), '', $subject , $emailBody, $attachment,'brackets_shipment_mail');
                    }
             //2. Sending mail to order_given_to vendor
             $order_given_to_email_to = $this->vendor_model->getVendorContact($order_given_to);
@@ -1771,7 +1771,7 @@ class Service_centers extends CI_Controller {
                         $subject = vsprintf($template1[4], $order_received_from_email[0]['company_name']);
                         $emailBody = vsprintf($template1[0], $order_given_to_email);
                         
-                        $this->notify->sendEmail($template1[2], $to , $template1[3].','.$this->get_rm_email($order_given_to), '', $subject , $emailBody, '');
+                        $this->notify->sendEmail($template1[2], $to , $template1[3].','.$this->get_rm_email($order_given_to), '', $subject , $emailBody, '','brackets_shipment_mail_to_order_given_to');
                    
                         //Loggin send mail success
                         log_message('info',__FUNCTION__.' Shipped mail has been sent to order_given_to vendor '. $emailBody);
@@ -2292,7 +2292,7 @@ class Service_centers extends CI_Controller {
                 $message = "";
                 $message .= $this->table->generate();
 
-                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
+                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "",GST_FORM_UPDATED);
 
                 redirect(base_url() . "service_center/gst_details");
             }

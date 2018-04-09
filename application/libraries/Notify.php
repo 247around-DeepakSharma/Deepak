@@ -28,7 +28,7 @@ class Notify {
      *  @param : From, To, CC, BCC, Subject, Message, Attachment
      *  @return : if mail send return true else false
      */
-    function sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment) {
+    function sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment,$template_tag) {
 	switch (ENVIRONMENT) {
 	    case 'production':
 		//Clear previous email
@@ -50,7 +50,7 @@ class Notify {
                     $this->My_CI->email->message($message);
 
                     if ($this->My_CI->email->send()) {
-                        $this->add_email_send_details($from, $to, $cc, $bcc, $subject, $message, $attachment);
+                        $this->add_email_send_details($from, $to, $cc, $bcc, $subject, $message, $attachment,$template_tag);
                         return true;
                     } else {
                         return false;
@@ -700,7 +700,7 @@ class Notify {
      * return: Null
      */
 
-    function add_email_send_details($email_from, $email_to, $cc, $bcc, $subject, $message, $attachment_link) {
+    function add_email_send_details($email_from, $email_to, $cc, $bcc, $subject, $message, $attachment_link,$template_tag) {
 	$data = array();
 
 	$data['email_from'] = $email_from;
@@ -710,6 +710,7 @@ class Notify {
 	$data['subject'] = $subject;
         $data['message'] = $message;
         $data['attachment_link'] = $attachment_link;
+                    $data['email_tag'] = $template_tag;
 
 	//Add Email to Database
 	$insert_id = $this->My_CI->booking_model->add_email_send_details($data);
@@ -719,6 +720,4 @@ class Notify {
 	    log_message('info', __FUNCTION__ . ' Error on saving Email to Database "email_sent" ' . print_r($data, TRUE));
 	}
     }
-
-
 }

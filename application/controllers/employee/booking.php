@@ -1441,7 +1441,7 @@ class Booking extends CI_Controller {
             <hr />     
         </body>
         </html>";
-            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "");
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "",NEW_BRAND_ADDED_TAG);
         }
 
         redirect(base_url() . 'employee/booking/get_add_new_brand_form', 'refresh');

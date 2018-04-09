@@ -132,7 +132,7 @@ class bookings_excel extends CI_Controller {
                 $cc = NITS_EMAIL_ID.",".DEVELOPER_EMAIL;
                 $agent_name = !empty($this->session->userdata('emp_name'))?$this->session->userdata('emp_name'):_247AROUND_DEFAULT_AGENT_NAME;
                 $subject = "Paytm File is uploaded by " . $agent_name;
-                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $html, "");
+                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $html, "",PAYTM_FILE_UPLOADED);
                 log_message('info', 'paytm file uploaded successfully.' . print_r($response,true));
                 
                 //Updating File Uploads table and upload file to s3
@@ -155,7 +155,7 @@ class bookings_excel extends CI_Controller {
                     $email_html .= $value['order_id']."<br>";
                 }
                 $emailBody = vsprintf($template[0], array($_FILES["file"]["name"],$email_html));
-                $this->notify->sendEmail($template[2], $template[1] ,$template[3], '', $subject , $emailBody, $attachement);
+                $this->notify->sendEmail($template[2], $template[1] ,$template[3], '', $subject , $emailBody, $attachement,'missing_pincode_mail');
             }
         } else {
             echo $msg;
@@ -267,7 +267,7 @@ class bookings_excel extends CI_Controller {
                     $message .= "Sheet Name = <b>".$sheet->getTitle()."</b> <br><br>";
                     $message .= $this->Columfailed;
                     $message .= "Please Check File And Upload Again";
-                    $this->notify->sendEmail(NOREPLY_EMAIL_ID,$to,$cc,"",$subject, $message,"");
+                    $this->notify->sendEmail(NOREPLY_EMAIL_ID,$to,$cc,"",$subject, $message,"",PAYTM_FILE_UPLOAD_FAILED);
                     $insert_data_details = array();
                     break;
                 }else{
@@ -583,7 +583,7 @@ class bookings_excel extends CI_Controller {
                                 if (empty($booking['state'])) {
                                     //$to = NITS_ANUJ_EMAIL_ID;
                                    // $message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
-                                    //$this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", 'Pincode Not Found', $message, "");
+                                    //$this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", 'Pincode Not Found', $message, "",PINCODE_NOT_FOUND);
                                 }
                                 $this->total_bookings_inserted++;
                             }
