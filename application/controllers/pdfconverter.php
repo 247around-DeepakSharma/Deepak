@@ -132,7 +132,7 @@ class Pdfconverter extends CI_Controller {
         $subject = "Error In Converting PDF File";
         $message = "Error in converting excel file to pdf.";
         $attachement = TMP_FOLDER.$file_name.'.xlsx';
-        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, '', '', $subject, $message, $attachement);
+        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, '', '', $subject, $message, $attachement,ERROR_IN_CONVERTING_PDF);
     }
     
     

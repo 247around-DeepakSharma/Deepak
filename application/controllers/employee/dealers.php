@@ -330,7 +330,7 @@ class Dealers extends CI_Controller {
         $bcc = "";
         $subject = "Booking Insertion Failure By Dealer".$this->input->post('dealer_name');
         $message = $post;
-        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "");
+        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "",BOOKING_INSERTION_FAILURE_BY_DEALER);
 
     }
     

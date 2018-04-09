@@ -573,7 +573,7 @@ class Login extends CI_Controller {
                     $login_subject = $login_template[4];
                     $login_emailBody = vsprintf($login_template[0], $login_email);
                     
-                    $this->notify->sendEmail($login_template[2], $owner_email, $login_template[3]. "," . $rm_official_email, "",$login_subject, $login_emailBody, "");
+                    $this->notify->sendEmail($login_template[2], $owner_email, $login_template[3]. "," . $rm_official_email, "",$login_subject, $login_emailBody, "",'reset_vendor_login_details');
                     
                     log_message('info', $login_subject . " Email Send successfully" . $login_emailBody);
                 } else {
@@ -630,7 +630,7 @@ class Login extends CI_Controller {
 
                             $login_subject = $login_template[4];
                             $login_emailBody = vsprintf($login_template[0], $login_email);
-                            $this->notify->sendEmail($login_template[2], $agent[0]['email'], $login_template[3], "",$login_subject, $login_emailBody, "");
+                            $this->notify->sendEmail($login_template[2], $agent[0]['email'], $login_template[3], "",$login_subject, $login_emailBody, "",'resend_login_details');
 
                             log_message('info', $login_subject . " Email Send successfully" . $login_emailBody);
                         } else {

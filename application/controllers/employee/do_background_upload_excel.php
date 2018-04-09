@@ -173,7 +173,7 @@ class Do_background_upload_excel extends CI_Controller {
                        } else{
                            $subject = "Delivery END Date Column is not exist. SD Uploading Failed.";
                            $message  = $file_name. " is not uploaded";
-                           $this->send_mail_column($subject, $message, false,_247AROUND_SNAPDEAL_SHIPPED,SNAPDEAL_ID);
+                           $this->send_mail_column($subject, $message, false,_247AROUND_SNAPDEAL_SHIPPED,SNAPDEAL_ID,SNAPDEAL_FAILED_FILE_UPLOAD_SHIPPED);
                        }
                         
                     } else if($rowData['type_of_data'] == 'Delivered'){
@@ -185,7 +185,7 @@ class Do_background_upload_excel extends CI_Controller {
                         } else {
                              $subject = "Delivery Date Column is not exist. SD Uploading Failed.";
                              $message  = $file_name. " is not uploaded";
-                             $this->send_mail_column($subject, $message, false,_247AROUND_SNAPDEAL_DELIVERED,SNAPDEAL_ID);
+                             $this->send_mail_column($subject, $message, false,_247AROUND_SNAPDEAL_DELIVERED,SNAPDEAL_ID,SNAPDEAL_FAILED_FILE_UPLOAD_DELIVERED);
                         }
                     }
 
@@ -198,7 +198,7 @@ class Do_background_upload_excel extends CI_Controller {
                     $subject = "Delivery Date Column is not exist. SD Uploading Failed.";
                     $agent_name = !empty($this->session->userdata('emp_name'))?$this->session->userdata('emp_name'):_247AROUND_DEFAULT_AGENT_NAME;
                     $message  = $file_name. " is not uploaded Agent Name: ".  $agent_name;
-                    $this->send_mail_column($subject, $message, false,_247AROUND_SNAPDEAL_DELIVERED,SNAPDEAL_ID);
+                    $this->send_mail_column($subject, $message, false,_247AROUND_SNAPDEAL_DELIVERED,SNAPDEAL_ID,SNAPDEAL_FAILED_FILE_UPLOAD_DELIVERED);
                 }
             } 
 	}
@@ -232,7 +232,7 @@ class Do_background_upload_excel extends CI_Controller {
      * @param String $message
      * @param boolean $validation
      */
-    function send_mail_column($subject, $message, $validation,$file_type,$partner_id){
+    function send_mail_column($subject, $message, $validation,$file_type,$partner_id,$emailTag){
         if(empty($this->email_send_to)){
             if(empty($this->session->userdata('official_email'))){
                 $get_partner_am_id = $this->partner_model->getpartner_details('account_manager_id', array('partners.id' => $partner_id));
@@ -255,7 +255,7 @@ class Do_background_upload_excel extends CI_Controller {
         $from = "noreply@247around.com";
         $cc = "";
         $bcc = "";
-        $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "");
+        $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "",$emailTag);
         log_message('info', __FUNCTION__ . "=> Validation ". $validation."  ".$message);
         if ($validation == false) {
             if ($partner_id == SNAPDEAL_ID) {
@@ -283,7 +283,7 @@ class Do_background_upload_excel extends CI_Controller {
         
         $subject = $file_type ." data validated. File is under process";
         $message  = $file_name. " validation Pass. File is under process";
-        $this->send_mail_column($subject, $message, TRUE,$file_type,$default_partner);
+        $this->send_mail_column($subject, $message, TRUE,$file_type,$default_partner,SNAPDEAL_VALIDATION_PASS);
 
 	$count_total_leads_came_today = count($data);
 	log_message('info', __FUNCTION__ . "=> File type: " . $file_type . 
@@ -1163,7 +1163,7 @@ class Do_background_upload_excel extends CI_Controller {
 
         $html = $this->load->view('employee/invalid_data',$invalid_data_with_reason, TRUE);
         // echo $html = $this->load->view('employee/invalid_data',$invalid_data_with_reason);
-	$this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $html, "");
+	$this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $html, "",DELIVERED_FILE_UPLOADED);
         if($file_upload && $partner_id == SNAPDEAL_ID){
             $this->miscelleneous->update_file_uploads($_FILES["file"]["name"],$_FILES["file"]["tmp_name"],$filetype,FILE_UPLOAD_FAILED_STATUS,$this->email_message_id);
         }
@@ -1368,7 +1368,7 @@ class Do_background_upload_excel extends CI_Controller {
                     $body = $response['msg'];
                     $body .= "<br> <b>File Name</b> ". $header_data['file_name']; 
                     $attachment = TMP_FOLDER.$header_data['file_name'];
-                    $this->notify->sendEmail("noreply@247around.com", $to, $cc, "", $subject, $body, $attachment);
+                    $this->notify->sendEmail("noreply@247around.com", $to, $cc, "", $subject, $body, $attachment,FAILED_UPLOAD_FILE);
 
                     log_message('info', __FUNCTION__ . " " . $this->ColumnFailed);
                     $this->session->set_flashdata('file_error', $this->ColumnFailed);
@@ -1654,7 +1654,7 @@ class Do_background_upload_excel extends CI_Controller {
                 $cc = $template[3] . "," . $this->email_send_to;
                 $subject = $template[4];
                 $attachment = $file_name;
-                $sendmail = $this->notify->sendEmail($from, $to, $cc, "", $subject, $body, $attachment);
+                $sendmail = $this->notify->sendEmail($from, $to, $cc, "", $subject, $body, $attachment,'revert_upload_file_to_partner');
                 if ($sendmail) {
                     $response = TRUE;
                     log_message("info", "file send to partner with updated booking id's");
@@ -1671,7 +1671,7 @@ class Do_background_upload_excel extends CI_Controller {
                 $subject = "Booking Id didn't update for upload File " . $data['file_name'];
                 $body = "Error In writng booking Id to upload file " . $data['file_name'];
                 $body .= "Agent Name: " . $agent_name;
-                $sendmail = $this->notify->sendEmail(NOREPLY_EMAIL_ID, DEVELOPER_EMAIL, "", "", $subject, $body, "");
+                $sendmail = $this->notify->sendEmail(NOREPLY_EMAIL_ID, DEVELOPER_EMAIL, "", "", $subject, $body, "",BOOKING_ID_NOT_UPDATED_FOR_UPLOADED_FILE);
             }
             
         } else {

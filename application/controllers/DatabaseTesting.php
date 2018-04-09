@@ -408,7 +408,7 @@ class DatabaseTesting extends CI_Controller {
         $subject = "Inconsistent Data";
         $message = $table;
         $attachment = TMP_FOLDER. date('Y-m-d') . ".txt";
-        $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
+        $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment,INCONSISTENT_DATA_TO_DEVELOPER);
         $out="";
         $return ="";
         exec("rm -rf " . escapeshellarg(TMP_FOLDER . date('Y-m-d') . ".txt"), $out, $return);
@@ -438,7 +438,7 @@ class DatabaseTesting extends CI_Controller {
             $subject = "Error File";
             $message = "Find Attachment";
         
-            $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
+            $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment,SEND_ERROR_FILE);
             
             // Inserting values in scheduler tasks log
             $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__); 
@@ -462,7 +462,7 @@ class DatabaseTesting extends CI_Controller {
             $subject = "Log file ". $file_name.".php";
             $message = "Find Attachment";
             
-            $is_mail =$this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message,  $attach_zip); 
+            $is_mail =$this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message,  $attach_zip,SEND_LOG_FILE); 
             if($is_mail){
                 exec("rm -rf " . escapeshellarg($attach_zip));
                 echo "Mail Sent....". $file_name.".php";

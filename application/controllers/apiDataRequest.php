@@ -297,7 +297,7 @@ class ApiDataRequest extends CI_Controller {
                         $subject = vsprintf($template[4], $booking_id);
                         $emailBody = vsprintf($template[0], $estimate_cost);
 
-                        $this->notify->sendEmail($template[2], $to, $template[3], '', $subject, $emailBody, "");
+                        $this->notify->sendEmail($template[2], $to, $template[3], '', $subject, $emailBody, "",'oow_estimate_given');
                     }
                 }
 

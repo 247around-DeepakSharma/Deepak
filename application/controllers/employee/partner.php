@@ -412,7 +412,7 @@ class Partner extends CI_Controller {
         $bcc = "";
         $subject = "Booking Insertion Failure By " . $this->session->userdata('partner_name');
         $message = $post;
-        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "");
+        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "",BOOKING_INSERTION_FAILURE);
     }
 
     function set_form_validation() {
@@ -770,7 +770,7 @@ class Partner extends CI_Controller {
             $subject = $email_template[4];
             $message = $email_template[0];
 
-            $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "");
+            $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "",'partner_activate_email');
             $this->session->set_userdata(array('success' => 'Partner Activated Successfully'));
             log_message("info", __METHOD__ . " Partner Id " . $id . " Updated by " . $this->session->userdata('id'));
         } else {
@@ -813,7 +813,7 @@ class Partner extends CI_Controller {
             $subject = $email_template[4];
             $message = $email_template[0];
 
-            $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "");
+            $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "",'partner_deactivate_email');
             $this->session->set_userdata(array('success' => 'Partner De-activated Successfully'));
             log_message("info", __METHOD__ . " Partner Id " . $id . " Updated by " . $this->session->userdata('id'));
         } else {
@@ -1298,7 +1298,7 @@ class Partner extends CI_Controller {
                 $partner_mail_cc = NITS_ANUJ_EMAIL_ID . ",escalations@247around.com ," . $rm_mail;
                 $partner_subject = "Booking " . $booking_id . " Escalated ";
                 $partner_message = "<p>This booking is ESCALATED to 247around, we will look into this very soon.</p><br><b>Booking ID : </b>" . $booking_id . " Escalated <br><br><strong>Remarks : </strong>" . $remarks;
-                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $partner_mail_to, $partner_mail_cc, $bcc, $partner_subject, $partner_message, $attachment);
+                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $partner_mail_to, $partner_mail_cc, $bcc, $partner_subject, $partner_message, $attachment,BOOKING_ESCALATION);
 
                 log_message('info', __FUNCTION__ . " Escalation Mail Sent ");
 
@@ -1803,7 +1803,7 @@ class Partner extends CI_Controller {
                     $attachment = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/invoices-excel/" . $invoice_name;
                     $subject = vsprintf($template[4], $booking_id);
                     $emailBody = vsprintf($template[0], $this->input->post("invoice_amount"));
-                    $this->notify->sendEmail($template[2], $template[1], $template[3], '', $subject, $emailBody, $attachment);
+                    $this->notify->sendEmail($template[2], $template[1], $template[3], '', $subject, $emailBody, $attachment,'OOW_invoice_sent');
                 }
 
                 return true;
@@ -2415,7 +2415,7 @@ class Partner extends CI_Controller {
                                     $login_subject = $login_template[4];
                                     $login_emailBody = vsprintf($login_template[0], $login_email);
 
-                                    $this->notify->sendEmail($login_template[2], $data['email'], $cc, "",$login_subject, $login_emailBody, "");
+                                    $this->notify->sendEmail($login_template[2], $data['email'], $cc, "",$login_subject, $login_emailBody, "",'partner_login_details');
 
                                     log_message('info', $login_subject . " Email Send successfully" . $login_emailBody);
                                 } else {
@@ -2471,7 +2471,7 @@ class Partner extends CI_Controller {
                                     $login_subject = $login_template[4];
                                     $login_emailBody = vsprintf($login_template[0], $login_email);
 
-                                    $this->notify->sendEmail($login_template[2], $data['email'], $cc, "",$login_subject, $login_emailBody, "");
+                                    $this->notify->sendEmail($login_template[2], $data['email'], $cc, "",$login_subject, $login_emailBody, "",'partner_login_details');
 
                                     log_message('info', $login_subject . " Email Send successfully" . $login_emailBody);
                                 } else {
@@ -2760,7 +2760,7 @@ class Partner extends CI_Controller {
             $to = NITS_ANUJ_EMAIL_ID;
             $cc = "vijaya@247around.com, abhaya@247around.com";
             $message = "Partner try to approve Booking Id " . $booking_id . " but somehow it failed. <br/>Please check this booking.";
-            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, '', 'UpCountry Approval Failed', $message, '');
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, '', 'UpCountry Approval Failed', $message, '',PARTNER_APPROVAL_FAILED);
             $msg = "Your request has been submitted. We will fix it shortly.";
         }
 
@@ -2870,7 +2870,7 @@ class Partner extends CI_Controller {
             }
 
             //Notify
-            $this->notify->sendEmail(NOREPLY_EMAIL_ID, ANUJ_EMAIL_ID, '', '', 'Upcountry Bookings Cancelled', print_r($data, TRUE), '');
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, ANUJ_EMAIL_ID, '', '', 'Upcountry Bookings Cancelled', print_r($data, TRUE), '',UPCOUNTRY_BOOKING_CANCELLED);
         }
     }
 
@@ -2991,7 +2991,7 @@ class Partner extends CI_Controller {
                 $subject = $partner_data['public_name'] . "  : Partner Details Has been Updated";
                 $message = "Following details has been updated by partner: " . $this->session->userdata('partner_name');
                 $message .= "<br>" . $html;
-                $sendmail = $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, " ", " ", $subject, $message, "");
+                $sendmail = $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, " ", " ", $subject, $message, "",PARTNER_DETAILS_UPDATED);
 
                 if ($sendmail) {
                     log_message('info', __FUNCTION__ . 'Mail Send successfully');
@@ -3119,7 +3119,7 @@ class Partner extends CI_Controller {
                 $subject = $email_template[4];
                 $message = vsprintf($email_template[0], $html_table);
 
-                $sendmail = $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "");
+                $sendmail = $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "",'defective_parts_acknowledge_reminder');
 
                 if ($sendmail) {
                     log_message('info', __FUNCTION__ . 'Defective Spares Yet to be Acknowledged Mail has been sent to partner ' . $partner['public_name'] . ' successfully');
@@ -3175,7 +3175,7 @@ class Partner extends CI_Controller {
                 $subject = $email_template[4];
                 $message = vsprintf($email_template[0], $html_table);
 
-                $sendmail = $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "");
+                $sendmail = $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "",'auto_acknowledge_defective_parts');
 
                 if ($sendmail) {
                     log_message('info', __FUNCTION__ . 'Report Mail has been send to partner ' . $partner['public_name'] . ' successfully');

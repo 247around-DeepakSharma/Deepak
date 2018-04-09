@@ -86,7 +86,7 @@ class Email_attachment_parser extends CI_Controller {
                                     $msg = "Attachment Exist But File Not Found In the System for " . $val['subject'];
                                     $msg .= "<br><b>Search Condition </b> : " . $email_search_condition;
                                     $msg .= "<br><b>File Name </b> : " . $extract_file_name;
-                                    $this->notify->sendEmail(NOREPLY_EMAIL_ID, _247AROUND_SALES_EMAIL, DEVELOPER_EMAIL . "," . NITS_EMAIL_ID, "", $subject, $msg, "");
+                                    $this->notify->sendEmail(NOREPLY_EMAIL_ID, _247AROUND_SALES_EMAIL, DEVELOPER_EMAIL . "," . NITS_EMAIL_ID, "", $subject, $msg, "",ATTACHMENT_EXIST_FILE_NOT_FOUND_IN_SYSTEM);
                                 }
                             }
                         }
@@ -95,7 +95,7 @@ class Email_attachment_parser extends CI_Controller {
                         $subject = "Attachment Not Found for HOST:" . $val['host']." Subject: ".$val['subject'];
                         $msg = "Email attachment not found for the subject " . $val['subject']." Host: ".$val['host'];
                         $msg .= "<br><b>Search Condition: </b> " . $email_search_condition;
-                        $this->notify->sendEmail(NOREPLY_EMAIL_ID, _247AROUND_SALES_EMAIL, DEVELOPER_EMAIL . "," . NITS_EMAIL_ID, "", $subject, $msg, "");
+                        $this->notify->sendEmail(NOREPLY_EMAIL_ID, _247AROUND_SALES_EMAIL, DEVELOPER_EMAIL . "," . NITS_EMAIL_ID, "", $subject, $msg, "",ATTACHMENT_NOT_FOUND);
                     }
                 }
             } else {
@@ -109,7 +109,7 @@ class Email_attachment_parser extends CI_Controller {
             $msg = "There was some error in creating connection to email server for extracting the attachemnt from email.";
             $msg .= "<br><b>File Name: </b> " . __CLASS__;
             $msg .= "<br><b>Function Name: </b> " . __METHOD__;
-            $this->notify->sendEmail(NOREPLY_EMAIL_ID, DEVELOPER_EMAIL, '', "", $subject, $msg, "");
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, DEVELOPER_EMAIL, '', "", $subject, $msg, "",ERROR_IN_CREATING_EMAIL_CONNECTION);
         }
     }
 

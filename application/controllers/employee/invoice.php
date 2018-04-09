@@ -1710,7 +1710,7 @@ class Invoice extends CI_Controller {
         $email_from = $email_template[2];
         $to = $vendor_data[0]['primary_contact_email'] . ',' . $vendor_data[0]['owner_email'];
         
-        $send_mail = $this->notify->sendEmail($email_from, $to, $cc, '', $subject, $message, $output_file_excel);
+        $send_mail = $this->notify->sendEmail($email_from, $to, $cc, '', $subject, $message, $output_file_excel,BRACKETS_INVOICE_EMAIL_TAG);
 
         if ($send_mail) {
             log_message('info', __FUNCTION__ . "Bracket invoice sent...");
@@ -3083,7 +3083,7 @@ class Invoice extends CI_Controller {
         $output_file_excel = TMP_FOLDER.$invoice_id.'.xlsx';
         $output_file_pdf = 'https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/invoices-excel/'.$attachment;
         
-        $send_mail = $this->notify->sendEmail($email_from, $to, $cc, '', $subject, $message, $output_file_pdf);
+        $send_mail = $this->notify->sendEmail($email_from, $to, $cc, '', $subject, $message, $output_file_pdf,BRACKETS_CREDIT_NOTE_INVOICE_EMAIL_TAG);
         if ($send_mail) {
             exec("rm -rf " . escapeshellarg($output_file_excel));
             return TRUE;

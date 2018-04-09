@@ -89,7 +89,7 @@ class Upload_booking_file extends CI_Controller {
                     // SEND MAIl
                     $subject = $file_type . " data validated. File is under process";
                     $message = $this->file_name . " validation Pass. File is under process";
-                    $this->send_mail_column($subject, $message, TRUE);
+                    $this->send_mail_column($subject, $message, TRUE,FILE_VALIDATION_PASS);
                     foreach ($data as $value) {
                         log_message('info', __FUNCTION__ . " Data Found");
                         $this->FilesData = array();
@@ -617,7 +617,7 @@ class Upload_booking_file extends CI_Controller {
                 $subject = "Paytm Mall File Upload Failed. SKU NOT Found";
                 $message = $this->file_name . " is not uploaded Agent Name: " . $this->session->userdata('employee_id');
                 $message .= "<br/><br/>" . $this->table->generate($sku_invalid);
-                $this->send_mail_column($subject, $message, false);
+                $this->send_mail_column($subject, $message, false,PAYTM_MALL_FILE_FAILED);
             }
             return $Filedata;
         }
@@ -751,7 +751,7 @@ class Upload_booking_file extends CI_Controller {
 
                         $subject = "Delivery Date Column is not exist. SD Uploading Failed.";
                         $message = $this->file_name . " is not uploaded Agent Name: " . $this->session->userdata('employee_id');
-                        $this->send_mail_column($subject, $message, false);
+                        $this->send_mail_column($subject, $message, false,SNAPDEAL_FAILED_FILE);
                     }
                 } else {
                     log_message('info', __FUNCTION__ . "=> Phone Number empty...");
@@ -935,7 +935,7 @@ class Upload_booking_file extends CI_Controller {
             $subject = "Appliance Not Found. Please chaeck File";
             $message1 .= $this->table->generate();
 
-            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message1, "");
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message1, "",APPLIANCE_NOT_FOUND);
         }
         
         return $data1;
@@ -947,12 +947,12 @@ class Upload_booking_file extends CI_Controller {
      * @param String $message
      * @param boolean $validation
      */
-    function send_mail_column($subject, $message, $validation) {
+    function send_mail_column($subject, $message, $validation,$emailTag) {
         $to = NITS_ANUJ_EMAIL_ID . ", sales@247around.com, booking@247around.com";
         $from = NOREPLY_EMAIL_ID;
         $cc = "";
         $bcc = "";
-        $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "");
+        $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "",$emailTag);
         log_message('info', __FUNCTION__ . "=> Validation " . $validation . "  " . $message);
         if ($validation == false) {
             exit();
@@ -983,7 +983,7 @@ class Upload_booking_file extends CI_Controller {
 
         $html = $this->load->view('employee/invalid_data', $invalid_data_with_reason, TRUE);
         // echo $html = $this->load->view('employee/invalid_data',$invalid_data_with_reason);
-        $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $html, "");
+        $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $html, "",FILE_UPLOADED);
     }
 
     function validate_phone_number($phone_number) {

@@ -2128,7 +2128,7 @@ class Partner extends CI_Controller {
                 $message = $email_template[0];
                 $bcc = $email_template[5];
           
-                $this->notify->sendEmail($email_from, $email_id, "", $bcc, $subject, $message, $output_file_excel);
+                $this->notify->sendEmail($email_from, $email_id, "", $bcc, $subject, $message, $output_file_excel,'distance_pincode_api');
                 
                 log_message("info",__METHOD__." Mail Sent.. to ".$email_id);
             } else {
@@ -2138,7 +2138,7 @@ class Partner extends CI_Controller {
                 $email_from = $email_template[2];
                 $bcc = $email_template[5];
           
-                $this->notify->sendEmail($email_from, $email_id, "", $bcc, $subject, $message, "");
+                $this->notify->sendEmail($email_from, $email_id, "", $bcc, $subject, $message, "",'distance_pincode_api');
                 log_message("info",__METHOD__." Mail Not Sent.. to ");
             }
         } else {
@@ -2150,7 +2150,7 @@ class Partner extends CI_Controller {
             $bcc = $email_template[5];
            
             $message = "Invalid File Format";
-            $this->notify->sendEmail($email_from, $email_id, "", $bcc, $subject, $message, "");
+            $this->notify->sendEmail($email_from, $email_id, "", $bcc, $subject, $message, "",'distance_pincode_api');
         }
     }
     

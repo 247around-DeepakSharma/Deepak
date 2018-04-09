@@ -161,7 +161,7 @@ class Miscelleneous {
                     log_message('info', __METHOD__ . "=> Data is not inserted into service center "
                             . "action table booking_id: " . $booking_id . ", data: " . print_r($sc_data, true));
                     $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, DEVELOPER_EMAIL, "", "", 
-                            "BUG IN ASSIGN ". $booking_id, "SF Assigned but Action table not updated", "");
+                            "BUG IN ASSIGN ". $booking_id, "SF Assigned but Action table not updated", "",SF_ASSIGNED_ACTION_TABLE_NOT_UPDATED);
                     
                 }
                 if(!empty($vendor_data)){
@@ -175,7 +175,7 @@ class Miscelleneous {
                      $enID = $this->My_CI->engineer_model->insert_engineer_action($engineer_action);
                      if(!$enID){
                           $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, DEVELOPER_EMAIL, "", "", 
-                             "BUG in Enginner Table ". $booking_id, "SF Assigned but Action table not updated", "");
+                             "BUG in Enginner Table ". $booking_id, "SF Assigned but Action table not updated", "",SF_ASSIGNED_ACTION_TABLE_NOT_UPDATED);
                      }
                  }
                  
@@ -378,7 +378,7 @@ class Miscelleneous {
                         $this->My_CI->push_notification_lib->create_and_send_push_notiifcation(UPCOUNTRY_APPROVAL,$receiverArray,$notificationTextArray);
                         //End Push Notification
                         }
-                        $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message1, "");
+                        $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message1, "",UPCOUNTRY_APPROVAL_TAG);
 
                         $return_status = FALSE;
                     } else if ($data['partner_upcountry_approval'] == 0 && $data['message'] == UPCOUNTRY_LIMIT_EXCEED) {
@@ -392,7 +392,7 @@ class Miscelleneous {
                         $message1 = $booking_id . " has auto cancelled because upcountry limit exceed "
                                 . "and partner does not provide upcountry charges approval. Upcountry Distance " . $data['upcountry_distance'] .
                                 " Upcountry Pincode " . $data['upcountry_pincode'] . " SF Name " . $query1[0]['vendor_name'];
-                        $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", 'Upcountry Auto Cancel Booking', $message1, "");
+                        $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", 'Upcountry Auto Cancel Booking', $message1, "",BOOKING_CANCELLED_NO_UPCOUNTRY_APPROVAL);
 
                         $return_status = FALSE;
                     }
@@ -434,7 +434,7 @@ class Miscelleneous {
                 $to = NITS_ANUJ_EMAIL_ID . ", sales@247around.com , ". $rm_email;
                 $cc = "sachinj@247around.com, abhaya@247around.com";
                 $message1 = "Upcountry did not calculate for " . $booking_id;
-                $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", 'Upcountry Failed', $message1, "");
+                $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", 'Upcountry Failed', $message1, "",UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE);
 
                 $return_status = TRUE;
                 break;
@@ -713,7 +713,7 @@ class Miscelleneous {
                             $to = NITS_ANUJ_EMAIL_ID;
                             $message = $booking['booking_id'] . " BOOKING CITY " . $booking['city'] . " SF ID "
                                     . $data['vendor_id'] . " DISTRICT PINCODE " . $data['upcountry_pincode'];
-                            $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "");
+                            $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "",UPCOUNTRY_LIMIT_EXCEED);
 
                             return false;
                         }
@@ -727,7 +727,7 @@ class Miscelleneous {
                             $to = NITS_ANUJ_EMAIL_ID;
                             $message = $booking['booking_id'] . " BOOKING CITY " . $booking['city'] . " SF ID "
                                     . $data['vendor_id'] . " DISTRICT PINCODE " . $data['upcountry_pincode'];
-                            $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "");
+                            $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "",UPCOUNTRY_LIMIT_EXCEED);
                         }
                         return false;
                     }
@@ -894,7 +894,7 @@ class Miscelleneous {
 
                 $subject = "Stag01 Server Might Be Down";
                 $msg = "There are some issue while creating pdf for booking_id/invoice_id $id from stag01 server. Check the issue and fix it immediately";
-                $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $msg, $output_file_excel);
+                $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $msg, $output_file_excel,STAG_01_DOWN);
                 return $result;
             }
             
@@ -1312,7 +1312,7 @@ class Miscelleneous {
             $booking['partner_name'] = $tempPartner[0]['public_name'];
         }
         $message = $this->My_CI->load->view('employee/sf_not_found_email_template', $booking, true);
-        $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $rm_email, $cc, "", $subject, $message, "");
+        $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $rm_email, $cc, "", $subject, $message, "",SF_NOT_FOUND);
     }
 
     /*
@@ -2216,7 +2216,7 @@ class Miscelleneous {
                     $emailBody = vsprintf($template[0], $email);
                     $subject['booking_id'] = $escalation['booking_id'];
                     $subjectBody = vsprintf($template[4], $subject);
-                    $this->My_CI->notify->sendEmail($from, $return_mail_to, $template[3] . "," . $cc, '', $subjectBody, $emailBody, "");
+                    $this->My_CI->notify->sendEmail($from, $return_mail_to, $template[3] . "," . $cc, '', $subjectBody, $emailBody, "",'escalation_on_booking');
                     //Logging
                     log_message('info', " Escalation Mail Send successfully" . $emailBody);
                 } else {
@@ -2461,7 +2461,7 @@ function generate_image($base64, $image_name,$directory){
             $to = $email_template[1];
             $cc = $email_template[3];
 
-            $this->My_CI->notify->sendEmail($email_from, $to, $cc, "", $subject, $message);
+            $this->My_CI->notify->sendEmail($email_from, $to, $cc, "", $subject, $message,"",'google_short_url_generation_failed');
             return false;
         } else {
             return $json->id;
@@ -2504,7 +2504,7 @@ function convert_html_to_pdf($html,$booking_id,$filename,$s3_folder){
             $cc = DEVELOPER_EMAIL;
             $subject = "Job Card Not Generated";
             $msg = "There are some issue while creating pdf for booking_id/invoice_id $booking_id. Check the issue and fix it immediately";
-            $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $msg);
+            $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $msg,JOB_CARD_NOT_GENERATED);
             return json_encode($response_data);
         }
 }
