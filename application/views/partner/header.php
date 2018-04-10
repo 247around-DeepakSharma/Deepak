@@ -18,6 +18,7 @@
         <link href="<?php echo base_url() ?>css/bootstrap.min.css" rel="stylesheet">
         <!-- Font Awesome -->
         <link href="<?php echo base_url() ?>font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
         <!-- bootstrap-progressbar -->
         <link href="<?php echo base_url() ?>css/bootstrap-progressbar-3.3.4.min.css" rel="stylesheet">
         <!-- bootstrap-daterangepicker -->
@@ -286,7 +287,10 @@
                                         <li><a href="<?php echo base_url(); ?>partner/download_price_sheet">Price Sheet</a></li>
                                     </ul>
                                 </li>
-                                <li><a href="<?php echo base_url(); ?>employee/partner/get_contact_us_page" data-toggle="tooltip" data-placement="right" title="" data-original-title="Contact Us"><i class="fa fa-phone"></i><span class="side_menu_list_title">Contact Us</span></a></li>
+                                 <li><a href="<?php echo base_url(); ?>employee/partner/get_contracts" data-toggle="tooltip" data-placement="right" title="" data-original-title="Contracts">
+                                         <i class="fa fa-handshake-o"></i><span class="side_menu_list_title">Contracts</span></a></li>
+                                <li><a href="<?php echo base_url(); ?>employee/partner/get_contact_us_page" data-toggle="tooltip" data-placement="right" title="" data-original-title="Contact Us">
+                                        <i class="fa fa-phone"></i><span class="side_menu_list_title">Contact Us</span></a></li>
                             </ul>
                         </div>
                     </div>
