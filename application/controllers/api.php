@@ -1306,7 +1306,8 @@ class Api extends CI_Controller {
                     //Logging
                     log_message('info', __FUNCTION__ . ' Previous Phone has been updated in partner_missed_calls table with no: ' . $num);
                     //Adding details in Booking State Change
-                    $this->notify->insert_state_change("", _247AROUND_FOLLOWUP, _247AROUND_FOLLOWUP, "Lead Updated Phone: " . $num, _247AROUND_DEFAULT_AGENT, _247AROUND_DEFAULT_AGENT_NAME, _247AROUND);
+                    $this->notify->insert_state_change("", _247AROUND_FOLLOWUP, _247AROUND_FOLLOWUP, "Lead Updated Phone: " . $num, _247AROUND_DEFAULT_AGENT, 
+                            _247AROUND_DEFAULT_AGENT_NAME, ACTOR_FOLLOW_UP,NEXT_ACTION_FOLLOW_UP,_247AROUND);
                 } else {
                     //Logging
                     log_message('info', __FUNCTION__ . ' Error in adding Phone to partner_missed_calls details ' . $num);
@@ -1324,7 +1325,8 @@ class Api extends CI_Controller {
                     //Logging
                     log_message('info', __FUNCTION__ . ' New Entry for SAME PHONE has been added in partner_missed_calls table with no: ' . $num);
                     //Adding details in Booking State Change
-                    $this->notify->insert_state_change("", _247AROUND_FOLLOWUP, _247AROUND_NEW_PARTNER_LEAD, "Lead Added Phone: " . $num, _247AROUND_DEFAULT_AGENT, _247AROUND_DEFAULT_AGENT_NAME, _247AROUND);
+                    $this->notify->insert_state_change("", _247AROUND_FOLLOWUP, _247AROUND_NEW_PARTNER_LEAD, "Lead Added Phone: " . $num, _247AROUND_DEFAULT_AGENT,
+                            _247AROUND_DEFAULT_AGENT_NAME, ACTOR_FOLLOW_UP,NEXT_ACTION_FOLLOW_UP,_247AROUND);
                 } else {
                     //Logging
                     log_message('info', __FUNCTION__ . ' Error in adding Phone to partner_missed_calls details ' . $num);
@@ -1342,7 +1344,8 @@ class Api extends CI_Controller {
                     //Logging
                     log_message('info', __FUNCTION__ . ' New Phone has been added in partner_missed_calls table with no: ' . $num);
                     //Adding details in Booking State Change
-                    $this->notify->insert_state_change("", _247AROUND_FOLLOWUP, _247AROUND_NEW_PARTNER_LEAD, "Lead Added Phone: " . $num, _247AROUND_DEFAULT_AGENT, _247AROUND_DEFAULT_AGENT_NAME, _247AROUND);
+                    $this->notify->insert_state_change("", _247AROUND_FOLLOWUP, _247AROUND_NEW_PARTNER_LEAD, "Lead Added Phone: " . $num, _247AROUND_DEFAULT_AGENT, 
+                            _247AROUND_DEFAULT_AGENT_NAME,ACTOR_FOLLOW_UP,NEXT_ACTION_FOLLOW_UP, _247AROUND);
                 } else {
                     //Logging
                     log_message('info', __FUNCTION__ . ' Error in adding Phone to partner_missed_calls details ' . $num);
@@ -1404,8 +1407,7 @@ class Api extends CI_Controller {
                             $this->booking_model->update_booking_unit_details($b['booking_id'], $u);
                              $this->notify->insert_state_change($b['booking_id'], $b['current_status'], _247AROUND_FOLLOWUP, 
                                      "Booking Open After Customer Missed Call",_247AROUND_DEFAULT_AGENT, 
-                                     _247AROUND_DEFAULT_AGENT_NAME, _247AROUND);
-                    
+                                     _247AROUND_DEFAULT_AGENT_NAME,ACTOR_FOLLOW_UP,NEXT_ACTION_FOLLOW_UP, _247AROUND);
                         }
                     }
                 }
@@ -1954,6 +1956,8 @@ class Api extends CI_Controller {
                 if (!empty($partner_status)) {
                     $booking['partner_current_status'] = $partner_status[0];
                     $booking['partner_internal_status'] = $partner_status[1];
+                    $booking['actor'] = $partner_status[2];
+                    $booking['next_action'] = $partner_status[3];
                 }
 
                 //Save Booking
@@ -2222,7 +2226,7 @@ class Api extends CI_Controller {
 //        log_message('info', print_r($result, TRUE));
         $this->notify->insert_state_change($booking_id, "AndroidApp", _247AROUND_CANCELLED, $cancellation_reason, 
                                    _247AROUND_DEFAULT_AGENT, 
-                                    _247AROUND_DEFAULT_AGENT_NAME, _247AROUND);
+                                    _247AROUND_DEFAULT_AGENT_NAME,ACTOR_BOOKING_CANCELLED,NEXT_ACTION_CANCELLED_BOOKING, _247AROUND);
         
 
         //Send message to User
@@ -3081,9 +3085,17 @@ class Api extends CI_Controller {
             } else {
                 $this->engineer_model->insert_engineer_action_sign($en);
             }
-            
+            $actor = $next_action = 'not_define';
+            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($data["current_status"] , $data['internal_status'], "", $booking_id);
+            if (!empty($partner_status)) {
+                $booking['partner_current_status'] = $partner_status[0];
+                $booking['partner_internal_status'] = $partner_status[1];
+                $actor = $booking['actor'] = $partner_status[2];
+                $next_action = $booking['next_action'] = $partner_status[3];
+            }
+            $this->booking_model->update_booking($booking_id, $booking);
             $this->notify->insert_state_change($booking_id, ENGINEER_COMPLETE_STATUS, _247AROUND_PENDING, "Booking Updated By Engineer From App", 
-                    $requestData['sc_agent_id'], "", NULL, $requestData['service_center_id']);
+                    $requestData['sc_agent_id'], "", $actor,$next_action,NULL, $requestData['service_center_id']);
             
             $this->sendJsonResponse(array('0000', 'success'));
         } else {
@@ -3137,7 +3149,7 @@ class Api extends CI_Controller {
            
             $this->notify->insert_state_change($requestData["bookingID"], $requestData["cancellationReason"], _247AROUND_PENDING, 
                     "Booking Cancelled By Engineer From App", 
-                    $requestData['sc_agent_id'], "", NULL, $requestData['service_center_id']);
+                    $requestData['sc_agent_id'], "",ACTOR_BOOKING_CANCELLED,NEXT_ACTION_CANCELLED_BOOKING, NULL, $requestData['service_center_id']);
             
             $this->sendJsonResponse(array('0000', 'success'));
              
@@ -4300,7 +4312,7 @@ class Api extends CI_Controller {
         $this->sendBookingMailToUser($user_email, $subject, $message, "", FALSE);
        
         $this->notify->insert_state_change($booking_id, _247AROUND_RESCHEDULED, _247AROUND_PENDING, "Booking Rescheduled By Customer From App", 
-               _247AROUND_DEFAULT_AGENT, "247Around", _247AROUND);
+               _247AROUND_DEFAULT_AGENT, "247Around", ACTOR_RESCHEDULED_BY_CUSTOMER,RESCHEDULED_BY_CUSTOMER_NEXT_ACTION,_247AROUND);
     }
     
     /**

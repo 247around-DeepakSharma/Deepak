@@ -127,6 +127,8 @@ class Miscelleneous {
         if (!empty($partner_status)) {
             $b['partner_current_status'] = $partner_status[0];
             $b['partner_internal_status'] = $partner_status[1];
+            $b['actor'] = $partner_status[2];
+            $b['next_action'] = $partner_status[3];
         }
         //Assign service centre and engineer
         $assigned = $this->My_CI->vendor_model->assign_service_center_for_booking($booking_id, $b);
@@ -337,16 +339,18 @@ class Miscelleneous {
                         $booking['amount_due'] = $cus_net_payable;
                         $partner_status = $this->My_CI->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, UPCOUNTRY_BOOKING_NEED_TO_APPROVAL,
                                 $query1[0]['partner_id'], $booking_id);
+                        $actor = $next_action = 'not_define';
                         if (!empty($partner_status)) {
                             $booking['partner_current_status'] = $partner_status[0];
                             $booking['partner_internal_status'] = $partner_status[1];
+                            $actor = $booking['actor'] = $partner_status[2];
+                            $next_action = $booking['next_action'] = $partner_status[3];
                         }
 
                         $this->My_CI->booking_model->update_booking($booking_id, $booking);
                         $this->My_CI->service_centers_model->delete_booking_id($booking_id);
-
-                        $this->My_CI->notify->insert_state_change($booking_id, "Waiting Partner Approval", _247AROUND_PENDING, "Waiting Upcountry to Approval", $agent_id, $agent_name, _247AROUND);
-                        
+                        $this->My_CI->notify->insert_state_change($booking_id, "Waiting Partner Approval", _247AROUND_PENDING, "Waiting Upcountry to Approval", $agent_id, $agent_name, 
+                                $actor,$next_action,_247AROUND);
                         $up_mail_data['name'] = $query1[0]['name'];
                         $up_mail_data['appliance'] = $query1[0]['services'];
                         $up_mail_data['booking_address'] = $query1[0]['booking_address'];
@@ -455,9 +459,12 @@ class Miscelleneous {
         $data_vendor['cancellation_reason'] = $data['cancellation_reason'];
 
         $partner_status = $this->My_CI->booking_utilities->get_partner_status_mapping_data($data['current_status'], $data['internal_status'], $partner_id, $booking_id);
+        $actor = $next_action = 'not_define';
         if (!empty($partner_status)) {
             $data['partner_current_status'] = $partner_status[0];
             $data['partner_internal_status'] = $partner_status[1];
+            $actor = $data['actor'] = $partner_status[2];
+            $next_action = $data['next_action'] = $partner_status[3];
         }
 
 
@@ -484,7 +491,7 @@ class Miscelleneous {
 
         //Log this state change as well for this booking
         //param:-- booking id, new state, old state, employee id, employee name
-        $this->My_CI->notify->insert_state_change($booking_id, $data['current_status'], $status, $data['cancellation_reason'], $agent_id, $agent_name, _247AROUND);
+        $this->My_CI->notify->insert_state_change($booking_id, $data['current_status'], $status, $data['cancellation_reason'], $agent_id, $agent_name,$actor,$next_action, _247AROUND);
         // Not send Cancallation sms to customer for Query booking
         // this is used to send email or sms while booking cancelled
         $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
@@ -1744,27 +1751,27 @@ class Miscelleneous {
             }
             else{
             if (!empty($existBankDataArray)) {
-                //If yes then update that row
-                $agentID = $bankDetailsArray['agent_id'];
-                unset($bankDetailsArray['entity_id']);
-                unset($bankDetailsArray['agent_id']);
-                // check is there any new updation for bank table or not
-                $affectedRows = $this->My_CI->reusable_model->update_table('account_holders_bank_details', $bankDetailsArray, $where);
-                if ($affectedRows == 1) {
-                    //if yes then update table
-                    return $this->My_CI->reusable_model->update_table('account_holders_bank_details', array('agent_id' => $agentID), $where);
+                    //If yes then update that row
+                    $agentID = $bankDetailsArray['agent_id'];
+                    unset($bankDetailsArray['entity_id']);
+                    unset($bankDetailsArray['agent_id']);
+                    // check is there any new updation for bank table or not
+                    $affectedRows = $this->My_CI->reusable_model->update_table('account_holders_bank_details', $bankDetailsArray, $where);
+                    if ($affectedRows == 1) {
+                        //if yes then update table
+                        return $this->My_CI->reusable_model->update_table('account_holders_bank_details', array('agent_id' => $agentID), $where);
+                    } else {
+                        //if not then don't update the table
+                        return $affectedRows;
+                    }
                 } else {
-                    //if not then don't update the table
-                    return $affectedRows;
+                    // Else Insert new entry
+                    if (array_key_exists('bank_name', $bankDetailsArray) || array_key_exists('account_type', $bankDetailsArray) || array_key_exists('bank_account', $bankDetailsArray) || array_key_exists('ifsc_code', $bankDetailsArray) || array_key_exists('cancelled_cheque_file', $bankDetailsArray) || array_key_exists('beneficiary_name', $bankDetailsArray) || array_key_exists('beneficiary_name', $bankDetailsArray)) {
+                        return $affectedRows = $this->My_CI->reusable_model->insert_into_table('account_holders_bank_details', $bankDetailsArray);
+                    }
                 }
-            } else {
-                // Else Insert new entry
-                if (array_key_exists('bank_name', $bankDetailsArray) || array_key_exists('account_type', $bankDetailsArray) || array_key_exists('bank_account', $bankDetailsArray) || array_key_exists('ifsc_code', $bankDetailsArray) || array_key_exists('cancelled_cheque_file', $bankDetailsArray) || array_key_exists('beneficiary_name', $bankDetailsArray) || array_key_exists('beneficiary_name', $bankDetailsArray)) {
-                    return $affectedRows = $this->My_CI->reusable_model->insert_into_table('account_holders_bank_details', $bankDetailsArray);
-                }
-            }
+          }
         }
-    }
     }
 
     /**
@@ -2155,7 +2162,8 @@ class Miscelleneous {
              else{
                 $escalation_reason_final = $escalation_reason[0]['escalation_reason'];
               }
-            $this->My_CI->notify->insert_state_change($booking_id,"Fake_Reschedule","Pending",$escalation_reason_final,$id,$employeeID, _247AROUND);
+            $this->My_CI->notify->insert_state_change($booking_id,"Fake_Reschedule","Pending",$escalation_reason_final,$id,$employeeID,ACTOR_REJECT_RESCHEDULE_REQUEST,
+                    NEXT_ACTION_REJECT_RESCHEDULE_REQUEST, _247AROUND);
             return TRUE;
         }
         else{
@@ -2231,7 +2239,8 @@ class Miscelleneous {
                 else{
                     $escalation_reason_final = $escalation_reason[0]['escalation_reason'];
                 }
-                $this->My_CI->notify->insert_state_change($escalation['booking_id'],"Escalation","Pending",$escalation_reason_final,$id,$employeeID, _247AROUND);
+                $this->My_CI->notify->insert_state_change($escalation['booking_id'],"Escalation","Pending",$escalation_reason_final,$id,$employeeID,ACTOR_ESCALATION,NEXT_ACTION_ESCALATION
+                        , _247AROUND);
                 //Processing Penalty on Escalations
                 $value['booking_id'] = $escalation['booking_id'];
                 $value['assigned_vendor_id'] = $escalation['vendor_id'];
@@ -2317,9 +2326,12 @@ class Miscelleneous {
             $booking['reschedule_reason'] = $reschedule_reason[$booking_id];
             //check partner status from partner_booking_status_mapping table  
             $partner_status =$this->My_CI->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $partner_id, $booking_id);
+            $actor = $next_action = 'not_define';
             if (!empty($partner_status)) {
                 $booking['partner_current_status'] = $partner_status[0];
                 $booking['partner_internal_status'] = $partner_status[1];
+                $actor = $booking['actor'] = $partner_status[2];
+                $next_action = $booking['next_action'] = $partner_status[3];
             }
             log_message('info', __FUNCTION__ . " update booking: " . print_r($booking, true));
             $this->My_CI->booking_model->update_booking($booking_id, $booking);
@@ -2339,7 +2351,7 @@ class Miscelleneous {
             $this->My_CI->asynchronous_lib->do_background_process($url, $send);
             //Log this state change as well for this booking
             //param:-- booking id, new state, old state, employee id, employee name
-            $this->My_CI->notify->insert_state_change($booking_id, _247AROUND_RESCHEDULED, _247AROUND_PENDING, $booking['reschedule_reason'], $id,$employeeID, _247AROUND);          
+            $this->My_CI->notify->insert_state_change($booking_id, _247AROUND_RESCHEDULED, _247AROUND_PENDING, $booking['reschedule_reason'], $id,$employeeID, $actor,$next_action,_247AROUND);          
             log_message('info', __FUNCTION__ . " partner callback: " . print_r($booking_id, true));
             $this->My_CI->partner_cb->partner_callback($booking_id);
             log_message('info', 'Rescheduled- Booking id: ' . $booking_id . " Rescheduled By " . $employeeID . " data " . print_r($data, true));
@@ -2468,10 +2480,11 @@ function generate_image($base64, $image_name,$directory){
         }
     }
 function convert_html_to_pdf($html,$booking_id,$filename,$s3_folder){
+    log_message('info', __FUNCTION__ . " => Entering, Booking ID: " . $booking_id);
         require_once __DIR__ . '/pdf/vendor/autoload.php';
         $mpdf = new \Mpdf\Mpdf();
         $mpdf->WriteHTML($html);
-        $tempfilePath = TMP_FOLDER."/".$filename;
+        $tempfilePath = TMP_FOLDER.$filename;
         $mpdf->Output($tempfilePath,'F');
         if($mpdf){
         $is_file = $this->My_CI->s3->putObjectFile($tempfilePath, BITBUCKET_DIRECTORY, $s3_folder."/".$filename, S3::ACL_PUBLIC_READ);
