@@ -326,7 +326,7 @@ class paytm_payment_lib {
         $cc = QR_FAILURE_CC;
         $subject = "QR code not generated";
         $message = "response - ".print_r($outputArray);
-        $this->P_P->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
+        $this->P_P->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "",QR_NOT_GENERATED);
             log_message('error', __FUNCTION__ . "Function End With Failure ".print_r($outputArray,true));
               return array('is_success'=>0,'msg'=>QR_CODE_FAILURE,'data'=>array());
         }
@@ -397,7 +397,7 @@ class paytm_payment_lib {
         $subject = "New Transaction From Paytm For SF  '".$vendorArray[0]['name']."'";
         $message = "Hi,<br/> We got a new transaction from Paytm, Details are Below: <br/> BookingID - " .$booking_id.",  <br/> OrderID - ".$data['order_id'].",  <br/> Paid Amount - ".
                $data['paid_amount'].",  <br/> Service Center - ".$vendorArray[0]['name'];
-        $this->P_P->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
+        $this->P_P->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "",NEW_TRANSACTION_FROM_PAYTM);
         //End Send Email
         return $insertID;
     }
@@ -472,7 +472,7 @@ class paytm_payment_lib {
         $subject = "Cashback Processed For Amount '".$cashbackAmount."'";
         $message = "Hi,<br/> Cashback Has been Successfully send for below details: <br/> BookingID - " .$bookingID.", <br/> Cashback Amount - ".
               $cashbackAmount.",  <br/> Cashback Medium - ".$cashbackMedium.",  <br/> Agent ID - ".$agent;
-        $this->P_P->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
+        $this->P_P->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "",PAYTM_CASHBACK_PROCESSED);
         //End 
         //Send SMS to Customer
         $where['booking_id'] = $bookingID;
@@ -602,7 +602,7 @@ class paytm_payment_lib {
             $subject = "New Transaction From Paytm For SF  '".$vendorArray[0]['name']."'";
             $message = "Hi,<br/> We got a new transaction from Paytm, Details are Below: <br/> BookingID - " .$booking_id.",  <br/> OrderID - ".$data['order_id'].",  <br/> Paid Amount - ".
                    $data['paid_amount'].",  <br/> Service Center - ".$vendorArray[0]['name'];
-            $this->P_P->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
+            $this->P_P->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "",NEW_TRANSACTION_FROM_PAYTM);
             }
         }
         log_message('info', __FUNCTION__ . " Function End With  ".print_r($data,true));

@@ -70,7 +70,7 @@ class Around_scheduler extends CI_Controller {
                         . " " . $status['content'];
                 $to = ANUJ_EMAIL_ID;
 
-                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "");
+                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "",SMS_SENDING_FAILED);
             }
         }
         // Inserting values in scheduler tasks log
@@ -214,7 +214,8 @@ class Around_scheduler extends CI_Controller {
                 'internal_status' => 'Cancelled', 'cancellation_reason' => "Customer not reachable / Customer not picked phone"));
             $this->booking_model->update_booking_unit_details($value['booking_id'], array('booking_status' => 'Cancelled'));
 
-            $this->notify->insert_state_change($value['booking_id'], "Cancelled", "FollowUp", "Customer not reachable / Customer not picked phone", _247AROUND_DEFAULT_AGENT, _247AROUND_DEFAULT_AGENT_NAME, _247AROUND);
+            $this->notify->insert_state_change($value['booking_id'], "Cancelled", "FollowUp", "Customer not reachable / Customer not picked phone", _247AROUND_DEFAULT_AGENT, 
+                    _247AROUND_DEFAULT_AGENT_NAME, ACTOR_BOOKING_CANCELLED,NEXT_ACTION_CANCELLED_BOOKING,_247AROUND);
         }
         log_message('info', __METHOD__ . '=> Exit...');
     }
@@ -257,7 +258,8 @@ class Around_scheduler extends CI_Controller {
             $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
 
             //Log this state change as well for this booking
-            $this->notify->insert_state_change($booking_id, $data['current_status'], _247AROUND_FOLLOWUP, $data['cancellation_reason'], '1', '247around', _247AROUND);
+            $this->notify->insert_state_change($booking_id, $data['current_status'], _247AROUND_FOLLOWUP, $data['cancellation_reason'], '1', '247around', ACTOR_BOOKING_CANCELLED,
+                    NEXT_ACTION_CANCELLED_BOOKING,_247AROUND);
 
             echo $booking_id . ' Cancelled ................' . PHP_EOL;
         } else {
@@ -300,7 +302,8 @@ class Around_scheduler extends CI_Controller {
             $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
 
             //Log this state change as well for this booking
-            $this->notify->insert_state_change($booking_id, $data['current_status'], _247AROUND_FOLLOWUP, $data['cancellation_reason'], '1', '247around', _247AROUND);
+            $this->notify->insert_state_change($booking_id, $data['current_status'], _247AROUND_FOLLOWUP, $data['cancellation_reason'], '1', '247around',ACTOR_BOOKING_CANCELLED,
+                    NEXT_ACTION_CANCELLED_BOOKING, _247AROUND);
 
             echo 'Cancelled ................' . PHP_EOL;
         }
@@ -396,7 +399,7 @@ class Around_scheduler extends CI_Controller {
             //Sending Details in Mail
             $to = DEVELOPER_EMAIL;
             $subject = " ERROR IN CRON TASK EXECUTION " . date("d-M-Y");
-            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $html, "");
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $html, "",ERROR_IN_CRONE);
         }
     }
 
@@ -408,7 +411,7 @@ class Around_scheduler extends CI_Controller {
         $message = system('elinks -dump "https://push3.maccesssmspush.com/servlet/com.aclwireless.pushconnectivity.listeners.ConfigurationListener?action=prepaid&userid=blackmalt&pass=blackmalt67&appid=blackmalt&subappid=blackmalt"');
 
         $to = ANUJ_EMAIL_ID;
-        $this->notify->sendEmail(SYS_HEALTH_EMAIL, $to, "", "", $subject, $message, "");
+        $this->notify->sendEmail(SYS_HEALTH_EMAIL, $to, "", "", $subject, $message, "",ACL_BALANCE_CREDIT);
     }
 
     /**
@@ -609,7 +612,7 @@ class Around_scheduler extends CI_Controller {
         $message = "Dear Partner,<br/> Attached is the status of the last " . $hour . " hour <br/><br/><br/>";
         $message .= $this->table->generate();
 
-        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
+        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "",JEEVES_BOOKING_STATUS_UPDATE);
     }
 
     /**
@@ -670,7 +673,7 @@ class Around_scheduler extends CI_Controller {
 
             $bcc = $data['email'];
 
-            $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $body, "");
+            $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $body, "",'gst_notification');
         }
         if (!empty($data['id'])) {
             $idArray = explode(",", $data['id']);
@@ -698,7 +701,7 @@ class Around_scheduler extends CI_Controller {
                 $from = $template[2];
                 $cc = $template[3] . ',' . $rm_mail;
                 $subject = vsprintf($template[4], $val['name']);
-                $this->notify->sendEmail($from, $to, $cc, '', $subject, $body, "");
+                $this->notify->sendEmail($from, $to, $cc, '', $subject, $body, "",'pan_notification');
             }
         }
         if (!empty($idArray)) {
@@ -737,7 +740,7 @@ class Around_scheduler extends CI_Controller {
                 $from = $template[2];
                 $cc = $template[3] . ',' . $rm_mail;
                 $subject = vsprintf($template[4], $val['name']);
-                $this->notify->sendEmail($from, $to, $cc, '', $subject, $body, "");
+                $this->notify->sendEmail($from, $to, $cc, '', $subject, $body, "",'bank_details_notification');
             }
         }
         if (!empty($idArray)) {
@@ -775,7 +778,7 @@ class Around_scheduler extends CI_Controller {
             $from = $template[2];
             $subject = $template[4];
 
-            $this->notify->sendEmail($from, $to, '', '', $subject, $body, "");
+            $this->notify->sendEmail($from, $to, '', '', $subject, $body, "",'bank_details_not_verified_notification');
         }
     }
 
@@ -873,7 +876,7 @@ class Around_scheduler extends CI_Controller {
             $subject = $email_template[4];
             $message = vsprintf($email_template[0], $html_table);
 
-            $sendmail = $this->notify->sendEmail($email_template[2], $to, '', "", $subject, $message, "");
+            $sendmail = $this->notify->sendEmail($email_template[2], $to, '', "", $subject, $message, "",'non_verified_appliance_mail');
             if ($sendmail) {
                 log_message('info', __FUNCTION__ . ' Report Mail has been send successfully');
             } else {
@@ -905,7 +908,7 @@ class Around_scheduler extends CI_Controller {
             $subject = $email_template[4];
             $message = vsprintf($email_template[0], $html_table);
 
-            $sendmail = $this->notify->sendEmail($email_template[2], $to, "", "", $subject, $message, "");
+            $sendmail = $this->notify->sendEmail($email_template[2], $to, "", "", $subject, $message, "",'partner_contract_expiry_reminder');
 
             if ($sendmail) {
                 log_message('info', __FUNCTION__ . 'Report Mail has been send successfully');
@@ -962,7 +965,7 @@ class Around_scheduler extends CI_Controller {
                 $this->notify->send_sms_msg91($sms);
                 log_message("info", __METHOD__ . " SMS Sent Active Prepaid Partner ID" . $value['id']);
                 //Send tempalte
-                $sendmail = $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "");
+                $sendmail = $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "",'negative_prepaid_balance');
                 if ($sendmail) {
                     log_message('info', __METHOD__ . 'Mail has been send successfully. Partner id => ' . $value['id']);
                 } else {
@@ -1259,7 +1262,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                 $cc = $template[3] . ", " . $rm_details[0]['official_email'];
                 $subject = vsprintf($template[4], $value['name']);
 
-                $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $body, "");
+                $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $body, "",'notification_to_send_defective_parts');
                 log_message("info", __METHOD__ . " " . $value['name'] . " Email Sent");
                 //Send Push Notification
                 $receiverArray['vendor'] = array($value['id']);
@@ -1353,7 +1356,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                 $cc = $template[3];
                 $subject = $template[4];
 
-                $this->notify->sendEmail($from, $to, $cc, "", $subject, $body, "");
+                $this->notify->sendEmail($from, $to, $cc, "", $subject, $body, "",'get_unread_email_template');
             }
         } else {
             log_message('info', __METHOD__ . "Error in creating email connection");
@@ -1361,7 +1364,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
             $msg = "There was some error in creating connection to email server to get the details of unread emails";
             $msg .= "<br><b>File Name: </b> " . __CLASS__;
             $msg .= "<br><b>Function Name: </b> " . __METHOD__;
-            $this->notify->sendEmail(NOREPLY_EMAIL_ID, DEVELOPER_EMAIL, '', "", $subject, $msg, "");
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, DEVELOPER_EMAIL, '', "", $subject, $msg, "",ERROR_IN_CREATING_EMAIL_CONNECTION);
         }
 
         //close email connection
@@ -1392,8 +1395,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                 $sf_cc = $sf_template[3];
                 $sf_bcc = $data[0]['name'];
                 $sf_subject = $sf_template[4];
-                $this->notify->sendEmail($sf_from, $sf_to, $sf_cc, $sf_bcc, $sf_subject, $sf_body, "");
-
+                $this->notify->sendEmail($sf_from, $sf_to, $sf_cc, $sf_bcc, $sf_subject, $sf_body, "",'sf_signature_notification');
                 //send sf_list to rm
                 $template1 = array(
                     'table_open' => '<table border="1" cellpadding="2" cellspacing="0" class="mytable">'
@@ -1413,10 +1415,10 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                 $rm_from = $rm_template[2];
                 $rm_cc = $rm_template[3];
                 $rm_subject = $rm_template[4];
-                $this->notify->sendEmail($rm_from, $rm_to, $rm_cc, '', $rm_subject, $rm_body, "");
-            } else {
-                log_message("info", __METHOD__ . " No Data Found For RM " . $rm['full_name']);
-            }
+                $this->notify->sendEmail($rm_from, $rm_to, $rm_cc, '', $rm_subject, $rm_body, "",'sf_signature_notification_for_rm');
+            }else{
+                log_message("info",__METHOD__." No Data Found For RM ".$rm['full_name']);
+            } 
         }
     }
 
@@ -1443,8 +1445,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                 $sf_cc = $sf_template[3];
                 $sf_bcc = $data[0]['name'];
                 $sf_subject = $sf_template[4];
-                $this->notify->sendEmail($sf_from, $sf_to, $sf_cc, $sf_bcc, $sf_subject, $sf_body, "");
-
+                $this->notify->sendEmail($sf_from, $sf_to, $sf_cc, $sf_bcc, $sf_subject, $sf_body, "",'gst_notification');
                 //send sf_list to rm
                 $template1 = array(
                     'table_open' => '<table border="1" cellpadding="2" cellspacing="0" class="mytable">'
@@ -1464,9 +1465,9 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                 $rm_from = $rm_template[2];
                 $rm_cc = $rm_template[3];
                 $rm_subject = $rm_template[4];
-                $this->notify->sendEmail($rm_from, $rm_to, $rm_cc, '', $rm_subject, $rm_body, "");
-            } else {
-                log_message("info", __METHOD__ . " No Data Found For RM " . $rm['full_name']);
+                $this->notify->sendEmail($rm_from, $rm_to, $rm_cc, '', $rm_subject, $rm_body, "",'sf_gst_notification_for_rm');
+            }else{
+                log_message("info",__METHOD__." No Data Found For RM ".$rm['full_name']);
             }
         }
     }

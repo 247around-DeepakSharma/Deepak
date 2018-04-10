@@ -141,7 +141,7 @@ class Upload_buyback_process extends CI_Controller {
             $message .= "Please check below orders, these were not assigned: <br/><br/><br/>";
             $message .= $this->table->generate();
             
-            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "",BUY_BACK_ORDER_TAG);
 
             $this->miscelleneous->update_file_uploads($order_file, $_FILES['file']['tmp_name'],_247AROUND_BB_ORDER_LIST,FILE_UPLOAD_SUCCESS_STATUS,$email_message_id);
             $response = array("code" => 247, "msg" => "File sucessfully processed.");
@@ -376,7 +376,7 @@ class Upload_buyback_process extends CI_Controller {
             $cc = NITS_EMAIL_ID;
             $agent_name = !empty($this->session->userdata('emp_name'))?$this->session->userdata('emp_name'):_247AROUND_DEFAULT_AGENT_NAME;
             $subject = "Failure! Buyback Order is uploaded by " .$agent_name ;
-            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "",BUY_BACK_ORDER_FAILURE);
             return false;
         } else {
             return true;
@@ -691,7 +691,7 @@ class Upload_buyback_process extends CI_Controller {
             $to = $this->session->userdata('official_email');
             $cc = DEVELOPER_EMAIL;
             $subject = "Failed!!! Buyabck Price Sheet File uploaded by " . $this->session->userdata('emp_name');
-            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "",BUY_BACK_PRICE_SHEET_FAILURE);
             return false;
         } else {
             return true;
@@ -742,7 +742,7 @@ class Upload_buyback_process extends CI_Controller {
                 $subject = $template[4];
                 $attachment = $response;
                 
-                $sendmail = $this->notify->sendEmail($from, $to, $cc, "", $subject, $body, $attachment);
+                $sendmail = $this->notify->sendEmail($from, $to, $cc, "", $subject, $body, $attachment,'buyback_price_sheet_with_quote');
                 
                 //check if this file is uploaded by email
                 $email_message_id = !($this->input->post('email_message_id') === NULL)?$this->input->post('email_message_id'):'';

@@ -247,7 +247,6 @@ class Do_background_process extends CI_Controller {
             $booking['closing_remarks'] = $service_center['closing_remarks'];
             $booking['customer_paid_upcountry_charges'] = $upcountry_charges;
             $booking['update_date'] = date('Y-m-d H:i:s');
-
             //update booking_details table
             log_message('info', ": " . " update booking details data (" . $current_status . ")" . print_r($booking, TRUE));
 
@@ -257,10 +256,13 @@ class Do_background_process extends CI_Controller {
             }
 
             //check partner status from partner_booking_status_mapping table  
+            $actor = $next_action = 'not_define';
             $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $partner_id, $booking_id);
             if (!empty($partner_status)) {
                 $booking['partner_current_status'] = $partner_status[0];
                 $booking['partner_internal_status'] = $partner_status[1];
+                $actor = $booking['actor'] = $partner_status[2];
+                $next_action = $booking['next_action'] = $partner_status[3];
             }
 
             $this->booking_model->update_booking($booking_id, $booking);
@@ -272,7 +274,7 @@ class Do_background_process extends CI_Controller {
             }
 
             //Log this state change as well for this booking
-            $this->notify->insert_state_change($booking_id, $current_status, _247AROUND_PENDING, $booking['closing_remarks'], $agent_id, $agent_name, _247AROUND);
+           $this->notify->insert_state_change($booking_id, $current_status, _247AROUND_PENDING, $booking['closing_remarks'], $agent_id, $agent_name, $actor,$next_action,_247AROUND);
             
             $this->notify->send_sms_email_for_booking($booking_id, $current_status);
 
@@ -382,7 +384,7 @@ class Do_background_process extends CI_Controller {
        $bcc = implode(",",$bccTempArray);
        log_message('info', __FUNCTION__ . 'BCC '.print_r($bcc,true));
        log_message('info', __FUNCTION__ . 'Body '.print_r($body,true));
-       $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $body, "");
+       $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $body, "",'partner_information_to_sf');
        log_message('info', __FUNCTION__ . ' Function End');
 }
 

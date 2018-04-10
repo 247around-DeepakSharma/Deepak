@@ -333,7 +333,7 @@ class Service_centers extends CI_Controller {
             $this->push_notification_lib->create_and_send_push_notiifcation(CUSTOMER_UPDATE_BOOKING_PUSH_NOTIFICATION_EMPLOYEE_TAG,$clouserAccountArray,$textArray);
             //End Push Notification
             // Insert data into booking state change
-            $this->insert_details_in_state_change($booking_id, 'InProcess_Completed', $closing_remarks);
+            $this->insert_details_in_state_change($booking_id, 'InProcess_Completed', $closing_remarks,"not_define","not_define");
             $partner_id = $this->input->post("partner_id");
             if($is_update_spare_parts){
                 foreach ($sp_required_id as $sp_id) {
@@ -442,7 +442,7 @@ class Service_centers extends CI_Controller {
 
                     $this->vendor_model->update_service_center_action($booking_id, $data);
                     $this->update_booking_internal_status($booking_id, "InProcess_Cancelled",  $partner_id);
-                    $this->insert_details_in_state_change($booking_id, 'InProcess_Cancelled', $can_state_change);
+                    $this->insert_details_in_state_change($booking_id, 'InProcess_Cancelled', $can_state_change,"not_define","not_define");
                     redirect(base_url() . "service_center/pending_booking");
                     break;
             }
@@ -464,10 +464,13 @@ class Service_centers extends CI_Controller {
         $booking['booking_date'] = date('d-m-Y');
         
         //Get Partner 
+        $actor = $next_action = 'not_define';
         $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'],$partner_id, $booking['booking_id']);
         if(!empty($partner_status)){
             $booking['partner_current_status'] = $partner_status[0];
             $booking['partner_internal_status'] = $partner_status[1];
+            $actor = $booking['actor'] = $partner_status[2];
+            $next_action = $booking['next_action'] = $partner_status[3];
         }                
         //Update Booking unit details
         $this->booking_model->update_booking($booking_id, $booking);
@@ -479,7 +482,7 @@ class Service_centers extends CI_Controller {
         // Delete booking from sc action table
         $this->service_centers_model->delete_booking_id($booking_id);
         //Insert Data into Booking state change
-        $this->insert_details_in_state_change($booking_id, PRODUCT_NOT_DELIVERED_TO_CUSTOMER, "Convert Booking to Query");
+        $this->insert_details_in_state_change($booking_id, PRODUCT_NOT_DELIVERED_TO_CUSTOMER, "Convert Booking to Query",$actor,$next_action);
         $this->partner_cb->partner_callback($booking_id);
         
         redirect(base_url() . "service_center/pending_booking");  
@@ -661,7 +664,7 @@ class Service_centers extends CI_Controller {
             $data['reschedule_request_date'] = date("Y-m-d H:i:s");
             $this->vendor_model->update_service_center_action($booking_id, $data);
             $this->send_reschedule_confirmation_sms($booking_id);
-            $this->insert_details_in_state_change($booking_id, "InProcess_Rescheduled", $data['reschedule_reason']);
+            $this->insert_details_in_state_change($booking_id, "InProcess_Rescheduled", $data['reschedule_reason'],"not_define","not_define");
             $partner_id = $this->input->post("partner_id");
             $this->update_booking_internal_status($booking_id, $reason,  $partner_id);
             $userSession = array('success' => 'Booking Updated');
@@ -677,7 +680,7 @@ class Service_centers extends CI_Controller {
      * @param String $new_state
      * @param String $remarks
      */
-    function insert_details_in_state_change($booking_id, $new_state, $remarks){
+    function insert_details_in_state_change($booking_id, $new_state, $remarks,$actor,$next_action){
         log_message('info', __FUNCTION__ ." SF ID: ".  $this->session->userdata('service_center_id'). " Booking ID: ". $booking_id. ' new_state: '.$new_state.' remarks: '.$remarks);
            //Save state change
             
@@ -685,7 +688,7 @@ class Service_centers extends CI_Controller {
             $agent_name = $this->session->userdata('service_center_name');
             $service_center_id =$this->session->userdata('service_center_id');
             
-            $this->notify->insert_state_change($booking_id, $new_state, "", $remarks, $agent_id, $agent_name, NULL, $service_center_id);
+            $this->notify->insert_state_change($booking_id, $new_state, "", $remarks, $agent_id, $agent_name,$actor,$next_action, NULL, $service_center_id);
             
     }
     /**
@@ -749,7 +752,7 @@ class Service_centers extends CI_Controller {
                     // Insert data into Assigned Engineer Table
                     $inserted_id = $this->vendor_model->insert_assigned_engineer($assigned);
                     if ($inserted_id) {
-                        $this->insert_details_in_state_change($booking_id, $assigned['current_state'], "Engineer Id: " . $engineer_id);
+                        $this->insert_details_in_state_change($booking_id, $assigned['current_state'], "Engineer Id: " . $engineer_id,"not_define","not_define");
 
                     } else { // if ($inserted_id) {
                         log_message('info', '=> Engineer details is not inserted into Assigned Engineer table: '
@@ -907,7 +910,7 @@ class Service_centers extends CI_Controller {
                             $bcc = "";
                             $subject = "Auto Cancelled Booking - 3rd Day Customer Not Reachable.";
                             $message = "Auto Cancelled Booking " . $booking_id;
-                            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "");
+                            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "",AUTO_CANCELLED_BOOKING);
                         } else {
                             $this->default_update(true, true);
                         }
@@ -933,11 +936,12 @@ class Service_centers extends CI_Controller {
     function update_booking_internal_status($booking_id, $internal_status, $partner_id){
        
         $booking['internal_status'] = $internal_status;
-        
         $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $booking_id);
         if (!empty($partner_status)) {
             $booking['partner_current_status'] = $partner_status[0];
             $booking['partner_internal_status'] = $partner_status[1];
+            $booking['actor'] = $partner_status[2];
+            $booking['next_action'] = $partner_status[3];
         }
         $this->booking_model->update_booking($booking_id, $booking);
     }
@@ -958,7 +962,7 @@ class Service_centers extends CI_Controller {
         $this->service_centers_model->update_service_centers_action_table($booking_id, $sc_data);
         if($state_change){
             // Insert data into state change
-            $this->insert_details_in_state_change($booking_id, $sc_data['internal_status'], $sc_data['service_center_remarks'] );
+            $this->insert_details_in_state_change($booking_id, $sc_data['internal_status'], $sc_data['service_center_remarks'],"not_define","not_define");
             // Send sms to customer while customer not reachable
             if($sc_data['internal_status'] == CUSTOMER_NOT_REACHABLE){
                 log_message('info', __FUNCTION__." Send Sms to customer => Customer not reachable");
@@ -1070,7 +1074,7 @@ class Service_centers extends CI_Controller {
             $status_spare = $this->service_centers_model->insert_data_into_spare_parts($data);
             if ($status_spare) {
 
-                $this->insert_details_in_state_change($booking_id, $reason, $data['remarks_by_sc']);
+                $this->insert_details_in_state_change($booking_id, $reason, $data['remarks_by_sc'],"not_define","not_define");
 
                 $sc_data['current_status'] = "InProcess";
                 
@@ -1146,11 +1150,16 @@ class Service_centers extends CI_Controller {
                 $booking['internal_status'] = SPARE_PARTS_DELIVERED;
         
                 $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, SPARE_PARTS_DELIVERED, $partner_id, $booking_id);
+                $actor = $next_action ='not_define';
                 if (!empty($partner_status)) {
                     $booking['partner_current_status'] = $partner_status[0];
                     $booking['partner_internal_status'] = $partner_status[1];
+                    $actor = $booking['actor'] = $partner_status[2];
+                    $next_action = $booking['next_action'] = $partner_status[3];
                 }
                 $b_status = $this->booking_model->update_booking($booking_id, $booking);
+                $state_change['actor'] = $actor;
+                $state_change['next_action'] = $next_action;
                 if ($b_status) {
                     $state_change['booking_id'] = $booking_id;
                     $state_change['new_state'] =  SPARE_PARTS_DELIVERED;
@@ -1532,7 +1541,7 @@ class Service_centers extends CI_Controller {
                     $k++;
                 }
 
-                $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_SHIPPED, $data['remarks_defective_part_by_sf']);
+                $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_SHIPPED, $data['remarks_defective_part_by_sf'],"not_define","not_define");
                 $sc_data['current_status'] = "InProcess";
                 $sc_data['update_date'] = date('Y-m-d H:i:s');
                 $sc_data['internal_status'] = DEFECTIVE_PARTS_SHIPPED;
@@ -1550,7 +1559,7 @@ class Service_centers extends CI_Controller {
                 $message .= "Courier Charge ".$this->input->post('courier_charges_by_sf')."<br/>";
                 $message .= "Shipped Date ".$data['defective_part_shipped_date']."<br/>";
                 $attachment = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$defective_courier_receipt;
-                $this->notify->sendEmail($from, $to, $cc, "", $subject, $message, $attachment);
+                $this->notify->sendEmail($from, $to, $cc, "", $subject, $message, $attachment,COURIER_DETAILS);
                 $userSession = array('success' => 'Parts Updated.');
 
                 $this->session->set_userdata($userSession);
@@ -1736,7 +1745,7 @@ class Service_centers extends CI_Controller {
             log_message('info',__FUNCTION__.' Brackets Shipped has been updated '. print_r($data, TRUE));
             
             //Adding value in Booking State Change
-            $this->insert_details_in_state_change($order_id, "Brackets_Shipped", "Brackets Shipped");    
+            $this->insert_details_in_state_change($order_id, "Brackets_Shipped", "Brackets Shipped","not_define","not_define");    
             //$this->notify->insert_state_change($order_id, _247AROUND_BRACKETS_SHIPPED, _247AROUND_BRACKETS_PENDING, "Brackets Shipped", $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
             //Logging Success
             log_message('info', __FUNCTION__ . ' Brackets Pending - Shipped state have been added in Booking State Change ');
@@ -1756,7 +1765,7 @@ class Service_centers extends CI_Controller {
                         $email['order_id'] = $order_id;
                         $subject = vsprintf($template[4], $order_received_from_email[0]['company_name']);
                         $emailBody = vsprintf($template[0], $email);
-                        $this->notify->sendEmail($template[2], $to , $template[3].','.$this->get_rm_email($order_received_from), '', $subject , $emailBody, $attachment);
+                        $this->notify->sendEmail($template[2], $to , $template[3].','.$this->get_rm_email($order_received_from), '', $subject , $emailBody, $attachment,'brackets_shipment_mail');
                    }
             //2. Sending mail to order_given_to vendor
             $order_given_to_email_to = $this->vendor_model->getVendorContact($order_given_to);
@@ -1771,7 +1780,7 @@ class Service_centers extends CI_Controller {
                         $subject = vsprintf($template1[4], $order_received_from_email[0]['company_name']);
                         $emailBody = vsprintf($template1[0], $order_given_to_email);
                         
-                        $this->notify->sendEmail($template1[2], $to , $template1[3].','.$this->get_rm_email($order_given_to), '', $subject , $emailBody, '');
+                        $this->notify->sendEmail($template1[2], $to , $template1[3].','.$this->get_rm_email($order_given_to), '', $subject , $emailBody, '','brackets_shipment_mail_to_order_given_to');
                    
                         //Loggin send mail success
                         log_message('info',__FUNCTION__.' Shipped mail has been sent to order_given_to vendor '. $emailBody);
@@ -2292,7 +2301,7 @@ class Service_centers extends CI_Controller {
                 $message = "";
                 $message .= $this->table->generate();
 
-                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
+                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "",GST_FORM_UPDATED);
 
                 redirect(base_url() . "service_center/gst_details");
             }
@@ -2968,7 +2977,7 @@ class Service_centers extends CI_Controller {
                 // UPDATE Spare Parts
                 $this->service_centers_model->update_spare_parts(array('id' => $sp_data[0]->id), array("status" => SPARE_PARTS_REQUESTED, 'date_of_request' => date('Y-m-d')));
 
-                $this->insert_details_in_state_change($booking_id, SPARE_PARTS_REQUESTED, ESTIMATE_APPROVED_BY_CUSTOMER);
+                $this->insert_details_in_state_change($booking_id, SPARE_PARTS_REQUESTED, ESTIMATE_APPROVED_BY_CUSTOMER,"not_define","not_define");
                 $partner_id = $this->input->post("partner_id");
                 $this->update_booking_internal_status($booking_id, ESTIMATE_APPROVED_BY_CUSTOMER,  $partner_id);
                 
