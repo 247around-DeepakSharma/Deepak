@@ -3299,5 +3299,10 @@ class Invoice extends CI_Controller {
             echo "Please Enter All Field";
         }
     }
+    
+    function customer_invoice(){
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/customer_invoice_details');
+    }
 
 }

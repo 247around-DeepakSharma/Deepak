@@ -558,5 +558,7 @@ define('JEEVES_CALLCENTER_NUMBER',180042525252);
 //jeeves websitelink
 define('JEEVES_WEBSITE','www.jeeves.co.in');
 
+define('CUSTOMER_INVOICE_TAG','CUSTOMER_INVOICE_TAG');
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
