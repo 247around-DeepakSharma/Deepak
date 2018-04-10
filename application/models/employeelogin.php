@@ -16,7 +16,7 @@ class Employeelogin extends CI_Model{
       *  @retun: array(result)
       */
       function login($employee_id,$employee_password) {
-        $sql = "SELECT * FROM employee WHERE employee_id = '$employee_id' AND employee_password = '$employee_password'"; 
+        $sql = "SELECT * FROM employee WHERE employee_id = '$employee_id' AND employee_password = '$employee_password' AND active = 1"; 
         $data = $this->db->query($sql);     
         return $data->result_array();
       }
