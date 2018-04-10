@@ -1356,18 +1356,17 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $this->missing_pincode_group_by_view_helper($finalPincodeArray,'district_appliance','District','services');
     }
     function get_missing_pincode_data_group_by_partner($agentID){
-        $select = "partners.public_name,COUNT(sf.pincode) as pincodeCount,services.services,sf.pincode";
+        $select = "partners.public_name,COUNT(sf.pincode) as pincodeCount,sf.district,sf.pincode";
         $where['sf.rm_id'] = $agentID;
         $where['sf.active_flag'] = 1;
         $where['sf.is_pincode_valid'] = 1;
         $orderBYArray['pincodeCount'] = 'DESC';
-        $groupBY = array('partners.public_name','services.services','sf.pincode');
-        $join['services']  = 'sf.service_id=services.id';
+        $groupBY = array('partners.public_name','sf.district','sf.pincode');
         $join['partners']  = 'sf.partner_id=partners.id';
         $JoinTypeTableArray['services'] = 'left';
         $dataArray = $this->reusable_model->get_search_result_data("sf_not_exist_booking_details sf",$select,$where,$join,NULL,$orderBYArray,NULL,$JoinTypeTableArray,$groupBY);
-        $finalPincodeArray = $this->missing_pincode_group_by_data_helper($dataArray,'public_name','services');
-        $this->missing_pincode_group_by_view_helper($finalPincodeArray,'partner_appliance','Partner','services');
+        $finalPincodeArray = $this->missing_pincode_group_by_data_helper($dataArray,'public_name','district');
+        $this->missing_pincode_group_by_view_helper($finalPincodeArray,'partner_appliance','Partner','district');
     }
     function get_missing_pincode_data_group_by_appliance($agentID){
         $select = "COUNT(sf.pincode) as pincodeCount,services.services,sf.district,sf.pincode";
