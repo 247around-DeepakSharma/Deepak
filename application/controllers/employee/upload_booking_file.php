@@ -142,7 +142,8 @@ class Upload_booking_file extends CI_Controller {
                                     }
                                     $count_booking_inserted++;
                                     $this->insert_booking_in_partner_leads($this->FilesData);
-                                    $this->notify->insert_state_change($this->FilesData['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY, '', _247AROUND_DEFAULT_AGENT, _247AROUND_DEFAULT_AGENT_NAME, _247AROUND);
+                                    $this->notify->insert_state_change($this->FilesData['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY, '', _247AROUND_DEFAULT_AGENT, 
+                                            _247AROUND_DEFAULT_AGENT_NAME, ACTOR_FILE_UPLOAD_BOOKING_CREATE,NEXT_ACTION_FILE_UPLOAD_BOOKING_CREATE,_247AROUND);
                                 } else {
                                     log_message('info', __FUNCTION__ . ' => ERROR: UNIT is not inserted: ' .
                                             print_r($this->FilesData, true));
@@ -407,6 +408,8 @@ class Upload_booking_file extends CI_Controller {
         if (!empty($partner_status)) {
             $booking['partner_current_status'] = $partner_status[0];
             $booking['partner_internal_status'] = $partner_status[1];
+            $booking['actor'] = $partner_status[2];
+            $booking['next_action'] = $partner_status[3];
         }
 
         $booking_details_id = $this->booking_model->addbooking($booking);

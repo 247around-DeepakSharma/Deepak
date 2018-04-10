@@ -326,10 +326,13 @@ class Partner extends CI_Controller {
                                 }
                                 
                                 //check partner status from partner_booking_status_mapping table 
+                                $actor = $next_action = 'not_define';
                                 $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $booking['partner_id'], $booking['booking_id']);
                                 if (!empty($partner_status)) {
                                     $booking['partner_current_status'] = $partner_status[0];
                                     $booking['partner_internal_status'] = $partner_status[1];
+                                    $actor = $booking['actor'] = $partner_status[1];
+                                    $next_action = $booking['next_action'] = $partner_status[1];
                                 }
 
                                 //Insert query
@@ -348,7 +351,8 @@ class Partner extends CI_Controller {
 
                                 $p_login_details = $this->dealer_model->entity_login(array('entity_id' => $this->partner['id'], "user_id" => strtolower($booking['partner_source'])));
 
-                                $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY, $booking['query_remarks'], $p_login_details[0]['agent_id'], $requestData['partnerName'], $this->partner['id']);
+                                $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY, $booking['query_remarks'], $p_login_details[0]['agent_id'], 
+                                        $requestData['partnerName'],$actor,$next_action, $this->partner['id']);
 
                                 // if (empty($booking['state'])) {
                                 //$to = NITS_ANUJ_EMAIL_ID;
@@ -1128,6 +1132,8 @@ class Partner extends CI_Controller {
         if (!empty($partner_status)) {
             $booking['partner_current_status'] = $partner_status[0];
             $booking['partner_internal_status'] = $partner_status[1];
+            $booking['actor'] = $partner_status[2];
+            $booking['next_action'] = $partner_status[3];
         }
         $this->booking_model->update_booking($booking_id, $booking);
         $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
@@ -1499,10 +1505,13 @@ class Partner extends CI_Controller {
                         }
                     }
                     //check partner status from partner_booking_status_mapping table  
+                    $actor = $next_action = 'not_define';
                     $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $booking['partner_id'], $booking['booking_id']);
                     if (!empty($partner_status)) {
                         $booking['partner_current_status'] = $partner_status[0];
                         $booking['partner_internal_status'] = $partner_status[1];
+                        $actor = $booking['actor'] = $partner_status[2];
+                        $next_action = $booking['next_action'] = $partner_status[3];
                     }
                     $return_id = $this->booking_model->addbooking($booking);
                     if (!empty($return_id)) {
@@ -1541,7 +1550,8 @@ class Partner extends CI_Controller {
                             $this->miscelleneous->check_upcountry($booking, $requestData['appliance_name'], $is_price, "shipped");
 
                             //insert in state change table
-                            $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY, $booking['booking_remarks'], $agent_id, $requestData['partnerName'], $booking['partner_id']);
+                            $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY, $booking['booking_remarks'], $agent_id, 
+                                    $requestData['partnerName'],$actor,$next_action, $booking['partner_id']);
                         } else {
                             //-------Sending SMS on booking--------//
                             $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
@@ -1549,7 +1559,8 @@ class Partner extends CI_Controller {
                             $send['state'] = "Newbooking";
                             $this->asynchronous_lib->do_background_process($url, $send);
 
-                            $this->notify->insert_state_change($booking['booking_id'], _247AROUND_PENDING, _247AROUND_NEW_BOOKING, $booking['booking_remarks'], $agent_id, $requestData['partnerName'], $booking['partner_id']);
+                            $this->notify->insert_state_change($booking['booking_id'], _247AROUND_PENDING, _247AROUND_NEW_BOOKING, $booking['booking_remarks'], $agent_id, 
+                                    $requestData['partnerName'],$actor,$next_action, $booking['partner_id']);
 
                             //Assigned vendor Id
                             if (isset($upcountry_data['message'])) {
@@ -1563,7 +1574,8 @@ class Partner extends CI_Controller {
 
                                         if ($assigned) {
                                             $url = base_url() . "employee/do_background_process/assign_booking";
-                                            $this->notify->insert_state_change($booking['booking_id'], ASSIGNED_VENDOR, _247AROUND_PENDING, "Auto Assign vendor", _247AROUND_DEFAULT_AGENT, _247AROUND_DEFAULT_AGENT_NAME, _247AROUND);
+                                            $this->notify->insert_state_change($booking['booking_id'], ASSIGNED_VENDOR, _247AROUND_PENDING, "Auto Assign vendor", _247AROUND_DEFAULT_AGENT, 
+                                                    _247AROUND_DEFAULT_AGENT_NAME, $actor,$next_action,_247AROUND);
 
                                             //check upcountry and send sms
                                             $async_data['booking_id'] = array($booking['booking_id'] => $upcountry_data['vendor_id']);
@@ -1813,10 +1825,14 @@ class Partner extends CI_Controller {
                 $data['query_remarks'] = $requestData->data->remarks;
             }
             $data['internal_status'] = PRODUCT_DELIVERED;
+            $data['booking_date'] = '';
+            $actor = $next_action = 'not_define';
             $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], PRODUCT_DELIVERED, $booking['partner_id'], $booking['partner_id']);
             if (!empty($partner_status)) {
                 $data['partner_current_status'] = $partner_status[0];
                 $data['partner_internal_status'] = $partner_status[1];
+                $actor = $data['actor'] = $partner_status[2];
+                $next_action = $data['next_action'] = $partner_status[3];
             }
 
             if ($booking['type'] == "Query") {
@@ -1844,15 +1860,13 @@ class Partner extends CI_Controller {
             }
 
             $this->booking_model->update_booking($booking['booking_id'], $data);
-
             $p_login_details = $this->dealer_model->entity_login(array('entity_id' => $this->partner['id'], "user_id" => strtolower($this->partner['public_name'] . "-STS")));
-            $this->notify->insert_state_change($booking['booking_id'], PRODUCT_DELIVERED, _247AROUND_PENDING, PRODUCT_DELIVERED, $p_login_details[0]['agent_id'], $this->partner['public_name'], $this->partner['id']);
-
+             $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, PRODUCT_DELIVERED, $data['query_remarks'], $p_login_details[0]['agent_id'], 
+                    $this->partner['public_name'],$actor,$next_action, $this->partner['id']);
             $up_flag = 1;
             $url = base_url() . "employee/vendor/update_upcountry_and_unit_in_sc/" . $booking['booking_id'] . "/" . $up_flag;
             $async_data['booking'] = array();
             $this->asynchronous_lib->do_background_process($url, $async_data);
-
             $this->jsonResponseString['response'] = NULL;
             $this->sendJsonResponse(array(SUCCESS_CODE, SUCCESS_UPDATED_MSG));
         }

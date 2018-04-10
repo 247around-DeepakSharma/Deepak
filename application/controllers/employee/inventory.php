@@ -113,7 +113,8 @@ class Inventory extends CI_Controller {
                     log_message('info', __FUNCTION__ . ' Brackets Requested- Pending state have been added in Booking State Change ');
 
                     //Adding value in Booking State Change
-                    $this->notify->insert_state_change($data_post['order_id'], _247AROUND_BRACKETS_PENDING, _247AROUND_BRACKETS_REQUESTED, "Brackets Requested", $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+                    $this->notify->insert_state_change($data_post['order_id'], _247AROUND_BRACKETS_PENDING, _247AROUND_BRACKETS_REQUESTED, "Brackets Requested", $this->session->userdata('id'), 
+                            $this->session->userdata('employee_id'),ACTOR_BRACKET_RECEIEVED_CONFORMATION,NEXT_ACTION_BRACKET_RECEIEVED_CONFORMATION, _247AROUND);
                     $select = "primary_contact_email,owner_email, company_name, "
                             . "address, district, state, pincode,primary_contact_phone_1,owner_phone_1, owner_name";
                     $vendor_requested = $this->vendor_model->getVendorDetails($select, array('id' => $data_post['order_received_from']));
@@ -305,7 +306,8 @@ class Inventory extends CI_Controller {
             log_message('info',__FUNCTION__.' Brackets Shipped has been updated '. print_r($data, TRUE));
             
             //Adding value in Booking State Change
-                $this->notify->insert_state_change($order_id, _247AROUND_BRACKETS_SHIPPED, _247AROUND_BRACKETS_PENDING, "Brackets Shipped", $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+                $this->notify->insert_state_change($order_id, _247AROUND_BRACKETS_SHIPPED, _247AROUND_BRACKETS_PENDING, "Brackets Shipped", $this->session->userdata('id'), 
+                        $this->session->userdata('employee_id'), ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
             //Logging Success
             log_message('info', __FUNCTION__ . ' Brackets Pending - Shipped state have been added in Booking State Change ');
                 
@@ -404,7 +406,8 @@ class Inventory extends CI_Controller {
             log_message('info', __FUNCTION__ . ' Brackets Received has been updated ' . print_r($data, TRUE));
 
             //Adding value in Booking State Change
-            $this->notify->insert_state_change($order_id, _247AROUND_BRACKETS_RECEIVED, _247AROUND_BRACKETS_SHIPPED, "", $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+            $this->notify->insert_state_change($order_id, _247AROUND_BRACKETS_RECEIVED, _247AROUND_BRACKETS_SHIPPED, "", $this->session->userdata('id'), 
+                    $this->session->userdata('employee_id'), ACTOR_BRACKET_RECEIEVED_CONFORMATION,NEXT_ACTION_BRACKET_RECEIEVED_CONFORMATION,_247AROUND); 
             //Logging Success
             log_message('info', __FUNCTION__ . ' Brackets Shipped - Received state have been added in Booking State Change ');
 
@@ -630,7 +633,8 @@ class Inventory extends CI_Controller {
             log_message('info',__FUNCTION__.' Brackets Requested has been updated '. print_r($data, TRUE));
             
             //Adding value in Booking State Change
-                $this->notify->insert_state_change($order_id, _247AROUND_BRACKETS_PENDING, _247AROUND_BRACKETS_PENDING, "Brackets Shipped", $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+                $this->notify->insert_state_change($order_id, _247AROUND_BRACKETS_PENDING, _247AROUND_BRACKETS_PENDING, "Brackets Shipped", $this->session->userdata('id'), 
+                        $this->session->userdata('employee_id'), ACTOR_BRACKET_REQUESTED,NEXT_ACTION_BRACKET_REQUESTED,_247AROUND);
             //Logging Success
             log_message('info', __FUNCTION__ . ' Brackets Pending - Pending state have been added in Booking State Change ');
                 
@@ -911,7 +915,8 @@ class Inventory extends CI_Controller {
                 $this->vendor_model->update_service_center_action($booking_id,$sc_data);
             }
             
-            $this->notify->insert_state_change($booking_id, $data['status'], "" , "Spare Parts Updated By ".$this->session->userdata('employee_id') , $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+            $this->notify->insert_state_change($booking_id, $data['status'], "" , "Spare Parts Updated By ".$this->session->userdata('employee_id') , $this->session->userdata('id'), 
+                    $this->session->userdata('employee_id'),ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
             
         } else {
             log_message('info', __FUNCTION__. " Spare Parts Booking is not updated");
@@ -1208,7 +1213,7 @@ class Inventory extends CI_Controller {
                 $partner_id = $this->session->userdata('partner_id');
             }
             $this->notify->insert_state_change($booking_id, $new_state,$old_state, $remarks, 
-                      $agent_id, $agent_name, $partner_id);
+                      $agent_id, $agent_name, ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE, $partner_id);
             
             $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $b['internal_status'], $partner_id, $booking_id);
             if (!empty($partner_status)) {
@@ -1216,7 +1221,7 @@ class Inventory extends CI_Controller {
                 $b['partner_internal_status'] = $partner_status[1];
             }
             
-            $this->booking_model->update_booking($booking_id, $b);
+            $this->booking_model->update_booking($booking_id, $b); 
            
             
             echo "Success";

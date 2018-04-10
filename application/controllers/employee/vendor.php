@@ -324,7 +324,6 @@ class vendor extends CI_Controller {
                     //Logging success for file uppload
                     log_message('info',__CLASS__.' CONTRACT FILE is being uploaded sucessfully.');
                 }
-                
        
 
             $non_working_days = $this->input->post('day');
@@ -387,7 +386,7 @@ class vendor extends CI_Controller {
                 $bankDetailsArray['entity_id'] = $this->input->post('id');
                 $bankDetailsArray['agent_id'] = $agentID;
                 $bankDetailsArray['entity_type'] = "SF";
-                $this->vendor_model->edit_vendor($vendor_data, $this->input->post('id'));
+                //$this->vendor_model->edit_vendor($vendor_data, $this->input->post('id'));
                 $this->miscelleneous->update_insert_bank_account_details($bankDetailsArray,'update');
                
       
@@ -395,7 +394,8 @@ class vendor extends CI_Controller {
                 log_message('info', __FUNCTION__.' SF has been updated :'.print_r($vendor_data,TRUE));
                 
                 //Adding details in Booking State Change
-                $this->notify->insert_state_change('', SF_UPDATED, SF_UPDATED, 'Vendor ID : '.$_POST['id'], $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+                $this->notify->insert_state_change('', SF_UPDATED, SF_UPDATED, 'Vendor ID : '.$_POST['id'], $this->session->userdata('id'), $this->session->userdata('employee_id'),
+                        ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
                 
                 $send_email = $this->send_update_sf_mail($_POST['id'],$rm_official_email);
 
@@ -453,7 +453,8 @@ class vendor extends CI_Controller {
                 );
                 $this->vendor_model->insert_log_action_on_entity($log);
                 //Adding details in Booking State Change
-                $this->notify->insert_state_change('', NEW_SF_ADDED, NEW_SF_ADDED, 'Vendor ID : '.$sc_id, $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+                $this->notify->insert_state_change('', NEW_SF_ADDED, NEW_SF_ADDED, 'Vendor ID : '.$sc_id, $this->session->userdata('id'), $this->session->userdata('employee_id'),
+                        ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
                 
                 //Sending Mail for Added details
                 $send_email = $this->send_update_sf_mail($sc_id,$rm_official_email);
@@ -1115,7 +1116,8 @@ class vendor extends CI_Controller {
     function delete($id) {
         $this->vendor_model->delete($id);
         //Storing State change values in Booking_State_Change Table
-        $this->notify->insert_state_change('', _247AROUND_VENDOR_DELETED, _247AROUND_VENDOR_DELETED, 'Vendor ID = '.$id, $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+        $this->notify->insert_state_change('', _247AROUND_VENDOR_DELETED, _247AROUND_VENDOR_DELETED, 'Vendor ID = '.$id, $this->session->userdata('id'), 
+                $this->session->userdata('employee_id'),ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
         redirect(base_url() . 'employee/vendor/viewvendor', 'refresh');
     }
 
@@ -1175,7 +1177,8 @@ class vendor extends CI_Controller {
                     $assigned = $this->miscelleneous->assign_vendor_process($service_center_id, $booking_id, $agent_id, $agent_type);
                     if ($assigned) {
                         //Insert log into booking state change
-                       $this->notify->insert_state_change($booking_id, ASSIGNED_VENDOR, _247AROUND_PENDING, "Service Center Id: " . $service_center_id, $agent_id, $agent_name, _247AROUND);
+                       $this->notify->insert_state_change($booking_id, ASSIGNED_VENDOR, _247AROUND_PENDING, "Service Center Id: " . $service_center_id, $agent_id, $agent_name, 
+                               ACTOR_ASSIGN_BOOKING_TO_VENDOR,NEXT_ACTION_ASSIGN_BOOKING_TO_VENDOR,_247AROUND);
                         $count++;
                                
                         if($sf_status[$booking_id] == "SF_NOT_EXIST"){
@@ -1274,9 +1277,12 @@ class vendor extends CI_Controller {
                 'upcountry_distance' => NULL);
             
             $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, ASSIGNED_VENDOR, $previous_sf_id[0]['partner_id'], $booking_id);
+            $actor = $next_action = 'not_define';
             if (!empty($partner_status)) {
                 $assigned_data['partner_current_status'] = $partner_status[0];
                 $assigned_data['partner_internal_status'] = $partner_status[1];
+                $actor = $assigned_data['actor'] = $partner_status[2];
+                $next_action = $assigned_data['next_action'] = $partner_status[3];
             }
 
             $this->booking_model->update_booking($booking_id, $assigned_data);
@@ -1345,7 +1351,8 @@ class vendor extends CI_Controller {
                 }
             }
 
-            $this->notify->insert_state_change($booking_id, RE_ASSIGNED_VENDOR, ASSIGNED_VENDOR, "Re-Assigned SF ID: " . $service_center_id, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+            $this->notify->insert_state_change($booking_id, RE_ASSIGNED_VENDOR, ASSIGNED_VENDOR, "Re-Assigned SF ID: " . $service_center_id, $this->session->userdata('id'), 
+                    $this->session->userdata('employee_id'), $actor,$next_action, _247AROUND);
 
             $sp['service_center_id'] = $service_center_id;
             $this->service_centers_model->update_spare_parts(array('booking_id' => $booking_id), $sp);
@@ -3106,9 +3113,11 @@ class vendor extends CI_Controller {
         $this->vendor_model->edit_vendor(array('is_update'=> $flag), $service_center_id);
         //Adding details in Booking State Change Table
         if($flag == 1){
-            $this->notify->insert_state_change("", NEW_SF_CRM, OLD_SF_CRM , "New CRM Enabled for SF ID: ".$service_center_id , $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+            $this->notify->insert_state_change("", NEW_SF_CRM, OLD_SF_CRM , "New CRM Enabled for SF ID: ".$service_center_id , $this->session->userdata('id'), $this->session->userdata('employee_id'),
+                    ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
         }else{
-            $this->notify->insert_state_change("", OLD_SF_CRM, NEW_SF_CRM , "Old CRM Enabled for SF ID: ".$service_center_id , $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+            $this->notify->insert_state_change("", OLD_SF_CRM, NEW_SF_CRM , "Old CRM Enabled for SF ID: ".$service_center_id , $this->session->userdata('id'), $this->session->userdata('employee_id'),
+                    ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
         }
         redirect(base_url() . 'employee/vendor/viewvendor');
     }

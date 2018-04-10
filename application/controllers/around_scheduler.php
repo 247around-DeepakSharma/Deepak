@@ -214,7 +214,8 @@ class Around_scheduler extends CI_Controller {
                 'internal_status' => 'Cancelled', 'cancellation_reason' => "Customer not reachable / Customer not picked phone"));
             $this->booking_model->update_booking_unit_details($value['booking_id'], array('booking_status' => 'Cancelled'));
 
-            $this->notify->insert_state_change($value['booking_id'], "Cancelled", "FollowUp", "Customer not reachable / Customer not picked phone", _247AROUND_DEFAULT_AGENT, _247AROUND_DEFAULT_AGENT_NAME, _247AROUND);
+            $this->notify->insert_state_change($value['booking_id'], "Cancelled", "FollowUp", "Customer not reachable / Customer not picked phone", _247AROUND_DEFAULT_AGENT, 
+                    _247AROUND_DEFAULT_AGENT_NAME, ACTOR_BOOKING_CANCELLED,NEXT_ACTION_CANCELLED_BOOKING,_247AROUND);
         }
         log_message('info', __METHOD__ . '=> Exit...');
     }
@@ -257,7 +258,8 @@ class Around_scheduler extends CI_Controller {
             $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
 
             //Log this state change as well for this booking
-            $this->notify->insert_state_change($booking_id, $data['current_status'], _247AROUND_FOLLOWUP, $data['cancellation_reason'], '1', '247around', _247AROUND);
+            $this->notify->insert_state_change($booking_id, $data['current_status'], _247AROUND_FOLLOWUP, $data['cancellation_reason'], '1', '247around', ACTOR_BOOKING_CANCELLED,
+                    NEXT_ACTION_CANCELLED_BOOKING,_247AROUND);
 
             echo $booking_id . ' Cancelled ................' . PHP_EOL;
         } else {
@@ -300,7 +302,8 @@ class Around_scheduler extends CI_Controller {
             $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
 
             //Log this state change as well for this booking
-            $this->notify->insert_state_change($booking_id, $data['current_status'], _247AROUND_FOLLOWUP, $data['cancellation_reason'], '1', '247around', _247AROUND);
+            $this->notify->insert_state_change($booking_id, $data['current_status'], _247AROUND_FOLLOWUP, $data['cancellation_reason'], '1', '247around',ACTOR_BOOKING_CANCELLED,
+                    NEXT_ACTION_CANCELLED_BOOKING, _247AROUND);
 
             echo 'Cancelled ................' . PHP_EOL;
         }

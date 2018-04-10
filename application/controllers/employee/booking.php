@@ -451,10 +451,13 @@ class Booking extends CI_Controller {
             }
 
             // check partner status
+            $actor = $next_action = 'not_define';
             $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $booking['partner_id'], $booking_id);
             if (!empty($partner_status)) {
                 $booking['partner_current_status'] = $partner_status[0];
                 $booking['partner_internal_status'] = $partner_status[1];
+                $actor = $booking['actor'] = $partner_status[2];
+                $next_action = $booking['next_action'] = $partner_status[3];
             }
 
             switch ($booking_id) {
@@ -492,7 +495,8 @@ class Booking extends CI_Controller {
                     break;
             }
 
-            $this->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+            $this->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'),
+                    $actor,$next_action,_247AROUND);
 
             return $booking;
         } else {
@@ -969,10 +973,13 @@ class Booking extends CI_Controller {
 
         //check partner status
         $partner_id = $this->input->post('partner_id');
+        $actor = $next_action = 'not_define';
         $partner_status = $this->booking_utilities->get_partner_status_mapping_data($data['current_status'], $data['internal_status'], $partner_id, $booking_id);
         if (!empty($partner_status)) {
             $data['partner_current_status'] = $partner_status[0];
             $data['partner_internal_status'] = $partner_status[1];
+            $actor = $data['actor'] = $partner_status[2];
+            $next_action =$data['next_action'] = $partner_status[3];
         }
 
         if ($data['booking_timeslot'] == "Select") {
@@ -984,7 +991,8 @@ class Booking extends CI_Controller {
 
             //Log this state change as well for this booking
             //param:-- booking id, new state, old state, employee id, employee name
-            $this->notify->insert_state_change($booking_id, _247AROUND_RESCHEDULED, _247AROUND_PENDING, _247AROUND_RESCHEDULED, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+            $this->notify->insert_state_change($booking_id, _247AROUND_RESCHEDULED, _247AROUND_PENDING, _247AROUND_RESCHEDULED, $this->session->userdata('id'), 
+                    $this->session->userdata('employee_id'),$actor,$next_action, _247AROUND);
 
             $service_center_data['internal_status'] = "Pending";
             $service_center_data['current_status'] = "Pending";
@@ -1271,7 +1279,8 @@ class Booking extends CI_Controller {
 
             if ($update) {
                 //update state
-                $this->notify->insert_state_change($booking_id, RATING_NEW_STATE, $status, $remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+                $this->notify->insert_state_change($booking_id, RATING_NEW_STATE, $status, $remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'),
+                        ACTOR_BOOKING_RATING,RATING_NEXT_ACTION,_247AROUND);
                 // send sms after rating
                 $this->send_rating_sms($phone_no, $data['rating_stars'],$user_id,$booking_id);
             }
@@ -1679,7 +1688,8 @@ class Booking extends CI_Controller {
         $notificationTextArray['title'] = array("Rejected");
         $this->push_notification_lib->create_and_send_push_notiifcation(BOOKING_UPDATED_BY_247AROUND,$receiverArray,$notificationTextArray);
         //End Push Notification
-        $this->notify->insert_state_change($booking_id, "Rejected", "InProcess_Completed", $admin_remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+        $this->notify->insert_state_change($booking_id, "Rejected", "InProcess_Completed", $admin_remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), 
+                ACTOR_REJECT_FROM_REVIEW,REJECT_FROM_REVIEW_NEXT_ACTION,_247AROUND);
     }
 
     /**
@@ -1912,10 +1922,13 @@ class Booking extends CI_Controller {
 
         // check partner status
         $partner_id = $this->input->post('partner_id');
+        $actor = $next_action = 'not_define';
         $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $partner_id, $booking_id);
         if (!empty($partner_status)) {
             $booking['partner_current_status'] = $partner_status[0];
             $booking['partner_internal_status'] = $partner_status[1];
+            $actor = $booking['actor'] = $partner_status[2];
+            $next_action = $booking['next_action'] = $partner_status[3];
         }
 
         if ($this->input->post('rating_stars') !== "") {
@@ -1951,7 +1964,8 @@ class Booking extends CI_Controller {
         if ($status == 0) {
             //Log this state change as well for this booking
             //param:-- booking id, new state, old state, employee id, employee name
-            $this->notify->insert_state_change($booking_id, $internal_status, _247AROUND_PENDING, $booking['closing_remarks'], $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+            $this->notify->insert_state_change($booking_id, $internal_status, _247AROUND_PENDING, $booking['closing_remarks'], $this->session->userdata('id'), 
+                    $this->session->userdata('employee_id'), $actor,$next_action,_247AROUND);
             $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
             $send['booking_id'] = $booking_id;
             $send['state'] = $internal_status;
@@ -2032,10 +2046,13 @@ class Booking extends CI_Controller {
             //$data['booking_remarks'] = $this->input->post('reason');
             //check partner status from partner_booking_status_mapping table  
             $partner_id = $this->input->post('partner_id');
+            $actor = $next_action = 'not_define';
             $partner_status = $this->booking_utilities->get_partner_status_mapping_data($data['current_status'], $data['internal_status'], $partner_id, $booking_id);
             if (!empty($partner_status)) {
                 $data['partner_current_status'] = $partner_status[0];
                 $data['partner_internal_status'] = $partner_status[1];
+                $actor = $data['actor'] = $partner_status[2];
+                $next_action = $data['next_action'] = $partner_status[3];
             }
 
             if ($data['booking_timeslot'] == "Select") {
@@ -2111,7 +2128,7 @@ class Booking extends CI_Controller {
          
 
                 //Log this state change as well for this booking          
-                $this->notify->insert_state_change($booking_id, _247AROUND_PENDING, $status, "", $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+                $this->notify->insert_state_change($booking_id, _247AROUND_PENDING, $status, "", $this->session->userdata('id'), $this->session->userdata('employee_id'),$actor,$next_action, _247AROUND);
                 if (!empty($assigned_vendor_id)) {
 
                     $up_flag = 1;
@@ -2148,7 +2165,8 @@ class Booking extends CI_Controller {
      */
     function get_convert_cancelled_booking_to_pending_form($booking_id) {
         $bookings = $this->booking_model->booking_history_by_booking_id($booking_id);
-        $this->notify->insert_state_change($booking_id, _247AROUND_PENDING, _247AROUND_CANCELLED, "", $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+        $this->notify->insert_state_change($booking_id, _247AROUND_PENDING, _247AROUND_CANCELLED, "", $this->session->userdata('id'), $this->session->userdata('employee_id'), 
+                ACTOR_OPEN_CANCELLED_BOOKING_FORM,NEXT_ACTION_REJECT_FROM_REVIEW,_247AROUND);
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/cancelled_to_pending', $bookings[0]);
     }
@@ -2169,18 +2187,22 @@ class Booking extends CI_Controller {
         //check partner status from partner_booking_status_mapping table  
         $getbooking = $this->booking_model->getbooking_history($booking_id);
         $partner_id = $getbooking[0]['partner_id'];
+        $actor = $next_action = 'not_define';
         if ($partner_id) {
             $partner_status = $this->booking_utilities->get_partner_status_mapping_data($status['current_status'], $status['internal_status'], $partner_id, $booking_id);
             if (!empty($partner_status)) {
                 $status['partner_current_status'] = $partner_status[0];
                 $status['partner_internal_status'] = $partner_status[1];
+                $actor = $status['actor'] = $partner_status[2];
+                $next_action = $status['next_action'] = $partner_status[3];
             }
         }
         $this->booking_model->update_booking($booking_id, $status);
         $this->booking_model->update_booking_unit_details_by_any(array('booking_id'=> $booking_id), array('booking_status'=> _247AROUND_FOLLOWUP));    
 
         //Log this state change as well for this booking
-        $this->notify->insert_state_change($booking_id, _247AROUND_FOLLOWUP, _247AROUND_CANCELLED, "Cancelled_Query to FollowUp", $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+        $this->notify->insert_state_change($booking_id, _247AROUND_FOLLOWUP, _247AROUND_CANCELLED, "Cancelled_Query to FollowUp", $this->session->userdata('id'), 
+                $this->session->userdata('employee_id'),$actor,$next_action, _247AROUND);
 
         redirect(base_url() . 'employee/booking/view_queries/FollowUp/' . PINCODE_ALL_AVAILABLE . '/' . $booking_id);
     }
@@ -2355,7 +2377,8 @@ class Booking extends CI_Controller {
         //Add Log
         log_message('info', __FUNCTION__ . ' Partner Missed calls leads has been Completed for id ' . $id);
         //Adding details in Booking State Change
-        $this->notify->insert_state_change("", _247AROUND_COMPLETED, _247AROUND_FOLLOWUP, "Lead Completed Phone: " . $missed_call_leads[0]['phone'], $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+        $this->notify->insert_state_change("", _247AROUND_COMPLETED, _247AROUND_FOLLOWUP, "Lead Completed Phone: " . $missed_call_leads[0]['phone'], $this->session->userdata('id'), 
+                $this->session->userdata('employee_id'),ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE, _247AROUND);
 
         echo $update;
     }
@@ -2382,7 +2405,8 @@ class Booking extends CI_Controller {
             log_message('info', __FUNCTION__ . ' Partner Missed calls leads has been Cancelled for id ' . $id);
 
             //Adding details in Booking State Change
-            $this->notify->insert_state_change("", _247AROUND_CANCELLED, _247AROUND_FOLLOWUP, $data['cancellation_reason'] . " Phone: " . $missed_call_leads[0]['phone'], $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+            $this->notify->insert_state_change("", _247AROUND_CANCELLED, _247AROUND_FOLLOWUP, $data['cancellation_reason'] . " Phone: " . $missed_call_leads[0]['phone'], 
+                    $this->session->userdata('id'), $this->session->userdata('employee_id'),ACTOR_BOOKING_CANCELLED,NEXT_ACTION_CANCELLED_BOOKING, _247AROUND);
 
             $this->session->set_flashdata('cancel_leads', 'Leads has been cancelled for phone ' . $missed_call_leads[0]['phone']);
             redirect(base_url() . "employee/booking/get_missed_calls_view");
@@ -2456,7 +2480,8 @@ class Booking extends CI_Controller {
         }
 
         //Adding details in Booking State Change
-        $this->notify->insert_state_change("", _247AROUND_FOLLOWUP, _247AROUND_FOLLOWUP, $this->input->post('updation_reason') . " Phone: " . $missed_call_leads[0]['phone'], $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+        $this->notify->insert_state_change("", _247AROUND_FOLLOWUP, _247AROUND_FOLLOWUP, $this->input->post('updation_reason') . " Phone: " . $missed_call_leads[0]['phone'], 
+                $this->session->userdata('id'), $this->session->userdata('employee_id'),ACTOR_FOLLOW_UP,NEXT_ACTION_FOLLOW_UP, _247AROUND);
 
         $this->session->set_flashdata('update_leads', 'Leads has been Updated for phone ' . $missed_call_leads[0]['phone']);
         redirect(base_url() . "employee/booking/get_missed_calls_view");
