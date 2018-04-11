@@ -71,15 +71,33 @@ class Collection_partner extends CI_Controller {
             $row[] = $cp_address->shop_address_region;
 
             if($cp_address->active == 1){
-                 $row[] = "<button class='btn btn-sm btn-danger' onclick='activate_deactivate($cp_address->id,0)'  >De-Activate</button>";
+                 $row[] = "<div class='btn btn-sm btn-danger' onclick='activate_deactivate($cp_address->id,0)'  >De-Activate</div>";
             } else {
-                 $row[] = "<button  class='btn btn-sm btn-success' onclick='activate_deactivate($cp_address->id,1)' >Activate</button>";
+                 $row[] = "<div  class='btn btn-sm btn-success' onclick='activate_deactivate($cp_address->id,1)' >Activate</div>";
             }
             $row[] = $a;
+            if($cp_address->active == 1){
+                $disabled_option = "class='download_single_cp_price'";
+            }else{
+                $disabled_option = "style = 'display:none;'";
+            }
+            $row[] = "<input type='checkbox' id = cp_price_download_".$cp_address->cp_id." data-cp_id = '".$cp_address->cp_id."' data-cp_name = '".$cp_address->name."' $disabled_option>";
             
 
             $data[] = $row;
         }
+        
+        $last_row[] = "";
+        $last_row[] = "";
+        $last_row[] = "";
+        $last_row[] = "";
+        $last_row[] = "";
+        $last_row[] = "";
+        $last_row[] = "";
+        $last_row[] = "";
+        $last_row[] = "";
+        $last_row[] = "<input class='btn btn-success' title = 'Download File' id='download_file' type = 'submit' value= 'Download' onclick='return check_validation()'>";
+        $data[] = $last_row;
         
         $output = array(
             "draw" => $draw,

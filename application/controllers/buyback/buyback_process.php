@@ -1374,16 +1374,29 @@ class Buyback_process extends CI_Controller {
      * @param void
      * @return void
      */
-    public function download_price_list_data() {
+     public function download_price_list_data() {
+        $cp_id = $this->input->post("cp_id");
         $service_name_arr = $this->input->post('appliance_name');
-        if(!empty($service_name_arr)) {
-            
+        $csv_file = array();
+        if (!empty($cp_id)) {
+            //$key = cp_id, $value = cp_name
+            foreach ($cp_id as $key => $value) {
+                $select = "brand as Brand,category as Type, concat(physical_condition, ' | ',working_condition) as 'Product Condition' , city AS 'Location' , partner_total as 'Exchange Offer Value'";
+                $csv_file_name = TMP_FOLDER . "buyback_price_list_" . strtolower(str_replace(" ", "_", $value));
+                $where = array('bb_charges.partner_id' => AMAZON_SELLER_ID, 'visible_to_partner' => 1, 'bb_shop_address.active' => 1, 'bb_charges.cp_id' => $key);
+                $data = $this->service_centre_charges_model->get_bb_charges($where, $select, true, true, "", "", TRUE);
+                if (!empty($data)) {
+                    $file_name = $csv_file_name . ".csv";
+                    $csv_file[$file_name] = $this->generate_bb_csv_price_list($file_name, $data);
+                }
+            }
+        } else if ($service_name_arr) {
             //If all is selected then download all appliance data
             $key = array_search('All', $service_name_arr);
             if ($key !== FALSE) {
-                $service_name_arr = array_column($this->booking_model->selectservice(true),'services', 'id');
+                $service_name_arr = array_column($this->booking_model->selectservice(true), 'services', 'id');
             }
-            
+
             foreach ($service_name_arr as $key => $value) {
                 $csv_file_name = TMP_FOLDER . "buyback_price_list_" . strtolower(str_replace(" ", "_", $value));
                 $where = array('bb_charges.partner_id' => AMAZON_SELLER_ID, 'visible_to_partner' => 1, 'bb_shop_address.active' => 1, 'bb_charges.service_id' => $key);
@@ -1394,40 +1407,39 @@ class Buyback_process extends CI_Controller {
                     $counter = round($total_data[0]['total_data'] / $row_limit);
                     $offset = 0;
                     for ($i = 0; $i < $counter; $i++) {
-                        if($key == _247AROUND_MOBILE_SERVICE_ID){
-                            $select ="brand as Brand, physical_condition as 'Model' , city AS 'Location' , partner_total as 'Exchange Offer Value'";
-                        }
-                        else if($key == _247AROUND_AC_SERVICE_ID){
+                        if ($key == _247AROUND_MOBILE_SERVICE_ID) {
+                            $select = "brand as Brand, physical_condition as 'Model' , city AS 'Location' , partner_total as 'Exchange Offer Value'";
+                        } else if ($key == _247AROUND_AC_SERVICE_ID) {
                             $select = "category as Type,brand as Brand, working_condition as 'Working Condition' , city AS 'Location' , partner_total as 'Exchange Offer Value'";
-                        }else if($key == _247AROUND_TV_SERVICE_ID){
+                        } else if ($key == _247AROUND_TV_SERVICE_ID) {
                             $select = "brand as Brand,SUBSTRING_INDEX(category,'_',1) as Type,SUBSTRING_INDEX(category,'_',-1) as 'Size', city AS 'Location' , partner_total as 'Exchange Offer Value'";
-                        }else{
+                        } else {
                             $select = "brand as Brand,category as Type, concat(physical_condition, ' | ',working_condition) as 'Product Condition' , city AS 'Location' , partner_total as 'Exchange Offer Value'";
                         }
                         $data = $this->service_centre_charges_model->get_bb_charges($where, $select, true, true, $offset, $row_limit, TRUE);
                         if (!empty($data)) {
-                            $file_name = $csv_file_name . "_" . $i.".csv";
+                            $file_name = $csv_file_name . "_" . $i . ".csv";
                             $csv_file[$file_name] = $this->generate_bb_csv_price_list($file_name, $data);
                         }
                         $offset += 500;
                     }
                 }
             }
+        }
 
-            if(!empty($csv_file)){
-                //zipped all the files and download it
-                $this->load->library('zip');
+        if (!empty($csv_file)) {
+            //zipped all the files and download it
+            $this->load->library('zip');
 
-                foreach (array_keys($csv_file) as $value) {
-                    $this->zip->read_file($value);
-                    $res1 = 0;
-                    system("chmod 777" . $value, $res1);
-                    unlink($value);
-                }
-
-                $this->zip->download('buyback_price_list.zip');
+            foreach (array_keys($csv_file) as $value) {
+                $this->zip->read_file($value);
+                $res1 = 0;
+                system("chmod 777" . $value, $res1);
+                unlink($value);
             }
-        }else{
+
+            $this->zip->download('buyback_price_list.zip');
+        } else {
             echo "Empty data submitted";
         }
     }
