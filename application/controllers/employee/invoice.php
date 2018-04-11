@@ -771,7 +771,7 @@ class Invoice extends CI_Controller {
             $this->upload_invoice_to_S3($meta['invoice_id']);
             $t_s_charge =  ($meta['r_sc'] - $meta['upcountry_charge']) - $this->booking_model->get_calculated_tax_charge( ($meta['r_sc'] - $meta['upcountry_charge']), 18);
             $t_ad_charge = $meta['r_asc'] - $this->booking_model->get_calculated_tax_charge( $meta['r_asc'], 18);
-            $t_part_charge = $meta['r_asc'] - $this->booking_model->get_calculated_tax_charge($meta['r_pc'], 18);
+            $t_part_charge = $meta['r_pc'] - $this->booking_model->get_calculated_tax_charge($meta['r_pc'], 18);
             //Save this invoice info in table
             $invoice_details = array(
                 'invoice_id' => $meta['invoice_id'],
