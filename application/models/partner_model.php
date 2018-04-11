@@ -1445,5 +1445,10 @@ function get_data_for_partner_callback($booking_id) {
         }
         
     }
+    
+    function insert_paytm_payment_details($data){
+        $this->db->insert('payment_transaction', $data);
+        return $this->db->insert_id();
+    }
 }
 

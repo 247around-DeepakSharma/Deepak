@@ -3888,105 +3888,105 @@ $objPHPExcel2->getActiveSheet()->setTitle($sheet_title);
      * @params: void
      * @return: void
      */
-//    function create_booking_payment_link(){
-//        $this->miscelleneous->load_nav_header();
-// $this->load->view('employee/booking_payment_link');
-//    }
+    function create_booking_payment_link(){
+        $this->miscelleneous->load_nav_header();
+ $this->load->view('employee/booking_payment_link');
+    }
 
     /**
      * @desc: This function is used to create a custom payment link for user
      * @params: void
      * @return: void
      */
-//    function process_create_booking_payment_link() {
-//        log_message("info", __METHOD__ . " Entering...");
-//        $booking_id_arr = $this->input->post('booking_id');
-//
-//        if (!empty($booking_id_arr)) {
-//
-//            $phone_number = $this->input->post('phone_number');
-//            $email = $this->input->post('email');
-//            //Either Phone number or email required
-//            if (empty($phone_number) && empty($email)) {
-//                $this->session->set_flashdata('err_msg', 'Please Enter Either Phone Number Or Email');
-//                redirect(base_url() . 'employee/booking/create_booking_payment_link');
-//            } else {
-//                /*check if link already created or not.
-//                 * if already created then do not create new link
-//                */
-//                $data = $this->booking_model->get_payment_link_details('*', array('booking_id' => implode(',', $booking_id_arr)));
-//
-//                if (empty($data)) {
-//                    //make booking id like 'SY-1234567899456' so that we can use it in the sql IN() function to process the query
-//                    $booking_ids = implode(',', array_map(function($id) {
-//                                return("'$id'");
-//                            }, $booking_id_arr));
-//
-//                    $select = "SUM(amount_due) as amount, GROUP_CONCAT(user_id SEPARATOR '_') as customer_id";
-//                    $where = array("Booking_id IN ($booking_ids)" => NULL);
-//                    $booking_details = $this->booking_model->get_bookings_count_by_any($select, $where);
-//
-//                    //if amount paid by customer is 0 then do not create link
-//                    if (!empty($booking_details[0]['amount'])) {
-//
-//                        $param_list = array('phone_no' => $phone_number,
-//                            'email' => $email,
-//                            'amount' => $booking_details[0]['amount']
-//                        );
-//
-//                        //create hash key to verify the payment link when user pay with link
-//                        $check_sum = preg_replace('^[/+=]^', '', $this->encdec_paytm->getChecksumFromArray($param_list, PAYTM_GATEWAY_MERCHANT_KEY));
-//                        $insert_data = array('booking_id' => implode(',', $booking_id_arr),
-//                            'customer_id' => $booking_details[0]['customer_id'],
-//                            'amount' => $booking_details[0]['amount'],
-//                            'phone_number' => $phone_number,
-//                            'email' => $email,
-//                            'hash_key' => md5($check_sum),
-//                            'status' => 0,
-//                            'create_date' => date('Y-m-d H:i:s')
-//                        );
-//
-//                        $insert_id = $this->booking_model->insert_payment_link_details($insert_data);
-//
-//                        if ($insert_id) {
-//                            log_message("info", __METHOD__ . " data inserted successfully.");
-//
-//                            $url = base_url() . 'payment/verify_booking_payment/' . $check_sum;
-//
-//                            $short_url = $this->miscelleneous->getShortUrl($url);
-//
-//                            $sms['tag'] = "gateway_payment_link_sms";
-//                            $sms['phone_no'] = $phone_number;
-//                            $sms['smsData']['link'] = $short_url;
-//                            $sms['smsData']['amount'] = $booking_details[0]['amount'];
-//                            $sms['booking_id'] = implode(',', $booking_id_arr);
-//                            $sms['type'] = "user";
-//                            $sms['type_id'] = $booking_details[0]['customer_id'];
-//
-// $this->notify->send_sms_msg91($sms);
-//
-//                            log_message("info", __METHOD__ . " Sms Send to customer successfully");
-// $this->session->set_flashdata('success_msg', 'Sms Send to customer successfully');
-//                            redirect(base_url() . 'employee/booking/create_booking_payment_link');
-//                        } else {
-//                            log_message("info", __METHOD__ . " error in  inserting data.");
-// $this->session->set_flashdata('err_msg', 'Some error Occured!!! Please try again after some time...');
-//                            redirect(base_url() . 'employee/booking/create_booking_payment_link');
-//                        }
-//                    } else {
-//                        log_message("info", __METHOD__ . " Amount is 0, So link can not be created");
-// $this->session->set_flashdata('err_msg', 'Amount is 0, So link can not be created');
-//                        redirect(base_url() . 'employee/booking/create_booking_payment_link');
-//                    }
-//                } else {
-//                    log_message("info", __METHOD__ . " Link already created for this combination");
-// $this->session->set_flashdata('err_msg', 'Link already created for this combination');
-//                    redirect(base_url() . 'employee/booking/create_booking_payment_link');
-//                }
-//            }
-//        } else {
-//            $this->session->set_flashdata('err_msg', 'Booking Id Can not be empty');
-//            redirect(base_url() . 'employee/booking/create_booking_payment_link');
-//        }
-//    }
+    function process_create_booking_payment_link() {
+        log_message("info", __METHOD__ . " Entering...");
+        $booking_id_arr = $this->input->post('booking_id');
+
+        if (!empty($booking_id_arr)) {
+
+            $phone_number = $this->input->post('phone_number');
+            $email = $this->input->post('email');
+            //Either Phone number or email required
+            if (empty($phone_number) && empty($email)) {
+                $this->session->set_flashdata('err_msg', 'Please Enter Either Phone Number Or Email');
+                redirect(base_url() . 'employee/booking/create_booking_payment_link');
+            } else {
+                /*check if link already created or not.
+                 * if already created then do not create new link
+                */
+                $data = $this->booking_model->get_payment_link_details('*', array('booking_id' => implode(',', $booking_id_arr)));
+
+                if (empty($data)) {
+                    //make booking id like 'SY-1234567899456' so that we can use it in the sql IN() function to process the query
+                    $booking_ids = implode(',', array_map(function($id) {
+                                return("'$id'");
+                            }, $booking_id_arr));
+
+                    $select = "SUM(amount_due) as amount, GROUP_CONCAT(user_id SEPARATOR '_') as customer_id";
+                    $where = array("Booking_id IN ($booking_ids)" => NULL);
+                    $booking_details = $this->booking_model->get_bookings_count_by_any($select, $where);
+
+                    //if amount paid by customer is 0 then do not create link
+                    if (!empty($booking_details[0]['amount'])) {
+
+                        $param_list = array('phone_no' => $phone_number,
+                            'email' => $email,
+                            'amount' => $booking_details[0]['amount']
+                        );
+
+                        //create hash key to verify the payment link when user pay with link
+                        $check_sum = preg_replace('^[/+=]^', '', $this->encdec_paytm->getChecksumFromArray($param_list, PAYTM_GATEWAY_MERCHANT_KEY));
+                        $insert_data = array('booking_id' => implode(',', $booking_id_arr),
+                            'customer_id' => $booking_details[0]['customer_id'],
+                            'amount' => $booking_details[0]['amount'],
+                            'phone_number' => $phone_number,
+                            'email' => $email,
+                            'hash_key' => md5($check_sum),
+                            'status' => 0,
+                            'create_date' => date('Y-m-d H:i:s')
+                        );
+
+                        $insert_id = $this->booking_model->insert_payment_link_details($insert_data);
+
+                        if ($insert_id) {
+                            log_message("info", __METHOD__ . " data inserted successfully.");
+
+                            $url = base_url() . 'payment/verify_booking_payment/' . $check_sum;
+
+                            $short_url = $this->miscelleneous->getShortUrl($url);
+
+                            $sms['tag'] = "gateway_payment_link_sms";
+                            $sms['phone_no'] = $phone_number;
+                            $sms['smsData']['link'] = $short_url;
+                            $sms['smsData']['amount'] = $booking_details[0]['amount'];
+                            $sms['booking_id'] = implode(',', $booking_id_arr);
+                            $sms['type'] = "user";
+                            $sms['type_id'] = $booking_details[0]['customer_id'];
+
+ $this->notify->send_sms_msg91($sms);
+
+                            log_message("info", __METHOD__ . " Sms Send to customer successfully");
+ $this->session->set_flashdata('success_msg', 'Sms Send to customer successfully');
+                            redirect(base_url() . 'employee/booking/create_booking_payment_link');
+                        } else {
+                            log_message("info", __METHOD__ . " error in  inserting data.");
+ $this->session->set_flashdata('err_msg', 'Some error Occured!!! Please try again after some time...');
+                            redirect(base_url() . 'employee/booking/create_booking_payment_link');
+                        }
+                    } else {
+                        log_message("info", __METHOD__ . " Amount is 0, So link can not be created");
+ $this->session->set_flashdata('err_msg', 'Amount is 0, So link can not be created');
+                        redirect(base_url() . 'employee/booking/create_booking_payment_link');
+                    }
+                } else {
+                    log_message("info", __METHOD__ . " Link already created for this combination");
+ $this->session->set_flashdata('err_msg', 'Link already created for this combination');
+                    redirect(base_url() . 'employee/booking/create_booking_payment_link');
+                }
+            }
+        } else {
+            $this->session->set_flashdata('err_msg', 'Booking Id Can not be empty');
+            redirect(base_url() . 'employee/booking/create_booking_payment_link');
+        }
+    }
 }

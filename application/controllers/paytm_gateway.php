@@ -97,7 +97,9 @@ class Paytm_gateway extends CI_Controller {
 
         $param_list = $this->input->post();
         $paytm_check_sum = isset($_POST["CHECKSUMHASH"]) ? $_POST["CHECKSUMHASH"] : ""; //Sent by Paytm pg
-        //Verify all parameters received from Paytm pg to your application. Like MID received from paytm pg is same as your application’s MID, TXN_AMOUNT and ORDER_ID are same as what was sent by you to Paytm PG for initiating transaction etc.
+        //Verify all parameters received from Paytm pg to your application.
+        // Like MID received from paytm pg is same as your application’s MID, 
+        // TXN_AMOUNT and ORDER_ID are same as what was sent by you to Paytm PG for initiating transaction etc.
         $is_valid_checksum = $this->encdec_paytm->verifychecksum_e($param_list, PAYTM_GATEWAY_MERCHANT_KEY, $paytm_check_sum); //will return TRUE or FALSE string.
         if ($is_valid_checksum == "TRUE") {
             if ($this->input->post("STATUS") == "TXN_SUCCESS") {
@@ -185,6 +187,7 @@ class Paytm_gateway extends CI_Controller {
             $request_param_list = array("MID" => PAYTM_GATEWAY_MERCHANT_MID, "ORDERID" => $ORDER_ID);
 
             $StatusCheckSum = $this->encdec_paytm->getChecksumFromArray($request_param_list, PAYTM_GATEWAY_MERCHANT_KEY);
+            
             $request_param_list['CHECKSUMHASH'] = $StatusCheckSum;
             // Call the PG's getTxnStatusNew() function for verifying the transaction status.
             $response_param_list = $this->encdec_paytm->getTxnStatus($request_param_list);
