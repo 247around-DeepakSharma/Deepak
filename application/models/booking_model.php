@@ -2370,6 +2370,54 @@ class Booking_model extends CI_Model {
             return false;
         }
     }
+    
+    /**
+     * @desc: This function is used to insert those payment which was done by customer.
+     * @params: array $data
+     * @return: string $insert_id
+     */
+    function insert_payment_link_details($data){
+        $this->db->insert('gateway_booking_payment_details', $data);
+        return $this->db->insert_id();
+    }
+    
+    
+     /**
+     * @desc: This function is used to get the details from gateway_booking_payment_details table
+     * @params: string $select
+     * @params: array $where
+     * @return: array result_array()
+     */
+    function get_payment_link_details($select,$where){
+        $this->db->select($select);
+        $this->db->where($where);
+        $this->db->from('gateway_booking_payment_details');
+        $query = $this->db->get();
+        
+        return $query->result_array();
+    }
+    
+    
+    /**
+     * @desc: This function is used to update the details from gateway_booking_payment_details table
+     * @params: string $id
+     * @params: array $data
+     * @return: boolean $res
+     */
+    function update_payment_link_details($id, $data) {
+        if(!empty($id)){
+            $this->db->trans_start();
+            $this->db->where('id',$id);
+            $this->db->update('gateway_booking_payment_details', $data);
+            $this->db->trans_complete();
+
+            $res =  $this->db->trans_status();
+        }else{
+            $res = FALSE;
+        }
+        
+        return $res;
+    }
 
 }
     
