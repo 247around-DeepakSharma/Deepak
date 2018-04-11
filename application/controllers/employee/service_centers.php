@@ -3140,4 +3140,8 @@ class Service_centers extends CI_Controller {
 
        echo $finalString;
     }
+    function customer_invoice_details(){
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/customer_invoice_details');
+    }
 }

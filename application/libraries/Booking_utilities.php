@@ -751,6 +751,7 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
     }
     
     function convert_excel_to_pdf_paidApi($src_format, $dst_format, $files) {
+        log_message("info", __METHOD__. " Src ". print_r($src_format, true), " dst ". print_r($dst_format, TRUE). " file ". print_r($files, TRUE));
         //Add Live Secret Key
         $parameter = array(
             'Secret' => 'QNUSX329fBIAICLT',
