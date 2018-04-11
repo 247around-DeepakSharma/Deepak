@@ -412,7 +412,7 @@ class Partner extends CI_Controller {
         $bcc = "";
         $subject = "Booking Insertion Failure By " . $this->session->userdata('partner_name');
         $message = $post;
-        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "");
+        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "",BOOKING_INSERTION_FAILURE);
     }
 
     function set_form_validation() {
@@ -762,7 +762,8 @@ class Partner extends CI_Controller {
         if (!empty($result)) {
 
             //Storing State change values in Booking_State_Change Table
-            $this->notify->insert_state_change('', _247AROUND_PARTNER_ACTIVATED, _247AROUND_PARTNER_DEACTIVATED, 'Partner ID = ' . $id, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+            $this->notify->insert_state_change('', _247AROUND_PARTNER_ACTIVATED, _247AROUND_PARTNER_DEACTIVATED, 'Partner ID = ' . $id, $this->session->userdata('id'), 
+                    $this->session->userdata('employee_id'), _247AROUND,ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE);
             //send email
             $email_template = $this->booking_model->get_booking_email_template("partner_activate_email");
             $to = $get_partner_details[0]['primary_contact_email'] . "," . $get_partner_details[0]['owner_email'];
@@ -770,7 +771,7 @@ class Partner extends CI_Controller {
             $subject = $email_template[4];
             $message = $email_template[0];
 
-            $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "");
+            $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "",'partner_activate_email');
             $this->session->set_userdata(array('success' => 'Partner Activated Successfully'));
             log_message("info", __METHOD__ . " Partner Id " . $id . " Updated by " . $this->session->userdata('id'));
         } else {
@@ -803,7 +804,8 @@ class Partner extends CI_Controller {
         if (!empty($result)) {
 
             //Storing State change values in Booking_State_Change Table
-            $this->notify->insert_state_change('', _247AROUND_PARTNER_DEACTIVATED, _247AROUND_PARTNER_ACTIVATED, 'Partner ID = ' . $id, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+            $this->notify->insert_state_change('', _247AROUND_PARTNER_DEACTIVATED, _247AROUND_PARTNER_ACTIVATED, 'Partner ID = ' . $id, $this->session->userdata('id'), 
+                    $this->session->userdata('employee_id'), _247AROUND,ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE);
 
             //send email
 
@@ -813,7 +815,7 @@ class Partner extends CI_Controller {
             $subject = $email_template[4];
             $message = $email_template[0];
 
-            $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "");
+            $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "",'partner_deactivate_email');
             $this->session->set_userdata(array('success' => 'Partner De-activated Successfully'));
             log_message("info", __METHOD__ . " Partner Id " . $id . " Updated by " . $this->session->userdata('id'));
         } else {
@@ -1050,10 +1052,13 @@ class Partner extends CI_Controller {
 
         //check partner status from partner_booking_status_mapping table  
         $partner_id = $this->input->post("partner_id");
+        $actor = $next_action = 'not_define';
         $partner_status = $this->booking_utilities->get_partner_status_mapping_data($data['current_status'], $data['internal_status'], $partner_id, $booking_id);
         if (!empty($partner_status)) {
             $data['partner_current_status'] = $partner_status[0];
             $data['partner_internal_status'] = $partner_status[1];
+            $actor = $data['actor'] = $partner_status[2];
+            $next_action = $data['next_action'] = $partner_status[3];
         }
 
         $update_status = $this->booking_model->update_booking($booking_id, $data);
@@ -1100,7 +1105,8 @@ class Partner extends CI_Controller {
 
             //Log this state change as well for this booking
             //param:-- booking id, new state, old state, remarks, agent_id, partner  name, partner id
-            $this->notify->insert_state_change($booking_id, $data['current_status'], $status, $data['cancellation_reason'], $this->session->userdata('agent_id'), $this->session->userdata('partner_name'), $this->session->userdata('partner_id'));
+            $this->notify->insert_state_change($booking_id, $data['current_status'], $status, $data['cancellation_reason'], $this->session->userdata('agent_id'), 
+                    $this->session->userdata('partner_name'), $actor,$next_action,$this->session->userdata('partner_id'));
 
             // this is used to send email or sms while booking cancelled
             $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
@@ -1172,15 +1178,19 @@ class Partner extends CI_Controller {
 
             //check partner status from partner_booking_status_mapping table  
             $partner_id = $this->input->post('partner_id');
+            $actor = $next_action = 'not_define';
             $partner_status = $this->booking_utilities->get_partner_status_mapping_data($data['current_status'], $data['internal_status'], $partner_id, $booking_id);
             if (!empty($partner_status)) {
                 $data['partner_current_status'] = $partner_status[0];
                 $data['partner_internal_status'] = $partner_status[1];
+                $actor = $data['actor'] = $partner_status[2];
+                $next_action = $data['next_action'] = $partner_status[3];
             }
 
             $update_status = $this->booking_model->update_booking($booking_id, $data);
             if ($update_status) {
-                $this->notify->insert_state_change($booking_id, _247AROUND_RESCHEDULED, _247AROUND_PENDING, " Rescheduled Booking BY Partner ", $this->session->userdata('agent_id'), $this->session->userdata('partner_name'), $this->session->userdata('partner_id'));
+                $this->notify->insert_state_change($booking_id, _247AROUND_RESCHEDULED, _247AROUND_PENDING, " Rescheduled Booking BY Partner ", $this->session->userdata('agent_id'), 
+                        $this->session->userdata('partner_name'), $actor,$next_action,$this->session->userdata('partner_id'));
 
 
                 $service_center_data['internal_status'] = "Pending";
@@ -1286,7 +1296,8 @@ class Partner extends CI_Controller {
             //inserts vendor escalation details
             $escalation_id = $this->vendor_model->insertVendorEscalationDetails($escalation);
 
-            $this->notify->insert_state_change($escalation['booking_id'], "Escalation", _247AROUND_PENDING, $remarks, $this->session->userdata('agent_id'), $this->session->userdata('partner_name'), $this->session->userdata('partner_id'));
+            $this->notify->insert_state_change($escalation['booking_id'], "Escalation", _247AROUND_PENDING, $remarks, $this->session->userdata('agent_id'), $this->session->userdata('partner_name'), 
+                    ACTOR_ESCALATION,NEXT_ACTION_ESCALATION,$this->session->userdata('partner_id'));
             if ($escalation_id) {
                 log_message('info', __FUNCTION__ . " Escalation Inserted ");
                 $this->booking_model->increase_escalation_reschedule($booking_id, "count_escalation");
@@ -1298,7 +1309,7 @@ class Partner extends CI_Controller {
                 $partner_mail_cc = NITS_ANUJ_EMAIL_ID . ",escalations@247around.com ," . $rm_mail;
                 $partner_subject = "Booking " . $booking_id . " Escalated ";
                 $partner_message = "<p>This booking is ESCALATED to 247around, we will look into this very soon.</p><br><b>Booking ID : </b>" . $booking_id . " Escalated <br><br><strong>Remarks : </strong>" . $remarks;
-                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $partner_mail_to, $partner_mail_cc, $bcc, $partner_subject, $partner_message, $attachment);
+                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $partner_mail_to, $partner_mail_cc, $bcc, $partner_subject, $partner_message, $attachment,BOOKING_ESCALATION);
 
                 log_message('info', __FUNCTION__ . " Escalation Mail Sent ");
 
@@ -1560,8 +1571,7 @@ class Partner extends CI_Controller {
                 }
             }
             if ($post['product_type'] == "Delivered") {
-
-                $this->insert_details_in_state_change($booking_id, _247AROUND_PENDING, $booking_details['booking_remarks']);
+                $tempStatus = _247AROUND_PENDING;
                 if ($this->OLD_BOOKING_STATE == _247AROUND_CANCELLED) {
                     $sc_data['current_status'] = _247AROUND_PENDING;
                     $sc_data['internal_status'] = _247AROUND_PENDING;
@@ -1579,15 +1589,18 @@ class Partner extends CI_Controller {
                 $this->initialized_variable->fetch_partner_data($post['partner_id']);
 
                 $this->miscelleneous->check_upcountry($booking_details, $post['appliance_name'], $price_array, "shipped");
-
-                $this->insert_details_in_state_change($booking_id, _247AROUND_FOLLOWUP, $booking_details['booking_remarks']);
+                $tempStatus = _247AROUND_FOLLOWUP;
                 $booking_details['assigned_vendor_id'] = NULL;
             }
             $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking_details['current_status'], $booking_details['internal_status'], $this->session->userdata('partner_id'), $booking_id);
+           $actor = $next_action = 'not_define';
             if (!empty($partner_status)) {
                 $booking_details['partner_current_status'] = $partner_status[0];
                 $booking_details['partner_internal_status'] = $partner_status[1];
+                $actor = $booking_details['actor'] = $partner_status[2];
+                $next_action = $booking_details['next_action'] = $partner_status[3];
             }
+            $this->insert_details_in_state_change($booking_id, $tempStatus, $booking_details['booking_remarks'],$actor,$next_action);
             $this->booking_model->update_booking($booking_id, $booking_details);
             $up_flag = 1;
             $url = base_url() . "employee/vendor/update_upcountry_and_unit_in_sc/" . $booking_details['booking_id'] . "/" . $up_flag;
@@ -1647,7 +1660,7 @@ class Partner extends CI_Controller {
      * @param String $new_state
      * @param String $remarks
      */
-    function insert_details_in_state_change($booking_id, $new_state, $remarks, $is_cron = "") {
+    function insert_details_in_state_change($booking_id, $new_state, $remarks,$actor,$next_action, $is_cron = "") {
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id') . " Booking ID: " . $booking_id . ' new_state: ' . $new_state . ' remarks: ' . $remarks);
         //Save state change
         $state_change['booking_id'] = $booking_id;
@@ -1670,6 +1683,8 @@ class Partner extends CI_Controller {
             $state_change['partner_id'] = _247AROUND;
         }
         $state_change['remarks'] = $remarks;
+        $state_change['actor'] = $actor;
+        $state_change['next_action'] = $next_action;
 
         // Insert data into booking state change
         $state_change_id = $this->booking_model->insert_booking_state_change($state_change);
@@ -1747,20 +1762,21 @@ class Partner extends CI_Controller {
                 $where = array('id' => $id, 'partner_id' => $partner_id);
                 $response = $this->service_centers_model->update_spare_parts($where, $data);
                 if ($response) {
-
-                    $this->insert_details_in_state_change($booking_id, SPARE_PARTS_SHIPPED, "Partner acknowledged to shipped spare parts");
-
+                    
                     $sc_data['current_status'] = "InProcess";
                     $sc_data['internal_status'] = SPARE_PARTS_SHIPPED;
                     $this->vendor_model->update_service_center_action($booking_id, $sc_data);
 
                     $booking['internal_status'] = SPARE_PARTS_SHIPPED;
-
+                    $actor = $next_action = 'not_define';
                     $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $booking_id);
                     if (!empty($partner_status)) {
                         $booking['partner_current_status'] = $partner_status[0];
                         $booking['partner_internal_status'] = $partner_status[1];
+                        $actor = $booking['actor'] = $partner_status[2];
+                        $next_action = $booking['next_action'] = $partner_status[3];
                     }
+                    $this->insert_details_in_state_change($booking_id, SPARE_PARTS_SHIPPED, "Partner acknowledged to shipped spare parts",$actor,$next_action);
 
                     $this->booking_model->update_booking($booking_id, $booking);
                     if (!empty($incoming_invoice_pdf)) {
@@ -1803,7 +1819,7 @@ class Partner extends CI_Controller {
                     $attachment = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/invoices-excel/" . $invoice_name;
                     $subject = vsprintf($template[4], $booking_id);
                     $emailBody = vsprintf($template[0], $this->input->post("invoice_amount"));
-                    $this->notify->sendEmail($template[2], $template[1], $template[3], '', $subject, $emailBody, $attachment);
+                    $this->notify->sendEmail($template[2], $template[1], $template[3], '', $subject, $emailBody, $attachment,'OOW_invoice_sent');
                 }
 
                 return true;
@@ -2031,8 +2047,7 @@ class Partner extends CI_Controller {
 
             log_message('info', __FUNCTION__ . " Received Defective Spare Parts " . $booking_id
                     . " Partner Id" . $this->session->userdata('partner_id'));
-            $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Partner Received Defective Spare Parts", $is_cron);
-
+            
             $sc_data['current_status'] = "InProcess";
             $sc_data['internal_status'] = _247AROUND_COMPLETED;
             $this->vendor_model->update_service_center_action($booking_id, $sc_data);
@@ -2040,10 +2055,14 @@ class Partner extends CI_Controller {
             $booking['internal_status'] = DEFECTIVE_PARTS_RECEIVED;
         
             $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $booking_id);
+            $actor = $next_action = 'not_define';
             if (!empty($partner_status)) {
                 $booking['partner_current_status'] = $partner_status[0];
                 $booking['partner_internal_status'] = $partner_status[1];
+                $actor = $booking['actor'] = $partner_status[2];
+                $next_action = $booking['next_action'] = $partner_status[3];
             }
+            $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Partner Received Defective Spare Parts", $actor,$next_action,$is_cron);
             
             $this->booking_model->update_booking($booking_id, $booking);
 
@@ -2079,7 +2098,6 @@ class Partner extends CI_Controller {
         if ($response) {
             log_message('info', __FUNCTION__ . " Sucessfully updated Table " . $booking_id
                     . " Partner Id" . $this->session->userdata('partner_id'));
-            $this->insert_details_in_state_change($booking_id, $rejection_reason, DEFECTIVE_PARTS_REJECTED);
 
             $sc_data['current_status'] = "InProcess";
             $sc_data['internal_status'] = $rejection_reason;
@@ -2089,11 +2107,14 @@ class Partner extends CI_Controller {
         
             $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], 
                     $this->session->userdata('partner_id'), $booking_id);
+            $actor = $next_action = 'not_define';
             if (!empty($partner_status)) {
                 $booking['partner_current_status'] = $partner_status[0];
                 $booking['partner_internal_status'] = $partner_status[1];
+                $actor = $booking['actor'] = $partner_status[2];
+                $next_action = $booking['next_action'] = $partner_status[3];
             }
-            
+            $this->insert_details_in_state_change($booking_id, $rejection_reason, DEFECTIVE_PARTS_REJECTED,$actor,$next_action);
             $this->booking_model->update_booking($booking_id, $booking);
 
             $userSession = array('success' => 'Defective Parts Rejected To SF');
@@ -2415,7 +2436,7 @@ class Partner extends CI_Controller {
                                     $login_subject = $login_template[4];
                                     $login_emailBody = vsprintf($login_template[0], $login_email);
 
-                                    $this->notify->sendEmail($login_template[2], $data['email'], $cc, "",$login_subject, $login_emailBody, "");
+                                    $this->notify->sendEmail($login_template[2], $data['email'], $cc, "",$login_subject, $login_emailBody, "",'partner_login_details');
 
                                     log_message('info', $login_subject . " Email Send successfully" . $login_emailBody);
                                 } else {
@@ -2471,7 +2492,7 @@ class Partner extends CI_Controller {
                                     $login_subject = $login_template[4];
                                     $login_emailBody = vsprintf($login_template[0], $login_email);
 
-                                    $this->notify->sendEmail($login_template[2], $data['email'], $cc, "",$login_subject, $login_emailBody, "");
+                                    $this->notify->sendEmail($login_template[2], $data['email'], $cc, "",$login_subject, $login_emailBody, "",'partner_login_details');
 
                                     log_message('info', $login_subject . " Email Send successfully" . $login_emailBody);
                                 } else {
@@ -2716,7 +2737,8 @@ class Partner extends CI_Controller {
                     $agent_type = _247AROUND_PARTNER_STRING;
                 }
                 // Insert log into booking state change
-                $this->notify->insert_state_change($booking_id, UPCOUNTRY_CHARGES_APPROVED, _247AROUND_PENDING, "Upcountry Charges Approved From " . $type, $agent_id, $agent_name, $partner_id);
+                $this->notify->insert_state_change($booking_id, UPCOUNTRY_CHARGES_APPROVED, _247AROUND_PENDING, "Upcountry Charges Approved From " . $type, $agent_id, $agent_name, 
+                        ACTOR_UPCOUNTRY_CHARGES_APPROV_BY_PARTNER,NEXT_ACTION_UPCOUNTRY_CHARGES_APPROV_BY_PARTNER,$partner_id);
 
                 $assigned = $this->miscelleneous->assign_vendor_process($data[0]['service_center_id'], $booking_id,$agent_id,$agent_type);
                 if ($assigned) {
@@ -2738,7 +2760,8 @@ class Partner extends CI_Controller {
                     $this->booking_utilities->lib_send_mail_to_vendor($booking_id, "");
                     log_message('info', "Async Process to create Job card: " . $booking_id);
 
-                    $this->notify->insert_state_change($booking_id, ASSIGNED_VENDOR, UPCOUNTRY_CHARGES_APPROVED, "Service Center Id: " . $data[0]['service_center_id'], $agent_id, $agent_name, $partner_id);
+                    $this->notify->insert_state_change($booking_id, ASSIGNED_VENDOR, UPCOUNTRY_CHARGES_APPROVED, "Service Center Id: " . $data[0]['service_center_id'], $agent_id, 
+                            $agent_name,ACTOR_UPCOUNTRY_CHARGES_APPROV_BY_PARTNER,NEXT_ACTION_UPCOUNTRY_CHARGES_APPROV_BY_PARTNER, $partner_id);
 
                     if ($status == 0) {
                         echo "<script>alert('Thanks For Approving Upcountry Charges');</script>";
@@ -2760,7 +2783,7 @@ class Partner extends CI_Controller {
             $to = NITS_ANUJ_EMAIL_ID;
             $cc = "vijaya@247around.com, abhaya@247around.com";
             $message = "Partner try to approve Booking Id " . $booking_id . " but somehow it failed. <br/>Please check this booking.";
-            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, '', 'UpCountry Approval Failed', $message, '');
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, '', 'UpCountry Approval Failed', $message, '',PARTNER_APPROVAL_FAILED);
             $msg = "Your request has been submitted. We will fix it shortly.";
         }
 
@@ -2784,10 +2807,13 @@ class Partner extends CI_Controller {
         if (is_null($data[0]['assigned_vendor_id']) && $data[0]['current_status'] != _247AROUND_CANCELLED) {
             $partner_current_status = "";
             $partner_internal_status = "";
+            $actor = $next_action = "not_define";
             $partner_status = $this->booking_utilities->get_partner_status_mapping_data("Cancelled", UPCOUNTRY_CHARGES_NOT_APPROVED, $data[0]['partner_id'], $booking_id);
             if (!empty($partner_status)) {
                 $partner_current_status = $partner_status[0];
                 $partner_internal_status = $partner_status[1];
+                $actor = $partner_status[2];
+                $next_action = $partner_status[3];
             }
             if ($status == 0) {// means request from mail
                 $agent_id = _247AROUND_DEFAULT_AGENT;
@@ -2802,10 +2828,11 @@ class Partner extends CI_Controller {
             }
             $this->booking_model->update_booking($booking_id, array("current_status" => "Cancelled", "internal_status" => UPCOUNTRY_CHARGES_NOT_APPROVED,
                 'cancellation_reason' => UPCOUNTRY_CHARGES_NOT_APPROVED, "partner_current_status" => $partner_current_status,
-                'partner_internal_status' => $partner_internal_status));
+                'partner_internal_status' => $partner_internal_status,'actor'=>$actor,'next_action'=>$next_action));
 
             $this->booking_model->update_booking_unit_details($booking_id, array('booking_status' => 'Cancelled'));
-            $this->notify->insert_state_change($booking_id, UPCOUNTRY_CHARGES_NOT_APPROVED, _247AROUND_PENDING, "Upcountry Charges Rejected By Partner From " . $type, $agent_id, $agent_name, $partner_id);
+            $this->notify->insert_state_change($booking_id, UPCOUNTRY_CHARGES_NOT_APPROVED, _247AROUND_PENDING, "Upcountry Charges Rejected By Partner From " . $type, $agent_id, 
+                    $agent_name, $partner_id,$actor,$next_action);
             if ($status == 0) {
                 echo "<script>alert('Upcountry Charges Rejected Successfully');</script>";
             } else {
@@ -2856,21 +2883,25 @@ class Partner extends CI_Controller {
                 $partner_id = _247AROUND;
                 $partner_current_status = "";
                 $partner_internal_status = "";
+                $actor = $next_action = 'not_define';
                 $partner_status = $this->booking_utilities->get_partner_status_mapping_data("Cancelled", UPCOUNTRY_CHARGES_NOT_APPROVED, $value['partner_id'], $value['booking_id']);
                 if (!empty($partner_status)) {
                     $partner_current_status = $partner_status[0];
                     $partner_internal_status = $partner_status[1];
+                    $actor = $partner_status[2];
+                    $next_action = $partner_status[3];
                 }
                 $this->booking_model->update_booking($value['booking_id'], array("current_status" => "Cancelled", "internal_status" => UPCOUNTRY_CHARGES_NOT_APPROVED,
                     'cancellation_reason' => UPCOUNTRY_CHARGES_NOT_APPROVED, "partner_current_status" => $partner_current_status,
-                    'partner_internal_status' => $partner_internal_status));
+                    'partner_internal_status' => $partner_internal_status,'actor'=>$actor,'next_action'=>$next_action));
 
                 $this->booking_model->update_booking_unit_details($value['bookng_id'], array('booking_status' => 'Cancelled'));
-                $this->notify->insert_state_change($value['booking_id'], UPCOUNTRY_CHARGES_NOT_APPROVED, _247AROUND_PENDING, "Upcountry Charges Rejected From " . "AUTO ", $agent_id, $agent_name, $partner_id);
+                $this->notify->insert_state_change($value['booking_id'], UPCOUNTRY_CHARGES_NOT_APPROVED, _247AROUND_PENDING, "Upcountry Charges Rejected From " . "AUTO ", $agent_id, 
+                        $agent_name, $actor,$next_action,$partner_id);
             }
 
             //Notify
-            $this->notify->sendEmail(NOREPLY_EMAIL_ID, ANUJ_EMAIL_ID, '', '', 'Upcountry Bookings Cancelled', print_r($data, TRUE), '');
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, ANUJ_EMAIL_ID, '', '', 'Upcountry Bookings Cancelled', print_r($data, TRUE), '',UPCOUNTRY_BOOKING_CANCELLED);
         }
     }
 
@@ -2991,7 +3022,7 @@ class Partner extends CI_Controller {
                 $subject = $partner_data['public_name'] . "  : Partner Details Has been Updated";
                 $message = "Following details has been updated by partner: " . $this->session->userdata('partner_name');
                 $message .= "<br>" . $html;
-                $sendmail = $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, " ", " ", $subject, $message, "");
+                $sendmail = $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, " ", " ", $subject, $message, "",PARTNER_DETAILS_UPDATED);
 
                 if ($sendmail) {
                     log_message('info', __FUNCTION__ . 'Mail Send successfully');
@@ -3119,7 +3150,7 @@ class Partner extends CI_Controller {
                 $subject = $email_template[4];
                 $message = vsprintf($email_template[0], $html_table);
 
-                $sendmail = $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "");
+                $sendmail = $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "",'defective_parts_acknowledge_reminder');
 
                 if ($sendmail) {
                     log_message('info', __FUNCTION__ . 'Defective Spares Yet to be Acknowledged Mail has been sent to partner ' . $partner['public_name'] . ' successfully');
@@ -3175,7 +3206,7 @@ class Partner extends CI_Controller {
                 $subject = $email_template[4];
                 $message = vsprintf($email_template[0], $html_table);
 
-                $sendmail = $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "");
+                $sendmail = $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "",'auto_acknowledge_defective_parts');
 
                 if ($sendmail) {
                     log_message('info', __FUNCTION__ . 'Report Mail has been send to partner ' . $partner['public_name'] . ' successfully');
@@ -3993,5 +4024,13 @@ class Partner extends CI_Controller {
         
         echo json_encode($res);
     }
-
+function get_contracts(){
+    $id = $this->session->userdata('partner_id');
+    $data['contracts'] = $this->reusable_model->get_search_result_data("collateral", 'collateral.*,collateral_type.*',
+                array("entity_id" => $id, "entity_type" => "partner",'collateral_type.collateral_tag'=>'Contract'), array("collateral_type" => "collateral_type.id=collateral.collateral_id"), 
+                NULL, NULL, NULL,NULL);
+    $this->load->view('partner/header');
+    $this->load->view('partner/get_contracts',$data);
+    $this->load->view('partner/partner_footer');
+}
 }

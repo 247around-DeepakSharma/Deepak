@@ -730,7 +730,7 @@ EOD;
                     </html>';
 
         $to = NITS_ANUJ_EMAIL_ID;
-        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", "Booking Summary", $html, "");
+        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", "Booking Summary", $html, "",BOOKING_REPORT);
         log_message('info', __FUNCTION__ . 'Booking Report mail sent.');
     }
 
@@ -829,7 +829,7 @@ EOD;
             $html = $this->booking_utilities->booking_report_for_new_service_center($sf_list);
             $to = $value['official_email'];
 
-            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", "New Service Center Report " . date('d-M,Y'), $html, "");
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", "New Service Center Report " . date('d-M,Y'), $html, "",NEW_SERVICE_CENTERS_REPORT);
             log_message('info', __FUNCTION__ . ' New Service Center Report mail sent to ' . $to);
 
             // Inserting values in scheduler tasks log
@@ -882,7 +882,7 @@ EOD;
             $html = $this->booking_utilities->booking_report_by_service_center($sf_list, 1);
             $to = $value['official_email'];
 
-            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", "Service Center Report " . date('d-M,Y'), $html, "");
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", "Service Center Report " . date('d-M,Y'), $html, "",SERVICE_CENTERS_REPORT);
             log_message('info', __FUNCTION__ . ' Service Center Report mail sent to ' . $to);
 
             // Inserting values in scheduler tasks log
@@ -986,7 +986,7 @@ EOD;
                         $view = $this->load->view('employee/get_crimes', $data, TRUE);
                         $subject = "SF Crimes Report " . date("d-M-Y");
                         $to = $value['official_email'];
-                        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $view, "");
+                        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $view, "",SC_CRIME_REPORT);
                     } else {
                         log_message('info', __FUNCTION__ . " Empty Data get");
                     }
@@ -1043,7 +1043,7 @@ EOD;
                         $cc = $rm_email;
                         $subject = $value['name'] . " - Bookings Not Updated Report - " . date("d-M-Y");
 
-                        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $view, $file_path . ".txt");
+                        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $view, $file_path . ".txt",SC_CRIME_REPORT_FOR_SF);
                         exec("rm -rf " . escapeshellarg($file_path));
                     } else {
                         log_message('info', __FUNCTION__ . " Empty Data Get");
@@ -1075,7 +1075,7 @@ EOD;
             $view = $this->load->view('employee/unassigned_table', $data, TRUE);
             $to = NITS_ANUJ_EMAIL_ID;
             $subject = "SF Engineer Assigned Report " . date("d-M-Y");
-            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $view, "");
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $view, "",UN_ASSIGNED_BOOKING);
         }
     }
 
@@ -1098,7 +1098,7 @@ EOD;
             $to = $value['primary_contact_email'] . "," . $value['owner_email'];
             $cc = $rm_email;
             $subject = $value['service_center_name'] . " Assigned Report " . date("d-M-Y");
-            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $view, "");
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $view, "",UN_ASSIGNED_BOOKING_TO_SF);
         }
     }
 
@@ -1273,7 +1273,7 @@ EOD;
             $to = rtrim($to, ', ');
 
             $subject = " RM Crimes Report " . date("d-M-Y");
-            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $report_view, "");
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $report_view, "",RM_CRIME_REPORT);
 
             //Logging
             log_message('info', __FUNCTION__ . ' RM Crime Report has been sent successfully');

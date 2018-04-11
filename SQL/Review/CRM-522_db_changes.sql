@@ -1,0 +1,1 @@
+ALTER TABLE `email_sent` ADD `email_tag` TEXT NULL AFTER `id`;

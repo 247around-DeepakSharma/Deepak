@@ -89,7 +89,7 @@ class Upload_booking_file extends CI_Controller {
                     // SEND MAIl
                     $subject = $file_type . " data validated. File is under process";
                     $message = $this->file_name . " validation Pass. File is under process";
-                    $this->send_mail_column($subject, $message, TRUE);
+                    $this->send_mail_column($subject, $message, TRUE,FILE_VALIDATION_PASS);
                     foreach ($data as $value) {
                         log_message('info', __FUNCTION__ . " Data Found");
                         $this->FilesData = array();
@@ -142,7 +142,8 @@ class Upload_booking_file extends CI_Controller {
                                     }
                                     $count_booking_inserted++;
                                     $this->insert_booking_in_partner_leads($this->FilesData);
-                                    $this->notify->insert_state_change($this->FilesData['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY, '', _247AROUND_DEFAULT_AGENT, _247AROUND_DEFAULT_AGENT_NAME, _247AROUND);
+                                    $this->notify->insert_state_change($this->FilesData['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY, '', _247AROUND_DEFAULT_AGENT, 
+                                            _247AROUND_DEFAULT_AGENT_NAME, ACTOR_FILE_UPLOAD_BOOKING_CREATE,NEXT_ACTION_FILE_UPLOAD_BOOKING_CREATE,_247AROUND);
                                 } else {
                                     log_message('info', __FUNCTION__ . ' => ERROR: UNIT is not inserted: ' .
                                             print_r($this->FilesData, true));
@@ -407,6 +408,8 @@ class Upload_booking_file extends CI_Controller {
         if (!empty($partner_status)) {
             $booking['partner_current_status'] = $partner_status[0];
             $booking['partner_internal_status'] = $partner_status[1];
+            $booking['actor'] = $partner_status[2];
+            $booking['next_action'] = $partner_status[3];
         }
 
         $booking_details_id = $this->booking_model->addbooking($booking);
@@ -617,7 +620,7 @@ class Upload_booking_file extends CI_Controller {
                 $subject = "Paytm Mall File Upload Failed. SKU NOT Found";
                 $message = $this->file_name . " is not uploaded Agent Name: " . $this->session->userdata('employee_id');
                 $message .= "<br/><br/>" . $this->table->generate($sku_invalid);
-                $this->send_mail_column($subject, $message, false);
+                $this->send_mail_column($subject, $message, false,PAYTM_MALL_FILE_FAILED);
             }
             return $Filedata;
         }
@@ -751,7 +754,7 @@ class Upload_booking_file extends CI_Controller {
 
                         $subject = "Delivery Date Column is not exist. SD Uploading Failed.";
                         $message = $this->file_name . " is not uploaded Agent Name: " . $this->session->userdata('employee_id');
-                        $this->send_mail_column($subject, $message, false);
+                        $this->send_mail_column($subject, $message, false,SNAPDEAL_FAILED_FILE);
                     }
                 } else {
                     log_message('info', __FUNCTION__ . "=> Phone Number empty...");
@@ -935,7 +938,7 @@ class Upload_booking_file extends CI_Controller {
             $subject = "Appliance Not Found. Please chaeck File";
             $message1 .= $this->table->generate();
 
-            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message1, "");
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message1, "",APPLIANCE_NOT_FOUND);
         }
         
         return $data1;
@@ -947,12 +950,12 @@ class Upload_booking_file extends CI_Controller {
      * @param String $message
      * @param boolean $validation
      */
-    function send_mail_column($subject, $message, $validation) {
+    function send_mail_column($subject, $message, $validation,$emailTag) {
         $to = NITS_ANUJ_EMAIL_ID . ", sales@247around.com, booking@247around.com";
         $from = NOREPLY_EMAIL_ID;
         $cc = "";
         $bcc = "";
-        $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "");
+        $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "",$emailTag);
         log_message('info', __FUNCTION__ . "=> Validation " . $validation . "  " . $message);
         if ($validation == false) {
             exit();
@@ -983,7 +986,7 @@ class Upload_booking_file extends CI_Controller {
 
         $html = $this->load->view('employee/invalid_data', $invalid_data_with_reason, TRUE);
         // echo $html = $this->load->view('employee/invalid_data',$invalid_data_with_reason);
-        $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $html, "");
+        $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $html, "",FILE_UPLOADED);
     }
 
     function validate_phone_number($phone_number) {

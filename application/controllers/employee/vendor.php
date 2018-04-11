@@ -324,7 +324,6 @@ class vendor extends CI_Controller {
                     //Logging success for file uppload
                     log_message('info',__CLASS__.' CONTRACT FILE is being uploaded sucessfully.');
                 }
-                
        
 
             $non_working_days = $this->input->post('day');
@@ -387,7 +386,7 @@ class vendor extends CI_Controller {
                 $bankDetailsArray['entity_id'] = $this->input->post('id');
                 $bankDetailsArray['agent_id'] = $agentID;
                 $bankDetailsArray['entity_type'] = "SF";
-                $this->vendor_model->edit_vendor($vendor_data, $this->input->post('id'));
+                //$this->vendor_model->edit_vendor($vendor_data, $this->input->post('id'));
                 $this->miscelleneous->update_insert_bank_account_details($bankDetailsArray,'update');
                
       
@@ -395,7 +394,8 @@ class vendor extends CI_Controller {
                 log_message('info', __FUNCTION__.' SF has been updated :'.print_r($vendor_data,TRUE));
                 
                 //Adding details in Booking State Change
-                $this->notify->insert_state_change('', SF_UPDATED, SF_UPDATED, 'Vendor ID : '.$_POST['id'], $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+                $this->notify->insert_state_change('', SF_UPDATED, SF_UPDATED, 'Vendor ID : '.$_POST['id'], $this->session->userdata('id'), $this->session->userdata('employee_id'),
+                        ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
                 
                 $send_email = $this->send_update_sf_mail($_POST['id'],$rm_official_email);
 
@@ -453,7 +453,8 @@ class vendor extends CI_Controller {
                 );
                 $this->vendor_model->insert_log_action_on_entity($log);
                 //Adding details in Booking State Change
-                $this->notify->insert_state_change('', NEW_SF_ADDED, NEW_SF_ADDED, 'Vendor ID : '.$sc_id, $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+                $this->notify->insert_state_change('', NEW_SF_ADDED, NEW_SF_ADDED, 'Vendor ID : '.$sc_id, $this->session->userdata('id'), $this->session->userdata('employee_id'),
+                        ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
                 
                 //Sending Mail for Added details
                 $send_email = $this->send_update_sf_mail($sc_id,$rm_official_email);
@@ -487,7 +488,7 @@ class vendor extends CI_Controller {
                 if (!empty($template)) {
                     $subject = "Welcome to 247around ".$this->input->post('company_name')." (".$this->input->post('district').")";
                     $emailBody = $template[0];
-                    $this->notify->sendEmail($template[2], $new_vendor_mail, $template[3].",".$rm_official_email, '', $subject, $emailBody, "");
+                    $this->notify->sendEmail($template[2], $new_vendor_mail, $template[3].",".$rm_official_email, '', $subject, $emailBody, "",'new_vendor_creation');
                     
                     //Logging
                     log_message('info', " Welcome Email Send successfully" . $emailBody);
@@ -522,7 +523,7 @@ class vendor extends CI_Controller {
                    
                    $login_emailBody = vsprintf($login_template[0], $login_email);
                    
-                   $this->notify->sendEmail($login_template[2], $new_vendor_mail ,  $login_template[3].",".$rm_official_email, '', $login_subject , $login_emailBody, "");
+                   $this->notify->sendEmail($login_template[2], $new_vendor_mail ,  $login_template[3].",".$rm_official_email, '', $login_subject , $login_emailBody, "",'vendor_login_details');
                    
                    //Logging
                    log_message('info', $login_subject." Email Send successfully" . $login_emailBody);
@@ -1086,7 +1087,7 @@ class vendor extends CI_Controller {
                     }
                     
                     $emailBody = vsprintf($template[0], $email);
-                    $this->notify->sendEmail($template[2], $to, $template[3], '', $subject, $emailBody, "");
+                    $this->notify->sendEmail($template[2], $to, $template[3], '', $subject, $emailBody, "",'sf_permanent_on_off');
                 }
 
                 log_message('info', __FUNCTION__ . ' Permanent ON/OFF of Vendor' . $sf_name. " status ". $is_active);
@@ -1115,7 +1116,8 @@ class vendor extends CI_Controller {
     function delete($id) {
         $this->vendor_model->delete($id);
         //Storing State change values in Booking_State_Change Table
-        $this->notify->insert_state_change('', _247AROUND_VENDOR_DELETED, _247AROUND_VENDOR_DELETED, 'Vendor ID = '.$id, $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+        $this->notify->insert_state_change('', _247AROUND_VENDOR_DELETED, _247AROUND_VENDOR_DELETED, 'Vendor ID = '.$id, $this->session->userdata('id'), 
+                $this->session->userdata('employee_id'),ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
         redirect(base_url() . 'employee/vendor/viewvendor', 'refresh');
     }
 
@@ -1175,7 +1177,8 @@ class vendor extends CI_Controller {
                     $assigned = $this->miscelleneous->assign_vendor_process($service_center_id, $booking_id, $agent_id, $agent_type);
                     if ($assigned) {
                         //Insert log into booking state change
-                       $this->notify->insert_state_change($booking_id, ASSIGNED_VENDOR, _247AROUND_PENDING, "Service Center Id: " . $service_center_id, $agent_id, $agent_name, _247AROUND);
+                       $this->notify->insert_state_change($booking_id, ASSIGNED_VENDOR, _247AROUND_PENDING, "Service Center Id: " . $service_center_id, $agent_id, $agent_name, 
+                               ACTOR_ASSIGN_BOOKING_TO_VENDOR,NEXT_ACTION_ASSIGN_BOOKING_TO_VENDOR,_247AROUND);
                         $count++;
                                
                         if($sf_status[$booking_id] == "SF_NOT_EXIST"){
@@ -1215,7 +1218,7 @@ class vendor extends CI_Controller {
         $subject = "Pincode Not Found In Vendor Pincode Mapping File";
         $message = "Hi,<br/>Please add Pincode and SF details in the Vendor Pincode Mapping file and upload new file. Booking ID: " . $booking_id;
         
-        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
+        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "",SF_NOT_FOUND);
     }
     
    
@@ -1274,9 +1277,12 @@ class vendor extends CI_Controller {
                 'upcountry_distance' => NULL);
             
             $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, ASSIGNED_VENDOR, $previous_sf_id[0]['partner_id'], $booking_id);
+            $actor = $next_action = 'not_define';
             if (!empty($partner_status)) {
                 $assigned_data['partner_current_status'] = $partner_status[0];
                 $assigned_data['partner_internal_status'] = $partner_status[1];
+                $actor = $assigned_data['actor'] = $partner_status[2];
+                $next_action = $assigned_data['next_action'] = $partner_status[3];
             }
 
             $this->booking_model->update_booking($booking_id, $assigned_data);
@@ -1310,7 +1316,7 @@ class vendor extends CI_Controller {
                     $enID = $this->engineer_model->insert_engineer_action($engineer_action);
                     if(!$enID){
                          $this->notify->sendEmail(NOREPLY_EMAIL_ID, DEVELOPER_EMAIL, "", "", 
-                            "BUG in Enginner Table ". $booking_id, "SF Assigned but Action table not updated", "");
+                            "BUG in Enginner Table ". $booking_id, "SF Assigned but Action table not updated", "",SF_ASSIGNED_ACTION_TABLE_NOT_UPDATED);
                     }
                 }
                 
@@ -1345,7 +1351,8 @@ class vendor extends CI_Controller {
                 }
             }
 
-            $this->notify->insert_state_change($booking_id, RE_ASSIGNED_VENDOR, ASSIGNED_VENDOR, "Re-Assigned SF ID: " . $service_center_id, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+            $this->notify->insert_state_change($booking_id, RE_ASSIGNED_VENDOR, ASSIGNED_VENDOR, "Re-Assigned SF ID: " . $service_center_id, $this->session->userdata('id'), 
+                    $this->session->userdata('employee_id'), $actor,$next_action, _247AROUND);
 
             $sp['service_center_id'] = $service_center_id;
             $this->service_centers_model->update_spare_parts(array('booking_id' => $booking_id), $sp);
@@ -1472,7 +1479,7 @@ class vendor extends CI_Controller {
             log_message('info', "broadcast mail subject: " . $subject);
             log_message('info', "broadcast mail message: " . $message);
 
-            $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
+            $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment,BROADCAST_EMAIL);
 
             redirect(base_url() . DEFAULT_SEARCH_PAGE);
         }
@@ -1853,7 +1860,7 @@ class vendor extends CI_Controller {
         $to = $this->input->post('email');
         $notes = $this->input->post('notes');
         $attachment = $this->input->post('fileUrl');
-        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, '', '', 'Pincode Changes', $notes, $attachment);
+        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, '', '', 'Pincode Changes', $notes, $attachment,PINCODE_CHANGES);
         echo '<div class="alert alert-success alert-dismissible" role="alert">
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                         <span ;aria-hidden="true">&times;</span>
@@ -1956,9 +1963,9 @@ class vendor extends CI_Controller {
         $raw_message = $this->input->post('mail_body');
         //to replace new lines in line breaks for html
         $message = nl2br($raw_message);
-        $bcc = "";
+        $bcc = ""; 
         $attachment = "";
-        $this->notify->sendEmail("sales@247around.com", $to, $cc, $bcc, $subject, $message, $attachment);
+        $this->notify->sendEmail("sales@247around.com", $to, $cc, $bcc, $subject, $message, $attachment,EMAIL_TO_SPECIFIC_VENDOR);
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/viewvendor', array('query' => $vendor_info));
     }
@@ -2725,7 +2732,7 @@ class vendor extends CI_Controller {
                     if (isset($temp)) {
                         $emailBody = vsprintf($email_template[0]['body'], $temp);
                         //Sending Mail
-                        $this->notify->sendEmail($email_template[0]['from'], $to, '', '', $email_template[0]['subject'], $emailBody, $attachment);
+                        $this->notify->sendEmail($email_template[0]['from'], $to, '', '', $email_template[0]['subject'], $emailBody, $attachment,$email_template[0]['template']);
                         //Loggin send mail details
                         log_message('info', __FUNCTION__ . ' Mail send to the following vendor ID ' . $vendor_details[0]['id']);
                         //Set Flag to check success or error of AJAX call
@@ -2818,7 +2825,7 @@ class vendor extends CI_Controller {
                     if (isset($temp)) {
                         $emailBody = vsprintf($email_template[0]['body'], $temp);
                         //Sending Mail
-                        $this->notify->sendEmail($email_template[0]['from'], $to, '', '', $email_template[0]['subject'], $emailBody, $attachment);
+                        $this->notify->sendEmail($email_template[0]['from'], $to, '', '', $email_template[0]['subject'], $emailBody, $attachment,$email_template[0]['template']);
                         //Loggin send mail details
                         log_message('info', __FUNCTION__ . ' Mail send to the following vendor ID ' . $partner_details[0]['id']);
                         //Set Flag to check success or error of AJAX call
@@ -3042,7 +3049,7 @@ class vendor extends CI_Controller {
             $html = $this->booking_utilities->booking_report_by_service_center($sf_list,'');
             $to = $employee_details[0]['official_email'];
             
-            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", "Service Center Report", $html, "");
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", "Service Center Report", $html, "",SERVICE_CENTERS_REPORT);
             log_message('info', __FUNCTION__ . ' Service Center Report mail sent to '. $to);
             echo TRUE;
         }else{
@@ -3106,9 +3113,11 @@ class vendor extends CI_Controller {
         $this->vendor_model->edit_vendor(array('is_update'=> $flag), $service_center_id);
         //Adding details in Booking State Change Table
         if($flag == 1){
-            $this->notify->insert_state_change("", NEW_SF_CRM, OLD_SF_CRM , "New CRM Enabled for SF ID: ".$service_center_id , $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+            $this->notify->insert_state_change("", NEW_SF_CRM, OLD_SF_CRM , "New CRM Enabled for SF ID: ".$service_center_id , $this->session->userdata('id'), $this->session->userdata('employee_id'),
+                    ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
         }else{
-            $this->notify->insert_state_change("", OLD_SF_CRM, NEW_SF_CRM , "Old CRM Enabled for SF ID: ".$service_center_id , $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+            $this->notify->insert_state_change("", OLD_SF_CRM, NEW_SF_CRM , "Old CRM Enabled for SF ID: ".$service_center_id , $this->session->userdata('id'), $this->session->userdata('employee_id'),
+                    ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
         }
         redirect(base_url() . 'employee/vendor/viewvendor');
     }
@@ -3130,7 +3139,7 @@ class vendor extends CI_Controller {
             $html = $this->booking_utilities->booking_report_for_new_service_center($sf_list);
             $to = $employee_details[0]['official_email'];
 
-            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", "New Service Center Report", $html, "");
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", "New Service Center Report", $html, "",NEW_SERVICE_CENTERS_REPORT);
             log_message('info', __FUNCTION__ . ' New Service Center Report mail sent to '. $to);
             echo TRUE;
         }else{
@@ -3298,7 +3307,7 @@ class vendor extends CI_Controller {
                 $email['on_off'] = $on_off_value;
                 $subject = " Temporary " . $on_off_value . " Vendor " . $sf_name;
                 $emailBody = vsprintf($template[0], $email);
-                $this->notify->sendEmail($template[2], $to, $template[3], '', $subject, $emailBody, "");
+                $this->notify->sendEmail($template[2], $to, $template[3], '', $subject, $emailBody, "",'sf_temporary_on_off');
             }
 
             log_message('info', __FUNCTION__ . ' Temporary  '.$on_off_value.' of Vendor' . $sf_name);
@@ -3922,7 +3931,7 @@ class vendor extends CI_Controller {
 
                 $subject['booking_id'] = $booking_id[$key];
                 $subjectBody = vsprintf($template[4], $subject);
-                $this->notify->sendEmail($from, $to, $template[3] . "," . $rm_official_email, '', $subjectBody, $emailBody, "");
+                $this->notify->sendEmail($from, $to, $template[3] . "," . $rm_official_email, '', $subjectBody, $emailBody, "",'remove_penalty_on_booking');
 
                 //Logging
                 log_message('info', " Remove Penalty Report Mail Send successfully" . $emailBody);
@@ -4144,7 +4153,7 @@ class vendor extends CI_Controller {
             $subject = "Upcountry Booking Missed - Need To Take Action";
             $message1 .= $this->table->generate();
 
-            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message1, "");
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message1, "",UPCOUNTRY_BOOKING_NOT_MARKED);
         } else {
             log_message("info", __METHOD__." There is no pending booking which need to update for upcountry");
         }
@@ -4685,11 +4694,11 @@ class vendor extends CI_Controller {
                 $emailBody = vsprintf($template[0], $login_details);
                 $to = $this->session->userdata('official_email').",".$sf_details[0]['primary_contact_email'].",".$sf_details[0]['owner_email'];
                 $cc = $rm_email.",".$template[3];
-                $this->notify->sendEmail($template[2],$to , $cc, '', $subject, $emailBody, "");
+                $this->notify->sendEmail($template[2],$to , $cc, '', $subject, $emailBody, "",'resend_login_details');
                 $this->session->set_userdata('success','Login Details Send To Registered Email Id');
                 redirect(base_url() . 'employee/vendor/viewvendor'); 
             }else{
-                $this->notify->sendEmail(NOREPLY_EMAIL_ID, DEVELOPER_EMAIL, '','', 'Email Template Not Found', 'resend_login_details email template not found. Please update this into the database.', "");
+                $this->notify->sendEmail(NOREPLY_EMAIL_ID, DEVELOPER_EMAIL, '','', 'Email Template Not Found', 'resend_login_details email template not found. Please update this into the database.', "",'resend_login_details');
                 $this->session->set_userdata('error','Error!!! Please Try Again...');
                 redirect(base_url() . 'employee/vendor/viewvendor');  
             }

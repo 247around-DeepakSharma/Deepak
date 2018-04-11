@@ -132,7 +132,7 @@ class bookings_excel extends CI_Controller {
                 $cc = NITS_EMAIL_ID.",".DEVELOPER_EMAIL;
                 $agent_name = !empty($this->session->userdata('emp_name'))?$this->session->userdata('emp_name'):_247AROUND_DEFAULT_AGENT_NAME;
                 $subject = "Paytm File is uploaded by " . $agent_name;
-                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $html, "");
+                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $html, "",PAYTM_FILE_UPLOADED);
                 log_message('info', 'paytm file uploaded successfully.' . print_r($response,true));
                 
                 //Updating File Uploads table and upload file to s3
@@ -155,7 +155,7 @@ class bookings_excel extends CI_Controller {
                     $email_html .= $value['order_id']."<br>";
                 }
                 $emailBody = vsprintf($template[0], array($_FILES["file"]["name"],$email_html));
-                $this->notify->sendEmail($template[2], $template[1] ,$template[3], '', $subject , $emailBody, $attachement);
+                $this->notify->sendEmail($template[2], $template[1] ,$template[3], '', $subject , $emailBody, $attachement,'missing_pincode_mail');
             }
         } else {
             echo $msg;
@@ -267,7 +267,7 @@ class bookings_excel extends CI_Controller {
                     $message .= "Sheet Name = <b>".$sheet->getTitle()."</b> <br><br>";
                     $message .= $this->Columfailed;
                     $message .= "Please Check File And Upload Again";
-                    $this->notify->sendEmail(NOREPLY_EMAIL_ID,$to,$cc,"",$subject, $message,"");
+                    $this->notify->sendEmail(NOREPLY_EMAIL_ID,$to,$cc,"",$subject, $message,"",PAYTM_FILE_UPLOAD_FAILED);
                     $insert_data_details = array();
                     break;
                 }else{
@@ -549,10 +549,13 @@ class bookings_excel extends CI_Controller {
                             //Insert query
                             //echo print_r($booking, true) . "<br><br>";
                             //check partner status from partner_booking_status_mapping table  
+                            $actor = $next_action = 'not_define';
                             $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $booking['partner_id'], $booking['booking_id']);
                             if (!empty($partner_status)) {
                                 $booking['partner_current_status'] = $partner_status[0];
                                 $booking['partner_internal_status'] = $partner_status[1];
+                                $actor = $booking['actor'] = $partner_status[2];
+                                $next_action = $booking['next_action'] = $partner_status[3];
                             }
 
                             $is_sms = $this->miscelleneous->check_upcountry($booking, $lead_details['Product'], $is_price, "");
@@ -575,15 +578,17 @@ class bookings_excel extends CI_Controller {
                                 }
                                 $this->insert_booking_in_partner_leads($booking, $unit_details, $user, $lead_details['Product']);
                                 if(empty($this->session->userdata('id'))){
-                                    $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY, $booking['query_remarks'], _247AROUND_DEFAULT_AGENT, _247AROUND_DEFAULT_AGENT_NAME, _247AROUND);
+                                    $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY, $booking['query_remarks'], 
+                                            _247AROUND_DEFAULT_AGENT, _247AROUND_DEFAULT_AGENT_NAME, $actor,$next_action,_247AROUND);
                                 }else{
-                                    $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY, '', $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+                                    $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY, '', $this->session->userdata('id'), 
+                                            $this->session->userdata('employee_id'), $actor,$next_action,_247AROUND);
                                 }
                                 //Reset
                                 if (empty($booking['state'])) {
                                     //$to = NITS_ANUJ_EMAIL_ID;
                                    // $message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
-                                    //$this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", 'Pincode Not Found', $message, "");
+                                    //$this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", 'Pincode Not Found', $message, "",PINCODE_NOT_FOUND);
                                 }
                                 $this->total_bookings_inserted++;
                             }

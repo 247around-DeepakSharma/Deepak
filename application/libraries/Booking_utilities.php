@@ -169,7 +169,7 @@ class Booking_utilities {
                 if($tinyUrl){
                     $sms['type'] = "user";
                     $sms['type_id'] = $user_id;
-                    $sms['tag'] = "customer_qr_download";
+                    $sms['tag'] = "customer_qr_download";   
                     $sms['smsData']['services'] = $services;
                     $sms['smsData']['url'] = $tinyUrl;
                     $sms['phone_no'] = $userPhone;
@@ -586,10 +586,15 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
      */
     function get_partner_status_mapping_data($current_status, $internal_status, $partner_id = "", $booking_id = "") {
         $partner_status = $this->My_CI->booking_model->get_partner_status($partner_id, $current_status, $internal_status);
-
+        $booking['actor'] = "not_define";
+        $booking['next_action'] = "not_define";
         if (!empty($partner_status[0]['partner_current_status']) && !empty($partner_status[0]['partner_internal_status'])) {
             $booking['partner_current_status'] = $partner_status[0]['partner_current_status'];
             $booking['partner_internal_status'] = $partner_status[0]['partner_internal_status'];
+            if (!empty($partner_status[0]['actor']) && !empty($partner_status[0]['next_action'])) {
+                $booking['actor'] = $partner_status[0]['actor'];
+                $booking['next_action'] = $partner_status[0]['next_action'];
+            }
         } else {
             $booking['partner_current_status'] = $current_status;
             $booking['partner_internal_status'] = $current_status;
@@ -597,7 +602,7 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
             $this->send_mail_When_no_data_found($current_status, $internal_status, $booking_id, $partner_id);
         }
 
-        return array($booking['partner_current_status'], $booking['partner_internal_status']);
+        return array($booking['partner_current_status'], $booking['partner_internal_status'],$booking['actor'],$booking['next_action']);
     }
 
     /*
@@ -742,10 +747,11 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
                                 
                         </body>
                     </html>";
-        $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "");
+        $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "",NO_DATA_FOUND_IN_STATUS_MAPPING_TABLE);
     }
     
     function convert_excel_to_pdf_paidApi($src_format, $dst_format, $files) {
+        log_message("info", __METHOD__. " Src ". print_r($src_format, true), " dst ". print_r($dst_format, TRUE). " file ". print_r($files, TRUE));
         //Add Live Secret Key
         $parameter = array(
             'Secret' => 'QNUSX329fBIAICLT',

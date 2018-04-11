@@ -187,7 +187,7 @@ class Booking_model extends CI_Model {
      * 
      */
     function get_partner_status($partner_id,$current_status, $internal_status){
-        $this->db->select('partner_current_status, partner_internal_status');
+        $this->db->select('partner_current_status, partner_internal_status,actor,next_action');
         $this->db->where(array('partner_id' => $partner_id,'247around_current_status' => $current_status, '247around_internal_status' => $internal_status));
         $this->db->or_where('partner_id',_247AROUND);
         $this->db->where(array('247around_current_status' => $current_status, '247around_internal_status' => $internal_status));

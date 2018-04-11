@@ -28,7 +28,7 @@ class Notify {
      *  @param : From, To, CC, BCC, Subject, Message, Attachment
      *  @return : if mail send return true else false
      */
-    function sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment) {
+    function sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment,$template_tag) {
 	switch (ENVIRONMENT) {
 	    case 'production':
 		//Clear previous email
@@ -50,7 +50,7 @@ class Notify {
                     $this->My_CI->email->message($message);
 
                     if ($this->My_CI->email->send()) {
-                        $this->add_email_send_details($from, $to, $cc, $bcc, $subject, $message, $attachment);
+                        $this->add_email_send_details($from, $to, $cc, $bcc, $subject, $message, $attachment,$template_tag);
                         return true;
                     } else {
                         return false;
@@ -257,15 +257,17 @@ class Notify {
      * 
      * @return: void 
      */
-    function insert_state_change($booking_id, $new_state, $old_state, $remarks, $agent_id, $agent_name, $partner_id = NULL, $service_center_id = NULL) {
+    function insert_state_change($booking_id, $new_state, $old_state, $remarks, $agent_id, $agent_name,$actor,$next_action, $partner_id = NULL, $service_center_id = NULL) {
 	//Log this state change as well for this booking
 	$state_change['booking_id'] = $booking_id;
 	//$state_change['old_state'] = $old_state;
 	$state_change['new_state'] = $new_state;
-        $state_change['remarks'] = $remarks;
+                     $state_change['remarks'] = $remarks;
 	$state_change['agent_id'] = $agent_id;
 	$state_change['partner_id'] = $partner_id;
-        $state_change['service_center_id'] = $service_center_id;
+                    $state_change['service_center_id'] = $service_center_id;
+                    $state_change['actor'] = $actor;
+                    $state_change['next_action'] = $next_action;
             
         /*
          * Send correct old_state from the calling function instead, do not change
@@ -273,13 +275,12 @@ class Notify {
          * */
                    $state_change['old_state'] = $old_state;
                    if(!empty($booking_id)){
-        $booking_state_change = $this->My_CI->booking_model->get_booking_state_change($state_change['booking_id']);
-        
-        if ($booking_state_change > 0) {
-            $state_change['old_state'] = $booking_state_change[count($booking_state_change) - 1]['new_state'];
-        }
+                          $booking_state_change = $this->My_CI->booking_model->get_booking_state_change($state_change['booking_id']);  
+                          if ($booking_state_change > 0) {
+                              $state_change['old_state'] = $booking_state_change[count($booking_state_change) - 1]['new_state'];
+                          } 
                     }
-	$insert_id = $this->My_CI->booking_model->insert_booking_state_change($state_change);
+        $insert_id = $this->My_CI->booking_model->insert_booking_state_change($state_change);
         
         if($insert_id){
             log_message('info', 'Booking Status Change - Booking id: ' . $booking_id . $new_state . "  By " . $agent_name);
@@ -583,7 +584,7 @@ class Notify {
         log_message("info",__METHOD__);
         $data = array();
         switch (ENVIRONMENT) {
-	    case 'production':
+                case 'production':
                 $message = urlencode($body);
                 $url = "https://control.msg91.com/api/sendhttp.php?authkey=141750AFjh6p9j58a80789&mobiles="
                         . $phone_number . "&message=" . $message
@@ -598,7 +599,7 @@ class Notify {
                 
 		break;
         }
-        
+        $data['content'] = "segdfgfhftyyuui";
         return $data;
     }
 
@@ -700,7 +701,7 @@ class Notify {
      * return: Null
      */
 
-    function add_email_send_details($email_from, $email_to, $cc, $bcc, $subject, $message, $attachment_link) {
+    function add_email_send_details($email_from, $email_to, $cc, $bcc, $subject, $message, $attachment_link,$template_tag) {
 	$data = array();
 
 	$data['email_from'] = $email_from;
@@ -710,6 +711,7 @@ class Notify {
 	$data['subject'] = $subject;
         $data['message'] = $message;
         $data['attachment_link'] = $attachment_link;
+                    $data['email_tag'] = $template_tag;
 
 	//Add Email to Database
 	$insert_id = $this->My_CI->booking_model->add_email_send_details($data);
@@ -719,6 +721,4 @@ class Notify {
 	    log_message('info', __FUNCTION__ . ' Error on saving Email to Database "email_sent" ' . print_r($data, TRUE));
 	}
     }
-
-
 }

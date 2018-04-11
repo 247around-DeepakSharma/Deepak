@@ -161,6 +161,10 @@
                                 <?php if($this->session->userdata('is_sf') === '1'){ ?>
                                 <li role="separator" class="divider"></li>
                                 <li>
+                                    <a href="<?php echo base_url() ?>service_center/customer_invoice_details" ><i class="fa fa-fw fa-desktop"></i> <strong> Customer Invoice</strong></a>
+                                </li>
+                                <li role="separator" class="divider"></li>
+                                <li>
                                     <a href="<?php echo base_url() ?>employee/service_centers/download_sf_charges_excel" ><i class="fa fa-fw fa-desktop"></i> <strong> Charges List</strong></a>
                                 </li>
                                 <?php }?>
