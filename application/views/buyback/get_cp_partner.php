@@ -33,26 +33,32 @@
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content">
-                        <table id="datatable" class="table table-striped table-bordered" >
-                            <thead>
-                                <tr>
-                                    <th>No.</th>
-                                    
-                                    <th>CP Name</th>
-                                    <th>CP Owner Name</th>
-                                    <th>Mobile</th>
-                                    <th>Address</th>
-                                    <th>Pincode</th>
-                                    <th>Region</th>
-                                    <th>Action</th>
-                                    <th>View History</th>
+                        <form method="POST" action="<?php echo base_url(); ?>buyback/buyback_process/download_price_list_data" target="_blank" id="download_cp_price">
+                            <table id="datatable" class="table table-striped table-bordered" >
+                                <thead>
+                                    <tr>
+                                        <th>No.</th>
 
-                                </tr>
-                            </thead>
-                            <tbody>
+                                        <th>CP Name</th>
+                                        <th>CP Owner Name</th>
+                                        <th>Mobile</th>
+                                        <th>Address</th>
+                                        <th>Pincode</th>
+                                        <th>Region</th>
+                                        <th>Action</th>
+                                        <th>View History</th>
+                                        <th>
+                                            <i class="fa fa-download" title="Download Price List"></i>
+                                            <input type="checkbox" id="check_all_row_to_download_price">
+                                        </th>
 
-                            </tbody>
-                        </table>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                </tbody>
+                            </table>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -98,21 +104,21 @@
                                 </div>
                             </div>
                             <div class="item form-group">
-                                <label class="control-label col-md-4 col-sm-3 col-xs-12" for="Alt Mobile No1">Alt Mobile No1 
+                                <label class="control-label col-md-4 col-sm-3 col-xs-12" for="alt_mobile_no1">Alt Mobile No1 
                                 </label>
                                 <div class="col-md-6 col-sm-6 col-xs-12">
                                     <input type="tel" id="alternate_conatct_number" name="alternate_conatct_number" data-validate-length-range="7,20" required="required"  class="form-control col-md-7 col-xs-12">
                                 </div>
                             </div>
                             <div class="item form-group">
-                                <label class="control-label col-md-4 col-sm-3 col-xs-12" for="Alt Mobile No2">Alt Mobile No2  
+                                <label class="control-label col-md-4 col-sm-3 col-xs-12" for="alt_mobile_no2">Alt Mobile No2  
                                 </label>
                                 <div class="col-md-6 col-sm-6 col-xs-12">
                                     <input type="tel" id="alternate_conatct_number2" name="alternate_conatct_number2" data-validate-length-range="7,20" class="form-control col-md-7 col-xs-12">
                                 </div>
                             </div>
                             <div class="item form-group">
-                                <label class="control-label col-md-4 col-sm-3 col-xs-12" for="Tin Number">Tin Number 
+                                <label class="control-label col-md-4 col-sm-3 col-xs-12" for="tin_number">Tin Number 
                                 </label>
                                 <div class="col-md-6 col-sm-6 col-xs-12">
                                     <input id="tin_number" type="text" name="tin_number" class="optional form-control col-md-7 col-xs-12">
@@ -248,6 +254,13 @@
                 success: function (data) {
                     if (data === "Success") {
                         table.ajax.reload(null, false);
+                        $("cp_price_download_"+shop_id).show();
+                        if(is_acitve){
+                            $("cp_price_download_"+shop_id).addClass('download_single_cp_price');
+                        }else{
+                            $("cp_price_download_"+shop_id).removeClass('download_single_cp_price');
+                        }
+                        
                     } else {
                         alert("There is some issues to Activate/De-Activate. Please Contact Developer Team");
                     }
@@ -367,5 +380,39 @@
             }
         });
     }
+    
+    function check_validation() {
+        var valid_form = false;
+        var selected = [];
+        $("input[type=checkbox]").each(function () {
+            if ($(this).is(":checked")) {
+                if($(this).attr('data-cp_id')){
+                    var input = "<input type='hidden' class='cp_price_form_dynamic_field' name='cp_id["+$(this).attr('data-cp_id')+"]' value='"+$(this).attr('data-cp_name')+ "'>";
+                    var input_field = $(input);
+                    $('#download_cp_price').append(input_field);
+                    selected.push($(this).attr('data-cp_id'));
+                }
+            }
+        });
+        
+        if(selected.length <= 0){
+            alert("Please select at least one CP");
+        }else{
+            valid_form = true;
+        }
+        
+        return valid_form;
+    };
+    
+    $('#check_all_row_to_download_price').on('click', function () {
+        if ($(this).is(':checked', true))
+        {
+            $(".download_single_cp_price").prop('checked', true);
+        }
+        else
+        {
+            $(".download_single_cp_price").prop('checked', false);
+        }
+    });
 
     </script>
