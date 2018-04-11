@@ -1976,7 +1976,8 @@ class Booking extends CI_Controller {
             if ($this->input->post('rating_stars') !== "") {
                 //update rating state
                 $remarks = 'Rating' . ':' . $booking['rating_stars'] . '. ' . $booking['rating_comments'];
-                $this->notify->insert_state_change($booking_id, RATING_NEW_STATE, $status, $remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+                $this->notify->insert_state_change($booking_id, RATING_NEW_STATE, $status, $remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), ACTOR_BOOKING_RATING
+                        ,RATING_NEXT_ACTION,_247AROUND);
                 // send sms after rating
                 $this->send_rating_sms($this->input->post('booking_primary_contact_no'), $booking['rating_stars'], $this->input->post('customer_id'), $booking_id);
             }
