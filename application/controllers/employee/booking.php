@@ -48,6 +48,7 @@ class Booking extends CI_Controller {
         $this->load->library("initialized_variable");
         $this->load->library("push_notification_lib");
         $this->load->library("paytm_payment_lib");
+        $this->load->library('paytmlib/encdec_paytm');
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
             return TRUE;
         } else {
@@ -3122,7 +3123,8 @@ class Booking extends CI_Controller {
                break;
            }
        }
-        $select = "users.name, booking_details.booking_id,bookings_sources.source,booking_details.city,service_centres.company_name,services.services,booking_unit_details.appliance_brand,"
+      
+        $select = "users.name as customer_name, booking_details.booking_id,bookings_sources.source,booking_details.city,service_centres.company_name,services.services,booking_unit_details.appliance_brand,"
                 . "booking_unit_details.appliance_category,booking_unit_details.appliance_capacity,booking_unit_details.price_tags,booking_unit_details.product_or_services,booking_details."
                 . "current_status,booking_details.order_id,booking_details.type,booking_details.partner_source,booking_details.partner_current_status,booking_details.partner_internal_status,"
                 . "booking_details.booking_address,booking_details.booking_pincode,booking_details.district,booking_details.state,"
@@ -3139,6 +3141,7 @@ class Booking extends CI_Controller {
                 $receieved_Data['start'] = 0;
                 $receieved_Data['draw'] = 1;
                 $data = $this->get_advance_search_result_data($receieved_Data,$select);
+               
                 $headings = array("S.no","Customer Name ","Booking ID","Partner","City","Service Center","Service","Brand","Category","Capacity","Request Type","Product/Service","Current_status","Order_ID","Type",
                     "Partner Source","Partner Current Status","Partner Internal Status","Booking Address","Pincode","District","State","Primary Contact Number","Current Booking Date","First Booking Date","Age Of Booking",
                     "Booking Timeslot","Booking Remarks","Query Remarks","Discount Coupon","Discount Amount","Total Price","Cancellation Reason","Reschedule_reason","Vendor(SF)",
@@ -3618,7 +3621,8 @@ class Booking extends CI_Controller {
     function get_bulk_search_result_data($receieved_Data,$select){
         $finalArray = array();
         $joinDataArray = array("bookings_sources"=>"bookings_sources.partner_id=booking_details.partner_id","service_centres"=>"service_centres.id=booking_details.assigned_vendor_id",
-            "services"=>"services.id=booking_details.service_id","booking_unit_details"=>"booking_unit_details.booking_id=booking_details.booking_id");
+            "services"=>"services.id=booking_details.service_id","booking_unit_details"=>"booking_unit_details.booking_id=booking_details.booking_id",
+            "users" => "booking_details.user_id = users.user_id");
         // limit array for pagination
         $limitArray = array('length'=>$receieved_Data['length'],'start'=>$receieved_Data['start']);
         $inputData = $this->get_input_for_bulk_search($receieved_Data);
@@ -3686,11 +3690,13 @@ class Booking extends CI_Controller {
        $receieved_Data['length'] = -1;
        $receieved_Data['start'] = 0;
        $receieved_Data['draw'] = 1;
-       $select = "booking_details.booking_id,bookings_sources.source,booking_details.city,service_centres.company_name,services.services,booking_unit_details.appliance_brand,"
+       $select = "users.name as customer_name, booking_details.booking_id,bookings_sources.source,booking_details.city,service_centres.company_name,services.services,booking_unit_details.appliance_brand,"
                 . "booking_unit_details.appliance_category,booking_unit_details.appliance_capacity,booking_unit_details.price_tags,booking_unit_details.product_or_services,booking_details."
                 . "current_status,booking_details.order_id,booking_details.type,booking_details.partner_source,booking_details.partner_current_status,booking_details.partner_internal_status,"
                 . "booking_details.booking_address,booking_details.booking_pincode,booking_details.district,booking_details.state,"
-                . "booking_details.booking_primary_contact_no,booking_details.booking_date,booking_details.initial_booking_date,booking_details.booking_timeslot,booking_details.booking_remarks,"
+                . "booking_details.booking_primary_contact_no,booking_details.booking_date,booking_details.initial_booking_date,"
+                . " DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as age_of_booking,"
+                . " booking_details.booking_timeslot,booking_details.booking_remarks,"
                 . "booking_details.query_remarks,booking_details.discount_coupon,booking_details.discount_amount,booking_details.total_price,booking_details.cancellation_reason,"
                 . "booking_details.reschedule_reason,service_centres.name,booking_details.vendor_rating_stars,booking_details.vendor_rating_comments,booking_details.amount_due,"
                 . "booking_details.service_charge,booking_details.additional_service_charge,booking_details.parts_cost,booking_details.amount_paid,booking_details.closing_remarks,"
@@ -3698,9 +3704,9 @@ class Booking extends CI_Controller {
                 . "booking_details.partner_upcountry_rate,booking_details.upcountry_distance,booking_details.is_penalty,booking_details.create_date,booking_details.update_date,"
                 . "booking_details.closed_date";
        $data = $this->get_bulk_search_result_data($receieved_Data,$select);
-       $headings = array("S.no","Booking ID","Partner","City","Service Center","Service","Brand","Category","Capacity","Request Type","Product/Service","Current_status","Order_ID","Type",
-                    "Partner Source","Partner Current Status","Partner Internal Status","Booking Address","Pincode","District","State","Primary Contact Number","Booking Date","Initial Booking Date",
-                    "Booking Timeslot","Booking Remarks","Query Remarks","Discount Coupon","Discount Amount","Total Price","Cancellation Reason","Reschedule_reason","Vendor(SF)",
+       $headings = array("S.no", "Customer Name","Booking ID","Partner","City","Service Center","Service","Brand","Category","Capacity","Request Type","Product/Service","Current_status","Order_ID","Type",
+                    "Partner Source","Partner Current Status","Partner Internal Status","Booking Address","Pincode","District","State","Primary Contact Number","Current Booking Date","First Booking Date",
+                    "Age Of Booking","Booking Timeslot","Booking Remarks","Query Remarks","Discount Coupon","Discount Amount","Total Price","Cancellation Reason","Reschedule_reason","Vendor(SF)",
                     "Rating","Vendor Rating Comments","Amount Due","Service Charge","Additional Service Charge","Parts Cost","Amount Paid","Closing Remarks","Count Reschedule","Count Escalation",
                     "Is Upcountry","Upcountry Pincode","SF Upcountry Rate","Partner Upcountry Rate","Upcountry Distance","IS Penalty","Create Date","Update Date","Closed Date");
        $this->miscelleneous->downloadCSV($data['data'],$headings,"booking_bulk_search_summary");   
@@ -3868,4 +3874,112 @@ class Booking extends CI_Controller {
         }
         echo json_encode($data);
     }
+    
+    /**
+     * @desc: This function is used show view to create a custom payment link for user
+     * @params: void
+     * @return: void
+     */
+    function create_booking_payment_link(){
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/booking_payment_link');
+    }
+    
+    /**
+     * @desc: This function is used to create a custom payment link for user
+     * @params: void
+     * @return: void
+     */
+    function process_create_booking_payment_link() {
+        log_message("info", __METHOD__ . " Entering...");
+        $booking_id_arr = $this->input->post('booking_id');
+
+        if (!empty($booking_id_arr)) {
+
+            $phone_number = $this->input->post('phone_number');
+            $email = $this->input->post('email');
+            //Either Phone number or email required
+            if (empty($phone_number) && empty($email)) {
+                $this->session->set_flashdata('err_msg', 'Please Enter Either Phone Number Or Email');
+                redirect(base_url() . 'employee/booking/create_booking_payment_link');
+            } else {
+                /*check if link already created or not.
+                 * if already created then do not create new link 
+                */
+                $data = $this->booking_model->get_payment_link_details('*', array('booking_id' => implode(',', $booking_id_arr)));
+
+                if (empty($data)) {
+                    //make booking id like 'SY-1234567899456' so that we can use it in the sql IN() function to process the query
+                    $booking_ids = implode(',', array_map(function($id) {
+                                return("'$id'");
+                            }, $booking_id_arr));
+                    
+                    $select = "SUM(amount_due) as amount, GROUP_CONCAT(user_id SEPARATOR '_') as customer_id";
+                    $where = array("Booking_id IN ($booking_ids)" => NULL);
+                    $booking_details = $this->booking_model->get_bookings_count_by_any($select, $where);
+                    
+                    //if amount paid by customer is 0 then do not create link
+                    if (!empty($booking_details[0]['amount'])) {
+
+                        $param_list = array('phone_no' => $phone_number,
+                            'email' => $email,
+                            'amount' => $booking_details[0]['amount']
+                        );
+
+                        //create hash key to verify the payment link when user pay with link
+                        $check_sum = preg_replace('^[/+=]^', '', $this->encdec_paytm->getChecksumFromArray($param_list, PAYTM_MERCHANT_KEY));
+                        $insert_data = array('booking_id' => implode(',', $booking_id_arr),
+                            'customer_id' => $booking_details[0]['customer_id'],
+                            'amount' => $booking_details[0]['amount'],
+                            'phone_number' => $phone_number,
+                            'email' => $email,
+                            'hash_key' => md5($check_sum),
+                            'status' => 0,
+                            'create_date' => date('Y-m-d H:i:s')
+                        );
+
+                        $insert_id = $this->booking_model->insert_payment_link_details($insert_data);
+
+                        if ($insert_id) {
+                            log_message("info", __METHOD__ . " data inserted successfully.");
+
+                            $url = base_url() . 'payment/verify_booking_payment/' . $check_sum;
+
+                            $short_url = $this->miscelleneous->getShortUrl($url);
+                            
+                            $sms['tag'] = "gateway_payment_link_sms";
+                            $sms['phone_no'] = $phone_number;
+                            $sms['smsData']['link'] = $short_url;
+                            $sms['smsData']['amount'] = $booking_details[0]['amount'];
+                            $sms['booking_id'] = implode(',', $booking_id_arr);
+                            $sms['type'] = "user";
+                            $sms['type_id'] = $booking_details[0]['customer_id'];
+
+                            $this->notify->send_sms_msg91($sms);
+                            
+                            log_message("info", __METHOD__ . " Sms Send to customer successfully");
+                            $this->session->set_flashdata('success_msg', 'Sms Send to customer successfully');
+                            redirect(base_url() . 'employee/booking/create_booking_payment_link');
+                        } else {
+                            log_message("info", __METHOD__ . " error in  inserting data.");
+                            $this->session->set_flashdata('err_msg', 'Some error Occured!!! Please try again after some time...');
+                            redirect(base_url() . 'employee/booking/create_booking_payment_link');
+                        }
+                    } else {
+                        log_message("info", __METHOD__ . " Amount is 0, So link can not be created");
+                        $this->session->set_flashdata('err_msg', 'Amount is 0, So link can not be created');
+                        redirect(base_url() . 'employee/booking/create_booking_payment_link');
+                    }
+                } else {
+                    log_message("info", __METHOD__ . " Link already created for this combination");
+                    $this->session->set_flashdata('err_msg', 'Link already created for this combination');
+                    redirect(base_url() . 'employee/booking/create_booking_payment_link');
+                }
+            }
+        } else {
+            $this->session->set_flashdata('err_msg', 'Booking Id Can not be empty');
+            redirect(base_url() . 'employee/booking/create_booking_payment_link');
+        }
+    }
+
 }

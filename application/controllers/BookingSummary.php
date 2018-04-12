@@ -1532,10 +1532,15 @@ EOD;
     function generate_partner_summary_email_data($partner_data, $csv_file) {
         
         $subject = "247around Services Report - " . $partner_data['public_name'] . " - " . date('d-M-Y');
+        $accountManagerData = $this->miscelleneous->get_am_data($partner_data['id']);
+        $am_email = "";
+        if(!empty($accountManagerData)){
+            $am_email = ", ".$accountManagerData[0]['official_email'];
+        }
         if($this->session->userdata('employee_id')){
             $cc = $partner_data['summary_email_cc'].",".$this->session->userdata('official_email');
         }else{
-            $cc = $partner_data['summary_email_cc'];
+            $cc = $partner_data['summary_email_cc'].$am_email;
         }
         $emailBasicDataArray['to'] = $partner_data['summary_email_to'];
         $emailBasicDataArray['cc'] = $cc;
