@@ -562,5 +562,7 @@ define('JEEVES_WEBSITE','www.jeeves.co.in');
 
 define('CUSTOMER_INVOICE_TAG','CUSTOMER_INVOICE_TAG');
 
+define('VINESH_FLIPKART_EMAIL', 'vinesh.poojari@flipkart.com');
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
