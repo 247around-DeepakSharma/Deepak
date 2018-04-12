@@ -258,7 +258,9 @@ class User_invoice extends CI_Controller {
     function sf_payment_creditnote($booking_id, $amountPaid, $txnID, $agent_id){
         log_message("info", __METHOD__ . " Enering .. for booking id " . $booking_id . " amount paid " . $amountPaid . " Txn ID " . $txnID . " agent ID " . $agent_id);
         $is_exist = $this->invoices_model->get_invoices_details(array('invoice_id' => $txnID));
-        if (!empty($is_exist)) {
+        
+        
+        if (empty($is_exist)) {
             $select = "service_centres.company_name, service_centres.address as sf_address, "
                     . "service_centres.pincode as sf_pincode, service_centres.district as sf_district, service_centres.state as sf_state, service_centres.gst_no, service_centres.owner_phone_1, "
                     . "users.name, users.home_address, users.phone_number,users.user_email, users.pincode, users.city, users.state, booking_details.amount_due, "
