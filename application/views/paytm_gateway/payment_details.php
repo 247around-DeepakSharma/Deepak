@@ -114,8 +114,8 @@
                             } ?>
                             <input type="hidden" name="ORDER_ID" id="order_id" value="<?php echo $order_id;?>">
                             <input type="hidden" name="CUST_ID" id="cust_id" value="<?php echo $cust_id;?>">
-                            <input type="hidden" name="INDUSTRY_TYPE_ID" id="industry_type_id" value="<?php echo PAYTM_INDUSTRY_TYPE_ID ; ?>">
-                            <input type="hidden" name="CHANNEL_ID" id="channel_id" value="<?php echo PAYTM_CHANNEL_ID ; ?>">
+                            <input type="hidden" name="INDUSTRY_TYPE_ID" id="industry_type_id" value="<?php echo PAYTM_GATEWAY_INDUSTRY_TYPE_ID ; ?>">
+                            <input type="hidden" name="CHANNEL_ID" id="channel_id" value="<?php echo PAYTM_GATEWAY_CHANNEL_ID ; ?>">
                             <input type="hidden" name="ORDER_DETAILS" id="order_details" value="<?php echo $order_details;?>">
                             <input type="hidden" name="TXN_AMOUNT" id="txn_amount" value="">
                             <div class="form-group">

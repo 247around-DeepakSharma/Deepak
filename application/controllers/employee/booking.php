@@ -3927,7 +3927,7 @@ class Booking extends CI_Controller {
                         );
 
                         //create hash key to verify the payment link when user pay with link
-                        $check_sum = preg_replace('^[/+=]^', '', $this->encdec_paytm->getChecksumFromArray($param_list, PAYTM_MERCHANT_KEY));
+                        $check_sum = preg_replace('^[/+=]^', '', $this->encdec_paytm->getChecksumFromArray($param_list, PAYTM_GATEWAY_MERCHANT_KEY));
                         $insert_data = array('booking_id' => implode(',', $booking_id_arr),
                             'customer_id' => $booking_details[0]['customer_id'],
                             'amount' => $booking_details[0]['amount'],
