@@ -465,8 +465,8 @@ class paytm_payment_lib {
         $to = TRANSACTION_SUCCESS_TO; 
         $cc = TRANSACTION_SUCCESS_CC;
         $agent ='';
-        if($this->session->userdata('employee_id')){
-            $agent = $this->session->userdata('employee_id');
+        if($this->P_P->session->userdata('employee_id')){
+            $agent = $this->P_P->session->userdata('employee_id');
         }
         //Send Email To admin , to inform about cashback
         $subject = "Cashback Processed For Amount '".$cashbackAmount."'";
@@ -484,7 +484,7 @@ class paytm_payment_lib {
         $sms['smsData']['booking_id'] = $bookingID;
         $sms['phone_no'] = $contactNumberArray[0]['booking_primary_contact_no']; 
         $sms['booking_id'] = $bookingID;
-        $this->My_CI->notify->send_sms_msg91($sms);
+        $this->P_P->notify->send_sms_msg91($sms);
         //End
     }
     /*
@@ -510,8 +510,8 @@ class paytm_payment_lib {
        $cashBackData['cashback_status'] = "SUCCESS";
        $cashBackData['cashback_reason'] = $cashback_reason;
        $cashBackData['cashback_medium'] = $cashback_medium;
-       if($this->session->userdata('id')){
-         $cashBackData['agent_id'] = $this->session->userdata('id');
+       if($this->P_P->session->userdata('id')){
+         $cashBackData['agent_id'] = $this->P_P->session->userdata('id');
        }
        $db_id = $this->P_P->reusable_model->insert_into_table("paytm_cashback_details",$cashBackData);
        $this->CASHBACK_send_sms_and_email($cashBackData['booking_id'],$cashBackData['cashback_amount'],$cashback_medium);
