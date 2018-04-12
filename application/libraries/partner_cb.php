@@ -68,7 +68,7 @@ class partner_cb {
      */
     function callback_array($partner_id, $state) {
 	$snapdeal_partner_id = SNAPDEAL_ID;
-        $jeeves_partner_id = JEEEVES_ID;
+        $jeeves_partner_id = JEEVES_ID;
 
 	$callback_array = array();
 
@@ -105,7 +105,7 @@ class partner_cb {
      */
     function get_callback_library($partner_id) {
 	$snapdeal_partner_id = SNAPDEAL_ID;
-        $jeeves_partner_id = JEEEVES_ID;
+        $jeeves_partner_id = JEEVES_ID;
 
 	$library[$snapdeal_partner_id] = 'partner_sd_cb';
         $library[$jeeves_partner_id] = 'partner_sd_cb';

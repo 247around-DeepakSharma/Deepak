@@ -174,7 +174,7 @@ define('SNAPDEAL_ID',1);
 //Snapdeal host
 define('SNAPDEAL_HOST','snapdeal.com');
 //Jeeves ID
-define("JEEEVES_ID", 247030);
+define("JEEVES_ID", 247030);
 //Wybor ID
 define("WYBOR_ID", 247010);
 //ZOPPER ID

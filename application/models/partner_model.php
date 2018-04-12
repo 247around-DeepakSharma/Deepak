@@ -327,7 +327,7 @@ function get_data_for_partner_callback($booking_id) {
     //Return all leads shared by Partner in the last 30 days in CSV
     function get_partner_leads_csv_for_summary_email($partner_id){
         $dependency = "";
-        if ($partner_id == JEEEVES_ID){
+        if ($partner_id == JEEVES_ID){
             $dependency = ', IF(dependency_on =1, "'.DEPENDENCY_ON_AROUND.'", "'.DEPENDENCY_ON_CUSTOMER.'") as Dependency ';
         }
         

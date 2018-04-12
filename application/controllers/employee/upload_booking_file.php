@@ -549,7 +549,7 @@ class Upload_booking_file extends CI_Controller {
             case PAYTM:
                 return $this->get_rowdata_for_paytm($highestRow, $highestColumn, $sheet, $headings_new, $partner_id);
             //break;
-            case JEEEVES_ID:
+            case JEEVES_ID:
                 return $this->get_rowdata_for_jeeves($highestRow, $highestColumn, $sheet, $headings_new, $partner_id);
         }
     }
