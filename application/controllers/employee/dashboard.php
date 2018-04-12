@@ -669,13 +669,8 @@ class Dashboard extends CI_Controller {
     /*
      * This function use to create full view of missing pincode table
      */
-    function missing_pincode_full_view(){
+    function missing_pincode_full_view($agentID){
         $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
-        $agentID = $this->session->userdata('id');
-        if($this->session->userdata('rm_id')){
-            $agentID = $this->session->userdata('rm_id');
-            if($this->session->userdata('rm_id')){ $this->session->unset_userdata('rm_id'); }
-        }
         //SELECT sf.pincode, COUNT(sf.pincode) as pincodeCount, sf.state, sf.city FROM (sf_not_exist_booking_details sf) WHERE `sf`.`rm_id` = '11' AND `sf`.`active_flag` = 1 
         //AND `sf`.`is_pincode_valid` = 1 GROUP BY sf.pincode ORDER BY pincodeCount DESC
         $select = "sf.pincode,COUNT(sf.pincode) as pincodeCount,sf.state,sf.city,sf.service_id,services.services";
@@ -743,7 +738,7 @@ class Dashboard extends CI_Controller {
         $this->table->set_template($template);
         $this->table->set_heading(array('S.N','RM', 'Pending Queries'));
         for($i=0;$i<count($pincodeResult);$i++){
-            $this->table->add_row($i,"<a target='_blank' href=".base_url()."employee/dashboard/missing_pincode_full_view?rm_id=".$pincodeResult[$i]['id']." "
+            $this->table->add_row($i,"<a target='_blank' href=".base_url()."employee/dashboard/missing_pincode_full_view/".$pincodeResult[$i]['id']." "
                     . "style='margin: 0px;padding: 6px;' class='btn btn-info'>".$pincodeResult[$i]['full_name']."</a>",$pincodeResult[$i]['pincodeCount']); 
         }
         echo $this->table->generate();
