@@ -1,4 +1,5 @@
 <div class="right_col" role="main">
+    <a href="<?php echo base_url(); ?>partner/download_price_sheet" class="btn btn-success" style="float:right;">Download Price Sheet</a>
     <table class="table table-bordered table-hover table-striped" style="background: #fff;">
                         <thead>
                             <tr>
