@@ -459,7 +459,7 @@ class Around_scheduler extends CI_Controller {
             $this->email->attach($csv, 'attachment');
 
             if ($this->email->send()) {
-                $this->notify->add_email_send_details(NOREPLY_EMAIL_ID,$to,$cc,"","SF NOT AVAILABLE IN PINCODES LIST",$message,$csv);
+                $this->notify->add_email_send_details(NOREPLY_EMAIL_ID, $to, $cc, "", "SF NOT AVAILABLE IN PINCODES LIST", $message, $csv,SF_NOT_FOUND);
                 log_message('info', __METHOD__ . ": Mail sent successfully for PinCode Not Available To RM ");
             } else {
                 log_message('info', __METHOD__ . ": Mail could not be sent to RM");
@@ -476,7 +476,7 @@ class Around_scheduler extends CI_Controller {
             $this->email->message($message);
             $this->email->attach($csv, 'attachment');
             $this->email->send();
-            $this->notify->add_email_send_details(NOREPLY_EMAIL_ID,$to,ANUJ_EMAIL_ID,"","Pincode Not Available Booking Data",$message,$csv);
+            $this->notify->add_email_send_details(NOREPLY_EMAIL_ID, $to, ANUJ_EMAIL_ID, "", "Pincode Not Available Booking Data", $message, $csv,"no_booking_for_pincode_not_available");
             log_message('info', __METHOD__ . ": No booking found for pincode not available ");
         }
     }

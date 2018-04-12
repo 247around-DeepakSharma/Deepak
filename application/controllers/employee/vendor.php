@@ -885,7 +885,7 @@ class vendor extends CI_Controller {
         }
 
         if ($this->email->send()) {
-            $this->notify->add_email_send_details(NOREPLY_EMAIL_ID,$to,"","",$subject,$html,"");
+            $this->notify->add_email_send_details(NOREPLY_EMAIL_ID,$to,"","",$subject,$html,"",VENDOR_UPDATED);
             log_message('info', __METHOD__ . ": Mail sent successfully to " . $to);
             $flag = TRUE;
         } else {

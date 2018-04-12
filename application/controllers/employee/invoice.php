@@ -175,7 +175,7 @@ class Invoice extends CI_Controller {
             $subject = vsprintf($email_template[4], array(date("jS M, Y", strtotime($start_date)), date("jS M, Y", strtotime($end_date))));
             $message = vsprintf($email_template[0], array(date("jS M, Y", strtotime($start_date)), date("jS M, Y", strtotime($end_date))));
             $email_from = $email_template[2];
-            $sent = $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, $detailed_invoice, $main_invoice);
+            $sent = $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, $detailed_invoice, $main_invoice,'resend_invoice');
             if ($sent) {
                 $userSession = array('success' => "Invoice Sent");
                 $this->session->set_userdata($userSession);
@@ -575,7 +575,7 @@ class Invoice extends CI_Controller {
             $this->upload_invoice_to_S3($meta['invoice_id']);
             $pdf_attachement_url = 'https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/invoices-excel/' . $output_pdf_file_name;
 
-            $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, $output_file_excel, $pdf_attachement_url);
+            $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, $output_file_excel, $pdf_attachement_url,PARTNER_INVOICE_DETAILED_EMAIL_TAG);
            
 
             $invoice_details = array(
@@ -764,7 +764,7 @@ class Invoice extends CI_Controller {
             $message = $email_template[0];
             $email_from = $email_template[2];
                 
-            $mail_ret = $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, $output_file_excel, $pdf_attachement);
+            $mail_ret = $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, $output_file_excel, $pdf_attachement,CASH_DETAILS_INVOICE_FOR_VENDORS_EMAIL_TAG);
 
             //Send SMS to PoC/Owner
             $this->send_invoice_sms("Cash",  $meta['sd'], $meta['total_amount_paid'], $meta['owner_phone_1'], $vendor_id);
@@ -846,7 +846,7 @@ class Invoice extends CI_Controller {
         return true;
     }
     
-    function send_email_with_invoice($email_from, $to, $cc, $message, $subject, $output_file_excel, $pdf_attachement, $multipleResponse = array()) {
+    function send_email_with_invoice($email_from, $to, $cc, $message, $subject, $output_file_excel, $pdf_attachement,$invoiceTag, $multipleResponse = array()) {
         $this->email->clear(TRUE);
         $this->email->from($email_from, '247around Team');
         $this->email->to($to);
@@ -867,7 +867,7 @@ class Invoice extends CI_Controller {
         $this->email->subject($subject);
         $mail_ret = $this->email->send();
         if ($mail_ret) {
-            $this->notify->add_email_send_details($email_from,$to,$cc,"",$subject,$message,$pdf_attachement);
+            $this->notify->add_email_send_details($email_from,$to,$cc,"",$subject,$message,$pdf_attachement,$invoiceTag);
             log_message('info', __METHOD__ . ": Mail sent successfully");
             echo "Mail sent successfully..............." . PHP_EOL;
             return 1;
@@ -1034,7 +1034,7 @@ class Invoice extends CI_Controller {
                  //Upload Excel files to AWS
                 $this->upload_invoice_to_S3($invoice_data['meta']['invoice_id']);
                 
-                $mail_ret = $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, $output_file_excel, $pdf_attachement);
+                $mail_ret = $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, $output_file_excel, $pdf_attachement,FOC_DETAILS_INVOICE_FOR_VENDORS_EMAIL_TAG);
                 
                 //Send SMS to PoC/Owner
                 $this->send_invoice_sms("FOC", $invoice_data['meta']['sd'], $invoice_data['meta']['t_vp_w_tds'], $invoice_data['meta']['owner_phone_1'], $vendor_id);
@@ -1941,7 +1941,7 @@ class Invoice extends CI_Controller {
                 $message = $email_template[0];
                 $email_from = $email_template[2];
 
-                $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, "", "", $response);
+                $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, "", "", BUYBACK_DETAILS_INVOICE_FOR_VENDORS_EMAIL_TAG,$response);
                 
             
             } else {
@@ -2127,7 +2127,7 @@ class Invoice extends CI_Controller {
                     echo "Negative Invoice - ".$vendor_id. " Amount ".$invoices['meta']['sub_total_amount'].PHP_EOL;
                     log_message('info', __FUNCTION__ . "Negative Invoice - ".$vendor_id. " Amount ".$invoices['meta']['sub_total_amount']);
 
-                    $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, "", "");
+                    $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, "", "",NEGATIVE_FOC_INVOICE_FOR_VENDORS_EMAIL_TAG);
                 }
                 
               
@@ -2939,7 +2939,7 @@ class Invoice extends CI_Controller {
            
             $cmd = "curl https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/invoices-excel/" . $output_pdf_file_name . " -o " . TMP_FOLDER.$output_pdf_file_name;
             exec($cmd);    
-            $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, TMP_FOLDER.$output_pdf_file_name, "");
+            $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, TMP_FOLDER.$output_pdf_file_name, "",$email_tag);
             
             unlink(TMP_FOLDER.$invoice_id.".xlsx");
             unlink(TMP_FOLDER.$output_pdf_file_name);
@@ -3157,7 +3157,7 @@ class Invoice extends CI_Controller {
 
                 $cmd = "curl https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/invoices-excel/" . $output_pdf_file_name . " -o " . TMP_FOLDER . $output_pdf_file_name;
                 exec($cmd);
-                $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, TMP_FOLDER . $output_pdf_file_name, "");
+                $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, TMP_FOLDER . $output_pdf_file_name, "",SPARE_INVOICE_EMAIL_TAG);
 
                 unlink(TMP_FOLDER . $response['meta']['invoice_id'] . ".xlsx");
                 unlink(TMP_FOLDER . $output_pdf_file_name);
