@@ -393,7 +393,7 @@ class Notify {
                         $sms['type'] = "user";
                         $sms['type_id'] = $query1[0]['user_id'];
                         
-                        if($query1[0]['partner_id'] == JEEEVES_ID){
+                        if($query1[0]['partner_id'] == JEEVES_ID){
                             $sms['smsData']['number'] = JEEVES_CALLCENTER_NUMBER;
                             $sms['smsData']['name'] = JEEVES_WEBSITE;
                         }else{
