@@ -4024,13 +4024,27 @@ class Partner extends CI_Controller {
         
         echo json_encode($res);
     }
-function get_contracts(){
-    $id = $this->session->userdata('partner_id');
-    $data['contracts'] = $this->reusable_model->get_search_result_data("collateral", 'collateral.*,collateral_type.*',
-                array("entity_id" => $id, "entity_type" => "partner",'collateral_type.collateral_tag'=>'Contract'), array("collateral_type" => "collateral_type.id=collateral.collateral_id"), 
-                NULL, NULL, NULL,NULL);
-    $this->load->view('partner/header');
-    $this->load->view('partner/get_contracts',$data);
-    $this->load->view('partner/partner_footer');
-}
+    
+    function get_contracts(){
+        $id = $this->session->userdata('partner_id');
+        $data['contracts'] = $this->reusable_model->get_search_result_data("collateral", 'collateral.*,collateral_type.*',
+                    array("entity_id" => $id, "entity_type" => "partner",'collateral_type.collateral_tag'=>'Contract'), array("collateral_type" => "collateral_type.id=collateral.collateral_id"), 
+                    NULL, NULL, NULL,NULL);
+        $this->load->view('partner/header');
+        $this->load->view('partner/get_contracts',$data);
+        $this->load->view('partner/partner_footer');
+    }   
+    
+    /**
+     * @desc: This function is used to show the payment details page to partner
+     * @params: void
+     * @return: void
+     */
+    function payment_details(){
+        
+        $this->checkUserSession();
+        $this->load->view('partner/header');
+        $this->load->view('paytm_gateway/payment_details');
+        $this->load->view('partner/partner_footer');
+    }
 }

@@ -275,6 +275,7 @@
                                     <ul class="nav child_menu">
                                         <li><a href="<?php echo base_url(); ?>partner/invoices_details">Invoice</a></li>
                                         <li><a href="<?php echo base_url(); ?>partner/banktransaction">Bank Transaction</a></li>
+                                        <li><a href="<?php echo base_url(); ?>payment/details">Pay</a></li>
                                     </ul>
                                 </li>
                                 <li>
