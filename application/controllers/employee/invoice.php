@@ -2932,7 +2932,7 @@ class Invoice extends CI_Controller {
         $data[0]['district'] = $partner_data['district'];
         $data[0]['pincode'] = $partner_data['pincode'];
         $data[0]['state'] = $partner_data['state'];
-        $data[0]['rate'] = "";
+        $data[0]['rate'] = 0;
         $data[0]['qty'] = 1;
         $data[0]['hsn_code'] = $hsn_code;
                 

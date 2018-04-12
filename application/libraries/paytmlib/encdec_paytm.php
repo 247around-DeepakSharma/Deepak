@@ -164,17 +164,17 @@ class Encdec_paytm {
     }
 
     function getTxnStatus($requestParamList) {
-        return $this->callAPI(PAYTM_STATUS_QUERY_URL, $requestParamList);
+        return $this->callAPI(PAYTM_GATEWAY_STATUS_QUERY_URL, $requestParamList);
     }
 
     function getTxnStatusNew($requestParamList) {
-        return $this->callNewAPI(PAYTM_STATUS_QUERY_NEW_URL, $requestParamList);
+        return $this->callNewAPI(PAYTM_GATEWAY_STATUS_QUERY_NEW_URL, $requestParamList);
     }
 
     function initiateTxnRefund($requestParamList) {
-        $CHECKSUM = $this->getRefundChecksumFromArray($requestParamList, PAYTM_MERCHANT_KEY, 0);
+        $CHECKSUM = $this->getRefundChecksumFromArray($requestParamList, PAYTM_GATEWAY_MERCHANT_KEY, 0);
         $requestParamList["CHECKSUM"] = $CHECKSUM;
-        return $this->callAPI(PAYTM_REFUND_URL, $requestParamList);
+        return $this->callAPI(PAYTM_GATEWAY_REFUND_URL, $requestParamList);
     }
 
     function callAPI($apiURL, $requestParamList) {
