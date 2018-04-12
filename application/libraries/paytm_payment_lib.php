@@ -641,7 +641,7 @@ class paytm_payment_lib {
     }
     
     function generate_sf_creditnote($booking_id, $amount_paid, $walletSystemTxnId){
-        $invoice_url = base_url() . "employee/user_invoice/sf_payment_creditnote/".$booking_id."/".$amount_paid."/".$walletSystemTxnId."/"."247001";
+        $invoice_url = base_url() . "employee/user_invoice/sf_payment_creditnote/".$booking_id."/".$amount_paid."/".$walletSystemTxnId."/"._247AROUND_DEFAULT_AGENT;
         $payment = array();
         $this->P_P->asynchronous_lib->do_background_process($invoice_url, $payment);
     }

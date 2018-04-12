@@ -373,6 +373,10 @@ class ApiDataRequest extends CI_Controller {
         $row[] = '<i class ="fa fa-inr"></i> '.$invoice->total_basic_amount;
         $row[] = '<i class ="fa fa-inr"></i> '.($invoice->total_cgst_tax_amount + $invoice->total_sgst_tax_amount + $invoice->total_igst_tax_amount);
         $row[] = '<i class ="fa fa-inr"></i> '.$invoice->total_invoice_amount;
+        if($this->requestData['crmType'] == "Admin"){
+            $agent_id = $this->session->userdata('id');
+            $row[] = '<a href="'.  base_url().'employee/user_invoice/regenerate_payment_invoice_for_customer/'.$invoice->booking_id.'/'.$invoice->total_invoice_amount.'/'.$invoice->invoice_id.'/'.$agent_id.'" class="btn btn-sm btn-primary">Regenerate Invoice</a>';
+        }
        
         return $row;
     }
