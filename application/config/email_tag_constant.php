@@ -88,3 +88,5 @@ define('QR_NOT_GENERATED','qr_not_generated');
 define('NEW_TRANSACTION_FROM_PAYTM','new_transaction_from_paytm');
 define('PAYTM_CASHBACK_PROCESSED','paytm_cashback_processed');
 define('PUSH_NOTIFICATION_ERROR','push_notification_error');
+define('NEW_PARTNER_ADDED_EMAIL_TAG','new_partner_added');
+define('VENDOR_UPDATED','vendor_updated');

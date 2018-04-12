@@ -525,7 +525,7 @@ class Partner extends CI_Controller {
                 $this->email->subject($subject);
                 $this->email->message($html);
                 if ($this->email->send()) {
-                    $this->notify->add_email_send_details(NOREPLY_EMAIL_ID, $to, "", "", $subject, $html, "");
+                    $this->notify->add_email_send_details(NOREPLY_EMAIL_ID, $to, "", "", $subject, $html, "",PARTNER_DETAILS_UPDATED);
                     log_message('info', __METHOD__ . ": Mail sent successfully to " . $to);
                 } else {
                     log_message('info', __METHOD__ . ": Mail could not be sent to " . $to);
@@ -585,7 +585,7 @@ class Partner extends CI_Controller {
                     $this->email->subject($subject);
                     $this->email->message($html);
                     if ($this->email->send()) {
-                        $this->notify->add_email_send_details(NOREPLY_EMAIL_ID, $to, "", "", $subject, $html, "");
+                        $this->notify->add_email_send_details(NOREPLY_EMAIL_ID, $to, "", "", $subject, $html, "",NEW_PARTNER_ADDED_EMAIL_TAG);
                         log_message('info', __METHOD__ . ": Mail sent successfully to " . $to);
                     } else {
                         log_message('info', __METHOD__ . ": Mail could not be sent to " . $to);
