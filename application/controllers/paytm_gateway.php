@@ -39,14 +39,14 @@ class Paytm_gateway extends CI_Controller {
         $TXN_AMOUNT = $this->input->post('TXN_AMOUNT');
 
         // Create an array having all required parameters for creating checksum.
-        $param_list["MID"] = PAYTM_MERCHANT_MID;
+        $param_list["MID"] = PAYTM_GATEWAY_MERCHANT_MID;
         $param_list["ORDER_ID"] = $ORDER_ID;
         $param_list["CUST_ID"] = $CUST_ID;
         $param_list["INDUSTRY_TYPE_ID"] = $INDUSTRY_TYPE_ID;
         $param_list["CHANNEL_ID"] = $CHANNEL_ID;
         $param_list["TXN_AMOUNT"] = $TXN_AMOUNT;
         //$param_list["TXN_AMOUNT"] = 1;
-        $param_list["WEBSITE"] = PAYTM_MERCHANT_WEBSITE;
+        $param_list["WEBSITE"] = PAYTM_GATEWAY_MERCHANT_WEBSITE;
         $param_list["CALLBACK_URL"] = PAYTM_GATEWAY_CALLBACK_URL;
 
         /*
@@ -57,14 +57,14 @@ class Paytm_gateway extends CI_Controller {
 
          */
         //Here checksum string will return by getChecksumFromArray() function.
-        $check_sum = $this->encdec_paytm->getChecksumFromArray($param_list, PAYTM_MERCHANT_KEY);
+        $check_sum = $this->encdec_paytm->getChecksumFromArray($param_list, PAYTM_GATEWAY_MERCHANT_KEY);
         echo "<html>
 		<head>
 		<title>Merchant Check Out Page</title>
 		</head>
 		<body>
 		    <center><h1>Please do not refresh this page...</h1></center>
-			<form method='post' action='" . PAYTM_TXN_URL . "' name='f1'>
+			<form method='post' action='" . PAYTM_GATEWAY_TXN_URL . "' name='f1'>
 		<table border='1'>
 		 <tbody>";
 
@@ -98,7 +98,7 @@ class Paytm_gateway extends CI_Controller {
         $param_list = $this->input->post();
         $paytm_check_sum = isset($_POST["CHECKSUMHASH"]) ? $_POST["CHECKSUMHASH"] : ""; //Sent by Paytm pg
         //Verify all parameters received from Paytm pg to your application. Like MID received from paytm pg is same as your application’s MID, TXN_AMOUNT and ORDER_ID are same as what was sent by you to Paytm PG for initiating transaction etc.
-        $is_valid_checksum = $this->encdec_paytm->verifychecksum_e($param_list, PAYTM_MERCHANT_KEY, $paytm_check_sum); //will return TRUE or FALSE string.
+        $is_valid_checksum = $this->encdec_paytm->verifychecksum_e($param_list, PAYTM_GATEWAY_MERCHANT_KEY, $paytm_check_sum); //will return TRUE or FALSE string.
         if ($is_valid_checksum == "TRUE") {
             if ($this->input->post("STATUS") == "TXN_SUCCESS") {
                 //Process your transaction here as success transaction.
@@ -182,9 +182,9 @@ class Paytm_gateway extends CI_Controller {
             // In Test Page, we are taking parameters from POST request. In actual implementation these can be collected from session or DB. 
             $ORDER_ID = $param_list["ORDERID"];
             // Create an array having all required parameters for status query.
-            $request_param_list = array("MID" => PAYTM_MERCHANT_MID, "ORDERID" => $ORDER_ID);
+            $request_param_list = array("MID" => PAYTM_GATEWAY_MERCHANT_MID, "ORDERID" => $ORDER_ID);
 
-            $StatusCheckSum = $this->encdec_paytm->getChecksumFromArray($request_param_list, PAYTM_MERCHANT_KEY);
+            $StatusCheckSum = $this->encdec_paytm->getChecksumFromArray($request_param_list, PAYTM_GATEWAY_MERCHANT_KEY);
             $request_param_list['CHECKSUMHASH'] = $StatusCheckSum;
             // Call the PG's getTxnStatusNew() function for verifying the transaction status.
             $response_param_list = $this->encdec_paytm->getTxnStatus($request_param_list);
@@ -355,8 +355,8 @@ class Paytm_gateway extends CI_Controller {
                 $random_number = substr(mt_rand(), 1,6);
                 $param_list['ORDER_ID'] = $random_number."_".date('Ymdhis');
                 $param_list["CUST_ID"] = $data[0]['customer_id'];
-                $param_list["INDUSTRY_TYPE_ID"] = PAYTM_INDUSTRY_TYPE_ID;
-                $param_list["CHANNEL_ID"] = PAYTM_CHANNEL_ID;
+                $param_list["INDUSTRY_TYPE_ID"] = PAYTM_GATEWAY_INDUSTRY_TYPE_ID;
+                $param_list["CHANNEL_ID"] = PAYTM_GATEWAY_CHANNEL_ID;
                 $param_list["TXN_AMOUNT"] = $data[0]['amount'];
                 //$param_list["TXN_AMOUNT"] = 1;
                 if(!empty($data[0]['phone_number'])){
