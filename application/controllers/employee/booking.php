@@ -3730,61 +3730,58 @@ class Booking extends CI_Controller {
      * @return: string
      */
     function download_serviceability_data() {
-        $service_id = $this->input->post('service_id');
-        if (!empty($service_id)) {
-            $checked_option = $this->input->post('pincode_optradio');
-            $excel_file = array();
-            $col = "services.services as Appliance,vendor_pincode_mapping.City, vendor_pincode_mapping.State ";
-            if ($checked_option) {
-                $col .= ",vendor_pincode_mapping.Pincode";
-                $template = '247around_serviceability_details_with_pincode.xlsx';
-            } else {
-                $template = '247around_serviceability_details_without_pincode.xlsx';
-            }
-
-            if (in_array('all', $service_id)) {
+        log_message('info', __FUNCTION__ . "Function Start With Request ".print_r($this->input->post(),true));
+        //Receive Input
+        $services = $this->input->post('service_id');
+        $appliace_opt = $this->input->post('appliance_opt');
+        $pincode_opt = $this->input->post('pincode_opt');
+        $state_opt = $this->input->post('state_opt');
+        $city_opt = $this->input->post('city_opt');
+        
+        $whereIN = $join = NULL;
+        $groupBY = array();
+        $orderBY = array('vendor_pincode_mapping.Pincode'=>'ASC');
+        if($appliace_opt == 1){
+             $service_id = explode(",",$services);
+             if (in_array('all', $service_id)) {
                 $service_id = array_column($this->booking_model->selectservice(true), 'id');
-            }
-
-            foreach ($service_id as $key => $value) {
-                $where = array('Appliance_ID' => $value);
-                $data = $this->vendor_model->get_pincode_mapping_form_col($col, $where);
-                if (!empty($data)) {
-                    $excel_file[$key]['service_id'] = $value;
-                    $excel_file[$key]['file'] = $this->miscelleneous->generate_excel_data($template, $value, $data);
-                    unset($data);
-                }
-            }
-
-            $main_excel = $this->combined_excel_sheets($excel_file);
-
-            if ($main_excel) {
-
-                header('Content-Description: File Transfer');
-                header('Content-Type: application/octet-stream');
-                header('Content-Disposition: attachment; filename="' . basename($main_excel) . '"');
-                header('Expires: 0');
-                header('Cache-Control: must-revalidate');
-                header('Pragma: public');
-                header('Content-Length: ' . filesize($main_excel));
-                readfile($main_excel);
-
-                foreach ($excel_file as $key => $value) {
-                    if (file_exists($value['file'])) {
-                        unlink($value['file']);
-                    }
-                }
-
-                $res1 = 0;
-                system(" chmod 777 " . $main_excel, $res1);
-                if (file_exists($main_excel)) {
-                    unlink($main_excel);
-                }
-            }
-        }else{
-            echo "Empty data submitted";
+             }
+            $whereIN['services.id'] =  $service_id;
+            $join['services'] =  'services.id = vendor_pincode_mapping.Appliance_ID';
+            $select[] = "services.services as Appliance";
+            $groupBY[] = 'vendor_pincode_mapping.Appliance_ID';
         }
-    }
+         if($pincode_opt == 1){
+            $select[] = "vendor_pincode_mapping.Pincode";
+            $groupBY[] = 'vendor_pincode_mapping.Pincode';
+        }
+         if($state_opt){
+            $select[] = "vendor_pincode_mapping.State";
+            $groupBY[] = 'vendor_pincode_mapping.State';
+        }
+         if($city_opt){
+            $select[] = "vendor_pincode_mapping.City";
+            $groupBY[] = 'vendor_pincode_mapping.City';
+        }
+        $data = $this->reusable_model->get_search_result_data('vendor_pincode_mapping',implode(',',$select),NULL,$join,NULL,$orderBY,$whereIN,NULL,$groupBY);
+        foreach($data as $dataValues){
+            $headings = array_keys($dataValues);
+            $CSVData[] = array_values($dataValues);
+        }
+        $csv = implode(",",$headings)." \n";//Column headers
+        foreach ($CSVData as $record){
+            $csv.=implode(",",$record)."\n"; //Append data to csv
+        }
+    $output_file = TMP_FOLDER . "serviceability_report.csv";
+    $csv_handler = fopen ($output_file,'w');
+    fwrite ($csv_handler,$csv);
+    fclose ($csv_handler);
+    $subject = 'Servicablity Report from 247Around';
+    $message = 'Hi , <br>Requested Report is ready please find attachment<br>Thanks!';
+    $this->notify->sendEmail(NOREPLY_EMAIL_ID, $this->session->userdata('official_email'), "", "", $subject, $message, $output_file,"Servicablity_Report");
+    log_message('info', __FUNCTION__ . "Function End ".$this->session->userdata('official_email'));
+    unlink($output_file);
+         }
 
     /**
      * @desc: This function is used to combined the excel sheet
@@ -3867,4 +3864,111 @@ class Booking extends CI_Controller {
         }
         echo json_encode($data);
     }
+    
+    /**
+     * @desc: This function is used show view to create a custom payment link for user
+     * @params: void
+     * @return: void
+     */
+//    function create_booking_payment_link(){
+//        $this->miscelleneous->load_nav_header();
+//        $this->load->view('employee/booking_payment_link');
+//    }
+    
+    /**
+     * @desc: This function is used to create a custom payment link for user
+     * @params: void
+     * @return: void
+     */
+//    function process_create_booking_payment_link() {
+//        log_message("info", __METHOD__ . " Entering...");
+//        $booking_id_arr = $this->input->post('booking_id');
+//
+//        if (!empty($booking_id_arr)) {
+//
+//            $phone_number = $this->input->post('phone_number');
+//            $email = $this->input->post('email');
+//            //Either Phone number or email required
+//            if (empty($phone_number) && empty($email)) {
+//                $this->session->set_flashdata('err_msg', 'Please Enter Either Phone Number Or Email');
+//                redirect(base_url() . 'employee/booking/create_booking_payment_link');
+//            } else {
+//                /*check if link already created or not.
+//                 * if already created then do not create new link 
+//                */
+//                $data = $this->booking_model->get_payment_link_details('*', array('booking_id' => implode(',', $booking_id_arr)));
+//
+//                if (empty($data)) {
+//                    //make booking id like 'SY-1234567899456' so that we can use it in the sql IN() function to process the query
+//                    $booking_ids = implode(',', array_map(function($id) {
+//                                return("'$id'");
+//                            }, $booking_id_arr));
+//                    
+//                    $select = "SUM(amount_due) as amount, GROUP_CONCAT(user_id SEPARATOR '_') as customer_id";
+//                    $where = array("Booking_id IN ($booking_ids)" => NULL);
+//                    $booking_details = $this->booking_model->get_bookings_count_by_any($select, $where);
+//                    
+//                    //if amount paid by customer is 0 then do not create link
+//                    if (!empty($booking_details[0]['amount'])) {
+//
+//                        $param_list = array('phone_no' => $phone_number,
+//                            'email' => $email,
+//                            'amount' => $booking_details[0]['amount']
+//                        );
+//
+//                        //create hash key to verify the payment link when user pay with link
+//                        $check_sum = preg_replace('^[/+=]^', '', $this->encdec_paytm->getChecksumFromArray($param_list, PAYTM_GATEWAY_MERCHANT_KEY));
+//                        $insert_data = array('booking_id' => implode(',', $booking_id_arr),
+//                            'customer_id' => $booking_details[0]['customer_id'],
+//                            'amount' => $booking_details[0]['amount'],
+//                            'phone_number' => $phone_number,
+//                            'email' => $email,
+//                            'hash_key' => md5($check_sum),
+//                            'status' => 0,
+//                            'create_date' => date('Y-m-d H:i:s')
+//                        );
+//
+//                        $insert_id = $this->booking_model->insert_payment_link_details($insert_data);
+//
+//                        if ($insert_id) {
+//                            log_message("info", __METHOD__ . " data inserted successfully.");
+//
+//                            $url = base_url() . 'payment/verify_booking_payment/' . $check_sum;
+//
+//                            $short_url = $this->miscelleneous->getShortUrl($url);
+//                            
+//                            $sms['tag'] = "gateway_payment_link_sms";
+//                            $sms['phone_no'] = $phone_number;
+//                            $sms['smsData']['link'] = $short_url;
+//                            $sms['smsData']['amount'] = $booking_details[0]['amount'];
+//                            $sms['booking_id'] = implode(',', $booking_id_arr);
+//                            $sms['type'] = "user";
+//                            $sms['type_id'] = $booking_details[0]['customer_id'];
+//
+//                            $this->notify->send_sms_msg91($sms);
+//                            
+//                            log_message("info", __METHOD__ . " Sms Send to customer successfully");
+//                            $this->session->set_flashdata('success_msg', 'Sms Send to customer successfully');
+//                            redirect(base_url() . 'employee/booking/create_booking_payment_link');
+//                        } else {
+//                            log_message("info", __METHOD__ . " error in  inserting data.");
+//                            $this->session->set_flashdata('err_msg', 'Some error Occured!!! Please try again after some time...');
+//                            redirect(base_url() . 'employee/booking/create_booking_payment_link');
+//                        }
+//                    } else {
+//                        log_message("info", __METHOD__ . " Amount is 0, So link can not be created");
+//                        $this->session->set_flashdata('err_msg', 'Amount is 0, So link can not be created');
+//                        redirect(base_url() . 'employee/booking/create_booking_payment_link');
+//                    }
+//                } else {
+//                    log_message("info", __METHOD__ . " Link already created for this combination");
+//                    $this->session->set_flashdata('err_msg', 'Link already created for this combination');
+//                    redirect(base_url() . 'employee/booking/create_booking_payment_link');
+//                }
+//            }
+//        } else {
+//            $this->session->set_flashdata('err_msg', 'Booking Id Can not be empty');
+//            redirect(base_url() . 'employee/booking/create_booking_payment_link');
+//        }
+//    }
 }

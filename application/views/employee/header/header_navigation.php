@@ -198,21 +198,23 @@
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
                             <h4 class="modal-title" id="main_modal_title">Export Serviceability Data</h4>
+                            <hr>
+                            <h5 class="modal-title" id="main_modal_title">Please Select Which Fields you want in Report</h5>
+                            <h5 id="response_holder_csv" style="background: #5cb85c;color: #fff;text-align: center;padding: 8px;display: none;"></h5>
                         </div>
                         <div class="modal-body" id="main_modal_body">
-                            <form action="<?php echo base_url();?>employee/booking/download_serviceability_data" method="post" target="_blank">
-                                <div class="form-group">
-                                    <select class="form-control" id="modal_service_id" name="service_id[]" multiple="multiple" required=""> 
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label class="radio-inline"><input type="radio" name="pincode_optradio" value="0" checked="">Without Pincode</label>
-                                    <label class="radio-inline"><input type="radio" name="pincode_optradio" value="1">With Pincode</label>
-                                </div>
+                            <form>
+                                <div class="checkbox"><label><input type="checkbox" name="appliace_opt" id="appliace_opt" value="" onclick="showHideApplianceForm(this.checked)">Appliance</label></div>
+                                    <div id="appliance_id_holder" style="display:none;">
+                                        <select class="form-control" id="modal_service_id" name="service_id[]"  multiple="multiple" required=""> </select>
+                                        </div>
+                                <div class="checkbox"><label><input type="checkbox" name="pincode_opt" id="pincode_opt" value="">Pincode</label></div>
+                                <div class="checkbox"><label><input type="checkbox" name="city_opt" id="city_opt" value="">City</label></div>
+                                <div class="checkbox"><label><input type="checkbox" name="state_opt" id="state_opt" value="">State</label></div>
                                 <div class="modal-footer">
                                     <div class="text-right">
                                         <div class="btn btn-default" data-dismiss="modal">Cancel</div>
-                                        <input type="submit" class="btn btn-success" value="Export">
+                                        <button type="button" class="btn btn-success" onclick="generate_csv_and_send_email()">Export</button>
                                     </div>
                                 </div>
                             </form>
@@ -363,4 +365,63 @@
                     }
                     });
                 }
+                function showHideApplianceForm(value){
+                if(value){
+                    document.getElementById('appliance_id_holder').style.display='block';
+                }
+                else{
+                    document.getElementById('appliance_id_holder').style.display='block';
+                }
+            }
+            function getMultipleSelectedValues(fieldName){
+    fieldObj = document.getElementById(fieldName);
+    var values = [];
+    var length = fieldObj.length;
+    for(var i=0;i<length;i++){
+       if (fieldObj[i].selected == true){
+           values.push(fieldObj[i].value);
+       }
+    }
+   return values.toString();
+}
+function send_csv_request(appliance_opt,pincode_opt,state_opt,city_opt,service_id){
+    if(!service_id){
+        service_id = 'all';
+    }
+    document.getElementById('response_holder_csv').style.display='block';
+    document.getElementById('response_holder_csv').innerHTML = 'Soon you will get requested report via Email';
+    $.ajax({
+    type: 'POST',
+    url: '<?php echo base_url(); ?>employee/booking/download_serviceability_data',
+    data: {appliance_opt: appliance_opt,pincode_opt: pincode_opt,state_opt: state_opt,city_opt: city_opt,service_id: service_id},
+    success: function (response) {
+    }
+    });
+}
+            function generate_csv_and_send_email(){
+                var appliance_opt = 0;
+                var pincode_opt = 0;
+                var city_opt = 0;
+                var state_opt =0;
+                if ($('#appliace_opt').is(":checked")){
+                    appliance_opt = 1; 
+                }
+                if ($('#pincode_opt').is(":checked")){
+                    pincode_opt = 1;
+                }
+                if ($('#city_opt').is(":checked")){
+                    city_opt = 1;
+                }
+                if ($('#state_opt').is(":checked")){
+                    state_opt = 1;
+                }
+                var service_id = getMultipleSelectedValues('modal_service_id');
+                if(appliance_opt === 1 || pincode_opt === 1 || city_opt ===  1 || state_opt === 1){
+                    send_csv_request(appliance_opt,pincode_opt,state_opt,city_opt,service_id);
+                }
+                else{
+                     alert("Please Select atleast 1 option");
+                }
+                
+            }
                 </script>
