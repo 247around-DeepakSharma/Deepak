@@ -564,5 +564,7 @@ define('CUSTOMER_INVOICE_TAG','CUSTOMER_INVOICE_TAG');
 
 define('VINESH_FLIPKART_EMAIL', 'vinesh.poojari@flipkart.com');
 
+define("_247Around_Rejected_SF_Update", "247Around Rejected SF Update");
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
