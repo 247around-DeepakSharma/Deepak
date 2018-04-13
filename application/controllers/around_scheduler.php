@@ -1563,6 +1563,30 @@ class Around_scheduler extends CI_Controller {
             }
         }
     }
-
+    /*
+     * This function is used to cancel SF Not found queries after a threshold limit
+     */
+    function cancel_sf_not_found_query_after_threshold_limit(){
+        log_message('info', __FUNCTION__ . " Function Start  ");
+        $thresholdDate = date('Y-m-d', strtotime(THRESHOLD_LIMIT, strtotime(date('Y-m-d'))));
+        $where['date(create_date)>"'.$thresholdDate.'"'] =NULL;
+        $where['booking_id !="Not_Generated"'] =NULL;
+        $where['active_flag'] =1;
+        $data = $this->reusable_model->get_search_result_data("sf_not_exist_booking_details","booking_id,partner_id",$where,NULL,NULL,NULL,NULL,NULL,array());
+        log_message('info', __FUNCTION__ . " Below Queries Needs to Cancel  ". print_r($data,true));
+        if(!empty($data)){
+            foreach($data as $bookingData){
+                $booking_id = $bookingData['booking_id'];
+                $status = _247AROUND_FOLLOWUP;
+                $cancellation_reason = SF_NOT_FOUND_BOOKING_CANCELLED_REASON;
+                $cancellation_text = SF_NOT_FOUND_BOOKING_CANCELLED_REASON_TEXT;
+                $agent_id = _247AROUND_DEFAULT_AGENT;
+                $agent_name = _247AROUND_DEFAULT_AGENT_NAME;
+                $partner_id = $bookingData['partner_id'];
+                $this->miscelleneous->process_cancel_form($booking_id, $status, $cancellation_reason, $cancellation_text, $agent_id, $agent_name, $partner_id);
+            }
+        }
+        log_message('info', __FUNCTION__ . " Function End  ");
+    }
 }
 
