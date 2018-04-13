@@ -3737,61 +3737,58 @@ class Booking extends CI_Controller {
      * @return: string
      */
     function download_serviceability_data() {
-        $service_id = $this->input->post('service_id');
-        if (!empty($service_id)) {
-            $checked_option = $this->input->post('pincode_optradio');
-            $excel_file = array();
-            $col = "services.services as Appliance,vendor_pincode_mapping.City, vendor_pincode_mapping.State ";
-            if ($checked_option) {
-                $col .= ",vendor_pincode_mapping.Pincode";
-                $template = '247around_serviceability_details_with_pincode.xlsx';
-            } else {
-                $template = '247around_serviceability_details_without_pincode.xlsx';
-            }
-
-            if (in_array('all', $service_id)) {
+        log_message('info', __FUNCTION__ . "Function Start With Request ".print_r($this->input->post(),true));
+        //Receive Input
+        $services = $this->input->post('service_id');
+        $appliace_opt = $this->input->post('appliance_opt');
+        $pincode_opt = $this->input->post('pincode_opt');
+        $state_opt = $this->input->post('state_opt');
+        $city_opt = $this->input->post('city_opt');
+        
+        $whereIN = $join = NULL;
+        $groupBY = array();
+        $orderBY = array('vendor_pincode_mapping.Pincode'=>'ASC');
+        if($appliace_opt == 1){
+             $service_id = explode(",",$services);
+             if (in_array('all', $service_id)) {
                 $service_id = array_column($this->booking_model->selectservice(true), 'id');
-            }
-
-            foreach ($service_id as $key => $value) {
-                $where = array('Appliance_ID' => $value);
-                $data = $this->vendor_model->get_pincode_mapping_form_col($col, $where);
-                if (!empty($data)) {
-                    $excel_file[$key]['service_id'] = $value;
-                    $excel_file[$key]['file'] = $this->miscelleneous->generate_excel_data($template, $value, $data);
-                    unset($data);
-                }
-            }
-
-            $main_excel = $this->combined_excel_sheets($excel_file);
-
-            if ($main_excel) {
-
-                header('Content-Description: File Transfer');
-                header('Content-Type: application/octet-stream');
-                header('Content-Disposition: attachment; filename="' . basename($main_excel) . '"');
-                header('Expires: 0');
-                header('Cache-Control: must-revalidate');
-                header('Pragma: public');
-                header('Content-Length: ' . filesize($main_excel));
-                readfile($main_excel);
-
-                foreach ($excel_file as $key => $value) {
-                    if (file_exists($value['file'])) {
-                        unlink($value['file']);
-                    }
-                }
-
-                $res1 = 0;
-                system(" chmod 777 " . $main_excel, $res1);
-                if (file_exists($main_excel)) {
-                    unlink($main_excel);
-                }
-            }
-        }else{
-            echo "Empty data submitted";
+             }
+            $whereIN['services.id'] =  $service_id;
+            $join['services'] =  'services.id = vendor_pincode_mapping.Appliance_ID';
+            $select[] = "services.services as Appliance";
+            $groupBY[] = 'vendor_pincode_mapping.Appliance_ID';
         }
-    }
+         if($pincode_opt == 1){
+            $select[] = "vendor_pincode_mapping.Pincode";
+            $groupBY[] = 'vendor_pincode_mapping.Pincode';
+        }
+         if($state_opt){
+            $select[] = "vendor_pincode_mapping.State";
+            $groupBY[] = 'vendor_pincode_mapping.State';
+        }
+         if($city_opt){
+            $select[] = "vendor_pincode_mapping.City";
+            $groupBY[] = 'vendor_pincode_mapping.City';
+        }
+        $data = $this->reusable_model->get_search_result_data('vendor_pincode_mapping',implode(',',$select),NULL,$join,NULL,$orderBY,$whereIN,NULL,$groupBY);
+        foreach($data as $dataValues){
+            $headings = array_keys($dataValues);
+            $CSVData[] = array_values($dataValues);
+        }
+        $csv = implode(",",$headings)." \n";//Column headers
+        foreach ($CSVData as $record){
+            $csv.=implode(",",$record)."\n"; //Append data to csv
+        }
+    $output_file = TMP_FOLDER . "serviceability_report.csv";
+    $csv_handler = fopen ($output_file,'w');
+    fwrite ($csv_handler,$csv);
+    fclose ($csv_handler);
+    $subject = 'Servicablity Report from 247Around';
+    $message = 'Hi , <br>Requested Report is ready please find attachment<br>Thanks!';
+    $this->notify->sendEmail(NOREPLY_EMAIL_ID, $this->session->userdata('official_email'), "", "", $subject, $message, $output_file,"Servicablity_Report");
+    log_message('info', __FUNCTION__ . "Function End ".$this->session->userdata('official_email'));
+    unlink($output_file);
+         }
 
     /**
      * @desc: This function is used to combined the excel sheet
@@ -3981,5 +3978,4 @@ class Booking extends CI_Controller {
             redirect(base_url() . 'employee/booking/create_booking_payment_link');
         }
     }
-
 }
