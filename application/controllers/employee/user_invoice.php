@@ -28,8 +28,8 @@ class User_invoice extends CI_Controller {
      * @param String $booking_id
      * @param String $agent_id
      */
-    function payment_invoice_for_customer($booking_id, $agent_id) {
-        log_message("info", __METHOD__ . " Enering .. for booking id " . $booking_id . " agent ID " . $agent_id);
+    function payment_invoice_for_customer($booking_id, $agent_id, $preinvoice_id = false) {
+        log_message("info", __METHOD__ . " Enering .. for booking id " . $booking_id . " agent ID " . $agent_id . "Invoice ID " . $preinvoice_id);
         $select = "service_centres.company_name, service_centres.address as sf_address, "
                 . "service_centres.pincode as sf_pincode, service_centres.district as sf_district, service_centres.state as sf_state, service_centres.gst_no, service_centres.owner_phone_1, "
                 . "users.name, users.home_address, users.phone_number,users.user_email, users.pincode, users.city, users.state, booking_details.amount_due, "
@@ -41,8 +41,14 @@ class User_invoice extends CI_Controller {
 
         if (!empty($data)) {
             $prod = '';
+            if (empty($preinvoice_id)) {
+                $invoice_id = $this->invoice_lib->create_invoice_id($data[0]->sc_code);
+                $unit = $this->booking_model->get_unit_details(array("booking_id" => $booking_id, "booking_status != 'Cancelled' " => NULL, 'user_invoice_id IS NULL' => NULL));
+            } else {
+                $invoice_id = $preinvoice_id;
+                $unit = $this->booking_model->get_unit_details(array("booking_id" => $booking_id, "booking_status != 'Cancelled' " => NULL));
+            }
 
-            $unit = $this->booking_model->get_unit_details(array("booking_id" => $booking_id, "booking_status != 'Cancelled' " => NULL, 'user_invoice_id IS NULL' => NULL));
             if (!empty($unit)) {
                 $unique = array_unique(array_map(function ($k) {
                             return $k['price_tags'];
@@ -51,7 +57,6 @@ class User_invoice extends CI_Controller {
                 $prod = $data[0]->services . " (" . implode(",", $unique) . ")";
             }
             if (!empty($prod)) {
-                $invoice_id = $this->invoice_lib->create_invoice_id($data[0]->sc_code);
                 log_message("info", __METHOD__ . " Invoice ID created " . $invoice_id);
                 $invoice = array();
                 $invoice[0]['description'] = $prod;
@@ -104,7 +109,7 @@ class User_invoice extends CI_Controller {
 
 
                         $pdf_attachement_url = S3_WEBSITE_URL . 'invoices-excel/' . $output_pdf_file_name;
-                        $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $pdf_attachement_url,'customer_paid_invoice_to_vendor');
+                        $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $pdf_attachement_url, 'customer_paid_invoice_to_vendor');
                     }
 
                     $pathinfo = pathinfo($copy_pdf_file_name);
@@ -136,7 +141,7 @@ class User_invoice extends CI_Controller {
                             $cc = $email_template[3];
                             $bcc = $email_template[5];
 
-                            $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $customer_attachement_url,'customer_paid_invoice');
+                            $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $customer_attachement_url, 'customer_paid_invoice');
                         }
                     }
                     $sms['smsData']['amount'] = $data[0]->amount_paid;
@@ -152,7 +157,8 @@ class User_invoice extends CI_Controller {
                     $sms['type_id'] = $data[0]->user_id;
                     $this->notify->send_sms_msg91($sms);
 
-                    $this->insert_payment_invoice($booking_id, $response, $data[0]->assigned_vendor_id, $data[0]->closed_date, $agent_id, $convert, $data[0]->user_id);
+                    $this->insert_payment_invoice($booking_id, $response, $data[0]->assigned_vendor_id, 
+                            $data[0]->closed_date, $agent_id, $convert, $data[0]->user_id,$preinvoice_id);
                     echo json_encode(array(
                         'status' => true,
                         'message' => $invoice_id
@@ -180,7 +186,7 @@ class User_invoice extends CI_Controller {
         }
     }
 
-    function insert_payment_invoice($booking_id, $invoice, $sf_id, $closed_date, $agent_id, $convert, $user_id){
+    function insert_payment_invoice($booking_id, $invoice, $sf_id, $closed_date, $agent_id, $convert, $user_id, $isregenareate){
         $main_invoice = array(
                 'invoice_id' => $invoice['meta']['invoice_id'],
                 'entity_to' => 'user',
@@ -200,6 +206,7 @@ class User_invoice extends CI_Controller {
                 'due_date' => date("Y-m-d H:i:s", strtotime($closed_date)),
                 'total_basic_amount' => $invoice['meta']['total_taxable_value'],
                 'total_invoice_amount' => $invoice['meta']['sub_total_amount'],
+                'amount_paid' => $invoice['meta']['sub_total_amount'],
                 'agent_id' => $agent_id,
                 "total_igst_tax_amount" => $invoice['meta']["igst_total_tax_amount"],
                 "total_sgst_tax_amount" => $invoice['meta']["sgst_total_tax_amount"],
@@ -207,8 +214,7 @@ class User_invoice extends CI_Controller {
                 'create_date' => date('Y-m-d H:i:s'),
                 "remarks" => ''
             );
-
-        $this->invoices_model->insert_invoice($main_invoice);
+        
         $invoice_breakup = array();
         foreach($invoice['booking'] as $value){
             $invoice_details = array(
@@ -232,9 +238,15 @@ class User_invoice extends CI_Controller {
             
             array_push($invoice_breakup, $invoice_details);
         }
+        
+        if(!empty($isregenareate)){
+            $this->invoices_model->update_invoice(array('invoice_id' =>$invoice['meta']['invoice_id']), $main_invoice);
+            $this->invoices_model->update_invoice_breakup(array('invoice_id' =>$invoice['meta']['invoice_id']),$invoice_breakup[0]);
+        } else {
             
-            
-        $this->invoices_model->insert_invoice_breakup($invoice_breakup);
+            $this->invoices_model->insert_invoice($main_invoice);
+            $this->invoices_model->insert_invoice_breakup($invoice_breakup);
+        }
             
         $this->booking_model->update_booking_unit_details_by_any(array('booking_id' => $booking_id, "booking_status" => 'Completed'), array("user_invoice_id" => $invoice['meta']['invoice_id']));
             
@@ -251,7 +263,9 @@ class User_invoice extends CI_Controller {
     function sf_payment_creditnote($booking_id, $amountPaid, $txnID, $agent_id){
         log_message("info", __METHOD__ . " Enering .. for booking id " . $booking_id . " amount paid " . $amountPaid . " Txn ID " . $txnID . " agent ID " . $agent_id);
         $is_exist = $this->invoices_model->get_invoices_details(array('invoice_id' => $txnID));
-        if (!empty($is_exist)) {
+        
+        
+        if (empty($is_exist)) {
             $select = "service_centres.company_name, service_centres.address as sf_address, "
                     . "service_centres.pincode as sf_pincode, service_centres.district as sf_district, service_centres.state as sf_state, service_centres.gst_no, service_centres.owner_phone_1, "
                     . "users.name, users.home_address, users.phone_number,users.user_email, users.pincode, users.city, users.state, booking_details.amount_due, "
@@ -315,13 +329,13 @@ class User_invoice extends CI_Controller {
 
                     $this->insert_sf_credit_note($booking_id, $response, $data[0]->assigned_vendor_id, $sd, $agent_id, $convert, $txnID);
                 } else {
-                    log_message("info" . __METHOD__ . " Excel Not Created Booking ID" . $booking_id);
+                    log_message("info" , __METHOD__ . " Excel Not Created Booking ID" . $booking_id);
                 }
             } else {
-                log_message("info" . __METHOD__ . " Booking ID Not found " . $booking_id);
+                log_message("info" , __METHOD__ . " Booking ID Not found " . $booking_id);
             }
         } else {
-            log_message("info" . __METHOD__ . " Invoice Already Exsit dor booking ID " . $booking_id . " Invoice Data " . $txnID);
+            log_message("info" , __METHOD__ . " Invoice Already Exsit dor booking ID " . $booking_id . " Invoice Data " . $txnID);
         }
     }
     
@@ -421,6 +435,49 @@ class User_invoice extends CI_Controller {
             echo "success";
         } else {
             echo "Error";
+        }
+    }
+    
+    function regenerate_payment_invoice_for_customer($booking_id, $amount, $invoice_id, $agent_id) {
+        log_message("info", __METHOD__ . " Enering .. for booking id " . $booking_id . " agent ID " . $agent_id . "Invoice ID " . $invoice_id);
+        $data = $this->booking_model->get_bookings_count_by_any("booking_id, amount_paid", array('booking_id' => $booking_id));
+        if (!empty($invoice_id) && !empty($booking_id)) {
+            if (!empty($data)) {
+                if ($data[0]['amount_paid'] == $amount) {
+                    $output = "Invoice amount is same as previous amount";
+                    $userSession = array('error' => $output);
+                    $this->session->set_userdata($userSession);
+                    redirect(base_url(). "employee/invoice/customer_invoice");
+                    
+                } else {
+                    $response = $this->payment_invoice_for_customer($booking_id, $agent_id, $invoice_id);
+                    $s = json_decode($response, TRUE);
+                    if($s['status']){
+                        $output = $s['message'];
+                        $userSession = array('success' => $output);
+                        $this->session->set_userdata($userSession);
+                        redirect(base_url(). "employee/invoice/customer_invoice");
+                        
+                    } else {
+                        $output = $s['message'];
+                        $userSession = array('error' => $output);
+                        $this->session->set_userdata($userSession);
+                        redirect(base_url(). "employee/invoice/customer_invoice");
+                    }
+                }
+            } else {
+                
+                $output = "Booking ID is not Found";
+                $userSession = array('error' => $output);
+                $this->session->set_userdata($userSession);
+                redirect(base_url(). "employee/invoice/customer_invoice");
+                    
+            }
+        } else {
+            $output = "Booking ID/ Invoice ID is not Found";
+            $userSession = array('error' => $output);
+            $this->session->set_userdata($userSession);
+            redirect(base_url(). "employee/invoice/customer_invoice");
         }
     }
 

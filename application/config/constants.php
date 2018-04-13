@@ -174,7 +174,7 @@ define('SNAPDEAL_ID',1);
 //Snapdeal host
 define('SNAPDEAL_HOST','snapdeal.com');
 //Jeeves ID
-define("JEEEVES_ID", 247030);
+define("JEEVES_ID", 247030);
 //Wybor ID
 define("WYBOR_ID", 247010);
 //ZOPPER ID
@@ -561,6 +561,8 @@ define('JEEVES_CALLCENTER_NUMBER',180042525252);
 define('JEEVES_WEBSITE','www.jeeves.co.in');
 
 define('CUSTOMER_INVOICE_TAG','CUSTOMER_INVOICE_TAG');
+
+define('VINESH_FLIPKART_EMAIL', 'vinesh.poojari@flipkart.com');
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

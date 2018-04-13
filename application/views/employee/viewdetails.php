@@ -158,6 +158,14 @@
                             <th>Partner Status </th>
                             <td><?php echo $booking_history[0]['partner_internal_status']; ?></td>
                         </tr>
+                        <?php if($booking_history[0]['internal_status'] != 'Completed') {?>
+                         <tr>
+                            <th>Current Actor </th>
+                            <td><?php echo $booking_history[0]['actor']; ?></td>
+                            <th>Next Action </th>
+                            <td><?php echo $booking_history[0]['next_action']; ?></td>
+                        </tr>
+                        <?php } ?>
                         <tr>
                             <th>Booking Create / Closed Dated </th>
                             <td><?php if(!empty($booking_history[0]['closed_date'])){ echo date("jS M, Y", strtotime($booking_history[0]['create_date'])).

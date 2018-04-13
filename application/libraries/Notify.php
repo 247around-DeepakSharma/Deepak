@@ -158,7 +158,8 @@ class Notify {
 		$sms['booking_id'] . " Tag is '" . $sms['tag'] . "' & phone number is :" . $sms['phone_no'];
 	    $to = ANUJ_EMAIL_ID;
             
-	    $this->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "");
+	    $this->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "","booking_sms_not_sent");
+            
 	}
     }
 
@@ -185,7 +186,7 @@ class Notify {
 	    $attachment = "";
 	    log_message('info', " Email Message" . print_r($message, true));
 
-	    $this->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
+	    $this->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment,$email['tag']);
 	} else {
 	    log_message('info', "Email Not Sent - Booking id: " . $email['booking_id'] . ",
         		please recheck tag: '" . $email['tag'] . "' & Phone Number - " . $email['phone_no']);
@@ -193,7 +194,7 @@ class Notify {
 	    $message = "Please check email tag and phone number. Booking id is : " .
 		$email['booking_id'] . " Tag is '" . $email['tag'] . "' & phone number is :" . $email['phone_no'];
 	    $to = NITS_ANUJ_EMAIL_ID;
-	    $this->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "");
+	    $this->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "",'booking_email_not_sent');
 	}
     }
 
@@ -392,7 +393,7 @@ class Notify {
                         $sms['type'] = "user";
                         $sms['type_id'] = $query1[0]['user_id'];
                         
-                        if($query1[0]['partner_id'] == JEEEVES_ID){
+                        if($query1[0]['partner_id'] == JEEVES_ID){
                             $sms['smsData']['number'] = JEEVES_CALLCENTER_NUMBER;
                             $sms['smsData']['name'] = JEEVES_WEBSITE;
                         }else{
@@ -520,7 +521,7 @@ class Notify {
 		    $to = NITS_ANUJ_EMAIL_ID;
 		    //$to = "abhaya@247around.com";
 		    $default_tax_rate = " Default Tax Rate is used in the Booking ID: " . $query1[0]['booking_id'];
-		    $this->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", ' Default Tax Rate is used ', $default_tax_rate, "");
+		    $this->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", ' Default Tax Rate is used ', $default_tax_rate, "",'default_tax_rates');
 		    break;
 
 		case 'Pincode_not_found':
@@ -636,7 +637,7 @@ class Notify {
                             . " " . $status['content'];
                     $to = ANUJ_EMAIL_ID . ", abhaya@247around.com";
 
-                    $this->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "");
+                    $this->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "",'sms_sending_failed');
                 }
             } else {
                 log_message('info', "Message Not Sent - Booking id: " . $sms['booking_id'] . ",
@@ -648,7 +649,7 @@ class Notify {
                         . " " . $status['content'];
                 $to = ANUJ_EMAIL_ID . ", abhaya@247around.com";
 
-                $this->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "");
+                $this->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "",'sms_not_sent_template_not_found');
             }
         }
     }

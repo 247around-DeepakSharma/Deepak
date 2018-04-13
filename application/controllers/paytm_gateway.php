@@ -332,7 +332,7 @@ class Paytm_gateway extends CI_Controller {
         
         $email_body = $this->load->view('paytm_gateway/transaction_email_template',$data,TRUE);
 
-        $sendmail = $this->notify->sendEmail($email_template[2], $to, "", $bcc, $subject, $email_body, "");
+        $sendmail = $this->notify->sendEmail($email_template[2], $to, "", $bcc, $subject, $email_body, "",'payment_transaction_email');
         
         if ($sendmail) {
             log_message('info', __FUNCTION__ . 'Payment transaction email send successfully');

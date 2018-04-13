@@ -101,9 +101,9 @@
                                                                         <tbody>
                                                                             <tr>
                                                                                 <?php
-                                                                                if (isset($booking_id)) { ?>
+                                                                                if (isset($booking_id)) { if(!isset($jeeves_not_assign)) { ?>
                                                                                     <td style="background-color:#2C9D9C;color:#ffffff;border-radius:2px;border:1px solid #2C9D9C;font:14px/1.5 Arial;text-align:center;height:42px;width:182px"><a href=<?php echo base_url() ?>employee/vendor/get_add_vendor_to_pincode_form/<?php echo $booking_id ?> style="display:inline-block;outline:medium none;text-decoration:none;color:#ffffff;font-weight:bold;text-align:center;min-height:42px;width:182px;line-height:42px;vertical-align:middle" target="_blank"><p style="font:normal 16px Arial">Assign Service Center</p></a></td>
-                                                                                <?php } ?>
+                                                                                <?php } } ?>
                                                                             </tr>
                                                                         </tbody>
                                                                     </table>
