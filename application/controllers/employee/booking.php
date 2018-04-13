@@ -1663,11 +1663,12 @@ class Booking extends CI_Controller {
      * @return: void
      */
     function reject_booking_from_review() {
-        log_message('info', __FUNCTION__);
+        log_message('info', __FUNCTION__. " POST ". json_encode($this->input->post(), true));
+        
         $booking_id = $this->input->post('booking_id');
         $admin_remarks = $this->input->post('admin_remarks');
-        $data['internal_status'] = "Pending";
-        $data['current_status'] = "Pending";
+        $data['internal_status'] = _247AROUND_PENDING;
+        $data['current_status'] = _247Around_Rejected_SF_Update;
         $data['update_date'] = date("Y-m-d H:i:s");
         $data['serial_number'] = "";
         $data['service_center_remarks'] = NULL;
@@ -1678,18 +1679,33 @@ class Booking extends CI_Controller {
         log_message('info', __FUNCTION__ . " Booking_id " . $booking_id . " Update service center action table: " . print_r($data, true));
         $this->vendor_model->update_service_center_action($booking_id, $data);
         //Send Push Notification
-        // get Assigned Vendor
-        $vendorData = $this->vendor_model->getVendor($booking_id);
+        $b = $this->booking_model->get_bookings_count_by_any("booking_details.partner_id, assigned_vendor_id",array('booking_details.booking_id' => $booking_id));
         //Get RM For Assigned Vendor
-        $rmArray = $this->vendor_model->get_rm_sf_relation_by_sf_id($vendorData[0]['id']);
-        $receiverArray['employee']= array($rmArray[0]['agent_id']);
-        $receiverArray['vendor']= array($vendorData[0]['id']);
-        $notificationTextArray['msg'] = array($booking_id,"Rejected");
-        $notificationTextArray['title'] = array("Rejected");
-        $this->push_notification_lib->create_and_send_push_notiifcation(BOOKING_UPDATED_BY_247AROUND,$receiverArray,$notificationTextArray);
+        $rmArray = $this->vendor_model->get_rm_sf_relation_by_sf_id($b[0]['assigned_vendor_id']);
+        if(!empty($rmArray)){
+            $receiverArray['employee']= array($rmArray[0]['agent_id']);
+            $receiverArray['vendor']= array($b[0]['assigned_vendor_id']);
+            $notificationTextArray['msg'] = array($booking_id,"Rejected");
+            $notificationTextArray['title'] = array("Rejected");
+            $this->push_notification_lib->create_and_send_push_notiifcation(BOOKING_UPDATED_BY_247AROUND,$receiverArray,$notificationTextArray);
+        }
+       
         //End Push Notification
+        
+        $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, _247Around_Rejected_SF_Update , $b[0]['partner_id'], $booking_id);
+        $actor = ACTOR_REJECT_FROM_REVIEW;
+        $next_action = REJECT_FROM_REVIEW_NEXT_ACTION;
+        if (!empty($partner_status)) {
+            $booking['partner_current_status'] = $partner_status[0];
+            $booking['partner_internal_status'] = $partner_status[1];
+            $actor = $booking['actor'] = $partner_status[2];
+            $next_action = $booking['next_action'] = $partner_status[3];
+            
+            $this->booking_model->update_booking($booking_id, $booking);
+        }
+        
         $this->notify->insert_state_change($booking_id, "Rejected", "InProcess_Completed", $admin_remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), 
-                ACTOR_REJECT_FROM_REVIEW,REJECT_FROM_REVIEW_NEXT_ACTION,_247AROUND);
+                $actor,$next_action,_247AROUND);
     }
 
     /**
