@@ -32,6 +32,10 @@ class invoices_model extends CI_Model {
            
         }
     }
+    function update_invoice_breakup($where, $data){
+        $this->db->where($where);
+        $this->db->update('invoice_details', $data);
+    }
     
     function insert_invoice_breakup($invoice_details){
         return $this->db->insert_batch("invoice_details", $invoice_details);
