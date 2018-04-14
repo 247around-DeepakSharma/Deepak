@@ -1886,8 +1886,7 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ . " Booking_id" . $booking_id);
         $data['data'] = $this->booking_model->get_booking_state_change_by_id($booking_id);
         $data['booking_details'] = $this->booking_model->getbooking_history($booking_id);
-        // send empty beacuse there is no need to display sms to partner panel
-        $data['sms_sent_details'] = array();
+        $data['sms_sent_details'] = $this->booking_model->get_sms_sent_details($booking_id);
 
         //$this->load->view('partner/header');
 
