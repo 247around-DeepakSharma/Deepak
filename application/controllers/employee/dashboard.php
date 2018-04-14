@@ -1289,6 +1289,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                           $finalPincodeArray[$pincodesData[$groupByKeyName]][$secondKeyName][$pincodesData[$secondKeyName]]['pincodes'][$pincodesData['pincode']] = $pincodesData['pincodeCount'];
                  }
             } 
+            arsort($finalPincodeArray);
             return $finalPincodeArray;
     }
     function missing_pincode_group_by_view_helper($finalPincodeArray,$divID,$heading,$breakDownKey){
