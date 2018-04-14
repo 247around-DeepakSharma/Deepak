@@ -1184,7 +1184,7 @@ class vendor extends CI_Controller {
                         if($sf_status[$booking_id] == "SF_NOT_EXIST"){
                             //$this->send_mail_when_sf_not_exist($booking_id);
                             $this->miscelleneous->sf_not_exist_for_pincode(array('booking_id' => $booking_id, 'booking_pincode' => $pincode[$booking_id], 
-                                'service_id' => $service_id[$booking_id],'partner_id'=>$partner_id[$booking_id],'city'=>$city[$booking_id],'district'=>'Not_Received'));
+                                'service_id' => $service_id[$booking_id],'partner_id'=>$partner_id[$booking_id],'city'=>$city[$booking_id]));
                         }
                     } else {
                         log_message('info', __METHOD__ . "=> Not Assign for Sc "

@@ -470,7 +470,6 @@
                     <tr>
                         <th class="jumbotron" style="text-align: center;width: 1%">S.N</th>
                         <th class="jumbotron" style="text-align: center">Phone</th>
-                        <th class="jumbotron" style="text-align: center">Sms Tag</th>
                         <th class="jumbotron" style="text-align: center;width:45%;">Content</th>
                         <th class="jumbotron" style="text-align: center">Sent on Date</th>
                     </tr>
@@ -481,7 +480,6 @@
                     <tr>
                         <td><?php echo ($key++) . '.'; ?></td>
                         <td><?php echo $value['phone']; ?></td>
-                        <td><?php echo $value['sms_tag']; ?></td>
                         <td style="font-size: 90%;"><?php echo $value['content']; ?></td>
                         <td><?php
                             $old_date = $value['created_on'];

@@ -14,7 +14,7 @@
                             </li>
                             <li role="presentation" class=""><a href="#tab_content3" role="tab" data-toggle="tab" aria-expanded="false">Spare Parts Details</a>
                             </li>
-                            <li role="presentation" class=""><a href="#tab_content4" role="tab" data-toggle="tab" aria-expanded="false">Booking History</a>
+                            <li role="presentation" class=""><a href="#tab_content4" role="tab" data-toggle="tab" aria-expanded="false">Booking History / SMS</a>
                             </li>
                             <li role="presentation" class=""><a href="#tab_content5" role="tab" data-toggle="tab" aria-expanded="false">SF Details</a>
                             </li>
