@@ -1555,7 +1555,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
     function cancel_sf_not_found_query_after_threshold_limit(){
         log_message('info', __FUNCTION__ . " Function Start  ");
         $thresholdDate = date('Y-m-d', strtotime(THRESHOLD_LIMIT, strtotime(date('Y-m-d'))));
-        $where['date(create_date)>"'.$thresholdDate.'"'] =NULL;
+        $where['date(create_date)<"'.$thresholdDate.'"'] =NULL;
         $where['booking_id !="Not_Generated"'] =NULL;
         $where['active_flag'] =1;
         $data = $this->reusable_model->get_search_result_data("sf_not_exist_booking_details","booking_id,partner_id",$where,NULL,NULL,NULL,NULL,NULL,array());
