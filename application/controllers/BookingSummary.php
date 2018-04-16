@@ -1547,15 +1547,18 @@ EOD;
         $emailBasicDataArray['subject'] = $subject;
         $emailBasicDataArray['from'] = NOREPLY_EMAIL_ID;
         $emailBasicDataArray['fromName'] = "247around Team";
-        $emailTemplateDataArray['templateId'] = PARTNER_SUMMARY_EMAIL_TEMPLATE;
+        //$emailTemplateDataArray['templateId'] = PARTNER_SUMMARY_EMAIL_TEMPLATE;
         $emailTemplateDataArray['dynamicParams'] = $this->partner_model->get_partner_summary_params($partner_data['id']);
         if(!empty($emailTemplateDataArray['dynamicParams'])){
             $emailAttachmentDataArray['type'] = "csv";
             $emailAttachmentDataArray['fileName'] = "247around-Services-Consolidated-Data - " . date('d-M-Y');
             $emailAttachmentDataArray['filePath'] = $csv_file;
-            $emailStatus = $this->send_grid_api->send_email_using_send_grid_templates($emailBasicDataArray, $emailTemplateDataArray, $emailAttachmentDataArray);
-
-            if ($emailStatus == 'success') {
+            
+            $email_body = $this->load->view('employee/partner_summary_email_template',$emailTemplateDataArray,true);
+            
+            $send_email = $this->notify->sendEmail($emailBasicDataArray['from'], $emailBasicDataArray['to'], $emailBasicDataArray['cc'], "", $subject, $email_body, $csv_file,'partner_summary_email');
+            //$emailStatus = $this->send_grid_api->send_email_using_send_grid_templates($emailBasicDataArray, $emailTemplateDataArray, $emailAttachmentDataArray);
+            if ($send_email) {
                 log_message('info', __METHOD__ . ": Mail sent successfully for Partner: " . $partner_data['public_name']);
                 $response = true;
             } else {
