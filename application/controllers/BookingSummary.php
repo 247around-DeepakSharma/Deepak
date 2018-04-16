@@ -1556,7 +1556,7 @@ EOD;
             
             $email_body = $this->load->view('employee/partner_summary_email_template',$emailTemplateDataArray,true);
             
-            $send_email = $this->notify->sendEmail($emailBasicDataArray['from'], $emailBasicDataArray['to'], $emailBasicDataArray['cc'], "", $subject, $email_body, $csv_file,'partner_summary_email');
+            $send_email = $this->notify->sendEmail($emailBasicDataArray['from'], $emailBasicDataArray['to'], $emailBasicDataArray['cc'], "", $subject, $email_body, $csv_file);
             //$emailStatus = $this->send_grid_api->send_email_using_send_grid_templates($emailBasicDataArray, $emailTemplateDataArray, $emailAttachmentDataArray);
             if ($send_email) {
                 log_message('info', __METHOD__ . ": Mail sent successfully for Partner: " . $partner_data['public_name']);
