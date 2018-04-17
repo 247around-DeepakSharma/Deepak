@@ -528,6 +528,8 @@ EOD;
         $csv = TMP_FOLDER . $newCSVFileName;
         $file = fopen($csv,"w");
         $first_row = array_keys($data[0]);
+        unset($first_row['23']);
+        unset($first_row['24']);
         $first_row[]='Completion Days';
         fputcsv($file,$first_row);
         foreach ($data as $values)
@@ -541,6 +543,8 @@ EOD;
                    $days = '5+';
                 }
             }
+            unset($values['internal_status']);
+            unset($values['current_status']);
             $values['completionDays'] = $days;
             $row = array_values($values);
             fputcsv($file,$row);
