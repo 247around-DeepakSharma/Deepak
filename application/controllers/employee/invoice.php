@@ -2187,6 +2187,10 @@ class Invoice extends CI_Controller {
 
                 $entity_details = $this->partner_model->getpartner_details("gst_number, state", array('partners.id' => $data['vendor_partner_id']));
                 $gst_number = $entity_details[0]['gst_number'];
+                if(empty($gst_number)){
+                    
+                    $gst_number = TRUE;
+                }
             }
             
             if(empty($gst_number)){
@@ -2744,48 +2748,9 @@ class Invoice extends CI_Controller {
      * @desc Add new bank transaction
      */
     function process_advance_payment() {
-         $this->checkUserSession();
-        $data['partner_vendor'] = $this->input->post("partner_vendor");
-        $data['partner_vendor_id'] = $this->input->post('partner_vendor_id');
-        $data['credit_debit'] = $this->input->post("credit_debit");
-        $data['bankname'] = $this->input->post("bankname");
-        $data['transaction_date'] = date("Y-m-d", strtotime($this->input->post("tdate")));
-        $data['tds_amount'] = $this->input->post('tds_amount');
-        $amount = $this->input->post("amount");
-        if ($data['credit_debit'] == "Credit") {
-            $data['credit_amount'] = $amount -  $data['tds_amount'];
-            
-            $invoice_id = $this->advance_invoice_insert($data['partner_vendor'], 
-                    $data['partner_vendor_id'], $data['transaction_date'],
-                    $amount, $data['tds_amount'], "Credit");
-            if($invoice_id){
-                $data['invoice_id'] = $invoice_id;
-                $data['is_advance'] = 1;
-            }
-            
-            
-        } else if ($data['credit_debit'] == "Debit") {
-            $data['debit_amount'] = $amount;
-            if($data['partner_vendor'] == "vendor"){
-                  $invoice_id = $this->advance_invoice_insert($data['partner_vendor'], 
-                    $data['partner_vendor_id'], $data['transaction_date'],
-                    $amount, $data['tds_amount'], "Debit");
-                if($invoice_id){
-                    $data['invoice_id'] = $invoice_id;
-                    $data['is_advance'] = 1;
-                }
-            }
-        }
-
-       
-        $data['transaction_mode'] = $this->input->post('transaction_mode');
-        $data['description'] = $this->input->post("description");
-        $data['agent_id'] = $this->session->userdata('id');
-        $data['create_date'] = date("Y-m-d H:i:s");
-        $data['transaction_id'] = $this->input->post('transaction_id');
-       
-        $status = $this->invoices_model->bankAccountTransaction($data);
-        
+        $this->checkUserSession();
+        $agent_id = $this->session->userdata('id');
+        $status = $this->_process_advance_payment($agent_id);
         if ($status) {
 
             $userSession = array('success' => "Bank Transaction Added");
@@ -2798,7 +2763,64 @@ class Invoice extends CI_Controller {
         }
     }
     
-    function advance_invoice_insert($vendor_partner, $vendor_partner_id, $date, $amount, $tds, $txntype) {
+    function paytm_gateway_payment($agent_id){
+        log_message("info",__METHOD__. "POST ". print_r($this->input->post(), true));
+        $status = $this->_process_advance_payment($agent_id);
+        if(!$status){
+            $to = "abhaya@247around.com";
+            $cc = "";
+            $subject = "Payment Receipt Failed";
+            $message = json_encode($this->input->post(), true);
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, '', $subject, $message, "", "Ad Receipt Failed");
+        } else {
+            log_message("info", __METHOD__ . "Receipt Inserted ".  "POST ". print_r($this->input->post(), true));
+        }
+    }
+    
+    function _process_advance_payment($agent_id){
+        $data['partner_vendor'] = $this->input->post("partner_vendor");
+        $data['partner_vendor_id'] = $this->input->post('partner_vendor_id');
+        $data['credit_debit'] = $this->input->post("credit_debit");
+        $data['bankname'] = $this->input->post("bankname");
+        $data['transaction_date'] = date("Y-m-d", strtotime($this->input->post("tdate")));
+        $data['tds_amount'] = $this->input->post('tds_amount');
+        $amount = $this->input->post("amount");
+        if ($data['credit_debit'] == "Credit") {
+            $data['credit_amount'] = $amount -  $data['tds_amount'];
+            
+            $invoice_id = $this->advance_invoice_insert($data['partner_vendor'], 
+                    $data['partner_vendor_id'], $data['transaction_date'],
+                    $amount, $data['tds_amount'], "Credit", $agent_id);
+            if($invoice_id){
+                $data['invoice_id'] = $invoice_id;
+                $data['is_advance'] = 1;
+            }
+            
+            
+        } else if ($data['credit_debit'] == "Debit") {
+            $data['debit_amount'] = $amount;
+            if($data['partner_vendor'] == "vendor"){
+                  $invoice_id = $this->advance_invoice_insert($data['partner_vendor'], 
+                    $data['partner_vendor_id'], $data['transaction_date'],
+                    $amount, $data['tds_amount'], "Debit", $agent_id);
+                if($invoice_id){
+                    $data['invoice_id'] = $invoice_id;
+                    $data['is_advance'] = 1;
+                }
+            }
+        }
+
+       
+        $data['transaction_mode'] = $this->input->post('transaction_mode');
+        $data['description'] = $this->input->post("description");
+        $data['agent_id'] = $agent_id;
+        $data['create_date'] = date("Y-m-d H:i:s");
+        $data['transaction_id'] = $this->input->post('transaction_id');
+       
+        return $this->invoices_model->bankAccountTransaction($data);
+    }
+    
+    function advance_invoice_insert($vendor_partner, $vendor_partner_id, $date, $amount, $tds, $txntype, $agent_id) {
 
         if ($vendor_partner == "vendor") {
             $entity = $this->vendor_model->getVendorDetails("is_cp, sc_code", array("id" => $vendor_partner_id));
@@ -2866,7 +2888,7 @@ class Invoice extends CI_Controller {
             $data['total_amount_collected'] = $amount;
             $data['around_royalty'] = 0;
             
-            $data['agent_id'] = $this->session->userdata('id');
+            $data['agent_id'] = $agent_id;
             $data['create_date'] = date("Y-m-d H:i:s");
             $data['hsn_code'] = HSN_CODE;
 
@@ -2897,7 +2919,12 @@ class Invoice extends CI_Controller {
         $tax_charge = $this->booking_model->get_calculated_tax_charge($amount, DEFAULT_TAX_RATE);
         $data[0]['taxable_value'] = ($amount  - $tax_charge);
         $data[0]['product_or_services'] = "Service";
-        $data[0]['gst_number'] = $partner_data['gst_number'];
+        if(!empty($partner_data['gst_number'])){
+             $data[0]['gst_number'] = $partner_data['gst_number'];
+        } else {
+             $data[0]['gst_number'] = TRUE;
+        }
+       
         $data[0]['company_name'] = $partner_data['company_name'];
         $data[0]['company_address'] = $partner_data['company_address'];
         $data[0]['district'] = $partner_data['district'];
