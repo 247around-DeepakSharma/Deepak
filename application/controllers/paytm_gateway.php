@@ -17,6 +17,7 @@ class Paytm_gateway extends CI_Controller {
         $this->load->library('paytmlib/encdec_paytm');
         $this->load->library('miscelleneous');
         $this->load->library('notify');
+        $this->load->library('asynchronous_lib');
     }
     
     /**
@@ -48,6 +49,7 @@ class Paytm_gateway extends CI_Controller {
         //$param_list["TXN_AMOUNT"] = 1;
         $param_list["WEBSITE"] = PAYTM_GATEWAY_MERCHANT_WEBSITE;
         $param_list["CALLBACK_URL"] = PAYTM_GATEWAY_CALLBACK_URL;
+        $param_list['ORDER_DETAILS'] = $ORDER_ID." ".$TXN_AMOUNT;
 
         /*
           $param_list["MSISDN"] = $MSISDN; //Mobile number of customer
@@ -157,6 +159,10 @@ class Paytm_gateway extends CI_Controller {
         
         if($insert_id){
             log_message("info",__METHOD__." Payment has been completed successfully"); 
+            $partner_id = $this->session->userdata('partner_id');
+            if(!empty($partner_id)){
+                $this->generate_partner_payment_invoice($partner_id,$param_list);
+            }
             $this->send_transaction_email($insert_data);
         }else{
             log_message("info",__METHOD__." Error in processing payment. ". print_r($insert_data));
@@ -403,6 +409,27 @@ class Paytm_gateway extends CI_Controller {
             echo "<br> The key in your link is not a valid key.";
             echo "For more information. you can contact 247around Team";
         }
+    }
+    
+    function generate_partner_payment_invoice($partner_id, $param_list){
+        log_message("info", __METHOD__. " Partner Id ". $partner_id, " Response ". json_encode($param_list, true));
+        $postData = array(
+            "partner_vendor" => "partner",
+            "partner_vendor_id" => $partner_id,
+            "credit_debit" => "Credit",
+            "bankname" => $param_list['BANKNAME'],
+            "transaction_date" => date('Y-m-d'),
+            "tds_amount" => 0,
+            "amount" => $param_list['TXNAMOUNT'],
+            "transaction_mode" => $param_list['PAYMENTMODE'],
+            "description" => isset($param_list['ORDER_DETAILS'])?$param_list['ORDER_DETAILS']:'',
+            'tdate' =>  isset($param_list['TXNDATE'])?$param_list['TXNDATE']:date('Y-m-d'),
+        );
+
+        
+        $url = base_url() . "employee/invoice/paytm_gateway_payment/"._247AROUND_DEFAULT_AGENT;
+
+        $this->asynchronous_lib->do_background_process($url, $postData);
     }
 }
 
