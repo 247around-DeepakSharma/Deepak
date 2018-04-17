@@ -359,8 +359,7 @@ class Booking extends CI_Controller {
                                     "booking_pincode" => $booking['booking_pincode'],
                                     "service_id" => $appliances_details['service_id'],
                                     "partner_id" => $booking['partner_id'],
-                                    "city" => $booking['city'],
-                                    "district" => $booking['district']
+                                    "city" => $booking['city']
                                 ));
                             }
             return $booking;

@@ -1348,8 +1348,7 @@ class Miscelleneous {
      */
 
     function sf_not_exist_for_pincode($booking) {
-        $notFoundSfArray = array('booking_id' => $booking['booking_id'], 'pincode' => $booking['booking_pincode'], 'city' => $booking['city'], 'service_id' => $booking['service_id'],
-            'district' => $booking['district']);
+        $notFoundSfArray = array('booking_id' => $booking['booking_id'], 'pincode' => $booking['booking_pincode'], 'city' => $booking['city'], 'service_id' => $booking['service_id']);
         $result = $this->My_CI->reusable_model->get_rm_for_pincode($notFoundSfArray['pincode']);
         if (!empty($result)) {
             $notFoundSfArray['rm_id'] = $result[0]['rm_id'];
