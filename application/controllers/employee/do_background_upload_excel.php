@@ -649,9 +649,9 @@ class Do_background_upload_excel extends CI_Controller {
                                 $this->initialized_variable->fetch_partner_data($partner_booking['partner_id']);
 
                                 if ($this->initialized_variable->get_partner_data()[0]['partner_type'] == OEM) {
-                                    $prices = $this->partner_model->getPrices($partner_booking['service_id'], $category, $capacity, $partner_booking['partner_id'], 'Installation & Demo', $brand);
+                                    $prices = $this->partner_model->getPrices($partner_booking['service_id'], $category, $capacity, $partner_booking['partner_id'], 'Installation & Demo', $brand, false);
                                 } else {
-                                    $prices = $this->partner_model->getPrices($partner_booking['service_id'], $category, $capacity, $partner_booking['partner_id'], 'Installation & Demo', "");
+                                    $prices = $this->partner_model->getPrices($partner_booking['service_id'], $category, $capacity, $partner_booking['partner_id'], 'Installation & Demo', "", false);
                                 }
 
                                 $is_price = array();
