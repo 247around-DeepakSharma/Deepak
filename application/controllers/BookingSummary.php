@@ -555,7 +555,7 @@ EOD;
         $message = $this->leads_summary_report_percentage_format_html($finalArray);
         $newCSVFileName = $this->leads_summary_report_percentage_format_csv($data);
         $attachment = TMP_FOLDER . $newCSVFileName;
-        $this->notify->sendEmail(NOREPLY_EMAIL_ID, 'chhavid@247around.com', 'chhavid@247around.com', '', "Jeeves New Format Report", $message, $attachment,"Jeeves New Format Report");
+        $this->notify->sendEmail(NOREPLY_EMAIL_ID, 'anuj@247around.com', 'chhavid@247around.com', '', "Jeeves New Format Report", $message, $attachment,"Jeeves New Format Report");
     }
 
     function send_leads_summary_mail_to_partners($partner_id = "") {
