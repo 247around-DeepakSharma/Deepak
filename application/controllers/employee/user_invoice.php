@@ -352,7 +352,7 @@ class User_invoice extends CI_Controller {
             'invoice_date' => $invoice_date,
             'from_date' => date("Y-m-d", strtotime($invoice_date)),
             'to_date' => date("Y-m-d", strtotime($invoice_date)),
-            'due_date' => date("Y-m-d", strtotime($invoice_date)),
+            'due_date' => date("Y-m-d", strtotime($invoice_date . "+1 month")),
             'num_bookings' => 1,
             "parts_count" => 0,
             'total_service_charge' => $invoice['meta']['total_taxable_value'],
