@@ -469,6 +469,7 @@ class Miscelleneous {
 
         log_message('info', __FUNCTION__ . " Update booking  " . print_r($data, true));
 
+        $data['service_center_closed_date'] = date('Y-m-d H:i:s');
         $this->My_CI->booking_model->update_booking($booking_id, $data);
 
         //Update this booking in vendor action table
