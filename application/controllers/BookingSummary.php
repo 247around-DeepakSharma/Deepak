@@ -478,6 +478,85 @@ EOD;
 
         return $message;
     }
+    
+    function leads_summary_report_percentage_format_html($finalArray){
+        foreach($finalArray as $month=>$monthData){
+            $data['month'] = $month;
+            $data['monthData'] = $monthData;
+            $tableHtmlArray[] = $this->load->view('employee/partner_report', $data,true);
+        }
+        return implode("</br>",$tableHtmlArray);
+    }
+    function leads_summary_report_percentage_format_data($data){
+        $tempBookingArray = array();
+        $finalArray = array();
+        foreach($data as $bookingData){
+             //Get Referred Date Month
+           $refferedDate=strtotime($bookingData['Referred Date and Time']);
+           $month=date("F",$refferedDate);
+            if(!array_key_exists($month, $finalArray)){
+                $finalArray[$month]['totalCount'] = 0;
+            }
+            $finalArray[$month]['totalCount'] = $finalArray[$month]['totalCount']+1;
+            if(!in_array($bookingData['247BookingID'], $tempBookingArray)){
+                //Booking is completed if sf_completion date is completed
+                if($bookingData['Completion Date'] && !(($bookingData['internal_status'] == 'InProcess_Cancelled') || ($bookingData['current_status'] == 'Cancelled'))){
+                    //Get booking completion days 
+                    $date = new DateTime($bookingData['Referred Date and Time']);
+                    $now = new DateTime($bookingData['Completion Date']);
+                    $days =  $date->diff($now)->format("%d")+1;
+                    if($days>4){
+                        $days = 5;
+                    }
+                    $finalArray[$month][$days]['bookings'][] = $bookingData['247BookingID'];
+                    if(!array_key_exists('count', $finalArray[$month][$days])){
+                        $finalArray[$month][$days]['count'] = 0;
+                    }
+                    if(!array_key_exists('completedCount', $finalArray[$month])){
+                        $finalArray[$month]['completedCount'] = 0;
+                    }
+                    $finalArray[$month]['completedCount'] = $finalArray[$month]['completedCount']+1;
+                    $finalArray[$month][$days]['count'] =   $finalArray[$month][$days]['count']+1;
+                }
+                $tempBookingArray[] = $bookingData['247BookingID'];
+            }
+        }
+        return $finalArray;
+    }
+    function leads_summary_report_percentage_format_csv($data){
+        $newCSVFileName = "Booking_summary_" . date('j-M-Y-H-i-s') . ".csv";
+        $csv = TMP_FOLDER . $newCSVFileName;
+        $file = fopen($csv,"w");
+        $first_row = array_keys($data[0]);
+        $first_row[]='Completion Days';
+        fputcsv($file,$first_row);
+        foreach ($data as $values)
+        {
+            $days = '';
+            if($values['Completion Date'] && !(($values['internal_status'] == 'InProcess_Cancelled') || ($values['current_status'] == 'Cancelled'))){
+                $date = new DateTime($values['Referred Date and Time']);
+                $now = new DateTime($values['Completion Date']);
+                $days =  $date->diff($now)->format("%d")+1;
+                if($days>4){
+                   $days = '5+';
+                }
+            }
+            $values['completionDays'] = $days;
+            $row = array_values($values);
+            fputcsv($file,$row);
+        }
+        fclose($file);
+        return $newCSVFileName;
+    }
+    function leads_summary_report_percentage_format($partner_id){
+        $report = $this->partner_model->get_partner_leads_csv_for_summary_email($partner_id,'1');
+        $data = $report->result_array();
+        $finalArray = $this->leads_summary_report_percentage_format_data($data);
+        $message = $this->leads_summary_report_percentage_format_html($finalArray);
+        $newCSVFileName = $this->leads_summary_report_percentage_format_csv($data);
+        $attachment = TMP_FOLDER . $newCSVFileName;
+        $this->notify->sendEmail(NOREPLY_EMAIL_ID, 'chhavid@247around.com', 'chhavid@247around.com', '', "Jeeves New Format Report", $message, $attachment,"Jeeves New Format Report");
+    }
 
     function send_leads_summary_mail_to_partners($partner_id = "") {
         

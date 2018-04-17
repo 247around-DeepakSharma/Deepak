@@ -325,16 +325,37 @@ function get_data_for_partner_callback($booking_id) {
     }
     
     //Return all leads shared by Partner in the last 30 days in CSV
-    function get_partner_leads_csv_for_summary_email($partner_id){
+    function get_partner_leads_csv_for_summary_email($partner_id,$percentageLogic=0){
         $dependency = "";
-        if ($partner_id == JEEEVES_ID){
+        $closeDateSubQuery = "booking_details.closed_date AS 'Completion Date'";
+        $dateSubQuery = "booking_details.create_date > (CURDATE() - INTERVAL 1 MONTH)";
+        $refferedDateSubQuery = "booking_details.create_date AS 'Referred Date and Time'";
+        $internalStatusQuery ="";
+        if ($partner_id == JEEVES_ID){
             $dependency = ', IF(dependency_on =1, "'.DEPENDENCY_ON_AROUND.'", "'.DEPENDENCY_ON_CUSTOMER.'") as Dependency ';
+        }
+        if($percentageLogic){
+            $closeDateSubQuery = "date(booking_details.service_center_closed_date) AS 'Completion Date'";
+            $internalStatusQuery = "booking_details.internal_status AS 'internal_status',booking_details.current_status AS 'current_status',";
+            $refferedDateSubQuery = "date(booking_details.create_date) AS 'Referred Date and Time'";
+            $currentDate = date('Y-m-d');
+            $year = date('Y');
+            $month = date('m')-01;
+            if(date('m') == 1){
+                $year = date('Y')-1;
+                $month = 12;
+            }
+            if($month<10){
+                $month = "0".$month;
+            }
+            $lastMonthDate = $year."-".$month."-01";
+            $dateSubQuery = "(date(booking_details.create_date) >= '".$lastMonthDate ."' AND date(booking_details.create_date)<'".$currentDate."')";
         }
         
         return $query = $this->db->query("SELECT distinct '' AS 'Unique id',
             order_id AS 'Sub Order ID',
             (CONCAT('''', booking_details.booking_id)) AS '247BookingID',
-            booking_details.create_date AS 'Referred Date and Time', 
+            ".$refferedDateSubQuery.",
             ud.appliance_brand AS 'Brand', 
             IFNULL(model_number,'') AS 'Model',
             CASE WHEN(serial_number IS NULL OR serial_number = '') THEN '' ELSE (CONCAT('''', serial_number))  END AS 'Serial Number',
@@ -346,14 +367,16 @@ function get_data_for_partner_callback($booking_id) {
             booking_details.city As 'City', 
             booking_primary_contact_no AS Phone, 
             user_email As 'Email ID', 
-            request_type AS 'Call Type (Installation /Table Top Installation/Demo/ Service)', 
+            ud.price_tags AS 'Call Type (Installation /Table Top Installation/Demo/ Service)', 
             partner_internal_status AS 'Status By Brand', 
             CASE WHEN(current_status = 'Completed' || current_status = 'Cancelled') THEN (closing_remarks) ELSE (reschedule_reason) END AS 'Remarks',
             'Service sent to vendor' AS 'Status by Partner', 
             booking_date As 'Scheduled Appointment Date(DD/MM/YYYY)', 
             booking_timeslot AS 'Scheduled Appointment Time(HH:MM:SS)', 
             partner_internal_status AS 'Final Status',
-            booking_details.closed_date AS 'Completion Date'
+            ".$closeDateSubQuery.",
+            ".$internalStatusQuery."
+            booking_details.rating_stars AS 'Rating'
             $dependency
             FROM  booking_details , booking_unit_details AS ud, services, users
             WHERE booking_details.booking_id = ud.booking_id 
@@ -361,7 +384,7 @@ function get_data_for_partner_callback($booking_id) {
             AND booking_details.user_id = users.user_id
             AND product_or_services != 'Product'
             AND booking_details.partner_id = $partner_id
-            AND booking_details.create_date > (CURDATE() - INTERVAL 1 MONTH)");
+            AND ".$dateSubQuery);
     } 
     
     //Return all leads shared by Partner in the last 30 days
