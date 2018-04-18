@@ -496,7 +496,7 @@ EOD;
             if($values['Completion Date'] && !(($values['internal_status'] == 'InProcess_Cancelled') || ($values['current_status'] == 'Cancelled'))){
                 $date = new DateTime($values['Referred Date and Time']);
                 $now = new DateTime($values['Completion Date']);
-                $days =  $date->diff($now)->format("%d");
+                $days =  $date->diff($now)->format("%a");
             }
             else  if(!$values['Completion Date']){
                 $booking_age = 0;
@@ -505,7 +505,7 @@ EOD;
                 $current_date_timespan=strtotime(date("Y-m-d"));
                 $booking_date_timespan=strtotime($values['Scheduled Appointment Date(DD/MM/YYYY)']);
                 if($current_date_timespan>$booking_date_timespan){
-                    $booking_age =  $current_date->diff($booking_date)->format("%d");
+                    $booking_age =  $current_date->diff($booking_date)->format("%a");
                 }
             } 
             unset($values['internal_status']);
@@ -545,7 +545,7 @@ EOD;
                     //Get booking completion days
                     $date = new DateTime($bookingData['Referred Date and Time']);
                     $now = new DateTime($bookingData['Completion Date']);
-                    $days =  $date->diff($now)->format("%d");
+                    $days =  $date->diff($now)->format("%a");
                     if($days>4){
                         $days = 5;
                     }
