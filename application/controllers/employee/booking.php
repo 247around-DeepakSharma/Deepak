@@ -1699,8 +1699,8 @@ $this->push_notification_lib->create_and_send_push_notiifcation(BOOKING_UPDATED_
             $booking['partner_internal_status'] = $partner_status[1];
             $actor = $booking['actor'] = $partner_status[2];
             $next_action = $booking['next_action'] = $partner_status[3];
-
-$this->booking_model->update_booking($booking_id, $booking);
+            $booking['service_center_closed_date'] = NULL;
+            $this->booking_model->update_booking($booking_id, $booking);
         }
 
         $this->notify->insert_state_change($booking_id, "Rejected", "InProcess_Completed", $admin_remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'),
@@ -1969,6 +1969,7 @@ $this->vendor_model->update_service_center_action($booking_id, $service_center);
         //update booking_details table
         log_message('info', ": " . " update booking details data (" . $booking['current_status'] . ")" . print_r($booking, TRUE));
         // this function is used to update booking details table
+        $booking['service_center_closed_date'] = date('Y-m-d H:i:s');
         $this->booking_model->update_booking($booking_id, $booking);
         $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status", array('booking_id' => $booking_id, 'status NOT IN ("Completed","Cancelled")' =>NULL ), false);
         foreach($spare as $sp){
@@ -3159,6 +3160,7 @@ $whereArray['booking_unit_details.customer_net_payable'] = '0';
                     "Rating","Vendor Rating Comments","Amount Due","Service Charge","Additional Service Charge","Parts Cost","Amount Paid","Closing Remarks","Count Reschedule","Count Escalation",
                     "Is Upcountry","Upcountry Pincode","SF Upcountry Rate","Partner Upcountry Rate","Upcountry Distance","IS Penalty","Create Date","Update Date","Closed Date");
 $this->miscelleneous->downloadCSV($data['data'],$headings,"booking_search_summary"); 
+
        }
        else{
            redirect(base_url() . "employee/booking/booking_advance_search");
@@ -3718,6 +3720,7 @@ $notFoundArray=array_diff($inputData['inputBulkData'],$foundResultArray);
                     "Rating","Vendor Rating Comments","Amount Due","Service Charge","Additional Service Charge","Parts Cost","Amount Paid","Closing Remarks","Count Reschedule","Count Escalation",
                     "Is Upcountry","Upcountry Pincode","SF Upcountry Rate","Partner Upcountry Rate","Upcountry Distance","IS Penalty","Create Date","Update Date","Closed Date");
 $this->miscelleneous->downloadCSV($data['data'],$headings,"booking_bulk_search_summary"); 
+
        ob_end_clean();
     }
 
