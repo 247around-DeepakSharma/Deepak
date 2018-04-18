@@ -536,6 +536,7 @@ EOD;
            $month=date("F",$refferedDate);
             if(!array_key_exists($month, $finalArray)){
                 $finalArray[$month]['totalCount'] = 0;
+                $finalArray[$month]['completedCount'] = 0;
             }
             $finalArray[$month]['totalCount'] = $finalArray[$month]['totalCount']+1;
             if(!in_array($bookingData['247BookingID'], $tempBookingArray)){
@@ -551,9 +552,6 @@ EOD;
                     $finalArray[$month][$days]['bookings'] = NULL;
                     if(!array_key_exists('count', $finalArray[$month][$days])){
                         $finalArray[$month][$days]['count'] = 0;
-                    }
-                    if(!array_key_exists('completedCount', $finalArray[$month])){
-                        $finalArray[$month]['completedCount'] = 0;
                     }
                     $finalArray[$month]['completedCount'] = $finalArray[$month]['completedCount']+1;
                     $finalArray[$month][$days]['count'] =   $finalArray[$month][$days]['count']+1;
