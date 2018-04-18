@@ -325,10 +325,29 @@ function get_data_for_partner_callback($booking_id) {
     }
     
     //Return all leads shared by Partner in the last 30 days in CSV
-    function get_partner_leads_csv_for_summary_email($partner_id){
+    function get_partner_leads_csv_for_summary_email($partner_id,$percentageLogic=0){
         $dependency = "";
+        $closeDateSubQuery = "booking_details.closed_date AS 'Completion Date'";
+        $dateSubQuery = "booking_details.create_date > (CURDATE() - INTERVAL 1 MONTH)";
+        $internalStatusQuery ="";
         if ($partner_id == JEEVES_ID){
             $dependency = ', IF(dependency_on =1, "'.DEPENDENCY_ON_AROUND.'", "'.DEPENDENCY_ON_CUSTOMER.'") as Dependency ';
+        }
+        if($percentageLogic){
+            $closeDateSubQuery = "booking_details.service_center_closed_date AS 'Completion Date'";
+            $internalStatusQuery = "booking_details.internal_status AS 'internal_status',booking_details.current_status AS 'current_status',";
+            $currentDate = date('Y-m-d');
+            $year = date('Y');
+            $month = date('m')-01;
+            if(date('m') == 1){
+                $year = date('Y')-1;
+                $month = 12;
+            }
+            if($month<10){
+                $month = "0".$month;
+            }
+            $lastMonthDate = $year."-".$month."-01";
+            $dateSubQuery = "(date(booking_details.create_date) >= '".$lastMonthDate ."' AND date(booking_details.create_date)<'".$currentDate."')";
         }
         
         return $query = $this->db->query("SELECT distinct '' AS 'Unique id',
@@ -353,7 +372,8 @@ function get_data_for_partner_callback($booking_id) {
             booking_date As 'Scheduled Appointment Date(DD/MM/YYYY)', 
             booking_timeslot AS 'Scheduled Appointment Time(HH:MM:SS)', 
             partner_internal_status AS 'Final Status',
-            booking_details.closed_date AS 'Completion Date',
+            ".$closeDateSubQuery.",
+            ".$internalStatusQuery."
             booking_details.rating_stars AS 'Rating'
             $dependency
             FROM  booking_details , booking_unit_details AS ud, services, users
@@ -362,7 +382,7 @@ function get_data_for_partner_callback($booking_id) {
             AND booking_details.user_id = users.user_id
             AND product_or_services != 'Product'
             AND booking_details.partner_id = $partner_id
-            AND booking_details.create_date > (CURDATE() - INTERVAL 1 MONTH)");
+            AND ".$dateSubQuery);
     } 
     
     //Return all leads shared by Partner in the last 30 days
