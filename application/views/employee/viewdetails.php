@@ -722,9 +722,9 @@
                                         <th colspan="1">Paid through Paytm</th>
                                         <td colspan="3"><?php echo $booking_history[0]['onlinePaymentAmount'];?></td>
                                      <?php }
-                                     if(!empty($unit_details[0]['user_invoice_id'])){$temp++?>
+                                     if(!empty($user_invoice_id)){$temp++?>
                                         <th colspan="1">Customer Invoice</th>
-                                        <td colspan="3"><?php if(!empty($user_invoice_id)){ ?> <a href="<?php echo S3_WEBSITE_URL;?>invoices-excel/<?php echo $user_invoice_id.".pdf"; ?>"></a><?php }?></td>
+                                        <td colspan="3"><?php if(!empty($user_invoice_id)){ ?> <a href="<?php echo S3_WEBSITE_URL;?>invoices-excel/<?php echo $user_invoice_id.".pdf"; ?>"><?php echo $user_invoice_id;?></a><?php }?></td>
                                      <?php }?>
 
                                 </tr>

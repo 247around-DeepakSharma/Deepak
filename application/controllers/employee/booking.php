@@ -172,7 +172,7 @@ class Booking extends CI_Controller {
 
                 $services_details = array();
                 $appliances_details = array();
-                $appliances_details['user_id'] = $booking['user_id'];;
+                $appliances_details['user_id'] = $booking['user_id'];
 
                 $appliances_details['brand'] = $services_details['appliance_brand'] = $value; // brand
                 // get category from appiance category array for only specific key.
@@ -264,7 +264,7 @@ class Booking extends CI_Controller {
                 } else {
                     $brand_id = "";
                 }
-
+                $price_tag = array();
                 //Array ( ['brand'] => Array ( [0] => id_price ) )
                 foreach ($pricesWithId[$brand_id][$key + 1] as $b_key => $values) {
 
@@ -277,11 +277,12 @@ class Booking extends CI_Controller {
                     $services_details['around_net_payable'] = $services_details['around_paid_basic_charges'];
                     $services_details['booking_status'] = $booking['current_status'];
                     log_message('info', __METHOD__ . " Before booking is insert/update: " . $booking_id);
-
+                    
                     switch ($booking_id) {
                         case INSERT_NEW_BOOKING:
                             log_message('info', __METHOD__ . " Insert Booking Unit Details: ");
                             $result = $this->booking_model->insert_data_in_booking_unit_details($services_details, $booking['state'], $b_key);
+                            array_push($price_tag, $result['price_tags']);
                             break;
                         default:
 
@@ -291,6 +292,7 @@ class Booking extends CI_Controller {
                             $result = $this->booking_model->update_booking_in_booking_details($services_details, $booking_id, $booking['state'], $b_key,$agent_details);
 
                             array_push($updated_unit_id, $result['unit_id']);
+                            array_push($price_tag, $result['price_tags']);
                             break;
                     }
                 }
@@ -300,11 +302,11 @@ class Booking extends CI_Controller {
                 $sf_id = $this->reusable_model->get_search_query('booking_details','assigned_vendor_id',array('booking_id'=>$booking_id),NULL,NULL,NULL,NULL,NULL)->result_array();
                 if(!empty($sf_id[0]['assigned_vendor_id'])){
                     $inventory_details = array('receiver_entity_id' => $sf_id[0]['assigned_vendor_id'],
-                                                'receiver_entity_type' => _247AROUND_SF_STRING,
-                                                'stock' => 1,
-                                                'agent_id' => $this->session->userdata('id'),
-                                                'agent_type' => _247AROUND_EMPLOYEE_STRING,
-                                                );
+                        'receiver_entity_type' => _247AROUND_SF_STRING,
+                        'stock' => 1,
+                        'agent_id' => $this->session->userdata('id'),
+                        'agent_type' => _247AROUND_EMPLOYEE_STRING,
+                    );
                 }else{
                     $inventory_details = array();
                 }
@@ -353,22 +355,24 @@ class Booking extends CI_Controller {
                     $this->asynchronous_lib->do_background_process($url, $async_data);
                 }
             }
-            if(isset($upcountry_data['vendor_not_found'])){
-                                $this->miscelleneous->sf_not_exist_for_pincode(array(
-                                    "booking_id" => $booking['booking_id'],
-                                    "booking_pincode" => $booking['booking_pincode'],
-                                    "service_id" => $appliances_details['service_id'],
-                                    "partner_id" => $booking['partner_id'],
-                                    "city" => $booking['city']
-                                ));
-                            }
+            if (isset($upcountry_data['vendor_not_found'])) {
+                $this->miscelleneous->sf_not_exist_for_pincode(array(
+                    "booking_id" => $booking['booking_id'],
+                    "booking_pincode" => $booking['booking_pincode'],
+                    "service_id" => $appliances_details['service_id'],
+                    "partner_id" => $booking['partner_id'],
+                    "city" => $booking['city']
+                ));
+            }
+
+            $this->booking_model->update_request_type($booking_id, $price_tag);
             return $booking;
         } else {
             log_message('info', __FUNCTION__ . " Booking Failed!");
             return false;
         }
     }
-
+    
     /**
      * @desc: This method get input file dand insert booking details
      * @param String $booking_id
@@ -1701,7 +1705,6 @@ class Booking extends CI_Controller {
             $actor = $booking['actor'] = $partner_status[2];
             $next_action = $booking['next_action'] = $partner_status[3];
             
-            $booking['service_center_closed_date'] = NULL;
             $this->booking_model->update_booking($booking_id, $booking);
         }
         
@@ -1971,7 +1974,6 @@ class Booking extends CI_Controller {
         //update booking_details table
         log_message('info', ": " . " update booking details data (" . $booking['current_status'] . ")" . print_r($booking, TRUE));
         // this function is used to update booking details table
-        $booking['service_center_closed_date'] = date('Y-m-d H:i:s');
         $this->booking_model->update_booking($booking_id, $booking);
         $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status", array('booking_id' => $booking_id, 'status NOT IN ("Completed","Cancelled")' =>NULL ), false);
         foreach($spare as $sp){
@@ -2078,7 +2080,6 @@ class Booking extends CI_Controller {
                 echo "Please Select Booking Timeslot.";
             } else {
                 log_message('info', __FUNCTION__ . " Convert booking, data : " . print_r($data, true));
-                $data['service_center_closed_date'] = NULL;
                 $this->booking_model->update_booking($booking_id, $data);
 
                 $assigned_vendor_id = $this->input->post("assigned_vendor_id");
