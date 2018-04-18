@@ -533,31 +533,34 @@ EOD;
         foreach($data as $bookingData){
              //Get Referred Date Month
            $refferedDate=strtotime($bookingData['Referred Date and Time']);
-           $month=date("F",$refferedDate);
-            if(!array_key_exists($month, $finalArray)){
-                $finalArray[$month]['totalCount'] = 0;
-                $finalArray[$month]['completedCount'] = 0;
-            }
-            $finalArray[$month]['totalCount'] = $finalArray[$month]['totalCount']+1;
-            if(!in_array($bookingData['247BookingID'], $tempBookingArray)){
-                //Booking is completed if sf_completion date is completed
-                if($bookingData['Completion Date'] && !(($bookingData['internal_status'] == 'InProcess_Cancelled') || ($bookingData['current_status'] == 'Cancelled'))){
-                    //Get booking completion days
-                    $date = new DateTime($bookingData['Referred Date and Time']);
-                    $now = new DateTime($bookingData['Completion Date']);
-                    $days =  $date->diff($now)->format("%a");
-                    if($days>4){
-                        $days = 5;
-                    }
-                    $finalArray[$month][$days]['bookings'] = NULL;
-                    if(!array_key_exists('count', $finalArray[$month][$days])){
-                        $finalArray[$month][$days]['count'] = 0;
-                    }
-                    $finalArray[$month]['completedCount'] = $finalArray[$month]['completedCount']+1;
-                    $finalArray[$month][$days]['count'] =   $finalArray[$month][$days]['count']+1;
+           $currentMonth  =  date("F");
+           $month = date("F",$refferedDate);
+           if($month == $currentMonth){
+                if(!array_key_exists($month, $finalArray)){
+                    $finalArray[$month]['totalCount'] = 0;
+                    $finalArray[$month]['completedCount'] = 0;
                 }
-                $tempBookingArray[] = $bookingData['247BookingID'];
-            }
+                $finalArray[$month]['totalCount'] = $finalArray[$month]['totalCount']+1;
+                if(!in_array($bookingData['247BookingID'], $tempBookingArray)){
+                    //Booking is completed if sf_completion date is completed
+                    if($bookingData['Completion Date'] && !(($bookingData['internal_status'] == 'InProcess_Cancelled') || ($bookingData['current_status'] == 'Cancelled'))){
+                        //Get booking completion days
+                        $date = new DateTime($bookingData['Referred Date and Time']);
+                        $now = new DateTime($bookingData['Completion Date']);
+                        $days =  $date->diff($now)->format("%a");
+                        if($days>4){
+                            $days = 5;
+                        }
+                        $finalArray[$month][$days]['bookings'] = NULL;
+                        if(!array_key_exists('count', $finalArray[$month][$days])){
+                            $finalArray[$month][$days]['count'] = 0;
+                        }
+                        $finalArray[$month]['completedCount'] = $finalArray[$month]['completedCount']+1;
+                        $finalArray[$month][$days]['count'] =   $finalArray[$month][$days]['count']+1;
+                    }
+                    $tempBookingArray[] = $bookingData['247BookingID'];
+                }
+           }
         }
         return $finalArray;
     }
