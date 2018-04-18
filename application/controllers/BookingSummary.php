@@ -478,7 +478,43 @@ EOD;
 
         return $message;
     }
-    
+    function leads_summary_report_percentage_format_csv($data){
+        $newCSVFileName = "Booking_summary_" . date('j-M-Y-H-i-s') . ".csv";
+        $csv = TMP_FOLDER . $newCSVFileName;
+        $file = fopen($csv,"w");
+        $first_row = array_keys($data[0]);
+        unset($first_row['23']);
+        unset($first_row['24']);
+        $first_row[]='Completion Days';
+        $first_row[]='Booking Age';
+        fputcsv($file,$first_row);
+        foreach ($data as $values)
+        {
+            $days = '';
+            $booking_age = '';
+            if($values['Completion Date']){
+                $date = new DateTime($values['Referred Date and Time']);
+                $now = new DateTime($values['Completion Date']);
+                $days =  $date->diff($now)->format("%d");
+                if($days>4){
+                   $days = '5+';
+                }
+            }
+            else{
+                $current_date = new DateTime(date("Y-m-d"));
+                $reffered_date = new DateTime($values['Referred Date and Time']);
+                $booking_age =  $reffered_date->diff($current_date)->format("%d");
+            }
+            unset($values['internal_status']);
+            unset($values['current_status']);
+            $values['completionDays'] = $days;
+            $values['booking_age'] = $booking_age;
+            $row = array_values($values);
+            fputcsv($file,$row);
+        }
+        fclose($file);
+        return $newCSVFileName;
+    }
     function leads_summary_report_percentage_format_html($finalArray){
         foreach($finalArray as $month=>$monthData){
             $data['month'] = $month;
@@ -501,14 +537,14 @@ EOD;
             if(!in_array($bookingData['247BookingID'], $tempBookingArray)){
                 //Booking is completed if sf_completion date is completed
                 if($bookingData['Completion Date'] && !(($bookingData['internal_status'] == 'InProcess_Cancelled') || ($bookingData['current_status'] == 'Cancelled'))){
-                    //Get booking completion days 
+                    //Get booking completion days
                     $date = new DateTime($bookingData['Referred Date and Time']);
                     $now = new DateTime($bookingData['Completion Date']);
-                    $days =  $date->diff($now)->format("%d")+1;
+                    $days =  $date->diff($now)->format("%d");
                     if($days>4){
                         $days = 5;
                     }
-                    $finalArray[$month][$days]['bookings'][] = $bookingData['247BookingID'];
+                    $finalArray[$month][$days]['bookings'] = NULL;
                     if(!array_key_exists('count', $finalArray[$month][$days])){
                         $finalArray[$month][$days]['count'] = 0;
                     }
@@ -522,35 +558,6 @@ EOD;
             }
         }
         return $finalArray;
-    }
-    function leads_summary_report_percentage_format_csv($data){
-        $newCSVFileName = "Booking_summary_" . date('j-M-Y-H-i-s') . ".csv";
-        $csv = TMP_FOLDER . $newCSVFileName;
-        $file = fopen($csv,"w");
-        $first_row = array_keys($data[0]);
-        unset($first_row['23']);
-        unset($first_row['24']);
-        $first_row[]='Completion Days';
-        fputcsv($file,$first_row);
-        foreach ($data as $values)
-        {
-            $days = '';
-            if($values['Completion Date'] && !(($values['internal_status'] == 'InProcess_Cancelled') || ($values['current_status'] == 'Cancelled'))){
-                $date = new DateTime($values['Referred Date and Time']);
-                $now = new DateTime($values['Completion Date']);
-                $days =  $date->diff($now)->format("%d")+1;
-                if($days>4){
-                   $days = '5+';
-                }
-            }
-            unset($values['internal_status']);
-            unset($values['current_status']);
-            $values['completionDays'] = $days;
-            $row = array_values($values);
-            fputcsv($file,$row);
-        }
-        fclose($file);
-        return $newCSVFileName;
     }
     function leads_summary_report_percentage_format($partner_id){
         $report = $this->partner_model->get_partner_leads_csv_for_summary_email($partner_id,'1');

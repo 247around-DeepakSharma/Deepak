@@ -37,11 +37,11 @@ p{
     <tr>
         <td><?php
         if(!array_key_exists('0', $monthData)){$monthData['0']['count'] = 0;}
-        echo $monthData['0']['count'];
+        echo $zeroDay =  $monthData['0']['count'];
         ?></td>
         <td><?php
         if(!array_key_exists('1', $monthData)){$monthData['1']['count'] = 0;}
-        echo $firstDay = $monthData['0']['count']+$monthData['1']['count'];
+        echo $firstDay = $zeroDay+$monthData['1']['count'];
         ?></td>
         <td><?php
         if(!array_key_exists('2', $monthData)){$monthData['2']['count'] = 0;}
@@ -60,7 +60,7 @@ p{
         echo $fifthDay  = $fourthDay+$monthData['5']['count'];
         ?></td>
     </tr>
-     <td><?php echo number_format((float)(($monthData['0']['count']*$monthData['completedCount'])/100), 2, '.', '')." % "; ?></td>
+     <td><?php echo number_format((float)(($zeroDay*100)/$monthData['completedCount']), 2, '.', '')." % "; ?></td>
      <td><?php echo number_format((float)(($firstDay*100)/$monthData['completedCount']), 2, '.', '')." % "; ?></td>
      <td><?php echo number_format((float)(($secondDay*100)/$monthData['completedCount']), 2, '.', '')." % ";?></td>
      <td><?php echo number_format((float)(($thirdDay*100)/$monthData['completedCount']), 2, '.', '')." % "; ?></td>
