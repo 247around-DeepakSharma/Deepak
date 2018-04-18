@@ -1704,7 +1704,7 @@ class Booking extends CI_Controller {
             $booking['partner_internal_status'] = $partner_status[1];
             $actor = $booking['actor'] = $partner_status[2];
             $next_action = $booking['next_action'] = $partner_status[3];
-            
+            $booking['service_center_closed_date'] = NULL;
             $this->booking_model->update_booking($booking_id, $booking);
         }
         
@@ -1974,6 +1974,7 @@ class Booking extends CI_Controller {
         //update booking_details table
         log_message('info', ": " . " update booking details data (" . $booking['current_status'] . ")" . print_r($booking, TRUE));
         // this function is used to update booking details table
+        $booking['service_center_closed_date'] = date('Y-m-d H:i:s');
         $this->booking_model->update_booking($booking_id, $booking);
         $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status", array('booking_id' => $booking_id, 'status NOT IN ("Completed","Cancelled")' =>NULL ), false);
         foreach($spare as $sp){
