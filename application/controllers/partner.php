@@ -1523,6 +1523,7 @@ class Partner extends CI_Controller {
 //                        }
                         //End Push Notification
                         $customer_net_payable = 0;
+                        $price_tag = array();
                         for ($i = 0; $i < $requestData['appliance_unit']; $i++) {
                             $unit_details['appliance_id'] = $this->booking_model->addappliance($appliance_details);
                             foreach ($requestData['requestType'] as $key => $sc) {
@@ -1537,9 +1538,13 @@ class Partner extends CI_Controller {
 
                                 //find customer net payable by subtracting partner offer
                                 $customer_net_payable += ($explode[1] - $explode[2]);
-                                $this->booking_model->insert_data_in_booking_unit_details($unit_details, $booking['state'], $key);
+                                $res = $this->booking_model->insert_data_in_booking_unit_details($unit_details, $booking['state'], $key);
+                                array_push($price_tag, $res['price_tags']);
                             }
                         }
+                        
+                        
+                        $this->booking_model->update_request_type($booking['booking_id'], $price_tag);
                         $is_price['customer_net_payable'] = $customer_net_payable;
                         $is_price['is_upcountry'] = $booking['is_upcountry'];
 
@@ -2280,10 +2285,100 @@ class Partner extends CI_Controller {
        }
     }
     
-    function encrypt_e_openssl($input, $ky){
-        $iv   = "@@@@&&&&####$$$$";
-        $data = openssl_encrypt($input, "AES-128-CBC", $ky, 0, $iv);
-        return $data;
+    function download_price_sheet(){
+        $partnerID = $this->session->userdata('partner_id');
+        $where['partner_id'] = $partnerID;
+        $priceArray = $this->service_centre_charges_model->get_partner_price_data($where);
+        $config = array('template' => "Price_Sheet.xlsx", 'templateDir' => __DIR__ . "/excel-templates/");
+        $this->miscelleneous->downloadExcel($priceArray,$config);
+    }
+    
+    
+    
+//    function test() {
+//        //Initialize constant
+//        $appName = "24x7Around";
+//        $secretKey = "Z1DBK3EH01ZUMPJU";
+//        $salt = "QW8QQW4VVKQEQYXVRRY3TTKMTXRHNCNSOPSXFZFF9LI37ZZZXQUSDUN8EGFTRQKN";
+//        $appConstant = "6VFKKLZ1Y4";
+//        $url = "http://sandbox.servify.in:5009/api/v1/ServiceRequest/fulfillRequest";
+//       
+//        
+//        //JSON with the Application Constant and the current unix timestamp in milliseconds
+//        $app = json_encode(array("appC" => $appConstant, "tzU" => time() * 1000), true);
+//        
+//        //Using the SECRET_KEY and SALT, constructed a key using the PBKDF2 function
+//        $key = hash_pbkdf2("sha256", $secretKey, $salt, 100000, 16);
+//
+//       // $encryptedMessage = $this->encrypt_e_openssl($app, $key); 
+//        
+//        $ivlen = openssl_cipher_iv_length($cipher="AES-128-CBC");
+//        $iv = openssl_random_pseudo_bytes($ivlen);
+//        $ciphertext_raw = openssl_encrypt($app, $cipher, $key, $options=OPENSSL_RAW_DATA, $iv);
+//        $hmac = hash_hmac('sha256', $ciphertext_raw, $key, $as_binary=true);
+//        $encryptedMessage = base64_encode( $iv.$hmac.$ciphertext_raw );
+//        
+//        $fromtime = strtotime(date("Y-m-d 10:00:00", strtotime('+1 day')));
+//        $totime = strtotime(date("Y-m-d 13:00:00", strtotime('+1 day')));
+//        $array = array(
+//            "ReferenceID" => "SP-1656351803085551" , 
+//            "Status" => "PNDNG_ASGN", 
+//            "RequestDetails" => array( 
+//                "Reason"=> "ENA",
+//                 "Remarks"=> "Engineer not availble"
+//                )
+//            );
+//        
+//        $postData = json_encode($array, true);
+//        
+//       // $iv   = "@@@@&&&&####$$$$";
+//       
+//        //echo $postData. "<br/>";
+//        
+//        $ch = curl_init($url);
+//        curl_setopt_array($ch, array(
+//             CURLOPT_POST => TRUE,
+//             CURLOPT_RETURNTRANSFER => TRUE,
+//             CURLOPT_HTTPHEADER => array(
+//                'Content-Type: application/json',
+//                'app: ' . $appName,
+//                'dr9se2q: ' . $encryptedMessage,
+//                'co1cx2: ' . $iv
+//            ),
+//            CURLOPT_POSTFIELDS => $postData
+//        ));
+//
+//        // Send the request
+//        $response = curl_exec($ch);
+//        print_r($response);
+//    }
+    
+    function get_IV_Constant() {
+        $key3 = "";
+        $key1 = "";
+        for($i = 0; $i < 8; $i++) {
+            $key1 = intval(10000000 +  rand()* 89999999);
+            $key3 += $key1;
+        }
+       
+        return substr($key3, 0, 16);
+    }
+    
+    function strToHex($string) {
+        $hex = '';
+        for ($i = 0; $i < strlen($string); $i++) {
+            $hex .= dechex(ord($string[$i]));
+        }
+        return $hex;
+    }
+
+    function Hex2String($hex) {
+
+        $string = '';
+        for ($i = 0; $i < strlen($hex) - 1; $i+=2) {
+            $string .= chr(hexdec($hex[$i] . $hex[$i + 1]));
+        }
+        return $string;
     }
     
     function encrypt_e($input, $ky) {
@@ -2293,68 +2388,80 @@ class Partner extends CI_Controller {
 	$td = mcrypt_module_open(MCRYPT_RIJNDAEL_128, '', 'cbc', '');
 	$iv = "@@@@&&&&####$$$$";
 	mcrypt_generic_init($td, $key, $iv);
+        
 	$data = mcrypt_generic($td, $input);
 	mcrypt_generic_deinit($td);
 	mcrypt_module_close($td);
 	$data = base64_encode($data);
 	return $data;
 }
-    
-    function test() {
-        //Initialize constant
+
+    function Apitest(){
         $appName = "24x7Around";
         $secretKey = "Z1DBK3EH01ZUMPJU";
         $salt = "QW8QQW4VVKQEQYXVRRY3TTKMTXRHNCNSOPSXFZFF9LI37ZZZXQUSDUN8EGFTRQKN";
         $appConstant = "6VFKKLZ1Y4";
         $url = "http://sandbox.servify.in:5009/api/v1/ServiceRequest/fulfillRequest";
        
-        
         //JSON with the Application Constant and the current unix timestamp in milliseconds
         $app = json_encode(array("appC" => $appConstant, "tzU" => time() * 1000), true);
         
         //Using the SECRET_KEY and SALT, constructed a key using the PBKDF2 function
-        $key = hash_pbkdf2("sha256", $secretKey, $salt, 100000, 16);
+       echo $hexsalt = $this->strToHex($salt); echo "<br/>";
+        $key = hash_pbkdf2("SHA1", $secretKey, $hexsalt, 64, 8);
 
-        $encryptedMessage = $this->encrypt_e_openssl($app, $key); 
-        $fromtime = strtotime(date("Y-m-d 10:00:00", strtotime('+1 day')));
-        $totime = strtotime(date("Y-m-d 13:00:00", strtotime('+1 day')));
+        $iv = $this->strToHex($this->get_IV_Constant());
+       // echo $hex = $this->Hex2String($iv);
+        //$encryptedMessage = base64_encode(openssl_encrypt($app, "AES-256-CBC", $key, OPENSSL_RAW_DATA, $iv));
+        
+//        $size = mcrypt_get_block_size(MCRYPT_RIJNDAEL_128, 'cbc');
+//	$input = pkcs5_pad_e($app, $size);
+	$td = mcrypt_module_open(MCRYPT_RIJNDAEL_256, '', 'cbc', '');
+	
+	mcrypt_generic_init($td, $key, $iv);
+        
+	$data1 = mcrypt_generic($td, $app);
+	mcrypt_generic_deinit($td);
+	mcrypt_module_close($td);
+        
+	$encryptedMessage = base64_encode($data1);
+exit();
         $array = array(
-            "ReferenceID" => "SP-1656351802244124" , 
-            "Status" => "SRVC_FIN", 
+            "ReferenceID" => "SP-1656351803085551" , 
+            "Status" => "PNDNG_ASGN", 
             "RequestDetails" => array( 
-                "Remarks"=> "Installation completed",
-                 "Rating"=> "4"
+                "Reason"=> "ENA",
+                 "Remarks"=> "Engineer not availble"
                 )
             );
         
         $postData = json_encode($array, true);
-        
-        $iv   = "@@@@&&&&####$$$$";
-       
-        echo $postData. "<br/>";
-        
-        $ch = curl_init($url);
-        curl_setopt_array($ch, array(
-             CURLOPT_POST => TRUE,
-             CURLOPT_RETURNTRANSFER => TRUE,
-             CURLOPT_HTTPHEADER => array(
+        $header = array(
                 'Content-Type: application/json',
                 'app: ' . $appName,
                 'dr9se2q: ' . $encryptedMessage,
                 'co1cx2: ' . $iv
-            ),
+            );
+       
+        echo json_encode($header);
+
+        $ch = curl_init($url);
+        curl_setopt_array($ch, array(
+             CURLOPT_POST => TRUE,
+             CURLOPT_RETURNTRANSFER => TRUE,
+             CURLOPT_HTTPHEADER => $header,
             CURLOPT_POSTFIELDS => $postData
         ));
 
-        // Send the request
         $response = curl_exec($ch);
+        $activity = array(
+            'partner_id' => "3",
+            'activity' => $url,
+            'header' => json_encode($header),
+            'json_request_data' => $postData,
+            'json_response_string' => json_encode($response, JSON_UNESCAPED_SLASHES));
+
+        $this->partner_model->log_partner_activity($activity);
         print_r($response);
-    }
-    function download_price_sheet(){
-        $partnerID = $this->session->userdata('partner_id');
-        $where['partner_id'] = $partnerID;
-        $priceArray = $this->service_centre_charges_model->get_partner_price_data($where);
-        $config = array('template' => "Price_Sheet.xlsx", 'templateDir' => __DIR__ . "/excel-templates/");
-        $this->miscelleneous->downloadExcel($priceArray,$config);
     }
 }

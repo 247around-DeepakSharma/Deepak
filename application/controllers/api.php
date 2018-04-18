@@ -2054,9 +2054,10 @@ class Api extends CI_Controller {
         $units = json_decode($unit_details, true);
         $count = count($units);
         $i= 0;
+        $price_tag = array();
         //Insert unit details corresponding to this booking ID
         foreach ($units as $unit) {
-        $b_unit['partner_id'] = "247001";
+        $b_unit['partner_id'] = _247AROUND;
         $b_unit['appliance_brand'] = $unit['brand'];
         $b_unit['service_id'] = $service_id;
         $b_unit['booking_id'] = $booking_id;
@@ -2083,12 +2084,15 @@ class Api extends CI_Controller {
             $b_unit['id'] = $s_charges[0]['id'];
             $b_unit['booking_status'] = _247AROUND_PENDING;
             
-            $this->booking_model->insert_data_in_booking_unit_details($b_unit, $state , $key);
+             $result = $this->booking_model->insert_data_in_booking_unit_details($b_unit, $state , $key);
+             array_push($price_tag, $result['price_tags']);
             $i++;
         }
            
         //log_message('info', "Unit Inserted: " . $id_returned);
         }
+        
+         $this->booking_model->update_request_type($booking_id, $price_tag);
 
 //        log_message('info', "No of Units: " . $count);
         return $count;
