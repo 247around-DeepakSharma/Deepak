@@ -329,13 +329,15 @@ function get_data_for_partner_callback($booking_id) {
         $dependency = "";
         $closeDateSubQuery = "booking_details.closed_date AS 'Completion Date'";
         $dateSubQuery = "booking_details.create_date > (CURDATE() - INTERVAL 1 MONTH)";
+        $refferedDateSubQuery = "booking_details.create_date AS 'Referred Date and Time'";
         $internalStatusQuery ="";
         if ($partner_id == JEEVES_ID){
             $dependency = ', IF(dependency_on =1, "'.DEPENDENCY_ON_AROUND.'", "'.DEPENDENCY_ON_CUSTOMER.'") as Dependency ';
         }
         if($percentageLogic){
-            $closeDateSubQuery = "booking_details.service_center_closed_date AS 'Completion Date'";
+            $closeDateSubQuery = "date(booking_details.service_center_closed_date) AS 'Completion Date'";
             $internalStatusQuery = "booking_details.internal_status AS 'internal_status',booking_details.current_status AS 'current_status',";
+            $refferedDateSubQuery = "date(booking_details.create_date) AS 'Referred Date and Time'";
             $currentDate = date('Y-m-d');
             $year = date('Y');
             $month = date('m')-01;
@@ -353,7 +355,7 @@ function get_data_for_partner_callback($booking_id) {
         return $query = $this->db->query("SELECT distinct '' AS 'Unique id',
             order_id AS 'Sub Order ID',
             (CONCAT('''', booking_details.booking_id)) AS '247BookingID',
-            booking_details.create_date AS 'Referred Date and Time', 
+            ".$refferedDateSubQuery.",
             ud.appliance_brand AS 'Brand', 
             IFNULL(model_number,'') AS 'Model',
             CASE WHEN(serial_number IS NULL OR serial_number = '') THEN '' ELSE (CONCAT('''', serial_number))  END AS 'Serial Number',
