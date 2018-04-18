@@ -328,8 +328,6 @@ function get_data_for_partner_callback($booking_id) {
     function get_partner_leads_csv_for_summary_email($partner_id,$percentageLogic=0){
         $dependency = "";
         $closeDateSubQuery = "booking_details.closed_date AS 'Completion Date'";
-        $dateSubQuery = "booking_details.create_date > (CURDATE() - INTERVAL 1 MONTH)";
-        $refferedDateSubQuery = "booking_details.create_date AS 'Referred Date and Time'";
         $internalStatusQuery ="";
         if ($partner_id == JEEVES_ID){
             $dependency = ', IF(dependency_on =1, "'.DEPENDENCY_ON_AROUND.'", "'.DEPENDENCY_ON_CUSTOMER.'") as Dependency ';
@@ -337,25 +335,12 @@ function get_data_for_partner_callback($booking_id) {
         if($percentageLogic){
             $closeDateSubQuery = "date(booking_details.service_center_closed_date) AS 'Completion Date'";
             $internalStatusQuery = "booking_details.internal_status AS 'internal_status',booking_details.current_status AS 'current_status',";
-            $refferedDateSubQuery = "date(booking_details.create_date) AS 'Referred Date and Time'";
-            $currentDate = date('Y-m-d');
-            $year = date('Y');
-            $month = date('m')-01;
-            if(date('m') == 1){
-                $year = date('Y')-1;
-                $month = 12;
-            }
-            if($month<10){
-                $month = "0".$month;
-            }
-            $lastMonthDate = $year."-".$month."-01";
-            $dateSubQuery = "(date(booking_details.create_date) >= '".$lastMonthDate ."' AND date(booking_details.create_date)<'".$currentDate."')";
         }
         
         return $query = $this->db->query("SELECT distinct '' AS 'Unique id',
             order_id AS 'Sub Order ID',
             (CONCAT('''', booking_details.booking_id)) AS '247BookingID',
-            ".$refferedDateSubQuery.",
+            date(booking_details.create_date) AS 'Referred Date and Time',
             ud.appliance_brand AS 'Brand', 
             IFNULL(model_number,'') AS 'Model',
             CASE WHEN(serial_number IS NULL OR serial_number = '') THEN '' ELSE (CONCAT('''', serial_number))  END AS 'Serial Number',
@@ -384,7 +369,7 @@ function get_data_for_partner_callback($booking_id) {
             AND booking_details.user_id = users.user_id
             AND product_or_services != 'Product'
             AND booking_details.partner_id = $partner_id
-            AND ".$dateSubQuery);
+            AND ((booking_details.create_date > (CURDATE() - INTERVAL 1 MONTH)) OR (booking_details.service_center_closed_date IS NULL))");
     } 
     
     //Return all leads shared by Partner in the last 30 days

@@ -483,8 +483,9 @@ EOD;
         $csv = TMP_FOLDER . $newCSVFileName;
         $file = fopen($csv,"w");
         $first_row = array_keys($data[0]);
-        unset($first_row['23']);
         unset($first_row['24']);
+        unset($first_row['23']);
+        unset($first_row['16']);
         $first_row[]='Completion Days';
         $first_row[]='Booking Age';
         fputcsv($file,$first_row);
@@ -492,21 +493,24 @@ EOD;
         {
             $days = '';
             $booking_age = '';
-            if($values['Completion Date']){
+            if($values['Completion Date'] && !(($values['internal_status'] == 'InProcess_Cancelled') || ($values['current_status'] == 'Cancelled'))){
                 $date = new DateTime($values['Referred Date and Time']);
                 $now = new DateTime($values['Completion Date']);
                 $days =  $date->diff($now)->format("%d");
-                if($days>4){
-                   $days = '5+';
-                }
             }
-            else{
+            else  if(!$values['Completion Date']){
+                $booking_age = 0;
                 $current_date = new DateTime(date("Y-m-d"));
-                $reffered_date = new DateTime($values['Referred Date and Time']);
-                $booking_age =  $reffered_date->diff($current_date)->format("%d");
-            }
+                $booking_date = new DateTime($values['Scheduled Appointment Date(DD/MM/YYYY)']);
+                $current_date_timespan=strtotime(date("Y-m-d"));
+                $booking_date_timespan=strtotime($values['Scheduled Appointment Date(DD/MM/YYYY)']);
+                if($current_date_timespan>$booking_date_timespan){
+                    $booking_age =  $current_date->diff($booking_date)->format("%d");
+                }
+            } 
             unset($values['internal_status']);
             unset($values['current_status']);
+            unset($values['Status By Brand']);
             $values['completionDays'] = $days;
             $values['booking_age'] = $booking_age;
             $row = array_values($values);
