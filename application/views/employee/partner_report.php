@@ -60,12 +60,27 @@ p{
         echo $fifthDay  = $fourthDay+$monthData['5']['count'];
         ?></td>
     </tr>
+    <?php
+    if($monthData['completedCount']>0){
+    ?>
      <td><?php echo number_format((float)(($zeroDay*100)/$monthData['completedCount']), 2, '.', '')." % "; ?></td>
      <td><?php echo number_format((float)(($firstDay*100)/$monthData['completedCount']), 2, '.', '')." % "; ?></td>
      <td><?php echo number_format((float)(($secondDay*100)/$monthData['completedCount']), 2, '.', '')." % ";?></td>
      <td><?php echo number_format((float)(($thirdDay*100)/$monthData['completedCount']), 2, '.', '')." % "; ?></td>
      <td><?php echo number_format((float)(($fourthDay*100)/$monthData['completedCount']), 2, '.', '')." % "; ?></td>
      <td><?php echo number_format((float)(($fifthDay*100)/$monthData['completedCount']), 2, '.', '')." % "; ?></td>
+    <?php } 
+    else{
+        ?>
+     <td> 0% </td>
+     <td> 0% </td>
+     <td> 0% </td>
+     <td> 0% </td>
+     <td> 0% </td>
+     <td> 0% </td>
+        <?php
+    }
+?>
     <tr>
         
     </tr>
