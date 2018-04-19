@@ -1478,7 +1478,7 @@ function get_data_for_partner_callback($booking_id) {
         return $this->db->insert_id();
     }
     function get_partners_pending_bookings($partner_id,$percentageLogic=0,$allPending=0){
-        $where = "booking_details.current_status NOT IN ('Cancelled','Completed')";
+        $where = "booking_details.current_status IN ('Pending','Rescheduled')";
         $agingSubQuery = 'DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) as Aging';
         
         return $query = $this->db->query("SELECT 
