@@ -4077,24 +4077,22 @@ class Partner extends CI_Controller {
         }
     }
      function download_partner_pending_bookings($partnerID){ 
-        $CSVData = array();
-        $headings = array();
-        $query = $this->partner_model->get_partners_pending_bookings($partnerID,0,1);
-        $data = $query->result_array();
-        if($data){
-            $headings = array_keys($data[0]);
-            unset ($headings[25]);
-            unset ($headings[24]);
-            unset ($headings[22]);
-            unset ($headings[21]);
-            foreach($data as $values){
-                unset($values['TAT']);
-                unset($values['Rating']);
-                unset($values['Rating Comments']);
-                unset($values['Completion Date']);
-                $CSVData[] = array_values($values);
-            }
-        }
-        $this->miscelleneous->downloadCSV($CSVData, $headings, "Pending_Bookings");
+        ob_start();
+        $report = $this->partner_model->get_partners_pending_bookings($partnerID,0,1);
+        $newCSVFileName = "Pending_booking_" . date('j-M-Y-H-i-s') . ".csv";
+        $csv = TMP_FOLDER . $newCSVFileName;
+        $delimiter = ",";
+        $newline = "\r\n";
+        $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
+        write_file($csv, $new_report);
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename="' . basename($csv) . '"');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($csv));
+        readfile($csv);
+        exec("rm -rf " . escapeshellarg($csv));
     }
 }
