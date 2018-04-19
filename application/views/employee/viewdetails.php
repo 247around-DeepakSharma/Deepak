@@ -534,7 +534,11 @@
                                         <td><?php echo $sp['remarks_by_partner']; ?></td>
                                         <td><?php echo $sp['partner_challan_number']; ?></td>
                                         <td><?php echo $sp['challan_approx_value']; ?></td>
-                                        <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY?>/vendor-partner-docs/<?php echo $sp['partner_challan_file']; ?>" target="_blank">Click Here to view</a></td>
+                                        <td>
+                                            <?php if(!empty($sp['partner_challan_file'])){ ?> 
+                                            <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY?>/vendor-partner-docs/<?php echo $sp['partner_challan_file']; ?>" target="_blank">Click Here to view</a>
+                                            <?php } ?>
+                                        </td>
                                     </tr>
                                     <?php } } ?>
                                 </tbody>
@@ -574,7 +578,11 @@
                                         <td><?php echo $sp['remarks_defective_part_by_sf']; ?></td>
                                         <td><?php echo $sp['remarks_defective_part_by_partner']; ?></td>
                                         <td><?php echo $sp['sf_challan_number']; ?></td>
-                                        <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY?>/vendor-partner-docs/<?php echo $sp['sf_challan_file']; ?>" target="_blank">Click Here to view</a></td>
+                                        <td>
+                                            <?php if(!empty($sp['sf_challan_file'])){ ?> 
+                                            <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY?>/vendor-partner-docs/<?php echo $sp['sf_challan_file']; ?>" target="_blank">Click Here to view</a>
+                                            <?php } ?>
+                                        </td>
                                     </tr>
                                     <?php } ?>
                                 </tbody>
@@ -714,9 +722,9 @@
                                         <th colspan="1">Paid through Paytm</th>
                                         <td colspan="3"><?php echo $booking_history[0]['onlinePaymentAmount'];?></td>
                                      <?php }
-                                     if(!empty($unit_details[0]['user_invoice_id'])){$temp++?>
+                                     if(!empty($user_invoice_id)){$temp++?>
                                         <th colspan="1">Customer Invoice</th>
-                                        <td colspan="3"><?php if(!empty($user_invoice_id)){ ?> <a href="<?php echo S3_WEBSITE_URL;?>invoices-excel/<?php echo $user_invoice_id.".pdf"; ?>"></a><?php }?></td>
+                                        <td colspan="3"><?php if(!empty($user_invoice_id)){ ?> <a href="<?php echo S3_WEBSITE_URL;?>invoices-excel/<?php echo $user_invoice_id.".pdf"; ?>"><?php echo $user_invoice_id;?></a><?php }?></td>
                                      <?php }?>
 
                                 </tr>

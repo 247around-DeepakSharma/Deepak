@@ -32,6 +32,10 @@ class invoices_model extends CI_Model {
            
         }
     }
+    function update_invoice_breakup($where, $data){
+        $this->db->where($where);
+        $this->db->update('invoice_details', $data);
+    }
     
     function insert_invoice_breakup($invoice_details){
         return $this->db->insert_batch("invoice_details", $invoice_details);
@@ -326,10 +330,8 @@ class invoices_model extends CI_Model {
                 . "  booking_details.booking_primary_contact_no,  "
                 . " `services`.services, users.name,order_id, "
                 . " partner_net_payable, round((partner_net_payable * ".DEFAULT_TAX_RATE .")/100,2) as gst_amount, 
-              (case when( product_or_services ='Service' AND (partner_serial_number != '' AND partner_serial_number IS NOT NULL) )
-              THEN partner_serial_number 
-              when(product_or_services ='Service'  ) 
-              THEN (serial_number) ELSE '' END ) AS serial_number
+              
+                    CASE WHEN(serial_number IS NULL OR serial_number = '') THEN '' ELSE (CONCAT('''', serial_number))  END AS serial_number
 
               From booking_details, booking_unit_details, services, partners, users
                   WHERE `booking_details`.booking_id = `booking_unit_details`.booking_id 
@@ -1580,4 +1582,73 @@ class invoices_model extends CI_Model {
         return $query->result_array();
     }
     
+    function get_new_invoice_details($post, $select) {
+        $this->_get_new_invoice_details_query($post, $select);
+        if ($post['length'] != -1) {
+            $this->db->limit($post['length'], $post['start']);
+        }
+        $query = $this->db->get();
+        return $query->result();
+    }
+
+    function _get_new_invoice_details_query($post, $select) {
+        $this->db->from('invoice');
+        $this->db->select($select, FALSE);
+
+        if (!empty($post['where'])) {
+            $this->db->where($post['where'], FALSE);
+        }
+        if (isset($post['where_in'])) {
+            foreach ($post['where_in'] as $index => $value) {
+
+                $this->db->where_in($index, $value);
+            }
+        }
+
+        if (!empty($post['search_value'])) {
+            $like = "";
+            foreach ($post['column_search'] as $key => $item) { // loop column 
+                // if datatable send POST for search
+                if ($key === 0) { // first loop
+                    $like .= "( " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+
+        if (!empty($post['order'])) { // here order processing
+            $this->db->order_by($post['column_order'][$post['order'][0]['column']], $post['order'][0]['dir']);
+        } else if (isset($this->order)) {
+            $order = array('invoice.id' => 'desc');
+            $this->db->order_by(key($order), $order[key($order)]);
+        }
+    }
+    
+     public function new_invoice_count_all($post) {
+        $this->db->from('invoice');
+
+        $this->db->where($post['where']);
+        if(isset($post['where_in'])){
+            foreach ($post['where_in'] as $index => $value) {
+                $this->db->where_in($index, $value);
+            }
+        }
+        
+        $query = $this->db->count_all_results();
+
+        return $query;
+    }
+
+    function new_invoice_count_filtered($post) {
+        $this->_get_new_invoice_details_query($post, "invoice.id");
+
+        $query = $this->db->get();
+        return $query->num_rows();
+    }
+
 }

@@ -77,6 +77,7 @@ $route['service_center/gst_update_form'] = 'employee/service_centers/gst_update_
 $route['service_center/process_gst_update'] = 'employee/service_centers/process_gst_update/';
 $route['service_center/review'] = 'employee/engineer/review_engineer_action_form';
 
+$route['service_center/customer_invoice_details'] = 'employee/service_centers/customer_invoice_details';
 
 $route['service_center/buyback/bb_order_details'] = 'employee/service_centers/view_delivered_bb_order_details';
 $route['service_center/buyback/update_order_details/(:any)/(:any)/(:any)'] = 'employee/service_centers/update_bb_report_issue_order_details/$1/$2/$3/$4';

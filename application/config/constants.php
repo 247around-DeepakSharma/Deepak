@@ -174,7 +174,7 @@ define('SNAPDEAL_ID',1);
 //Snapdeal host
 define('SNAPDEAL_HOST','snapdeal.com');
 //Jeeves ID
-define("JEEEVES_ID", 247030);
+define("JEEVES_ID", 247030);
 //Wybor ID
 define("WYBOR_ID", 247010);
 //ZOPPER ID
@@ -554,6 +554,7 @@ define("S3_WEBSITE_URL", "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/");
 
 //mobile service id
 define("_247AROUND_MOBILE_SERVICE_ID",'54');
+
 //247around call center number
 define('_247AROUND_CALLCENTER_NUMBER',9555000247);
 //jeeves call center number
@@ -562,6 +563,7 @@ define('JEEVES_CALLCENTER_NUMBER',180042525252);
 define('JEEVES_WEBSITE','www.jeeves.co.in');
 
 define('CUSTOMER_INVOICE_TAG','CUSTOMER_INVOICE_TAG');
+
 define('VINESH_FLIPKART_EMAIL', 'vinesh.poojari@flipkart.com');
 
 define('THRESHOLD_LIMIT', '-3 days');
@@ -570,6 +572,7 @@ define('SF_NOT_FOUND_BOOKING_CANCELLED_REASON_TEXT', 'Service Not Available in t
 
 
 define("_247Around_Rejected_SF_Update", "247Around Rejected SF Update");
+
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

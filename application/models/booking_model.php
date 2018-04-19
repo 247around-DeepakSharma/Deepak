@@ -1674,10 +1674,11 @@ class Booking_model extends CI_Model {
         }
         $return_details['unit_id'] = $u_unit_id;
         $return_details['DEFAULT_TAX_RATE'] = $data['DEFAULT_TAX_RATE'];
+        $return_details['price_tags'] = $data[0]['price_tags'];
 
         return $return_details;
     }
-
+    
     /**
      * @desc: calculate service charges and vat charges
      * @param : total charges and tax rate
@@ -1738,14 +1739,32 @@ class Booking_model extends CI_Model {
 //        log_message('info', __METHOD__ . " Insert booking_unit_details data" . print_r($result, true));
 	$this->db->insert('booking_unit_details', $result);
         $result['unit_id'] = $this->db->insert_id();
-        //Update request type If price tags is installation OR repair
-        if ($update_key == 0) {
-            $this->update_booking($result['booking_id'], array('request_type'=>$result['price_tags']));
-             
-        } 
-        
+         
         $result['DEFAULT_TAX_RATE'] = $default_tax_rate_flag;
         return $result;
+    }
+    
+    function update_request_type($booking_id, $price_tag) {
+        log_message('info', __METHOD__ . " Booking ID " . $booking_id . " Price Tags " . print_r($price_tag, true));
+
+        if (!empty($price_tag)) {
+            $results = array_filter($price_tag, function($value) {
+                if ((stripos($value, 'Installation') !== false) || stripos($value, 'Repair') !== false) {
+                    return $value; 
+                    
+                } else {
+
+                    return false;
+                }
+            });
+
+            if (!empty($results)) {
+
+                $this->update_booking($booking_id, array('request_type' => array_values($results)[0]));
+            } else {
+                $this->update_booking($booking_id, array('request_type' => $price_tag[0]));
+            }
+        }
     }
 
     /**

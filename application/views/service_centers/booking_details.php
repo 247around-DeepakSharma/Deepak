@@ -402,7 +402,11 @@
                                 <td><?php echo $sp['remarks_defective_part_by_sf']; ?></td>
                                 <td><?php echo $sp['remarks_defective_part_by_partner']; ?></td>
                                 <td><a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['defective_courier_receipt']; ?> " target="_blank">Click Here to view</a></td>
-                                <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY?>/vendor-partner-docs/<?php echo $sp['sf_challan_file']; ?>" target="_blank">Click Here to view</a></td>
+                                <td>
+                                    <?php if(!empty($sp['sf_challan_file'])) { ?>
+                                        <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY?>/vendor-partner-docs/<?php echo $sp['sf_challan_file']; ?>" target="_blank">Click Here to view</a>
+                                    <?php } ?>
+                                </td>
                             </tr>
                             <?php } ?>
                         </tbody>
@@ -466,7 +470,6 @@
                     <tr>
                         <th class="jumbotron" style="text-align: center;width: 1%">S.N</th>
                         <th class="jumbotron" style="text-align: center">Phone</th>
-                        <th class="jumbotron" style="text-align: center">Sms Tag</th>
                         <th class="jumbotron" style="text-align: center;width:45%;">Content</th>
                         <th class="jumbotron" style="text-align: center">Sent on Date</th>
                     </tr>
@@ -477,7 +480,6 @@
                     <tr>
                         <td><?php echo ($key++) . '.'; ?></td>
                         <td><?php echo $value['phone']; ?></td>
-                        <td><?php echo $value['sms_tag']; ?></td>
                         <td style="font-size: 90%;"><?php echo $value['content']; ?></td>
                         <td><?php
                             $old_date = $value['created_on'];

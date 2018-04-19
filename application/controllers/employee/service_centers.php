@@ -3191,7 +3191,14 @@ function get_learning_collateral_for_bookings(){
     else{
         $finalString = "<p style='text-align:center;'>Brand Collateral is not available</p>";
     }
+
    
    echo $finalString;
 }
+
+    function customer_invoice_details(){
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/customer_invoice_details');
+    }
+
 }

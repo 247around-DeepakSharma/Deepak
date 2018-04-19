@@ -17,6 +17,7 @@ class ApiDataRequest extends CI_Controller {
         $this->load->model("inventory_model");
         $this->load->model("vendor_model");
         $this->load->model("engineer_model");
+        $this->load->model("invoices_model");
         $this->load->model("service_centers_model");
         $this->load->library('form_validation');
         $this->load->library('notify');
@@ -25,7 +26,7 @@ class ApiDataRequest extends CI_Controller {
     }
     
     function index() {
-        log_message('info', "Entering: " . __METHOD__);
+        log_message('info', "Entering: " . __METHOD__. json_encode($_POST, TRUE));
         $this->jsonResponseString = null;
       
         if ($this->input->post() && array_key_exists("requestType", $this->input->post())) {
@@ -52,6 +53,10 @@ class ApiDataRequest extends CI_Controller {
             case 'UPDATE_OOW_EST':
                 $this->update_estimate_oow();
                 break;
+            
+            case CUSTOMER_INVOICE_TAG:
+                $this->get_customer_invoice();
+               break;
         }
     }
    /**
@@ -310,6 +315,82 @@ class ApiDataRequest extends CI_Controller {
             }
         }
 
+    }
+    
+    function get_customer_invoice(){
+        log_message('info', __METHOD__);
+        switch ($this->requestData['crmType']){
+            case 'Vendor':
+                 $where = array('entity_to' => "user", "entity_from" => "vendor", "bill_from_party" => $this->session->userdata('service_center_id'));
+                 $sp_list = $this->get_cutomer_invoice_details($where);
+                break;
+            case 'Admin':
+                $where = array('entity_to' => "user", "entity_from" => "vendor");
+                $sp_list = $this->get_cutomer_invoice_details($where);
+                break;
+        }
+    }
+    
+     function get_cutomer_invoice_details($where){
+        log_message('info', __METHOD__);
+        $post = $this->get_post_customer_data();
+       
+        $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
+        $post['where'] = $where;
+        $post['column_search'] = array('invoice.booking_id','invoice.invoice_id', 'total_invoice_amount');
+        $list = $this->invoices_model->get_new_invoice_details($post, '*');
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $invoice) {
+            $no++;
+            $row =  $this->customer_invoice_table_view($invoice, $no);
+            $data[] = $row;
+        }
+        
+        $output = array(
+            "draw" => $post['draw'],
+            "recordsTotal" => $this->invoices_model->new_invoice_count_all($post),
+            "recordsFiltered" =>  $this->invoices_model->new_invoice_count_filtered($post),
+            "data" => $data,
+        );
+        echo json_encode($output);
+    }
+    
+    function customer_invoice_table_view($invoice, $no){
+        $row = array();
+        $row[] = $no;
+        $row[] = "<a target='_blank' href='".S3_WEBSITE_URL."invoices-excel/".
+                $invoice->main_invoice_file."'>$invoice->invoice_id</a>";
+        if($this->session->userdata('service_center_id')){
+            
+             $row[] = "<a href='".  base_url()."service_center/booking_details/".urlencode(base64_encode($invoice->booking_id))."' target='_blank' >".$invoice->booking_id."</a>";
+        } else {
+             $row[] = "<a href='".  base_url()."employee/booking/viewdetails/".$invoice->booking_id."' target='_blank' >".$invoice->booking_id."</a>";
+        }
+       
+        $row[] = date("jS M, Y", strtotime($invoice->invoice_date));
+        
+        $row[] = '<i class ="fa fa-inr"></i> '.$invoice->total_basic_amount;
+        $row[] = '<i class ="fa fa-inr"></i> '.($invoice->total_cgst_tax_amount + $invoice->total_sgst_tax_amount + $invoice->total_igst_tax_amount);
+        $row[] = '<i class ="fa fa-inr"></i> '.$invoice->total_invoice_amount;
+        if($this->requestData['crmType'] == "Admin"){
+            $agent_id = $this->session->userdata('id');
+            $row[] = '<a href="'.  base_url().'employee/user_invoice/regenerate_payment_invoice_for_customer/'.$invoice->booking_id.'/'.$invoice->total_invoice_amount.'/'.$invoice->invoice_id.'/'.$agent_id.'" class="btn btn-sm btn-primary">Regenerate Invoice</a>';
+        }
+       
+        return $row;
+    }
+    
+     function get_post_customer_data(){
+        //log_message("info",__METHOD__);
+        $post['length'] = $this->input->post('length');
+        $post['start'] = $this->input->post('start');
+        $search = $this->input->post('search');
+        $post['search_value'] = $search['value'];
+        $post['order'] = $this->input->post('order');
+        $post['draw'] = $this->input->post('draw');
+        
+        return $post;
     }
    
 }

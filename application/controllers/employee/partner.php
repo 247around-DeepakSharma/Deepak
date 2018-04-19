@@ -1519,6 +1519,7 @@ class Partner extends CI_Controller {
             }
             $updated_unit_id = array();
             $price_array = array();
+            $price_tag = array();
             $customer_net_payable = 0;
             foreach ($post['requestType'] as $key => $sc) {
                 $explode = explode("_", $sc);
@@ -1534,6 +1535,7 @@ class Partner extends CI_Controller {
                 $agent_details['agent_id'] = $this->session->userdata('agent_id');
                 $agent_details['agent_type'] = _247AROUND_PARTNER_STRING;
                 $result = $this->booking_model->update_booking_in_booking_details($unit_details, $booking_id, $booking_details['state'], $key,$agent_details);
+                array_push($price_tag, $result['price_tags']);
                 array_push($updated_unit_id, $result['unit_id']);
             }
 
@@ -1552,6 +1554,8 @@ class Partner extends CI_Controller {
                 }
                 $this->booking_model->check_price_tags_status($booking_id, $updated_unit_id,$inventory_details);
             }
+            
+            $this->booking_model->update_request_type($booking_id, $price_tag);
 
             $booking_details['amount_due'] = $post['amount_due'];
             if (!empty($upcountry_data)) {
@@ -1886,8 +1890,7 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ . " Booking_id" . $booking_id);
         $data['data'] = $this->booking_model->get_booking_state_change_by_id($booking_id);
         $data['booking_details'] = $this->booking_model->getbooking_history($booking_id);
-        // send empty beacuse there is no need to display sms to partner panel
-        $data['sms_sent_details'] = array();
+        $data['sms_sent_details'] = $this->booking_model->get_sms_sent_details($booking_id);
 
         //$this->load->view('partner/header');
 
