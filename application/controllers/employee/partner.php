@@ -4072,4 +4072,25 @@ class Partner extends CI_Controller {
             echo $msg = "Your Session is logout Please Login, and Try Again";
         }
     }
+     function download_partner_pending_bookings($partnerID){ 
+        $CSVData = array();
+        $headings = array();
+        $query = $this->partner_model->get_partners_pending_bookings($partnerID,0,1);
+        $data = $query->result_array();
+        if($data){
+            $headings = array_keys($data[0]);
+            unset ($headings[25]);
+            unset ($headings[24]);
+            unset ($headings[22]);
+            unset ($headings[21]);
+            foreach($data as $values){
+                unset($values['TAT']);
+                unset($values['Rating']);
+                unset($values['Rating Comments']);
+                unset($values['Completion Date']);
+                $CSVData[] = array_values($values);
+            }
+        }
+        $this->miscelleneous->downloadCSV($CSVData, $headings, "Pending_Bookings");
+    }
 }
