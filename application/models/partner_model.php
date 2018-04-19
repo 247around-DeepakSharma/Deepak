@@ -323,21 +323,41 @@ function get_data_for_partner_callback($booking_id) {
 
 	return $query->result_array();
     }
+    function get_partner_report_overview_in_percentage_format($partner_id){
+        $query = $this->db->query("SELECT COUNT(booking_id) as count,DATEDIFF(date(booking_details.service_center_closed_date),date(booking_details.create_date)) as TAT FROM booking_details "
+                . "WHERE partner_id = '".$partner_id."' AND service_center_closed_date IS NOT NULL AND !(current_status = 'Cancelled' OR internal_status ='InProcess_Cancelled') AND MONTH(booking_details.create_date) "
+                . "= MONTH(CURDATE())  GROUP BY TAT");
+        $overViewData = $query->result_array();
+        foreach($overViewData as $overView){
+            if($overView['TAT']>=0){
+                if($overView['TAT']>5){
+                    $finalArray["day_5"] = $overView['count']+$finalArray["day_5"];
+                }
+                else{
+                    $finalArray["day_".$overView['TAT']] = $overView['count'];
+                }
+            }
+            
+        }
+        return $finalArray;
+    }
     
     //Return all leads shared by Partner in the last 30 days in CSV
     function get_partner_leads_csv_for_summary_email($partner_id,$percentageLogic=0){
         $dependency = "";
         $closeDateSubQuery = "booking_details.closed_date AS 'Completion Date'";
-        $internalStatusQuery ="";
-        if ($partner_id == JEEVES_ID){
+        $tatSubQuery  = '(CASE WHEN DATEDIFF(date(booking_details.closed_date),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) < 0 THEN 0 ELSE'
+                . ' DATEDIFF(date(booking_details.closed_date),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) END) as TAT';
+        $agingSubQuery = 'DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) as Aging';
+        if ($percentageLogic){
             $dependency = ', IF(dependency_on =1, "'.DEPENDENCY_ON_AROUND.'", "'.DEPENDENCY_ON_CUSTOMER.'") as Dependency ';
-        }
-        if($percentageLogic){
+            $tatSubQuery  = '(CASE WHEN DATEDIFF(date(booking_details.service_center_closed_date),date(booking_details.create_date)) < 0 THEN 0 ELSE'
+                    . '  DATEDIFF(date(booking_details.service_center_closed_date),date(booking_details.create_date)) END ) as TAT';
+            $agingSubQuery = 'DATEDIFF(CURDATE(),date(booking_details.create_date)) as Aging';
             $closeDateSubQuery = "date(booking_details.service_center_closed_date) AS 'Completion Date'";
-            $internalStatusQuery = "booking_details.internal_status AS 'internal_status',booking_details.current_status AS 'current_status',";
         }
         
-        return $query = $this->db->query("SELECT distinct '' AS 'Unique id',
+        return $query = $this->db->query("SELECT 
             order_id AS 'Sub Order ID',
             (CONCAT('''', booking_details.booking_id)) AS '247BookingID',
             date(booking_details.create_date) AS 'Referred Date and Time',
@@ -350,18 +370,20 @@ function get_data_for_partner_callback($booking_id) {
             home_address AS 'Customer Address', 
             booking_pincode AS 'Pincode', 
             booking_details.city As 'City', 
+            booking_details.state As 'State', 
             booking_primary_contact_no AS Phone, 
             user_email As 'Email ID', 
-            ud.price_tags AS 'Call Type (Installation /Table Top Installation/Demo/ Service)', 
-            partner_internal_status AS 'Status By Brand', 
+            ud.price_tags AS 'Call Type (Installation /Table Top Installation/Demo/ Service)',
             CASE WHEN(current_status = 'Completed' || current_status = 'Cancelled') THEN (closing_remarks) ELSE (reschedule_reason) END AS 'Remarks',
             'Service sent to vendor' AS 'Status by Partner', 
             booking_date As 'Scheduled Appointment Date(DD/MM/YYYY)', 
             booking_timeslot AS 'Scheduled Appointment Time(HH:MM:SS)', 
             partner_internal_status AS 'Final Status',
             ".$closeDateSubQuery.",
-            ".$internalStatusQuery."
-            booking_details.rating_stars AS 'Rating'
+            ".$tatSubQuery.",
+            ".$agingSubQuery.",
+            booking_details.rating_stars AS 'Rating',
+            booking_details.rating_comments AS 'Rating Comments'
             $dependency
             FROM  booking_details , booking_unit_details AS ud, services, users
             WHERE booking_details.booking_id = ud.booking_id 
@@ -369,7 +391,7 @@ function get_data_for_partner_callback($booking_id) {
             AND booking_details.user_id = users.user_id
             AND product_or_services != 'Product'
             AND booking_details.partner_id = $partner_id
-            AND ((booking_details.create_date > (CURDATE() - INTERVAL 1 MONTH)) OR (booking_details.service_center_closed_date IS NULL))");
+            AND ((booking_details.create_date > (CURDATE() - INTERVAL 1 MONTH)) OR (booking_details.current_status NOT IN ('Cancelled','Completed')))");
     } 
     
     //Return all leads shared by Partner in the last 30 days

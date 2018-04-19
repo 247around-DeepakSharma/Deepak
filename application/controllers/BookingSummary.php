@@ -478,101 +478,6 @@ EOD;
 
         return $message;
     }
-    function leads_summary_report_percentage_format_csv($data){
-        $newCSVFileName = "Booking_summary_" . date('j-M-Y-H-i-s') . ".csv";
-        $csv = TMP_FOLDER . $newCSVFileName;
-        $file = fopen($csv,"w");
-        $first_row = array_keys($data[0]);
-        unset($first_row['24']);
-        unset($first_row['23']);
-        unset($first_row['16']);
-        $first_row[]='Completion Days';
-        $first_row[]='Booking Age';
-        fputcsv($file,$first_row);
-        foreach ($data as $values)
-        {
-            $days = '';
-            $booking_age = '';
-            if($values['Completion Date'] && !(($values['internal_status'] == 'InProcess_Cancelled') || ($values['current_status'] == 'Cancelled'))){
-                $date = new DateTime($values['Referred Date and Time']);
-                $now = new DateTime($values['Completion Date']);
-                $days =  $date->diff($now)->format("%a");
-            }
-            else  if(!$values['Completion Date']){
-                $booking_age = 0;
-                $current_date = new DateTime(date("Y-m-d"));
-                $booking_date = new DateTime($values['Scheduled Appointment Date(DD/MM/YYYY)']);
-                $current_date_timespan=strtotime(date("Y-m-d"));
-                $booking_date_timespan=strtotime($values['Scheduled Appointment Date(DD/MM/YYYY)']);
-                if($current_date_timespan>$booking_date_timespan){
-                    $booking_age =  $current_date->diff($booking_date)->format("%a");
-                }
-            } 
-            unset($values['internal_status']);
-            unset($values['current_status']);
-            unset($values['Status By Brand']);
-            $values['completionDays'] = $days;
-            $values['booking_age'] = $booking_age;
-            $row = array_values($values);
-            fputcsv($file,$row);
-        }
-        fclose($file);
-        return $newCSVFileName;
-    }
-    function leads_summary_report_percentage_format_html($finalArray){
-        foreach($finalArray as $month=>$monthData){
-            $data['month'] = $month;
-            $data['monthData'] = $monthData;
-            $tableHtmlArray[] = $this->load->view('employee/partner_report', $data,true);
-        }
-        return implode("</br>",$tableHtmlArray);
-    }
-    function leads_summary_report_percentage_format_data($data){
-        $tempBookingArray = array();
-        $finalArray = array();
-        foreach($data as $bookingData){
-             //Get Referred Date Month
-           $refferedDate=strtotime($bookingData['Referred Date and Time']);
-           $currentMonth  =  date("F");
-           $month = date("F",$refferedDate);
-           if($month == $currentMonth){
-                if(!array_key_exists($month, $finalArray)){
-                    $finalArray[$month]['totalCount'] = 0;
-                    $finalArray[$month]['completedCount'] = 0;
-                }
-                $finalArray[$month]['totalCount'] = $finalArray[$month]['totalCount']+1;
-                if(!in_array($bookingData['247BookingID'], $tempBookingArray)){
-                    //Booking is completed if sf_completion date is completed
-                    if($bookingData['Completion Date'] && !(($bookingData['internal_status'] == 'InProcess_Cancelled') || ($bookingData['current_status'] == 'Cancelled'))){
-                        //Get booking completion days
-                        $date = new DateTime($bookingData['Referred Date and Time']);
-                        $now = new DateTime($bookingData['Completion Date']);
-                        $days =  $date->diff($now)->format("%a");
-                        if($days>4){
-                            $days = 5;
-                        }
-                        $finalArray[$month][$days]['bookings'] = NULL;
-                        if(!array_key_exists('count', $finalArray[$month][$days])){
-                            $finalArray[$month][$days]['count'] = 0;
-                        }
-                        $finalArray[$month]['completedCount'] = $finalArray[$month]['completedCount']+1;
-                        $finalArray[$month][$days]['count'] =   $finalArray[$month][$days]['count']+1;
-                    }
-                    $tempBookingArray[] = $bookingData['247BookingID'];
-                }
-           }
-        }
-        return $finalArray;
-    }
-    function leads_summary_report_percentage_format($partner_id){
-        $report = $this->partner_model->get_partner_leads_csv_for_summary_email($partner_id,'1');
-        $data = $report->result_array();
-        $finalArray = $this->leads_summary_report_percentage_format_data($data);
-        $message = $this->leads_summary_report_percentage_format_html($finalArray);
-        $newCSVFileName = $this->leads_summary_report_percentage_format_csv($data);
-        $attachment = TMP_FOLDER . $newCSVFileName;
-        $this->notify->sendEmail(NOREPLY_EMAIL_ID, 'anuj@247around.com', 'chhavid@247around.com', '', "Jeeves New Format Report", $message, $attachment,"Jeeves New Format Report");
-    }
 
     function send_leads_summary_mail_to_partners($partner_id = "") {
         
@@ -588,7 +493,12 @@ EOD;
             $partners = $this->partner_model->getpartner_details($select, $where_get_partner, '1');
             if(!empty($partners))
             {
-                $report = $this->partner_model->get_partner_leads_csv_for_summary_email($partners[0]['id']);
+                if($partner_id == JEEVES_ID){
+                    $report = $this->partner_model->get_partner_leads_csv_for_summary_email($partners[0]['id'],1);
+                }
+                else{
+                    $report = $this->partner_model->get_partner_leads_csv_for_summary_email($partners[0]['id']);
+                }
                 $delimiter = ",";
                 $newline = "\r\n";
                 $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
@@ -640,7 +550,12 @@ EOD;
             $partners = $this->partner_model->getpartner_details($select, $where_get_partner, '1');
             foreach ($partners as $key => $p)
             {
-                $report = $this->partner_model->get_partner_leads_csv_for_summary_email($p['id']);
+                if($p['id'] == JEEVES_ID){
+                    $report = $this->partner_model->get_partner_leads_csv_for_summary_email($p['id'],1);
+                }
+                else{
+                    $report = $this->partner_model->get_partner_leads_csv_for_summary_email($p['id']);
+                }
                 $delimiter = ",";
                 $newline = "\r\n";
                 $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
@@ -1643,15 +1558,24 @@ EOD;
         $emailBasicDataArray['from'] = NOREPLY_EMAIL_ID;
         $emailBasicDataArray['fromName'] = "247around Team";
         //$emailTemplateDataArray['templateId'] = PARTNER_SUMMARY_EMAIL_TEMPLATE;
-        $emailTemplateDataArray['dynamicParams'] = $this->partner_model->get_partner_summary_params($partner_data['id']);
+        if($partner_data['id'] == JEEVES_ID){
+            $emailTemplateDataArray['dynamicParams'] = $this->partner_model->get_partner_report_overview_in_percentage_format($partner_data['id']);
+        }
+        else{
+            $emailTemplateDataArray['dynamicParams'] = $this->partner_model->get_partner_summary_params($partner_data['id']);
+        }
         if(!empty($emailTemplateDataArray['dynamicParams'])){
             $emailAttachmentDataArray['type'] = "csv";
             $emailAttachmentDataArray['fileName'] = "247around-Services-Consolidated-Data - " . date('d-M-Y');
             $emailAttachmentDataArray['filePath'] = $csv_file;
+            if($partner_data['id'] == JEEVES_ID){
+               $email_body = $this->load->view('employee/partner_report', array("dynamicParams"=>$emailTemplateDataArray['dynamicParams']),true);
+            }
+            else{
+                $email_body = $this->load->view('employee/partner_summary_email_template',$emailTemplateDataArray,true);
+            }
             
-            $email_body = $this->load->view('employee/partner_summary_email_template',$emailTemplateDataArray,true);
-            
-            $send_email = $this->notify->sendEmail($emailBasicDataArray['from'], $emailBasicDataArray['to'], $emailBasicDataArray['cc'], "", $subject, $email_body, $csv_file);
+            $send_email = $this->notify->sendEmail($emailBasicDataArray['from'], $emailBasicDataArray['to'], $emailBasicDataArray['cc'], "", $subject, $email_body, $csv_file,"summary_report");
             //$emailStatus = $this->send_grid_api->send_email_using_send_grid_templates($emailBasicDataArray, $emailTemplateDataArray, $emailAttachmentDataArray);
             if ($send_email) {
                 log_message('info', __METHOD__ . ": Mail sent successfully for Partner: " . $partner_data['public_name']);
