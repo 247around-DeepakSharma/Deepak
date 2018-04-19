@@ -1481,5 +1481,59 @@ function get_data_for_partner_callback($booking_id) {
         $this->db->insert('payment_transaction', $data);
         return $this->db->insert_id();
     }
+    function get_partners_pending_bookings($partner_id,$percentageLogic=0,$allPending=0){
+        $where = "((booking_details.create_date > (CURDATE() - INTERVAL 1 MONTH)) OR (booking_details.current_status NOT IN ('Cancelled','Completed')))";
+        if($allPending == 1){
+            $where = "booking_details.current_status NOT IN ('Cancelled','Completed')";
+        }
+        $dependency = "";
+        $closeDateSubQuery = "booking_details.closed_date AS 'Completion Date'";
+        $tatSubQuery  = '(CASE WHEN DATEDIFF(date(booking_details.closed_date),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) < 0 THEN 0 ELSE'
+                . ' DATEDIFF(date(booking_details.closed_date),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) END) as TAT';
+        $agingSubQuery = 'DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) as Aging';
+        if ($percentageLogic){
+            $dependency = ', IF(dependency_on =1, "'.DEPENDENCY_ON_AROUND.'", "'.DEPENDENCY_ON_CUSTOMER.'") as Dependency ';
+            $tatSubQuery  = '(CASE WHEN DATEDIFF(date(booking_details.service_center_closed_date),date(booking_details.create_date)) < 0 THEN 0 ELSE'
+                    . '  DATEDIFF(date(booking_details.service_center_closed_date),date(booking_details.create_date)) END ) as TAT';
+            $agingSubQuery = 'DATEDIFF(CURDATE(),date(booking_details.create_date)) as Aging';
+            $closeDateSubQuery = "date(booking_details.service_center_closed_date) AS 'Completion Date'";
+        }
+        
+        return $query = $this->db->query("SELECT 
+            order_id AS 'Sub Order ID',
+            (CONCAT('''', booking_details.booking_id)) AS '247BookingID',
+            date(booking_details.create_date) AS 'Referred Date and Time',
+            ud.appliance_brand AS 'Brand', 
+            IFNULL(model_number,'') AS 'Model',
+            CASE WHEN(serial_number IS NULL OR serial_number = '') THEN '' ELSE (CONCAT('''', serial_number))  END AS 'Serial Number',
+            services AS 'Product', 
+            ud.appliance_description As 'Description',
+            name As 'Customer', 
+            home_address AS 'Customer Address', 
+            booking_pincode AS 'Pincode', 
+            booking_details.city As 'City', 
+            booking_details.state As 'State', 
+            booking_primary_contact_no AS Phone, 
+            user_email As 'Email ID', 
+            ud.price_tags AS 'Call Type (Installation /Table Top Installation/Demo/ Service)',
+            CASE WHEN(current_status = 'Completed' || current_status = 'Cancelled') THEN (closing_remarks) ELSE (reschedule_reason) END AS 'Remarks',
+            'Service sent to vendor' AS 'Status by Partner', 
+            booking_date As 'Scheduled Appointment Date(DD/MM/YYYY)', 
+            booking_timeslot AS 'Scheduled Appointment Time(HH:MM:SS)', 
+            partner_internal_status AS 'Final Status',
+            ".$closeDateSubQuery.",
+            ".$tatSubQuery.",
+            ".$agingSubQuery.",
+            booking_details.rating_stars AS 'Rating',
+            booking_details.rating_comments AS 'Rating Comments'
+            $dependency
+            FROM  booking_details , booking_unit_details AS ud, services, users
+            WHERE booking_details.booking_id = ud.booking_id 
+            AND booking_details.service_id = services.id 
+            AND booking_details.user_id = users.user_id
+            AND product_or_services != 'Product'
+            AND booking_details.partner_id = $partner_id
+            AND $where");
+    } 
 }
 

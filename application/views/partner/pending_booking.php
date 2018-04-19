@@ -25,6 +25,7 @@
     <div class="x_panel">
         <div class="x_title">
             <h2>Pending Bookings</h2>
+            <a style="float:right;" type="button" class="btn btn-success" href="<?php echo base_url(); ?>employee/partner/download_partner_pending_bookings/<?php echo $this->session->userdata('partner_id')?>">Download Pending Bookings</a>
             <div class="clearfix"></div>
         </div>
         <div class="x_content">
