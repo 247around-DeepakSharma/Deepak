@@ -24,7 +24,7 @@ p{
 <body>
 <table style="width:100%;border-collapse: collapse;">
     <tr>
-        <th colspan="7"><?php echo $month;?></th>
+        <th colspan="7"><?php echo date("F");?></th>
     </tr> 
     <tr>
         <th>D0</th>
@@ -36,39 +36,40 @@ p{
     </tr> 
     <tr>
         <td><?php
-        if(!array_key_exists('0', $monthData)){$monthData['0']['count'] = 0;}
-        echo $zeroDay =  $monthData['0']['count'];
+        if(!array_key_exists('day_0', $dynamicParams)){$dynamicParams['day_0'] = 0;}
+        echo $zeroDay =  $dynamicParams['day_0'];
         ?></td>
         <td><?php
-        if(!array_key_exists('1', $monthData)){$monthData['1']['count'] = 0;}
-        echo $firstDay = $zeroDay+$monthData['1']['count'];
+        if(!array_key_exists('day_1', $dynamicParams)){$dynamicParams['day_1'] = 0;}
+        echo $firstDay = $zeroDay+$dynamicParams['day_1'];
         ?></td>
         <td><?php
-        if(!array_key_exists('2', $monthData)){$monthData['2']['count'] = 0;}
-        echo $secondDay = $firstDay+$monthData['2']['count'];
+        if(!array_key_exists('day_2', $dynamicParams)){$dynamicParams['day_2'] = 0;}
+        echo $secondDay = $firstDay+$dynamicParams['day_2'];
         ?></td>
         <td><?php
-        if(!array_key_exists('3', $monthData)){$monthData['3']['count'] = 0;}
-        echo $thirdDay = $secondDay+$monthData['3']['count'];
+        if(!array_key_exists('day_3', $dynamicParams)){$dynamicParams['day_3'] = 0;}
+        echo $thirdDay = $secondDay+$dynamicParams['day_3'];
         ?></td>
         <td><?php
-        if(!array_key_exists('4', $monthData)){$monthData['4']['count'] = 0;}
-        echo $fourthDay  = $thirdDay+$monthData['4']['count'];
+        if(!array_key_exists('day_4', $dynamicParams)){$dynamicParams['day_4'] = 0;}
+        echo $fourthDay  = $thirdDay+$dynamicParams['day_4'];
         ?></td>
         <td><?php
-        if(!array_key_exists('5', $monthData)){$monthData['5']['count'] = 0;}
-        echo $fifthDay  = $fourthDay+$monthData['5']['count'];
+        if(!array_key_exists('day_5', $dynamicParams)){$dynamicParams['day_5'] = 0;}
+        echo $fifthDay  = $fourthDay+$dynamicParams['day_5'];
         ?></td>
     </tr>
     <?php
-    if($monthData['completedCount']>0){
+    $allCompleted = array_sum(array_values($dynamicParams));
+    if($allCompleted){
     ?>
-     <td><?php echo number_format((float)(($zeroDay*100)/$monthData['completedCount']), 2, '.', '')." % "; ?></td>
-     <td><?php echo number_format((float)(($firstDay*100)/$monthData['completedCount']), 2, '.', '')." % "; ?></td>
-     <td><?php echo number_format((float)(($secondDay*100)/$monthData['completedCount']), 2, '.', '')." % ";?></td>
-     <td><?php echo number_format((float)(($thirdDay*100)/$monthData['completedCount']), 2, '.', '')." % "; ?></td>
-     <td><?php echo number_format((float)(($fourthDay*100)/$monthData['completedCount']), 2, '.', '')." % "; ?></td>
-     <td><?php echo number_format((float)(($fifthDay*100)/$monthData['completedCount']), 2, '.', '')." % "; ?></td>
+     <td><?php echo number_format((float)(($zeroDay*100)/$allCompleted), 2, '.', '')." % "; ?></td>
+     <td><?php echo number_format((float)(($firstDay*100)/$allCompleted), 2, '.', '')." % "; ?></td>
+     <td><?php echo number_format((float)(($secondDay*100)/$allCompleted), 2, '.', '')." % ";?></td>
+     <td><?php echo number_format((float)(($thirdDay*100)/$allCompleted), 2, '.', '')." % "; ?></td>
+     <td><?php echo number_format((float)(($fourthDay*100)/$allCompleted), 2, '.', '')." % "; ?></td>
+     <td><?php echo number_format((float)(($fifthDay*100)/$allCompleted), 2, '.', '')." % "; ?></td>
     <?php } 
     else{
         ?>
