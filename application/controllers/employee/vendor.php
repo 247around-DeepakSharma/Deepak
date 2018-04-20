@@ -1257,9 +1257,11 @@ class vendor extends CI_Controller {
         log_message('info',__FUNCTION__);
         $this->form_validation->set_rules('booking_id', 'Booking ID', 'required|trim');
         $this->form_validation->set_rules('service', 'Vendor ID', 'required|trim');
+        $this->form_validation->set_rules('remarks', 'Remarks', 'required|trim');
         if ($this->form_validation->run()) {
             $booking_id = $this->input->post('booking_id');
             $service_center_id = $this->input->post('service');
+            $remarks = $this->input->post('remarks');
             $previous_sf_id = $this->reusable_model->get_search_query('booking_details','booking_details.assigned_vendor_id, booking_details.partner_id',array('booking_id'=>$booking_id),NULL,NULL,NULL,NULL,NULL)->result_array();
 //            if (IS_DEFAULT_ENGINEER == TRUE) {
 //                $b['assigned_engineer_id'] = DEFAULT_ENGINEER;
@@ -1356,8 +1358,8 @@ class vendor extends CI_Controller {
                     }
                 }
             }
-
-            $this->notify->insert_state_change($booking_id, RE_ASSIGNED_VENDOR, ASSIGNED_VENDOR, "Re-Assigned SF ID: " . $service_center_id, $this->session->userdata('id'), 
+            
+            $this->notify->insert_state_change($booking_id, RE_ASSIGNED_VENDOR, ASSIGNED_VENDOR, "Re-Assigned SF ID: " . $service_center_id . " ". $remarks, $this->session->userdata('id'), 
                     $this->session->userdata('employee_id'), $actor,$next_action, _247AROUND);
 
             $sp['service_center_id'] = $service_center_id;
@@ -1379,7 +1381,7 @@ class vendor extends CI_Controller {
             redirect(base_url() . DEFAULT_SEARCH_PAGE);
         } else {
             $booking_id = $this->input->post('booking_id');
-            $output = "Please select any service center.";
+            $output = "All Fields are required";
             $userSession = array('error' => $output);
             $this->session->set_userdata($userSession);
             redirect(base_url() . "employee/vendor/get_reassign_vendor_form/".$booking_id);
