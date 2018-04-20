@@ -4049,4 +4049,27 @@ class Partner extends CI_Controller {
         $this->load->view('paytm_gateway/payment_details');
         $this->load->view('partner/partner_footer');
     }
+     function partner_report(){
+        $where['state !=""' ] = NULL;
+        $allState =  $this->reusable_model->get_search_result_data("booking_details","DISTINCT(state)",$where,NULL,NULL,array("state"=>"ASC"),NULL,NULL,array());
+        $this->load->view('partner/header');
+        $this->load->view('partner/report', array('data'=>$allState));
+        $this->load->view('partner/partner_footer');
+    }
+    function create_and_send_partner_report($partnerID){
+        if($this->session->userdata('agent_id')){
+            echo $msg = "Please Check Your Email, You will get the report soon";
+            $data['start'] = date('Y-m-d',strtotime($this->input->post('startDate')));
+            $data['end'] = date('Y-m-d',strtotime($this->input->post('endDate')));
+            $data['status'] = $this->input->post('status');
+            $data['state'] = explode(",",$this->input->post('state'));
+            $data['agentID'] = $this->session->userdata('agent_id');
+            $data['partnerID'] = $partnerID;
+            $sendUrl = base_url().'employee/do_background_process/create_and_send_partner_requested_report';
+            $this->asynchronous_lib->do_background_process($sendUrl, $data);
+        }
+        else{
+            echo $msg = "Your Session is logout Please Login, and Try Again";
+        }
+    }
 }

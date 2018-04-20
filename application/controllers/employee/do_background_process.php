@@ -37,6 +37,7 @@ class Do_background_process extends CI_Controller {
         $this->load->library('s3');
         $this->load->library('email');
         $this->load->library('push_notification_lib');
+        $this->load->dbutil();
     }
 
     /**
@@ -387,6 +388,55 @@ class Do_background_process extends CI_Controller {
        $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $body, "",'partner_information_to_sf');
        log_message('info', __FUNCTION__ . ' Function End');
 }
+    function create_and_send_partner_requested_report(){
+            $is_email = FALSE;
+            log_message('info', __FUNCTION__ . 'Function Start '.print_r( $this->input->post(),true));
+            $start = $this->input->post('start');
+            $end = $this->input->post('end');
+            $status = $this->input->post('status');
+            $state = $this->input->post('state');
+            $agentID = $this->input->post('agentID');
+            $partnerID = $this->input->post('partnerID');
+            $newCSVFileName = "Booking_summary_" . $start ."_".$end.".csv";
+            $csv = TMP_FOLDER . $newCSVFileName;
+            $where[] = "(date(booking_details.create_date)>='".$start."' AND date(booking_details.create_date)<='".$end."')";
+            if($status != 'all'){
+                if($status == 'Pending'){
+                    $where[] = "booking_details.current_status NOT IN ('Cancelled','Completed')";
+              }
+                    else{
+                        $where[] = "booking_details.current_status IN('".$status."')";
+                    }
+                }
+                if(!in_array('all',$state)){
+                    $where[] = "booking_details.state IN ('".implode("','",$state)."')";
+                }
+               log_message('info', __FUNCTION__ . "Where ".print_r($where,true));
+               $report =  $this->partner_model->get_partner_leads_csv_for_summary_email($partnerID,0,implode(' AND ',$where));
+               $delimiter = ",";
+                $newline = "\r\n";
+                $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
+                $file = fopen($csv,"w");
+                fwrite($file,$new_report);
+                fclose($file);
+                //write_file($csv, $new_report,'r+');
+                $partnerDetails = $this->reusable_model->get_search_result_data("entity_login_table","email",array("entity"=>"partner","entity_id"=>$partnerID,"agent_id"=>$agentID),
+                        NULL,NULL,NULL,NULL,NULL,array());
+                log_message('info', __FUNCTION__ . "Partner Details ".print_r($partnerDetails,true));
+                $subject = 'Booking Report From 247Around';
+                $message = 'Hi , <br><br>Your Requested Report is ready, Please find attachment<br><br>Thanks!<br><br> 247Around';
+                $is_email = $this->notify->sendEmail(NOREPLY_EMAIL_ID, $partnerDetails[0]['email'], "", "", $subject, $message, $csv,"Partner_Report");
+                if($is_email){
+                    log_message('info', __FUNCTION__ . "Function End ".$partnerDetails[0]['email']);
+                }
+                else{
+                   log_message('error', __FUNCTION__ . "Function End With Error Sending Email To Partner".$partnerDetails[0]['email']);
+                   $subject = 'Error In Sending Requested Partner Report';
+                   $message = print_r($this->input->post(),true);
+                   $this->notify->sendEmail(NOREPLY_EMAIL_ID, "chhavid@247around.com", "", "", $subject, $message, $csv,"Requested PartnerReport Not Send");
+                }
+                unlink($csv);
+    }
 
     /* end controller */
 }

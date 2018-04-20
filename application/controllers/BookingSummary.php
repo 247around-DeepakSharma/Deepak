@@ -497,7 +497,7 @@ EOD;
                     $report = $this->partner_model->get_partner_leads_csv_for_summary_email($partners[0]['id'],1);
                 }
                 else{
-                    $report = $this->partner_model->get_partner_leads_csv_for_summary_email($partners[0]['id']);
+                    $report = $this->partner_model->get_partner_leads_csv_for_summary_email($partners[0]['id'],0);
                 }
                 $delimiter = ",";
                 $newline = "\r\n";
@@ -554,7 +554,7 @@ EOD;
                     $report = $this->partner_model->get_partner_leads_csv_for_summary_email($p['id'],1);
                 }
                 else{
-                    $report = $this->partner_model->get_partner_leads_csv_for_summary_email($p['id']);
+                    $report = $this->partner_model->get_partner_leads_csv_for_summary_email($p['id'],0);
                 }
                 $delimiter = ",";
                 $newline = "\r\n";
