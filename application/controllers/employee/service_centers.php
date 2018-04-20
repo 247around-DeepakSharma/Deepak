@@ -227,50 +227,55 @@ class Service_centers extends CI_Controller {
      * @return: void
      */
     function process_complete_booking($booking_id) {
-        log_message('info',__FUNCTION__.' booking_id: '.$booking_id);
+        log_message('info', __FUNCTION__ . ' booking_id: ' . $booking_id);
         $this->checkUserSession();
-        
+
         $this->form_validation->set_rules('customer_basic_charge', 'Basic Charge', 'required');
         $this->form_validation->set_rules('additional_charge', 'Additional Service Charge', 'required');
         $this->form_validation->set_rules('parts_cost', 'Parts Cost', 'required');
         $this->form_validation->set_rules('booking_status', 'Status', 'required');
         $this->form_validation->set_rules('pod', 'POD ', 'callback_validate_serial_no');
 
-        if (($this->form_validation->run() == FALSE) || ($booking_id =="") || (is_null($booking_id))) {
+        if (($this->form_validation->run() == FALSE) || ($booking_id == "") || (is_null($booking_id))) {
             $this->complete_booking_form(urlencode(base64_encode($booking_id)));
         } else {
-            // customer paid basic charge is comming in array
-            // Array ( [100] =>  500 , [102] =>  300 )  
-            $customer_basic_charge = $this->input->post('customer_basic_charge');
-             // Additional service charge is comming in array
-            $additional_charge =  $this->input->post('additional_charge');
-             // Parts cost is comming in array
-            $parts_cost =  $this->input->post('parts_cost');
-            $booking_status = $this->input->post('booking_status');
-            $total_amount_paid =  $this->input->post('grand_total_price');
-            $closing_remarks = $this->input->post('closing_remarks');
-            $serial_number = $this->input->post('serial_number');
-            $spare_parts_required = $this->input->post('spare_parts_required');
-            $upcountry_charges = $this->input->post("upcountry_charges");
-            $serial_number_pic  = $this->input->post("serial_number_pic");
-            $broken = $this->input->post("appliance_broken");
-            $mismatch_pincode = $this->input->post("mismatch_pincode");
-            $is_update_spare_parts = FALSE;
-            $sp_required_id = json_decode($this->input->post("sp_required_id"), true);
 
-            //$internal_status = "Cancelled";
-            $getremarks = $this->booking_model->getbooking_charges($booking_id);
-            $approval = $this->input->post("approval");
-            $i = 0;
-           
-            foreach ($customer_basic_charge as $unit_id => $value) {
-                 // variable $unit_id  is existing id in booking unit details table of given booking id 
-                 $data = array();
-                 $data['unit_details_id'] = $unit_id;
-                 $data['closed_date'] = date('Y-m-d H:i:s');
-                 $data['is_broken'] = $broken[$unit_id];
-                 $data['mismatch_pincode'] = $mismatch_pincode;
-                 
+            $booking_state_change = $this->booking_model->get_booking_state_change($booking_id);
+            $old_state = $booking_state_change[count($booking_state_change) - 1]['new_state'];
+            
+            if (!in_array($old_state, array(SF_BOOKING_COMPLETE_STATUS,_247AROUND_COMPLETED))) {
+                // customer paid basic charge is comming in array
+                // Array ( [100] =>  500 , [102] =>  300 )  
+                $customer_basic_charge = $this->input->post('customer_basic_charge');
+                // Additional service charge is comming in array
+                $additional_charge = $this->input->post('additional_charge');
+                // Parts cost is comming in array
+                $parts_cost = $this->input->post('parts_cost');
+                $booking_status = $this->input->post('booking_status');
+                $total_amount_paid = $this->input->post('grand_total_price');
+                $closing_remarks = $this->input->post('closing_remarks');
+                $serial_number = $this->input->post('serial_number');
+                $spare_parts_required = $this->input->post('spare_parts_required');
+                $upcountry_charges = $this->input->post("upcountry_charges");
+                $serial_number_pic = $this->input->post("serial_number_pic");
+                $broken = $this->input->post("appliance_broken");
+                $mismatch_pincode = $this->input->post("mismatch_pincode");
+                $is_update_spare_parts = FALSE;
+                $sp_required_id = json_decode($this->input->post("sp_required_id"), true);
+
+                //$internal_status = "Cancelled";
+                $getremarks = $this->booking_model->getbooking_charges($booking_id);
+                $approval = $this->input->post("approval");
+                $i = 0;
+
+                foreach ($customer_basic_charge as $unit_id => $value) {
+                    // variable $unit_id  is existing id in booking unit details table of given booking id 
+                    $data = array();
+                    $data['unit_details_id'] = $unit_id;
+                    $data['closed_date'] = date('Y-m-d H:i:s');
+                    $data['is_broken'] = $broken[$unit_id];
+                    $data['mismatch_pincode'] = $mismatch_pincode;
+
 //                 if(!empty($approval)){
 //                    $unitWhere = array("engineer_booking_action.booking_id" => $booking_id, "engineer_booking_action.unit_details_id" => $unit_id);
 //                    $en = $this->engineer_model->get_engineer_action_table_list($unitWhere, "engineer_booking_action.*");
@@ -279,104 +284,107 @@ class Service_centers extends CI_Controller {
 //                    //$data['closed_date'] = $en[0]->closed_date;
 //                    
 //                 }
-                 $data['service_charge'] = $value;
-                 $data['additional_service_charge'] = $additional_charge[$unit_id];
-                 $data['parts_cost'] = $parts_cost[$unit_id];
-                 if($booking_status[$unit_id] == _247AROUND_COMPLETED && $spare_parts_required == 1){
-                     if($this->session->userdata('is_engineer_app') == 1){
-                        $unitWhere1 = array("engineer_booking_action.booking_id" => $booking_id, "engineer_booking_action.unit_details_id" => $unit_id);
-                        $this->engineer_model->update_engineer_table(array("current_status" => _247AROUND_COMPLETED, "internal_status" =>_247AROUND_COMPLETED), $unitWhere1);
-                     }
-                     $data['internal_status'] = DEFECTIVE_PARTS_PENDING;
-                     $is_update_spare_parts = TRUE;
-                 } else {
-                     $data['internal_status'] = $booking_status[$unit_id];
-                     if($this->session->userdata('is_engineer_app') == 1){
-                        $unitWhere1 = array("engineer_booking_action.booking_id" => $booking_id, "engineer_booking_action.unit_details_id" => $unit_id);
-                        $this->engineer_model->update_engineer_table(array("current_status" => $booking_status[$unit_id], "internal_status" => $booking_status[$unit_id]), $unitWhere1);
-                     }
-                 }
-                 $data['current_status'] = "InProcess";
-                 $data['booking_id'] =  $booking_id;
-                 $data['amount_paid'] = $total_amount_paid;
-                 $data['update_date'] = date("Y-m-d H:i:s");
-                 if( $i == 0){
-                    $data['upcountry_charges'] = $upcountry_charges;
-                 }
-                 if(isset($serial_number[$unit_id])){
-                    $data['serial_number'] = trim($serial_number[$unit_id]);
-                    $data['serial_number_pic'] = trim($serial_number_pic[$unit_id]);
-                 }
-                 
-                 if (!empty($getremarks[0]['service_center_remarks'])) {
+                    $data['service_charge'] = $value;
+                    $data['additional_service_charge'] = $additional_charge[$unit_id];
+                    $data['parts_cost'] = $parts_cost[$unit_id];
+                    if ($booking_status[$unit_id] == _247AROUND_COMPLETED && $spare_parts_required == 1) {
+                        if ($this->session->userdata('is_engineer_app') == 1) {
+                            $unitWhere1 = array("engineer_booking_action.booking_id" => $booking_id, "engineer_booking_action.unit_details_id" => $unit_id);
+                            $this->engineer_model->update_engineer_table(array("current_status" => _247AROUND_COMPLETED, "internal_status" => _247AROUND_COMPLETED), $unitWhere1);
+                        }
+                        $data['internal_status'] = DEFECTIVE_PARTS_PENDING;
+                        $is_update_spare_parts = TRUE;
+                    } else {
+                        $data['internal_status'] = $booking_status[$unit_id];
+                        if ($this->session->userdata('is_engineer_app') == 1) {
+                            $unitWhere1 = array("engineer_booking_action.booking_id" => $booking_id, "engineer_booking_action.unit_details_id" => $unit_id);
+                            $this->engineer_model->update_engineer_table(array("current_status" => $booking_status[$unit_id], "internal_status" => $booking_status[$unit_id]), $unitWhere1);
+                        }
+                    }
+                    $data['current_status'] = "InProcess";
 
-                    $data['service_center_remarks'] = date("F j") . ":- " . $closing_remarks." ". $getremarks[0]['service_center_remarks'];
+                    $data['booking_id'] = $booking_id;
+                    $data['amount_paid'] = $total_amount_paid;
+                    $data['update_date'] = date("Y-m-d H:i:s");
+                    if ($i == 0) {
+                        $data['upcountry_charges'] = $upcountry_charges;
+                    }
+                    if (isset($serial_number[$unit_id])) {
+                        $data['serial_number'] = trim($serial_number[$unit_id]);
+                        $data['serial_number_pic'] = trim($serial_number_pic[$unit_id]);
+                    }
 
-                 } else {
-                     if(!empty($closing_remarks)){
-                         $data['service_center_remarks'] = date("F j") . ":- " .$closing_remarks;
-                     }
-                 }
-                 $i++;
-                $this->vendor_model->update_service_center_action($booking_id, $data);
-            }
-            //Send Push Notification to clouser group
-            $clouserAccountArray = array();
-            $getClouserAccountHolderID =  $this->reusable_model->get_search_result_data("employee","id",array("groups"=>"closure"),NULL,NULL,NULL,NULL,NULL,array());
-            foreach($getClouserAccountHolderID as $employeeID){
-                $clouserAccountArray['employee'][] = $employeeID['id'];
-            }
-            $textArray['msg']= array($booking_id,$this->session->userdata('service_center_name'));
-            $textArray['title']= array($this->session->userdata('service_center_name'),$booking_id);
-            $this->push_notification_lib->create_and_send_push_notiifcation(CUSTOMER_UPDATE_BOOKING_PUSH_NOTIFICATION_EMPLOYEE_TAG,$clouserAccountArray,$textArray);
-            //End Push Notification
-            //Update Service Center Closed Date in booking Details Table, 
-            //if current date time is before 12PM then take completion date before a day, 
-            //if day is monday and  time is before 12PM then take completion date as saturday
-            //Check if new completion date is equal to or greater then booking_date
-            date_default_timezone_set('Asia/Kolkata');
-            // get booking_date
-            $booking_date = $this->reusable_model->get_search_result_data("booking_details",'STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y") as booking_date',array('booking_id'=>$booking_id),
-                    NULL,NULL,NULL,NULL,NULL,array())[0]['booking_date'];
-            $bookingData['service_center_closed_date'] = date('Y-m-d H:i:s');
-            // If time is before 12 PM then completion date will be yesturday's date
-            if (date('H') < 12) {
-                $bookingData['service_center_closed_date'] =  date('Y-m-d H:i:s',(strtotime ( '-1 day' , strtotime (date('Y-m-d H:i:s')) ) ));
-                $dayofweek = date('w', strtotime(date('Y-m-d H:i:s')));
-                // If day is monday then completion date will be saturday's date
-                if($dayofweek == '1'){
-                  $bookingData['service_center_closed_date'] =  date('Y-m-d H:i:s',(strtotime ( '-2 day' , strtotime (date('Y-m-d H:i:s')) ) ));  
+                    if (!empty($getremarks[0]['service_center_remarks'])) {
+
+                        $data['service_center_remarks'] = date("F j") . ":- " . $closing_remarks . " " . $getremarks[0]['service_center_remarks'];
+                    } else {
+                        if (!empty($closing_remarks)) {
+                            $data['service_center_remarks'] = date("F j") . ":- " . $closing_remarks;
+                        }
+                    }
+                    $i++;
+                    $this->vendor_model->update_service_center_action($booking_id, $data);
                 }
-            }
-            $booking_timeStamp = strtotime($booking_date);
-            $close_timeStamp = strtotime($bookingData['service_center_closed_date']);
-            $datediff = $close_timeStamp - $booking_timeStamp;
-            $booking_date_days = round($datediff / (60 * 60 * 24))-1;
-            if($booking_date_days < 0){
+                //Send Push Notification to clouser group
+                $clouserAccountArray = array();
+                $getClouserAccountHolderID = $this->reusable_model->get_search_result_data("employee", "id", array("groups" => "closure"), NULL, NULL, NULL, NULL, NULL, array());
+                foreach ($getClouserAccountHolderID as $employeeID) {
+                    $clouserAccountArray['employee'][] = $employeeID['id'];
+                }
+                $textArray['msg'] = array($booking_id, $this->session->userdata('service_center_name'));
+                $textArray['title'] = array($this->session->userdata('service_center_name'), $booking_id);
+                $this->push_notification_lib->create_and_send_push_notiifcation(CUSTOMER_UPDATE_BOOKING_PUSH_NOTIFICATION_EMPLOYEE_TAG, $clouserAccountArray, $textArray);
+                //End Push Notification
+                //Update Service Center Closed Date in booking Details Table, 
+                //if current date time is before 12PM then take completion date before a day, 
+                //if day is monday and  time is before 12PM then take completion date as saturday
+                //Check if new completion date is equal to or greater then booking_date
+                date_default_timezone_set('Asia/Kolkata');
+                // get booking_date
+                $booking_date = $this->reusable_model->get_search_result_data("booking_details", 'STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y") as booking_date', array('booking_id' => $booking_id), NULL, NULL, NULL, NULL, NULL, array())[0]['booking_date'];
                 $bookingData['service_center_closed_date'] = date('Y-m-d H:i:s');
-            }
-            $this->reusable_model->update_table("booking_details",$bookingData,array('booking_id'=>$booking_id));
-            //End Update Service Center Closed Date
-            // Insert data into booking state change
-            $this->insert_details_in_state_change($booking_id, 'InProcess_Completed', $closing_remarks,"247Around","Review the Booking");
-            $partner_id = $this->input->post("partner_id");
-            if($is_update_spare_parts){
-                foreach ($sp_required_id as $sp_id) {
-                    
-                    $sp['status'] = DEFECTIVE_PARTS_PENDING;
-                    $this->service_centers_model->update_spare_parts(array('id'=>$sp_id), $sp);
-                } 
-                
-                $this->update_booking_internal_status($booking_id, DEFECTIVE_PARTS_PENDING,  $partner_id);
-                
-                redirect(base_url()."service_center/get_defective_parts_booking");
-                
-            } else {
-                $this->update_booking_internal_status($booking_id, "InProcess_Completed",  $partner_id);
+                // If time is before 12 PM then completion date will be yesturday's date
+                if (date('H') < 12) {
+                    $bookingData['service_center_closed_date'] = date('Y-m-d H:i:s', (strtotime('-1 day', strtotime(date('Y-m-d H:i:s')))));
+                    $dayofweek = date('w', strtotime(date('Y-m-d H:i:s')));
+                    // If day is monday then completion date will be saturday's date
+                    if ($dayofweek == '1') {
+                        $bookingData['service_center_closed_date'] = date('Y-m-d H:i:s', (strtotime('-2 day', strtotime(date('Y-m-d H:i:s')))));
+                    }
+                }
+                $booking_timeStamp = strtotime($booking_date);
+                $close_timeStamp = strtotime($bookingData['service_center_closed_date']);
+                $datediff = $close_timeStamp - $booking_timeStamp;
+                $booking_date_days = round($datediff / (60 * 60 * 24)) - 1;
+                if ($booking_date_days < 0) {
+                    $bookingData['service_center_closed_date'] = date('Y-m-d H:i:s');
+                }
+                $this->reusable_model->update_table("booking_details", $bookingData, array('booking_id' => $booking_id));
+                //End Update Service Center Closed Date
+                // Insert data into booking state change
+                $this->insert_details_in_state_change($booking_id, SF_BOOKING_COMPLETE_STATUS, $closing_remarks, "247Around", "Review the Booking");
+                $partner_id = $this->input->post("partner_id");
+                if ($is_update_spare_parts) {
+                    foreach ($sp_required_id as $sp_id) {
+
+                        $sp['status'] = DEFECTIVE_PARTS_PENDING;
+                        $this->service_centers_model->update_spare_parts(array('id' => $sp_id), $sp);
+                    }
+
+                    $this->update_booking_internal_status($booking_id, DEFECTIVE_PARTS_PENDING, $partner_id);
+
+                    redirect(base_url() . "service_center/get_defective_parts_booking");
+                } else {
+                    $this->update_booking_internal_status($booking_id, "InProcess_Completed", $partner_id);
+                    redirect(base_url() . "service_center/pending_booking");
+                }
+            }else{
+                $this->session->set_userdata('error',"You already marked this booking : $booking_id as completed");
                 redirect(base_url() . "service_center/pending_booking");
-            }  
+            }
         }
     }
+
     /**
      * @desc: Validate Serial Number. If pod is 1 then serial number should not empty
      * @return boolean

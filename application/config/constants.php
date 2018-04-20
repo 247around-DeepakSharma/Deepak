@@ -573,6 +573,7 @@ define('SF_NOT_FOUND_BOOKING_CANCELLED_REASON_TEXT', 'Service Not Available in t
 
 define("_247Around_Rejected_SF_Update", "247Around Rejected SF Update");
 
+define('SF_BOOKING_COMPLETE_STATUS', 'InProcess_Completed');
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
