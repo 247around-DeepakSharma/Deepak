@@ -493,7 +493,12 @@ EOD;
             $partners = $this->partner_model->getpartner_details($select, $where_get_partner, '1');
             if(!empty($partners))
             {
-                $report = $this->partner_model->get_partner_leads_csv_for_summary_email($partners[0]['id']);
+                if($partner_id == JEEVES_ID){
+                    $report = $this->partner_model->get_partner_leads_csv_for_summary_email($partners[0]['id'],1);
+                }
+                else{
+                    $report = $this->partner_model->get_partner_leads_csv_for_summary_email($partners[0]['id']);
+                }
                 $delimiter = ",";
                 $newline = "\r\n";
                 $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
@@ -545,7 +550,12 @@ EOD;
             $partners = $this->partner_model->getpartner_details($select, $where_get_partner, '1');
             foreach ($partners as $key => $p)
             {
-                $report = $this->partner_model->get_partner_leads_csv_for_summary_email($p['id']);
+                if($p['id'] == JEEVES_ID){
+                    $report = $this->partner_model->get_partner_leads_csv_for_summary_email($p['id'],1);
+                }
+                else{
+                    $report = $this->partner_model->get_partner_leads_csv_for_summary_email($p['id']);
+                }
                 $delimiter = ",";
                 $newline = "\r\n";
                 $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
@@ -1548,15 +1558,24 @@ EOD;
         $emailBasicDataArray['from'] = NOREPLY_EMAIL_ID;
         $emailBasicDataArray['fromName'] = "247around Team";
         //$emailTemplateDataArray['templateId'] = PARTNER_SUMMARY_EMAIL_TEMPLATE;
-        $emailTemplateDataArray['dynamicParams'] = $this->partner_model->get_partner_summary_params($partner_data['id']);
+        if($partner_data['id'] == JEEVES_ID){
+            $emailTemplateDataArray['dynamicParams'] = $this->partner_model->get_partner_report_overview_in_percentage_format($partner_data['id']);
+        }
+        else{
+            $emailTemplateDataArray['dynamicParams'] = $this->partner_model->get_partner_summary_params($partner_data['id']);
+        }
         if(!empty($emailTemplateDataArray['dynamicParams'])){
             $emailAttachmentDataArray['type'] = "csv";
             $emailAttachmentDataArray['fileName'] = "247around-Services-Consolidated-Data - " . date('d-M-Y');
             $emailAttachmentDataArray['filePath'] = $csv_file;
+            if($partner_data['id'] == JEEVES_ID){
+               $email_body = $this->load->view('employee/partner_report', array("dynamicParams"=>$emailTemplateDataArray['dynamicParams']),true);
+            }
+            else{
+                $email_body = $this->load->view('employee/partner_summary_email_template',$emailTemplateDataArray,true);
+            }
             
-            $email_body = $this->load->view('employee/partner_summary_email_template',$emailTemplateDataArray,true);
-            
-            $send_email = $this->notify->sendEmail($emailBasicDataArray['from'], $emailBasicDataArray['to'], $emailBasicDataArray['cc'], "", $subject, $email_body, $csv_file);
+            $send_email = $this->notify->sendEmail($emailBasicDataArray['from'], $emailBasicDataArray['to'], $emailBasicDataArray['cc'], "", $subject, $email_body, $csv_file,"summary_report");
             //$emailStatus = $this->send_grid_api->send_email_using_send_grid_templates($emailBasicDataArray, $emailTemplateDataArray, $emailAttachmentDataArray);
             if ($send_email) {
                 log_message('info', __METHOD__ . ": Mail sent successfully for Partner: " . $partner_data['public_name']);

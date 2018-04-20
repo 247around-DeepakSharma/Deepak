@@ -359,7 +359,7 @@ class ApiDataRequest extends CI_Controller {
     function customer_invoice_table_view($invoice, $no){
         $row = array();
         $row[] = $no;
-        $row[] = "<a target='_blank' href='".S3_WEBSITE_URL."invoice-excel/".
+        $row[] = "<a target='_blank' href='".S3_WEBSITE_URL."invoices-excel/".
                 $invoice->main_invoice_file."'>$invoice->invoice_id</a>";
         if($this->session->userdata('service_center_id')){
             

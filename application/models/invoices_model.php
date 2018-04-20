@@ -330,10 +330,8 @@ class invoices_model extends CI_Model {
                 . "  booking_details.booking_primary_contact_no,  "
                 . " `services`.services, users.name,order_id, "
                 . " partner_net_payable, round((partner_net_payable * ".DEFAULT_TAX_RATE .")/100,2) as gst_amount, 
-              (case when( product_or_services ='Service' AND (partner_serial_number != '' AND partner_serial_number IS NOT NULL) )
-              THEN partner_serial_number 
-              when(product_or_services ='Service'  ) 
-              THEN (serial_number) ELSE '' END ) AS serial_number
+              
+                    CASE WHEN(serial_number IS NULL OR serial_number = '') THEN '' ELSE (CONCAT('''', serial_number))  END AS serial_number
 
               From booking_details, booking_unit_details, services, partners, users
                   WHERE `booking_details`.booking_id = `booking_unit_details`.booking_id 
@@ -686,10 +684,13 @@ class invoices_model extends CI_Model {
                     $meta['total_taxable_value'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * 0.18)));
                     $result[$key]['toal_amount'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * 0.18)));
                     
+                    
                 } else if((empty($is_customer)) && empty($result[0]['gst_number'])){
                    
                     $meta['total_taxable_value'] = sprintf("%1\$.2f",($value['taxable_value']));
                     $result[$key]['toal_amount'] = sprintf("%1\$.2f",($value['taxable_value']));
+                    $result[$key]['igst_rate'] =  $result[$key]['cgst_rate'] =  $result[$key]['sgst_rate'] = 0;
+                    $result[$key]['cgst_tax_amount'] =   $result[$key]['sgst_tax_amount'] = $result[$key]['igst_tax_amount'] = 0;
                     
                 }else if($c_s_gst){
 
@@ -734,6 +735,9 @@ class invoices_model extends CI_Model {
             $meta['igst_total_tax_amount'] = round( $meta['igst_total_tax_amount'], 0);
             $meta['cgst_total_tax_amount'] = round( $meta['cgst_total_tax_amount'], 0);
             $meta['sgst_total_tax_amount'] = round( $meta['sgst_total_tax_amount'], 0);
+            if($result[0]['gst_number'] == 1){
+                $result[0]['gst_number'] = "";
+            }
             $meta['gst_number'] = $result[0]['gst_number'];
             $meta['reverse_charge_type'] = "N";
             $meta['reverse_charge'] = '';
