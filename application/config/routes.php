@@ -118,6 +118,7 @@ $route['partner/process_escalation/(:any)'] = 'employee/partner/process_escalati
 $route['partner/update_booking/(:any)'] = 'employee/partner/get_editbooking_form/$1';
 $route['partner/process_update_booking/(:any)'] = 'employee/partner/process_editbooking/$1';
 $route['partner/get_spare_parts_booking'] = 'employee/partner/get_spare_parts_booking';
+$route['partner/report'] = 'employee/partner/partner_report';
 $route['partner/get_spare_parts_booking/(:any)'] = 'employee/partner/get_spare_parts_booking/$1';
 $route['partner/process_update_spare_parts/(:any)'] = 'employee/partner/process_update_spare_parts/$1';
 $route['partner/update_spare_parts_form/(:any)'] = 'employee/partner/update_spare_parts_form/$1';
