@@ -2317,14 +2317,6 @@ class Partner extends CI_Controller {
        }
     }
     
-    function download_price_sheet(){
-        $partnerID = $this->session->userdata('partner_id');
-        $where['partner_id'] = $partnerID;
-        $priceArray = $this->service_centre_charges_model->get_partner_price_data($where);
-        $config = array('template' => "Price_Sheet.xlsx", 'templateDir' => __DIR__ . "/excel-templates/");
-        $this->miscelleneous->downloadExcel($priceArray,$config);
-    }
-    
     
     
 //    function test() {
