@@ -84,7 +84,7 @@
                                 <?php echo $row['upcountry_distance'] . " KM"; ?>
                             </td>
                             <td>
-                                <?php echo $row['upcountry_distance'] * $row['partner_upcountry_rate']; ?>
+                                <?php echo round($row['upcountry_distance'] * $row['partner_upcountry_rate'], 2); ?>
                             </td>
                             <td>
                                 <a href="<?php echo base_url() ?>partner/upcountry_charges_approval/<?php echo $row['booking_id'] ?>/1" class="btn btn-md btn-success">Approve</a>
