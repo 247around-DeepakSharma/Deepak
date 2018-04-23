@@ -1305,12 +1305,21 @@ class Partner extends CI_Controller {
             if ($escalation_id) {
                 log_message('info', __FUNCTION__ . " Escalation Inserted ");
                 $this->booking_model->increase_escalation_reschedule($booking_id, "count_escalation");
+                
+                //get account manager details
+                $am_email = "";
+                $accountManagerData = $this->miscelleneous->get_am_data($this->session->userdata('partner_id'));
+
+                if (!empty($accountManagerData)) {
+                    $am_email = $accountManagerData[0]['official_email'];
+                }
+                
                 $bcc = "";
                 $attachment = "";
                 $partner_details = $this->dealer_model->entity_login(array('agent_id' => $this->session->userdata('agent_id')))[0];
                 $rm_mail = $this->vendor_model->get_rm_sf_relation_by_sf_id($bookinghistory[0]['assigned_vendor_id'])[0]['official_email'];
                 $partner_mail_to = $partner_details['email'];
-                $partner_mail_cc = NITS_ANUJ_EMAIL_ID . ",escalations@247around.com ," . $rm_mail;
+                $partner_mail_cc = NITS_ANUJ_EMAIL_ID . ",escalations@247around.com ," . $rm_mail.",".$am_email;
                 $partner_subject = "Booking " . $booking_id . " Escalated ";
                 $partner_message = "<p>This booking is ESCALATED to 247around, we will look into this very soon.</p><br><b>Booking ID : </b>" . $booking_id . " Escalated <br><br><strong>Remarks : </strong>" . $remarks;
                 $this->notify->sendEmail(NOREPLY_EMAIL_ID, $partner_mail_to, $partner_mail_cc, $bcc, $partner_subject, $partner_message, $attachment,BOOKING_ESCALATION);
@@ -3284,9 +3293,19 @@ class Partner extends CI_Controller {
     function download_sf_list_excel() {
 
         $where = array('active' => '1', 'on_off' => '1');
-        $select = "district,state,pincode,appliances,non_working_days";
+        $select = "id,district,state,pincode,appliances,non_working_days";
         $vendor = $this->vendor_model->getVendorDetails($select, $where, 'state');
-
+        foreach ($vendor as $key => $value){
+            $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($value['id']);
+            if(!empty($rm_details)){
+                $vendor[$key]['rm_email'] = $rm_details[0]['official_email'];
+                $vendor[$key]['rm_phone'] = $rm_details[0]['phone'];
+            } else {
+                $vendor[$key]['rm_email'] = "";
+                $vendor[$key]['rm_phone'] = "";
+            }
+        }
+        
         $template = 'Consolidated_SF_List_Template.xlsx';
         //set absolute path to directory with template files
         $templateDir = __DIR__ . "/../excel-templates/";
