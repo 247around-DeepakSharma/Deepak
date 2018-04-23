@@ -417,11 +417,11 @@ class Paytm_gateway extends CI_Controller {
             "partner_vendor" => "partner",
             "partner_vendor_id" => $partner_id,
             "credit_debit" => "Credit",
-            "bankname" => $param_list['BANKNAME'],
+            "bankname" => isset($param_list['BANKNAME'])?$param_list['BANKNAME']:NULL,
             "transaction_date" => date('Y-m-d'),
             "tds_amount" => 0,
             "amount" => $param_list['TXNAMOUNT'],
-            "transaction_mode" => $param_list['PAYMENTMODE'],
+            "transaction_mode" => isset($param_list['PAYMENTMODE'])?$param_list['PAYMENTMODE']:NULL,
             "description" => isset($param_list['ORDER_DETAILS'])?$param_list['ORDER_DETAILS']:'',
             'tdate' =>  isset($param_list['TXNDATE'])?$param_list['TXNDATE']:date('Y-m-d'),
         );
