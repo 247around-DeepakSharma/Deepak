@@ -3293,9 +3293,19 @@ class Partner extends CI_Controller {
     function download_sf_list_excel() {
 
         $where = array('active' => '1', 'on_off' => '1');
-        $select = "district,state,pincode,appliances,non_working_days";
+        $select = "id,district,state,pincode,appliances,non_working_days";
         $vendor = $this->vendor_model->getVendorDetails($select, $where, 'state');
-
+        foreach ($vendor as $key => $value){
+            $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($value['id']);
+            if(!empty($rm_details)){
+                $vendor[$key]['rm_email'] = $rm_details[0]['official_email'];
+                $vendor[$key]['rm_phone'] = $rm_details[0]['phone'];
+            } else {
+                $vendor[$key]['rm_email'] = "";
+                $vendor[$key]['rm_phone'] = "";
+            }
+        }
+        
         $template = 'Consolidated_SF_List_Template.xlsx';
         //set absolute path to directory with template files
         $templateDir = __DIR__ . "/../excel-templates/";
