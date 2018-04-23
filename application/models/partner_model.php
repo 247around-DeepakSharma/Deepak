@@ -1284,7 +1284,7 @@ function get_data_for_partner_callback($booking_id) {
      * @param String $partner_id
      * @return Array
      */
-    function get_partner_details_with_soucre_code($active,$partnerType,$ac,$partner_id=""){
+    function get_partner_details_with_soucre_code($active,$partnerType,$ac,$partner_not_like=NULL,$partner_id=""){
         $where = array();
         $this->db->select('partners.*,bookings_sources.code,bookings_sources.partner_type');
         if ($partner_id != "") {
@@ -1300,6 +1300,9 @@ function get_data_for_partner_callback($booking_id) {
              if($ac != 'All'){
                  $where['partners.account_manager_id']  = $ac;
              }
+        }
+        if($partner_not_like){
+               $where['bookings_sources.partner_type != "'.$partner_not_like.'"']  = NULL;
         }
         $this->db->join('bookings_sources','partners.id=bookings_sources.partner_id');
         $this->db->where($where);     
