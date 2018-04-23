@@ -717,6 +717,7 @@ class Partner extends CI_Controller {
      * @return : array(of details) to view
      */
     function viewpartner($partner_id = "") {
+        $partner_not_like ='';
         $service_brands = array();
         $active = 1;
         $partnerType= 'All';
@@ -726,13 +727,16 @@ class Partner extends CI_Controller {
            $partnerType = $this->input->post('partnerType');
            $ac = $this->input->post('accountManager');
         }
-        $query = $this->partner_model->get_partner_details_with_soucre_code($active,$partnerType,$ac,$partner_id);
+        if($partnerType == 'All'){
+            $partner_not_like ="INTERNAL";
+        }
+        $query = $this->partner_model->get_partner_details_with_soucre_code($active,$partnerType,$ac,$partner_not_like,$partner_id);
         foreach ($query as $key => $value) {
             //Getting Appliances and Brands details for partner
             $service_brands[] = $this->partner_model->get_service_brands_for_partner($value['id']);
         }
         $pushNotification = $this->push_notification_model->get_push_notification_subscribers_by_entity(_247AROUND_PARTNER_STRING);
-        $accountManagerArray = $this->reusable_model->get_search_result_data("employee","id,employee_id",array('active'=>1),NULL,NULL,array('employee_id'=>"DESC"),NULL,NULL,array());
+        $accountManagerArray = $this->reusable_model->get_search_result_data("employee","id,employee_id,full_name",array('active'=>1),NULL,NULL,array('employee_id'=>"DESC"),NULL,NULL,array());
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/viewpartner', array('query' => $query, 'service_brands' => $service_brands,'push_notification' => $pushNotification,'active'=>$active,'partnerType'=>$partnerType,
             'accountManagerArray'=>$accountManagerArray,'ac'=>$ac));
@@ -4069,7 +4073,7 @@ class Partner extends CI_Controller {
             $this->asynchronous_lib->do_background_process($sendUrl, $data);
         }
         else{
-            echo $msg = "Your Session is logout Please Login, and Try Again";
+            echo $msg = "Please Login, and Try Again";
         }
     }
      function download_partner_pending_bookings($partnerID){ 

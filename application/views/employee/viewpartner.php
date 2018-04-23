@@ -26,7 +26,7 @@
       <div>
        
         <h1>Partners</h1>
-        <form class="form-inline" action="<?php echo base_url();?>employee/partner/viewpartner" method="post">
+        <form class="form-inline pull-left" action="<?php echo base_url();?>employee/partner/viewpartner" method="post">
 <div class="form-group">
     <label for="Service Code">Active/Disabled</label>
   <select class="form-control" id="partner_type" name="active">
@@ -57,7 +57,7 @@
       <?php
       foreach($accountManagerArray as $accountManager){
           ?>
-      <option value='<?php echo $accountManager['id'] ?>' <?php if($ac == $accountManager['id']){echo "selected";} ?>><?php echo $accountManager['employee_id'] ?></option>
+      <option value='<?php echo $accountManager['id'] ?>' <?php if($ac == $accountManager['id']){echo "selected";} ?>><?php echo $accountManager['full_name'] ?></option>
       <?php
       }
       ?>
@@ -69,7 +69,13 @@
 <div class="form-group">
     <input type="submit" value="Apply Filter" class="btn btn-sm btn-success"> 
     </div>
+            
         </form>
+                <div class="pull-right" style="margin:0px 30px 20px 0px;">
+            <a href="<?php echo base_url();?>employee/partner/get_add_partner_form"><input class="btn btn-sm btn-primary" type="Button" value="Add Partner"></a>
+            <a href="<?php echo base_url();?>employee/partner/download_partner_summary_details" class="btn btn-sm btn-success">Download Partner List</a>
+<!--            <a href="<?php echo base_url();?>employee/partner/upload_partner_brand_logo"><input class="btn btn-primary" type="Button" value="Upload Partner Brand Logo" style="margin-left:10px;"></a>-->
+        </div>
         <?php
             if ($this->session->userdata('success')) {
                 echo '<div class="alert alert-success alert-dismissible" role="alert">
@@ -89,11 +95,6 @@
             }
         ?>
         <?php if($this->session->userdata('user_group') != 'closure'){?>
-        <div class="pull-right" style="margin:0px 30px 20px 0px;">
-            <a href="<?php echo base_url();?>employee/partner/get_add_partner_form"><input class="btn btn-sm btn-primary" type="Button" value="Add Partner"></a>
-            <a href="<?php echo base_url();?>employee/partner/download_partner_summary_details" class="btn btn-sm btn-success">Download Partner List</a>
-<!--            <a href="<?php echo base_url();?>employee/partner/upload_partner_brand_logo"><input class="btn btn-primary" type="Button" value="Upload Partner Brand Logo" style="margin-left:10px;"></a>-->
-        </div>
         <?php }?>
         
         <table class="table table-striped table-bordered">
