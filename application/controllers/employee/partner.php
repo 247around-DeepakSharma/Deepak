@@ -4085,4 +4085,23 @@ class Partner extends CI_Controller {
             echo $msg = "Please Login, and Try Again";
         }
     }
+     function download_partner_pending_bookings($partnerID){ 
+        ob_start();
+        $report = $this->partner_model->get_partners_pending_bookings($partnerID,0,1);
+        $newCSVFileName = "Pending_booking_" . date('j-M-Y-H-i-s') . ".csv";
+        $csv = TMP_FOLDER . $newCSVFileName;
+        $delimiter = ",";
+        $newline = "\r\n";
+        $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
+        write_file($csv, $new_report);
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename="' . basename($csv) . '"');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($csv));
+        readfile($csv);
+        exec("rm -rf " . escapeshellarg($csv));
+    }
 }
