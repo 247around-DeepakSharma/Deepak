@@ -25,47 +25,53 @@
                             <div class="row tile_count">
                                 <div class="col-md-3 col-sm-6 col-xs-6">
                                     <span class="count_top">Account Balance</span>
-                                    <div class="count" id="acnt_bal"></div>
+                                    <div class="count" id="acnt_bal"><i class="fa fa-spinner fa-spin"></i></div>
                                 </div>
                                 <div class="col-md-3 col-sm-6 col-xs-6">
                                     <span class="count_top">Valid till</span>
-                                    <div class="count" id="aggrement_end_date"></div>
+                                    <div class="count" id="aggrement_end_date"><i class="fa fa-spinner fa-spin"></i></div>
                                 </div>
                             </div>
                             <p>Once your amount is below 0, you are not able to insert new booking</p>
                         </div>
                         <hr>
-                        <form method="post" action="<?php echo base_url();?>payment/checkout_processing" onsubmit="return confirm('Do you really want to make a payment?');">
+                        <form method="post" action="<?php echo base_url();?>payment/checkout_processing" id="payment_form">
                             
                             <h2>Select Amount To make a payment</h2>
                             
                             <div class="amount_details">
                                 <div class ="col-md-4 col-sm-6 col-xs-12">
                                     <div class="radio">
-                                        <label><input type="radio" name="amount" value="2500" required="" checked=""><i class="fa fa-inr"></i> 2500</label>
+                                        <label><input type="radio" class="initial_amount" name="amount" value="2500" required="" checked=""><i class="fa fa-inr"></i> 2500</label>
                                     </div>
                                     <div class="radio">
-                                        <label><input type="radio" name="amount" value="5000" required=""><i class="fa fa-inr"></i> 5000</label>
+                                        <label><input type="radio" class="initial_amount" name="amount" value="5000" required=""><i class="fa fa-inr"></i> 5000</label>
                                     </div>
                                     <div class="radio disabled">
-                                        <label><input type="radio" name="amount" value="10000" required=""><i class="fa fa-inr"></i> 10000</label>
+                                        <label><input type="radio" class="initial_amount" name="amount" value="10000" required=""><i class="fa fa-inr"></i> 10000</label>
                                     </div>
                                     <div class="radio">
-                                        <label><input type="radio" name="amount" value="15000" required=""><i class="fa fa-inr"></i> 15000</label>
+                                        <label><input type="radio" class="initial_amount" name="amount" value="15000" required=""><i class="fa fa-inr"></i> 15000</label>
+                                    </div>
+                                    <div class="radio">
+                                        <label><input type="radio" id="other_amount" value="other" name="amount" required="">Other</label>
+                                    </div>
+                                    <div class="form-group" style="display:none;" id="other_amount_div">
+                                        <input type="number" min="2500" id="other_amount_value">
                                     </div>
                                 </div>
                                 <div class ="col-md-4 col-sm-6 col-xs-12">
                                     <div class="radio">
-                                        <label><input type="radio" name="amount" value="20000" required=""><i class="fa fa-inr"></i> 20000</label>
+                                        <label><input type="radio" class="initial_amount" name="amount" value="20000" required=""><i class="fa fa-inr"></i> 20000</label>
                                     </div>
                                     <div class="radio disabled">
-                                        <label><input type="radio" name="amount" value="25000" required=""><i class="fa fa-inr"></i> 25000</label>
+                                        <label><input type="radio" class="initial_amount" name="amount" value="25000" required=""><i class="fa fa-inr"></i> 25000</label>
                                     </div>
                                     <div class="radio">
-                                        <label><input type="radio" name="amount" value="30000" required=""><i class="fa fa-inr"></i> 30000</label>
+                                        <label><input type="radio" class="initial_amount" name="amount" value="30000" required=""><i class="fa fa-inr"></i> 30000</label>
                                     </div>
                                     <div class="radio disabled">
-                                        <label><input type="radio" name="amount" value="50000" required=""><i class="fa fa-inr"></i> 50000</label>
+                                        <label><input type="radio" class="initial_amount" name="amount" value="50000" required=""><i class="fa fa-inr"></i> 50000</label>
                                     </div>
                                 </div>
                             </div>
@@ -132,24 +138,33 @@
 <script>
     
     $(document).ready(function () {
+        get_partner_amount_details();
         //Disable full page
         $("body").on("contextmenu",function(e){
             return false;
         });
+
+        
     });
     
     
     var is_c_s_gst;
-    $(document).ready(function(){
-        get_partner_amount_details();
-    });
+    
     $('input[name=amount]').change(function () {  
         get_final_amount();
     });
     
-    $('input[name=tds_rate]').change(function(){
-        get_final_amount();
+    $('#other_amount').click(function () {
+            $('#other_amount_div').show();
     });
+    
+    $('.initial_amount').click(function () {
+        $('#other_amount_div').hide();
+    });
+    
+//    $('input[name=tds_rate]').change(function(){
+//        get_final_amount();
+//    });
     
     function get_partner_amount_details(){
         $.ajax({
@@ -180,7 +195,7 @@
     function get_final_amount(){
         var final_amount;
         var amount = parseInt($('input[name=amount]').filter(':checked').val());
-        //var is_tds_check = parseInt($('input[name=tds_rate]').filter(':checked').val());
+        
         var is_tds_check = false;
         if(is_tds_check){
             var tds_per = parseInt($('#tds_per').html());
@@ -204,8 +219,31 @@
         }
         
         var final_amount = parseInt(final_amount)+parseInt(gst);
-        
+
         $('#final_amount').html(final_amount);
         $('#txn_amount').val(final_amount);
     }
+    
+    $("#other_amount_value").blur(function(){
+        var other_amount_value = $('#other_amount_value').val();
+        parseInt($('input[name=amount]').filter(':checked').val(other_amount_value));
+        get_final_amount();
+    });
+    
+    $("#payment_form").submit(function(e){
+        var amount = $('input[name=amount]').filter(':checked').val();
+        
+        if(amount >= 2500){
+            if (confirm("Are you sure to continue?")) {
+                return true;
+            } else {
+                return false;
+            }
+        }else{
+            alert("Please Enter Amount To Continue...");
+        }
+        
+        return false;
+    });
+    
 </script>
