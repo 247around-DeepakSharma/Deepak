@@ -1178,7 +1178,8 @@ class Miscelleneous {
             $data['source'] = $get_partner_source[0]['code'];
         }
 
-        $blocked_brand = $this->My_CI->partner_model->get_partner_blocklist_brand(array("partner_id" => $data['partner_id'], "brand" => $brand), "*");
+        $blocked_brand = $this->My_CI->partner_model->get_partner_blocklist_brand(array("partner_id" => $data['partner_id'], "brand" => $brand, 
+            "service_id" => $service_id), "*");
 
         if(!empty($blocked_brand)){
            $data['partner_id'] = _247AROUND;
