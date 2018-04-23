@@ -343,13 +343,19 @@ function get_data_for_partner_callback($booking_id) {
     }
     
     //Return all leads shared by Partner in the last 30 days in CSV
-    function get_partner_leads_csv_for_summary_email($partner_id,$percentageLogic=0){
+    function get_partner_leads_csv_for_summary_email($partner_id,$percentageLogic,$whereConditions=NULL){
+        if(!$whereConditions){
+            $where = "((booking_details.create_date > (CURDATE() - INTERVAL 1 MONTH)) OR (booking_details.current_status NOT IN ('Cancelled','Completed')))";
+        }
+        else{
+            $where = $whereConditions;
+        }
         $dependency = "";
         $closeDateSubQuery = "booking_details.closed_date AS 'Completion Date'";
-        $tatSubQuery  = '(CASE WHEN DATEDIFF(date(booking_details.closed_date),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) < 0 THEN 0 ELSE'
-                . ' DATEDIFF(date(booking_details.closed_date),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) END) as TAT';
-        $agingSubQuery = 'DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) as Aging';
-        if ($percentageLogic){
+        $tatSubQuery  = '(CASE WHEN current_status  = "Completed" THEN (CASE WHEN DATEDIFF(date(booking_details.closed_date),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) < 0 THEN 0 ELSE'
+                . ' DATEDIFF(date(booking_details.closed_date),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) END) ELSE "" END) as TAT';
+        $agingSubQuery = '(CASE WHEN current_status  IN ("Pending","Resheduled") THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) ELSE "" END) as Aging';
+        if ($percentageLogic == 1){
             $dependency = ', IF(dependency_on =1, "'.DEPENDENCY_ON_AROUND.'", "'.DEPENDENCY_ON_CUSTOMER.'") as Dependency ';
             $tatSubQuery  = '(CASE WHEN DATEDIFF(date(booking_details.service_center_closed_date),date(booking_details.create_date)) < 0 THEN 0 ELSE'
                     . '  DATEDIFF(date(booking_details.service_center_closed_date),date(booking_details.create_date)) END ) as TAT';
@@ -391,7 +397,7 @@ function get_data_for_partner_callback($booking_id) {
             AND booking_details.user_id = users.user_id
             AND product_or_services != 'Product'
             AND booking_details.partner_id = $partner_id
-            AND ((booking_details.create_date > (CURDATE() - INTERVAL 1 MONTH)) OR (booking_details.current_status NOT IN ('Cancelled','Completed')))");
+            AND $where");
     } 
     
     //Return all leads shared by Partner in the last 30 days
@@ -1278,7 +1284,7 @@ function get_data_for_partner_callback($booking_id) {
      * @param String $partner_id
      * @return Array
      */
-    function get_partner_details_with_soucre_code($active,$partnerType,$ac,$partner_id=""){
+    function get_partner_details_with_soucre_code($active,$partnerType,$ac,$partner_not_like=NULL,$partner_id=""){
         $where = array();
         $this->db->select('partners.*,bookings_sources.code,bookings_sources.partner_type');
         if ($partner_id != "") {
@@ -1294,6 +1300,9 @@ function get_data_for_partner_callback($booking_id) {
              if($ac != 'All'){
                  $where['partners.account_manager_id']  = $ac;
              }
+        }
+        if($partner_not_like){
+               $where['bookings_sources.partner_type != "'.$partner_not_like.'"']  = NULL;
         }
         $this->db->join('bookings_sources','partners.id=bookings_sources.partner_id');
         $this->db->where($where);     

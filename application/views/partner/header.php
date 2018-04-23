@@ -281,7 +281,8 @@
                                 <li>
                                     <a data-toggle="tooltip" data-placement="right" title="" data-original-title="Download"><i class="fa fa-download"></i><span class="side_menu_list_title">Download</span><span class="fa fa-chevron-down"></span></a>
                                     <ul class="nav child_menu">
-                                        <li><a href="<?php echo base_url(); ?>partner/download_partner_summary/<?php echo $this->session->userdata('partner_id'); ?>">Summary Report</a></li>
+<!--                                 <li><a href="<?php echo base_url(); ?>partner/download_partner_summary/<?php echo $this->session->userdata('partner_id'); ?>">Summary Report</a></li>-->
+                                        <li><a href="<?php echo base_url(); ?>partner/report">Report</a></li>
                                         <li><a href="<?php echo base_url(); ?>partner/serviceability_list">Serviceability List</a></li>
                                         <li><a href="<?php echo base_url(); ?>partner/download_sf_list_excel">Service Center List</a></li>
                                     </ul>

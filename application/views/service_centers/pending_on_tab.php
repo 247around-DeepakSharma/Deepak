@@ -10,6 +10,7 @@
                                 <thead >
                                     <tr>
                                         <th class="text-center" >No</th>
+                                        <th class="text-center" data-orderable="false">Brands</th>
                                         <th class="text-center" data-orderable="false">Booking Id</th>
                                         <th class="text-center" data-orderable="false">User/Phone</th>
                                         <th class="text-center" style="min-width:85px;" data-orderable="false">Address</th>
@@ -19,7 +20,6 @@
                                         <th class="text-center" data-orderable="false">Call Center Remarks</th>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <th class="text-center" data-orderable="false">Service Center Earning</th>
-                                        <th class="text-center" data-orderable="false">Brands</th>
                                         <!--                                            <th class="text-center">Engineer</th>
                                             <th class="text-center">Re-Assign</th>-->
                                         <?php } ?> 
@@ -46,6 +46,8 @@
                                             <?php echo $sn_no; if($row->is_upcountry == 1) { ?>
                                             <i data-popover="true" data-html=true data-content="Click on it to display upcountry details" onclick="open_upcountry_model('<?php echo $row->booking_id; ?>', '<?php echo $row->upcountry_paid_by_customer;?>')" style='color: red;font-size: 28px; cursor: pointer' class="fa fa-road" aria-hidden="true"></i><?php } ?>
                                         </td>
+                                        
+                                        <td style="vertical-align: middle;"> <?=  "<b>".strtoupper($row->appliance_brand)."</b>"; ?></td>
                                         <td style="vertical-align: middle;">
                                             <a  target="_blank" 
                                                 <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  style="pointer-events:none" <?php } } ?> 
@@ -91,7 +93,6 @@
                                             <div class="countdown blink" data-popover="true" style="white-space:nowrap;color:#F26722; font-size:13px; overflow:hidden;text-overflow:ellipsis;white-space: initial;" data-html=true data-content="Time Left To Update Booking & Get Incentive" ></div>
                                             <?php } ?>
                                         </td>
-                                        <td style="vertical-align: middle;"> <?= $row->appliance_brand; ?></td>
                                         <!--                                            <td>
                                             <div  id= "<?php //echo 'assign_engineer_div' . $sn_no; ?>" class="form-group " <?php //if (!is_null($row->assigned_engineer_id)) { ?> style="display: none;" <?php //} ?>>
                                                 <select name="engineer[<?php //echo $row->booking_id; ?>]" id="<?php// echo "engineer" . $sn_no ?>" class="form-control engineers_id" <?php // if (!is_null($row->assigned_engineer_id)) { ?> disabled <?php //} ?> style="width:100px;">
