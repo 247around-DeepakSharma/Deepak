@@ -603,16 +603,16 @@
         flag = 1;
         return false;
     }
-    var customer_paid_through_paytm = Number($("#customer_paid_through_paytm").val());
-        if(customer_paid_through_paytm > 0){
-        var grand_total_price = $("#grand_total_price").val();
-            
-       if(grand_total_price < customer_paid_through_paytm){
-            alert("Please fill correct amount collected from customer");
-            flag = 1;
-            return false;
-        }
-    }
+//    var customer_paid_through_paytm = Number($("#customer_paid_through_paytm").val());
+//        if(customer_paid_through_paytm > 0){
+//        var grand_total_price = $("#grand_total_price").val();
+//            
+//       if(grand_total_price < customer_paid_through_paytm){
+//            alert("Please fill correct amount collected from customer");
+//            flag = 1;
+//            return false;
+//        }
+//    }
     if (flag === 0) {
         return true;
 
