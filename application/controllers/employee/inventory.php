@@ -1085,7 +1085,7 @@ class Inventory extends CI_Controller {
      */
     function update_action_on_spare_parts($id, $booking_id, $requestType){
         log_message('info', __FUNCTION__. "Entering... id ". $id." Booking ID ". $booking_id);
-        if(!$this->session->userdata('partner_id')){
+        if(!($this->session->userdata('partner_id') || $this->session->userdata('service_center_id'))){
             $this->checkUserSession();
         } 
          
@@ -1203,17 +1203,25 @@ class Inventory extends CI_Controller {
             if($flag){
                 $this->service_centers_model->update_spare_parts($where, $data);
             }
+            
             if($this->session->userdata('employee_id')){
                 $agent_id = $this->session->userdata('id');
                 $agent_name = $this->session->userdata('employee_id');
-                $partner_id = _247AROUND;
-            } else {
+                $entity_id = _247AROUND;
+            }else if($this->session->userdata('partner_id')) {
                 $agent_id = $this->session->userdata('agent_id');
                 $agent_name = $this->session->userdata('partner_name');
-                $partner_id = $this->session->userdata('partner_id');
+                $entity_id = $this->session->userdata('partner_id');
+            }else if($this->session->userdata('service_center_id')){
+                    $agent_id = $this->session->userdata('service_center_agent_id');
+                    $agent_name = $this->session->userdata('service_center_name');
+                    $entity_id = $this->session->userdata('service_center_id');
+            
             }
+            
+            $partner_id = $this->input->post('partner_id');
             $this->notify->insert_state_change($booking_id, $new_state,$old_state, $remarks, 
-                      $agent_id, $agent_name, ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE, $partner_id);
+                      $agent_id, $agent_name, ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE, $entity_id);
             
             $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $b['internal_status'], $partner_id, $booking_id);
             if (!empty($partner_status)) {
@@ -1753,7 +1761,7 @@ class Inventory extends CI_Controller {
 	}
         $where = "";
         if(!empty($entity_id) && !empty($entity_type)){
-            $where .= " where i.receiver_entity_id = $entity_id AND i.receiver_entity_type = '".$entity_type."'";
+            $where .= " where (i.receiver_entity_id = $entity_id AND i.receiver_entity_type = '".$entity_type."' OR i.sender_entity_id = $entity_id AND i.sender_entity_type = '".$entity_type."')";
         }
         
         if(!empty($inventory_id)){
@@ -2071,7 +2079,7 @@ class Inventory extends CI_Controller {
         $row[] = $stock_list->description;
         $row[] = $stock_list->size;
         $row[] = $stock_list->price;
-        $row[] = $stock_list->description;
+        $row[] = $stock_list->type;
         $row[] = $stock_list->entity_type;
         $row[] = $agent_name;
         $row[] = "<a href='javascript:void(0)' class ='btn btn-primary' id='edit_master_details' data-id='$json_data'>Edit</a>";
@@ -2109,7 +2117,7 @@ class Inventory extends CI_Controller {
                 $data['service_id'] = $service_id;
             }
 
-            switch ($submit_type) {
+            switch (strtolower($submit_type)) {
                 case 'add':
                     $data['create_date'] = date('Y-m-d H:i:s');
                     $response = $this->add_inventoy_master_list_data($data);
@@ -2211,6 +2219,195 @@ class Inventory extends CI_Controller {
         array_multisort(array_column($sf_list,'brackets_exhausted_days'), SORT_ASC, $sf_list);
         
         echo json_encode($sf_list);
+    }
+    
+    /** @desc: This function is used to upload the partner appliance model file. By using this function 
+     *          we can map models to their corresponding appliance in partner_appliance_details table
+     * @param: void
+     * @return void
+     */
+    function upload_appliance_model_file(){
+        
+    }
+    
+    /** @desc: This function is used to upload the spare parts file. By this method we can add spare details in our inventory_mast_list table.
+     * @param: void
+     * @return void
+     */
+    function upload_spare_parts_file(){
+        
+    }
+    
+    /**
+     *  @desc : This function is used to show partner warehouse details to 247around employee and 247around 
+     *          warehouse in-charge person.
+     *  @param : void
+     *  @return : void
+     */
+    function show_warehouse_list(){
+        
+    }
+    
+    
+    /** @desc: This function is used to add/edit the warehouse details
+     * @param: void
+     * @return void
+     */
+    function process_warehouse_data(){
+        
+    }
+    
+    
+    /**
+     *  @desc : This function is used to add warehouse details
+     *  @param : $data array()   //consist warehouse data
+     *  @return : $res array()  // consist response message and response status
+     */
+    function add_warehouse_details($data) {
+        
+    }
+    
+    /**
+     *  @desc : This function is used to edit warehouse details
+     *  @param : $data array() //consist warehouse data
+     *  @return : $res array() // consist response message and response status
+     */
+    function edit_warehouse_details($data) {
+        
+    }
+    
+    function get_inventory_stocks_details(){
+        $post = $this->get_post_data();
+        $post[''] = array();
+        $post['column_order'] = array();
+        $post['column_search'] = array('part_name','part_number','serial_number','model_number','type');
+        $post['where'] = array('inventory_stocks.entity_id'=>trim($this->input->post('entity_id')),'inventory_stocks.entity_type' => trim($this->input->post('entity_type')));
+        
+        $select = "inventory_master_list.*,inventory_stocks.stock,services.services,inventory_stocks.entity_id as receiver_entity_id,inventory_stocks.entity_type as receiver_entity_type";
+        
+        //RM Specific stocks
+        $sfIDArray =array();
+        if($this->session->userdata('user_group') == 'regionalmanager'){
+            $rm_id = $this->session->userdata('id');
+            $rmServiceCentersData= $this->reusable_model->get_search_result_data("employee_relation","service_centres_id",array("agent_id"=>$rm_id),NULL,NULL,NULL,NULL,NULL);
+            $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
+            $sfIDArray = explode(",",$sfIDList);
+        }
+        
+        $list = $this->inventory_model->get_inventory_stock_list($post,$select,$sfIDArray);
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $inventory_list) {
+            $no++;
+            $row = $this->get_inventory_stocks_details_table($inventory_list, $no);
+            $data[] = $row;
+        }
+        
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $this->inventory_model->count_all_inventory_stocks($post),
+            "recordsFiltered" =>  $this->inventory_model->count_filtered_inventory_stocks($post),
+            "data" => $data,
+        );
+        
+        echo json_encode($output);
+    }
+    
+    function get_inventory_stocks_details_for_warehouse(){
+        $post = $this->get_post_data();
+        $post[''] = array();
+        $post['column_order'] = array();
+        $post['column_search'] = array('part_name','part_number','serial_number','model_number','type');
+        $post['where'] = array('inventory_master_list.entity_id'=>trim($this->input->post('entity_id')),'inventory_master_list.entity_type' => trim($this->input->post('entity_type')));
+        
+        $select = "inventory_master_list.*,inventory_stocks.stock,services.services,inventory_stocks.entity_id as receiver_entity_id,inventory_stocks.entity_type as receiver_entity_type";
+        
+        //RM Specific stocks
+        $sfIDArray =array();
+        if($this->session->userdata('user_group') == 'regionalmanager'){
+            $rm_id = $this->session->userdata('id');
+            $rmServiceCentersData= $this->reusable_model->get_search_result_data("employee_relation","service_centres_id",array("agent_id"=>$rm_id),NULL,NULL,NULL,NULL,NULL);
+            $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
+            $sfIDArray = explode(",",$sfIDList);
+        }
+        
+        $list = $this->inventory_model->get_inventory_stock_list($post,$select,$sfIDArray);
+        //log_message("info", print_r($list,true));
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $inventory_list) {
+            $no++;
+            $row = $this->get_inventory_stocks_details_table($inventory_list, $no);
+            $data[] = $row;
+        }
+        
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $this->inventory_model->count_all_inventory_stocks($post),
+            "recordsFiltered" =>  $this->inventory_model->count_filtered_inventory_stocks($post),
+            "data" => $data,
+        );
+        
+        echo json_encode($output);
+    }
+    
+    
+    private function get_inventory_stocks_details_table($inventory_list,$sn){
+        $row = array();
+        //$json_data = json_encode($stock_list);
+        
+        //get agent name
+//        if ($inventory_list->entity_type === _247AROUND_EMPLOYEE_STRING) {
+//            $employe_details = $this->employee_model->getemployeefromid($inventory_list->entity_id);
+//            $agent_name = $employe_details[0]['full_name'];
+//        } else if ($inventory_list->entity_type === _247AROUND_PARTNER_STRING) {
+//            $partner_details = $this->partner_model->getpartner_details('public_name', array('partners.id' => $inventory_list->entity_id));
+//            $agent_name = $partner_details[0]['public_name'];
+//        } else if ($inventory_list->entity_type === _247AROUND_SF_STRING) {
+//            $vendor_details = $this->partner_model->getVendorDetails('name', array('id' => $inventory_list->entity_id));
+//            $agent_name = $vendor_details[0]['public_name'];
+//        }else{
+//            $agent_name = "";
+//        }
+        
+        $row[] = $sn;
+        $row[] = $inventory_list->services;
+        $row[] = $inventory_list->part_name;
+        $row[] = $inventory_list->part_number;
+        $row[] = '<a href="'. base_url().'employee/inventory/show_inventory_ledger_list/0/'.$inventory_list->receiver_entity_type.'/'.$inventory_list->receiver_entity_id.'/'.$inventory_list->inventory_id.'" target="_blank" title="Get Ledger Details">'.$inventory_list->stock.'<a>';
+        $row[] = $inventory_list->serial_number;
+        $row[] = $inventory_list->model_number;
+        $row[] = $inventory_list->description;
+        $row[] = $inventory_list->size;
+        $row[] = $inventory_list->price;
+        $row[] = $inventory_list->type;
+        
+        return $row;
+    }
+    
+    
+    /**
+     *  @desc : This function is used to get inventory part name
+     *  @param : void
+     *  @return : $res array() // consist response message and response status
+     */
+    function get_parts_name(){
+        
+        $model_number = $this->input->post('model_number');
+        
+        $post['length'] = -1;
+        $post['where'] = array('entity_id' => $this->input->post('entity_id'), 'entity_type' => $this->input->post('entity_type'), 'service_id' => $this->input->post('service_id'), 'model_number' => $model_number);
+        $inventory_details = $this->inventory_model->get_inventory_master_list($post, 'inventory_master_list.part_name', true);
+        
+        $option = '';
+
+        foreach ($inventory_details as $value) {
+            $option .= "<option value='" . $value['part_name'] . "'";
+            $option .=" > ";
+            $option .= $value['part_name'] . "</option>";
+        }
+
+        echo $option;
     }
 
 }

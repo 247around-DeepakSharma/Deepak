@@ -1921,7 +1921,7 @@ class Miscelleneous {
         $flag = FALSE;
         $is_process = FALSE;
 
-        if ($data['receiver_entity_type'] === _247AROUND_SF_STRING) {
+        if ($data['receiver_entity_type'] === _247AROUND_SF_STRING && !isset($data['is_wh'])) {
             //check if sf is working with brackets with 247around
             $is_brackets = $this->My_CI->vendor_model->getVendorDetails('brackets_flag', array('id' => $data['receiver_entity_id']))[0]['brackets_flag'];
             if (!empty($is_brackets)) {
@@ -1939,7 +1939,12 @@ class Miscelleneous {
             /* check if part is exist in the master inventory table
              * if exist then get the id of that part and use that id for further process
              */
-            $is_part_exist = $this->My_CI->reusable_model->get_search_query('inventory_master_list', 'inventory_master_list.inventory_id', array('part_number' => $data['part_number']), NULL, NULL, NULL, NULL, NULL)->result_array();
+            
+            if(isset($data['inventory_id'])){
+                $is_part_exist = array( 0 => array('inventory_id' => $data['inventory_id']));
+            }else{
+                $is_part_exist = $this->My_CI->reusable_model->get_search_query('inventory_master_list', 'inventory_master_list.inventory_id', array('part_number' => $data['part_number']), NULL, NULL, NULL, NULL, NULL)->result_array();
+            }            
             if (!empty($is_part_exist)) {
                 /* check if entity is exist in the inventory stock table
                  * if exist then get update the stock
@@ -2513,4 +2518,79 @@ function convert_html_to_pdf($html,$booking_id,$filename,$s3_folder){
             return json_encode($response_data);
         }
 }
+    
+
+    /**
+     * @desc: This function is used to download SF declaration who don't have GST number hen Partner update spare parts
+     * @params: String $sf_id
+     * @return: void
+     */
+    function generate_sf_declaration($sf_id){
+        log_message("info", __METHOD__." SF Id ". $sf_id);
+        $sf_details = $this->My_CI->vendor_model->getVendorDetails('id,name,address,owner_name,is_signature_doc,signature_file', array('id' => trim($sf_id)));
+        $template = 'sf_without_gst_declaration.xlsx';
+        $output_pdf_file = "";
+        $excel_file = "";
+        if (!empty($sf_details[0]['signature_file'])) {
+            $excel_data['sf_name'] = $sf_details[0]['name'];
+            $excel_data['sf_address'] = $sf_details[0]['address'];
+            $excel_data['sf_owner_name'] = $sf_details[0]['owner_name'];
+            $excel_data['date'] = date('Y-m-d');
+            $cell = 'B21';
+            if (file_exists($sf_details[0]['signature_file'])) {
+                $signature_file = TMP_FOLDER . $sf_details[0]['signature_file'];
+            } else {
+                $s3_bucket = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $sf_details[0]['signature_file'];
+                //get signature file from s3 and save it to server
+                copy($s3_bucket, TMP_FOLDER . $sf_details[0]['signature_file']);
+                system(" chmod 777 " . TMP_FOLDER . $sf_details[0]['signature_file']);
+                $signature_file = TMP_FOLDER . $sf_details[0]['signature_file'];
+            }
+            $output_file = "sf_declaration_" . $sf_details[0]['id'] . "_" . date('d_M_Y_H_i_s');
+            $excel_file = $this->generate_excel_data($template, $output_file, $excel_data, false, $cell, $signature_file);
+            //generate pdf
+            if (file_exists($excel_file)) {
+                $json_result = $this->convert_excel_to_pdf($excel_file, $sf_details[0]['id'], 'vendor-partner-docs');
+                log_message('info', __FUNCTION__ . ' PDF JSON RESPONSE' . print_r($json_result, TRUE));
+                $pdf_response = json_decode($json_result, TRUE);
+
+                if ($pdf_response['response'] === 'Success') {
+                    $output_pdf_file = $pdf_response['output_pdf_file'];
+                    unlink($excel_file);
+                    log_message('info', __FUNCTION__ . ' Generated PDF File Name' . $excel_file);
+                } else if ($pdf_response['response'] === 'Error') {
+
+                    log_message('info', __FUNCTION__ . ' Error in Generating PDF File');
+                }
+            } else {
+                log_message("info", "File Not Generated for " . $sf_details[0]['id']);
+            }
+
+            if (!empty($output_pdf_file)) {
+                $s3_bucket = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $output_pdf_file;
+                //get pdf file from s3 and save it to server
+                copy($s3_bucket, TMP_FOLDER . $output_pdf_file);
+                system(" chmod 777 " . TMP_FOLDER . $output_pdf_file);
+
+                if (file_exists(TMP_FOLDER . $output_pdf_file)) {
+                    
+                    $response['status'] = true;
+                    $response['message'] = "Pdf denerated successfully.";
+                    $response['file_name'] = $output_pdf_file;
+                }
+            } else {
+                log_message("info", "Error In generating Declaration file SF ID: ".$sf_details[0]['id']);
+                $response['status'] = true;
+                $response['message'] = "Some Error Occured!!! Please Try Again";
+                $response['file_name'] = $output_pdf_file;
+            }
+        } else {
+            log_message("info", "SF Id ".$sf_details[0]['id'] . " does not have signature file");
+            $response['status'] = true;
+            $response['message'] = "Invalid Request";
+            $response['file_name'] = $output_pdf_file;
+        }
+        
+        return $response;
+    }
 }

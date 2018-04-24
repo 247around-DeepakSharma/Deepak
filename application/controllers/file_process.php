@@ -21,10 +21,10 @@ class File_process extends CI_Controller {
      * @desc This is used to generate spare requested data file
      * @param String $partner_id
      */
-    function downloadSpareRequestedParts($partner_id) {
+    function downloadSpareRequestedParts($partner_id,$entity_type) {
         log_message("info", __METHOD__ . " Partner ID " . $partner_id);
 
-        $where = "spare_parts_details.partner_id = '" . $partner_id . "' AND status = '" . SPARE_PARTS_REQUESTED . "' "
+        $where = "spare_parts_details.partner_id = '" . $partner_id . "' AND status = '" . SPARE_PARTS_REQUESTED . "' AND entity_type = '".$entity_type."' "
                 . " AND booking_details.current_status IN ('Pending', 'Rescheduled') ";
 
         $spare_parts = $this->partner_model->get_spare_parts_booking_list($where, false, false, true);
