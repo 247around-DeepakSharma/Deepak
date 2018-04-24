@@ -111,7 +111,7 @@ class ApiDataRequest extends CI_Controller {
             $row[] = "<a style='color:#337ab7' href='https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$sp_list->defective_parts_pic."' target = '_blank' >Click Here</a>";
             $row[] = "<a style='color:#337ab7' href='https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$sp_list->serial_number_pic."' target = '_blank' >Click Here</a>";
 
-            $c = '"'.$sp_list->id.'", "'.$sp_list->booking_id.'", "'.$sp_list->assigned_vendor_id.'", "'.$sp_list->amount_due.'" ';
+            $c = '"'.$sp_list->id.'", "'.$sp_list->booking_id.'", "'.$sp_list->assigned_vendor_id.'", "'.$sp_list->amount_due.'" , "'.$sp_list->partner_id.'"';
             $row[] = '<input type="number" step="0.01" id="estimate_cost_'.$sp_list->id.'" class="col-md-8"/>';
             $row[] = "<button id='btn_oow_".$sp_list->id."' "
                     . "class = 'btn btn-sm btn-info' onclick='update_spare_estimate_cost(".$c .")' >Submit</button>";
@@ -284,7 +284,11 @@ class ApiDataRequest extends CI_Controller {
                 $this->vendor_model->update_service_center_action($booking_id, array("current_status" => 'Pending', 
                     'internal_status' =>SPARE_OOW_EST_GIVEN));
                  //Insert State Change
-                $this->notify->insert_state_change($booking_id, SPARE_OOW_EST_GIVEN, SPARE_OOW_EST_REQUESTED, "", $agent_id, "", $actor,$next_action,$partner_id);
+                if($this->session->userdata('partner_id')){
+                    $this->notify->insert_state_change($booking_id, SPARE_OOW_EST_GIVEN, SPARE_OOW_EST_REQUESTED, "", $agent_id, "", $actor,$next_action,$partner_id);
+                }else if($this->session->userdata('service_center_id')){
+                    $this->notify->insert_state_change($booking_id, SPARE_OOW_EST_GIVEN, SPARE_OOW_EST_REQUESTED, "", $agent_id, "", $actor,$next_action,NULL,$this->session->userdata('service_center_id'));
+                }
                 $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
                 
                 $template = $this->booking_model->get_booking_email_template("oow_estimate_given");

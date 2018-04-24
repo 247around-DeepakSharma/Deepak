@@ -470,7 +470,8 @@ class Inventory_model extends CI_Model {
         $this->db->select($select,FALSE);
         $this->db->from('inventory_stocks');
         $this->db->join('inventory_master_list','inventory_master_list.inventory_id = inventory_stocks.inventory_id');
-        $this->db->join('service_centres', 'inventory_stocks.entity_id = service_centres.id');
+        $this->db->join('service_centres', 'inventory_stocks.entity_id = service_centres.id','left');
+        $this->db->join('services', 'inventory_master_list.service_id = services.id','left');
         if (!empty($post['where'])) {
             $this->db->where($post['where']);
         }
@@ -518,9 +519,9 @@ class Inventory_model extends CI_Model {
         $sql = "SELECT CASE WHEN(sc.name IS NOT NULL) THEN (sc.name) 
                 WHEN(p.public_name IS NOT NULL) THEN (p.public_name) 
                 WHEN (e.full_name IS NOT NULL) THEN (e.full_name) END as receiver, 
-                CASE WHEN(sc.name IS NOT NULL) THEN (sc1.name) 
-                WHEN(p.public_name IS NOT NULL) THEN (p1.public_name) 
-                WHEN (e.full_name IS NOT NULL) THEN (e1.full_name) END as sender,i.*
+                CASE WHEN(sc1.name IS NOT NULL) THEN (sc1.name) 
+                WHEN(p1.public_name IS NOT NULL) THEN (p1.public_name) 
+                WHEN (e1.full_name IS NOT NULL) THEN (e1.full_name) END as sender,i.*
                 FROM `inventory_ledger` as i LEFT JOIN service_centres as sc on (sc.id = i.`receiver_entity_id` AND i.`receiver_entity_type` = 'vendor') Left JOIN partners as p on (p.id = i.`receiver_entity_id` AND i.`receiver_entity_type` = 'partner') LEFT JOIN employee as e ON (e.id = i.`receiver_entity_id` AND i.`receiver_entity_type` = 'employee')  
                 LEFT JOIN service_centres as sc1 on (sc1.id = i.`sender_entity_id` AND i.`sender_entity_type` = 'vendor') Left JOIN partners as p1 on (p1.id = i.`sender_entity_id` AND i.`sender_entity_type` = 'partner') LEFT JOIN employee as e1 ON (e1.id = i.`sender_entity_id` AND i.`sender_entity_type` = 'employee') $where $add_limit";
         
@@ -532,8 +533,13 @@ class Inventory_model extends CI_Model {
             foreach ($query as $key => $value){
                 //get part name from inventory_master_list 
                 $inventory_details = $this->get_inventory_master_list_data('part_name,description',array('inventory_id' => $value['inventory_id']));
-                $query[$key]['part_name'] = $inventory_details[0]['part_name'];
-                $query[$key]['description'] = $inventory_details[0]['description'];
+                if(!empty($inventory_details)){
+                    $query[$key]['part_name'] = $inventory_details[0]['part_name'];
+                    $query[$key]['description'] = $inventory_details[0]['description'];
+                }else{
+                    $query[$key]['part_name'] = "";
+                    $query[$key]['description'] = "";
+                }
                 //get agent name
                 if($value['agent_type'] === _247AROUND_EMPLOYEE_STRING){
                     $employe_details = $this->employee_model->getemployeefromid($value['agent_id']);
@@ -542,13 +548,12 @@ class Inventory_model extends CI_Model {
                     $partner_details = $this->partner_model->getpartner_details('public_name',array('id'=>$value['agent_id']));
                     $query[$key]['agent_name'] = $partner_details[0]['public_name'];
                 }else if($value['agent_type'] === _247AROUND_SF_STRING){
-                    $vendor_details = $this->partner_model->getVendorDetails('name',array('id'=>$value['agent_id']));
-                    $query[$key]['agent_name'] = $vendor_details[0]['public_name'];
+                    $vendor_details = $this->vendor_model->getVendorDetails('name',array('id'=>$value['agent_id']));
+                    $query[$key]['agent_name'] = $vendor_details[0]['name'];
                 }
 
             }
         }
-        
         
         return $query;
     }
@@ -662,14 +667,18 @@ class Inventory_model extends CI_Model {
      *  @param : $select string
      *  @return: Array()
      */
-    function get_inventory_master_list($post, $select = "") {
+    function get_inventory_master_list($post, $select = "",$is_array = false) {
         $this->_get_inventory_master_list($post, $select);
         if ($post['length'] != -1) {
             $this->db->limit($post['length'], $post['start']);
         }
         
         $query = $this->db->get();
-        return $query->result();
+        if($is_array){
+            return $query->result_array();
+        }else{
+            return $query->result();
+        }
     }
     
     /**
@@ -746,6 +755,64 @@ class Inventory_model extends CI_Model {
         
         $query = $this->db->get();
         return $query->result_array();
+    }
+    
+    
+     /**
+     *  @desc : This function is used to add warehouse details
+     *  @param : $data array()   //consist warehouse data
+     *  @return : $insert_id string 
+     */
+    function add_warehouse_details($data){
+        
+    }
+    
+    /**
+     *  @desc : This function is used to edit warehouse details
+     *  @param : $data array() //consist warehouse data
+     *  @param : $where array()  
+     *  @return : $res Boolean 
+     */
+    function edit_warehouse_details($data,$where) {
+        
+    }
+    
+    /**
+     *  @desc : This function is used to edit warehouse details
+     *  @param : $select array() //consist column which we want to get
+     *  @param : $where array()  
+     *  @return : $res array()
+     */
+    function get_warehouse_details($select,$where) {
+        $this->db->select($select);
+        $this->db->where($where);
+        $this->db->from('warehouse_person_relationship');
+        $this->db->join('contact_person','warehouse_person_relationship.contact_person_id = contact_person.id');
+        $this->db->join('warehouse_details','warehouse_person_relationship.warehouse_id = warehouse_details.id');
+        $this->db->join('warehouse_state_relationship','warehouse_person_relationship.warehouse_id = warehouse_state_relationship.warehouse_id');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    
+    
+    /**
+     *  @desc : This function is used to update the partner appliance details
+     *  @param : $data array() //consist column which will be updated
+     *  @param : $where array()  
+     *  @return : $res array()
+     */
+    function update_partner_appliance_details($data,$where){
+        
+    }
+    
+    
+    /**
+     *  @desc : This function is used to delete the partner appliance details
+     *  @param : $where array()  //consist combination of column
+     *  @return : $res string
+     */
+    function delete_partner_appliance_details($where){
+        
     }
 
 }

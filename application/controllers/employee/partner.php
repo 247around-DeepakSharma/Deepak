@@ -3740,7 +3740,13 @@ class Partner extends CI_Controller {
      * @return: string
      */
     function get_partner_list(){
-        $partner_list = $this->partner_model->get_all_partner(array('is_active'=>1));
+        $is_wh = $this->input->post('is_wh');
+        if(!empty($is_wh)){
+            $where = array('is_active'=>1,'is_wh' => 1);
+        }else{
+            $where = array('is_active'=>1);
+        }
+        $partner_list = $this->partner_model->get_all_partner($where);
         $option = '<option selected="" disabled="">Select Partner</option>';
 
         foreach ($partner_list as $value) {
@@ -3956,71 +3962,27 @@ class Partner extends CI_Controller {
      */
     
     function download_sf_declaration($sf_id) {
+        log_message("info", __METHOD__." SF Id ". $sf_id);
         $this->checkUserSession();
-        $sf_details = $this->vendor_model->getVendorDetails('id,name,address,owner_name,is_signature_doc,signature_file', array('id' => trim($sf_id)));
-        $template = 'sf_without_gst_declaration.xlsx';
-        $output_pdf_file = "";
-        $excel_file = "";
-        if (!empty($sf_details[0]['signature_file'])) {
-            $excel_data['sf_name'] = $sf_details[0]['name'];
-            $excel_data['sf_address'] = $sf_details[0]['address'];
-            $excel_data['sf_owner_name'] = $sf_details[0]['owner_name'];
-            $excel_data['date'] = date('Y-m-d');
-            $cell = 'B21';
-            if (file_exists($sf_details[0]['signature_file'])) {
-                $signature_file = TMP_FOLDER . $sf_details[0]['signature_file'];
-            } else {
-                $s3_bucket = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $sf_details[0]['signature_file'];
-                //get signature file from s3 and save it to server
-                copy($s3_bucket, TMP_FOLDER . $sf_details[0]['signature_file']);
-                system(" chmod 777 " . TMP_FOLDER . $sf_details[0]['signature_file']);
-                $signature_file = TMP_FOLDER . $sf_details[0]['signature_file'];
+        $pdf_details = $this->miscelleneous->generate_sf_declaration($sf_id);
+        
+        if($pdf_details['status']){
+            if(!empty($pdf_details['file_name'])){
+                header('Content-Description: File Transfer');
+                header('Content-Type: application/octet-stream');
+                header('Content-Disposition: attachment; filename="' . basename(TMP_FOLDER . $pdf_details['file_name']) . '"');
+                header('Expires: 0');
+                header('Cache-Control: must-revalidate');
+                header('Pragma: public');
+                header('Content-Length: ' . filesize(TMP_FOLDER . $pdf_details['file_name']));
+                readfile(TMP_FOLDER . $pdf_details['file_name']);
+
+                unlink(TMP_FOLDER . $pdf_details['file_name']);
             }
-            $output_file = "sf_declaration_" . $sf_details[0]['id'] . "_" . date('d_M_Y_H_i_s');
-            $excel_file = $this->miscelleneous->generate_excel_data($template, $output_file, $excel_data, false, $cell, $signature_file);
-            //generate pdf
-            if (file_exists($excel_file)) {
-                $json_result = $this->miscelleneous->convert_excel_to_pdf($excel_file, $sf_details[0]['id'], 'vendor-partner-docs');
-                log_message('info', __FUNCTION__ . ' PDF JSON RESPONSE' . print_r($json_result, TRUE));
-                $pdf_response = json_decode($json_result, TRUE);
-
-                if ($pdf_response['response'] === 'Success') {
-                    $output_pdf_file = $pdf_response['output_pdf_file'];
-                    unlink($excel_file);
-                    log_message('info', __FUNCTION__ . ' Generated PDF File Name' . $excel_file);
-                } else if ($pdf_response['response'] === 'Error') {
-
-                    log_message('info', __FUNCTION__ . ' Error in Generating PDF File');
-                }
-            } else {
-                log_message("info", "File Not Generated for " . $sf_details[0]['id']);
-            }
-
-            if (!empty($output_pdf_file)) {
-                $s3_bucket = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $output_pdf_file;
-                //get pdf file from s3 and save it to server
-                copy($s3_bucket, TMP_FOLDER . $output_pdf_file);
-                system(" chmod 777 " . TMP_FOLDER . $output_pdf_file);
-
-                if (file_exists(TMP_FOLDER . $output_pdf_file)) {
-                    header('Content-Description: File Transfer');
-                    header('Content-Type: application/octet-stream');
-                    header('Content-Disposition: attachment; filename="' . basename(TMP_FOLDER . $output_pdf_file) . '"');
-                    header('Expires: 0');
-                    header('Cache-Control: must-revalidate');
-                    header('Pragma: public');
-                    header('Content-Length: ' . filesize(TMP_FOLDER . $output_pdf_file));
-                    readfile(TMP_FOLDER . $output_pdf_file);
-
-                    unlink(TMP_FOLDER . $output_pdf_file);
-                }
-            } else {
-                log_message("info", "Error In generating Declaration file SF ID: ".$sf_details[0]['id']);
-                echo "Some Error Occured!!! Please Try Again";
-            }
-        } else {
-            log_message("info", "SF Id ".$sf_details[0]['id'] . " does not have signature file");
-            echo "Invalid Request";
+            log_message("info", __METHOD__." file details  ". print_r($pdf_details,true));
+        }else{
+            log_message("info", __METHOD__." file details  ". print_r($pdf_details,true));
+            echo $pdf_details['message'];
         }
     }
     
@@ -4072,13 +4034,15 @@ class Partner extends CI_Controller {
         $this->load->view('paytm_gateway/payment_details');
         $this->load->view('partner/partner_footer');
     }
-     function partner_report(){
+     
+    function partner_report(){
         $where['state !=""' ] = NULL;
         $allState =  $this->reusable_model->get_search_result_data("booking_details","DISTINCT(state)",$where,NULL,NULL,array("state"=>"ASC"),NULL,NULL,array());
         $this->load->view('partner/header');
         $this->load->view('partner/report', array('data'=>$allState));
         $this->load->view('partner/partner_footer');
     }
+    
     function create_and_send_partner_report($partnerID){
         if($this->session->userdata('agent_id')){
             echo $msg = "Please Check Your Email, You will get the report soon";
@@ -4095,7 +4059,8 @@ class Partner extends CI_Controller {
             echo $msg = "Please Login, and Try Again";
         }
     }
-     function download_partner_pending_bookings($partnerID){ 
+    
+    function download_partner_pending_bookings($partnerID){ 
         ob_start();
         $report = $this->partner_model->get_partners_pending_bookings($partnerID,0,1);
         $newCSVFileName = "Pending_booking_" . date('j-M-Y-H-i-s') . ".csv";
@@ -4114,4 +4079,18 @@ class Partner extends CI_Controller {
         readfile($csv);
         exec("rm -rf " . escapeshellarg($csv));
     }
+    
+    
+    /**
+     *  @desc : This function is used to show the current stock of partner inventory in 247around warehouse.
+     *  @param : void
+     *  @return : void
+     */
+    function inventory_stock_list(){
+        $this->checkUserSession();
+        $this->load->view('partner/header');
+        $this->load->view('partner/inventory_stock_list');
+        $this->load->view('partner/partner_footer');
+    }
+    
 }

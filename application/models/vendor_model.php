@@ -18,7 +18,7 @@ class vendor_model extends CI_Model {
      * @param: $vendor_id
      * @return: array of vendor details
      */
-    function viewvendor($vendor_id = "",$active = "",$sf_list = "", $is_cp = '') {
+    function viewvendor($vendor_id = "",$active = "",$sf_list = "", $is_cp = '',$is_wh = '') {
         $where_id = "";
         $where_active = "";
         $where_sf = "";
@@ -26,6 +26,10 @@ class vendor_model extends CI_Model {
         $cp = "";
         if($is_cp != ''){
             $cp = " AND service_centres.is_cp = $is_cp";
+        }
+        
+        if($is_wh != ''){
+            $cp = " AND service_centres.is_wh = $is_wh";
         }
         
         if ($vendor_id != "") {
