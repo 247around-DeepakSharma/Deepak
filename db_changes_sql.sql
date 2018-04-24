@@ -4264,3 +4264,205 @@ ALTER TABLE `booking_details` ADD `service_promise_date` DATETIME NULL DEFAULT N
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'customer_qr_download', '%s', '', '1', CURRENT_TIMESTAMP);
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'customer_paid_invoice_to_vendor', 'Customer Paid Invoice', 'Please Find Attachment', 'billing@247around.com', 'abhaya@247around.com', 'abhaya@247around.com', '', '1', '2016-06-17 00:00:00');
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'customer_paid_invoice', '%s', '', '1', '2018-02-27 19:55:03');
+
+
+-- 24th April Chhavi
+ALTER TABLE `email_sent` ADD `email_tag` TEXT NULL AFTER `id`;
+
+ALTER TABLE `booking_state_change` ADD `actor` VARCHAR(256) NULL AFTER `new_state`;
+ALTER TABLE `booking_state_change` ADD `next_action` TEXT NULL AFTER `actor`;
+ALTER TABLE `booking_details` ADD `actor` VARCHAR(256) NULL AFTER `partner_internal_status`, ADD `next_action` TEXT NULL AFTER `actor`;
+ALTER TABLE `partner_booking_status_mapping` ADD `actor` VARCHAR(256) NULL AFTER `partner_internal_status`, ADD `next_action` TEXT NULL AFTER `actor`;
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`) VALUES
+(NULL, 'partner_information_to_sf', 'New Brand/Appliance Added By 247ARound', 'Dear Partner,<br> We are glad to accounce that we have on borded following new brands on 247 Around Plateform for %s (%s) %s<br>\nPlease Provide your best of services to gain more and more business<br> Thank You! <br> 247 Around', 'booking@247around.com', 'anuj@247around.com', 'nits@247around.com', '', '1', '');
+
+
+UPDATE partner_booking_status_mapping  SET actor = '247Around', next_action ='Convert Into Booking' WHERE id ='1';
+UPDATE partner_booking_status_mapping  SET actor = '247Around', next_action ='Call Again to Customer' WHERE id ='2';
+UPDATE partner_booking_status_mapping  SET actor = '247Around', next_action ='Call to Customer' WHERE id ='3';
+UPDATE partner_booking_status_mapping  SET actor = '247Around', next_action ='Call Again to Customer' WHERE id ='4';
+UPDATE partner_booking_status_mapping  SET actor = '247Around', next_action ='Call Again to Customer' WHERE id ='5';
+UPDATE partner_booking_status_mapping  SET actor = '247Around', next_action ='Call to Customer' WHERE id ='6';
+UPDATE partner_booking_status_mapping  SET actor = '247Around', next_action ='Call to Customer' WHERE id ='7';
+UPDATE partner_booking_status_mapping  SET actor = '247Around', next_action ='Convert Into Booking' WHERE id ='46';
+UPDATE partner_booking_status_mapping  SET actor = '247Around', next_action ='Call Again to Customer' WHERE id ='47';
+UPDATE partner_booking_status_mapping  SET actor = '247Around', next_action ='Call to Customer' WHERE id ='48';
+UPDATE partner_booking_status_mapping  SET actor = '247Around', next_action ='Call Again to Customer' WHERE id ='49';
+UPDATE partner_booking_status_mapping  SET actor = '247Around', next_action ='Call to Customer' WHERE id ='50';
+UPDATE partner_booking_status_mapping  SET actor = '247Around', next_action ='Call to Customer' WHERE id ='51';
+UPDATE partner_booking_status_mapping  SET actor = '247Around', next_action ='Call to Customer' WHERE id ='52';
+UPDATE partner_booking_status_mapping  SET actor = '247Around', next_action ='Cancelled Booking Or Update Pincode' WHERE id ='97';
+UPDATE partner_booking_status_mapping  SET actor = '247Around', next_action ='Convert Into Booking' WHERE id ='101';
+UPDATE partner_booking_status_mapping  SET actor = '247Around', next_action ='Call Again to Customer' WHERE id ='102';
+UPDATE partner_booking_status_mapping  SET actor = '247Around', next_action ='Call to Customer' WHERE id ='103';
+UPDATE partner_booking_status_mapping  SET actor = '247Around', next_action ='Call Again to Customer' WHERE id ='104';
+UPDATE partner_booking_status_mapping  SET actor = '247Around', next_action ='Call to Customer' WHERE id ='105';
+UPDATE partner_booking_status_mapping  SET actor = '247Around', next_action ='Call to Customer' WHERE id ='106';
+UPDATE partner_booking_status_mapping  SET actor = '247Around', next_action ='Call to Customer' WHERE id ='107';
+UPDATE partner_booking_status_mapping  SET actor = '247Around', next_action ='Call to Customer' WHERE id ='148';
+UPDATE partner_booking_status_mapping  SET actor = '247Around', next_action ='Convert Into Booking' WHERE id ='175';
+UPDATE partner_booking_status_mapping  SET actor = 'Partner', next_action ='Product Will be Delivered ' WHERE id ='191';
+UPDATE partner_booking_status_mapping  SET actor = 'Partner', next_action ='Delivered the Product' WHERE id ='149';
+UPDATE partner_booking_status_mapping  SET actor = 'Partner', next_action ='Delivered the Product' WHERE id ='150';
+UPDATE partner_booking_status_mapping  SET actor = '247Around', next_action ='Cancelled Booking Or Update Pincode' WHERE id ='151';
+UPDATE partner_booking_status_mapping  SET actor = '247Around', next_action ='Cancelled Booking Or Update Pincode' WHERE id ='152';
+UPDATE partner_booking_status_mapping  SET actor = '247Around', next_action ='Convert Into Booking' WHERE id ='167';
+UPDATE partner_booking_status_mapping  SET actor = 'Vendor', next_action ='Visit to Customer' WHERE id ='8';
+UPDATE partner_booking_status_mapping  SET actor = 'Vendor', next_action ='Visit to Customer' WHERE id ='53';
+UPDATE partner_booking_status_mapping  SET actor = 'Vendor', next_action ='Visit to Customer' WHERE id ='91';
+UPDATE partner_booking_status_mapping  SET actor = 'Vendor', next_action ='Visit to Customer' WHERE id ='92';
+UPDATE partner_booking_status_mapping  SET actor = 'Vendor', next_action ='Visit to Customer' WHERE id ='95';
+UPDATE partner_booking_status_mapping  SET actor = 'Vendor', next_action ='Visit to Customer' WHERE id ='96';
+UPDATE partner_booking_status_mapping  SET actor = 'Vendor', next_action ='Visit to Customer' WHERE id ='108';
+UPDATE partner_booking_status_mapping  SET actor = 'Vendor', next_action ='Visit to Customer' WHERE id ='145';
+UPDATE partner_booking_status_mapping  SET actor = '247Around', next_action ='Verified From Customer' WHERE id ='153';
+UPDATE partner_booking_status_mapping  SET actor = 'Partner', next_action ='Delivered the Product' WHERE id ='154';
+UPDATE partner_booking_status_mapping  SET actor = 'Partner', next_action ='Send Spare Part' WHERE id ='155';
+UPDATE partner_booking_status_mapping  SET actor = 'Partner', next_action ='Send Spare Part' WHERE id ='156';
+UPDATE partner_booking_status_mapping  SET actor = 'Partner', next_action ='Provide Estimate' WHERE id ='157';
+UPDATE partner_booking_status_mapping  SET actor = 'Vendor', next_action ='Visit to Customer' WHERE id ='158';
+UPDATE partner_booking_status_mapping  SET actor = 'Vendor', next_action ='Complete the Booking' WHERE id ='159';
+UPDATE partner_booking_status_mapping  SET actor = 'Vendor', next_action ='Acknowledge the Received Part' WHERE id ='160';
+UPDATE partner_booking_status_mapping  SET actor = '247Around', next_action ='Review Booking' WHERE id ='161';
+UPDATE partner_booking_status_mapping  SET actor = 'Vendor', next_action ='Send Defetive Part' WHERE id ='162';
+UPDATE partner_booking_status_mapping  SET actor = '247Around', next_action ='Review Booking' WHERE id ='163';
+UPDATE partner_booking_status_mapping  SET actor = 'Vendor', next_action ='Get Approval From Customer' WHERE id ='164';
+UPDATE partner_booking_status_mapping  SET actor = 'Vendor', next_action ='Visit to Customer' WHERE id ='165';
+UPDATE partner_booking_status_mapping  SET actor = 'Vendor', next_action ='Visit to Customer' WHERE id ='166';
+UPDATE partner_booking_status_mapping  SET actor = 'Vendor', next_action ='Acknowledge the Received Part' WHERE id ='168';
+UPDATE partner_booking_status_mapping  SET actor = '247Around', next_action ='Review Booking' WHERE id ='169';
+UPDATE partner_booking_status_mapping  SET actor = 'Vendor', next_action ='Send Correct Defective Part' WHERE id ='170';
+UPDATE partner_booking_status_mapping  SET actor = 'Vendor', next_action ='Visit to Customer' WHERE id ='171';
+UPDATE partner_booking_status_mapping  SET actor = 'Partner', next_action ='Approve / Reject Upcountry Request' WHERE id ='';
+UPDATE partner_booking_status_mapping  SET actor = 'Vendor', next_action ='Ask Customer to Visit ' WHERE id ='174';
+UPDATE partner_booking_status_mapping  SET actor = '247Around', next_action ='Assign Vendor to Booking' WHERE id ='147';
+UPDATE partner_booking_status_mapping  SET actor = 'Vendor', next_action ='Visit to Customer' WHERE id ='176';
+UPDATE partner_booking_status_mapping  SET actor = 'Vendor', next_action ='Visit to Customer' WHERE id ='177';
+UPDATE partner_booking_status_mapping  SET actor = 'Vendor', next_action ='Visit to Customer' WHERE id ='178';
+UPDATE partner_booking_status_mapping  SET actor = '247Around', next_action ='Verified From Customer' WHERE id ='179';
+UPDATE partner_booking_status_mapping  SET actor = 'Vendor', next_action ='Visit to Customer' WHERE id ='180';
+UPDATE partner_booking_status_mapping  SET actor = 'Vendor', next_action ='Ask Customer to Visit ' WHERE id ='181';
+UPDATE partner_booking_status_mapping  SET actor = 'Vendor', next_action ='Send Defective Part' WHERE id ='182';
+UPDATE partner_booking_status_mapping  SET actor = '247Around', next_action ='Complete the Booking' WHERE id ='183';
+UPDATE partner_booking_status_mapping  SET actor = 'Vendor', next_action ='Send Defective Part' WHERE id ='184';
+UPDATE partner_booking_status_mapping  SET actor = 'Vendor', next_action ='Complete the Booking' WHERE id ='185';
+UPDATE partner_booking_status_mapping  SET actor = '247Around', next_action ='Review Booking' WHERE id ='186';
+UPDATE partner_booking_status_mapping  SET actor = '247Around', next_action ='Review Booking' WHERE id ='187';
+UPDATE partner_booking_status_mapping  SET actor = 'Partner ', next_action ='Approve Upcountry' WHERE id ='189';
+UPDATE partner_booking_status_mapping  SET actor = 'Vendor', next_action ='Update the Booking' WHERE id ='192';
+UPDATE partner_booking_status_mapping  SET actor = 'Vendor', next_action ='Update the Booking' WHERE id ='193';
+UPDATE partner_booking_status_mapping  SET actor = '247Around', next_action ='Approved Courier' WHERE id ='194';
+UPDATE partner_booking_status_mapping  SET actor = 'Partner', next_action ='Acknowledge the Received Part' WHERE id ='195';
+UPDATE partner_booking_status_mapping  SET actor = 'Vendor', next_action ='Update Defective Parts' WHERE id ='196';
+UPDATE partner_booking_status_mapping  SET actor = 'Vendor', next_action ='Visit to Customer' WHERE id ='9';
+UPDATE partner_booking_status_mapping  SET actor = 'Vendor', next_action ='Visit to Customer' WHERE id ='54';
+UPDATE partner_booking_status_mapping  SET actor = 'Vendor', next_action ='Visit to Customer' WHERE id ='109';
+
+
+UPDATE bookings_sources SET partner_type ='ECOMMERCE' WHERE partner_id='1';
+UPDATE bookings_sources SET partner_type ='ECOMMERCE' WHERE partner_id='2';
+UPDATE bookings_sources SET partner_type ='ECOMMERCE' WHERE partner_id='3';
+UPDATE bookings_sources SET partner_type ='ECOMMERCE' WHERE partner_id='247001';
+UPDATE bookings_sources SET partner_type ='ECOMMERCE' WHERE partner_id='247002';
+UPDATE bookings_sources SET partner_type ='ECOMMERCE' WHERE partner_id='247003';
+UPDATE bookings_sources SET partner_type ='OEM' WHERE partner_id='247051';
+UPDATE bookings_sources SET partner_type ='OEM' WHERE partner_id='247034';
+UPDATE bookings_sources SET partner_type ='EXT_WARRANTY_PROVIDER' WHERE partner_id='247012';
+UPDATE bookings_sources SET partner_type ='OEM' WHERE partner_id='247038';
+UPDATE bookings_sources SET partner_type ='OEM' WHERE partner_id='247014';
+UPDATE bookings_sources SET partner_type ='OEM' WHERE partner_id='247052';
+UPDATE bookings_sources SET partner_type ='OEM' WHERE partner_id='247017';
+UPDATE bookings_sources SET partner_type ='OEM' WHERE partner_id='247035';
+UPDATE bookings_sources SET partner_type ='OEM' WHERE partner_id='247050';
+UPDATE bookings_sources SET partner_type ='OEM' WHERE partner_id='247068';
+UPDATE bookings_sources SET partner_type ='OEM' WHERE partner_id='247049';
+UPDATE bookings_sources SET partner_type ='ECOMMERCE' WHERE partner_id='247023';
+UPDATE bookings_sources SET partner_type ='BUYBACK' WHERE partner_id='247024';
+UPDATE bookings_sources SET partner_type ='BUYBACK' WHERE partner_id='247025';
+UPDATE bookings_sources SET partner_type ='ECOMMERCE' WHERE partner_id='247026';
+UPDATE bookings_sources SET partner_type ='ECOMMERCE' WHERE partner_id='247027';
+UPDATE bookings_sources SET partner_type ='BUYBACK' WHERE partner_id='247029';
+UPDATE bookings_sources SET partner_type ='ECOMMERCE' WHERE partner_id='247030';
+UPDATE bookings_sources SET partner_type ='ECOMMERCE' WHERE partner_id='247032';
+UPDATE bookings_sources SET partner_type ='OEM' WHERE partner_id='247069';
+UPDATE bookings_sources SET partner_type ='OEM' WHERE partner_id='247019';
+UPDATE bookings_sources SET partner_type ='OEM' WHERE partner_id='247065';
+UPDATE bookings_sources SET partner_type ='OEM' WHERE partner_id='247043';
+UPDATE bookings_sources SET partner_type ='INTERNAL' WHERE partner_id='247037';
+UPDATE bookings_sources SET partner_type ='OEM' WHERE partner_id='247020';
+UPDATE bookings_sources SET partner_type ='INTERNAL' WHERE partner_id='247039';
+UPDATE bookings_sources SET partner_type ='INTERNAL' WHERE partner_id='247040';
+UPDATE bookings_sources SET partner_type ='OEM' WHERE partner_id='247070';
+UPDATE bookings_sources SET partner_type ='OEM' WHERE partner_id='247036';
+UPDATE bookings_sources SET partner_type ='OEM' WHERE partner_id='247018';
+UPDATE bookings_sources SET partner_type ='INTERNAL' WHERE partner_id='247044';
+UPDATE bookings_sources SET partner_type ='OEM' WHERE partner_id='247013';
+UPDATE bookings_sources SET partner_type ='INTERNAL' WHERE partner_id='247046';
+UPDATE bookings_sources SET partner_type ='INTERNAL' WHERE partner_id='247047';
+UPDATE bookings_sources SET partner_type ='OEM' WHERE partner_id='247033';
+UPDATE bookings_sources SET partner_type ='OEM' WHERE partner_id='247042';
+UPDATE bookings_sources SET partner_type ='OEM' WHERE partner_id='247066';
+UPDATE bookings_sources SET partner_type ='OEM' WHERE partner_id='247011';
+UPDATE bookings_sources SET partner_type ='OEM' WHERE partner_id='247064';
+UPDATE bookings_sources SET partner_type ='EXT_WARRANTY_PROVIDER' WHERE partner_id='247053';
+UPDATE bookings_sources SET partner_type ='EXT_WARRANTY_PROVIDER' WHERE partner_id='247054';
+UPDATE bookings_sources SET partner_type ='OEM' WHERE partner_id='247048';
+UPDATE bookings_sources SET partner_type ='BUYBACK' WHERE partner_id='247056';
+UPDATE bookings_sources SET partner_type ='BUYBACK' WHERE partner_id='247057';
+UPDATE bookings_sources SET partner_type ='BUYBACK' WHERE partner_id='247058';
+UPDATE bookings_sources SET partner_type ='BUYBACK' WHERE partner_id='247059';
+UPDATE bookings_sources SET partner_type ='BUYBACK' WHERE partner_id='247060';
+UPDATE bookings_sources SET partner_type ='BUYBACK' WHERE partner_id='247061';
+UPDATE bookings_sources SET partner_type ='OEM' WHERE partner_id='247021';
+UPDATE bookings_sources SET partner_type ='OEM' WHERE partner_id='247045';
+UPDATE bookings_sources SET partner_type ='OEM' WHERE partner_id='247016';
+UPDATE bookings_sources SET partner_type ='OEM' WHERE partner_id='247073';
+UPDATE bookings_sources SET partner_type ='OEM' WHERE partner_id='247041';
+UPDATE bookings_sources SET partner_type ='OEM' WHERE partner_id='247055';
+UPDATE bookings_sources SET partner_type ='OEM' WHERE partner_id='247071';
+UPDATE bookings_sources SET partner_type ='OEM' WHERE partner_id='247010';
+UPDATE bookings_sources SET partner_type ='OEM' WHERE partner_id='247072';
+UPDATE bookings_sources SET partner_type ='BUYBACK' WHERE partner_id='247074';
+
+
+CREATE TABLE IF NOT EXISTS `account_holders_bank_details_trigger` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `entity_id` varchar(20) NOT NULL,
+  `entity_type` varchar(20) NOT NULL,
+  `bank_name` varchar(50) DEFAULT NULL,
+  `account_type` varchar(20) DEFAULT NULL,
+  `bank_account` varchar(50) DEFAULT NULL,
+  `ifsc_code` varchar(20) DEFAULT NULL,
+  `cancelled_cheque_file` varchar(256) DEFAULT NULL,
+  `beneficiary_name` varchar(256) DEFAULT NULL,
+  `is_verified` int(10) NOT NULL DEFAULT '0',
+  `agent_id` int(10) DEFAULT NULL,
+  `is_active` int(11) NOT NULL DEFAULT '1',
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+);
+
+CREATE TRIGGER `account_details_trigger` BEFORE UPDATE ON `account_holders_bank_details`
+ FOR EACH ROW BEGIN 
+INSERT INTO account_holders_bank_details_trigger (SELECT * FROM account_holders_bank_details WHERE id=NEW.id);
+END
+
+INSERT INTO `account_holders_bank_details_trigger` (`id`, `entity_id`, `entity_type`, `bank_name`, `account_type`, `bank_account`, `ifsc_code`, `cancelled_cheque_file`, `beneficiary_name`, `is_verified`, `agent_id`, `is_active`, `create_date`) VALUES
+(609, '288', 'SF', 'Corporation Bank', 'Current', '079801601000299', 'CORP0000798', NULL, 'SKM ENTERPRISES', 0, 16, 0, '0000-00-00 00:00:00'),
+(616, '358', 'SF', 'State Bank Of India', 'Current', '3672430292', 'SBIN0016826', NULL, 'S S ENTERPRISES', 0, 9, 0, '2018-04-16 10:27:44'),
+(592, '372', 'SF', 'Punjab National Bank', 'Current', '4627002100001150', 'PUNB0462700', 'AligarhGURUJIENTERPRISES_cancelledchequefile_f073770592749f7.jpg', 'GURU JI ENTERPRISES', 1, 32, 0, '0000-00-00 00:00:00'),
+(590, '400', 'SF', 'Bank Of Baroda', 'Saving', '07000100022052', 'ABCD', 'HindaunSKElectronics_cancelledchequefile_4cb594b425a86ac.jpg', 'SHABBIR KHAN', 0, 9, 0, '0000-00-00 00:00:00'),
+(615, '409', 'SF', 'United Bank Of India', 'Current', '1447050000392', 'UTBIOSTA554', 'BareillySunCoolingHouse_cancelledchequefile_64c5379af205eb2.jpg', 'SUN COOLING HOUSE', 1, 9, 0, '0000-00-00 00:00:00'),
+(614, '433', 'SF', 'Bank Of India', 'Saving', '694110110003863', 'BKID0005941', 'PauriDevElectronics_cancelledchequefile_95d5368894efb88.jpg', 'ANIL CHAUDHARY', 0, 9, 0, '0000-00-00 00:00:00');
+
+DELETE FROM account_holders_bank_details WHERE id IN ('272','338','517','546','555','594');
+
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`) VALUES
+(NULL, 'cashback_processed_to_customer', 'Congrats, Your cashback of Rs. %s for Booking ID %s has been processed. Hope to serve you soon again, 9555000247 247Around.', NULL, '1');
+COMMIT;
+
+ALTER TABLE `paytm_cashback_details` ADD `agent_id` INT(10) NULL AFTER `date`;
+
+
+
