@@ -324,6 +324,7 @@ function get_data_for_partner_callback($booking_id) {
 	return $query->result_array();
     }
     function get_partner_report_overview_in_percentage_format($partner_id,$bookingDateColumn){
+        $finalArray = array();
         $query = $this->db->query("SELECT COUNT(booking_id) as count,DATEDIFF(date(booking_details.service_center_closed_date),$bookingDateColumn) as TAT FROM booking_details "
                 . "WHERE partner_id = '".$partner_id."' AND service_center_closed_date IS NOT NULL AND !(current_status = 'Cancelled' OR internal_status ='InProcess_Cancelled') AND MONTH(booking_details.create_date) "
                 . "= MONTH(CURDATE())  GROUP BY TAT");
