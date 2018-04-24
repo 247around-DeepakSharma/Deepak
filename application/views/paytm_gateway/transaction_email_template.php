@@ -151,7 +151,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td align="left" style="padding: 20px 0 30px 0; font-size: 15px; line-height: 25px; font-family: Helvetica, Arial, sans-serif; color: #fff;text-align:center;" class="padding-copy">Blackmelon Advance Technology Company Private Limited</td>
+                                <td align="left" style="padding: 20px 0 30px 0; font-size: 15px; line-height: 25px; font-family: Helvetica, Arial, sans-serif; color: #fff;text-align:center;" class="padding-copy">247Around</td>
                             </tr>
                         </table>
                     </td>
