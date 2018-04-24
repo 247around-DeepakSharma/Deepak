@@ -912,8 +912,14 @@ class Service_centers extends CI_Controller {
                         array_push($data['internal_status'], array("status" => CUSTOMER_NOT_VISTED_TO_SERVICE_CENTER));
                     }
                 }
-                $data['spare_shipped_flag'] = $spare_shipped_flag;
 
+                $is_wh_enabled =  $this->partner_model->getpartner_details("is_wh", array('partners.id' => $data['bookinghistory'][0]['partner_id']));
+                if(!empty($is_wh_enabled)){
+                    $post['length'] = -1;
+                    $post['where'] = array('entity_id' => $data['bookinghistory'][0]['partner_id'],'entity_type' => _247AROUND_PARTNER_STRING,'service_id' =>$data['bookinghistory'][0]['service_id']);
+                    $data['inventory_details'] = $this->inventory_model->get_inventory_master_list($post,'inventory_master_list.model_number',true);
+                }
+                $data['spare_shipped_flag'] = $spare_shipped_flag;
                 $this->load->view('service_centers/header');
                 $this->load->view('service_centers/get_update_form', $data);
             } else {
@@ -1108,10 +1114,28 @@ class Service_centers extends CI_Controller {
             $data['serial_number'] = $this->input->post('serial_number');
             $data['parts_requested'] = $this->input->post('parts_name');
             $data['date_of_purchase'] = $this->input->post('dop');
-            $data['partner_id'] = $this->input->post('partner_id');
             $booking_date = $this->input->post('booking_date');
             $reason = $this->input->post('reason');
             $price_tags = $this->input->post('price_tags');
+            
+            $partner_id = $this->input->post('partner_id');
+            $partner_details = $this->partner_model->getpartner_details("is_def_spare_required,is_wh", array('partners.id' => $partner_id));
+            
+            if(!empty($partner_details[0]['is_wh'])){
+                $sf_state = $this->vendor_model->getVendorDetails("service_centres.state",array('service_centres.id'=> $this->session->userdata('service_center_id')));
+                $warehouse_details = $this->get_warehouse_details(array('model_number' => $data['model_number'],'part_name' => $data['parts_requested'],'state' => $sf_state[0]['state']));
+                if(!empty($warehouse_details)){
+                    $data['partner_id'] = $warehouse_details['entity_id'];
+                    $data['entity_type'] = $warehouse_details['entity_type'];
+                }else{
+                    $data['partner_id'] = $this->input->post('partner_id');
+                    $data['entity_type'] = _247AROUND_PARTNER_STRING;
+                }
+            }else{
+                $data['partner_id'] = $this->input->post('partner_id');
+                $data['entity_type'] = _247AROUND_PARTNER_STRING;
+            }
+            
             if (stristr($price_tags, "Out Of Warranty")) {
                 
                 $data['defective_part_required'] = 0;
@@ -1119,8 +1143,7 @@ class Service_centers extends CI_Controller {
                 $sc_data['internal_status'] = SPARE_OOW_EST_REQUESTED;
                 
             } else {
-                $data['defective_part_required'] = $this->partner_model->getpartner_details("is_def_spare_required", 
-                array('partners.id' => $data['partner_id']))[0]['is_def_spare_required'];
+                $data['defective_part_required'] = $partner_details[0]['is_def_spare_required'];
                 
                 $status = SPARE_PARTS_REQUESTED;
                 $sc_data['internal_status'] = $reason;
@@ -1164,6 +1187,14 @@ class Service_centers extends CI_Controller {
             $data['booking_id'] = $booking_id;
             $data['status'] = $status;
             $data['service_center_id'] = $this->session->userdata('service_center_id');
+            $post['length'] = -1;
+            $post['where'] = array('model_number' =>$data['model_number'], 'part_name' => $data['parts_requested']);
+            $inventory_details = $this->inventory_model->get_inventory_master_list($post, 'inventory_master_list.inventory_id', true);
+            
+            if(!empty($inventory_details)){
+                $data['inventory_id'] = $inventory_details[0]['inventory_id'];
+            }
+            
             //$where = array('booking_id' => $booking_id, 'service_center_id' => $data['service_center_id']);
             $status_spare = $this->service_centers_model->insert_data_into_spare_parts($data);
             if ($status_spare) {
@@ -3274,5 +3305,598 @@ function get_learning_collateral_for_bookings(){
        echo json_encode(array("count" => $total_rows), true);
               
     }
+    
+    /**
+     * @desc: This function is used to check warehouse session.
+     * @param: void
+     * @return: true if details matches else session is destroyed.
+     */
+    function check_WH_UserSession() {
+        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'service_center') 
+                && !empty($this->session->userdata('service_center_id')) && !empty($this->session->userdata('is_wh'))) {
+            return TRUE;
+        } else {
+            log_message('info', __FUNCTION__. " Session Expire for Service Center");
+            $this->session->sess_destroy();
+            redirect(base_url() . "service_center/login");
+        }
+    }
+    
+    
+    function warehouse_default_page(){
+        $this->check_WH_UserSession();
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/warehouse_default_page');
+    }
+    
+    
+    /**
+     *  @desc : This function is used to show the current stock of partner inventory.
+     *          By using this method SF can can only see their current stock of their warehouses.
+     *  @param : void
+     *  @return : void
+     */
+    function inventory_stock_list(){
+        $this->check_WH_UserSession();
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/inventory_stock_list');
+    }
+    
+    /**
+     *  @desc : This function is used to show the consumption of partner inventory
+     *          By using this method SF can can only see their their warehouses consumption
+     *  @param : void
+     *  @return : void
+     */
+    function inventory_ledger_list(){
+        
+    }
+    
+    
+    /**
+     * @desc: This function is used to get those booking who has request to ship spare parts to SF
+     * @param: void
+     * @return void
+     */
+    function get_spare_parts_booking($offset = 0, $all = 0){
+        log_message('info', __FUNCTION__ . " sf Id: " . $this->session->userdata('service_center_id'));
+        $this->check_WH_UserSession();
+        $sf_id = $this->session->userdata('service_center_id');
+        $where = "spare_parts_details.partner_id = '" . $sf_id . "' AND  entity_type =  '"._247AROUND_SF_STRING."' AND status = '" . SPARE_PARTS_REQUESTED . "' "
+                . " AND booking_details.current_status IN ('Pending', 'Rescheduled') ";
 
+        $config['base_url'] = base_url() . 'service_center/spare_parts';
+        $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
+        $config['total_rows'] = $total_rows[0]['total_rows'];
+
+        if ($all == 1) {
+            $config['per_page'] = $total_rows[0]['total_rows'];
+        } else {
+            $config['per_page'] = 50;
+        }
+        $config['uri_segment'] = 3;
+        $config['first_link'] = 'First';
+        $config['last_link'] = 'Last';
+        $this->pagination->initialize($config);
+        $data['links'] = $this->pagination->create_links();
+
+        $data['count'] = $config['total_rows'];
+        $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true);
+        $data['is_ajax'] = $this->input->post('is_ajax');
+        if(empty($this->input->post('is_ajax'))){
+            $this->load->view('service_centers/header');
+            $this->load->view('service_centers/spare_parts_booking', $data);
+        }else{
+            $this->load->view('service_centers/spare_parts_booking', $data);
+        }
+    }
+    
+    /**
+     * @desc: This function is used to get those booking who has defective parts shipped by SF to partner
+     * @param: void
+     * @return void
+     */
+    function get_defective_parts_shipped_by_sf($offset = 0, $all = 0){
+        log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id'));
+        $this->check_WH_UserSession();
+        $sf_id = $this->session->userdata('service_center_id');
+
+        $where = array(
+            "spare_parts_details.defective_part_required" => 1,
+            "approved_defective_parts_by_admin" => 1,
+            "spare_parts_details.partner_id" => $sf_id,
+            "spare_parts_details.entity_type" => _247AROUND_SF_STRING,
+            "status IN ('" . DEFECTIVE_PARTS_SHIPPED . "')  " => NULL
+        );
+
+        $select = "CONCAT( '', GROUP_CONCAT((defective_part_shipped ) ) , '' ) as defective_part_shipped, "
+                . " spare_parts_details.booking_id, name, courier_name_by_sf, awb_by_sf,defective_part_shipped_date,remarks_defective_part_by_sf,booking_details.partner_id";
+
+        $group_by = "spare_parts_details.booking_id";
+        $order_by = "spare_parts_details.defective_part_shipped_date DESC";
+
+        $config['base_url'] = base_url() . 'service_center/defective_spare_parts';
+        $config['total_rows'] = $this->service_centers_model->count_spare_parts_booking($where, $select, $group_by);
+
+        if ($all == 1) {
+            $config['per_page'] = $config['total_rows'];
+        } else {
+            $config['per_page'] = 50;
+        }
+        $config['uri_segment'] = 3;
+        $config['first_link'] = 'First';
+        $config['last_link'] = 'Last';
+        $this->pagination->initialize($config);
+        $data['links'] = $this->pagination->create_links();
+
+        $data['count'] = $config['total_rows'];
+        $data['spare_parts'] = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $offset, $config['per_page']);
+        $where_internal_status = array("page" => "defective_parts", "active" => '1');
+        $data['internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
+        $data['is_ajax'] = $this->input->post('is_ajax');
+        if(empty($this->input->post('is_ajax'))){
+            $this->load->view('service_centers/header');
+            $this->load->view('service_centers/defective_parts_shipped_by_sf', $data);
+        }else{
+            $this->load->view('service_centers/defective_parts_shipped_by_sf', $data);
+        }
+    }
+    
+    
+    /**
+     * @desc: This function is used to get those booking whose status is pending because of 
+     *        partner doesn't approve the spare quote requested by the SF 
+     * @param: void
+     * @return void
+     */
+    function get_pending_spare_quotes(){
+        
+    }
+    
+    /**
+     * @desc: This function is used to get those booking whose spare parts shipped by 247around warehouse to SF
+     * @param: Integer $offset
+     * @return void
+     */
+    function get_shipped_parts_list_by_warehouse($offset = 0){
+        log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id'));
+        $this->check_WH_UserSession();
+        $sf_id = $this->session->userdata('service_center_id');
+        $where = "spare_parts_details.partner_id = '" . $sf_id . "' AND spare_parts_details.entity_type = '" . _247AROUND_SF_STRING . "'"
+                . " AND status IN ('Delivered', 'Shipped', '" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_SHIPPED . "')  ";
+
+        $config['base_url'] = base_url() . 'service_center/get_shipped_parts_list';
+        $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
+        $config['total_rows'] = $total_rows[0]['total_rows'];
+
+        $config['per_page'] = 50;
+        $config['uri_segment'] = 3;
+        $config['first_link'] = 'First';
+        $config['last_link'] = 'Last';
+        $this->pagination->initialize($config);
+        $data['links'] = $this->pagination->create_links();
+
+        $data['count'] = $config['total_rows'];
+        $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true);
+
+
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/shipped_spare_part_booking', $data);
+    }
+    
+    
+    /**
+     * @desc: This function is used to update spare parts details
+     * @param: void
+     * @return void
+     */
+    function update_spare_parts_form($id){
+        log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id') . " Spare Parts ID: " . $id);
+        $this->check_WH_UserSession();
+        $where['length'] = -1;
+        $where['where'] = array('spare_parts_details.id' => $id);
+        $where['select'] = "booking_details.booking_id, users.name, booking_primary_contact_no,parts_requested, model_number,serial_number,date_of_purchase, invoice_pic,"
+                . "serial_number_pic,defective_parts_pic,spare_parts_details.id, booking_details.request_type, purchase_price, estimate_cost_given_date,booking_details.partner_id,spare_parts_details.inventory_id,booking_details.partner_id,booking_details.service_id,booking_details.assigned_vendor_id";
+
+        $data['spare_parts'] = $this->inventory_model->get_spare_parts_query($where);
+        $post['length'] = -1;
+        $post['where'] = array('entity_id' => $data['spare_parts'][0]->partner_id,'entity_type' => _247AROUND_PARTNER_STRING,'service_id' => $data['spare_parts'][0]->service_id);
+        $data['inventory_details'] = $this->inventory_model->get_inventory_master_list($post, 'inventory_master_list.model_number', true);
+
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/update_spare_parts_form', $data);
+    }
+    
+    /**
+     * @desc: This method is used to update spare parts. If gets input from form.
+     *        Insert data into booking state change and update sc action table
+     * @param String $booking_id
+     * @param String $id
+     * @return void
+     */
+    function process_update_spare_parts($booking_id, $id) {
+        log_message('info', __FUNCTION__ . " Sf ID: " . $this->session->userdata('service_center_id') . " Spare id: " . $id);
+        $this->check_WH_UserSession();
+        $this->form_validation->set_rules('shipped_model_number', 'Model Number', 'trim|required');
+        $this->form_validation->set_rules('shipped_parts_name', 'Parts Name', 'trim|required');
+        $this->form_validation->set_rules('remarks_by_partner', 'Remarks', 'trim|required');
+        $this->form_validation->set_rules('courier_name', 'Courier Name', 'trim|required');
+        $this->form_validation->set_rules('awb', 'AWB', 'trim|required');
+        $this->form_validation->set_rules('incoming_invoice', 'Invoice', 'callback_spare_incoming_invoice');
+        //$this->form_validation->set_rules('partner_challan_number', 'Partner Challan Number', 'trim|required');
+        $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required');
+
+        if ($this->form_validation->run() == FALSE) {
+            log_message('info', __FUNCTION__ . '=> Form Validation is not updated by SF ' . $this->session->userdata('service_center_id') .
+                    " Spare id " . $id . " Data" . print_r($this->input->post(), true));
+            $this->update_spare_parts_form($id);
+        } else {
+            //check upload challan file
+            $MB = 1048576;
+            if ($_FILES['challan_file']['size'] >= 2 * $MB) {
+                log_message('info', __FUNCTION__ . '=> Uploaded File is greater than 2 Mb ' . $this->session->userdata('service_center_id') .
+                        " Spare id " . $id . " Data" . print_r($this->input->post(), true));
+                $this->form_validation->set_message('challan_file', "Uploaded File Must be Less Than 2Mb in size");
+                $this->update_spare_parts_form($id);
+            } else {
+                $challan_file = $this->upload_challan_file($id);
+                if($challan_file){
+                    $data['partner_challan_file'] = $challan_file;
+                }
+                $sf_id = $this->session->userdata('service_center_id');
+                $partner_id = $this->input->post('partner_id');
+                $data['model_number_shipped'] = $this->input->post('shipped_model_number');
+                $data['parts_shipped'] = $this->input->post('shipped_parts_name');
+                $data['courier_name_by_partner'] = $this->input->post('courier_name');
+                $data['awb_by_partner'] = $this->input->post('awb');
+                $data['remarks_by_partner'] = $this->input->post('remarks_by_partner');
+                $data['shipped_date'] = $this->input->post('shipment_date');
+                $data['partner_challan_number'] = $this->input->post('partner_challan_number');
+                $data['challan_approx_value'] = $this->input->post('approx_value');
+                $incoming_invoice_pdf = $this->input->post("incoming_invoice_pdf");
+                if (!empty($incoming_invoice_pdf)) {
+                    $data['incoming_invoice_pdf'] = $incoming_invoice_pdf;
+                }
+                $data['status'] = "Shipped";
+                $where = array('id' => $id, 'partner_id' => $sf_id,'entity_type' => _247AROUND_SF_STRING);
+                $response = $this->service_centers_model->update_spare_parts($where, $data);
+                if ($response) {
+                    
+                    $sc_data['current_status'] = "InProcess";
+                    $sc_data['internal_status'] = SPARE_PARTS_SHIPPED;
+                    $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+
+                    $booking['internal_status'] = SPARE_PARTS_SHIPPED;
+                    $actor = $next_action = 'not_define';
+                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $booking_id);
+                    if (!empty($partner_status)) {
+                        $booking['partner_current_status'] = $partner_status[0];
+                        $booking['partner_internal_status'] = $partner_status[1];
+                        $actor = $booking['actor'] = $partner_status[2];
+                        $next_action = $booking['next_action'] = $partner_status[3];
+                    }
+                    $this->insert_details_in_state_change($booking_id, SPARE_PARTS_SHIPPED, "Partner acknowledged to shipped spare parts",$actor,$next_action);
+
+                    $this->booking_model->update_booking($booking_id, $booking);
+                    if (!empty($incoming_invoice_pdf)) {
+                        // Send OOW invoice to aditya
+                        $url = base_url() . "employee/invoice/generate_oow_parts_invoice/" . $id;
+                        $async_data['booking_id'] = $booking_id;
+                        $this->asynchronous_lib->do_background_process($url, $async_data);
+                    }
+                    
+                    if(!empty($this->input->post('inventory_id'))){
+                        
+                        //get vendor details
+                        $sf_details =  $this->partner_model->getVendorDetails('name', array('id' => $this->input->post('assigned_vendor_id')));
+                        //update inventory stocks
+                        $data['receiver_entity_id'] = $sf_details[0]['name'];
+                        $data['receiver_entity_type'] = _247AROUND_SF_STRING;
+                        $data['sender_entity_id'] = $this->session->userdata('service_center_id');
+                        $data['sender_entity_type'] = _247AROUND_SF_STRING;
+                        $data['sender_entity_id'] = $this->session->userdata('service_center_id');
+                        $data['receiver_entity_type'] = _247AROUND_SF_STRING;
+                        $data['stock'] = -1;
+                        $data['booking_id'] = $booking_id;
+                        $data['agent_id'] = $this->session->userdata('service_center_id');
+                        $data['agent_type'] = _247AROUND_SF_STRING;
+                        $data['is_wh'] = TRUE;
+                        $data['inventory_id'] = $this->input->post('inventory_id');
+                        $this->miscelleneous->process_inventory_stocks($data);
+                    }
+                    
+
+                    $userSession = array('success' => 'Parts Updated');
+                    $this->session->set_userdata($userSession);
+                    redirect(base_url() . "service_center/spare_parts");
+                } else { //if($response){
+                    log_message('info', __FUNCTION__ . '=> Spare parts booking is not updated by SF ' . $this->session->userdata('service_center_id') .
+                            " booking id " . $booking_id . " Data" . print_r($this->input->post(), true));
+                    $userSession = array('success' => 'Parts Not Updated');
+                    $this->session->set_userdata($userSession);
+                    redirect(base_url() . "service_center/update_spare_parts/" . $booking_id);
+                }
+            }
+        }
+    }
+    
+    /**
+     * @desc: This function is used to reject the defective parts shipped by SF to 247around warehouse
+     * @param String $booking_id
+     * @param String $partner_id
+     * @param String $is_cron
+     * @return Void
+     */
+    function acknowledge_received_defective_parts($booking_id, $partner_id, $is_cron = "") {
+        log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id') . " Booking Id " . $booking_id);
+
+        if (empty($is_cron)) {
+            $this->check_WH_UserSession();
+        }
+
+        $response = $this->service_centers_model->update_spare_parts(array('booking_id' => $booking_id), array('status' => DEFECTIVE_PARTS_RECEIVED,
+            'approved_defective_parts_by_partner' => '1', 'remarks_defective_part_by_partner' => DEFECTIVE_PARTS_RECEIVED,
+            'received_defective_part_date' => date("Y-m-d H:i:s")));
+        if ($response) {
+
+            log_message('info', __FUNCTION__ . " Received Defective Spare Parts " . $booking_id
+                    . " SF Id" . $this->session->userdata('service_center_id'));
+            
+            $sc_data['current_status'] = "InProcess";
+            $sc_data['internal_status'] = _247AROUND_COMPLETED;
+            $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+            
+            $booking['internal_status'] = DEFECTIVE_PARTS_RECEIVED;
+        
+            $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $booking_id);
+            $actor = $next_action = 'not_define';
+            if (!empty($partner_status)) {
+                $booking['partner_current_status'] = $partner_status[0];
+                $booking['partner_internal_status'] = $partner_status[1];
+                $actor = $booking['actor'] = $partner_status[2];
+                $next_action = $booking['next_action'] = $partner_status[3];
+            }
+            $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Sf Received Defective Spare Parts", $actor,$next_action,$is_cron);
+            
+            $this->booking_model->update_booking($booking_id, $booking);
+
+            if (empty($is_cron)) {
+                $userSession = array('success' => ' Received Defective Spare Parts');
+                $this->session->set_userdata($userSession);
+                redirect(base_url() . "service_center/defective_spare_parts");
+            }
+        } else { //if($response){
+            log_message('info', __FUNCTION__ . '=> Defective Spare Parts not updated  by SF ' . $this->session->userdata('service_center_id') .
+                    " booking id " . $booking_id);
+            if (empty($is_cron)) {
+                $userSession = array('success' => 'There is some error. Please try again.');
+                $this->session->set_userdata($userSession);
+                redirect(base_url() . "service_center/defective_spare_parts");
+            }
+        }
+    }
+    
+    /**
+     * @desc: this function is used to reject the defective parts shipped by SF to 247around warehouse
+     * @param String $booking_id
+     * @param String $partner_id
+     * @param String $status
+     * @return void
+     */
+    function reject_defective_part($booking_id, $partner_id,$status) {
+        log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id') . " Booking Id " . $booking_id . ' status: ' . $status);
+        $this->check_WH_UserSession();
+        $rejection_reason = base64_decode(urldecode($status));
+        $decode_partner_id = base64_decode(urldecode($partner_id));
+        
+        $response = $this->service_centers_model->update_spare_parts(array('booking_id' => $booking_id), array('status' => DEFECTIVE_PARTS_REJECTED,
+            'remarks_defective_part_by_partner' => $rejection_reason,
+            'approved_defective_parts_by_partner' => '0'));
+        if ($response) {
+            log_message('info', __FUNCTION__ . " Sucessfully updated Table " . $booking_id
+                    . " SF Id" . $this->session->userdata('service_center_id'));
+
+            $sc_data['current_status'] = "InProcess";
+            $sc_data['internal_status'] = $rejection_reason;
+            $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+            
+            $booking['internal_status'] = DEFECTIVE_PARTS_REJECTED;
+        
+            $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $decode_partner_id, $booking_id);
+            $actor = $next_action = 'not_define';
+            if (!empty($partner_status)) {
+                $booking['partner_current_status'] = $partner_status[0];
+                $booking['partner_internal_status'] = $partner_status[1];
+                $actor = $booking['actor'] = $partner_status[2];
+                $next_action = $booking['next_action'] = $partner_status[3];
+            }
+            $this->insert_details_in_state_change($booking_id, $rejection_reason, DEFECTIVE_PARTS_REJECTED,$actor,$next_action);
+            $this->booking_model->update_booking($booking_id, $booking);
+
+            $userSession = array('success' => 'Defective Parts Rejected To SF');
+            $this->session->set_userdata($userSession);
+            redirect(base_url() . "service_center/defective_spare_parts");
+        } else { //if($response){
+            log_message('info', __FUNCTION__ . '=> Defective Spare Parts Not Updated by SF' . $this->session->userdata('service_center_id') .
+                    " booking id " . $booking_id);
+            $userSession = array('success' => 'There is some error. Please try again.');
+            $this->session->set_userdata($userSession);
+            redirect(base_url() . "service_center/defective_spare_parts");
+        }
+    }
+    
+    
+    /**
+     * @desc: This function is used to download courier manifest/address for selected bookings 
+     *        from spare parts page
+     * @param void
+     * @return void
+     */
+    function print_all() {
+        $this->check_WH_UserSession();
+        log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id'));
+        $booking_address = $this->input->post('download_address');
+        $booking_manifest = $this->input->post('download_courier_manifest');
+
+        if (!empty($booking_address)) {
+
+            $this->download_shippment_address($booking_address);
+        } else if (!empty($booking_manifest)) {
+
+            $this->download_mainfest($booking_manifest);
+        } else if (empty($booking_address) && empty($booking_manifest)) {
+            echo "Please Select Any Checkbox";
+        }
+    }
+    
+    /**
+     * @desc: This is used to print  address for selected booking
+     * @param Array $booking_address
+     * @return void 
+     */
+    function download_shippment_address($booking_address) {
+        $this->check_WH_UserSession();
+        log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id'));
+
+        $booking_history['details'] = array();
+        foreach ($booking_address as $key => $value) {
+            $booking_history['details'][$key] = $this->booking_model->getbooking_history($value, "join")[0];
+            $booking_history['details'][$key]['partner'] = $this->vendor_model->getVendorDetails('name as company_name,address,district,state,pincode,primary_contact_phone_1',array('id' =>$this->session->userdata('service_center_id')))[0];
+        }
+
+        $this->load->view('partner/print_address', $booking_history);
+    }
+    
+    /**
+     * @desc: This is used to print courier manifest for selected booking
+     * @param Array $booking_manifest
+     * @return void
+     */
+    function download_mainfest($booking_manifest) {
+        $this->check_WH_UserSession();
+        log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id'));
+        $spare_parts_details['courier_manifest'] = array();
+        foreach ($booking_manifest as $key => $value) {
+
+            $where = "spare_parts_details.booking_id = '" . $value . "' AND status = '" . SPARE_PARTS_REQUESTED . "' "
+                    . " AND booking_details.current_status IN ('Pending', 'Rescheduled') ";
+            $spare_parts_details['courier_manifest'][$key] = $this->partner_model->get_spare_parts_booking($where)[0];
+            $spare_parts_details['courier_manifest'][$key]['brand'] = $this->booking_model->get_unit_details(array('booking_id' => $value))[0]['appliance_brand'];
+        }
+
+        $this->load->view('partner/courier_manifest', $spare_parts_details);
+    }
+    
+    /**
+     * @desc this function is used to get the warehouse details
+     * @param array $data this array contains the data for which we want warehouse details;
+     * @return array $response
+     */
+    function get_warehouse_details($data){
+        $response = array();
+        $post['length'] = -1;
+        $post['where'] = array('model_number' => $data['model_number'],'part_name' => $data['part_name'],'inventory_stocks.entity_type' => _247AROUND_SF_STRING,'inventory_stocks.stock != 0'=>NULL);
+        $select = 'inventory_stocks.stock,inventory_stocks.entity_id,inventory_stocks.entity_type';
+        $inventory_stock_details = $this->inventory_model->get_inventory_stock_list($post,$select,array(),FALSE);
+        if(!empty($inventory_stock_details)){
+            if(count($inventory_stock_details) > 1){
+                $warehouse_details = $this->inventory_model->get_warehouse_details('warehouse_state_relationship.state,contact_person.entity_id',array('warehouse_state_relationship.state' => $data['state'],'contact_person.entity_type' => _247AROUND_SF_STRING));
+                if(!empty($warehouse_details)){
+                    $response['entity_id'] = $warehouse_details[0]['entity_id'];
+                    $response['entity_type'] = _247AROUND_SF_STRING;
+                }else{
+                    $response = array();
+                }
+            }else{
+                $response['entity_id'] = $inventory_stock_details[0]['entity_id'];
+                $response['entity_type'] = $inventory_stock_details[0]['entity_type'];
+            }
+        }else{
+            $response = array();
+        }
+        
+        return $response;
+    }
+    
+    /**
+     * @desc: This function is used to upload the challan file when partner shipped spare parts
+     * @params: void
+     * @return: $res
+     */
+    function upload_challan_file($id) {
+        if (empty($_FILES['challan_file']['error'])) {
+            $challan_file = "partner_challan_file_" . $this->input->post('booking_id'). "_".$id."_" . str_replace(" ", "_", $_FILES['challan_file']['name']);
+            //Upload files to AWS
+            $bucket = BITBUCKET_DIRECTORY;
+            $directory_xls = "vendor-partner-docs/" . $challan_file;
+            $this->s3->putObjectFile($_FILES['challan_file']['tmp_name'], $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+            
+            $res = $challan_file;
+        } else {
+            $res = FALSE;
+        }
+        
+        return $res;
+    }
+    
+    /**
+     * @desc: This method is used to display list of booking which received by Partner
+     * @param Integer $offset
+     */
+    function get_approved_defective_parts_booking_by_warehouse($offset = 0) {
+        $this->check_WH_UserSession();
+        log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id'));
+
+        $sf_id = $this->session->userdata('service_center_id');
+        $where = "spare_parts_details.partner_id = '" . $sf_id . "' AND spare_parts_details.entity_type = '"._247AROUND_SF_STRING."'"
+                . " AND approved_defective_parts_by_partner = '1' ";
+
+        $config['base_url'] = base_url() . 'service_center/approved_defective_parts_booking_by_warehouse';
+        $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
+        $config['total_rows'] = $total_rows[0]['total_rows'];
+
+        $config['per_page'] = 50;
+        $config['uri_segment'] = 3;
+        $config['first_link'] = 'First';
+        $config['last_link'] = 'Last';
+        $this->pagination->initialize($config);
+        $data['links'] = $this->pagination->create_links();
+
+        $data['count'] = $config['total_rows'];
+        $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true);
+
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/approved_defective_parts_by_warehouse', $data);
+    }
+    
+    /**
+     * @desc: This function is used to download SF declaration who don't have GST number hen Partner update spare parts
+     * @params: String $sf_id
+     * @return: void
+     */
+    
+    function download_sf_declaration($sf_id) {
+        log_message("info", __METHOD__." SF Id ". $sf_id);
+        $this->check_WH_UserSession();
+        $pdf_details = $this->miscelleneous->generate_sf_declaration($sf_id);
+        
+        if($pdf_details['status']){
+            if(!empty($pdf_details['file_name'])){
+                header('Content-Description: File Transfer');
+                header('Content-Type: application/octet-stream');
+                header('Content-Disposition: attachment; filename="' . basename(TMP_FOLDER . $pdf_details['file_name']) . '"');
+                header('Expires: 0');
+                header('Cache-Control: must-revalidate');
+                header('Pragma: public');
+                header('Content-Length: ' . filesize(TMP_FOLDER . $pdf_details['file_name']));
+                readfile(TMP_FOLDER . $pdf_details['file_name']);
+
+                unlink(TMP_FOLDER . $pdf_details['file_name']);
+            }
+            log_message("info", __METHOD__." file details  ". print_r($pdf_details,true));
+        }else{
+            log_message("info", __METHOD__." file details  ". print_r($pdf_details,true));
+            echo $pdf_details['message'];
+        }
+    }
 }

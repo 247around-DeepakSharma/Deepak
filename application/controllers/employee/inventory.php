@@ -1085,7 +1085,7 @@ class Inventory extends CI_Controller {
      */
     function update_action_on_spare_parts($id, $booking_id, $requestType){
         log_message('info', __FUNCTION__. "Entering... id ". $id." Booking ID ". $booking_id);
-        if(!$this->session->userdata('partner_id')){
+        if(!($this->session->userdata('partner_id') || $this->session->userdata('service_center_id'))){
             $this->checkUserSession();
         } 
          
@@ -1203,17 +1203,25 @@ class Inventory extends CI_Controller {
             if($flag){
                 $this->service_centers_model->update_spare_parts($where, $data);
             }
+            
             if($this->session->userdata('employee_id')){
                 $agent_id = $this->session->userdata('id');
                 $agent_name = $this->session->userdata('employee_id');
-                $partner_id = _247AROUND;
-            } else {
+                $entity_id = _247AROUND;
+            }else if($this->session->userdata('partner_id')) {
                 $agent_id = $this->session->userdata('agent_id');
                 $agent_name = $this->session->userdata('partner_name');
-                $partner_id = $this->session->userdata('partner_id');
+                $entity_id = $this->session->userdata('partner_id');
+            }else if($this->session->userdata('service_center_id')){
+                    $agent_id = $this->session->userdata('service_center_agent_id');
+                    $agent_name = $this->session->userdata('service_center_name');
+                    $entity_id = $this->session->userdata('service_center_id');
+            
             }
+            
+            $partner_id = $this->input->post('partner_id');
             $this->notify->insert_state_change($booking_id, $new_state,$old_state, $remarks, 
-                      $agent_id, $agent_name, ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE, $partner_id);
+                      $agent_id, $agent_name, ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE, $entity_id);
             
             $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $b['internal_status'], $partner_id, $booking_id);
             if (!empty($partner_status)) {
@@ -1753,7 +1761,7 @@ class Inventory extends CI_Controller {
 	}
         $where = "";
         if(!empty($entity_id) && !empty($entity_type)){
-            $where .= " where i.receiver_entity_id = $entity_id AND i.receiver_entity_type = '".$entity_type."'";
+            $where .= " where (i.receiver_entity_id = $entity_id AND i.receiver_entity_type = '".$entity_type."' OR i.sender_entity_id = $entity_id AND i.sender_entity_type = '".$entity_type."')";
         }
         
         if(!empty($inventory_id)){
@@ -2071,7 +2079,7 @@ class Inventory extends CI_Controller {
         $row[] = $stock_list->description;
         $row[] = $stock_list->size;
         $row[] = $stock_list->price;
-        $row[] = $stock_list->description;
+        $row[] = $stock_list->type;
         $row[] = $stock_list->entity_type;
         $row[] = $agent_name;
         $row[] = "<a href='javascript:void(0)' class ='btn btn-primary' id='edit_master_details' data-id='$json_data'>Edit</a>";
@@ -2109,7 +2117,7 @@ class Inventory extends CI_Controller {
                 $data['service_id'] = $service_id;
             }
 
-            switch ($submit_type) {
+            switch (strtolower($submit_type)) {
                 case 'add':
                     $data['create_date'] = date('Y-m-d H:i:s');
                     $response = $this->add_inventoy_master_list_data($data);
@@ -2213,6 +2221,15 @@ class Inventory extends CI_Controller {
         echo json_encode($sf_list);
     }
     
+    /** @desc: This function is used to upload the partner appliance model file. By using this function 
+     *          we can map models to their corresponding appliance in partner_appliance_details table
+     * @param: void
+     * @return void
+     */
+    function upload_appliance_model_file(){
+        
+    }
+    
     /** @desc: This function is used to upload the spare parts file. By this method we can add spare details in our inventory_mast_list table.
      * @param: void
      * @return void
@@ -2222,6 +2239,49 @@ class Inventory extends CI_Controller {
         $data['services'] = $this->vendor_model->selectservice();
         $this->miscelleneous->load_nav_header();
 	$this->load->view('employee/upload_spare_part_details',$data);
+        
+    }
+    
+    function upload_spare_parts_file(){
+        
+    }
+    
+    /**
+     *  @desc : This function is used to show partner warehouse details to 247around employee and 247around 
+     *          warehouse in-charge person.
+     *  @param : void
+     *  @return : void
+     */
+    function show_warehouse_list(){
+        
+    }
+    
+    
+    /** @desc: This function is used to add/edit the warehouse details
+     * @param: void
+     * @return void
+     */
+    function process_warehouse_data(){
+        
+    }
+    
+    
+    /**
+     *  @desc : This function is used to add warehouse details
+     *  @param : $data array()   //consist warehouse data
+     *  @return : $res array()  // consist response message and response status
+     */
+    function add_warehouse_details($data) {
+        
+    }
+    
+    /**
+     *  @desc : This function is used to edit warehouse details
+     *  @param : $data array() //consist warehouse data
+     *  @return : $res array() // consist response message and response status
+     */
+    function edit_warehouse_details($data) {
+        
     }
     
     function get_inventory_stocks_details(){

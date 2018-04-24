@@ -177,7 +177,7 @@ if ($this->uri->segment(4)) {
         $("#messageSpare").text("Download In Progress");
          $.ajax({
             type: 'POST',
-            url: '<?php echo base_url(); ?>file_process/downloadSpareRequestedParts/' + <?php echo $this->session->userdata("partner_id");?>,
+            url: '<?php echo base_url(); ?>file_process/downloadSpareRequestedParts/' + <?php echo $this->session->userdata("partner_id");?> + '/' + <?php echo _247AROUND_PARTNER_STRING ; ?>,
             contentType: false,
             cache: false,
             processData: false,
@@ -263,11 +263,12 @@ if ($this->uri->segment(4)) {
         var remarks =  $('#textarea').val();
         if(remarks !== ""){
             var url =  $('#url').val();
+            var partner_id =  $('#modal_partner_id').val();
        
             $.ajax({
                 type:'POST',
                 url:url,
-                data:{remarks:remarks,courier_charge:0},
+                data:{remarks:remarks,courier_charge:0,partner_id:partner_id},
                 success: function(data){
               
                     if(data === "Success"){

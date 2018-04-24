@@ -1928,7 +1928,7 @@ class Miscelleneous {
         $flag = FALSE;
         $is_process = FALSE;
 
-        if ($data['receiver_entity_type'] === _247AROUND_SF_STRING) {
+        if ($data['receiver_entity_type'] === _247AROUND_SF_STRING && !isset($data['is_wh'])) {
             //check if sf is working with brackets with 247around
             $is_brackets = $this->My_CI->vendor_model->getVendorDetails('brackets_flag', array('id' => $data['receiver_entity_id']))[0]['brackets_flag'];
             if (!empty($is_brackets)) {
@@ -1946,7 +1946,12 @@ class Miscelleneous {
             /* check if part is exist in the master inventory table
              * if exist then get the id of that part and use that id for further process
              */
-            $is_part_exist = $this->My_CI->reusable_model->get_search_query('inventory_master_list', 'inventory_master_list.inventory_id', array('part_number' => $data['part_number']), NULL, NULL, NULL, NULL, NULL)->result_array();
+            
+            if(isset($data['inventory_id'])){
+                $is_part_exist = array( 0 => array('inventory_id' => $data['inventory_id']));
+            }else{
+                $is_part_exist = $this->My_CI->reusable_model->get_search_query('inventory_master_list', 'inventory_master_list.inventory_id', array('part_number' => $data['part_number']), NULL, NULL, NULL, NULL, NULL)->result_array();
+            }            
             if (!empty($is_part_exist)) {
                 /* check if entity is exist in the inventory stock table
                  * if exist then get update the stock
@@ -2617,5 +2622,5 @@ function convert_html_to_pdf($html,$booking_id,$filename,$s3_folder){
             return FALSE;
         }
     }
-
+    
 }

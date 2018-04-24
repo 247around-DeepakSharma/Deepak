@@ -90,6 +90,24 @@ $route['service_center/buyback/get_bb_order_details_data/(:any)'] = 'employee/se
 $route['service_center/buyback/get_bb_order_history_details/(:any)'] = 'employee/service_centers/get_bb_order_history_details/$1';
 $route['service_center/buyback/get_bb_order_appliance_details/(:any)'] = 'employee/service_centers/get_bb_order_appliance_details/$1';
 
+$route['service_center/inventory'] = 'employee/service_centers/warehouse_default_page';
+$route['service_center/inventory/inventory_list'] = 'employee/service_centers/inventory_stock_list';
+$route['service_center/spare_parts'] = 'employee/service_centers/get_spare_parts_booking';
+$route['service_center/spare_parts/(:any)/(:any)'] = 'employee/service_centers/get_spare_parts_booking/$1/$2';
+$route['service_center/defective_spare_parts'] = 'employee/service_centers/get_defective_parts_shipped_by_sf';
+$route['service_center/defective_spare_parts/(:any)/(:any)'] = 'employee/service_centers/get_defective_parts_shipped_by_sf/$1/$2';
+$route['service_center/update_spare_parts_form/(:any)'] = 'employee/service_centers/update_spare_parts_form/$1';
+$route['service_center/process_update_spare_parts/(:any)/(:any)'] = 'employee/service_centers/process_update_spare_parts/$1/$2';
+$route['service_center/reject_defective_part/(:any)/(:any)'] = 'employee/service_centers/reject_defective_part/$1/$2';
+$route['service_center/get_shipped_parts_list'] = 'employee/service_centers/get_shipped_parts_list_by_warehouse';
+$route['service_center/get_shipped_parts_list/(:any)'] = 'employee/service_centers/get_shipped_parts_list_by_warehouse/$1';
+$route['service_center/print_all'] = 'employee/service_centers/print_all';
+$route['service_center/acknowledge_received_defective_parts/(:any)/(:any)'] = 'employee/service_centers/acknowledge_received_defective_parts/$1/$2';
+$route['service_center/approved_defective_parts_booking_by_warehouse'] = 'employee/service_centers/get_approved_defective_parts_booking_by_warehouse';
+$route['service_center/approved_defective_parts_booking_by_warehouse/(:any)'] = 'employee/service_centers/get_approved_defective_parts_booking_by_warehouse/$1';
+$route['service_center/download_sf_declaration/(:any)'] = 'employee/service_centers/download_sf_declaration/$1'; 
+
+
 
 $route['call-customer-status-callback'] = 'employee/booking/call_customer_status_callback';
 
@@ -147,6 +165,10 @@ $route['partner/download_sf_list_excel'] = 'employee/partner/download_sf_list_ex
 $route['partner/serviceability_list'] = 'employee/partner/get_serviceability_by_pincode';
 $route['partner/banktransaction'] = 'employee/partner/get_bank_transaction';
 $route['partner/download_sf_declaration/(:any)'] = 'employee/partner/download_sf_declaration/$1';
+$route['partner/inventory/inventory_list'] = 'employee/partner/inventory_stock_list';
+
+
+
 
 $route['pass-through-rating-missed-call'] = 'api/pass_through_rating_missed_call';
 $route['pass-through-fake-reschedule-call'] = 'api/pass_through_fake_reschedule_call';

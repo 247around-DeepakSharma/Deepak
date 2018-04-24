@@ -1153,10 +1153,13 @@
                             <div class="col-md-12">
                                 <label class="checkbox-inline">
                                     <input type="checkbox" id="is_sf" <?php if(isset($query[0]['is_sf'])) { if($query[0]['is_sf'] == 1){ echo "checked";}}?> name="is_sf" value="1"><b>Service Center</b>
-                              </label>
-                              <label class="checkbox-inline">
-                                  <input type="checkbox" id="is_cp" name="is_cp" <?php if(isset($query[0]['is_cp'])) { if($query[0]['is_cp'] == 1){ echo "checked";}}?> value="1"><b>Collection Partner</b>
-                              </label>
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" id="is_cp" name="is_cp" <?php if(isset($query[0]['is_cp'])) { if($query[0]['is_cp'] == 1){ echo "checked";}}?> value="1"><b>Collection Partner</b>
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" id="is_wh" name="is_wh" <?php if(isset($query[0]['is_wh'])) { if($query[0]['is_wh'] == 1){ echo "checked";}}?> value="1"><b>Warehouse</b>
+                                </label>
                             </div>
                         </div>
                     </div>
@@ -1474,8 +1477,8 @@
                }
             }
             
-             if( ($('#is_cp').is(":checked") === false) && ($('#is_sf').is(":checked") === false)){
-                 alert("Please Select Atleast One Checkbox of Service Center OR Collection Partner");
+             if( ($('#is_cp').is(":checked") === false) && ($('#is_sf').is(":checked") === false) && ($('#is_wh').is(":checked") === false)){
+                 alert("Please Select Atleast One Checkbox of Service Center OR Collection Partner OR Warehouse");
                  return false;
              } 
               return  bank_validation_check =  bank_details_validation();
