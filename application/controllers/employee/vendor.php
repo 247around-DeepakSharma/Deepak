@@ -4179,12 +4179,14 @@ class vendor extends CI_Controller {
      * 
      */
     function get_service_center_details(){
-        $select = "service_centres.name, service_centres.id";
+        
         $is_wh = $this->input->post('is_wh');
         if(!empty($is_wh)){
+            $select = "service_centres.district, service_centres.id,service_centres.state";
             $where = array('is_wh' => 1,'active' => 1);
             $option = '<option selected="" disabled="">Select Warehouse</option>';
         }else{
+            $select = "service_centres.name, service_centres.id";
             $where = "";
             $option = '<option selected="" disabled="">Select Service Center</option>';
         }
@@ -4201,7 +4203,12 @@ class vendor extends CI_Controller {
         foreach ($data as $value) {
             $option .= "<option value='" . $value['id'] . "'";
             $option .= " > ";
-            $option .= $value['name'] . "</option>";
+            
+            if(!empty($is_wh)){
+                $option .=  _247AROUND_EMPLOYEE_STRING." ".$value['district'] ." ( <strong>". $value['state']. " </strong>)"."</option>";
+            }else{
+                $option .= $value['name'] . "</option>";
+            }
         }
 
         echo $option;

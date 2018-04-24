@@ -1787,8 +1787,19 @@ class Inventory extends CI_Controller {
         $data['entity_id'] = $entity_id;
         $data['entity_type'] = $entity_type;
         $data['inventory_id'] = $inventory_id;
-        $this->miscelleneous->load_nav_header();
-        $this->load->view("employee/show_inventory_ledger_list", $data);
+        
+        if($this->session->userdata('service_center_id')){
+            $this->load->view('service_centers/header');
+            $this->load->view("service_centers/show_inventory_ledger_list", $data);
+        }else if($this->session->userdata('id')){
+            $this->miscelleneous->load_nav_header();
+            $this->load->view("employee/show_inventory_ledger_list", $data);
+        }else if($this->session->userdata('partner_id')){
+            $this->load->view('partner/header');
+            $this->load->view("partner/show_inventory_ledger_list", $data);
+            $this->load->view('partner/partner_footer');
+        }
+        
     }
     
     /**
