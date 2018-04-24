@@ -613,6 +613,7 @@ class vendor extends CI_Controller {
                 $vendor_data['is_gst_doc'] = $this->input->post('is_gst_doc');
                 $vendor_data['is_sf'] = $this->input->post('is_sf');
                 $vendor_data['is_cp'] = $this->input->post('is_cp');
+                $vendor_data['is_wh'] = $this->input->post('is_wh');
                 $vendor_data['min_upcountry_distance'] = $this->input->post('min_upcountry_distance');
                 if(empty( $vendor_data['is_cp'])){
                      $vendor_data['is_cp'] = 0;
@@ -620,6 +621,10 @@ class vendor extends CI_Controller {
                 
                 if(empty( $vendor_data['is_sf'])){
                      $vendor_data['is_sf'] = 0;
+                }
+                
+                if(empty( $vendor_data['is_wh'])){
+                     $vendor_data['is_wh'] = 0;
                 }
                 
                 if(!empty($vendor_data['is_pan_doc']) && !empty($this->input->post('pan_no')) ){
@@ -4169,6 +4174,14 @@ class vendor extends CI_Controller {
      */
     function get_service_center_details(){
         $select = "service_centres.name, service_centres.id";
+        $is_wh = $this->input->post('is_wh');
+        if(!empty($is_wh)){
+            $where = array('is_wh' => 1,'active' => 1);
+            $option = '<option selected="" disabled="">Select Warehouse</option>';
+        }else{
+            $where = "";
+            $option = '<option selected="" disabled="">Select Service Center</option>';
+        }
         if($this->session->userdata('user_group') == 'regionalmanager'){
             $sf_list = $this->vendor_model->get_employee_relation($this->session->userdata('id') );
             $serviceCenters = $sf_list[0]['service_centres_id'];
@@ -4177,9 +4190,8 @@ class vendor extends CI_Controller {
         else{
             $whereIN = NULL;
         }
-        $data= $this->reusable_model->get_search_result_data("service_centres",$select,NULL,NULL,NULL,NULL,$whereIN,NULL,array());
-        $option = '<option selected="" disabled="">Select Service Center</option>';
-
+        $data= $this->reusable_model->get_search_result_data("service_centres",$select,$where,NULL,NULL,NULL,$whereIN,NULL,array());
+        
         foreach ($data as $value) {
             $option .= "<option value='" . $value['id'] . "'";
             $option .= " > ";
@@ -4201,10 +4213,14 @@ class vendor extends CI_Controller {
                 $active = '1';
             }
             
+            $is_wh = '';
+            $is_cp = '';
             if($sf_cp_type === 'sf'){
                 $is_cp = '';
             }else if($sf_cp_type === 'cp'){
                 $is_cp = '1';
+            }else if($sf_cp_type === 'wh'){
+                $is_wh = '1';
             }
             
             $id = $this->session->userdata('id');   
@@ -4214,7 +4230,7 @@ class vendor extends CI_Controller {
             if (!empty($sf_list)) {
                 $sf_list = $sf_list[0]['service_centres_id'];
             }
-            $query = $this->vendor_model->viewvendor('', $active, $sf_list,$is_cp);
+            $query = $this->vendor_model->viewvendor('', $active, $sf_list,$is_cp,$is_wh);
             if(!empty($query)){
                 $response = $this->load->view('employee/viewvendor', array('query' => $query,'is_ajax'=>true));
             }else{

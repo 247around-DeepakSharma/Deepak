@@ -151,7 +151,7 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="control-label col-md-4" for="part_name">Part Name</label>
+                                    <label class="control-label col-md-4" for="part_name">Part Name*</label>
                                     <div class="col-md-7 col-md-offset-1">
                                         <input type="text" class="form-control" id="part_name" name="part_name" placeholder="Part Name">
                                     </div>
@@ -162,7 +162,7 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="control-label col-md-4" for="part_number">Part Number</label>
+                                    <label class="control-label col-md-4" for="part_number">Part Number*</label>
                                     <div class="col-md-7 col-md-offset-1">
                                         <input type="text" class="form-control" id="part_number" name="part_number" placeholder="Part Number">
                                     </div>
@@ -180,7 +180,7 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="control-label col-md-4" for="model_number">Model Number</label>
+                                    <label class="control-label col-md-4" for="model_number">Model Number*</label>
                                     <div class="col-md-7 col-md-offset-1">
                                         <input type="text" class="form-control" id="model_number" name="model_number" placeholder="Model Number">
                                     </div>
@@ -225,7 +225,7 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="control-label col-md-4" for="price">price</label>
+                                    <label class="control-label col-md-4" for="price">Price</label>
                                     <div class="col-md-7 col-md-offset-1">
                                         <input type="number" class="form-control" id="price" name="price" placeholder="Price">
                                     </div>
@@ -233,7 +233,7 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="control-label col-md-4" for="type">type</label>
+                                    <label class="control-label col-md-4" for="type">Part Type</label>
                                     <div class="col-md-7 col-md-offset-1">
                                         <textarea class="form-control" id="type" name="type" placeholder="Type"></textarea>
                                     </div>
@@ -256,6 +256,7 @@
                             <input type="hidden" class="btn btn-success" id="inventory_id" name='inventory_id' value="">
                             <input type="submit" class="btn btn-success" id="master_list_submit_btn" name='submit_type' value="Submit">
                             <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                            <p class="pull-left text-danger">* These Fields are required</p>
                         </div>
                     </form>
                 </div>
@@ -343,7 +344,7 @@
     $('#add_master_list').click(function(){
         get_services();
         $("#master_list_details")[0].reset();
-        $('#master_list_submit_btn').val('add');
+        $('#master_list_submit_btn').val('Add');
         $('#modal_title_action').html("Add New Inventory");
         $('#inventory_master_list_data').modal('toggle');
     });
@@ -379,7 +380,7 @@
         $('#type').val(form_data.type);
         $('#description').val(form_data.description);
         $('#inventory_id').val(form_data.inventory_id);
-        $('#master_list_submit_btn').val('edit');
+        $('#master_list_submit_btn').val('Edit');
         $('#modal_title_action').html("Edit Details");
         $('#inventory_master_list_data').modal('toggle');
            
@@ -388,30 +389,39 @@
     $("#master_list_submit_btn").click(function(){
         event.preventDefault();
         var arr = {};
-        $('#master_list_submit_btn').attr('disabled',true);
         var form_data = $("#master_list_details").serializeArray();
-        arr.name = 'submit_type';
-        arr.value = $('#master_list_submit_btn').val();
-        form_data.push(arr);
-        $.ajax({
-            type:'POST',
-            url:'<?php echo base_url(); ?>employee/inventory/process_inventoy_master_list_data',
-            data : form_data,
-            success:function(response){
-                $('#inventory_master_list_data').modal('toggle');
-                var data = JSON.parse(response);
-                if(data.response === 'success'){
-                    $('.success_msg_div').fadeTo(2000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
-                    $('#success_msg').html(data.msg);
-                    inventory_master_list_table.ajax.reload();
-                }else if(data.response === 'error'){
-                    $('.error_msg_div').fadeTo(2000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(1000);});
-                    $('#error_msg').html(data.msg);
-                    inventory_master_list_table.ajax.reload();
+        
+        if($('#part_name').val() === ""){
+            alert("Please Enter Part Name");
+        }else if($('#part_number').val() === ""){
+            alert("Please Enter Part Number");
+        }else if($('#model_number').val() === ""){
+            alert("Please Enter Model Number");
+        }else{
+            $('#master_list_submit_btn').attr('disabled',true).html('Processing...');
+            arr.name = 'submit_type';
+            arr.value = $('#master_list_submit_btn').val();
+            form_data.push(arr);
+            $.ajax({
+                type:'POST',
+                url:'<?php echo base_url(); ?>employee/inventory/process_inventoy_master_list_data',
+                data : form_data,
+                success:function(response){
+                    $('#inventory_master_list_data').modal('toggle');
+                    var data = JSON.parse(response);
+                    if(data.response === 'success'){
+                        $('.success_msg_div').fadeTo(2000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
+                        $('#success_msg').html(data.msg);
+                        inventory_master_list_table.ajax.reload();
+                    }else if(data.response === 'error'){
+                        $('.error_msg_div').fadeTo(2000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(1000);});
+                        $('#error_msg').html(data.msg);
+                        inventory_master_list_table.ajax.reload();
+                    }
+                    $('#master_list_submit_btn').attr('disabled',false).Html('Add');
                 }
-                $('#master_list_submit_btn').attr('disabled',false);
-            }
-        });
+            });
+        }
 
     });
     

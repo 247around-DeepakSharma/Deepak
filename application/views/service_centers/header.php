@@ -14,6 +14,8 @@
         <link href="<?php echo base_url() ?>css/sweetalert.css" rel="stylesheet">
         <script src="<?php echo base_url()?>js/jquery.js"></script>
         <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
+        <!-- DataTable CSS -->
+        <link rel="stylesheet" type="text/css" href="<?php echo base_url() ?>assest/DataTables/datatables.min.css"/>
         <script src="<?php echo base_url()?>js/bootstrap.min.js"></script>
         <link href="<?php echo base_url()?>css/select2.min.css" rel="stylesheet" />
         <script src="<?php echo base_url();?>js/select2.min.js"></script>
@@ -21,7 +23,13 @@
         <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
         <!-- sweet Alert JS -->
         <script src="<?php echo base_url();?>js/sweetalert.min.js"></script>
+        <!-- Datatable JS-->
+        <script type="text/javascript" src="<?php echo base_url() ?>assest/DataTables/datatables.min.js"></script>
         
+        <!-- Daterange picker-->
+        <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
+        <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+        <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
         <style type="text/css">
             .navbar{
             min-height: 80px;
@@ -135,11 +143,11 @@
                             </a>
                             <ul class="dropdown-menu">
                                 <li>
-                                    <a href="<?php echo base_url() ?>service_center/add_engineer" ><i class="fa fa-fw fa-desktop"></i> <strong> Add Engineer</strong></a>
+                                    <a href="<?php echo base_url() ?>service_center/add_engineer" > <strong> Add Engineer</strong></a>
                                 </li>
                                 <li role="separator" class="divider" style="height: 2px;"></li>
                                 <li>
-                                    <a href="<?php echo base_url() ?>service_center/get_engineers" ><i class="fa fa-fw fa-desktop"></i> <strong> View Engineers</strong></a>
+                                    <a href="<?php echo base_url() ?>service_center/get_engineers" > <strong> View Engineers</strong></a>
                                 </li>
                             </ul>
                         </li>
@@ -156,16 +164,16 @@
                             </a>
                             <ul class="dropdown-menu">
                                 <li>
-                                    <a href="<?php echo base_url() ?>service_center/invoices_details" ><i class="fa fa-fw fa-desktop"></i> <strong> Invoice Summary</strong></a>
+                                    <a href="<?php echo base_url() ?>service_center/invoices_details" > <strong> Invoice Summary</strong></a>
                                 </li>
                                 <?php if($this->session->userdata('is_sf') === '1'){ ?>
                                 <li role="separator" class="divider"></li>
                                 <li>
-                                    <a href="<?php echo base_url() ?>service_center/customer_invoice_details" ><i class="fa fa-fw fa-desktop"></i> <strong> Customer Invoice</strong></a>
+                                    <a href="<?php echo base_url() ?>service_center/customer_invoice_details" ><strong> Customer Invoice</strong></a>
                                 </li>
                                 <li role="separator" class="divider"></li>
                                 <li>
-                                    <a href="<?php echo base_url() ?>employee/service_centers/download_sf_charges_excel" ><i class="fa fa-fw fa-desktop"></i> <strong> Charges List</strong></a>
+                                    <a href="<?php echo base_url() ?>employee/service_centers/download_sf_charges_excel" ><strong> Charges List</strong></a>
                                 </li>
                                 <?php }?>
                             </ul>
@@ -174,11 +182,40 @@
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Buyback <span class="caret"></span></a>
                             <ul class="dropdown-menu">
-                                <li><a href="<?php echo base_url();?>service_center/buyback/bb_order_details">Buyback Order Details</a></li>
+                                <li><a href="<?php echo base_url();?>service_center/buyback/bb_order_details"> <strong>Buyback Order Details</strong></a></li>
                                 <li role="separator" class="divider"></li>
-                                <li><a href="<?php echo base_url();?>service_center/buyback/show_bb_price_list">Buyback Charges List</a></li>
+                                <li><a href="<?php echo base_url();?>service_center/buyback/show_bb_price_list"><strong>Buyback Charges List</strong></a></li>
                             </ul>
                         </li>
+                        <?php } ?>
+                        <?php if($this->session->userdata('is_wh') == 1){ ?>
+                        <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Inventory <span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="<?php echo base_url(); ?>service_center/inventory"><strong>Spare Details</strong></a></li>
+                                    <li role="separator" class="divider"></li>
+                                    <li><a href="<?php echo base_url(); ?>service_center/inventory/inventory_list"><strong>Inventory List</strong></a></li>
+                                    <li role="separator" class="divider"></li>
+                                    <li class="dropdown dropdown-submenu">
+                                        <a href="" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"> <strong>Outbound Processing</strong></a>     
+                                        <ul class="dropdown-menu">
+                                            <li><a href="<?php echo base_url();?>service_center/spare_parts"><strong> Pending Spare </strong></a>
+                                            </li>
+                                            <li class="divider"></li>
+                                            <li><a href="<?php echo base_url();?>service_center/get_shipped_parts_list"><strong> Spare Shipped To SF</strong></a>
+                                            </li>
+                                            <li class="divider"></li>
+                                            <li><a href="<?php echo base_url();?>service_center/defective_spare_parts"><strong> Defective Spare Shipped By SF</strong></a>
+                                            </li>
+                                            <li class="divider"></li>
+                                            <li><a href="<?php echo base_url(); ?>service_center/approved_defective_parts_booking_by_warehouse"><strong> Defective Spare Received </strong></a>
+                                            </li>
+                                            <li class="divider"></li>
+                                        </ul>
+                                    </li>
+
+                                </ul>
+                            </li>
                         <?php } ?>
                         <li>
                             <a href="<?php echo base_url();?>service_center/gst_details"  >GST</a>
@@ -246,6 +283,15 @@
 
 <script>
     $(document).ready(function(){
+        
+        $('ul.dropdown-menu [data-toggle=dropdown]').on('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            $(this).parent().siblings().removeClass('open');
+            $(this).parent().toggleClass('open');
+        });
+                    
+                    
         $.ajax({
             type: 'POST',
             url: '<?php echo base_url(); ?>employee/service_centers/get_contact_us_page',
@@ -255,92 +301,97 @@
         });
     });
     
-function search_order_id(ele){
-    if(event.keyCode === 13 && ele.value !== '') {
+    function search_order_id(ele){
+        if(event.keyCode === 13 && ele.value !== '') {
 
-    $.ajax({
-        type: 'POST',
-        url: '<?php echo base_url() ?>employee/service_centers/search_for_buyback',
-        data: {search:ele.value},
-        success: function (response) {
-         console.log(response);
-         $(".right_col").html(response);
+            $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url() ?>employee/service_centers/search_for_buyback',
+                data: {search:ele.value},
+                success: function (response) {
+                 console.log(response);
+                 $(".right_col").html(response);
 
-       }
-     });
+                }
+            });
+        }
     }
-}
 
 
-function showConfirmDialougeBox(url){
-    swal({
-            title: "Do You Want To Continue?",
-            type: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#DD6B55",
-            closeOnConfirm: false
-        },
-        function(){
-            window.location.href = url;
-        });
-}
+    function showConfirmDialougeBox(url){
+        swal({
+                title: "Do You Want To Continue?",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                closeOnConfirm: false
+            },
+            function(){
+                window.location.href = url;
+            });
+    }
 
-function checkStringLength() {
-        var searched_text = $("#searched_text").val();
-        var regex = new RegExp("^[a-zA-Z0-9- ]+$");
-        if(regex.test(searched_text)){
-            if(searched_text.length >= 9){
-                return true;
+    function checkStringLength() {
+            var searched_text = $("#searched_text").val();
+            var regex = new RegExp("^[a-zA-Z0-9- ]+$");
+            if(regex.test(searched_text)){
+                if(searched_text.length >= 9){
+                    return true;
+                }else{
+                    alert("Enter Atleast 8 Character");
+                    return false;
+                }
             }else{
-                alert("Enter Atleast 8 Character");
+                alert("Special character not allowed");
                 return false;
             }
-        }else{
-            alert("Special character not allowed");
-            return false;
-        }
 
+    }
+    
+    function get_notifications(entity_id,entity_type){
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>push_notification/get_notifications',
+            data: {entity_id: entity_id,entity_type: entity_type},
+            success: function (response) {
+                $("#notification_container").html(response);
+            }
+        });
     }
 
 </script>
 <style>
-            .nav .open>a, .nav .open>a:focus, .nav .open>a:hover {
-    background-color: #2c9d9c;
-}
+    .nav .open>a, .nav .open>a:focus, .nav .open>a:hover {
+        background-color: #2c9d9c;
+    }
     .navigation_li{
-    font-size:14px;
-    color: #fff;
-    list-style: none;
-    padding: 2px 0px 0px 42px;
+        font-size:14px;
+        color: #fff;
+        list-style: none;
+        padding: 2px 0px 0px 42px;
     }
     .navigation_li a:hover {
-    background: none;
-}
-.Normal{
-    background: url(<?php echo base_url() ?>/images/norm_final.png) 7px 5px no-repeat;
-}    
-.Important{
-    background: url(<?php echo base_url() ?>/images/n_imp_final.png) 7px 13px no-repeat;
-}
-.no_new_notification{
-    color: #000;
-        text-align: center;
-    padding: 3px;
-}
-.navbar-top-links .dropdown-menu li a {
-        margin-left: 14px;
-        padding: 3px 8px;
-}
-            </style>
-            <script>
-                function get_notifications(entity_id,entity_type){
-                    $.ajax({
-                    type: 'POST',
-                    url: '<?php echo base_url(); ?>push_notification/get_notifications',
-                    data: {entity_id: entity_id,entity_type: entity_type},
-                    success: function (response) {
-                        $("#notification_container").html(response);
-                    }
-                    });
-                }
-                </script>
+        background: none;
+    }
+    .Normal{
+        background: url(<?php echo base_url() ?>/images/norm_final.png) 7px 5px no-repeat;
+    }    
+    .Important{
+        background: url(<?php echo base_url() ?>/images/n_imp_final.png) 7px 13px no-repeat;
+    }
+    .no_new_notification{
+        color: #000;
+            text-align: center;
+        padding: 3px;
+    }
+    .navbar-top-links .dropdown-menu li a {
+            margin-left: 14px;
+            padding: 3px 8px;
+    }
+    .marginBottom-0 {margin-bottom:0;}
+    .dropdown-submenu{position:relative;}
+    .dropdown-submenu>.dropdown-menu{top:0;left:100%;margin-top:-6px;margin-left:-1px;-webkit-border-radius:0 6px 6px 6px;-moz-border-radius:0 6px 6px 6px;border-radius:0 6px 6px 6px;}
+    .dropdown-submenu>a:after{display:block;content:" ";float:right;width:0;height:0;border-color:transparent;border-style:solid;border-width:5px 0 5px 5px;border-left-color:#cccccc;margin-top:5px;margin-right:-10px;}
+    .dropdown-submenu:hover>a:after{border-left-color:#555;}
+    .dropdown-submenu.pull-left{float:none;}.dropdown-submenu.pull-left>.dropdown-menu{left:-100%;margin-left:10px;-webkit-border-radius:6px 0 6px 6px;-moz-border-radius:6px 0 6px 6px;border-radius:6px 0 6px 6px;}
+</style>
