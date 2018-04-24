@@ -7,12 +7,13 @@
     text-align: left;
     }
 </style>
-<div class="right_col" role="main">
+<div class="right_col" role="main" style="padding:0 30px; margin-bottom: 30px;">
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
                 <div class="x_title">
-                    <h2>Requested Spare Parts</h2>
+                    <h3>Requested Spare Parts</h3>
+                    <hr>
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content">
@@ -78,7 +79,7 @@
                                    <label for="invoice_pic" class="col-md-4">Invoice Image</label>
                                     <div class="col-md-6">
                                         <?php if(!is_null($spare_parts[0]->invoice_pic)){ ?>
-                                        <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $spare_parts[0]->invoice_pic;?>" target="_blank" id="invoice_pic">View Image</a>
+                                        <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $spare_parts[0]->invoice_pic;?>" target="_blank" id="invoice_pic">View Image</a>
                                     <?php } ?>
                                     </div>
 
@@ -89,7 +90,7 @@
                                    <label for="serial_no_pic" class="col-md-4">Serial Number Image</label>
                                     <div class="col-md-6">
                                         <?php if(!is_null($spare_parts[0]->serial_number_pic)){ ?>
-                                        <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $spare_parts[0]->serial_number_pic;?>" target="_blank" id="serial_no_pic">View Image</a>
+                                        <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $spare_parts[0]->serial_number_pic;?>" target="_blank" id="serial_no_pic">View Image</a>
                                      <?php } ?>
                                     </div>
 
@@ -98,7 +99,7 @@
                                    <label for="defective_part_pic" class="col-md-4">Defective Part Image</label>
                                     <div class="col-md-6">
                                         <?php if(!is_null($spare_parts[0]->defective_parts_pic)){ ?>
-                                        <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $spare_parts[0]->defective_parts_pic;?>" target="_blank" id="defective_part_pic">View Image</a>
+                                        <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $spare_parts[0]->defective_parts_pic;?>" target="_blank" id="defective_part_pic">View Image</a>
                                      <?php } ?>
                                     </div>
                                 </div>
@@ -110,12 +111,13 @@
         </div>
     </div>
     
-    <form enctype="multipart/form-data" action="<?php echo base_url(); ?>partner/process_update_spare_parts/<?php echo $spare_parts[0]->booking_id; ?>/<?php echo $spare_parts[0]->id; ?>" class ="form-horizontal" name="update_form" id="update_form"  method="POST">
+    <form enctype="multipart/form-data" action="<?php echo base_url(); ?>service_center/process_update_spare_parts/<?php echo $spare_parts[0]->booking_id; ?>/<?php echo $spare_parts[0]->id; ?>" class ="form-horizontal" name="update_form" id="update_form"  method="POST">
         <div class="row">
             <div class="col-md-12 col-sm12 col-xs-12">
                 <div class="x_panel">
                     <div class="x_title">
-                        <h2>Update Spare Part</h2>
+                        <h3>Spare Part Details</h3>
+                        <hr>
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content">
@@ -131,13 +133,30 @@
                                 
                             </div>
                             <?php } ?>
+                            <div class="form-group <?php
+                                        if (form_error('shipped_model_number')) {
+                                            echo 'has-error';
+                                        } ?>">
+                                   <label for="shipped_model_number" class="col-md-4">Shipped Model Number*</label>
+                                    <div class="col-md-6">
+                                        <select class="form-control spare_parts" id="shipped_model_number" name="shipped_model_number">
+                                            <option value="" disabled="" selected="">Select Model Number</option>
+                                            <?php foreach (array_column($inventory_details, 'model_number') as $key => $value) { ?> 
+                                                <option value="<?php echo $value; ?>"><?php echo $value; ?></option>
+                                            <?php } ?>
+                                        </select>
+                                     <?php echo form_error('shipped_model_number'); ?>
+                                    </div> 
+
+                            </div>
                              <div class="form-group <?php
                                     if (form_error('shipped_parts_name')) {
                                         echo 'has-error';
                                     } ?>">
                                <label for="shipped_parts_name" class="col-md-4">Shipped Parts*</label>
                                 <div class="col-md-6">
-                                    <textarea class="form-control" id="shipped_parts_name" name="shipped_parts_name" required  placeholder="Enter Shipped parts"></textarea>
+                                    <select class="form-control spare_parts" id="shipped_parts_name" name="shipped_parts_name">
+                                    </select>
                                  <?php echo form_error('shipped_parts_name'); ?>
                                 </div> 
                                 
@@ -215,7 +234,8 @@
             <div class="col-md-12 col-sm-12 col-xs-12">
                 <div class="x_panel">
                     <div class="x_title">
-                        <h2>Update Challan Details</h2>
+                        <h3>Challan Details</h3>
+                        <hr>
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content">
@@ -259,6 +279,7 @@
                     <div class="x_content">
                         <div class="text-center">
                             <input type="hidden" name="inventory_id" id="inventory_id" value="<?php echo $spare_parts[0]->inventory_id ;?>">
+                            <input type="hidden" name="partner_id" id="partner_id" value="<?php echo $spare_parts[0]->partner_id ;?>">
                             <input type="hidden" name="assigned_vendor_id" id="assigned_vendor_id" value="<?php echo $spare_parts[0]->assigned_vendor_id ;?>">
                             <input type="submit"  <?php if (!is_null($spare_parts[0]->estimate_cost_given_date) || $spare_parts[0]->request_type == REPAIR_OOW_TAG) { ?> 
                                        onclick="return check_invoice_amount('<?php echo $spare_parts[0]->purchase_price; ?>')" <?php } ?> value="Update Booking" class="btn btn-md btn-success" />
@@ -299,6 +320,7 @@
             //form validation rules
           $("#update_form").validate({
                 rules: {
+                shipped_model_number:"required",    
                 shipped_parts_name: "required",
                 remarks_by_partner: "required",
                 courier_name:"required",
@@ -306,7 +328,8 @@
                 shipment_date:"required"
                 },
                 messages: {
-                shipped_parts_name: "Please Enter Shipped Parts",
+                shipped_model_number: "Please Select Shipped Model Number",
+                shipped_parts_name: "Please Select Shipped Parts Name",
                 remarks_by_partner: "Please Enter Remarks",
                 courier_name: "Please Courier Name",
                 awb: "Please Enter Valid AWB",
@@ -339,5 +362,29 @@
         }
        
     }
+    
+    $('#shipped_model_number').select2();
+    $('#shipped_parts_name').select2({
+        placeholder: "Select Part Name",
+        cealr:true
+    });
+    $('#shipped_model_number').on('change', function() {
+        
+        var model_number = $('#shipped_model_number').val();
+        $('#spinner').addClass('fa fa-spinner').show();
+        if(model_number){
+            $.ajax({
+                method:'POST',
+                url:'<?php echo base_url(); ?>employee/inventory/get_parts_name',
+                data: { model_number:model_number, entity_id: '<?php echo $spare_parts[0]->partner_id ;?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo $spare_parts[0]->service_id; ?>' },
+                success:function(data){
+                    $('#shipped_parts_name').html(data).select2();
+                    $('#spinner').removeClass('fa fa-spinner').hide();
+                }
+            });
+        }else{
+            alert("Please Select Model Number");
+        }
+    });
 
 </script>
