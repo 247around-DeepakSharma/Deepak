@@ -160,10 +160,8 @@
                         </tr>
                         <?php if($booking_history[0]['internal_status'] != 'Completed') {?>
                          <tr>
-                            <th>Current Actor </th>
-                            <td><?php echo $booking_history[0]['actor']; ?></td>
-                            <th>Next Action </th>
-                            <td><?php echo $booking_history[0]['next_action']; ?></td>
+                            <th> Actor / Action </th>
+                            <td><?php echo $booking_history[0]['actor']."/".$booking_history[0]['next_action']; ?></td>
                         </tr>
                         <?php } ?>
                         <tr>
