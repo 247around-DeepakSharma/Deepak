@@ -45,8 +45,6 @@ define('FOPEN_READ_WRITE_CREATE_STRICT',		'x+b');
 
 define('INT_STATUS_CUSTOMER_NOT_REACHABLE', 'Customer not reachable / Customer not picked phone');
 define('DEFAULT_SEARCH_PAGE', 'employee/user');
-define('short_url_key', 'AIzaSyBPTsxWtCYUBfq_GqcRisN-MsWU8dT2HeI');
-define('short_api_url', 'https://www.googleapis.com/urlshortener/v1/url');
 
 define('basic_percentage', 0.7);
 define('addtitional_percentage', .85);
