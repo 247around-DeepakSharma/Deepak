@@ -200,7 +200,7 @@
                             <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
                             <h4 class="modal-title" id="main_modal_title">Export Serviceability Data</h4>
                             <hr>
-                            <h5 class="modal-title" id="main_modal_title">Please Select Which Fields you want in Report</h5>
+                            <h5 class="modal-title" id="main_modal_title">Please Select Columns For Report</h5>
                             <h5 id="response_holder_csv" style="background: #5cb85c;color: #fff;text-align: center;padding: 8px;display: none;"></h5>
                         </div>
                         <div class="modal-body" id="main_modal_body">

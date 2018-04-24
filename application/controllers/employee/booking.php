@@ -2065,6 +2065,7 @@ class Booking extends CI_Controller {
             $data['closing_remarks'] = NULL;
             $data['booking_jobcard_filename'] = NULL;
             $data['mail_to_vendor'] = 0;
+            $data['service_center_closed_date'] = NULL;
             //$data['booking_remarks'] = $this->input->post('reason');
             //check partner status from partner_booking_status_mapping table  
             $partner_id = $this->input->post('partner_id');
