@@ -1123,7 +1123,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $serviceCentersIDArray= $this->vendor_model->get_employee_relation($rmID);
         if(!empty($serviceCentersIDArray)){
             $serviceCentersIDList = $serviceCentersIDArray[0]['service_centres_id'];
-            $where = 'AND service_centres.active=1 AND service_centres.on_off=1 AND service_centres.id  IN (' . $serviceCentersIDList . ') AND booking_details.actor="vendor"';
+            $where = 'AND service_centres.active=1 AND service_centres.on_off=1 AND service_centres.id  IN (' . $serviceCentersIDList . ')';
             // All Booking Where request_type is not like repair Should be considered as Installation Bookings
             $where_installation = $where." AND (request_type NOT LIKE '%Repair%' AND request_type NOT LIKE '%Repeat%')";
             // All Booking Where request_type is like repair Should be considered as Repair Bookings
