@@ -11,7 +11,7 @@
                 </center>
             </div>
             <div style="float:left; padding: 15px; padding"><p><b>Dear Partner</b></p>
-                <p style="color:#515151;">Please find Service Status Sheet attached for leads shared in last One Month, thanks.</p>
+                <p style="color:#515151;">Please find Service Status Sheet attached for leads shared in last One Month and Pending Bookings for all time thanks.</p>
               <p><b>Installation Bookings</b></p>
             </div>
             <div style="padding: 15px;">
