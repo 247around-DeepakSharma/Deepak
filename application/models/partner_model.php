@@ -323,8 +323,8 @@ function get_data_for_partner_callback($booking_id) {
 
 	return $query->result_array();
     }
-    function get_partner_report_overview_in_percentage_format($partner_id){
-        $query = $this->db->query("SELECT COUNT(booking_id) as count,DATEDIFF(date(booking_details.service_center_closed_date),date(booking_details.create_date)) as TAT FROM booking_details "
+    function get_partner_report_overview_in_percentage_format($partner_id,$bookingDateColumn){
+        $query = $this->db->query("SELECT COUNT(booking_id) as count,DATEDIFF(date(booking_details.service_center_closed_date),$bookingDateColumn) as TAT FROM booking_details "
                 . "WHERE partner_id = '".$partner_id."' AND service_center_closed_date IS NOT NULL AND !(current_status = 'Cancelled' OR internal_status ='InProcess_Cancelled') AND MONTH(booking_details.create_date) "
                 . "= MONTH(CURDATE())  GROUP BY TAT");
         $overViewData = $query->result_array();
@@ -359,10 +359,10 @@ function get_data_for_partner_callback($booking_id) {
             $dependency = ', IF(dependency_on =1, "'.DEPENDENCY_ON_AROUND.'", "'.DEPENDENCY_ON_CUSTOMER.'") as Dependency ';
         }
         if ($percentageLogic == 1){
-            $dependency = ', IF(dependency_on =1, "'.DEPENDENCY_ON_AROUND.'", "'.DEPENDENCY_ON_CUSTOMER.'") as Dependency ';
-            $tatSubQuery  = '(CASE WHEN DATEDIFF(date(booking_details.service_center_closed_date),date(booking_details.create_date)) < 0 THEN 0 ELSE'
-                    . '  DATEDIFF(date(booking_details.service_center_closed_date),date(booking_details.create_date)) END ) as TAT';
-            $agingSubQuery = 'DATEDIFF(CURDATE(),date(booking_details.create_date)) as Aging';
+            $tatSubQuery  = '(CASE WHEN booking_details.service_center_closed_date IS NOT NULL AND (current_status NOT IN ("Cancelled") OR internal_status NOT IN ("InProcess_Cancelled"))  '
+                    . 'THEN (CASE WHEN DATEDIFF(date(booking_details.closed_date),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) < 0 THEN 0 ELSE'
+                . ' DATEDIFF(date(booking_details.closed_date),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) END) ELSE "" END) as TAT';
+            $agingSubQuery = '(CASE WHEN booking_details.service_center_closed_date IS NULL THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) ELSE "" END) as Aging';
             $closeDateSubQuery = "date(booking_details.service_center_closed_date) AS 'Completion Date'";
         }
         
