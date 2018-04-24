@@ -655,7 +655,8 @@ class invoices_model extends CI_Model {
 
         if (!empty($result_data['result'])) {
             $result =  $result_data['result'];
-            $response = $this->_set_partner_excel_invoice_data($result,$from_date_tmp,$to_date_tmp, "Tax Invoice");
+            $gst_rate = DEFAULT_TAX_RATE;
+            $response = $this->_set_partner_excel_invoice_data($gst_rate, $result,$from_date_tmp,$to_date_tmp, "Tax Invoice");
 
             $data['booking'] = $response['booking'];
             $data['meta'] = $response['meta'];
@@ -668,7 +669,7 @@ class invoices_model extends CI_Model {
         }
     }
     
-    function _set_partner_excel_invoice_data($result, $sd, $ed, $invoice_type, 
+    function _set_partner_excel_invoice_data($gst_rate, $result, $sd, $ed, $invoice_type, 
             $invoice_date = false, $is_customer = false, $customer_state =false){
             $c_s_gst =$this->check_gst_tax_type($result[0]['state'], $customer_state);
             
@@ -681,8 +682,8 @@ class invoices_model extends CI_Model {
             foreach ($result as $key => $value) {
                 if($is_customer && empty($result[0]['gst_number'])){
                   
-                    $meta['total_taxable_value'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * 0.18)));
-                    $result[$key]['toal_amount'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * 0.18)));
+                    $meta['total_taxable_value'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * ($gst_rate/100))));
+                    $result[$key]['toal_amount'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * ($gst_rate/100))));
                     
                     
                 } else if((empty($is_customer)) && empty($result[0]['gst_number'])){
@@ -695,28 +696,31 @@ class invoices_model extends CI_Model {
                 }else if($c_s_gst){
 
                     $result[$key]['cgst_rate'] =  $result[$key]['sgst_rate'] = 9;
-                    $result[$key]['cgst_tax_amount'] = sprintf("%1\$.2f",($value['taxable_value'] * 0.09));
-                    $result[$key]['sgst_tax_amount'] = sprintf("%1\$.2f",($value['taxable_value'] * 0.09));
+                    $result[$key]['cgst_tax_amount'] = sprintf("%1\$.2f",($value['taxable_value'] * ($gst_rate/100)/2));
+                    $result[$key]['sgst_tax_amount'] = sprintf("%1\$.2f",($value['taxable_value'] * ($gst_rate/100)/2));
                     $meta['cgst_total_tax_amount'] +=  $result[$key]['cgst_tax_amount'];
                     $meta['sgst_total_tax_amount'] += $result[$key]['sgst_tax_amount'];
                     $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = 9;
                     $meta['total_taxable_value'] += $value['taxable_value'];
                     
-                    $result[$key]['toal_amount'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * 0.18)));
+                    $result[$key]['toal_amount'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * ($gst_rate/100))));
                    
                 } else {
                    
                     $result[$key]['igst_rate'] =  $meta['igst_tax_rate'] = DEFAULT_TAX_RATE;
-                    $result[$key]['igst_tax_amount'] = sprintf("%1\$.2f",($value['taxable_value'] * 0.18));
+                    $result[$key]['igst_tax_amount'] = sprintf("%1\$.2f",($value['taxable_value'] * ($gst_rate/100)));
                     $meta['igst_total_tax_amount'] +=  $result[$key]['igst_tax_amount'];
                     $meta['total_taxable_value'] += $value['taxable_value'];
                     
-                    $result[$key]['toal_amount'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * 0.18)));
+                    $result[$key]['toal_amount'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * ($gst_rate/100))));
                 }
                 
                 
                 $meta['total_qty'] += $value['qty'];
                 $meta['total_rate'] += $value['rate'];
+                if($value['rate'] == 0){
+                    $result[$key]['rate'] = "";
+                }
                
                 $meta['sub_total_amount'] += $result[$key]['toal_amount'];
                 if($value['product_or_services'] == "Service"){
@@ -738,6 +742,7 @@ class invoices_model extends CI_Model {
             if($result[0]['gst_number'] == 1){
                 $result[0]['gst_number'] = "";
             }
+            
             $meta['gst_number'] = $result[0]['gst_number'];
             $meta['reverse_charge_type'] = "N";
             $meta['reverse_charge'] = '';

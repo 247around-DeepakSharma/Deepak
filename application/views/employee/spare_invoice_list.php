@@ -58,7 +58,7 @@
                         <div class="col-md-6 ">
                             <div class="form-group col-md-12  ">
                                 <label for="Claimed Price">Invoice ID *</label>
-                                <input type="text" class="form-control" style="font-size: 13px;"  id="invoice_id" placeholder="Enter Invoice ID" name="invoice_id" value = "" reaquired>
+                                <input type="text" class="form-control" style="font-size: 13px;"  id="invoice_id" placeholder="Enter Invoice ID" name="invoice_id" value = "" required>
                             </div>
                         </div>
                          <div class="col-md-6 ">
@@ -71,20 +71,20 @@
                         <div class="col-md-6 ">
                             <div class="form-group col-md-12  ">
                                 <label for="remarks">Parts Qty *</label>
-                                <input type="text" class="form-control" style="font-size: 13px;"  id="parts_count" placeholder="Enter Parts Quantity" name="parts_count" value = "" reaquired>
+                                <input type="text" class="form-control" style="font-size: 13px;"  id="parts_count" placeholder="Enter Parts Quantity" name="parts_count" value = "" required>
                             </div>
                         </div>
                        
                         <div class="col-md-6 ">
                             <div class="form-group col-md-12  ">
-                                <label for="remarks">Parts Charge *</label>
-                                <input type="text" class="form-control" style="font-size: 13px;"  id="parts_cost" placeholder="Enter Parts Charge" name="parts_charge" value = "" reaquired>
+                                <label for="remarks">Parts Charge(With GST) *</label>
+                                <input type="text" class="form-control" style="font-size: 13px;"  id="parts_cost" placeholder="Enter Parts Charge" name="parts_charge" value = "" required>
                             </div>
                         </div>
                         <div class="col-md-6 ">
                             <div class="form-group col-md-12  ">
                                 <label for="remarks">GST Rate *</label>
-                                <input type="text" class="form-control" style="font-size: 13px;" id="gst_rate" placeholder="Enter GST Rate" name="gst_rate" value = "" reaquired>
+                                <input type="text" class="form-control" style="font-size: 13px;" id="gst_rate" placeholder="Enter GST Rate" name="gst_rate" value = "" required>
                             </div>
                         </div>
                         <div class="col-md-6 ">
@@ -96,7 +96,7 @@
                         <div class="col-md-12 ">
                             <div class="form-group col-md-12  ">
                                 <label for="remarks">Remarks *</label>
-                                <input type="text" class="form-control" style="font-size: 13px;"  id="gst_rate" placeholder="Enter Remarks" name="remarks" value = "" reaquired>
+                                <input type="text" class="form-control" style="font-size: 13px;"  id="gst_rate" placeholder="Enter Remarks" name="remarks" value = "" required>
                             </div>
                         </div>
                     </div>
