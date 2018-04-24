@@ -223,11 +223,36 @@
 </div>
 <script type="text/javascript">
     
-    $('#model_number').select2();
-    $('#parts_name').select2({
-        placeholder: "Select Part Name",
-        cealr:true
-    });
+    
+    <?php if(isset($inventory_details) && !empty($inventory_details)) { ?> 
+        
+        $('#model_number').select2();
+        $('#parts_name').select2({
+            placeholder: "Select Part Name",
+            cealr:true
+        });
+        
+        $('#model_number').on('change', function() {
+        
+            var model_number = $('#model_number').val();
+            $('#spinner').addClass('fa fa-spinner').show();
+            if(model_number){
+                $.ajax({
+                    method:'POST',
+                    url:'<?php echo base_url(); ?>employee/inventory/get_parts_name',
+                    data: { model_number:model_number, entity_id: '<?php echo $bookinghistory[0]['partner_id']?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo $bookinghistory[0]['service_id']; ?>' },
+                    success:function(data){
+                        $('#parts_name').html(data).select2();
+                        $('#spinner').removeClass('fa fa-spinner').hide();
+                    }
+                });
+            }else{
+                alert("Please Select Model Number");
+            }
+        });
+        
+    <?php } ?>
+
     $(document).ready(function (){
        $(".spare_parts").attr("disabled", "true");
     });
@@ -380,26 +405,6 @@
         }).datepicker('show');
     }
     
-    $('#model_number').on('change', function() {
-        
-        var model_number = $('#model_number').val();
-        $('#spinner').addClass('fa fa-spinner').show();
-        if(model_number){
-            $.ajax({
-                method:'POST',
-                url:'<?php echo base_url(); ?>employee/inventory/get_parts_name',
-                data: { model_number:model_number, entity_id: '<?php echo $bookinghistory[0]['partner_id']?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo $bookinghistory[0]['service_id']; ?>' },
-                success:function(data){
-                    $('#parts_name').html(data).select2();
-                    $('#spinner').removeClass('fa fa-spinner').hide();
-                }
-            });
-        }else{
-            alert("Please Select Model Number");
-        }
-    });
-    
-     
 </script>
 <style type="text/css">
     #hide_spare, #hide_rescheduled { display: none;}

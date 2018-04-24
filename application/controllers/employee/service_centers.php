@@ -3526,8 +3526,6 @@ class Service_centers extends CI_Controller {
                         $data['receiver_entity_type'] = _247AROUND_SF_STRING;
                         $data['sender_entity_id'] = $this->session->userdata('service_center_id');
                         $data['sender_entity_type'] = _247AROUND_SF_STRING;
-                        $data['sender_entity_id'] = $this->session->userdata('service_center_id');
-                        $data['receiver_entity_type'] = _247AROUND_SF_STRING;
                         $data['stock'] = -1;
                         $data['booking_id'] = $booking_id;
                         $data['agent_id'] = $this->session->userdata('service_center_id');

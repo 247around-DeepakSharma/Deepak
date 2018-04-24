@@ -1722,7 +1722,7 @@ class Partner extends CI_Controller {
         $where['length'] = -1;
         $where['where'] = array('spare_parts_details.id' => $id);
         $where['select'] = "booking_details.booking_id, users.name, booking_primary_contact_no,parts_requested, model_number,serial_number,date_of_purchase, invoice_pic,"
-                . "serial_number_pic,defective_parts_pic,spare_parts_details.id, booking_details.request_type, purchase_price, estimate_cost_given_date";
+                . "serial_number_pic,defective_parts_pic,spare_parts_details.id, booking_details.request_type, purchase_price, estimate_cost_given_date,booking_details.assigned_vendor_id,spare_parts_details.inventory_id";
 
         $data['spare_parts'] = $this->inventory_model->get_spare_parts_query($where);
         $this->load->view('partner/header');
@@ -1776,7 +1776,7 @@ class Partner extends CI_Controller {
                     $data['incoming_invoice_pdf'] = $incoming_invoice_pdf;
                 }
                 $data['status'] = "Shipped";
-                $where = array('id' => $id, 'partner_id' => $partner_id);
+                $where = array('id' => $id, 'partner_id' => $partner_id,'entity_type' => _247AROUND_PARTNER_STRING);
                 $response = $this->service_centers_model->update_spare_parts($where, $data);
                 if ($response) {
                     
@@ -1801,6 +1801,24 @@ class Partner extends CI_Controller {
                         $url = base_url() . "employee/invoice/generate_oow_parts_invoice/" . $id;
                         $async_data['booking_id'] = $booking_id;
                         $this->asynchronous_lib->do_background_process($url, $async_data);
+                    }
+                    
+                    if(!empty($this->input->post('inventory_id'))){
+                        
+                        //get vendor details
+                        $sf_details =  $this->partner_model->getVendorDetails('name', array('id' => $this->input->post('assigned_vendor_id')));
+                        //update inventory stocks
+                        $data['receiver_entity_id'] = $sf_details[0]['name'];
+                        $data['receiver_entity_type'] = _247AROUND_SF_STRING;
+                        $data['sender_entity_id'] = $partner_id;
+                        $data['sender_entity_type'] = _247AROUND_PARTNER_STRING;
+                        $data['stock'] = -1;
+                        $data['booking_id'] = $booking_id;
+                        $data['agent_id'] = $partner_id;
+                        $data['agent_type'] = _247AROUND_PARTNER_STRING;
+                        $data['is_wh'] = TRUE;
+                        $data['inventory_id'] = $this->input->post('inventory_id');
+                        $this->miscelleneous->process_inventory_stocks($data);
                     }
 
                     $userSession = array('success' => 'Parts Updated');
@@ -4034,7 +4052,7 @@ class Partner extends CI_Controller {
         $this->load->view('paytm_gateway/payment_details');
         $this->load->view('partner/partner_footer');
     }
-     
+    
     function partner_report(){
         $where['state !=""' ] = NULL;
         $allState =  $this->reusable_model->get_search_result_data("booking_details","DISTINCT(state)",$where,NULL,NULL,array("state"=>"ASC"),NULL,NULL,array());
@@ -4078,7 +4096,7 @@ class Partner extends CI_Controller {
         header('Content-Length: ' . filesize($csv));
         readfile($csv);
         exec("rm -rf " . escapeshellarg($csv));
-    }
+     }
     
     
     /**
@@ -4092,5 +4110,4 @@ class Partner extends CI_Controller {
         $this->load->view('partner/inventory_stock_list');
         $this->load->view('partner/partner_footer');
     }
-    
 }
