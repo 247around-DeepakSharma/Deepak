@@ -1574,6 +1574,7 @@ EOD;
         return $response;
     }
     function send_jeeves_requested_format_report($partnerID){
+        $subject = "247around Services Report  - " . date('d-M-Y');
         $newCSVFileName = "Booking_summary_" . date('j-M-Y-H-i-s') . ".csv";
         $csv = TMP_FOLDER . $newCSVFileName;
         $report = $this->partner_model->get_partner_leads_csv_for_summary_email($partnerID,1);
@@ -1588,7 +1589,6 @@ EOD;
         $emailTemplateDataArray['dynamicParams'] = $this->partner_model->get_partner_report_overview_in_percentage_format($partnerID,"STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y')");
         $email_body = $email_body."<br>TAT Calculation Using 247Around Booking Date:<br><br>";
         $email_body = $email_body.$this->load->view('employee/partner_report',$emailTemplateDataArray,true);
-        $subject = "New Format Report For Jeeves";
         $this->notify->sendEmail(NOREPLY_EMAIL_ID,"anuj@247around.com", "nits@247around.com,chhavid@247around.com", "", $subject, $email_body, 
                 $csv,"partner_summary_report_percentage_format");
          unlink($csv);
