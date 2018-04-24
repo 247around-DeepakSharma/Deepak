@@ -2290,7 +2290,29 @@ class Partner extends CI_Controller {
         $where['partner_id'] = $partnerID;
         $priceArray = $this->service_centre_charges_model->get_partner_price_data($where);
         $config = array('template' => "Price_Sheet.xlsx", 'templateDir' => __DIR__ . "/excel-templates/");
-        $this->miscelleneous->downloadExcel($priceArray,$config);
+        $R = new PHPReport($config);
+        $R->load(array(array('id' => 'order', 'repeat' => true, 'data' => $priceArray),));
+        $output_file_excel = TMP_FOLDER . $config['template'];
+        $res1 = 0;
+        if (file_exists($output_file_excel)) {
+            system(" chmod 777 " . $output_file_excel, $res1);
+            unlink($output_file_excel);
+        }
+        $R->render('excel', $output_file_excel);
+        if (file_exists($output_file_excel)) {
+            system(" chmod 777 " . $output_file_excel, $res1);
+            header('Content-Description: File Transfer');
+            header('Content-Type: application/octet-stream');
+            //header('Content-Disposition: attachment; filename='.$config['template'].'_'.$partnerID.'_'.date("Y-m-d")');
+            header('Content-Disposition: attachment; filename="Price_Sheet"'.date("Y-m-d").".xlsx");
+            header('Expires: 0');
+            header('Cache-Control: must-revalidate');
+            header('Pragma: public');
+            header('Content-Length: ' . filesize($output_file_excel));
+            readfile($output_file_excel);
+            exec("rm -rf " . escapeshellarg($output_file_excel));
+            exit;
+        }
     }
     
     

@@ -2192,6 +2192,16 @@ class Miscelleneous {
                 $userDetails = $this->My_CI->vendor_model->updateEscalationFlag($escalation_id, $escalation_policy_details, $escalation['booking_id']);
                 log_message('info', "User Details " . print_r($userDetails, TRUE));
                 log_message('info', "Vendor_ID " . $escalation['vendor_id']);
+                //get account manager details
+                $am_email = "";
+                $partner_id = $this->My_CI->booking_model->get_bookings_count_by_any('booking_details.partner_id',array('booking_details.booking_id'=>$booking_id));
+                if(!empty($partner_id)){
+                    $accountManagerData = $this->get_am_data($partner_id[0]['partner_id']);
+                    
+                    if(!empty($accountManagerData)){
+                        $am_email = $accountManagerData[0]['official_email'];
+                    }
+                }
                 $vendorContact = $this->My_CI->vendor_model->getVendorContact($escalation['vendor_id']);
                 $return_mail_to = $vendorContact[0]['owner_email'].','.$vendorContact[0]['primary_contact_email'];
                 //Getting template from Database
@@ -2206,7 +2216,7 @@ class Miscelleneous {
                     $emailBody = vsprintf($template[0], $email);
                     $subject['booking_id'] = $escalation['booking_id'];
                     $subjectBody = vsprintf($template[4], $subject);
-                    $this->My_CI->notify->sendEmail($from, $return_mail_to, $template[3] . "," . $cc, '', $subjectBody, $emailBody, "",'escalation_on_booking');
+                    $this->My_CI->notify->sendEmail($from, $return_mail_to, $template[3] . "," . $cc.",".$am_email, '', $subjectBody, $emailBody, "",'escalation_on_booking');
                     //Logging
                     log_message('info', " Escalation Mail Send successfully" . $emailBody);
                 } else {

@@ -1573,5 +1573,19 @@ EOD;
         
         return $response;
     }
-
+    function send_jeeves_requested_format_report($partnerID){
+        $newCSVFileName = "Booking_summary_" . date('j-M-Y-H-i-s') . ".csv";
+        $csv = TMP_FOLDER . $newCSVFileName;
+        $report = $this->partner_model->get_partner_leads_csv_for_summary_email($partnerID,1);
+        $delimiter = ",";
+        $newline = "\r\n";
+        $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
+        log_message('info', __FUNCTION__ . ' => Rendered CSV');
+        write_file($csv, $new_report);
+        $emailTemplateDataArray['dynamicParams'] = $this->partner_model->get_partner_report_overview_in_percentage_format($partnerID);
+        $email_body = $this->load->view('employee/partner_report',$emailTemplateDataArray,true);
+        $subject = "New Format Report For Jeeves";
+        $this->notify->sendEmail(NOREPLY_EMAIL_ID,"anuj@247around.com", "nits@247around.com,chhavid@247around.com", "", $subject, $email_body, 
+                $csv,"partner_summary_report_percentage_format");
+    }
 }

@@ -130,6 +130,7 @@
             "pageLength":'25',
             dom: 'Bfrtip',
             buttons: [
+                'pageLength',
                 {
                     extend: 'excelHtml5',
                     text: 'Export',
