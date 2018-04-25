@@ -1495,6 +1495,7 @@ class Api extends CI_Controller {
         $sms['smsData']['date'] = "Today";
     }
 
+   $sms['smsData']['booking_id'] = $booking['booking_id'];
     $sms['booking_id'] = $booking['booking_id'];
     $sms['type'] = "user";
     $sms['type_id'] = $booking['user_id'];
