@@ -70,12 +70,13 @@ class User_invoice extends CI_Controller {
                 $invoice[0]['district'] = $data[0]->sf_district;
                 $invoice[0]['pincode'] = $data[0]->sf_pincode;
                 $invoice[0]['state'] = $data[0]->sf_state;
-                $invoice[0]['rate'] = "";
+                $invoice[0]['rate'] = 0;
                 $invoice[0]['qty'] = $data[0]->quantity;
                 $invoice[0]['hsn_code'] = HSN_CODE;
 
                 $sd = $ed = $invoice_date = $data[0]->closed_date;
-                $response = $this->invoices_model->_set_partner_excel_invoice_data($invoice, $sd, $ed, "Tax Invoice", $invoice_date, true, $data[0]->state);
+
+                $response = $this->invoices_model->_set_partner_excel_invoice_data(DEFAULT_TAX_RATE,$invoice, $sd, $ed, "Tax Invoice", $invoice_date, true, $data[0]->state);
                 $response['meta']['customer_name'] = $data[0]->name;
                 $response['meta']['customer_address'] = $data[0]->home_address . ", " . $data[0]->city . ", Pincode - " . $data[0]->pincode . ", " . $data[0]->state;
                 $response['meta']['customer_phone_number'] = $data[0]->booking_primary_contact_no;
@@ -224,9 +225,9 @@ class User_invoice extends CI_Controller {
                 "product_or_services" => $value['product_or_services'],
                 "rate" => $value['rate'],
                 "taxable_value" => $value['taxable_value'],
-                "cgst_tax_rate" => (isset($value['cgst_rate']) ? $value['cgst_rate'] : 0),
-                "sgst_tax_rate" => (isset($value['sgst_rate']) ? $value['igst_rate'] : 0),
-                "igst_tax_rate" => (isset($value['igst_rate']) ? $value['igst_rate'] : 0),
+                "cgst_tax_rate" => (isset($value['cgst_tax_rate']) ? $value['cgst_tax_rate'] : 0),
+                "sgst_tax_rate" => (isset($value['sgst_tax_rate']) ? $value['sgst_tax_rate'] : 0),
+                "igst_tax_rate" => (isset($value['igst_tax_rate']) ? $value['igst_tax_rate'] : 0),
                 "cgst_tax_amount" => (isset($value['cgst_tax_amount']) ? $value['cgst_tax_amount'] : 0),
                 "sgst_tax_amount" => (isset($value['sgst_tax_amount']) ? $value['sgst_tax_amount'] : 0),
                 "igst_tax_amount" => (isset($value['igst_tax_amount']) ? $value['igst_tax_amount'] : 0),
@@ -289,13 +290,13 @@ class User_invoice extends CI_Controller {
                 $invoice[0]['district'] = $data[0]->sf_district;
                 $invoice[0]['pincode'] = $data[0]->sf_pincode;
                 $invoice[0]['state'] = $data[0]->sf_state;
-                $invoice[0]['rate'] = "";
+                $invoice[0]['rate'] = 0;
                 $invoice[0]['qty'] = $data[0]->quantity;
                 //As Aditya, No need to add hsn code
                 $invoice[0]['hsn_code'] = "";
 
                 $sd = $ed = $invoice_date = date("Y-m-d");
-                $response = $this->invoices_model->_set_partner_excel_invoice_data($invoice, $sd, $ed, "Payment Voucher", $invoice_date);
+                $response = $this->invoices_model->_set_partner_excel_invoice_data(DEFAULT_TAX_RATE,$invoice, $sd, $ed, "Payment Voucher", $invoice_date);
                 $response['meta']['customer_name'] = $data[0]->name;
                 $response['meta']['customer_address'] = $data[0]->home_address . ", " . $data[0]->city . ", Pincode - " . $data[0]->pincode . ", " . $data[0]->state;
                 $response['meta']['customer_phone_number'] = $data[0]->booking_primary_contact_no;

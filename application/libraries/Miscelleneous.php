@@ -2437,45 +2437,46 @@ function generate_image($base64, $image_name,$directory){
     }
     
     function getShortUrl($url) {
-        //return file_get_contents("http://tinyurl.com/api-create.php?url=".$url);
+        return file_get_contents("http://tinyurl.com/api-create.php?url=".$url);
 
-        $apiKey = GOOGLE_URL_SHORTNER_KEY;
-
-        $postData = array('longUrl' => $url);
-        $jsonData = json_encode($postData);
-
-        $curlObj = curl_init();
-        curl_setopt($curlObj, CURLOPT_URL, 'https://www.googleapis.com/urlshortener/v1/url?key=' . $apiKey);
-        curl_setopt($curlObj, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($curlObj, CURLOPT_SSL_VERIFYPEER, 0);
-        curl_setopt($curlObj, CURLOPT_HEADER, 0);
-        curl_setopt($curlObj, CURLOPT_HTTPHEADER, array('Content-type:application/json'));
-        curl_setopt($curlObj, CURLOPT_POST, 1);
-        curl_setopt($curlObj, CURLOPT_POSTFIELDS, $jsonData);
-
-        $response = curl_exec($curlObj);
-
-        $json = json_decode($response);
-
-        curl_close($curlObj);
-
-        if (isset($json->error)) {
-          
-            log_message("info", __METHOD__. " Short url not generated ". print_r($json->error, true));
-            $email_template = $this->My_CI->booking_model->get_booking_email_template("google_short_url_generation_failed");
-            $subject = $email_template[4];
-            $message = "long Url - ". $url." Google Response ". $response;
-            $email_from = $email_template[2];
-
-            $to = $email_template[1];
-            $cc = $email_template[3];
-
-            $this->My_CI->notify->sendEmail($email_from, $to, $cc, "", $subject, $message,"",'google_short_url_generation_failed');
-            return false;
-        } else {
-            return $json->id;
-        }
+//        $apiKey = GOOGLE_URL_SHORTNER_KEY;
+//
+//        $postData = array('longUrl' => $url);
+//        $jsonData = json_encode($postData);
+//
+//        $curlObj = curl_init();
+//        curl_setopt($curlObj, CURLOPT_URL, 'https://www.googleapis.com/urlshortener/v1/url?key=' . $apiKey);
+//        curl_setopt($curlObj, CURLOPT_RETURNTRANSFER, 1);
+//        curl_setopt($curlObj, CURLOPT_SSL_VERIFYPEER, 0);
+//        curl_setopt($curlObj, CURLOPT_HEADER, 0);
+//        curl_setopt($curlObj, CURLOPT_HTTPHEADER, array('Content-type:application/json'));
+//        curl_setopt($curlObj, CURLOPT_POST, 1);
+//        curl_setopt($curlObj, CURLOPT_POSTFIELDS, $jsonData);
+//
+//        $response = curl_exec($curlObj);
+//
+//        $json = json_decode($response);
+//
+//        curl_close($curlObj);
+//
+//        if (isset($json->error)) {
+//          
+//            log_message("info", __METHOD__. " Short url not generated ". print_r($json->error, true));
+//            $email_template = $this->My_CI->booking_model->get_booking_email_template("google_short_url_generation_failed");
+//            $subject = $email_template[4];
+//            $message = "long Url - ". $url." Google Response ". $response;
+//            $email_from = $email_template[2];
+//
+//            $to = $email_template[1];
+//            $cc = $email_template[3];
+//
+//            $this->My_CI->notify->sendEmail($email_from, $to, $cc, "", $subject, $message,"",'google_short_url_generation_failed');
+//            return false;
+//        } else {
+//            return $json->id;
+//        }
     }
+    
 function convert_html_to_pdf($html,$booking_id,$filename,$s3_folder){
     log_message('info', __FUNCTION__ . " => Entering, Booking ID: " . $booking_id);
         require_once __DIR__ . '/pdf/vendor/autoload.php';

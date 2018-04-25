@@ -90,3 +90,4 @@ define('PAYTM_CASHBACK_PROCESSED','paytm_cashback_processed');
 define('PUSH_NOTIFICATION_ERROR','push_notification_error');
 define('NEW_PARTNER_ADDED_EMAIL_TAG','new_partner_added');
 define('VENDOR_UPDATED','vendor_updated');
+define('SEND_LOG_FILE','log_file');
