@@ -344,7 +344,7 @@ class Service_centers extends CI_Controller {
                 $booking_date = $this->reusable_model->get_search_result_data("booking_details", 'STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y") as booking_date', array('booking_id' => $booking_id), NULL, NULL, NULL, NULL, NULL, array())[0]['booking_date'];
                 $bookingData['service_center_closed_date'] = date('Y-m-d H:i:s');
                 // If time is before 12 PM then completion date will be yesturday's date
-                if (date('H') < 12) {
+                if (date('H') < 13) {
                     $bookingData['service_center_closed_date'] = date('Y-m-d H:i:s', (strtotime('-1 day', strtotime(date('Y-m-d H:i:s')))));
                     $dayofweek = date('w', strtotime(date('Y-m-d H:i:s')));
                     // If day is monday then completion date will be saturday's date
@@ -356,7 +356,7 @@ class Service_centers extends CI_Controller {
                 $close_timeStamp = strtotime($bookingData['service_center_closed_date']);
                 $datediff = $close_timeStamp - $booking_timeStamp;
                 $booking_date_days = round($datediff / (60 * 60 * 24)) - 1;
-                if ($booking_date_days < 0) {
+                if($booking_date_days >= 0){
                     $bookingData['service_center_closed_date'] = date('Y-m-d H:i:s');
                 }
                 $this->reusable_model->update_table("booking_details", $bookingData, array('booking_id' => $booking_id));
@@ -496,7 +496,7 @@ class Service_centers extends CI_Controller {
                     $close_timeStamp = strtotime($bookingData['service_center_closed_date']);
                     $datediff = $close_timeStamp - $booking_timeStamp;
                     $booking_date_days = round($datediff / (60 * 60 * 24))-1;
-                    if($booking_date_days < 0){
+                    if($booking_date_days >= 0){
                         $bookingData['service_center_closed_date'] = date('Y-m-d H:i:s');
                     }
                     $this->reusable_model->update_table("booking_details",$bookingData,array('booking_id'=>$booking_id));
