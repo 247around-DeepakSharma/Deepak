@@ -4637,3 +4637,6 @@ ALTER TABLE `payment_transaction`
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'payment_transaction_email', '%s for Blackmelon Advance Technology Company Private Limited', '', 'billing@247around.com', '', '', '', '1', '2016-06-17 00:00:00');
 
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'gateway_payment_link_sms', 'Dear Customer, Please click on this link %s to complete the payment of %s for 247around.', '', '1', '2018-04-04 14:36:43');
+
+UPDATE `sms_template` SET `template` = 'We have received reschedule request for your %s service (Booking %s) to %s. If you have not asked for reschedule, give missed call @ 01139586111 or call 9555000247.' WHERE `sms_template`.`tag` = 'reschedule_booking';
+UPDATE `sms_template` SET `template` = 'Dear Customer, Request for your %s for %s is confirmed for %s with booking id %s. In case of any support, call 9555000247. 247Around %s.' WHERE `sms_template`.`tag` = 'add_new_booking';

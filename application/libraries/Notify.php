@@ -429,6 +429,7 @@ class Notify {
 		    
 		    $sms['tag'] = "reschedule_booking";
 		    $sms['smsData']['service'] = $query1[0]['services'];
+                    $sms['smsData']['booking_id'] = $query1[0]['booking_id'];
 		    $sms['smsData']['booking_date'] = date("d-M-Y", strtotime($query1[0]['booking_date']));
 		    //$sms['smsData']['booking_timeslot'] = $query1[0]['booking_timeslot'];
 		    $sms['booking_id'] = $query1[0]['booking_id'];
@@ -489,7 +490,13 @@ class Notify {
 		    $sms['smsData']['booking_date'] = date("d-M-Y", strtotime($query1[0]['booking_date']));
 		    //$sms['smsData']['booking_timeslot'] = explode("-",$query1[0]['booking_timeslot'])[1];
                     $sms['smsData']['booking_id'] = $query1[0]['booking_id'];
-                    $sms['smsData']['public_name'] = $query1[0]['public_name'];
+                    
+                    if ($query1[0]['partner_id'] == JEEVES_ID) {
+                        $sms['smsData']['public_name'] = "";
+                    } else {
+                        $sms['smsData']['public_name'] = $query1[0]['public_name']. " Partner";
+                    }
+                    
 		    $sms['tag'] = "add_new_booking";
 		    
 		    $sms['booking_id'] = $query1[0]['booking_id'];
