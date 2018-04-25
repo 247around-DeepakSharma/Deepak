@@ -365,7 +365,7 @@ class Booking extends CI_Controller {
                 ));
             }
 
-            $this->booking_model->update_request_type($booking_id, $price_tag);
+            $this->booking_model->update_request_type($booking['booking_id'], $price_tag);
             return $booking;
         } else {
             log_message('info', __FUNCTION__ . " Booking Failed!");
