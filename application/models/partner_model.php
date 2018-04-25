@@ -330,15 +330,20 @@ function get_data_for_partner_callback($booking_id) {
                 . "= MONTH(CURDATE())  GROUP BY TAT");
         $overViewData = $query->result_array();
         foreach($overViewData as $overView){
-            if($overView['TAT']<0){
-                $overView['TAT'] = 0;
+            if($overView['TAT']<=0){
+                if(!array_key_exists('day_0', $finalArray)){
+                    $finalArray['day_0'] = 0;
+                }
+                $finalArray['day_0'] = $overView['count']+$finalArray["day_0"];
             }
-            if($overView['TAT']>5){
-                    $finalArray["day_5"] = $overView['count']+$finalArray["day_5"];
-           }
-           else{
-                    $finalArray["day_".$overView['TAT']] = $overView['count'];
-           }
+            else{
+                if($overView['TAT']>5){
+                        $finalArray["day_5"] = $overView['count']+$finalArray["day_5"];
+               }
+               else{
+                        $finalArray["day_".$overView['TAT']] = $overView['count'];
+               }
+            }
         }
         return $finalArray;
     }
@@ -389,6 +394,7 @@ function get_data_for_partner_callback($booking_id) {
             booking_date As 'Scheduled Appointment Date(DD/MM/YYYY)', 
             booking_timeslot AS 'Scheduled Appointment Time(HH:MM:SS)', 
             partner_internal_status AS 'Final Status',
+            booking_details.is_upcountry As 'Is Upcountry', 
             ".$closeDateSubQuery.",
             ".$tatSubQuery.",
             ".$agingSubQuery.",
