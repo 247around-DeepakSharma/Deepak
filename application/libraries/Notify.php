@@ -602,7 +602,7 @@ class Notify {
                 
 		break;
         }
-        $data['content'] = "segdfgfhftyyuui";
+        
         return $data;
     }
 
