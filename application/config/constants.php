@@ -165,6 +165,8 @@ define('PRODUCT_NOT_DELIVERED_TO_CUSTOMER','Product not delivered to customer');
 define('CUSTOMER_ASK_TO_RESCHEDULE','Customer asked to reschedule');
 
 define('CUSTOMER_NOT_REACHABLE','Customer not reachable / Customer not picked phone');
+
+define('CALLBACK_SCHEDULED', 'Callback Scheduled');
 //constant to define default brackets order id
 define('_247_AROUND_DEFAULT_BRACKETS_ORDER_ID',201611000001);
 //Snapdeal ID
@@ -300,6 +302,8 @@ define('ERR_INVALID_JSON_INPUT_CODE', -1016);
 define('ERR_INVALID_PRODUCT_TYPE_CODE', -1017);
 define('ERR_INVALID_SERVICE_AREA_CODE', -1021);
 define('ERR_BOOKING_NOT_ASSIGNED_CODE', -1022);
+define('ERR_SPD_DATE_MANDATORY_CODE', -1023);
+define('ERR_INVALID_SPD_DATE_CODE', -1024);
 
 define('ERR_BOOKING_NOT_INSERTED_MSG', 'Booking Insertion Failed');
 define('ERR_GENERIC_ERROR_MSG', 'Unknown Error');
@@ -321,7 +325,11 @@ define('ERR_INVALID_JSON_INPUT_MSG', 'Invalid JSON Input');
 define('ERR_INVALID_PRODUCT_TYPE_MSG', 'DENIED BY VENDOR');
 define('ERR_INVALID_SERVICE_AREA_MSG', 'Non Serviceable Area');
 define('ERR_BOOKING_NOT_ASSIGNED_MSG', 'Engineer Not Assigned');
+
 define('ERR_INVALID_PRODUCT_MSG', 'Invalid Product');
+
+define('ERR_SPD_DATE_MANDATORY_MSG', 'Service Promise Date is Mandatory');
+define('ERR_INVALID_SPD_DATE_MSG', 'Invalid Service Promise Date');
 
 //ICICI Bank name constant
 define('ICICI_BANK_NAME', 'ICICI Bank Ltd');
@@ -572,6 +580,12 @@ define('SF_NOT_FOUND_BOOKING_CANCELLED_REASON_TEXT', 'Service Not Available in t
 define("_247Around_Rejected_SF_Update", "247Around Rejected SF Update");
 
 define('SF_BOOKING_COMPLETE_STATUS', 'InProcess_Completed');
+
+define('JEEVES_CUSTOMER_RESCHEDULED', 'Customer rescheduled');
+define('JEEVES_CUSTOMER_NO_RESPONSE','Customer No Response above 2 Days');
+define('JEEVES_PRODUCT_NOT_DELIVERED','Set Not Delivered above 2 Days');
+define('JEEVES_BOOKING_DELAY_BY_AROUND','Allotted/ Closed delay by SF / Jeeves');
+define('JEEVES_CALL_COMPLETED_WITH_IN_TAT', "call completed with in TAT");
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
