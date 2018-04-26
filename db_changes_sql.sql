@@ -4557,3 +4557,6 @@ UPDATE `sms_template` SET `template` = 'Dear Customer, Request for your %s for %
 --Abhay 24 April
 ALTER TABLE `booking_details` ADD `partner_call_status_on_completed` VARCHAR(64) NULL DEFAULT NULL AFTER `dependency_on`;
 
+--Abhay 25April
+ALTER TABLE  `partner_leads` ADD  `spd_date` VARCHAR( 64 ) NULL DEFAULT NULL AFTER  `update_date` ;
+

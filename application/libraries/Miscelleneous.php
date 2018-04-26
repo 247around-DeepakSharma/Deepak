@@ -1309,7 +1309,7 @@ class Miscelleneous {
      */
 
     function send_sf_not_found_email_to_rm($booking, $rm_email,$subject, $isPartner) {
-        $cc = NITS_ANUJ_EMAIL_ID;
+        $cc = ANUJ_EMAIL_ID;
         $booking['service'] = NULL;
         $tempPartner = $this->My_CI->reusable_model->get_search_result_data("partners", "public_name", array('id' => $booking['partner_id']), NULL, NULL, NULL, NULL, NULL);
         if(!empty($booking['service_id'])){
@@ -2593,5 +2593,28 @@ function convert_html_to_pdf($html,$booking_id,$filename,$s3_folder){
         }
         
         return $response;
+    }
+    
+    /**
+     * @desc This is used to map jeeves completed booking status with our status
+     * @param Int $partner_id
+     * @param String $remarks
+     */
+    function partner_completed_call_status_mapping($partner_id, $status){
+        log_message("info", __METHOD__ . " Partner ID ". $partner_id. " Remarks ". $status);
+        
+        $data = array();
+        $data[JEEVES_ID][CALLBACK_SCHEDULED] = JEEVES_CUSTOMER_RESCHEDULED;
+        $data[JEEVES_ID][CUSTOMER_NOT_REACHABLE] = JEEVES_CUSTOMER_NO_RESPONSE;
+        $data[JEEVES_ID][CUSTOMER_ASK_TO_RESCHEDULE] = JEEVES_CUSTOMER_RESCHEDULED;
+        $data[JEEVES_ID][PRODUCT_NOT_DELIVERED_TO_CUSTOMER] = JEEVES_PRODUCT_NOT_DELIVERED;
+        
+        if(isset($data[$partner_id][$status])){
+            
+            return $data[$partner_id][$status];
+            
+        } else {
+            return FALSE;
+        }
     }
 }
