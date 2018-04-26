@@ -326,43 +326,71 @@ class partner_sd_cb {
         log_message('info', __METHOD__ . "=> Booking ID: " . $data['booking_id']);
         $this->requestUrl = __METHOD__;
         if (!empty($data['order_id'])) {
+            
             $this->partner = $data['partner_id'];
             $serial_number = "";
             $CallCompletedDate = "";
-            if($data['current_status'] == _247AROUND_COMPLETED){
-                $unit = $this->My_CI->booking_model->get_unit_details(array("booking_id" => $data['booking_id']));
-                if(!empty($unit)){
-                    $serial_number = $unit[0]['serial_number'];
-                    $CallCompletedDate = array(
-                        "year" => date('Y', strtotime($data['closed_date'])),
-                        "month" => date('m', strtotime($data['closed_date'])),
-                        "day" => date('d', strtotime($data['closed_date'])),
-                        "hour" => date('H', strtotime($data['closed_date'])),
-                        "minute" => date('i', strtotime($data['closed_date'])));
+            $StatusReason = "";
+            $appointmentDate = "";
+            
+            if ($data['current_status'] == _247AROUND_COMPLETED) {
+                $unit = $this->My_CI->booking_model->get_unit_details(array("booking_id" => $data['booking_id']), false, "serial_number");
+                if (!empty($unit)) {
+                    foreach ($unit as $unit_details) {
+                        if (!empty($unit_details['serial_number'])) {
+                            $serial_number = $unit[0]['serial_number'];
+                        }
+                    }
+                }
+
+                $CallCompletedDate = array(
+                    "year" => date('Y', strtotime($data['service_center_closed_date'])),
+                    "month" => date('m', strtotime($data['service_center_closed_date'])),
+                    "day" => date('d', strtotime($data['service_center_closed_date'])),
+                    "hour" => date('H', strtotime($data['service_center_closed_date'])),
+                    "minute" => date('i', strtotime($data['service_center_closed_date'])));
+
+                $appointmentDate = array(
+                    "year" => date('Y', strtotime($data['booking_date'])),
+                    "month" => date('m', strtotime($data['booking_date'])),
+                    "day" => date('d', strtotime($data['booking_date'])),
+                    "hour" => date('H', strtotime($data['booking_date'])),
+                    "minute" => date('i', strtotime($data['booking_date'])));
+                
+                if(!empty($data['service_promise_date'])){
+                    if(date('Y') == date('Y', strtotime($data['service_promise_date']))){
+                        if(date('Y-m-d', strtotime($data['service_center_closed_date'])) > 
+                                date('Y-m-d', strtotime($data['service_promise_date']))){
+                            
+                            if(!empty($StatusReason)){
+                                
+                                $StatusReason = $data['partner_call_status_on_completed'];
+                                
+                            } else {
+                                $StatusReason = JEEVES_BOOKING_DELAY_BY_AROUND;
+                            }
+                        } else {
+                            $StatusReason = JEEVES_CALL_COMPLETED_WITH_IN_TAT;
+                        }
+                    } else{
+                        $StatusReason = JEEVES_CALL_COMPLETED_WITH_IN_TAT;
+                    }
+                } else {
+                    $StatusReason = JEEVES_CALL_COMPLETED_WITH_IN_TAT;
                 }
             }
 
-            $appointmentDate = array(
-                "year" => date('Y', strtotime($data['booking_date'])),
-                "month" => date('m', strtotime($data['booking_date'])),
-                "day" => date('d', strtotime($data['booking_date'])),
-                "hour" => date('H', strtotime($data['booking_date'])),
-                "minute" => date('i', strtotime($data['booking_date'])));
-
-            $spd = (empty($data['dependency_on']) ? DEPENDENCY_ON_CUSTOMER: DEPENDENCY_ON_AROUND);
             $postData = array(
-                "CaseId" => $data['order_id'], //Mandatory in All status
+                "CaseId" => $data['order_id'],                   //Mandatory in All status
                 "CallStatus" => $data['partner_current_status'], //Mandatory in All status
-                "Remarks" => $data['partner_internal_status'],  //Non-Mandatory
+                "Remarks" => $data['partner_internal_status'], //Non-Mandatory
                 "SerialNo" => $serial_number, //Mandatory in  only Call complete Status /other status its optional
 //                "PurchaseDate" => "", //Not mandatory
-                "StatusReason" => $data['partner_internal_status'], //Mandatory in All status
+                "StatusReason" => $StatusReason,           //Mandatory for Completed Call
                 "CallCompletedDate" => $CallCompletedDate, //Mandatory in  only Call complete Status /other status its optional
-                "SPDReason" => $spd, // Mandatory for all status
                 //Mandatory in  only Call complete Status /other status its optional
                 "AppointmentDate" => $appointmentDate,
-                "ModelNo" => "", //Optional
-                 "UpdatedBy"=> "247"
+                "ModelNo" => "" //Optional
             );
             
             return $this->post_jeeves_data($postData);
@@ -385,7 +413,7 @@ class partner_sd_cb {
             return FALSE;
         }
     }
-    
+
     function post_jeeves_data($postData){
          $curl = curl_init();
 

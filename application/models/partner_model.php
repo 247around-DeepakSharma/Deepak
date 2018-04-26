@@ -330,15 +330,20 @@ function get_data_for_partner_callback($booking_id) {
                 . "= MONTH(CURDATE())  GROUP BY TAT");
         $overViewData = $query->result_array();
         foreach($overViewData as $overView){
-            if($overView['TAT']>=0){
-                if($overView['TAT']>5){
-                    $finalArray["day_5"] = $overView['count']+$finalArray["day_5"];
+            if($overView['TAT']<=0){
+                if(!array_key_exists('day_0', $finalArray)){
+                    $finalArray['day_0'] = 0;
                 }
-                else{
-                    $finalArray["day_".$overView['TAT']] = $overView['count'];
-                }
+                $finalArray['day_0'] = $overView['count']+$finalArray["day_0"];
             }
-            
+            else{
+                if($overView['TAT']>5){
+                        $finalArray["day_5"] = $overView['count']+$finalArray["day_5"];
+               }
+               else{
+                        $finalArray["day_".$overView['TAT']] = $overView['count'];
+               }
+            }
         }
         return $finalArray;
     }
@@ -360,9 +365,10 @@ function get_data_for_partner_callback($booking_id) {
             $dependency = ', IF(dependency_on =1, "'.DEPENDENCY_ON_AROUND.'", "'.DEPENDENCY_ON_CUSTOMER.'") as Dependency ';
         }
         if ($percentageLogic == 1){
-            $tatSubQuery  = '(CASE WHEN booking_details.service_center_closed_date IS NOT NULL AND (current_status NOT IN ("Cancelled") OR internal_status NOT IN ("InProcess_Cancelled"))  '
-                    . 'THEN (CASE WHEN DATEDIFF(date(booking_details.closed_date),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) < 0 THEN 0 ELSE'
-                . ' DATEDIFF(date(booking_details.closed_date),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) END) ELSE "" END) as TAT';
+            $tatSubQuery  = '(CASE WHEN service_center_closed_date IS NOT NULL AND !(current_status = "Cancelled" OR internal_status ="InProcess_Cancelled") '
+                    . 'THEN (CASE WHEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) < 0 THEN 0 ELSE'
+                . ' DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) END) ELSE "" END) as TAT';
+            
             $agingSubQuery = '(CASE WHEN booking_details.service_center_closed_date IS NULL THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) ELSE "" END) as Aging';
             $closeDateSubQuery = "date(booking_details.service_center_closed_date) AS 'Completion Date'";
         }
@@ -389,6 +395,7 @@ function get_data_for_partner_callback($booking_id) {
             booking_date As 'Scheduled Appointment Date(DD/MM/YYYY)', 
             booking_timeslot AS 'Scheduled Appointment Time(HH:MM:SS)', 
             partner_internal_status AS 'Final Status',
+            booking_details.is_upcountry As 'Is Upcountry', 
             ".$closeDateSubQuery.",
             ".$tatSubQuery.",
             ".$agingSubQuery.",

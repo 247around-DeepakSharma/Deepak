@@ -365,7 +365,7 @@ class Booking extends CI_Controller {
                 ));
             }
 
-            $this->booking_model->update_request_type($booking_id, $price_tag);
+            $this->booking_model->update_request_type($booking['booking_id'], $price_tag);
             return $booking;
         } else {
             log_message('info', __FUNCTION__ . " Booking Failed!");
@@ -437,12 +437,21 @@ class Booking extends CI_Controller {
                 $old_state = $booking_id_with_flag['old_state'];
             } else if ($booking['type'] == 'Query') {
 
-                $booking['current_status'] = "FollowUp";
+                $booking['current_status'] = _247AROUND_FOLLOWUP;
                 $internal_status = $this->input->post('internal_status');
                 if (!empty($internal_status)) {
                     $booking['internal_status'] = $internal_status;
+                    
+                    $response = $this->miscelleneous->partner_completed_call_status_mapping($booking['partner_id'], $internal_status);
+                    if(!empty($response)){
+
+                        $this->booking_model->partner_completed_call_status_mapping($booking_id, array('partner_call_status_on_completed' => $response));
+                    } else {
+                        log_message('info', __METHOD__. " Staus Not found for partner ID ". $booking['partner_id']. " status ". $internal_status);
+                    }
+                
                 } else {
-                    $booking['internal_status'] = "FollowUp";
+                    $booking['internal_status'] = _247AROUND_FOLLOWUP;
                 }
                 if ($booking['internal_status'] == INT_STATUS_CUSTOMER_NOT_REACHABLE) {
                     $this->send_sms_email($booking_id, "Customer not reachable");

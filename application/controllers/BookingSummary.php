@@ -1583,13 +1583,10 @@ EOD;
         $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
         log_message('info', __FUNCTION__ . ' => Rendered CSV');
         write_file($csv, $new_report);
-        $email_body = "TAT Calculation Using Jeeves Reference Date:<br>";
-        $emailTemplateDataArray['dynamicParams'] = $this->partner_model->get_partner_report_overview_in_percentage_format($partnerID,"date(booking_details.create_date)");
-        $email_body = $email_body.$this->load->view('employee/partner_report',$emailTemplateDataArray,true);
-        $emailTemplateDataArray['dynamicParams'] = $this->partner_model->get_partner_report_overview_in_percentage_format($partnerID,"STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y')");
-        $email_body = $email_body."<br>TAT Calculation Using 247Around Booking Date:<br><br>";
-        $email_body = $email_body.$this->load->view('employee/partner_report',$emailTemplateDataArray,true);
-        $this->notify->sendEmail(NOREPLY_EMAIL_ID,"anuj@247around.com", "nits@247around.com,chhavid@247around.com", "", $subject, $email_body, 
+        $emailTemplateDataArray['jeevesDate'] = $this->partner_model->get_partner_report_overview_in_percentage_format($partnerID,"date(booking_details.create_date)");
+        $emailTemplateDataArray['aroundDate'] = $this->partner_model->get_partner_report_overview_in_percentage_format($partnerID,"STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y')");
+        $email_body = $this->load->view('employee/partner_report',$emailTemplateDataArray,true);
+        $this->notify->sendEmail(NOREPLY_EMAIL_ID,"anuj@247around.com", "nits@247around.com,chhavid@247around.com", "", $subject, $email_body,
                 $csv,"partner_summary_report_percentage_format");
          unlink($csv);
     }
