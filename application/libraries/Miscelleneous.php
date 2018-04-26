@@ -110,7 +110,7 @@ class Miscelleneous {
      * @param String $booking_id
      * @return boolean
      */
-    function assign_vendor_process($service_center_id, $booking_id,$agent_id, $agent_type) {
+    function assign_vendor_process($service_center_id, $booking_id, $partner_id, $agent_id, $agent_type) {
         log_message('info', __FUNCTION__ . " Entering...... booking_id " . $booking_id . " service center id " . $service_center_id);
         $b['assigned_vendor_id'] = $service_center_id;
         // Set Default Engineer
@@ -123,7 +123,7 @@ class Miscelleneous {
             }
         }
         $b['upcountry_partner_approved'] = '1';
-        $partner_status = $this->My_CI->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, ASSIGNED_VENDOR, _247AROUND, $booking_id);
+        $partner_status = $this->My_CI->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, ASSIGNED_VENDOR, $partner_id, $booking_id);
         if (!empty($partner_status)) {
             $b['partner_current_status'] = $partner_status[0];
             $b['partner_internal_status'] = $partner_status[1];
@@ -206,7 +206,7 @@ class Miscelleneous {
                     }
                 }
             }
-
+            $this->My_CI->partner_cb->partner_callback($booking_id);
             log_message('info', __FUNCTION__ . " Exit...... booking_id " . $booking_id . " service center id " . $service_center_id);
             return true;
         } else {
