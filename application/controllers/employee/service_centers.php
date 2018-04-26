@@ -519,7 +519,7 @@ class Service_centers extends CI_Controller {
         $booking['booking_id'] = "Q-".$booking_id;
         $booking['current_status'] = "FollowUp";
         $booking['type'] = "Query";
-        $booking['internal_status'] = "Product not Delivered";
+        $booking['internal_status'] = PRODUCT_NOT_DELIVERED_TO_CUSTOMER;
         $booking['assigned_vendor_id'] = NULL;
         $booking['assigned_engineer_id'] = NULL;
         $booking['mail_to_vendor'] = '0';
