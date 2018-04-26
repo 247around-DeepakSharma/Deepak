@@ -937,11 +937,13 @@ class Service_centers extends CI_Controller {
                 case CUSTOMER_ASK_TO_RESCHEDULE:
                     log_message('info', __FUNCTION__ . CUSTOMER_ASK_TO_RESCHEDULE . " Request: " . $this->session->userdata('service_center_id'));
                     $this->save_reschedule_request();
+                    
                     break;
 
                 case PRODUCT_NOT_DELIVERED_TO_CUSTOMER:
                     log_message('info', __FUNCTION__ . PRODUCT_NOT_DELIVERED_TO_CUSTOMER . " Request: " . $this->session->userdata('service_center_id'));
                     $this->save_reschedule_request();
+                    
                     break;
                 case ESTIMATE_APPROVED_BY_CUSTOMER:
                     log_message('info', __FUNCTION__ . ESTIMATE_APPROVED_BY_CUSTOMER . " Request: " . $this->session->userdata('service_center_id'));
@@ -979,7 +981,7 @@ class Service_centers extends CI_Controller {
                     } else {
                         $this->default_update(true, true);
                     }
-
+                    
                     break;
 
                 case "Engineer on route":
@@ -994,7 +996,7 @@ class Service_centers extends CI_Controller {
 
         log_message('info', __FUNCTION__ . " Exit Service_center ID: " . $this->session->userdata('service_center_id'));
     }
-
+    
     function update_booking_internal_status($booking_id, $internal_status, $partner_id){
        
         $booking['internal_status'] = $internal_status;
@@ -1005,7 +1007,17 @@ class Service_centers extends CI_Controller {
             $booking['actor'] = $partner_status[2];
             $booking['next_action'] = $partner_status[3];
         }
+        
         $this->booking_model->update_booking($booking_id, $booking);
+        
+        log_message('info', __METHOD__. " Partner ID ". $partner_id. " Status ". $internal_status);
+        $response = $this->miscelleneous->partner_completed_call_status_mapping($partner_id, $internal_status);
+        if(!empty($response)){
+            
+            $this->booking_model->partner_completed_call_status_mapping($booking_id, array('partner_call_status_on_completed' => $response));
+        } else {
+            log_message('info', __METHOD__. " Staus Not found for partner ID ". $partner_id. " status ". $internal_status);
+        }
     }
     /**
      * @desc:

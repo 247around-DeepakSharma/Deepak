@@ -955,7 +955,7 @@ class Booking_model extends CI_Model {
      *  This function gives all the unit details of a particular booking from booking_unit_details.
      *
      *  @param : booking id
-     *  @return : all the unit booking detais
+     *  @return : all the unit booking details
      */
      function get_unit_details($where, $like= FALSE, $select = "*") {
         $this->db->select($select);
@@ -2441,7 +2441,20 @@ class Booking_model extends CI_Model {
         return $res;
     }
 
-}
     
     
+    function get_state(){
+        return $this->db->query('SELECT state from state_code')->result_array();
+    }
+    
+    function insert_state_map($data){
+        return $this->db->insert_batch('warehouse_state_relationship',$data)->insert_id;
+    }
 
+    
+    function partner_completed_call_status_mapping($booking_id, $data){
+        $this->db->where('booking_id', $booking_id);
+        $this->db->where('partner_call_status_on_completed is NULL', NULL, FALSE);
+        $this->db->update('booking_details',$data);
+    }
+}
