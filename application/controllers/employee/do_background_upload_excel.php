@@ -1207,6 +1207,7 @@ class Do_background_upload_excel extends CI_Controller {
 	$partner_booking['247aroundBookingStatus'] = "FollowUp";
 	$partner_booking['247aroundBookingRemarks'] = "FollowUp";
 	$partner_booking['create_date'] = date('Y-m-d H:i:s');
+        $partner_booking['spd_date'] = $booking['service_promise_date'];
 
 	$partner_leads_id = $this->partner_model->insert_partner_lead($partner_booking);
 	if ($partner_leads_id) {
