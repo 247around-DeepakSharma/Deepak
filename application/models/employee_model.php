@@ -156,9 +156,10 @@ class Employee_model extends CI_Model{
       function get_employee_for_cron_mail(){
           $this->db->select('*');
           $this->db->where('groups',_247AROUND_ADMIN);
-          $this->db->where('active','1');
           $this->db->or_where('groups',_247AROUND_RM);
+          $this->db->where('active','1');
           $query = $this->db->get('employee');
+          echo $this->db->last_query();
           return $query->result_array();
       }
       
