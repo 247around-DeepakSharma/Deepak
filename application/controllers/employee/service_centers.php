@@ -3124,12 +3124,14 @@ class Service_centers extends CI_Controller {
     function send_reschedule_confirmation_sms($booking_id){
         $join["users"] = "users.user_id = booking_details.user_id";
         $join["services"] = "services.id = booking_details.service_id";
-        $data = $this->reusable_model->get_search_result_data("booking_details","users.user_id,users.phone_number,services.services",array("booking_details.booking_id"=>$booking_id),
+        $data = $this->reusable_model->get_search_result_data("booking_details","users.user_id,users.phone_number,services.services,booking_details.booking_date",array("booking_details.booking_id"=>$booking_id),
                 $join,NULL,NULL,NULL,NULL,array());
         if(!empty($data[0])){
             $sms['tag'] = BOOKING_RESCHEDULED_CONFIRMATION_SMS;
             $sms['phone_no'] = $data[0]['phone_number'];
-            $sms['smsData'] = array("service"=>$data[0]['services']);
+            $sms['smsData']['service'] = $data[0]['services'];
+            $sms['smsData']['booking_id'] = $booking_id;
+            $sms['smsData']['booking_date'] = date("d-M-Y", strtotime($data[0]['booking_date']));
             $sms['booking_id'] = $booking_id;
             $sms['type'] = "user";
             $sms['type_id'] = $data[0]['user_id'];
