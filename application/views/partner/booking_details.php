@@ -65,10 +65,15 @@
                                     </tr>
 
                                     <tr>
-                                        <th>Booking date: </th>
-                                        <td><?php echo $booking_history[0]['booking_date']; ?></td>
-                                        <th>Address: </th>
-                                        <td><?php echo $booking_history[0]['booking_address']; ?></td>
+                                       
+                                        <th>Create Date </th>
+                                        <td><?php echo $booking_history[0]['create_date']; ?></td>
+                                        <th>Booking Date </th>
+                                        <td><?php 
+                                        $time = strtotime($booking_history[0]['booking_date']);
+                                        $booking_date = date('Y-m-d',$time);
+                                        echo $booking_date ?></td>
+                                        
                                     </tr>
                                     <tr>
                                         <th>City: </th>
@@ -80,8 +85,8 @@
                                     <tr>
                                         <th>Pincode: </th>
                                         <td><?php echo $booking_history[0]['booking_pincode']; ?></td>
-                                        <th>Remarks: </th>
-                                        <td><?php echo $booking_history[0]['booking_remarks']; ?></td>
+                                        <th>Address: </th>
+                                        <td><?php echo $booking_history[0]['booking_address']; ?></td>
                                     </tr>
 
                                     <tr>
@@ -124,6 +129,11 @@
                                             </td>
                                         </tr>
                                     <?php } ?>
+                                         <tr><th>Remarks: </th>
+                                        <td><?php echo $booking_history[0]['booking_remarks']; ?></td>
+                                        <th></th>
+                                        <td></td>
+                                         </tr>
                                 </table>
                             </div>
                             <div role="tabpanel" class="tab-pane fade" id="tab_content2">

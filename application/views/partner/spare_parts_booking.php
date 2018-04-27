@@ -23,14 +23,27 @@ if ($this->uri->segment(4)) {
             <div class="x_panel">
                 <div class="x_title">
                     <h2>Pending Spares On <?php echo $this->session->userdata('partner_name') ?> </h2>
-                    <div class="pull-right"><button id="spareDownload" onclick="downloadSpare()" class="btn btn-sm btn-primary">Download Spare</button>
+                                        <div class="pull-right"><button id="spareDownload" onclick="downloadSpare()" class="btn btn-sm btn-primary">Download Spare</button>
                         <span style="color:#337ab7" id="messageSpare"></span></div>
+                    <div class="right_holder" style="float:right;margin-right:10px;">
+                            <lable>States</lable>
+                            <select class="form-control " id="serachInput" style="border-radius:3px;">
+                    <option value="all">All</option>
+      <?php
+      foreach($states as $state){
+          ?>
+      <option value="<?php echo $state['state'] ?>"><?php echo $state['state'] ?></option>
+      <?php
+      }
+      ?>
+  </select>            
+</div>
                     <div class="clearfix"></div>
                     
                 </div>
                 <div class="x_content">
                     <form target="_blank"  action="<?php echo base_url(); ?>partner/print_all" name="fileinfo1"  method="POST" enctype="multipart/form-data">
-                        <table class="table table-bordered table-hover table-striped">
+                        <table class="table table-bordered table-hover table-striped" id="spare_table">
                             <thead>
                                 <tr>
                                     <th class="text-center">No</th>
@@ -40,6 +53,7 @@ if ($this->uri->segment(4)) {
                                     <th class="text-center">Parts Required</th>
                                     <th class="text-center">Model Number</th>
                                     <th class="text-center">Serial Number</th>
+                                    <th class="text-center">State</th>
                                     <th class="text-center">Problem Description</th>
                                     <th class="text-center">Update</th>
                                     <th class="text-center">Reject</th>
@@ -78,7 +92,9 @@ if ($this->uri->segment(4)) {
                                         <td>
                                             <?php echo $row['serial_number']; ?>
                                         </td>
-
+                                        <td>
+                                            <?php echo $row['state']; ?>
+                                        </td>
                                         <td>
                                             <?php echo $row['remarks_by_sc']; ?>
                                         </td>
@@ -272,3 +288,23 @@ if ($this->uri->segment(4)) {
 <?php if ($this->session->userdata('success')) {
     $this->session->unset_userdata('success');
 } ?>
+<script>
+    var table = $('#spare_table').DataTable();
+        $("#serachInput").change(function () {
+            if($('#serachInput').val() !== 'all'){
+    table
+        .columns( 7 )
+        .search($('#serachInput').val())
+        .draw();
+            }
+ else{
+                location.reload();
+            }
+} );
+$('#serachInput').select2();
+    </script>
+    <style>
+        .dataTables_filter{
+            display:none;
+        }
+        </style>
