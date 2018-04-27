@@ -774,6 +774,26 @@ class Partner extends CI_Controller {
 
             $flag = FALSE;
         }
+        
+        if($this->partner['id'] == JEEVES_ID && $flag === TRUE){
+            if(!isset($request['service_promise_date'])){
+                
+                $resultArr['code'] = ERR_SPD_DATE_MANDATORY_CODE;
+                $resultArr['msg'] = ERR_SPD_DATE_MANDATORY_MSG;
+                $flag = FALSE;
+            } else if(empty($request['service_promise_date'])){
+                
+                $resultArr['code'] = ERR_SPD_DATE_MANDATORY_CODE;
+                $resultArr['msg'] = ERR_SPD_DATE_MANDATORY_MSG;
+                $flag = FALSE;
+                
+            } else if($this->validate_timeslot_format($request['service_promise_date']) === FALSE){
+                
+                $resultArr['code'] = ERR_INVALID_SPD_DATE_CODE;
+                $resultArr['msg'] = ERR_INVALID_SPD_DATE_MSG;
+                $flag = FALSE;
+            }
+        }
 
 
         /*
@@ -1558,12 +1578,7 @@ class Partner extends CI_Controller {
                             $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY, $booking['booking_remarks'], $agent_id, 
                                     $requestData['partnerName'],$actor,$next_action, $booking['partner_id']);
                         } else {
-                            //-------Sending SMS on booking--------//
-                            $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
-                            $send['booking_id'] = $booking['booking_id'];
-                            $send['state'] = "Newbooking";
-                            $this->asynchronous_lib->do_background_process($url, $send);
-
+                            
                             $this->notify->insert_state_change($booking['booking_id'], _247AROUND_PENDING, _247AROUND_NEW_BOOKING, $booking['booking_remarks'], $agent_id, 
                                     $requestData['partnerName'],$actor,$next_action, $booking['partner_id']);
 
@@ -1575,7 +1590,7 @@ class Partner extends CI_Controller {
                                     case NOT_UPCOUNTRY_BOOKING:
                                     case UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE:
                                         //assign vendor
-                                        $assigned = $this->miscelleneous->assign_vendor_process($upcountry_data['vendor_id'], $booking['booking_id'], $agent_id, _247AROUND_PARTNER_STRING);
+                                        $assigned = $this->miscelleneous->assign_vendor_process($upcountry_data['vendor_id'], $booking['booking_id'], $booking['partner_id'],$agent_id, _247AROUND_PARTNER_STRING);
 
                                         if ($assigned) {
                                             $url = base_url() . "employee/do_background_process/assign_booking";
@@ -2517,5 +2532,47 @@ exit();
 
         $this->partner_model->log_partner_activity($activity);
         print_r($response);
+    }
+    
+    function paytmApitest(){
+        log_message('info', __METHOD__);
+        $dr9se2q = $this->input->post("dr9se2q", true);
+        $co1cx2 = $this->input->post("co1cx2", true);
+        //$postData = $this->input->post('data');
+        log_message("info", __METHOD__. " Data ". $dr9se2q. " co1cx2 ". $co1cx2);
+        $array = array(
+            "ReferenceID" => "SP-1656351803085551" , 
+            "Status" => "PNDNG_ASGN", 
+            "RequestDetails" => array( 
+                "Reason"=> "ENA",
+                 "Remarks"=> "Engineer not availble"
+                )
+            );
+        
+        $postData = json_encode($array, true);
+        log_message("info", __METHOD__. " POST Data ". $postData);
+        
+        $appName = "24x7Around";
+       
+        $url = "http://sandbox.servify.in:5009/api/v1/ServiceRequest/fulfillRequest";
+        
+        $header = array(
+                'Content-Type: application/json',
+                'app: ' . $appName,
+                'dr9se2q: ' . $dr9se2q,
+                'co1cx2: ' . $co1cx2
+            );
+
+        $ch = curl_init($url);
+        curl_setopt_array($ch, array(
+             CURLOPT_POST => TRUE,
+             CURLOPT_RETURNTRANSFER => TRUE,
+             CURLOPT_HTTPHEADER => $header,
+            CURLOPT_POSTFIELDS => $postData
+        ));
+
+        $response = curl_exec($ch);
+        log_message('info', __METHOD__. " Response ". print_r($response, true));
+        echo $response;
     }
 }

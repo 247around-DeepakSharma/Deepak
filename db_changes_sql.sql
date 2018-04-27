@@ -4648,5 +4648,9 @@ UPDATE `sms_template` SET `template` = 'Dear Customer, Request for your %s for %
 --Abhay 24 April
 ALTER TABLE `booking_details` ADD `partner_call_status_on_completed` VARCHAR(64) NULL DEFAULT NULL AFTER `dependency_on`;
 
+
 -- sachin 26 april 2018
 UPDATE `sms_template` SET `template` = 'We have received reschedule request for your %s service (Booking %s) to %s. If you have not asked for reschedule, give missed call @ 01139586111 or call 9555000247.' WHERE `sms_template`.`tag` = 'rescheduled_confirmation_sms';
+
+--Abhay 25April
+ALTER TABLE  `partner_leads` ADD  `spd_date` VARCHAR( 64 ) NULL DEFAULT NULL AFTER  `update_date` ;

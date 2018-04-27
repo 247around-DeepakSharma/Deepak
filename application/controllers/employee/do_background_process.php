@@ -437,6 +437,10 @@ class Do_background_process extends CI_Controller {
                 }
                 unlink($csv);
     }
+    
+    function send_request_for_partner_cb($booking_id){
+        $this->partner_cb->partner_callback($booking_id);
+    }
 
     /* end controller */
 }
