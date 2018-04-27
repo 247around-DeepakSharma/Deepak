@@ -1789,10 +1789,10 @@ class Booking extends CI_Controller {
         $reschedule_booking_id = $this->input->post('reschedule');
         $reschedule_booking_date = $this->input->post('reschedule_booking_date');
         $reschedule_reason = $this->input->post('reschedule_reason');
-        $partner_id = $this->input->post('partner_id');
+        $partner_id_array = $this->input->post('partner_id');
         $employeeID = $this->session->userdata('employee_id');
         $id = $this->session->userdata('id');
-        $this->miscelleneous->approved_rescheduled_bookings($reschedule_booking_id,$reschedule_booking_date,$reschedule_reason,$partner_id,$id,$employeeID);
+        $this->miscelleneous->approved_rescheduled_bookings($reschedule_booking_id,$reschedule_booking_date,$reschedule_reason,$partner_id_array,$id,$employeeID);
          redirect(base_url() . "employee/booking/review_bookings");
     }
 

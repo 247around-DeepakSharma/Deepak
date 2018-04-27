@@ -71,7 +71,7 @@
                             <a href="#"><span style="float: right;" class="glyphicon glyphicon-remove" data-toggle="modal" data-target="#review_reject_form" onclick="create_reject_form(<?php echo "'".$value['booking_primary_contact_no']."'";  ?>,<?php echo "'".$value['booking_id']."'";  ?>)"></span> </a>
                         </td>
                         
-                        <input type="hidden" class="form-control" id="partner_id" name="partner_id" value = "<?php if (isset($data['charges'][0]['booking'][0]['partner_id'])) {echo $data['charges'][0]['booking'][0]['partner_id']; } ?>" >
+                        <input type="hidden" class="form-control" id="partner_id" name="partner_id[<?php echo $value['booking_id']; ?>]" value = "<?php echo $value['partner_id']; ?>" >
                      </tr>
                      <?php $sno++;  } ?>
                   </tbody>

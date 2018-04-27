@@ -1292,21 +1292,26 @@ class Around_scheduler extends CI_Controller {
         $reviewBookingsArray = $this->booking_model->review_reschedule_bookings_request();
         $id = _247AROUND_DEFAULT_AGENT;
         $employeeID = _247AROUND_DEFAULT_AGENT_NAME;
-        $partner_id =_247AROUND;
-        if(!empty($reviewBookingsArray)){
-            foreach($reviewBookingsArray as $bookingData){
-                    $rescheduledTime = date_create($bookingData['reschedule_request_date']);
-                    $currentTime = date_create();
-                    $diff  = date_diff( $rescheduledTime, $currentTime);
-                    $timeDiffInHours = $diff->h;
-                    // IF request Time is greater then 4 hours then approvad the rescheduled
-                    if($timeDiffInHours>4){
-                        $reschedule_booking_id[] = $bookingData['booking_id'];
-                        $reschedule_booking_date[$bookingData['booking_id']] = $bookingData['reschedule_date_request'];
-                        $reschedule_reason[$bookingData['booking_id']] = $bookingData['reschedule_reason'];
-                    }
+
+        $partner_id_array = array();
+        if (!empty($reviewBookingsArray)) {
+            foreach ($reviewBookingsArray as $bookingData) {
+                $rescheduledTime = date_create($bookingData['reschedule_request_date']);
+                $currentTime = date_create();
+                $diff = date_diff($rescheduledTime, $currentTime);
+                $timeDiffInHours = $diff->h;
+                // IF request Time is greater then 4 hours then approvad the rescheduled
+                if ($timeDiffInHours > 4) {
+                    $reschedule_booking_id[] = $bookingData['booking_id'];
+                    $reschedule_booking_date[$bookingData['booking_id']] = $bookingData['reschedule_date_request'];
+                    $reschedule_reason[$bookingData['booking_id']] = $bookingData['reschedule_reason'];
+                }
+                
+                $partner_id_array[$bookingData['booking_id']] = $bookingData['partner_id'];
+                
             }
-            $this->miscelleneous->approved_rescheduled_bookings($reschedule_booking_id,$reschedule_booking_date,$reschedule_reason,$partner_id,$id,$employeeID);
+            $this->miscelleneous->approved_rescheduled_bookings($reschedule_booking_id, $reschedule_booking_date, $reschedule_reason, $partner_id_array, $id, $employeeID);
+
         }
     }
     
