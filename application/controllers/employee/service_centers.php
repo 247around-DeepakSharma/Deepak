@@ -545,7 +545,11 @@ class Service_centers extends CI_Controller {
         $this->service_centers_model->delete_booking_id($booking_id);
         //Insert Data into Booking state change
         $this->insert_details_in_state_change($booking_id, PRODUCT_NOT_DELIVERED_TO_CUSTOMER, "Convert Booking to Query",$actor,$next_action);
-        $this->partner_cb->partner_callback($booking_id);
+        
+        
+        $cb_url = base_url() . "employee/do_background_process/send_request_for_partner_cb/".$booking_id;
+        $pcb = array();
+        $this->asynchronous_lib->do_background_process($cb_url, $pcb);
         
         redirect(base_url() . "service_center/pending_booking");  
     }
@@ -1024,6 +1028,10 @@ class Service_centers extends CI_Controller {
         } else {
             log_message('info', __METHOD__. " Staus Not found for partner ID ". $partner_id. " status ". $internal_status);
         }
+        
+        $cb_url = base_url() . "employee/do_background_process/send_request_for_partner_cb/".$booking_id;
+        $pcb = array();
+        $this->asynchronous_lib->do_background_process($cb_url, $pcb);
     }
     /**
      * @desc:
@@ -1299,6 +1307,9 @@ class Service_centers extends CI_Controller {
                         $userSession = array('success' => 'Booking Updated');
                         $this->session->set_userdata($userSession);
                     }
+                $cb_url = base_url() . "employee/do_background_process/send_request_for_partner_cb/".$booking_id;
+                $pcb = array();
+                $this->asynchronous_lib->do_background_process($cb_url, $pcb);
 
                 } else {//if ($b_status) {
                     
@@ -1626,7 +1637,8 @@ class Service_centers extends CI_Controller {
                 $data['status'] = DEFECTIVE_PARTS_SHIPPED;
                 $k =0;
                 $sf_details = $this->vendor_model->getVendorDetails('name,address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,is_signature_doc',array('id'=>$service_center_id));
-                $partner_details = $this->partner_model->getpartner_details('company_name,address,gst_number',array('partners.id'=>$this->input->post('partner_id')));
+                $partner_id = $this->input->post('partner_id');
+                $partner_details = $this->partner_model->getpartner_details('company_name,address,gst_number',array('partners.id'=> $partner_id));
                 foreach ($defective_part_shipped as $id => $value) {
                     if($k ==0){
                         $data['courier_charges_by_sf'] = $this->input->post('courier_charges_by_sf');
@@ -1651,6 +1663,9 @@ class Service_centers extends CI_Controller {
                 $sc_data['update_date'] = date('Y-m-d H:i:s');
                 $sc_data['internal_status'] = DEFECTIVE_PARTS_SHIPPED;
                 $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+                
+                $this->update_booking_internal_status($booking_id,  DEFECTIVE_PARTS_SHIPPED, $partner_id);
+                
                 $rm_email = $this->get_rm_email($service_center_id);
                 $from = NOREPLY_EMAIL_ID;
 
@@ -3109,12 +3124,14 @@ class Service_centers extends CI_Controller {
     function send_reschedule_confirmation_sms($booking_id){
         $join["users"] = "users.user_id = booking_details.user_id";
         $join["services"] = "services.id = booking_details.service_id";
-        $data = $this->reusable_model->get_search_result_data("booking_details","users.user_id,users.phone_number,services.services",array("booking_details.booking_id"=>$booking_id),
+        $data = $this->reusable_model->get_search_result_data("booking_details","users.user_id,users.phone_number,services.services,booking_details.booking_date",array("booking_details.booking_id"=>$booking_id),
                 $join,NULL,NULL,NULL,NULL,array());
         if(!empty($data[0])){
             $sms['tag'] = BOOKING_RESCHEDULED_CONFIRMATION_SMS;
             $sms['phone_no'] = $data[0]['phone_number'];
-            $sms['smsData'] = array("service"=>$data[0]['services']);
+            $sms['smsData']['service'] = $data[0]['services'];
+            $sms['smsData']['booking_id'] = $booking_id;
+            $sms['smsData']['booking_date'] = date("d-M-Y", strtotime($data[0]['booking_date']));
             $sms['booking_id'] = $booking_id;
             $sms['type'] = "user";
             $sms['type_id'] = $data[0]['user_id'];

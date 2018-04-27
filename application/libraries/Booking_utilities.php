@@ -585,6 +585,8 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
      *
      */
     function get_partner_status_mapping_data($current_status, $internal_status, $partner_id = "", $booking_id = "") {
+        log_message('info', __METHOD__. " Current status ". $current_status. " Internal status ". $internal_status.
+                " partner id ". $partner_id. " Booking id ". $booking_id);
         $partner_status = $this->My_CI->booking_model->get_partner_status($partner_id, $current_status, $internal_status);
         $booking['actor'] = "not_define";
         $booking['next_action'] = "not_define";
@@ -601,8 +603,9 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
 
             $this->send_mail_When_no_data_found($current_status, $internal_status, $booking_id, $partner_id);
         }
-
-        return array($booking['partner_current_status'], $booking['partner_internal_status'],$booking['actor'],$booking['next_action']);
+        $return = array($booking['partner_current_status'], $booking['partner_internal_status'],$booking['actor'],$booking['next_action']);
+        log_message('info', __METHOD__. " return Msg ". print_r($return, true));
+        return $return;
     }
 
     /*

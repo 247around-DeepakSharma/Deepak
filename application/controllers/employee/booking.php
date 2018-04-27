@@ -84,7 +84,10 @@ class Booking extends CI_Controller {
                 $status = $this->getAllBookingInput($user_id, INSERT_NEW_BOOKING);
                 if ($status) {
                     log_message('info', __FUNCTION__ . " Partner callback  " . $status['booking_id']);
-                    $this->partner_cb->partner_callback($status['booking_id']);
+                    
+                    $cb_url = base_url() . "employee/do_background_process/send_request_for_partner_cb/".$status['booking_id'];
+                    $pcb = array();
+                    $this->asynchronous_lib->do_background_process($cb_url, $pcb);
                     //Redirect to Default Search Page
                     redirect(base_url() . DEFAULT_SEARCH_PAGE);
                 } else {
@@ -340,6 +343,8 @@ class Booking extends CI_Controller {
                             $async_data['agent_id'] = _247AROUND_DEFAULT_AGENT;
                             $async_data['agent_name'] = _247AROUND_DEFAULT_AGENT_NAME;
                             $async_data['agent_type'] = _247AROUND_EMPLOYEE_STRING;
+                            $b_id = $booking['booking_id'];
+                            $async_data["partner_id[$b_id]"] = $booking['partner_id'];
                             $this->asynchronous_lib->do_background_process($url, $async_data);
 
                             break;
@@ -466,7 +471,7 @@ class Booking extends CI_Controller {
             // check partner status
             $actor = $next_action = 'not_define';
             $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $booking['partner_id'], $booking_id);
-            if (!empty($partner_status)) {
+            if (!empty($partner_status)) {               
                 $booking['partner_current_status'] = $partner_status[0];
                 $booking['partner_internal_status'] = $partner_status[1];
                 $actor = $booking['actor'] = $partner_status[2];
@@ -1574,7 +1579,9 @@ class Booking extends CI_Controller {
                     $status = $this->getAllBookingInput($user_id, $booking_id);
                     if ($status) {
                         log_message('info', __FUNCTION__ . " Partner callback  " . $status['booking_id']);
-                        $this->partner_cb->partner_callback($status['booking_id']);
+                        $cb_url = base_url() . "employee/do_background_process/send_request_for_partner_cb/".$status['booking_id'];
+                        $pcb = array();
+                        $this->asynchronous_lib->do_background_process($cb_url, $pcb);
 
                         //Redirect to Default Search Page
                         redirect(base_url() . DEFAULT_SEARCH_PAGE);
@@ -2001,7 +2008,9 @@ class Booking extends CI_Controller {
             $send['state'] = $internal_status;
             $this->asynchronous_lib->do_background_process($url, $send);
 
-            $this->partner_cb->partner_callback($booking_id);
+            $cb_url = base_url() . "employee/do_background_process/send_request_for_partner_cb/".$booking_id;
+            $pcb = array();
+            $this->asynchronous_lib->do_background_process($cb_url, $pcb);
             
             if ($this->input->post('rating_stars') !== "") {
                 //update rating state

@@ -2773,7 +2773,8 @@ class Partner extends CI_Controller {
                 $this->notify->insert_state_change($booking_id, UPCOUNTRY_CHARGES_APPROVED, _247AROUND_PENDING, "Upcountry Charges Approved From " . $type, $agent_id, $agent_name, 
                         ACTOR_UPCOUNTRY_CHARGES_APPROV_BY_PARTNER,NEXT_ACTION_UPCOUNTRY_CHARGES_APPROV_BY_PARTNER,$partner_id);
 
-                $assigned = $this->miscelleneous->assign_vendor_process($data[0]['service_center_id'], $booking_id,$agent_id,$agent_type);
+                $assigned = $this->miscelleneous->assign_vendor_process($data[0]['service_center_id'], $booking_id, 
+                        $data[0]['partner_id'],$agent_id,$agent_type);
                 if ($assigned) {
 
                     log_message('info', __FUNCTION__ . " => Continue Process" . $booking_id);
