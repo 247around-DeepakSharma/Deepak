@@ -1029,9 +1029,14 @@ class Service_centers extends CI_Controller {
             log_message('info', __METHOD__. " Staus Not found for partner ID ". $partner_id. " status ". $internal_status);
         }
         
-        $cb_url = base_url() . "employee/do_background_process/send_request_for_partner_cb/".$booking_id;
-        $pcb = array();
-        $this->asynchronous_lib->do_background_process($cb_url, $pcb);
+        if($internal_status == "InProcess_Cancelled" || $internal_status == "InProcess_Completed"){
+            log_message("info", __METHOD__. " DO Not Call patner callback");
+        } else {
+            $cb_url = base_url() . "employee/do_background_process/send_request_for_partner_cb/".$booking_id;
+            $pcb = array();
+            $this->asynchronous_lib->do_background_process($cb_url, $pcb);
+        }
+        
     }
     /**
      * @desc:
