@@ -17,11 +17,24 @@
     <div class="x_panel">
         <div class="x_title">
             <h2>Pending Bookings</h2>
-            <a style="float:right;" type="button" class="btn btn-success" href="<?php echo base_url(); ?>employee/partner/download_partner_pending_bookings/<?php echo $this->session->userdata('partner_id')?>">Download Pending Bookings</a>
+            <a style="float: right;"type="button" class="btn btn-success" href="<?php echo base_url(); ?>employee/partner/download_partner_pending_bookings/<?php echo $this->session->userdata('partner_id')?>">Download Pending Bookings</a>
+            <div class="right_holder" style="float:right;margin-right:10px;">
+                            <lable>States</lable>
+                            <select class="form-control " id="serachInput" style="border-radius:3px;">
+                    <option value="all">All</option>
+      <?php
+      foreach($states as $state){
+          ?>
+      <option value="<?php echo $state['state'] ?>"><?php echo $state['state'] ?></option>
+      <?php
+      }
+      ?>
+  </select>            
+</div>
             <div class="clearfix"></div>
         </div>
         <div class="x_content">
-            <table class="table table-bordered table-hover table-striped">
+            <table class="table table-bordered table-hover table-striped" id="pending_booking_table">
                 <thead>
                     <tr>
                         <th>S No.</th>
@@ -32,7 +45,9 @@
                         <th>User</th>
                         <th>Mobile</th>
                         <th>City</th>
+                        <th>State</th>
                         <th>Booking Date</th>
+                        <th>Aging</th>
                         <th>Edit Booking</th>
                         <th>Reschedule</th>
                         <th>Cancel</th>
@@ -73,9 +88,11 @@
                                 ?>
                             </td>
                             <td><?php echo $row->appliance_brand; ?></td>
-                            <td><?php echo $row->partner_internal_status;
-                                
-                                ?></td>
+                            <td ><?php if ($row->count_escalation>0) { ?>
+                                    <i style="color:red; font-size:13px;" onclick=""
+                                       class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></i><?php } ?>
+                                   <?php echo $row->partner_internal_status; ?>
+                            </td>
                             <td> 
                                 <?= $row->customername; ?>
                             </td>
@@ -85,8 +102,14 @@
                             <td>
                                 <?= $row->city; ?>
                             </td>
+                             <td>
+                                <?= $row->state; ?>
+                            </td>
                             <td>
                                 <?= $row->booking_date; ?>
+                            </td>
+                             <td>
+                                <?= $row->aging; ?>
                             </td>
                             <td style="text-align: center"><a class='btn btn-sm btn-primary' href="<?php echo base_url(); ?>partner/update_booking/<?= $row->booking_id ?>"  title='View' style="background-color:#2C9D9C; border-color: #2C9D9C;"><i class='fa fa-pencil-square-o' aria-hidden='true' ></i></a></td>
                             <td style="text-align: center">
@@ -206,3 +229,24 @@
 <?php } ?>
 <div class="clearfix"></div>
 <?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
+<?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>
+<script>
+    var table = $('#pending_booking_table').DataTable();
+        $("#serachInput").change(function () {
+            if($('#serachInput').val() !== 'all'){
+                table
+                    .columns( 8 )
+                    .search($('#serachInput').val())
+                    .draw();
+            }
+            else{
+                location.reload();
+            }
+} );
+$('#serachInput').select2();
+    </script>
+    <style>
+        .dataTables_filter{
+            display:none;
+        }
+        </style>

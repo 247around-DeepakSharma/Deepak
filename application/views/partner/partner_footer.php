@@ -16,7 +16,6 @@
  <!-- iCheck -->
 <script src="<?php echo base_url() ?>assest/iCheck/icheck.min.js"></script>
 <!-- Datatable JS-->
-<script type="text/javascript" src="<?php echo base_url() ?>assest/DataTables/datatables.min.js"></script>
 <script type="text/javascript">
     
     function submit_button() {
