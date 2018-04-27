@@ -1284,7 +1284,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         $reviewBookingsArray = $this->booking_model->review_reschedule_bookings_request();
         $id = _247AROUND_DEFAULT_AGENT;
         $employeeID = _247AROUND_DEFAULT_AGENT_NAME;
-        $partner_id = _247AROUND;
+        $partner_id_array = array();
         if (!empty($reviewBookingsArray)) {
             foreach ($reviewBookingsArray as $bookingData) {
                 $rescheduledTime = date_create($bookingData['reschedule_request_date']);
@@ -1297,8 +1297,11 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                     $reschedule_booking_date[$bookingData['booking_id']] = $bookingData['reschedule_date_request'];
                     $reschedule_reason[$bookingData['booking_id']] = $bookingData['reschedule_reason'];
                 }
+                
+                $partner_id_array[$bookingData['booking_id']] = $bookingData['partner_id'];
+                
             }
-            $this->miscelleneous->approved_rescheduled_bookings($reschedule_booking_id, $reschedule_booking_date, $reschedule_reason, $partner_id, $id, $employeeID);
+            $this->miscelleneous->approved_rescheduled_bookings($reschedule_booking_id, $reschedule_booking_date, $reschedule_reason, $partner_id_array, $id, $employeeID);
         }
     }
 
