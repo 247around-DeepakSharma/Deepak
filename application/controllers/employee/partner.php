@@ -91,9 +91,8 @@ class Partner extends CI_Controller {
             $data['success'] = $this->session->flashdata('result');
         }
 
-        log_message('info', 'Partner View: Pending booking: Partner id: ' . $partner_id . ", Partner name: " .
-                $this->session->userdata('partner_name'));
-        $data['states'] = $this->reusable_model->get_search_result_data("booking_details","DISTINCT state",array('state !=""'=>NULL),NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
+        log_message('info', 'Partner View: Pending booking: Partner id: ' . $partner_id . ", Partner name: " .$this->session->userdata('partner_name'));
+        $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
         $data['is_ajax'] = $this->input->post('is_ajax');
         if(empty($this->input->post('is_ajax'))){
             $this->load->view('partner/header');
@@ -171,7 +170,7 @@ class Partner extends CI_Controller {
 
         $data['status'] = $state;
 
-        $data['states'] = $this->reusable_model->get_search_result_data("booking_details","DISTINCT state",array('state !=""'=>NULL),NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
+       $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
         log_message('info', 'Partner view ' . $state . ' booking  partner id' . $partner_id . " Partner name" . $this->session->userdata('partner_name') . " data " . print_r($data, true));
 
         $this->load->view('partner/header');
@@ -1663,7 +1662,7 @@ class Partner extends CI_Controller {
         $data['count'] = $config['total_rows'];
         $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true);
         $data['is_ajax'] = $this->input->post('is_ajax');
-        $data['states'] = $this->reusable_model->get_search_result_data("booking_details","DISTINCT state",array('state !=""'=>NULL),NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
+        $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
         if(empty($this->input->post('is_ajax'))){
             $this->load->view('partner/header');
             $this->load->view('partner/spare_parts_booking', $data);
@@ -4130,7 +4129,7 @@ class Partner extends CI_Controller {
         );
 
         $select = "CONCAT( '', GROUP_CONCAT((parts_shipped ) ) , '' ) as defective_part_shipped, "
-                . " spare_parts_details.booking_id, name,DATEDIFF(CURDATE(),date(spare_parts_details.update_date)) as aging";
+                . " spare_parts_details.booking_id, name,DATEDIFF(CURDATE(),date(booking_details.service_center_closed_date)) as aging";
 
         $group_by = "spare_parts_details.booking_id";
         $order_by = "spare_parts_details.defective_part_shipped_date DESC";

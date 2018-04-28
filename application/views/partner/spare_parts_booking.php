@@ -26,8 +26,8 @@ if ($this->uri->segment(4)) {
                                         <div class="pull-right"><button id="spareDownload" onclick="downloadSpare()" class="btn btn-sm btn-primary">Download Spare</button>
                         <span style="color:#337ab7" id="messageSpare"></span></div>
                     <div class="right_holder" style="float:right;margin-right:10px;">
-                            <lable>States</lable>
-                            <select class="form-control " id="serachInput" style="border-radius:3px;">
+                            <lable>State</lable>
+                            <select class="form-control " id="serachSpareInput" style="border-radius:3px;">
                     <option value="all">All</option>
       <?php
       foreach($states as $state){
@@ -290,18 +290,18 @@ if ($this->uri->segment(4)) {
 } ?>
 <script>
     var table = $('#spare_table').DataTable();
-        $("#serachInput").change(function () {
-            if($('#serachInput').val() !== 'all'){
+        $("#serachSpareInput").change(function () {
+            if($('#serachSpareInput').val() !== 'all'){
     table
         .columns( 7 )
-        .search($('#serachInput').val())
+        .search($('#serachSpareInput').val())
         .draw();
             }
  else{
                 location.reload();
             }
 } );
-$('#serachInput').select2();
+$('#serachSpareInput').select2();
     </script>
     <style>
         .dataTables_filter{
