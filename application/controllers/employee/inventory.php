@@ -1208,21 +1208,27 @@ class Inventory extends CI_Controller {
                 $agent_id = $this->session->userdata('id');
                 $agent_name = $this->session->userdata('employee_id');
                 $entity_id = _247AROUND;
+                
+                $this->notify->insert_state_change($booking_id, $new_state,$old_state, $remarks, 
+                      $agent_id, $agent_name, ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE, $entity_id);
             }else if($this->session->userdata('partner_id')) {
                 $agent_id = $this->session->userdata('agent_id');
                 $agent_name = $this->session->userdata('partner_name');
                 $entity_id = $this->session->userdata('partner_id');
+                
+                $this->notify->insert_state_change($booking_id, $new_state,$old_state, $remarks, 
+                      $agent_id, $agent_name, ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE, $entity_id);
             }else if($this->session->userdata('service_center_id')){
                     $agent_id = $this->session->userdata('service_center_agent_id');
                     $agent_name = $this->session->userdata('service_center_name');
                     $entity_id = $this->session->userdata('service_center_id');
+                    
+                    $this->notify->insert_state_change($booking_id, $new_state,$old_state, $remarks, 
+                      $agent_id, $agent_name, ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,NULL, $entity_id);
             
             }
             
             $partner_id = $this->input->post('partner_id');
-            $this->notify->insert_state_change($booking_id, $new_state,$old_state, $remarks, 
-                      $agent_id, $agent_name, ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE, $entity_id);
-            
             $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $b['internal_status'], $partner_id, $booking_id);
             if (!empty($partner_status)) {
                 $b['partner_current_status'] = $partner_status[0];
@@ -2230,15 +2236,6 @@ class Inventory extends CI_Controller {
         array_multisort(array_column($sf_list,'brackets_exhausted_days'), SORT_ASC, $sf_list);
         
         echo json_encode($sf_list);
-    }
-    
-    /** @desc: This function is used to upload the partner appliance model file. By using this function 
-     *          we can map models to their corresponding appliance in partner_appliance_details table
-     * @param: void
-     * @return void
-     */
-    function upload_appliance_model_file(){
-        
     }
     
     /** @desc: This function is used to upload the spare parts file. By this method we can add spare details in our inventory_mast_list table.

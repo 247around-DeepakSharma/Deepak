@@ -590,5 +590,9 @@ define('JEEVES_CALL_COMPLETED_WITH_IN_TAT', "call completed with in TAT");
 define('RESCHEDULE_FOR_UPCOUNTRY', "Upcountry Booking");
 define("ENGINEER_ON_ROUTE", "Engineer on route");
 
+//Define Constant for Partner Inventory File 
+define('PARTNER_INVENTORY_DETAILS_FILE','Inventory-file');
+
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

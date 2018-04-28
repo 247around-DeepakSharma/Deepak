@@ -22,6 +22,9 @@
                                             <option value="" disabled="">Select Partner</option>
                                         </select>
                                     </div>
+                                    <div class="form-group col-md-2">
+                                        <label class="checkbox-inline"><input type="checkbox" value="1" id="show_all_inventory">Show All</label>
+                                    </div>
                                     <button class="btn btn-success btn-sm col-md-2" id="get_inventory_data">Submit</button>
                                 </div>
                             </div>
@@ -34,16 +37,15 @@
                             <thead>
                                 <tr>
                                     <th>S.No</th>
-                                    <th>Service</th>
-                                    <th>Part Name</th>
-                                    <th>Part Number</th>
-                                    <th>Stock</th>
-                                    <th>Serial Number</th>
-                                    <th>Model Number</th>
-                                    <th>Description</th>
-                                    <th>Size</th>
-                                    <th>Price</th>
-                                    <th>Type</th>
+                                    <th>Appliance</th>
+                                    <th>Spare Type</th>
+                                    <th>Spare Part Name</th>
+                                    <th>Spare Part Number</th>
+                                    <th>Spare Serial Number</th>
+                                    <th>Spare Model Number</th>
+                                    <th>Spare Stock</th>
+                                    <th>Spare Size</th>
+                                    <th>Spare Price</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -110,7 +112,8 @@
                     
                     var entity_details = get_entity_details();
                     d.entity_id = entity_details.entity_id,
-                    d.entity_type = entity_details.entity_type
+                    d.entity_type = entity_details.entity_type,
+                    d.is_show_all = entity_details.is_show_all_checked
                 }
             },
             "deferRender": true
@@ -120,7 +123,8 @@
     function get_entity_details(){
         var data = {
             'entity_id': $('#partner_id').val(),
-            'entity_type' : '<?php echo _247AROUND_PARTNER_STRING; ?>'
+            'entity_type' : '<?php echo _247AROUND_PARTNER_STRING; ?>',
+            'is_show_all_checked':$('#show_all_inventory:checked').val()
         };
         
         return data;

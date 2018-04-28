@@ -4567,7 +4567,6 @@ ALTER TABLE `booking_details` ADD `partner_call_status_on_completed` VARCHAR(64)
 ALTER TABLE  `partner_leads` ADD  `spd_date` VARCHAR( 64 ) NULL DEFAULT NULL AFTER  `update_date` ;
 
 
-
 --sachin 28 april 2018
 ALTER TABLE `spare_parts_details` ADD `model_number_shipped` VARCHAR(256) NULL DEFAULT NULL AFTER `date_of_request`;
 ALTER TABLE `partners` ADD `is_wh` TINYINT(1) NOT NULL DEFAULT '0' COMMENT '1=\'working as a warehouse model\',0 = \'nor working as a warehouse model\'' AFTER `is_prepaid`;
@@ -4605,18 +4604,20 @@ ALTER TABLE `contact_person`
 -- AUTO_INCREMENT for dumped tables
 --
 
---24 April 2018
+--
+-- AUTO_INCREMENT for table `contact_person`
 
-DROP TABLE IF EXISTS `gateway_booking_payment_details`;
-CREATE TABLE `gateway_booking_payment_details` (
+DROP TABLE IF EXISTS `warehouse_details`;
+CREATE TABLE `warehouse_details` (
   `id` int(11) NOT NULL,
-  `booking_id` varchar(256) NOT NULL,
-  `customer_id` varchar(1024) NOT NULL,
-  `amount` decimal(10,2) NOT NULL,
-  `phone_number` varchar(64) DEFAULT NULL,
-  `email` varchar(256) DEFAULT NULL,
-  `hash_key` varchar(1024) NOT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '1 = ''settled'', 0 = ''un-settled''',
+  `warehouse_address_line1` varchar(512) NOT NULL,
+  `warehouse_address_line2` varchar(512) NOT NULL,
+  `warehouse_city` varchar(64) NOT NULL,
+  `warehouse_region` varchar(64) NOT NULL,
+  `warehouse_pincode` int(6) NOT NULL,
+  `warehouse_state` varchar(256) NOT NULL,
+  `entity_id` int(11) NOT NULL,
+  `entity_type` varchar(256) NOT NULL,
   `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `create_date` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -4626,9 +4627,9 @@ CREATE TABLE `gateway_booking_payment_details` (
 --
 
 --
--- Indexes for table `gateway_booking_payment_details`
+-- Indexes for table `warehouse_details`
 --
-ALTER TABLE `gateway_booking_payment_details`
+ALTER TABLE `warehouse_details`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -4636,32 +4637,16 @@ ALTER TABLE `gateway_booking_payment_details`
 --
 
 --
--- AUTO_INCREMENT for table `gateway_booking_payment_details`
+-- AUTO_INCREMENT for table `warehouse_details`
 --
-ALTER TABLE `gateway_booking_payment_details`
+ALTER TABLE `warehouse_details`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
-DROP TABLE IF EXISTS `payment_transaction`;
-CREATE TABLE `payment_transaction` (
-  `txn_id` int(11) NOT NULL,
-  `order_id` varchar(256) NOT NULL,
-  `gw_txn_id` varchar(128) DEFAULT NULL,
-  `txn_amount` decimal(10,2) NOT NULL,
-  `gw_txn_status` varchar(128) NOT NULL,
-  `gw_response_code` varchar(128) NOT NULL,
-  `gw_response_msg` varchar(128) NOT NULL,
-  `final_txn_status` varchar(128) NOT NULL,
-  `final_response_code` varchar(128) NOT NULL,
-  `final_response_msg` varchar(128) NOT NULL,
-  `bank_txn_id` varchar(128) DEFAULT NULL,
-  `payment_mode` varchar(64) DEFAULT NULL,
-  `bank_name` varchar(256) DEFAULT NULL,
-  `gw_name` varchar(128) DEFAULT NULL,
-  `txn_date` datetime DEFAULT NULL,
-  `order_details` varchar(512) DEFAULT NULL,
-  `contact_number` int(11) DEFAULT NULL,
-  `email` varchar(128) DEFAULT NULL,
-  `is_txn_successfull` tinyint(1) NOT NULL DEFAULT '0',
+DROP TABLE IF EXISTS `warehouse_person_relationship`;
+CREATE TABLE `warehouse_person_relationship` (
+  `id` int(11) NOT NULL,
+  `warehouse_id` int(11) NOT NULL,
+  `contact_person_id` int(11) NOT NULL,
   `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `create_date` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -4671,45 +4656,79 @@ CREATE TABLE `payment_transaction` (
 --
 
 --
--- Indexes for table `payment_transaction`
+-- Indexes for table `warehouse_person_relationship`
 --
-ALTER TABLE `payment_transaction`
-  ADD PRIMARY KEY (`txn_id`);
+ALTER TABLE `warehouse_person_relationship`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `warehouse_id` (`warehouse_id`),
+  ADD KEY `contact_person_id` (`contact_person_id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
 --
 
 --
--- AUTO_INCREMENT for table `payment_transaction`
+-- AUTO_INCREMENT for table `warehouse_person_relationship`
 --
-ALTER TABLE `payment_transaction`
-  MODIFY `txn_id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `warehouse_person_relationship`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- Constraints for dumped tables
+--
 
+--
+-- Constraints for table `warehouse_person_relationship`
+--
+ALTER TABLE `warehouse_person_relationship`
+  ADD CONSTRAINT `warehouse_person_relationship_ibfk_1` FOREIGN KEY (`warehouse_id`) REFERENCES `warehouse_details` (`id`),
+  ADD CONSTRAINT `warehouse_person_relationship_ibfk_2` FOREIGN KEY (`contact_person_id`) REFERENCES `contact_person` (`id`);
 
-INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'payment_transaction_email', '%s for Blackmelon Advance Technology Company Private Limited', '', 'billing@247around.com', '', '', '', '1', '2016-06-17 00:00:00');
+DROP TABLE IF EXISTS `warehouse_state_relationship`;
+CREATE TABLE `warehouse_state_relationship` (
+  `id` int(11) NOT NULL,
+  `warehouse_id` int(11) NOT NULL,
+  `state` varchar(64) NOT NULL,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `create_date` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'gateway_payment_link_sms', 'Dear Customer, Please click on this link %s to complete the payment of %s for 247around.', '', '1', '2018-04-04 14:36:43');
+--
+-- Indexes for dumped tables
+--
 
-UPDATE `sms_template` SET `template` = 'We have received reschedule request for your %s service (Booking %s) to %s. If you have not asked for reschedule, give missed call @ 01139586111 or call 9555000247.' WHERE `sms_template`.`tag` = 'reschedule_booking';
-UPDATE `sms_template` SET `template` = 'Dear Customer, Request for your %s for %s is confirmed for %s with booking id %s. In case of any support, call 9555000247. 247Around %s.' WHERE `sms_template`.`tag` = 'add_new_booking';
+--
+-- Indexes for table `warehouse_state_relationship`
+--
+ALTER TABLE `warehouse_state_relationship`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `warehouse_id` (`warehouse_id`);
 
-UPDATE `sms_template` SET `template` = 'We have received reschedule request for your %s service (Booking %s) to %s. If you have not asked for reschedule, give missed call @ 01139586111 or call 9555000247.' WHERE `sms_template`.`tag` = 'reschedule_booking';
-UPDATE `sms_template` SET `template` = 'Dear Customer, Request for your %s for %s is confirmed for %s with booking id %s. In case of any support, call 9555000247. 247Around %s.' WHERE `sms_template`.`tag` = 'add_new_booking';
+--
+-- AUTO_INCREMENT for dumped tables
+--
 
---Abhay 24 April
-ALTER TABLE `booking_details` ADD `partner_call_status_on_completed` VARCHAR(64) NULL DEFAULT NULL AFTER `dependency_on`;
+--
+-- AUTO_INCREMENT for table `warehouse_state_relationship`
+--
+ALTER TABLE `warehouse_state_relationship`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- Constraints for dumped tables
+--
 
---Abhay 25April
-ALTER TABLE  `partner_leads` ADD  `spd_date` VARCHAR( 64 ) NULL DEFAULT NULL AFTER  `update_date` ;
+--
+-- Constraints for table `warehouse_state_relationship`
+--
+ALTER TABLE `warehouse_state_relationship`
+  ADD CONSTRAINT `warehouse_state_relationship_ibfk_1` FOREIGN KEY (`warehouse_id`) REFERENCES `warehouse_details` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE `inventory_master_list` ADD UNIQUE( `service_id`, `part_number`, `part_name`, `model_number`, `entity_id`, `entity_type`);
 
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'out_of_stock_inventory', 'Part Name %s of Model Number %s is out of stock in warehouse', 'Dear Partner, <br/> <br/> Please Find the below details of the inventory which is currently out of stock in Our warehouse.<br> Inventory Details<br> %s <br> Please shipped this inventory as soon as possible ', 'noreply@247around.com', '', '', '', '1', '2018-02-03 18:26:57');
 
-UPDATE `email_template` SET `subject` = 'New Login Details - %s' WHERE `email_template`.`tag` = 'resend_login_details';
+UPDATE `email_template` SET `subject` = 'New Login Details - %s' WHERE `email_template`.`tag` = resend_login_details;
 
-
-UPDATE `email_template` SET `subject` = 'Your Password Reset Request Processed Successfully - %s' WHERE `email_template`.`tag` = 'reset_vendor_login_details';
-
+UPDATE `email_template` SET `subject` = 'Your Password Reset Request Processed Successfully - %s' WHERE `email_template`.`tag` = reset_vendor_login_details;
 
 --Abhay 27 April
 ALTER TABLE `spare_parts_details` ADD `auto_acknowledeged` INT(1) NOT NULL DEFAULT '0' COMMENT 'Auto Ack for Spare delivered to SF' AFTER `acknowledge_date`;
@@ -4721,3 +4740,9 @@ INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_cur
 --Abhay 2 May
 ALTER TABLE `trigger_partners` ADD `is_wh` INT(1) NOT NULL DEFAULT '0' AFTER `updated_date`;
 ALTER TABLE `trigger_service_charges` ADD `is_wh` INT(1) NOT NULL DEFAULT '0' AFTER `deleted_by`;
+
+
+--sachin 3 May
+
+ALTER TABLE `spare_parts_details` ADD `parts_requested_type` VARCHAR(256) NOT NULL AFTER `parts_requested`;
+ALTER TABLE `spare_parts_details` ADD `shipped_parts_type` VARCHAR(256) NOT NULL AFTER `parts_shipped`;

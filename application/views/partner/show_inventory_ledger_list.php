@@ -12,36 +12,28 @@
                             <thead>
                                 <tr>
                                     <th>S.No.</th>
-                                    <th>Receiver Name</th>
-                                    <th>Receiver Type</th>
                                     <th>Sender Name</th>
-                                    <th>Sender Type</th>
-                                    <th>Part Name</th>
-                                    <th>Part Description</th>
+                                    <th>Receiver Name</th>
+                                    <th>Spare Part Name</th>
                                     <th>Quantity</th>
                                     <th>Booking Id</th>
-                                    <th>Agent Name</th>
-                                    <th>Agent Type</th>
+                                    <th>Date</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php foreach ($brackets as $key => $value) { ?>
                                     <tr>
-                                        <td><?php echo $key + 1; ?></td>
-                                        <td><?php echo $value['receiver']; ?></td>
-                                        <td><?php echo $value['receiver_entity_type']; ?></td>
-                                        <td><?php echo $value['sender']; ?></td>
-                                        <td><?php echo $value['sender_entity_type']; ?></td>
-                                        <td><?php echo $value['part_name']; ?></td>
-                                        <td><?php echo $value['description']; ?></td>
-                                        <td><?php echo $value['quantity']; ?></td>
+                                        <td><?php echo $key+1;?></td>
+                                        <td><?php echo $value['sender'];?></td>
+                                        <td><?php echo $value['receiver'];?></td>
+                                        <td><?php echo $value['part_name'];?></td>
+                                        <td><?php echo $value['quantity'];?></td>
                                         <td>
                                             <a href="<?php echo base_url(); ?>partner/booking_details/<?php echo $value['booking_id']; ?>">
                                                 <?php echo $value['booking_id']; ?>
                                             </a>
                                         </td>
-                                        <td><?php echo $value['agent_name']; ?></td>
-                                        <td><?php echo $value['agent_type']; ?></td>
+                                        <td><?php echo date('d F Y H:i:s', strtotime($value['create_date'])) ; ?></td>
                                     </tr>
                                 <?php } ?>
                             </tbody>
