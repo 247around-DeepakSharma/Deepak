@@ -38,7 +38,7 @@
                                 <th>State</th>
                                 <th>Booking Date</th>
                                 <?php if ($status != "Cancelled") { ?>
-                                <th>TAT</th>
+                                <th>TAT (Days)</th>
                                 <?php } ?>
                                 <?php if ($status == "Cancelled") { ?>
                                     <th>Cancellation Reason</th>

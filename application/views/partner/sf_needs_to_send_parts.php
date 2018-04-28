@@ -32,7 +32,7 @@
                             <th class="text-center">Customer Name</th>
                             <th class="text-center">Booking ID</th>
                             <th class="text-center">Spare Details</th>
-                            <th class="text-center">Ageing</th>
+                            <th class="text-center">Age</th>
                         </tr>
                     </thead>
                     <tbody>

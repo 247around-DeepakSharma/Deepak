@@ -47,7 +47,7 @@
                         <th>City</th>
                         <th>State</th>
                         <th>Booking Date</th>
-                        <th>Age</th>
+                        <th>Age (Days)</th>
                         <th>Edit</th>
                         <th>Reschedule</th>
                         <th>Cancel</th>
