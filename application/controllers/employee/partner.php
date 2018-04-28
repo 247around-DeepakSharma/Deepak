@@ -91,8 +91,8 @@ class Partner extends CI_Controller {
             $data['success'] = $this->session->flashdata('result');
         }
 
-        log_message('info', 'Partner View: Pending booking: Partner id: ' . $partner_id . ", Partner name: " .
-                $this->session->userdata('partner_name'));
+        log_message('info', 'Partner View: Pending booking: Partner id: ' . $partner_id . ", Partner name: " .$this->session->userdata('partner_name'));
+        $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
         $data['is_ajax'] = $this->input->post('is_ajax');
         if(empty($this->input->post('is_ajax'))){
             $this->load->view('partner/header');
@@ -170,6 +170,7 @@ class Partner extends CI_Controller {
 
         $data['status'] = $state;
 
+       $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
         log_message('info', 'Partner view ' . $state . ' booking  partner id' . $partner_id . " Partner name" . $this->session->userdata('partner_name') . " data " . print_r($data, true));
 
         $this->load->view('partner/header');
@@ -1661,6 +1662,7 @@ class Partner extends CI_Controller {
         $data['count'] = $config['total_rows'];
         $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true);
         $data['is_ajax'] = $this->input->post('is_ajax');
+        $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
         if(empty($this->input->post('is_ajax'))){
             $this->load->view('partner/header');
             $this->load->view('partner/spare_parts_booking', $data);
@@ -2773,7 +2775,8 @@ class Partner extends CI_Controller {
                 $this->notify->insert_state_change($booking_id, UPCOUNTRY_CHARGES_APPROVED, _247AROUND_PENDING, "Upcountry Charges Approved From " . $type, $agent_id, $agent_name, 
                         ACTOR_UPCOUNTRY_CHARGES_APPROV_BY_PARTNER,NEXT_ACTION_UPCOUNTRY_CHARGES_APPROV_BY_PARTNER,$partner_id);
 
-                $assigned = $this->miscelleneous->assign_vendor_process($data[0]['service_center_id'], $booking_id,$agent_id,$agent_type);
+                $assigned = $this->miscelleneous->assign_vendor_process($data[0]['service_center_id'], $booking_id, 
+                        $data[0]['partner_id'],$agent_id,$agent_type);
                 if ($assigned) {
 
                     log_message('info', __FUNCTION__ . " => Continue Process" . $booking_id);
@@ -2916,7 +2919,7 @@ class Partner extends CI_Controller {
                 $partner_id = _247AROUND;
                 $partner_current_status = "";
                 $partner_internal_status = "";
-                $actor = $next_action = 'not_define';
+                $actor = $next_action = 'NULL';
                 $partner_status = $this->booking_utilities->get_partner_status_mapping_data("Cancelled", UPCOUNTRY_CHARGES_NOT_APPROVED, $value['partner_id'], $value['booking_id']);
                 if (!empty($partner_status)) {
                     $partner_current_status = $partner_status[0];
@@ -4062,20 +4065,51 @@ class Partner extends CI_Controller {
     }
     
     function create_and_send_partner_report($partnerID){
-        if($this->session->userdata('agent_id')){
-            echo $msg = "Please Check Your Email, You will get the report soon";
-            $data['start'] = date('Y-m-d',strtotime($this->input->post('startDate')));
-            $data['end'] = date('Y-m-d',strtotime($this->input->post('endDate')));
-            $data['status'] = $this->input->post('status');
-            $data['state'] = explode(",",$this->input->post('state'));
-            $data['agentID'] = $this->session->userdata('agent_id');
-            $data['partnerID'] = $partnerID;
-            $sendUrl = base_url().'employee/do_background_process/create_and_send_partner_requested_report';
-            $this->asynchronous_lib->do_background_process($sendUrl, $data);
-        }
-        else{
-            echo $msg = "Please Login, and Try Again";
-        }
+            $dateArray  = explode(" - ",$this->input->post('create_date'));
+            $start = date('Y-m-d',strtotime($dateArray[0]));
+            $end = date('Y-m-d',strtotime($dateArray[1]));
+            $status = $this->input->post('status');
+            if($this->input->post('state')){
+                $state = explode(",",$this->input->post('state'));
+            }
+            else{
+                $state =array('all');
+            }
+            $newCSVFileName = "Booking_summary_" . $start ."_".$end.".csv";
+            $csv = TMP_FOLDER . $newCSVFileName;
+            $where[] = "(date(booking_details.create_date)>='".$start."' AND date(booking_details.create_date)<='".$end."')";
+            if($status != 'all'){
+                if($status == 'Pending'){
+                    $where[] = "booking_details.current_status NOT IN ('Cancelled','Completed')";
+              }
+                    else{
+                        $where[] = "booking_details.current_status IN('".$status."')";
+                    }
+                }
+                if(!in_array('all',$state)){
+                    $where[] = "booking_details.state IN ('".implode("','",$state)."')";
+                }
+               log_message('info', __FUNCTION__ . "Where ".print_r($where,true));
+               $report =  $this->partner_model->get_partner_leads_csv_for_summary_email($partnerID,0,implode(' AND ',$where));
+               $delimiter = ",";
+                $newline = "\r\n";
+                $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
+                $file = fopen($csv,"w");
+                fwrite($file,$new_report);
+                fclose($file);
+                //Downloading Generated CSV  
+                    header('Content-Description: File Transfer');
+                    header('Content-Type: application/octet-stream');
+                    header('Content-Disposition: attachment; filename="' . basename($csv) . '"');
+                    header('Expires: 0');
+                    header('Cache-Control: must-revalidate');
+                    header('Pragma: public');
+                    header('Content-Length: ' . filesize($csv));
+                    readfile($csv);
+                    exec("rm -rf " . escapeshellarg($csv));
+                    unlink($csv);
+//            $sendUrl = base_url().'employee/do_background_process/create_and_send_partner_requested_report';
+//            $this->asynchronous_lib->do_background_process($sendUrl, $data);
     }
     
     function download_partner_pending_bookings($partnerID){ 
@@ -4109,5 +4143,49 @@ class Partner extends CI_Controller {
         $this->load->view('partner/header');
         $this->load->view('partner/inventory_stock_list');
         $this->load->view('partner/partner_footer');
+    }
+    function get_pending_part_on_sf($offset = 0, $all = 0){
+         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
+        $this->checkUserSession();
+        $partner_id = $this->session->userdata('partner_id');
+
+        $where = array(
+            "spare_parts_details.defective_part_required" => 1,
+            "spare_parts_details.partner_id" => $partner_id,
+            "status IN ('" . DEFECTIVE_PARTS_PENDING . "')  " => NULL
+        );
+
+        $select = "CONCAT( '', GROUP_CONCAT((parts_shipped ) ) , '' ) as defective_part_shipped, "
+                . " spare_parts_details.booking_id, name,DATEDIFF(CURDATE(),date(booking_details.service_center_closed_date)) as aging";
+
+        $group_by = "spare_parts_details.booking_id";
+        $order_by = "spare_parts_details.defective_part_shipped_date DESC";
+
+        $config['base_url'] = base_url() . 'partner/get_pending_part_on_sf';
+        $config['total_rows'] = $this->service_centers_model->count_spare_parts_booking($where, $select, $group_by);
+
+        if ($all == 1) {
+            $config['per_page'] = $config['total_rows'];
+        } else {
+            $config['per_page'] = 50;
+        }
+        $config['uri_segment'] = 3;
+        $config['first_link'] = 'First';
+        $config['last_link'] = 'Last';
+        $this->pagination->initialize($config);
+        $data['links'] = $this->pagination->create_links();
+
+        $data['count'] = $config['total_rows'];
+        $data['spare_parts'] = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $offset, $config['per_page']);
+        $where_internal_status = array("page" => "defective_parts", "active" => '1');
+        $data['internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
+        $data['is_ajax'] = $this->input->post('is_ajax');
+        if(empty($this->input->post('is_ajax'))){
+            $this->load->view('partner/header');
+            $this->load->view('partner/sf_needs_to_send_parts', $data);
+            $this->load->view('partner/partner_footer');
+        }else{
+            $this->load->view('partner/sf_needs_to_send_parts', $data);
+        }
     }
 }

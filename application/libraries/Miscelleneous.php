@@ -109,7 +109,7 @@ class Miscelleneous {
      * @param String $booking_id
      * @return boolean
      */
-    function assign_vendor_process($service_center_id, $booking_id,$agent_id, $agent_type) {
+    function assign_vendor_process($service_center_id, $booking_id, $partner_id, $agent_id, $agent_type) {
         log_message('info', __FUNCTION__ . " Entering...... booking_id " . $booking_id . " service center id " . $service_center_id);
         $b['assigned_vendor_id'] = $service_center_id;
         // Set Default Engineer
@@ -122,7 +122,7 @@ class Miscelleneous {
             }
         }
         $b['upcountry_partner_approved'] = '1';
-        $partner_status = $this->My_CI->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, ASSIGNED_VENDOR, _247AROUND, $booking_id);
+        $partner_status = $this->My_CI->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, ASSIGNED_VENDOR, $partner_id, $booking_id);
         if (!empty($partner_status)) {
             $b['partner_current_status'] = $partner_status[0];
             $b['partner_internal_status'] = $partner_status[1];
@@ -205,7 +205,7 @@ class Miscelleneous {
                     }
                 }
             }
-
+            $this->My_CI->partner_cb->partner_callback($booking_id);
             log_message('info', __FUNCTION__ . " Exit...... booking_id " . $booking_id . " service center id " . $service_center_id);
             return true;
         } else {
@@ -2315,15 +2315,16 @@ class Miscelleneous {
     /*
      * This Function is used to approve rescheduled booking
      */
-    function approved_rescheduled_bookings($reschedule_booking_id,$reschedule_booking_date,$reschedule_reason,$partner_id,$id,$employeeID){
+    function approved_rescheduled_bookings($reschedule_booking_id,$reschedule_booking_date,$reschedule_reason,$partner_id_array,$id,$employeeID){
          log_message('info', __FUNCTION__);
          foreach ($reschedule_booking_id as $booking_id) {
+            $partner_id = $partner_id_array[$booking_id];
             $booking['booking_date'] = date('d-m-Y', strtotime($reschedule_booking_date[$booking_id]));
-            $send['state'] = $booking['current_status'] = 'Rescheduled';
+            $booking['current_status'] = 'Rescheduled';
             $booking['internal_status'] = 'Rescheduled';
             $booking['update_date'] = date("Y-m-d H:i:s");
             $booking['mail_to_vendor'] = 0;
-            $send['booking_id'] = $booking_id;
+            
             $booking['reschedule_reason'] = $reschedule_reason[$booking_id];
             //check partner status from partner_booking_status_mapping table  
             $partner_status =$this->My_CI->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $partner_id, $booking_id);
@@ -2336,9 +2337,9 @@ class Miscelleneous {
             }
             log_message('info', __FUNCTION__ . " update booking: " . print_r($booking, true));
             $this->My_CI->booking_model->update_booking($booking_id, $booking);
-            $this->My_CI->booking_model->increase_escalation_reschedule($booking_id, "count_reschedule");
-            $data['internal_status'] = "Pending";
-            $data['current_status'] = "Pending";
+            
+            $data['internal_status'] = _247AROUND_PENDING;
+            $data['current_status'] = _247AROUND_PENDING;
             log_message('info', __FUNCTION__ . " update service cenetr action table: " . print_r($data, true));
             $this->My_CI->vendor_model->update_service_center_action($booking_id, $data);
             //Send Push Notification
@@ -2348,8 +2349,6 @@ class Miscelleneous {
             $notificationTextArray['title'] = array("Rescheduled");
             $this->My_CI->push_notification_lib->create_and_send_push_notiifcation(BOOKING_UPDATED_BY_247AROUND,$receiverArray,$notificationTextArray);
             //End Sending Push Notification
-            $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
-            $this->My_CI->asynchronous_lib->do_background_process($url, $send);
             //Log this state change as well for this booking
             //param:-- booking id, new state, old state, employee id, employee name
             $this->My_CI->notify->insert_state_change($booking_id, _247AROUND_RESCHEDULED, _247AROUND_PENDING, $booking['reschedule_reason'], $id,$employeeID, $actor,$next_action,_247AROUND);          

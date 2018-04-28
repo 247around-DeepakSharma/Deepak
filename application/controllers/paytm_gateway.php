@@ -158,7 +158,7 @@ class Paytm_gateway extends CI_Controller {
         if($insert_id){
             log_message("info",__METHOD__." Payment has been completed successfully"); 
             $partner_id = $this->session->userdata('partner_id');
-            if(!empty($partner_id)){
+            if(!empty($partner_id) && $transaction_status['is_txn_successfull'] == 1){
                 $this->generate_partner_payment_invoice($partner_id,$param_list);
             }
             $this->send_transaction_email($insert_data);
@@ -332,7 +332,6 @@ class Paytm_gateway extends CI_Controller {
             $subject_text = "Payment Failed";
         }   
         
-        $to = 'sachinj@247around.com';
         $bcc = $email_template[3].$am_email;
         $subject = vsprintf($email_template[4], $subject_text);
         

@@ -9,10 +9,23 @@
             <div class="x_panel">
                 <div class="x_title">
                     <h2><?php echo $status." Bookings" ?></h2>
-                    <div class="clearfix"></div>
+                     <div class="right_holder" style="float:right;margin-right:10px;">
+                            <lable>State</lable>
+                            <select class="form-control " id="serachInputCompleted" style="border-radius:3px;">
+                    <option value="all">All</option>
+      <?php
+      foreach($states as $state){
+          ?>
+      <option value="<?php echo $state['state'] ?>"><?php echo $state['state'] ?></option>
+      <?php
+      }
+      ?>
+  </select>            
+</div>
+                                        <div class="clearfix"></div>
                 </div>
                 <div class="x_content">
-                    <table class="table table-bordered table-hover table-striped">
+                    <table class="table table-bordered table-hover table-striped" id="complete_booking_table">
                         <thead>
                             <tr>
                                 <th>S No.</th>
@@ -22,7 +35,11 @@
                                 <th>User Name</th>
                                 <th>Mobile</th>
                                 <th>City</th>
-                                <th>Closed Booking</th>
+                                <th>State</th>
+                                <th>Booking Date</th>
+                                <?php if ($status != "Cancelled") { ?>
+                                <th>TAT (Days)</th>
+                                <?php } ?>
                                 <?php if ($status == "Cancelled") { ?>
                                     <th>Cancellation Reason</th>
                                     <th>Open</th>
@@ -72,8 +89,14 @@
                                     <?php echo $row['city']; ?>
                                     </td>
                                     <td>
+                                    <?php echo $row['state']; ?>
+                                    </td>
+                                    <td>
                                         <?php echo date('d-m-y', strtotime($row['booking_date'])); ?> 
                                     </td>
+                                    <?php if ($status != "Cancelled") { ?>
+                                <td><?php echo $row['tat']; ?></td>
+                                <?php } ?>
                                     <?php if ($status == "Cancelled") { ?>        
                                         <td>
                                         <?php echo $row['cancellation_reason']; ?>
@@ -102,6 +125,19 @@
     </div>
 </div>
 <script>
+    var table = $('#complete_booking_table').DataTable();
+    $("#serachInputCompleted").change(function () {
+         if($('#serachInputCompleted').val() !== 'all'){
+    table
+        .columns(7)
+        .search($('#serachInputCompleted').val())
+        .draw();
+         }
+          else{
+                location.reload();
+            }
+} );
+$('#serachInputCompleted').select2();           
     function open_upcountry_model(booking_id, amount_due) {
 
         $.ajax({
@@ -115,4 +151,9 @@
             }
         });
     }
-</script>
+    </script>
+    <style>
+        .dataTables_filter{
+            display:none;
+        }
+        </style>

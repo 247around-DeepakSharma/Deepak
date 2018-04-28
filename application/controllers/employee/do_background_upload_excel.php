@@ -530,13 +530,13 @@ class Do_background_upload_excel extends CI_Controller {
                     }
                     
                     //check partner status from partner_booking_status_mapping table  
-                    $actor = $next_action = 'not_define';
+                    $actor = $next_action = 'NULL';
                     $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $booking['partner_id'], $booking['booking_id']);
                     if (!empty($partner_status)) {
                         $booking['partner_current_status'] = $partner_status[0];
                         $booking['partner_internal_status'] = $partner_status[1];
-                        $booking['actor'] = $partner_status[2];
-                        $booking['next_action'] = $partner_status[3];
+                        $actor = $booking['actor'] = $partner_status[2];
+                        $next_action = $booking['next_action'] = $partner_status[3];
                     }
 
                     //Send SMS to customers regarding delivery confirmation through missed call for delivered file only

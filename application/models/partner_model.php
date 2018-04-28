@@ -68,7 +68,7 @@ class Partner_model extends CI_Model {
             $this->db->where('code', $source);
         }
 
-      $query = $this->db->get("bookings_sources");
+          $query = $this->db->get("bookings_sources");
       return $query->result_array();
     }
 
@@ -163,7 +163,7 @@ function get_data_for_partner_callback($booking_id) {
 
           $query = $this->db->query("Select Distinct services.services,
             users.name as customername, users.phone_number,
-            booking_details.*,appliance_brand
+            booking_details.*,appliance_brand,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y')) as aging, count_escalation 
 
             from booking_details
             JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
@@ -224,12 +224,14 @@ function get_data_for_partner_callback($booking_id) {
         if($limit!="count"){
             $this->db->limit($limit, $start);
         }
-
+        $this->db->_protect_identifiers = FALSE;
         $this->db->select('request_type,booking_details.booking_id, users.name as customername, '
                 . ' booking_details.booking_primary_contact_no, services.services, '
                 . ' booking_details.booking_date, booking_details.closing_remarks, '
-                . ' booking_details.booking_timeslot, booking_details.city, '
-                . ' booking_details.cancellation_reason, booking_details.order_id,booking_details.is_upcountry,amount_due, upcountry_paid_by_customer');
+                . ' booking_details.booking_timeslot, booking_details.city, booking_details.state,'
+                . ' booking_details.cancellation_reason, booking_details.order_id,booking_details.is_upcountry,amount_due, upcountry_paid_by_customer'
+                . ',(CASE WHEN DATEDIFF(date(booking_details.closed_date),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y"))<0 THEN 0 ELSE '
+                . 'DATEDIFF(date(booking_details.closed_date),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) END )  as tat');
         $this->db->from('booking_details');
         $this->db->join('services','services.id = booking_details.service_id');
         $this->db->join('users','users.user_id = booking_details.user_id');
@@ -360,7 +362,7 @@ function get_data_for_partner_callback($booking_id) {
         $closeDateSubQuery = "booking_details.closed_date AS 'Completion Date'";
         $tatSubQuery  = '(CASE WHEN current_status  = "Completed" THEN (CASE WHEN DATEDIFF(date(booking_details.closed_date),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) < 0 THEN 0 ELSE'
                 . ' DATEDIFF(date(booking_details.closed_date),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) END) ELSE "" END) as TAT';
-        $agingSubQuery = '(CASE WHEN current_status  IN ("Pending","Resheduled","FollowUp") THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) ELSE "" END) as Aging';
+        $agingSubQuery = '(CASE WHEN current_status  IN ("Pending","Rescheduled","FollowUp") THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) ELSE "" END) as Aging';
         if($partner_id == JEEVES_ID){
             $dependency = ', IF(dependency_on =1, "'.DEPENDENCY_ON_AROUND.'", "'.DEPENDENCY_ON_CUSTOMER.'") as Dependency ';
         }
@@ -818,7 +820,7 @@ function get_data_for_partner_callback($booking_id) {
         if($flag_select){
             $select = "SELECT spare_parts_details.*, users.name, booking_details.booking_primary_contact_no, booking_details.partner_id,"
                 . " booking_details.booking_address,booking_details.initial_booking_date, booking_details.is_upcountry, booking_details.upcountry_paid_by_customer,"
-                    . "booking_details.amount_due, "
+                    . "booking_details.amount_due,booking_details.state, "
                 . " service_centres.name as vendor_name, service_centres.address, service_centres.state, "
                 . " service_centres.pincode, service_centres.district,service_centres.id as sf_id,service_centres.is_gst_doc,service_centres.signature_file,"
                 . " DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request ";

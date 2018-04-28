@@ -331,9 +331,10 @@ class partner_sd_cb {
             $serial_number = "";
             $CallCompletedDate = "";
             $StatusReason = "";
-            $appointmentDate = "";
+            
             
             if ($data['current_status'] == _247AROUND_COMPLETED) {
+               
                 $unit = $this->My_CI->booking_model->get_unit_details(array("booking_id" => $data['booking_id']), false, "serial_number");
                 if (!empty($unit)) {
                     foreach ($unit as $unit_details) {
@@ -349,37 +350,52 @@ class partner_sd_cb {
                     "day" => date('d', strtotime($data['service_center_closed_date'])),
                     "hour" => date('H', strtotime($data['service_center_closed_date'])),
                     "minute" => date('i', strtotime($data['service_center_closed_date'])));
+                $is_valid = false;
+                if(!empty($data['service_promise_date'])){
+                  
+                   
+                     if(date('Y') == date('Y', strtotime($data['service_promise_date']))){
+                   
+                         $is_valid = TRUE;
+                     } else  if(date('Y') == (date('Y', strtotime($data['service_promise_date'])) -1) ){ 
+                         $is_valid = TRUE;
+                     } else if(date('Y') == (date('Y', strtotime($data['service_promise_date'])) + 1) )
+                          $is_valid = TRUE;
+                     }
 
-                $appointmentDate = array(
+                    if($is_valid){
+                        if(date('Y-m-d', strtotime($data['service_center_closed_date'])) > 
+                                date('Y-m-d', strtotime($data['service_promise_date']))){
+                            
+                            if(!empty($StatusReason)){
+                                log_message('info', __METHOD__. "Status  ".$data['partner_call_status_on_completed']. " " 
+                                        . $data['service_center_closed_date'].
+                                    " SPD date ".date('Y-m-d', strtotime($data['service_promise_date'])) );
+                                
+                                $StatusReason = $data['partner_call_status_on_completed'];
+                                
+                            } else {
+                                 log_message('info', __METHOD__. " Delay By 247Around ". $data['service_center_closed_date'].
+                                    " SPD date ".date('Y-m-d', strtotime($data['service_promise_date'])) );
+                                $StatusReason = JEEVES_BOOKING_DELAY_BY_AROUND;
+                            }
+                        } else {
+                            log_message('info', __METHOD__. " WITH In TAT closed_date ". $data['service_center_closed_date'].
+                                    " SPD date ".date('Y-m-d', strtotime($data['service_promise_date'])) );
+                            $StatusReason = JEEVES_CALL_COMPLETED_WITH_IN_TAT;
+                        }
+                    } else{
+                        log_message('info', __METHOD__. " Invalid SPD date");
+                        $StatusReason = JEEVES_CALL_COMPLETED_WITH_IN_TAT;
+                    }
+                } 
+            
+            $appointmentDate = array(
                     "year" => date('Y', strtotime($data['booking_date'])),
                     "month" => date('m', strtotime($data['booking_date'])),
                     "day" => date('d', strtotime($data['booking_date'])),
                     "hour" => date('H', strtotime($data['booking_date'])),
                     "minute" => date('i', strtotime($data['booking_date'])));
-                
-                if(!empty($data['service_promise_date'])){
-                    if(date('Y') == date('Y', strtotime($data['service_promise_date']))){
-                        if(date('Y-m-d', strtotime($data['service_center_closed_date'])) > 
-                                date('Y-m-d', strtotime($data['service_promise_date']))){
-                            
-                            if(!empty($StatusReason)){
-                                
-                                $StatusReason = $data['partner_call_status_on_completed'];
-                                
-                            } else {
-                                $StatusReason = JEEVES_BOOKING_DELAY_BY_AROUND;
-                            }
-                        } else {
-                            $StatusReason = JEEVES_CALL_COMPLETED_WITH_IN_TAT;
-                        }
-                    } else{
-                        $StatusReason = JEEVES_CALL_COMPLETED_WITH_IN_TAT;
-                    }
-                } else {
-                    $StatusReason = JEEVES_CALL_COMPLETED_WITH_IN_TAT;
-                }
-            }
-
             $postData = array(
                 "CaseId" => $data['order_id'],                   //Mandatory in All status
                 "CallStatus" => $data['partner_current_status'], //Mandatory in All status

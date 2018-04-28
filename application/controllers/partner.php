@@ -326,13 +326,13 @@ class Partner extends CI_Controller {
                                 }
                                 
                                 //check partner status from partner_booking_status_mapping table 
-                                $actor = $next_action = 'not_define';
+                                $actor = $next_action = 'NULL';
                                 $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $booking['partner_id'], $booking['booking_id']);
                                 if (!empty($partner_status)) {
                                     $booking['partner_current_status'] = $partner_status[0];
                                     $booking['partner_internal_status'] = $partner_status[1];
-                                    $actor = $booking['actor'] = $partner_status[1];
-                                    $next_action = $booking['next_action'] = $partner_status[1];
+                                    $actor = $booking['actor'] = $partner_status[2];
+                                    $next_action = $booking['next_action'] = $partner_status[3];
                                 }
 
                                 //Insert query
@@ -1525,7 +1525,7 @@ class Partner extends CI_Controller {
                         }
                     }
                     //check partner status from partner_booking_status_mapping table  
-                    $actor = $next_action = 'not_define';
+                    $actor = $next_action = 'NULL';
                     $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $booking['partner_id'], $booking['booking_id']);
                     if (!empty($partner_status)) {
                         $booking['partner_current_status'] = $partner_status[0];
@@ -1578,12 +1578,7 @@ class Partner extends CI_Controller {
                             $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY, $booking['booking_remarks'], $agent_id, 
                                     $requestData['partnerName'],$actor,$next_action, $booking['partner_id']);
                         } else {
-                            //-------Sending SMS on booking--------//
-                            $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
-                            $send['booking_id'] = $booking['booking_id'];
-                            $send['state'] = "Newbooking";
-                            $this->asynchronous_lib->do_background_process($url, $send);
-
+                            
                             $this->notify->insert_state_change($booking['booking_id'], _247AROUND_PENDING, _247AROUND_NEW_BOOKING, $booking['booking_remarks'], $agent_id, 
                                     $requestData['partnerName'],$actor,$next_action, $booking['partner_id']);
 
@@ -1595,7 +1590,7 @@ class Partner extends CI_Controller {
                                     case NOT_UPCOUNTRY_BOOKING:
                                     case UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE:
                                         //assign vendor
-                                        $assigned = $this->miscelleneous->assign_vendor_process($upcountry_data['vendor_id'], $booking['booking_id'], $agent_id, _247AROUND_PARTNER_STRING);
+                                        $assigned = $this->miscelleneous->assign_vendor_process($upcountry_data['vendor_id'], $booking['booking_id'], $booking['partner_id'],$agent_id, _247AROUND_PARTNER_STRING);
 
                                         if ($assigned) {
                                             $url = base_url() . "employee/do_background_process/assign_booking";
