@@ -4694,11 +4694,11 @@ class vendor extends CI_Controller {
         if(!empty($agent)){
             $template = $this->booking_model->get_booking_email_template("resend_login_details");
             if (!empty($template)) {
-                $sf_details = $this->vendor_model->getVendorDetails('primary_contact_email,owner_email',array('id'=>$id));
+                $sf_details = $this->vendor_model->getVendorDetails('primary_contact_email,owner_email,name',array('id'=>$id));
                 $rm_email = $this->vendor_model->get_rm_sf_relation_by_sf_id($id)[0]['official_email'];
                 $login_details['username'] = $agent[0]['user_name'];
                 $login_details['password'] = $agent[0]['user_name'];
-                $subject = $template[4];
+                $subject = vsprintf($template[4], $sf_details[0]['name']);
                 $emailBody = vsprintf($template[0], $login_details);
                 $to = $this->session->userdata('official_email').",".$sf_details[0]['primary_contact_email'].",".$sf_details[0]['owner_email'];
                 $cc = $rm_email.",".$template[3];
