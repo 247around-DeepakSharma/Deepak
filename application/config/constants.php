@@ -580,5 +580,8 @@ define('JEEVES_PRODUCT_NOT_DELIVERED','Set Not Delivered above 2 Days');
 define('JEEVES_BOOKING_DELAY_BY_AROUND','Allotted/ Closed delay by SF / Jeeves');
 define('JEEVES_CALL_COMPLETED_WITH_IN_TAT', "call completed with in TAT");
 
+//Define Constant for Partner Inventory File 
+define('PARTNER_INVENTORY_DETAILS_FILE','Inventory-file');
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
