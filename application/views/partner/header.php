@@ -230,8 +230,14 @@
                                     <span><i class="fa fa-angle-down"></i></span>
                                 </a>
                                 <ul class="dropdown-menu dropdown-usermenu pull-right">
+                                    <?php
+                                    if($this->session->userdata('agent_id') != '980084' && $this->session->userdata('agent_id') != '980083'){
+                                    ?>
                                     <li><a href="<?php echo base_url() ?>employee/partner/show_partner_edit_details_form"><i class="fa fa-edit pull-right"></i> Edit Details</a></li>
                                     <li><a href="<?php echo base_url() ?>employee/partner/reset_partner_password"><i class="fa fa-key pull-right"></i> Reset Password</a></li>
+                                    <?php
+                                    }
+                                    ?>
                                     <li><a href="<?php echo base_url() ?>employee/partner/logout"><i class="fa fa-sign-out pull-right"></i> Log Out</a></li>
                                 </ul>
                             </li>
@@ -262,14 +268,17 @@
                                         <li><a href="<?php echo base_url(); ?>partner/closed_booking/Cancelled">Cancelled Bookings</a></li>
                                     </ul>
                                 </li>
+                                <?php
+                                if($this->session->userdata('agent_id') != '980084' && $this->session->userdata('agent_id') != '980083'){
+                                    ?>
                                 <li>
                                     <a data-toggle="tooltip" data-placement="right" title="" data-original-title="Spare bookings"><i class="fa fa-truck"></i><span class="side_menu_list_title">Spare Bookings</span><span class="fa fa-chevron-down"></span></a>
                                     <ul class="nav child_menu">
                                         <li><a href="<?php echo base_url(); ?>partner/get_spare_parts_booking">Pending Spares On <?php echo $partner_name ?></a></li>
                                         <li><a href="<?php echo base_url(); ?>partner/get_shipped_parts_list">Shipped Spares by <?php echo $partner_name ?></a></li>
+                                         <li><a href="<?php echo base_url(); ?>partner/get_pending_part_on_sf">Pending Spares On SF</a></li>
                                         <li><a href="<?php echo base_url(); ?>partner/get_waiting_defective_parts">Shipped Spares by SF</a></li>
                                         <li><a href="<?php echo base_url(); ?>partner/get_approved_defective_parts_booking">Received Spares by <?php echo $partner_name ?></a></li>
-                                        <li><a href="<?php echo base_url(); ?>partner/get_pending_part_on_sf">Pending Spare On SF</a></li>
                                         <?php if($this->session->userdata('is_wh')) { ?> 
                                         <li><a href="<?php echo base_url(); ?>partner/inventory/inventory_list">247around warehouse Inventory</a></li>
                                         <?php } ?>
@@ -294,6 +303,7 @@
                                 </li>
                                  <li><a href="<?php echo base_url(); ?>employee/partner/get_contracts" data-toggle="tooltip" data-placement="right" title="" data-original-title="Contracts">
                                          <i class="fa fa-handshake-o"></i><span class="side_menu_list_title">Contracts</span></a></li>
+                                 <?php } ?>
                                 <li><a href="<?php echo base_url(); ?>employee/partner/get_contact_us_page" data-toggle="tooltip" data-placement="right" title="" data-original-title="Contact Us">
                                         <i class="fa fa-phone"></i><span class="side_menu_list_title">Contact Us</span></a></li>
                             </ul>
