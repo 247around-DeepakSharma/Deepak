@@ -587,5 +587,8 @@ define('JEEVES_PRODUCT_NOT_DELIVERED','Set Not Delivered above 2 Days');
 define('JEEVES_BOOKING_DELAY_BY_AROUND','Allotted/ Closed delay by SF / Jeeves');
 define('JEEVES_CALL_COMPLETED_WITH_IN_TAT', "call completed with in TAT");
 
+define('RESCHEDULE_FOR_UPCOUNTRY', "Upcountry Booking");
+define("ENGINEER_ON_ROUTE", "Engineer on route");
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

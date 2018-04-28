@@ -39,3 +39,7 @@ define('REQUESTED_QUOTE_REJECTED','Requested Quote Rejected');
 
 define("SPARE_PARTS_CANCELLED", "Spare Parts Cancelled");
 
+define("SPARE_DELIVERED_TO_SF", "Delivered");
+define("SPARE_SHIPPED_BY_PARTNER", "Shipped");
+
+define("SPARE_PARTS_NOT_DELIVERED_TO_SF", "Spare parts not received");

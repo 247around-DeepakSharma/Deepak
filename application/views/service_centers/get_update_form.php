@@ -41,18 +41,7 @@
                                 </label>
                             </div>
                              <?php } ?>
-                            <div class="radio ">
-                                <label>
-                                <input type="radio" id="rescheduled" onclick="internal_status_check(this.id)" name="reason" class="internal_status" value="<?php echo CUSTOMER_ASK_TO_RESCHEDULE; ?>" >
-                                <?php echo CUSTOMER_ASK_TO_RESCHEDULE; ?>
-                                </label>
-                            </div>
-                            <div class="radio ">
-                                <label>
-                                <input type="radio" id="product_not_delivered" onclick="internal_status_check(this.id)" name="reason" class="internal_status" value="<?php echo PRODUCT_NOT_DELIVERED_TO_CUSTOMER; ?>" >
-                                <?php echo PRODUCT_NOT_DELIVERED_TO_CUSTOMER; ?>
-                                </label>
-                            </div>
+                            
                             <?php if($spare_flag != SPARE_PART_RADIO_BUTTON_NOT_REQUIRED ){ ?>
                                 <div class="radio ">
                                 <label>
@@ -61,6 +50,36 @@
                                 </label>
                             </div>
                            <?php }?>
+                            <hr/>
+                            <?php if($bookinghistory[0]['is_upcountry'] == 1 ){ ?>
+                               <div class="radio ">
+                                <label>
+                                <input type="radio" id="reschedule_for_upcountry" onclick="internal_status_check(this.id)" name="reason" class="internal_status" value="<?php echo RESCHEDULE_FOR_UPCOUNTRY; ?>" >
+                                <?php echo RESCHEDULE_FOR_UPCOUNTRY. "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - Reschedule"; ?>
+                                </label>
+                            </div>
+                           <?php }?>
+                            <div class="radio ">
+                                <label>
+                                <input type="radio" id="rescheduled" onclick="internal_status_check(this.id)" name="reason" class="internal_status" value="<?php echo CUSTOMER_ASK_TO_RESCHEDULE; ?>" >
+                                <?php echo CUSTOMER_ASK_TO_RESCHEDULE. "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - Reschedule"; ?>
+                                </label>
+                            </div>
+                            <div class="radio ">
+                                <label>
+                                <input type="radio" id="product_not_delivered" onclick="internal_status_check(this.id)" name="reason" class="internal_status" value="<?php echo PRODUCT_NOT_DELIVERED_TO_CUSTOMER; ?>" >
+                                <?php echo PRODUCT_NOT_DELIVERED_TO_CUSTOMER . " - Reschedule"; ?>
+                                </label>
+                            </div>
+                            <?php if(!empty($spare_shipped_flag)){ ?>
+                                <div class="radio ">
+                                <label>
+                                <input type="radio" id="spare_not_delivered" onclick="internal_status_check(this.id)" name="reason" class="internal_status" value="<?php echo SPARE_PARTS_NOT_DELIVERED_TO_SF; ?>" >
+                                <?php echo SPARE_PARTS_NOT_DELIVERED_TO_SF. "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - Reschedule"; ?>
+                                </label>
+                            </div>
+                            <?php } ?>
+                           
                            
                         </div>
                     </div>
@@ -219,7 +238,10 @@
      }
      
       var reason = $("input[name='reason']:checked"). val();
-      if(reason === "<?php echo CUSTOMER_ASK_TO_RESCHEDULE; ?>" || reason === "<?php echo PRODUCT_NOT_DELIVERED_TO_CUSTOMER; ?>"){
+      if(reason === "<?php echo CUSTOMER_ASK_TO_RESCHEDULE; ?>" 
+              || reason === "<?php echo PRODUCT_NOT_DELIVERED_TO_CUSTOMER; ?>" 
+              || reason === "<?php echo RESCHEDULE_FOR_UPCOUNTRY; ?>"
+              || reason === "<?php echo SPARE_PARTS_NOT_DELIVERED_TO_SF;?>"){
           
           var booking_date = $('#booking_date').val();
           if(booking_date === ""){
@@ -310,7 +332,9 @@
             $(".remarks").attr("disabled", "true");
             $('#hide_remarks').hide();
           
-        } else  if(id ==="rescheduled" || id === "product_not_delivered"){
+        } else  if(id ==="rescheduled" || id === "product_not_delivered" 
+                || id=== "reschedule_for_upcountry"
+                || id=== "spare_not_delivered"){
             $(".spare_parts").attr("disabled", "true");
             $('#hide_spare').hide();
             $('#hide_rescheduled').show();

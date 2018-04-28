@@ -380,7 +380,7 @@ class Service_centers_model extends CI_Model {
      * @return String
      */
     function stored_internal_status(){
-        return "'Engineer on route',"
+        return "'".ENGINEER_ON_ROUTE."',"
              . "'".CUSTOMER_NOT_REACHABLE."',"
              . "'".CUSTOMER_NOT_VISTED_TO_SERVICE_CENTER."'";
     }
@@ -488,20 +488,17 @@ class Service_centers_model extends CI_Model {
         return $data;
     }
     /**
-     * @desc: This method returns Shipped spare part booking whose shipped date >=2 days  and 
-     *  InProcess(Current Status) and Spare Parts Shipped by Partner(Internal Status) in Sc Action table
+     * @desc: This method returns Shipped spare part booking whose shipped date >= 7 days
      * @return Array
      */
     function get_booking_id_to_convert_pending_for_spare_parts(){
         $sql = "SELECT sp.id, sp.booking_id, scb.service_center_id, b.partner_id FROM `spare_parts_details` as sp, service_center_booking_action as scb, booking_details as b "
                 . " WHERE (DATEDIFF(CURRENT_TIMESTAMP , sp.`shipped_date`) >= '".AUTO_ACKNOWLEDGE_SPARE_DELIVERED_TO_SF."') "
-                . " AND sp.status = 'Shipped' "
-                . " AND scb.current_status = 'InProcess' "
+                . " AND sp.status = '".SPARE_SHIPPED_BY_PARTNER."' "
                 . " AND scb.booking_id = sp.booking_id "
-                . " AND sp.booking_id = b.booking_id "
-                . " AND scb.internal_status = 'Spare Parts Shipped by Partner' ";
+                . " AND sp.booking_id = b.booking_id ";
         $query =  $this->db->query($sql);
-        log_message('info', __FUNCTION__ . '=> Update Spare Parts: ' .$this->db->last_query());
+        
         return $query->result_array();
     }
     

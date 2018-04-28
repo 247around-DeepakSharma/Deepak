@@ -500,8 +500,6 @@ class Service_centers extends CI_Controller {
                         $bookingData['service_center_closed_date'] = date('Y-m-d H:i:s');
                     }
                     $this->reusable_model->update_table("booking_details",$bookingData,array('booking_id'=>$booking_id));
-                    //End Update Service Center Closed Date
-                    $this->reusable_model->update_table("booking_details",$bookingData,array('booking_id'=>$booking_id));
                    //End Update Service Center Closed Date
                     $this->update_booking_internal_status($booking_id, "InProcess_Cancelled",  $partner_id);
                     $this->insert_details_in_state_change($booking_id, 'InProcess_Cancelled', $can_state_change,"not_define","not_define");
@@ -852,6 +850,7 @@ class Service_centers extends CI_Controller {
            
 
             if (!empty($data['bookinghistory'][0])) {
+                $spare_shipped_flag = false;
                 $data['internal_status'] = array();
                 $current_date = date_create(date('Y-m-d'));
                 $current_booking_date = date_create(date('Y-m-d', strtotime($data['bookinghistory'][0]['booking_date'])));
@@ -865,13 +864,16 @@ class Service_centers extends CI_Controller {
                             $is_est_approved = true; 
                         }
                         
+                        if($sp['auto_acknowledeged'] == 1 && $sp['status'] == SPARE_DELIVERED_TO_SF ){
+                            $spare_shipped_flag = TRUE;
+                        }
                         switch ($sp['status']){
-                               case "Shipped":
-                               case "Defective Part Pending":
-                               case "Defective Part Received By Partner":
-                               case "Defective Part Rejected By Partner":
-                               case "Defective Part Shipped By SF":
-                               case "Delivered": 
+                               case SPARE_SHIPPED_BY_PARTNER:
+                               case DEFECTIVE_PARTS_PENDING:
+                               case DEFECTIVE_PARTS_RECEIVED:
+                               case DEFECTIVE_PARTS_REJECTED:
+                               case DEFECTIVE_PARTS_SHIPPED:
+                               case SPARE_DELIVERED_TO_SF: 
                                   $spareShipped = TRUE;
                                    break;
                            }
@@ -910,6 +912,7 @@ class Service_centers extends CI_Controller {
                         array_push($data['internal_status'], array("status" => CUSTOMER_NOT_VISTED_TO_SERVICE_CENTER));
                     }
                 }
+                $data['spare_shipped_flag'] = $spare_shipped_flag;
 
                 $this->load->view('service_centers/header');
                 $this->load->view('service_centers/get_update_form', $data);
@@ -938,30 +941,34 @@ class Service_centers extends CI_Controller {
             $reason = $this->input->post('reason');
 
             switch ($reason) {
-                case CUSTOMER_ASK_TO_RESCHEDULE:
-                    log_message('info', __FUNCTION__ . CUSTOMER_ASK_TO_RESCHEDULE . " Request: " . $this->session->userdata('service_center_id'));
+                
+                 CASE PRODUCT_NOT_DELIVERED_TO_CUSTOMER:
+                 CASE RESCHEDULE_FOR_UPCOUNTRY: 
+                 CASE SPARE_PARTS_NOT_DELIVERED_TO_SF: 
+                     log_message('info', __FUNCTION__ ." ". $this->input->post('reason') . " Request: " . $this->session->userdata('service_center_id'));
+                     $this->save_reschedule_request();
+                     break;
+               
+                CASE CUSTOMER_ASK_TO_RESCHEDULE:
+                    log_message('info', __FUNCTION__ ." ". $this->input->post('reason') . " Request: " . $this->session->userdata('service_center_id'));
                     $this->save_reschedule_request();
+                    $booking_id = $this->input->post('booking_id');
+                    $this->booking_model->increase_escalation_reschedule($booking_id, "count_reschedule");
                     
                     break;
-
-                case PRODUCT_NOT_DELIVERED_TO_CUSTOMER:
-                    log_message('info', __FUNCTION__ . PRODUCT_NOT_DELIVERED_TO_CUSTOMER . " Request: " . $this->session->userdata('service_center_id'));
-                    $this->save_reschedule_request();
-                    
-                    break;
-                case ESTIMATE_APPROVED_BY_CUSTOMER:
+                CASE ESTIMATE_APPROVED_BY_CUSTOMER:
                     log_message('info', __FUNCTION__ . ESTIMATE_APPROVED_BY_CUSTOMER . " Request: " . $this->session->userdata('service_center_id'));
                     $booking_id = $this->input->post('booking_id');
                     $this->approve_oow($booking_id);
                     break;
 
-                case SPARE_PARTS_REQUIRED:
-                case SPARE_OOW_EST_REQUESTED:
+                CASE SPARE_PARTS_REQUIRED:
+                CASE SPARE_OOW_EST_REQUESTED:
                     log_message('info', __FUNCTION__ . " " . $reason . " :" . $this->session->userdata('service_center_id'));
                     $this->update_spare_parts();
                     break;
 
-                case CUSTOMER_NOT_REACHABLE:
+                CASE CUSTOMER_NOT_REACHABLE:
                     log_message('info', __FUNCTION__ . CUSTOMER_NOT_REACHABLE . $this->session->userdata('service_center_id'));
                     $day = $this->input->post('days');
                     $sc_remarks = $this->input->post('sc_remarks');
@@ -988,7 +995,7 @@ class Service_centers extends CI_Controller {
                     
                     break;
 
-                case "Engineer on route":
+                case ENGINEER_ON_ROUTE:
                 case CUSTOMER_NOT_VISTED_TO_SERVICE_CENTER:
                     log_message('info', __FUNCTION__ . " " . $reason . " " . $this->session->userdata('service_center_id'));
                     $this->default_update(true, true);
@@ -1220,15 +1227,22 @@ class Service_centers extends CI_Controller {
      * @desc: This is used to update acknowledge date by SF
      * @param String $booking_id
      */
-    function acknowledge_delivered_spare_parts($booking_id, $service_center_id, $id, $partner_id){
+    function acknowledge_delivered_spare_parts($booking_id, $service_center_id, $id, $partner_id, $autoAck = false){
         log_message('info', __FUNCTION__. " Booking ID: ". $booking_id.' service_center_id: '.$service_center_id.' id: '.$id);
-      //  $this->checkUserSession();
+        if(empty($autoAck)){
+            $this->checkUserSession();
+        }
         if (!empty($booking_id)) {
            
             $where = array('id' => $id);
             $sp_data['service_center_id'] = $service_center_id;
             $sp_data['acknowledge_date'] = date('Y-m-d');
-            $sp_data['status'] = "Delivered";
+            $sp_data['status'] = SPARE_DELIVERED_TO_SF;
+            if(!empty($autoAck)){
+                $sp_data['auto_acknowledeged'] = 1;
+            } else {
+                $sp_data['auto_acknowledeged'] = 0;
+            }
             //Update Spare Parts table
             $ss = $this->service_centers_model->update_spare_parts($where, $sp_data);
             if ($ss) { //if($ss){
@@ -1318,7 +1332,7 @@ class Service_centers extends CI_Controller {
     function get_booking_id_to_convert_pending_for_spare_parts(){
         $data = $this->service_centers_model->get_booking_id_to_convert_pending_for_spare_parts();
         foreach($data as $value){
-            $this->acknowledge_delivered_spare_parts($value['booking_id'], $value['service_center_id'], $value['id'], $value['partner_id']);
+            $this->acknowledge_delivered_spare_parts($value['booking_id'], $value['service_center_id'], $value['id'], $value['partner_id'], TRUE);
         }
     }
     
