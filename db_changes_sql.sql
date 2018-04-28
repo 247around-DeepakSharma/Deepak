@@ -4723,3 +4723,7 @@ ALTER TABLE `warehouse_state_relationship`
 ALTER TABLE `inventory_master_list` ADD UNIQUE( `service_id`, `part_number`, `part_name`, `model_number`, `entity_id`, `entity_type`);
 
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'out_of_stock_inventory', 'Part Name %s of Model Number %s is out of stock in warehouse', 'Dear Partner, <br/> <br/> Please Find the below details of the inventory which is currently out of stock in Our warehouse.<br> Inventory Details<br> %s <br> Please shipped this inventory as soon as possible ', 'noreply@247around.com', '', '', '', '1', '2018-02-03 18:26:57');
+
+UPDATE `email_template` SET `subject` = 'New Login Details - %s' WHERE `email_template`.`tag` = resend_login_details;
+
+UPDATE `email_template` SET `subject` = 'Your Password Reset Request Processed Successfully - %s' WHERE `email_template`.`tag` = reset_vendor_login_details;
