@@ -2,6 +2,9 @@
 
 <script src="<?php echo base_url();?>js/jquery.loading.js"></script>
 <div class="right_col" role="main">
+    <?php
+    if($this->session->userdata('agent_id') != '980084' && $this->session->userdata('agent_id') != '980083'){
+    ?>
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="col-md-12" id="booking_summary" style="margin-top:10px;">
@@ -9,6 +12,9 @@
             </div>
         </div>
     </div>
+    <?php
+    }
+    ?>
 
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
@@ -18,9 +24,12 @@
                         <ul id="myTabs" class="nav nav-tabs bar_tabs" role="tablist">
                             <li role="presentation" class="active">
                                 <a href="#tabs-1" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>partner/pending_booking/0/1">
-                                    Pending Bookings
+                                    Pending Bookings 
                                 </a>
                             </li>
+                            <?php
+                            if($this->session->userdata('agent_id') != '980084' && $this->session->userdata('agent_id') != '980083'){
+                            ?>
                             <li role="presentation">
                                 <a href="#tabs-2" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>partner/get_spare_parts_booking/0/1">
                                     Pending Spares
@@ -41,6 +50,8 @@
                                     Pending Spare Quotes
                                 </a>
                             </li>
+                            <?php }
+                           ?>
                         </ul>
                         <div id="myTabContent" class="tab-content">
                             <div class="tab-pane active" id="tabs-1"></div>
