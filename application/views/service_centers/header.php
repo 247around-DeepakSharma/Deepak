@@ -64,6 +64,13 @@
                 color: #333;
                 font-weight: 700;
             }
+            .nt-badge{
+                font-weight: bold;
+                bottom: 14px;
+                left: 70px;
+                position: relative;
+                background-color: green;
+            }
         </style>
         
         <?php if(ENVIRONMENT === 'production') { ?> 
@@ -154,7 +161,7 @@
                         
                         <?php if($this->session->userdata('service_center_id') == '10'){ ?>
                         <li>
-                            <a href="<?php echo base_url() ;?>employee/service_centers/show_brackets_list">Brackets</a>
+                            <a href="<?php echo base_url() ;?>employee/service_centers/show_brackets_list"><span style="font-weight: bold;" class="badge nt-badge" id="brackets_count">0</span>Brackets</a>
                         </li>
                         <?php } ?>
                         <?php } ?>
@@ -190,7 +197,7 @@
                         <?php } ?>
                         <?php if($this->session->userdata('is_wh') == 1){ ?>
                         <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Inventory <span class="caret"></span></a>
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span style="font-weight: bold;" class="badge nt-badge" id="inventory_count">0</span>Inventory <span class="caret"></span></a>
                                 <ul class="dropdown-menu">
                                     <li><a href="<?php echo base_url(); ?>service_center/inventory"><strong>Spare Details</strong></a></li>
                                     <li role="separator" class="divider"></li>
@@ -299,6 +306,8 @@
                     $("#contactUsModalData").html(data);   
             }
         });
+        
+        get_notification_details();
     });
     
     function search_order_id(ele){
@@ -355,6 +364,19 @@
             data: {entity_id: entity_id,entity_type: entity_type},
             success: function (response) {
                 $("#notification_container").html(response);
+            }
+        });
+    }
+    
+    function get_notification_details(){
+        
+        $.ajax({
+            method:'GET',
+            url:'<?php echo base_url();?>employee/inventory/get_sf_notification_data',
+            success:function(data){
+                var obj = JSON.parse(data);
+                $('#brackets_count').html(obj.brackets);
+                $('#inventory_count').html(obj.inventory);
             }
         });
     }

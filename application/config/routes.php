@@ -187,5 +187,9 @@ $route['payment/response'] = 'paytm_gateway/paytm_response';
 $route['payment/payment_confirmation'] = 'paytm_gateway/show_payment_confirmation';
 $route['payment/verify_booking_payment/(:any)'] = 'paytm_gateway/process_gateway_booking_payment/$1';
 
+
+$route['upload_file'] = 'file_upload/process_upload_file';
+$route['upload_inventory_details_file'] = 'employee/inventory/upload_inventory_details_file';
+
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

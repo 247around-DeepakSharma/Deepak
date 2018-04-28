@@ -1724,7 +1724,7 @@ class Partner extends CI_Controller {
         $where['length'] = -1;
         $where['where'] = array('spare_parts_details.id' => $id);
         $where['select'] = "booking_details.booking_id, users.name, booking_primary_contact_no,parts_requested, model_number,serial_number,date_of_purchase, invoice_pic,"
-                . "serial_number_pic,defective_parts_pic,spare_parts_details.id, booking_details.request_type, purchase_price, estimate_cost_given_date,booking_details.assigned_vendor_id,spare_parts_details.inventory_id";
+                . "serial_number_pic,defective_parts_pic,spare_parts_details.id, booking_details.request_type, purchase_price, estimate_cost_given_date,booking_details.assigned_vendor_id,booking_details.service_id,partners.is_wh";
 
         $data['spare_parts'] = $this->inventory_model->get_spare_parts_query($where);
         $this->load->view('partner/header');
