@@ -776,18 +776,18 @@ class Partner extends CI_Controller {
         }
         
         if($this->partner['id'] == JEEVES_ID && $flag === TRUE){
-            if(!isset($request['service_promise_date'])){
+            if(!isset($request['servicePromiseDate'])){
                 
                 $resultArr['code'] = ERR_SPD_DATE_MANDATORY_CODE;
                 $resultArr['msg'] = ERR_SPD_DATE_MANDATORY_MSG;
                 $flag = FALSE;
-            } else if(empty($request['service_promise_date'])){
+            } else if(empty($request['servicePromiseDate'])){
                 
                 $resultArr['code'] = ERR_SPD_DATE_MANDATORY_CODE;
                 $resultArr['msg'] = ERR_SPD_DATE_MANDATORY_MSG;
                 $flag = FALSE;
                 
-            } else if($this->validate_timeslot_format($request['service_promise_date']) === FALSE){
+            } else if($this->validate_timeslot_format($request['servicePromiseDate']) === FALSE){
                 
                 $resultArr['code'] = ERR_INVALID_SPD_DATE_CODE;
                 $resultArr['msg'] = ERR_INVALID_SPD_DATE_MSG;
