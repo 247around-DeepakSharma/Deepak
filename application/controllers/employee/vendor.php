@@ -1156,7 +1156,7 @@ class vendor extends CI_Controller {
      *  @return : load pending booking view
      */
     function process_assign_booking_form() {
-        log_message('info', __METHOD__ );
+        log_message('info', __METHOD__ . json_encode($this->input->post(), true) );
         $service_center = $this->input->post('service_center');
         $agent_id =  $this->input->post('agent_id');
         $agent_name =  $this->input->post('agent_name');
@@ -1174,7 +1174,7 @@ class vendor extends CI_Controller {
            
                 if ($service_center_id != "") {
                    
-                    $assigned = $this->miscelleneous->assign_vendor_process($service_center_id, $booking_id, $agent_id, $agent_type);
+                    $assigned = $this->miscelleneous->assign_vendor_process($service_center_id, $booking_id, $partner_id[$booking_id], $agent_id, $agent_type);
                     if ($assigned) {
                         //Insert log into booking state change
                        $this->notify->insert_state_change($booking_id, ASSIGNED_VENDOR, _247AROUND_PENDING, "Service Center Id: " . $service_center_id, $agent_id, $agent_name, 

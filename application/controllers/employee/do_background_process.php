@@ -257,7 +257,7 @@ class Do_background_process extends CI_Controller {
             }
 
             //check partner status from partner_booking_status_mapping table  
-            $actor = $next_action = 'not_define';
+            $actor = $next_action = 'NULL';
             $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $partner_id, $booking_id);
             if (!empty($partner_status)) {
                 $booking['partner_current_status'] = $partner_status[0];
@@ -436,6 +436,10 @@ class Do_background_process extends CI_Controller {
                    $this->notify->sendEmail(NOREPLY_EMAIL_ID, "chhavid@247around.com", "", "", $subject, $message, $csv,"Requested PartnerReport Not Send");
                 }
                 unlink($csv);
+    }
+    
+    function send_request_for_partner_cb($booking_id){
+        $this->partner_cb->partner_callback($booking_id);
     }
 
     /* end controller */

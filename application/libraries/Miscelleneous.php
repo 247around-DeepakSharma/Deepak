@@ -110,7 +110,7 @@ class Miscelleneous {
      * @param String $booking_id
      * @return boolean
      */
-    function assign_vendor_process($service_center_id, $booking_id,$agent_id, $agent_type) {
+    function assign_vendor_process($service_center_id, $booking_id, $partner_id, $agent_id, $agent_type) {
         log_message('info', __FUNCTION__ . " Entering...... booking_id " . $booking_id . " service center id " . $service_center_id);
         $b['assigned_vendor_id'] = $service_center_id;
         // Set Default Engineer
@@ -123,7 +123,7 @@ class Miscelleneous {
             }
         }
         $b['upcountry_partner_approved'] = '1';
-        $partner_status = $this->My_CI->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, ASSIGNED_VENDOR, _247AROUND, $booking_id);
+        $partner_status = $this->My_CI->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, ASSIGNED_VENDOR, $partner_id, $booking_id);
         if (!empty($partner_status)) {
             $b['partner_current_status'] = $partner_status[0];
             $b['partner_internal_status'] = $partner_status[1];
@@ -206,7 +206,7 @@ class Miscelleneous {
                     }
                 }
             }
-
+            $this->My_CI->partner_cb->partner_callback($booking_id);
             log_message('info', __FUNCTION__ . " Exit...... booking_id " . $booking_id . " service center id " . $service_center_id);
             return true;
         } else {
@@ -1310,7 +1310,7 @@ class Miscelleneous {
      */
 
     function send_sf_not_found_email_to_rm($booking, $rm_email,$subject, $isPartner) {
-        $cc = NITS_ANUJ_EMAIL_ID;
+        $cc = ANUJ_EMAIL_ID;
         $booking['service'] = NULL;
         $tempPartner = $this->My_CI->reusable_model->get_search_result_data("partners", "public_name", array('id' => $booking['partner_id']), NULL, NULL, NULL, NULL, NULL);
         if(!empty($booking['service_id'])){
@@ -2313,9 +2313,10 @@ class Miscelleneous {
     /*
      * This Function is used to approve rescheduled booking
      */
-    function approved_rescheduled_bookings($reschedule_booking_id,$reschedule_booking_date,$reschedule_reason,$partner_id,$id,$employeeID){
+    function approved_rescheduled_bookings($reschedule_booking_id,$reschedule_booking_date,$reschedule_reason,$partner_id_array,$id,$employeeID){
          log_message('info', __FUNCTION__);
          foreach ($reschedule_booking_id as $booking_id) {
+            $partner_id = $partner_id_array[$booking_id];
             $booking['booking_date'] = date('d-m-Y', strtotime($reschedule_booking_date[$booking_id]));
             $send['state'] = $booking['current_status'] = 'Rescheduled';
             $booking['internal_status'] = 'Rescheduled';
@@ -2521,4 +2522,103 @@ function convert_html_to_pdf($html,$booking_id,$filename,$s3_folder){
             return json_encode($response_data);
         }
 }
+    
+
+    /**
+     * @desc: This function is used to download SF declaration who don't have GST number hen Partner update spare parts
+     * @params: String $sf_id
+     * @return: void
+     */
+    function generate_sf_declaration($sf_id){
+        log_message("info", __METHOD__." SF Id ". $sf_id);
+        $sf_details = $this->My_CI->vendor_model->getVendorDetails('id,name,address,owner_name,is_signature_doc,signature_file', array('id' => trim($sf_id)));
+        $template = 'sf_without_gst_declaration.xlsx';
+        $output_pdf_file = "";
+        $excel_file = "";
+        if (!empty($sf_details[0]['signature_file'])) {
+            $excel_data['sf_name'] = $sf_details[0]['name'];
+            $excel_data['sf_address'] = $sf_details[0]['address'];
+            $excel_data['sf_owner_name'] = $sf_details[0]['owner_name'];
+            $excel_data['date'] = date('Y-m-d');
+            $cell = 'B21';
+            if (file_exists($sf_details[0]['signature_file'])) {
+                $signature_file = TMP_FOLDER . $sf_details[0]['signature_file'];
+            } else {
+                $s3_bucket = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $sf_details[0]['signature_file'];
+                //get signature file from s3 and save it to server
+                copy($s3_bucket, TMP_FOLDER . $sf_details[0]['signature_file']);
+                system(" chmod 777 " . TMP_FOLDER . $sf_details[0]['signature_file']);
+                $signature_file = TMP_FOLDER . $sf_details[0]['signature_file'];
+            }
+            $output_file = "sf_declaration_" . $sf_details[0]['id'] . "_" . date('d_M_Y_H_i_s');
+            $excel_file = $this->generate_excel_data($template, $output_file, $excel_data, false, $cell, $signature_file);
+            //generate pdf
+            if (file_exists($excel_file)) {
+                $json_result = $this->convert_excel_to_pdf($excel_file, $sf_details[0]['id'], 'vendor-partner-docs');
+                log_message('info', __FUNCTION__ . ' PDF JSON RESPONSE' . print_r($json_result, TRUE));
+                $pdf_response = json_decode($json_result, TRUE);
+
+                if ($pdf_response['response'] === 'Success') {
+                    $output_pdf_file = $pdf_response['output_pdf_file'];
+                    unlink($excel_file);
+                    log_message('info', __FUNCTION__ . ' Generated PDF File Name' . $excel_file);
+                } else if ($pdf_response['response'] === 'Error') {
+
+                    log_message('info', __FUNCTION__ . ' Error in Generating PDF File');
+                }
+            } else {
+                log_message("info", "File Not Generated for " . $sf_details[0]['id']);
+            }
+
+            if (!empty($output_pdf_file)) {
+                $s3_bucket = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $output_pdf_file;
+                //get pdf file from s3 and save it to server
+                copy($s3_bucket, TMP_FOLDER . $output_pdf_file);
+                system(" chmod 777 " . TMP_FOLDER . $output_pdf_file);
+
+                if (file_exists(TMP_FOLDER . $output_pdf_file)) {
+                    
+                    $response['status'] = true;
+                    $response['message'] = "Pdf denerated successfully.";
+                    $response['file_name'] = $output_pdf_file;
+                }
+            } else {
+                log_message("info", "Error In generating Declaration file SF ID: ".$sf_details[0]['id']);
+                $response['status'] = true;
+                $response['message'] = "Some Error Occured!!! Please Try Again";
+                $response['file_name'] = $output_pdf_file;
+            }
+        } else {
+            log_message("info", "SF Id ".$sf_details[0]['id'] . " does not have signature file");
+            $response['status'] = true;
+            $response['message'] = "Invalid Request";
+            $response['file_name'] = $output_pdf_file;
+        }
+        
+        return $response;
+    }
+    
+    /**
+     * @desc This is used to map jeeves completed booking status with our status
+     * @param Int $partner_id
+     * @param String $remarks
+     */
+    function partner_completed_call_status_mapping($partner_id, $status){
+        log_message("info", __METHOD__ . " Partner ID ". $partner_id. " Remarks ". $status);
+        
+        $data = array();
+        $data[JEEVES_ID][CALLBACK_SCHEDULED] = JEEVES_CUSTOMER_RESCHEDULED;
+        $data[JEEVES_ID][CUSTOMER_NOT_REACHABLE] = JEEVES_CUSTOMER_NO_RESPONSE;
+        $data[JEEVES_ID][CUSTOMER_ASK_TO_RESCHEDULE] = JEEVES_CUSTOMER_RESCHEDULED;
+        $data[JEEVES_ID][PRODUCT_NOT_DELIVERED_TO_CUSTOMER] = JEEVES_PRODUCT_NOT_DELIVERED;
+        
+        if(isset($data[$partner_id][$status])){
+            
+            return $data[$partner_id][$status];
+            
+        } else {
+            return FALSE;
+        }
+    }
+
 }

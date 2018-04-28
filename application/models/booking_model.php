@@ -955,7 +955,7 @@ class Booking_model extends CI_Model {
      *  This function gives all the unit details of a particular booking from booking_unit_details.
      *
      *  @param : booking id
-     *  @return : all the unit booking detais
+     *  @return : all the unit booking details
      */
      function get_unit_details($where, $like= FALSE, $select = "*") {
         $this->db->select($select);
@@ -1464,7 +1464,8 @@ class Booking_model extends CI_Model {
         $this->db->select('distinct(service_center_booking_action.booking_id),assigned_vendor_id, amount_due, count_reschedule, initial_booking_date, booking_details.is_upcountry,'
                 . 'users.name as customername, booking_details.booking_primary_contact_no, services.services, booking_details.booking_date, booking_details.booking_timeslot, '
                 . 'service_center_booking_action.booking_date as reschedule_date_request,  service_center_booking_action.booking_timeslot as reschedule_timeslot_request, '
-                . 'service_centres.name as service_center_name, booking_details.quantity, service_center_booking_action.reschedule_reason,service_center_booking_action.reschedule_request_date');
+                . 'service_centres.name as service_center_name, booking_details.quantity, service_center_booking_action.reschedule_reason,service_center_booking_action.reschedule_request_date,'
+                . 'booking_details.partner_id');
         $this->db->from('service_center_booking_action');
         $this->db->join('booking_details','booking_details.booking_id = service_center_booking_action.booking_id');
         $this->db->join('services','services.id = booking_details.service_id');
@@ -2441,7 +2442,20 @@ class Booking_model extends CI_Model {
         return $res;
     }
 
-}
     
     
+    function get_state(){
+        return $this->db->query('SELECT state from state_code')->result_array();
+    }
+    
+    function insert_state_map($data){
+        return $this->db->insert_batch('warehouse_state_relationship',$data)->insert_id;
+    }
 
+    
+    function partner_completed_call_status_mapping($booking_id, $data){
+        $this->db->where('booking_id', $booking_id);
+        $this->db->where('partner_call_status_on_completed is NULL', NULL, FALSE);
+        $this->db->update('booking_details',$data);
+    }
+}

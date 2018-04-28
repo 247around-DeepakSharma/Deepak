@@ -84,7 +84,10 @@ class Booking extends CI_Controller {
                 $status = $this->getAllBookingInput($user_id, INSERT_NEW_BOOKING);
                 if ($status) {
                     log_message('info', __FUNCTION__ . " Partner callback  " . $status['booking_id']);
-                    $this->partner_cb->partner_callback($status['booking_id']);
+                    
+                    $cb_url = base_url() . "employee/do_background_process/send_request_for_partner_cb/".$status['booking_id'];
+                    $pcb = array();
+                    $this->asynchronous_lib->do_background_process($cb_url, $pcb);
                     //Redirect to Default Search Page
                     redirect(base_url() . DEFAULT_SEARCH_PAGE);
                 } else {
@@ -340,6 +343,8 @@ class Booking extends CI_Controller {
                             $async_data['agent_id'] = _247AROUND_DEFAULT_AGENT;
                             $async_data['agent_name'] = _247AROUND_DEFAULT_AGENT_NAME;
                             $async_data['agent_type'] = _247AROUND_EMPLOYEE_STRING;
+                            $b_id = $booking['booking_id'];
+                            $async_data["partner_id[$b_id]"] = $booking['partner_id'];
                             $this->asynchronous_lib->do_background_process($url, $async_data);
 
                             break;
@@ -437,12 +442,21 @@ class Booking extends CI_Controller {
                 $old_state = $booking_id_with_flag['old_state'];
             } else if ($booking['type'] == 'Query') {
 
-                $booking['current_status'] = "FollowUp";
+                $booking['current_status'] = _247AROUND_FOLLOWUP;
                 $internal_status = $this->input->post('internal_status');
                 if (!empty($internal_status)) {
                     $booking['internal_status'] = $internal_status;
+                    
+                    $response = $this->miscelleneous->partner_completed_call_status_mapping($booking['partner_id'], $internal_status);
+                    if(!empty($response)){
+
+                        $this->booking_model->partner_completed_call_status_mapping($booking_id, array('partner_call_status_on_completed' => $response));
+                    } else {
+                        log_message('info', __METHOD__. " Staus Not found for partner ID ". $booking['partner_id']. " status ". $internal_status);
+                    }
+                
                 } else {
-                    $booking['internal_status'] = "FollowUp";
+                    $booking['internal_status'] = _247AROUND_FOLLOWUP;
                 }
                 if ($booking['internal_status'] == INT_STATUS_CUSTOMER_NOT_REACHABLE) {
                     $this->send_sms_email($booking_id, "Customer not reachable");
@@ -455,9 +469,9 @@ class Booking extends CI_Controller {
             }
 
             // check partner status
-            $actor = $next_action = 'not_define';
+            $actor = $next_action = 'NULL';
             $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $booking['partner_id'], $booking_id);
-            if (!empty($partner_status)) {
+            if (!empty($partner_status)) {               
                 $booking['partner_current_status'] = $partner_status[0];
                 $booking['partner_internal_status'] = $partner_status[1];
                 $actor = $booking['actor'] = $partner_status[2];
@@ -977,7 +991,7 @@ class Booking extends CI_Controller {
 
         //check partner status
         $partner_id = $this->input->post('partner_id');
-        $actor = $next_action = 'not_define';
+        $actor = $next_action = 'NULL';
         $partner_status = $this->booking_utilities->get_partner_status_mapping_data($data['current_status'], $data['internal_status'], $partner_id, $booking_id);
         if (!empty($partner_status)) {
             $data['partner_current_status'] = $partner_status[0];
@@ -1565,7 +1579,9 @@ class Booking extends CI_Controller {
                     $status = $this->getAllBookingInput($user_id, $booking_id);
                     if ($status) {
                         log_message('info', __FUNCTION__ . " Partner callback  " . $status['booking_id']);
-                        $this->partner_cb->partner_callback($status['booking_id']);
+                        $cb_url = base_url() . "employee/do_background_process/send_request_for_partner_cb/".$status['booking_id'];
+                        $pcb = array();
+                        $this->asynchronous_lib->do_background_process($cb_url, $pcb);
 
                         //Redirect to Default Search Page
                         redirect(base_url() . DEFAULT_SEARCH_PAGE);
@@ -1671,8 +1687,8 @@ class Booking extends CI_Controller {
         
         $booking_id = $this->input->post('booking_id');
         $admin_remarks = $this->input->post('admin_remarks');
-        $data['internal_status'] = _247AROUND_PENDING;
-        $data['current_status'] = _247Around_Rejected_SF_Update;
+        $data['internal_status'] = _247Around_Rejected_SF_Update;
+        $data['current_status'] = _247AROUND_PENDING;
         $data['update_date'] = date("Y-m-d H:i:s");
         $data['serial_number'] = "";
         $data['service_center_remarks'] = NULL;
@@ -1773,10 +1789,10 @@ class Booking extends CI_Controller {
         $reschedule_booking_id = $this->input->post('reschedule');
         $reschedule_booking_date = $this->input->post('reschedule_booking_date');
         $reschedule_reason = $this->input->post('reschedule_reason');
-        $partner_id = $this->input->post('partner_id');
+        $partner_id_array = $this->input->post('partner_id');
         $employeeID = $this->session->userdata('employee_id');
         $id = $this->session->userdata('id');
-        $this->miscelleneous->approved_rescheduled_bookings($reschedule_booking_id,$reschedule_booking_date,$reschedule_reason,$partner_id,$id,$employeeID);
+        $this->miscelleneous->approved_rescheduled_bookings($reschedule_booking_id,$reschedule_booking_date,$reschedule_reason,$partner_id_array,$id,$employeeID);
          redirect(base_url() . "employee/booking/review_bookings");
     }
 
@@ -1942,7 +1958,7 @@ class Booking extends CI_Controller {
 
         // check partner status
         $partner_id = $this->input->post('partner_id');
-        $actor = $next_action = 'not_define';
+        $actor = $next_action = 'NULL';
         $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $partner_id, $booking_id);
         if (!empty($partner_status)) {
             $booking['partner_current_status'] = $partner_status[0];
@@ -1992,7 +2008,9 @@ class Booking extends CI_Controller {
             $send['state'] = $internal_status;
             $this->asynchronous_lib->do_background_process($url, $send);
 
-            $this->partner_cb->partner_callback($booking_id);
+            $cb_url = base_url() . "employee/do_background_process/send_request_for_partner_cb/".$booking_id;
+            $pcb = array();
+            $this->asynchronous_lib->do_background_process($cb_url, $pcb);
             
             if ($this->input->post('rating_stars') !== "") {
                 //update rating state

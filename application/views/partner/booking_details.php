@@ -65,10 +65,17 @@
                                     </tr>
 
                                     <tr>
-                                        <th>Booking date: </th>
-                                        <td><?php echo $booking_history[0]['booking_date']; ?></td>
-                                        <th>Address: </th>
-                                        <td><?php echo $booking_history[0]['booking_address']; ?></td>
+                                       
+                                        <th>Registration Date </th>
+                                        <td><?php 
+                                        $createDatArray = explode(' ',$booking_history[0]['create_date']);
+                                        echo $createDatArray[0]; ?></td>
+                                        <th>Booking Date </th>
+                                        <td><?php 
+                                        $time = strtotime($booking_history[0]['booking_date']);
+                                        $booking_date = date('Y-m-d',$time);
+                                        echo $booking_date ?></td>
+                                        
                                     </tr>
                                     <tr>
                                         <th>City: </th>
@@ -80,8 +87,8 @@
                                     <tr>
                                         <th>Pincode: </th>
                                         <td><?php echo $booking_history[0]['booking_pincode']; ?></td>
-                                        <th>Remarks: </th>
-                                        <td><?php echo $booking_history[0]['booking_remarks']; ?></td>
+                                        <th>Address: </th>
+                                        <td><?php echo $booking_history[0]['booking_address']; ?></td>
                                     </tr>
 
                                     <tr>
@@ -100,6 +107,11 @@
                                             } ?>
                                         </td>
                                     </tr>
+                                    <tr><th>Remarks: </th>
+                                        <td><?php echo $booking_history[0]['booking_remarks']; ?></td>
+                                        <th></th>
+                                        <td></td>
+                                         </tr>
                                     <?php if (isset($dhq[0]['district'])) { ?>
                                         <tr>
                                             <th colspan="1">Upcountry</th>
@@ -123,7 +135,7 @@
                                                 </div>
                                             </td>
                                         </tr>
-                                    <?php } ?>
+                                    <?php } ?> 
                                 </table>
                             </div>
                             <div role="tabpanel" class="tab-pane fade" id="tab_content2">
