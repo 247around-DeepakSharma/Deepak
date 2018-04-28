@@ -20,7 +20,7 @@
 <div class="col-md-12 col-sm-12 col-xs-12">
     <div class="x_panel">
         <div class="x_title">
-            <h2>Defective Parts Shipped By SF</h2>
+            <h2>Defective Spares Pending on SF </h2>
             <div class="clearfix"></div>
         </div>
         <div class="x_content">
@@ -28,11 +28,11 @@
                 <table class="table table-bordered table-hover table-striped">
                     <thead>
                         <tr>
-                            <th class="text-center">No</th>
+                            <th class="text-center">S.N</th>
                             <th class="text-center">Customer Name</th>
-                            <th class="text-center">Booking Id</th>
-                            <th class="text-center">Part Details</th>
-                            <th class="text-center">Aging</th>
+                            <th class="text-center">Booking ID</th>
+                            <th class="text-center">Spare Details</th>
+                            <th class="text-center">Ageing</th>
                         </tr>
                     </thead>
                     <tbody>

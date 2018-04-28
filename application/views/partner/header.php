@@ -267,9 +267,9 @@
                                     <ul class="nav child_menu">
                                         <li><a href="<?php echo base_url(); ?>partner/get_spare_parts_booking">Pending Spares On <?php echo $partner_name ?></a></li>
                                         <li><a href="<?php echo base_url(); ?>partner/get_shipped_parts_list">Shipped Spares by <?php echo $partner_name ?></a></li>
+                                         <li><a href="<?php echo base_url(); ?>partner/get_pending_part_on_sf">Pending Spare On SF</a></li>
                                         <li><a href="<?php echo base_url(); ?>partner/get_waiting_defective_parts">Shipped Spares by SF</a></li>
                                         <li><a href="<?php echo base_url(); ?>partner/get_approved_defective_parts_booking">Received Spares by <?php echo $partner_name ?></a></li>
-                                        <li><a href="<?php echo base_url(); ?>partner/get_pending_part_on_sf">Pending Spare On SF</a></li>
                                         <?php if($this->session->userdata('is_wh')) { ?> 
                                         <li><a href="<?php echo base_url(); ?>partner/inventory/inventory_list">247around warehouse Inventory</a></li>
                                         <?php } ?>

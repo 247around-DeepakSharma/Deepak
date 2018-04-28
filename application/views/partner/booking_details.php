@@ -66,8 +66,10 @@
 
                                     <tr>
                                        
-                                        <th>Create Date </th>
-                                        <td><?php echo $booking_history[0]['create_date']; ?></td>
+                                        <th>Registration Date </th>
+                                        <td><?php 
+                                        $createDatArray = explode(' ',$booking_history[0]['create_date']);
+                                        echo $createDatArray[0]; ?></td>
                                         <th>Booking Date </th>
                                         <td><?php 
                                         $time = strtotime($booking_history[0]['booking_date']);
@@ -105,6 +107,11 @@
                                             } ?>
                                         </td>
                                     </tr>
+                                    <tr><th>Remarks: </th>
+                                        <td><?php echo $booking_history[0]['booking_remarks']; ?></td>
+                                        <th></th>
+                                        <td></td>
+                                         </tr>
                                     <?php if (isset($dhq[0]['district'])) { ?>
                                         <tr>
                                             <th colspan="1">Upcountry</th>
@@ -128,12 +135,7 @@
                                                 </div>
                                             </td>
                                         </tr>
-                                    <?php } ?>
-                                         <tr><th>Remarks: </th>
-                                        <td><?php echo $booking_history[0]['booking_remarks']; ?></td>
-                                        <th></th>
-                                        <td></td>
-                                         </tr>
+                                    <?php } ?> 
                                 </table>
                             </div>
                             <div role="tabpanel" class="tab-pane fade" id="tab_content2">

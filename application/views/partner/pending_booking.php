@@ -27,7 +27,7 @@
             <h2>Pending Bookings</h2>
             <a style="float: right;"type="button" class="btn btn-success" href="<?php echo base_url(); ?>employee/partner/download_partner_pending_bookings/<?php echo $this->session->userdata('partner_id')?>">Download Pending Bookings</a>
             <div class="right_holder" style="float:right;margin-right:10px;">
-                            <lable>States</lable>
+                            <lable>State</lable>
                             <select class="form-control " id="serachInput" style="border-radius:3px;">
                     <option value="all">All</option>
       <?php
@@ -45,7 +45,7 @@
             <table class="table table-bordered table-hover table-striped" id="pending_booking_table">
                 <thead>
                     <tr>
-                        <th>S No.</th>
+                        <th>S.N</th>
                         <th>Booking ID</th>
                         <th>Call Type</th>
                         <th>Brand</th>
@@ -56,7 +56,7 @@
                         <th>State</th>
                         <th>Booking Date</th>
                         <th>Aging</th>
-                        <th>Edit Booking</th>
+                        <th>Edit</th>
                         <th>Reschedule</th>
                         <th>Cancel</th>
                         <th>JobCard</th>
