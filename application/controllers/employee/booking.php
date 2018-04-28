@@ -469,7 +469,7 @@ class Booking extends CI_Controller {
             }
 
             // check partner status
-            $actor = $next_action = 'not_define';
+            $actor = $next_action = 'NULL';
             $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $booking['partner_id'], $booking_id);
             if (!empty($partner_status)) {               
                 $booking['partner_current_status'] = $partner_status[0];
@@ -991,7 +991,7 @@ class Booking extends CI_Controller {
 
         //check partner status
         $partner_id = $this->input->post('partner_id');
-        $actor = $next_action = 'not_define';
+        $actor = $next_action = 'NULL';
         $partner_status = $this->booking_utilities->get_partner_status_mapping_data($data['current_status'], $data['internal_status'], $partner_id, $booking_id);
         if (!empty($partner_status)) {
             $data['partner_current_status'] = $partner_status[0];
@@ -1958,7 +1958,7 @@ class Booking extends CI_Controller {
 
         // check partner status
         $partner_id = $this->input->post('partner_id');
-        $actor = $next_action = 'not_define';
+        $actor = $next_action = 'NULL';
         $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $partner_id, $booking_id);
         if (!empty($partner_status)) {
             $booking['partner_current_status'] = $partner_status[0];
