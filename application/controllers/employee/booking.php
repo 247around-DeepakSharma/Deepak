@@ -1687,8 +1687,8 @@ class Booking extends CI_Controller {
         
         $booking_id = $this->input->post('booking_id');
         $admin_remarks = $this->input->post('admin_remarks');
-        $data['internal_status'] = _247AROUND_PENDING;
-        $data['current_status'] = _247Around_Rejected_SF_Update;
+        $data['internal_status'] = _247Around_Rejected_SF_Update;
+        $data['current_status'] = _247AROUND_PENDING;
         $data['update_date'] = date("Y-m-d H:i:s");
         $data['serial_number'] = "";
         $data['service_center_remarks'] = NULL;
