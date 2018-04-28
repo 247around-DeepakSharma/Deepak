@@ -4065,20 +4065,51 @@ class Partner extends CI_Controller {
     }
     
     function create_and_send_partner_report($partnerID){
-        if($this->session->userdata('agent_id')){
-            echo $msg = "Please Check Your Email, You will get the report soon";
-            $data['start'] = date('Y-m-d',strtotime($this->input->post('startDate')));
-            $data['end'] = date('Y-m-d',strtotime($this->input->post('endDate')));
-            $data['status'] = $this->input->post('status');
-            $data['state'] = explode(",",$this->input->post('state'));
-            $data['agentID'] = $this->session->userdata('agent_id');
-            $data['partnerID'] = $partnerID;
-            $sendUrl = base_url().'employee/do_background_process/create_and_send_partner_requested_report';
-            $this->asynchronous_lib->do_background_process($sendUrl, $data);
-        }
-        else{
-            echo $msg = "Please Login, and Try Again";
-        }
+            $dateArray  = explode(" - ",$this->input->post('create_date'));
+            $start = date('Y-m-d',strtotime($dateArray[0]));
+            $end = date('Y-m-d',strtotime($dateArray[1]));
+            $status = $this->input->post('status');
+            if($this->input->post('state')){
+                $state = explode(",",$this->input->post('state'));
+            }
+            else{
+                $state =array('all');
+            }
+            $newCSVFileName = "Booking_summary_" . $start ."_".$end.".csv";
+            $csv = TMP_FOLDER . $newCSVFileName;
+            $where[] = "(date(booking_details.create_date)>='".$start."' AND date(booking_details.create_date)<='".$end."')";
+            if($status != 'all'){
+                if($status == 'Pending'){
+                    $where[] = "booking_details.current_status NOT IN ('Cancelled','Completed')";
+              }
+                    else{
+                        $where[] = "booking_details.current_status IN('".$status."')";
+                    }
+                }
+                if(!in_array('all',$state)){
+                    $where[] = "booking_details.state IN ('".implode("','",$state)."')";
+                }
+               log_message('info', __FUNCTION__ . "Where ".print_r($where,true));
+               $report =  $this->partner_model->get_partner_leads_csv_for_summary_email($partnerID,0,implode(' AND ',$where));
+               $delimiter = ",";
+                $newline = "\r\n";
+                $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
+                $file = fopen($csv,"w");
+                fwrite($file,$new_report);
+                fclose($file);
+                //Downloading Generated CSV  
+                    header('Content-Description: File Transfer');
+                    header('Content-Type: application/octet-stream');
+                    header('Content-Disposition: attachment; filename="' . basename($csv) . '"');
+                    header('Expires: 0');
+                    header('Cache-Control: must-revalidate');
+                    header('Pragma: public');
+                    header('Content-Length: ' . filesize($csv));
+                    readfile($csv);
+                    exec("rm -rf " . escapeshellarg($csv));
+                    unlink($csv);
+//            $sendUrl = base_url().'employee/do_background_process/create_and_send_partner_requested_report';
+//            $this->asynchronous_lib->do_background_process($sendUrl, $data);
     }
     
     function download_partner_pending_bookings($partnerID){ 

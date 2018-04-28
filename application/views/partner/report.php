@@ -13,7 +13,7 @@
                 </div>
                     <h2 id="msg_holder" style="text-align:center;color: #108c30;font-weight: bold;"></h2>
                 <div class="x_content">
-                    <form>
+                    <form method="POST" action="<?php echo base_url(); ?>employee/partner/create_and_send_partner_report/<?php echo $this->session->userdata('partner_id'); ?>">
                         <div class="form-group col-md-4"> 
                             <label class="control-label" for="daterange">Booking Create Date Range</label><br>
                             <?php
@@ -26,7 +26,7 @@
                         
                         <div class="form-group col-md-4">
                         <label for="Status">Status</label><br>
-                                <select class="form-control" id="status" >
+                        <select class="form-control" id="status" name="status">
                                <option value="all">All</option>
                                 <option value="Completed">Completed</option>
                                 <option value="Cancelled">Cancelled</option>
@@ -35,7 +35,7 @@
                         </div>
                 <div class="form-group col-md-4">
                         <label for="Status">States</label><br>
-                        <select class="form-control" id="state" multiple="">
+                        <select class="form-control" id="state" multiple="" name="state">
                                 <?php
                                 foreach($data as $state){
                                     ?>
@@ -46,7 +46,7 @@
                             </select>
                         </div>
                                 <div class="form-group">
-                                    <button type="button" class="btn btn-success" onclick="get_report()" style="float:right; border: 1px solid #2a3f54;background: #2a3f54;">Get Report</button>
+                                    <input type="submit" class="btn btn-success" style="float:right; border: 1px solid #2a3f54;background: #2a3f54;" value="Get Report">
                                     </div>
                     </form>
                </div>

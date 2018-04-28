@@ -230,8 +230,14 @@
                                     <span><i class="fa fa-angle-down"></i></span>
                                 </a>
                                 <ul class="dropdown-menu dropdown-usermenu pull-right">
+                                    <?php
+                                    if($this->session->userdata('agent_id') != '980084' && $this->session->userdata('agent_id') != '980083'){
+                                    ?>
                                     <li><a href="<?php echo base_url() ?>employee/partner/show_partner_edit_details_form"><i class="fa fa-edit pull-right"></i> Edit Details</a></li>
                                     <li><a href="<?php echo base_url() ?>employee/partner/reset_partner_password"><i class="fa fa-key pull-right"></i> Reset Password</a></li>
+                                    <?php
+                                    }
+                                    ?>
                                     <li><a href="<?php echo base_url() ?>employee/partner/logout"><i class="fa fa-sign-out pull-right"></i> Log Out</a></li>
                                 </ul>
                             </li>
@@ -262,6 +268,9 @@
                                         <li><a href="<?php echo base_url(); ?>partner/closed_booking/Cancelled">Cancelled Bookings</a></li>
                                     </ul>
                                 </li>
+                                <?php
+                                if($this->session->userdata('agent_id') != '980084' && $this->session->userdata('agent_id') != '980083'){
+                                    ?>
                                 <li>
                                     <a data-toggle="tooltip" data-placement="right" title="" data-original-title="Spare bookings"><i class="fa fa-truck"></i><span class="side_menu_list_title">Spare Bookings</span><span class="fa fa-chevron-down"></span></a>
                                     <ul class="nav child_menu">
@@ -294,6 +303,7 @@
                                 </li>
                                  <li><a href="<?php echo base_url(); ?>employee/partner/get_contracts" data-toggle="tooltip" data-placement="right" title="" data-original-title="Contracts">
                                          <i class="fa fa-handshake-o"></i><span class="side_menu_list_title">Contracts</span></a></li>
+                                 <?php } ?>
                                 <li><a href="<?php echo base_url(); ?>employee/partner/get_contact_us_page" data-toggle="tooltip" data-placement="right" title="" data-original-title="Contact Us">
                                         <i class="fa fa-phone"></i><span class="side_menu_list_title">Contact Us</span></a></li>
                             </ul>
