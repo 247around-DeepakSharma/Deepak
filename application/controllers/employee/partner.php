@@ -2902,7 +2902,7 @@ class Partner extends CI_Controller {
                 $partner_id = _247AROUND;
                 $partner_current_status = "";
                 $partner_internal_status = "";
-                $actor = $next_action = 'not_define';
+                $actor = $next_action = 'NULL';
                 $partner_status = $this->booking_utilities->get_partner_status_mapping_data("Cancelled", UPCOUNTRY_CHARGES_NOT_APPROVED, $value['partner_id'], $value['booking_id']);
                 if (!empty($partner_status)) {
                     $partner_current_status = $partner_status[0];
