@@ -10,7 +10,7 @@
                 <div class="x_title">
                     <h2><?php echo $status." Bookings" ?></h2>
                      <div class="right_holder" style="float:right;margin-right:10px;">
-                            <lable>States</lable>
+                            <lable>State</lable>
                             <select class="form-control " id="serachInputCompleted" style="border-radius:3px;">
                     <option value="all">All</option>
       <?php
@@ -36,10 +36,10 @@
                                 <th>Mobile</th>
                                 <th>City</th>
                                 <th>State</th>
+                                <th>Booking Date</th>
                                 <?php if ($status != "Cancelled") { ?>
                                 <th>TAT</th>
                                 <?php } ?>
-                                <th>Booking Date</th>
                                 <?php if ($status == "Cancelled") { ?>
                                     <th>Cancellation Reason</th>
                                     <th>Open</th>
@@ -91,12 +91,12 @@
                                     <td>
                                     <?php echo $row['state']; ?>
                                     </td>
-                                    <?php if ($status != "Cancelled") { ?>
-                                <td><?php echo $row['tat']; ?></td>
-                                <?php } ?>
                                     <td>
                                         <?php echo date('d-m-y', strtotime($row['booking_date'])); ?> 
                                     </td>
+                                    <?php if ($status != "Cancelled") { ?>
+                                <td><?php echo $row['tat']; ?></td>
+                                <?php } ?>
                                     <?php if ($status == "Cancelled") { ?>        
                                         <td>
                                         <?php echo $row['cancellation_reason']; ?>
