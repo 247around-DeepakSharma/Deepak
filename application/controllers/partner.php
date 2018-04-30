@@ -223,7 +223,7 @@ class Partner extends CI_Controller {
                                 }
 
                                 //Product description
-                                $appliance_details['description'] = $unit_details['appliance_description'] = $requestData['productType'];
+                                $appliance_details['description'] = $unit_details['appliance_description'] = trim($requestData['productType']);
 
                                 //Check for all optional parameters before setting them
                                 $appliance_details['category'] = $unit_details['appliance_category'] = isset($lead_details['service_appliance_data']['category']) ? $lead_details['service_appliance_data']['category'] : $category;
