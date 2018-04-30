@@ -2135,7 +2135,7 @@ class Booking_model extends CI_Model {
      *  @return : $output Array()
      */
   function _get_bookings_by_status($post, $select = "") {
-        
+        $this->db->_reserved_identifiers = array('*',"'%d-%m-%Y')");
         if (empty($select)) {
             $select = '*';
         }

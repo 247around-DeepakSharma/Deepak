@@ -2773,7 +2773,7 @@ class Booking extends CI_Controller {
         $select = "services.services,users.name as customername,penalty_on_booking.active as penalty_active,
             users.phone_number, booking_details.*, service_centres.name as service_centre_name,
             service_centres.district as city, service_centres.primary_contact_name,
-            service_centres.primary_contact_phone_1,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status";
+            service_centres.primary_contact_phone_1,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date_as_dateformat";
         //RM Specific Bookings
          $sfIDArray =array();
         if($this->session->userdata('user_group') == 'regionalmanager'){
@@ -2831,10 +2831,10 @@ class Booking extends CI_Controller {
             }else if(strtolower($booking_status) == 'pending' && empty ($booking_id)){
                 $post['where']  = array("current_status IN ('Pending','Rescheduled')" => NULL,
                     "DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1" => NULL );
-                $post['order'] = array(array('column' => 0,'dir' => 'desc'));
                 $post['order_performed_on_count'] = TRUE;
             }
         }else if($type == 'query'){
+            $post['order'] = array(array('column' => 0,'dir' => 'desc'));
             $post['where']['current_status'] = $booking_status;
             $post['order_by'] = "CASE WHEN booking_details.internal_status = 'Missed_call_confirmed' THEN 'a' WHEN  booking_details.booking_date = '' THEN 'b' WHEN  booking_details.booking_date = '' THEN 'b' ELSE 'c' END , booking_day";
         }
@@ -2880,7 +2880,7 @@ class Booking extends CI_Controller {
             $post['where']['booking_details.city = '] =  trim($city);
         }
         
-        $post['column_order'] = array('booking_day');
+        $post['column_order'] = array('booking_day',NULL,NULL,NULL,NULL,"initial_booking_date_as_dateformat");
         $post['column_search'] = array('booking_details.booking_id','booking_details.partner_id','booking_details.assigned_vendor_id','booking_details.closed_date','booking_details.booking_primary_contact_no','booking_details.query_remarks','booking_unit_details.appliance_brand','booking_unit_details.appliance_category','booking_unit_details.appliance_description','booking_details.city');
         
         return $post;
@@ -3334,7 +3334,7 @@ class Booking extends CI_Controller {
         $row[] = "<a class='col-md-12' href='".base_url()."employee/user/finduser?phone_number=".$order_list->phone_number."'>$order_list->customername</a>"."<b>".$order_list->booking_primary_contact_no."</b>";
         $row[] = "<b>".$order_list->services."</b>"."<br>".$order_list->request_type;
         $row[] = $order_list->booking_date." / ".$order_list->booking_timeslot;
-        $row[] = date_diff(date_create(date('Y-m-d',strtotime($order_list->initial_booking_date))),date_create(date('Y-m-d')))->format("%a days");
+        $row[] = date_diff(date_create(date('Y-m-d',strtotime($order_list->initial_booking_date_as_dateformat))),date_create(date('Y-m-d')))->format("%a days");
         $row[] = $escalation." ".$order_list->partner_internal_status;
         $row[] = "<a target = '_blank' href='".base_url()."employee/vendor/viewvendor/".$order_list->assigned_vendor_id."'>$sf</a>";
         $row[] = "<a id ='view' class ='btn btn-sm btn-color' href='".base_url()."employee/booking/viewdetails/".$order_list->booking_id."' title = 'view' target = '_blank'><i class = 'fa fa-eye' aria-hidden = 'true'></i></a>";
