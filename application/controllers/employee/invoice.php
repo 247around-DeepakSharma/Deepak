@@ -2515,6 +2515,8 @@ class Invoice extends CI_Controller {
             $sc_details['add_details_4'] = "Add details 4";
             $sc_details['add_details_5'] = "Add details 5";
             $sc_details['remarks'] = "Remarks";
+            $sc_details['gst_no'] = "GST Number";
+            $sc_details['is_signature'] = "Signature Exist";
             $sc_details['defective_parts'] = "No Of Defective Parts";
             $sc_details['is_verified'] = "Bank Account Verified";
             $sc_details['amount_type'] = "Type";
@@ -2553,6 +2555,12 @@ class Invoice extends CI_Controller {
                 $sc_details['add_details_4'] = "";
                 $sc_details['add_details_5'] = "";
                 $sc_details['remarks'] = preg_replace("/[^A-Za-z0-9]/", "", $sc['name']);
+                $sc_details['gst_no'] = $sc['gst_no'];
+                if(!empty($sc['signature_file'])){
+                    $sc_details['is_signature'] = "Yes";
+                } else {
+                    $sc_details['is_signature'] = "NO";
+                }
                 $sc_details['defective_parts'] = $defective_parts[$service_center_id];
                 $sc_details['is_verified'] = ($sc['is_verified'] ==0) ? "Not Verified" : "Verified";
                 if ($amount > 0) {
