@@ -811,6 +811,7 @@ class Booking_model extends CI_Model {
         $this->db->where('active','1');
         $this->db->where('check_box','1');
         $this->db->where('partner_id',$partner_id);
+        $this->db->order_by('category', 'asc');
         $query = $this->db->get('service_centre_charges');
         
     	return $query->result_array();
@@ -829,6 +830,7 @@ class Booking_model extends CI_Model {
         $this->db->where('active', '1');
         $this->db->where('check_box', '1');
         $this->db->where('partner_id', $partner_id);
+        $this->db->order_by('capacity', 'asc');
         $query = $this->db->get('service_centre_charges');
       
     	return $query->result_array();
@@ -836,7 +838,7 @@ class Booking_model extends CI_Model {
 
     function getCapacityForAppliance($service_id) {
 	//echo $category;
-	$sql = "Select distinct capacity from service_centre_charges where service_id='$service_id' and active='1'";
+	$sql = "Select distinct capacity from service_centre_charges where service_id='$service_id' and active='1' order by capacity asc";
 
 	$query = $this->db->query($sql);
 
@@ -861,6 +863,8 @@ class Booking_model extends CI_Model {
     	if (!empty($capacity)) {
     		$this->db->where('capacity', $capacity);
     	}
+        
+        $this->db->order_by('service_category', 'asc');
 
     	$query = $this->db->get('service_centre_charges');
 
