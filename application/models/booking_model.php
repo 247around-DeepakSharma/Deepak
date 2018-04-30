@@ -33,14 +33,15 @@ class Booking_model extends CI_Model {
     function update_price_in_unit_details($data, $unit_details){
 
         $data['tax_rate'] = $unit_details[0]['tax_rate'];
-        $data['around_paid_basic_charges'] = $unit_details[0]['around_paid_basic_charges'];
+        $data['around_net_payable'] = $unit_details[0]['around_net_payable'];
+        $data['around_paid_basic_charges'] = $data['around_net_payable']*(1 + $unit_details[0]['tax_rate'] /100);
         // calculate partner paid tax amount
-        $data['partner_paid_tax'] =  ($unit_details[0]['partner_paid_basic_charges'] * $data['tax_rate'])/ 100;
+        $data['partner_paid_tax'] =  ($unit_details[0]['partner_net_payable'] * $data['tax_rate'])/ 100;
         // Calculate  total partner paid charges with tax
-        $data['partner_paid_basic_charges'] = $unit_details[0]['partner_paid_basic_charges'] + $data['partner_paid_tax'];
+        $data['partner_paid_basic_charges'] = $unit_details[0]['partner_net_payable'] + $data['partner_paid_tax'];
 
-        $vendor_total_basic_charges =  ($data['customer_paid_basic_charges'] + $unit_details[0]['partner_paid_basic_charges'] + $data['around_paid_basic_charges']) * ($unit_details[0]['vendor_basic_percentage']/100 );
-        $around_total_basic_charges = ($data['customer_paid_basic_charges'] + $unit_details[0]['partner_paid_basic_charges'] + $data['around_paid_basic_charges'] - $vendor_total_basic_charges);
+        $vendor_total_basic_charges =  ($data['customer_paid_basic_charges'] + $data['partner_paid_basic_charges'] + $data['around_paid_basic_charges']) * ($unit_details[0]['vendor_basic_percentage']/100 );
+        $around_total_basic_charges = ($data['customer_paid_basic_charges'] + $data['partner_paid_basic_charges'] + $data['around_paid_basic_charges'] - $vendor_total_basic_charges);
 
         $data['around_st_or_vat_basic_charges'] = $this->get_calculated_tax_charge($around_total_basic_charges, $data['tax_rate'] );
         $data['vendor_st_or_vat_basic_charges'] = $this->get_calculated_tax_charge($vendor_total_basic_charges, $data['tax_rate'] );
@@ -94,7 +95,7 @@ class Booking_model extends CI_Model {
              $data['around_st_or_vat_basic_charges'] = 0;
              $data['around_comm_basic_charges'] = 0;
         }
-       
+
         $this->db->where('id', $data['id']);
         $this->db->update('booking_unit_details',$data);
     }
@@ -147,8 +148,8 @@ class Booking_model extends CI_Model {
         if($data['booking_status'] == "Completed"){
             // get booking unit data on the basis of id
             $this->db->select('booking_id, around_net_payable,booking_status, '
-                    . ' partner_net_payable as partner_paid_basic_charges, partner_net_payable, '
-                    . ' tax_rate, price_tags, around_paid_basic_charges, product_or_services, vendor_basic_percentage');
+                    . ' partner_net_payable, '
+                    . ' tax_rate, price_tags, product_or_services, vendor_basic_percentage');
             $this->db->where('id', $data['id']);
             $query = $this->db->get('booking_unit_details');
             $unit_details = $query->result_array();
@@ -1601,11 +1602,12 @@ class Booking_model extends CI_Model {
         }
 
         unset($result['id']);  // unset service center charge  id  because there is no need to insert id in the booking unit details table
-        $result['customer_net_payable'] = $result['customer_total'] - $result['partner_paid_basic_charges'] - $result['around_paid_basic_charges'];
-        $result['partner_paid_tax'] = ($result['partner_paid_basic_charges'] * $result['tax_rate'])/ 100;
-        
-        $vendor_total_basic_charges =  ($result['customer_net_payable'] + $result['partner_net_payable'] + $result['around_paid_basic_charges'] ) * ($result['vendor_basic_percentage']/100);
-        $around_total_basic_charges = ($result['customer_net_payable'] + $result['partner_net_payable'] + $result['around_paid_basic_charges'] - $vendor_total_basic_charges);
+        $result['customer_net_payable'] = $result['customer_total'] - $result['partner_net_payable'] - $result['around_net_payable'];
+        $result['partner_paid_tax'] = ($result['partner_net_payable'] * $result['tax_rate'])/ 100;
+        $result['partner_paid_basic_charges'] = $result['partner_net_payable'] + $result['partner_paid_tax'];
+        $result['around_paid_basic_charges'] = $result['around_net_payable'] *( 1 + $result['tax_rate']/100);
+        $vendor_total_basic_charges =  ($result['customer_net_payable'] + $result['partner_paid_basic_charges'] + $result['around_paid_basic_charges'] ) * ($result['vendor_basic_percentage']/100);
+        $around_total_basic_charges = ($result['customer_net_payable'] + $result['partner_paid_basic_charges'] + $result['around_paid_basic_charges'] - $vendor_total_basic_charges);
          
         $result['around_st_or_vat_basic_charges'] = $this->get_calculated_tax_charge($around_total_basic_charges, $result['tax_rate'] );
         $result['vendor_st_or_vat_basic_charges'] = $this->get_calculated_tax_charge($vendor_total_basic_charges, $result['tax_rate'] );
@@ -1720,8 +1722,10 @@ class Booking_model extends CI_Model {
     }
     
     function _insert_data_in_booking_unit_details($result, $update_key, $default_tax_rate_flag){
-        $result['customer_net_payable'] = $result['customer_total'] - $result['partner_paid_basic_charges'] - $result['around_paid_basic_charges'];
-        $result['partner_paid_tax'] = ($result['partner_paid_basic_charges'] * $result['tax_rate'])/ 100;
+        $result['customer_net_payable'] = $result['customer_total'] - $result['partner_net_payable'] - $result['around_net_payable'];
+        $result['partner_paid_tax'] = ($result['partner_net_payable'] * $result['tax_rate'])/ 100;
+        $result['partner_paid_basic_charges'] = $result['partner_net_payable'] + $result['partner_paid_tax'];
+        $result['around_paid_basic_charges'] =  $result['around_net_payable'] *( 1 + $result['tax_rate']/100);
         
         $vendor_total_basic_charges =  ($result['customer_net_payable'] + $result['partner_paid_basic_charges'] + $result['around_paid_basic_charges'] ) * ($result['vendor_basic_percentage']/100);
         $around_total_basic_charges = ($result['customer_net_payable'] + $result['partner_paid_basic_charges'] + $result['around_paid_basic_charges'] - $vendor_total_basic_charges);

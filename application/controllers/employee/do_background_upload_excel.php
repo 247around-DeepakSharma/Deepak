@@ -489,8 +489,7 @@ class Do_background_upload_excel extends CI_Controller {
                     if (!empty($prices) && count($prices) == 1) {
                         $unit_details['id'] = $prices[0]['id'];
                         $unit_details['price_tags'] = $prices[0]['service_category'];
-                        $unit_details['around_paid_basic_charges'] = $unit_details['around_net_payable'] = "0.00";
-                        $unit_details['partner_paid_basic_charges'] = $prices[0]['partner_net_payable'];
+                        $unit_details['around_net_payable'] = $prices[0]['around_net_payable'];;
                         $unit_details['partner_net_payable'] = $prices[0]['partner_net_payable'];
                         $booking['amount_due'] = $prices[0]['customer_net_payable'];
                         $is_price['customer_net_payable'] = $prices[0]['customer_net_payable'];
