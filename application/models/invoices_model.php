@@ -730,7 +730,7 @@ class invoices_model extends CI_Model {
                 } else if($value['product_or_services'] == "Product"){
                     
                     $meta['total_parts_charge'] += $value['taxable_value'];
-                    $parts_count++;
+                    $parts_count += $value['qty'];
                 }
             }
             $meta['parts_count'] = $parts_count;
