@@ -1474,33 +1474,29 @@ class Api extends CI_Controller {
      */
     function send_missed_call_confirmation_sms($booking) {
         //log_message ('info', __METHOD__);
-        
-        $category = '';
-        if($booking['services'] == 'Geyser'){
-            $where = array('booking_id'=> $booking['booking_id']);
-            $unit_details = $this->booking_model->get_unit_details($where);
-            if(!empty($unit_details)){
-                 $category = $unit_details[0]['appliance_category'];
-            }
-        }
-    $sms['tag'] = "missed_call_confirmed";
-    $sms['phone_no'] = $booking['booking_primary_contact_no'];
-    $sms['smsData']['message'] = '';
-    $sms['smsData']['service'] = $booking['services'];
-    // Check time is greater than 1PM. If time is greater than 1 PM,
+
+        $sms['tag'] = "missed_call_confirmed";
+        $sms['phone_no'] = $booking['booking_primary_contact_no'];
+        $sms['smsData']['message'] = '';
+        $sms['smsData']['service'] = $booking['services'];
+        // Check time is greater than 1PM. If time is greater than 1 PM,
         // then set installation date Tommorrow otherwise Today.
-    if (date('H') > 13) {
-        $sms['smsData']['date'] = "Tomorrow";
-    } else {
-        $sms['smsData']['date'] = "Today";
-    }
+        if(date("l") == "Sunday"){
+            
+            $sms['smsData']['date'] = "Tomorrow";
+            
+        } else if (date('H') > 13) {
+            $sms['smsData']['date'] = "Tomorrow";
+        } else {
+            $sms['smsData']['date'] = "Today";
+        }
 
-   $sms['smsData']['booking_id'] = $booking['booking_id'];
-    $sms['booking_id'] = $booking['booking_id'];
-    $sms['type'] = "user";
-    $sms['type_id'] = $booking['user_id'];
+        $sms['smsData']['booking_id'] = $booking['booking_id'];
+        $sms['booking_id'] = $booking['booking_id'];
+        $sms['type'] = "user";
+        $sms['type_id'] = $booking['user_id'];
 
-    $this->notify->send_sms_msg91($sms);
+        $this->notify->send_sms_msg91($sms);
     }
 
     /**

@@ -296,6 +296,8 @@ function get_data_for_partner_callback($booking_id) {
         if(!empty($brand)){
             $this->db->where('brand', $brand);
         }
+        
+        $this->db->order_by('service_category', 'asc');
 
 	$query = $this->db->get('service_centre_charges');
 
@@ -320,7 +322,9 @@ function get_data_for_partner_callback($booking_id) {
         if(!empty($brand)){
             $this->db->where('brand', $brand);
         }
-
+        
+        $this->db->order_by('service_category', 'asc');
+                        
 	$query = $this->db->get('service_centre_charges');
 
 	return $query->result_array();
