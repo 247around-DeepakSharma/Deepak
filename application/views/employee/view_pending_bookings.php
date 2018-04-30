@@ -309,7 +309,6 @@
             "serverSide": true, 
             "order": [], 
             "pageLength": 25,
-            "ordering": false,
             "ajax": {
                 "url": "<?php echo base_url(); ?>employee/booking/get_bookings_by_status/"+booking_status,
                 "type": "POST",
@@ -323,6 +322,12 @@
                     d.city =  $('#city').val();
                  }
             },
+            "columnDefs": [
+                {
+                    "targets": [0,1,2,3,4,6,7,8,9,10,11,12,13,14,15], //first column / numbering column
+                    "orderable": false //set not orderable
+                }
+            ],  
             "deferRender": true,
             "fnInitComplete": function (oSettings, response) {
                $('input[type="search"]').attr("name", "search_value");           
