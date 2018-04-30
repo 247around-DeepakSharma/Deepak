@@ -83,11 +83,8 @@ class Booking extends CI_Controller {
                 log_message('info', " Booking Insert Contact No: " . $primary_contact_no);
                 $status = $this->getAllBookingInput($user_id, INSERT_NEW_BOOKING);
                 if ($status) {
-                    log_message('info', __FUNCTION__ . " Partner callback  " . $status['booking_id']);
+                    log_message('info', __FUNCTION__ . " Booking ID " . $status['booking_id']);
                     
-                    $cb_url = base_url() . "employee/do_background_process/send_request_for_partner_cb/".$status['booking_id'];
-                    $pcb = array();
-                    $this->asynchronous_lib->do_background_process($cb_url, $pcb);
                     //Redirect to Default Search Page
                     redirect(base_url() . DEFAULT_SEARCH_PAGE);
                 } else {
@@ -1578,10 +1575,7 @@ class Booking extends CI_Controller {
 
                     $status = $this->getAllBookingInput($user_id, $booking_id);
                     if ($status) {
-                        log_message('info', __FUNCTION__ . " Partner callback  " . $status['booking_id']);
-                        $cb_url = base_url() . "employee/do_background_process/send_request_for_partner_cb/".$status['booking_id'];
-                        $pcb = array();
-                        $this->asynchronous_lib->do_background_process($cb_url, $pcb);
+                        log_message('info', __FUNCTION__ . " Update Booking ID" . $status['booking_id']);
 
                         //Redirect to Default Search Page
                         redirect(base_url() . DEFAULT_SEARCH_PAGE);
@@ -4024,6 +4018,17 @@ class Booking extends CI_Controller {
         }
     }
     
+    function update_booking_address(){
+        log_message('info', __METHOD__. " POST DATA ". print_r($this->input->post(), true));
+        $address = $this->input->post("address");
+        $booking_id = $this->input->post("booking_id");
+        $this->booking_model->update_booking($booking_id, array('booking_address' => $address));
+        $job_card = array();
+        $job_card_url = base_url() . "employee/bookingjobcard/prepare_job_card_using_booking_id/" . $booking_id;
+        $this->asynchronous_lib->do_background_process($job_card_url, $job_card);
+        echo "Success";
+    }
+    
     /**
      * @desc This function is used to update price related filed from complete booking from
      * @param String $booking_id
@@ -4084,5 +4089,21 @@ class Booking extends CI_Controller {
         }
         
         return true;
+    }
+
+    function test(){
+        $this->partner_cb->partner_callback("SF-607901803235");
+//        $array = array(
+//            "ReferenceID" => "SP-1656351803085551" , 
+//            "Status" => "PNDNG_ASGN", 
+//            "RequestDetails" => array( 
+//                "Reason"=> "ENA",
+//                 "Remarks"=> "Engineer not availble"
+//                )
+//            );
+//        
+//        $postData['postData'] = json_encode($array, true);
+        
+        //$this->load->view('employee/paytmApiIntergration');
     }
 }
