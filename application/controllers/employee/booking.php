@@ -4052,9 +4052,13 @@ class Booking extends CI_Controller {
                 $unit_details = $this->booking_model->get_unit_details(array('id' => $unit_id));
 
                 if ($partner_type == OEM) {
-                    $result = $this->booking_model->getPricesForCategoryCapacity($unit_details[0]['service_id'], $services_details['appliance_category'], $services_details['appliance_capacity'], $unit_details[0]['partner_id'], $services_details['appliance_brand']);
+                    $result = $this->partner_model->getPrices($unit_details[0]['service_id'], 
+                            $services_details['appliance_category'], $services_details['appliance_capacity'], 
+                            $unit_details[0]['partner_id'], $unit_details[0]['price_tags'],$services_details['appliance_brand']);
                 } else {
-                    $result = $this->booking_model->getPricesForCategoryCapacity($unit_details[0]['service_id'], $services_details['appliance_category'], $services_details['appliance_capacity'], $unit_details[0]['partner_id'], "");
+                    $result = $this->partner_model->getPrices($unit_details[0]['service_id'], 
+                            $services_details['appliance_category'], $services_details['appliance_capacity'], 
+                            $unit_details[0]['partner_id'], $unit_details[0]['price_tags'],"");
                 }
 
                 if (!empty($result)) {
