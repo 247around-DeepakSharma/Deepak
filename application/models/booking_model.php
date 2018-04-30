@@ -1609,12 +1609,7 @@ class Booking_model extends CI_Model {
         $result['around_comm_basic_charges'] = $around_total_basic_charges - $result['around_st_or_vat_basic_charges'];
         $result['vendor_basic_charges'] = $vendor_total_basic_charges - $result['vendor_st_or_vat_basic_charges'];
         log_message('info', __METHOD__ . " update booking_unit_details data " . print_r($result, true) . " Price data with tax: " . print_r($data, true));
-        // Update request type If price tags is installation OR repair
-        if ($update_key == 0) {
-            $this->update_booking($result['booking_id'], array('request_type'=>$result['price_tags']));
-             
-        }
-
+        
         if ($query->num_rows > 0) {
             //if found, update this entry
             
