@@ -37,8 +37,8 @@
                         <div class="col-md-4">
                             <select name="file_type" class="form-control" id="file_type">
                                 <option value="" disabled selected>Select File Type</option>
-                                <option value="Shipped">Shipped</option>
-                                <option value="Delivered">Delivered</option>
+                                <option value="shipped">Shipped</option>
+                                <option value="delivered">Delivered</option>
                             </select>
                         </div>
                          <?php echo form_error('file_type'); ?>
