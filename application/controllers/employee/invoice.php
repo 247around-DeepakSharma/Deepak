@@ -2965,7 +2965,7 @@ class Invoice extends CI_Controller {
                 $email_from = $email_template[2];
                 $to = $email_template[1];
                 $cc = $email_template[3];
-                $cmd = "curl " . S3_WEBSITE_URL . "/invoices-excel/" . $output_pdf_file_name . " -o " . TMP_FOLDER.$output_pdf_file_name;
+                $cmd = "curl " . S3_WEBSITE_URL . "invoices-excel/" . $output_pdf_file_name . " -o " . TMP_FOLDER.$output_pdf_file_name;
                 exec($cmd);    
                 $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, TMP_FOLDER.$output_pdf_file_name, "",$email_tag);
                 
