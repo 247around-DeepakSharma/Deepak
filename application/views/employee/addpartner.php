@@ -312,7 +312,7 @@
                                                     //Checking for Edit Parnter
                                                     if (isset($query[0]['id'])) {
                                                         foreach (range('A', 'Z') as $char) {
-                                                            $code = "P" . $char;
+                                                            $code = "R" . $char;
                                                             if (!in_array($code, $results['partner_code_availiable']) || isset($results['partner_code'][0]['code']) && ($results['partner_code'][0]['code'] == $code)) {
                                                                 ?>
                                                 <option value="<?php echo $code; ?>" <?php
@@ -336,16 +336,29 @@
                                                     }
                                                     }
                                                     
+                                                    foreach (range('A', 'Z') as $char) {
+                                                    $code = "P" . $char;
+                                                    if (!in_array($code, $results['partner_code_availiable']) || isset($results['partner_code'][0]['code']) && ($results['partner_code'][0]['code'] == $code)) {
+                                                        ?>
+                                                <option value="<?php echo $code; ?>" <?php
+                                                    if (isset($results['partner_code'][0]['code']) && ($results['partner_code'][0]['code'] == $code )) {
+                                                        echo "selected=''";
+                                                    }
+                                                    ?>><?php echo $code; ?></option>
+                                                <?php
+                                                    }
+                                                    }
+                                                    
                                                     
                                                     
                                                     } else {// New Partner Addition
                                                     foreach (range('A', 'Z') as $char) {
-                                                    $code = "P" . $char;
-                                                    if (!in_array($code, $results['partner_code'])) {
-                                                        ?>
-                                                <option value="<?php echo $code; ?>" ><?php echo $code; ?></option>
-                                                <?php
-                                                    }
+                                                        $code = "R" . $char;
+                                                        if (!in_array($code, $results['partner_code'])) {
+                                                            ?>
+                                                            <option value="<?php echo $code; ?>" ><?php echo $code; ?></option>
+                                                        <?php
+                                                        }
                                                     }
                                                     }
                                                     ?>
