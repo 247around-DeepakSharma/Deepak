@@ -331,6 +331,7 @@ class partner_sd_cb {
             $serial_number = "";
             $CallCompletedDate = "";
             $StatusReason = "";
+            $appointmentDate = "";
             
             
             if ($data['current_status'] == _247AROUND_COMPLETED) {
@@ -390,12 +391,6 @@ class partner_sd_cb {
                     }
                 } 
             
-            $appointmentDate = array(
-                    "year" => date('Y', strtotime($data['booking_date'])),
-                    "month" => date('m', strtotime($data['booking_date'])),
-                    "day" => date('d', strtotime($data['booking_date'])),
-                    "hour" => date('H', strtotime($data['booking_date'])),
-                    "minute" => date('i', strtotime($data['booking_date'])));
             $postData = array(
                 "CaseId" => $data['order_id'],                   //Mandatory in All status
                 "CallStatus" => $data['partner_current_status'], //Mandatory in All status
@@ -403,12 +398,23 @@ class partner_sd_cb {
                 "SerialNo" => $serial_number, //Mandatory in  only Call complete Status /other status its optional
 //                "PurchaseDate" => "", //Not mandatory
                 "StatusReason" => $StatusReason,           //Mandatory for Completed Call
-                "CallCompletedDate" => $CallCompletedDate, //Mandatory in  only Call complete Status /other status its optional
-                //Mandatory in  only Call complete Status /other status its optional
-                "AppointmentDate" => $appointmentDate,
                 "ModelNo" => "" //Optional
             );
             
+            if(!empty($CallCompletedDate)){
+                //Mandatory in  only Call complete Status /other status its optional
+                $postData['CallCompletedDate'] =$CallCompletedDate;
+            }
+            
+            //Mandatory in  only Call complete Status /other status its optional
+            if(!empty($data['booking_date'])){
+                $postData['AppointmentDate'] = array(
+                    "year" => date('Y', strtotime($data['booking_date'])),
+                    "month" => date('m', strtotime($data['booking_date'])),
+                    "day" => date('d', strtotime($data['booking_date'])),
+                    "hour" => date('H', strtotime($data['booking_date'])),
+                    "minute" => date('i', strtotime($data['booking_date'])));
+            }
             return $this->post_jeeves_data($postData);
         } else {
             log_message('info', __METHOD__ . "=> Order ID Not Found");
