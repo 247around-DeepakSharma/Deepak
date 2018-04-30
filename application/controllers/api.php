@@ -2072,14 +2072,13 @@ class Api extends CI_Controller {
             $s_charges = $this->partner_model->getPrices( $b_unit['service_id'], $b_unit['appliance_category'], 
                     $b_unit['appliance_capacity'], $this->app_price_mapping_id, trim($p_tags),"");
             if($i == 0){
-                $b_unit['around_paid_basic_charges'] = $discount_amount;
+                
                 $b_unit['around_net_payable'] = $discount_amount;
             } else{
-                $b_unit['around_paid_basic_charges'] = 0;
+                
                 $b_unit['around_net_payable'] = 0;
             }
             
-            $b_unit['partner_paid_basic_charges'] = 0;
             $b_unit['partner_net_payable'] = 0;
             
             $b_unit['id'] = $s_charges[0]['id'];

@@ -274,10 +274,9 @@ class Booking extends CI_Controller {
                     $prices = explode("_", $values);  // split string..
                     $services_details['id'] = $prices[0]; // This is id of service_centre_charges table.
 
-                    $services_details['around_paid_basic_charges'] = $discount[$brand_id][$key + 1][$services_details['id']][0];
-                    $services_details['partner_paid_basic_charges'] = $partner_net_payable[$brand_id][$key + 1][$services_details['id']][0];
-                    $services_details['partner_net_payable'] = $services_details['partner_paid_basic_charges'];
-                    $services_details['around_net_payable'] = $services_details['around_paid_basic_charges'];
+                    $services_details['around_net_payable'] = $discount[$brand_id][$key + 1][$services_details['id']][0];
+                    $services_details['partner_net_payable'] = $partner_net_payable[$brand_id][$key + 1][$services_details['id']][0];
+                   
                     $services_details['booking_status'] = $booking['current_status'];
                     log_message('info', __METHOD__ . " Before booking is insert/update: " . $booking_id);
                     
@@ -2027,7 +2026,7 @@ class Booking extends CI_Controller {
                 $this->asynchronous_lib->do_background_process($invoice_url, $payment);
 
             } else {
-                log_message("info", " Amount Paid less then 5  for booking ID ". $booking_id. " Amount Paid ". $data[0]['amount_paid']);
+                log_message("info", " Amount Paid less then 5  for booking ID ". $booking_id. " Amount Paid ". $data['amount_paid']);
             }
         
             redirect(base_url() . 'employee/booking/view_bookings_by_status/Pending');
@@ -4017,4 +4016,101 @@ class Booking extends CI_Controller {
             redirect(base_url() . 'employee/booking/create_booking_payment_link');
         }
     }
+
+    
+    function update_booking_address(){
+        log_message('info', __METHOD__. " POST DATA ". print_r($this->input->post(), true));
+        $address = $this->input->post("address");
+        $booking_id = $this->input->post("booking_id");
+        $this->booking_model->update_booking($booking_id, array('booking_address' => $address));
+        $job_card = array();
+        $job_card_url = base_url() . "employee/bookingjobcard/prepare_job_card_using_booking_id/" . $booking_id;
+        $this->asynchronous_lib->do_background_process($job_card_url, $job_card);
+        echo "Success";
+    }
+    
+    /**
+     * @desc This function is used to update price related filed from complete booking from
+     * @param String $booking_id
+     */
+    function update_completed_unit_applinace_details($booking_id) {
+        log_message('info', __METHOD__ . " Update " . $booking_id);
+        
+        $b_unit_id = $this->input->post('b_unit_id');
+        $brand = $this->input->post('appliance_brand');
+        $category = $this->input->post('appliance_category');
+        $capacity = $this->input->post('appliance_capacity');
+        $partner_type = $this->input->post('partner_type');
+
+        foreach ($brand as $key => $value) {
+            $services_details = array();
+            $services_details['appliance_brand'] = $value;
+            $services_details['appliance_category'] = $category[$key];
+            $services_details['appliance_capacity'] = $capacity[$key];
+            foreach ($b_unit_id[$key] as $unit_id) {
+                log_message('info', __METHOD__ . " Update price for unit id " . $unit_id);
+                $unit_details = $this->booking_model->get_unit_details(array('id' => $unit_id));
+
+                if ($partner_type == OEM) {
+                    $result = $this->partner_model->getPrices($unit_details[0]['service_id'], 
+                            $services_details['appliance_category'], $services_details['appliance_capacity'], 
+                            $unit_details[0]['partner_id'], $unit_details[0]['price_tags'],$services_details['appliance_brand']);
+                } else {
+                    $result = $this->partner_model->getPrices($unit_details[0]['service_id'], 
+                            $services_details['appliance_category'], $services_details['appliance_capacity'], 
+                            $unit_details[0]['partner_id'], $unit_details[0]['price_tags'],"");
+                }
+
+                if (!empty($result)) {
+                    $services_details['vendor_basic_percentage'] = $result[0]['vendor_basic_percentage'];
+                    $services_details['customer_total'] = $result[0]['customer_total'];
+                    $services_details['partner_net_payable'] = $result[0]['partner_net_payable'];
+                    if ($unit_details[0]['price_tags'] == REPAIR_OOW_PARTS_PRICE_TAGS) {
+                        
+                        $services_details['customer_total'] = $unit_details[0]['customer_total'];
+                        $services_details['vendor_basic_percentage'] = $unit_details[0]['vendor_basic_percentage'];
+                        
+                    }
+
+                    $services_details['around_paid_basic_charges'] = $result['around_net_payable'];
+                    $services_details['around_net_payable'] = $result['around_net_payable'];
+                    
+                    $services_details['partner_paid_tax'] = ( $services_details['partner_net_payable'] * $unit_details[0]['tax_rate'])/ 100;
+                    $services_details['partner_paid_basic_charges'] =  $services_details['partner_net_payable'] + $result['partner_paid_tax'];
+                    $services_details['customer_net_payable'] = $services_details['customer_total'] - $services_details['partner_net_payable'] - $services_details['around_net_payable'];
+                    $services_details['partner_paid_tax'] = ($services_details['partner_net_payable'] * $unit_details[0]['tax_rate'])/ 100;
+
+                    $vendor_total_basic_charges =  ($services_details['customer_net_payable'] + $services_details['partner_paid_basic_charges'] + $services_details['around_paid_basic_charges'] ) * ($services_details['vendor_basic_percentage']/100);
+                    $around_total_basic_charges = ($services_details['customer_net_payable'] + $services_details['partner_paid_basic_charges'] + $services_details['around_paid_basic_charges'] - $vendor_total_basic_charges);
+
+                    $services_details['around_st_or_vat_basic_charges'] = $this->booking_model->get_calculated_tax_charge($around_total_basic_charges, $unit_details[0]['tax_rate'] );
+                    $services_details['vendor_st_or_vat_basic_charges'] = $this->booking_model->get_calculated_tax_charge($vendor_total_basic_charges, $unit_details[0]['tax_rate'] );
+
+                    $services_details['around_comm_basic_charges'] = $around_total_basic_charges - $services_details['around_st_or_vat_basic_charges'];
+                    $services_details['vendor_basic_charges'] = $vendor_total_basic_charges - $services_details['vendor_st_or_vat_basic_charges'];
+                    
+                    $this->booking_model->update_booking_unit_details_by_any(array('id' => $unit_id), $services_details);
+                }
+            }
+        }
+        
+        return true;
+    }
+
+    function test(){
+        $this->partner_cb->partner_callback("SF-607901803235");
+//        $array = array(
+//            "ReferenceID" => "SP-1656351803085551" , 
+//            "Status" => "PNDNG_ASGN", 
+//            "RequestDetails" => array( 
+//                "Reason"=> "ENA",
+//                 "Remarks"=> "Engineer not availble"
+//                )
+//            );
+//        
+//        $postData['postData'] = json_encode($array, true);
+        
+        //$this->load->view('employee/paytmApiIntergration');
+    }
+
 }
