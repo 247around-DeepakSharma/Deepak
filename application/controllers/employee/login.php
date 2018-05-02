@@ -577,7 +577,7 @@ class Login extends CI_Controller {
                     $login_email['username'] = strtolower($is_email_exist[0]['sc_code']);
                     $login_email['password'] = $new_login_details['clear_text'];
                     
-                    $login_subject = $login_template[4];
+                    $login_subject = vsprintf($login_template[4], $is_email_exist[0]['name']);
                     $login_emailBody = vsprintf($login_template[0], $login_email);
                     
                     $this->notify->sendEmail($login_template[2], $owner_email, $login_template[3]. "," . $rm_official_email, "",$login_subject, $login_emailBody, "",'reset_vendor_login_details');

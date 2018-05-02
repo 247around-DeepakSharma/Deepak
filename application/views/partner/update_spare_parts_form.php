@@ -191,7 +191,7 @@
                                 if (form_error('shipment_date')) { echo 'has-error';} ?>">
                                 <label for="shipment_date" class="col-md-4">Shipment Date</label>
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control"  id="shipment_date" name="shipment_date"  value = "<?php echo  date("Y-m-d", strtotime("+0 day")); ?>"  required readonly=''>
+                                    <input type="text" class="form-control"  id="shipment_date" name="shipment_date"  value = "<?php echo  date("Y-m-d", strtotime("+0 day")); ?>"  required>
                                     <?php echo form_error('shipment_date'); ?>
                                 </div>
                                  
@@ -258,7 +258,6 @@
                 <div class="x_panel">
                     <div class="x_content">
                         <div class="text-center">
-                            <input type="hidden" name="inventory_id" id="inventory_id" value="<?php echo $spare_parts[0]->inventory_id ;?>">
                             <input type="hidden" name="assigned_vendor_id" id="assigned_vendor_id" value="<?php echo $spare_parts[0]->assigned_vendor_id ;?>">
                             <input type="submit"  <?php if (!is_null($spare_parts[0]->estimate_cost_given_date) || $spare_parts[0]->request_type == REPAIR_OOW_TAG) { ?> 
                                        onclick="return check_invoice_amount('<?php echo $spare_parts[0]->purchase_price; ?>')" <?php } ?> value="Update Booking" class="btn btn-md btn-success" />

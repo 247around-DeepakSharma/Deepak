@@ -155,15 +155,17 @@
                                     } ?>">
                                <label for="shipped_parts_name" class="col-md-4">Shipped Parts*</label>
                                 <div class="col-md-6">
-                                    <select class="form-control spare_parts" id="shipped_parts_name" name="shipped_parts_name">
+                                    <select class="form-control spare_parts" id="shipped_parts_name" name="shipped_parts_name[]" multiple="">
+<!--                                        <option selected disabled >Select Parts Name</option>-->
                                     </select>
+                                    <span id="spinner" style="display:none"></span>
                                  <?php echo form_error('shipped_parts_name'); ?>
                                 </div> 
                                 
                             </div>
                             
                             <input type="hidden" name="request_type" value="<?php echo $spare_parts[0]->request_type?>"/>
-                            <input type="hidden" class="form-control" name="booking_id" value = "<?php echo $spare_parts[0]->booking_id; ?>"  required>
+                            <input type="hidden" class="form-control" name="booking_id" value = "<?php echo $spare_parts[0]->booking_id; ?>">
                             <div class="form-group <?php
                                     if (form_error('remarks_by_partner')) { echo 'has-error'; } ?>">
                                 <label for="remarks_by_partner" class="col-md-4">Remarks*</label>
@@ -210,7 +212,7 @@
                                 if (form_error('shipment_date')) { echo 'has-error';} ?>">
                                 <label for="shipment_date" class="col-md-4">Shipment Date</label>
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control"  id="shipment_date" name="shipment_date"  value = "<?php echo  date("Y-m-d", strtotime("+0 day")); ?>"  required readonly=''>
+                                    <input type="text" class="form-control"  id="shipment_date" name="shipment_date"  value = "<?php echo  date("Y-m-d", strtotime("+0 day")); ?>"  required>
                                     <?php echo form_error('shipment_date'); ?>
                                 </div>
                                  
@@ -230,7 +232,7 @@
             </div>
         </div>
         
-        <div class="row">
+<!--        <div class="row">
             <div class="col-md-12 col-sm-12 col-xs-12">
                 <div class="x_panel">
                     <div class="x_title">
@@ -241,46 +243,47 @@
                     <div class="x_content">
                         <div class="col-md-6">
                             <div class="form-group <?php
-                                if (form_error('partner_challan_number')) { echo 'has-error'; } ?>">
+                                //if (form_error('partner_challan_number')) { echo 'has-error'; } ?>">
                                 <label for="partner_challan_number" class="col-md-4">Challan Number</label>
                                 <div class="col-md-6">
                                     <input type="text" class="form-control" id="partner_challan_number" name="partner_challan_number" value = "" placeholder="Please Enter challan Number">
-                                     <?php echo form_error('partner_challan_number'); ?>
+                                     <?php //echo form_error('partner_challan_number'); ?>
                                 </div>  
                               
                             </div>   
                             <div class="form-group <?php
-                                if (form_error('approx_value')) { echo 'has-error'; } ?>">
+                                //if (form_error('approx_value')) { echo 'has-error'; } ?>">
                                 <label for="approx_value" class="col-md-4">Approx Value*</label>
                                 <div class="col-md-6">
                                     <input type="number" class="form-control" id="approx_value" name="approx_value" value = "" placeholder="Please Enter approx value"  required>
-                                     <?php echo form_error('approx_value'); ?>
+                                     <?php //echo form_error('approx_value'); ?>
                                 </div>  
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group <?php
-                                if (form_error('challan_file')) { echo 'has-error'; } ?>">
+                                //if (form_error('challan_file')) { echo 'has-error'; } ?>">
                                 <label for="challan_file" class="col-md-4">Challan File</label>
                                 <div class="col-md-6">
                                     <input type="file" class="form-control" id="challan_file" name="challan_file">
-                                     <?php echo form_error('challan_file'); ?>
+                                     <?php //echo form_error('challan_file'); ?>
                                 </div>  
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </div>-->
         
         <div class="row">
             <div class="col-md-12 col-sm-12 col-xs-12">
                 <div class="x_panel">
                     <div class="x_content">
                         <div class="text-center">
-                            <input type="hidden" name="inventory_id" id="inventory_id" value="<?php echo $spare_parts[0]->inventory_id ;?>">
+                            <input type="hidden" name="approx_value" id="approx_value" value="">
                             <input type="hidden" name="partner_id" id="partner_id" value="<?php echo $spare_parts[0]->partner_id ;?>">
                             <input type="hidden" name="assigned_vendor_id" id="assigned_vendor_id" value="<?php echo $spare_parts[0]->assigned_vendor_id ;?>">
+                            <input type="hidden" name="is_wh" id="is_wh" value="<?php echo $is_wh ;?>">
                             <input type="submit"  <?php if (!is_null($spare_parts[0]->estimate_cost_given_date) || $spare_parts[0]->request_type == REPAIR_OOW_TAG) { ?> 
                                        onclick="return check_invoice_amount('<?php echo $spare_parts[0]->purchase_price; ?>')" <?php } ?> value="Update Booking" class="btn btn-md btn-success" />
                         </div>
@@ -365,8 +368,8 @@
     
     $('#shipped_model_number').select2();
     $('#shipped_parts_name').select2({
-        placeholder: "Select Part Name",
-        cealr:true
+        placeholder:'Select Part Name',
+        allowClear:true
     });
     $('#shipped_model_number').on('change', function() {
         
@@ -378,12 +381,34 @@
                 url:'<?php echo base_url(); ?>employee/inventory/get_parts_name',
                 data: { model_number:model_number, entity_id: '<?php echo $spare_parts[0]->partner_id ;?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo $spare_parts[0]->service_id; ?>' },
                 success:function(data){
-                    $('#shipped_parts_name').html(data).select2();
+                    $('#shipped_parts_name').html(data);
                     $('#spinner').removeClass('fa fa-spinner').hide();
                 }
             });
         }else{
             alert("Please Select Model Number");
+        }
+    });
+    
+    $('#shipped_parts_name').on('change', function() {
+        
+        var model_number = $('#shipped_model_number').val();
+        var part_name = $('#shipped_parts_name').val();
+        
+        if(model_number && part_name){
+            $.ajax({
+                method:'POST',
+                url:'<?php echo base_url(); ?>employee/inventory/get_inventory_price',
+                data: { model_number:model_number, entity_id: '<?php echo $spare_parts[0]->partner_id ;?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo $spare_parts[0]->service_id; ?>' , 'part_name' : part_name },
+                success:function(data){
+                    var obj = JSON.parse(data);
+                    if(obj.price){
+                        $('#approx_value').val(obj.price);
+                    }else{
+                        console.log(data);
+                    }
+                }
+            });
         }
     });
 

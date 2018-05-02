@@ -82,11 +82,11 @@ class service_centre_charges_model extends CI_Model {
         
         $query3['source'] = $this->partner_model->get_all_partner_source();
 
-        $query4['categories'] = $this->get_service_caharges_data("category", "", "category");
+        $query4['categories'] = $this->get_service_caharges_data("category", array(), "category");
         
-        $query5['capacities'] = $this->get_service_caharges_data("capacity", "", "category");
+        $query5['capacities'] = $this->get_service_caharges_data("capacity", array(), "category");
 
-        $query6['appliances'] = $this->get_service_caharges_data("service_category", "", "service_category");
+        $query6['appliances'] = $this->get_service_caharges_data("service_category", array(), "service_category");
         
         return array_merge($query1, $query2, $query3, $query4, $query5, $query6);
         
@@ -105,7 +105,7 @@ class service_centre_charges_model extends CI_Model {
         }
         $this->db->from('service_centre_charges');
         if(!empty($order_by)){
-            $this->db->order_by($order_by);
+            $this->db->order_by($order_by, "asc");
         }
         
         $this->db->join("services", "services.id = service_centre_charges.service_id");

@@ -451,6 +451,7 @@ class Inventory_model extends CI_Model {
             $this->db->where($where);
         }
         $query = $this->db->get('inventory_master_list');
+        log_message("info",$this->db->last_query());
         return $query->result_array();
     }
     
@@ -794,25 +795,14 @@ class Inventory_model extends CI_Model {
         return $query->result_array();
     }
     
-    
     /**
-     *  @desc : This function is used to update the partner appliance details
-     *  @param : $data array() //consist column which will be updated
-     *  @param : $where array()  
-     *  @return : $res array()
+     * @desc This is used to insert details into inventory_master_list table in batch
+     * @param Array $data
+     * @return string
      */
-    function update_partner_appliance_details($data,$where){
-        
-    }
-    
-    
-    /**
-     *  @desc : This function is used to delete the partner appliance details
-     *  @param : $where array()  //consist combination of column
-     *  @return : $res string
-     */
-    function delete_partner_appliance_details($where){
-        
+    function insert_batch_inventory_master_list_data($data) {
+      $this->db->insert_ignore_duplicate_batch('inventory_master_list', $data);
+      return $this->db->insert_id();
     }
 
 }

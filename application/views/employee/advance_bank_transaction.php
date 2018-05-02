@@ -139,14 +139,14 @@
             <div class="form-group">
                 <label for="name" class="col-md-2">Amount (With TDS) <span class="red">*</span></label>
                 <div class="col-md-6">
-                    <input type="text" class="form-control" id="amount" name="amount" value="" required>
+                    <input type="number" class="form-control" id="amount" name="amount" min="0" value="0" step="0.01" value="" required>
                 </div>
                 <span id="errmsg4"></span>
             </div>
             <div class="form-group">
                 <label for="name" class="col-md-2">TDS <span class="red">*</span></label>
                 <div class="col-md-6">
-                    <input type="text" class="form-control" id="tds_amount" name="tds_amount" value="" required >
+                    <input type="number" class="form-control" id="tds_amount" min="0" value="0" step="0.01" name="tds_amount" value="" required >
                 </div>
                 <span id="errmsg4"></span>
             </div>

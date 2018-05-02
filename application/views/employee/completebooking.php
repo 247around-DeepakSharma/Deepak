@@ -2,7 +2,7 @@
 <div id="page-wrapper" >
     <div class="container" >
 	<div class="panel panel-info" style="margin-top:20px;">
-	    <div class="panel-heading">Complete Booking</div>
+            <div class="panel-heading">Complete Booking <span class="pull-right"><input id="enable_change_unit" type="checkbox" onchange="update_brand_details()" name="enable_change_unit"> <span>Change Brand Details</span></span></div>
 	    <div class="panel-body">
 
 		<?php
@@ -23,7 +23,8 @@
 				<div class="form-group ">
 				    <label for="booking_id" class="col-md-4">Booking ID</label>
 				    <div class="col-md-6">
-                                       
+                                        <input type="hidden" name ="partner_type" id="partner_type" />
+                                        <input type="hidden" id="change_appliance_details" name="change_appliance_details" value="0" />
 					<input type="text" class="form-control"  id="booking_id" name="booking_id" value = "<?php
 					       if (isset($booking_history[0]['booking_id'])) {
 						   echo $booking_history[0]['booking_id'];
@@ -72,7 +73,7 @@
 					    if (isset($booking_history[0]['service_id'])) {
 						echo $booking_history[0]['service_id'];
 					    }
-					    ?>" selected="selected" disabled="disabled"><?php
+					    ?>" selected="selected" ><?php
 						if (isset($booking_history[0]['services'])) {
 							    echo $booking_history[0]['services'];
 							}
@@ -164,23 +165,23 @@
     				<div class="col-md-3">
     				    <div class="form-group ">
     					<div class="col-md-12 ">
-    					    <select type="text" class="form-control appliance_brand"  disabled="disabled"   name="appliance_brand[]" id="appliance_brand_1" >
-    						<option selected disabled><?php echo $unit_details['brand']; ?></option>
+                                            <select type="text" class="form-control appliance_brand appliance_change" onChange="getCategoryForService(this.id)"   disabled="disabled"   name="appliance_brand[<?php echo $keys;?>]" id="<?php echo "appliance_brand_".($keys + 1);?>" >
+    						<option selected><?php echo $unit_details['brand']; ?></option>
     					    </select>
     					</div>
     				    </div>
     				    <div class="form-group">
     					<div class="col-md-12 ">
-    					    <select type="text" class="form-control appliance_category" disabled="disabled"   id="appliance_category_1" name="appliance_category[]"  >
-    						<option selected disabled><?php echo $unit_details['category']; ?></option>
+    					    <select type="text" class="form-control appliance_category appliance_change" onChange="getCapacityForCategory(this.value, this.id);" disabled="disabled" id="<?php echo "appliance_category_".($keys + 1);?>"  name="appliance_category[<?php echo $keys;?>]"  >
+    						<option selected><?php echo $unit_details['category']; ?></option>
     					    </select>
     					</div>
     				    </div>
 					<?php if (!empty($unit_details['capacity'])) { ?>
 					    <div class="form-group">
 						<div class="col-md-12">
-						    <select type="text" class="form-control appliance_capacity" disabled="disabled"   id="appliance_capacity_1" name="appliance_capacity[]" >
-							<option selected disabled><?php echo $unit_details['capacity']; ?></option>
+						    <select type="text" class="form-control appliance_capacity appliance_change" disabled="disabled"  id="<?php echo "appliance_capacity_".($keys + 1);?>"  name="appliance_capacity[<?php echo $keys;?>]" >
+							<option selected><?php echo $unit_details['capacity']; ?></option>
 						    </select>
 						</div>
 					    </div>
@@ -209,6 +210,7 @@
 
 						foreach ($unit_details['quantity'] as $key => $price) {
 						    ?>
+                                                    <input type="hidden" name="b_unit_id[<?php echo $keys; ?>][]" value="<?php echo $price['unit_id'];?>" />
 						    <tr style="background-color: white; ">
 							<td>
 							    <?php if ($price['pod'] == "1") { ?>
@@ -471,6 +473,9 @@
 <script>
     $("#service_id").select2();
     $("#booking_city").select2();
+    var brandServiceUrl =  '<?php echo base_url();?>/employee/booking/getBrandForService/';
+    var categoryForServiceUrl = '<?php echo base_url();?>/employee/booking/getCategoryForService/';
+    var CapacityForCategoryUrl = '<?php echo base_url();?>/employee/booking/getCapacityForCategory/';
 
 
     $(document).ready(function () {
@@ -690,6 +695,82 @@
 
     })(jQuery, window, document);
 
+    function update_brand_details() {
+    if (document.getElementById('enable_change_unit').checked) {
+        $("#change_appliance_details").val('1');
+        $('.appliance_change').prop("disabled", false);
+        
+        var postData = {};
+        postData['service_id'] = '<?php echo $booking_history[0]['service_id']; ?>';
+        postData['source_code'] = '<?php echo $booking_history[0]['source'];?>';
+       
+        sendAjaxRequest(postData, brandServiceUrl).done(function(data) {
+           
+            var data1 = jQuery.parseJSON(data);
+            $("#partner_type").val(data1.partner_type);
 
+            $(".appliance_brand").html(data1.brand);
+
+
+        });
+        
+    } else {
+        $("#change_appliance_details").val('0');
+        $('.appliance_change').prop("disabled", true);
+    }
+}
+
+function getCategoryForService(div_id) {
+    var postData = {};
+    var div_no = div_id.split('_');
+
+    postData['service_id'] = '<?php echo $booking_history[0]['service_id']; ?>';
+    postData['partner_id'] = '<?php echo $booking_history[0]['partner_id']; ?>';
+    postData['partner_type'] = $("#partner_type").val();
+    postData['brand'] = $("#appliance_brand_" + div_no[2]).val();
+
+    sendAjaxRequest(postData, categoryForServiceUrl).done(function (data) {
+ console.log(data);
+        if (div_id === undefined) {
+            $(".appliance_category").html(data).change();
+            // $(".appliance_capacity").html(data2); 
+
+        } else {
+
+            $("#appliance_category_" + div_no[2]).html(data).change();
+            var data2 = "<option disabled></option>";
+            $("#appliance_capacity_" + div_no[2]).html(data2).change();
+        }
+
+    });
+
+}
+
+function getCapacityForCategory(category, div_id) {
+    var postData = {};
+    var div_no = div_id.split('_');
+
+    postData['service_id'] = '<?php echo $booking_history[0]['service_id']; ?>';
+    postData['partner_id'] = '<?php echo $booking_history[0]['partner_id']; ?>';
+    postData['category'] = category;
+    postData['partner_type'] = $("#partner_type").val();
+    postData['brand'] = $("#appliance_brand_" + div_no[2]).val();
+
+
+    sendAjaxRequest(postData, CapacityForCategoryUrl).done(function (data) {
+
+
+        $("#appliance_capacity_" + div_no[2]).html(data).change();
+
+    });
+}
+
+function sendAjaxRequest(postData, url) {
+    return $.ajax({
+        data: postData,
+        url: url,
+        type: 'post'
+    });
+}
 
 </script>

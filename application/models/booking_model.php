@@ -36,11 +36,11 @@ class Booking_model extends CI_Model {
         $data['around_paid_basic_charges'] = $unit_details[0]['around_paid_basic_charges'];
         // calculate partner paid tax amount
         $data['partner_paid_tax'] =  ($unit_details[0]['partner_paid_basic_charges'] * $data['tax_rate'])/ 100;
-        // Calculate  total partner paid charges with tax
-        $data['partner_paid_basic_charges'] = $unit_details[0]['partner_paid_basic_charges'] + $data['partner_paid_tax'];
-
+       
         $vendor_total_basic_charges =  ($data['customer_paid_basic_charges'] + $unit_details[0]['partner_paid_basic_charges'] + $data['around_paid_basic_charges']) * ($unit_details[0]['vendor_basic_percentage']/100 );
-        $around_total_basic_charges = ($data['customer_paid_basic_charges'] + $unit_details[0]['partner_paid_basic_charges'] + $data['around_paid_basic_charges'] - $vendor_total_basic_charges);
+        
+        $data['partner_paid_basic_charges'] = $unit_details[0]['partner_paid_basic_charges'] + $data['partner_paid_tax'];
+        $around_total_basic_charges = ($data['customer_paid_basic_charges'] + $data['partner_paid_basic_charges'] + $data['around_paid_basic_charges'] - $vendor_total_basic_charges);
 
         $data['around_st_or_vat_basic_charges'] = $this->get_calculated_tax_charge($around_total_basic_charges, $data['tax_rate'] );
         $data['vendor_st_or_vat_basic_charges'] = $this->get_calculated_tax_charge($vendor_total_basic_charges, $data['tax_rate'] );
@@ -147,8 +147,10 @@ class Booking_model extends CI_Model {
         if($data['booking_status'] == "Completed"){
             // get booking unit data on the basis of id
             $this->db->select('booking_id, around_net_payable,booking_status, '
+
                     . ' partner_net_payable as partner_paid_basic_charges, partner_net_payable, '
                     . ' tax_rate, price_tags, around_paid_basic_charges, product_or_services, vendor_basic_percentage');
+
             $this->db->where('id', $data['id']);
             $query = $this->db->get('booking_unit_details');
             $unit_details = $query->result_array();
@@ -808,6 +810,7 @@ class Booking_model extends CI_Model {
         $this->db->where('active','1');
         $this->db->where('check_box','1');
         $this->db->where('partner_id',$partner_id);
+        $this->db->order_by('category', 'asc');
         $query = $this->db->get('service_centre_charges');
         
     	return $query->result_array();
@@ -826,6 +829,7 @@ class Booking_model extends CI_Model {
         $this->db->where('active', '1');
         $this->db->where('check_box', '1');
         $this->db->where('partner_id', $partner_id);
+        $this->db->order_by('capacity', 'asc');
         $query = $this->db->get('service_centre_charges');
       
     	return $query->result_array();
@@ -833,7 +837,7 @@ class Booking_model extends CI_Model {
 
     function getCapacityForAppliance($service_id) {
 	//echo $category;
-	$sql = "Select distinct capacity from service_centre_charges where service_id='$service_id' and active='1'";
+	$sql = "Select distinct capacity from service_centre_charges where service_id='$service_id' and active='1' order by capacity asc";
 
 	$query = $this->db->query($sql);
 
@@ -858,6 +862,8 @@ class Booking_model extends CI_Model {
     	if (!empty($capacity)) {
     		$this->db->where('capacity', $capacity);
     	}
+        
+        $this->db->order_by('service_category', 'asc');
 
     	$query = $this->db->get('service_centre_charges');
 
@@ -1600,21 +1606,19 @@ class Booking_model extends CI_Model {
         $result['customer_net_payable'] = $result['customer_total'] - $result['partner_paid_basic_charges'] - $result['around_paid_basic_charges'];
         $result['partner_paid_tax'] = ($result['partner_paid_basic_charges'] * $result['tax_rate'])/ 100;
         
-        $vendor_total_basic_charges =  ($result['customer_net_payable'] + $result['partner_net_payable'] + $result['around_paid_basic_charges'] ) * ($result['vendor_basic_percentage']/100);
-        $around_total_basic_charges = ($result['customer_net_payable'] + $result['partner_net_payable'] + $result['around_paid_basic_charges'] - $vendor_total_basic_charges);
+
+        $vendor_total_basic_charges =  ($result['customer_net_payable'] + $result['partner_paid_basic_charges'] + $result['around_paid_basic_charges'] ) * ($result['vendor_basic_percentage']/100);
+        $result['partner_paid_basic_charges'] = $result['partner_paid_basic_charges'] + $result['partner_paid_tax'];
+        $around_total_basic_charges = ($result['customer_net_payable'] + $result['partner_paid_basic_charges'] + $result['around_paid_basic_charges'] - $vendor_total_basic_charges);
          
         $result['around_st_or_vat_basic_charges'] = $this->get_calculated_tax_charge($around_total_basic_charges, $result['tax_rate'] );
         $result['vendor_st_or_vat_basic_charges'] = $this->get_calculated_tax_charge($vendor_total_basic_charges, $result['tax_rate'] );
         
         $result['around_comm_basic_charges'] = $around_total_basic_charges - $result['around_st_or_vat_basic_charges'];
         $result['vendor_basic_charges'] = $vendor_total_basic_charges - $result['vendor_st_or_vat_basic_charges'];
+       
         log_message('info', __METHOD__ . " update booking_unit_details data " . print_r($result, true) . " Price data with tax: " . print_r($data, true));
-        // Update request type If price tags is installation OR repair
-        if ($update_key == 0) {
-            $this->update_booking($result['booking_id'], array('request_type'=>$result['price_tags']));
-             
-        }
-
+        
         if ($query->num_rows > 0) {
             //if found, update this entry
             
@@ -1723,8 +1727,9 @@ class Booking_model extends CI_Model {
     function _insert_data_in_booking_unit_details($result, $update_key, $default_tax_rate_flag){
         $result['customer_net_payable'] = $result['customer_total'] - $result['partner_paid_basic_charges'] - $result['around_paid_basic_charges'];
         $result['partner_paid_tax'] = ($result['partner_paid_basic_charges'] * $result['tax_rate'])/ 100;
-        
+
         $vendor_total_basic_charges =  ($result['customer_net_payable'] + $result['partner_paid_basic_charges'] + $result['around_paid_basic_charges'] ) * ($result['vendor_basic_percentage']/100);
+        $result['partner_paid_basic_charges'] = $result['partner_paid_basic_charges'] + $result['partner_paid_tax'];
         $around_total_basic_charges = ($result['customer_net_payable'] + $result['partner_paid_basic_charges'] + $result['around_paid_basic_charges'] - $vendor_total_basic_charges);
          
         $result['around_st_or_vat_basic_charges'] = $this->get_calculated_tax_charge($around_total_basic_charges, $result['tax_rate'] );
@@ -2135,7 +2140,7 @@ class Booking_model extends CI_Model {
      *  @return : $output Array()
      */
   function _get_bookings_by_status($post, $select = "") {
-        
+        $this->db->_reserved_identifiers = array('*',"'%d-%m-%Y')");
         if (empty($select)) {
             $select = '*';
         }

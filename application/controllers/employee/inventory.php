@@ -1208,21 +1208,27 @@ class Inventory extends CI_Controller {
                 $agent_id = $this->session->userdata('id');
                 $agent_name = $this->session->userdata('employee_id');
                 $entity_id = _247AROUND;
+                
+                $this->notify->insert_state_change($booking_id, $new_state,$old_state, $remarks, 
+                      $agent_id, $agent_name, ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE, $entity_id);
             }else if($this->session->userdata('partner_id')) {
                 $agent_id = $this->session->userdata('agent_id');
                 $agent_name = $this->session->userdata('partner_name');
                 $entity_id = $this->session->userdata('partner_id');
+                
+                $this->notify->insert_state_change($booking_id, $new_state,$old_state, $remarks, 
+                      $agent_id, $agent_name, ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE, $entity_id);
             }else if($this->session->userdata('service_center_id')){
                     $agent_id = $this->session->userdata('service_center_agent_id');
                     $agent_name = $this->session->userdata('service_center_name');
                     $entity_id = $this->session->userdata('service_center_id');
+                    
+                    $this->notify->insert_state_change($booking_id, $new_state,$old_state, $remarks, 
+                      $agent_id, $agent_name, ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,NULL, $entity_id);
             
             }
             
             $partner_id = $this->input->post('partner_id');
-            $this->notify->insert_state_change($booking_id, $new_state,$old_state, $remarks, 
-                      $agent_id, $agent_name, ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE, $entity_id);
-            
             $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $b['internal_status'], $partner_id, $booking_id);
             if (!empty($partner_status)) {
                 $b['partner_current_status'] = $partner_status[0];
@@ -1403,7 +1409,7 @@ class Inventory extends CI_Controller {
                     }
                     $sf_service =  $data['service_charge'] * basic_percentage * (1 + SERVICE_TAX_RATE);
                     $venor_percentage = (($sf_service + $sf_parts)/$customer_total) * 100;
-                    $u['customer_total'] = $u['partner_net_payable'] = $unit[0]['customer_total'] = $unit[0]['partner_net_payable'] =  
+                     $u['customer_total'] = $u['partner_net_payable'] = $unit[0]['customer_total'] = $unit[0]['partner_net_payable'] =  
                             $unit[0]['partner_paid_basic_charges'] =
                         $u['partner_paid_basic_charges'] =    $customer_total;
                     $unit[0]["vendor_basic_percentage"] = $venor_percentage;
@@ -2232,59 +2238,15 @@ class Inventory extends CI_Controller {
         echo json_encode($sf_list);
     }
     
-    /** @desc: This function is used to upload the partner appliance model file. By using this function 
-     *          we can map models to their corresponding appliance in partner_appliance_details table
-     * @param: void
-     * @return void
-     */
-    function upload_appliance_model_file(){
-        
-    }
-    
     /** @desc: This function is used to upload the spare parts file. By this method we can add spare details in our inventory_mast_list table.
      * @param: void
      * @return void
      */
-    function upload_spare_parts_file(){
+    function upload_inventory_details_file(){
         
-    }
-    
-    /**
-     *  @desc : This function is used to show partner warehouse details to 247around employee and 247around 
-     *          warehouse in-charge person.
-     *  @param : void
-     *  @return : void
-     */
-    function show_warehouse_list(){
-        
-    }
-    
-    
-    /** @desc: This function is used to add/edit the warehouse details
-     * @param: void
-     * @return void
-     */
-    function process_warehouse_data(){
-        
-    }
-    
-    
-    /**
-     *  @desc : This function is used to add warehouse details
-     *  @param : $data array()   //consist warehouse data
-     *  @return : $res array()  // consist response message and response status
-     */
-    function add_warehouse_details($data) {
-        
-    }
-    
-    /**
-     *  @desc : This function is used to edit warehouse details
-     *  @param : $data array() //consist warehouse data
-     *  @return : $res array() // consist response message and response status
-     */
-    function edit_warehouse_details($data) {
-        
+        $data['services'] = $this->vendor_model->selectservice();
+        $this->miscelleneous->load_nav_header();
+	$this->load->view('employee/upload_spare_part_details',$data);
     }
     
     function get_inventory_stocks_details(){
@@ -2292,8 +2254,10 @@ class Inventory extends CI_Controller {
         $post[''] = array();
         $post['column_order'] = array();
         $post['column_search'] = array('part_name','part_number','serial_number','model_number','type');
-        $post['where'] = array('inventory_stocks.entity_id'=>trim($this->input->post('entity_id')),'inventory_stocks.entity_type' => trim($this->input->post('entity_type')));
-        
+        $post['where'] = array('inventory_stocks.entity_id'=>trim($this->input->post('entity_id')),'inventory_stocks.entity_type' => trim($this->input->post('entity_type')),'inventory_stocks.stock <> 0' => NULL);
+        if($this->input->post('is_show_all')){
+            unset($post['where']['inventory_stocks.stock <> 0']);
+        }
         $select = "inventory_master_list.*,inventory_stocks.stock,services.services,inventory_stocks.entity_id as receiver_entity_id,inventory_stocks.entity_type as receiver_entity_type";
         
         //RM Specific stocks
@@ -2328,9 +2292,11 @@ class Inventory extends CI_Controller {
         $post = $this->get_post_data();
         $post[''] = array();
         $post['column_order'] = array();
-        $post['column_search'] = array('part_name','part_number','serial_number','model_number','type');
-        $post['where'] = array('inventory_master_list.entity_id'=>trim($this->input->post('entity_id')),'inventory_master_list.entity_type' => trim($this->input->post('entity_type')));
-        
+        $post['column_search'] = array('part_name','part_number','serial_number','model_number','type','services.id','services.services');
+        $post['where'] = array('inventory_master_list.entity_id'=>trim($this->input->post('entity_id')),'inventory_master_list.entity_type' => trim($this->input->post('entity_type')),'inventory_stocks.stock <> 0' => NULL);
+        if($this->input->post('is_show_all')){
+            unset($post['where']['inventory_stocks.stock <> 0']);
+        }
         $select = "inventory_master_list.*,inventory_stocks.stock,services.services,inventory_stocks.entity_id as receiver_entity_id,inventory_stocks.entity_type as receiver_entity_type";
         
         //RM Specific stocks
@@ -2343,7 +2309,6 @@ class Inventory extends CI_Controller {
         }
         
         $list = $this->inventory_model->get_inventory_stock_list($post,$select,$sfIDArray);
-        //log_message("info", print_r($list,true));
         $data = array();
         $no = $post['start'];
         foreach ($list as $inventory_list) {
@@ -2365,33 +2330,23 @@ class Inventory extends CI_Controller {
     
     private function get_inventory_stocks_details_table($inventory_list,$sn){
         $row = array();
-        //$json_data = json_encode($stock_list);
-        
-        //get agent name
-//        if ($inventory_list->entity_type === _247AROUND_EMPLOYEE_STRING) {
-//            $employe_details = $this->employee_model->getemployeefromid($inventory_list->entity_id);
-//            $agent_name = $employe_details[0]['full_name'];
-//        } else if ($inventory_list->entity_type === _247AROUND_PARTNER_STRING) {
-//            $partner_details = $this->partner_model->getpartner_details('public_name', array('partners.id' => $inventory_list->entity_id));
-//            $agent_name = $partner_details[0]['public_name'];
-//        } else if ($inventory_list->entity_type === _247AROUND_SF_STRING) {
-//            $vendor_details = $this->partner_model->getVendorDetails('name', array('id' => $inventory_list->entity_id));
-//            $agent_name = $vendor_details[0]['public_name'];
-//        }else{
-//            $agent_name = "";
-//        }
         
         $row[] = $sn;
         $row[] = $inventory_list->services;
+        $row[] = $inventory_list->type;
         $row[] = $inventory_list->part_name;
         $row[] = $inventory_list->part_number;
-        $row[] = '<a href="'. base_url().'employee/inventory/show_inventory_ledger_list/0/'.$inventory_list->receiver_entity_type.'/'.$inventory_list->receiver_entity_id.'/'.$inventory_list->inventory_id.'" target="_blank" title="Get Ledger Details">'.$inventory_list->stock.'<a>';
         $row[] = $inventory_list->serial_number;
         $row[] = $inventory_list->model_number;
-        $row[] = $inventory_list->description;
+        if($inventory_list->stock){
+           $row[] = '<a href="'. base_url().'employee/inventory/show_inventory_ledger_list/0/'.$inventory_list->receiver_entity_type.'/'.$inventory_list->receiver_entity_id.'/'.$inventory_list->inventory_id.'" target="_blank" title="Get Ledger Details">'.$inventory_list->stock.'<a>'; 
+        }else{
+            $row[] = '<a href="javascript:void(0);" title="Out Of Stock">0<a>';
+        }
+        
         $row[] = $inventory_list->size;
         $row[] = $inventory_list->price;
-        $row[] = $inventory_list->type;
+        
         
         return $row;
     }
@@ -2419,6 +2374,59 @@ class Inventory extends CI_Controller {
         }
 
         echo $option;
+    }
+    
+    /**
+     *  @desc : This function is used to get inventory part name
+     *  @param : void
+     *  @return : $res array() // consist response message and response status
+     */
+    function get_inventory_price(){
+        
+        $model_number = $this->input->post('model_number');
+        $part_name_arr = $this->input->post('part_name');
+        $entity_id = $this->input->post('entity_id');
+        $entity_type = $this->input->post('entity_type');
+        $service_id = $this->input->post('service_id');
+        
+        $part_name = implode(',', array_map(function($val) {
+                                return("'$val'");
+                            }, $part_name_arr));
+        
+        if($model_number && $part_name && $entity_id && $entity_type && $service_id){
+            $where= array('entity_id' => $entity_id, 'entity_type' => $entity_type, 'service_id' => $service_id, 'model_number' => $model_number,"part_name IN ($part_name)" => NULL);
+            $inventory_details = $this->inventory_model->get_inventory_master_list_data('SUM(inventory_master_list.price) as price', $where);
+
+            if(!empty($inventory_details)){
+                $data['price'] = $inventory_details[0]['price'];
+            }else{
+                $data['price'] = '';
+            }
+        }else{
+            $data['price'] = '';
+        }
+        
+        echo json_encode($data);
+    }
+    
+    
+    /**
+     *  @desc : This function is used to show inventory count on SF CRM
+     *  @param : void
+     *  @return : $response array()
+     */
+    function get_sf_notification_data(){
+        
+        $post['where'] = "spare_parts_details.partner_id = '" . $this->session->userdata('service_center_id') . "' AND  entity_type =  '"._247AROUND_SF_STRING."' AND status = '" . SPARE_PARTS_REQUESTED . "' "
+                . " AND booking_details.current_status IN ('Pending', 'Rescheduled') ";
+        $inventory_data = $this->inventory_model->count_spare_parts($post);
+        
+        $brackets_data = $this->inventory_model->get_filtered_brackets('count(id) as total_brackets',array('order_given_to' =>$this->session->userdata('service_center_id'),'is_shipped' => 0 ));
+        
+        $response['inventory'] = $inventory_data;
+        $response['brackets'] = $brackets_data[0]['total_brackets'];
+        
+        echo json_encode($response);
     }
 
 }
