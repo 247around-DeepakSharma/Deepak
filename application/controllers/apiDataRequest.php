@@ -239,6 +239,8 @@ class ApiDataRequest extends CI_Controller {
                 $unit[0]['create_date'] = date("Y-m-d H:i:s");
                 $unit[0]['ud_update_date'] = date("Y-m-d H:i:s");
                 $unit[0]['partner_net_payable'] = 0;
+                $unit[0]['partner_paid_basic_charges'] = 0;
+                $unit[0]['around_paid_basic_charges'] = 0;
                 $unit[0]['around_net_payable'] = 0;
                 unset($unit[0]['id']);
                 //INSERT UNIT
