@@ -190,10 +190,12 @@ function final_price() {
 
 $(document).on('keyup', '.discount', function (e) {
     final_price();
+    set_upcountry();
 });
 
 $(document).on('keyup', '.partner_discount', function (e) {
     final_price();
+    set_upcountry();
 });
 
 
