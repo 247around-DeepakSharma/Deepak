@@ -357,8 +357,7 @@ class submitMultiUnitRequest extends CI_Controller {
                     log_message('info', __FUNCTION__ . " => Prices Found");
                     $unit_details['price_tags'] = $value['requestType'];
                     $unit_details['id'] = $prices[0]['id'];
-                    $unit_details['around_paid_basic_charges'] = $unit_details['around_net_payable'] = "0.00";
-                    $unit_details['partner_paid_basic_charges'] = $prices[0]['partner_net_payable'];
+                    $unit_details['around_net_payable'] = $prices[0]['around_net_payable'];
                     $unit_details['partner_net_payable'] = $prices[0]['partner_net_payable'];
                     $amount_due += $prices[0]['customer_net_payable'];
                     if ($prices[0]['is_upcountry'] == 1) {

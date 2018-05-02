@@ -317,8 +317,7 @@ class Upload_booking_file extends CI_Controller {
         if (!empty($prices)) {
             $unit_details['id'] = $prices[0]['id'];
             $unit_details['price_tags'] =  $this->FilesData['price_tags'];
-            $unit_details['around_paid_basic_charges'] = $unit_details['around_net_payable'] = "0.00";
-            $unit_details['partner_paid_basic_charges'] = $prices[0]['partner_net_payable'];
+            $unit_details['around_net_payable'] = $prices[0]['around_net_payable'];;
             $unit_details['partner_net_payable'] = $prices[0]['partner_net_payable'];
             $amount_due = $prices[0]['customer_net_payable'];
             $is_price['customer_net_payable'] = $prices[0]['customer_net_payable'];
