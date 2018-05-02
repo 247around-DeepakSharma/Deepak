@@ -1372,7 +1372,7 @@ class Service_centers extends CI_Controller {
                             . $service_center_id .
                             "Booking ID: " . $booking_id);
                     if( $this->session->userdata('service_center_id')){
-                        $userSession = array('success' => 'Please Booking is not updated');
+                        $userSession = array('error' => 'Booking is not updated');
                         $this->session->set_userdata($userSession);
                     }
                 }
