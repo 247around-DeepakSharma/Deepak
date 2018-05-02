@@ -2453,4 +2453,9 @@ class Booking_model extends CI_Model {
         $this->db->where('partner_call_status_on_completed is NULL', NULL, FALSE);
         $this->db->update('booking_details',$data);
     }
+    function update_customer_not_reachable_count($bookingID){
+        $query = "UPDATE booking_details SET rating_unreachable_count = rating_unreachable_count+1 WHERE booking_id='".$bookingID."'";
+        $this->db->query($query);
+        return $this->db->affected_rows();
+    }
 }
