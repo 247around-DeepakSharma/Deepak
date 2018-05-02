@@ -1409,11 +1409,12 @@ class Inventory extends CI_Controller {
                     }
                     $sf_service =  $data['service_charge'] * basic_percentage * (1 + SERVICE_TAX_RATE);
                     $venor_percentage = (($sf_service + $sf_parts)/$customer_total) * 100;
-                    $u['customer_total'] = $u['partner_net_payable'] = $unit[0]['customer_total'] = $unit[0]['partner_net_payable'] =  
-                            $u['partner_paid_basic_charges'] =    $customer_total;
+                     $u['customer_total'] = $u['partner_net_payable'] = $unit[0]['customer_total'] = $unit[0]['partner_net_payable'] =  
+                            $unit[0]['partner_paid_basic_charges'] =
+                        $u['partner_paid_basic_charges'] =    $customer_total;
                     $unit[0]["vendor_basic_percentage"] = $venor_percentage;
                     $u['vendor_basic_percentage'] = $venor_percentage;
-                    $unit[0]['around_net_payable'] = 0;
+                    $unit[0]['around_paid_basic_charges'] = 0;
                     $u['customer_paid_basic_charges'] = $u['around_paid_basic_charges'] = $u["customer_paid_parts"] = $u["customer_paid_extra_charges"] = 0;
                     $u['customer_net_payable'] = 0;
                     $u['id'] = $unit[0]['id'];

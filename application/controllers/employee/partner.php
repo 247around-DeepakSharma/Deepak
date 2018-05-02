@@ -1539,8 +1539,8 @@ class Partner extends CI_Controller {
                 $explode = explode("_", $sc);
 
                 $unit_details['id'] = $explode[0];
-                $unit_details['around_net_payable'] = "0.00";
-       
+                $unit_details['around_paid_basic_charges'] = $unit_details['around_net_payable'] = "0.00";
+                $unit_details['partner_paid_basic_charges'] = $explode[2];
                 $unit_details['partner_net_payable'] = $explode[2];
                 $unit_details['ud_update_date'] = date('Y-m-d H:i:s');
                 $unit_details['booking_status'] = "Pending";

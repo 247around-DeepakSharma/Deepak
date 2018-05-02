@@ -1187,7 +1187,7 @@ class service_centre_charges extends CI_Controller {
         $data['vendor_total'] = $vendor_total;
         $data['vendor_tax_basic_charges'] = $vendor_tax;
         if ($data['customer_total'] != 0) {
-            $data['vendor_basic_percentage'] = ($form_data['free_vendor_total'] / $data['customer_total']) * 100;
+             $data['vendor_basic_percentage'] = ($vendor_total / $data['customer_total']) * 100;
         } else {
             $data['vendor_basic_percentage'] = 0;
         }
