@@ -1284,15 +1284,15 @@ class Booking extends CI_Controller {
      */
     function process_rating_form($booking_id, $status) {
         $user_id = $this->input->post('user_id');
+        $phone_no = $this->input->post('mobile_no');
         log_message('info', __FUNCTION__ . ' Booking ID : ' . $booking_id . ' Status' . $status . " Done By " . $this->session->userdata('employee_id'));
         if($this->input->post('not_reachable')){
-            $this->customer_not_reachable_for_rating($booking_id,$user_id);
+            $this->customer_not_reachable_for_rating($booking_id,$user_id,$phone_no);
         }
         else{
             if ($this->input->post('rating_star') != "Select") {
                 $data['rating_stars'] = $this->input->post('rating_star');
                 $data['rating_comments'] = $this->input->post('rating_comments');
-                $phone_no = $this->input->post('mobile_no');
                 $remarks = 'Rating'.':'.$data['rating_stars'].'. '.$data['rating_comments'];
 
                 $update = $this->booking_model->update_booking($booking_id, $data);
@@ -4028,19 +4028,19 @@ class Booking extends CI_Controller {
             redirect(base_url() . 'employee/booking/create_booking_payment_link');
         }
     }
-    function customer_not_reachable_for_rating($bookingID,$userID){
+    function customer_not_reachable_for_rating($bookingID,$userID,$phone_number){
         //Update unreachable Count in booking state table
         $response = $this->booking_model->update_customer_not_reachable_count($bookingID);
         //Update History Table
         $this->notify->insert_state_change($bookingID, "Customer_unreachable_for_rating", "Completed", "Try to call for rating but customer is not reachbale", 
         $this->session->userdata('id'), $this->session->userdata('employee_id'),NULL,NULL,_247AROUND);
         //Send Rating SMS to Customer
-        $userData = $this->reusable_model->get_search_result_data("users","name,phone_number",array("user_id"=>$userID),NULL,NULL,NULL,NULL,NULL,array());
+        $userData = $this->reusable_model->get_search_result_data("users","name",array("user_id"=>$userID),NULL,NULL,NULL,NULL,NULL,array());
         $sms['tag'] = "customer_not_reachable_for_rating";
         $sms['smsData']['name'] = $userData[0]['name'];
         $sms['smsData']['poor_rating_number'] = POOR_MISSED_CALL_RATING_NUMBER;
         $sms['smsData']['good_rating_number'] = GOOD_MISSED_CALL_RATING_NUMBER;
-        $sms['phone_no'] = $userData[0]['phone_number'];
+        $sms['phone_no'] = $phone_number;
         $sms['type'] = "rating";
         $sms['type_id'] = $userID;
         $sms['booking_id'] = $bookingID;
