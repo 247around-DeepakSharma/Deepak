@@ -142,7 +142,7 @@
                         <?php } ?>
                         <tr>
                             <th>Booking Address </th>
-                            <td style="max-width:200px;"><?php echo $booking_history[0]['booking_address'];?></td>
+                            <td style="max-width:200px;"><span class="text"><?php echo $booking_history[0]['booking_address'];?></span> <span class="edit"><i class="fa fa-pencil fa-lg"></i></span></td>
                             <th>Booking City/District: </th>
                             <td><?php echo ($booking_history[0]['city']."/".$booking_history[0]['district']); ?></td>
                         </tr>
@@ -456,7 +456,7 @@
                                             }
                                             ?>
                                         </td>
-                                        <td><?php echo $sp['serial_number']; ?></td>
+                                        <td><span class="serial_no_text" id="<?php echo $sp['id']."|serial_number";?>"><?php echo $sp['serial_number']; ?></span> <span class="serial_no_edit"><i class="fa fa-pencil fa-lg"></i></td>
                                         <td><?php echo $sp['acknowledge_date']; ?></td>
                                         <td><?php echo $sp['remarks_by_sc']; ?></td>
                                         <td><?php echo $sp['status']; ?></td>
@@ -1078,7 +1078,100 @@
          });
     <?php } ?>
 </script>
+<script>
+    $("table td").hover(function() {
+    $(this).children(".edit").show();
+    $(this).children(".serial_no_edit").show();
+}, function() {
+   // $(this).children(".edit").hide();
+});
+
+$(".edit").click(function() {
+    if ($(this).siblings(".text").is(":hidden")) {
+        var prethis = $(this);
+        var address = $(this).siblings("input").val();
+        $(this).siblings(".text").text($(this).siblings("input").val());
+        
+        $.ajax({
+            url: "<?php echo base_url() ?>employee/booking/update_booking_address",
+            type: "POST",
+            beforeSend: function(){
+                
+                 prethis.html('<i class="fa fa-circle-o-notch fa-lg" aria-hidden="true"></i>');
+             },
+            data: { address: address, booking_id: '<?php echo $booking_history[0]['booking_id'];?>'},
+            success: function (data) {
+                if(data === "Success"){
+                    
+                    prethis.siblings("input").remove();
+                    prethis.siblings(".text").show();
+                    prethis.html('<i class="fa fa-pencil fa-lg" aria-hidden="true"></i>');
+                } else {
+                    alert("There is a problem to update");
+                    alert(data);
+                }
+                
+            }
+        });
+    }
+    else {
+        var text = $(this).siblings(".text").text();
+        $(this).before("<input type=\"text\" class=\"form-control\" value=\"" + text + "\">");
+        $(this).html('<i class="fa fa-check fa-lg" aria-hidden="true"></i>');
+        $(this).siblings(".text").hide();
+    }
+});
+$(".serial_no_edit").click(function() {
+    if ($(this).siblings(".serial_no_text").is(":hidden")) {
+        var prethis = $(this);
+        var text_id = $(this).siblings(".serial_no_text").attr('id');
+        var split = text_id.split('|');
+        var line_item_id = split[0];
+        var column = split[1];
+        var data_value = $(this).siblings("input").val();
+        $(this).siblings(".serial_no_text").text($(this).siblings("input").val());
+        
+        $.ajax({
+            url: "<?php echo base_url() ?>employee/inventory/update_serial_no",
+            type: "POST",
+            beforeSend: function(){
+                
+                 prethis.html('<i class="fa fa-circle-o-notch fa-lg" aria-hidden="true"></i>');
+             },
+            data: { data: data_value, id: line_item_id, column:column},
+            success: function (data) {
+                if(data === "Success"){
+                    
+                    prethis.siblings("input").remove();
+                    prethis.siblings(".serial_no_text").show();
+                    prethis.html('<i class="fa fa-pencil fa-lg" aria-hidden="true"></i>');
+                } else {
+                    alert("There is a problem to update");
+                    alert(data);
+                }
+                
+            }
+        });
+    }
+    else {
+        var text = $(this).siblings(".serial_no_text").text();
+        $(this).before("<input type=\"text\" class=\"form-control\" value=\"" + text + "\">");
+        $(this).html('<i class="fa fa-check fa-lg" aria-hidden="true"></i>');
+        $(this).siblings(".serial_no_text").hide();
+    }
+});
+
+</script>
 <style>
+    .edit
+{
+    display: none;
+    margin-left: 10px;
+}
+.serial_no_edit{
+    display: none;
+    margin-left: 10px;
+}
     .action_buton{
         margin: 10px;
 background-color: #f5f5f5;
