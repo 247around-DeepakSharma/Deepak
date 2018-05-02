@@ -67,6 +67,7 @@ class Booking_model extends CI_Model {
         if($data['customer_paid_basic_charges'] == 0){
            
             $is_gst = $this->vendor_model->is_tax_for_booking($unit_details[0]['booking_id']);
+           
             if(empty($is_gst[0]['gst_no']) ){
                 $vendor_total_basic_charges =  $data['vendor_basic_charges'];
                 $data['vendor_st_or_vat_basic_charges'] = 0;
@@ -94,7 +95,7 @@ class Booking_model extends CI_Model {
              $data['around_st_or_vat_basic_charges'] = 0;
              $data['around_comm_basic_charges'] = 0;
         }
-       
+
         $this->db->where('id', $data['id']);
         $this->db->update('booking_unit_details',$data);
     }
