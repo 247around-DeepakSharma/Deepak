@@ -321,7 +321,7 @@ class invoices_model extends CI_Model {
         $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
         $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
 
-        $sql1 = "SELECT booking_unit_details.id AS unit_id, booking_unit_details.sub_order_id, `booking_details`.booking_id, "
+        $sql1 = "SELECT CONCAT('''', booking_unit_details.id) AS unit_id, CONCAT('''', booking_unit_details.sub_order_id) as sub_order_id, CONCAT('''', `booking_details`.booking_id) as booking_id, "
                 . "  invoice_email_to,invoice_email_cc, booking_details.rating_stars,  "
                 . " `booking_details`.partner_id, `booking_details`.source,"
                 . "  DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y'), '%D %b %Y') as booking_date, "
@@ -331,7 +331,7 @@ class invoices_model extends CI_Model {
                 . " `services`.services, users.name,order_id, "
                 . " partner_net_payable, round((partner_net_payable * ".DEFAULT_TAX_RATE .")/100,2) as gst_amount, 
               
-                    CASE WHEN(serial_number IS NULL OR serial_number = '') THEN '' ELSE (CONCAT('''', serial_number))  END AS serial_number
+                    CASE WHEN(serial_number IS NULL OR serial_number = '') THEN '' ELSE (CONCAT('''', booking_unit_details.serial_number))  END AS serial_number
 
               From booking_details, booking_unit_details, services, partners, users
                   WHERE `booking_details`.booking_id = `booking_unit_details`.booking_id 
