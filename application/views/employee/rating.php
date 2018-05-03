@@ -3,8 +3,8 @@
     <!--<div class="row">-->
       <!--<div style="width:600px;margin:50px;">-->
          
-        <h1 class="page-header">Rating Given by Customer</h1>
-        <div class="col-md-12">
+      <h1 class="page-header" style="padding-left: 42px;">Rating Given by Customer</h1>
+        <div class="col-md-12"> 
                 <div class="col-md-6">
                   <div class="form-group-cancel">
                       <label for="name" class="col-md-4">Name</label>
@@ -73,12 +73,13 @@
             <input type="hidden" name="user_id" value="<?php echo $data[0]['user_id'];?>">
             <input type="hidden" name="mobile_no" value="<?php echo $data[0]['booking_primary_contact_no']; ?>">
         </div>
-        <div class="col-md-12">
+            <div class="col-md-12">
+        <div class="col-md-6">
             
                 <div class="form-group <?php if( form_error('rating_star') ) { echo 'has-error';} ?>">
-                                <label for="rating_star" class="col-md-2">Star Rating</label>
+                    <label for="rating_star" class="col-md-2" style="margin-left: 13px;">Rating</label>
                                 <div class="col-md-6">
-                                    <Select type="text" class="form-control"  name="rating_star" value="<?php echo set_value('rating_star'); ?>" style="width:47%;">
+                                    <Select type="text" class="form-control"  name="rating_star" id="rating_star" value="<?php echo set_value('rating_star'); ?>" style="margin-left: 117px;width: 96%;">
                                     <option>Select</option>
                                     <option>-1</option>
                                     <option>1</option>
@@ -90,20 +91,30 @@
                                 </div>
             </div>
         </div>
+            <div class="col-md-6">
+                            <div class="form-group" style="margin-left:14px;">
+                    <div class="checkbox"> <label><input type="checkbox" id="not_reachable" name="not_reachable"><b>Customer Not Reachable</b></label></div>
+            </div>
+                </div>
+            </div>
         <div class="col-md-12">
-            
+            <div class="col-md-6">
                 <div class="form-group <?php if( form_error('rating_comments') ) { echo 'has-error';} ?>">
-                    <label for="rating_comments" class="col-md-2">Rating Comments</label>
+                    <label for="rating_comments" class="col-md-2" style="margin-left: 9px; width: 23%;">Customer Feedback</label>
                     <div class="col-md-6">
-                        <textarea style="height:80px;width:400px;" class="form-control"  name="rating_comments"></textarea>
+                        <textarea style="height:80px;width:333px;margin-left: 73px;" class="form-control"  name="rating_comments"></textarea>
                         <?php echo form_error('rating_comments'); ?>
                     </div>
+            </div>
+                </div>
+            <div class="col-md-6" style=" padding-left: 29px;">
+                <div style="margin: 26px 0px 0px 0px;"><input type="submit" value="Save Rating" class="btn btn-primary" onclick="return validation(this)"></div>
             </div>
         </div>
     <br>
      
-      <div style="float:left;width:600px;">
-        <div><input type="Submit" value="Save Rating" class="btn btn-primary"></div>
+      <div>
+        
         </form>
       </div>
       
@@ -130,6 +141,22 @@
             return false;
         }
 
+    }
+    function validation(){
+        var ratingStar = $("#rating_star").val();
+        if(ratingStar == 'Select'){
+            var not_reachable = $("#not_reachable").prop('checked');
+            if(not_reachable == true){
+                return true;
+            }
+            else{
+                alert("Please Enter the rating or select customer not reachable");
+                return false;
+            }
+        }
+        else{
+            return true;
+        }
     }
     
 </script>
