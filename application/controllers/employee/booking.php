@@ -1519,6 +1519,7 @@ class Booking extends CI_Controller {
             $booking['category'] = array();
             $booking['brand'] = array();
             $booking['prices'] = array();
+            $booking['model'] = array();
             $booking['appliance_id'] = $appliance_id;
             $where_internal_status = array("page" => "FollowUp", "active" => '1');
             $booking['follow_up_internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
@@ -1535,11 +1536,16 @@ class Booking extends CI_Controller {
                     $capacity = $this->booking_model->getCapacityForCategory($booking_history[0]['service_id'], $value['category'], $value['brand'], $value['partner_id']);
 
                     $prices = $this->booking_model->getPricesForCategoryCapacity($booking_history[0]['service_id'], $value['category'], $value['capacity'], $value['partner_id'], $value['brand']);
+                    $where['brand'] = $value['brand'];
+                    $model = $this->partner_model->get_partner_specific_details($where, 'model');
                 } else {
+                    $where = array("partner_appliance_details.service_id" => $booking_history[0]['service_id'],
+                        'partner_id' => $booking_history[0]['partner_id'], "active" => 1);
                     $brand = $this->booking_model->getBrandForService($booking_history[0]['service_id']);
                     $category = $this->booking_model->getCategoryForService($booking_history[0]['service_id'], $value['partner_id'], "");
                     $capacity = $this->booking_model->getCapacityForCategory($booking_history[0]['service_id'], $value['category'], "", $value['partner_id']);
                     $prices = $this->booking_model->getPricesForCategoryCapacity($booking_history[0]['service_id'], $value['category'], $value['capacity'], $value['partner_id'], "");
+                    $model = $this->partner_model->get_partner_specific_details($where, 'model');
                 }
 
 
@@ -1557,6 +1563,7 @@ class Booking extends CI_Controller {
                 array_push($booking['brand'], $brand);
                 array_push($booking['capacity'], $capacity);
                 array_push($booking['prices'], $prices);
+                array_push($booking['model'], $model);
             }
             $this->miscelleneous->load_nav_header();
             $this->load->view('employee/update_booking', $booking);
@@ -4112,5 +4119,38 @@ class Booking extends CI_Controller {
         
         //$this->load->view('employee/paytmApiIntergration');
     }
+    
+    function getModelForService(){
+        $service_id = $this->input->post('service_id');
+        $category = $this->input->post('category');
+        $brand = $this->input->post('brand');
+        $partner_id = $this->input->post('partner_id');
+        $capacity = $this->input->post('capacity');
+        $partner_type = $this->input->post('partner_type');
+        
+        $where = array ('service_id' => $service_id,
+                        'partner_id' => $partner_id,
+                        'category' => $category,
+                        'capacity' => $capacity
+            );
+        
+        if ($partner_type == OEM) {
+            $where['brand'] = $brand;
+            $result = $this->partner_model->get_partner_specific_details($where, 'model');
+        } else {
+            $result = $this->partner_model->get_partner_specific_details($where, 'model');
+        }
+        
+        if(!empty($result)){
+            $option = "<option selected disabled>Select Model</option>";
+            foreach ($result as $value) {
+                $option .= "<option>".$value['model']."</option>";
+            }
 
+            echo $option;
+        }else{
+            echo "no data found";
+        }
+        
+    }
 }

@@ -237,7 +237,7 @@
                                         <div class="form-group <?php if (form_error('appliance_capacity')) { echo 'has-error';} ?>">
                                             <label for="service_name" class="col-md-4">Capacity *</label>
                                             <div class="col-md-6">
-                                                <select type="text" class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity[]"  onChange="getPricesForCategoryCapacity(this.id);">
+                                                <select type="text" class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity[]"  onChange="getPricesForCategoryCapacity(this.id);getModelForServiceCategoryCapacity(this.id);">
                                                     <option selected disabled>Select Appliance Capacity</option>
                                                 </select>
                                                 <?php echo form_error('appliance_capacity'); ?>
@@ -246,7 +246,11 @@
                                         <div class="form-group ">
                                             <label for="type" class="col-md-4">Appliance Model </label>
                                             <div class="col-md-6">
-                                                <input  type="text" class="form-control"  name="model_number[]" id="model_number_1" value = "" placeholder="Enter Model" >
+<!--                                                <input  type="text" class="form-control"  name="model_number[]" id="model_number_1" value = "" placeholder="Enter Model" >-->
+                                                <select class="form-control"   id="model_number_1" name="model_number[]">
+                                                    <option selected disabled>Select Appliance Model</option>
+                                                </select>
+                                                <?php echo form_error('model_number'); ?>
 
                                             </div>
                                         </div>
