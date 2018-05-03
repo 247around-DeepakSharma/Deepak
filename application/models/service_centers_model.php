@@ -107,26 +107,9 @@ class Service_centers_model extends CI_Model {
                  . " THEN (bd.upcountry_distance * bd.sf_upcountry_rate) "
                  . " ELSE 0 END AS upcountry_price, "
                     
-                . " CASE WHEN (s.gst_no IS NOT NULL 
-                        OR s.gst_no != '' )
-                       
-                        THEN (
-
-                        SELECT SUM(vendor_basic_charges + vendor_st_or_vat_basic_charges)
+                . " (SELECT SUM(vendor_basic_charges + vendor_st_or_vat_basic_charges)
                         FROM booking_unit_details AS u
-                        WHERE u.booking_id = bd.booking_id AND pay_to_sf = '1'
-
-                        )
-                        ELSE  
-
-                        (
-                        SELECT CASE WHEN partner_net_payable > 0 THEN SUM(vendor_basic_charges) 
-                        ELSE SUM(vendor_basic_charges + vendor_st_or_vat_basic_charges) END
-                        FROM booking_unit_details AS u1
-                        WHERE u1.booking_id = bd.booking_id AND pay_to_sf = '1'
-                            )
-
-                        END AS earn_sc,
+                        WHERE u.booking_id = bd.booking_id AND pay_to_sf = '1') AS earn_sc,
 "
                 . " DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(bd.initial_booking_date, '%d-%m-%Y')) as age_of_booking "
                 . " FROM service_center_booking_action as sc, booking_details as bd, users, services, service_centres AS s "
