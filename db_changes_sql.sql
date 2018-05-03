@@ -4550,10 +4550,59 @@ COMMIT;
 
 ALTER TABLE `paytm_cashback_details` ADD `agent_id` INT(10) NULL AFTER `date`;
 
+-- sachin 26 april 2018
+UPDATE `sms_template` SET `template` = 'We have received reschedule request for your %s service (Booking %s) to %s. If you have not asked for reschedule, give missed call @ 01139586111 or call 9555000247.' WHERE `sms_template`.`tag` = 'rescheduled_confirmation_sms';
+
+--Abhay 24 April
+ALTER TABLE `booking_details` ADD `partner_call_status_on_completed` VARCHAR(64) NULL DEFAULT NULL AFTER `dependency_on`;
+
+--Abhay 25April
+ALTER TABLE  `partner_leads` ADD  `spd_date` VARCHAR( 64 ) NULL DEFAULT NULL AFTER  `update_date` ;
+
+--Chhavi 2nd May
+ALTER TABLE `booking_details` ADD `rating_unreachable_count` INT(10) NOT NULL DEFAULT '0' AFTER `dependency_on`;
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'customer_not_reachable_for_rating', 'Hello %s! 247around team tried to reach you for your feedback. If you are HAPPY with our service, give miss call @ %s. If not, give miss call @ %s.', "Send to Customer, when marked by no reachable in case of rating", '1', CURRENT_TIMESTAMP);
 
 
+--sachin 28 april 2018
+ALTER TABLE `spare_parts_details` ADD `model_number_shipped` VARCHAR(256) NULL DEFAULT NULL AFTER `date_of_request`;
+ALTER TABLE `partners` ADD `is_wh` TINYINT(1) NOT NULL DEFAULT '0' COMMENT '1=\'working as a warehouse model\',0 = \'nor working as a warehouse model\'' AFTER `is_prepaid`;
+ALTER TABLE `service_centres` ADD `is_wh` TINYINT(1) NOT NULL DEFAULT '0' COMMENT '1 = \'working as a warehouse\', 0 = \'not working as a warehouse\'' AFTER `is_cp`;
+ALTER TABLE `inventory_master_list` ADD `hsn_code` varchar(64) NULL DEFAULT NULL AFTER `entity_type`;
 
---24 April 2018
+DROP TABLE IF EXISTS `contact_person`;
+CREATE TABLE `contact_person` (
+  `id` int(11) NOT NULL,
+  `name` varchar(256) NOT NULL,
+  `officail_email` varchar(256) NOT NULL,
+  `alternate_email` varchar(256) DEFAULT NULL,
+  `official_contact_number` varchar(256) NOT NULL,
+  `alternate_contact_number` varchar(256) DEFAULT NULL,
+  `permanent_address` varchar(1024) NOT NULL,
+  `correspondence_address` varchar(1024) NOT NULL,
+  `role` varchar(64) NOT NULL,
+  `entity_id` int(11) NOT NULL,
+  `entity_type` varchar(128) NOT NULL,
+  `create_date` datetime NOT NULL,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `contact_person`
+--
+ALTER TABLE `contact_person`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `contact_person`
 
 DROP TABLE IF EXISTS `gateway_booking_payment_details`;
 CREATE TABLE `gateway_booking_payment_details` (
