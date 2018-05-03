@@ -271,8 +271,10 @@ class Booking extends CI_Controller {
                     $prices = explode("_", $values);  // split string..
                     $services_details['id'] = $prices[0]; // This is id of service_centre_charges table.
 
-                    $services_details['around_net_payable'] = $discount[$brand_id][$key + 1][$services_details['id']][0];
-                    $services_details['partner_net_payable'] = $partner_net_payable[$brand_id][$key + 1][$services_details['id']][0];
+                    $services_details['around_paid_basic_charges'] = $discount[$brand_id][$key + 1][$services_details['id']][0];
+                    $services_details['partner_paid_basic_charges'] = $partner_net_payable[$brand_id][$key + 1][$services_details['id']][0];
+                    $services_details['partner_net_payable'] = $services_details['partner_paid_basic_charges'];
+                    $services_details['around_net_payable'] = $services_details['around_paid_basic_charges'];
                    
                     $services_details['booking_status'] = $booking['current_status'];
                     log_message('info', __METHOD__ . " Before booking is insert/update: " . $booking_id);
@@ -1281,22 +1283,27 @@ class Booking extends CI_Controller {
      *  @return : rate for booking and load view
      */
     function process_rating_form($booking_id, $status) {
+        $user_id = $this->input->post('user_id');
+        $phone_no = $this->input->post('mobile_no');
         log_message('info', __FUNCTION__ . ' Booking ID : ' . $booking_id . ' Status' . $status . " Done By " . $this->session->userdata('employee_id'));
-        if ($this->input->post('rating_star') != "Select") {
-            $data['rating_stars'] = $this->input->post('rating_star');
-            $data['rating_comments'] = $this->input->post('rating_comments');
-            $phone_no = $this->input->post('mobile_no');
-            $user_id = $this->input->post('user_id');
-            $remarks = 'Rating'.':'.$data['rating_stars'].'. '.$data['rating_comments'];
-            
-            $update = $this->booking_model->update_booking($booking_id, $data);
+        if($this->input->post('not_reachable')){
+            $this->customer_not_reachable_for_rating($booking_id,$user_id,$phone_no);
+        }
+        else{
+            if ($this->input->post('rating_star') != "Select") {
+                $data['rating_stars'] = $this->input->post('rating_star');
+                $data['rating_comments'] = $this->input->post('rating_comments');
+                $remarks = 'Rating'.':'.$data['rating_stars'].'. '.$data['rating_comments'];
 
-            if ($update) {
-                //update state
-                $this->notify->insert_state_change($booking_id, RATING_NEW_STATE, $status, $remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'),
-                        ACTOR_BOOKING_RATING,RATING_NEXT_ACTION,_247AROUND);
-                // send sms after rating
-                $this->send_rating_sms($phone_no, $data['rating_stars'],$user_id,$booking_id);
+                $update = $this->booking_model->update_booking($booking_id, $data);
+
+                if ($update) {
+                    //update state
+                    $this->notify->insert_state_change($booking_id, RATING_NEW_STATE, $status, $remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'),
+                            ACTOR_BOOKING_RATING,RATING_NEXT_ACTION,_247AROUND);
+                    // send sms after rating
+                    $this->send_rating_sms($phone_no, $data['rating_stars'],$user_id,$booking_id);
+                }
             }
         }
 
@@ -2978,7 +2985,12 @@ class Booking extends CI_Controller {
         $row[] = "<a id='view' class='btn btn-sm btn-color' href='".base_url()."employee/booking/viewdetails/".$order_list->booking_id."' title='view' target='_blank'><i class='fa fa-eye' aria-hidden='true'></i></a>";
         
         if($booking_status === _247AROUND_COMPLETED){
-            $row[] = "<a class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_rating_form/".$order_list->booking_id."/".$booking_status."' title='Rating' target='_blank' $rating_btn_disabled><i class='fa fa-star-o' aria-hidden='true' ></i></a>";
+            $unreachableCount = $order_list->rating_unreachable_count;
+            if($order_list->rating_unreachable_count == 0){
+                $unreachableCount = "";
+            }
+            $row[] = "<a class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_rating_form/".$order_list->booking_id."/".$booking_status."' title='Rating' target='_blank' $rating_btn_disabled><i class='fa fa-star-o' aria-hidden='true' >"
+                    . "</i></a><p style='text-align:center;color: red;'>$unreachableCount</p>";
         }
         
         $row[] = "<a class='btn btn-sm btn-color col-md-12' href='".base_url()."employee/vendor/get_escalate_booking_form/".$order_list->booking_id."/".$booking_status."' title='Add Penalty' target='_blank'><i class='fa fa-plus-square' aria-hidden='true'></i></a>".$penalty_row;
@@ -4023,6 +4035,24 @@ class Booking extends CI_Controller {
             redirect(base_url() . 'employee/booking/create_booking_payment_link');
         }
     }
+    function customer_not_reachable_for_rating($bookingID,$userID,$phone_number){
+        //Update unreachable Count in booking state table
+        $response = $this->booking_model->update_customer_not_reachable_count($bookingID);
+        //Update History Table
+        $this->notify->insert_state_change($bookingID, "Customer_unreachable_for_rating", "Completed", "Try to call for rating but customer is not reachbale", 
+        $this->session->userdata('id'), $this->session->userdata('employee_id'),NULL,NULL,_247AROUND);
+        //Send Rating SMS to Customer
+        $userData = $this->reusable_model->get_search_result_data("users","name",array("user_id"=>$userID),NULL,NULL,NULL,NULL,NULL,array());
+        $sms['tag'] = "customer_not_reachable_for_rating";
+        $sms['smsData']['name'] = $userData[0]['name'];
+        $sms['smsData']['poor_rating_number'] = POOR_MISSED_CALL_RATING_NUMBER;
+        $sms['smsData']['good_rating_number'] = GOOD_MISSED_CALL_RATING_NUMBER;
+        $sms['phone_no'] = $phone_number;
+        $sms['type'] = "rating";
+        $sms['type_id'] = $userID;
+        $sms['booking_id'] = $bookingID;
+        $this->notify->send_sms_msg91($sms);
+    }
     
     function update_booking_address(){
         log_message('info', __METHOD__. " POST DATA ". print_r($this->input->post(), true));
@@ -4078,16 +4108,14 @@ class Booking extends CI_Controller {
                         
                     }
 
-                    $services_details['around_paid_basic_charges'] = $result['around_net_payable'];
-                    $services_details['around_net_payable'] = $result['around_net_payable'];
+                    $services_details['around_paid_basic_charges'] = $unit_details[0]['around_paid_basic_charges'];
+                    $services_details['around_net_payable'] = $unit_details[0]['around_paid_basic_charges'];
                     
-                    $services_details['partner_paid_tax'] = ( $services_details['partner_net_payable'] * $unit_details[0]['tax_rate'])/ 100;
-                    $services_details['partner_paid_basic_charges'] =  $services_details['partner_net_payable'] + $result['partner_paid_tax'];
                     $services_details['customer_net_payable'] = $services_details['customer_total'] - $services_details['partner_net_payable'] - $services_details['around_net_payable'];
                     $services_details['partner_paid_tax'] = ($services_details['partner_net_payable'] * $unit_details[0]['tax_rate'])/ 100;
 
-                    $vendor_total_basic_charges =  ($services_details['customer_net_payable'] + $services_details['partner_paid_basic_charges'] + $services_details['around_paid_basic_charges'] ) * ($services_details['vendor_basic_percentage']/100);
-                    $around_total_basic_charges = ($services_details['customer_net_payable'] + $services_details['partner_paid_basic_charges'] + $services_details['around_paid_basic_charges'] - $vendor_total_basic_charges);
+                    $vendor_total_basic_charges =  ($services_details['customer_net_payable'] + $services_details['partner_net_payable'] + $services_details['around_paid_basic_charges'] ) * ($services_details['vendor_basic_percentage']/100);
+                    $around_total_basic_charges = ($services_details['customer_net_payable'] + $services_details['partner_net_payable'] + $services_details['around_paid_basic_charges'] - $vendor_total_basic_charges);
 
                     $services_details['around_st_or_vat_basic_charges'] = $this->booking_model->get_calculated_tax_charge($around_total_basic_charges, $unit_details[0]['tax_rate'] );
                     $services_details['vendor_st_or_vat_basic_charges'] = $this->booking_model->get_calculated_tax_charge($vendor_total_basic_charges, $unit_details[0]['tax_rate'] );

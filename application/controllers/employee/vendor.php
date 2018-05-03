@@ -386,7 +386,7 @@ class vendor extends CI_Controller {
                 $bankDetailsArray['entity_id'] = $this->input->post('id');
                 $bankDetailsArray['agent_id'] = $agentID;
                 $bankDetailsArray['entity_type'] = "SF";
-                //$this->vendor_model->edit_vendor($vendor_data, $this->input->post('id'));
+                $this->vendor_model->edit_vendor($vendor_data, $this->input->post('id'));
                 $this->miscelleneous->update_insert_bank_account_details($bankDetailsArray,'update');
                
       

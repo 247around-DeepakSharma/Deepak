@@ -187,15 +187,18 @@ function final_price() {
     var final_price = Number(price) - Number(around_discount) - Number(partner_discount);
 
     $("#grand_total_price").val(final_price);
+    
 
 }
 
 $(document).on('keyup', '.discount', function (e) {
     final_price();
+    set_upcountry();
 });
 
 $(document).on('keyup', '.partner_discount', function (e) {
     final_price();
+    set_upcountry();
 });
 
 
@@ -565,7 +568,7 @@ function formatDate(date) {
 
 function set_upcountry() {
     var upcountry_data = $("#upcountry_data").val();
-    console.log(upcountry_data);
+    
     is_upcountry = 0;
     non_upcountry = 0;
     count = 0;
@@ -591,7 +594,7 @@ function set_upcountry() {
         } else if (is_upcountry === 1) {
             var total_price = $("#grand_total_price").val();
             var data1 = jQuery.parseJSON(upcountry_data);
-            console.log(data1);
+           
             var partner_approval = Number(data1.partner_upcountry_approval);
 
             if (data1.message === "UPCOUNTRY BOOKING") {
