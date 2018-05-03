@@ -485,5 +485,17 @@ class Around_scheduler_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
+    
+    function get_vendor_pincode_unavailable_queries_by_days($select,$days){
+        $sql = "SELECT".$select."FROM booking_details WHERE current_status='"._247AROUND_FOLLOWUP."' AND DATEDIFF(CURDATE(),date(create_date))>".$days." AND "
+                . "NOT EXISTS (SELECT 1
+                                FROM (vendor_pincode_mapping)
+                                JOIN service_centres ON service_centres.id = vendor_pincode_mapping.Vendor_ID
+                                WHERE vendor_pincode_mapping.Appliance_ID = booking_details.service_id
+                                AND vendor_pincode_mapping.Pincode = booking_details.booking_pincode
+                                AND service_centres.active = '1' AND service_centres.on_off = '1')";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
 
 }
