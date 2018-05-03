@@ -10,6 +10,8 @@ var count_number = 0;
 var DEFAULT_UPCOUNTRY_RATE = 3;
 var LOW_CREDIT_MSG = "Low Balance, Please Inform Brand To Recharge Account Immediately";
 
+var modelServiceUrl = baseUrl + '/employee/booking/getModelForService/';
+
 
 function getAppliance(service_id) {
 
@@ -731,6 +733,32 @@ function selectDealer(name,ph, id) {
     $("#dealer_phone_suggesstion_box").hide();
     $("#dealer_name_suggesstion_box").hide();
  }
+ 
+function getModelForServiceCategoryCapacity(div_id) {
+    var postData = {};
+    var div_no = div_id.split('_');
+
+    postData['service_id'] = $("#service_id").val();
+    postData['partner_id'] = $("#source_code").find(':selected').attr('data-id');
+    postData['partner_type'] = $("#partner_type").val();
+    postData['brand'] = $("#appliance_brand_" + div_no[2]).val();
+    postData['category'] = $("#appliance_category_" + div_no[2]).val();
+    postData['capacity'] = $("#appliance_capacity_" + div_no[2]).val();
+
+    if (postData['category'] && postData['capacity']) {
+        sendAjaxRequest(postData, modelServiceUrl).done(function (data) {
+            if(data === 'no data found'){
+                $('.select-model').hide();
+                $('.input-model').show();
+            }else{
+                $('.select-model').show();
+                $('.input-model').hide();
+                $("#model_number_" + div_no[2]).html(data).change();
+            }
+            
+        });
+    }
+}
  
 
 
