@@ -18,6 +18,22 @@
     #dealer_list li{padding: 10px; border-bottom: #bbb9b9 1px solid;}
     #dealer_list li:hover{background:#e9ebee;cursor: pointer;}
     
+    <?php if(!empty($model[0])) { ?> 
+    .select-model{
+        display:block;
+    }
+    .input-model{
+        display:none;
+    }    
+    <?php }else{ ?>
+    .select-model{
+        display:none;
+    }
+    .input-model{
+        display:block;
+    }  
+    <?php } ?>
+    
     
 </style>
 <div id="page-wrapper" >
@@ -293,7 +309,7 @@
                                         <div class="form-group <?php if (form_error('appliance_capacity')) { echo 'has-error';} ?>">
                                             <label for="service_name" class="col-md-4">Capacity *</label>
                                             <div class="col-md-6">
-                                                <select type="text" class="form-control appliance_capacity"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="appliance_capacity_1" name="appliance_capacity[]"  onChange="getPricesForCategoryCapacity(this.id);">
+                                                <select type="text" class="form-control appliance_capacity"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="appliance_capacity_1" name="appliance_capacity[]"  onChange="getPricesForCategoryCapacity(this.id);getModelForServiceCategoryCapacity(this.id);">
                                                     <option  selected disabled>Select Appliance Capacity</option>
                                                     <?php foreach ($capacity[0] as $appliance_capacity) { ?>
                                                     <option <?php if(isset($unit_details[0]['capacity'])) {if($appliance_capacity['capacity'] == $unit_details[0]['capacity']) { echo "selected"; } } ?>
@@ -305,7 +321,14 @@
                                         <div class="form-group ">
                                             <label for="type" class="col-md-4">Appliance Model </label>
                                             <div class="col-md-6">
-                                                <input  type="text" class="form-control"  name="model_number[]" id="model_number_1" value = "<?php if(isset($unit_details[0]['model_number'])) { echo $unit_details[0]['model_number']; } ?>" placeholder="Enter Model"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> >
+                                                <input  type="text" class="form-control input-model"  name="model_number[]" id="model_number_1" value = "<?php if(isset($unit_details[0]['model_number'])) { echo $unit_details[0]['model_number']; } ?>" placeholder="Enter Model"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> >
+                                                <select class="form-control select-model"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="model_number_1" name="model_number[]">
+                                                    <option selected disabled>Select Appliance Model</option>
+                                                    <?php foreach ($model[0] as $value) { ?>
+                                                    <option <?php if(isset($unit_details[0]['model_number'])) {if($value['model'] == $unit_details[0]['model_number']) { echo "selected"; } } ?>
+                                                        ><?php echo $value['model']; ?></option>
+                                                    <?php } ?>
+                                                </select>
                                             </div>
                                         </div>
 <!--                                        <div class="form-group ">
