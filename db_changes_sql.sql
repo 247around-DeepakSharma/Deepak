@@ -4553,6 +4553,58 @@ ALTER TABLE `paytm_cashback_details` ADD `agent_id` INT(10) NULL AFTER `date`;
 
 
 
+UPDATE `sms_template` SET `template` = 'We have received reschedule request for your %s service (Booking %s) to %s. If you have not asked for reschedule, give missed call @ 01139586111 or call 9555000247.' WHERE `sms_template`.`tag` = 'reschedule_booking';
+UPDATE `sms_template` SET `template` = 'Dear Customer, Request for your %s for %s is confirmed for %s with booking id %s. In case of any support, call 9555000247. 247Around %s.' WHERE `sms_template`.`tag` = 'add_new_booking';
+
+
+-- sachin 26 april 2018
+UPDATE `sms_template` SET `template` = 'We have received reschedule request for your %s service (Booking %s) to %s. If you have not asked for reschedule, give missed call @ 01139586111 or call 9555000247.' WHERE `sms_template`.`tag` = 'rescheduled_confirmation_sms';
+
+--Abhay 24 April
+ALTER TABLE `booking_details` ADD `partner_call_status_on_completed` VARCHAR(64) NULL DEFAULT NULL AFTER `dependency_on`;
+
+--Abhay 25April
+ALTER TABLE  `partner_leads` ADD  `spd_date` VARCHAR( 64 ) NULL DEFAULT NULL AFTER  `update_date` ;
+
+
+
+--sachin 28 april 2018
+ALTER TABLE `spare_parts_details` ADD `model_number_shipped` VARCHAR(256) NULL DEFAULT NULL AFTER `date_of_request`;
+ALTER TABLE `partners` ADD `is_wh` TINYINT(1) NOT NULL DEFAULT '0' COMMENT '1=\'working as a warehouse model\',0 = \'nor working as a warehouse model\'' AFTER `is_prepaid`;
+ALTER TABLE `service_centres` ADD `is_wh` TINYINT(1) NOT NULL DEFAULT '0' COMMENT '1 = \'working as a warehouse\', 0 = \'not working as a warehouse\'' AFTER `is_cp`;
+ALTER TABLE `inventory_master_list` ADD `hsn_code` varchar(64) NULL DEFAULT NULL AFTER `entity_type`;
+
+DROP TABLE IF EXISTS `contact_person`;
+CREATE TABLE `contact_person` (
+  `id` int(11) NOT NULL,
+  `name` varchar(256) NOT NULL,
+  `officail_email` varchar(256) NOT NULL,
+  `alternate_email` varchar(256) DEFAULT NULL,
+  `official_contact_number` varchar(256) NOT NULL,
+  `alternate_contact_number` varchar(256) DEFAULT NULL,
+  `permanent_address` varchar(1024) NOT NULL,
+  `correspondence_address` varchar(1024) NOT NULL,
+  `role` varchar(64) NOT NULL,
+  `entity_id` int(11) NOT NULL,
+  `entity_type` varchar(128) NOT NULL,
+  `create_date` datetime NOT NULL,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `contact_person`
+--
+ALTER TABLE `contact_person`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
 --24 April 2018
 
 DROP TABLE IF EXISTS `gateway_booking_payment_details`;
@@ -4655,4 +4707,17 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 
 UPDATE `email_template` SET `subject` = 'New Login Details - %s' WHERE `email_template`.`tag` = 'resend_login_details';
 
+
 UPDATE `email_template` SET `subject` = 'Your Password Reset Request Processed Successfully - %s' WHERE `email_template`.`tag` = 'reset_vendor_login_details';
+
+
+--Abhay 27 April
+ALTER TABLE `spare_parts_details` ADD `auto_acknowledeged` INT(1) NOT NULL DEFAULT '0' COMMENT 'Auto Ack for Spare delivered to SF' AFTER `acknowledge_date`;
+
+--Abhay 28 April
+INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`, `actor`, `next_action`) VALUES (NULL, '247001', 'Pending', 'Spare parts not received', 'Spare parts not received by SF', 'Spare parts not received by SF', 'vendor', 'Update Booking (Spare to be received by SF)');
+INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`, `actor`, `next_action`) VALUES (NULL, '247001', 'Pending', 'Upcountry Booking', 'Rescheduled', 'Rescheduled - Upcountry Booking', 'vendor', 'Visit to Customer (Upcountry Booking)');
+
+--Abhay 2 May
+ALTER TABLE `trigger_partners` ADD `is_wh` INT(1) NOT NULL DEFAULT '0' AFTER `updated_date`;
+ALTER TABLE `trigger_service_charges` ADD `is_wh` INT(1) NOT NULL DEFAULT '0' AFTER `deleted_by`;
