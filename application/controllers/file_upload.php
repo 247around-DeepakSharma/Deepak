@@ -51,6 +51,10 @@ class File_upload extends CI_Controller {
                         //process inventory file upload
                         $response = $this->process_inventory_upload_file($data);
                         break;
+                    case _247AROUND_PARTNER_APPLIANCE_DETAILS:
+                        //process partner appliance file upload
+                        $response = $this->process_partner_appliance_upload_file($data);
+                        break;
                     default :
                         log_message("info"," upload file type not found");
                         $response['status'] = FALSE;
@@ -211,7 +215,7 @@ class File_upload extends CI_Controller {
             }
             
             
-            $is_file_contains_unique_data = $this->check_unique_inventory_in_array_data($sheetUniqueRowData);
+            $is_file_contains_unique_data = $this->check_unique_in_array_data($sheetUniqueRowData);
             
             if($is_file_contains_unique_data['status']){
                 
@@ -340,12 +344,17 @@ class File_upload extends CI_Controller {
      /**
      * @desc: This function is used to check duplicate values in the file and remove them 
      * @param $data array() 
-     * @param $file_appliance_arr array()
+     * @param $unique_arr array()
      * @return $response
      */
-    function check_unique_inventory_in_array_data($data){
-        //get unique appliance 
-        $is_unique_appliance = 1;//count(array_unique($file_appliance_arr));
+    function check_unique_in_array_data($data,$unique_arr = null){
+        //get unique 
+        if(!empty($unique_arr)){
+            $is_unique_appliance = count(array_unique($unique_arr));
+        }else{
+            $is_unique_appliance = 1;
+        }
+        
         //get unique file data
         $arr_duplicates = array_diff_assoc($data, array_unique($data));
         
@@ -365,7 +374,7 @@ class File_upload extends CI_Controller {
             
         }else{
             $response['status'] = FALSE;
-            $response['message'] = "File Contains Wrong Appliance,Please Select Appliance only from appliance list Or Check the Spelling";
+            $response['message'] = "File Contains Duplicate Row";
         }
         
         return $response;
@@ -378,22 +387,15 @@ class File_upload extends CI_Controller {
      * @return void
      */
     function send_email($data, $response) {
-
-        if (empty($this->session->userdata('official_email'))) {
-            if ($this->input->post('partner_id')) {
-                $get_partner_am_id = $this->partner_model->getpartner_details('account_manager_id', array('partners.id' => $this->input->post('partner_id')));
-                if (!empty($get_partner_am_id[0]['account_manager_id'])) {
-                    $to = $this->employee_model->getemployeefromid($get_partner_am_id[0]['account_manager_id'])[0]['official_email'];
-                } else {
-                    $to = NITS_ANUJ_EMAIL_ID;
-                }
-            } else {
-                $to = NITS_ANUJ_EMAIL_ID;
+        $am_email = "";
+        if ($this->input->post('partner_id')) {
+            $get_partner_am_id = $this->partner_model->getpartner_details('account_manager_id', array('partners.id' => $this->input->post('partner_id')));
+            if (!empty($get_partner_am_id[0]['account_manager_id'])) {
+                $am_email = $this->employee_model->getemployeefromid($get_partner_am_id[0]['account_manager_id'])[0]['official_email'];
             }
-        } else {
-            $to = $this->session->userdata('official_email');
         }
-
+        
+        $to = $this->session->userdata('official_email').",".$am_email;
         $agent_name = !empty($this->session->userdata('emp_name')) ? $this->session->userdata('emp_name') : _247AROUND_DEFAULT_AGENT_NAME;
 
         if ($response['status']) {
@@ -416,6 +418,123 @@ class File_upload extends CI_Controller {
         }
         
         unlink($attachment);
+    }
+    
+    /**
+     * @desc: This function is used to update model in partner_appliance_details table
+     * @param $data array  //consist file temporary name, file extension and status(file type is correct or not) and post data from upload form
+     * @param $response array  response message and status
+     */
+    function process_partner_appliance_upload_file($data) {
+        log_message('info', __FUNCTION__ . " => process upload partner appliance file");
+        $sheetUniqueRowData = array();
+        $file_partner_arr = array();
+        //column which must be present in the  upload inventory file
+        $header_column_need_to_be_present = array('partnerid', 'serviceid', 'brand', 'category', 'capacity', 'model');
+        //check if required column is present in upload file header
+        $check_header = $this->check_column_exist($header_column_need_to_be_present, $data['header_data']);
+
+        if ($check_header['status']) {
+
+            //get file data to process
+            for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
+                $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
+                $sanitizes_row_data = array_map('trim', $rowData_array[0]);
+
+                if (!empty(array_filter($sanitizes_row_data))) {
+                    $rowData = array_combine($data['header_data'], $rowData_array[0]);
+                    array_push($file_partner_arr, $rowData['partnerid']);
+                    $subArray = $this->get_sub_array($rowData, array('partnerid', 'serviceid', 'brand', 'category', 'capacity'));
+                    array_push($sheetUniqueRowData, implode('_join_', $subArray));
+                    $this->sanitize_partner_appliance_data_to_insert($rowData);
+                }
+            }
+
+            //check file contains unique data
+            $is_file_contains_unique_data = $this->check_unique_in_array_data($sheetUniqueRowData, $file_partner_arr);
+
+            if ($is_file_contains_unique_data['status']) {
+                $partner_id = trim($this->input->post('partner_id'));
+                $upload_file_partner_id = $file_partner_arr[0];
+                if ($partner_id == $upload_file_partner_id) {
+                    if (!empty($partner_id)) {
+
+                        //check if upload file data is less than previous data
+                        $old_partner_data = $this->partner_model->get_partner_specific_details(array('partner_id' => $partner_id), 'count(id) as total_data');
+
+                        if (count($this->dataToInsert) >= $old_partner_data[0]['total_data']) {
+                            //first delete all the previous data for selected partner and then insert new data
+                            $delete = $this->partner_model->delete_partner_brand_relation($partner_id);
+
+                            if (!empty($delete)) {
+
+                                $insert_id = $this->partner_model->insert_batch_partner_brand_relation($this->dataToInsert);
+
+                                if ($insert_id) {
+                                    log_message("info", __METHOD__ . " partner appliance file data inserted succcessfully");
+                                    //check brand_name and service_id is exist in appliance_brand table or not
+                                    $not_exist_data = $this->booking_model->get_not_exist_appliance_brand_data();
+                                    if ($not_exist_data) {
+                                        $this->booking_model->insert_not_exist_appliance_brand_data($not_exist_data);
+                                        log_message('info', __FUNCTION__ . 'Not exist brand name and service id added into the table appliance_brand');
+                                    }
+                                    $response['status'] = TRUE;
+                                    $response['message'] = "Details inserted successfully.";
+                                } else {
+                                    log_message("info", __METHOD__ . " error in inserting partner appliance file data");
+                                    $response['status'] = FALSE;
+                                    $response['message'] = "Something went wrong in inserting data.";
+                                }
+                            } else {
+                                log_message("info", __METHOD__ . " error in inserting partner appliance file data");
+                                $response['status'] = FALSE;
+                                $response['message'] = "Something went wrong in inserting data.";
+                            }
+                        } else {
+                            log_message("info", __METHOD__ . " upload partner appliance file has less data as we have in our database.");
+                            $response['status'] = FALSE;
+                            $response['message'] = "upload partner appliance file has less data as we have in our database.";
+                        }
+                    } else {
+                        log_message("info", __METHOD__ . " Partner id can not be empty");
+                        $response['status'] = FALSE;
+                        $response['message'] = "Partner id can not be empty. Please select partner Id";
+                    }
+                } else {
+                    log_message("info", __METHOD__ . " Selected partner must be same as in the upload file partner.");
+                    $response['status'] = FALSE;
+                    $response['message'] = "Selected partner must be same as in the upload file partner.";
+                }
+            } else {
+                log_message("info", __METHOD__ . " ".$is_file_contains_unique_data['message']);
+                $response['status'] = FALSE;
+                $response['message'] = $is_file_contains_unique_data['message'];
+            }
+        } else {
+            $response['status'] = $check_header['status'];
+            $response['message'] = $check_header['message'];
+        }
+
+        return $response;
+    }
+
+    /**
+     * @desc: This function is used to sanitize partner appliance file data and make final data to insert
+     * @param $data array() 
+     * @return void
+     */
+    function sanitize_partner_appliance_data_to_insert($data){
+        
+        $tmp_data['partner_id'] = $data['partnerid'];
+        $tmp_data['service_id'] = trim($data['serviceid']);
+        $tmp_data['brand'] = trim($data['brand']);
+        $tmp_data['category'] = trim($data['category']);
+        $tmp_data['capacity'] = trim($data['capacity']);
+        $tmp_data['model'] = trim($data['model']);
+        $tmp_data['create_date'] = date('Y-m-d H:i:s');
+        
+        array_push($this->dataToInsert, $tmp_data);
+        
     }
 
 }

@@ -1,7 +1,13 @@
 <style>
-    #datatable1_filter,#datatable1_length,#datatable1_info,
-    #datatable2_filter,#datatable2_length,#datatable2_info{
-        display: none;
+    #datatable2_info{
+    display: none;
+    }
+    
+    #datatable2_filter{
+        text-align: right;
+    }
+    .select2-container--default .select2-selection--single{
+        height: 32px;
     }
 </style>
 <div id="page-wrapper">
@@ -44,21 +50,21 @@
                }
                ?>
             <h1 class="page-header">
-               Upload Excel File
+               Upload Partner Appliance Model Details
             </h1>
           <div id="show_both">
-              <form  action="<?php echo base_url()?>employee/service_centre_charges/upload_service_price_from_excel" method="POST" enctype="multipart/form-data">
-               <div class="form-group  <?php if( form_error('file') ) { echo 'has-error';} ?>">
+<!--              <form  action="<?php //echo base_url()?>employee/service_centre_charges/upload_service_price_from_excel" method="POST" enctype="multipart/form-data">
+               <div class="form-group  <?php //if( form_error('file') ) { echo 'has-error';} ?>">
                   <label for="excel" class="col-md-3">Upload Service Price List:</label>
                   <div class="col-md-3">
                      <input type="file" class="form-control"  name="file" >
-                     <?php echo form_error('file'); ?>
+                     <?php //echo form_error('file'); ?>
                   </div>
                 <input class="col-md-2 btn btn-danger btn-sm" type= "submit"  value ="Upload" >  
                 
                </div>
             </form>
-              <a href="<?php echo base_url(); ?>BookingSummary/download_latest_file/price" class="col-md-2"><button class="btn btn-success btn-sm">Download Latest File</button></a>
+              <a href="<?php //echo base_url(); ?>BookingSummary/download_latest_file/price" class="col-md-2"><button class="btn btn-success btn-sm">Download Latest File</button></a>
                 <div class="col-md-12" style="margin-top:20px;">
                     <h3>File Upload History</h3>
                     <table id="datatable1" class="table table-striped table-bordered table-hover" style="width: 100%;">
@@ -77,19 +83,23 @@
                 </div>
               
           <div class="clear"></div>
-          <hr style="margin-top:10px; margin-bottom:40px;">
-            <form action="<?php echo base_url()?>employee/service_centre_charges/upload_partner_appliance_details_excel" method="POST" enctype="multipart/form-data">
-               <div class="form-group  <?php if( form_error('file') ) { echo 'has-error';} ?>">
-                  <label for="excel" class="col-md-3">Upload Partner Appliance Details:</label>
-                  <div class="col-md-3">
-                     <input type="file" class="form-control"  name="file" >
-                     <?php echo form_error('file'); ?>
-                  </div>
-                <input type= "submit"  class="col-md-2 btn btn-danger btn-sm" value ="Upload" > 
+          <hr style="margin-top:10px; margin-bottom:40px;">-->
+            <form id="fileinfo" onsubmit="return submitForm();" name="fileinfo"  method="POST" enctype="multipart/form-data">
+                <div class="form-group  <?php if( form_error('file') ) { echo 'has-error';} ?>">
+                    <div class="col-md-3">
+                       <input type="file" class="form-control"  name="file" >
+                       <?php echo form_error('file'); ?>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-control" id="partner_id" required="" name="partner_id">
+                            <option value="" disabled="">Select Partner</option>
+                        </select>
+                    </div>
+                    <input type= "submit"  class="col-md-2 btn btn-success btn-sm" value ="Upload" > 
                 
-               </div>
+                </div>
             </form>
-          <a href="<?php echo base_url(); ?>BookingSummary/download_latest_file/appliance" class="col-md-2"><button class="btn btn-success btn-sm">Download Latest File</button></a>
+<!--            <a href="<?php //echo base_url(); ?>BookingSummary/download_latest_file/appliance" class="col-md-2"><button class="btn btn-success btn-sm">Download Latest File</button></a>-->
             <div class="col-md-12" style="margin-top:20px;">
                 <h3>File Upload History</h3>
                 <table id="datatable2" class="table table-striped table-bordered table-hover" style="width: 100%;">
@@ -99,6 +109,7 @@
                             <th>Download</th>
                             <th>Uploaded By</th>
                             <th>Uploaded Date</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -112,56 +123,93 @@
 </div>
 <script>
     var table;
+    var table1;
 
-        $(document).ready(function () {
+    $(document).ready(function () {
+        
+        get_partner_details();
 
-            //datatables
-            table = $('#datatable1').DataTable({
-                processing: true, //Feature control the processing indicator.
-                serverSide: true, //Feature control DataTables' server-side processing mode.
-                order: [], //Initial no order.
-                pageLength: 5,
-                // Load data for the table's content from an Ajax source
-                ajax: {
-                    url: "<?php echo base_url(); ?>employee/upload_booking_file/get_upload_file_history",
-                    type: "POST",
-                    data: {file_type: '<?php echo _247AROUND_SF_PRICE_LIST; ?>'}
-                },
-                //Set column definition initialisation properties.
-                columnDefs: [
-                    {
-                        "targets": [0,1,2,3,4], //first column / numbering column
-                        "orderable": false //set not orderable
-                    }
-                ]
-            });
+        //datatables
+//        table = $('#datatable1').DataTable({
+//            processing: true, //Feature control the processing indicator.
+//            serverSide: true, //Feature control DataTables' server-side processing mode.
+//            order: [], //Initial no order.
+//            pageLength: 5,
+//            // Load data for the table's content from an Ajax source
+//            ajax: {
+//                url: "<?php //echo base_url(); ?>employee/upload_booking_file/get_upload_file_history",
+//                type: "POST",
+//                data: {file_type: '<?php //echo _247AROUND_SF_PRICE_LIST; ?>'}
+//            },
+//            //Set column definition initialisation properties.
+//            columnDefs: [
+//                {
+//                    "targets": [0,1,2,3,4], //first column / numbering column
+//                    "orderable": false //set not orderable
+//                }
+//             ]
+//        });
+        
+        //datatables
+        table1 = $('#datatable2').DataTable({
+            processing: true, //Feature control the processing indicator.
+            serverSide: true, //Feature control DataTables' server-side processing mode.
+            order: [], //Initial no order.
+            lengthMenu: [[5,10, 25, 50], [5,10, 25, 50]],
+            pageLength: 5,
+            // Load data for the table's content from an Ajax source
+            ajax: {
+                url: "<?php echo base_url(); ?>employee/upload_booking_file/get_upload_file_history",
+                type: "POST",
+                data: {file_type: '<?php echo _247AROUND_PARTNER_APPLIANCE_DETAILS; ?>'}
+            },
+             //Set column definition initialisation properties.
+            columnDefs: [
+                {
+                    "targets": [0,1,2,3,4], //first column / numbering column
+                    "orderable": false //set not orderable
+                }
+            ]
         });
         
-        var table1;
-
-        $(document).ready(function () {
-
-            //datatables
-            table1 = $('#datatable2').DataTable({
-                processing: true, //Feature control the processing indicator.
-                serverSide: true, //Feature control DataTables' server-side processing mode.
-                order: [], //Initial no order.
-                pageLength: 5,
-                // Load data for the table's content from an Ajax source
-                ajax: {
-                    url: "<?php echo base_url(); ?>employee/upload_booking_file/get_upload_file_history",
+    });
+    
+    function submitForm() {
+        
+        if($('#partner_id').val()){
+            var fd = new FormData(document.getElementById("fileinfo"));
+                fd.append("label", "WEBUPLOAD");
+                fd.append('partner_id',$('#partner_id').val());
+                fd.append('file_type','<?PHP echo _247AROUND_PARTNER_APPLIANCE_DETAILS ;?>');
+                fd.append('redirect_url','employee/service_centre_charges/upload_excel_form');
+                $.ajax({
+                    url: "<?php echo base_url() ?>upload_file",
                     type: "POST",
-                    data: {file_type: '<?php echo _247AROUND_PARTNER_APPLIANCE_DETAILS; ?>'}
-                },
-                //Set column definition initialisation properties.
-                columnDefs: [
-                    {
-                        "targets": [0,1,2,3], //first column / numbering column
-                        "orderable": false //set not orderable
-                    }
-                ]
-            });
+                    data: fd,
+                    processData: false,
+                    contentType: false 
+                }).done(function (data) {
+                    alert(data);
+                });
+                alert('File validation is in progress, please wait....');
+            
+        }else{
+            alert("Please Select Partner ");
+            return false;
+        }
+        
+    }
+    
+    function get_partner_details(){
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/partner/get_partner_list',
+            success: function (response) {
+                $('#partner_id').html(response);
+                $('#partner_id').select2();
+            }
         });
+    }
 </script>
 <?php if($this->session->userdata('success')) {$this->session->unset_userdata('success');} ?>
 <?php if($this->session->userdata('error')) {$this->session->unset_userdata('error');} ?>
