@@ -635,9 +635,9 @@ class Partner extends CI_Controller {
         $return_data['owner_phone_1'] = trim($this->input->post('owner_phone_1'));
         $return_data['owner_phone_2'] = trim($this->input->post('owner_phone_2'));
         $return_data['summary_email_to'] = $this->input->post('summary_email_to');
-        $return_data['summary_email_cc'] = $this->input->post('summary_email_cc').",nits@247around.com, anuj@247around.com";
+        $return_data['summary_email_cc'] = $this->input->post('summary_email_cc');
         $return_data['invoice_email_to'] = $this->input->post('invoice_email_to');
-        $return_data['invoice_email_cc'] = $this->input->post('invoice_email_cc').",nits@247around.com, anuj@247around.com, adityag@247around.com";
+        $return_data['invoice_email_cc'] = $this->input->post('invoice_email_cc');
         $return_data['invoice_courier_name'] = trim($this->input->post('invoice_courier_name'));
         $return_data['invoice_courier_address'] = trim($this->input->post('invoice_courier_address'));
         $return_data['invoice_courier_phone_number'] = trim($this->input->post('invoice_courier_phone_number'));
