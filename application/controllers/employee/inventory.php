@@ -2428,5 +2428,21 @@ class Inventory extends CI_Controller {
         
         echo json_encode($response);
     }
+    
+    function update_spare_parts_column(){
+        $this->form_validation->set_rules('data', 'Data', 'required');
+        $this->form_validation->set_rules('id', 'id', 'required');
+        $this->form_validation->set_rules('column', 'column', 'required');
+        if ($this->form_validation->run()) {
+            $data = $this->input->post('data');
+            $id = $this->input->post('id');
+            $column = $this->input->post('column');
+            
+            $this->service_centers_model->update_spare_parts(array('id' => $id), array($column => $data));
+            echo "Success";
+        } else {
+            echo "Error";
+        }
+    }
 
 }

@@ -4569,6 +4569,7 @@ ALTER TABLE `booking_details` ADD `rating_unreachable_count` INT(10) NOT NULL DE
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'customer_not_reachable_for_rating', 'Hello %s! 247around team tried to reach you for your feedback. If you are HAPPY with our service, give miss call @ %s. If not, give miss call @ %s.', "Send to Customer, when marked by no reachable in case of rating", '1', CURRENT_TIMESTAMP);
 
 
+
 --sachin 28 april 2018
 ALTER TABLE `spare_parts_details` ADD `model_number_shipped` VARCHAR(256) NULL DEFAULT NULL AFTER `date_of_request`;
 ALTER TABLE `partners` ADD `is_wh` TINYINT(1) NOT NULL DEFAULT '0' COMMENT '1=\'working as a warehouse model\',0 = \'nor working as a warehouse model\'' AFTER `is_prepaid`;
@@ -4731,3 +4732,14 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 UPDATE `email_template` SET `subject` = 'New Login Details - %s' WHERE `email_template`.`tag` = resend_login_details;
 
 UPDATE `email_template` SET `subject` = 'Your Password Reset Request Processed Successfully - %s' WHERE `email_template`.`tag` = reset_vendor_login_details;
+
+--Abhay 27 April
+ALTER TABLE `spare_parts_details` ADD `auto_acknowledeged` INT(1) NOT NULL DEFAULT '0' COMMENT 'Auto Ack for Spare delivered to SF' AFTER `acknowledge_date`;
+
+--Abhay 28 April
+INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`, `actor`, `next_action`) VALUES (NULL, '247001', 'Pending', 'Spare parts not received', 'Spare parts not received by SF', 'Spare parts not received by SF', 'vendor', 'Update Booking (Spare to be received by SF)');
+INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`, `actor`, `next_action`) VALUES (NULL, '247001', 'Pending', 'Upcountry Booking', 'Rescheduled', 'Rescheduled - Upcountry Booking', 'vendor', 'Visit to Customer (Upcountry Booking)');
+
+--Abhay 2 May
+ALTER TABLE `trigger_partners` ADD `is_wh` INT(1) NOT NULL DEFAULT '0' AFTER `updated_date`;
+ALTER TABLE `trigger_service_charges` ADD `is_wh` INT(1) NOT NULL DEFAULT '0' AFTER `deleted_by`;
