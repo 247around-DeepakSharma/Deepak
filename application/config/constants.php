@@ -571,8 +571,7 @@ define('JEEVES_WEBSITE','www.jeeves.co.in');
 define('CUSTOMER_INVOICE_TAG','CUSTOMER_INVOICE_TAG');
 
 define('VINESH_FLIPKART_EMAIL', 'vinesh.poojari@flipkart.com');
-
-define('THRESHOLD_LIMIT', '-3 days');
+define('THRESHOLD_LIMIT_TO_CANCEL_NOT_FOUND_SF_QUERIES', '5');
 define('SF_NOT_FOUND_BOOKING_CANCELLED_REASON', 'Services not started in this region yet');
 define('SF_NOT_FOUND_BOOKING_CANCELLED_REASON_TEXT', 'Service Not Available in this region');
 
