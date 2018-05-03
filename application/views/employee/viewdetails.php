@@ -1132,7 +1132,7 @@ $(".serial_no_edit").click(function() {
         $(this).siblings(".serial_no_text").text($(this).siblings("input").val());
         
         $.ajax({
-            url: "<?php echo base_url() ?>employee/inventory/update_serial_no",
+            url: "<?php echo base_url() ?>employee/inventory/update_spare_parts_column",
             type: "POST",
             beforeSend: function(){
                 
