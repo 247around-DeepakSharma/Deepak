@@ -56,6 +56,13 @@
                 color: #333;
                 font-weight: 700;
             }
+            .nt-badge{
+                font-weight: bold;
+                bottom: 14px;
+                left: 70px;
+                position: relative;
+                background-color: green;
+            }
         </style>
         
         <?php if(ENVIRONMENT === 'production') { ?> 
@@ -122,7 +129,7 @@
                             </ul>
                         </li>
                         <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Spare Parts <span class="caret"></span></a>
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span style="font-weight: bold; left: 93px;" class="badge nt-badge" id="defectivecount">0</span>Spare Parts <span class="caret"></span></a>
                             <ul class="dropdown-menu">
                                 <li><a href="<?php echo base_url();?>service_center/get_defective_parts_booking">Defective Parts</a></li>
                                 <li role="separator" class="divider"></li>
@@ -244,6 +251,7 @@
 </html>
 
 <script>
+    get_defective_parts_count();
     $(document).ready(function(){
         $.ajax({
             type: 'POST',
@@ -300,6 +308,43 @@ function checkStringLength() {
         }
 
     }
+
+    
+    function get_notifications(entity_id,entity_type){
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>push_notification/get_notifications',
+            data: {entity_id: entity_id,entity_type: entity_type},
+            success: function (response) {
+                $("#notification_container").html(response);
+            }
+        });
+    }
+    
+    function get_notification_details(){
+        
+        $.ajax({
+            method:'GET',
+            url:'<?php echo base_url();?>employee/inventory/get_sf_notification_data',
+            success:function(data){
+                var obj = JSON.parse(data);
+                $('#brackets_count').html(obj.brackets);
+                $('#inventory_count').html(obj.inventory);
+            }
+        });
+    }
+    
+    function get_defective_parts_count(){
+       $.ajax({
+            method:'GET',
+            url:'<?php echo base_url();?>employee/service_centers/get_defective_parts_count',
+            success:function(data){
+                var obj = JSON.parse(data);
+                $('#defectivecount').html(obj.count);
+            }
+        });
+    }
+
 
 </script>
 <style>
