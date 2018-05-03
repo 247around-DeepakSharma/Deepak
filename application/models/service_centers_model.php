@@ -336,6 +336,7 @@ class Service_centers_model extends CI_Model {
     }
     
     function count_spare_parts_booking($where, $select, $group_by = false){
+        $this->db->distinct();
         $this->_spare_parts_booking_query($where, $select);
         if($group_by){
             $this->db->group_by($group_by);

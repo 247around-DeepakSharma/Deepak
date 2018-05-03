@@ -3910,4 +3910,23 @@ class Service_centers extends CI_Controller {
             echo $pdf_details['message'];
         }
     }
+    
+    function get_defective_parts_count(){
+        $this->checkUserSession();
+        log_message('info', __FUNCTION__.' Used by :'.$this->session->userdata('service_center_name'));
+        $service_center_id = $this->session->userdata('service_center_id');
+
+        $where = array(
+            "spare_parts_details.defective_part_required"=>1,
+            "spare_parts_details.service_center_id" => $service_center_id,
+            "status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."')  " => NULL
+            
+        );
+        
+        $select = "spare_parts_details.booking_id";
+        
+       $total_rows = $this->service_centers_model->count_spare_parts_booking($where, $select);
+       echo json_encode(array("count" => $total_rows), true);
+              
+    }
 }
