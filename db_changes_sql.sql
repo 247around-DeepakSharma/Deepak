@@ -4566,7 +4566,7 @@ ALTER TABLE  `partner_leads` ADD  `spd_date` VARCHAR( 64 ) NULL DEFAULT NULL AFT
 
 --Chhavi 2nd May
 ALTER TABLE `booking_details` ADD `rating_unreachable_count` INT(10) NOT NULL DEFAULT '0' AFTER `dependency_on`;
-INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'customer_not_reachable_for_rating', 'Hello %s! 247around team tried to reach you for your feedback. If you are HAPPY with our service, give miss call @ %s. If not, give miss call @ %s.', NULL, '1', CURRENT_TIMESTAMP);
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'customer_not_reachable_for_rating', 'Hello %s! 247around team tried to reach you for your feedback. If you are HAPPY with our service, give miss call @ %s. If not, give miss call @ %s.', "Send to Customer, when marked by no reachable in case of rating", '1', CURRENT_TIMESTAMP);
 
 
 --sachin 28 april 2018

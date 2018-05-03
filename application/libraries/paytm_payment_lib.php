@@ -315,7 +315,7 @@ class paytm_payment_lib {
         $output = $this->_send_curl_request($data_string,$headers,QR_CODE_URL,"QR_Code_generation");
         $outputArray = json_decode($output,true);
         // QR_001 -> SUCCESS, QR-1020 -> IF QR already exist for same input
-        //In both case save into databse 
+        //In both case save into databse
         if($outputArray['statusCode'] == SUCCESS_PAYTM_QR_RESPONSE || $outputArray['statusCode'] == ALREADY_GENERATED_PAYTM_QR_RESPONSE){
             log_message('info', __FUNCTION__ . "Function End with Success");
             return $this->QR_generation_success_handler($outputArray,$bookingID,$amount,$paramlist);
@@ -323,11 +323,10 @@ class paytm_payment_lib {
         else{
              //Send Email 
         $to = QR_FAILURE_TO; 
-        $cc = QR_FAILURE_CC;
-        $subject = "QR code not generated";
-        $message = "response - ".print_r($outputArray);
+        $subject = "QR code not generated For ".$bookingID;
+        $message = "response - ".print_r($outputArray,true);
         $this->P_P->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "",QR_NOT_GENERATED);
-            log_message('error', __FUNCTION__ . "Function End With Failure ".print_r($outputArray,true));
+            log_message('error', __FUNCTION__ . "Function End With Failure ".$bookingID.print_r($outputArray,true));
               return array('is_success'=>0,'msg'=>QR_CODE_FAILURE,'data'=>array());
         }
     }
