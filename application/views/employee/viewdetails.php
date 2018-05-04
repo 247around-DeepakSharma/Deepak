@@ -413,6 +413,7 @@
             </div>
             <div class="tab-pane fade in" id="tab3">
                 <?php if (isset($booking_history['spare_parts'])) { $estimate_given = false; $parts_shipped = false; $defective_parts_shipped = FALSE; ?>
+                <input type="file" id="fileLoader" name="files" onchange="uploadfile()" style="display:none" />
                 <div class="row">
                     <div class="col-md-12" >
                         <h1 style='font-size:24px;margin-top: 40px;'>Spare Parts Requested By SF</h1>
@@ -438,21 +439,21 @@
                                         <td><?php echo $sp['model_number']; ?></td>
                                         <td><?php echo $sp['parts_requested']; ?></td>
                                         <td><?php echo $sp['create_date']; ?></td>
-                                        <td><?php if (!is_null($sp['invoice_pic'])) {
+                                        <td><div class="progress-bar progress-bar-success myprogress" id="myprogressinvoice_pic" role="progressbar" style="width:0%">0%</div><?php if (!is_null($sp['invoice_pic'])) {
                                             if ($sp['invoice_pic'] != '0') {
-                                            ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['invoice_pic']; ?> " target="_blank">Click Here to view Invoice Image</a><?php }
+                                                ?> <a href="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $sp['invoice_pic']; ?> " target="_blank" id="<?php echo "a_invoice_pic_".$sp['id']; ?>">Click Here</a> &nbsp;&nbsp;<i id="<?php echo "invoice_pic_".$sp['id']; ?>" class="fa fa-pencil fa-lg" onclick="openfileDialog('<?php echo $sp["id"];?>','invoice_pic');"></i><?php }
                                             }
                                             ?>
                                         </td>
-                                        <td><?php if (!is_null($sp['serial_number_pic'])) {
+                                        <td><div class="progress-bar progress-bar-success myprogress" id="myprogressserial_number_pic" role="progressbar" style="width:0%">0%</div><?php if (!is_null($sp['serial_number_pic'])) {
                                             if ($sp['serial_number_pic'] !== '0') {
-                                                ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['serial_number_pic']; ?> " target="_blank">Click Here to view Serial Number Image</a><?php }
+                                                ?> <a href="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $sp['serial_number_pic']; ?> " target="_blank" id="<?php echo "a_serial_number_pic_".$sp['id']; ?>">Click Here</a> &nbsp;&nbsp;<i id="<?php echo "serial_number_pic_".$sp['id']; ?>" class="fa fa-pencil fa-lg" onclick="openfileDialog('<?php echo $sp["id"];?>','serial_number_pic');"></i><?php }
                                             }
                                             ?>
                                         </td>
-                                        <td><?php if (!is_null($sp['defective_parts_pic'])) {
+                                        <td><div class="progress-bar progress-bar-success myprogress" id="myprogressdefective_parts_pic" role="progressbar" style="width:0%">0%</div><?php if (!is_null($sp['defective_parts_pic'])) {
                                             if ($sp['defective_parts_pic'] !== '0') {
-                                                ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['defective_parts_pic']; ?> " target="_blank">Click Here to view Defective Part Image</a><?php }
+                                                ?> <a href="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $sp['defective_parts_pic']; ?> " target="_blank" id="<?php echo "a_defective_parts_pic_".$sp['id']; ?>">Click Here</a>&nbsp;&nbsp;<i id="<?php echo "defective_parts_pic_".$sp['id']; ?>" class="fa fa-pencil fa-lg" onclick="openfileDialog('<?php echo $sp["id"];?>','defective_parts_pic');"></i><?php }
                                             }
                                             ?>
                                         </td>
@@ -1079,6 +1080,8 @@
     <?php } ?>
 </script>
 <script>
+    var spareID = 0;
+    var spareFileColumn = "";
     $("table td").hover(function() {
     $(this).children(".edit").show();
     $(this).children(".serial_no_edit").show();
@@ -1121,6 +1124,76 @@ $(".edit").click(function() {
         $(this).siblings(".text").hide();
     }
 });
+
+function openfileDialog(spare_id, column_name) {
+    spareID = spare_id;
+    spareFileColumn = column_name;
+    $("#fileLoader").click();
+}
+
+function uploadfile(){
+    var flag = true;
+    var file = $('#fileLoader').val();
+    
+    if (file === '') {
+        alert('Please select file');
+        flag = false;
+        return;
+    }
+    if(spareID === 0){
+        alert('Please refresh page and try again');
+        flag = false;
+         return;
+    }
+    if(spareFileColumn === ""){
+        alert('Please refresh page and try again');
+        flag = false;
+        return;
+    }
+    
+    
+        if(flag === true){
+            var formData = new FormData();
+            formData.append('file', $('#fileLoader')[0].files[0]);
+            formData.append('spareID', spareID);
+            formData.append('spareColumn', spareFileColumn);
+            formData.append('booking_id', '<?php echo $booking_history[0]['booking_id'];?>');
+            
+            $.ajax({
+                url: '<?php echo base_url();?>employee/inventory/processUploadSpareItem',
+                data: formData,
+                processData: false,
+                contentType: false,
+                type: 'POST',
+                // this part is progress bar
+                xhr: function () {
+                    var xhr = new window.XMLHttpRequest();
+                    xhr.upload.addEventListener("progress", function (evt) {
+                        if (evt.lengthComputable) {
+                            var percentComplete = evt.loaded / evt.total;
+                            percentComplete = parseInt(percentComplete * 100);
+                            $('#myprogress' + spareFileColumn).text(percentComplete + '%');
+                            $('#myprogress' + spareFileColumn).css('width', percentComplete + '%');
+                        }
+                    }, false);
+                    return xhr;
+                },
+                success: function (response) {
+                    $('#myprogress' + spareFileColumn).css('width', '0%');
+                    obj = JSON.parse(response);
+                    
+                    if(obj.code === "success"){
+                        $("#a_"+ spareFileColumn +"_" + spareID).attr("href", "<?php echo S3_WEBSITE_URL;?>misc-images/" + obj.name);
+                        spareID = 0;
+                        spareFileColumn = "";
+                    } else {
+                        alert(obj.message);
+                    }
+                }
+            });
+        }
+}
+
 $(".serial_no_edit").click(function() {
     if ($(this).siblings(".serial_no_text").is(":hidden")) {
         var prethis = $(this);
