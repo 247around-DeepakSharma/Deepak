@@ -2429,6 +2429,9 @@ class Inventory extends CI_Controller {
         echo json_encode($response);
     }
     
+    /**
+     * @desc This is used to update spare related field. Just pass field name, value and spare ID
+     */
     function update_spare_parts_column(){
         $this->form_validation->set_rules('data', 'Data', 'required');
         $this->form_validation->set_rules('id', 'id', 'required');
@@ -2442,6 +2445,25 @@ class Inventory extends CI_Controller {
             echo "Success";
         } else {
             echo "Error";
+        }
+    }
+    
+    /**
+     * @desc This is used to upload spare related image. It is used from Booking view details page.
+     */
+    function processUploadSpareItem(){
+        log_message('info', __METHOD__. " ". print_r($this->input->post(), TRUE). " ". print_r($_FILES, true)) ;
+        $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
+        $spareID = $this->input->post('spareID');
+        $bookingID = $this->input->post('booking_id');
+        $spareColumn = $this->input->post('spareColumn');
+        $defective_parts_pic = $this->miscelleneous->upload_file_to_s3($_FILES["file"], 
+                        $spareColumn, $allowedExts, $bookingID, "misc-images", "sp_parts");
+        if($defective_parts_pic){
+            $this->service_centers_model->update_spare_parts(array('id' => $spareID), array($spareColumn => $defective_parts_pic));
+            echo json_encode(array('code' => "success", "name" => $defective_parts_pic));
+        } else {
+            echo json_encode(array('code' => "error", "message" => "File size or file type is not supported"));
         }
     }
 
