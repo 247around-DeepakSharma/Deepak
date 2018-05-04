@@ -112,15 +112,15 @@
                     <tr>
                         <th>S.No</th>
                         <th>Service</th>
-                        <th>Part Name</th>
-                        <th>Part Number</th>
-                        <th>Serial Number</th>
-                        <th>Model Number</th>
-                        <th>Description</th>
-                        <th>size</th>
+                        <th>Spare Model Number</th>
+                        <th>Spare Type</th>
+                        <th>Spare Part Name</th>
+                        <th>Spare Part Number</th>
+                        <th>Spare Serial Number</th>
+                        <th>Spare Description</th>
+                        <th>Spare Size</th>
                         <th>Price</th>
-                        <th>Type</th>
-                        <th>Entity type</th>
+                        <th>Entity Type</th>
                         <th>Entity Name</th>
                         <th>Edit</th>
                     </tr>

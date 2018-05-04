@@ -2089,14 +2089,14 @@ class Inventory extends CI_Controller {
         }
         $row[] = $no;
         $row[] = $stock_list->services;
+        $row[] = $stock_list->model_number;
+        $row[] = $stock_list->type;
         $row[] = $stock_list->part_name;
         $row[] = $stock_list->part_number;
         $row[] = $stock_list->serial_number;
-        $row[] = $stock_list->model_number;
         $row[] = $stock_list->description;
         $row[] = $stock_list->size;
         $row[] = $stock_list->price;
-        $row[] = $stock_list->type;
         $row[] = $stock_list->entity_type;
         $row[] = $agent_name;
         $row[] = "<a href='javascript:void(0)' class ='btn btn-primary' id='edit_master_details' data-id='$json_data'>Edit</a>";
@@ -2333,11 +2333,11 @@ class Inventory extends CI_Controller {
         
         $row[] = $sn;
         $row[] = $inventory_list->services;
+        $row[] = $inventory_list->model_number;
         $row[] = $inventory_list->type;
         $row[] = $inventory_list->part_name;
         $row[] = $inventory_list->part_number;
         $row[] = $inventory_list->serial_number;
-        $row[] = $inventory_list->model_number;
         if($inventory_list->stock){
            $row[] = '<a href="'. base_url().'employee/inventory/show_inventory_ledger_list/0/'.$inventory_list->receiver_entity_type.'/'.$inventory_list->receiver_entity_id.'/'.$inventory_list->inventory_id.'" target="_blank" title="Get Ledger Details">'.$inventory_list->stock.'<a>'; 
         }else{
@@ -2360,12 +2360,18 @@ class Inventory extends CI_Controller {
     function get_parts_name(){
         
         $model_number = $this->input->post('model_number');
+        $part_type = $this->input->post('part_type');
         
         $post['length'] = -1;
-        $post['where'] = array('entity_id' => $this->input->post('entity_id'), 'entity_type' => $this->input->post('entity_type'), 'service_id' => $this->input->post('service_id'), 'model_number' => $model_number);
+        $post['where'] = array('entity_id' => $this->input->post('entity_id'), 'entity_type' => $this->input->post('entity_type'), 'service_id' => $this->input->post('service_id'), 'model_number' => $model_number,'type'=> $part_type);
         $inventory_details = $this->inventory_model->get_inventory_master_list($post, 'inventory_master_list.part_name', true);
         
-        $option = '';
+        if($this->input->post('is_option_selected')){
+            $option = '';
+        }else{
+            $option = '<option selected disabled>Select Part Name</option>';
+        }
+        
 
         foreach ($inventory_details as $value) {
             $option .= "<option value='" . $value['part_name'] . "'";
@@ -2429,6 +2435,9 @@ class Inventory extends CI_Controller {
         echo json_encode($response);
     }
     
+    /**
+     * @desc This is used to update spare related field. Just pass field name, value and spare ID
+     */
     function update_spare_parts_column(){
         $this->form_validation->set_rules('data', 'Data', 'required');
         $this->form_validation->set_rules('id', 'id', 'required');
@@ -2442,6 +2451,49 @@ class Inventory extends CI_Controller {
             echo "Success";
         } else {
             echo "Error";
+        }
+    }
+    
+    /**
+     *  @desc : This function is used to get inventory part name
+     *  @param : void
+     *  @return : $res array() // consist response message and response status
+     */
+    function get_parts_type(){
+        
+        $model_number = $this->input->post('model_number');
+        
+        $post['length'] = -1;
+        $post['where'] = array('entity_id' => $this->input->post('entity_id'), 'entity_type' => $this->input->post('entity_type'), 'service_id' => $this->input->post('service_id'), 'model_number' => $model_number);
+        $inventory_details = $this->inventory_model->get_inventory_master_list($post, 'inventory_master_list.type', true);
+        
+        $option = '<option selected disabled>Select Part Type</option>';
+
+        foreach ($inventory_details as $value) {
+            $option .= "<option value='" . $value['type'] . "'";
+            $option .=" > ";
+            $option .= $value['type'] . "</option>";
+        }
+
+        echo $option;
+    }
+
+    /**
+     *@desc This is used to upload spare related image. It is used from Booking view details page.
+     */
+    function processUploadSpareItem(){
+        log_message('info', __METHOD__. " ". print_r($this->input->post(), TRUE). " ". print_r($_FILES, true)) ;
+        $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
+        $spareID = $this->input->post('spareID');
+        $bookingID = $this->input->post('booking_id');
+        $spareColumn = $this->input->post('spareColumn');
+        $defective_parts_pic = $this->miscelleneous->upload_file_to_s3($_FILES["file"], 
+                        $spareColumn, $allowedExts, $bookingID, "misc-images", "sp_parts");
+        if($defective_parts_pic){
+            $this->service_centers_model->update_spare_parts(array('id' => $spareID), array($spareColumn => $defective_parts_pic));
+            echo json_encode(array('code' => "success", "name" => $defective_parts_pic));
+        } else {
+            echo json_encode(array('code' => "error", "message" => "File size or file type is not supported"));
         }
     }
 

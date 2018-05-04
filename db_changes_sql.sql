@@ -4743,3 +4743,10 @@ INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_cur
 --Abhay 2 May
 ALTER TABLE `trigger_partners` ADD `is_wh` INT(1) NOT NULL DEFAULT '0' AFTER `updated_date`;
 ALTER TABLE `trigger_service_charges` ADD `is_wh` INT(1) NOT NULL DEFAULT '0' AFTER `deleted_by`;
+
+
+--sachin 3 May
+
+ALTER TABLE `spare_parts_details` ADD `parts_requested_type` VARCHAR(256) NOT NULL AFTER `parts_requested`;
+ALTER TABLE `spare_parts_details` ADD `shipped_parts_type` VARCHAR(256) NOT NULL AFTER `parts_shipped`;
+
