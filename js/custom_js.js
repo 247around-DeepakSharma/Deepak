@@ -737,7 +737,7 @@ function selectDealer(name,ph, id) {
 function getModelForServiceCategoryCapacity(div_id) {
     var postData = {};
     var div_no = div_id.split('_');
-
+    
     postData['service_id'] = $("#service_id").val();
     postData['partner_id'] = $("#source_code").find(':selected').attr('data-id');
     postData['partner_type'] = $("#partner_type").val();
@@ -750,10 +750,12 @@ function getModelForServiceCategoryCapacity(div_id) {
             if(data === 'no data found'){
                 $('.select-model').hide();
                 $('.input-model').show();
+                $('.input-model').removeAttr('disabled');
             }else{
                 $('.select-model').show();
+                $('.input-model').attr('disabled', 'disabled');
                 $('.input-model').hide();
-                $("#model_number_" + div_no[2]).html(data).change();
+                $(".select-model#model_number_" + div_no[2]).html(data);
             }
             
         });

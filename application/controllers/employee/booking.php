@@ -140,6 +140,8 @@ class Booking extends CI_Controller {
             $appliance_capacity = $this->input->post('appliance_capacity');
             // All model number comming in array eg-- array([0]=> ABC123, [1]=> CDE1478)
             $model_number = $this->input->post('model_number');
+            
+            echo "<pre>";            print_r($model_number);
             // All price tag comming in array  eg-- array([0]=> Appliance tag1, [1]=> Appliance tag1)
             //$appliance_tags = $this->input->post('appliance_tags');
             // All purchase year comming in array eg-- array([0]=> 2016, [1]=> 2002)
@@ -247,7 +249,7 @@ class Booking extends CI_Controller {
                     }
                     
                 }
-
+                echo "<pre>";                print_r($appliances_details);exit();
                 if (isset($appliance_id[$key])) {
 
                     $services_details['appliance_id'] = $appliance_id[$key];
@@ -4142,9 +4144,8 @@ class Booking extends CI_Controller {
         }
         
         if(!empty($result)){
-            $option = "<option selected disabled>Select Model</option>";
             foreach ($result as $value) {
-                $option .= "<option>".$value['model']."</option>";
+                $option = "<option>".$value['model']."</option>";
             }
 
             echo $option;

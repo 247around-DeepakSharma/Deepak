@@ -246,11 +246,11 @@
                                         <div class="form-group ">
                                             <label for="type" class="col-md-4">Appliance Model </label>
                                             <div class="col-md-6">
-<!--                                                <input  type="text" class="form-control"  name="model_number[]" id="model_number_1" value = "" placeholder="Enter Model" >-->
-                                                <select class="form-control"   id="model_number_1" name="model_number[]">
+                                                <?php echo form_error('model_number'); ?>
+                                                <input  type="text" class="form-control input-model"  name="model_number[]" id="model_number_1" value = "" placeholder="Enter Model" disabled="">
+                                                <select class="form-control select-model"   id="model_number_1" name="model_number[]" style="display:none;">
                                                     <option selected disabled>Select Appliance Model</option>
                                                 </select>
-                                                <?php echo form_error('model_number'); ?>
 
                                             </div>
                                         </div>
