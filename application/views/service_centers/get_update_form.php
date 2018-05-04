@@ -5,6 +5,12 @@
                 <h2 class="page-header">
                     Update Booking
                 </h2>
+                <?php if(validation_errors()) { ?>
+                    <div class=" alert alert-danger">
+                        <?php echo validation_errors(); ?>
+                    </div>
+                <?php } ?>
+                
                 <form class="form-horizontal" name="myForm" action="<?php echo base_url() ?>employee/service_centers/process_update_booking" method="POST" onSubmit="document.getElementById('submitform').disabled=true;" enctype="multipart/form-data">
                     <div class="col-md-12" style="margin-left:-31px;">
                           <div class="col-md-3">
@@ -88,85 +94,122 @@
                     <div class="panel panel-default col-md-offset-2" id="hide_spare" >
                         <div class="panel-body" >
                             <div class="row">
-                                <?php //if($bookinghistory[] == 0){ ?>
-                                <div class="col-md-12">
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="model_number" class="col-md-4">Model Number *</label>
-                                            <?php if(isset($inventory_details) && !empty($inventory_details)) { ?> 
-                                                <div class="col-md-6">
-                                                    <select class="form-control spare_parts" id="model_number" name="model_number">
-                                                        <option value="" disabled="" selected="">Select Model Number</option>
-                                                        <?php  foreach(array_column($inventory_details, 'model_number') as $key => $value){ ?> 
-                                                            <option value="<?php echo $value;?>"><?php echo $value; ?></option>
-                                                        <?php } ?>
-                                                    </select>
-                                                </div>
-                                            <?php  }else { ?> 
+                                <div class = 'col-md-6'>
+                                    <div class="form-group">
+                                        <label for="model_number" class="col-md-4">Model Number *</label>
+                                        <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
+                                            <div class="col-md-6">
+                                                <select class="form-control spare_parts" id="model_number" name="model_number">
+                                                    <option value="" disabled="" selected="">Select Model Number</option>
+                                                    <?php foreach (array_column($inventory_details, 'model_number') as $key => $value) { ?> 
+                                                        <option value="<?php echo $value; ?>"><?php echo $value; ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                            </div>
+                                        <?php } else { ?> 
                                             <div class="col-md-6">
                                                 <input type="text" class="form-control spare_parts" id="model_number" name="model_number" value = "" placeholder="Model Number">
                                             </div>
-                                            <?php } ?>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="Serial Number" class="col-md-4">Serial Number *</label>
-                                            <div class="col-md-6">
-                                                <input type="text" class="form-control spare_parts" id="serial_number" name="serial_number" value = "" placeholder="Serial Number">
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="Invoice picture" class="col-md-4">Invoice Picture</label>
-                                            <div class="col-md-6">
-                                                <input type="file" class="form-control spare_parts" id="invoice_pic" name="invoice_image">
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="Invoice picture" class="col-md-4">Defective Part Picture *</label>
-                                            <div class="col-md-6">
-                                                <input type="file" class="form-control spare_parts" id="defective_parts_pic" name="defective_parts_pic" required="required">
-                                            </div>
-                                        </div>
+                                        <?php } ?>
                                     </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="parts_name" class="col-md-4">Parts Name *</label>
-                                            <?php if(isset($inventory_details) && !empty($inventory_details)) { ?> 
-                                                <div class="col-md-6">
-                                                    <select class="form-control spare_parts" id="parts_name" name="parts_name">
-                                                    </select>
-                                                    <span id="spinner" style="display:none"></span>
-                                                </div>
-                                            <?php  }else { ?> 
+                                </div>
+                                <div class = 'col-md-6'>
+                                    <div class="form-group">
+                                        <label for="parts_type" class="col-md-4">Parts Type *</label>
+                                        <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
+                                            <div class="col-md-6">
+                                                <select class="form-control spare_parts" id="parts_type" name="parts_type">
+                                                    <option selected disabled>Select Part Type</option>
+                                                </select>
+                                                <span id="spinner" style="display:none"></span>
+                                            </div>
+                                        <?php } else { ?> 
+                                            <div class="col-md-6">
+                                                <input type="text" class="form-control spare_parts" id="parts_type" name="parts_type" value = "" placeholder="Parts Type" >
+                                            </div>
+                                        <?php } ?>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="parts_name" class="col-md-2">Parts Name *</label>
+                                        <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
+                                            <div class="col-md-9">
+                                                <select class="form-control spare_parts" id="parts_name" name="parts_name">
+                                                    <option selected disabled>Select Part Name</option>
+                                                </select>
+                                                <span id="spinner" style="display:none"></span>
+                                            </div>
+                                        <?php } else { ?> 
                                             <div class="col-md-6">
                                                 <input type="text" class="form-control spare_parts" id="parts_name" name="parts_name" value = "" placeholder="Parts Name" >
                                             </div>
-                                            <?php } ?>
-                                            
+                                        <?php } ?>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="serial_number" class="col-md-4">Serial Number *</label>
+                                        <div class="col-md-6">
+                                            <input type="text" class="form-control spare_parts" id="serial_number" name="serial_number" value="<?php echo set_value('serial_number'); ?>" placeholder="Serial Number">
                                         </div>
-                                        
-                                        <div class="form-group" >
-                                            <label for="reschdeduled" class="col-md-4">Date of Purchase *</label>
-                                            <div class="col-md-6">
-                                                <div class="input-group input-append date">
-                                                    <input id="dop" class="form-control" placeholder="Select Date" name="dop" type="text" required readonly='true' style="background-color:#fff;">
-                                                    <span class="input-group-addon add-on" onclick="dop_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="Invoice picture" class="col-md-4">Serial Number Picture *</label>
-                                            <div class="col-md-6">
-                                                <input type="file" class="form-control spare_parts" id="serial_number_pic" name="serial_number_pic" required="required">
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="reason" class="col-md-4">Problem Description* </label>
-                                            <div class="col-md-6">
-                                                <textarea class="form-control spare_parts"  id="prob_desc" name="reason_text" value = "" rows="5" placeholder="Problem Description" ></textarea>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group" >
+                                        <label for="dop" class="col-md-4">Date of Purchase *</label>
+                                        <div class="col-md-6">
+                                            <div class="input-group input-append date">
+                                                <input id="dop" class="form-control" placeholder="Select Date" name="dop" type="text" required>
+                                                <span class="input-group-addon add-on" onclick="dop_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="serial_number_pic" class="col-md-4">Serial Number Picture *</label>
+                                        <div class="col-md-6">
+                                            <input type="file" class="form-control spare_parts" id="serial_number_pic" name="serial_number_pic" required="required">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="defective_parts_pic" class="col-md-4">Defective Part Picture *</label>
+                                        <div class="col-md-6">
+                                            <input type="file" class="form-control spare_parts" id="defective_parts_pic" name="defective_parts_pic" required="required">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="invoice_pic" class="col-md-4">Invoice Picture</label>
+                                        <div class="col-md-6">
+                                            <input type="file" class="form-control spare_parts" id="invoice_pic" name="invoice_image">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="prob_desc" class="col-md-4">Problem Description* </label>
+                                        <div class="col-md-6">
+                                            <textarea class="form-control spare_parts"  id="prob_desc" name="reason_text" rows="5" placeholder="Problem Description" ></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="text-warning"> <span class="badge badge-info"><i class="fa fa-info"></i></span> * These fields are required</div>
                                 <?php  //} if($around_flag) { ?>
                                 <!--                                 <div class="col-md-12">
                                     <div class="col-md-6">
@@ -248,7 +291,11 @@
         $('#model_number').select2();
         $('#parts_name').select2({
             placeholder: "Select Part Name",
-            cealr:true
+            allowClear:true
+        });
+        $('#parts_type').select2({
+            placeholder: "Select Part Type",
+            allowClear:true
         });
         
         $('#model_number').on('change', function() {
@@ -258,10 +305,34 @@
             if(model_number){
                 $.ajax({
                     method:'POST',
-                    url:'<?php echo base_url(); ?>employee/inventory/get_parts_name',
+                    url:'<?php echo base_url(); ?>employee/inventory/get_parts_type',
                     data: { model_number:model_number, entity_id: '<?php echo $bookinghistory[0]['partner_id']?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo $bookinghistory[0]['service_id']; ?>' },
                     success:function(data){
-                        $('#parts_name').html(data).select2();
+                        $('#parts_type').val('val', "");
+                        $('#parts_type').val('Select Part Type').change();
+                        $('#parts_type').select2().html(data);
+                        $('#spinner').removeClass('fa fa-spinner').hide();
+                    }
+                });
+            }else{
+                alert("Please Select Model Number");
+            }
+        });
+        
+        $('#parts_type').on('change', function() {
+        
+            var model_number = $('#model_number').val();
+            var part_type = $('#parts_type').val();
+            $('#spinner').addClass('fa fa-spinner').show();
+            if(model_number){
+                $.ajax({
+                    method:'POST',
+                    url:'<?php echo base_url(); ?>employee/inventory/get_parts_name',
+                    data: { model_number:model_number, entity_id: '<?php echo $bookinghistory[0]['partner_id']?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo $bookinghistory[0]['service_id']; ?>', part_type:part_type },
+                    success:function(data){
+                        $('#parts_name').val('val', "");
+                        $('#parts_name').val('Select Part Name').change();
+                        $('#parts_name').select2().html(data);
                         $('#spinner').removeClass('fa fa-spinner').hide();
                     }
                 });

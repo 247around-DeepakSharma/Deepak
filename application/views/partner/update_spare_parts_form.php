@@ -38,7 +38,13 @@
                                         <input type="text" class="form-control" id="mobile" name="mobile" value = "<?php echo $spare_parts[0]->booking_primary_contact_no; ?>" placeholder="Enter Mobile" readonly="readonly" required>
                                     </div>   
                                 </div>
-
+                                
+                                <div class="form-group ">
+                                   <label for="parts_type" class="col-md-4">Requested Parts Type</label>
+                                    <div class="col-md-6">
+                                        <textarea class="form-control" id="parts_type" name="parts_type" readonly="readonly" required><?php echo $spare_parts[0]->parts_requested_type; ?></textarea>
+                                    </div>   
+                                </div>
 
                                 <div class="form-group ">
                                    <label for="parts_name" class="col-md-4">Requested Parts</label>
@@ -131,16 +137,52 @@
                                 
                             </div>
                             <?php } ?>
-                             <div class="form-group <?php
-                                    if (form_error('shipped_parts_name')) {
-                                        echo 'has-error';
-                                    } ?>">
-                               <label for="shipped_parts_name" class="col-md-4">Shipped Parts*</label>
-                                <div class="col-md-6">
-                                    <textarea class="form-control" id="shipped_parts_name" name="shipped_parts_name" required  placeholder="Enter Shipped parts"></textarea>
-                                 <?php echo form_error('shipped_parts_name'); ?>
-                                </div> 
-                                
+                            <div class="form-group">
+                                <label for="shipped_model_number" class="col-md-4">Shipped Model Number *</label>
+                                <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
+                                    <div class="col-md-6">
+                                        <select class="form-control spare_parts" id="shipped_model_number" name="shipped_model_number">
+                                            <option value="" disabled="" selected="">Select Model Number</option>
+                                            <?php foreach (array_column($inventory_details, 'model_number') as $key => $value) { ?> 
+                                                <option value="<?php echo $value; ?>"><?php echo $value; ?></option>
+                                            <?php } ?>
+                                        </select>
+                                    </div>
+                                <?php } else { ?> 
+                                    <div class="col-md-6">
+                                        <input type="text" class="form-control spare_parts" id="shipped_model_number" name="shipped_model_number" value = "" placeholder="Shipped Model Number">
+                                    </div>
+                                <?php } ?>
+                            </div>
+                            <div class="form-group">
+                                <label for="shipped_part_type" class="col-md-4">Shipped Parts Type *</label>
+                                <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
+                                    <div class="col-md-6">
+                                        <select class="form-control spare_parts" id="shipped_part_type" name="shipped_part_type">
+                                            <option selected disabled>Select Part Type</option>
+                                        </select>
+                                        <span id="spinner" style="display:none"></span>
+                                    </div>
+                                <?php } else { ?> 
+                                    <div class="col-md-6">
+                                        <input type="text" class="form-control spare_parts" id="shipped_part_type" name="shipped_part_type" value = "" placeholder="Shipped Parts Type" >
+                                    </div>
+                                <?php } ?>
+
+                            </div>
+                            <div class="form-group">
+                                <label for="shipped_parts_name" class="col-md-4">Shipped Parts Name *</label>
+                                <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
+                                    <div class="col-md-6">
+                                        <select class="form-control spare_parts" id="shipped_parts_name" name="shipped_parts_name"  multiple="">
+                                        </select>
+                                        <span id="spinner" style="display:none"></span>
+                                    </div>
+                                <?php } else { ?> 
+                                    <div class="col-md-6">
+                                        <input type="text" class="form-control spare_parts" id="shipped_parts_name" name="shipped_parts_name" value = "" placeholder="Shipped Parts Name" >
+                                    </div>
+                                <?php } ?>
                             </div>
                             
                             <input type="hidden" name="request_type" value="<?php echo $spare_parts[0]->request_type?>"/>
@@ -338,5 +380,56 @@
         }
        
     }
+    
+    $('#shipped_model_number').select2();
+    $('#shipped_parts_name').select2({
+        placeholder:'Select Part Name',
+        allowClear:true
+    });
+    $('#shipped_part_type').select2({
+        placeholder:'Select Part Type',
+        allowClear:true
+    });
+    
+    $('#shipped_model_number').on('change', function() {
+        
+        var model_number = $('#shipped_model_number').val();
+        $('#spinner').addClass('fa fa-spinner').show();
+        if(model_number){
+            $.ajax({
+                method:'POST',
+                url:'<?php echo base_url(); ?>employee/inventory/get_parts_type',
+                data: { model_number:model_number, entity_id: '<?php echo $spare_parts[0]->partner_id ;?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo $spare_parts[0]->service_id; ?>' },
+                success:function(data){
+                    $('#shipped_part_type').val('val', "");
+                    $('#shipped_part_type').val('Select Part Type').change();
+                    $('#shipped_part_type').select2().html(data);
+                    $('#spinner').removeClass('fa fa-spinner').hide();
+                }
+            });
+        }else{
+            alert("Please Select Model Number");
+        }
+    });
+    
+    $('#shipped_part_type').on('change', function() {
+        
+        var model_number = $('#shipped_model_number').val();
+        var part_type = $('#shipped_part_type').val();
+        $('#spinner').addClass('fa fa-spinner').show();
+        if(model_number){
+            $.ajax({
+                method:'POST',
+                url:'<?php echo base_url(); ?>employee/inventory/get_parts_name',
+                data: { model_number:model_number, entity_id: '<?php echo $spare_parts[0]->partner_id ;?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo $spare_parts[0]->service_id; ?>',part_type:part_type,is_option_selected:true },
+                success:function(data){
+                    $('#shipped_parts_name').html(data);
+                    $('#spinner').removeClass('fa fa-spinner').hide();
+                }
+            });
+        }else{
+            alert("Please Select Model Number");
+        }
+    });
 
 </script>
