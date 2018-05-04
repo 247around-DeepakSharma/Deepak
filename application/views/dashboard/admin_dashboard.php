@@ -21,6 +21,17 @@
                     <div class="clearfix"></div>
                 </div>
             <div class="table-responsive" id="escalation_data" ng-controller="pendngBooking_Controller" ng-cloak="">
+                                    <div class="form-group" style="float:right;">
+                                         <label for="">Dependency On</label>
+                                        <select class="form-control" ng-change="ShowBookingActorView()" ng-model="actor" id="actor">
+                                            <option value="all" ng-selected="true">All</option>
+                                            <option value="Vendor">Vendor</option>
+                                            <option value="Partner">Partner</option>
+                                            <option value="247Around">247Around</option>  
+                                        </select>
+                            </div>
+                <br>
+                <div class="clear"></div>
                 <table class="table table-striped table-bordered jambo_table bulk_action">
                     <thead>
                         <tr>
@@ -1040,4 +1051,5 @@ $(function() {
     [ng\:cloak], [ng-cloak], .ng-cloak {
   display: none !important;
 }
+select option:empty { display:none }
     </style>
