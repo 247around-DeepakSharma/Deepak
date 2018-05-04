@@ -4750,3 +4750,6 @@ ALTER TABLE `trigger_service_charges` ADD `is_wh` INT(1) NOT NULL DEFAULT '0' AF
 ALTER TABLE `spare_parts_details` ADD `parts_requested_type` VARCHAR(256) NOT NULL AFTER `parts_requested`;
 ALTER TABLE `spare_parts_details` ADD `shipped_parts_type` VARCHAR(256) NOT NULL AFTER `parts_shipped`;
 
+
+ALTER TABLE `spare_parts_details` ADD `entity_type` VARCHAR(32) NOT NULL AFTER `booking_id`;
+update spare_parts_details SET entity_type = 'partner'
