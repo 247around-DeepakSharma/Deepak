@@ -1481,6 +1481,12 @@
                  alert("Please Select Atleast One Checkbox of Service Center OR Collection Partner OR Warehouse");
                  return false;
              } 
+             var  gst_n = $('#gst_no').val();
+             var  sign_n = $('#signature_file').val();
+             if(!(gst_n && sign_n)){
+                   alert('Please Update GST details or Signature ');
+                   return false;
+               }
               return  bank_validation_check =  bank_details_validation();
         }
 </script>
