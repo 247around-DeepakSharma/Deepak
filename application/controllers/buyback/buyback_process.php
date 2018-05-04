@@ -1439,7 +1439,7 @@ class Buyback_process extends CI_Controller {
                 $total_data = $this->service_centre_charges_model->get_bb_charges($where, 'count(bb_charges.id) as total_data', true, true);
                 if (!empty($total_data)) {
                     $row_limit = 498;
-                    $counter = round($total_data[0]['total_data'] / $row_limit);
+                    $counter = ceil($total_data[0]['total_data'] / $row_limit);
                     $offset = 0;
                     for ($i = 0; $i < $counter; $i++) {
                         if ($key == _247AROUND_MOBILE_SERVICE_ID) {
