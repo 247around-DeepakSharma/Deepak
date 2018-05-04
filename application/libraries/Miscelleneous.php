@@ -2648,4 +2648,30 @@ function convert_html_to_pdf($html,$booking_id,$filename,$s3_folder){
             return FALSE;
         }
     }
+    /**
+     * /**
+     * @desc This is used to fetch challan id.
+     * In this method, simply pass sc code of vendor then it return latest challan id
+     * @param String $name
+     * @return String
+     */
+    function create_sf_challan_id($name){
+        $challan_id_tmp = $name."-DC-";
+        $where['length'] = -1;
+        $where['where'] = array("( sf_challan_number LIKE '%".$challan_id_tmp."%' )" => NULL);
+        $where['select'] = "sf_challan_number";
+        $challan_no_temp = $this->My_CI->inventory_model->get_spare_parts_query($where);
+        $challan_no = 1;
+        $int_challan_no = array();
+        if (!empty($challan_no_temp)) {
+            foreach ($challan_no_temp as  $value) {
+                 $explode = explode($challan_id_tmp, $value->sf_challan_number);
+                 array_push($int_challan_no, $explode[1] + 1);
+            }
+            rsort($int_challan_no);
+            $challan_no = $int_challan_no[0];
+        }
+        
+        return trim($challan_id_tmp . sprintf("%'.04d\n", $challan_no));
+    }
 }
