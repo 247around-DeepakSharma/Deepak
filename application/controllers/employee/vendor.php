@@ -4902,4 +4902,22 @@ class vendor extends CI_Controller {
             $this->reusable_model->insert_batch("india_pincode",$finalArray);
             $this->update_vendor_pincode_mapping_table($finalArray);
         }
+    
+    /**
+     * @desc This is used to load view to fetch challan ID
+     */
+    function fetch_challan_id(){
+        $vendor = $this->vendor_model->getVendorDetails('id, name, sc_code');
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/fetch_challan_id', array('service_center' => $vendor));
+    }
+    /**
+     * @desc This is used to fetch challan id. It called from ajax. 
+     * In this method, simply pass sc code of vendor then it return latest challan id
+     * @param String $sc_code
+     */
+    function get_challan_id($sc_code){
+        echo $this->miscelleneous->create_sf_challan_id($sc_code);
+    }
+        
 }
