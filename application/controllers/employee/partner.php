@@ -1724,9 +1724,12 @@ class Partner extends CI_Controller {
         $where['length'] = -1;
         $where['where'] = array('spare_parts_details.id' => $id);
         $where['select'] = "booking_details.booking_id, users.name, booking_primary_contact_no,parts_requested, model_number,serial_number,date_of_purchase, invoice_pic,"
-                . "serial_number_pic,defective_parts_pic,spare_parts_details.id, booking_details.request_type, purchase_price, estimate_cost_given_date,booking_details.assigned_vendor_id,booking_details.service_id,partners.is_wh";
+                . "serial_number_pic,defective_parts_pic,spare_parts_details.id, booking_details.request_type, purchase_price, estimate_cost_given_date,booking_details.partner_id,booking_details.assigned_vendor_id,booking_details.service_id,parts_requested_type";
 
         $data['spare_parts'] = $this->inventory_model->get_spare_parts_query($where);
+        $post['length'] = -1;
+        $post['where'] = array('entity_id' => $data['spare_parts'][0]->partner_id,'entity_type' => _247AROUND_PARTNER_STRING,'service_id' => $data['spare_parts'][0]->service_id);
+        $data['inventory_details'] = $this->inventory_model->get_inventory_master_list($post, 'inventory_master_list.model_number', true);
         $this->load->view('partner/header');
         $this->load->view('partner/update_spare_parts_form', $data);
         $this->load->view('partner/partner_footer');
@@ -1766,7 +1769,14 @@ class Partner extends CI_Controller {
                     $data['partner_challan_file'] = $challan_file;
                 }
                 $partner_id = $this->session->userdata('partner_id');
-                $data['parts_shipped'] = $this->input->post('shipped_parts_name');
+                $data['model_number_shipped'] = $this->input->post('shipped_model_number');
+                $data['shipped_parts_type'] = $this->input->post('shipped_part_type');
+                if(is_array($this->input->post('shipped_parts_name'))){
+                    $data['parts_shipped'] = implode(',', $this->input->post('shipped_parts_name'));
+                }else{
+                    $data['parts_shipped'] = $this->input->post('shipped_parts_name');
+                }
+                
                 $data['courier_name_by_partner'] = $this->input->post('courier_name');
                 $data['awb_by_partner'] = $this->input->post('awb');
                 $data['remarks_by_partner'] = $this->input->post('remarks_by_partner');
