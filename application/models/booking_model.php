@@ -2448,17 +2448,6 @@ class Booking_model extends CI_Model {
         return $res;
     }
     
-    
-    function get_state(){
-        return $this->db->query('SELECT state from state_code')->result_array();
-    }
-    
-    function insert_state_map($data){
-        return $this->db->insert_batch('warehouse_state_relationship',$data)->insert_id;
-    }
-
-    
-    
     function get_state(){
         return $this->db->query('SELECT state from state_code')->result_array();
     }
