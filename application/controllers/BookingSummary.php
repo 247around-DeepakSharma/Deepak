@@ -1574,7 +1574,7 @@ EOD;
         return $response;
     }
     function send_jeeves_requested_format_report($partnerID){
-        $subject = "247around Services Report  - " . date('d-M-Y');
+        $subject = "247around Services Report  - Jeeves - " . date('d-M-Y');
         $newCSVFileName = "Booking_summary_" . date('j-M-Y-H-i-s') . ".csv";
         $csv = TMP_FOLDER . $newCSVFileName;
         $report = $this->partner_model->get_partner_leads_csv_for_summary_email($partnerID,1);
