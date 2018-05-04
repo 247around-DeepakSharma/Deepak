@@ -856,10 +856,16 @@ class Invoice extends CI_Controller {
                  $this->email->attach($value['excel'], 'attachment');
             }
         } else {
-            //attach detailed invoice
-            $this->email->attach($output_file_excel, 'attachment');
-            //attach mail invoice
-            $this->email->attach($pdf_attachement, 'attachment');
+            if(!empty($output_file_excel)){
+                //attach detailed invoice
+                $this->email->attach($output_file_excel, 'attachment');
+            }
+            
+            if(!empty($pdf_attachement)){
+                //attach mail invoice
+                $this->email->attach($pdf_attachement, 'attachment');
+            }
+            
         }
         $this->email->message($message);
         $this->email->subject($subject);
