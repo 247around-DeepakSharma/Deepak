@@ -1686,12 +1686,12 @@ class Service_centers extends CI_Controller {
                     $data['courier_name_by_sf'] = $this->input->post('courier_name_by_sf');
                     $data['defective_part_shipped'] = $value;
                     
-                    $data['sf_challan_number'] = $this->create_sf_challan_id($sf_details[0]['sc_code']);
+                    $data['sf_challan_number'] = $this->miscelleneous->create_sf_challan_id($sf_details[0]['sc_code']);
                     $spare_details['challan_approx_value'] = $this->input->post('challan_approx_value')[$id];
                     $spare_details['booking_id'] = $this->input->post('booking_id');
                     $spare_details['parts_requested'] = $this->input->post('parts_requested')[$id];
                     $data['sf_challan_file'] = $this->create_sf_challan_file($sf_details,$partner_details,$data['sf_challan_number'],$id,$spare_details);
-                    $where = array('id' => $id);
+                    $where = array('id' => $id); 
                     $this->service_centers_model->update_spare_parts($where, $data);
                     $k++;
                 }
@@ -3177,31 +3177,6 @@ class Service_centers extends CI_Controller {
         }
     }
     
-    /**
-     * @desc this function is used to create the challan number 
-     * @param String $name
-     * @return String challan number
-     */
-    function create_sf_challan_id($name){
-        $challan_id_tmp = $name."-DC-";
-        $where['length'] = -1;
-        $where['where'] = array("( sf_challan_number LIKE '%".$challan_id_tmp."%' )" => NULL);
-        $where['select'] = "sf_challan_number";
-        $challan_no_temp = $this->inventory_model->get_spare_parts_query($where);
-        $challan_no = 1;
-        $int_challan_no = array();
-        if (!empty($challan_no_temp)) {
-            foreach ($challan_no_temp as  $value) {
-                 $explode = explode($challan_id_tmp, $value->sf_challan_number);
-                 array_push($int_challan_no, $explode[1] + 1);
-            }
-            rsort($int_challan_no);
-            $challan_no = $int_challan_no[0];
-        }
-        
-        return trim($challan_id_tmp . sprintf("%'.04d\n", $challan_no));
-    }
-    
     
     /**
      * @desc this function is used to generate the challan PDF file
@@ -3546,7 +3521,7 @@ class Service_centers extends CI_Controller {
             
             $sf_details = $this->vendor_model->getVendorDetails('name,address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,is_signature_doc',array('id'=>$sf_id));
             $assigned_sf_details = $this->vendor_model->getVendorDetails('name as company_name,address,owner_name,gst_no as gst_number',array('id'=>$this->input->post('assigned_vendor_id')));
-            $data['partner_challan_number'] = $this->create_sf_challan_id($sf_details[0]['sc_code']);
+            $data['partner_challan_number'] = $this->miscelleneous->create_sf_challan_id($sf_details[0]['sc_code']);
             $spare_details['challan_approx_value'] = $data['challan_approx_value'];
             $spare_details['booking_id'] = $booking_id;
             $spare_details['parts_requested'] = $data['parts_shipped'];
