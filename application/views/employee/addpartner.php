@@ -312,7 +312,7 @@
                                                     //Checking for Edit Parnter
                                                     if (isset($query[0]['id'])) {
                                                         foreach (range('A', 'Z') as $char) {
-                                                            $code = "P" . $char;
+                                                            $code = "R" . $char;
                                                             if (!in_array($code, $results['partner_code_availiable']) || isset($results['partner_code'][0]['code']) && ($results['partner_code'][0]['code'] == $code)) {
                                                                 ?>
                                                 <option value="<?php echo $code; ?>" <?php
@@ -336,16 +336,29 @@
                                                     }
                                                     }
                                                     
+                                                    foreach (range('A', 'Z') as $char) {
+                                                    $code = "P" . $char;
+                                                    if (!in_array($code, $results['partner_code_availiable']) || isset($results['partner_code'][0]['code']) && ($results['partner_code'][0]['code'] == $code)) {
+                                                        ?>
+                                                <option value="<?php echo $code; ?>" <?php
+                                                    if (isset($results['partner_code'][0]['code']) && ($results['partner_code'][0]['code'] == $code )) {
+                                                        echo "selected=''";
+                                                    }
+                                                    ?>><?php echo $code; ?></option>
+                                                <?php
+                                                    }
+                                                    }
+                                                    
                                                     
                                                     
                                                     } else {// New Partner Addition
                                                     foreach (range('A', 'Z') as $char) {
-                                                    $code = "P" . $char;
-                                                    if (!in_array($code, $results['partner_code'])) {
-                                                        ?>
-                                                <option value="<?php echo $code; ?>" ><?php echo $code; ?></option>
-                                                <?php
-                                                    }
+                                                        $code = "R" . $char;
+                                                        if (!in_array($code, $results['partner_code'])) {
+                                                            ?>
+                                                            <option value="<?php echo $code; ?>" ><?php echo $code; ?></option>
+                                                        <?php
+                                                        }
                                                     }
                                                     }
                                                     ?>
@@ -591,8 +604,7 @@
                                     <label for="summary_email_cc" class="col-md-4">cc</label>
                                     <div class="col-md-6">
                                         <input type="text" class="form-control"  name="summary_email_cc" value = "<?php if (isset($query[0]['summary_email_cc'])) {
-                                            echo $query[0]['summary_email_cc'];
-                                            } ?>">
+                                        echo $query[0]['summary_email_cc'];} else { echo "anuj@247around.com,nits@247around.com";} ?>">
                                         <?php echo form_error('summary_email_cc'); ?>
                                     </div>
                                 </div>
@@ -631,8 +643,8 @@
                                     <label for="invoice_email_cc" class="col-md-4">cc</label>
                                     <div class="col-md-6">
                                         <input type="text" class="form-control"  name="invoice_email_cc" value = "<?php if (isset($query[0]['invoice_email_cc'])) {
-                                            echo $query[0]['invoice_email_cc'];
-                                            } ?>">
+                                            echo $query[0]['invoice_email_cc'];}  else { echo "anuj@247around.com,nits@247around.com,adityag@247around.com"; }
+                                            ?>">
                                         <?php echo form_error('invoice_email_cc'); ?>
                                     </div>
                                 </div>

@@ -549,7 +549,7 @@ class bookings_excel extends CI_Controller {
                             //Insert query
                             //echo print_r($booking, true) . "<br><br>";
                             //check partner status from partner_booking_status_mapping table  
-                            $actor = $next_action = 'not_define';
+                            $actor = $next_action = 'NULL';
                             $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $booking['partner_id'], $booking['booking_id']);
                             if (!empty($partner_status)) {
                                 $booking['partner_current_status'] = $partner_status[0];

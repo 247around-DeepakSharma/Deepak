@@ -1292,21 +1292,26 @@ class Around_scheduler extends CI_Controller {
         $reviewBookingsArray = $this->booking_model->review_reschedule_bookings_request();
         $id = _247AROUND_DEFAULT_AGENT;
         $employeeID = _247AROUND_DEFAULT_AGENT_NAME;
-        $partner_id =_247AROUND;
-        if(!empty($reviewBookingsArray)){
-            foreach($reviewBookingsArray as $bookingData){
-                    $rescheduledTime = date_create($bookingData['reschedule_request_date']);
-                    $currentTime = date_create();
-                    $diff  = date_diff( $rescheduledTime, $currentTime);
-                    $timeDiffInHours = $diff->h;
-                    // IF request Time is greater then 4 hours then approvad the rescheduled
-                    if($timeDiffInHours>4){
-                        $reschedule_booking_id[] = $bookingData['booking_id'];
-                        $reschedule_booking_date[$bookingData['booking_id']] = $bookingData['reschedule_date_request'];
-                        $reschedule_reason[$bookingData['booking_id']] = $bookingData['reschedule_reason'];
-                    }
+
+        $partner_id_array = array();
+        if (!empty($reviewBookingsArray)) {
+            foreach ($reviewBookingsArray as $bookingData) {
+                $rescheduledTime = date_create($bookingData['reschedule_request_date']);
+                $currentTime = date_create();
+                $diff = date_diff($rescheduledTime, $currentTime);
+                $timeDiffInHours = $diff->h;
+                // IF request Time is greater then 4 hours then approvad the rescheduled
+                if ($timeDiffInHours > 4) {
+                    $reschedule_booking_id[] = $bookingData['booking_id'];
+                    $reschedule_booking_date[$bookingData['booking_id']] = $bookingData['reschedule_date_request'];
+                    $reschedule_reason[$bookingData['booking_id']] = $bookingData['reschedule_reason'];
+                }
+                
+                $partner_id_array[$bookingData['booking_id']] = $bookingData['partner_id'];
+                
             }
-            $this->miscelleneous->approved_rescheduled_bookings($reschedule_booking_id,$reschedule_booking_date,$reschedule_reason,$partner_id,$id,$employeeID);
+            $this->miscelleneous->approved_rescheduled_bookings($reschedule_booking_id, $reschedule_booking_date, $reschedule_reason, $partner_id_array, $id, $employeeID);
+
         }
     }
     
@@ -1568,11 +1573,8 @@ class Around_scheduler extends CI_Controller {
      */
     function cancel_sf_not_found_query_after_threshold_limit(){
         log_message('info', __FUNCTION__ . " Function Start  ");
-        $thresholdDate = date('Y-m-d', strtotime(THRESHOLD_LIMIT, strtotime(date('Y-m-d'))));
-        $where['date(create_date)<"'.$thresholdDate.'"'] =NULL;
-        $where['booking_id !="Not_Generated"'] =NULL;
-        $where['active_flag'] =1;
-        $data = $this->reusable_model->get_search_result_data("sf_not_exist_booking_details","booking_id,partner_id",$where,NULL,NULL,NULL,NULL,NULL,array());
+        $select = " booking_id,partner_id ";
+        $data = $this->around_scheduler_model->get_vendor_pincode_unavailable_queries_by_days($select,THRESHOLD_LIMIT_TO_CANCEL_NOT_FOUND_SF_QUERIES);
         log_message('info', __FUNCTION__ . " Below Queries Needs to Cancel  ". print_r($data,true));
         if(!empty($data)){
             foreach($data as $bookingData){

@@ -2322,9 +2322,10 @@ class Miscelleneous {
     /*
      * This Function is used to approve rescheduled booking
      */
-    function approved_rescheduled_bookings($reschedule_booking_id,$reschedule_booking_date,$reschedule_reason,$partner_id,$id,$employeeID){
+    function approved_rescheduled_bookings($reschedule_booking_id,$reschedule_booking_date,$reschedule_reason,$partner_id_array,$id,$employeeID){
          log_message('info', __FUNCTION__);
          foreach ($reschedule_booking_id as $booking_id) {
+            $partner_id = $partner_id_array[$booking_id];
             $booking['booking_date'] = date('d-m-Y', strtotime($reschedule_booking_date[$booking_id]));
             $booking['current_status'] = 'Rescheduled';
             $booking['internal_status'] = 'Rescheduled';

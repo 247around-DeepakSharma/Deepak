@@ -83,11 +83,8 @@ class Booking extends CI_Controller {
                 log_message('info', " Booking Insert Contact No: " . $primary_contact_no);
                 $status = $this->getAllBookingInput($user_id, INSERT_NEW_BOOKING);
                 if ($status) {
-                    log_message('info', __FUNCTION__ . " Partner callback  " . $status['booking_id']);
+                    log_message('info', __FUNCTION__ . " Booking ID " . $status['booking_id']);
                     
-                    $cb_url = base_url() . "employee/do_background_process/send_request_for_partner_cb/".$status['booking_id'];
-                    $pcb = array();
-                    $this->asynchronous_lib->do_background_process($cb_url, $pcb);
                     //Redirect to Default Search Page
                     redirect(base_url() . DEFAULT_SEARCH_PAGE);
                 } else {
@@ -472,7 +469,7 @@ class Booking extends CI_Controller {
             }
 
             // check partner status
-            $actor = $next_action = 'not_define';
+            $actor = $next_action = 'NULL';
             $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $booking['partner_id'], $booking_id);
             if (!empty($partner_status)) {               
                 $booking['partner_current_status'] = $partner_status[0];
@@ -994,7 +991,7 @@ class Booking extends CI_Controller {
 
         //check partner status
         $partner_id = $this->input->post('partner_id');
-        $actor = $next_action = 'not_define';
+        $actor = $next_action = 'NULL';
         $partner_status = $this->booking_utilities->get_partner_status_mapping_data($data['current_status'], $data['internal_status'], $partner_id, $booking_id);
         if (!empty($partner_status)) {
             $data['partner_current_status'] = $partner_status[0];
@@ -1288,22 +1285,27 @@ class Booking extends CI_Controller {
      *  @return : rate for booking and load view
      */
     function process_rating_form($booking_id, $status) {
+        $user_id = $this->input->post('user_id');
+        $phone_no = $this->input->post('mobile_no');
         log_message('info', __FUNCTION__ . ' Booking ID : ' . $booking_id . ' Status' . $status . " Done By " . $this->session->userdata('employee_id'));
-        if ($this->input->post('rating_star') != "Select") {
-            $data['rating_stars'] = $this->input->post('rating_star');
-            $data['rating_comments'] = $this->input->post('rating_comments');
-            $phone_no = $this->input->post('mobile_no');
-            $user_id = $this->input->post('user_id');
-            $remarks = 'Rating'.':'.$data['rating_stars'].'. '.$data['rating_comments'];
-            
-            $update = $this->booking_model->update_booking($booking_id, $data);
+        if($this->input->post('not_reachable')){
+            $this->customer_not_reachable_for_rating($booking_id,$user_id,$phone_no);
+        }
+        else{
+            if ($this->input->post('rating_star') != "Select") {
+                $data['rating_stars'] = $this->input->post('rating_star');
+                $data['rating_comments'] = $this->input->post('rating_comments');
+                $remarks = 'Rating'.':'.$data['rating_stars'].'. '.$data['rating_comments'];
 
-            if ($update) {
-                //update state
-                $this->notify->insert_state_change($booking_id, RATING_NEW_STATE, $status, $remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'),
-                        ACTOR_BOOKING_RATING,RATING_NEXT_ACTION,_247AROUND);
-                // send sms after rating
-                $this->send_rating_sms($phone_no, $data['rating_stars'],$user_id,$booking_id);
+                $update = $this->booking_model->update_booking($booking_id, $data);
+
+                if ($update) {
+                    //update state
+                    $this->notify->insert_state_change($booking_id, RATING_NEW_STATE, $status, $remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'),
+                            ACTOR_BOOKING_RATING,RATING_NEXT_ACTION,_247AROUND);
+                    // send sms after rating
+                    $this->send_rating_sms($phone_no, $data['rating_stars'],$user_id,$booking_id);
+                }
             }
         }
 
@@ -1588,10 +1590,7 @@ class Booking extends CI_Controller {
 
                     $status = $this->getAllBookingInput($user_id, $booking_id);
                     if ($status) {
-                        log_message('info', __FUNCTION__ . " Partner callback  " . $status['booking_id']);
-                        $cb_url = base_url() . "employee/do_background_process/send_request_for_partner_cb/".$status['booking_id'];
-                        $pcb = array();
-                        $this->asynchronous_lib->do_background_process($cb_url, $pcb);
+                        log_message('info', __FUNCTION__ . " Update Booking ID" . $status['booking_id']);
 
                         //Redirect to Default Search Page
                         redirect(base_url() . DEFAULT_SEARCH_PAGE);
@@ -1697,8 +1696,8 @@ class Booking extends CI_Controller {
         
         $booking_id = $this->input->post('booking_id');
         $admin_remarks = $this->input->post('admin_remarks');
-        $data['internal_status'] = _247AROUND_PENDING;
-        $data['current_status'] = _247Around_Rejected_SF_Update;
+        $data['internal_status'] = _247Around_Rejected_SF_Update;
+        $data['current_status'] = _247AROUND_PENDING;
         $data['update_date'] = date("Y-m-d H:i:s");
         $data['serial_number'] = "";
         $data['service_center_remarks'] = NULL;
@@ -1799,10 +1798,10 @@ class Booking extends CI_Controller {
         $reschedule_booking_id = $this->input->post('reschedule');
         $reschedule_booking_date = $this->input->post('reschedule_booking_date');
         $reschedule_reason = $this->input->post('reschedule_reason');
-        $partner_id = $this->input->post('partner_id');
+        $partner_id_array = $this->input->post('partner_id');
         $employeeID = $this->session->userdata('employee_id');
         $id = $this->session->userdata('id');
-        $this->miscelleneous->approved_rescheduled_bookings($reschedule_booking_id,$reschedule_booking_date,$reschedule_reason,$partner_id,$id,$employeeID);
+        $this->miscelleneous->approved_rescheduled_bookings($reschedule_booking_id,$reschedule_booking_date,$reschedule_reason,$partner_id_array,$id,$employeeID);
          redirect(base_url() . "employee/booking/review_bookings");
     }
 
@@ -1815,7 +1814,13 @@ class Booking extends CI_Controller {
      */
     function process_complete_booking($booking_id, $status = "") {
         log_message('info', __FUNCTION__ . " Booking id: " . $booking_id . " Status: " . $status . " Done By " . $this->session->userdata('employee_id'));
-       
+        log_message('info', __METHOD__ ." Booking ID ". $booking_id. " POST Data ". json_encode($this->input->post()), TRUE);
+        
+        $change_appliance_details = $this->input->post('change_appliance_details');
+        
+        if($change_appliance_details == 1){
+            $this->update_completed_unit_applinace_details($booking_id);
+        }
         // customer paid basic charge is comming in array
         // Array ( [100] =>  500 , [102] =>  300 )
         $customer_basic_charge = $this->input->post('customer_basic_charge');
@@ -1968,7 +1973,7 @@ class Booking extends CI_Controller {
 
         // check partner status
         $partner_id = $this->input->post('partner_id');
-        $actor = $next_action = 'not_define';
+        $actor = $next_action = 'NULL';
         $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $partner_id, $booking_id);
         if (!empty($partner_status)) {
             $booking['partner_current_status'] = $partner_status[0];
@@ -2982,7 +2987,12 @@ class Booking extends CI_Controller {
         $row[] = "<a id='view' class='btn btn-sm btn-color' href='".base_url()."employee/booking/viewdetails/".$order_list->booking_id."' title='view' target='_blank'><i class='fa fa-eye' aria-hidden='true'></i></a>";
         
         if($booking_status === _247AROUND_COMPLETED){
-            $row[] = "<a class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_rating_form/".$order_list->booking_id."/".$booking_status."' title='Rating' target='_blank' $rating_btn_disabled><i class='fa fa-star-o' aria-hidden='true' ></i></a>";
+            $unreachableCount = $order_list->rating_unreachable_count;
+            if($order_list->rating_unreachable_count == 0){
+                $unreachableCount = "";
+            }
+            $row[] = "<a class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_rating_form/".$order_list->booking_id."/".$booking_status."' title='Rating' target='_blank' $rating_btn_disabled><i class='fa fa-star-o' aria-hidden='true' >"
+                    . "</i></a><p style='text-align:center;color: red;'>$unreachableCount</p>";
         }
         
         $row[] = "<a class='btn btn-sm btn-color col-md-12' href='".base_url()."employee/vendor/get_escalate_booking_form/".$order_list->booking_id."/".$booking_status."' title='Add Penalty' target='_blank'><i class='fa fa-plus-square' aria-hidden='true'></i></a>".$penalty_row;
@@ -4028,6 +4038,24 @@ class Booking extends CI_Controller {
         }
     }
 
+    function customer_not_reachable_for_rating($bookingID,$userID,$phone_number){
+        //Update unreachable Count in booking state table
+        $response = $this->booking_model->update_customer_not_reachable_count($bookingID);
+        //Update History Table
+        $this->notify->insert_state_change($bookingID, "Customer_unreachable_for_rating", "Completed", "Try to call for rating but customer is not reachbale", 
+        $this->session->userdata('id'), $this->session->userdata('employee_id'),NULL,NULL,_247AROUND);
+        //Send Rating SMS to Customer
+        $userData = $this->reusable_model->get_search_result_data("users","name",array("user_id"=>$userID),NULL,NULL,NULL,NULL,NULL,array());
+        $sms['tag'] = "customer_not_reachable_for_rating";
+        $sms['smsData']['name'] = $userData[0]['name'];
+        $sms['smsData']['poor_rating_number'] = POOR_MISSED_CALL_RATING_NUMBER;
+        $sms['smsData']['good_rating_number'] = GOOD_MISSED_CALL_RATING_NUMBER;
+        $sms['phone_no'] = $phone_number;
+        $sms['type'] = "rating";
+        $sms['type_id'] = $userID;
+        $sms['booking_id'] = $bookingID;
+        $this->notify->send_sms_msg91($sms);
+    }
     
     function update_booking_address(){
         log_message('info', __METHOD__. " POST DATA ". print_r($this->input->post(), true));
@@ -4154,4 +4182,5 @@ class Booking extends CI_Controller {
         }
         
     }
+
 }

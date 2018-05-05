@@ -10,7 +10,6 @@
                                 <thead >
                                     <tr>
                                         <th class="text-center" >No</th>
-                                        <th class="text-center" data-orderable="false">Brands</th>
                                         <th class="text-center" data-orderable="false">Booking Id</th>
                                         <th class="text-center" data-orderable="false">User/Phone</th>
                                         <th class="text-center" style="min-width:85px;" data-orderable="false">Address</th>
@@ -23,6 +22,7 @@
                                         <!--                                            <th class="text-center">Engineer</th>
                                             <th class="text-center">Re-Assign</th>-->
                                         <?php } ?> 
+                                        <th class="text-center" data-orderable="false">Brands</th>
                                         <th  class="text-center" >Escalation</th>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <th class="text-center" data-orderable="false">Update</th>
@@ -46,8 +46,6 @@
                                             <?php echo $sn_no; if($row->is_upcountry == 1) { ?>
                                             <i data-popover="true" data-html=true data-content="Click on it to display upcountry details" onclick="open_upcountry_model('<?php echo $row->booking_id; ?>', '<?php echo $row->upcountry_paid_by_customer;?>')" style='color: red;font-size: 28px; cursor: pointer' class="fa fa-road" aria-hidden="true"></i><?php } ?>
                                         </td>
-                                        
-                                        <td style="vertical-align: middle;"> <?=  "<b>".strtoupper($row->appliance_brand)."</b>"; ?></td>
                                         <td style="vertical-align: middle;">
                                             <a  target="_blank" 
                                                 <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  style="pointer-events:none" <?php } } ?> 
@@ -123,6 +121,7 @@
                                             <?php// if (!is_null($row->assigned_engineer_id)) { ?>  <button type="button"  class="btn btn-sm btn-success" onclick="edit_engineer(<?php //echo $sn_no; ?>)"><i class="fa fa-user" aria-hidden='true'></i></button> <?php// } ?>
                                             </td>-->
                                         <?php } ?>
+                                            <td style="vertical-align: middle;"> <?=  strtoupper($row->appliance_brand); ?></td>
                                         <td style="vertical-align: middle;">
                                             <div class="blink">
                                                 <?php if($row->count_escalation > 0){ ?> 
@@ -131,6 +130,7 @@
                                             </div>
                                             <?php  echo $row->count_escalation." times"; ?>
                                         </td>
+                                        
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <td style="vertical-align: middle;">
                                             <a class="btn btn-sm btn-primary <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } ?>" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="<?php echo base_url(); ?>service_center/update_booking_status/<?php echo urlencode(base64_encode($row->booking_id));?>" ><i class='fa fa-edit' aria-hidden='true'></i></a>
@@ -282,6 +282,7 @@
                                             <?php //if (!is_null($row->assigned_engineer_id)) { ?>  <button type="button"  class="btn btn-sm btn-success" onclick="edit_engineer(<?php //echo $sn_no; ?>)"><i class="fa fa-user" aria-hidden='true'></i></button> <?php //} ?>
                                             </td>-->
                                         <?php } ?>
+                                        <td style="vertical-align: middle;"> <?= $row->appliance_brand; ?></td>
                                         <td style="vertical-align: middle;">
                                             <div class="blink">
                                                 <?php if($row->count_escalation > 0){ ?> 
@@ -290,7 +291,6 @@
                                             </div>
                                             <?php  echo $row->count_escalation." times"; ?>
                                         </td>
-                                            <td style="vertical-align: middle;"> <?= $row->appliance_brand; ?></td>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <td style="vertical-align: middle;">
                                             <a class="btn btn-sm btn-primary <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } ?>" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="<?php echo base_url(); ?>service_center/update_booking_status/<?php echo urlencode(base64_encode($row->booking_id));?>" ><i class='fa fa-edit' aria-hidden='true'></i></a>

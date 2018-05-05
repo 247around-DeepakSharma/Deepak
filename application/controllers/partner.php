@@ -223,7 +223,7 @@ class Partner extends CI_Controller {
                                 }
 
                                 //Product description
-                                $appliance_details['description'] = $unit_details['appliance_description'] = $requestData['productType'];
+                                $appliance_details['description'] = $unit_details['appliance_description'] = trim($requestData['productType']);
 
                                 //Check for all optional parameters before setting them
                                 $appliance_details['category'] = $unit_details['appliance_category'] = isset($lead_details['service_appliance_data']['category']) ? $lead_details['service_appliance_data']['category'] : $category;
@@ -326,13 +326,13 @@ class Partner extends CI_Controller {
                                 }
                                 
                                 //check partner status from partner_booking_status_mapping table 
-                                $actor = $next_action = 'not_define';
+                                $actor = $next_action = 'NULL';
                                 $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $booking['partner_id'], $booking['booking_id']);
                                 if (!empty($partner_status)) {
                                     $booking['partner_current_status'] = $partner_status[0];
                                     $booking['partner_internal_status'] = $partner_status[1];
-                                    $actor = $booking['actor'] = $partner_status[1];
-                                    $next_action = $booking['next_action'] = $partner_status[1];
+                                    $actor = $booking['actor'] = $partner_status[2];
+                                    $next_action = $booking['next_action'] = $partner_status[3];
                                 }
 
                                 //Insert query
@@ -776,18 +776,18 @@ class Partner extends CI_Controller {
         }
         
         if($this->partner['id'] == JEEVES_ID && $flag === TRUE){
-            if(!isset($request['service_promise_date'])){
+            if(!isset($request['servicePromiseDate'])){
                 
                 $resultArr['code'] = ERR_SPD_DATE_MANDATORY_CODE;
                 $resultArr['msg'] = ERR_SPD_DATE_MANDATORY_MSG;
                 $flag = FALSE;
-            } else if(empty($request['service_promise_date'])){
+            } else if(empty($request['servicePromiseDate'])){
                 
                 $resultArr['code'] = ERR_SPD_DATE_MANDATORY_CODE;
                 $resultArr['msg'] = ERR_SPD_DATE_MANDATORY_MSG;
                 $flag = FALSE;
                 
-            } else if($this->validate_timeslot_format($request['service_promise_date']) === FALSE){
+            } else if($this->validate_timeslot_format($request['servicePromiseDate']) === FALSE){
                 
                 $resultArr['code'] = ERR_INVALID_SPD_DATE_CODE;
                 $resultArr['msg'] = ERR_INVALID_SPD_DATE_MSG;
@@ -1525,7 +1525,7 @@ class Partner extends CI_Controller {
                         }
                     }
                     //check partner status from partner_booking_status_mapping table  
-                    $actor = $next_action = 'not_define';
+                    $actor = $next_action = 'NULL';
                     $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $booking['partner_id'], $booking['booking_id']);
                     if (!empty($partner_status)) {
                         $booking['partner_current_status'] = $partner_status[0];
