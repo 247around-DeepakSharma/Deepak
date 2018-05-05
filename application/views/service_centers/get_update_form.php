@@ -256,7 +256,6 @@
                                 <?php //}?>
                             </div>
                         </div>
-                    </div>
                     <div  id="hide_rescheduled" >
                         <div class="form-group">
                             <label for="reschdeduled" class="col-md-2"> New Booking Date</label>
