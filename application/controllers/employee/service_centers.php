@@ -1563,7 +1563,7 @@ class Service_centers extends CI_Controller {
         $select = "CONCAT( '', GROUP_CONCAT((parts_shipped ) ) , '' ) as parts_shipped, "
                 . " spare_parts_details.booking_id, name, "
                 . "CONCAT( '', GROUP_CONCAT((remarks_defective_part_by_partner ) ) , '' ) as remarks_defective_part_by_partner, "
-                . "CONCAT( '', GROUP_CONCAT((remarks_by_partner ) ) , '' ) as remarks_by_partner, booking_details.partner_id";
+                . "CONCAT( '', GROUP_CONCAT((remarks_by_partner ) ) , '' ) as remarks_by_partner, spare_parts_details.partner_id,spare_parts_details.entity_type";
         
         $group_by = "spare_parts_details.booking_id";
         $order_by = "status = '". DEFECTIVE_PARTS_REJECTED."', spare_parts_details.create_date ASC";
@@ -1742,9 +1742,39 @@ class Service_centers extends CI_Controller {
         $booking_address = $this->input->post('download_address');
         $booking_history['details'] = array();
         $i=0;
+        
         if(!empty($booking_address)){
+            
             foreach ($booking_address as $partner_id=> $booking_id) {
-                $booking_history['details'][$i]  = $this->partner_model->getpartner($partner_id)[0];
+                
+                $wh_entity_details = explode('-', $partner_id);
+                
+                switch ($wh_entity_details[1]) {
+                    case _247AROUND_PARTNER_STRING:
+                        $booking_details = $this->partner_model->getpartner($wh_entity_details[0])[0];
+                        break;
+                    case _247AROUND_SF_STRING:
+                        $select = 'name as company_name,primary_contact_name,address,pincode,state,district,primary_contact_phone_1,primary_contact_phone_2';
+                        $booking_details = $this->vendor_model->getVendorDetails($select, array('id' => $wh_entity_details[0]));
+                        break;
+                }
+                
+                $select = "contact_person.name as  primary_contact_name,contact_person.official_contact_number as primary_contact_phone_1,contact_person.alternate_contact_number as primary_contact_phone_2,"
+                        . "concat(warehouse_address_line1,',',warehouse_address_line2) as address,warehouse_details.warehouse_city as district,"
+                        . "warehouse_details.warehouse_pincode as pincode,"
+                        . "warehouse_details.warehouse_state as state";
+                
+                $where = array('contact_person.entity_id' => $wh_entity_details[0], 'contact_person.entity_type' => $wh_entity_details[1]);
+                
+                $wh_address_details = $this->inventory_model->get_warehouse_details($select,$where,FALSE);
+                
+                if(!empty($wh_address_details)){
+                    $wh_address_details[0]['company_name'] = $booking_details[0]['company_name'];
+                    $booking_history['details'][$i] = $wh_address_details[0];
+                }else{
+                    $booking_history['details'][$i] = $booking_details[0];
+                }
+                
                 $booking_history['details'][$i]['vendor'] = $this->vendor_model->getVendor($booking_id)[0];
                 $booking_history['details'][$i]['booking_id'] = $booking_id;
                 $i++;
