@@ -4142,50 +4142,6 @@ class Partner extends CI_Controller {
         exec("rm -rf " . escapeshellarg($csv));
      }
     
-    function get_pending_part_on_sf($offset = 0, $all = 0){
-         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
-        $this->checkUserSession();
-        $partner_id = $this->session->userdata('partner_id');
-
-        $where = array(
-            "spare_parts_details.defective_part_required" => 1,
-            "spare_parts_details.partner_id" => $partner_id,
-            "status IN ('" . DEFECTIVE_PARTS_PENDING . "')  " => NULL
-        );
-
-        $select = "CONCAT( '', GROUP_CONCAT((parts_shipped ) ) , '' ) as defective_part_shipped, "
-                . " spare_parts_details.booking_id, name,DATEDIFF(CURDATE(),date(booking_details.service_center_closed_date)) as aging";
-
-        $group_by = "spare_parts_details.booking_id";
-        $order_by = "spare_parts_details.defective_part_shipped_date DESC";
-
-        $config['base_url'] = base_url() . 'partner/get_pending_part_on_sf';
-        $config['total_rows'] = $this->service_centers_model->count_spare_parts_booking($where, $select, $group_by);
-
-        if ($all == 1) {
-            $config['per_page'] = $config['total_rows'];
-        } else {
-            $config['per_page'] = 50;
-        }
-        $config['uri_segment'] = 3;
-        $config['first_link'] = 'First';
-        $config['last_link'] = 'Last';
-        $this->pagination->initialize($config);
-        $data['links'] = $this->pagination->create_links();
-
-        $data['count'] = $config['total_rows'];
-        $data['spare_parts'] = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $offset, $config['per_page']);
-        $where_internal_status = array("page" => "defective_parts", "active" => '1');
-        $data['internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
-        $data['is_ajax'] = $this->input->post('is_ajax');
-        if(empty($this->input->post('is_ajax'))){
-            $this->load->view('partner/header');
-            $this->load->view('partner/sf_needs_to_send_parts', $data);
-            $this->load->view('partner/partner_footer');
-        }else{
-            $this->load->view('partner/sf_needs_to_send_parts', $data);
-        }
-    }
     
     /**
      *  @desc : This function is used to show the current stock of partner inventory in 247around warehouse.
