@@ -133,9 +133,7 @@ class Booking_model extends CI_Model {
             $this->db->where('appliance_id', $value['appliance_id']);
             $this->db->where('booking_id', $value['booking_id']);
 
-            $this->db->order_by("price_tags","desc");
-
-
+            $this->db->order_by("price_tags","asc");
             $query2 = $this->db->get('booking_unit_details');
 
             $result = $query2->result_array();
