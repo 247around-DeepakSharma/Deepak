@@ -137,9 +137,9 @@
                             </ul>
                         </li>
                         <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span style="font-weight: bold; left: 93px;" class="badge nt-badge" id="defectivecount">0</span>Spare Parts <span class="caret"></span></a>
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span style="font-weight: bold; left: 93px;" class="badge nt-badge defectivecount" >0</span>Spare Parts <span class="caret"></span></a>
                             <ul class="dropdown-menu">
-                                <li><a href="<?php echo base_url();?>service_center/get_defective_parts_booking">Defective Parts</a></li>
+                                <li><a href="<?php echo base_url();?>service_center/get_defective_parts_booking">Defective Parts (<span class="defectivecount"></span>)</a></li>
                                 <li role="separator" class="divider"></li>
                                 <li><a href="<?php echo base_url();?>service_center/get_approved_defective_parts_booking">Approved Defective Parts</a></li>
                             </ul>
@@ -388,7 +388,7 @@
             url:'<?php echo base_url();?>employee/service_centers/get_defective_parts_count',
             success:function(data){
                 var obj = JSON.parse(data);
-                $('#defectivecount').html(obj.count);
+                $('.defectivecount').html(obj.count);
             }
         });
     }
