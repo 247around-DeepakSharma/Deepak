@@ -2101,7 +2101,8 @@ class Miscelleneous {
             $whereArray["users.phone_number"] = $userPhone; 
         }
         //get Booking id
-        $bookingDetails = $this->My_CI->reusable_model->get_search_result_data("booking_details","booking_details.booking_id,booking_details.booking_date,booking_details.assigned_vendor_id,booking_details.booking_timeslot",
+        $bookingDetails = $this->My_CI->reusable_model->get_search_result_data("booking_details","booking_details.booking_id,booking_details.booking_date,booking_details.assigned_vendor_id,"
+                . "booking_details.booking_timeslot,booking_details.assigned_vendor_id",
                 $whereArray,array("users"=>"users.user_id=booking_details.user_id","service_center_booking_action"=>"service_center_booking_action.booking_id=booking_details.booking_id"),
                 NULL,NULL,NULL,NULL,array("booking_details.booking_id"));
         return $bookingDetails;
@@ -2113,6 +2114,7 @@ class Miscelleneous {
      * 2nd) booking will be escalated
      */
     function fake_reschedule_handling($userPhone,$id,$employeeID,$remarks,$bookingID=NULL){
+        $isEscalationDone = FALSE;
         log_message('info', __METHOD__.' Function Start');
         $already_rescheduled =0;
         $whereArray["service_center_booking_action.internal_status"] = "Reschedule"; 
@@ -2138,10 +2140,36 @@ class Miscelleneous {
             $notificationTextArray['title'] = array("Cancelled(Rescheduled)");
             $this->My_CI->push_notification_lib->create_and_send_push_notiifcation(BOOKING_UPDATED_BY_247AROUND,$receiverArray,$notificationTextArray);
             //End Sending Push Notification
-            $isEscalationDone =  $this->process_escalation($booking_id,$vendor_id,$escalation_reason_id,$remarks,TRUE,$id,$employeeID);
+            $is_penalty_applicable = $this->is_fake_rescheduled_penalty_valid($bookingDetails,$userPhone);
+            if($is_penalty_applicable){
+                $isEscalationDone =  $this->process_escalation($booking_id,$vendor_id,$escalation_reason_id,$remarks,TRUE,$id,$employeeID);
+            }
            return $isEscalationDone;
         }
          log_message('info', __METHOD__.' Function End');
+    }
+    function is_fake_rescheduled_penalty_valid($bookingDetails,$userPhone){
+        log_message('info', __METHOD__.' Function Start '.$userPhone);
+        $historyWhere['booking_id'] =  $bookingDetails[0]['booking_id'];
+        $historyWhere['new_state'] =  "InProcess_Rescheduled";
+        $historyWhere['service_center_id'] =  $bookingDetails[0]['assigned_vendor_id'];
+        $historyLimitArray['length'] =  1;
+        $historyLimitArray['start'] =  0;
+        $historyOrderBYArray['id'] =  'ASC';
+        $lastResheduledRequestData = $this->My_CI->reusable_model->get_search_result_data("booking_state_change","*",$historyWhere,NULL,$historyLimitArray,$historyOrderBYArray,
+                NULL,NULL,array()); 
+        $where['from_number'] = $userPhone;
+        $where['(date(create_date) >= "'.date('Y-m-d', strtotime($lastResheduledRequestData[0]['create_date'])).'" AND date(create_date)<="'.date('Y-m-d').'" )'] = NULL;
+        $logData = $this->My_CI->reusable_model->get_search_result_data("fake_reschedule_missed_call_log log","COUNT(log.id) as count",$where,NULL,NULL,NULL,NULL,NULL,array());
+        log_message('info', __METHOD__.' Function Start '.print_r($logData,true));
+        if($logData[0]['count'] >0){
+            log_message('info', __METHOD__.' Function End With False '.$userPhone);
+            return false;    
+        }
+        else{
+            log_message('info', __METHOD__.' Function End With True '.$userPhone);
+            return true;
+        }
     }
     /*
      * This function is used to reject reschedule request in case of fake reschedule

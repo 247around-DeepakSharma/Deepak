@@ -632,11 +632,24 @@ admin_dashboard.controller('admin_escalationController', function ($scope, $http
 });
  //This Function is used to call admin view of Pending Booking Count
 admin_dashboard.controller('pendngBooking_Controller', function ($scope, $http) {
-    var url = baseUrl + "/employee/dashboard/pending_booking_count_by_rm";
-    $http.get(url).then(function (response) {
+    $scope.loadPendingBookingView = function(pending_url){
+        $("#loader_gif_pending").css("display", "block");
+            $scope.pendingBookingByRM = "";
+            $http.get(pending_url).then(function (response) {
             $("#loader_gif_pending").css("display", "none");
             $scope.pendingBookingByRM = response.data;
-     });
+         });
+     }
+     $scope.loadPendingBookingView(baseUrl + "/employee/dashboard/pending_booking_count_by_rm/");
+     $scope.ShowBookingActorView = function(){
+         var actor = $('#actor').val();
+         if(actor === 'all'){
+              $scope.loadPendingBookingView(baseUrl + "/employee/dashboard/pending_booking_count_by_rm/");
+         }
+         else{
+             $scope.loadPendingBookingView(baseUrl + "/employee/dashboard/pending_booking_count_by_rm/"+actor);
+        }
+    }
 });
 
 

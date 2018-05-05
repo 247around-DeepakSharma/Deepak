@@ -383,11 +383,11 @@ function get_data_for_partner_callback($booking_id) {
             order_id AS 'Sub Order ID',
             (CONCAT('''', booking_details.booking_id)) AS '247BookingID',
             date(booking_details.create_date) AS 'Referred Date and Time',
-            ud.appliance_brand AS 'Brand', 
-            IFNULL(model_number,'') AS 'Model',
-            CASE WHEN(serial_number IS NULL OR serial_number = '') THEN '' ELSE (CONCAT('''', serial_number))  END AS 'Serial Number',
+            GROUP_CONCAT(ud.appliance_brand) AS 'Brand', 
+            IFNULL(GROUP_CONCAT(model_number),'') AS 'Model',
+            CASE WHEN(serial_number IS NULL OR serial_number = '') THEN '' ELSE (CONCAT('''', GROUP_CONCAT(serial_number)))  END AS 'Serial Number',
             services AS 'Product', 
-            ud.appliance_description As 'Description',
+            GROUP_CONCAT(ud.appliance_description) As 'Description',
             name As 'Customer', 
             home_address AS 'Customer Address', 
             booking_pincode AS 'Pincode', 
@@ -395,7 +395,7 @@ function get_data_for_partner_callback($booking_id) {
             booking_details.state As 'State', 
             booking_primary_contact_no AS Phone, 
             user_email As 'Email ID', 
-            ud.price_tags AS 'Call Type (Installation /Table Top Installation/Demo/ Service)',
+            GROUP_CONCAT(ud.price_tags) AS 'Call Type (Installation /Table Top Installation/Demo/ Service)',
             CASE WHEN(current_status = 'Completed' || current_status = 'Cancelled') THEN (closing_remarks) ELSE (reschedule_reason) END AS 'Remarks',
             'Service sent to vendor' AS 'Status by Partner', 
             booking_date As 'Scheduled Appointment Date(DD/MM/YYYY)', 
@@ -414,7 +414,7 @@ function get_data_for_partner_callback($booking_id) {
             AND booking_details.user_id = users.user_id
             AND product_or_services != 'Product'
             AND booking_details.partner_id = $partner_id
-            AND $where");
+            AND $where GROUP BY ud.booking_id");
     } 
     
     //Return all leads shared by Partner in the last 30 days

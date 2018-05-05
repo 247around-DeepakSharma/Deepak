@@ -28,6 +28,7 @@ class Buyback_process extends CI_Controller {
         $this->load->model("service_centre_charges_model");
         $this->load->library('PHPReport');
 
+        $this->load->library('push_notification_lib');
 
         if (($this->session->userdata('loggedIn') == TRUE) && $this->session->userdata('userType') == 'employee') {
             return TRUE;
@@ -769,6 +770,9 @@ class Buyback_process extends CI_Controller {
      */
     function approve_reject_bb_order() {
         log_message("info", __METHOD__);
+        $order_details_data = array();
+        $update_bb_unit_data = array();
+        $bb_cp_order_details_data = array();
         if ($this->input->post()) {
             $flag = FALSE;
             $order_ids = explode(',', $this->input->post('order_ids'));
@@ -776,7 +780,6 @@ class Buyback_process extends CI_Controller {
             $type = $this->input->post('type');
             $cp_claimed_price = explode(',', $this->input->post('cp_claimed_price'));
             $remarks = $this->input->post('remarks');
-            
             
             if ($type === 'approved') {
                 foreach ($order_ids as $key => $value) {
@@ -823,14 +826,12 @@ class Buyback_process extends CI_Controller {
                             
                             break;
                     }
-
                     $flag = $this->process_approve_reject_bb_order($order_details_data, $bb_cp_order_details_data, $value, $update_bb_unit_data);
                 }
             } else if ($type === 'rejected') {
                 $bb_cp_order_details_data['current_status'] = _247AROUND_PENDING;
                 $bb_cp_order_details_data['internal_status'] = _247AROUND_BB_DELIVERED;
                 $bb_cp_order_details_data['admin_remarks'] = $remarks;
-                
                 $flag = $this->process_approve_reject_bb_order($order_details_data, $bb_cp_order_details_data, $order_ids[0], $update_bb_unit_data);
             }
 
@@ -841,14 +842,15 @@ class Buyback_process extends CI_Controller {
     }
 
     function process_approve_reject_bb_order($order_details_data,$bb_cp_order_details_data,$partner_order_id,$update_bb_unit_data) {
-        
         $flag = FALSE;
         if(!empty($order_details_data)){
+            $actionType = "Approved";
             $update_order_details = $this->bb_model->update_bb_order_details(array('partner_order_id' => $partner_order_id), $order_details_data);
             $new_state = $order_details_data['current_status'];
             $remarks = '';
             
         }else{
+            $actionType = "Rejected";
             $update_order_details = TRUE;
             $new_state = _247AROUND_BB_ORDER_REJECTED;
             $remarks = $bb_cp_order_details_data['admin_remarks'];
@@ -863,6 +865,8 @@ class Buyback_process extends CI_Controller {
                     $this->bb_model->update_bb_unit_details(array('partner_order_id' => $partner_order_id),$update_bb_unit_data);
                 }
                 
+                $this->send_notification_for_updated_order($actionType,$bb_cp_order_details_data,$update_bb_unit_data,$partner_order_id);
+                
                 $this->buyback->insert_bb_state_change($partner_order_id, $new_state, $remarks, $this->session->userdata('id'), _247AROUND, NULL);
                 $flag = TRUE;
                 
@@ -874,6 +878,37 @@ class Buyback_process extends CI_Controller {
         }
         
         return $flag;
+    }
+    
+    function send_notification_for_updated_order($actionType,$bb_cp_order_details_data,$update_bb_unit_data,$partner_order_id){
+        $msg = "";
+        $subject = "";
+        if($actionType == 'Approved'){
+            $cpBasicChargesArray = $this->reusable_model->get_search_result_data("bb_unit_details","cp_basic_charge",array("partner_order_id"=>$partner_order_id),NULL,NULL,NULL,NULL,NULL,array());
+            $msg = $msg."Order ID : ".$partner_order_id;
+            $msg = $msg."<br>Basic Charge : " .$cpBasicChargesArray[0]['cp_basic_charge'];
+            $msg = $msg." <br>Claimed Price  : " .$update_bb_unit_data['cp_claimed_price'];
+            $msg = $msg."<br>Remarks : ".$bb_cp_order_details_data['admin_remarks'];
+            $subject  = $subject."Order Approved By 247Around";
+        }
+        else{
+            $msg = $msg."Order ID : ".$partner_order_id;
+            $msg = $msg."<br>Remarks : ".$bb_cp_order_details_data['admin_remarks'];
+            $subject  = $subject."Order Rejected By 247Around";
+        }
+        $join['service_centres sc'] = "sc.id = bb.cp_id";
+        $cpDetails = $this->reusable_model->get_search_result_data("bb_cp_order_action bb","bb.cp_id,sc.primary_contact_email",array("bb.partner_order_id"=>$partner_order_id),
+                $join,NULL,NULL,NULL,NULL,array());
+        //Send Email to poc
+        $to = $cpDetails[0]['primary_contact_email'];
+        $cc = $this->session->userdata('official_email');
+        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, NULL, $subject, $msg, NULL,"order_rejected_email_to_cp");
+        //End Send Email
+        //Send Notification 
+//        $receiverArray['vendor'] = array($cpDetails[0]['cp_id']);
+//        $notificationTextArray['msg'] = array($partner_order_id,$actionType);
+//        $this->push_notification_lib->create_and_send_push_notiifcation(ORDER_REJECT_INFORM_TO_CP, $receiverArray, $notificationTextArray);
+        //End Push Notification
     }
 
     
