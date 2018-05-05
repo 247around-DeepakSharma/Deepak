@@ -854,7 +854,11 @@ class Reporting_utils extends CI_Model {
         $data = $this->db->query($sql);
         return $data->result_array();
     }
-    function get_pending_booking_by_service_center_query_data($where,$groupBY){
+    function get_pending_booking_by_service_center_query_data($where,$groupBY,$actor=NULL){
+        $actorWhere = '';
+        if($actor){
+            $actorWhere = "AND booking_details.actor='".$actor."' ";
+        }
         $queries['sql_last_2_day'] = "SELECT GROUP_CONCAT(booking_details.booking_id) as booking_id_list,GROUP_CONCAT(booking_details.partner_internal_status) as partner_internal_status,
             GROUP_CONCAT(booking_details.booking_remarks) as booking_remarks,service_centres.state, service_centres.district as city, service_centres.id AS service_center_id, 
             service_centres.name AS service_center_name, COUNT(booking_id ) AS booked , service_centres.active as active, service_centres.on_off as temporary_on_off  
@@ -868,7 +872,7 @@ class Reporting_utils extends CI_Model {
                             AND current_status
                             IN (
                             'Pending', 'Rescheduled'
-                            ) ".$groupBY;
+                            ) ".$actorWhere.$groupBY;
 
        $queries['sql_last_3_day'] = "SELECT GROUP_CONCAT(booking_details.booking_id) as booking_id_list,GROUP_CONCAT(booking_details.partner_internal_status) as partner_internal_status,
             GROUP_CONCAT(booking_details.booking_remarks) as booking_remarks,service_centres.state, service_centres.district as city, service_centres.id AS service_center_id, service_centres.name 
@@ -883,7 +887,7 @@ class Reporting_utils extends CI_Model {
                             AND current_status
                             IN (
                             'Pending', 'Rescheduled'
-                            ) ".$groupBY;
+                            ) ".$actorWhere.$groupBY;
 
         $queries['sql_greater_than_5_days'] = "SELECT GROUP_CONCAT(booking_details.booking_id) as booking_id_list,GROUP_CONCAT(booking_details.partner_internal_status) as partner_internal_status,
             GROUP_CONCAT(booking_details.booking_remarks) as booking_remarks,service_centres.state, service_centres.district as city, service_centres.id AS service_center_id, service_centres.name 
@@ -896,7 +900,7 @@ class Reporting_utils extends CI_Model {
                             AND current_status
                             IN (
                             'Pending', 'Rescheduled'
-                            ) ".$groupBY;
+                            ) ".$actorWhere.$groupBY;
         $data_last_2_day = $this->db->query($queries['sql_last_2_day'])->result_array();
         $data_last_3_day = $this->db->query($queries['sql_last_3_day'])->result_array();
         $data_greater_than_5_days = $this->db->query($queries['sql_greater_than_5_days'])->result_array();

@@ -1117,7 +1117,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
     /*
      * This Function is used to get SF(Related to Particular RM) pending Booking Data(Installation,Repair)(last_2_days,3_to_5_days,more_than_5_days) 
      */
-    function pending_booking_by_rm($rmID){
+    function pending_booking_by_rm($rmID,$actor=NULL){
         $finalArray =$serviceCentersData = array();
         //Get Service Centers Associated to RM
         $serviceCentersIDArray= $this->vendor_model->get_employee_relation($rmID);
@@ -1130,9 +1130,9 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $where_repair = $where." AND (request_type LIKE '%Repair%' OR request_type LIKE '%Repeat%')";
             $groupBY = "GROUP BY service_centres.name";
             //get Installation Booking Data
-            $installationData = $this->reporting_utils->get_pending_booking_by_service_center_query_data($where_installation,$groupBY);
+            $installationData = $this->reporting_utils->get_pending_booking_by_service_center_query_data($where_installation,$groupBY,$actor);
             //get Repair Booking Data
-            $repairData = $this->reporting_utils->get_pending_booking_by_service_center_query_data($where_repair,$groupBY);
+            $repairData = $this->reporting_utils->get_pending_booking_by_service_center_query_data($where_repair,$groupBY,$actor);
             //Club Repair and Installation in 1 array by SF
             $finalArray['last2DaysArray'] = $this->create_structure_array_for_sf_pending_bookings($installationData['data_last_2_day'],$repairData['data_last_2_day']);
             $finalArray['last3To5DaysArray'] = $this->create_structure_array_for_sf_pending_bookings($installationData['data_last_3_day'],$repairData['data_last_3_day']);
@@ -1210,7 +1210,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
     /*
      * This Function is used to get Pending Booking Data BY all RM
      */
-    function pending_booking_count_by_rm(){
+    function pending_booking_count_by_rm($actor=NULL){
         $finalArray = array();
         // Get all RM
         $allRMArray = $this->reusable_model->get_search_result_data("employee","id,full_name",array('groups'=>'regionalmanager'),NULL,NULL,NULL,NULL,NULL,array());
@@ -1219,7 +1219,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $tempRMArray['last_2_day_installation_booking_count'] = $tempRMArray['last_2_day_repair_booking_count'] = $tempRMArray['last_3_to_5_days_repair_count'] = 
             $tempRMArray['last_3_to_5_days_installation_count']  = $tempRMArray['more_then_5_days_repair_count'] = $tempRMArray['more_then_5_days_installation_count'] =  0;
             // Get Pending Booking BY SF (Specific to particular RM)
-            $tempArray =  $this->pending_booking_by_rm($rmIdArray['id']);
+            $tempArray =  $this->pending_booking_by_rm($rmIdArray['id'],$actor);
             if(!empty($tempArray)){
                 // Loop through Vendor Data
                 foreach($tempArray as $vendorBookingArray){
