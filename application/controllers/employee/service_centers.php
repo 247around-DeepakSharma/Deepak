@@ -1755,7 +1755,7 @@ class Service_centers extends CI_Controller {
                         break;
                     case _247AROUND_SF_STRING:
                         $select = 'name as company_name,primary_contact_name,address,pincode,state,district,primary_contact_phone_1,primary_contact_phone_2';
-                        $booking_details = $this->vendor_model->getVendorDetails($select, array('id' => $wh_entity_details[0]));
+                        $booking_details = $this->vendor_model->getVendorDetails($select, array('id' => $wh_entity_details[0]))[0];
                         break;
                 }
                 
@@ -1767,12 +1767,11 @@ class Service_centers extends CI_Controller {
                 $where = array('contact_person.entity_id' => $wh_entity_details[0], 'contact_person.entity_type' => $wh_entity_details[1]);
                 
                 $wh_address_details = $this->inventory_model->get_warehouse_details($select,$where,FALSE);
-                
                 if(!empty($wh_address_details)){
-                    $wh_address_details[0]['company_name'] = $booking_details[0]['company_name'];
+                    $wh_address_details[0]['company_name'] = $booking_details['company_name'];
                     $booking_history['details'][$i] = $wh_address_details[0];
                 }else{
-                    $booking_history['details'][$i] = $booking_details[0];
+                    $booking_history['details'][$i] = $booking_details;
                 }
                 
                 $booking_history['details'][$i]['vendor'] = $this->vendor_model->getVendor($booking_id)[0];
@@ -1783,6 +1782,7 @@ class Service_centers extends CI_Controller {
            //Logging
             log_message('info',__FUNCTION__.' No Download Address from POST');
         }
+        
         $this->load->view('service_centers/print_partner_address',$booking_history);
        
     }
