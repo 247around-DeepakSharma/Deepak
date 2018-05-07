@@ -24,8 +24,8 @@
                        <thead>
                            <tr>
                             <th class="text-center">No</th>
-                            <th class="text-center">Customer Name</th>
                             <th class="text-center">Booking Id</th>
+                            <th class="text-center">User Name</th>
                             <th class="text-center">Parts Received</th>
                             <th class="text-center">Remarks By Partner</th>
                             <th class="text-center" >Address <input type="checkbox" id="selectall_address" > </th>
@@ -39,11 +39,11 @@
                                     <td>
                                         <?php echo $sn_no; ?>
                                     </td>
-                                     <td>
-                                        <?php echo $row['name']; ?>
-                                    </td>
                                     <td>
                                          <a  href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row['booking_id']));?>"  title='View'><?php echo $row['booking_id'];?></a>
+                                    </td>
+                                     <td>
+                                        <?php echo $row['name']; ?>
                                     </td>
 <!--                                    <td>
                                         <?php //echo $row['age_of_booking']; ?>

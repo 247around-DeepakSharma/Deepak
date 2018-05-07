@@ -4,7 +4,7 @@
   <table class="table table-bordered  table-hover table-striped data"  >
    <thead>
       <tr >
-         <th>No #</th>
+         <th>No</th>
          <th>Invoice ID</th>
          <th>Period</th>
          <th>Type</th>
@@ -68,7 +68,7 @@
       <table class="table table-bordered  table-hover table-striped data"  >
         <thead>
           <tr>
-             <th>No #</th>
+             <th>No</th>
              <th>Transaction Date</th>
              <th>Description</th>
              <th>Amt Received from Vendor</th>         
