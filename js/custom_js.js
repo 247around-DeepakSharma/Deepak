@@ -108,14 +108,20 @@ function getCapacityForCategory(category, div_id) {
 
         if (data !== "<option></option>") {
             $("#priceList_" + div_no[2]).html("");
+            if(category){
+                getModelForServiceCategoryCapacity(div_id);
+                getPricesForCategoryCapacity(div_id);
+            }
 
-            getPricesForCategoryCapacity(div_id);
 
         } else {
             $("#priceList_" + div_no[2]).html("");
 
-
-            getPricesForCategoryCapacity(div_id);
+            if(category){
+                getModelForServiceCategoryCapacity(div_id);
+                getPricesForCategoryCapacity(div_id);
+            }
+            
 
         }
 
@@ -738,6 +744,7 @@ function selectDealer(name,ph, id) {
  }
  
 function getModelForServiceCategoryCapacity(div_id) {
+   
     var postData = {};
     var div_no = div_id.split('_');
     
@@ -748,8 +755,9 @@ function getModelForServiceCategoryCapacity(div_id) {
     postData['category'] = $("#appliance_category_" + div_no[2]).val();
     postData['capacity'] = $("#appliance_capacity_" + div_no[2]).val();
 
-    if (postData['category'] && postData['capacity']) {
+    if (postData['category']) {
         sendAjaxRequest(postData, modelServiceUrl).done(function (data) {
+            //console.log(data);
             if(data === 'no data found'){
                 $('.select-model').hide();
                 $('.input-model').show();

@@ -221,7 +221,7 @@
                                         <div class="form-group ">
                                             <label for="service_name" class="col-md-4">Brand *</label>
                                             <div class="col-md-6">
-                                                <select type="text" class="form-control appliance_brand" onchange="getCategoryForService(this.id)"   name="appliance_brand[]" id="appliance_brand_1" required>
+                                                <select  class="form-control appliance_brand" onchange="getCategoryForService(this.id)"   name="appliance_brand[]" id="appliance_brand_1" required>
                                                     <option selected disabled>Select Brand</option>
                                                 </select>
                                             </div>
@@ -229,7 +229,7 @@
                                         <div class="form-group">
                                             <label for="service_name" class="col-md-4">Category *</label>
                                             <div class="col-md-6">
-                                                <select type="text" class="form-control appliance_category"   id="appliance_category_1" name="appliance_category[]"  onChange="getCapacityForCategory(this.value, this.id);" required>
+                                                <select  class="form-control appliance_category"   id="appliance_category_1" name="appliance_category[]"  onChange="getCapacityForCategory(this.value, this.id);" required >
                                                     <option selected disabled>Select Appliance Category</option>
                                                 </select>
                                             </div>
@@ -237,7 +237,7 @@
                                         <div class="form-group <?php if (form_error('appliance_capacity')) { echo 'has-error';} ?>">
                                             <label for="service_name" class="col-md-4">Capacity *</label>
                                             <div class="col-md-6">
-                                                <select type="text" class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity[]"  onChange="getPricesForCategoryCapacity(this.id);getModelForServiceCategoryCapacity(this.id);">
+                                                <select class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity[]"  onChange="getPricesForCategoryCapacity(this.id);getModelForServiceCategoryCapacity(this.id);">
                                                     <option selected disabled>Select Appliance Capacity</option>
                                                 </select>
                                                 <?php echo form_error('appliance_capacity'); ?>
