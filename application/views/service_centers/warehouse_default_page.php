@@ -38,8 +38,8 @@
                                             <table id="datatable1" class="table table-striped table-bordered" style="width:100%">
                                                 <thead>
                                                     <tr>
-                                                        <th>No.</th>
-                                                        <th>Booking ID.</th>
+                                                        <th>No</th>
+                                                        <th>Booking ID</th>
                                                         <th>Spare Part</th>
                                                         <th>Age Of Requested</th>
                                                         <th>Model No</th>

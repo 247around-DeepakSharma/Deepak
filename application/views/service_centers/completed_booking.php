@@ -11,8 +11,8 @@
                         <table class="table table-bordered table-hover table-striped">
                             <thead>
                                 <tr>
-                                    <th>S No.</th>
-                                    <th>247Around Booking Id</th>
+                                    <th>No</th>
+                                    <th>Booking Id</th>
                                     <th>User Name</th>
                                     <th>Mobile</th>
                                     <th>Service Name</th> 

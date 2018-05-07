@@ -162,7 +162,7 @@
                             <td colspan="2"></td>
                         </tr>
                         <tr>
-                            <th class="jumbotron">S.N.</th>
+                            <th class="jumbotron">No</th>
                             <th class="jumbotron" >Order ID</th>
                             <th class="jumbotron" style="width:20%">Received From</th>
                             <!--                        <th class="jumbotron" style="padding:1px;width:4%">19-24"</th>-->
