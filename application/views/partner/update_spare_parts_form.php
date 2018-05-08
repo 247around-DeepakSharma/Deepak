@@ -252,7 +252,7 @@
                 </div>
             </div>
         </div>
-        
+        <?php if(is_null($spare_parts[0]->estimate_cost_given_date) || $spare_parts[0]->request_type !== REPAIR_OOW_TAG){ ?>
         <div class="row">
             <div class="col-md-12 col-sm-12 col-xs-12">
                 <div class="x_panel">
@@ -294,12 +294,13 @@
                 </div>
             </div>
         </div>
-        
+        <?php } ?>
         <div class="row">
             <div class="col-md-12 col-sm-12 col-xs-12">
                 <div class="x_panel">
                     <div class="x_content">
                         <div class="text-center">
+                            <input type="hidden" id="estimate_cost_given_date" name= "estimate_cost_given_date_h" value="<?php echo $spare_parts[0]->estimate_cost_given_date; ?>">
                             <input type="hidden" name="assigned_vendor_id" id="assigned_vendor_id" value="<?php echo $spare_parts[0]->assigned_vendor_id ;?>">
                             <input type="submit"  <?php if (!is_null($spare_parts[0]->estimate_cost_given_date) || $spare_parts[0]->request_type == REPAIR_OOW_TAG) { ?> 
                                        onclick="return check_invoice_amount('<?php echo $spare_parts[0]->purchase_price; ?>')" <?php } ?> value="Update Booking" class="btn btn-md btn-success" />
