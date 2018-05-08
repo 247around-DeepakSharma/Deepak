@@ -1,6 +1,13 @@
 <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
 <div id="page-wrapper" >
     <div class="container" >
+        <?php if(validation_errors()){?>
+        <div class="panel panel-danger" style="margin-top:10px;margin-bottom:-10px;">
+            <div class="panel-heading" style="padding:7px 0px 0px 13px">
+                <?php echo validation_errors(); ?>
+            </div>
+        </div>
+        <?php }?>
 	<div class="panel panel-info" style="margin-top:20px;">
             <div class="panel-heading">Complete Booking <span class="pull-right"><input id="enable_change_unit" type="checkbox" onchange="update_brand_details()" name="enable_change_unit"> <span>Change Brand Details</span></span></div>
 	    <div class="panel-body">
@@ -217,6 +224,7 @@
 	    						    <div class="form-group">
 	    							<div class="col-md-12 ">
 	    							    <input type="text" class="form-control" id="<?php echo "serial_number" . $count; ?>" name="<?php echo "serial_number[" . $price['unit_id'] . "]" ?>"  value="<?php echo $price['serial_number']; ?>" placeholder = "Enter Serial Number" />
+                                                                    <input type="hidden" id="<?php echo "pod" . $count ?>" class="form-control" name="<?php echo "pod[" . $price['unit_id'] . "]" ?>" value="<?php echo $price['pod']; ?>"   />
 	    							</div>
 	    						    </div>
 							    <?php } ?>
@@ -328,6 +336,7 @@
 
 									<td> <?php if ($value['pod'] == "1") { ?>
 	    							    <input type="text" class="form-control"  id="<?php echo "serial_number" . $count; ?>" name="<?php echo "serial_number[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value="" placeholder= "Enter Serial Number" />
+                                                                    <input type="hidden" id="<?php echo "pod" . $count ?>" class="form-control" name="<?php echo "pod[" . $price['unit_id'] . "]" ?>" value="<?php echo $price['pod']; ?>"   />
 								    <?php } ?>
 
 									</td>

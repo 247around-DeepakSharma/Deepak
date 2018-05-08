@@ -49,6 +49,7 @@ class Booking extends CI_Controller {
         $this->load->library("push_notification_lib");
         $this->load->library("paytm_payment_lib");
         $this->load->library('paytmlib/encdec_paytm');
+        $this->load->library('validate_serial_no');
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
             return TRUE;
         } else {
@@ -1815,8 +1816,11 @@ class Booking extends CI_Controller {
     function process_complete_booking($booking_id, $status = "") {
         log_message('info', __FUNCTION__ . " Booking id: " . $booking_id . " Status: " . $status . " Done By " . $this->session->userdata('employee_id'));
         log_message('info', __METHOD__ ." Booking ID ". $booking_id. " POST Data ". json_encode($this->input->post()), TRUE);
-        
-        $change_appliance_details = $this->input->post('change_appliance_details');
+        $this->form_validation->set_rules('pod', 'POD ', 'callback_validate_serial_no');
+        if ($this->form_validation->run() == FALSE){
+            $this->get_complete_booking_form($booking_id);
+        } else {
+            $change_appliance_details = $this->input->post('change_appliance_details');
         
         if($change_appliance_details == 1){
             $this->update_completed_unit_applinace_details($booking_id);
@@ -2048,6 +2052,42 @@ class Booking extends CI_Controller {
             redirect(base_url() . 'employee/booking/view_bookings_by_status/Pending');
         } else {
             redirect(base_url() . 'employee/booking/view_bookings_by_status/' . $internal_status);
+        }
+        }
+    }
+    
+    function validate_serial_no() {
+        $serial_number = $this->input->post('serial_number');
+        $pod = $this->input->post('pod');
+        $booking_status = $this->input->post('booking_status');
+        $partner_id = $this->input->post('partner_id');
+        $return_status = true;
+        if (isset($_POST['pod'])) {
+            foreach ($pod as $unit_id => $value) {
+                if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
+                   
+                   $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number[$unit_id]));
+                    if(!empty($status)){
+                        if($status == SUCCESS_CODE){
+                            log_message('info', " Serial No validation success  for serial no ".trim($serial_number[$unit_id]));
+                        } else {
+                            $return_status = false;
+                        }
+                    } else if ($value == 1 && empty(trim($serial_number[$unit_id]))) {
+                        $return_status = false;
+                    } else if ($value == 1 && is_numeric($serial_number[$unit_id]) && $serial_number[$unit_id] == 0) {
+                        $return_status = false;
+                    }
+                }
+            }
+            if ($return_status == true) {
+                return true;
+            } else {
+                $this->form_validation->set_message('validate_serial_no', 'Please Enter Valid Serial Number');
+                return FALSE;
+            }
+        } else {
+            return TRUE;
         }
     }
 
@@ -4134,7 +4174,10 @@ class Booking extends CI_Controller {
     }
 
     function test(){
-        $this->partner_cb->partner_callback("SF-607901803235");
+        $this->load->library('serial_no_validation');
+        $a = $this->serial_no_validation->validateSerialNo(247034,"12LE1610A1ME0100573666");
+        echo "<pre/>"; print_r($a);
+//        $this->partner_cb->partner_callback("SF-607901803235");
 //        $array = array(
 //            "ReferenceID" => "SP-1656351803085551" , 
 //            "Status" => "PNDNG_ASGN", 
