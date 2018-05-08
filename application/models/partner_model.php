@@ -1531,6 +1531,13 @@ function get_data_for_partner_callback($booking_id) {
             AND product_or_services != 'Product'
             AND booking_details.partner_id = $partner_id
             AND $where");
-    } 
+    }
+    
+    function getpartner_serialno($where){
+        $this->db->select('*');
+        $this->db->where($where);
+        $query = $this->db->get('partner_serial_no');
+        return $query->result_array();
+    }
 }
 
