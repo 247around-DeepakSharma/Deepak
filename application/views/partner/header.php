@@ -292,19 +292,22 @@
 <!--                                        <li><a href="<?php echo base_url(); ?>payment/details">Pay</a></li>-->
                                     </ul>
                                 </li>
-                                <li>
-                                    <a data-toggle="tooltip" data-placement="right" title="" data-original-title="Download"><i class="fa fa-download"></i><span class="side_menu_list_title">Download</span><span class="fa fa-chevron-down"></span></a>
+<!--                                <li>
+                                    <a data-toggle="tooltip" data-placement="right" title="" data-original-title="Reports"><i class="fa fa-line-chart"></i><span class="side_menu_list_title">Reports</span><span class="fa fa-chevron-down"></span></a>
                                     <ul class="nav child_menu">
-<!--                                 <li><a href="<?php echo base_url(); ?>partner/download_partner_summary/<?php echo $this->session->userdata('partner_id'); ?>">Summary Report</a></li>-->
+                                 <li><a href="<?php echo base_url(); ?>partner/download_partner_summary/<?php echo $this->session->userdata('partner_id'); ?>">Summary Report</a></li>
                                         <li><a href="<?php echo base_url(); ?>partner/report">Report</a></li>
                                         <li><a href="<?php echo base_url(); ?>partner/serviceability_list">Serviceability List</a></li>
                                         <li><a href="<?php echo base_url(); ?>partner/download_sf_list_excel">Service Center List</a></li>
                                     </ul>
-                                </li>
-                                 <li><a href="<?php echo base_url(); ?>employee/partner/get_contracts" data-toggle="tooltip" data-placement="right" title="" data-original-title="Contracts">
+                                </li>-->
+                                 <li><a href="<?php echo base_url(); ?>partner/reports" data-toggle="tooltip" data-placement="right" title="" data-original-title="Reports">
+                                         <i class="fa fa-line-chart"></i><span class="side_menu_list_title">Reports</span></a></li>
+                                         
+                                 <li><a href="<?php echo base_url(); ?>partner/contracts" data-toggle="tooltip" data-placement="right" title="" data-original-title="Contracts">
                                          <i class="fa fa-handshake-o"></i><span class="side_menu_list_title">Contracts</span></a></li>
                                  <?php } ?>
-                                <li><a href="<?php echo base_url(); ?>employee/partner/get_contact_us_page" data-toggle="tooltip" data-placement="right" title="" data-original-title="Contact Us">
+                                <li><a href="<?php echo base_url(); ?>partner/contact_us" data-toggle="tooltip" data-placement="right" title="" data-original-title="Contact Us">
                                         <i class="fa fa-phone"></i><span class="side_menu_list_title">Contact Us</span></a></li>
                             </ul>
                         </div>

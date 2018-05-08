@@ -21,15 +21,16 @@
     <div class="x_panel">
         <div class="x_title">
             <h2>Defective Spares Pending on SF </h2>
+            <div class="pull-right"><a style="background: #2a3f54;border-color: #2a3f54;" href="<?php echo base_url(); ?>partner/download_sf_needs_to_send_parts"  class="btn btn-sm btn-primary">Download</a></div>
             <div class="clearfix"></div>
         </div>
         <div class="x_content">
             <form target="_blank"  action="<?php echo base_url(); ?>partner/print_all" name="fileinfo1"  method="POST" enctype="multipart/form-data">
-                <table class="table table-bordered table-hover table-striped">
+                <table class="table table-bordered table-hover table-striped" id="sf_needs_to_send_table">
                     <thead>
                         <tr>
                             <th class="text-center">S.N</th>
-                            <th class="text-center">Customer Name</th>
+                            <th class="text-center">Name</th>
                             <th class="text-center">Booking ID</th>
                             <th class="text-center">Spare Details</th>
                             <th class="text-center">Age</th>
@@ -45,7 +46,7 @@
                                     <?php echo $row['name']; ?>
                                 </td>
                                 <td>
-                                    <a  style="color:black" href="<?php echo base_url(); ?>partner/booking_details/<?php echo $row['booking_id']; ?>"  title='View'><?php echo $row['booking_id']; ?></a>
+                                    <a  style="color:blue" href="<?php echo base_url(); ?>partner/booking_details/<?php echo $row['booking_id']; ?>"  title='View'><?php echo $row['booking_id']; ?></a>
                                 </td>
     <!--                                    <td>
                                     <?php //echo $row['age_of_booking'];  ?>
@@ -63,13 +64,6 @@
                     } ?>
                     </tbody>
                 </table>
-                <div class="custom_pagination" style="margin-left: 16px;" > 
-                    <?php
-                        if (isset($links)) {
-                            echo $links;
-                        }
-                    ?>
-                </div>
         </div>
     </div>
 </div>
@@ -80,6 +74,7 @@
 <div class="clearfix"></div>
 <?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
 <script type="text/javascript">
+ var table = $('#sf_needs_to_send_table').DataTable();
 function confirm_received(){
     var c = confirm("Continue?");
     if(!c){

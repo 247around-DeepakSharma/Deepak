@@ -904,5 +904,10 @@ class Upcountry_model extends CI_Model {
          return $this->db->insert_id();
     }
     
-    
+    function get_upcountry_non_upcountry_district(){
+        $sql = "SELECT DISTINCT(vendor_pincode_mapping.city) as District,(CASE  WHEN municipal_limit.district IS NULL THEN 'F1' ELSE 'F2' END) as Flag, municipal_limit.municipal_limit as Municipal_Limit"
+                . " FROM "
+                . "vendor_pincode_mapping LEFT JOIN municipal_limit  ON municipal_limit.district = vendor_pincode_mapping.city";
+        return $query = $this->db->query($sql);
+    }
 }

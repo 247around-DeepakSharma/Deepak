@@ -136,7 +136,6 @@ $route['partner/process_escalation/(:any)'] = 'employee/partner/process_escalati
 $route['partner/update_booking/(:any)'] = 'employee/partner/get_editbooking_form/$1';
 $route['partner/process_update_booking/(:any)'] = 'employee/partner/process_editbooking/$1';
 $route['partner/get_spare_parts_booking'] = 'employee/partner/get_spare_parts_booking';
-$route['partner/report'] = 'employee/partner/partner_report';
 $route['partner/get_spare_parts_booking/(:any)'] = 'employee/partner/get_spare_parts_booking/$1';
 $route['partner/process_update_spare_parts/(:any)'] = 'employee/partner/process_update_spare_parts/$1';
 $route['partner/update_spare_parts_form/(:any)'] = 'employee/partner/update_spare_parts_form/$1';
@@ -158,6 +157,7 @@ $route['partner/reject_defective_part/(:any)/(:any)'] = 'employee/partner/reject
 $route['partner/get_approved_defective_parts_booking'] = 'employee/partner/get_approved_defective_parts_booking';
 $route['partner/get_approved_defective_parts_booking/(:any)'] = 'employee/partner/get_approved_defective_parts_booking/$1';
 $route['partner/get_waiting_for_approval_upcountry_charges'] = 'employee/partner/get_waiting_for_approval_upcountry_charges';
+$route['partner/get_waiting_for_approval_upcountry_charges/(:any)'] = 'employee/partner/get_waiting_for_approval_upcountry_charges/$1';
 $route['partner/upcountry_charges_approval/(:any)/(:any)'] = 'employee/partner/upcountry_charges_approval/$1/$2';
 $route['partner/reject_upcountry_charges/(:any)/(:any)'] = 'employee/partner/reject_upcountry_charges/$1/$2';
 $route['partner/download_partner_summary/(:any)'] = 'BookingSummary/send_leads_summary_mail_to_partners/$1';
@@ -166,6 +166,16 @@ $route['partner/serviceability_list'] = 'employee/partner/get_serviceability_by_
 $route['partner/banktransaction'] = 'employee/partner/get_bank_transaction';
 $route['partner/download_sf_declaration/(:any)'] = 'employee/partner/download_sf_declaration/$1';
 $route['partner/inventory/inventory_list'] = 'employee/partner/inventory_stock_list';
+$route['partner/reports'] = 'employee/partner/get_reports';
+$route['partner/contracts'] = 'employee/partner/get_contracts';
+$route['partner/contact_us'] = 'employee/partner/get_contact_us_page';
+$route['partner/upcountry_report'] = 'employee/partner/download_upcountry_report';
+$route['partner/download_waiting_defective_parts'] = 'employee/partner/download_waiting_defective_parts';
+$route['partner/download_waiting_upcountry_bookings'] = 'employee/partner/download_waiting_upcountry_bookings';
+$route['partner/download_spare_part_shipped_by_partner'] = 'employee/partner/download_spare_part_shipped_by_partner';
+$route['partner/download_sf_needs_to_send_parts'] = 'employee/partner/download_sf_needs_to_send_parts';
+$route['partner/download_received_spare_by_partner'] = 'employee/partner/download_received_spare_by_partner';
+
 
 
 

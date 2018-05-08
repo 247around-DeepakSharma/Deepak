@@ -69,11 +69,13 @@
                                         <th>Registration Date </th>
                                         <td><?php 
                                         $createDatArray = explode(' ',$booking_history[0]['create_date']);
-                                        echo $createDatArray[0]; ?></td>
+                                        $time2 = strtotime($createDatArray[0]);
+                                        $reg_date = date('d-m-Y',$time2);
+                                        echo $reg_date; ?></td>
                                         <th>Booking Date </th>
                                         <td><?php 
                                         $time = strtotime($booking_history[0]['booking_date']);
-                                        $booking_date = date('Y-m-d',$time);
+                                        $booking_date = date('d-m-Y',$time);
                                         echo $booking_date ?></td>
                                         
                                     </tr>
