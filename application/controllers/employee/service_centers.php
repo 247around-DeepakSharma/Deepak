@@ -45,6 +45,7 @@ class Service_centers extends CI_Controller {
         $this->load->library("miscelleneous");
         $this->load->library("push_notification_lib");
         $this->load->library("paytm_payment_lib");
+        $this->load->library("validate_serial_no");
     }
 
     /**
@@ -393,22 +394,30 @@ class Service_centers extends CI_Controller {
         $serial_number = $this->input->post('serial_number');
         $pod = $this->input->post('pod');
         $booking_status = $this->input->post('booking_status');
+        $partner_id = $this->input->post('partner_id');
         $return_status = true;
         if (isset($_POST['pod'])) {
             foreach ($pod as $unit_id => $value) {
                 if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
-                    if ($value == 1 && empty(trim($serial_number[$unit_id]))) {
+                   
+                   $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number[$unit_id]));
+                    if(!empty($status)){
+                        if($status == SUCCESS_CODE){
+                            log_message('info', " Serial No validation success  for serial no ".trim($serial_number[$unit_id]));
+                        } else {
+                            $return_status = false;
+                        }
+                    } else if ($value == 1 && empty(trim($serial_number[$unit_id]))) {
                         $return_status = false;
                     } else if ($value == 1 && is_numeric($serial_number[$unit_id]) && $serial_number[$unit_id] == 0) {
                         $return_status = false;
                     }
                 }
             }
-
             if ($return_status == true) {
                 return true;
             } else {
-                $this->form_validation->set_message('validate_serial_no', 'Please Enter Serial Number');
+                $this->form_validation->set_message('validate_serial_no', 'Please Enter Valid Serial Number');
                 return FALSE;
             }
         } else {
