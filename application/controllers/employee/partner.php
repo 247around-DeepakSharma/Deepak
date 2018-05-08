@@ -1741,6 +1741,7 @@ class Partner extends CI_Controller {
      * @param String $booking_id
      */
     function process_update_spare_parts($booking_id, $id) {
+        
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id') . " Spare id: " . $id);
         $this->checkUserSession();
         $this->form_validation->set_rules('shipped_parts_name', 'Parts Name', 'trim|required');
@@ -1749,8 +1750,11 @@ class Partner extends CI_Controller {
         $this->form_validation->set_rules('awb', 'AWB', 'trim|required');
         $this->form_validation->set_rules('incoming_invoice', 'Invoice', 'callback_spare_incoming_invoice');
         //$this->form_validation->set_rules('partner_challan_number', 'Partner Challan Number', 'trim|required');
-        $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required');
-
+        if(is_null($this->input->post('estimate_cost_given_date_h')) || $this->input->post('request_type') !== REPAIR_OOW_TAG){
+            $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required');
+        }
+        
+        
         if ($this->form_validation->run() == FALSE) {
             log_message('info', __FUNCTION__ . '=> Form Validation is not updated by Partner ' . $this->session->userdata('partner_id') .
                     " Spare id " . $id . " Data" . print_r($this->input->post(), true));
@@ -1781,8 +1785,12 @@ class Partner extends CI_Controller {
                 $data['awb_by_partner'] = $this->input->post('awb');
                 $data['remarks_by_partner'] = $this->input->post('remarks_by_partner');
                 $data['shipped_date'] = $this->input->post('shipment_date');
-                $data['partner_challan_number'] = $this->input->post('partner_challan_number');
-                $data['challan_approx_value'] = $this->input->post('approx_value');
+                
+                if(is_null($this->input->post('estimate_cost_given_date')) || $this->input->post('request_type') !== REPAIR_OOW_TAG){
+                    $data['partner_challan_number'] = $this->input->post('partner_challan_number');
+                    $data['challan_approx_value'] = $this->input->post('approx_value');
+                }
+                
                 $incoming_invoice_pdf = $this->input->post("incoming_invoice_pdf");
                 if (!empty($incoming_invoice_pdf)) {
                     $data['incoming_invoice_pdf'] = $incoming_invoice_pdf;
@@ -3794,7 +3802,7 @@ class Partner extends CI_Controller {
      * @return: $res
      */
     function upload_challan_file($id) {
-        if (empty($_FILES['challan_file']['error'])) {
+        if (empty($_FILES['challan_file']['error']) && $_FILES['challan_file']['name']) {
             $challan_file = "partner_challan_file_" . $this->input->post('booking_id'). "_".$id."_" . str_replace(" ", "_", $_FILES['challan_file']['name']);
             //Upload files to AWS
             $bucket = BITBUCKET_DIRECTORY;

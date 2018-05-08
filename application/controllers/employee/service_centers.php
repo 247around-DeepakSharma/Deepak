@@ -3551,11 +3551,16 @@ class Service_centers extends CI_Controller {
             
             $sf_details = $this->vendor_model->getVendorDetails('name,address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,is_signature_doc',array('id'=>$sf_id));
             $assigned_sf_details = $this->vendor_model->getVendorDetails('name as company_name,address,owner_name,gst_no as gst_number',array('id'=>$this->input->post('assigned_vendor_id')));
-            $data['partner_challan_number'] = $this->miscelleneous->create_sf_challan_id($sf_details[0]['sc_code']);
-            $spare_details['challan_approx_value'] = $data['challan_approx_value'];
-            $spare_details['booking_id'] = $booking_id;
-            $spare_details['parts_requested'] = $data['parts_shipped'];
-            $data['partner_challan_file'] = $this->create_sf_challan_file($sf_details,$assigned_sf_details,$data['partner_challan_number'],$id,$spare_details);
+            
+            if(is_null($this->input->post('estimate_cost_given_date_h')) || $this->input->post('request_type') !== REPAIR_OOW_TAG){
+                $data['partner_challan_number'] = $this->miscelleneous->create_sf_challan_id($sf_details[0]['sc_code']);
+                $spare_details['challan_approx_value'] = $data['challan_approx_value'];
+                $spare_details['booking_id'] = $booking_id;
+                $spare_details['parts_requested'] = $data['parts_shipped'];
+                $data['partner_challan_file'] = $this->create_sf_challan_file($sf_details,$assigned_sf_details,$data['partner_challan_number'],$id,$spare_details);
+            }
+            
+            
             $incoming_invoice_pdf = $this->input->post("incoming_invoice_pdf");
             if (!empty($incoming_invoice_pdf)) {
                 $data['incoming_invoice_pdf'] = $incoming_invoice_pdf;
