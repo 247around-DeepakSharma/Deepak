@@ -4203,8 +4203,11 @@ class Booking extends CI_Controller {
         $where = array ('service_id' => $service_id,
                         'partner_id' => $partner_id,
                         'category' => $category,
-                        'capacity' => $capacity
             );
+        
+        if(!empty($capacity)){
+            $where['capacity'] = $capacity;
+        }
         
         if ($partner_type == OEM) {
             $where['brand'] = $brand;
@@ -4214,11 +4217,20 @@ class Booking extends CI_Controller {
         }
         
         if(!empty($result)){
+            $flag = false;
             foreach ($result as $value) {
-                $option = "<option>".$value['model']."</option>";
+                if(!empty(trim($value['model']))){
+                    $flag = true;
+                    $option = "<option>".$value['model']."</option>";
+                }
+                
             }
-
-            echo $option;
+            if($flag)  {
+                echo $option;
+            } else {
+                echo "no data found";
+            }
+            
         }else{
             echo "no data found";
         }

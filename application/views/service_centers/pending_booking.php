@@ -25,16 +25,16 @@
             ?>
         <div class="col-md-10 col-md-offset-2">
             <div style="margin-top:10px; display: flex;font-size: 25px;">
-                    <b>Rating: </b> &nbsp;&nbsp;
-                    <span class="stars" style="margin-top: 9px;"><?php echo $rating; ?></span>&nbsp;&nbsp;
-                    <b><span <?php if($rating > '3.5') { echo "class='text-success'";}else{echo "class='text-danger'";}?>><?php echo $rating; ?> /5</span></b>&nbsp;&nbsp;
+                    <b>Rating:</b> &nbsp;
+                    <span class="stars" style="margin-top: 9px;"><?php echo $rating; ?></span> &nbsp;
+                    <b><span <?php if($rating > '3.5') { echo "class='text-success'";}else{echo "class='text-danger'";}?>><?php echo $rating; ?> /5</span></b> &nbsp;
                     <div class="sf-escalation">
-                        <b> <span style="color:#333;"> | </span> Overall Escalation: </b>
-                        <b><span id="sf-escalation-value" class="text-danger"></span><span class="text-danger">%</span></b>
+                        <b> <span style="color:#333;"> | </span> Overall Escalation:</b>
+                        <b><span id="sf-escalation-value" class="text-danger"></span><span class="text-danger">%</span></b>&nbsp;
                     </div>
                     <div class="sf-escalation">
-                        <b> <span style="color:#333;"> | </span> Current Month Escalation: </b>
-                        <b><span id="sf-cm-escalation-value" class="text-danger"></span><span class="text-danger">%</span></b>
+                        <b> <span style="color:#333;"> | </span> Current Month Escalation:</b>
+                        <b><span id="sf-cm-escalation-value" class="text-danger"></span><span class="text-danger">%</span></b>&nbsp;
                     </div>
             </div>
     </div>

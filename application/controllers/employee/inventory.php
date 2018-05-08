@@ -2422,15 +2422,19 @@ class Inventory extends CI_Controller {
      *  @return : $response array()
      */
     function get_sf_notification_data(){
-        
-        $post['where'] = "spare_parts_details.partner_id = '" . $this->session->userdata('service_center_id') . "' AND  entity_type =  '"._247AROUND_SF_STRING."' AND status = '" . SPARE_PARTS_REQUESTED . "' "
+        $this->checkSFSession();
+        $response = array();
+        if($this->session->userdata('service_center_id')){
+            $post['where'] = "spare_parts_details.partner_id = '" . $this->session->userdata('service_center_id') . "' AND  entity_type =  '"._247AROUND_SF_STRING."' AND status = '" . SPARE_PARTS_REQUESTED . "' "
                 . " AND booking_details.current_status IN ('Pending', 'Rescheduled') ";
-        $inventory_data = $this->inventory_model->count_spare_parts($post);
+            $inventory_data = $this->inventory_model->count_spare_parts($post);
+
+            $brackets_data = $this->inventory_model->get_filtered_brackets('count(id) as total_brackets',array('order_given_to' =>$this->session->userdata('service_center_id'),'is_shipped' => 0 ));
+
+            $response['inventory'] = $inventory_data;
+            $response['brackets'] = $brackets_data[0]['total_brackets'];
+        }
         
-        $brackets_data = $this->inventory_model->get_filtered_brackets('count(id) as total_brackets',array('order_given_to' =>$this->session->userdata('service_center_id'),'is_shipped' => 0 ));
-        
-        $response['inventory'] = $inventory_data;
-        $response['brackets'] = $brackets_data[0]['total_brackets'];
         
         echo json_encode($response);
     }
@@ -2494,6 +2498,22 @@ class Inventory extends CI_Controller {
             echo json_encode(array('code' => "success", "name" => $defective_parts_pic));
         } else {
             echo json_encode(array('code' => "error", "message" => "File size or file type is not supported"));
+        }
+    }
+    
+    /**
+     * @desc: This function will check SF Session
+     * @param: void
+     * @return: true if details matches else session is destroy.
+     */
+    function checkSFSession() {
+        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'service_center') 
+                && !empty($this->session->userdata('service_center_id')) && !empty($this->session->userdata('is_sf'))) {
+            return TRUE;
+        } else {
+            log_message('info', __FUNCTION__. " Session Expire for Service Center");
+            $this->session->sess_destroy();
+            redirect(base_url() . "service_center/login");
         }
     }
 
