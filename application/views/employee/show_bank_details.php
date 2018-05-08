@@ -150,7 +150,7 @@
     <tbody>
         <?php $sn = 1;
         foreach ($bank_details as $value) { ?> 
-            <tr>
+            <tr id="<?php echo $value['entity_id'].'_details' ;?>">
                 <td><?php echo $sn; ?></td>
                 <td>
                     <a href="<?php echo base_url();?>employee/vendor/viewvendor/<?php echo $value['entity_id'];?>"><?php echo $value['name']; ?></a>
