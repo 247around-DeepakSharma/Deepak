@@ -364,26 +364,26 @@ class Notify {
 			//Send internal mails now
 			$this->send_email($email_data);
 		    } else {
-			$email['name'] = $query1[0]['name'];
-			$email['phone_no'] = $query1[0]['phone_number'];
-			$email['user_email'] = $query1[0]['user_email'];
-			$email['booking_id'] = $query1[0]['booking_id'];
-			$email['service'] = $query1[0]['services'];
-			$email['booking_date'] = $query1[0]['booking_date'];
-			$email['booking_timeslot'] = $query1[0]['booking_timeslot'];
-			$email['closed_date'] = $query1[0]['closed_date'];
-			$email['cancellation_reason'] = $query1[0]['cancellation_reason'];
-			if (isset($query1[0]['vendor_name'])) {
-			    $email['vendor_name'] = $query1[0]['vendor_name'];
-			    $email['city'] = $query1[0]['district'];
-			} else {
-			    $email['vendor_name'] = "";
-			    $email['city'] = "";
-			}
-			$email['tag'] = "cancel_booking";
-			$email['subject'] = "Pending Booking Cancellation - 247AROUND";
-			//Send internal mails now
-			$this->send_email($email);
+//			$email['name'] = $query1[0]['name'];
+//			$email['phone_no'] = $query1[0]['phone_number'];
+//			$email['user_email'] = $query1[0]['user_email'];
+//			$email['booking_id'] = $query1[0]['booking_id'];
+//			$email['service'] = $query1[0]['services'];
+//			$email['booking_date'] = $query1[0]['booking_date'];
+//			$email['booking_timeslot'] = $query1[0]['booking_timeslot'];
+//			$email['closed_date'] = $query1[0]['closed_date'];
+//			$email['cancellation_reason'] = $query1[0]['cancellation_reason'];
+//			if (isset($query1[0]['vendor_name'])) {
+//			    $email['vendor_name'] = $query1[0]['vendor_name'];
+//			    $email['city'] = $query1[0]['district'];
+//			} else {
+//			    $email['vendor_name'] = "";
+//			    $email['city'] = "";
+//			}
+//			$email['tag'] = "cancel_booking";
+//			$email['subject'] = "Pending Booking Cancellation - 247AROUND";
+//			//Send internal mails now
+//			$this->send_email($email);
 
 			$call_type = explode(" ", $query1[0]['request_type']);
                         $sms['smsData']['call_type'] = $call_type[0];

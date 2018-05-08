@@ -36,7 +36,7 @@
                         <table id="inventory_stock_table" class="table table-bordered table-responsive">
                             <thead>
                                 <tr>
-                                    <th>S.No</th>
+                                    <th>No</th>
                                     <th>Appliance</th>
                                     <th>Spare Model Number</th>
                                     <th>Spare Type</th>

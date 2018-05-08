@@ -187,6 +187,8 @@ define("AQUAGRAND_PLUS_ID", 247038);
  define("VIDEOTEX", 247041);
  //Amzaon
  define("AMAZON_SELLER_ID", 247024);
+ // Salora ID
+ define("SALORA_ID", 247064);
 //Define Email ID to send system health emails
 define('SYS_HEALTH_NAME','247around Health Monitor');
 define('SYS_HEALTH_EMAIL','health@247around.com');
@@ -280,6 +282,7 @@ define("ENGINEER_HAS_NOT_CONTACTED_WITH_CUSTOMER", 3);
 
 
 define('SUCCESS_CODE', 247);
+define('FAILURE_CODE', -247);
 define('SUCCESS_MSG', 'Success');
 define('ERR_BOOKING_NOT_INSERTED', -24700);
 define('ERR_GENERIC_ERROR_CODE', -1000);

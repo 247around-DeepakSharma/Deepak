@@ -299,6 +299,7 @@
                 <div class="x_panel">
                     <div class="x_content">
                         <div class="text-center">
+                            <input type="hidden" id="estimate_cost_given_date" name= "estimate_cost_given_date_h" value="<?php echo $spare_parts[0]->estimate_cost_given_date; ?>">
                             <input type="hidden" name="approx_value" id="approx_value" value="">
                             <input type="hidden" name="partner_id" id="partner_id" value="<?php echo $spare_parts[0]->partner_id ;?>">
                             <input type="hidden" name="assigned_vendor_id" id="assigned_vendor_id" value="<?php echo $spare_parts[0]->assigned_vendor_id ;?>">

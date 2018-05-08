@@ -144,7 +144,7 @@
                                                 <span id="spinner" style="display:none"></span>
                                             </div>
                                         <?php } else { ?> 
-                                            <div class="col-md-6">
+                                            <div class="col-md-9">
                                                 <input type="text" class="form-control spare_parts" id="parts_name" name="parts_name" value = "" placeholder="Parts Name" >
                                             </div>
                                         <?php } ?>
@@ -165,7 +165,7 @@
                                         <label for="dop" class="col-md-4">Date of Purchase *</label>
                                         <div class="col-md-6">
                                             <div class="input-group input-append date">
-                                                <input id="dop" class="form-control" placeholder="Select Date" name="dop" type="text" required>
+                                                <input id="dop" class="form-control" placeholder="Select Date" name="dop" type="text" >
                                                 <span class="input-group-addon add-on" onclick="dop_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
                                             </div>
                                         </div>
@@ -177,7 +177,7 @@
                                     <div class="form-group">
                                         <label for="serial_number_pic" class="col-md-4">Serial Number Picture *</label>
                                         <div class="col-md-6">
-                                            <input type="file" class="form-control spare_parts" id="serial_number_pic" name="serial_number_pic" required="required">
+                                            <input type="file" class="form-control spare_parts" id="serial_number_pic" name="serial_number_pic">
                                         </div>
                                     </div>
                                 </div>
@@ -185,7 +185,7 @@
                                     <div class="form-group">
                                         <label for="defective_parts_pic" class="col-md-4">Defective Part Picture *</label>
                                         <div class="col-md-6">
-                                            <input type="file" class="form-control spare_parts" id="defective_parts_pic" name="defective_parts_pic" required="required">
+                                            <input type="file" class="form-control spare_parts" id="defective_parts_pic" name="defective_parts_pic" >
                                         </div>
                                     </div>
                                 </div>
@@ -256,7 +256,6 @@
                                 <?php //}?>
                             </div>
                         </div>
-                    </div>
                     <div  id="hide_rescheduled" >
                         <div class="form-group">
                             <label for="reschdeduled" class="col-md-2"> New Booking Date</label>
@@ -381,23 +380,32 @@
               var prob_des = $("#prob_desc").val();
               var parts_name = $("#parts_name").val();
               var dop = $("#dop").val();
-              if(parts_name === ""){
-                   alert("Please Enter parts name");
-                  checkbox_value = 0;
-                  return false;
-              }
-              if(model_number ===""){
+              var parts_type = $('#parts_type').val();
+              var serial_number_pic = $('#serial_number_pic').val();
+              var defective_parts_pic = $('#defective_parts_pic').val();
+              
+              if(model_number ==="" || model_number === null){
                   alert("Please enter model number");
                   checkbox_value =0;
                   return false;
               }
-              if(serial_number === ""){
-                   alert("Please Enter serial number");
+              
+              if(parts_type === "" || parts_type === null){
+                   alert("Please Enter parts Type");
                   checkbox_value = 0;
                   return false;
               }
-              if(prob_des === ""){
-                   alert("Please Enter problem description");
+              
+              if(parts_name === "" || parts_name === null){
+                   alert("Please Enter parts name");
+                  checkbox_value = 0;
+                  return false;
+              }
+              
+              
+              
+              if(serial_number === "" || serial_number === null){
+                   alert("Please Enter serial number");
                   checkbox_value = 0;
                   return false;
               }
@@ -407,6 +415,25 @@
                   checkbox_value = 0; 
                   return false;
               }
+              
+              if(serial_number_pic.length === 0){
+                  alert("Please Upload Serial Number Image");
+                  checkbox_value = 0; 
+                  return false;
+              }
+              
+              if(defective_parts_pic.length === 0){
+                  alert("Please Upload Defective Parts Image");
+                  checkbox_value = 0; 
+                  return false;
+              }
+              
+              if(prob_des === "" || prob_des === null){
+                   alert("Please Enter problem description");
+                  checkbox_value = 0;
+                  return false;
+              }
+              
           } else if(around_flag === '1'){
               var parts_name1 = $('#247parts_name').val();
               var reschduled_booking_date = $("#reschduled_booking_date").val();
@@ -423,17 +450,12 @@
                   checkbox_value = 0; 
                   return false;
               }
-              if(reason_text === ""){
-                  alert("Please enter problem description");
-                  checkbox_value = 0; 
-                  return false;
-              }
               
           }
       }
-     
-           
+
       if(checkbox_value === 0){
+          $('#submitform').val("Update Booking");
           return false;
           
       } else if(checkbox_value === 1){

@@ -15,8 +15,8 @@
                        <thead>
                            <tr>
                             <th class="text-center">No</th>
-                            <th class="text-center">Customer Name</th>
                             <th class="text-center">Booking Id</th>
+                            <th class="text-center">User Name</th>
                             <th class="text-center">Defective Parts Shipped</th>
                             <th class="text-center">Shipped Date</th>
                             <th class="text-center">AWB</th>
@@ -31,13 +31,12 @@
                                     <td>
                                         <?php echo $sn_no; ?>
                                     </td>
-                                     <td>
-                                        <?php echo $row['name']; ?>
-                                    </td>
                                     <td>
                                          <a  href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row['booking_id']));?>"  title='View'><?php echo $row['booking_id'];?></a>
                                     </td>
-
+                                     <td>
+                                        <?php echo $row['name']; ?>
+                                    </td>
                                     <td>
                                         <?php echo $row['defective_part_shipped']; ?>
                                     </td>

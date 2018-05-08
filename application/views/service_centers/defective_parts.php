@@ -24,8 +24,8 @@
                        <thead>
                            <tr>
                             <th class="text-center">No</th>
-                            <th class="text-center">Customer Name</th>
                             <th class="text-center">Booking Id</th>
+                            <th class="text-center">User Name</th>
                             <th class="text-center">Parts Received</th>
                             <th class="text-center">Remarks By Partner</th>
                             <th class="text-center" >Address <input type="checkbox" id="selectall_address" > </th>
@@ -39,11 +39,11 @@
                                     <td>
                                         <?php echo $sn_no; ?>
                                     </td>
-                                     <td>
-                                        <?php echo $row['name']; ?>
-                                    </td>
                                     <td>
                                          <a  href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row['booking_id']));?>"  title='View'><?php echo $row['booking_id'];?></a>
+                                    </td>
+                                     <td>
+                                        <?php echo $row['name']; ?>
                                     </td>
 <!--                                    <td>
                                         <?php //echo $row['age_of_booking']; ?>
@@ -56,7 +56,7 @@
                                         <?php if(!is_null($row['remarks_defective_part_by_partner'])){  echo $row['remarks_defective_part_by_partner']; } else { echo $row['remarks_by_partner'];} ?>
                                     </td>
                                     <td>
-                                        <input type="checkbox" class="form-control checkbox_address" onclick="remove_select_all()" name="download_address[<?php echo $row['partner_id'] ;?>]"  value="<?php echo $row['booking_id'];?>" />
+                                        <input type="checkbox" class="form-control checkbox_address" onclick="remove_select_all()" name="download_address[<?php echo $row['partner_id'].'-'.$row['entity_type'] ;?>]"  value="<?php echo $row['booking_id'];?>" />
                                     </td>
                                     <td>
                                          <a href="<?php echo base_url() ?>service_center/update_defective_parts/<?php echo $row['booking_id']; ?>" class="btn btn-sm btn-primary" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>

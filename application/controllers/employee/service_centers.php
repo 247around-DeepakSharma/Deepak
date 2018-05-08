@@ -45,6 +45,7 @@ class Service_centers extends CI_Controller {
         $this->load->library("miscelleneous");
         $this->load->library("push_notification_lib");
         $this->load->library("paytm_payment_lib");
+        $this->load->library("validate_serial_no");
     }
 
     /**
@@ -393,22 +394,30 @@ class Service_centers extends CI_Controller {
         $serial_number = $this->input->post('serial_number');
         $pod = $this->input->post('pod');
         $booking_status = $this->input->post('booking_status');
+        $partner_id = $this->input->post('partner_id');
         $return_status = true;
         if (isset($_POST['pod'])) {
             foreach ($pod as $unit_id => $value) {
                 if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
-                    if ($value == 1 && empty(trim($serial_number[$unit_id]))) {
+                   
+                   $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number[$unit_id]));
+                    if(!empty($status)){
+                        if($status == SUCCESS_CODE){
+                            log_message('info', " Serial No validation success  for serial no ".trim($serial_number[$unit_id]));
+                        } else {
+                            $return_status = false;
+                        }
+                    } else if ($value == 1 && empty(trim($serial_number[$unit_id]))) {
                         $return_status = false;
                     } else if ($value == 1 && is_numeric($serial_number[$unit_id]) && $serial_number[$unit_id] == 0) {
                         $return_status = false;
                     }
                 }
             }
-
             if ($return_status == true) {
                 return true;
             } else {
-                $this->form_validation->set_message('validate_serial_no', 'Please Enter Serial Number');
+                $this->form_validation->set_message('validate_serial_no', 'Please Enter Valid Serial Number');
                 return FALSE;
             }
         } else {
@@ -1563,7 +1572,7 @@ class Service_centers extends CI_Controller {
         $select = "CONCAT( '', GROUP_CONCAT((parts_shipped ) ) , '' ) as parts_shipped, "
                 . " spare_parts_details.booking_id, name, "
                 . "CONCAT( '', GROUP_CONCAT((remarks_defective_part_by_partner ) ) , '' ) as remarks_defective_part_by_partner, "
-                . "CONCAT( '', GROUP_CONCAT((remarks_by_partner ) ) , '' ) as remarks_by_partner, booking_details.partner_id";
+                . "CONCAT( '', GROUP_CONCAT((remarks_by_partner ) ) , '' ) as remarks_by_partner, spare_parts_details.partner_id,spare_parts_details.entity_type";
         
         $group_by = "spare_parts_details.booking_id";
         $order_by = "status = '". DEFECTIVE_PARTS_REJECTED."', spare_parts_details.create_date ASC";
@@ -1742,9 +1751,38 @@ class Service_centers extends CI_Controller {
         $booking_address = $this->input->post('download_address');
         $booking_history['details'] = array();
         $i=0;
+        
         if(!empty($booking_address)){
+            
             foreach ($booking_address as $partner_id=> $booking_id) {
-                $booking_history['details'][$i]  = $this->partner_model->getpartner($partner_id)[0];
+                
+                $wh_entity_details = explode('-', $partner_id);
+                
+                switch ($wh_entity_details[1]) {
+                    case _247AROUND_PARTNER_STRING:
+                        $booking_details = $this->partner_model->getpartner($wh_entity_details[0])[0];
+                        break;
+                    case _247AROUND_SF_STRING:
+                        $select = 'name as company_name,primary_contact_name,address,pincode,state,district,primary_contact_phone_1,primary_contact_phone_2';
+                        $booking_details = $this->vendor_model->getVendorDetails($select, array('id' => $wh_entity_details[0]))[0];
+                        break;
+                }
+                
+                $select = "contact_person.name as  primary_contact_name,contact_person.official_contact_number as primary_contact_phone_1,contact_person.alternate_contact_number as primary_contact_phone_2,"
+                        . "concat(warehouse_address_line1,',',warehouse_address_line2) as address,warehouse_details.warehouse_city as district,"
+                        . "warehouse_details.warehouse_pincode as pincode,"
+                        . "warehouse_details.warehouse_state as state";
+                
+                $where = array('contact_person.entity_id' => $wh_entity_details[0], 'contact_person.entity_type' => $wh_entity_details[1]);
+                
+                $wh_address_details = $this->inventory_model->get_warehouse_details($select,$where,FALSE);
+                if(!empty($wh_address_details)){
+                    $wh_address_details[0]['company_name'] = $booking_details['company_name'];
+                    $booking_history['details'][$i] = $wh_address_details[0];
+                }else{
+                    $booking_history['details'][$i] = $booking_details;
+                }
+                
                 $booking_history['details'][$i]['vendor'] = $this->vendor_model->getVendor($booking_id)[0];
                 $booking_history['details'][$i]['booking_id'] = $booking_id;
                 $i++;
@@ -1753,6 +1791,7 @@ class Service_centers extends CI_Controller {
            //Logging
             log_message('info',__FUNCTION__.' No Download Address from POST');
         }
+        
         $this->load->view('service_centers/print_partner_address',$booking_history);
        
     }
@@ -3521,11 +3560,16 @@ class Service_centers extends CI_Controller {
             
             $sf_details = $this->vendor_model->getVendorDetails('name,address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,is_signature_doc',array('id'=>$sf_id));
             $assigned_sf_details = $this->vendor_model->getVendorDetails('name as company_name,address,owner_name,gst_no as gst_number',array('id'=>$this->input->post('assigned_vendor_id')));
-            $data['partner_challan_number'] = $this->miscelleneous->create_sf_challan_id($sf_details[0]['sc_code']);
-            $spare_details['challan_approx_value'] = $data['challan_approx_value'];
-            $spare_details['booking_id'] = $booking_id;
-            $spare_details['parts_requested'] = $data['parts_shipped'];
-            $data['partner_challan_file'] = $this->create_sf_challan_file($sf_details,$assigned_sf_details,$data['partner_challan_number'],$id,$spare_details);
+            
+            if(is_null($this->input->post('estimate_cost_given_date_h')) || $this->input->post('request_type') !== REPAIR_OOW_TAG){
+                $data['partner_challan_number'] = $this->miscelleneous->create_sf_challan_id($sf_details[0]['sc_code']);
+                $spare_details['challan_approx_value'] = $data['challan_approx_value'];
+                $spare_details['booking_id'] = $booking_id;
+                $spare_details['parts_requested'] = $data['parts_shipped'];
+                $data['partner_challan_file'] = $this->create_sf_challan_file($sf_details,$assigned_sf_details,$data['partner_challan_number'],$id,$spare_details);
+            }
+            
+            
             $incoming_invoice_pdf = $this->input->post("incoming_invoice_pdf");
             if (!empty($incoming_invoice_pdf)) {
                 $data['incoming_invoice_pdf'] = $incoming_invoice_pdf;

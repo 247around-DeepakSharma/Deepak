@@ -194,7 +194,7 @@ if ($this->uri->segment(4)) {
         $("#messageSpare").text("Download In Progress");
          $.ajax({
             type: 'POST',
-            url: '<?php echo base_url(); ?>file_process/downloadSpareRequestedParts/<?php echo $this->session->userdata("partner_id");?>/<?php echo _247AROUND_PARTNER_STRING ; ?>',
+            url: '<?php echo base_url(); ?>file_process/downloadSpareRequestedParts/' + <?php echo $this->session->userdata("partner_id");?> + '/' + '<?php echo _247AROUND_PARTNER_STRING ; ?>',
             contentType: false,
             cache: false,
             processData: false,
