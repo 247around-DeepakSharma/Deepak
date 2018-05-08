@@ -11,16 +11,17 @@ if ($this->uri->segment(3)) {
             <div class="x_panel">
                 <div class="x_title">
                     <h2>Received Spares By <?php echo $this->session->userdata('partner_name') ?></h2>
+                     <div class="pull-right"><a style="background: #2a3f54;border-color: #2a3f54;" href="<?php echo base_url(); ?>partner/download_received_spare_by_partner"  class="btn btn-sm btn-primary">Download</a></div>
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content">
-                    <table class="table table-bordered table-hover table-striped">
+                    <table class="table table-bordered table-hover table-striped" id="approved_defective_parts_table">
                         <thead>
                             <tr>
-                                <th class="text-center">No</th>
-                                <th class="text-center">Customer Name</th>
-                                <th class="text-center">Booking Id</th>
-                                <th class="text-center">Received Defective Parts</th>
+                                <th class="text-center">S.N</th>
+                                <th class="text-center">Name</th>
+                                <th class="text-center">Booking ID</th>
+                                <th class="text-center">Received Spare Parts</th>
                                 <th class="text-center">Received Date</th>
                                 <th class="text-center">AWB</th>
                                 <th class="text-center">Courier Name</th>
@@ -37,7 +38,7 @@ if ($this->uri->segment(3)) {
                                         <?php echo $row['name']; ?>
                                     </td>
                                     <td>
-                                        <a  href="<?php echo base_url(); ?>partner/booking_details/<?php echo $row['booking_id']; ?>"  title='View'><?php echo $row['booking_id']; ?></a>
+                                        <a style="color:blue"  href="<?php echo base_url(); ?>partner/booking_details/<?php echo $row['booking_id']; ?>"  title='View'><?php echo $row['booking_id']; ?></a>
                                     </td>
 
                                     <td>
@@ -68,3 +69,6 @@ if ($this->uri->segment(3)) {
         </div>
     </div>
 </div>
+<script>
+    var table = $('#approved_defective_parts_table').DataTable();
+    </script>

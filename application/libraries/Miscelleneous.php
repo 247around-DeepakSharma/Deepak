@@ -2682,5 +2682,51 @@ function convert_html_to_pdf($html,$booking_id,$filename,$s3_folder){
         
         return trim($challan_id_tmp . sprintf("%'.04d\n", $challan_no));
     }
-
+    function create_serviceability_report_csv($postData){
+        log_message('info', __FUNCTION__ . " Function Start With Request  ".print_r($postData,true));
+        $services = $postData['service_id'];
+        $appliace_opt = $postData['appliance_opt'];
+        $pincode_opt = $postData['pincode_opt'];
+        $state_opt = $postData['state_opt'];
+        $city_opt = $postData['city_opt'];
+        $whereIN = $join = NULL;
+        $groupBY = array();
+        $orderBY = array('vendor_pincode_mapping.Pincode'=>'ASC');
+        if($appliace_opt == 1){
+             $service_id = explode(",",$services);
+             if (in_array('all', $service_id)) {
+                $service_id = array_column($this->My_CI->booking_model->selectservice(true), 'id');
+             }
+            $whereIN['services.id'] =  $service_id;
+            $join['services'] =  'services.id = vendor_pincode_mapping.Appliance_ID';
+            $select[] = "services.services as Appliance";
+            $groupBY[] = 'vendor_pincode_mapping.Appliance_ID';
+        }
+         if($pincode_opt == 1){
+            $select[] = "vendor_pincode_mapping.Pincode";
+            $groupBY[] = 'vendor_pincode_mapping.Pincode';
+        }
+         if($state_opt){
+            $select[] = "vendor_pincode_mapping.State";
+            $groupBY[] = 'vendor_pincode_mapping.State';
+        }
+         if($city_opt){
+            $select[] = "vendor_pincode_mapping.City";
+            $groupBY[] = 'vendor_pincode_mapping.City';
+        }
+        $data = $this->My_CI->reusable_model->get_search_result_data('vendor_pincode_mapping',implode(',',$select),NULL,$join,NULL,$orderBY,$whereIN,NULL,$groupBY);
+        foreach($data as $dataValues){
+            $headings = array_keys($dataValues);
+            $CSVData[] = array_values($dataValues);
+        }
+        $csv = implode(",",$headings)." \n";//Column headers
+        foreach ($CSVData as $record){
+            $csv.=implode(",",$record)."\n"; //Append data to csv
+        }
+        $output_file = TMP_FOLDER . "serviceability_report.csv";
+        $csv_handler = fopen ($output_file,'w');
+        fwrite ($csv_handler,$csv);
+        fclose ($csv_handler);
+        log_message('info', __FUNCTION__ . " Function End  ");
+    }
 }

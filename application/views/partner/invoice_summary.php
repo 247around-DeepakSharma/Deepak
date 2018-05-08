@@ -46,7 +46,7 @@
                     <table class="table table-bordered table-hover table-striped data" id="invoice_table">
                         <thead>
                             <tr >
-                                <th>S.No</th>
+                                <th>S.N</th>
                                 <th>Invoice ID</th>
                                 <th>Invoice Date</th>
                                 <th>Invoice Period</th>

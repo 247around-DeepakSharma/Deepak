@@ -23,7 +23,7 @@ if ($this->uri->segment(4)) {
             <div class="x_panel">
                 <div class="x_title">
                     <h2>Pending Spares On <?php echo $this->session->userdata('partner_name') ?> </h2>
-                                        <div class="pull-right"><button id="spareDownload" onclick="downloadSpare()" class="btn btn-sm btn-primary">Download Spare</button>
+                    <div class="pull-right"><button style="background-color: #2a3f54;border-color:#2a3f54;" id="spareDownload" onclick="downloadSpare()" class="btn btn-sm btn-primary">Download</button>
                         <span style="color:#337ab7" id="messageSpare"></span></div>
                     <div class="right_holder" style="float:right;margin-right:10px;">
                             <lable>State</lable>
@@ -46,17 +46,16 @@ if ($this->uri->segment(4)) {
                         <table class="table table-bordered table-hover table-striped" id="spare_table">
                             <thead>
                                 <tr>
-                                    <th class="text-center">No</th>
+                                    <th class="text-center">S.N</th>
                                     <th class="text-center">Customer Name</th>
-                                    <th class="text-center">Booking Id</th>
-                                    <th class="text-center">Age of Requested</th>
-                                    <th class="text-center">Parts Required</th>
+                                    <th class="text-center">Booking ID</th>
+                                    <th class="text-center">Part Request Age</th>
+                                    <th class="text-center">Required Parts</th>
                                     <th class="text-center">Model Number</th>
                                     <th class="text-center">Serial Number</th>
                                     <th class="text-center">State</th>
                                     <th class="text-center">Problem Description</th>
-                                    <th class="text-center">Update</th>
-                                    <th class="text-center">Reject</th>
+                                    <th class="text-center">Action</th>
                                     <th class="text-center">SF GST Declaration</th>
                                     <th class="text-center" >Address <input type="checkbox" id="selectall_address" > </th>
                                     <th class="text-center" >Courier Manifest <input type="checkbox" id="selectall_manifest" ></th>
@@ -68,11 +67,10 @@ if ($this->uri->segment(4)) {
                                 foreach ($spare_parts as $key => $row) {
                                     ?>
                                     <tr style="text-align: center;">
-                                        <td>
+                                        <td><?php echo $sn_no1; ?>
                                             <?php if ($row['is_upcountry'] == 1 && $row['upcountry_paid_by_customer'] == 0) { ?>
                                                 <i style="color:red; font-size:20px;" onclick="open_upcountry_model('<?php echo $row['booking_id']; ?>', '<?php echo $row['amount_due']; ?>')"
                                                    class="fa fa-road" aria-hidden="true"></i><?php } ?>
-                                            <?php echo $sn_no1; ?>
                                         </td>
                                         <td>
                                             <?php echo $row['name']; ?>
@@ -98,13 +96,26 @@ if ($this->uri->segment(4)) {
                                         <td>
                                             <?php echo $row['remarks_by_sc']; ?>
                                         </td>
+                                        <td class="text-center">
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm btn-primary" type="button" data-toggle="dropdown" style="    border: 1px solid #2a3f54;background: #2a3f54;">Action
+                                                <span class="caret"></span></button>
+                                                <ul class="dropdown-menu" style="border: none;background: none;">
+                                                    <div class="action_holder" style="width: 43%;background: #fff;border: 1px solid #2c9d9c;padding: 1px;">
+                                                    <li style="color: #fff;"><a href="<?php echo base_url() ?>partner/update_spare_parts_form/<?php echo $row['id']; ?>" class="btn btn-sm btn-success" title="Update" style="color:#fff;margin: 0px;padding: 5px 12px;" ></i>Update</a></li>
+                                                    <li style="color: #fff;margin-top:5px;"><a href="#" data-toggle="modal" id="<?php echo "spare_parts" . $row['id']; ?>" data-url="<?php echo base_url(); ?>employee/inventory/update_action_on_spare_parts/<?php echo $row['id'] . "/" . $row['booking_id']; ?>/CANCEL_PARTS" data-booking_id="<?php echo $row['booking_id']; ?>" data-target="#myModal2" class="btn btn-sm btn-danger open-adminremarks" title="Reject" style="color:#fff;margin: 0px;padding: 5px 14.4px;" >Reject</a>
+                                           </li>
+                                           </div>
+                                                </ul>
+                                            </div>
+                                        </td>
 
-                                        <td>
+<!--                                        <td>
                                             <a href="<?php echo base_url() ?>partner/update_spare_parts_form/<?php echo $row['id']; ?>" class="btn btn-sm btn-primary" title="Update" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>
                                         </td>
                                         <td>
                                             <a href="#" data-toggle="modal" id="<?php echo "spare_parts" . $row['id']; ?>" data-url="<?php echo base_url(); ?>employee/inventory/update_action_on_spare_parts/<?php echo $row['id'] . "/" . $row['booking_id']; ?>/CANCEL_PARTS" data-booking_id="<?php echo $row['booking_id']; ?>" data-target="#myModal2" class="btn btn-sm btn-danger open-adminremarks" title="Reject" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class="fa fa-times" aria-hidden='true'></i></a>
-                                        </td>
+                                        </td>-->
                                         <td>
                                             <a class="btn btn-sm btn-success" href="<?php echo base_url();?>partner/download_sf_declaration/<?php echo rawurlencode($row['sf_id'])?>" title="Download Declaration" style="background-color:#2C9D9C; border-color: #2C9D9C;" target="_blank" <?php if(!empty($row['is_gst_doc'])) { echo "disabled";}?>><i class="fa fa-download"></i></a>
                                         </td>
@@ -177,7 +188,7 @@ if ($this->uri->segment(4)) {
         $("#messageSpare").text("Download In Progress");
          $.ajax({
             type: 'POST',
-            url: '<?php echo base_url(); ?>file_process/downloadSpareRequestedParts/' + <?php echo $this->session->userdata("partner_id");?> + '/' + <?php echo _247AROUND_PARTNER_STRING ; ?>,
+            url: '<?php echo base_url(); ?>file_process/downloadSpareRequestedParts/<?php echo $this->session->userdata("partner_id");?>/<?php echo _247AROUND_PARTNER_STRING ; ?>',
             contentType: false,
             cache: false,
             processData: false,
@@ -305,7 +316,4 @@ if ($this->uri->segment(4)) {
 $('#serachSpareInput').select2();
     </script>
     <style>
-        .dataTables_filter{
-            display:none;
-        }
         </style>
