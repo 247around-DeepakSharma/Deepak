@@ -8,11 +8,17 @@
                     </div>
                     <div class="col-lg-6 col-xs-6">
                         <div class="col-lg-10">
-                            <div class="pull-right">
+                            <div class="col-sm-6 pull-right">
                                 <select class="form-control" id="sf_type" style="margin-top:13px;">
                                     <option value="1">Active</option>
                                     <option value="0">Disabled</option>
                                     <option value="all">All</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-6">
+                                <select class="form-control" id="is_bank_details_verified" style="margin-top:13px;">
+                                    <option value="0">Not Verified</option>
+                                    <option value="1">Verified</option>
                                 </select>
                             </div>
                       </div>
@@ -35,9 +41,11 @@
                     </thead>
                     <tbody>
                         <?php $sn = 1; foreach ($bank_details as $value) {?> 
-                        <tr>
+                        <tr id="<?php echo $value['entity_id'].'_details' ;?>">
                             <td><?php echo $sn; ?></td>
-                            <td><?php echo $value['name']; ?></td>
+                            <td>
+                                <a href="<?php echo base_url();?>employee/vendor/viewvendor/<?php echo $value['entity_id'];?>"><?php echo $value['name']; ?></a>
+                            </td>
                             <td><?php echo $value['bank_account']; ?></td>
                             <td><?php echo $value['bank_name']; ?></td>
                             <td><?php echo $value['ifsc_code']; ?></td>
@@ -85,6 +93,7 @@
 
                             if(response === 'success'){
                                 alert("Details has been updated successfully");
+                                $('#'+id+'_details').hide();
                             }else if(response === 'fail'){
                                 alert("Error in updating details");
                             }
@@ -95,9 +104,26 @@
 
                 $('#sf_type').change(function(){
                     var sf_type = $('#sf_type').val();
+                    var is_bank_details_verified = $('#is_bank_details_verified').val();
+                    $('.page_content').html("<div class = 'text-center'><i class = 'fa fa-spinner fa-spin fa-4x'></i></div>");
                     $.ajax({
                         type:'POST',
-                        data:{sf_type:sf_type},
+                        data:{sf_type:sf_type,is_bank_details_verified:is_bank_details_verified},
+                        url:"<?php echo base_url(); ?>employee/vendor/show_bank_details",
+                        success:function(response){
+                            $('.page_content').html(response);
+                        }
+
+                    });
+                });
+                
+                $('#is_bank_details_verified').change(function(){
+                    var sf_type = $('#sf_type').val();
+                    var is_bank_details_verified = $('#is_bank_details_verified').val();
+                    $('.page_content').html("<div class = 'text-center'><i class = 'fa fa-spinner fa-spin fa-4x'></i></div>");
+                    $.ajax({
+                        type:'POST',
+                        data:{sf_type:sf_type,is_bank_details_verified:is_bank_details_verified},
                         url:"<?php echo base_url(); ?>employee/vendor/show_bank_details",
                         success:function(response){
                             $('.page_content').html(response);
@@ -126,7 +152,9 @@
         foreach ($bank_details as $value) { ?> 
             <tr>
                 <td><?php echo $sn; ?></td>
-                <td><?php echo $value['name']; ?></td>
+                <td>
+                    <a href="<?php echo base_url();?>employee/vendor/viewvendor/<?php echo $value['entity_id'];?>"><?php echo $value['name']; ?></a>
+                </td>
                 <td><?php echo $value['bank_account']; ?></td>
                 <td><?php echo $value['bank_name']; ?></td>
                 <td><?php echo $value['ifsc_code']; ?></td>
