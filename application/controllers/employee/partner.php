@@ -3425,6 +3425,7 @@ class Partner extends CI_Controller {
         $partner_id = $this->session->userdata('partner_id');
         $data['account_manager_details'] = $this->miscelleneous->get_am_data($partner_id);
         $data['rm_details'] = $this->employee_model->get_employee_by_group(array('groups' => 'regionalmanager', 'active' => 1));
+        $data['holidayList'] = $this->employee_model->get_holiday_list();
         $this->load->view('partner/header');
         $this->load->view('partner/contact_us', $data);
         $this->load->view('partner/partner_footer');

@@ -19,8 +19,8 @@ if ($this->uri->segment(3)) {
                         <thead>
                             <tr>
                                 <th class="text-center">S.N</th>
-                                <th class="text-center">Name</th>
                                 <th class="text-center">Booking ID</th>
+                                <th class="text-center">Name</th>
                                 <th class="text-center">Received Spare Parts</th>
                                 <th class="text-center">Received Date</th>
                                 <th class="text-center">AWB</th>
@@ -35,10 +35,10 @@ if ($this->uri->segment(3)) {
                                         <?php echo $sn_no; ?>
                                     </td>
                                     <td>
-                                        <?php echo $row['name']; ?>
+                                        <a style="color:blue"  href="<?php echo base_url(); ?>partner/booking_details/<?php echo $row['booking_id']; ?>"  title='View'><?php echo $row['booking_id']; ?></a>
                                     </td>
                                     <td>
-                                        <a style="color:blue"  href="<?php echo base_url(); ?>partner/booking_details/<?php echo $row['booking_id']; ?>"  title='View'><?php echo $row['booking_id']; ?></a>
+                                        <?php echo $row['name']; ?>
                                     </td>
 
                                     <td>
