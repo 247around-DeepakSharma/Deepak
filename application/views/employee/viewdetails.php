@@ -239,9 +239,7 @@
                             </tr>
                         </tbody>
                     </table>
-                    <?php } else {
-                        echo "Booking is not Assign";
-                        } ?>
+                    <?php }  ?>
                     </div>
                     <?php if($booking_history[0]['is_upcountry'] == 1){  ?>  
                     <table class="table  table-striped table-bordered">
@@ -253,14 +251,18 @@
                             <th>Upcountry Remarks </th>
                         <thead>
                         <tbody>
+                           
                             <tr>
-                                <td><?php echo round(($booking_history[0]["upcountry_distance"] + ($booking_history[0]["municipal_limit"] * 2))/2,2) . " KM"; ?></td>
+                                <td> <?php if(!empty($booking_history[0]['vendor_name'])){?>
+                                    <?php echo round(($booking_history[0]["upcountry_distance"] + ($booking_history[0]["municipal_limit"] * 2))/2,2) . " KM"; ?>
+                                <?php } ?>
+                                </td>
                                 <td><?php if($booking_history[0]['is_upcountry'] == 1){ echo $booking_history[0]["upcountry_distance"]." KM";} ?></td>
                                 <td> <?php if(isset($dhq[0]['district'])){echo $dhq[0]['district'];}?></td>
                                 <td><?php if(isset($dhq[0]['pincode'])){ echo $dhq[0]['pincode'];} ?></td>
                                 <td><?php echo $booking_history[0]["upcountry_remarks"];  ?></td>
                             </tr>
-                            <tr>
+                           
                                 
                             <tr>
                                 <td colspan="8">
