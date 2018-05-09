@@ -926,6 +926,7 @@
   </div>
 </div>
 <script>
+ GetRoute();
  function resendCustomerInvoice(booking_id, invoice_id){
         alert("Please Wait! we will send invoice to customer via sms or email");
          var url ="<?php echo base_url();?>employee/user_invoice/resend_customer_invoice/"+ booking_id+"/"+invoice_id;
