@@ -239,6 +239,11 @@
                             </tr>
                         </tbody>
                     </table>
+                    <?php } else {
+                        echo "Booking is not Assign";
+                        } ?>
+                    </div>
+                    <?php if($booking_history[0]['is_upcountry'] == 1){  ?>  
                     <table class="table  table-striped table-bordered">
                         <thead>
                             <th>One Way Distance </th>
@@ -256,7 +261,7 @@
                                 <td><?php echo $booking_history[0]["upcountry_remarks"];  ?></td>
                             </tr>
                             <tr>
-                                <?php if($booking_history[0]['is_upcountry'] == 1){  ?>  
+                                
                             <tr>
                                 <td colspan="8">
                                     <div class="col-md-12">
@@ -273,14 +278,11 @@
                                         </div
                                 </td>
                             </tr>
-                            <?php } ?>
+                            
                             </tr>
                         </tbody>
                     </table>
-                    <?php } else {
-                        echo "Booking is not Assign";
-                        } ?>
-                    </div>
+                    <?php } ?>
                 </div>
             </div>
             <div class="tab-pane fade in" id="tab2">
