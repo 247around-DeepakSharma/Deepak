@@ -169,9 +169,10 @@
             </div>
         </div>
         <div class="tab-pane fade in" id="upcountry">
-            <?php if(!empty($booking_history[0]['vendor_name'])){?>
+            
             <div class="row">
                 <div class="col-md-12">
+                    <?php if(!empty($booking_history[0]['vendor_name'])){?>
                     <table class="table  table-striped table-bordered">
                         <thead>
                             <tr>
@@ -193,7 +194,10 @@
                             </tr>
                         </tbody>
                     </table>
+                     <?php } ?>
+                     <?php if($booking_history[0]['is_upcountry'] == 1){  ?>  
                     <table class="table  table-striped table-bordered">
+                          
                         <thead>
                             <th>One Way Distance </th>
                             <th>Upcountry Distance </th>
@@ -201,16 +205,21 @@
                             <th>Upcountry Pincode</th>
                             <th>Upcountry Remarks </th>
                         <thead>
+                        
                         <tbody>
+                           
                             <tr>
-                                <td><?php echo round(($booking_history[0]["upcountry_distance"] + ($booking_history[0]["municipal_limit"] * 2))/2,2) . " KM"; ?></td>
+                                <td><?php if(!empty($booking_history[0]['vendor_name'])){?>
+                                    <?php echo round(($booking_history[0]["upcountry_distance"] + ($booking_history[0]["municipal_limit"] * 2))/2,2) . " KM"; ?>
+                                <?php } ?>
+                                </td>
                                 <td><?php if($booking_history[0]['is_upcountry'] == 1){ echo $booking_history[0]["upcountry_distance"]." KM";} ?></td>
                                 <td> <?php if(isset($dhq[0]['district'])){echo $dhq[0]['district'];}?></td>
                                 <td><?php if(isset($dhq[0]['pincode'])){ echo $dhq[0]['pincode'];} ?></td>
                                 <td><?php echo $booking_history[0]["upcountry_remarks"];  ?></td>
                             </tr>
-                            <tr>
-                                <?php if($booking_history[0]['is_upcountry'] == 1){  ?>  
+                           
+                            
                             <tr>
                                 <td colspan="8">
                                     <div class="col-md-12">
@@ -228,13 +237,11 @@
                                         </div
                                 </td>
                             </tr>
-                            <?php } ?>
+                            
                             </tr>
                         </tbody>
                     </table>
-                    <?php } else {
-                        echo "Booking is not Assign";
-                        } ?>
+                   <?php } ?>
                     </div>
                 </div>
             </div>
