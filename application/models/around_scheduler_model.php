@@ -493,7 +493,7 @@ class Around_scheduler_model extends CI_Model {
                                 JOIN service_centres ON service_centres.id = vendor_pincode_mapping.Vendor_ID
                                 WHERE vendor_pincode_mapping.Appliance_ID = booking_details.service_id
                                 AND vendor_pincode_mapping.Pincode = booking_details.booking_pincode
-                                AND service_centres.active = '1' AND service_centres.on_off = '1')";
+                                AND service_centres.active = '1' AND service_centres.on_off = '1') AND booking_details.booking_pincode != ' ' AND booking_details.booking_pincode IS NOT NULL";
         $query = $this->db->query($sql);
         return $query->result_array();
     }
