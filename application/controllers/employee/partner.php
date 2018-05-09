@@ -211,6 +211,14 @@ class Partner extends CI_Controller {
             redirect(base_url() . "partner/login");
         }
     }
+    function checkEmployeeUserSession(){
+         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee') && !empty($this->session->userdata('id'))) {
+            return TRUE;
+        } else {
+            $this->session->sess_destroy();
+            redirect(base_url() . "employee/login");
+        }
+    }
 
     /**
      * @desc : This funtion for logout
@@ -718,7 +726,7 @@ class Partner extends CI_Controller {
      * @return : array(of details) to view
      */
     function viewpartner($partner_id = "") {
-        $this->checkUserSession();
+        $this->checkEmployeeUserSession();
         $partner_not_like ='';
         $service_brands = array();
         $active = 1;
