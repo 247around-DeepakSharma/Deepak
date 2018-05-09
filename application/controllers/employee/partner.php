@@ -718,6 +718,7 @@ class Partner extends CI_Controller {
      * @return : array(of details) to view
      */
     function viewpartner($partner_id = "") {
+        $this->checkUserSession();
         $partner_not_like ='';
         $service_brands = array();
         $active = 1;
@@ -3427,6 +3428,7 @@ class Partner extends CI_Controller {
         $partner_id = $this->session->userdata('partner_id');
         $data['account_manager_details'] = $this->miscelleneous->get_am_data($partner_id);
         $data['rm_details'] = $this->employee_model->get_employee_by_group(array('groups' => 'regionalmanager', 'active' => 1));
+        $data['holidayList'] = $this->employee_model->get_holiday_list();
         $this->load->view('partner/header');
         $this->load->view('partner/contact_us', $data);
         $this->load->view('partner/partner_footer');
@@ -4220,6 +4222,7 @@ class Partner extends CI_Controller {
     }
     function download_upcountry_report(){
         log_message('info', __FUNCTION__ . ' Function Start For Partner '.$this->session->userdata('partner_id'));
+        $this->checkUserSession();
         $upcountryCsv= "Upcountry_Report" . date('j-M-Y-H-i-s') . ".csv";
         $csv = TMP_FOLDER . $upcountryCsv;
         $report = $this->upcountry_model->get_upcountry_non_upcountry_district();
