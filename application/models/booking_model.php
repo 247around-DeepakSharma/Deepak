@@ -1960,7 +1960,9 @@ class Booking_model extends CI_Model {
         if($limit == "All"){
             $select = "count(spare_parts_details.booking_id) as count";
         } else {
-            $select = "spare_parts_details.*, users.name, booking_details.booking_primary_contact_no, service_centres.name as sc_name, bookings_sources.source, booking_details.current_status,booking_details.request_type";
+            $select = "spare_parts_details.*, users.name, booking_details.booking_primary_contact_no, service_centres.name as sc_name, "
+                    . "bookings_sources.source, booking_details.current_status,booking_details.request_type,"
+                    . "booking_details.service_center_closed_date";
             if($limit != -1){
                 $this->db->limit($limit, $start);
             }

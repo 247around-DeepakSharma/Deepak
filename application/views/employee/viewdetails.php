@@ -398,10 +398,10 @@
                                     <td><a  href="javascript:void(0)" onclick="get_invoice_data('<?php echo $unit_detail['partner_invoice_id']; ?>')"><?php echo $unit_detail['partner_invoice_id'];?></a></td>
                                     <?php }  ?>
                                     <td>
-                                        <?php echo round($unit_detail['vendor_basic_charges'] + $unit_detail['vendor_st_or_vat_basic_charges'] + 
+                                        <?php echo sprintf("%0.2f",$unit_detail['vendor_basic_charges'] + $unit_detail['vendor_st_or_vat_basic_charges'] + 
                                             $unit_detail['vendor_extra_charges']  +  $unit_detail['vendor_st_extra_charges']  + 
                                              $unit_detail['vendor_parts']  + $unit_detail['vendor_st_parts'] +
-                                            $sf_upcountry_charges, 2);?>
+                                            $sf_upcountry_charges);?>
                                     </td>
                                     <?php } ?>
                             </tbody>

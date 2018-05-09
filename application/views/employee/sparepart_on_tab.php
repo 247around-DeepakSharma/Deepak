@@ -164,7 +164,7 @@
                                         <th class="text-center" data-orderable="false">Requested Part</th>
                                         <th class="text-center" data-orderable="false">Booking Type</th>
 					<th class="text-center" data-orderable="false">Defective Parts</th>
-                                        <th class="text-center" data-orderable="false">Age Of shipped</th>
+                                        <th class="text-center" data-orderable="true">Age Of shipped</th>
                                         <th class="text-center" data-orderable="false">SF Remarks</th>
                                         <th class="text-center" data-orderable="false">Courier Invoice</th>
                                         <th class="text-center" data-orderable="false">Challan File</th>
@@ -236,7 +236,7 @@
                                         <th class="text-center" data-orderable="false">Requested Part</th>
                                         <th class="text-center" data-orderable="false">Booking Type</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
-                                        <th class="text-center" data-orderable="false">Age</th>
+                                        <th class="text-center" data-orderable="true">Age</th>
 
                                         <th class="text-center" data-orderable="false">Cancel Part</th>
 
@@ -259,7 +259,7 @@
                                         <td class="text-center"><?php echo $value['parts_requested'];?></td>
                                         <td class="text-center"><?php echo $value['request_type'];?></td>
                                         <td class="text-center"><?php echo $value['parts_shipped'];?></td>
-                                         <td class="text-center"><?php $age_requested = date_diff(date_create($value['update_date']), date_create('today')); echo $age_requested->days. " Days";?></td> 
+                                         <td class="text-center"><?php $age_requested = date_diff(date_create($value['service_center_closed_date']), date_create('today')); echo $age_requested->days. " Days";?></td> 
                                       
                                         <td class="text-center"><button type="button" data-booking_id="<?php echo $value['booking_id'];?>" data-url="<?php echo base_url(); ?>employee/inventory/update_action_on_spare_parts/<?php echo $value['id']."/".$value['booking_id'];?>/CANCEL_COMPLETED_BOOKING_PARTS" class="btn btn-primary btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2">Cancel</button></td>
                                        
@@ -298,7 +298,7 @@
                                         <th class="text-center" data-orderable="false">Booking Type</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
                                         <th class="text-center" data-orderable="false">Defective Parts</th>
-                                        <th class="text-center" data-orderable="false">Age Of shipped</th>
+                                        <th class="text-center" data-orderable="true">Age Of shipped</th>
                                         <th class="text-center" data-orderable="false">SF Remarks</th>
                                         <th class="text-center" data-orderable="false">Defective Parts Rejection Reason</th>
                                         <th class="text-center" data-orderable="false">Courier Invoice</th>
@@ -370,7 +370,7 @@
                                         <th class="text-center" data-orderable="false">Booking Type</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
                                     
-                                        <th class="text-center" data-orderable="false">Age Of Shipped</th>
+                                        <th class="text-center" data-orderable="true">Age Of Shipped</th>
                                         <th class="text-center" data-orderable="false">Challan File</th>
 <!--                                        <th class="text-center" data-orderable="false">Update</th>-->
                                         <th class="text-center" data-orderable="false">Cancel Part</th>
@@ -436,7 +436,7 @@
                                         <th class="text-center" data-orderable="false">Booking Type</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
            
-                                        <th class="text-center" data-orderable="false">Age Of Delivered</th>
+                                        <th class="text-center" data-orderable="true">Age Of Delivered</th>
                                         <th class="text-center" data-orderable="false">Cancel Part</th>
                                         <th class="text-center" data-orderable="false">IS Defective Parts Required</th>
                                     </tr>
@@ -487,7 +487,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 1,2,3,4,5,6,7,8 ]
+                        columns: [ 1,2,3,4,5,6,7,8,9 ]
                     },
                     title: 'spare_parts_requested'
                 }
@@ -529,7 +529,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 1,2,3,4,5,6,7,8,9,10 ]
+                        columns: [ 1,2,3,4,5,6,7,8,9 ]
                     },
                     title: 'defective_part_pending'
                 }

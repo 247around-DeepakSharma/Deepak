@@ -246,6 +246,15 @@ class ApiDataRequest extends CI_Controller {
                 //INSERT UNIT
                 $result = $this->booking_model->_insert_data_in_booking_unit_details($unit[0], 1, 1);
                 
+                if(isset($result['unit_id']) && !empty($result['unit_id'])){
+                    //Update unit details in spare parts
+                    $response = $this->service_centers_model->update_spare_parts(array('id' => $id), array('booking_unit_details_id' => $result['unit_id']));
+                    if(!empty($response)){
+                        log_message("info","Unit Id Updated in unit details");
+                    }else{
+                        log_message("info","Error in Updating unit id in unit details");
+                    }
+                }
                 $booking['amount_due'] = ($amount_due + $data['sell_price']);
                 $booking['internal_status'] = SPARE_OOW_EST_GIVEN;
                 $actor = $next_action = 'not_define';
