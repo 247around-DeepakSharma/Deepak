@@ -7,6 +7,29 @@
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
+                <div class="x_content">
+                    <div class="" role="tabpanel" data-example-id="togglable-tabs">
+                        <ul id="myTabs" class="nav nav-tabs bar_tabs" role="tablist">
+                            <li role="presentation" class="active">
+                                <a href="#tabs-1" role="tab" data-toggle="tab" aria-expanded="true">
+                                    Contacts
+                                </a>
+                            </li>
+                            <li role="presentation">
+                                <a href="#tabs-2" role="tab" data-toggle="tab" aria-expanded="true" >
+                                    Holidays
+                                </a>
+                            </li>
+                        </ul>
+                        <div id="myTabContent" class="tab-content">
+                            <div class="tab-pane active" id="tabs-1">
+                                <div class="x_title">
+                                         <h2>Contacts</h2>
+                                            <div class="clearfix"></div>
+                                            </div>
+                                <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel">
                 <div class="x_title">
                     <h2>First Escalation Point</h2>
                     <div class="clearfix"></div>
@@ -37,7 +60,7 @@
             </div>
         </div>
     </div>
-    <div class="row">
+                                <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
                 <div class="x_title">
@@ -69,7 +92,7 @@
             </div>
         </div>
     </div>
-    <div class="row">
+                                    <div class="row">
         <div class="col-md-6 col-sm-6 col-xs-12">
             <div class="x_panel">
                 <div class="x_title">
@@ -116,4 +139,69 @@
             </div>
         </div>
     </div>
-</div>
+                            </div>
+                            <div class="tab-pane" id="tabs-2">
+                                  <div class="x_title">
+                                         <h2>Holiday List  <?php echo date("Y") ?></h2>
+        <div style='border-radius: 5px;background: #EEEEEE;margin-bottom: 10px;width:330px;margin-top: 4px;margin-left: 9px;' class='col-md-6'><b>NOTE:</b> <i>Checkmark shows Holiday declared.</i></div>
+                                            <div class="clearfix"></div>
+                                            </div>
+                                 <table class="table table-bordered table-hover table-striped">
+                                     <thead style="background: #2a3f54;color: #fff;">
+                    <tr>
+                        <th>S.N.</th>
+                        <th style="padding:5px;text-align: center">DATE</th>
+                        <th style="padding:5px;text-align: center">DAY</th>
+                        <th style="padding:5px;text-align: center">EVENT</th>
+                        <th style="padding:5px;text-align: center">DELHI</th>
+                        <th style="padding:5px;text-align: center">CHENNAI</th>
+                        <th style="padding:5px;text-align: center">MUMBAI</th>
+                        <th style="padding:5px;text-align: center">KOLKATA</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <?php foreach ($holidayList as $key => $value) { ?>		
+                        <tr>
+                            <td ><?php echo ($key + 1) . '.' ?></td>
+                            <td style="padding:1px;text-align: center"><?php echo date('d M Y', strtotime($value['event_date'])) ?></td>
+                            <td style="padding:1px;text-align: center"><?php echo date('l', strtotime($value['event_date'])) ?></td>
+                            <td style="padding:1px;text-align: center;"><?php echo $value['event_name'] ?></td>
+                            <td style="padding:1px;text-align: center">
+                                <?php
+                                if ($value['delhi'] == 1){ ?>
+                                <img src="<?php echo base_url()?>images/ok.png" height="20px" width="20px"/>
+                                <?php }?>
+                            </td>
+                            <td style="padding:1px;text-align: center">
+                                <?php
+                                if ($value['chennai'] == 1){ ?>
+                                <img src="<?php echo base_url()?>images/ok.png" height="20px" width="20px"/>
+                                <?php }?>
+                            </td>
+                            <td style="padding:1px;text-align: center">
+                                <?php
+                                if ($value['mumbai'] == 1){ ?>
+                                <img src="<?php echo base_url()?>images/ok.png" height="20px" width="20px"/>
+                                <?php }?>
+                            </td>
+                            <td style="padding:1px;text-align: center">
+                                <?php
+                                if ($value['kolkata'] == 1){ ?>
+                                <img src="<?php echo base_url()?>images/ok.png" height="20px" width="20px"/>
+                                <?php }?>
+                            </td>
+                        </tr>
+                    <?php } ?>
+
+                </tbody>
+            </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>    
+    

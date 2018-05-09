@@ -29,8 +29,8 @@
                         <thead>
                             <tr>
                                 <th>S.N</th>
-                                <th>Order ID</th>
                                 <th>Booking ID</th>
+                                <th>Order ID</th>
                                 <th>Call Type</th>
                                 <th>Customer Name</th>
                                 <th>Mobile</th>
@@ -58,11 +58,11 @@
                                         <?php } ?>
                                     </td>
                                     <td>
-                                            <?php echo $row['order_id']; ?>
-                                    </td>
-                                    <td>
                                         <a style="color:blue;"  href="<?php echo base_url(); ?>partner/booking_details/<?php echo $row['booking_id'] ?>" target='_blank' title='View'> 
                                         <?php echo $row['booking_id']; ?></a>
+                                    </td>
+                                    <td>
+                                            <?php echo $row['order_id']; ?>
                                     </td>
                                     <td>
                                         <?php

@@ -30,8 +30,8 @@
                     <thead>
                         <tr>
                             <th class="text-center">S.N</th>
-                            <th class="text-center">Customer Name</th>
                             <th class="text-center">Booking ID</th>
+                            <th class="text-center">Customer Name</th>
                             <th class="text-center">Parts Shipped</th>
                             <th class="text-center">Courier Name</th>
                             <th class="text-center">AWB</th>
@@ -49,10 +49,10 @@
                                     <?php echo $sn_no; ?>
                                 </td>
                                 <td>
-                                    <?php echo $row['name']; ?>
+                                    <a  style="color:blue" href="<?php echo base_url(); ?>partner/booking_details/<?php echo $row['booking_id']; ?>"  title='View'><?php echo $row['booking_id']; ?></a>
                                 </td>
                                 <td>
-                                    <a  style="color:blue" href="<?php echo base_url(); ?>partner/booking_details/<?php echo $row['booking_id']; ?>"  title='View'><?php echo $row['booking_id']; ?></a>
+                                    <?php echo $row['name']; ?>
                                 </td>
     <!--                                    <td>
                                     <?php //echo $row['age_of_booking'];  ?>
