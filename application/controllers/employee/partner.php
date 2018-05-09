@@ -718,6 +718,7 @@ class Partner extends CI_Controller {
      * @return : array(of details) to view
      */
     function viewpartner($partner_id = "") {
+        $this->checkUserSession();
         $partner_not_like ='';
         $service_brands = array();
         $active = 1;
