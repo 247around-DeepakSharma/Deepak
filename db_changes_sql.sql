@@ -4753,3 +4753,11 @@ ALTER TABLE `spare_parts_details` ADD `shipped_parts_type` VARCHAR(256) NOT NULL
 
 ALTER TABLE `spare_parts_details` ADD `entity_type` VARCHAR(32) NOT NULL AFTER `booking_id`;
 update spare_parts_details SET entity_type = 'partner'
+
+
+--sachin 9 may
+
+ALTER TABLE `spare_parts_details` ADD `booking_unit_details_id` INT(11) NULL DEFAULT NULL AFTER `booking_id`;
+
+ALTER TABLE spare_parts_details
+ADD FOREIGN KEY (unit_details_id) REFERENCES booking_unit_details(id);
