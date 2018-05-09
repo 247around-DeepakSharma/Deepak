@@ -114,29 +114,6 @@
                                         <th></th>
                                         <td></td>
                                          </tr>
-                                    <?php if (isset($dhq[0]['district'])) { ?>
-                                        <tr>
-                                            <th colspan="1">Upcountry</th>
-                                            <td colspan="3">
-                                                <div class="col-md-12">
-                                                    <div class="col-md-4"> <input type="hidden" class="form-control" id="txtSource" value="<?php echo $booking_history[0]['booking_pincode'] . ", india";
-                                                        ?>">
-                                                    </div>
-                                                    <div class="col-md-4">   <input type="hidden" class="form-control" id="txtDestination" value="<?php if (isset($dhq[0]['district'])) {
-                                                            echo $dhq[0]['pincode'] . ", India";
-                                                        }
-                                                        ?>">
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-12" > 
-                                                    <div id="dvDistance" style="display:none;"></div>
-                                                    <br/>
-                                                    <div id="dvMap" style=" height: 200px">
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    <?php } ?> 
                                 </table>
                             </div>
                             <div role="tabpanel" class="tab-pane fade" id="tab_content2">
@@ -448,22 +425,64 @@
                             <div role="tabpanel" class="tab-pane fade" id="tab_content4">
                             </div>
                             <div role="tabpanel" class="tab-pane fade" id="tab_content5">
-                                <?php if(isset($booking_history[0]['primary_contact_name'])){ ?>
+
+                    <?php if(isset($booking_history[0]['primary_contact_name'])){ ?>
                                     <table class="table table-striped table-bordered" >
                                         <tr>
                                             <th>Back Office Person</th>
                                             <th>Mobile</th>
                                             <th>Email</th>
+                                            <th>Municipal Limit </th>
                                         </tr>
                                         <tbody>
                                             <tr>
                                                 <td><?php echo $booking_history[0]['primary_contact_name'];?></td>
                                                 <td><?php echo $booking_history[0]['primary_contact_phone_1'];?></td>
                                                 <td><?php echo $booking_history[0]['primary_contact_email'];?></td>
+                                                <td><?php if($booking_history[0]['is_upcountry'] == 1){ echo $booking_history[0]["municipal_limit"]." KM";}  ?></td>
                                             </tr>
                                         </tbody>
                                     </table>
                                 <?php } else { ?><b>SF Not Assign</b><?php }?>
+                   
+                    <table class="table  table-striped table-bordered">
+                        <thead>
+                            <th>One Way Distance </th>
+                            <th>Upcountry Distance </th>
+                            <th>Upcountry District </th>
+                            <th>Upcountry Pincode</th>
+                            <th>Upcountry Remarks </th>
+                        <thead>
+                        <tbody>
+                            <tr>
+                                <td><?php echo round(($booking_history[0]["upcountry_distance"] + ($booking_history[0]["municipal_limit"] * 2))/2,2) . " KM"; ?></td>
+                                <td><?php if($booking_history[0]['is_upcountry'] == 1){ echo $booking_history[0]["upcountry_distance"]." KM";} ?></td>
+                                <td> <?php if(isset($dhq[0]['district'])){echo $dhq[0]['district'];}?></td>
+                                <td><?php if(isset($dhq[0]['pincode'])){ echo $dhq[0]['pincode'];} ?></td>
+                                <td><?php echo $booking_history[0]["upcountry_remarks"];  ?></td>
+                            </tr>
+                            <tr>
+                                <?php if($booking_history[0]['is_upcountry'] == 1){  ?>  
+                            <tr>
+                                <td colspan="8">
+                                    <div class="col-md-12">
+                                        <div class="col-md-4"> <input type="hidden" class="form-control" id="txtSource" value="<?php echo $booking_history[0]['booking_pincode'].", india"; ?>"></div>
+                                        <div class="col-md-4">   <input type="hidden" class="form-control" id="txtDestination" value="<?php if(isset($dhq[0]['district'])){
+                                            echo $dhq[0]['pincode'].", India";}?>"></div>
+                                        <div class="col-md-4" style="display: none;"> <button class="btn btn-success" onclick="GetRoute()">Get Route</button></div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div id="dvDistance" style="display:none;"></div>
+                                        <br/>
+                                        <div id="dvMap" style=" height: 200px">
+                                        </div>
+                                        </div
+                                </td>
+                            </tr>
+                            <?php } ?>
+                            </tr>
+                        </tbody>
+                    </table>   
                             </div>
                         </div>
                     </div>
