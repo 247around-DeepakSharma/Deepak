@@ -119,12 +119,11 @@
                                             <th colspan="1">Upcountry</th>
                                             <td colspan="3">
                                                 <div class="col-md-12">
-                                                    <div class="col-md-4"> <input type="hidden" class="form-control" id="txtSource" value="<?php echo $booking_history[0]['city'] . ", " .
-                                                        $booking_history[0]['booking_pincode'] . ", india";
+                                                    <div class="col-md-4"> <input type="hidden" class="form-control" id="txtSource" value="<?php echo $booking_history[0]['booking_pincode'] . ", india";
                                                         ?>">
                                                     </div>
                                                     <div class="col-md-4">   <input type="hidden" class="form-control" id="txtDestination" value="<?php if (isset($dhq[0]['district'])) {
-                                                            echo $dhq[0]['district'] . "," . $dhq[0]['pincode'] . ", India";
+                                                            echo $dhq[0]['pincode'] . ", India";
                                                         }
                                                         ?>">
                                                     </div>
