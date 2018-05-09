@@ -260,10 +260,9 @@
                             <tr>
                                 <td colspan="8">
                                     <div class="col-md-12">
-                                        <div class="col-md-4"> <input type="text" class="form-control" id="txtSource" value="<?php echo $booking_history[0]['city'].", ".
-                                            $booking_history[0]['booking_pincode'].", india"; ?>"></div>
+                                        <div class="col-md-4"> <input type="text" class="form-control" id="txtSource" value="<?php echo $booking_history[0]['booking_pincode'].", india"; ?>"></div>
                                         <div class="col-md-4">   <input type="text" class="form-control" id="txtDestination" value="<?php if(isset($dhq[0]['district'])){
-                                            echo $dhq[0]['district'].",".$dhq[0]['pincode'].", India";}?>"></div>
+                                            echo $dhq[0]['pincode'].", India";}?>"></div>
                                         <div class="col-md-4"> <button class="btn btn-success" onclick="GetRoute()">Get Route</button></div>
                                     </div>
                                     <div class="col-md-12">
@@ -399,10 +398,10 @@
                                     <td><a  href="javascript:void(0)" onclick="get_invoice_data('<?php echo $unit_detail['partner_invoice_id']; ?>')"><?php echo $unit_detail['partner_invoice_id'];?></a></td>
                                     <?php }  ?>
                                     <td>
-                                        <?php echo round($unit_detail['vendor_basic_charges'] + $unit_detail['vendor_st_or_vat_basic_charges'] + 
+                                        <?php echo sprintf("%0.2f",$unit_detail['vendor_basic_charges'] + $unit_detail['vendor_st_or_vat_basic_charges'] + 
                                             $unit_detail['vendor_extra_charges']  +  $unit_detail['vendor_st_extra_charges']  + 
                                              $unit_detail['vendor_parts']  + $unit_detail['vendor_st_parts'] +
-                                            $sf_upcountry_charges, 2);?>
+                                            $sf_upcountry_charges);?>
                                     </td>
                                     <?php } ?>
                             </tbody>

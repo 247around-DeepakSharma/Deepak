@@ -28,7 +28,7 @@
             <?php
             if($this->session->userdata('agent_id') != '980084' && $this->session->userdata('agent_id') != '980083'){
             ?>
-            <a style="float: right;"type="button" class="btn btn-success" href="<?php echo base_url(); ?>employee/partner/download_partner_pending_bookings/<?php echo $this->session->userdata('partner_id')?>">Download Pending Bookings</a>
+            <a style="float: right;background: #2a3f54;border-color: #2a3f54;"type="button" class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>employee/partner/download_partner_pending_bookings/<?php echo $this->session->userdata('partner_id')?>">Download</a>
             <?php
             }
             ?>
@@ -51,39 +51,38 @@
             <table class="table table-bordered table-hover table-striped" id="pending_booking_table">
                 <thead>
                     <tr>
-                        <th>S.N</th>
-                        <th>Booking ID</th>
-                        <th>Call Type</th>
-                        <th>Brand</th>
-                        <th>Status</th>
-                        <th>User</th>
-                        <th>Mobile</th>
-                        <th>City</th>
-                        <th>State</th>
-                        <th>Booking Date</th>
-                        <th>Age (Days)</th>
-                        <th>Edit</th>
-                        <th>Reschedule</th>
-                        <th>Cancel</th>
-                        <th>JobCard</th>
-                        <th>Escalate</th>
+                        <th class="text-center">S.N</th>
+                        <th class="text-center">Booking ID</th>
+                       <th class="text-center">Call Type</th>
+                        <th class="text-center">Brand</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-center">Customer Name</th>
+                        <th class="text-center">Mobile</th>
+                        <th class="text-center">City</th>
+                       <th class="text-center">State</th>
+                        <th class="text-center">Booking Date</th>
+                        <th class="text-center">Age (Days)</th>
+                        <th class="text-center">Action</th>
+                        <th class="text-center">JobCard</th>
+                        <th class="text-center">Escalate</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php foreach ($bookings as $key => $row) { ?>
                         <tr>
-                            <td ><?php if ($row->is_upcountry == 1 && $row->upcountry_paid_by_customer == 0) { ?>
+                            <td class="text-center">
+                                   <?php echo $sn_no; ?>
+                                <?php if ($row->is_upcountry == 1 && $row->upcountry_paid_by_customer == 0) { ?>
                                     <i style="color:red; font-size:20px;" onclick="open_upcountry_model('<?php echo $row->booking_id; ?>', '<?php echo $row->amount_due; ?>')"
                                        class="fa fa-road" aria-hidden="true"></i><?php } ?>
-                                   <?php echo $sn_no; ?>
                             </td>
-                            <td >
+                            <td class="text-center">
                                 <a style="color:blue;" href="<?php echo base_url(); ?>partner/booking_details/<?= $row->booking_id ?>" target='_blank' title='View'> <?php
                                     echo $row->booking_id;
                                     ?></a>
                             </td>
 
-                            <td>
+                            <td class="text-center">
                                 <?php
                                 echo $row->services . "<br/>";
                                 switch ($row->request_type) {
@@ -101,37 +100,48 @@
                                 }
                                 ?>
                             </td>
-                            <td><?php echo $row->appliance_brand; ?></td>
-                            <td ><?php if ($row->count_escalation>0) { ?>
+                            <td class="text-center"><?php echo $row->appliance_brand; ?></td>
+                            <td class="text-center"><?php if ($row->count_escalation>0) { ?>
                                     <i style="color:red; font-size:13px;" onclick=""
                                        class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></i><?php } ?>
                                    <?php echo $row->partner_internal_status; ?>
                             </td>
-                            <td> 
+                            <td class="text-center"> 
                                 <?= $row->customername; ?>
                             </td>
-                            <td>
+                            <td class="text-center">
                                 <?= $row->booking_primary_contact_no; ?>
                             </td>
-                            <td>
+                            <td class="text-center">
                                 <?= $row->city; ?>
                             </td>
-                             <td>
+                             <td class="text-center">
                                 <?= $row->state; ?>
                             </td>
-                            <td>
+                            <td class="text-center">
                                 <?= $row->booking_date; ?>
                             </td>
-                             <td>
+                             <td class="text-center">
                                 <?= $row->aging; ?>
                             </td>
-                            <td style="text-align: center"><a class='btn btn-sm btn-primary' href="<?php echo base_url(); ?>partner/update_booking/<?= $row->booking_id ?>"  title='View' style="background-color:#2C9D9C; border-color: #2C9D9C;"><i class='fa fa-pencil-square-o' aria-hidden='true' ></i></a></td>
-                            <td style="text-align: center">
-                                <a <?php if ($row->type == "Query") { ?> style="pointer-events: none;background: #ccc;border-color:#ccc;" <?php } ?> href="<?php echo base_url(); ?>partner/get_reschedule_booking_form/<?php echo $row->booking_id; ?>" id="reschedule" class="btn btn-sm btn-success" title ="Reschedule"><i class='fa fa-calendar' aria-hidden='true' ></i></a>
+                            <td class="text-center">
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm btn-primary" type="button" data-toggle="dropdown" style="border: 1px solid #2a3f54;background: #2a3f54;">Action
+                                                <span class="caret"></span></button>
+                                                <ul class="dropdown-menu" style="padding: 5px 5px 5px 5px;margin: 0px;min-width: 95px;">
+                                                    <li style="color: #fff;"><a class='btn btn-sm btn-primary' href="<?php echo base_url(); ?>partner/update_booking/<?= $row->booking_id ?>"  title='View' style="background-color:#2C9D9C; border-color: #2C9D9C;color:#fff;padding: 5px 0px;
+    margin: 0px;">Update</a></li>
+                                                    <li style="color: #fff;margin-top:5px;">
+                                                        <a id="a_hover" <?php if ($row->type == "Query") { ?> style="background-color: #26b99a;border-color:#26b99a;color:#fff;padding: 5px 0px;margin: 0px;" <?php } else{ echo "style='background-color: #26b99a;border-color:#26b99a;color:#fff;padding: 5px 0px;margin: 0px;'";} ?> href="<?php echo base_url(); ?>partner/get_reschedule_booking_form/<?php echo $row->booking_id; ?>" id="reschedule" class="btn btn-sm btn-success" title ="Reschedule">Reschedule</a>
+                                                    </li>
+                                                     <li style="color: #fff;margin-top:5px;">
+                                                         <a id="a_hover" style="background-color: #d9534f;border-color:#d9534f;color:#fff;padding: 5px 0px;margin: 0px;"href="<?php echo base_url(); ?>partner/get_cancel_form/Pending/<?php echo $row->booking_id; ?>" class='btn btn-sm btn-danger' title='Cancel'>Cancel</a>
+                                                     </li>
+                                                </ul>
+                                            </div>
                             </td>
-                            <td style="text-align: center"><a href="<?php echo base_url(); ?>partner/get_cancel_form/Pending/<?php echo $row->booking_id; ?>" class='btn btn-sm btn-danger' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a></td>
-                            <td style="text-align: center"><a href="javascript: w=window.open('https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $row->booking_jobcard_filename; ?>'); w.print()" class='btn btn-sm btn-primary btn-sm' target="_blank" ><i class="fa fa-download" aria-hidden="true"></i></a></td>
-                            <td style="text-align: center">
+                            <td class="text-center"><a href="javascript: w=window.open('https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $row->booking_jobcard_filename; ?>'); w.print()" class='btn btn-sm btn-primary btn-sm' target="_blank" ><i class="fa fa-download" aria-hidden="true"></i></a></td>
+                            <td class="text-center">
                                 <a <?php if ($row->type == "Query") { ?> style="pointer-events: none;background: #ccc;border-color:#ccc;" <?php } ?> href="#" class='btn btn-sm btn-warning open-AddBookDialog' data-id= "<?php echo $row->booking_id; ?>" data-toggle="modal" data-target="#myModal" title="Escalate"><i class="fa fa-circle" aria-hidden="true"></i></a>
                             </td>
                         </tr>
@@ -260,7 +270,11 @@
 $('#serachInput').select2();
     </script>
     <style>
-        .dataTables_filter{
+/*        .dataTables_filter{
             display:none;
-        }
+        }*/
+#a_hover a:hover {
+  background: #26b99a !important;
+  text-decoration:none;
+}
         </style>

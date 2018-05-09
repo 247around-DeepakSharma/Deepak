@@ -904,5 +904,58 @@ class Upcountry_model extends CI_Model {
          return $this->db->insert_id();
     }
     
+    function get_upcountry_non_upcountry_district(){
+        $sql = "SELECT DISTINCT(vendor_pincode_mapping.city) as District,(CASE  WHEN municipal_limit.district IS NULL THEN 'F1' ELSE 'F2' END) as Flag, municipal_limit.municipal_limit as Municipal_Limit"
+                . " FROM "
+                . "vendor_pincode_mapping LEFT JOIN municipal_limit  ON municipal_limit.district = vendor_pincode_mapping.city";
+        return $query = $this->db->query($sql);
+    }
+    
+    /**
+     * @desc This is used to get unpaid upcountry charges for partner
+     * This is will use to calculate partner prepaid amount
+     * @param int $partner_id
+     * @return boolean
+     */
+    function getupcountry_for_partner_prepaid($partner_id){
+        $sql = "SELECT "
+                . " CONCAT( '', GROUP_CONCAT( DISTINCT ( bd.booking_id ) ) , '' ) AS booking_id, "
+                . " CASE when(upcountry_distance >".UPCOUNTRY_DISTANCE_CAP.") THEN (".UPCOUNTRY_DISTANCE_CAP.") ELSE (upcountry_distance) END AS upcountry_distance, "
+                . " CASE when(upcountry_distance >".UPCOUNTRY_DISTANCE_CAP.") THEN (partner_upcountry_rate * ".UPCOUNTRY_DISTANCE_CAP." ) ELSE  (partner_upcountry_rate *upcountry_distance ) END AS upcountry_price,"
+                . " COUNT(DISTINCT(bd.booking_id)) AS count_booking, partner_upcountry_rate"
+                . " FROM `booking_details` AS bd "
+                . " WHERE  bd.partner_id = '$partner_id' "
+                . " AND sub_vendor_id IS NOT NULL "
+                . " AND bd.is_upcountry = '1' "
+                . " AND bd.create_date > '2018-01-01' "
+                . " AND bd.current_status IN ('Completed', 'Pending', 'Rescheduled') "
+                . " AND bd.upcountry_paid_by_customer = 0 "
+                . " AND CASE WHEN (bd.current_status = 'Completed') THEN (bd.upcountry_partner_invoice_id IS NULL ) ELSE bd.partner_id = '$partner_id'  END "
+                . " GROUP BY bd.booking_date, bd.booking_pincode, bd.service_id ";
+        $query = $this->db->query($sql);
+
+        if($query->num_rows > 0){
+            $result = $query->result_array();
+            $total_price = 0;
+            $total_booking = 0;
+            $total_distance = 0;
+            foreach ($result as $key => $value) {
+                
+                if(isset($result[$key])){
+                    $total_price += $result[$key]['upcountry_price'];
+                    $total_booking += $value['count_booking'];
+                    $total_distance += $result[$key]['upcountry_distance'];
+                }
+                
+            }
+            $result[0]['total_upcountry_price'] = $total_price;
+            $result[0]['total_booking'] = $total_booking;
+            $result[0]['total_distance'] = round($total_distance, 0);
+            
+            return $result;
+        } else {
+            return FALSE;
+        }
+    }
     
 }

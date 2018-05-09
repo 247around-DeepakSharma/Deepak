@@ -1483,7 +1483,7 @@
              } 
              var  gst_n = $('#gst_no').val();
              var  sign_n = $('#signature_file').val();
-             if(!(gst_n && sign_n)){
+             if(!(gst_n || sign_n)){
                    alert('Please Update GST details or Signature ');
                    return false;
                }

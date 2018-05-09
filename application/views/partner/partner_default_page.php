@@ -41,7 +41,7 @@
                                 </a>
                             </li>
                             <li role="presentation">
-                                <a href="#tabs-4" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>partner/get_waiting_for_approval_upcountry_charges">
+                                <a href="#tabs-4" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>partner/get_waiting_for_approval_upcountry_charges/0/1">
                                     Waiting Approval Upcountry Charges
                                 </a>
                             </li>
@@ -62,19 +62,24 @@
                                 <div class="col-md-12 col-sm-12 col-xs-12">
                                     <div class="x_panel">
                                         <div class="x_title">
+                                         <h2>Pending Spares Quotes </h2>
+                                        <div class="pull-right"><button style="background: #2a3f54; border-color: #2a3f54;" id="spareDownload" class="btn btn-sm btn-primary">Download</button></div>
+                                            <div class="clearfix"></div>
+                                            </div>
+                                        <div class="x_content">
                                             <table id="datatable1" class="table table-striped table-bordered" style="width:100%">
                                                 <thead>
                                                     <tr>
-                                                        <th>No.</th>
-                                                        <th>Booking ID.</th>
-                                                        <th>Spare Part</th>
-                                                        <th>Age Of Requested</th>
-                                                        <th>Model No</th>
-                                                        <th>Serial No</th>
-                                                        <th>Defective Part Pic</th>
-                                                        <th>Serial Number Pic</th>
-                                                        <th>Estimate Cost</th>
-                                                        <th>Submit</th>
+                                                        <th class="text-center">S.N</th>
+                                                        <th class="text-center">Booking ID</th>
+                                                        <th class="text-center">Spare Part</th>
+                                                        <th class="text-center">Age Of Requested</th>
+                                                        <th class="text-center">Model No</th>
+                                                        <th class="text-center">Serial No</th>
+                                                        <th class="text-center">Spare Part Pic</th>
+                                                        <th class="text-center">Serial Number Pic</th>
+                                                        <th class="text-center">Estimate Cost</th>
+                                                        <th class="text-center">Submit</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -392,7 +397,6 @@
                 }
             ],
            "fnInitComplete": function (oSettings, response) {
-             $("#datatable1_filter").hide();
           }
             
         });
@@ -496,3 +500,14 @@
         }
     }
 </script>
+<style>
+    #datatable1 td{
+        text-align: center !important;
+    }
+   #datatable1 td:nth-child(2){
+            color: blue !important;
+    }
+    #datatable1 td:nth-child(8){
+            padding-left: 82px !important;
+    }   
+    </style>

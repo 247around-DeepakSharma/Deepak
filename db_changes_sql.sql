@@ -4752,8 +4752,43 @@ ALTER TABLE `spare_parts_details` ADD `shipped_parts_type` VARCHAR(256) NOT NULL
 
 
 ALTER TABLE `spare_parts_details` ADD `entity_type` VARCHAR(32) NOT NULL AFTER `booking_id`;
+
 update spare_parts_details SET entity_type = 'partner'
 
+
+---7 May Released (Branch 52)
+
+--
+-- Table structure for table `partner_serial_no`
+--
+
+CREATE TABLE `partner_serial_no` (
+  `id` int(11) NOT NULL,
+  `partner_id` int(11) NOT NULL,
+  `serial_number` varchar(128) NOT NULL,
+  `active` int(1) NOT NULL DEFAULT '1',
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `partner_serial_no`
+--
+ALTER TABLE `partner_serial_no`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `partner_serial_no`
+--
+ALTER TABLE `partner_serial_no`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --sachin 9 may
 

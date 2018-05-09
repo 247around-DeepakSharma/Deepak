@@ -69,11 +69,13 @@
                                         <th>Registration Date </th>
                                         <td><?php 
                                         $createDatArray = explode(' ',$booking_history[0]['create_date']);
-                                        echo $createDatArray[0]; ?></td>
+                                        $time2 = strtotime($createDatArray[0]);
+                                        $reg_date = date('d-m-Y',$time2);
+                                        echo $reg_date; ?></td>
                                         <th>Booking Date </th>
                                         <td><?php 
                                         $time = strtotime($booking_history[0]['booking_date']);
-                                        $booking_date = date('Y-m-d',$time);
+                                        $booking_date = date('d-m-Y',$time);
                                         echo $booking_date ?></td>
                                         
                                     </tr>
@@ -117,12 +119,11 @@
                                             <th colspan="1">Upcountry</th>
                                             <td colspan="3">
                                                 <div class="col-md-12">
-                                                    <div class="col-md-4"> <input type="hidden" class="form-control" id="txtSource" value="<?php echo $booking_history[0]['city'] . ", " .
-                                                        $booking_history[0]['booking_pincode'] . ", india";
+                                                    <div class="col-md-4"> <input type="hidden" class="form-control" id="txtSource" value="<?php echo $booking_history[0]['booking_pincode'] . ", india";
                                                         ?>">
                                                     </div>
                                                     <div class="col-md-4">   <input type="hidden" class="form-control" id="txtDestination" value="<?php if (isset($dhq[0]['district'])) {
-                                                            echo $dhq[0]['district'] . "," . $dhq[0]['pincode'] . ", India";
+                                                            echo $dhq[0]['pincode'] . ", India";
                                                         }
                                                         ?>">
                                                     </div>

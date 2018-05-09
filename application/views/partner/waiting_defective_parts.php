@@ -21,22 +21,25 @@
     <div class="x_panel">
         <div class="x_title">
             <h2>Defective Parts Shipped By SF</h2>
+            <div class="pull-right"><a style="background: #2a3f54; border-color: #2a3f54;" href="<?php echo base_url(); ?>partner/download_waiting_defective_parts"  class="btn btn-sm btn-primary">Download</a></div>
             <div class="clearfix"></div>
         </div>
         <div class="x_content">
             <form target="_blank"  action="<?php echo base_url(); ?>partner/print_all" name="fileinfo1"  method="POST" enctype="multipart/form-data">
-                <table class="table table-bordered table-hover table-striped">
+                <table class="table table-bordered table-hover table-striped" id="waiting_defactive_parts">
                     <thead>
                         <tr>
-                            <th class="text-center">No</th>
+                            <th class="text-center">S.N</th>
+                            <th class="text-center">Booking ID</th>
                             <th class="text-center">Customer Name</th>
-                            <th class="text-center">Booking Id</th>
                             <th class="text-center">Parts Shipped</th>
                             <th class="text-center">Courier Name</th>
                             <th class="text-center">AWB</th>
+                            <th class="text-center">Challan</th>
                             <th class="text-center">Shipped Date</th>
                             <th class="text-center">Remarks</th>
-                            <th colspan="2" class="text-center">Action</th>
+                            <th class="text-center">Receive</th>
+                            <th class="text-center">Reject</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -46,10 +49,10 @@
                                     <?php echo $sn_no; ?>
                                 </td>
                                 <td>
-                                    <?php echo $row['name']; ?>
+                                    <a  style="color:blue" href="<?php echo base_url(); ?>partner/booking_details/<?php echo $row['booking_id']; ?>"  title='View'><?php echo $row['booking_id']; ?></a>
                                 </td>
                                 <td>
-                                    <a  style="color:black" href="<?php echo base_url(); ?>partner/booking_details/<?php echo $row['booking_id']; ?>"  title='View'><?php echo $row['booking_id']; ?></a>
+                                    <?php echo $row['name']; ?>
                                 </td>
     <!--                                    <td>
                                     <?php //echo $row['age_of_booking'];  ?>
@@ -63,6 +66,11 @@
                                 <td>
                                     <?php echo $row['awb_by_sf']; ?>
                                 </td>
+                                 <td> 
+                                    <?php  if(!empty($row['sf_challan_file'])) { ?> 
+                                     <a style="color: blue;" href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY ?>/vendor-partner-docs/<?php echo $row['sf_challan_file']; ?>" target="_blank"><?php echo $row['sf_challan_number']?></a>
+                                    <?php } ?>
+                                </td>
                                 <td>
                                     <?php if (!is_null($row['defective_part_shipped_date'])) {
                                         echo date("d-m-Y", strtotime($row['defective_part_shipped_date']));
@@ -74,10 +82,13 @@
                                 </td>
                                 <td>
                                     <?php if (!empty($row['defective_part_shipped'])) { ?>
-                                        <div >
-                                            <a onclick="return confirm_received()" class="btn btn-sm btn-primary" id="defective_parts"href="<?php echo base_url(); ?>partner/acknowledge_received_defective_parts/<?php echo $row['booking_id']; ?>/<?php echo $this->session->userdata("partner_id"); ?>" <?php echo empty($row['defective_part_shipped']) ? 'disabled="disabled"' : '' ?>>Received</a></td></div>
+                                    <a style="background: #2a3f54; border-color: #2a3f54;" onclick="return confirm_received()" class="btn btn-sm btn-primary" id="defective_parts"
+                                               href="<?php echo base_url(); ?>partner/acknowledge_received_defective_parts/<?php echo $row['booking_id']; ?>/<?php echo $this->session->userdata("partner_id"); ?>" 
+                                                   <?php echo empty($row['defective_part_shipped']) ? 'disabled="disabled"' : '' ?>>Receive</a>
                                             <?php } ?>
+                                    </td>
                                 <td>
+                                    
                                     <?php if (!empty($row['defective_part_shipped'])) { ?>
                                         <div class="dropdown" >
                                             <a href="#" class="dropdown-toggle btn btn-sm btn-danger" type="button" data-toggle="dropdown">Reject
@@ -117,6 +128,7 @@
 <div class="clearfix"></div>
 <?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
 <script type="text/javascript">
+    var table = $('#waiting_defactive_parts').DataTable();
 function confirm_received(){
     var c = confirm("Continue?");
     if(!c){

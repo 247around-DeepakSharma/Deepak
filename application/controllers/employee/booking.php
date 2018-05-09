@@ -49,6 +49,7 @@ class Booking extends CI_Controller {
         $this->load->library("push_notification_lib");
         $this->load->library("paytm_payment_lib");
         $this->load->library('paytmlib/encdec_paytm');
+        $this->load->library('validate_serial_no');
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
             return TRUE;
         } else {
@@ -1815,8 +1816,11 @@ class Booking extends CI_Controller {
     function process_complete_booking($booking_id, $status = "") {
         log_message('info', __FUNCTION__ . " Booking id: " . $booking_id . " Status: " . $status . " Done By " . $this->session->userdata('employee_id'));
         log_message('info', __METHOD__ ." Booking ID ". $booking_id. " POST Data ". json_encode($this->input->post()), TRUE);
-        
-        $change_appliance_details = $this->input->post('change_appliance_details');
+        $this->form_validation->set_rules('pod', 'POD ', 'callback_validate_serial_no');
+        if ($this->form_validation->run() == FALSE){
+            $this->get_complete_booking_form($booking_id);
+        } else {
+            $change_appliance_details = $this->input->post('change_appliance_details');
         
         if($change_appliance_details == 1){
             $this->update_completed_unit_applinace_details($booking_id);
@@ -2048,6 +2052,42 @@ class Booking extends CI_Controller {
             redirect(base_url() . 'employee/booking/view_bookings_by_status/Pending');
         } else {
             redirect(base_url() . 'employee/booking/view_bookings_by_status/' . $internal_status);
+        }
+        }
+    }
+    
+    function validate_serial_no() {
+        $serial_number = $this->input->post('serial_number');
+        $pod = $this->input->post('pod');
+        $booking_status = $this->input->post('booking_status');
+        $partner_id = $this->input->post('partner_id');
+        $return_status = true;
+        if (isset($_POST['pod'])) {
+            foreach ($pod as $unit_id => $value) {
+                if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
+                   
+                   $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number[$unit_id]));
+                    if(!empty($status)){
+                        if($status == SUCCESS_CODE){
+                            log_message('info', " Serial No validation success  for serial no ".trim($serial_number[$unit_id]));
+                        } else {
+                            $return_status = false;
+                        }
+                    } else if ($value == 1 && empty(trim($serial_number[$unit_id]))) {
+                        $return_status = false;
+                    } else if ($value == 1 && is_numeric($serial_number[$unit_id]) && $serial_number[$unit_id] == 0) {
+                        $return_status = false;
+                    }
+                }
+            }
+            if ($return_status == true) {
+                return true;
+            } else {
+                $this->form_validation->set_message('validate_serial_no', 'Please Enter Valid Serial Number');
+                return FALSE;
+            }
+        } else {
+            return TRUE;
         }
     }
 
@@ -3796,58 +3836,15 @@ class Booking extends CI_Controller {
      * @return: string
      */
     function download_serviceability_data() {
-        log_message('info', __FUNCTION__ . "Function Start With Request ".print_r($this->input->post(),true));
-        //Receive Input
-        $services = $this->input->post('service_id');
-        $appliace_opt = $this->input->post('appliance_opt');
-        $pincode_opt = $this->input->post('pincode_opt');
-        $state_opt = $this->input->post('state_opt');
-        $city_opt = $this->input->post('city_opt');
-        
-        $whereIN = $join = NULL;
-        $groupBY = array();
-        $orderBY = array('vendor_pincode_mapping.Pincode'=>'ASC');
-        if($appliace_opt == 1){
-             $service_id = explode(",",$services);
-             if (in_array('all', $service_id)) {
-                $service_id = array_column($this->booking_model->selectservice(true), 'id');
-             }
-            $whereIN['services.id'] =  $service_id;
-            $join['services'] =  'services.id = vendor_pincode_mapping.Appliance_ID';
-            $select[] = "services.services as Appliance";
-            $groupBY[] = 'vendor_pincode_mapping.Appliance_ID';
-        }
-         if($pincode_opt == 1){
-            $select[] = "vendor_pincode_mapping.Pincode";
-            $groupBY[] = 'vendor_pincode_mapping.Pincode';
-        }
-         if($state_opt){
-            $select[] = "vendor_pincode_mapping.State";
-            $groupBY[] = 'vendor_pincode_mapping.State';
-        }
-         if($city_opt){
-            $select[] = "vendor_pincode_mapping.City";
-            $groupBY[] = 'vendor_pincode_mapping.City';
-        }
-        $data = $this->reusable_model->get_search_result_data('vendor_pincode_mapping',implode(',',$select),NULL,$join,NULL,$orderBY,$whereIN,NULL,$groupBY);
-        foreach($data as $dataValues){
-            $headings = array_keys($dataValues);
-            $CSVData[] = array_values($dataValues);
-        }
-        $csv = implode(",",$headings)." \n";//Column headers
-        foreach ($CSVData as $record){
-            $csv.=implode(",",$record)."\n"; //Append data to csv
-        }
-    $output_file = TMP_FOLDER . "serviceability_report.csv";
-    $csv_handler = fopen ($output_file,'w');
-    fwrite ($csv_handler,$csv);
-    fclose ($csv_handler);
-    $subject = 'Servicablity Report from 247Around';
-    $message = 'Hi , <br>Requested Report is ready please find attachment<br>Thanks!';
-    $this->notify->sendEmail(NOREPLY_EMAIL_ID, $this->session->userdata('official_email'), "", "", $subject, $message, $output_file,"Servicablity_Report");
-    log_message('info', __FUNCTION__ . "Function End ".$this->session->userdata('official_email'));
-    unlink($output_file);
-         }
+        log_message('info', __FUNCTION__ . " Function Start ");
+        $this->miscelleneous->create_serviceability_report_csv($this->input->post());
+        $output_file = TMP_FOLDER . "serviceability_report.csv";
+        $subject = 'Servicablity Report from 247Around';
+        $message = 'Hi , <br>Requested Report is ready please find attachment<br>Thanks!';
+        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $this->session->userdata('official_email'), "", "", $subject, $message, $output_file,"Servicablity_Report");
+        log_message('info', __FUNCTION__ . " Function End ".$this->session->userdata('official_email'));
+        unlink($output_file);
+    }
 
     /**
      * @desc: This function is used to combined the excel sheet
@@ -4134,7 +4131,10 @@ class Booking extends CI_Controller {
     }
 
     function test(){
-        $this->partner_cb->partner_callback("SF-607901803235");
+        $this->load->library('serial_no_validation');
+        $a = $this->serial_no_validation->validateSerialNo(247034,"12LE1610A1ME0100573666");
+        echo "<pre/>"; print_r($a);
+//        $this->partner_cb->partner_callback("SF-607901803235");
 //        $array = array(
 //            "ReferenceID" => "SP-1656351803085551" , 
 //            "Status" => "PNDNG_ASGN", 
