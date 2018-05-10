@@ -204,7 +204,7 @@ class Upcountry_model extends CI_Model {
             
             $partner_upcountry_approval = $partner_data[0]['upcountry_approval'];
             $min_threshold_distance = $this->vendor_min_up_distance *2;
-            $max_threshold_distance = $partner_data[0]['upcountry_max_distance_threshold'] * 2;
+            $max_threshold_distance = ($partner_data[0]['upcountry_max_distance_threshold'] * 2 + $this->vendor_min_up_distance *2);
         } else {
             $partner_upcountry_approval = 0;
             $partner_upcountry_rate = DEFAULT_UPCOUNTRY_RATE;
@@ -223,7 +223,7 @@ class Upcountry_model extends CI_Model {
 
             
         } else if ($upcountry_distance > ($min_threshold_distance)
-                && $upcountry_distance < $max_threshold_distance) {
+                && $upcountry_distance <= $max_threshold_distance) {
 
             $up_data = array('upcountry_pincode' => $upcountry_vendor_details['upcountry_pincode'],
                 'upcountry_distance' => ($upcountry_vendor_details['upcountry_distance'] - $min_threshold_distance),

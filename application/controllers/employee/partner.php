@@ -505,7 +505,7 @@ class Partner extends CI_Controller {
                 } else {
                     log_message('info', ' Error in Updating Parnter code has been added in Bookings_sources table ' . print_r($bookings_sources, TRUE));
                 }
-                $edit_partner_data['partner']['upcountry_max_distance_threshold'] = $edit_partner_data['partner']['upcountry_max_distance_threshold'] + 25;
+                $edit_partner_data['partner']['upcountry_max_distance_threshold'] = $edit_partner_data['partner']['upcountry_max_distance_threshold'];
                 $edit_partner_data['partner']['update_date'] = date("Y-m-d h:i:s");
                 $edit_partner_data['partner']['agent_id'] = $this->session->userdata('id');
                 $this->partner_model->edit_partner($edit_partner_data['partner'], $partner_id);
