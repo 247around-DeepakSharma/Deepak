@@ -4084,6 +4084,7 @@ class Partner extends CI_Controller {
     }
     
     function create_and_send_partner_report($partnerID){
+            $this->checkUserSession();
             $dateArray  = explode(" - ",$this->input->post('create_date'));
             $start = date('Y-m-d',strtotime($dateArray[0]));
             $end = date('Y-m-d',strtotime($dateArray[1]));
