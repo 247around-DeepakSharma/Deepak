@@ -16,7 +16,7 @@
                             </li>
                             <li role="presentation" class=""><a href="#tab_content4" role="tab" data-toggle="tab" aria-expanded="false">Booking History / SMS</a>
                             </li>
-                            <li role="presentation" class=""><a href="#tab_content5" role="tab" data-toggle="tab" aria-expanded="false">SF Details</a>
+                            <li role="presentation" onclick="sf_tab_active()" class=""><a href="#tab_content5" role="tab" data-toggle="tab" aria-expanded="false">SF Details</a>
                             </li>
                         </ul>
                         <div id="myTabContent2" class="tab-content">
@@ -426,7 +426,7 @@
                             </div>
                             <div role="tabpanel" class="tab-pane fade" id="tab_content5">
 
-                    <?php if(isset($booking_history[0]['primary_contact_name'])){ ?>
+                                   <?php if(isset($booking_history[0]['primary_contact_name'])){ ?>
                                     <table class="table table-striped table-bordered" >
                                         <tr>
                                             <th>Back Office Person</th>
@@ -443,7 +443,7 @@
                                             </tr>
                                         </tbody>
                                     </table>
-                                <?php } else { ?><b>SF Not Assign</b><?php }?>
+                                <?php  }?>
                    
                     <table class="table  table-striped table-bordered">
                         <thead>
@@ -455,11 +455,15 @@
                         <thead>
                         <tbody>
                             <tr>
-                                <td><?php echo round(($booking_history[0]["upcountry_distance"] + ($booking_history[0]["municipal_limit"] * 2))/2,2) . " KM"; ?></td>
+                                <td> <?php if(isset($booking_history[0]['primary_contact_name'])){ ?>
+                                    <?php echo round(($booking_history[0]["upcountry_distance"] + ($booking_history[0]["municipal_limit"] * 2))/2,2) . " KM"; ?>
+                                <?php } ?></td>
                                 <td><?php if($booking_history[0]['is_upcountry'] == 1){ echo $booking_history[0]["upcountry_distance"]." KM";} ?></td>
                                 <td> <?php if(isset($dhq[0]['district'])){echo $dhq[0]['district'];}?></td>
                                 <td><?php if(isset($dhq[0]['pincode'])){ echo $dhq[0]['pincode'];} ?></td>
-                                <td><?php echo $booking_history[0]["upcountry_remarks"];  ?></td>
+                                <td><?php echo $booking_history[0]["upcountry_remarks"];  ?>
+                                <div class="col-md-4 pull-right"> <button class="btn btn-success" onclick="GetRoute()">Get Route</button></div>
+                                </td>
                             </tr>
                             <tr>
                                 <?php if($booking_history[0]['is_upcountry'] == 1){  ?>  
@@ -469,7 +473,7 @@
                                         <div class="col-md-4"> <input type="hidden" class="form-control" id="txtSource" value="<?php echo $booking_history[0]['booking_pincode'].", india"; ?>"></div>
                                         <div class="col-md-4">   <input type="hidden" class="form-control" id="txtDestination" value="<?php if(isset($dhq[0]['district'])){
                                             echo $dhq[0]['pincode'].", India";}?>"></div>
-                                        <div class="col-md-4" style="display: none;"> <button class="btn btn-success" onclick="GetRoute()">Get Route</button></div>
+                                        
                                     </div>
                                     <div class="col-md-12">
                                         <div id="dvDistance" style="display:none;"></div>
@@ -494,6 +498,11 @@
 </div>
 <div class="clearfix"></div>
 <script>
+    function sf_tab_active(){
+        <?php if($booking_history[0]['is_upcountry'] == 1){  ?>  
+             setTimeout(function(){ GetRoute(); }, 1000);
+        <?php } ?>
+    }
     $('document').ready(function () {
         var booking_id = '<?php echo base_url() ?>partner/get_booking_life_cycle/<?php echo $booking_history[0]['booking_id'] ?>';
         $.ajax({

@@ -46,7 +46,7 @@
     </button>
 </div>
 <div class="btn-group" role="group">
-    <button type="button" class="btn btn-default" href="#upcountry" data-toggle="tab">
+    <button type="button" class="btn btn-default" onclick="sf_tab_active()" href="#upcountry" data-toggle="tab">
         <div class="hidden-xs">SF / Upcountry</div>
     </button>
 </div>
@@ -926,7 +926,11 @@
   </div>
 </div>
 <script>
- GetRoute();
+function sf_tab_active(){
+  <?php if($booking_history[0]['is_upcountry'] == 1){  ?>  
+   setTimeout(function(){ GetRoute(); }, 1000);
+  <?php } ?>
+}
  function resendCustomerInvoice(booking_id, invoice_id){
         alert("Please Wait! we will send invoice to customer via sms or email");
          var url ="<?php echo base_url();?>employee/user_invoice/resend_customer_invoice/"+ booking_id+"/"+invoice_id;

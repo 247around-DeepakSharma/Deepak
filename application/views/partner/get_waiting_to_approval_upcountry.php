@@ -84,7 +84,7 @@
                                 <?php echo $row['upcountry_distance'] . " KM"; ?>
                             </td>
                             <td>
-                                <?php echo round($row['upcountry_distance'] * $row['partner_upcountry_rate'], 2); ?>
+                                <?php echo sprintf("%0.2f",$row['upcountry_distance'] * $row['partner_upcountry_rate']); ?>
                             </td>
                             <td class="text-center">
                                             <div class="dropdown">
