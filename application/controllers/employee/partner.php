@@ -1063,6 +1063,7 @@ class Partner extends CI_Controller {
         $data['current_status'] = _247AROUND_CANCELLED;
         $data['internal_status'] = $data['cancellation_reason'] = $this->input->post('cancellation_reason');
         $data['closing_remarks'] = $this->input->post('remarks');
+        $historyRemarks = $this->input->post('cancellation_reason') ." <br> ".$this->input->post('remarks');
 
         //check partner status from partner_booking_status_mapping table  
         $partner_id = $this->input->post("partner_id");
@@ -1119,7 +1120,7 @@ class Partner extends CI_Controller {
 
             //Log this state change as well for this booking
             //param:-- booking id, new state, old state, remarks, agent_id, partner  name, partner id
-            $this->notify->insert_state_change($booking_id, $data['current_status'], $status, $data['cancellation_reason'], $this->session->userdata('agent_id'), 
+            $this->notify->insert_state_change($booking_id, $data['current_status'], $status, $historyRemarks, $this->session->userdata('agent_id'), 
                     $this->session->userdata('partner_name'), $actor,$next_action,$this->session->userdata('partner_id'));
 
             // this is used to send email or sms while booking cancelled
@@ -1599,7 +1600,6 @@ class Partner extends CI_Controller {
             }
             if ($post['product_type'] == "Delivered") {
                 $tempStatus = _247AROUND_PENDING;
-                if ($this->OLD_BOOKING_STATE == _247AROUND_CANCELLED) {
                     $sc_data['current_status'] = _247AROUND_PENDING;
                     $sc_data['internal_status'] = _247AROUND_PENDING;
                     $booking_details['cancellation_reason'] = NULL;
@@ -1608,7 +1608,6 @@ class Partner extends CI_Controller {
                     $booking_details['internal_status'] = "Booking Opened From Cancelled";
 
                     $this->service_centers_model->update_service_centers_action_table($booking_id, $sc_data);
-                }
             } else {
                 // IN the Shipped Case
                 $price_array['is_upcountry'] = $booking_details['is_upcountry'];

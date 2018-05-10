@@ -11,8 +11,7 @@
                 
                 <form method="POST" action="<?php echo base_url();?>employee/booking/download_booking_bulk_search_snapshot">
                 <div class="form-group">
-                    <input type="submit" class="btn btn-small btn-success" id="download" style="float: right;margin: 10px 0px;" value="Download CSV">
-  <label for="sel1">Select Type:</label>
+ <input type="submit" class="btn btn-small btn-success" id="download" style="float: right;margin: 10px 0px;" value="Download CSV">
   <select class="form-control" name="select_type" id="select_type">
     <option>Select Type</option>
     <option value="mobile">Mobile</option>
@@ -21,7 +20,6 @@
   </select>
 </div>
                     <div class="form-group" id="partner_holder">
-  <label for="sel1">Select Partner:</label>
   <select class="form-control" name="partner" id="partner">
       <option value="option_holder">Select Partner</option>
     <?php
@@ -32,8 +30,10 @@
   </select>
 </div>
                <div class="form-group">
-  <label for="comment">Bulk Values</label>
-  <textarea class="form-control" rows="5" id="bulk_input" name="bulk_input"></textarea>
+  <textarea class="form-control" rows="5" id="bulk_input" name="bulk_input" placeholder="Values"></textarea>
+</div>
+                    <div class="checkbox">
+  <label><input type="checkbox" name="is_unit_details">With Unit Details</label>
 </div>
                 <div class="form-group">
                     <button type="button" class="btn btn-small btn-success" id="search" onclick="loadData()">Search</button>
@@ -52,13 +52,13 @@
                                         <th>City</th>
                                         <th>Service Center</th>
                                         <th>Service</th>
+                                        <th>Current Status</th>
+                                        <th>Internal Status</th>
                                         <th>Brand</th>
                                         <th>Category</th>
                                         <th>Capacity</th>
                                         <th>Request Type</th>
                                         <th>Product/Service</th>
-                                        <th>Current Status</th>
-                                        <th>Internal Status</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -104,6 +104,7 @@ var ad_table;
                     d.select_type = $("#select_type option:selected").val();
                     d.bulk_input = $('textarea#bulk_input').val();
                     d.partner_id = $("#partner option:selected").val();
+                    d.is_unit_details = $('input[name=is_unit_details]:checked').val(); 
                  }
             }
         });
