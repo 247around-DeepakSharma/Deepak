@@ -450,6 +450,7 @@ class Miscelleneous {
     function process_cancel_form($booking_id, $status, $cancellation_reason, $cancellation_text, $agent_id, $agent_name, $partner_id) {
         log_message('info', __METHOD__ . " => Entering " . $booking_id, ' status: ' . $status . ' cancellation_reason: ' . $cancellation_reason . ' agent_id: ' . $agent_id . ' agent_name: ' . $agent_name . ' partner_id: ' . $partner_id);
         $data['internal_status'] = $data['cancellation_reason'] = $cancellation_reason;
+        $historyRemarks = $cancellation_reason."<br> ".$cancellation_text;
         $data['closed_date'] = $data['update_date'] = date("Y-m-d H:i:s");
 
         $data['current_status'] = _247AROUND_CANCELLED;
@@ -492,7 +493,7 @@ class Miscelleneous {
 
         //Log this state change as well for this booking
         //param:-- booking id, new state, old state, employee id, employee name
-        $this->My_CI->notify->insert_state_change($booking_id, $data['current_status'], $status, $data['cancellation_reason'], $agent_id, $agent_name,$actor,$next_action, _247AROUND);
+        $this->My_CI->notify->insert_state_change($booking_id, $data['current_status'], $status, $historyRemarks, $agent_id, $agent_name,$actor,$next_action, _247AROUND);
         // Not send Cancallation sms to customer for Query booking
         // this is used to send email or sms while booking cancelled
         $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
