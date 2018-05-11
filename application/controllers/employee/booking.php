@@ -1299,7 +1299,9 @@ class Booking extends CI_Controller {
                 $remarks = 'Rating'.':'.$data['rating_stars'].'. '.$data['rating_comments'];
 
                 $update = $this->booking_model->update_booking($booking_id, $data);
-
+                if($data['rating_stars']<4){
+                    $this->miscelleneous->send_bad_rating_email($data['rating_stars'],$booking_id);
+                }
                 if ($update) {
                     //update state
                     $this->notify->insert_state_change($booking_id, RATING_NEW_STATE, $status, $remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'),
@@ -2032,6 +2034,9 @@ class Booking extends CI_Controller {
             $this->asynchronous_lib->do_background_process($cb_url, $pcb);
             
             if ($this->input->post('rating_stars') !== "") {
+                if($this->input->post('rating_stars')<4){
+                    $this->miscelleneous->send_bad_rating_email($this->input->post('rating_stars'),$booking_id);
+                }
                 //update rating state
                 $remarks = 'Rating' . ':' . $booking['rating_stars'] . '. ' . $booking['rating_comments'];
                 $this->notify->insert_state_change($booking_id, RATING_NEW_STATE, $status, $remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), ACTOR_BOOKING_RATING
@@ -2801,6 +2806,9 @@ class Booking extends CI_Controller {
      *  @return : $output JSON
      */
     public function get_bookings_by_status($status){
+//        echo "<pre>";
+//        print_r($this->input->post());
+//        exit();
         
         $booking_status = trim($status);
         $data = $this->get_bookings_data_by_status($booking_status);
