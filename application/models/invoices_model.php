@@ -211,8 +211,8 @@ class invoices_model extends CI_Model {
     }
 
     /**
-     * @desc: This funtion is used to get invoicing summary for vendor or partner.
-     * @param: String ( vendor or patner)
+     * @desc: This function is used to get invoicing summary for vendor or partner.
+     * @param: String ( vendor or partner)
      * @return: Array()
      */
     function getsummary_of_invoice($vendor_partner, $where, $due_date_flag = false) {
@@ -255,8 +255,15 @@ class invoices_model extends CI_Model {
             $data[$key]['amount_collected_paid'] = $result[0]['amount_collected_paid'];
             $data[$key]['is_stand'] = $result[0]['is_stand'];
             if (isset($value['name'])) {
-               
-                $data[$key]['count_spare_part'] = $this->get_pending_defective_parts($value['id'])[0]['count'];
+                $sp_d = $this->get_pending_defective_parts($value['id']);
+                if(!empty($sp_d)){
+                    $data[$key]['count_spare_part'] = $sp_d[0]['count'];
+                    $data[$key]['max_sp_age'] = $sp_d[0]['max_sp_age'];
+                } else {
+                    $data[$key]['count_spare_part'] = 0;
+                    $data[$key]['max_sp_age'] = 0;
+                }
+                
             } else if (isset($value['public_name'])) {
                 $data[$key]['name'] = $value['public_name'];
                
@@ -287,18 +294,17 @@ class invoices_model extends CI_Model {
     }
     
     function get_pending_defective_parts($service_center_id){
-        $this->db->select('count(sp.id) as count');
-        $this->db->from('spare_parts_details as sp');
-        $this->db->join("service_center_booking_action as sc", "sc.booking_id = sp.booking_id AND sc.service_center_id = sp.service_center_id");
-        $this->db->where("approved_defective_parts_by_partner",0);
-        $this->db->where("defective_part_required",1);
-        $this->db->where("parts_shipped IS NOT NULL",NULL, false);
-        $this->db->where("sp.service_center_id", $service_center_id);
-        $this->db->where("sc.service_center_id", $service_center_id);
-        $this->db->where("sc.current_status", "InProcess");
-        $this->db->where("sp.status","Defective Part Pending");
-        $query = $this->db->get();
-        return $query->result_array();
+        $select = "count(spare_parts_details.booking_id) as count, DATEDIFF(CURRENT_TIMESTAMP, MIN(service_center_closed_date)) as max_sp_age";
+        $where = array(
+            "spare_parts_details.defective_part_required"=>1,
+            "spare_parts_details.service_center_id" => $service_center_id,
+            "status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."')  " => NULL
+            
+        );
+        $group_by = "spare_parts_details.service_center_id";
+        $data = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by);
+        return $data;
+        
     }
 
     /**
