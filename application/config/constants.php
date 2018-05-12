@@ -7,6 +7,7 @@ include('email_tag_constant.php');
 include('paytm_payment_constant.php');
 include('booking_status_actor_next_action_constant.php');
 include('paytm_gateway_transaction.php');
+include('partners_id_constant.php');
 /*
 |--------------------------------------------------------------------------
 | File and Directory Modes
@@ -57,7 +58,6 @@ define('DEFAULT_PARTS_TAX_RATE', 28);
 //Agent ID used when Partner inserts a Booking by calling our API
 define('DEFAULT_PARTNER_AGENT', 978978);
 
-define('_247AROUND',247001);
 //define('_247AROUND2',247002);
 //define('_247AROUND3',247003);
 //define('_247AROUND99',247999);
@@ -173,22 +173,6 @@ define('_247_AROUND_DEFAULT_BRACKETS_ORDER_ID',201611000001);
 define('SNAPDEAL_ID',1);
 //Snapdeal host
 define('SNAPDEAL_HOST','snapdeal.com');
-//Jeeves ID
-define("JEEVES_ID", 247030);
-//Wybor ID
-define("WYBOR_ID", 247010);
-//ZOPPER ID
-define("ZOPPER_ID", 247012);
-//AKAI ID
-define("AKAI_ID", 247034);
-//AKAI ID
-define("AQUAGRAND_PLUS_ID", 247038);
-// Videotext ID
- define("VIDEOTEX", 247041);
- //Amzaon
- define("AMAZON_SELLER_ID", 247024);
- // Salora ID
- define("SALORA_ID", 247064);
 //Define Email ID to send system health emails
 define('SYS_HEALTH_NAME','247around Health Monitor');
 define('SYS_HEALTH_EMAIL','health@247around.com');
@@ -509,9 +493,6 @@ define('_247AROUND_PARTNER_STRING','partner');
 define('_247AROUND_SF_STRING','vendor');
 //247around cp string
 define('_247AROUND_CP_STRING','CP');
-
-//demo partner id
-define('_247AROUND_DEMO_PARTNER',247050);
 
 define('AUTO_ACKNOWLEDGE_SPARE_DELIVERED_TO_SF',7);
 define("QC_HSN_CODE", 998397);

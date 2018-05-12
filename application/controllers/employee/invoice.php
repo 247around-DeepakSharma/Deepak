@@ -2498,6 +2498,7 @@ class Invoice extends CI_Controller {
         log_message('info', __FUNCTION__ . " Entering....");
         $data = $this->input->post('amount_service_center');
         $defective_parts = $this->input->post("defective_parts");
+        $defective_parts_max_age = $this->input->post('defective_parts_max_age');
         $payment_data = array();
                 
         if (!empty($data)) {
@@ -2525,11 +2526,13 @@ class Invoice extends CI_Controller {
             $sc_details['gst_no'] = "GST Number";
             $sc_details['is_signature'] = "Signature Exist";
             $sc_details['defective_parts'] = "No Of Defective Parts";
+            $sc_details['defective_parts_max_age'] = "Max Age of Spare Pending";
             $sc_details['is_verified'] = "Bank Account Verified";
             $sc_details['amount_type'] = "Type";
             $sc_details['sf_id'] = "SF/CP Id";
             $sc_details['is_sf'] = "SF";
             $sc_details['is_cp'] = "CP";
+            $sc_details['check_file'] = "Check File";
             
             array_push($payment_data, $sc_details);
             foreach ($data as $service_center_id => $amount) {
@@ -2569,6 +2572,7 @@ class Invoice extends CI_Controller {
                     $sc_details['is_signature'] = "NO";
                 }
                 $sc_details['defective_parts'] = $defective_parts[$service_center_id];
+                $sc_details['defective_parts_max_age'] = $defective_parts_max_age[$service_center_id];
                 $sc_details['is_verified'] = ($sc['is_verified'] ==0) ? "Not Verified" : "Verified";
                 if ($amount > 0) {
                     $sc_details['amount_type'] = "CR";
@@ -2578,7 +2582,7 @@ class Invoice extends CI_Controller {
                 $sc_details['sf_id'] = $service_center_id;
                 $sc_details['is_sf'] = $sc['is_sf'];
                 $sc_details['is_cp'] = $sc['is_cp'];
-               
+                $sc_details['check_file'] = !empty($sc['cancelled_cheque_file']) ? "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/".$sc['cancelled_cheque_file'] : "";
                 array_push($payment_data, $sc_details);
             }
 

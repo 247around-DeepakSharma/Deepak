@@ -95,7 +95,7 @@
                <h2 >
                   <b>Review Bookings - Complete / Cancel</b>
                </h2>
-               <form action="<?php echo base_url();?>employee/booking/checked_complete_review_booking" method="post">
+             <form action="<?php echo base_url();?>employee/booking/checked_complete_review_booking" method="post" onsubmit="return check_limit_booking()">
                   <div class="col-md-12" style="font-size:82%;margin-left:-23px;">
                       <table class="table table-bordered table-hover table-striped">
                         <thead>
@@ -215,7 +215,7 @@
                      <?php if(!empty($charges)){?>
                      <div class="col-md-12">
                         <center><input type="submit" value="Approve Bookings"  style=" background-color: #2C9D9C;
-                           border-color: #2C9D9C;"  class="btn btn-md btn-success" onclick="check_limit_booking()"/></center>
+                           border-color: #2C9D9C;"  class="btn btn-md btn-success" /></center>
                      </div>
                      <?php } ?>
                </form>
@@ -348,7 +348,8 @@
       $("#approved_close:checked").each(function(i) {
          count = count+1;
       });
-      if(count >40){
+      
+      if(Number(count) > 40){
          alert("Maximum 40 bookings can be completed/cancelled in one time.");
          return false;
       } else if(count ===0){
