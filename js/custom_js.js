@@ -247,6 +247,7 @@ function addBookingDialog() {
     var dealer_name = $('#dealer_name').val();
     var booking_type = $("#booking_type").val();
     var is_active = $("#is_active").val();
+    var purchase_date = $("#purchase_date").val();
     
     if (pincode.length !== 6) {
 
@@ -360,6 +361,10 @@ function addBookingDialog() {
         alert("Please Enter Dealer Name");
         return false;
     }
+    if (purchase_date === "") {
+        alert("Please fill Purchase date ");
+        return false;
+    } 
 
     if (booking_date === "") {
 

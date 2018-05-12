@@ -157,7 +157,7 @@
                                                     <td><?php echo $unit_detail['model_number'] ?></td>
                                                     <td><?php echo $unit_detail['serial_number'] ?></td>
                                                     <td><?php echo $unit_detail['appliance_description'] ?></td>
-                                                    <td><?php if(!empty($unit_detail['purchase_month'])) {echo $unit_detail['purchase_month']."-". $unit_detail['purchase_year'];} else { echo $unit_detail['purchase_year'];}?></td>
+                                                    <td><?php if(!empty($unit_detail['purchase_date'])) {echo $unit_detail['purchase_date'];}?></td>
                                                         <?php if ($booking_history[0]['current_status'] != "Completed") { ?>
                                                         <td><?php print_r($unit_detail['price_tags']); ?></td>
                                                             <?php if($key == 0){ if ($booking_history[0]['is_upcountry'] == 1) { ?>

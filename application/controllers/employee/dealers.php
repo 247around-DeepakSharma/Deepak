@@ -355,8 +355,7 @@ class Dealers extends CI_Controller {
         $post['capacity'] = $this->input->post('appliance_capacity');
         $post['model'] = $this->input->post('model_number');
         $post['serial_number'] = $this->input->post('serial_number');
-        $post['purchase_month'] = date("M");
-        $post['purchase_year'] = date("Y");
+        $post['purchase_date'] = $this->input->post('purchase_date');
         $post['partner_source'] = "Dealer";
         $post['remarks'] = $this->input->post('booking_remarks');
         $post['orderID'] = $this->input->post('order_id');

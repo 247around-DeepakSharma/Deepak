@@ -500,8 +500,7 @@ class bookings_excel extends CI_Controller {
                             $appliance_details['category'] = $unit_details['appliance_category'] = isset($lead_details['service_appliance_data']['category']) ? $lead_details['service_appliance_data']['category'] : $rowData[0]['category'];
                             $appliance_details['capacity'] = $unit_details['appliance_capacity'] = isset($lead_details['service_appliance_data']['capacity']) ? $lead_details['service_appliance_data']['capacity'] : '';
                             $appliance_details['tag'] = $unit_details['appliance_brand'] . " " . $unit_details['appliance_description'];
-                            $appliance_details['purchase_month'] = $unit_details['purchase_month'] = date('m');
-                            $appliance_details['purchase_year'] = $unit_details['purchase_year'] = date('Y');
+                            $appliance_details['purchase_date'] = $unit_details['purchase_date'] = date('Y-m-d');
                             $booking['partner_source'] = "Paytm-delivered-excel";
 
                             //get partner data to check the price

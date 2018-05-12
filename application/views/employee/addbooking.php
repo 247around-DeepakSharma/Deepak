@@ -282,40 +282,16 @@
                                             </div>
                                         </div>-->
                                         <div class="form-group ">
-                                            <label for="type" class="col-md-4">Purchase Year</label>
-                                            <div class="col-md-4">
-                                                <select  type="text" class=" form-control "   name="purchase_month[]" id="purchase_month_1" >
-                                                    <option selected="selected" value="">Month</option>
-
-                                                    <option <?php if(date('m') == '01'){ echo "selected";} ?>>Jan</option>
-                                                    <option <?php if(date('m') == '02'){ echo "selected";} ?>>Feb</option>
-                                                    <option <?php if(date('m') == '03'){ echo "selected";} ?>>Mar</option>
-                                                    <option <?php if(date('m') == '04'){ echo "selected";} ?>>Apr</option>
-                                                    <option <?php if(date('m') == '05'){ echo "selected";} ?>>May</option>
-                                                    <option <?php if(date('m') == '06'){ echo "selected";} ?>>Jun</option>
-                                                    <option <?php if(date('m') == '07'){ echo "selected";} ?>>July</option>
-                                                    <option <?php if(date('m') == '08'){ echo "selected";} ?>>Aug</option>
-                                                    <option <?php if(date('m') == '09'){ echo "selected";} ?>>Sept</option>
-                                                    <option <?php if(date('m') == '10'){ echo "selected";} ?>>Oct</option>
-                                                    <option <?php if(date('m') == '11'){ echo "selected";} ?>>Nov</option>
-                                                    <option <?php if(date('m') == '12'){ echo "selected";} ?>>Dec</option>
-                                                </select>
-                                            </div>
-                                            <div class="form-group">
-                                                <div class="col-md-4">
-                                                    <select  type="text" class="col-md-3 form-control "   name="purchase_year[]" id="purchase_year_1" required>
-                                                        <option value="" >Year</option>
-                                                        <?php for($i = 0; $i> -26; $i--){ ?>
-                                                        <option  <?php if(date("Y",strtotime($i." year")) === date("Y")){ echo "selected";} ?>>
-                                                            <?php echo date("Y",strtotime($i." year")); ?>
-                                                        </option>
-                                                        <?php }  ?>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                    </div>
+                                <label for="booking_date" class="col-md-4">Purchase Date *</label>
+                                <div class="col-md-6">
+                                <div class="input-group input-append date">
+                                    <input id="purchase_date" class="form-control"  name="purchase_date" type="date" value = "">
+                                    <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
+                                </div>
+                                </div>
+                            </div>
+                                        
+                                </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <div  class="col-md-12">
@@ -441,6 +417,7 @@
     $("#partner_source").select2();
 
     $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0});
+    $("#purchase_date").datepicker({dateFormat: 'yy-mm-dd'});
 
 </script>
 <script type="text/javascript">
