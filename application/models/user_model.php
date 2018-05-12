@@ -270,7 +270,7 @@ class User_model extends CI_Model {
         $query = $this->db->query("SELECT users.user_id ,users.name,services.id as service_id, 
       services.services, appliance_details.id, appliance_details.brand, appliance_details.category,
        appliance_details.capacity, appliance_details.tag, appliance_details.model_number, 
-       appliance_details.purchase_month,appliance_details.purchase_year FROM services, users, 
+       appliance_details.purchase_date FROM services, users, 
        appliance_details WHERE users.phone_number='$phone_number' AND users.user_id= 
        appliance_details.user_id AND services.id = appliance_details.service_id");
         return $query->result_array();

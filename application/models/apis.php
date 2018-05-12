@@ -1727,7 +1727,7 @@ class Apis extends CI_Model {
 
         $sql = "INSERT INTO appliance_details "
             . "(`user_id`, `service_id`, `brand`, `category`, `capacity`, "
-            . "`model_number`, `tag`, `purchase_month`, `purchase_year`, `rating`,"
+            . "`model_number`, `tag`, `purchase_date`, `rating`,"
             . "`warranty_card_pic`, `invoice_pic`) "
             . "VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
 
@@ -1827,7 +1827,7 @@ class Apis extends CI_Model {
 
             $sql2 = "INSERT INTO appliance_details "
                 . "(`service_id`, `brand`, `category`, `capacity`, "
-                . "`model_number`, `tag`, `purchase_month`, `purchase_year`, `rating`, `user_id`)"
+                . "`model_number`, `tag`, `purchase_date`, `rating`, `user_id`)"
                 . "VALUES (?,?,?,?,?, ?,?,?,?,?)";
 
             $this->db->query($sql2, $appl[$i]);

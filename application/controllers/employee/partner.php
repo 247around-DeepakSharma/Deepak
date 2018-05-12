@@ -305,7 +305,6 @@ class Partner extends CI_Controller {
             if ($authToken) {
                 $post = $this->get_booking_form_data();
                 $postData = json_encode($post, true);
-
                 $ch = curl_init(base_url() . 'partner/insertBookingByPartner');
                 curl_setopt_array($ch, array(
                     CURLOPT_POST => TRUE,
@@ -394,8 +393,7 @@ class Partner extends CI_Controller {
         $post['capacity'] = $this->input->post('appliance_capacity');
         $post['model'] = $this->input->post('model_number');
         $post['serial_number'] = $this->input->post('serial_number');
-        $post['purchase_month'] = $this->input->post('purchase_month');
-        $post['purchase_year'] = $this->input->post('purchase_year');
+        $post['purchase_date'] = $this->input->post('purchase_date');
         $post['partner_source'] = $this->input->post('partner_source');
         $post['remarks'] = $this->input->post('query_remarks');
         $post['orderID'] = $this->input->post('order_id');
@@ -432,8 +430,6 @@ class Partner extends CI_Controller {
         $this->form_validation->set_rules('landmark', 'LandMark', 'trim');
         $this->form_validation->set_rules('appliance_capacity', 'Appliance Capacity', 'trim|xss_clean');
         $this->form_validation->set_rules('alternate_phone_number', 'Alternate Number', 'trim|xss_clean');
-        $this->form_validation->set_rules('purchase_year', 'Purchase Year', 'trim|xss_clean');
-        $this->form_validation->set_rules('purchase_month', 'Purchase Month', 'trim|xss_clean');
         $this->form_validation->set_rules('model_number', 'Model Number', 'trim|xss_clean');
         $this->form_validation->set_rules('order_id', 'Order ID', 'trim|xss_clean');
         $this->form_validation->set_rules('serial_number', 'Serial Number', 'trim|xss_clean');
@@ -1489,8 +1485,7 @@ class Partner extends CI_Controller {
             $unit_details['appliance_capacity'] = $appliance_details['capacity'] = $post['capacity'];
             $unit_details['model_number'] = $appliance_details['model_number'] = $post['model'];
             $unit_details['partner_serial_number'] = $appliance_details['serial_number'] = $post['serial_number'];
-            $unit_details['purchase_month'] = $appliance_details['purchase_month'] = $post['purchase_month'];
-            $unit_details['purchase_year'] = $appliance_details['purchase_year'] = $post['purchase_year'];
+            $unit_details['purchase_date'] = $appliance_details['purchase_date'] = $post['purchase_date'];
             $unit_details['partner_id'] = $post['partner_id'];
             $unit_details['booking_id'] = $booking_details['booking_id'] = $booking_id;
             if ($post['product_type'] == "Delivered") {

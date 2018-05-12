@@ -48,7 +48,7 @@
                 <td><?=$row['category']?></td>
                 <td><?=$row['capacity']?></td>
                 <td><?=$row['model_number']?></td>
-                <td><?=$row['purchase_month']?>-<?=$row['purchase_year']?></td>
+                <td><?=$row['purchase_date']?></td>
                 <td><?php 
                     echo "<a class='btn btn-small btn-primary btn-sm' href=".base_url()."employee/booking/get_appliance_booking_form/$row[id]>Book Now</a>";
                     ?></td>
