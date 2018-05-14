@@ -103,7 +103,12 @@
                                         <?php echo $row['cancellation_reason']; ?>
                                         </td>
                                         <td>
-                                            <a style="background-color: #2a3f54; border-color: #2a3f54;" class='btn btn-sm btn-info' href="<?php echo base_url(); ?>partner/update_booking/<?php echo $row['booking_id'] ?>" target='_blank' title='View'><i class='fa fa-envelope-o' aria-hidden='true'></i></a>
+                                           <?php if($status === _247AROUND_CANCELLED && strtotime($row['closed_date']) <= strtotime("-1 Months")){ ?>
+                                            <a disabled style="background-color: #EEEEEE; border-color: #EEEEEE" class='btn btn-sm btn-info' href="javascript:void(0)" target='_blank' title='Open Booking'><i style="color:#000000" class='fa fa-envelope-o' aria-hidden='true'></i></a>
+                                           <?php  }else{ ?>
+                                               <a style="background-color: #2a3f54; border-color: #2a3f54;" class='btn btn-sm btn-info' href="<?php echo base_url(); ?>partner/update_booking/<?php echo $row['booking_id'] ?>" target='_blank' title='Open Booking'><i class='fa fa-envelope-o' aria-hidden='true'></i></a>
+                                            <?php } ?>
+                                            
                                         </td>
                                     <?php } ?>
                                 </tr>
