@@ -55,6 +55,9 @@
                         </ul>
                         <div id="myTabContent" class="tab-content">
                             <div class="tab-pane active" id="tabs-1"></div>
+                            <?php
+                            if($this->session->userdata('agent_id') != '980084' && $this->session->userdata('agent_id') != '980083'){
+                                ?>
                             <div class="tab-pane" id="tabs-2"></div>
                             <div class="tab-pane" id="tabs-3"></div>
                             <div class="tab-pane" id="tabs-4"></div>
@@ -84,6 +87,7 @@
                                     </div>
                                 </div>
                             </div>
+                         <?php    } ?>
                         </div>
                     </div>
                 </div>
