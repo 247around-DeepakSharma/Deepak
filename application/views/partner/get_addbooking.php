@@ -298,40 +298,18 @@
                         </div> 
 
                         <div class="col-md-6 ">
-                            <div class="form-group col-md-12  <?php if( form_error('purchase_month') ) { echo 'has-error';} ?>">
-                                <label for="purchase_month_1">Date of Purchase</label>
+                            <div class="form-group col-md-12" style="margin: 0px;padding: 0px;">
                                 <div class="row">
-                                    <div class="col-md-6">
-                                        <select class=" form-control "   name="purchase_month" id="purchase_month_1" >   
-                                            <option selected="selected" value="" disabled=""> Select Month</option>
-                                            <option <?php if(set_value('purchase_month') == "Jan"){ echo "selected";} else if(date("M") == "Jan"){ echo "selected";} ?> >Jan</option>
-                                            <option <?php if(set_value('purchase_month') == "Feb"){ echo "selected";} else if(date("M") == "Feb"){ echo "selected";} ?>>Feb</option>
-                                            <option <?php if(set_value('purchase_month') == "Mar"){ echo "selected";} else if(date("M") == "Mar"){ echo "selected";} ?>>Mar</option>
-                                            <option <?php if(set_value('purchase_month') == "Apr"){ echo "selected";} else if(date("M") == "Apr"){ echo "selected";} ?>>Apr</option>
-                                            <option <?php if(set_value('purchase_month') == "May"){ echo "selected";} else if(date("M") == "May"){ echo "selected";} ?>>May</option>
-                                            <option <?php if(set_value('purchase_month') == "Jun"){ echo "selected";} else if(date("M") == "Jun"){ echo "selected";} ?>>Jun</option>
-                                            <option <?php if(set_value('purchase_month') == "July"){ echo "selected";} else if(date("M") == "July"){ echo "selected";} ?> >July</option>
-                                            <option <?php if(set_value('purchase_month') == "Aug"){ echo "selected";} else if(date("M") == "Aug"){ echo "selected";} ?>>Aug</option>
-                                            <option <?php if(set_value('purchase_month') == "Sept"){ echo "selected";} else if(date("M") == "Sept"){ echo "selected";} ?>>Sept</option>
-                                            <option <?php if(set_value('purchase_month') == "Oct"){ echo "selected";} else if(date("M") == "Oct"){ echo "selected";} ?>>Oct</option>
-                                            <option <?php if(set_value('purchase_month') == "Nov"){ echo "selected";} else if(date("M") == "Nov"){ echo "selected";} ?>>Nov</option>
-                                            <option <?php if(set_value('purchase_month') == "Dec"){ echo "selected";} else if(date("M") == "Dec"){ echo "selected";}?>>Dec</option>
-                                        </select>
-                                        <p><?php echo form_error('purchase_month'); ?></p>
-                                    </div> 
-                                    <div class="col-md-6">
-                                        <select class="form-control" name="purchase_year" id="purchase_year_1" >
-                                            <?php $current_year = date('Y'); for($i = 0; $i> -26; $i--){ ?>
-                                            <option  <?php if(set_value('purchase_year') == date("Y",strtotime($i." year"))){ echo "selected";} 
-                                                if(date("Y",strtotime($i." year")) == $current_year){ echo "selected";}?> >
-                                                <?php echo date("Y",strtotime($i." year")); ?>
-                                            </option>
-                                            <?php }  ?>
-                                        </select>
-                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="form-group col-md-12  <?php if( form_error('purchase_date') ) { echo 'has-error';} ?>">
+                                    <label for="purchase_date">Purchase Date * <span id="error_purchase_date" style="color: red;"></span></label>
+                                        <input type="text" class="form-control"  id="purchase_date" name="purchase_date"  value = "">
+                                    <?php echo form_error('purchase_date'); ?>
                                 </div>
-                            </div>
                         </div>
+                                                        </div>
+                </div>
+            </div>
 
                         <div class="col-md-6">
                             <div class="form-group col-md-12  <?php if (form_error('query_remarks')) { echo 'has-error';} ?>">
@@ -340,9 +318,6 @@
                                 <?php echo form_error('query_remarks'); ?>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
         </div>
         <div class="clearfix"></div>
         
@@ -459,6 +434,7 @@
         var dealer_name = $("#dealer_name").val();
         var dealer_phone_number = $("#dealer_phone_number").val();
         var not_visible = $("#not_visible").val();
+        var purchase_date = $("#purchase_date").val();
         if(!mobile_number.match(exp1)){
             alert('Please Enter Valid User Phone Number');   
             display_message("booking_primary_contact_no","error_mobile_number","red","Please Enter Valid User Phone Number");
@@ -513,6 +489,12 @@
         } else {
            display_message("partner_source","error_seller","green","");
             
+        }
+        if(purchase_date === ""){
+              display_message("purchase_date","error_purchase_date","red","Please Enter Purchase Date");
+             return false;
+        } else {
+           display_message("booking_pincode","error_purchase_date","green",""); 
         }
         
         if(not_visible === 0){
@@ -636,6 +618,23 @@
     });
 
     $('#booking_date').on('cancel.daterangepicker', function(ev, picker) {
+        $(this).val('');
+    });
+    
+    $('#purchase_date').daterangepicker({
+                autoUpdateInput: false,
+                singleDatePicker: true,
+                showDropdowns: true,
+                locale:{
+                    format: 'YYYY-MM-DD'
+                }
+            });
+            
+    $('#purchase_date').on('apply.daterangepicker', function(ev, picker) {
+        $(this).val(picker.startDate.format('YYYY-MM-DD'));
+    });
+
+    $('#purchase_date').on('cancel.daterangepicker', function(ev, picker) {
         $(this).val('');
     });
     

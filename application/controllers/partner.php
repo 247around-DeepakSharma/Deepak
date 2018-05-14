@@ -292,8 +292,7 @@ class Partner extends CI_Controller {
                                 $booking['quantity'] = '1';
 
                                 $appliance_details['tag'] = $appliance_details['brand'] . " " . $lead_details['Product'];
-                                $appliance_details['purchase_month'] = $unit_details['purchase_month'] = date('M');
-                                $appliance_details['purchase_year'] = $unit_details['purchase_year'] = date('Y');
+                                $appliance_details['purchase_date'] = $unit_details['purchase_date'] = date('Y-m-d');
 
                                 $appliance_details['last_service_date'] = date('Y-m-d');
                                 //$booking['potential_value'] = '';
@@ -1464,9 +1463,7 @@ class Partner extends CI_Controller {
                     }
 
                     $unit_details['booking_id'] = $booking['booking_id'];
-
-                    $appliance_details['purchase_month'] = $unit_details['purchase_month'] = $requestData['purchase_month'];
-                    $appliance_details['purchase_year'] = $unit_details['purchase_year'] = $requestData['purchase_year'];
+                    $appliance_details['purchase_date'] = $unit_details['purchase_date'] = $requestData['purchase_date'];
 
                     $booking['quantity'] = $requestData['appliance_unit'];
                     $appliance_details['serial_number'] = $unit_details['partner_serial_number'] = $requestData['serial_number'];

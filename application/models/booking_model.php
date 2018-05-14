@@ -109,14 +109,14 @@ class Booking_model extends CI_Model {
 
         if($booking_id !=""){
            $where = " `booking_unit_details`.booking_id = '$booking_id' ";
-            $sql = "SELECT distinct(appliance_id), appliance_brand as brand,booking_unit_details.partner_id, service_id, booking_id, appliance_category as category, appliance_capacity as capacity, `booking_unit_details`.`model_number`, appliance_description as description, `booking_unit_details`.`purchase_month`, `booking_unit_details`.`purchase_year`,`booking_unit_details`.sub_order_id
+            $sql = "SELECT distinct(appliance_id), appliance_brand as brand,booking_unit_details.partner_id, service_id, booking_id, appliance_category as category, appliance_capacity as capacity, `booking_unit_details`.`model_number`, appliance_description as description, `booking_unit_details`.`purchase_date`,`booking_unit_details`.sub_order_id
             from booking_unit_details Where $where  ";
 
         } else if ($appliance_id != "") {
 
 	    $where = " `booking_unit_details`.appliance_id = '$appliance_id' ";
 
-            $sql = "SELECT distinct(appliance_id), brand, booking_id, category, capacity, booking_unit_details.partner_id, `appliance_details`.`model_number`,description, `appliance_details`.`purchase_month`, `appliance_details`.`purchase_year`, `appliance_details`.serial_number,`booking_unit_details`.sub_order_id
+            $sql = "SELECT distinct(appliance_id), brand, booking_id, category, capacity, booking_unit_details.partner_id, `appliance_details`.`model_number`,description, `appliance_details`.`purchase_date`, `appliance_details`.serial_number,`booking_unit_details`.sub_order_id
             from booking_unit_details,  appliance_details Where $where  AND `appliance_details`.`id` = `booking_unit_details`.`appliance_id`  ";
 
         }
@@ -1017,7 +1017,7 @@ class Booking_model extends CI_Model {
 
             $sql2 = "INSERT INTO appliance_details "
                     . "(`service_id`, `brand`, `category`, `capacity`, "
-                    . "`model_number`, `tag`, `purchase_month`, `purchase_year`, `rating`, `user_id`)"
+                    . "`model_number`, `tag`, `purchase_date`, `rating`, `user_id`)"
                     . "VALUES (?,?,?,?,?, ?,?,?,?,?)";
 
             $this->db->query($sql2, $appl[$i]);
@@ -1778,7 +1778,7 @@ class Booking_model extends CI_Model {
      */
     function insert_new_unit_item($unit_id, $service_charge_id, $data, $state){
         $price_data = $this->getpricesdetails_with_tax($service_charge_id, $state);
-        $this->db->select('booking_id,partner_id,sub_order_id, service_id,appliance_id,appliance_brand,appliance_category, appliance_capacity,appliance_size, serial_number, appliance_description, model_number, appliance_tag, purchase_month, purchase_year');
+        $this->db->select('booking_id,partner_id,sub_order_id, service_id,appliance_id,appliance_brand,appliance_category, appliance_capacity,appliance_size, serial_number, appliance_description, model_number, appliance_tag, purchase_date');
 
         $this->db->where('id', $unit_id);
         $query = $this->db->get('booking_unit_details');

@@ -295,8 +295,7 @@ class Upload_booking_file extends CI_Controller {
             "model_number" => $this->FilesData['model_number'],
             "booking_id" => $this->FilesData['booking_id'],
             "appliance_description" => $this->FilesData['appliance_description'],
-            'purchase_month' => isset($this->FilesData['purchase_month']) ? $this->FilesData['purchase_month'] : date('m'),
-            'purchase_year' => isset($this->FilesData['purchase_year']) ? $this->FilesData['purchase_year'] : date('Y'),
+            'purchase_date' => isset($this->FilesData['purchase_date']) ? $this->FilesData['purchase_date'] : date('Y-m-d'),
             'appliance_capacity' => isset($this->FilesData['appliance_data'][0]['capacity']) ? $this->FilesData['appliance_data'][0]['capacity'] : '',
             'appliance_category' => isset($this->FilesData['appliance_data'][0]['category']) ? $this->FilesData['appliance_data'][0]['category'] : ''
         );
@@ -358,8 +357,7 @@ class Upload_booking_file extends CI_Controller {
             "brand" => isset($this->FilesData['appliance_data'][0]['brand']) ? $this->FilesData['appliance_data'][0]['brand'] : $this->FilesData['appliance_brand'],
             'model_number' => $this->FilesData['model_number'],
             'description' => $this->FilesData['appliance_description'],
-            'purchase_year' => date('Y'),
-            'purchase_month' => date('m'),
+            'purchase_date' => date('Y-m-d'),
             'last_service_date' => date('Y-m-d'),
             'tag' => $this->FilesData['appliance_brand'] . " " . $this->FilesData['services'],
             'capacity' => isset($this->FilesData['appliance_data'][0]['capacity']) ? $this->FilesData['appliance_data'][0]['capacity'] : '',

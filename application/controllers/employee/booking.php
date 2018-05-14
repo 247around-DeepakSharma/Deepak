@@ -142,10 +142,7 @@ class Booking extends CI_Controller {
             
             // All price tag comming in array  eg-- array([0]=> Appliance tag1, [1]=> Appliance tag1)
             //$appliance_tags = $this->input->post('appliance_tags');
-            // All purchase year comming in array eg-- array([0]=> 2016, [1]=> 2002)
-            $purchase_year = $this->input->post('purchase_year');
-            // All purchase month comming in array eg-- array([0]=> Jan, [1]=> Feb)
-            $months = $this->input->post('purchase_month');
+            $purchase_date = $this->input->post('purchase_date');
             $order_item_id = $this->input->post('order_item_id');
 
             $appliance_id_array = $this->input->post('appliance_id');
@@ -186,22 +183,14 @@ class Booking extends CI_Controller {
                 $appliances_details['model_number'] = $services_details['model_number'] = $model_number[$key];
                 // get appliance tag from appliance_tag array for only specific key such as $appliance_tag[0].
                 //$appliances_details['tag']  = $appliance_tags[$key];
-                // get purchase year from purchase year array for only specific key such as $purchase_year[0].
-                $appliances_details['purchase_year'] = $services_details['purchase_year'] = $purchase_year[$key];
+                $appliances_details['purchase_date'] = $services_details['purchase_date'] =  $purchase_date;
                 $services_details['booking_id'] = $booking['booking_id'];
-
                 //$appliances_details['serial_number'] = $services_details['serial_number'] = $serial_number[$key];
-
                 $appliances_details['description'] = $services_details['appliance_description'] = $appliance_description[$key];
-                // get purchase months from months array for only specific key such as $months[0].
-                $appliances_details['purchase_month'] = $services_details['purchase_month'] = $months[$key];
                 $appliances_details['service_id'] = $services_details['service_id'] = $booking['service_id'];
                 $appliances_details['last_service_date'] = date('Y-m-d H:i:s');
-
                 $services_details['partner_id'] = $booking['partner_id'];
                 $services_details['sub_order_id'] = trim($order_item_id[$key]);
-                
-
                 log_message('info', __METHOD__ . "Appliance ID" . print_r($appliance_id, true));
                 /* if appliance id exist the initialize appliance id in array and update appliance 
                  * details other wise insert appliance details and return appliance id
@@ -249,7 +238,6 @@ class Booking extends CI_Controller {
                 }
                 
                 if (isset($appliance_id[$key])) {
-
                     $services_details['appliance_id'] = $appliance_id[$key];
                     $this->booking_model->update_appliances($services_details['appliance_id'], $appliances_details);
                 } else {

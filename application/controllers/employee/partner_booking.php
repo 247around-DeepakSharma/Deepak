@@ -350,8 +350,7 @@ class Partner_booking extends CI_Controller {
         $appliances_details['model_number'] = $unit_details['model_number'] = '';
         $unit_details['description'] = '';
         $appliances_details['tag'] = $unit_details['appliance_tags'] = $data['Brand'] . " " . $data['Product'];
-        $appliances_details['purchase_month'] = $unit_details['purchase_month'] = date('m');
-        $appliances_details['purchase_year'] = $unit_details['purchase_year'] = date('Y');
+        $appliances_details['purchase_date'] = $unit_details['purchase_date'] = date('Y-m-d');
         $appliances_details['last_service_date'] = date('Y-m-d H:i:s');
 
         $booking['potential_value'] = '';

@@ -81,9 +81,7 @@
                                   <tr>
                                    
                                     <th>Purchase Year</th>
-                                    <td id="bpurchase_year_1"></td>
-                                    <th>Purchase Month</th>
-                                    <td id="bpurchase_month_1"></td>
+                                    <td id="bpurchase_date_1"></td>
                                  </tr>
 
                                  <tr>
