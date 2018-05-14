@@ -25,8 +25,8 @@ class Validate_serial_no {
         log_message('info', __METHOD__. " Enterring... Partner ID ". $partnerID);
 	$logic = array();
 
-//	$logic[AKAI_ID] = 'akai_serialNoValidation';
-//        $logic[SALORA_ID] = 'salora_serialNoValidation';
+        $logic[AKAI_ID] = 'akai_serialNoValidation';
+        $logic[SALORA_ID] = 'salora_serialNoValidation';
         $logic[QFX_ID] = 'qfx_serialNoValidation';
         
 	if (isset($logic[$partnerID])) {
@@ -46,21 +46,14 @@ class Validate_serial_no {
      */
     function akai_serialNoValidation($partnerID, $serialNo){
         log_message('info', __METHOD__. " Enterring... Partner ID ". $partnerID. " Srial No ". $serialNo);
-        if((ctype_alnum($serialNo) && strlen($serialNo) == 19)){
+        $result = $this->MY_CI->partner_model->getpartner_serialno(array('partner_id' =>$partnerID, 'serial_number' => $serialNo));
+        if(!empty($result)){
             log_message('info', __METHOD__. " Partner ID ". $partnerID. " Srial No ". $serialNo. " code ".SUCCESS_CODE);
             return SUCCESS_CODE;
         } else {
             log_message('info', __METHOD__. " Partner ID ". $partnerID. " Srial No ". $serialNo. " code ".FAILURE_CODE);
             return FAILURE_CODE;
         }
-//        $result = $this->MY_CI->partner_model->getpartner_serialno(array('partner_id' =>$partnerID, 'serial_number' => $serialNo));
-//        if(!empty($result)){
-//            log_message('info', __METHOD__. " Partner ID ". $partnerID. " Srial No ". $serialNo. " code ".SUCCESS_CODE);
-//            return SUCCESS_CODE;
-//        } else {
-//            log_message('info', __METHOD__. " Partner ID ". $partnerID. " Srial No ". $serialNo. " code ".FAILURE_CODE);
-//            return FAILURE_CODE;
-//        }
     }
     /**
      * @desc This is used to validate salora serial number
