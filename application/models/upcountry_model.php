@@ -905,9 +905,12 @@ class Upcountry_model extends CI_Model {
     }
     
     function get_upcountry_non_upcountry_district(){
-        $sql = "SELECT DISTINCT(vendor_pincode_mapping.city) as District,(CASE  WHEN municipal_limit.district IS NULL THEN 'F1' ELSE 'F2' END) as Flag, municipal_limit.municipal_limit as Municipal_Limit"
-                . " FROM "
-                . "vendor_pincode_mapping LEFT JOIN municipal_limit  ON municipal_limit.district = vendor_pincode_mapping.city";
+        $sql = "SELECT DISTINCT(sub_service_center_details.district) as District,'Upcountry' as Flag,service_centres.min_upcountry_distance as Municipal_Limit "
+                . "FROM sub_service_center_details JOIN service_centres ON service_centres.id = sub_service_center_details.service_center_id WHERE service_centres.active =1 "
+                . "UNION "
+                . "SELECT DISTINCT(vendor_pincode_mapping.city) as District, 'Local' as Flag, ' ' as Municipal_Limit FROM vendor_pincode_mapping WHERE NOT EXISTS (SELECT 1 FROM "
+                . "sub_service_center_details JOIN service_centres ON service_centres.id = sub_service_center_details.service_center_id WHERE service_centres.active =1 "
+                . "AND sub_service_center_details.district = vendor_pincode_mapping.city ) ";
         return $query = $this->db->query($sql);
     }
     
