@@ -451,7 +451,7 @@ class Inventory_model extends CI_Model {
             $this->db->where($where);
         }
         $query = $this->db->get('inventory_master_list');
-        log_message("info",$this->db->last_query());
+        //log_message("info",$this->db->last_query());
         return $query->result_array();
     }
     
