@@ -32,7 +32,6 @@ class Partner extends CI_Controller {
         $this->load->library('asynchronous_lib');
         $this->load->library('booking_utilities');
         $this->load->library('miscelleneous');
-        $this->load->library('booking_utilities');
         $this->load->library('user_agent');
         $this->load->library("initialized_variable");
         $this->load->model("push_notification_model");
@@ -1776,14 +1775,9 @@ class Partner extends CI_Controller {
                     $data['partner_challan_file'] = $challan_file;
                 }
                 $partner_id = $this->session->userdata('partner_id');
+                $data['parts_shipped'] = $this->input->post('shipped_parts_name');
                 $data['model_number_shipped'] = $this->input->post('shipped_model_number');
                 $data['shipped_parts_type'] = $this->input->post('shipped_part_type');
-                if(is_array($this->input->post('shipped_parts_name'))){
-                    $data['parts_shipped'] = implode(',', $this->input->post('shipped_parts_name'));
-                }else{
-                    $data['parts_shipped'] = $this->input->post('shipped_parts_name');
-                }
-                
                 $data['courier_name_by_partner'] = $this->input->post('courier_name');
                 $data['awb_by_partner'] = $this->input->post('awb');
                 $data['remarks_by_partner'] = $this->input->post('remarks_by_partner');
@@ -1799,8 +1793,17 @@ class Partner extends CI_Controller {
                     $data['incoming_invoice_pdf'] = $incoming_invoice_pdf;
                 }
                 $data['status'] = "Shipped";
-                $where = array('id' => $id, 'partner_id' => $partner_id,'entity_type' => _247AROUND_PARTNER_STRING);
+                
+                $post['length'] = -1;
+                $post['where'] = array('model_number' => $data['model_number_shipped'], 'part_name' => $data['parts_shipped'], 'entity_id' => $partner_id, 'entity_type' => _247AROUND_PARTNER_STRING,'type' => $data['shipped_parts_type']);
+                $inventory_details = $this->inventory_model->get_inventory_master_list($post, 'inventory_master_list.inventory_id', true);
+                if (!empty($inventory_details)) {
+                    $data['shipped_inventory_id'] = $inventory_details[0]['inventory_id'];
+                }
+
+                $where = array('id' => $id, 'partner_id' => $partner_id, 'entity_type' => _247AROUND_PARTNER_STRING);
                 $response = $this->service_centers_model->update_spare_parts($where, $data);
+
                 if ($response) {
                     
                     $sc_data['current_status'] = "InProcess";
@@ -1826,24 +1829,6 @@ class Partner extends CI_Controller {
                         $this->asynchronous_lib->do_background_process($url, $async_data);
                     }
                     
-                    if(!empty($this->input->post('inventory_id'))){
-                        
-                        //get vendor details
-                        $sf_details =  $this->partner_model->getVendorDetails('name', array('id' => $this->input->post('assigned_vendor_id')));
-                        //update inventory stocks
-                        $data['receiver_entity_id'] = $sf_details[0]['name'];
-                        $data['receiver_entity_type'] = _247AROUND_SF_STRING;
-                        $data['sender_entity_id'] = $partner_id;
-                        $data['sender_entity_type'] = _247AROUND_PARTNER_STRING;
-                        $data['stock'] = -1;
-                        $data['booking_id'] = $booking_id;
-                        $data['agent_id'] = $partner_id;
-                        $data['agent_type'] = _247AROUND_PARTNER_STRING;
-                        $data['is_wh'] = TRUE;
-                        $data['inventory_id'] = $this->input->post('inventory_id');
-                        $this->miscelleneous->process_inventory_stocks($data);
-                    }
-
                     $userSession = array('success' => 'Parts Updated');
                     $this->session->set_userdata($userSession);
                     redirect(base_url() . "partner/get_spare_parts_booking");
@@ -3969,11 +3954,13 @@ class Partner extends CI_Controller {
      * @return: string
      */
     function download_partner_summary_details(){
+        $partner_details = array();
         $select = "partners.id,public_name,company_type,primary_contact_name,primary_contact_email,primary_contact_phone_1,owner_name,owner_email,owner_phone_1,gst_number,pan";
         $where = array('is_active' => 1);
-        $partner_details = $this->partner_model->getpartner_details($select,$where);
+        $partner_details['meta'] = $this->partner_model->getpartner_details($select,$where);
         $template = 'partner_summary_details.xlsx';
         $output_file = "partner_summary_details". date('d_M_Y_H_i_s');
+        $partner_details['excel_data_line_item'] = array();
         $generated_file = $this->miscelleneous->generate_excel_data($template,$output_file,$partner_details);
         
         if (file_exists($generated_file)) {
