@@ -444,7 +444,7 @@ class File_upload extends CI_Controller {
                 if (!empty(array_filter($sanitizes_row_data))) {
                     $rowData = array_combine($data['header_data'], $rowData_array[0]);
                     array_push($file_partner_arr, $rowData['partnerid']);
-                    $subArray = $this->get_sub_array($rowData, array('partnerid', 'serviceid', 'brand', 'category', 'capacity'));
+                    $subArray = $this->get_sub_array($rowData, array('partnerid', 'serviceid', 'brand', 'category', 'capacity','model'));
                     array_push($sheetUniqueRowData, implode('_join_', $subArray));
                     $this->sanitize_partner_appliance_data_to_insert($rowData);
                 }

@@ -1,3 +1,5 @@
+
+
 <?php
 
 if (!defined('BASEPATH')) {
@@ -2823,7 +2825,6 @@ class Booking extends CI_Controller {
     private function get_bookings_data_by_status($booking_status) {
         $post = $this->get_post_data();
         $new_post = $this->get_filterd_post_data($post,$booking_status,'booking');
-        
         $select = "services.services,users.name as customername,penalty_on_booking.active as penalty_active,
             users.phone_number, booking_details.*, service_centres.name as service_centre_name,
             service_centres.district as city, service_centres.primary_contact_name,
@@ -4196,10 +4197,11 @@ class Booking extends CI_Controller {
         
         if(!empty($result)){
             $flag = false;
+            $option = "<option selected disabled>Select Model Number</option>";
             foreach ($result as $value) {
                 if(!empty(trim($value['model']))){
                     $flag = true;
-                    $option = "<option>".$value['model']."</option>";
+                    $option .= "<option>".$value['model']."</option>";
                 }
                 
             }
@@ -4215,3 +4217,4 @@ class Booking extends CI_Controller {
         
     }
 }
+
