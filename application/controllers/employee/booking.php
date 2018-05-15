@@ -4187,13 +4187,14 @@ class Booking extends CI_Controller {
         } else {
             $result = $this->partner_model->get_partner_specific_details($where, 'model');
         }
-        
+        log_message("info", print_r($result,true));
         if(!empty($result)){
             $flag = false;
+            $option = "<option selected disabled>Select Model Number</option>";
             foreach ($result as $value) {
                 if(!empty(trim($value['model']))){
                     $flag = true;
-                    $option = "<option>".$value['model']."</option>";
+                    $option .= "<option>".$value['model']."</option>";
                 }
                 
             }
