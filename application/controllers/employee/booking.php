@@ -1,3 +1,5 @@
+
+
 <?php
 
 if (!defined('BASEPATH')) {
@@ -4195,10 +4197,11 @@ class Booking extends CI_Controller {
         
         if(!empty($result)){
             $flag = false;
+            $option = "<option selected disabled>Select Model Number</option>";
             foreach ($result as $value) {
                 if(!empty(trim($value['model']))){
                     $flag = true;
-                    $option = "<option>".$value['model']."</option>";
+                    $option .= "<option>".$value['model']."</option>";
                 }
                 
             }
@@ -4214,3 +4217,5 @@ class Booking extends CI_Controller {
         
     }
 }
+
+
