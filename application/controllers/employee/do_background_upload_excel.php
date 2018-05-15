@@ -470,8 +470,7 @@ class Do_background_upload_excel extends CI_Controller {
                     $appliance_details['tag'] = $value['brand'] . " " . $value['product'];
                     $booking['booking_remarks'] = '';
                     $booking['booking_alternate_contact_no'] = '';
-                    $appliance_details['purchase_month'] = $unit_details['purchase_month'] = date('m');
-                    $appliance_details['purchase_year'] = $unit_details['purchase_year'] = date('Y');
+                    $appliance_details['purchase_date'] = $unit_details['purchase_date'] = date('Y-m-d');
                     $appliance_details['last_service_date'] = date('d-m-Y');
                     //get partner data to check the price
 

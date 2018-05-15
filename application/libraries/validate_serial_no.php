@@ -25,10 +25,12 @@ class Validate_serial_no {
         log_message('info', __METHOD__. " Enterring... Partner ID ". $partnerID);
 	$logic = array();
 
-	$logic[AKAI_ID] = 'akai_serialNoValidation';
+        $logic[AKAI_ID] = 'akai_serialNoValidation';
         $logic[SALORA_ID] = 'salora_serialNoValidation';
+        $logic[QFX_ID] = 'qfx_serialNoValidation';
+        
 	if (isset($logic[$partnerID])) {
-            log_message('info', __METHOD__. " Method not exist. Partner ID ". $logic[$partnerID]);
+            log_message('info', __METHOD__. " Method exist. Partner ID ". $logic[$partnerID]);
 	    return $logic[$partnerID];
 	} else {
             log_message('info', __METHOD__. " Method is not exist. Partner ID ". $partnerID);
@@ -37,7 +39,7 @@ class Validate_serial_no {
     }
     /**
      * @desc This method is used to validate serial number.
-     * This is used to check directly from DB 
+     * Serial number should be alpha numeric with 19 character
      * @param String $partnerID
      * @param String $serialNo
      * @return Int
@@ -84,6 +86,41 @@ class Validate_serial_no {
                 return SUCCESS_CODE;
             } 
         } else {
+            return FAILURE_CODE;
+        }
+    }
+    /**
+     * @desc Used to validate QFX serial Number
+     * Serial Number should be integer and 17 digit.
+     * Serial number should not allow to start with zero
+     * @param int $partnerID
+     * @param String $serialNo
+     * @return boolean
+     */
+    function qfx_serialNoValidation($partnerID, $serialNo){
+        log_message('info', __METHOD__ . " Enterring... Partner ID " . $partnerID . " Srial No " . $serialNo);
+        if (!is_numeric($serialNo)) {
+            
+            log_message('info', __METHOD__ . " Partner ID " . $partnerID . " Srial No " . $serialNo . " Not Numeric");
+            return FAILURE_CODE;
+            
+        } else if($serialNo == 0){
+            
+             log_message('info', __METHOD__ . " Partner ID " . $partnerID . " Srial No " . $serialNo . " zero");
+            return FAILURE_CODE;
+            
+        } else if (substr($serialNo, 0, 1) == '0') {
+            
+            log_message('info', __METHOD__ . " Partner ID " . $partnerID . " Srial No " . $serialNo . " Start with zero");
+           return FAILURE_CODE;
+           
+        } else if(strlen($serialNo) == 17 && is_numeric($serialNo)){
+            
+            log_message('info', __METHOD__ . " Partner ID " . $partnerID . " Srial No " . $serialNo . " 17 Digit numeric ");
+            return SUCCESS_CODE;
+        } else {
+            
+            log_message('info', __METHOD__ . " Partner ID " . $partnerID . " Srial No " . $serialNo . " Retrun false");
             return FAILURE_CODE;
         }
     }

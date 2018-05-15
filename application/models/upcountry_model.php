@@ -204,7 +204,7 @@ class Upcountry_model extends CI_Model {
             
             $partner_upcountry_approval = $partner_data[0]['upcountry_approval'];
             $min_threshold_distance = $this->vendor_min_up_distance *2;
-            $max_threshold_distance = $partner_data[0]['upcountry_max_distance_threshold'] * 2;
+            $max_threshold_distance = ($partner_data[0]['upcountry_max_distance_threshold'] * 2 + $this->vendor_min_up_distance *2);
         } else {
             $partner_upcountry_approval = 0;
             $partner_upcountry_rate = DEFAULT_UPCOUNTRY_RATE;
@@ -223,7 +223,7 @@ class Upcountry_model extends CI_Model {
 
             
         } else if ($upcountry_distance > ($min_threshold_distance)
-                && $upcountry_distance < $max_threshold_distance) {
+                && $upcountry_distance <= $max_threshold_distance) {
 
             $up_data = array('upcountry_pincode' => $upcountry_vendor_details['upcountry_pincode'],
                 'upcountry_distance' => ($upcountry_vendor_details['upcountry_distance'] - $min_threshold_distance),
@@ -905,9 +905,12 @@ class Upcountry_model extends CI_Model {
     }
     
     function get_upcountry_non_upcountry_district(){
-        $sql = "SELECT DISTINCT(vendor_pincode_mapping.city) as District,(CASE  WHEN municipal_limit.district IS NULL THEN 'F1' ELSE 'F2' END) as Flag, municipal_limit.municipal_limit as Municipal_Limit"
-                . " FROM "
-                . "vendor_pincode_mapping LEFT JOIN municipal_limit  ON municipal_limit.district = vendor_pincode_mapping.city";
+        $sql = "SELECT DISTINCT(sub_service_center_details.district) as District,'Upcountry' as Flag,service_centres.min_upcountry_distance as Municipal_Limit "
+                . "FROM sub_service_center_details JOIN service_centres ON service_centres.id = sub_service_center_details.service_center_id WHERE service_centres.active =1 "
+                . "UNION "
+                . "SELECT DISTINCT(vendor_pincode_mapping.city) as District, 'Local' as Flag, ' ' as Municipal_Limit FROM vendor_pincode_mapping WHERE NOT EXISTS (SELECT 1 FROM "
+                . "sub_service_center_details JOIN service_centres ON service_centres.id = sub_service_center_details.service_center_id WHERE service_centres.active =1 "
+                . "AND sub_service_center_details.district = vendor_pincode_mapping.city ) ";
         return $query = $this->db->query($sql);
     }
     

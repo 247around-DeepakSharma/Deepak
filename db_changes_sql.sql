@@ -4800,3 +4800,38 @@ ADD FOREIGN KEY (unit_details_id) REFERENCES booking_unit_details(id);
 --sachin 10 may
 
 ALTER TABLE `spare_parts_details` ADD `requested_inventory_id` INT(11) NULL DEFAULT NULL AFTER `challan_approx_value`, ADD `shipped_inventory_id` INT(11) NULL DEFAULT NULL AFTER `requested_inventory_id`;
+
+--Chhavi
+CREATE TABLE `reports_log` (
+  `id` int(10) NOT NULL,
+  `entity_type` varchar(100) NOT NULL,
+  `entity_id` int(10) NOT NULL,
+  `report_type` varchar(256) NOT NULL,
+  `filters` text,
+  `url` text NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `agent_id` int(10) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `reports_log`
+--
+ALTER TABLE `reports_log`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `reports_log`
+--
+ALTER TABLE `reports_log`
+  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT;COMMIT;
+
+ALTER TABLE `booking_unit_details` ADD `purchase_date` DATE NULL AFTER `purchase_year`;
+ALTER TABLE `appliance_details` ADD `purchase_date` DATE NOT NULL AFTER `purchase_year`;

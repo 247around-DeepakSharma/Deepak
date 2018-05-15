@@ -449,6 +449,7 @@ class Miscelleneous {
     function process_cancel_form($booking_id, $status, $cancellation_reason, $cancellation_text, $agent_id, $agent_name, $partner_id) {
         log_message('info', __METHOD__ . " => Entering " . $booking_id, ' status: ' . $status . ' cancellation_reason: ' . $cancellation_reason . ' agent_id: ' . $agent_id . ' agent_name: ' . $agent_name . ' partner_id: ' . $partner_id);
         $data['internal_status'] = $data['cancellation_reason'] = $cancellation_reason;
+        $historyRemarks = $cancellation_reason."<br> ".$cancellation_text;
         $data['closed_date'] = $data['update_date'] = date("Y-m-d H:i:s");
 
         $data['current_status'] = _247AROUND_CANCELLED;
@@ -491,7 +492,7 @@ class Miscelleneous {
 
         //Log this state change as well for this booking
         //param:-- booking id, new state, old state, employee id, employee name
-        $this->My_CI->notify->insert_state_change($booking_id, $data['current_status'], $status, $data['cancellation_reason'], $agent_id, $agent_name,$actor,$next_action, _247AROUND);
+        $this->My_CI->notify->insert_state_change($booking_id, $data['current_status'], $status, $historyRemarks, $agent_id, $agent_name,$actor,$next_action, _247AROUND);
         // Not send Cancallation sms to customer for Query booking
         // this is used to send email or sms while booking cancelled
         $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
@@ -2733,5 +2734,26 @@ function convert_html_to_pdf($html,$booking_id,$filename,$s3_folder){
         fwrite ($csv_handler,$csv);
         fclose ($csv_handler);
         log_message('info', __FUNCTION__ . " Function End  ");
+    }
+    function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
+        log_message('info', __FUNCTION__ . " Start For  ".$bookingID.$number);
+        if(!$bookingID){
+            $bookingDetails = $this->booking_model->get_missed_call_rating_booking_count($number);
+            $bookingID = $bookingDetails[0]['booking_id'];
+        }
+        $select = "employee.official_email";
+        $where["booking_details.booking_id"] = $bookingID; 
+        $partnerJoin["partners"] = "partners.id=booking_details.partner_id";
+        $join["employee_relation"] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.service_centres_id)";
+        $join["employee"] = "employee.id=employee_relation.agent_id";
+        $partnerJoin["employee"] = "employee.id=partners.account_manager_id";
+        $rmEmail = $this->My_CI->reusable_model->get_search_result_data("booking_details",$select,$where,$join,NULL,NULL,NULL,NULL,array());
+        $amEmail = $this->My_CI->reusable_model->get_search_result_data("booking_details",$select,$where,$partnerJoin,NULL,NULL,NULL,NULL,array());
+        $subject = 'Bad Feedback From Customer, Rating ('.$rating.') For '.$bookingID;
+        $message = "Please take any action to check why we get bad rating ";
+        $to = ANUJ_EMAIL_ID;  
+        $cc = $rmEmail[0]['official_email'].",".$amEmail[0]['official_email'].",".$this->My_CI->session->userdata("official_email");
+        $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "","we_get_bad_rating");
+        log_message('info', __FUNCTION__ . " END  ".$bookingID.$number);
     }
 }

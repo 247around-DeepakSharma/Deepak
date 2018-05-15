@@ -381,7 +381,7 @@
             }
         });
     }
-    
+     <?php if($this->session->userdata('is_sf') === '1'){ ?>
     function get_defective_parts_count(){
        $.ajax({
             method:'GET',
@@ -392,6 +392,7 @@
             }
         });
     }
+     <?php } ?>
 
 </script>
 <style>

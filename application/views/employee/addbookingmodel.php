@@ -79,14 +79,8 @@
                                   <tr>
                                     <th>Application Tags</th>
                                     <td id="btags_1"></td>
-                                    <th>Purchase Year</th>
-                                    <td id="bpurchase_year_1"></td>
-                                 </tr>
-
-                                 <tr>
-                                   
-                                    <th>Purchase Month</th>
-                                    <td id="bpurchase_month_1"></td>
+                                    <th>Purchase Date</th>
+                                    <td id="bpurchase_date_1"></td>
                                  </tr>
                               </tbody>
                            </table>

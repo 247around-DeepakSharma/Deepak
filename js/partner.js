@@ -284,18 +284,14 @@ function setAppliances(i){
     return false;
   }
 
-  var purchase_year =$("#purchase_year_"+i).val();
-
-  var month = $("#purchase_month_"+i).val();
-
+  var purchase_date =$("#purchase_date_"+i).val();
 
   document.getElementById("bbrand_"+i).innerHTML = brand;
   document.getElementById("bcategory_"+i).innerHTML = appliance_category;
   document.getElementById("bcapacity_"+i).innerHTML = appliance_capacity;
   document.getElementById("bmodel_"+i).innerHTML = model_number;
   
-  document.getElementById("bpurchase_year_"+i).innerHTML = purchase_year;
-  document.getElementById("bpurchase_month_"+i).innerHTML = month;
+  document.getElementById("bpurchase_date_"+i).innerHTML = purchase_date;
 }  
 
   function cloned_model(regex1, indexClone){

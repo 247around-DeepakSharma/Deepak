@@ -4407,6 +4407,7 @@ class Api extends CI_Controller {
             else if($callDetails['To'] === POOR_MISSED_CALL_RATING_NUMBER){
                 //Send Poor Rating Missed call  Notification to concern Person
                 $receiverArray['employee'] = explode(",",POOR_RATING_MISSED_CALL_NOTIFICATION_EMPLOYYE_IDS);
+                $this->miscelleneous->send_bad_rating_email("2",NULL,$callDetails['from_number'] );
                 $this->push_notification_lib->create_and_send_push_notiifcation(POOR_RATING_MISSED_CALL_NOTIFICATION,$receiverArray,array());
             }
             

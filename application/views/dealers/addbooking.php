@@ -170,7 +170,16 @@
                                     <?php echo form_error('booking_date'); ?>
                                 </div>
                             </div>
-                            <div class="col-md-2 ">
+                            <div class="col-md-4">
+                                <div class="form-group col-md-12 " id="purchase_d">
+                                    <label for="Purchase Date">Purchase Date <span id="error_purchase" style="color: red;"></label>
+                                <div class="input-group input-append date">
+                                    <input id="purchase_date" class="form-control"  name="purchase_date" type="date" value = "">
+                                    <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
+                                </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
                                     <label for="Appliance unit ">Appliance Unit* <span id="error_seller" style="color: red;"></label>
                                      
@@ -187,6 +196,7 @@
                                     <?php echo form_error('booking_date'); ?>
                                 </div>
                             </div>
+                            
                             
                             <!-- end col-md-6 -->
                         </div>
@@ -246,9 +256,6 @@
                                     
                                 </div>
                             </div>
-                             <?php $current_month = date("M"); $current_year = date('Y');  ?>
-                            <input type="hidden" name="purchase_month" value="<?php echo $current_month; ?>"/>
-                            <input type="hidden" name="purchase_year" value="<?php echo $current_year; ?>"/>
                             <div class="col-md-4 ">
                                 <div class="form-group col-md-12  <?php if( form_error('alternate_phone_number') ) { echo 'has-error';} ?>">
                                     <label for="alternate_phone_number ">Alternate Mobile</label>
@@ -304,6 +311,7 @@
         var appliance = $("#service_name").val();
         var brand = $("#appliance_brand_1").val();
         var not_visible = $("#not_visible").val();
+        var purchase_date = $("#purchase_date").val();
         
          if(mobile_number === "" || mobile_number.match(/^[6-9]{1}[0-9]{9}$/) === null){
             display_message("booking_primary_contact_no","error_mobile_number","red","Please Enter Mobile");
@@ -355,6 +363,12 @@
              return false;
         } else {
               display_message("appliance_category_1","error_category","green","");
+        }
+         if(purchase_date == ""){
+            display_message("purchase_d","error_purchase","red","Please Select Purchase Date");
+             return false;
+        } else {
+              display_message("purchase_d","error_purchase","green","");
         }
         
         
@@ -885,7 +899,7 @@
             
             return false;
     }
-
+  $("#purchase_date").datepicker({dateFormat: 'yy-mm-dd'});
 </script>
 <link rel="stylesheet" href="<?php echo base_url();?>css/jquery.loading.css">
 

@@ -1591,10 +1591,10 @@ class Service_centers extends CI_Controller {
             
         );
         
-        $select = "CONCAT( '', GROUP_CONCAT((parts_shipped ) ) , '' ) as parts_shipped, "
+        $select = "CONCAT( '', GROUP_CONCAT((parts_shipped ) SEPARATOR ' / <br/> ' ) , '' ) as parts_shipped, "
                 . " spare_parts_details.booking_id, name, "
-                . "CONCAT( '', GROUP_CONCAT((remarks_defective_part_by_partner ) ) , '' ) as remarks_defective_part_by_partner, "
-                . "CONCAT( '', GROUP_CONCAT((remarks_by_partner ) ) , '' ) as remarks_by_partner, spare_parts_details.partner_id,spare_parts_details.entity_type";
+                . "CONCAT( '', GROUP_CONCAT((remarks_defective_part_by_partner ) SEPARATOR ' / <br/> ' ) , '' ) as remarks_defective_part_by_partner, "
+                . "CONCAT( '', GROUP_CONCAT((remarks_by_partner ) SEPARATOR ' / <br/> ' ) , '' ) as remarks_by_partner, spare_parts_details.partner_id,spare_parts_details.entity_type";
         
         $group_by = "spare_parts_details.booking_id";
         $order_by = "status = '". DEFECTIVE_PARTS_REJECTED."', spare_parts_details.create_date ASC";
@@ -1602,6 +1602,7 @@ class Service_centers extends CI_Controller {
           
         $config['base_url'] = base_url() . 'service_center/get_defective_parts_booking';
         $config['total_rows'] = $this->service_centers_model->count_spare_parts_booking($where, $select);
+
                 
         $config['per_page'] = 50;
         $config['uri_segment'] = 3;
@@ -3940,17 +3941,20 @@ class Service_centers extends CI_Controller {
         log_message('info', __FUNCTION__.' Used by :'.$this->session->userdata('service_center_name'));
         $service_center_id = $this->session->userdata('service_center_id');
 
+        $select = "count(spare_parts_details.booking_id) as count";
         $where = array(
             "spare_parts_details.defective_part_required"=>1,
             "spare_parts_details.service_center_id" => $service_center_id,
             "status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."')  " => NULL
             
         );
-        
-        $select = "spare_parts_details.booking_id";
-        
-       $total_rows = $this->service_centers_model->count_spare_parts_booking($where, $select);
-       echo json_encode(array("count" => $total_rows), true);
+        $group_by = "spare_parts_details.service_center_id";
+        $total_rows = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by);
+        if(!empty($total_rows)){
+           echo json_encode(array("count" => $total_rows[0]['count']), true);
+        } else {
+           echo json_encode(array("count" => 0), true);
+        }
               
     }
     

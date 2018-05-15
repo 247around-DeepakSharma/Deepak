@@ -46,7 +46,7 @@
     </button>
 </div>
 <div class="btn-group" role="group">
-    <button type="button" class="btn btn-default" href="#upcountry" data-toggle="tab">
+    <button type="button" class="btn btn-default" onclick="sf_tab_active()" href="#upcountry" data-toggle="tab">
         <div class="hidden-xs">SF / Upcountry</div>
     </button>
 </div>
@@ -239,6 +239,9 @@
                             </tr>
                         </tbody>
                     </table>
+                    <?php }  ?>
+                    </div>
+                    <?php if($booking_history[0]['is_upcountry'] == 1){  ?>  
                     <table class="table  table-striped table-bordered">
                         <thead>
                             <th>One Way Distance </th>
@@ -248,15 +251,19 @@
                             <th>Upcountry Remarks </th>
                         <thead>
                         <tbody>
+                           
                             <tr>
-                                <td><?php echo round(($booking_history[0]["upcountry_distance"] + ($booking_history[0]["municipal_limit"] * 2))/2,2) . " KM"; ?></td>
+                                <td> <?php if(!empty($booking_history[0]['vendor_name'])){?>
+                                    <?php echo round(($booking_history[0]["upcountry_distance"] + ($booking_history[0]["municipal_limit"] * 2))/2,2) . " KM"; ?>
+                                <?php } ?>
+                                </td>
                                 <td><?php if($booking_history[0]['is_upcountry'] == 1){ echo $booking_history[0]["upcountry_distance"]." KM";} ?></td>
                                 <td> <?php if(isset($dhq[0]['district'])){echo $dhq[0]['district'];}?></td>
                                 <td><?php if(isset($dhq[0]['pincode'])){ echo $dhq[0]['pincode'];} ?></td>
                                 <td><?php echo $booking_history[0]["upcountry_remarks"];  ?></td>
                             </tr>
-                            <tr>
-                                <?php if($booking_history[0]['is_upcountry'] == 1){  ?>  
+                           
+                                
                             <tr>
                                 <td colspan="8">
                                     <div class="col-md-12">
@@ -273,14 +280,11 @@
                                         </div
                                 </td>
                             </tr>
-                            <?php } ?>
+                            
                             </tr>
                         </tbody>
                     </table>
-                    <?php } else {
-                        echo "Booking is not Assign";
-                        } ?>
-                    </div>
+                    <?php } ?>
                 </div>
             </div>
             <div class="tab-pane fade in" id="tab2">
@@ -335,7 +339,7 @@
                                     <td><?php echo $unit_detail['appliance_category']."/<br/>".$unit_detail['appliance_capacity']?></td>
                                     <td><?php echo $unit_detail['model_number']?></td>
                                     <td><?php echo $unit_detail['serial_number']?></td>
-                                    <td><?php if(!empty($unit_detail['purchase_month'])) {echo $unit_detail['purchase_month']."-". $unit_detail['purchase_year'];} else { echo $unit_detail['purchase_year'];}?></td>
+                                    <td><?php if(!empty($unit_detail['purchase_month'])) {echo $unit_detail['purchase_month'];}?></td>
                                     <td><?php echo $unit_detail['appliance_description']?></td>
                                     <?php if($booking_history[0]['current_status'] != "Completed"){ ?>
                                     <td><?php  print_r($unit_detail['price_tags']); ?></td>
@@ -922,6 +926,11 @@
   </div>
 </div>
 <script>
+function sf_tab_active(){
+  <?php if($booking_history[0]['is_upcountry'] == 1){  ?>  
+   setTimeout(function(){ GetRoute(); }, 1000);
+  <?php } ?>
+}
  function resendCustomerInvoice(booking_id, invoice_id){
         alert("Please Wait! we will send invoice to customer via sms or email");
          var url ="<?php echo base_url();?>employee/user_invoice/resend_customer_invoice/"+ booking_id+"/"+invoice_id;

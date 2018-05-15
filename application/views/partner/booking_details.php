@@ -16,7 +16,7 @@
                             </li>
                             <li role="presentation" class=""><a href="#tab_content4" role="tab" data-toggle="tab" aria-expanded="false">Booking History / SMS</a>
                             </li>
-                            <li role="presentation" class=""><a href="#tab_content5" role="tab" data-toggle="tab" aria-expanded="false">SF Details</a>
+                            <li role="presentation" onclick="sf_tab_active()" class=""><a href="#tab_content5" role="tab" data-toggle="tab" aria-expanded="false">SF Details</a>
                             </li>
                         </ul>
                         <div id="myTabContent2" class="tab-content">
@@ -114,29 +114,6 @@
                                         <th></th>
                                         <td></td>
                                          </tr>
-                                    <?php if (isset($dhq[0]['district'])) { ?>
-                                        <tr>
-                                            <th colspan="1">Upcountry</th>
-                                            <td colspan="3">
-                                                <div class="col-md-12">
-                                                    <div class="col-md-4"> <input type="hidden" class="form-control" id="txtSource" value="<?php echo $booking_history[0]['booking_pincode'] . ", india";
-                                                        ?>">
-                                                    </div>
-                                                    <div class="col-md-4">   <input type="hidden" class="form-control" id="txtDestination" value="<?php if (isset($dhq[0]['district'])) {
-                                                            echo $dhq[0]['pincode'] . ", India";
-                                                        }
-                                                        ?>">
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-12" > 
-                                                    <div id="dvDistance" style="display:none;"></div>
-                                                    <br/>
-                                                    <div id="dvMap" style=" height: 200px">
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    <?php } ?> 
                                 </table>
                             </div>
                             <div role="tabpanel" class="tab-pane fade" id="tab_content2">
@@ -180,7 +157,7 @@
                                                     <td><?php echo $unit_detail['model_number'] ?></td>
                                                     <td><?php echo $unit_detail['serial_number'] ?></td>
                                                     <td><?php echo $unit_detail['appliance_description'] ?></td>
-                                                    <td><?php if(!empty($unit_detail['purchase_month'])) {echo $unit_detail['purchase_month']."-". $unit_detail['purchase_year'];} else { echo $unit_detail['purchase_year'];}?></td>
+                                                    <td><?php if(!empty($unit_detail['purchase_date'])) {echo $unit_detail['purchase_date'];}?></td>
                                                         <?php if ($booking_history[0]['current_status'] != "Completed") { ?>
                                                         <td><?php print_r($unit_detail['price_tags']); ?></td>
                                                             <?php if($key == 0){ if ($booking_history[0]['is_upcountry'] == 1) { ?>
@@ -448,22 +425,68 @@
                             <div role="tabpanel" class="tab-pane fade" id="tab_content4">
                             </div>
                             <div role="tabpanel" class="tab-pane fade" id="tab_content5">
-                                <?php if(isset($booking_history[0]['primary_contact_name'])){ ?>
+
+                                   <?php if(isset($booking_history[0]['primary_contact_name'])){ ?>
                                     <table class="table table-striped table-bordered" >
                                         <tr>
                                             <th>Back Office Person</th>
                                             <th>Mobile</th>
                                             <th>Email</th>
+                                            <th>Municipal Limit </th>
                                         </tr>
                                         <tbody>
                                             <tr>
                                                 <td><?php echo $booking_history[0]['primary_contact_name'];?></td>
                                                 <td><?php echo $booking_history[0]['primary_contact_phone_1'];?></td>
                                                 <td><?php echo $booking_history[0]['primary_contact_email'];?></td>
+                                                <td><?php if($booking_history[0]['is_upcountry'] == 1){ echo $booking_history[0]["municipal_limit"]." KM";}  ?></td>
                                             </tr>
                                         </tbody>
                                     </table>
-                                <?php } else { ?><b>SF Not Assign</b><?php }?>
+                                <?php  }?>
+                   
+                    <table class="table  table-striped table-bordered">
+                        <thead>
+                            <th>One Way Distance </th>
+                            <th>Upcountry Distance </th>
+                            <th>Upcountry District </th>
+                            <th>Upcountry Pincode</th>
+                            <th>Upcountry Remarks </th>
+                        <thead>
+                        <tbody>
+                            <tr>
+                                <td> <?php if(isset($booking_history[0]['primary_contact_name'])){ ?>
+                                    <?php echo round(($booking_history[0]["upcountry_distance"] + ($booking_history[0]["municipal_limit"] * 2))/2,2) . " KM"; ?>
+                                <?php } ?></td>
+                                <td><?php if($booking_history[0]['is_upcountry'] == 1){ echo $booking_history[0]["upcountry_distance"]." KM";} ?></td>
+                                <td> <?php if(isset($dhq[0]['district'])){echo $dhq[0]['district'];}?></td>
+                                <td><?php if(isset($dhq[0]['pincode'])){ echo $dhq[0]['pincode'];} ?></td>
+                                <td><?php echo $booking_history[0]["upcountry_remarks"];  ?>
+                                <div class="col-md-4 pull-right"> <button class="btn btn-success" onclick="GetRoute()">Get Route</button></div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <?php if($booking_history[0]['is_upcountry'] == 1){  ?>  
+                            <tr>
+                                <td colspan="8">
+                                    <div class="col-md-12">
+                                        <div class="col-md-4"> <input type="hidden" class="form-control" id="txtSource" value="<?php echo $booking_history[0]['booking_pincode'].", india"; ?>"></div>
+                                        <div class="col-md-4">   <input type="hidden" class="form-control" id="txtDestination" value="<?php if(isset($dhq[0]['district'])){
+                                            echo $dhq[0]['pincode'].", India";}?>"></div>
+                                        
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div id="dvDistance" style="display:none;"></div>
+                                        <br/>
+                                        <div id="dvMap" style=" height: 200px">
+                                        </div>
+                                        </div
+                                </td>
+                            </tr>
+                            <?php } ?>
+                            </tr>
+                        </tbody>
+                    </table>   
                             </div>
                         </div>
                     </div>
@@ -475,6 +498,11 @@
 </div>
 <div class="clearfix"></div>
 <script>
+    function sf_tab_active(){
+        <?php if($booking_history[0]['is_upcountry'] == 1){  ?>  
+             setTimeout(function(){ GetRoute(); }, 1000);
+        <?php } ?>
+    }
     $('document').ready(function () {
         var booking_id = '<?php echo base_url() ?>partner/get_booking_life_cycle/<?php echo $booking_history[0]['booking_id'] ?>';
         $.ajax({

@@ -208,6 +208,7 @@
                                 <?php if (isset($service_center)) { ?>
                                 <td><?php echo $value['count_spare_part']; ?>
                                     <input type="hidden" name="<?php echo "defective_parts[".$value['id']."]";?>" value="<?php echo $value["count_spare_part"];?>" />
+                                    <input type="hidden" name="<?php echo "defective_parts_max_age[".$value['id']."]";?>" value="<?php echo $value["max_sp_age"];?>" />
                                 </td>
                                 
                                 <td ><input type="checkbox" class="form-control checkbox_amt <?php //if (isset($value['on_off'])) {

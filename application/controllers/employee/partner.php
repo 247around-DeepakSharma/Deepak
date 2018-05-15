@@ -210,6 +210,14 @@ class Partner extends CI_Controller {
             redirect(base_url() . "partner/login");
         }
     }
+    function checkEmployeeUserSession(){
+         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee') && !empty($this->session->userdata('id'))) {
+            return TRUE;
+        } else {
+            $this->session->sess_destroy();
+            redirect(base_url() . "employee/login");
+        }
+    }
 
     /**
      * @desc : This funtion for logout
@@ -296,7 +304,6 @@ class Partner extends CI_Controller {
             if ($authToken) {
                 $post = $this->get_booking_form_data();
                 $postData = json_encode($post, true);
-
                 $ch = curl_init(base_url() . 'partner/insertBookingByPartner');
                 curl_setopt_array($ch, array(
                     CURLOPT_POST => TRUE,
@@ -385,8 +392,7 @@ class Partner extends CI_Controller {
         $post['capacity'] = $this->input->post('appliance_capacity');
         $post['model'] = $this->input->post('model_number');
         $post['serial_number'] = $this->input->post('serial_number');
-        $post['purchase_month'] = $this->input->post('purchase_month');
-        $post['purchase_year'] = $this->input->post('purchase_year');
+        $post['purchase_date'] = $this->input->post('purchase_date');
         $post['partner_source'] = $this->input->post('partner_source');
         $post['remarks'] = $this->input->post('query_remarks');
         $post['orderID'] = $this->input->post('order_id');
@@ -423,8 +429,6 @@ class Partner extends CI_Controller {
         $this->form_validation->set_rules('landmark', 'LandMark', 'trim');
         $this->form_validation->set_rules('appliance_capacity', 'Appliance Capacity', 'trim|xss_clean');
         $this->form_validation->set_rules('alternate_phone_number', 'Alternate Number', 'trim|xss_clean');
-        $this->form_validation->set_rules('purchase_year', 'Purchase Year', 'trim|xss_clean');
-        $this->form_validation->set_rules('purchase_month', 'Purchase Month', 'trim|xss_clean');
         $this->form_validation->set_rules('model_number', 'Model Number', 'trim|xss_clean');
         $this->form_validation->set_rules('order_id', 'Order ID', 'trim|xss_clean');
         $this->form_validation->set_rules('serial_number', 'Serial Number', 'trim|xss_clean');
@@ -496,7 +500,7 @@ class Partner extends CI_Controller {
                 } else {
                     log_message('info', ' Error in Updating Parnter code has been added in Bookings_sources table ' . print_r($bookings_sources, TRUE));
                 }
-                $edit_partner_data['partner']['upcountry_max_distance_threshold'] = $edit_partner_data['partner']['upcountry_max_distance_threshold'] + 25;
+                $edit_partner_data['partner']['upcountry_max_distance_threshold'] = $edit_partner_data['partner']['upcountry_max_distance_threshold'];
                 $edit_partner_data['partner']['update_date'] = date("Y-m-d h:i:s");
                 $edit_partner_data['partner']['agent_id'] = $this->session->userdata('id');
                 $this->partner_model->edit_partner($edit_partner_data['partner'], $partner_id);
@@ -717,7 +721,7 @@ class Partner extends CI_Controller {
      * @return : array(of details) to view
      */
     function viewpartner($partner_id = "") {
-        $this->checkUserSession();
+        $this->checkEmployeeUserSession();
         $partner_not_like ='';
         $service_brands = array();
         $active = 1;
@@ -1054,6 +1058,7 @@ class Partner extends CI_Controller {
         $data['current_status'] = _247AROUND_CANCELLED;
         $data['internal_status'] = $data['cancellation_reason'] = $this->input->post('cancellation_reason');
         $data['closing_remarks'] = $this->input->post('remarks');
+        $historyRemarks = $this->input->post('cancellation_reason') ." <br> ".$this->input->post('remarks');
 
         //check partner status from partner_booking_status_mapping table  
         $partner_id = $this->input->post("partner_id");
@@ -1110,7 +1115,7 @@ class Partner extends CI_Controller {
 
             //Log this state change as well for this booking
             //param:-- booking id, new state, old state, remarks, agent_id, partner  name, partner id
-            $this->notify->insert_state_change($booking_id, $data['current_status'], $status, $data['cancellation_reason'], $this->session->userdata('agent_id'), 
+            $this->notify->insert_state_change($booking_id, $data['current_status'], $status, $historyRemarks, $this->session->userdata('agent_id'), 
                     $this->session->userdata('partner_name'), $actor,$next_action,$this->session->userdata('partner_id'));
 
             // this is used to send email or sms while booking cancelled
@@ -1479,8 +1484,7 @@ class Partner extends CI_Controller {
             $unit_details['appliance_capacity'] = $appliance_details['capacity'] = $post['capacity'];
             $unit_details['model_number'] = $appliance_details['model_number'] = $post['model'];
             $unit_details['partner_serial_number'] = $appliance_details['serial_number'] = $post['serial_number'];
-            $unit_details['purchase_month'] = $appliance_details['purchase_month'] = $post['purchase_month'];
-            $unit_details['purchase_year'] = $appliance_details['purchase_year'] = $post['purchase_year'];
+            $unit_details['purchase_date'] = $appliance_details['purchase_date'] = $post['purchase_date'];
             $unit_details['partner_id'] = $post['partner_id'];
             $unit_details['booking_id'] = $booking_details['booking_id'] = $booking_id;
             if ($post['product_type'] == "Delivered") {
@@ -1590,7 +1594,6 @@ class Partner extends CI_Controller {
             }
             if ($post['product_type'] == "Delivered") {
                 $tempStatus = _247AROUND_PENDING;
-                if ($this->OLD_BOOKING_STATE == _247AROUND_CANCELLED) {
                     $sc_data['current_status'] = _247AROUND_PENDING;
                     $sc_data['internal_status'] = _247AROUND_PENDING;
                     $booking_details['cancellation_reason'] = NULL;
@@ -1599,7 +1602,6 @@ class Partner extends CI_Controller {
                     $booking_details['internal_status'] = "Booking Opened From Cancelled";
 
                     $this->service_centers_model->update_service_centers_action_table($booking_id, $sc_data);
-                }
             } else {
                 // IN the Shipped Case
                 $price_array['is_upcountry'] = $booking_details['is_upcountry'];
