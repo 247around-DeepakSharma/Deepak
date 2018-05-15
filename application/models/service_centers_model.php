@@ -279,8 +279,13 @@ class Service_centers_model extends CI_Model {
      * @param Array $data
      * @return boolean
      */
-    function insert_data_into_spare_parts($data){
-        $this->db->insert('spare_parts_details', $data);
+    function insert_data_into_spare_parts($data,$is_insert_bacth = false){
+        
+        if($is_insert_bacth){
+            $this->db->insert_batch('spare_parts_details', $data);
+        }else{
+            $this->db->insert('spare_parts_details', $data);
+        } 
         log_message('info', __FUNCTION__ . '=> Insert Spare Parts: ' .$this->db->last_query());
         return $this->db->insert_id();  
     }
@@ -687,5 +692,30 @@ FROM booking_unit_details WHERE booking_id='".$booking_id."' GROUP BY request_ty
             $collateralData =  $query2->result_array();
         }
         return $collateralData;
+    }
+    
+    function create_new_entry_in_spare_table($data,$id){
+        $spare_details = $this->get_spare_parts_booking(array('spare_parts_details.id' => $id),'spare_parts_details.*');
+        if(!empty($spare_details)){
+            unset($spare_details[0]['id']);
+            $spare_details[0]['status'] = 'Shipped';
+            $spare_details[0]['model_number_shipped'] = $data['model_number_shipped'];
+            $spare_details[0]['parts_shipped'] = $data['parts_shipped'];
+            $spare_details[0]['shipped_parts_type'] = $data['shipped_parts_type'];
+            $spare_details[0]['shipped_date'] = $data['shipped_date'];
+            $spare_details[0]['courier_name_by_partner'] = $data['courier_name_by_partner'];
+            $spare_details[0]['awb_by_partner'] = $data['awb_by_partner'];
+            $spare_details[0]['remarks_by_partner'] = $data['remarks_by_partner'];
+            $spare_details[0]['challan_approx_value'] = $data['challan_approx_value'];
+            $spare_details[0]['partner_challan_number'] = isset($data['partner_challan_number'])?$data['partner_challan_number']:NULL;
+            $spare_details[0]['partner_challan_file'] = isset($data['partner_challan_file'])?$data['partner_challan_file']:NULL;
+            $spare_details[0]['incoming_invoice_pdf'] = isset($data['incoming_invoice_pdf'])?$data['incoming_invoice_pdf']:NULL;
+            $spare_details[0]['shipped_inventory_id'] = isset($data['shipped_inventory_id'])?$data['shipped_inventory_id']:NULL;
+            $insert_id = $this->insert_data_into_spare_parts($spare_details[0]);
+        }else{
+            $insert_id =  false;
+        }
+        
+        return $insert_id;
     }
 }

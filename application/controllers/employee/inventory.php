@@ -24,7 +24,7 @@ class Inventory extends CI_Controller {
         $this->load->library('S3');
         $this->load->library("pagination");
         $this->load->library("miscelleneous");
-	
+	$this->load->library('booking_utilities');
 
     }
 
@@ -1079,7 +1079,7 @@ class Inventory extends CI_Controller {
         $this->load->view('employee/sparepart_on_tab' , $data);
     }
     /**
-     * @desc this used to cancelled Spare Part 
+     * @desc this used to cancel Spare Part 
      * @param int $id
      * @param String $booking_id
      */
@@ -1201,7 +1201,10 @@ class Inventory extends CI_Controller {
                     break;
             }
             if($flag){
-                $this->service_centers_model->update_spare_parts($where, $data);
+                $response = $this->service_centers_model->update_spare_parts($where, $data);
+                if($response && in_array($requestType,array('CANCEL_COMPLETED_BOOKING_PARTS','CANCEL_PARTS'))){
+                   $this->update_inventory_on_cancel_parts($id,$booking_id);
+                }
             }
             
             if($this->session->userdata('employee_id')){
@@ -2410,9 +2413,9 @@ class Inventory extends CI_Controller {
         $inventory_details = $this->inventory_model->get_inventory_master_list($post, 'inventory_master_list.part_name', true);
         
         if($this->input->post('is_option_selected')){
-            $option = '';
-        }else{
             $option = '<option selected disabled>Select Part Name</option>';
+        }else{
+            $option = '';
         }
         
 
@@ -2433,17 +2436,13 @@ class Inventory extends CI_Controller {
     function get_inventory_price(){
         
         $model_number = $this->input->post('model_number');
-        $part_name_arr = $this->input->post('part_name');
+        $part_name = $this->input->post('part_name');
         $entity_id = $this->input->post('entity_id');
         $entity_type = $this->input->post('entity_type');
         $service_id = $this->input->post('service_id');
         
-        $part_name = implode(',', array_map(function($val) {
-                                return("'$val'");
-                            }, $part_name_arr));
-        
         if($model_number && $part_name && $entity_id && $entity_type && $service_id){
-            $where= array('entity_id' => $entity_id, 'entity_type' => $entity_type, 'service_id' => $service_id, 'model_number' => $model_number,"part_name IN ($part_name)" => NULL);
+            $where= array('entity_id' => $entity_id, 'entity_type' => $entity_type, 'service_id' => $service_id, 'model_number' => $model_number,"part_name" => $part_name);
             $inventory_details = $this->inventory_model->get_inventory_master_list_data('SUM(inventory_master_list.price) as price', $where);
 
             if(!empty($inventory_details)){
@@ -2539,6 +2538,44 @@ class Inventory extends CI_Controller {
             echo json_encode(array('code' => "error", "message" => "File size or file type is not supported"));
         }
 
+    }
+    
+    
+    /**
+     * @desc: This function is used to update the inventory on cancel spare parts and change status to cancelled in booking unit details
+     * @param: $spare_id integer
+     * @param: $booking_id integer
+     * @return: $response boolean
+     */
+    function update_inventory_on_cancel_parts($spare_id, $booking_id){
+        log_message("info", __METHOD__);
+        $spare_details = $this->service_centers_model->get_spare_parts_booking(array('spare_parts_details.id' => $spare_id),'spare_parts_details.booking_unit_details_id,spare_parts_details.shipped_inventory_id,spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.requested_inventory_id');
+        
+        //update status in booking unit details to cancel
+        if(!empty($spare_details) && !empty($spare_details[0]['booking_unit_details_id'])){
+            $update_unit_details = $this->booking_model->update_booking_unit_details_by_any(array('id' => $spare_details[0]['booking_unit_details_id']),array('booking_status' => 'Cancelled','ud_closed_date'=> date("Y-m-d H:i:s")));
+            if($update_unit_details){
+                log_message("info","Unit Details Updated Successfully");
+            }else{
+                log_message("info","Error in updating unit details");
+            }
+        }
+        
+        //if stock consumend them increase the inventory stock
+        if (!empty($spare_details) && !empty($spare_details[0]['shipped_inventory_id']) && !empty($spare_details[0]['requested_inventory_id'])) {
+            $data['receiver_entity_id'] = $spare_details[0]['partner_id'];
+            $data['receiver_entity_type'] = $spare_details[0]['entity_type'];
+            $data['stock'] = -1;
+            $data['booking_id'] = $booking_id;
+            $data['agent_id'] = $this->session->userdata('id');
+            $data['agent_type'] = _247AROUND_EMPLOYEE_STRING;
+            $data['is_wh'] = TRUE;
+            $data['inventory_id'] = $spare_details[0]['shipped_inventory_id'];
+            $this->miscelleneous->process_inventory_stocks($data);
+        }
+        
+        //create job card
+        $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
     }
 
 }

@@ -174,7 +174,7 @@
                                     } ?>">
                                <label for="shipped_parts_name" class="col-md-4">Shipped Parts*</label>
                                 <div class="col-md-6">
-                                    <select class="form-control spare_parts" id="shipped_parts_name" name="shipped_parts_name[]" multiple="">
+                                    <select class="form-control spare_parts" id="shipped_parts_name" name="shipped_parts_name">
 <!--                                        <option selected disabled >Select Parts Name</option>-->
                                     </select>
                                     <span id="spinner" style="display:none"></span>
@@ -299,6 +299,8 @@
                 <div class="x_panel">
                     <div class="x_content">
                         <div class="text-center">
+<!--                            <input type="hidden" id="spare_service_id" name="spare_service_id" value="<?php echo $spare_parts[0]->service_id; ?>">
+                            <input type="hidden" id="requested_parts_name" name= "requested_parts_name" value="<?php echo $spare_parts[0]->parts_requested; ?>">-->
                             <input type="hidden" id="estimate_cost_given_date" name= "estimate_cost_given_date_h" value="<?php echo $spare_parts[0]->estimate_cost_given_date; ?>">
                             <input type="hidden" name="approx_value" id="approx_value" value="">
                             <input type="hidden" name="partner_id" id="partner_id" value="<?php echo $spare_parts[0]->partner_id ;?>">
@@ -408,6 +410,8 @@
                     $('#shipped_part_type').val('val', "");
                     $('#shipped_part_type').val('Select Part Type').change();
                     $('#shipped_part_type').select2().html(data);
+                    $('#shipped_parts_name').val('val', "");
+                    $('#shipped_parts_name').val('Select Part Type').change();
                     $('#spinner').removeClass('fa fa-spinner').hide();
                 }
             });
@@ -427,7 +431,10 @@
                 url:'<?php echo base_url(); ?>employee/inventory/get_parts_name',
                 data: { model_number:model_number, entity_id: '<?php echo $spare_parts[0]->partner_id ;?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo $spare_parts[0]->service_id; ?>',part_type:part_type,is_option_selected:true },
                 success:function(data){
+                    $('#shipped_parts_name').val('val', "");
+                    $('#shipped_parts_name').val('Select Part Name').change();
                     $('#shipped_parts_name').html(data);
+                    //$('#shipped_parts_name').html(data);
                     $('#spinner').removeClass('fa fa-spinner').hide();
                 }
             });
@@ -447,6 +454,7 @@
                 url:'<?php echo base_url(); ?>employee/inventory/get_inventory_price',
                 data: { model_number:model_number, entity_id: '<?php echo $spare_parts[0]->partner_id ;?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo $spare_parts[0]->service_id; ?>' , 'part_name' : part_name },
                 success:function(data){
+                    console.log(data);
                     var obj = JSON.parse(data);
                     if(obj.price){
                         $('#approx_value').val(obj.price);

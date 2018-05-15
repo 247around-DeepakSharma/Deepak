@@ -4896,3 +4896,6 @@ ALTER TABLE `appliance_details` ADD `sf_serial_number` VARCHAR(128) NULL AFTER `
 --Abhay 15 April
 ALTER TABLE `spare_parts_details` ADD `defective_back_parts_pic` VARCHAR(128) NULL DEFAULT NULL AFTER `defective_parts_pic`;
 ALTER TABLE `sample_appliances` ADD `purchase_date` DATE NULL DEFAULT NULL AFTER `purchase_year`;
+--sachin 10 may
+
+ALTER TABLE `spare_parts_details` ADD `requested_inventory_id` INT(11) NULL DEFAULT NULL AFTER `challan_approx_value`, ADD `shipped_inventory_id` INT(11) NULL DEFAULT NULL AFTER `requested_inventory_id`;

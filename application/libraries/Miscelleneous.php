@@ -1814,7 +1814,12 @@ class Miscelleneous {
             array(
                 'id' => 'excel_data',
                 'repeat' => $repeat,
-                'data' => $data,
+                'data' => $data['meta'],
+            ),
+            array(
+                'id' => 'excel_data_line_item',
+                'repeat' => $repeat,
+                'data' => $data['excel_data_line_item'],
             )
                 )
         );
