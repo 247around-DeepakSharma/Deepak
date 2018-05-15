@@ -2779,6 +2779,8 @@ class Booking extends CI_Controller {
         $data['sf'] = $this->vendor_model->getVendorDetails('id,name',array('active' => '1'));
         $data['services'] = $this->booking_model->selectservice();
         $data['cities'] = $this->booking_model->get_advance_search_result_data("booking_details","DISTINCT(city)",NULL,NULL,NULL,array('city'=>'ASC'));
+        $data['internalStatus'] = $this->booking_model->get_advance_search_result_data("partner_booking_status_mapping","DISTINCT(partner_internal_status)",
+                array('247around_current_status'=>'Pending'),NULL,NULL,array('partner_internal_status'=>'ASC'));
        $this->miscelleneous->load_nav_header();
         if(strtolower($data['booking_status']) == 'pending'){
             $this->load->view('employee/view_pending_bookings', $data);
@@ -2793,7 +2795,7 @@ class Booking extends CI_Controller {
      *  @param : $status string
      *  @return : $output JSON
      */
-    public function get_bookings_by_status($status){
+    public function get_bookings_by_status($status){ 
 //        echo "<pre>";
 //        print_r($this->input->post());
 //        exit();
@@ -2876,6 +2878,7 @@ class Booking extends CI_Controller {
         $appliance = $this->input->post('appliance');
         $booking_date = $this->input->post('booking_date');
         $city = $this->input->post('city');
+        $internal_status = $this->input->post('internal_status');
         
         if($type == 'booking'){
             if($booking_status == _247AROUND_COMPLETED || $booking_status == _247AROUND_CANCELLED){
@@ -2890,8 +2893,9 @@ class Booking extends CI_Controller {
             $post['where']['current_status'] = $booking_status;
             $post['order_by'] = "CASE WHEN booking_details.internal_status = 'Missed_call_confirmed' THEN 'a' WHEN  booking_details.booking_date = '' THEN 'b' WHEN  booking_details.booking_date = '' THEN 'b' ELSE 'c' END , booking_day";
         }
-        
-        
+        if(!empty($internal_status)){
+            $post['where_in']['booking_details.partner_internal_status'] =  explode(",",$internal_status);
+        }
         if(!empty($booking_id)){
             $post['where']['booking_details.booking_id'] =  $booking_id;
         }
@@ -2925,7 +2929,9 @@ class Booking extends CI_Controller {
         }
         
         if(!empty($booking_date)){
-            $post['where']['booking_details.booking_date = '] =  trim($booking_date);
+            $bookingDateArray = explode(" - ", $booking_date);
+            $post['where']['STR_TO_DATE(booking_details.booking_date, "%d-%m-%Y") >= '] =  date("Y-m-d", strtotime(trim($bookingDateArray[0])));
+            $post['where']['STR_TO_DATE(booking_details.booking_date, "%d-%m-%Y") < '] = date("Y-m-d", strtotime(trim($bookingDateArray[1])));
         }
         
         if(!empty($city)){
