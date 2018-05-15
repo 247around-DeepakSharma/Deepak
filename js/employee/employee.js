@@ -34,9 +34,6 @@ var ad_table;
         
         $('input[name="booking_date"]').on('apply.daterangepicker', function (ev, picker) {
             $(this).val(picker.startDate.format('YYYY/MM/DD') + ' - ' + picker.endDate.format('YYYY/MM/DD'));    
-            ad_table.ajax.reload( function ( json ) {
-                   //create_dropdown();
-            });
         });
         
         $('input[name="booking_date"]').on('cancel.daterangepicker', function (ev, picker) {
@@ -51,9 +48,6 @@ var ad_table;
         
         $('input[name="close_date"]').on('apply.daterangepicker', function(ev, picker) {
             $(this).val(picker.startDate.format('YYYY/MM/DD') + ' - ' + picker.endDate.format('YYYY/MM/DD'));
-            ad_table.ajax.reload( function ( json ) {
-               //create_dropdown();
-            });
         });
 
         $('input[name="close_date"]').on('cancel.daterangepicker', function(ev, picker) {
