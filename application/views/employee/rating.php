@@ -3,7 +3,9 @@
     <!--<div class="row">-->
       <!--<div style="width:600px;margin:50px;">-->
          
-      <h1 class="page-header" style="padding-left: 42px;">Rating Given by Customer</h1>
+      <h1 class="page-header" style="padding-left: 42px;">Rating Given by Customer <?php if($data[0]['rating_unreachable_count']>0){ ?><span style="color: red;font-size: 20px;" class="pull-right">
+      Unreachable Count : <?php echo $data[0]['rating_unreachable_count']; ?></span> <?php } ?></h1>
+      <div class="clear"></div>
         <div class="col-md-12"> 
                 <div class="col-md-6">
                   <div class="form-group-cancel">
