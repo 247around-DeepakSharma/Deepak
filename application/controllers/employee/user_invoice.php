@@ -169,10 +169,10 @@ class User_invoice extends CI_Controller {
                         'status' => false,
                         'message' => 'Excel is not created'
                     ));
-                    log_message("info" . __METHOD__ . " Excel Not Created Booking ID" . $booking_id);
+                    log_message("info" , __METHOD__ . " Excel Not Created Booking ID" . $booking_id);
                 }
             } else {
-                log_message("info" . __METHOD__ . " User Invoice is Not Null" . $booking_id);
+                log_message("info", __METHOD__ . " User Invoice is Not Null" . $booking_id);
                 echo json_encode(array(
                     'status' => false,
                     'message' => 'User Invoice Already Generated'
@@ -183,7 +183,7 @@ class User_invoice extends CI_Controller {
                 'status' => false,
                 'message' => 'Booking Not Found'
             ));
-            log_message("info" . __METHOD__ . " Data Not Found Booking ID" . $booking_id);
+            log_message("info", __METHOD__ . " Data Not Found Booking ID" . $booking_id);
         }
     }
 

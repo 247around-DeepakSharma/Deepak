@@ -175,6 +175,25 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
+                                        <label for="defective_parts_pic" class="col-md-4">Defective Front Part Pic *</label>
+                                        <div class="col-md-6">
+                                            <input type="file" class="form-control spare_parts" id="defective_parts_pic" name="defective_parts_pic" >
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="defective_parts_pic" class="col-md-4">Defective Back Part Pic *</label>
+                                        <div class="col-md-6">
+                                            <input type="file" class="form-control spare_parts" id="defective_back_parts_pic" name="defective_back_parts_pic" >
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
                                         <label for="serial_number_pic" class="col-md-4">Serial Number Picture *</label>
                                         <div class="col-md-6">
                                             <input type="file" class="form-control spare_parts" id="serial_number_pic" name="serial_number_pic">
@@ -183,26 +202,19 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="defective_parts_pic" class="col-md-4">Defective Part Picture *</label>
-                                        <div class="col-md-6">
-                                            <input type="file" class="form-control spare_parts" id="defective_parts_pic" name="defective_parts_pic" >
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
                                         <label for="invoice_pic" class="col-md-4">Invoice Picture</label>
                                         <div class="col-md-6">
                                             <input type="file" class="form-control spare_parts" id="invoice_pic" name="invoice_image">
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
                                     <div class="form-group">
-                                        <label for="prob_desc" class="col-md-4">Problem Description* </label>
-                                        <div class="col-md-6">
+                                        <label for="prob_desc" class="col-md-3">Problem Description* </label>
+                                        <div class="col-md-9" style="margin-left: 8px;">
                                             <textarea class="form-control spare_parts"  id="prob_desc" name="reason_text" rows="5" placeholder="Problem Description" ></textarea>
                                         </div>
                                     </div>
@@ -383,6 +395,7 @@
               var parts_type = $('#parts_type').val();
               var serial_number_pic = $('#serial_number_pic').val();
               var defective_parts_pic = $('#defective_parts_pic').val();
+              var defective_back_parts_pic = $('#defective_back_parts_pic').val();
               
               if(model_number ==="" || model_number === null){
                   alert("Please enter model number");
@@ -416,14 +429,22 @@
                   return false;
               }
               
-              if(serial_number_pic.length === 0){
-                  alert("Please Upload Serial Number Image");
+              
+              
+              if(defective_parts_pic.length === 0){
+                  alert("Please Upload Back Front Defective Front Parts Image");
                   checkbox_value = 0; 
                   return false;
               }
               
-              if(defective_parts_pic.length === 0){
-                  alert("Please Upload Defective Parts Image");
+               if(defective_back_parts_pic.length === 0){
+                  alert("Please Upload Back Defective Back Parts Image");
+                  checkbox_value = 0; 
+                  return false;
+              }
+              
+              if(serial_number_pic.length === 0){
+                  alert("Please Upload Serial Number Image");
                   checkbox_value = 0; 
                   return false;
               }
