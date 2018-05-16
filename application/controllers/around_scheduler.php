@@ -23,6 +23,8 @@ class Around_scheduler extends CI_Controller {
         $this->load->model('reusable_model');
         $this->load->model('dashboard_model');
         $this->load->model('paytm_payment_model');
+        $this->load->library('partner_cb');
+        $this->load->library('partner_sd_cb');
         $this->load->model('bb_model');
         $this->load->model('cp_model');
         $this->load->model('reporting_utils');
@@ -1566,5 +1568,13 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
             }
         }
         log_message('info', __FUNCTION__ . " Function End  ");
+    }
+    
+    /**
+     * @desc This is used to trigger partner callback manually
+     * @param String $booking_id
+     */
+    function triggerPartnerCallBack($booking_id){
+         $this->partner_cb->partner_callback($booking_id);
     }
 }
