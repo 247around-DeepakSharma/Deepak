@@ -261,6 +261,7 @@ class Service_centers extends CI_Controller {
                 $serial_number_pic = $this->input->post("serial_number_pic");
                 $broken = $this->input->post("appliance_broken");
                 $mismatch_pincode = $this->input->post("mismatch_pincode");
+                $appliance_id = $this->input->post("appliance_id");
                 $is_update_spare_parts = FALSE;
                 $sp_required_id = json_decode($this->input->post("sp_required_id"), true);
 
@@ -311,8 +312,12 @@ class Service_centers extends CI_Controller {
                         $data['upcountry_charges'] = $upcountry_charges;
                     }
                     if (isset($serial_number[$unit_id])) {
-                        $data['serial_number'] = trim($serial_number[$unit_id]);
-                        $data['serial_number_pic'] = trim($serial_number_pic[$unit_id]);
+                        $data['serial_number'] = $applianceData['sf_serial_number'] =  trim($serial_number[$unit_id]);
+                        $data['serial_number_pic']  = trim($serial_number_pic[$unit_id]);
+                    }
+                    if (isset($appliance_id[$unit_id])) {
+                        $applianceID = trim($appliance_id[$unit_id]);
+                        $this->booking_model->update_appliances($applianceID, $applianceData);
                     }
 
                     if (!empty($getremarks[0]['service_center_remarks'])) {
