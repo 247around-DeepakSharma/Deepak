@@ -340,7 +340,7 @@ class partner_sd_cb {
                 if (!empty($unit)) {
                     foreach ($unit as $unit_details) {
                         if (!empty($unit_details['serial_number'])) {
-                            $serial_number = $unit[0]['serial_number'];
+                            $serial_number = $unit_details['serial_number'];
                         }
                     }
                 }
