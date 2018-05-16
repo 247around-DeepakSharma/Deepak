@@ -1120,9 +1120,9 @@ class Service_centers extends CI_Controller {
         $this->form_validation->set_rules('serial_number', 'Serial Number', 'trim|required|xss_clean');
 
         $this->form_validation->set_rules('invoice_image', 'Invoice Image', 'callback_validate_invoice_image_upload_file');
-        $this->form_validation->set_rules('serial_number_pic', 'Serial Number Pic', 'callback_validate_serial_number_pic_upload_file');
+        $this->form_validation->set_rules('serial_number_pic', 'Invoice Image', 'callback_validate_serial_number_pic_upload_file');
         $this->form_validation->set_rules('defective_parts_pic', 'Defective Parts Pic', 'callback_validate_defective_parts_pic');
-
+        $this->form_validation->set_rules('defective_back_parts_pic', 'Defective Parts Pic', 'callback_validate_defective_parts_back_pic');
 
         if ($this->form_validation->run()) {
             $booking_id = $this->input->post('booking_id');
@@ -1139,9 +1139,13 @@ class Service_centers extends CI_Controller {
                 $data['defective_parts_pic'] = $this->input->post('defective_parts');
             }
             
+            if ($this->input->post('defective_back_parts_pic')) {
+                $data['defective_back_parts_pic'] = $this->input->post('defective_back_parts_pic');
+            }
+            
             $data['model_number'] = $this->input->post('model_number');
             $data['serial_number'] = $this->input->post('serial_number');
-            //$data['parts_requested'] = $this->input->post('parts_name');
+            $data['parts_requested'] = $this->input->post('parts_name');
             $data['parts_requested_type'] = $this->input->post('parts_type');
             $data['date_of_purchase'] = $this->input->post('dop');
             
@@ -3966,25 +3970,18 @@ class Service_centers extends CI_Controller {
     function validate_invoice_image_upload_file() {
         if (!empty($_FILES['invoice_image']['tmp_name'])) {
             $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
-            $MB = 1048576;
-            $temp = explode(".", $_FILES['invoice_image']['name']);
-            $extension = end($temp);
-            if (($_FILES['invoice_image']["size"] < 2 * $MB) && in_array($extension, $allowedExts)) {
+            $booking_id = $this->input->post("booking_id");
+            $defective_courier_receipt = $this->miscelleneous->upload_file_to_s3($_FILES["invoice_image"], 
+                    "invoice_pic", $allowedExts, $booking_id, "misc-images", "invoice_pic");
+            if($defective_courier_receipt){
                 
-                $booking_id = $this->input->post('booking_id');
-                $picName = 'Invoice_' . rand(10, 100) . $booking_id . "." . $extension;
-                $_POST['invoice_pic'] = $picName;
-                $bucket = BITBUCKET_DIRECTORY;
-
-                $directory = 'misc-images' . "/" . $picName;
-                $this->s3->putObjectFile($_FILES['invoice_image']['tmp_name'], $bucket, $directory, S3::ACL_PUBLIC_READ);
-
-                return TRUE;
+               return true;
             } else {
-                $this->form_validation->set_message('validate_invoice_image_upload_file', 'File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
-                        . 'Maximum file size is 2 MB. Please Upload Valid Serial Number Image');
-                return FALSE;
+                $this->form_validation->set_message('validate_invoice_image_upload_file', 'Invoice Image, File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
+                        . 'Maximum file size is 5 MB.');
+                return false;
             }
+           
         } else {
             return TRUE;
         }
@@ -3998,25 +3995,18 @@ class Service_centers extends CI_Controller {
     function validate_serial_number_pic_upload_file() {
         if (!empty($_FILES['serial_number_pic']['tmp_name'])) {
             $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
-            $MB = 1048576;
-            $temp = explode(".", $_FILES['serial_number_pic']['name']);
-            $extension = end($temp);
-            if (($_FILES['serial_number_pic']["size"] < 2 * $MB) && in_array($extension, $allowedExts)) {
+            $booking_id = $this->input->post("booking_id");
+            $defective_courier_receipt = $this->miscelleneous->upload_file_to_s3($_FILES["serial_number_pic"], 
+                    "serial_number_pic", $allowedExts, $booking_id, "misc-images", "serial_number_pic");
+            if($defective_courier_receipt){
                 
-                $booking_id = $this->input->post('booking_id');
-                $picName = 'serial_no_' . rand(10, 100) . $booking_id . "." . $extension;
-                $_POST['serial_number_pic'] = $picName;
-                $bucket = BITBUCKET_DIRECTORY;
-
-                $directory = 'misc-images' . "/" . $picName;
-                $this->s3->putObjectFile($_FILES['serial_number_pic']['tmp_name'], $bucket, $directory, S3::ACL_PUBLIC_READ);
-
-                return TRUE;
+               return true;
             } else {
-                $this->form_validation->set_message('validate_serial_number_pic_upload_file', 'File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
-                        . 'Maximum file size is 2 MB.');
-                return FALSE;
+                $this->form_validation->set_message('validate_serial_number_pic_upload_file', 'Serial Number, File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
+                        . 'Maximum file size is 5 MB.');
+                return false;
             }
+            
         } else {
             $this->form_validation->set_message('validate_serial_number_pic_upload_file', 'Please Upload Serial Number Image');
                 return FALSE;
@@ -4030,28 +4020,46 @@ class Service_centers extends CI_Controller {
      */
     function validate_defective_parts_pic() {
         if (!empty($_FILES['defective_parts_pic']['tmp_name'])) {
+            
             $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
-            $MB = 1048576;
-            $temp = explode(".", $_FILES['defective_parts_pic']['name']);
-            $extension = end($temp);
-            if (($_FILES['defective_parts_pic']["size"] < 2 * $MB) && in_array($extension, $allowedExts)) {
+            $booking_id = $this->input->post("booking_id");
+            $defective_courier_receipt = $this->miscelleneous->upload_file_to_s3($_FILES["defective_parts_pic"], 
+                    "defective_parts", $allowedExts, $booking_id, "misc-images", "defective_parts");
+            if($defective_courier_receipt){
                 
-                $booking_id = $this->input->post('booking_id');
-                $picName = 'defective_Parts_' . rand(10, 100) . $booking_id . "." . $extension;
-                $_POST['defective_parts'] = $picName;
-                $bucket = BITBUCKET_DIRECTORY;
-
-                $directory = 'misc-images' . "/" . $picName;
-                $this->s3->putObjectFile($_FILES['defective_parts_pic']['tmp_name'], $bucket, $directory, S3::ACL_PUBLIC_READ);
-
-                return TRUE;
+               return true;
             } else {
-                $this->form_validation->set_message('validate_defective_parts_pic', 'File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
-                        . 'Maximum file size is 2 MB. Please Upload Valid Defective Parts Image');
-                return FALSE;
+                $this->form_validation->set_message('validate_defective_parts_pic', 'Defective Front Parts, File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
+                        . 'Maximum file size is 5 MB.');
+                return false;
             }
         } else {
-            $this->form_validation->set_message('validate_defective_parts_pic', 'Please Upload Defective Parts Image');
+            $this->form_validation->set_message('validate_defective_parts_pic', 'Please Upload Defective Front Parts Image');
+                return FALSE;
+        }
+    }
+    
+    /**
+     * @desc This function is used to validate and upload defective back part image.
+     * @return boolean
+     */
+    function validate_defective_parts_back_pic() {
+        if (!empty($_FILES['defective_back_parts_pic']['tmp_name'])) {
+            
+            $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
+            $booking_id = $this->input->post("booking_id");
+            $defective_courier_receipt = $this->miscelleneous->upload_file_to_s3($_FILES["defective_back_parts_pic"], 
+                    "defective_back_parts_pic", $allowedExts, $booking_id, "misc-images", "defective_back_parts_pic");
+            if($defective_courier_receipt){
+                
+                return true;
+            } else {
+                $this->form_validation->set_message('validate_defective_parts_back_pic', 'Defective Back Parts, File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
+                        . 'Maximum file size is 5 MB.');
+                return false;
+            }
+        } else {
+            $this->form_validation->set_message('validate_defective_parts_back_pic', 'Please Upload Defective Back Parts Image');
                 return FALSE;
         }
     }
