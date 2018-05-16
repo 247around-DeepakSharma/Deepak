@@ -264,9 +264,9 @@
         </div>
         <div class="tab-pane fade in" id="tab3">
             <?php if (isset($booking_history['spare_parts'])) { $estimate_given = false; $parts_shipped = false; $defective_parts_shipped = FALSE; ?>
-            <div class="col-md-12">
+          
                 <h1 style='font-size:24px;'>Spare Parts Requested By SF</h1>
-                <div class="col-md-12" style="padding-left:1px;">
+                
                     <table class="table  table-striped table-bordered" >
                         <thead>
                             <tr>
@@ -275,7 +275,8 @@
                                 <th >Requested Date</th>
                                 <th >Invoice Image </th>
                                 <th >Serial Number Image </th>
-                                <th >Defective Part Image </th>
+                                <th >Defective Front Part Image </th>
+                                <th >Defective Back Part Image </th>
                                 <th >Serial Number </th>
                                 <th >Acknowledge Date BY SF </th>
                                 <th >Remarks By SC </th>
@@ -289,15 +290,19 @@
                                 <td><?php echo $sp['parts_requested']; ?></td>
                                 <td><?php echo $sp['create_date']; ?></td>
                                 <td><?php if (!is_null($sp['invoice_pic'])) {
-                                    if ($sp['invoice_pic'] != '0') { ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['invoice_pic']; ?> " target="_blank">Click Here to view Invoice Image</a><?php }
+                                    if ($sp['invoice_pic'] != '0') { ?> <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $sp['invoice_pic']; ?> " target="_blank">Click Here</a><?php }
                                     } ?>
                                 </td>
                                 <td><?php if (!is_null($sp['serial_number_pic'])) {
-                                    if ($sp['serial_number_pic'] !== '0') { ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['serial_number_pic']; ?> " target="_blank">Click Here to view Serial Number Image</a><?php }
+                                    if ($sp['serial_number_pic'] !== '0') { ?> <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $sp['serial_number_pic']; ?> " target="_blank">Click Here</a><?php }
                                     } ?>
                                 </td>
                                 <td><?php if (!is_null($sp['defective_parts_pic'])) {
-                                    if ($sp['defective_parts_pic'] !== '0') { ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['defective_parts_pic']; ?> " target="_blank">Click Here to view Defective Part Image</a><?php }
+                                    if ($sp['defective_parts_pic'] !== '0') { ?> <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $sp['defective_parts_pic']; ?> " target="_blank">Click Here</a><?php }
+                                    } ?>
+                                </td>
+                                <td><?php if (!is_null($sp['defective_back_parts_pic'])) {
+                                    if ($sp['defective_back_parts_pic'] !== '0') { ?> <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $sp['defective_back_parts_pic']; ?> " target="_blank">Click Here</a><?php }
                                     } ?>
                                 </td>
                                 <td><?php echo $sp['serial_number']; ?></td>
@@ -310,11 +315,10 @@
                                 } if($sp['purchase_price'] > 0){ $estimate_given = TRUE; }  } ?>
                         </tbody>
                     </table>
-                </div>
-            </div>
+                
             <?php 
                 if($estimate_given){ ?>
-                         <div class="col-md-12">
+                        
 
                         <h1 style='font-size:24px;'>Estimate Given</h1>
                         <div class="col-md-12" style="padding-left:1px;">
@@ -339,14 +343,14 @@
                                 </tbody>
                             </table>
                         </div>
-                    </div> 
+                   
                    <?php  }
                     
                     ?>
             <?php if ($parts_shipped) { ?>
-            <div class="col-md-12">
+          
                 <h1 style='font-size:24px;'>Spare Parts Shipped</h1>
-                <div class="col-md-12" style="padding-left:1px;">
+               
                     <table class="table  table-striped table-bordered" >
                         <thead>
                             <tr>
@@ -359,7 +363,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($booking_history['spare_parts'] as $sp) { ?>
+                            <?php foreach ($booking_history['spare_parts'] as $sp) { if(!empty($sp['parts_shipped'])) { ?>
                             <tr>
                                 <td><?php echo $sp['parts_shipped']; ?></td>
                                 <td><?php echo $sp['courier_name_by_partner']; ?></td>
@@ -368,11 +372,11 @@
                                 <td><?php echo $sp['edd']; ?></td>
                                 <td><?php echo $sp['remarks_by_partner']; ?></td>
                             </tr>
-                            <?php } ?>
+                            <?php }  } ?>
                         </tbody>
                     </table>
-                </div>
-            </div>
+                
+          
             <?php } if ($defective_parts_shipped) { ?>
             <div class="col-md-12">
                 <h1 style='font-size:24px;'>Defective Spare Parts Shipped By SF</h1>
@@ -401,7 +405,7 @@
                                 <td><?php echo date('Y-m-d', strtotime($sp['defective_part_shipped_date'])); ?></td>
                                 <td><?php echo $sp['remarks_defective_part_by_sf']; ?></td>
                                 <td><?php echo $sp['remarks_defective_part_by_partner']; ?></td>
-                                <td><a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['defective_courier_receipt']; ?> " target="_blank">Click Here to view</a></td>
+                                <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $sp['defective_courier_receipt']; ?> " target="_blank">Click Here to view</a></td>
                                 <td>
                                     <?php if(!empty($sp['sf_challan_file'])) { ?>
                                         <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY?>/vendor-partner-docs/<?php echo $sp['sf_challan_file']; ?>" target="_blank">Click Here to view</a>

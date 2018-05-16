@@ -4891,3 +4891,7 @@ ALTER TABLE `reports_log`
 
 ALTER TABLE `booking_unit_details` ADD `purchase_date` DATE NULL AFTER `purchase_year`;
 ALTER TABLE `appliance_details` ADD `purchase_date` DATE NOT NULL AFTER `purchase_year`;
+
+
+--Abhay 15 April
+ALTER TABLE `spare_parts_details` ADD `defective_back_parts_pic` VARCHAR(128) NULL DEFAULT NULL AFTER `defective_parts_pic`;
