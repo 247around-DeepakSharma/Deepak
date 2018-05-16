@@ -174,7 +174,7 @@
                                 <label for="shipped_parts_name" class="col-md-4">Shipped Parts Name *</label>
                                 <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                     <div class="col-md-6">
-                                        <select class="form-control spare_parts" id="shipped_parts_name" name="shipped_parts_name"  multiple="">
+                                        <select class="form-control spare_parts" id="shipped_parts_name" name="shipped_parts_name">
                                         </select>
                                         <span id="spinner" style="display:none"></span>
                                     </div>

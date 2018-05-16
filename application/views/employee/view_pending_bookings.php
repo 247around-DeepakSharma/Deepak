@@ -140,7 +140,7 @@
         ?> 
         <div class="table_filter">
             <div class="row">
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <select class="form-control filter_table" id="partner_id">
@@ -152,7 +152,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <select class="form-control filter_table" id="sf_id">
@@ -164,7 +164,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <select class="form-control filter_table" id="appliance">
@@ -176,7 +176,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                </div>
+            <div class="row" style="margin-top: 12px;">
+                <div class="col-md-4">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <select class="form-control filter_table" id="city">
@@ -188,10 +190,21 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
-                            <input type="text" class="form-control filter_table" id="booking_date" placeholder="Booking Date">
+                            <select class="form-control filter_table" id="internal_status" multiple="" name="internal_status[]">
+                                <?php foreach($internalStatus as $val){ ?>
+                                <option value="<?php echo $val['partner_internal_status']?>"><?php echo $val['partner_internal_status']?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="item form-group">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                               <input  type="text" placeholder="Booking Date Range" class="form-control" id="booking_date" value="" name="booking_date"/>
                         </div>
                     </div>
                 </div>
@@ -294,6 +307,10 @@
         placeholder: "Select City",
         allowClear: true
     });
+      $('#internal_status').select2({
+        placeholder: "Select Partner Internal Status",
+        allowClear: true
+    });
     $(document).ready(function(){
         
         datatable1 = $('#datatable1').DataTable({
@@ -304,7 +321,8 @@
                                     <div class='rect2' style='background-color:#4885ed'></div>\n\
                                     <div class='rect3' style='background-color:#f4c20d'></div>\n\
                                     <div class='rect4' style='background-color:#3cba54'></div>\n\
-                                </div>"
+                                </div>",
+                "search": "Booking ID"
             },
             "serverSide": true, 
             "order": [], 
@@ -320,6 +338,7 @@
                     d.appliance =  $('#appliance').val();
                     d.booking_date =  $('#booking_date').val();
                     d.city =  $('#city').val();
+                    d.internal_status = getMultipleSelectedValues('internal_status');
                  }
             },
             "columnDefs": [
@@ -341,6 +360,17 @@
 
 </script>
 <script>
+    function getMultipleSelectedValues(fieldName){
+    fieldObj = document.getElementById(fieldName);
+    var values = [];
+    var length = fieldObj.length;
+    for(var i=0;i<length;i++){
+       if (fieldObj[i].selected == true){
+           values.push(fieldObj[i].value);
+       }
+    }
+   return values.toString();
+}
     $(function(){
 
       $('#dynamic_select').bind('change', function () {
@@ -467,9 +497,20 @@
 
         $("#reminderMailForm"+i).toggle(500);
     }
-$('#booking_date').datepicker(
-    {dateFormat: 'dd-mm-yy'}
- );
+$('input[name="booking_date"]').daterangepicker({
+            autoUpdateInput: false,
+            locale: {
+                format: 'YYYY-MM-DD',
+                 cancelLabel: 'Clear'
+            }
+        });
+        $('input[name="booking_date"]').on('apply.daterangepicker', function (ev, picker) {
+            $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));  
+            datatable1.ajax.reload();
+        });
+        $('input[name="booking_date"]').on('cancel.daterangepicker', function (ev, picker) {
+            $('input[name="booking_date"]').val("");
+        });
 
 </script>
 <?php if ($this->session->userdata('success')) {$this->session->unset_userdata('success');} ?>

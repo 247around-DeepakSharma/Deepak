@@ -108,7 +108,7 @@
                                             </div>
                                         <?php } else { ?> 
                                             <div class="col-md-6">
-                                                <input type="text" class="form-control spare_parts" id="model_number" name="model_number" value = "" placeholder="Model Number">
+                                                <input type="text" class="form-control spare_parts" id="model_number" name="model_number" value = "<?php echo set_value('model_number'); ?>" placeholder="Model Number">
                                             </div>
                                         <?php } ?>
                                     </div>
@@ -125,7 +125,7 @@
                                             </div>
                                         <?php } else { ?> 
                                             <div class="col-md-6">
-                                                <input type="text" class="form-control spare_parts" id="parts_type" name="parts_type" value = "" placeholder="Parts Type" >
+                                                <input type="text" class="form-control spare_parts" id="parts_type" name="parts_type" value = "<?php echo set_value('parts_type'); ?>" placeholder="Parts Type" >
                                             </div>
                                         <?php } ?>
 
@@ -138,14 +138,14 @@
                                         <label for="parts_name" class="col-md-2">Parts Name *</label>
                                         <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                             <div class="col-md-9">
-                                                <select class="form-control spare_parts" id="parts_name" name="parts_name">
-                                                    <option selected disabled>Select Part Name</option>
+                                                <select class="form-control spare_parts" id="parts_name" name="parts_name[]" multiple="">
+<!--                                                    <option selected disabled>Select Part Name</option>-->
                                                 </select>
                                                 <span id="spinner" style="display:none"></span>
                                             </div>
                                         <?php } else { ?> 
                                             <div class="col-md-9">
-                                                <input type="text" class="form-control spare_parts" id="parts_name" name="parts_name" value = "" placeholder="Parts Name" >
+                                                <input type="text" class="form-control spare_parts" id="parts_name" name="parts_name[]" value = "" placeholder="Parts Name" >
                                             </div>
                                         <?php } ?>
                                     </div>
@@ -322,6 +322,8 @@
                         $('#parts_type').val('val', "");
                         $('#parts_type').val('Select Part Type').change();
                         $('#parts_type').select2().html(data);
+                        $('#parts_name').val('val', "");
+                        $('#parts_name').val('Select Part Type').change();
                         $('#spinner').removeClass('fa fa-spinner').hide();
                     }
                 });
@@ -343,7 +345,8 @@
                     success:function(data){
                         $('#parts_name').val('val', "");
                         $('#parts_name').val('Select Part Name').change();
-                        $('#parts_name').select2().html(data);
+                        $('#parts_name').html(data);
+                        //$('#parts_name').html(data);
                         $('#spinner').removeClass('fa fa-spinner').hide();
                     }
                 });

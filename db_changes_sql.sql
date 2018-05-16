@@ -4797,6 +4797,10 @@ ALTER TABLE `spare_parts_details` ADD `booking_unit_details_id` INT(11) NULL DEF
 ALTER TABLE spare_parts_details
 ADD FOREIGN KEY (unit_details_id) REFERENCES booking_unit_details(id);
 
+--sachin 10 may
+
+ALTER TABLE `spare_parts_details` ADD `requested_inventory_id` INT(11) NULL DEFAULT NULL AFTER `challan_approx_value`, ADD `shipped_inventory_id` INT(11) NULL DEFAULT NULL AFTER `requested_inventory_id`;
+
 --Chhavi
 CREATE TABLE `reports_log` (
   `id` int(10) NOT NULL,

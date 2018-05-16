@@ -46,9 +46,6 @@
     <option value="<?php echo ECOMMERCETYPE;?>" <?php if($partnerType == ECOMMERCETYPE){echo "selected";} ?>><?php echo ECOMMERCETYPE?></option>
   </select>
 </div>
-            <?php
-            if($this->session->userdata('user_group') == 'admin'){
-            ?>
  <div class="form-group">
      <label for="Service Code">Account Manager</label>
   <select class="form-control" id="accountManager" name="accountManager">
@@ -63,9 +60,6 @@
       ?>
   </select>
   </div>
-            <?php
-            }
-            ?>
 <div class="form-group">
     <input type="submit" value="Apply Filter" class="btn btn-sm btn-success"> 
     </div>

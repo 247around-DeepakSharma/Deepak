@@ -231,7 +231,7 @@ class Booking_model extends CI_Model {
                 . " AND bd.closed_date >= DATE_FORMAT(CURDATE(), '%Y-%m-01') - INTERVAL 2 MONTH "
                 . " AND rp.from_number = bd.booking_primary_contact_no "
                 . " AND u.user_id = bd.user_id "
-                . " AND rp.create_date >= bd.closed_date";
+                . " AND rp.create_date >= bd.closed_date AND rating_unreachable_count < 3";
         
         $query = $this->db->query($sql);
         return $query->result_array();
@@ -2156,6 +2156,9 @@ class Booking_model extends CI_Model {
         $this->db->join('booking_unit_details', 'booking_details.booking_id = booking_unit_details.booking_id', 'left');
         if (!empty($post['where'])) {
             $this->db->where($post['where']);
+        }
+        if (!empty($post['where_in'])) {
+            $this->db->where_in(array_keys($post['where_in'])[0], array_values($post['where_in'])[0]);
         }
         
         if (!empty($post['search_value'])) {
