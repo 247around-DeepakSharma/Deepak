@@ -1145,7 +1145,7 @@ class Service_centers extends CI_Controller {
             
             $data['model_number'] = $this->input->post('model_number');
             $data['serial_number'] = $this->input->post('serial_number');
-            //$data['parts_requested'] = $this->input->post('parts_name');
+            $data['parts_requested'] = $this->input->post('parts_name');
             $data['parts_requested_type'] = $this->input->post('parts_type');
             $data['date_of_purchase'] = $this->input->post('dop');
             
