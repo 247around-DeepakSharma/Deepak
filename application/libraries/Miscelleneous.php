@@ -2682,5 +2682,25 @@ function convert_html_to_pdf($html,$booking_id,$filename,$s3_folder){
         
         return trim($challan_id_tmp . sprintf("%'.04d\n", $challan_no));
     }
-
+function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
+        log_message('info', __FUNCTION__ . " Start For  ".$bookingID.$number);
+        if(!$bookingID){
+            $bookingDetails = $this->booking_model->get_missed_call_rating_booking_count($number);
+            $bookingID = $bookingDetails[0]['booking_id'];
+        }
+        $select = "employee.official_email";
+        $where["booking_details.booking_id"] = $bookingID; 
+        $partnerJoin["partners"] = "partners.id=booking_details.partner_id";
+        $join["employee_relation"] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.service_centres_id)";
+        $join["employee"] = "employee.id=employee_relation.agent_id";
+        $partnerJoin["employee"] = "employee.id=partners.account_manager_id";
+        $rmEmail = $this->My_CI->reusable_model->get_search_result_data("booking_details",$select,$where,$join,NULL,NULL,NULL,NULL,array());
+        $amEmail = $this->My_CI->reusable_model->get_search_result_data("booking_details",$select,$where,$partnerJoin,NULL,NULL,NULL,NULL,array());
+        $subject = 'Bad Feedback From Customer, Rating ('.$rating.') For '.$bookingID;
+        $message = "Please take any action to check why we get bad rating ";
+        $to = ANUJ_EMAIL_ID;  
+        $cc = $rmEmail[0]['official_email'].",".$amEmail[0]['official_email'].",".$this->My_CI->session->userdata("official_email");
+        $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "","we_get_bad_rating");
+        log_message('info', __FUNCTION__ . " END  ".$bookingID.$number);
+    }
 }
