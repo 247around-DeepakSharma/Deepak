@@ -340,7 +340,7 @@ class partner_sd_cb {
                 if (!empty($unit)) {
                     foreach ($unit as $unit_details) {
                         if (!empty($unit_details['serial_number'])) {
-                            $serial_number = $unit[0]['serial_number'];
+                            $serial_number = $unit_details['serial_number'];
                         }
                     }
                 }
@@ -368,7 +368,7 @@ class partner_sd_cb {
                         if(date('Y-m-d', strtotime($data['service_center_closed_date'])) > 
                                 date('Y-m-d', strtotime($data['service_promise_date']))){
                             
-                            if(!empty($StatusReason)){
+                            if(!empty($data['partner_call_status_on_completed'])){
                                 log_message('info', __METHOD__. "Status  ".$data['partner_call_status_on_completed']. " " 
                                         . $data['service_center_closed_date'].
                                     " SPD date ".date('Y-m-d', strtotime($data['service_promise_date'])) );
@@ -463,6 +463,7 @@ class partner_sd_cb {
         $err = curl_error($curl);
 
         curl_close($curl);
+        
         //Capture both response as well as error messages
         $this->jsonResponseString['response'] = $response;
         $this->jsonResponseString['error'] = $err;
@@ -477,14 +478,33 @@ class partner_sd_cb {
             'json_response_string' => json_encode($responseData, JSON_UNESCAPED_SLASHES));
 
         $this->My_CI->partner_model->log_partner_activity($activity);
+        
+        $res = json_decode($response, true);
+        if (isset($res['ResponseCode'])) {
+            if ($res['ResponseCode'] != 201) {
+                $this->jeevesCallbackAPIFailed();
+            }
+        } else {
+            $this->jeevesCallbackAPIFailed();
+        }
 
         if ($err) {
             log_message('info', "cURL Error #:" . $err);
+            $this->jeevesCallbackAPIFailed();
             return "cURL Error #:" . $err;
         } else {
             log_message('info', "cURL Response #:" . $response);
             return $response;
         }
+    }
+    /**
+     * @desc this is used to send email when JEEVES callback failed.
+     */
+    function jeevesCallbackAPIFailed(){
+        log_message("info", __METHOD__. " JEEVES Callback failed ". $this->jsonRequestData);
+        $subject = "Jeeves CallBack API failed. Please Check";
+        $message = " POST Data ".$this->jsonRequestData. "<br/> Jeeves Callback Response ". $this->jsonResponseString['response'];
+        $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, DEVELOPER_EMAIL, "", "", $subject, $message, "","JEEVES CALLBACK Failed");
     }
 
 }
