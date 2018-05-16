@@ -41,5 +41,7 @@ define("SPARE_PARTS_CANCELLED", "Spare Parts Cancelled");
 
 define("SPARE_DELIVERED_TO_SF", "Delivered");
 define("SPARE_SHIPPED_BY_PARTNER", "Shipped");
-
 define("SPARE_PARTS_NOT_DELIVERED_TO_SF", "Spare parts not received");
+//MSG- Sf can not complete a booking if spare part request is pending on partner
+define("UNABLE_COMPLETE_BOOKING_SPARE_MSG", "You can not complete this booking beacuse your requested part is not ship");
+
