@@ -1491,44 +1491,28 @@ class Around_scheduler extends CI_Controller {
     /**
      * @desc This is used to refund cashback for those customer who had paid through Paytm
      */
-        function paytm_payment_cashback() {
+    function paytm_payment_cashback() {
         //get Cashback Rules
         $rules = $this->paytm_payment_model->get_paytm_cashback_rules(array("active" => 1, "tag" => PAYTM_CASHBACK_TAG));
-        $msg ="";
         if (!empty($rules)) {
             $transactionArray = $this->paytm_payment_model->get_without_cashback_transactions();
-            foreach ($transactionArray as $transaction) {
-                $finalCashbackAmount = ($transaction['paid_amount'] * $rules[0]['cashback_amount_percentage']) / 100;
-                $msg = $msg."<br> Booking ID : ".$transaction['booking_id'];
-                $msg = $msg."<br> Paid Amount : ".$transaction['paid_amount'];
-                $msg = $msg."<br> Cashback Amount  : ".$finalCashbackAmount."<br><br><br>";
-//                if (($transaction['paid_amount'] < $rules[0]['amount_criteria_less_than'])) {
-//                    $finalCashbackAmount = $cashbackAmount;
-//                } else {
-//                    if ($cashbackAmount > $rules[0]['paytm_cashback_limit']) {
-//                        $finalCashbackAmount = $cashbackAmount - $rules[0]['paytm_cashback_limit'];
-//                    }
-//                }
-               // if ($finalCashbackAmount > 0) {
-                    //$status = $this->paytm_payment_lib->paytm_cashback($transaction['txn_id'], $transaction['order_id'], $finalCashbackAmount, CASHBACK_REASON_DISCOUNT, CASHBACK_CRONE);
-                    //$statusArray = json_decode($status, true);
-                    
-//                    if ($statusArray['status'] == 'SUCCESS') {
-//                        log_message("info", __METHOD__ . "Cashback Processed Successfully For " . $transaction['txn_id']);
-//                    } else {
-//                        log_message("error", __METHOD__ . "Cashback Process Failed For " . $transaction['txn_id']);
-//                    }
-                //}  
-        }
-        $this->reusable_model->update_table("paytm_transaction_callback", array("discount_flag" => 1), array('txn_id' => $transaction['txn_id']));
-        $to = "anuj@247around.com.com"; 
-        $cc = "chhavid@247around.com";
-        $subject = "Bookings Cashback Details";
-        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $msg, "","Booking_Cashback_Details");
+                foreach ($transactionArray as $transaction) {
+                    $finalCashbackAmount = ($transaction['paid_amount'] * $rules[0]['cashback_amount_percentage']) / 100;
+                    if ($finalCashbackAmount > 0) {
+                        $status = $this->paytm_payment_lib->paytm_cashback($transaction['txn_id'], $transaction['order_id'], $finalCashbackAmount, CASHBACK_REASON_DISCOUNT, CASHBACK_CRONE);
+                        $statusArray = json_decode($status, true);
+                        if ($statusArray['status'] ==  'SUCCESS') 
+                        {
+                            log_message("info", __METHOD__ . "Cashback Processed Successfully For " . $transaction['txn_id']);
+                            $this->reusable_model->update_table("paytm_transaction_callback", array("discount_flag" => 1), array('txn_id' => $transaction['txn_id']));
+                        } 
+                        else 
+                        {
+                            log_message("error", __METHOD__ . "Cashback Process Failed For " . $transaction['txn_id']);
+                        }
+                   }  
+                }
             }
-//        } else {
-//            log_message("info", __METHOD__ . "Cashback Rules are not set");
-//        }
     }
     /**
      * @desc: This method is used to send qr sms to customer.
