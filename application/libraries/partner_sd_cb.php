@@ -368,7 +368,7 @@ class partner_sd_cb {
                         if(date('Y-m-d', strtotime($data['service_center_closed_date'])) > 
                                 date('Y-m-d', strtotime($data['service_promise_date']))){
                             
-                            if(!empty($StatusReason)){
+                            if(!empty($data['partner_call_status_on_completed'])){
                                 log_message('info', __METHOD__. "Status  ".$data['partner_call_status_on_completed']. " " 
                                         . $data['service_center_closed_date'].
                                     " SPD date ".date('Y-m-d', strtotime($data['service_promise_date'])) );
