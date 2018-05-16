@@ -296,7 +296,7 @@
                                 <th>Brand</th>
                                 <th>Category/<br/>Capacity</th>
                                 <th>Model Number</th>
-                                <th>Serial Number</th>
+                                <th>SF Serial Number / Partner Serial Number</th>
                                 <th>Purchase Date</th>
                                 <th>Description</th>
                                 <th>Service Category</th>
@@ -338,7 +338,7 @@
                                     <td><?php echo $unit_detail['appliance_brand']?></td>
                                     <td><?php echo $unit_detail['appliance_category']."/<br/>".$unit_detail['appliance_capacity']?></td>
                                     <td><?php echo $unit_detail['model_number']?></td>
-                                    <td><?php echo $unit_detail['serial_number']?></td>
+                                    <td><?php echo $unit_detail['serial_number']?> / <?php echo $unit_detail['partner_serial_number']?></td>
                                     <td><?php if(!empty($unit_detail['purchase_month'])) {echo $unit_detail['purchase_month'];}?></td>
                                     <td><?php echo $unit_detail['appliance_description']?></td>
                                     <?php if($booking_history[0]['current_status'] != "Completed"){ ?>
