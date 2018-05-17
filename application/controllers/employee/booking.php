@@ -1289,7 +1289,7 @@ class Booking extends CI_Controller {
                 $remarks = 'Rating'.':'.$data['rating_stars'].'. '.$data['rating_comments'];
 
                 $update = $this->booking_model->update_booking($booking_id, $data);
-                if($data['rating_stars']<4){
+                if($data['rating_stars']<3){
                     $this->miscelleneous->send_bad_rating_email($data['rating_stars'],$booking_id);
                 }
                 if ($update) {
@@ -2024,7 +2024,7 @@ class Booking extends CI_Controller {
             $this->asynchronous_lib->do_background_process($cb_url, $pcb);
             
             if ($this->input->post('rating_stars') !== "") {
-                if($this->input->post('rating_stars')<4){
+                if($this->input->post('rating_stars')<3){
                     $this->miscelleneous->send_bad_rating_email($this->input->post('rating_stars'),$booking_id);
                 }
                 //update rating state
