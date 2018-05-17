@@ -462,7 +462,7 @@ class paytm_payment_lib {
      */
     function CASHBACK_send_sms_and_email($bookingID,$cashbackAmount,$cashbackMedium){
         $to = TRANSACTION_SUCCESS_TO; 
-        $cc = TRANSACTION_SUCCESS_CC;
+        $cc = "";
         $agent ='';
         if($this->P_P->session->userdata('employee_id')){
             $agent = $this->P_P->session->userdata('employee_id');
