@@ -1010,7 +1010,6 @@ class Booking_model extends CI_Model {
         $query = $this->db->query($sql1);
 
         $appl = $query->result_array();
-
         for ($i = 0; $i < $count; $i++) {
             $appl[$i]['user_id'] = $user_id;
             //log_message('info', "Sample Appl: " . print_r($appl, TRUE));
@@ -1018,7 +1017,7 @@ class Booking_model extends CI_Model {
             $sql2 = "INSERT INTO appliance_details "
                     . "(`service_id`, `brand`, `category`, `capacity`, "
                     . "`model_number`, `tag`, `purchase_date`, `rating`, `user_id`)"
-                    . "VALUES (?,?,?,?,?, ?,?,?,?,?)";
+                    . "VALUES (?,?,?,?,?, ?,?,?,?)";
 
             $this->db->query($sql2, $appl[$i]);
         }
