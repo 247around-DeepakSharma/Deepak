@@ -499,6 +499,8 @@ EOD;
                 $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
                 log_message('info', __FUNCTION__ . ' => Rendered CSV');
                 write_file($csv, $new_report);
+                //Upload File On AWS and save link in file_upload table
+                $this->save_partner_summary_report($partners[0]['id'],$newCSVFileName,$csv);
                 if($this->session->userdata('employee_id'))
                 {
                     $this->generate_partner_summary_email_data($partners[0],$csv);
@@ -545,17 +547,16 @@ EOD;
             $partners = $this->partner_model->getpartner_details($select, $where_get_partner, '1');
             foreach ($partners as $key => $p)
             {
+                $newCSVFileName = "Booking_summary_" . date('j-M-Y-H-i-s') . "_".$p['id'].".csv";
+                $csv = TMP_FOLDER . $newCSVFileName;
                 $report = $this->partner_model->get_partner_leads_csv_for_summary_email($p['id'],0);
                 $delimiter = ",";
                 $newline = "\r\n";
                 $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
                 write_file($csv, $new_report);
                 $this->generate_partner_summary_email_data($partners[$key],$csv);
-                
-                $bucket = BITBUCKET_DIRECTORY;
-                $directory_xls = "summary-excels/" . $csv;
-                $this->s3->putObjectFile($csv, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-
+                //Upload File On AWS and save link in file_upload table
+                $this->save_partner_summary_report($p['id'],$newCSVFileName,$csv);
                 //Delete this file
                 $out = '';
                 $return = 0;
@@ -1575,7 +1576,7 @@ EOD;
     }
     function send_jeeves_requested_format_report($partnerID){
         $subject = "247around Services Report  - Jeeves - " . date('d-M-Y');
-        $newCSVFileName = "Booking_summary_" . date('j-M-Y-H-i-s') . ".csv";
+        $newCSVFileName = "Booking_summary_" . date('j-M-Y-H-i-s') ."_".$partnerID.".csv";
         $csv = TMP_FOLDER . $newCSVFileName;
         $report = $this->partner_model->get_partner_leads_csv_for_summary_email($partnerID,1);
         $delimiter = ",";
@@ -1583,12 +1584,27 @@ EOD;
         $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
         log_message('info', __FUNCTION__ . ' => Rendered CSV');
         write_file($csv, $new_report);
+        //Upload File On AWS and save link in file_upload table
+        $this->save_partner_summary_report($partnerID,$newCSVFileName,$csv);
         $emailTemplateDataArray['jeevesDate'] = $this->partner_model->get_partner_report_overview_in_percentage_format($partnerID,"date(booking_details.create_date)");
         $emailTemplateDataArray['aroundDate'] = $this->partner_model->get_partner_report_overview_in_percentage_format($partnerID,"STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y')");
         $email_body = $this->load->view('employee/partner_report',$emailTemplateDataArray,true);
         $this->notify->sendEmail(NOREPLY_EMAIL_ID,"vinesh.poojari@flipkart.com,manish.agarwal@flipkart.com", "anuj@247around.com,nits@247around.com", "", 
                 $subject, $email_body,
                 $csv,"partner_summary_report_percentage_format");
-         unlink($csv);
+        unlink($csv);
+    }
+    /*
+     * This Function is use to upload Partner Summary Report on Aws and saved that link in file_upload table
+     */
+    function save_partner_summary_report($partnerID,$fileName,$filePath){
+        $bucket = BITBUCKET_DIRECTORY;
+        $directory_xls = "summary-excels/" . $fileName;
+        $this->s3->putObjectFile($filePath, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+        $fileData['entity_type'] = "Partner";
+        $fileData['entity_id'] = $partnerID;
+        $fileData['file_type'] = "Partner_Summary_Reports";
+        $fileData['file_name'] = $directory_xls;
+        $this->reusable_model->insert_into_table("file_uploads",$fileData);
     }
 }
