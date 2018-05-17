@@ -144,7 +144,9 @@ class Booking extends CI_Controller {
             
             // All price tag comming in array  eg-- array([0]=> Appliance tag1, [1]=> Appliance tag1)
             //$appliance_tags = $this->input->post('appliance_tags');
-            $purchase_date = $this->input->post('purchase_date');
+            $purchase_year = $this->input->post('purchase_year');
+            // All purchase month comming in array eg-- array([0]=> Jan, [1]=> Feb)
+            $months = $this->input->post('purchase_month');
             $order_item_id = $this->input->post('order_item_id');
 
             $appliance_id_array = $this->input->post('appliance_id');
@@ -185,10 +187,11 @@ class Booking extends CI_Controller {
                 $appliances_details['model_number'] = $services_details['model_number'] = $model_number[$key];
                 // get appliance tag from appliance_tag array for only specific key such as $appliance_tag[0].
                 //$appliances_details['tag']  = $appliance_tags[$key];
-                $appliances_details['purchase_date'] = $services_details['purchase_date'] =  $purchase_date;
+                $appliances_details['purchase_year'] = $services_details['purchase_year'] = $purchase_year[$key];
                 $services_details['booking_id'] = $booking['booking_id'];
                 //$appliances_details['serial_number'] = $services_details['serial_number'] = $serial_number[$key];
                 $appliances_details['description'] = $services_details['appliance_description'] = $appliance_description[$key];
+                $appliances_details['purchase_month'] = $services_details['purchase_month'] = $months[$key];
                 $appliances_details['service_id'] = $services_details['service_id'] = $booking['service_id'];
                 $appliances_details['last_service_date'] = date('Y-m-d H:i:s');
                 $services_details['partner_id'] = $booking['partner_id'];
