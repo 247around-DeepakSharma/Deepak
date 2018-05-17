@@ -4839,4 +4839,8 @@ ALTER TABLE `appliance_details` ADD `sf_serial_number` VARCHAR(128) NULL AFTER `
 
 --Abhay 15 April
 ALTER TABLE `spare_parts_details` ADD `defective_back_parts_pic` VARCHAR(128) NULL DEFAULT NULL AFTER `defective_parts_pic`;
+
+--Chhavi 17th May
 ALTER TABLE `sample_appliances` ADD `purchase_date` DATE NULL DEFAULT NULL AFTER `purchase_year`;
+ALTER TABLE `file_uploads` ADD `entity_type` VARCHAR(128) NULL AFTER `file_type`;
+ALTER TABLE `file_uploads` ADD `entity_id` INT(10) NULL AFTER `entity_type`;
