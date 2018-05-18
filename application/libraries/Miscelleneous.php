@@ -350,6 +350,7 @@ class Miscelleneous {
                         $this->My_CI->service_centers_model->delete_booking_id($booking_id);
                         $this->My_CI->notify->insert_state_change($booking_id, "Waiting Partner Approval", _247AROUND_PENDING, "Waiting Upcountry to Approval", $agent_id, $agent_name, 
                                 $actor,$next_action,_247AROUND);
+                        
                         $up_mail_data['name'] = $query1[0]['name'];
                         $up_mail_data['appliance'] = $query1[0]['services'];
                         $up_mail_data['booking_address'] = $query1[0]['booking_address'];
@@ -362,8 +363,11 @@ class Miscelleneous {
                         $up_mail_data['appliance_brand'] = $unit_details[0]['appliance_brand'];
                         $up_mail_data['appliance_category'] = $unit_details[0]['appliance_category'];
                         $up_mail_data['appliance_capacity'] = $unit_details[0]['appliance_capacity'];
-                        $up_mail_data['upcountry_distance'] = $booking['upcountry_distance'];
+                        $up_mail_data['upcountry_distance'] = sprintf("%0.2f",$booking['upcountry_distance']);
                         $up_mail_data['partner_upcountry_rate'] = $booking['partner_upcountry_rate'];
+                        $up_mail_data['municipal_limit'] = $query1[0]['municipal_limit'];
+                        $up_mail_data['upcountry_pincode'] =  $booking['upcountry_pincode'];
+                        
 
                         $message1 = $this->My_CI->load->view('employee/upcountry_approval_template', $up_mail_data, true);
                         
@@ -374,7 +378,7 @@ class Miscelleneous {
                         } else {
                             $subject = "Upcountry Charges Approval Required - Booking ID " . $query1[0]['booking_id'];
                             $to = $data['upcountry_approval_email'];
-                            $cc = NITS_ANUJ_EMAIL_ID.",".$partner_am_email.$rm_email;
+                            $cc = $partner_am_email.$rm_email;
                             //Send Push Notification
                         $receiverArray['partner'] = array($query1[0]['partner_id']);
                         $notificationTextArray['msg'] = array($booking_id);
