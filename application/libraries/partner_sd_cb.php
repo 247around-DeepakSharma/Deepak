@@ -326,114 +326,139 @@ class partner_sd_cb {
         log_message('info', __METHOD__ . "=> Booking ID: " . $data['booking_id']);
         $this->requestUrl = __METHOD__;
         if (!empty($data['order_id'])) {
-            
+
             $this->partner = $data['partner_id'];
             $serial_number = "";
             $CallCompletedDate = "";
             $StatusReason = "";
             $appointmentDate = "";
-            
-            
-            if ($data['current_status'] == _247AROUND_COMPLETED) {
-               
-                $unit = $this->My_CI->booking_model->get_unit_details(array("booking_id" => $data['booking_id']), false, "serial_number");
-                if (!empty($unit)) {
-                    foreach ($unit as $unit_details) {
-                        if (!empty($unit_details['serial_number'])) {
-                            $serial_number = $unit_details['serial_number'];
+
+            $isTrigger = true;
+            //if current status is not cancelled then check this is open booking or not  
+            if ($data['current_status'] != _247AROUND_CANCELLED) {
+                $bstateChange = $this->My_CI->booking_model->getbooking_state_change_by_any(array('booking_id LIKE "%' . $data['booking_id'] . '%"' => NULL,
+                    'new_state' => _247AROUND_CANCELLED));
+                if (!empty($bstateChange)) {
+                    $isTrigger = false;
+                }
+            }
+            if ($isTrigger) {
+                if ($data['current_status'] == _247AROUND_COMPLETED) {
+
+                    $unit = $this->My_CI->booking_model->get_unit_details(array("booking_id" => $data['booking_id']), false, "serial_number");
+                    if (!empty($unit)) {
+                        foreach ($unit as $unit_details) {
+                            if (!empty($unit_details['serial_number'])) {
+                                $serial_number = $unit_details['serial_number'];
+                            }
                         }
                     }
-                }
 
-                $CallCompletedDate = array(
-                    "year" => date('Y', strtotime($data['service_center_closed_date'])),
-                    "month" => date('m', strtotime($data['service_center_closed_date'])),
-                    "day" => date('d', strtotime($data['service_center_closed_date'])),
-                    "hour" => date('H', strtotime($data['service_center_closed_date'])),
-                    "minute" => date('i', strtotime($data['service_center_closed_date'])));
-                $is_valid = false;
-                if(!empty($data['service_promise_date'])){
-                  
-                   
-                     if(date('Y') == date('Y', strtotime($data['service_promise_date']))){
-                   
-                         $is_valid = TRUE;
-                     } else  if(date('Y') == (date('Y', strtotime($data['service_promise_date'])) -1) ){ 
-                         $is_valid = TRUE;
-                     } else if(date('Y') == (date('Y', strtotime($data['service_promise_date'])) + 1) )
-                          $is_valid = TRUE;
-                     }
+                    $CallCompletedDate = array(
+                        "year" => date('Y', strtotime($data['service_center_closed_date'])),
+                        "month" => date('m', strtotime($data['service_center_closed_date'])),
+                        "day" => date('d', strtotime($data['service_center_closed_date'])),
+                        "hour" => "08",
+                        "minute" => date('i', strtotime($data['service_center_closed_date'])));
+                    $is_valid = false;
+                    if (!empty($data['service_promise_date'])) {
 
-                    if($is_valid){
-                        if(date('Y-m-d', strtotime($data['service_center_closed_date'])) > 
-                                date('Y-m-d', strtotime($data['service_promise_date']))){
-                            
-                            if(!empty($data['partner_call_status_on_completed'])){
-                                log_message('info', __METHOD__. "Status  ".$data['partner_call_status_on_completed']. " " 
-                                        . $data['service_center_closed_date'].
-                                    " SPD date ".date('Y-m-d', strtotime($data['service_promise_date'])) );
-                                
+                        if (date('Y') == date('Y', strtotime($data['service_promise_date']))) {
+
+                            $is_valid = TRUE;
+                        } else if (date('Y') == (date('Y', strtotime($data['service_promise_date'])) - 1)) {
+                            $is_valid = TRUE;
+                        } else if (date('Y') == (date('Y', strtotime($data['service_promise_date'])) + 1))
+                            $is_valid = TRUE;
+                    }
+
+                    if ($is_valid) {
+                        if (date('Y-m-d', strtotime($data['service_center_closed_date'])) >
+                                date('Y-m-d', strtotime($data['service_promise_date']))) {
+
+                            if (!empty($data['partner_call_status_on_completed'])) {
+                                log_message('info', __METHOD__ . "Status  " . $data['partner_call_status_on_completed'] . " "
+                                        . $data['service_center_closed_date'] .
+                                        " SPD date " . date('Y-m-d', strtotime($data['service_promise_date'])));
+
                                 $StatusReason = $data['partner_call_status_on_completed'];
-                                
                             } else {
-                                 log_message('info', __METHOD__. " Delay By 247Around ". $data['service_center_closed_date'].
-                                    " SPD date ".date('Y-m-d', strtotime($data['service_promise_date'])) );
+                                log_message('info', __METHOD__ . " Delay By 247Around " . $data['service_center_closed_date'] .
+                                        " SPD date " . date('Y-m-d', strtotime($data['service_promise_date'])));
                                 $StatusReason = JEEVES_BOOKING_DELAY_BY_AROUND;
                             }
                         } else {
-                            log_message('info', __METHOD__. " WITH In TAT closed_date ". $data['service_center_closed_date'].
-                                    " SPD date ".date('Y-m-d', strtotime($data['service_promise_date'])) );
+                            log_message('info', __METHOD__ . " WITH In TAT closed_date " . $data['service_center_closed_date'] .
+                                    " SPD date " . date('Y-m-d', strtotime($data['service_promise_date'])));
                             $StatusReason = JEEVES_CALL_COMPLETED_WITH_IN_TAT;
                         }
-                    } else{
-                        log_message('info', __METHOD__. " Invalid SPD date");
+                    } else {
+                        log_message('info', __METHOD__ . " Invalid SPD date");
                         $StatusReason = JEEVES_CALL_COMPLETED_WITH_IN_TAT;
                     }
-                } 
-            
-            $postData = array(
-                "CaseId" => $data['order_id'],                   //Mandatory in All status
-                "CallStatus" => $data['partner_current_status'], //Mandatory in All status
-                "Remarks" => $data['partner_internal_status'], //Non-Mandatory
-                "SerialNo" => $serial_number, //Mandatory in  only Call complete Status /other status its optional
-//                "PurchaseDate" => "", //Not mandatory
-                "StatusReason" => $StatusReason,           //Mandatory for Completed Call
-                "ModelNo" => "" //Optional
-            );
-            
-            if(!empty($CallCompletedDate)){
+                }
+
+                $postData = array(
+                    "CaseId" => $data['order_id'], //Mandatory in All status
+                    "CallStatus" => $data['partner_current_status'], //Mandatory in All status
+                    "Remarks" => $data['partner_internal_status']
+                );
+
+                if (!empty($CallCompletedDate)) {
+                    //Mandatory in  only Call complete Status /other status its optional
+                    $postData['CallCompletedDate'] = $CallCompletedDate;
+                    //Mandatory for Completed Call
+                    $postData["StatusReason"] = $StatusReason; 
+                    //Mandatory in  only Call complete Status /other status its optional
+                    $postData["SerialNo"] = $serial_number;
+                }
+
                 //Mandatory in  only Call complete Status /other status its optional
-                $postData['CallCompletedDate'] =$CallCompletedDate;
+                if (!empty($data['booking_date'])) {
+                    $postData['AppointmentDate'] = array(
+                        "year" => date('Y', strtotime($data['booking_date'])),
+                        "month" => date('m', strtotime($data['booking_date'])),
+                        "day" => date('d', strtotime($data['booking_date'])),
+                        "hour" => date('H', strtotime($data['booking_date'])),
+                        "minute" => date('i', strtotime($data['booking_date'])));
+                }
+                
+                return $this->post_jeeves_data($postData);
+                
+            } else {
+                 log_message('info', __METHOD__ . "=> Call already updated cancelled");
+                $this->jsonRequestData = json_encode($data);
+                $this->jsonResponseString['response'] = ERR_CALL_ALREADY_CANCELLED_MSG;
+                $this->jsonResponseString['error'] = ERR_CALL_ALREADY_CANCELLED_CODE;
+                
+                $this->log_callback();
+                return FALSE;
+
             }
             
-            //Mandatory in  only Call complete Status /other status its optional
-            if(!empty($data['booking_date'])){
-                $postData['AppointmentDate'] = array(
-                    "year" => date('Y', strtotime($data['booking_date'])),
-                    "month" => date('m', strtotime($data['booking_date'])),
-                    "day" => date('d', strtotime($data['booking_date'])),
-                    "hour" => date('H', strtotime($data['booking_date'])),
-                    "minute" => date('i', strtotime($data['booking_date'])));
-            }
-            return $this->post_jeeves_data($postData);
         } else {
             log_message('info', __METHOD__ . "=> Order ID Not Found");
 
             $this->jsonRequestData = json_encode($data);
             $this->jsonResponseString['response'] = ERR_ORDER_ID_NOT_FOUND_MSG;
             $this->jsonResponseString['error'] = ERR_ORDER_ID_NOT_FOUND_CODE;
-
-            $responseData = array("data" => $this->jsonResponseString);
-
-            $activity = array(
-                'activity' => $this->requestUrl,
-                'json_request_data' => $this->jsonRequestData,
-                'json_response_string' => json_encode($responseData, JSON_UNESCAPED_SLASHES));
-
-            $this->My_CI->partner_model->log_partner_activity($activity);
-
+            $this->log_callback();
             return FALSE;
         }
+    }
+    /**
+     * @desc This is used to insert log when we did not call jeeves aoi to update
+     */
+    function log_callback(){
+        
+        $responseData = array("data" => $this->jsonResponseString);
+        
+        $activity = array(
+            'activity' => $this->requestUrl,
+            'json_request_data' => $this->jsonRequestData,
+            'json_response_string' => json_encode($responseData, JSON_UNESCAPED_SLASHES));
+
+        $this->My_CI->partner_model->log_partner_activity($activity);
     }
 
     function post_jeeves_data($postData){
@@ -491,7 +516,7 @@ class partner_sd_cb {
         if ($err) {
             log_message('info', "cURL Error #:" . $err);
             $this->jeevesCallbackAPIFailed();
-            return "cURL Error #:" . $err;
+            return false;
         } else {
             log_message('info', "cURL Response #:" . $response);
             return $response;
