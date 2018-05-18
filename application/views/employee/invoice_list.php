@@ -269,7 +269,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="Amount">Invoice Value:</label>
-                                    <input type="text" class="form-control" style="width:92%" id="service_charge" name="service_charge" placeholder="Total Service Charge" required>
+                                    <input type="number" step=".02" class="form-control" style="width:92%" id="service_charge" name="service_charge" placeholder="Total Service Charge" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
