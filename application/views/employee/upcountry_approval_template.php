@@ -1,8 +1,8 @@
-<div style="display:inline; height: 500px; float:left;border: 1px solid #ccc; margin-left: 10px;margin-top:10px;width: 920px;padding: 8px;">
+<div style="display:inline; height: 600px; float:left;border: 1px solid #ccc; margin-left: 10px;margin-top:10px;width: 920px;padding: 8px;">
     <div style="border: 1px solid #ccc;padding:8px; width: 900px;">
         <img style='vertical-align:middle;width:50px;' src="https://aroundhomzapp.com/images/logo.png">
         <div style='vertical-align:middle; display:inline;font-weight:bold; font-size: 20px;margin-left:10px;'>
-            Upcountry Approval Mail
+            Upcountry Approval Mail- Click Link to Approve - DO NOT REPLY
         </div>
     </div>
     <div style="margin-left: 8px;">
@@ -18,6 +18,9 @@
         <p style="max-width: 900px; word-wrap:break-word;margin-bottom: 1px;margin-top:1px;">City - <?php echo $city; ?></p>
         <p style="max-width: 900px; word-wrap:break-word;margin-bottom: 1px;margin-top:1px;">Pincode- <?php echo $booking_pincode; ?></p>
         <p style="max-width: 900px; word-wrap:break-word;margin-bottom: 1px;margin-top:1px;">State- <?php echo $state; ?></p>
+        <br/>
+        <p style="max-width: 900px; word-wrap:break-word;margin-bottom: 1px;margin-top:1px;">SF Pincode- <?php echo $upcountry_pincode; ?></p>
+        <p style="max-width: 900px; word-wrap:break-word;margin-bottom: 1px;margin-top:1px;">SF Municipal Limit- <?php echo $municipal_limit; ?></p>
         <p>Rs. <?php echo round($upcountry_distance * $partner_upcountry_rate, 0); ?> as Upcountry Charges (<?php echo round($upcountry_distance,0); ?> Upcountry KM) needs to be approved by your office by clicking on the <a href="<?php echo base_url();?>partner/upcountry_charges_approval/<?php echo $booking_id;?>/0"> link.</a> and not reply to this email</p>
         <p><a href="<?php echo base_url();?>partner/reject_upcountry_charges/<?php echo $booking_id; ?>/0">Click Here</a> to reject this booking. Please note that this booking would be automatically cancelled by the system after 2 working days.</p>
         
