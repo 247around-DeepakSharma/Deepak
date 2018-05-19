@@ -3834,8 +3834,13 @@ class Booking extends CI_Controller {
      */
     function get_service_id(){
         $appliance_list = $this->booking_model->selectservice();
-        $option = '';
-
+        
+        if($this->input->get('is_option_selected')){
+            $option = '<option selected disabled></option>';
+        }else{
+            $option = '';
+        }
+        
         foreach ($appliance_list as $value) {
             $option .= "<option value='" . $value->id . "'";
             $option .= " > ";

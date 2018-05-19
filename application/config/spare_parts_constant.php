@@ -45,3 +45,5 @@ define("SPARE_PARTS_NOT_DELIVERED_TO_SF", "Spare parts not received");
 //MSG- Sf can not complete a booking if spare part request is pending on partner
 define("UNABLE_COMPLETE_BOOKING_SPARE_MSG", "You can not complete this booking beacuse your requested part is not ship");
 
+define('DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH','Defective parts send by warehouse to partner');
+define('PARTNER_ACK_DEFECTIVE_PARTS_SEND_BY_WH','Partner acknowledge defective parts send by warehouse');

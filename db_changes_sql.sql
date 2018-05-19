@@ -4899,3 +4899,12 @@ ALTER TABLE `sample_appliances` ADD `purchase_date` DATE NULL DEFAULT NULL AFTER
 --sachin 10 may
 
 ALTER TABLE `spare_parts_details` ADD `requested_inventory_id` INT(11) NULL DEFAULT NULL AFTER `challan_approx_value`, ADD `shipped_inventory_id` INT(11) NULL DEFAULT NULL AFTER `requested_inventory_id`;
+
+
+--sachin 17 May
+CREATE TABLE `spare_invoice_mapping` ( `id` INT(11) NOT NULL AUTO_INCREMENT , `inventory_id` INT(11) NOT NULL , `quantity_in` INT(11) NOT NULL , `quantity_out` INT(11) NOT NULL , `invoice_id_in` INT NOT NULL , `invoice_id_out` INT NOT NULL , `booking_id` VARCHAR(256) NOT NULL , `is_settled` INT NOT NULL , `remarks` INT NOT NULL , `create_date` DATETIME NOT NULL , `update_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+ALTER TABLE `spare_invoice_mapping` ADD `inventory_id_in_date` DATETIME NULL DEFAULT NULL AFTER `invoice_id_in`;
+ALTER TABLE `spare_invoice_mapping` CHANGE `is_settled` `is_settled` TINYINT(2) NOT NULL DEFAULT '0' COMMENT '1 = \'settled\', 0 = \'un-settled\'';
+CREATE TABLE `spare_invoice_ledger` ( `id` INT(11) NOT NULL AUTO_INCREMENT , `spare_invoice_mapping_id` INT(11) NOT NULL , `inventory_id` INT(11) NOT NULL , `quantity_out` INT(11) NOT NULL , `invoice_id_out` VARCHAR(256) NOT NULL , `remarks` VARCHAR(256) NOT NULL , `create_date` DATETIME NOT NULL , `update_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+ALTER TABLE `inventory_ledger` ADD `is_wh_ack` TINYINT(1) NULL DEFAULT NULL AFTER `active`, ADD `wh_ack_date` DATETIME NULL DEFAULT NULL AFTER `is_wh_ack`, ADD `is_defective` TINYINT(1) DEFAULT '0' AFTER `wh_ack_date`, ADD `is_partner_ack` TINYINT(1) NULL DEFAULT NULL AFTER `is_defective`;
+ALTER TABLE `inventory_ledger` ADD `partner_ack_date` DATETIME NOT NULL AFTER `is_partner_ack`;

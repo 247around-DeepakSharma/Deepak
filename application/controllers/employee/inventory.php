@@ -17,6 +17,7 @@ class Inventory extends CI_Controller {
         $this->load->model('inventory_model');
         $this->load->model('booking_model');
         $this->load->model('employee_model');
+         $this->load->model('reusable_model');
         $this->load->library('form_validation');
         $this->load->library('session');
         $this->load->library('PHPReport');
@@ -2443,15 +2444,18 @@ class Inventory extends CI_Controller {
         
         if($model_number && $part_name && $entity_id && $entity_type && $service_id){
             $where= array('entity_id' => $entity_id, 'entity_type' => $entity_type, 'service_id' => $service_id, 'model_number' => $model_number,"part_name" => $part_name);
-            $inventory_details = $this->inventory_model->get_inventory_master_list_data('SUM(inventory_master_list.price) as price', $where);
+            $inventory_details = $this->inventory_model->get_inventory_master_list_data('SUM(inventory_master_list.price) as price,inventory_master_list.inventory_id', $where);
 
             if(!empty($inventory_details)){
                 $data['price'] = $inventory_details[0]['price'];
+                $data['inventory_id'] = $inventory_details[0]['inventory_id'];
             }else{
                 $data['price'] = '';
+                $data['inventory_id'] = '';
             }
         }else{
             $data['price'] = '';
+            $data['inventory_id'] = '';
         }
         
         echo json_encode($data);
@@ -2576,6 +2580,388 @@ class Inventory extends CI_Controller {
         
         //create job card
         $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
+    }
+    
+    
+     /**
+     *  @desc : This function is used to show the view so that partner can tag spare invoice send by him
+     *  @param : void
+     *  @return :void
+     */
+    function tag_spare_invoice_send_by_partner(){
+        $this->miscelleneous->load_nav_header();
+        $this->load->view("employee/tag_spare_invoice_send_by_partner");
+    }
+    
+    /**
+     *  @desc : This function is used to get inventory part model number
+     *  @param : void
+     *  @return : $res array() // consist response message and response status
+     */
+    function get_part_model_number(){
+        $post['length'] = -1;
+        $post['where'] = array('entity_id' => $this->input->get('entity_id'), 'entity_type' => $this->input->get('entity_type'), 'service_id' => $this->input->get('service_id'));
+        $inventory_details = $this->inventory_model->get_inventory_master_list($post, 'inventory_master_list.model_number', true);
+        
+        $option = '<option selected disabled>Select Model Number</option>';
+
+        foreach ($inventory_details as $value) {
+            $option .= "<option value='" . $value['model_number'] . "'";
+            $option .=" > ";
+            $option .= $value['model_number'] . "</option>";
+        }
+
+        echo $option;
+    }
+    
+    
+    /**
+     *  @desc : This function is used to insert spare data send by partner to warehouse
+     *  @param : void
+     *  @return : $res JSON // consist response message and response status
+     */
+    function process_spare_invoice_tagging(){
+        log_message("info",__METHOD__);
+        $partner_id = $this->input->post('partner_id');
+        $invoice_id = $this->input->post('invoice_id');
+        $invoice_dated = $this->input->post('dated');
+        $wh_id = $this->input->post('wh_id');
+        
+        if(!empty($partner_id) && !empty($invoice_id) && !empty($invoice_dated) && !empty($wh_id)){
+            $parts_details = $this->input->post('part');
+            if(!empty($parts_details)){
+                $data['invoice_id_in'] = $invoice_id;
+                $data['inventory_id_in_date'] = $invoice_dated;
+                $data['create_date'] = date('Y-m-d H:i:s');
+                foreach ($parts_details as $value){
+                    $data['quantity_in'] = $value['quantity'];
+                    $data['inventory_id'] = $value['inventory_id'];
+                    $data['booking_id'] = $value['booking_id'];
+                    
+                    //insert data into spare_invoice_mapping
+                    $insert_id = $this->inventory_model->insert_data_in_spare_invoice_mapping($data);
+                    
+                    if($insert_id){
+                        log_message("info", "Details added successfully");
+                        
+                        $ledger_data['receiver_entity_id'] = $wh_id;
+                        $ledger_data['receiver_entity_type'] = _247AROUND_SF_STRING;
+                        $ledger_data['sender_entity_id'] = $partner_id;
+                        $ledger_data['sender_entity_type'] = _247AROUND_PARTNER_STRING;
+                        $ledger_data['inventory_id'] = $value['inventory_id'];
+                        $ledger_data['quantity'] = $value['quantity'];
+                        $ledger_data['agent_id'] = $this->session->userdata('id');
+                        $ledger_data['agent_type'] = _247AROUND_EMPLOYEE_STRING;
+                        $ledger_data['booking_id'] = $value['booking_id'];
+                        $ledger_data['invoice_id'] = $invoice_id;
+                        $ledger_data['is_wh_ack'] = 0;
+                        
+                        $insert_id = $this->inventory_model->insert_inventory_ledger($ledger_data);
+                        
+                        if($insert_id){
+                            log_message("info", "Ledger details added successfully");
+                        }else{
+                            log_message("info","error in adding inventory ledger details data: ". print_r($ledger_data));
+                        }
+                        
+                    }else{
+                        log_message("info","error in adding details data: ". print_r($data));
+                    }
+                }
+                $res['status'] = TRUE;
+                $res['message'] = 'Details updated successfully';
+            }else{
+                $res['status'] = false;
+                $res['message'] = 'Please select parts details';
+            }
+        }else{
+            $res['status'] = false;
+            $res['message'] = 'All fields are requried';
+        }
+        
+        echo json_encode($res);
+    }
+    
+    
+    /**
+     *  @desc : This function is used to show all the spare list which was send by partner to warehouse and not acknowledge by warehouse
+     *  @param : void
+     *  @return : $res JSON
+     */
+    function get_spare_send_by_partner_to_wh(){
+        $post = $this->get_post_data();
+        $post['column_order'] = array();
+        $post['column_search'] = array('part_name','model_number','type');
+        $post['where'] = array('i.receiver_entity_id'=>trim($this->input->post('receiver_entity_id')),
+                               'i.receiver_entity_type' => trim($this->input->post('receiver_entity_type')),
+                               'i.sender_entity_id'=>trim($this->input->post('sender_entity_id')),
+                               'i.sender_entity_type' => trim($this->input->post('sender_entity_type')),
+                               'i.is_ack <> 1' => NULL);
+        
+        $select = "services.services,inventory_master_list.*,CASE WHEN(sc.name IS NOT NULL) THEN (sc.name) 
+                    WHEN(p.public_name IS NOT NULL) THEN (p.public_name) 
+                    WHEN (e.full_name IS NOT NULL) THEN (e.full_name) END as receiver, 
+                    CASE WHEN(sc1.name IS NOT NULL) THEN (sc1.name) 
+                    WHEN(p1.public_name IS NOT NULL) THEN (p1.public_name) 
+                    WHEN (e1.full_name IS NOT NULL) THEN (e1.full_name) END as sender,i.*";
+        $list = $this->inventory_model->get_spare_need_to_acknowledge($post,$select);
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $inventory_list) {
+            $no++;
+            $row = $this->get_spare_send_by_partner_to_wh_table($inventory_list, $no);
+            $data[] = $row;
+        }
+        
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $this->inventory_model->count_spare_need_to_acknowledge($post),
+            "recordsFiltered" =>  $this->inventory_model->count_filtered_spare_need_to_acknowledge($post),
+            "data" => $data,
+        );
+        
+        echo json_encode($output);
+    }
+    
+    
+    /**
+     *  @desc : This function is used to generate data for the spare which send by partner to wh
+     *  @param : $inventory_list array()
+     *  @param : $no string
+     *  @return :void
+     */
+    function get_spare_send_by_partner_to_wh_table($inventory_list, $no){
+        $row = array();
+        
+        $row[] = $no;
+        $row[] = $inventory_list->services;
+        $row[] = $inventory_list->model_number;
+        $row[] = $inventory_list->type;
+        $row[] = $inventory_list->part_name;
+        $row[] = $inventory_list->quantity;
+        $row[] = $row[] = "<input type='checkbox' class= 'check_single_row' id='ack_spare_$inventory_list->inventory_id' data-inventory_id='".$inventory_list->inventory_id."' data-quantity='".$inventory_list->quantity."' data-ledger_id = '".$inventory_list->id."'>";
+        
+        return $row;
+    }
+    
+    /**
+     *  @desc : This function is used to acknowledge data for the spare which send by partner to WH
+     *  @param : void
+     *  @return :$res JSON
+     */
+    function process_acknowledge_spare_send_by_partner_to_wh() {
+        log_message("info", __METHOD__);
+
+        $sender_entity_id = $this->input->post('sender_entity_id');
+        $sender_entity_type = $this->input->post('sender_entity_type');
+        $receiver_entity_id = $this->input->post('receiver_entity_id');
+        $receiver_entity_type = $this->input->post('receiver_entity_type');
+        $postData = json_decode($this->input->post('data'));
+
+        if (!empty($sender_entity_id) && !empty($sender_entity_type) && !empty($receiver_entity_id) && !empty($receiver_entity_type) && !empty($postData)) {
+            foreach ($postData as $value) {
+                //acknowledge spare by setting is_ack flag = 1 in inventory ledger table
+                $update = $this->inventory_model->update_ledger_details(array('is_wh_ack' => 1, 'wh_ack_date' => date('Y-m-d H:i:s')), array('id' => $value->ledger_id));
+                if ($update) {
+                    //update inventory stocks
+                    $is_entity_exist = $is_entity_exist = $this->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $receiver_entity_id, 'entity_type' => $receiver_entity_type, 'inventory_id' => $value->inventory_id), NULL, NULL, NULL, NULL, NULL)->result_array();
+                    if (!empty($is_entity_exist)) {
+                        $stock = "stock + '" . $value->quantity . "'";
+                        $update_stocks = $this->inventory_model->update_inventory_stock(array('id' => $is_entity_exist[0]['id']), $stock);
+                        if ($update_stocks) {
+                            log_message("info", __FUNCTION__ . " Stocks has been updated successfully");
+                            $flag = TRUE;
+                        } else {
+                            log_message("info", __FUNCTION__ . " Error in updating stocks");
+                        }
+                    } else {
+                        $insert_data['entity_id'] = $receiver_entity_id;
+                        $insert_data['entity_type'] = $receiver_entity_type;
+                        $insert_data['inventory_id'] = $value->inventory_id;
+                        $insert_data['stock'] = $value->quantity;
+                        $insert_data['create_date'] = date('Y-m-d H:i:s');
+
+                        $insert_id = $this->inventory_model->insert_inventory_stock($insert_data);
+                        if (!empty($insert_id)) {
+                            log_message("info", __FUNCTION__ . " Stocks has been inserted successfully" . print_r($insert_data, true));
+                            $flag = TRUE;
+                        } else {
+                            log_message("info", __FUNCTION__ . " Error in inserting stocks" . print_r($insert_data, true));
+                        }
+                    }
+                }
+            }
+
+            $res['status'] = TRUE;
+            $res['message'] = 'Details updated successfully';
+        } else {
+            $res['status'] = false;
+            $res['message'] = 'All fields are required';
+        }
+
+        echo json_encode($res);
+    }
+    
+    /**
+     *  @desc : This function is used to send defective spare by WH to partner
+     *  @param : void
+     *  @return :$res JSON
+     */
+    function send_defective_parts_to_partner_from_wh() {
+        log_message("info", __METHOD__);
+
+        $sender_entity_id = $this->input->post('sender_entity_id');
+        $sender_entity_type = $this->input->post('sender_entity_type');
+        $postData = json_decode($this->input->post('data'));
+
+        if (!empty($sender_entity_id) && !empty($sender_entity_type) && !empty($postData)) {
+            foreach ($postData as $value) {
+                //acknowledge spare by setting is_ack flag = 1 in inventory ledger table
+                if(!empty($value->inventory_id)){
+                    $ledger_data['receiver_entity_id'] = $value->partner_id;
+                    $ledger_data['receiver_entity_type'] = _247AROUND_PARTNER_STRING;
+                    $ledger_data['sender_entity_id'] = $sender_entity_id;
+                    $ledger_data['sender_entity_type'] = $sender_entity_type;
+                    $ledger_data['inventory_id'] = $value->inventory_id;
+                    $ledger_data['quantity'] = 1;
+                    $ledger_data['agent_id'] = $this->session->userdata('service_center_id');
+                    $ledger_data['agent_type'] = _247AROUND_SF_STRING;
+                    $ledger_data['booking_id'] = $value->booking_id;
+                    $ledger_data['is_defective'] = 1;
+
+                    $insert_id = $this->inventory_model->insert_inventory_ledger($ledger_data);
+
+                    if ($insert_id) {
+                        log_message("info", "Ledger details added successfully");
+                        $where = array('id' => $value->spare_id);
+                        $data = array('status' => DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH);
+                        $update_spare_parts = $this->service_centers_model->update_spare_parts($where,$data);
+                        if($update_spare_parts){
+                            log_message("info", "Spare Status updated  successfully");
+                            $agent_id = $this->session->userdata('service_center_agent_id');
+                            $agent_name = $this->session->userdata('service_center_name');
+                            $service_center_id =$this->session->userdata('service_center_id');
+                            $actor = ACTOR_NOT_DEFINE;
+                            $next_action = NEXT_ACTION_NOT_DEFINE;
+
+                            $this->notify->insert_state_change($value->booking_id, DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, "", DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, $agent_id, $agent_name,$actor,$next_action, NULL, $service_center_id);
+                        }else{
+                            log_message("info", "Error in updating spare details");
+                        }
+                        
+                    } else {
+                        log_message("info", "error in adding inventory ledger details data: " . print_r($ledger_data));
+                    }
+                }
+            }
+
+            $res['status'] = TRUE;
+            $res['message'] = 'Details updated successfully';
+        } else {
+            $res['status'] = false;
+            $res['message'] = 'All fields are required';
+        }
+
+        echo json_encode($res);
+    }
+    
+    
+    /**
+     *  @desc : This function is used to get data for the spare which send by WH to partner
+     *  @param : void
+     *  @return :$res JSON
+     */
+    function get_defective_spare_send_by_wh_to_partner(){
+        $post = $this->get_post_data();
+        $post['column_order'] = array();
+        $post['column_search'] = array('part_name','model_number','type');
+        $post['where'] = array('i.receiver_entity_id'=>trim($this->input->post('receiver_entity_id')),
+                               'i.receiver_entity_type' => trim($this->input->post('receiver_entity_type')),
+                               'i.is_defective' => 1,
+                               '(i.is_partner_ack IS NULL OR i.is_partner_ack = 0)' => null);
+        
+        $select = "services.services,inventory_master_list.*,CASE WHEN(sc.name IS NOT NULL) THEN (sc.name) 
+                    WHEN(p.public_name IS NOT NULL) THEN (p.public_name) 
+                    WHEN (e.full_name IS NOT NULL) THEN (e.full_name) END as receiver, 
+                    CASE WHEN(sc1.name IS NOT NULL) THEN (sc1.name) 
+                    WHEN(p1.public_name IS NOT NULL) THEN (p1.public_name) 
+                    WHEN (e1.full_name IS NOT NULL) THEN (e1.full_name) END as sender,i.*";
+        $list = $this->inventory_model->get_spare_need_to_acknowledge($post,$select);
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $inventory_list) {
+            $no++;
+            $row = $this->get_spare_send_by_wh_to_partner_table($inventory_list, $no);
+            $data[] = $row;
+        }
+        
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $this->inventory_model->count_spare_need_to_acknowledge($post),
+            "recordsFiltered" =>  $this->inventory_model->count_filtered_spare_need_to_acknowledge($post),
+            "data" => $data,
+        );
+        
+        echo json_encode($output);
+    }
+    
+    /**
+     *  @desc : This function is used to generate data for the spare which send by WH to partner
+     *  @param : void
+     *  @return :$res JSON
+     */
+    function get_spare_send_by_wh_to_partner_table($inventory_list, $no){
+        $row = array();
+        
+        $row[] = $no;
+        $row[] = $inventory_list->services;
+        $row[] = $inventory_list->model_number;
+        $row[] = $inventory_list->type;
+        $row[] = $inventory_list->part_name;
+        $row[] = $inventory_list->quantity;
+        $row[] = $row[] = "<input type='checkbox' class= 'check_single_row' id='ack_spare_$inventory_list->inventory_id' data-inventory_id='".$inventory_list->inventory_id."' data-ledger_id = '".$inventory_list->id."' data-sender_entity_id = '".$inventory_list->sender_entity_id."' data-sender_entity_type = '".$inventory_list->sender_entity_type."'>";
+        
+        return $row;
+    }
+    
+    /**
+     *  @desc : This function is used to acknowledge defective parts received by partner which send from WH
+     *  @param : void
+     *  @return :$res JSON
+     */
+    function process_ack_spare_send_by_wh() {
+        log_message("info", __METHOD__);
+
+        $receiver_entity_id = $this->input->post('receiver_entity_id');
+        $receiver_entity_type = $this->input->post('receiver_entity_type');
+        $postData = json_decode($this->input->post('data'));
+
+        if (!empty($receiver_entity_id) && !empty($receiver_entity_type) && !empty($postData)) {
+            foreach ($postData as $value) {
+                //acknowledge spare by setting is_ack flag = 1 in inventory ledger table
+                $update = $this->inventory_model->update_ledger_details(array('is_partner_ack' => 1, 'partner_ack_date' => date('Y-m-d H:i:s')), array('id' => $value->ledger_id));
+                if (!empty($update)) {
+                    log_message("info", __FUNCTION__ . " Details updated successfully");
+                    $agent_id = $this->session->userdata('agent_id');
+                    $agent_name = $this->session->userdata('partner_name');
+                    $partner_id = $this->session->userdata('partner_id');
+                    $actor = ACTOR_NOT_DEFINE;
+                    $next_action = NEXT_ACTION_NOT_DEFINE;
+
+                    $this->notify->insert_state_change($value->booking_id, PARTNER_ACK_DEFECTIVE_PARTS_SEND_BY_WH, "", PARTNER_ACK_DEFECTIVE_PARTS_SEND_BY_WH, $agent_id, $agent_name, $actor, $next_action, $partner_id);
+                } else {
+                    log_message("info", __FUNCTION__ . " Error in inserting stocks");
+                }
+            }
+
+            $res['status'] = TRUE;
+            $res['message'] = 'Details updated successfully';
+        } else {
+            $res['status'] = false;
+            $res['message'] = 'All fields are required';
+        }
+
+        echo json_encode($res);
     }
 
 }

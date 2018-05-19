@@ -3966,7 +3966,7 @@ class Partner extends CI_Controller {
         $partner_details = array();
         $select = "partners.id,public_name,company_type,primary_contact_name,primary_contact_email,primary_contact_phone_1,owner_name,owner_email,owner_phone_1,gst_number,pan";
         $where = array('is_active' => 1);
-        $partner_details['meta'] = $this->partner_model->getpartner_details($select,$where);
+        $partner_details['excel_data'] = $this->partner_model->getpartner_details($select,$where);
         $template = 'partner_summary_details.xlsx';
         $output_file = "partner_summary_details". date('d_M_Y_H_i_s');
         $partner_details['excel_data_line_item'] = array();
@@ -4340,5 +4340,11 @@ class Partner extends CI_Controller {
             $CSVData[]  = $tempArray;
         }
         $this->miscelleneous->downloadCSV($CSVData, $headings, "Spare_Part_Shipped_By_Partner_".date("Y-m-d"));
+    }
+    
+    function ack_spare_send_by_wh(){
+        $this->load->view('partner/header');
+            $this->load->view('partner/ack_spare_send_by_wh');
+            $this->load->view('partner/partner_footer');
     }
 }
