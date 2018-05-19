@@ -2712,7 +2712,8 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
                 . "Appliance : ".$bookingData[0]['services']."<br> ";
         $to = ANUJ_EMAIL_ID;  
         $cc = $bookingData[0]['official_email'].",".$amEmail[0]['official_email'].",".$this->My_CI->session->userdata("official_email");
-        $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "","we_get_bad_rating");
+        $bcc = "chhavid@247around.com";
+        $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "","we_get_bad_rating");
         log_message('info', __FUNCTION__ . " END  ".$bookingID.$number);
     }
 }
