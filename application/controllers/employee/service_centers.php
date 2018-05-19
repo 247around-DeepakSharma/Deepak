@@ -404,25 +404,32 @@ class Service_centers extends CI_Controller {
         if (isset($_POST['pod'])) {
             foreach ($pod as $unit_id => $value) {
                 if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
-                   
-                   $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number[$unit_id]));
-                    if(!empty($status)){
-                        if($status == SUCCESS_CODE){
-                            log_message('info', " Serial No validation success  for serial no ".trim($serial_number[$unit_id]));
-                        } else {
-                            $return_status = false;
-                        }
-                    } else if ($value == 1 && empty(trim($serial_number[$unit_id]))) {
-                        $return_status = false;
-                    } else if ($value == 1 && is_numeric($serial_number[$unit_id]) && $serial_number[$unit_id] == 0) {
-                        $return_status = false;
+                    
+                    switch ($value) {
+                        case 1:
+                            $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number[$unit_id]));
+                            if (!empty($status)) {
+                                if ($status['code'] == SUCCESS_CODE) {
+                                    log_message('info', " Serial No validation success  for serial no " . trim($serial_number[$unit_id]));
+                                } else {
+                                    $return_status = false;
+                                    $this->form_validation->set_message('validate_serial_no', $status['message']);
+                                }
+                            } else if ($value == 1 && empty(trim($serial_number[$unit_id]))) {
+                                $return_status = false;
+                                $this->form_validation->set_message('validate_serial_no', 'Please Enter Valid Serial Number');
+                            } else if ($value == 1 && is_numeric($serial_number[$unit_id]) && $serial_number[$unit_id] == 0) {
+                                $return_status = false;
+                                $this->form_validation->set_message('validate_serial_no', 'Please Enter Valid Serial Number');
+                            }
+                            break;
                     }
                 }
             }
             if ($return_status == true) {
                 return true;
             } else {
-                $this->form_validation->set_message('validate_serial_no', 'Please Enter Valid Serial Number');
+
                 return FALSE;
             }
         } else {
@@ -3261,14 +3268,14 @@ class Service_centers extends CI_Controller {
      */
     function create_sf_challan_file($sf_details, $partner_details, $sf_challan_number, $spare_id,$spare_details) {
         $excel_data = array();
-        $excel_data['meta']['sf_name'] = $sf_details[0]['name'];
-        $excel_data['meta']['sf_address'] = $sf_details[0]['address'];
-        $excel_data['meta']['partner_name'] = $partner_details[0]['company_name'];
-        $excel_data['meta']['partner_address'] = $partner_details[0]['address'];
-        $excel_data['meta']['partner_gst'] = $partner_details[0]['gst_number'];
-        $excel_data['meta']['partner_challan_no'] = $this->input->post('partner_challan_number')[$spare_id];
-        $excel_data['meta']['sf_challan_no'] = $sf_challan_number;
-        $excel_data['meta']['date'] = date('Y-m-d');
+        $excel_data['excel_data']['sf_name'] = $sf_details[0]['name'];
+        $excel_data['excel_data']['sf_address'] = $sf_details[0]['address'];
+        $excel_data['excel_data']['partner_name'] = $partner_details[0]['company_name'];
+        $excel_data['excel_data']['partner_address'] = $partner_details[0]['address'];
+        $excel_data['excel_data']['partner_gst'] = $partner_details[0]['gst_number'];
+        $excel_data['excel_data']['partner_challan_no'] = $this->input->post('partner_challan_number')[$spare_id];
+        $excel_data['excel_data']['sf_challan_no'] = $sf_challan_number;
+        $excel_data['excel_data']['date'] = date('Y-m-d');
         $excel_data['excel_data_line_item'] = array();
         foreach($spare_details['parts_requested'] as $value){
             if(!empty($value)){
@@ -3281,16 +3288,16 @@ class Service_centers extends CI_Controller {
             }
         }
         
-        $excel_data['meta']['total_qty'] = 1;
-        $excel_data['meta']['total_value'] = $spare_details['challan_approx_value'];
+        $excel_data['excel_data']['total_qty'] = 1;
+        $excel_data['excel_data']['total_value'] = $spare_details['challan_approx_value'];
         if ($sf_details[0]['is_gst_doc'] == 1) {
-            $excel_data['meta']['sf_gst'] = $sf_details[0]['gst_no'];
+            $excel_data['excel_data']['sf_gst'] = $sf_details[0]['gst_no'];
             $template = 'delivery_challan_with_gst.xlsx';
             $cell = FALSE;
             $signature_file = FALSE;
         } else if ($sf_details[0]['is_gst_doc'] == 0 && $sf_details[0]['is_signature_doc'] == 1) {
-            $excel_data['meta']['sf_gst'] = '';
-            $excel_data['meta']['sf_owner_name'] = $sf_details[0]['owner_name'];
+            $excel_data['excel_data']['sf_gst'] = '';
+            $excel_data['excel_data']['sf_owner_name'] = $sf_details[0]['owner_name'];
             $template = "delivery_challan_without_gst.xlsx";
             $s3_bucket = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$sf_details[0]['signature_file'];
             //get signature file from s3 and save it to server
@@ -3803,8 +3810,25 @@ class Service_centers extends CI_Controller {
 
         $booking_history['details'] = array();
         foreach ($booking_address as $key => $value) {
+        
+            $select = "contact_person.name as  primary_contact_name,contact_person.official_contact_number as primary_contact_phone_1,contact_person.alternate_contact_number as primary_contact_phone_2,"
+                    . "concat(warehouse_address_line1,',',warehouse_address_line2) as address,warehouse_details.warehouse_city as district,"
+                    . "warehouse_details.warehouse_pincode as pincode,"
+                    . "warehouse_details.warehouse_state as state";
+
+            $where = array('contact_person.entity_id' => $this->session->userdata('service_center_id'), 'contact_person.entity_type' => _247AROUND_SF_STRING);
+
+            $wh_address_details = $this->inventory_model->get_warehouse_details($select, $where, FALSE);
+            
+            $wh_sf_details = $this->vendor_model->getVendorDetails('name as company_name,address,district,state,pincode,primary_contact_phone_1',array('id' =>$this->session->userdata('service_center_id')))[0];
+            
             $booking_history['details'][$key] = $this->booking_model->getbooking_history($value, "join")[0];
-            $booking_history['details'][$key]['partner'] = $this->vendor_model->getVendorDetails('name as company_name,address,district,state,pincode,primary_contact_phone_1',array('id' =>$this->session->userdata('service_center_id')))[0];
+            if (!empty($wh_address_details)) {
+                $wh_address_details[0]['company_name'] = $wh_sf_details['company_name'];
+                $booking_history['details'][$key]['partner'] = $wh_address_details[0];
+            } else {
+                $booking_history['details'][$key]['partner'] = $wh_sf_details;
+            }
         }
 
         $this->load->view('partner/print_address', $booking_history);
@@ -3894,7 +3918,7 @@ class Service_centers extends CI_Controller {
 
         $sf_id = $this->session->userdata('service_center_id');
         $where = "spare_parts_details.partner_id = '" . $sf_id . "' AND spare_parts_details.entity_type = '"._247AROUND_SF_STRING."'"
-                . " AND approved_defective_parts_by_partner = '1' ";
+                . " AND approved_defective_parts_by_partner = '1' AND status = '"._247AROUND_COMPLETED."'";
 
         $config['base_url'] = base_url() . 'service_center/approved_defective_parts_booking_by_warehouse';
         $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
@@ -4067,5 +4091,10 @@ class Service_centers extends CI_Controller {
             $this->form_validation->set_message('validate_defective_parts_back_pic', 'Please Upload Defective Back Parts Image');
                 return FALSE;
         }
+    }
+    
+    function acknowledge_spares_send_by_partner(){
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/acknowledge_spares_send_by_partner');
     }
 }
