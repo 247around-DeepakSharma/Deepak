@@ -2766,11 +2766,20 @@ class Partner extends CI_Controller {
                 log_message('info', __FUNCTION__ . " => On Approval Booking Id" . $booking_id);
                 
                 if ($status == 0) {// means request from mail
-                    $agent_id = _247AROUND_DEFAULT_AGENT;
-                    $agent_name = _247AROUND_DEFAULT_AGENT_NAME;
-                    $partner_id = _247AROUND;
+                    $partner_id = $data[0]['partner_id'];
+                    $agent = $this->dealer_model->entity_login(array('entity' => 'partner', 'entity_id' =>$partner_id, "active" => 1 ));
+                    if(!empty($agent)){
+                        $agent_id = $agent[0]['agent_id'];
+                        $agent_name = $agent[0]['entity_name'];
+                        $agent_type = _247AROUND_PARTNER_STRING;
+                    } else {
+                        $partner_id = _247AROUND;
+                        $agent_id = _247AROUND_DEFAULT_AGENT;
+                        $agent_name = _247AROUND_DEFAULT_AGENT_NAME;
+                        $agent_type = _247AROUND_EMPLOYEE_STRING;
+                    }
                     $type = " Email";
-                    $agent_type = _247AROUND_EMPLOYEE_STRING;
+                   
                 } else {
                     $agent_id = $this->session->userdata('agent_id');
                     $agent_name = $this->session->userdata('partner_name');
@@ -2778,6 +2787,7 @@ class Partner extends CI_Controller {
                     $type = " Panel";
                     $agent_type = _247AROUND_PARTNER_STRING;
                 }
+                
                 // Insert log into booking state change
                 $this->notify->insert_state_change($booking_id, UPCOUNTRY_CHARGES_APPROVED, _247AROUND_PENDING, "Upcountry Charges Approved From " . $type, $agent_id, $agent_name, 
                         ACTOR_UPCOUNTRY_CHARGES_APPROV_BY_PARTNER,NEXT_ACTION_UPCOUNTRY_CHARGES_APPROV_BY_PARTNER,$partner_id);
@@ -2859,9 +2869,19 @@ class Partner extends CI_Controller {
                 $next_action = $partner_status[3];
             }
             if ($status == 0) {// means request from mail
-                $agent_id = _247AROUND_DEFAULT_AGENT;
-                $agent_name = _247AROUND_DEFAULT_AGENT_NAME;
-                $partner_id = _247AROUND;
+                
+                $partner_id = $data[0]['partner_id'];
+              
+                $agent = $this->dealer_model->entity_login(array('entity' => 'partner', 'entity_id' =>$partner_id, "active" => 1 ));
+                if(!empty($agent)){
+                    $agent_id = $agent[0]['agent_id'];
+                    $agent_name = $agent[0]['entity_name'];
+                } else {
+                    $partner_id = _247AROUND;
+                    $agent_id = _247AROUND_DEFAULT_AGENT;
+                    $agent_name = _247AROUND_DEFAULT_AGENT_NAME;
+                }
+                
                 $type = " Email";
             } else {
                 $agent_id = $this->session->userdata('agent_id');

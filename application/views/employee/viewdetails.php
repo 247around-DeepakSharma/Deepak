@@ -296,7 +296,7 @@
                                 <th>Brand</th>
                                 <th>Category/<br/>Capacity</th>
                                 <th>Model Number</th>
-                                <th>Serial Number</th>
+                                <th>SF Serial Number / Partner Serial Number</th>
                                 <th>Purchase Date</th>
                                 <th>Description</th>
                                 <th>Service Category</th>
@@ -338,7 +338,7 @@
                                     <td><?php echo $unit_detail['appliance_brand']?></td>
                                     <td><?php echo $unit_detail['appliance_category']."/<br/>".$unit_detail['appliance_capacity']?></td>
                                     <td><?php echo $unit_detail['model_number']?></td>
-                                    <td><?php echo $unit_detail['serial_number']?></td>
+                                    <td><?php echo $unit_detail['serial_number']?> / <?php echo $unit_detail['partner_serial_number']?></td>
                                     <td><?php if(!empty($unit_detail['purchase_month'])) {echo $unit_detail['purchase_month'];}?></td>
                                     <td><?php echo $unit_detail['appliance_description']?></td>
                                     <?php if($booking_history[0]['current_status'] != "Completed"){ ?>
@@ -429,7 +429,8 @@
                                         <th >Requested Date</th>
                                         <th >Invoice Image </th>
                                         <th >Serial Number Image </th>
-                                        <th >Defective Part Image </th>
+                                        <th >Defective Front Part Image </th>
+                                        <th >Defective Back Part Image </th>
                                         <th >Serial Number </th>
                                         <th >Acknowledge Date BY SF </th>
                                         <th >Remarks By SC </th>
@@ -442,21 +443,27 @@
                                         <td><?php echo $sp['model_number']; ?></td>
                                         <td><?php echo $sp['parts_requested']; ?></td>
                                         <td><?php echo $sp['create_date']; ?></td>
-                                        <td><div class="progress-bar progress-bar-success myprogress" id="myprogressinvoice_pic" role="progressbar" style="width:0%">0%</div><?php if (!is_null($sp['invoice_pic'])) {
+                                        <td><div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogressinvoice_pic".$sp['id'] ?>" role="progressbar" style="width:0%">0%</div><?php if (!is_null($sp['invoice_pic'])) {
                                             if ($sp['invoice_pic'] != '0') {
                                                 ?> <a href="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $sp['invoice_pic']; ?> " target="_blank" id="<?php echo "a_invoice_pic_".$sp['id']; ?>">Click Here</a> &nbsp;&nbsp;<i id="<?php echo "invoice_pic_".$sp['id']; ?>" class="fa fa-pencil fa-lg" onclick="openfileDialog('<?php echo $sp["id"];?>','invoice_pic');"></i><?php }
                                             }
                                             ?>
                                         </td>
-                                        <td><div class="progress-bar progress-bar-success myprogress" id="myprogressserial_number_pic" role="progressbar" style="width:0%">0%</div><?php if (!is_null($sp['serial_number_pic'])) {
+                                        <td><div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogressserial_number_pic".$sp['id'] ?>"  role="progressbar" style="width:0%">0%</div><?php if (!is_null($sp['serial_number_pic'])) {
                                             if ($sp['serial_number_pic'] !== '0') {
                                                 ?> <a href="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $sp['serial_number_pic']; ?> " target="_blank" id="<?php echo "a_serial_number_pic_".$sp['id']; ?>">Click Here</a> &nbsp;&nbsp;<i id="<?php echo "serial_number_pic_".$sp['id']; ?>" class="fa fa-pencil fa-lg" onclick="openfileDialog('<?php echo $sp["id"];?>','serial_number_pic');"></i><?php }
                                             }
                                             ?>
                                         </td>
-                                        <td><div class="progress-bar progress-bar-success myprogress" id="myprogressdefective_parts_pic" role="progressbar" style="width:0%">0%</div><?php if (!is_null($sp['defective_parts_pic'])) {
+                                        <td><div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogressdefective_parts_pic".$sp['id'] ?>"  role="progressbar" style="width:0%">0%</div><?php if (!is_null($sp['defective_parts_pic'])) {
                                             if ($sp['defective_parts_pic'] !== '0') {
                                                 ?> <a href="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $sp['defective_parts_pic']; ?> " target="_blank" id="<?php echo "a_defective_parts_pic_".$sp['id']; ?>">Click Here</a>&nbsp;&nbsp;<i id="<?php echo "defective_parts_pic_".$sp['id']; ?>" class="fa fa-pencil fa-lg" onclick="openfileDialog('<?php echo $sp["id"];?>','defective_parts_pic');"></i><?php }
+                                            }
+                                            ?>
+                                        </td>
+                                        <td><div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogressdefective_back_parts_pic".$sp['id'] ?>" role="progressbar" style="width:0%">0%</div><?php if (!is_null($sp['defective_back_parts_pic'])) {
+                                            if ($sp['defective_back_parts_pic'] !== '0') {
+                                                ?> <a href="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $sp['defective_back_parts_pic']; ?> " target="_blank" id="<?php echo "a_defective_back_parts_pic_".$sp['id']; ?>">Click Here</a>&nbsp;&nbsp;<i id="<?php echo "defective_back_parts_pic_".$sp['id']; ?>" class="fa fa-pencil fa-lg" onclick="openfileDialog('<?php echo $sp["id"];?>','defective_back_parts_pic');"></i><?php }
                                             }
                                             ?>
                                         </td>
@@ -1180,14 +1187,15 @@ function uploadfile(){
                         if (evt.lengthComputable) {
                             var percentComplete = evt.loaded / evt.total;
                             percentComplete = parseInt(percentComplete * 100);
-                            $('#myprogress' + spareFileColumn).text(percentComplete + '%');
-                            $('#myprogress' + spareFileColumn).css('width', percentComplete + '%');
+                            console.log('#myprogress' + spareFileColumn + spareID);
+                            $('#myprogress' + spareFileColumn + spareID).text(percentComplete + '%');
+                            $('#myprogress' + spareFileColumn + spareID).css('width', percentComplete + '%');
                         }
                     }, false);
                     return xhr;
                 },
                 success: function (response) {
-                    $('#myprogress' + spareFileColumn).css('width', '0%');
+                    $('#myprogress' + spareFileColumn + spareID).css('width', '0%');
                     obj = JSON.parse(response);
                     
                     if(obj.code === "success"){

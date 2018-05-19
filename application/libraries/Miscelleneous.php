@@ -350,6 +350,7 @@ class Miscelleneous {
                         $this->My_CI->service_centers_model->delete_booking_id($booking_id);
                         $this->My_CI->notify->insert_state_change($booking_id, "Waiting Partner Approval", _247AROUND_PENDING, "Waiting Upcountry to Approval", $agent_id, $agent_name, 
                                 $actor,$next_action,_247AROUND);
+                        
                         $up_mail_data['name'] = $query1[0]['name'];
                         $up_mail_data['appliance'] = $query1[0]['services'];
                         $up_mail_data['booking_address'] = $query1[0]['booking_address'];
@@ -362,8 +363,11 @@ class Miscelleneous {
                         $up_mail_data['appliance_brand'] = $unit_details[0]['appliance_brand'];
                         $up_mail_data['appliance_category'] = $unit_details[0]['appliance_category'];
                         $up_mail_data['appliance_capacity'] = $unit_details[0]['appliance_capacity'];
-                        $up_mail_data['upcountry_distance'] = $booking['upcountry_distance'];
+                        $up_mail_data['upcountry_distance'] = sprintf("%0.2f",$booking['upcountry_distance']);
                         $up_mail_data['partner_upcountry_rate'] = $booking['partner_upcountry_rate'];
+                        $up_mail_data['municipal_limit'] = $query1[0]['municipal_limit'];
+                        $up_mail_data['upcountry_pincode'] =  $booking['upcountry_pincode'];
+                        
 
                         $message1 = $this->My_CI->load->view('employee/upcountry_approval_template', $up_mail_data, true);
                         
@@ -374,7 +378,7 @@ class Miscelleneous {
                         } else {
                             $subject = "Upcountry Charges Approval Required - Booking ID " . $query1[0]['booking_id'];
                             $to = $data['upcountry_approval_email'];
-                            $cc = NITS_ANUJ_EMAIL_ID.",".$partner_am_email.$rm_email;
+                            $cc = $partner_am_email.$rm_email;
                             //Send Push Notification
                         $receiverArray['partner'] = array($query1[0]['partner_id']);
                         $notificationTextArray['msg'] = array($booking_id);
@@ -2650,7 +2654,9 @@ function convert_html_to_pdf($html,$booking_id,$filename,$s3_folder){
         
         $data = array();
         $data[JEEVES_ID][CALLBACK_SCHEDULED] = JEEVES_CUSTOMER_RESCHEDULED;
+        $data[JEEVES_ID][RESCHEDULE_FOR_UPCOUNTRY] = JEEVES_CUSTOMER_RESCHEDULED;
         $data[JEEVES_ID][CUSTOMER_NOT_REACHABLE] = JEEVES_CUSTOMER_NO_RESPONSE;
+        $data[JEEVES_ID][ENGINEER_ON_ROUTE] = JEEVES_CUSTOMER_RESCHEDULED;
         $data[JEEVES_ID][CUSTOMER_ASK_TO_RESCHEDULE] = JEEVES_CUSTOMER_RESCHEDULED;
         $data[JEEVES_ID][PRODUCT_NOT_DELIVERED_TO_CUSTOMER] = JEEVES_PRODUCT_NOT_DELIVERED;
         
@@ -2741,18 +2747,24 @@ function convert_html_to_pdf($html,$booking_id,$filename,$s3_folder){
             $bookingDetails = $this->booking_model->get_missed_call_rating_booking_count($number);
             $bookingID = $bookingDetails[0]['booking_id'];
         }
-        $select = "employee.official_email";
+        $select = "booking_details.*,employee.official_email,service_centres.name,services.services";
         $where["booking_details.booking_id"] = $bookingID; 
         $partnerJoin["partners"] = "partners.id=booking_details.partner_id";
         $join["employee_relation"] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.service_centres_id)";
         $join["employee"] = "employee.id=employee_relation.agent_id";
+        $join["service_centres"] = "service_centres.id=booking_details.assigned_vendor_id";
+        $join["services"] = "services.id=booking_details.service_id";
         $partnerJoin["employee"] = "employee.id=partners.account_manager_id";
-        $rmEmail = $this->My_CI->reusable_model->get_search_result_data("booking_details",$select,$where,$join,NULL,NULL,NULL,NULL,array());
-        $amEmail = $this->My_CI->reusable_model->get_search_result_data("booking_details",$select,$where,$partnerJoin,NULL,NULL,NULL,NULL,array());
+        $bookingData = $this->My_CI->reusable_model->get_search_result_data("booking_details",$select,$where,$join,NULL,NULL,NULL,NULL,array());
+        $amEmail = $this->My_CI->reusable_model->get_search_result_data("booking_details","employee.official_email",$where,$partnerJoin,NULL,NULL,NULL,NULL,array());
         $subject = 'Bad Feedback From Customer, Rating ('.$rating.') For '.$bookingID;
-        $message = "Please take any action to check why we get bad rating ";
+        $message = "Please take action as Customer is Not Satisfied with our Service.<br>"
+                . "SF : ".$bookingData[0]['name']."<br>"
+                . "Customer remarks : ".$bookingData[0]['rating_comments']."<br> "
+                . "Request Type : ".$bookingData[0]['request_type']."<br> "
+                . "Appliance : ".$bookingData[0]['services']."<br> ";
         $to = ANUJ_EMAIL_ID;  
-        $cc = $rmEmail[0]['official_email'].",".$amEmail[0]['official_email'].",".$this->My_CI->session->userdata("official_email");
+        $cc = $bookingData[0]['official_email'].",".$amEmail[0]['official_email'].",".$this->My_CI->session->userdata("official_email");
         $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "","we_get_bad_rating");
         log_message('info', __FUNCTION__ . " END  ".$bookingID.$number);
     }

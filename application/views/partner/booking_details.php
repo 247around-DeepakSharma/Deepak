@@ -124,7 +124,7 @@
                                             <th>Category</th>
                                             <th>Capacity</th>
                                             <th>Model Number</th>
-                                            <th>Serial Number</th>
+                                            <th>SF Serial Number / <?php echo $booking_history[0]['public_name'] ?> Serial Number</th>
                                             <th>Description</th>
                                             <th>Purchase Date</th>
                                             <th>Call Type</th>
@@ -155,7 +155,7 @@
                                                     <td><?php echo $unit_detail['appliance_category'] ?></td>
                                                     <td><?php echo $unit_detail['appliance_capacity'] ?></td>
                                                     <td><?php echo $unit_detail['model_number'] ?></td>
-                                                    <td><?php echo $unit_detail['serial_number'] ?></td>
+                                                    <td><?php echo $unit_detail['serial_number'] ." / ".$unit_detail['partner_serial_number'] ?></td>
                                                     <td><?php echo $unit_detail['appliance_description'] ?></td>
                                                     <td><?php if(!empty($unit_detail['purchase_date'])) {echo $unit_detail['purchase_date'];}?></td>
                                                         <?php if ($booking_history[0]['current_status'] != "Completed") { ?>
@@ -230,7 +230,8 @@
                                                             <th >Requested Date</th>
                                                             <th >Invoice Image </th>
                                                             <th >Serial Number Image </th>
-                                                            <th >Defective Part Image </th>
+                                                            <th >Defective Front Part Image </th>
+                                                            <th >Defective Back Part Image </th>
                                                             <th >Serial Number </th>
                                                             <th >Acknowledge Date BY SF </th>
                                                             <th >Remarks By SC </th>
@@ -246,7 +247,7 @@
                                                                 <td><?php
                                                                     if (!is_null($sp['invoice_pic'])) {
                                                                         if ($sp['invoice_pic'] != '0') {
-                                                                            ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['invoice_pic']; ?> " target="_blank">Click Here to view Invoice Image</a><?php
+                                                                            ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['invoice_pic']; ?> " target="_blank">Click Here</a><?php
                                                                         }
                                                                     }
                                                                     ?>
@@ -254,7 +255,7 @@
                                                                 <td><?php
                                                             if (!is_null($sp['serial_number_pic'])) {
                                                                 if ($sp['serial_number_pic'] !== '0') {
-                                                                    ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['serial_number_pic']; ?> " target="_blank">Click Here to view Serial Number Image</a><?php
+                                                                    ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['serial_number_pic']; ?> " target="_blank">Click Here</a><?php
                                                                 }
                                                             }
                                                             ?>
@@ -262,7 +263,16 @@
                                                                 <td><?php
                                                             if (!is_null($sp['defective_parts_pic'])) {
                                                                 if ($sp['defective_parts_pic'] !== '0') {
-                                                                    ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['defective_parts_pic']; ?> " target="_blank">Click Here to view Defective Part Image</a><?php
+                                                                    ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['defective_parts_pic']; ?> " target="_blank">Click Here</a><?php
+                                                                }
+                                                            }
+                                                            ?>
+                                                                </td>
+                                                             </td>
+                                                                <td><?php
+                                                            if (!is_null($sp['defective_back_parts_pic'])) {
+                                                                if ($sp['defective_back_parts_pic'] !== '0') {
+                                                                    ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['defective_back_parts_pic']; ?> " target="_blank">Click Here</a><?php
                                                                 }
                                                             }
                                                             ?>

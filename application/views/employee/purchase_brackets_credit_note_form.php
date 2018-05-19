@@ -47,7 +47,7 @@
                                 <label class="control-label col-md-3 col-sm-3 col-xs-12 allownumericwithdecimal" for="courier_charges">Courier Charges <span class="required">*</span>
                                 </label>
                                 <div class="col-md-6 col-sm-6 col-xs-12">
-                                    <input type="text" id="courier_charges" required="required" class="form-control col-md-7 col-xs-12" name="courier_charges">
+                                    <input type="number" id="courier_charges" step=".02" required="required" class="form-control col-md-7 col-xs-12" name="courier_charges">
                                     <span class="text-danger"><?php echo form_error('courier_charges'); ?></span>
                                 </div>
                             </div>

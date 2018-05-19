@@ -231,7 +231,7 @@ class Booking_model extends CI_Model {
                 . " AND bd.closed_date >= DATE_FORMAT(CURDATE(), '%Y-%m-01') - INTERVAL 2 MONTH "
                 . " AND rp.from_number = bd.booking_primary_contact_no "
                 . " AND u.user_id = bd.user_id "
-                . " AND rp.create_date >= bd.closed_date";
+                . " AND rp.create_date >= bd.closed_date AND rating_unreachable_count < 3";
         
         $query = $this->db->query($sql);
         return $query->result_array();
@@ -1010,7 +1010,6 @@ class Booking_model extends CI_Model {
         $query = $this->db->query($sql1);
 
         $appl = $query->result_array();
-
         for ($i = 0; $i < $count; $i++) {
             $appl[$i]['user_id'] = $user_id;
             //log_message('info', "Sample Appl: " . print_r($appl, TRUE));
@@ -1018,7 +1017,7 @@ class Booking_model extends CI_Model {
             $sql2 = "INSERT INTO appliance_details "
                     . "(`service_id`, `brand`, `category`, `capacity`, "
                     . "`model_number`, `tag`, `purchase_date`, `rating`, `user_id`)"
-                    . "VALUES (?,?,?,?,?, ?,?,?,?,?)";
+                    . "VALUES (?,?,?,?,?, ?,?,?,?)";
 
             $this->db->query($sql2, $appl[$i]);
         }

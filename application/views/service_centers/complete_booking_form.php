@@ -88,7 +88,7 @@
                     </div>
                     <!-- row End  -->
                     <?php $required_sp_id = array(); ?>
-                    <?php  $flag = 0; if(isset($booking_history['spare_parts'])){ 
+                    <?php  $flag = 0; $requestedParts = false; if(isset($booking_history['spare_parts'])){ 
                         foreach ($booking_history['spare_parts'] as  $value) {
                             if($value['status'] == "Completed" || $value['status'] == "Cancelled"){} else {
                                 if($value['defective_part_required'] == 1){
@@ -97,6 +97,10 @@
                                         array_push($required_sp_id, $value['id']);   
                                     }
                                 }
+                            }
+                            
+                            if($value['status'] == SPARE_PARTS_REQUESTED){
+                                $requestedParts = true;
                             }
          
                         }
@@ -180,6 +184,8 @@
                                                             <?php if ($price['pod'] == "1" || !empty($sr)) { ?>
                                                             <div class="form-group">
                                                                 <div class="col-md-12">
+                                                                    <input type="hidden" id="<?php echo "appliance_id" . $count ?>" name="<?php echo "appliance_id[" . $price['unit_id'] . "]" ?>"
+                                                                           value="<?php echo $unit_details['appliance_id'];?>" />
                                                                     <input type="hidden" id="<?php echo "serial_number_pic" . $count ?>" class="form-control" name="<?php echo "serial_number_pic[" . $price['unit_id'] . "]" ?>" 
                                                                         value="<?php if(isset($price['en_serial_number_pic'])){ echo $price['en_serial_number_pic'];} else {$price["serial_number_pic"];}  ?>" placeholder=""   />
                                                                     <input type="text" id="<?php echo "serial_number" . $count ?>" class="form-control" name="<?php echo "serial_number[" . $price['unit_id'] . "]" ?>" 
@@ -346,11 +352,18 @@
                         </div>
                     </div>
                     <div class="form-group  col-md-12" >
-                        <center style="margin-top:60px;">
-                            <input type="submit" id="submitform"  onclick="return onsubmit_form('<?php echo $booking_history[0]['upcountry_paid_by_customer']; ?>', '<?php echo $count; ?>', '<?php echo count($bookng_unit_details)?>')" class="btn btn-lg" style="background-color: #2C9D9A;
+                        <?php if($requestedParts) { ?>
+                         <center style="margin-top:60px; font-weight: bold;">
+                            <?php echo UNABLE_COMPLETE_BOOKING_SPARE_MSG;?>
+                         </center>
+                        <?php } else { ?>
+                            <center style="margin-top:60px;">
+                                <input type="submit" id="submitform"  onclick="return onsubmit_form('<?php echo $booking_history[0]['upcountry_paid_by_customer']; ?>', '<?php echo $count; ?>', '<?php echo count($bookng_unit_details)?>')" class="btn btn-lg" style="background-color: #2C9D9A;
                                 border-color: #2C9D9A; color:#fff;" value="Complete Booking">
+                            </center>
+                        <?php }?>
                     </div>
-                    </center>
+                    
             </div>
             </form>
             <!-- end Panel Body  -->
