@@ -4204,14 +4204,18 @@ class Booking extends CI_Controller {
                 
             }
             if($flag)  {
-                echo $option;
+                $res['status'] = TRUE;
+                $res['msg'] = $option;
             } else {
-                echo "no data found";
+                $res['status'] = FALSE;
+                $res['msg'] = 'no data found';
             }
             
         }else{
-            echo "no data found";
+            $res['status'] = FALSE;
+            $res['msg'] = 'no data found';
         }
+        echo json_encode($res);
         
     }
 
