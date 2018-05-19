@@ -1802,8 +1802,8 @@ class Miscelleneous {
         $R->load(array(
             array(
                 'id' => 'excel_data',
-                'repeat' => $repeat,
-                'data' => $data['meta'],
+                'repeat' => false,
+                'data' => $data['excel_data'],
             ),
             array(
                 'id' => 'excel_data_line_item',

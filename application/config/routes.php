@@ -106,7 +106,7 @@ $route['service_center/acknowledge_received_defective_parts/(:any)/(:any)'] = 'e
 $route['service_center/approved_defective_parts_booking_by_warehouse'] = 'employee/service_centers/get_approved_defective_parts_booking_by_warehouse';
 $route['service_center/approved_defective_parts_booking_by_warehouse/(:any)'] = 'employee/service_centers/get_approved_defective_parts_booking_by_warehouse/$1';
 $route['service_center/download_sf_declaration/(:any)'] = 'employee/service_centers/download_sf_declaration/$1'; 
-
+$route['service_center/acknowledge_spares_send_by_partner'] = 'employee/service_centers/acknowledge_spares_send_by_partner';
 
 
 $route['call-customer-status-callback'] = 'employee/booking/call_customer_status_callback';
@@ -175,7 +175,7 @@ $route['partner/download_waiting_upcountry_bookings'] = 'employee/partner/downlo
 $route['partner/download_spare_part_shipped_by_partner'] = 'employee/partner/download_spare_part_shipped_by_partner';
 $route['partner/download_sf_needs_to_send_parts'] = 'employee/partner/download_sf_needs_to_send_parts';
 $route['partner/download_received_spare_by_partner'] = 'employee/partner/download_received_spare_by_partner';
-
+$route['partner/inventory/ack_spare_send_by_wh'] = 'employee/partner/ack_spare_send_by_wh';
 
 
 

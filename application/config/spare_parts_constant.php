@@ -43,3 +43,6 @@ define("SPARE_DELIVERED_TO_SF", "Delivered");
 define("SPARE_SHIPPED_BY_PARTNER", "Shipped");
 
 define("SPARE_PARTS_NOT_DELIVERED_TO_SF", "Spare parts not received");
+
+define('DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH','Defective parts send by warehouse to partner');
+define('PARTNER_ACK_DEFECTIVE_PARTS_SEND_BY_WH','Partner acknowledge defective parts send by warehouse');

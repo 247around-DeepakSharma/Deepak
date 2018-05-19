@@ -3252,14 +3252,14 @@ class Service_centers extends CI_Controller {
      */
     function create_sf_challan_file($sf_details, $partner_details, $sf_challan_number, $spare_id,$spare_details) {
         $excel_data = array();
-        $excel_data['meta']['sf_name'] = $sf_details[0]['name'];
-        $excel_data['meta']['sf_address'] = $sf_details[0]['address'];
-        $excel_data['meta']['partner_name'] = $partner_details[0]['company_name'];
-        $excel_data['meta']['partner_address'] = $partner_details[0]['address'];
-        $excel_data['meta']['partner_gst'] = $partner_details[0]['gst_number'];
-        $excel_data['meta']['partner_challan_no'] = $this->input->post('partner_challan_number')[$spare_id];
-        $excel_data['meta']['sf_challan_no'] = $sf_challan_number;
-        $excel_data['meta']['date'] = date('Y-m-d');
+        $excel_data['excel_data']['sf_name'] = $sf_details[0]['name'];
+        $excel_data['excel_data']['sf_address'] = $sf_details[0]['address'];
+        $excel_data['excel_data']['partner_name'] = $partner_details[0]['company_name'];
+        $excel_data['excel_data']['partner_address'] = $partner_details[0]['address'];
+        $excel_data['excel_data']['partner_gst'] = $partner_details[0]['gst_number'];
+        $excel_data['excel_data']['partner_challan_no'] = $this->input->post('partner_challan_number')[$spare_id];
+        $excel_data['excel_data']['sf_challan_no'] = $sf_challan_number;
+        $excel_data['excel_data']['date'] = date('Y-m-d');
         $excel_data['excel_data_line_item'] = array();
         foreach($spare_details['parts_requested'] as $value){
             if(!empty($value)){
@@ -3272,16 +3272,16 @@ class Service_centers extends CI_Controller {
             }
         }
         
-        $excel_data['meta']['total_qty'] = 1;
-        $excel_data['meta']['total_value'] = $spare_details['challan_approx_value'];
+        $excel_data['excel_data']['total_qty'] = 1;
+        $excel_data['excel_data']['total_value'] = $spare_details['challan_approx_value'];
         if ($sf_details[0]['is_gst_doc'] == 1) {
-            $excel_data['meta']['sf_gst'] = $sf_details[0]['gst_no'];
+            $excel_data['excel_data']['sf_gst'] = $sf_details[0]['gst_no'];
             $template = 'delivery_challan_with_gst.xlsx';
             $cell = FALSE;
             $signature_file = FALSE;
         } else if ($sf_details[0]['is_gst_doc'] == 0 && $sf_details[0]['is_signature_doc'] == 1) {
-            $excel_data['meta']['sf_gst'] = '';
-            $excel_data['meta']['sf_owner_name'] = $sf_details[0]['owner_name'];
+            $excel_data['excel_data']['sf_gst'] = '';
+            $excel_data['excel_data']['sf_owner_name'] = $sf_details[0]['owner_name'];
             $template = "delivery_challan_without_gst.xlsx";
             $s3_bucket = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$sf_details[0]['signature_file'];
             //get signature file from s3 and save it to server
@@ -3885,7 +3885,7 @@ class Service_centers extends CI_Controller {
 
         $sf_id = $this->session->userdata('service_center_id');
         $where = "spare_parts_details.partner_id = '" . $sf_id . "' AND spare_parts_details.entity_type = '"._247AROUND_SF_STRING."'"
-                . " AND approved_defective_parts_by_partner = '1' ";
+                . " AND approved_defective_parts_by_partner = '1' AND status = '"._247AROUND_COMPLETED."'";
 
         $config['base_url'] = base_url() . 'service_center/approved_defective_parts_booking_by_warehouse';
         $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
@@ -4054,5 +4054,10 @@ class Service_centers extends CI_Controller {
             $this->form_validation->set_message('validate_defective_parts_pic', 'Please Upload Defective Parts Image');
                 return FALSE;
         }
+    }
+    
+    function acknowledge_spares_send_by_partner(){
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/acknowledge_spares_send_by_partner');
     }
 }
