@@ -806,5 +806,115 @@ class Inventory_model extends CI_Model {
       $this->db->insert_ignore_duplicate_batch('inventory_master_list', $data);
       return $this->db->insert_id();
     }
+    
+    /**
+     * @desc This is used to insert details into spare_invoice_mapping table
+     * @param Array $data
+     * @return string
+     */
+    function insert_data_in_spare_invoice_mapping($data){
+        $this->db->insert('spare_invoice_mapping', $data);
+        return $this->db->insert_id();
+    }
+    
+    function _get_spare_need_to_acknowledge($post,$select){
+        if (empty($select)) {
+            $select = '*';
+        }
+        $this->db->select($select,FALSE);
+        $this->db->from('inventory_ledger as i');
+        $this->db->join('inventory_master_list', 'inventory_master_list.inventory_id = i.id','left');
+        $this->db->join('services', 'services.id = inventory_master_list.service_id','left');
+        $this->db->join('service_centres as sc', "sc.id = i.receiver_entity_id AND i.receiver_entity_type = 'vendor'",'left');
+        $this->db->join('partners as p', "p.id = i.receiver_entity_id AND i.receiver_entity_type = 'partner'",'left');
+        $this->db->join('employee as e', "e.id = i.receiver_entity_id AND i.receiver_entity_type = 'employee'",'left');
+        $this->db->join('service_centres as sc1', "sc1.id = i.sender_entity_id AND i.sender_entity_type = 'vendor'",'left');
+        $this->db->join('partners as p1', "p1.id = i.sender_entity_id AND i.sender_entity_type = 'partner'",'left');
+        $this->db->join('employee as e1', "e1.id = i.sender_entity_id AND i.sender_entity_type = 'employee'",'left');
+        if (!empty($post['where'])) {
+            $this->db->where($post['where']);
+        }
+        
+        if (!empty($post['search_value'])) {
+            $like = "";
+            foreach ($post['column_search'] as $key => $item) { // loop column 
+                // if datatable send POST for search
+                if ($key === 0) { // first loop
+                    $like .= "( " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+
+        if (!empty($post['order'])) {
+            $this->db->order_by($post['column_order'][$post['order'][0]['column']], $post['order'][0]['dir']);
+        } else {
+            $this->db->order_by('i.create_date','asc');
+        }
+        
+        if(!empty($post['group_by'])){
+            $this->db->group_by($post['group_by']);
+        }
+    }
+    
+    
+    function get_spare_need_to_acknowledge($post, $select = "",$is_array = false){
+        $this->_get_spare_need_to_acknowledge($post, $select);
+        if ($post['length'] != -1) {
+            $this->db->limit($post['length'], $post['start']);
+        }
+        
+        $query = $this->db->get();
+        if($is_array){
+            return $query->result_array();
+        }else{
+            return $query->result();
+        }
+    }
+    
+    /**
+     *  @desc : This function is used to get total inventory stocks
+     *  @param : $post string
+     *  @return: Array()
+     */
+    public function count_spare_need_to_acknowledge($post) {
+        $this->_get_spare_need_to_acknowledge($post, 'count(distinct(i.id)) as numrows');
+        $query = $this->db->get();
+        return $query->result_array()[0]['numrows'];
+    }
+    
+    /**
+     *  @desc : This function is used to get total filtered inventory stocks
+     *  @param : $post string
+     *  @return: Array()
+     */
+    function count_filtered_spare_need_to_acknowledge($post){
+        $this->_get_spare_need_to_acknowledge($post, 'count(distinct(i.id)) as numrows');
+        $query = $this->db->get();
+        return $query->result_array()[0]['numrows'];
+    }
+    
+    
+    /**
+     *  @desc : This function is used to update inventory ledger details
+     *  @param : $data array
+     *  @param : $where array
+     *  @return: Array()
+     */
+    function update_ledger_details($data,$where){
+        $this->db->where($where);
+        $this->db->update('inventory_ledger',$data);
+        if($this->db->affected_rows() > 0){
+            $response = true;
+        }else{
+            $response = false;
+        }
+        
+        return $response;
+    }
 
 }
