@@ -8,6 +8,7 @@ include('paytm_payment_constant.php');
 include('booking_status_actor_next_action_constant.php');
 include('paytm_gateway_transaction.php');
 include('partners_id_constant.php');
+include('serial_number_failed_msg_constant.php');
 /*
 |--------------------------------------------------------------------------
 | File and Directory Modes
