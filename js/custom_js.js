@@ -153,15 +153,17 @@ function getPricesForCategoryCapacity(div_id) {
 
             postData['capacity'] = "";
         }
-        //  $("#priceList_" + div_no[2]).html("Loading......");
-        sendAjaxRequest(postData, pricesForCategoryCapacityUrl).done(function (data) {
-            console.log(data);
-            var data1 = jQuery.parseJSON(data);
+        if(postData['category']){
+            //  $("#priceList_" + div_no[2]).html("Loading......");
+            sendAjaxRequest(postData, pricesForCategoryCapacityUrl).done(function (data) {
+                console.log(data);
+                var data1 = jQuery.parseJSON(data);
 
-            $("#priceList_" + div_no[2]).html(data1.price_table);
-            $("#upcountry_data").val(data1.upcountry_data);
-            final_price();
-        });
+                $("#priceList_" + div_no[2]).html(data1.price_table);
+                $("#upcountry_data").val(data1.upcountry_data);
+                final_price();
+            });
+        }
 
 
         $(this).dequeue();
@@ -762,8 +764,8 @@ function getModelForServiceCategoryCapacity(div_id) {
 
     if (postData['category']) {
         sendAjaxRequest(postData, modelServiceUrl).done(function (data) {
-            //console.log(data);
-            if(data === 'no data found'){
+            var obj = JSON.parse(data);
+            if(obj.status === false){
                 $('.select-model').hide();
                 $('.input-model').show();
                 $('.input-model').removeAttr('disabled');
@@ -771,7 +773,7 @@ function getModelForServiceCategoryCapacity(div_id) {
                 $('.select-model').show();
                 $('.input-model').attr('disabled', 'disabled');
                 $('.input-model').hide();
-                $(".select-model#model_number_" + div_no[2]).html(data);
+                $(".select-model#model_number_" + div_no[2]).html(obj.msg);
             }
             
         });
