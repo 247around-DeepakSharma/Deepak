@@ -182,9 +182,9 @@ $route['dealers/process_addbooking'] = 'employee/dealers/process_addbooking';
 $route['login/dealer_logout'] = 'employee/login/dealer_logout';
 
 $route['payment/details'] = 'employee/partner/payment_details';
-$route['payment/checkout_processing'] = 'paytm_gateway/process_paytm_transaction';
+$route['payment/checkout'] = 'paytm_gateway/process_paytm_transaction';
 $route['payment/response'] = 'paytm_gateway/paytm_response';
-$route['payment/payment_confirmation'] = 'paytm_gateway/show_payment_confirmation';
+$route['payment/confirmation'] = 'paytm_gateway/show_payment_confirmation';
 $route['payment/verify_booking_payment/(:any)'] = 'paytm_gateway/process_gateway_booking_payment/$1';
 
 
