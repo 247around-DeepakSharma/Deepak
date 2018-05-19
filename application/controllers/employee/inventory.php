@@ -17,7 +17,8 @@ class Inventory extends CI_Controller {
         $this->load->model('inventory_model');
         $this->load->model('booking_model');
         $this->load->model('employee_model');
-         $this->load->model('reusable_model');
+        $this->load->model('reusable_model');
+        $this->load->model('invoices_model');
         $this->load->library('form_validation');
         $this->load->library('session');
         $this->load->library('PHPReport');
@@ -2401,18 +2402,24 @@ class Inventory extends CI_Controller {
         
         if($model_number && $part_name && $entity_id && $entity_type && $service_id){
             $where= array('entity_id' => $entity_id, 'entity_type' => $entity_type, 'service_id' => $service_id, 'model_number' => $model_number,"part_name" => $part_name);
-            $inventory_details = $this->inventory_model->get_inventory_master_list_data('SUM(inventory_master_list.price) as price,inventory_master_list.inventory_id', $where);
+            $inventory_details = $this->inventory_model->get_inventory_master_list_data('inventory_master_list.price as price,inventory_master_list.inventory_id, hsn_code,gst_rate', $where);
 
             if(!empty($inventory_details)){
                 $data['price'] = $inventory_details[0]['price'];
                 $data['inventory_id'] = $inventory_details[0]['inventory_id'];
+                $data['gst_rate'] = $inventory_details[0]['gst_rate'];
+                $data['hsn_code'] = $inventory_details[0]['hsn_code'];
             }else{
                 $data['price'] = '';
                 $data['inventory_id'] = '';
+                $data['gst_rate'] = '';
+                $data['hsn_code'] = '';
             }
         }else{
             $data['price'] = '';
             $data['inventory_id'] = '';
+            $data['gst_rate'] = '';
+            $data['hsn_code'] = '';
         }
         
         echo json_encode($data);
@@ -2597,7 +2604,8 @@ class Inventory extends CI_Controller {
      *  @return : $res JSON // consist response message and response status
      */
     function process_spare_invoice_tagging(){
-        log_message("info",__METHOD__);
+        log_message("info",__METHOD__. json_encode($this->input->post(), true));
+        
         $partner_id = $this->input->post('partner_id');
         $invoice_id = $this->input->post('invoice_id');
         $invoice_dated = $this->input->post('dated');
@@ -2606,20 +2614,28 @@ class Inventory extends CI_Controller {
         if(!empty($partner_id) && !empty($invoice_id) && !empty($invoice_dated) && !empty($wh_id)){
             $parts_details = $this->input->post('part');
             if(!empty($parts_details)){
-                $data['invoice_id_in'] = $invoice_id;
-                $data['inventory_id_in_date'] = $invoice_dated;
-                $data['create_date'] = date('Y-m-d H:i:s');
+
+                $entity_details = $this->partner_model->getpartner_details("state", array('partners.id' => $partner_id));
+                $c_s_gst = $this->invoices_model->check_gst_tax_type($entity_details[0]['state']);
+                $booking_id_array = array();
+                $tqty = 0;
+                $total_basic_amount = 0;
+                $total_cgst_tax_amount = $total_sgst_tax_amount = $total_igst_tax_amount = 0;
+                $invoice = array();
                 foreach ($parts_details as $value){
-                    $data['quantity_in'] = $value['quantity'];
-                    $data['inventory_id'] = $value['inventory_id'];
-                    $data['booking_id'] = $value['booking_id'];
+
+                    array_push($booking_id_array, $value['booking_id']);
+                    $tqty += $value['quantity'];
                     
-                    //insert data into spare_invoice_mapping
-                    $insert_id = $this->inventory_model->insert_data_in_spare_invoice_mapping($data);
-                    
-                    if($insert_id){
                         log_message("info", "Details added successfully");
                         
+                        $invoice_annexure = $this->generate_inventory_invoice_data($invoice_id, $c_s_gst, $value);
+                        array_push($invoice, $invoice_annexure);
+                        $total_basic_amount += $invoice_annexure['taxable_value'];
+                        $total_cgst_tax_amount += $invoice_annexure['cgst_tax_amount'];
+                        $total_sgst_tax_amount += $invoice_annexure['sgst_tax_amount'];
+                        $total_igst_tax_amount += $invoice_annexure['igst_tax_amount'];
+                       
                         $ledger_data['receiver_entity_id'] = $wh_id;
                         $ledger_data['receiver_entity_type'] = _247AROUND_SF_STRING;
                         $ledger_data['sender_entity_id'] = $partner_id;
@@ -2640,10 +2656,16 @@ class Inventory extends CI_Controller {
                             log_message("info","error in adding inventory ledger details data: ". print_r($ledger_data));
                         }
                         
-                    }else{
-                        log_message("info","error in adding details data: ". print_r($data));
-                    }
                 }
+                
+                $this->insert_inventory_main_invoice($invoice_id, $partner_id, $booking_id_array, 
+            $tqty, $invoice_dated, $total_basic_amount, $total_cgst_tax_amount, 
+            $total_sgst_tax_amount, $total_igst_tax_amount);
+                
+
+                
+                $this->invoices_model->insert_invoice_breakup($invoice);
+
                 $res['status'] = TRUE;
                 $res['message'] = 'Details updated successfully';
             }else{
@@ -2657,8 +2679,79 @@ class Inventory extends CI_Controller {
         
         echo json_encode($res);
     }
-    
-    
+    /**
+     * @desc This function is used to generate array data to insert main invoice table. 
+     * @param String $invoice_id
+     * @param int $partner_id
+     * @param array $booking_id_array
+     * @param int $tqty
+     * @param date $invoice_dated
+     * @param int $total_basic_amount
+     * @param int $total_cgst_tax_amount
+     * @param int $total_sgst_tax_amount
+     * @param Int $total_igst_tax_amount
+     */
+    function insert_inventory_main_invoice($invoice_id, $partner_id, $booking_id_array, 
+            $tqty, $invoice_dated, $total_basic_amount, $total_cgst_tax_amount, 
+            $total_sgst_tax_amount, $total_igst_tax_amount) {
+        $main_invoice = array();
+        $main_invoice['invoice_id'] = $invoice_id;
+        $main_invoice['bill_to_party'] = _247AROUND;
+        $main_invoice['entity_to'] = "partner";
+        $main_invoice['bill_from_party'] = $partner_id;
+        $main_invoice['entity_from'] = "partner";
+        $main_invoice['main_invoice_file'] = "";
+        $main_invoice['booking_id'] = !empty($booking_id_array)? implode(",", $booking_id_array): '';
+        $main_invoice['total_qty'] = $tqty;
+        $main_invoice['invoice_date'] = $main_invoice['from_date'] = $main_invoice['to_date'] = $main_invoice['due_date'] = $invoice_dated;
+        $main_invoice['total_basic_amount'] = $total_basic_amount;
+        $main_invoice['total_cgst_tax_amount'] = $total_cgst_tax_amount;
+        $main_invoice['total_sgst_tax_amount'] = $total_sgst_tax_amount;
+        $main_invoice['total_igst_tax_amount'] = $total_igst_tax_amount;
+        $main_invoice['settle'] = 0;
+        $main_invoice['type'] = INVOCIE_TAG_FOR_INVENTORY;
+        $main_invoice['agent_id'] = $this->session->userdata('id');
+        $main_invoice['create_date'] = date('Y-m-d H:i:s');
+        
+        $this->invoices_model->insert_invoice($main_invoice);
+       
+    }
+
+    /**
+     * @desc This is used to generate invoice annexure line item
+     * @param String $invoice_id
+     * @param Array $value
+     * @return Array
+     */
+    function generate_inventory_invoice_data($invoice_id, $c_s_gst, $value) {
+        $invoice = array();
+        $invoice['invoice_id'] = $invoice_id;
+        $invoice['description'] = $value['part_name'];
+        $invoice['product_or_services'] = "Product";
+        $invoice['hsn_code'] = $value['hsn_code'];
+        $invoice['qty'] = $value['quantity'];
+        $invoice['rate'] = $value['part_total_price'];
+        $invoice['taxable_value'] = $value['part_total_price'] * $value['quantity'];
+        $gst_amount = $invoice['taxable_value'] *($value['gst_rate']/100 );
+ 
+        if ($c_s_gst) {
+
+            $invoice['cgst_tax_amount'] = $invoice['sgst_tax_amount'] = $gst_amount / 2;
+            $invoice['cgst_tax_rate'] = $invoice['sgst_tax_rate'] = $value['gst_rate'] / 2;
+            $invoice['igst_tax_amount'] = 0;
+        } else {
+
+            $invoice['igst_tax_amount'] = $gst_amount;
+            $invoice['igst_tax_rate'] = $value['gst_rate'];
+            $invoice['cgst_tax_amount'] = $invoice['sgst_tax_amount'] = 0;
+        }
+        
+        $invoice['toal_amount'] = $invoice['taxable_value'] + $gst_amount;
+        $invoice['create_date'] = date('Y-m-d H:i:s');
+
+        return $invoice;
+    }
+
     /**
      *  @desc : This function is used to show all the spare list which was send by partner to warehouse and not acknowledge by warehouse
      *  @param : void

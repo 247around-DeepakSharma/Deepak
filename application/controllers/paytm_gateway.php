@@ -168,7 +168,7 @@ class Paytm_gateway extends CI_Controller {
         
         
         $this->session->set_userdata("query",$insert_data);
-        redirect(base_url().'payment/payment_confirmation');
+        redirect(base_url().'payment/confirmation');
     }
     
     /**
@@ -379,7 +379,7 @@ class Paytm_gateway extends CI_Controller {
                     </head>
                     <body>
                         <center><h1>Please do not refresh this page...</h1></center>
-                            <form method='post' action='" . base_url().'payment/checkout_processing' . "' name='f1'>
+                            <form method='post' action='" . base_url().'payment/checkout' . "' name='f1'>
                     <table border='1'>
                      <tbody>";
 
