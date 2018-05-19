@@ -4854,3 +4854,8 @@ ALTER TABLE `spare_parts_details` ADD `defective_back_parts_pic` VARCHAR(128) NU
 ALTER TABLE `sample_appliances` ADD `purchase_date` DATE NULL DEFAULT NULL AFTER `purchase_year`;
 ALTER TABLE `file_uploads` ADD `entity_type` VARCHAR(128) NULL AFTER `file_type`;
 ALTER TABLE `file_uploads` ADD `entity_id` INT(10) NULL AFTER `entity_type`;
+
+--Abhay 19April
+ALTER TABLE `inventory_master_list` ADD `gst_rate` INT(11) NULL DEFAULT NULL AFTER `hsn_code`;
+ALTER TABLE `invoice` ADD `type` VARCHAR(28) NULL DEFAULT NULL AFTER `invoice_id`;
+ALTER TABLE `invoice` ADD `settle_qty` INT NOT NULL DEFAULT '0' AFTER `settle`;

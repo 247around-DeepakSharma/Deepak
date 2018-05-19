@@ -118,6 +118,8 @@
                                     </div>
                                     <div class="col-xs-1">
                                         <input type="hidden" class="form-control" name="part[0][inventory_id]" id="inventoryId_0" value=""/>
+                                        <input type="hidden" class="form-control" name="part[0][gst_rate]" id="gst_rate_0" value=""/>
+                                        <input type="hidden" class="form-control" name="part[0][hsn_code]" id="hsn_code_0" value=""/>
                                         <button type="button" class="btn btn-default addButton"><i class="fa fa-plus"></i></button>
                                     </div>
                                 </div>
@@ -147,6 +149,8 @@
                                     </div>
                                     <div class="col-xs-1">
                                         <input type="hidden" class="form-control" id="inventory_id"  value=""/>
+                                        <input type="hidden" class="form-control" id="gst_rate" value=""/>
+                                        <input type="hidden" class="form-control" id="hsn_code" value=""/>
                                         <button type="button" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
                                     </div>
                                 </div>
@@ -195,7 +199,7 @@
         
         $("#dated").datepicker({dateFormat: 'yy-mm-dd', minDate: 0});
         
-        ("#spareForm").validate();    
+        $("#spareForm").validate();    
         $("#spareForm").on('submit', function(e) {
             var isvalid = $("#spareForm").valid();
             if (isvalid) {
@@ -241,7 +245,9 @@
                 .find('[id="booking_id"]').attr('name', 'part[' + partIndex + '][booking_id]').attr('id','bookingId_'+partIndex).end()
                 .find('[id="quantity"]').attr('name', 'part[' + partIndex + '][quantity]').attr('id','quantity_'+partIndex).end()
                 .find('[id="inventory_id"]').attr('name', 'part[' + partIndex + '][inventory_id]').attr('id','inventoryId_'+partIndex).end()
-                .find('[id="part_total_price"]').attr('name', 'part[' + partIndex + '][part_total_price]').attr('id','totalPrice_'+partIndex).end();
+                .find('[id="gst_rate"]').attr('name', 'part[' + partIndex + '][gst_rate]').attr('id','gst_rate_'+partIndex).end()
+                .find('[id="hsn_code"]').attr('name', 'part[' + partIndex + '][hsn_code]').attr('id','hsn_code_'+partIndex).end()
+                .find('[id="part_total_price"]').attr('name', 'part[' + partIndex + '][part_total_price]').attr('id','partTotalPrice_'+partIndex).end();
             get_appliance(partIndex);
         })
 
@@ -371,10 +377,11 @@
                 data:{entity_id:partner_id,entity_type:'<?php echo _247AROUND_PARTNER_STRING; ?>',service_id:service_id,model_number:model_number,part_name:part_name},
                 success: function (response) {
                     var obj = JSON.parse(response);
-                    
                    var parts_total_price = parseInt($('#quantity_'+index).val()) * parseInt(obj.price);
                    $('#inventoryId_'+index).val(obj.inventory_id);
                    $('#partTotalPrice_'+index).val(parts_total_price);
+                   $('#gst_rate_'+index).val(obj.gst_rate);
+                   $('#hsn_code'+index).val(obj.gst_rate);
                 }
             });
         }else{
