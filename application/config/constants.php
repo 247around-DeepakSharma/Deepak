@@ -575,7 +575,7 @@ define("ENGINEER_ON_ROUTE", "Engineer on route");
 
 //Define Constant for Partner Inventory File 
 define('PARTNER_INVENTORY_DETAILS_FILE','Inventory-file');
-
+define("INVOCIE_TAG_FOR_INVENTORY", "inventory");
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
