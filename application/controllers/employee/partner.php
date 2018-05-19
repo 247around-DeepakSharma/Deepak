@@ -1935,10 +1935,27 @@ class Partner extends CI_Controller {
 
         $booking_history['details'] = array();
         foreach ($booking_address as $key => $value) {
-            $booking_history['details'][$key] = $this->booking_model->getbooking_history($value, "join")[0];
-            $booking_history['details'][$key]['partner'] = $this->partner_model->getpartner($this->session->userdata('partner_id'))[0];
-        }
+            
+            $select = "contact_person.name as  primary_contact_name,contact_person.official_contact_number as primary_contact_phone_1,contact_person.alternate_contact_number as primary_contact_phone_2,"
+                    . "concat(warehouse_address_line1,',',warehouse_address_line2) as address,warehouse_details.warehouse_city as district,"
+                    . "warehouse_details.warehouse_pincode as pincode,"
+                    . "warehouse_details.warehouse_state as state";
 
+            $where = array('contact_person.entity_id' => $this->session->userdata('partner_id'), 'contact_person.entity_type' => _247AROUND_PARTNER_STRING);
+
+            $wh_address_details = $this->inventory_model->get_warehouse_details($select, $where, FALSE);
+            
+            $partner_details = $this->partner_model->getpartner($this->session->userdata('partner_id'))[0];
+            
+            $booking_history['details'][$key] = $this->booking_model->getbooking_history($value, "join")[0];
+            if (!empty($wh_address_details)) {
+                $wh_address_details[0]['company_name'] = $partner_details['company_name'];
+                $booking_history['details'][$key]['partner'] = $wh_address_details[0];
+            } else {
+                $booking_history['details'][$key]['partner'] = $partner_details;
+            }
+        }
+        
         $this->load->view('partner/print_address', $booking_history);
     }
 
