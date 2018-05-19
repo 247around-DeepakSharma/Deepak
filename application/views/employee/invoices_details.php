@@ -114,25 +114,25 @@
                         <div class="col-md-6 ">
                             <div class="form-group col-md-12  ">
                                 <label for="Service Charge">Basic Service Charge *</label>
-                                <input type="text" class="form-control" style="font-size: 13px;"  id="service_charge" placeholder="Enter Serivce Charge" name="service_charge" value = "0" >
+                                <input type="number" step=".02" class="form-control" style="font-size: 13px;"  id="service_charge" placeholder="Enter Serivce Charge" name="service_charge" value = "0" >
                             </div>
                         </div>
                         <div class="col-md-6 ">
                             <div class="form-group col-md-12  ">
                                 <label for="Parts Charge">Basic Parts Charge *</label>
-                                <input type="text" class="form-control" style="font-size: 13px;"  id="parts_charge" placeholder="Enter Parts Charge" name="parts_charge" value = "0" >
+                                <input type="number" step=".02" class="form-control" style="font-size: 13px;"  id="parts_charge" placeholder="Enter Parts Charge" name="parts_charge" value = "0" >
                             </div>
                         </div>
                         <div class="col-md-6 ">
                             <div class="form-group col-md-12  ">
                                 <label for="Service Qty">Service Qty *</label>
-                                <input type="text" class="form-control" style="font-size: 13px;"  id="service_count" placeholder="Enter Service Quantity" name="service_count" value = "0" >
+                                <input type="number" class="form-control" style="font-size: 13px;"  id="service_count" placeholder="Enter Service Quantity" name="service_count" value = "0" >
                             </div>
                         </div>
                         <div class="col-md-6 ">
                             <div class="form-group col-md-12  ">
                                 <label for="Parts Qty">Parts Qty *</label>
-                                <input type="text" class="form-control" style="font-size: 13px;"  id="parts_count" placeholder="Enter Parts Quantity" name="parts_count" value = "0" >
+                                <input type="number" class="form-control" style="font-size: 13px;"  id="parts_count" placeholder="Enter Parts Quantity" name="parts_count" value = "0" >
                             </div>
                         </div>
                        
@@ -140,7 +140,7 @@
                         <div class="col-md-6 ">
                             <div class="form-group col-md-12  ">
                                 <label for="GST Rate">GST Rate *</label>
-                                <input type="text" class="form-control" style="font-size: 13px;" id="gst_rate" placeholder="Enter GST Rate" name="gst_rate" value = "0" required>
+                                <input type="number" step=".02" class="form-control" style="font-size: 13px;" id="gst_rate" placeholder="Enter GST Rate" name="gst_rate" value = "18" required>
                             </div>
                         </div>
                         <div class="col-md-6 ">

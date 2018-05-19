@@ -967,18 +967,20 @@ class service_centre_charges extends CI_Controller {
        
         if(isset($form_data['free']) && stristr($form_data['request_type'], "Installation") && $form_data['product_or_services'] == "Service"){
             
-            $service_category = array($form_data['request_type']." (Free)");
+            $service_category = array($form_data['request_type']." (Free)", REPEAT_BOOKING_TAG);
              
         } else if(isset($form_data['paid']) && stristr($form_data['request_type'], "Installation") && $form_data['product_or_services'] == "Service"){
              
-            $service_category = array($form_data['request_type']." (Paid)");
+            $service_category = array($form_data['request_type']." (Paid)", REPEAT_BOOKING_TAG);
             
         } else if(stristr($form_data['request_type'], "Repair") && $form_data['product_or_services'] == "Service"){
           
-            $service_category = array($form_data['request_type'], SPARE_PART_BOOKING_TAG);
+            $service_category = array($form_data['request_type'], SPARE_PART_BOOKING_TAG, REPEAT_BOOKING_TAG);
             
-        } else {
+        } else if($form_data['product_or_services'] == "Service"){
            
+            $service_category = array($form_data['request_type'], REPEAT_BOOKING_TAG);
+        } else {
             $service_category = array($form_data['request_type']);
         }
          
@@ -1105,7 +1107,12 @@ class service_centre_charges extends CI_Controller {
             foreach ($fp as $free_paid) {
                 $data['tax_code'] = "VAT";
                 if ($data['service_category'] == SPARE_PART_BOOKING_TAG) {
-                    $data = $this->add_spare_Parts($data);
+                    $data = $this->add_repeat_and_spare_Parts($data, "Product", "VAT", 0);
+                    
+                } else if($data['service_category'] == REPEAT_BOOKING_TAG){
+                    
+                    $data = $this->add_repeat_and_spare_Parts($data, "Service", "ST", 1);
+                     
                 } else {
                     if ($free_paid == "free") {
 
@@ -1119,7 +1126,10 @@ class service_centre_charges extends CI_Controller {
                 $data['check_box'] = 1;
                 $newkey = str_replace(' ', '', $data['category'] . $data['brand'] . $data['capacity'] . $data['service_category']);
                 if (array_key_exists($newkey, $key_data)) {
-                    if($data['service_category'] != SPARE_PART_BOOKING_TAG){
+                    if($data['service_category'] == SPARE_PART_BOOKING_TAG || $data['service_category'] == REPEAT_BOOKING_TAG){
+                        log_message('info', __METHOD__ . " Spare OR Repeat booking ");
+                    } else {
+                    
                         array_push($duplicate_data, $data);
                     }
                 } else {
@@ -1132,10 +1142,10 @@ class service_centre_charges extends CI_Controller {
             "service_charge" => $stmp);
     }
     
-    function add_spare_Parts($data){
-        $data['product_or_services'] = "Product";
-        $data['tax_code'] = "VAT";
-        $data['pod'] = 0;
+    function add_repeat_and_spare_Parts($data, $service, $tax_code, $pod){
+        $data['product_or_services'] = $service;
+        $data['tax_code'] = $tax_code;
+        $data['pod'] = $pod;
         $data['is_upcountry'] = -1;
         $data['customer_total'] = 0;
         $data['customer_net_payable'] = 0;

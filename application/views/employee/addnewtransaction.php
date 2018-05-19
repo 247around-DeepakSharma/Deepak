@@ -163,12 +163,12 @@
                                             </select>
                                         </td>
                                         <td>
-                                            <input type="text" class="form-control cal_amount" id="<?php echo "cal_amount_".$key; ?>" name="credit_debit_amount[]" value="<?php echo abs($amount_collected[$invoice_id]); ?>" required/>
+                                            <input type="number" class="form-control cal_amount" id="<?php echo "cal_amount_".$key; ?>" step=".02" name="credit_debit_amount[]" value="<?php echo abs($amount_collected[$invoice_id]); ?>" required/>
                                             <input type="hidden" id= "<?php echo "pre_amount_".$key; ?>" class="form-control" name="pre_credit_amount[]" value="<?php echo abs($amount_collected[$invoice_id]); ?>" />
                                             
                                         </td>
                                         <td>
-                                            <input type="text" class="form-control cal_tds_amount" name="tds_amount[]" value="<?php echo $tds_amount[$invoice_id]; ?>" <?php if($vendor_partner == "vendor") {?>readonly <?php } ?> />
+                                            <input type="number" class="form-control cal_tds_amount" name="tds_amount[]" value="<?php echo $tds_amount[$invoice_id]; ?>" <?php if($vendor_partner == "vendor") {?>readonly <?php } ?> />
                                         </td>
                                     </tr>
                                     <?php } } else { ?>
@@ -190,10 +190,10 @@
                                             </select>
                                         </td>
                                         <td>
-                                            <input  type="text" class="form-control cal_amount" id="cal_amount_0" name="credit_debit_amount[]" value="" placeholder="Amount" required/>
+                                            <input  type="number" class="form-control cal_amount" id="cal_amount_0"  step=".02" name="credit_debit_amount[]" value="" placeholder="Amount" required/>
                                         </td>
                                         <td>
-                                            <input  type="text" class="form-control cal_tds_amount" name="tds_amount[]" value="" placeholder="TDS Amount" />
+                                            <input  type="number" class="form-control cal_tds_amount" name="tds_amount[]"  step=".02" value="" placeholder="TDS Amount" />
                                         </td>
                                     </tr>
                                     <tr>
@@ -218,10 +218,10 @@
                                             </select>
                                         </td>
                                         <td>
-                                            <input class="form-control cal_amount" id="cal_amount_1" name="credit_debit_amount[]" value="" placeholder="Amount" />
+                                            <input type="number" class="form-control cal_amount" id="cal_amount_1"  step=".02" name="credit_debit_amount[]" value="" placeholder="Amount" />
                                         </td>
                                         <td>
-                                            <input class="form-control cal_tds_amount" name="tds_amount[]" value="" placeholder="TDS Amount" />
+                                            <input type="number" class="form-control cal_tds_amount" name="tds_amount[]"  step=".02" value="" placeholder="TDS Amount" />
                                         </td>
                                     </tr>
                                     <?php } ?>
