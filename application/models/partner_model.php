@@ -808,7 +808,7 @@ function get_data_for_partner_callback($booking_id) {
         $sql = "SELECT spare_parts_details.*, users.name, booking_details.booking_primary_contact_no, "
                 . " booking_details.booking_address,booking_details.initial_booking_date,booking_details.request_type, "
                 . " service_centres.name as vendor_name, service_centres.address, service_centres.state, "
-                . " service_centres.pincode, service_centres.district"
+                . " service_centres.pincode, service_centres.district,booking_details.partner_id as booking_partner_id"
                 . " FROM spare_parts_details,booking_details,users, "
                 . " service_centres WHERE booking_details.booking_id = spare_parts_details.booking_id"
                 . " AND users.user_id = booking_details.user_id AND service_centres.id = spare_parts_details.service_center_id "

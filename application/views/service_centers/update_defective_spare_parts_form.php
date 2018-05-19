@@ -122,7 +122,7 @@
                 </div>
                 <div class="col-md-12 text-center" style="margin-bottom:30px;">
                     <input type="hidden" name="sf_id" value="<?php echo $spare_parts[0]['service_center_id']?>">
-                    <input type="hidden" name="partner_id" value="<?php echo $spare_parts[0]['partner_id']?>">
+                    <input type="hidden" name="booking_partner_id" value="<?php echo $spare_parts[0]['booking_partner_id']?>">
                     <input type="submit" value="Update Booking" style="background-color:#2C9D9C; border-color: #2C9D9C; color:#fff;" class="btn btn-md btn-default" />
                 </div>
             </form>

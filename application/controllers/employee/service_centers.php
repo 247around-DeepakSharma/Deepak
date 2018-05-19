@@ -1712,7 +1712,7 @@ class Service_centers extends CI_Controller {
                 $data['status'] = DEFECTIVE_PARTS_SHIPPED;
                 $k =0;
                 $sf_details = $this->vendor_model->getVendorDetails('name,address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,is_signature_doc',array('id'=>$service_center_id));
-                $partner_id = $this->input->post('partner_id');
+                $partner_id = $this->input->post('booking_partner_id');
                 $partner_details = $this->partner_model->getpartner_details('company_name,address,gst_number',array('partners.id'=> $partner_id));
                 foreach ($defective_part_shipped as $id => $value) {
                     if($k ==0){
@@ -1737,7 +1737,7 @@ class Service_centers extends CI_Controller {
                     $this->service_centers_model->update_spare_parts($where, $data);
                     $k++;
                 }
-
+                
                 $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_SHIPPED, $data['remarks_defective_part_by_sf'],"not_define","not_define");
                 $sc_data['current_status'] = "InProcess";
                 $sc_data['update_date'] = date('Y-m-d H:i:s');
@@ -1750,7 +1750,7 @@ class Service_centers extends CI_Controller {
                 $from = NOREPLY_EMAIL_ID;
 
                 $to = "booking@247around.com";
-                $cc= $rm_email.", nits@247around.com";
+                $cc= $rm_email.",".NITS_EMAIL_ID;
                
                 $subject = $this->session->userdata('service_center_name')." Updated Courier Details for Booking ID ".$booking_id;
                 $message = "Please Find Courier Invoice Attachment"."<br/>Courier Details:- <br/>";
@@ -3315,7 +3315,7 @@ class Service_centers extends CI_Controller {
                     $output_pdf_file_name = $pdf_response['output_pdf_file'];
                     log_message('info', __FUNCTION__ . ' Generated PDF File Name' . $output_pdf_file_name);
                 } else if ($pdf_response['response'] === 'Error') {
-
+                    $output_pdf_file_name = pathinfo($excel_file,PATHINFO_BASENAME);
                     log_message('info', __FUNCTION__ . ' Error in Generating PDF File');
                 }
             }
