@@ -4834,7 +4834,7 @@ ALTER TABLE `reports_log`
   MODIFY `id` int(10) NOT NULL AUTO_INCREMENT;COMMIT;
 
 ALTER TABLE `booking_unit_details` ADD `purchase_date` DATE NULL AFTER `purchase_year`;
-ALTER TABLE `appliance_details` ADD `purchase_date` DATE NOT NULL AFTER `purchase_year`;
+ALTER TABLE `appliance_details` ADD `purchase_date` DATE NULL AFTER `purchase_year`;
 
 
 --sachin 17 May
@@ -4859,3 +4859,5 @@ ALTER TABLE `file_uploads` ADD `entity_id` INT(10) NULL AFTER `entity_type`;
 ALTER TABLE `inventory_master_list` ADD `gst_rate` INT(11) NULL DEFAULT NULL AFTER `hsn_code`;
 ALTER TABLE `invoice` ADD `type` VARCHAR(28) NULL DEFAULT NULL AFTER `invoice_id`;
 ALTER TABLE `invoice` ADD `settle_qty` INT NOT NULL DEFAULT '0' AFTER `settle`;
+
+--21 May Released
