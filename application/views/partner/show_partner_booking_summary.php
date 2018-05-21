@@ -33,10 +33,12 @@
         <div class="count"><?php echo $pincode_covered; ?></div>
     </div>
     <?php if (!empty($this->session->userdata('is_prepaid'))) { ?>
+    <a href="<?php echo base_url();?>payment/details" target="_blank">
         <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
             <span class="count_top">Prepaid Amount ( Rs.)</span>
-            <div class="count"><?php echo $prepaid_amount['prepaid_amount'];?></div>
+            <div class="count" style="text-decoration: underline;color:red;"><?php echo $prepaid_amount['prepaid_amount'];?></div>
         </div>
+        </a>
     <?php } ?>
 </div>
 <?php  if(!empty($prepaid_amount['prepaid_msg'])){ ?>

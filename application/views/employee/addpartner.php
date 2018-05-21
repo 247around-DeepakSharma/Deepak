@@ -435,7 +435,7 @@
                             <div class="panel-body">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label  for="upcountry_rate" class="col-md-4">Min UpCountry Rate</label>
+                                        <label  for="upcountry_rate" class="col-md-4">UpCountry Rate</label>
                                         <div class="col-md-1">
                                             <input type="checkbox" name="is_upcountry" id="upcountry" style="zoom:1.5" 
                                                 <?php if (isset($query[0])) {
@@ -445,7 +445,7 @@
                                                     } ?>/>
                                         </div>
                                         <div class="col-md-3">
-                                            <input  type="number" class="form-control" value = "<?php if (isset($query[0])) {
+                                            <input  type="number" class="form-control up_message"  id="up_rate" value = "<?php if (isset($query[0])) {
                                                 echo $query[0]['upcountry_rate'];
                                                 } ?>" name="upcountry_rate" id="upcountry_rate" placeholder="Enter KM's">
                                         </div>
@@ -454,13 +454,14 @@
                                         </div>
                                     </div>
                                     <div class="form-group ">
-                                        <label for="upcountry_max_distance_threshold" class="col-md-4">Max Distance</label>
+                                        <label for="upcountry_max_distance_threshold" class="col-md-4">Auto Approval Upcountry Distance(One Ways)</label>
                                         <div class="col-md-8">
-                                            <input  type="text" class="form-control"  name="upcountry_max_distance_threshold" value = "<?php if (isset($query[0])) {
-                                                echo $query[0]['upcountry_max_distance_threshold']-25;
+                                            <input  type="number" id="up_threshold" class="form-control up_message"  name="upcountry_max_distance_threshold" value = "<?php if (isset($query[0])) {
+                                                echo $query[0]['upcountry_max_distance_threshold'];
                                                 } ?>">
-                                            <p>Add 25 KM Extra in Max Upcountry Distance</p>
+                                            <p id="up_th_msg" style="font-weight:bold;"></p>
                                         </div>
+                                        
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -1360,6 +1361,22 @@
     </div>
 </div>
 <script type="text/javascript">
+up_message();
+$(document).on('keyup', '.up_message', function (e) {
+    up_message();
+});
+
+function up_message(){
+    var up_rate = $("#up_rate").val();
+    var up_threshold = $("#up_threshold").val();
+    
+    var up_price = Number(up_rate) * Number(up_threshold);
+    if(up_threshold === ""){
+        up_threshold = 0;
+    }
+    
+    $("#up_th_msg").html(up_threshold + " KM (<i class='fa fa-rupee'></i> "+ up_price +") will be auto approved by system" );
+}
     $('.select_state').select2({
         placeholder: "Select State",
         allowClear: true

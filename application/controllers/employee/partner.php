@@ -210,6 +210,14 @@ class Partner extends CI_Controller {
             redirect(base_url() . "partner/login");
         }
     }
+    function checkEmployeeUserSession(){
+         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee') && !empty($this->session->userdata('id'))) {
+            return TRUE;
+        } else {
+            $this->session->sess_destroy();
+            redirect(base_url() . "employee/login");
+        }
+    }
 
     /**
      * @desc : This funtion for logout
@@ -492,7 +500,7 @@ class Partner extends CI_Controller {
                 } else {
                     log_message('info', ' Error in Updating Parnter code has been added in Bookings_sources table ' . print_r($bookings_sources, TRUE));
                 }
-                $edit_partner_data['partner']['upcountry_max_distance_threshold'] = $edit_partner_data['partner']['upcountry_max_distance_threshold'] + 25;
+                $edit_partner_data['partner']['upcountry_max_distance_threshold'] = $edit_partner_data['partner']['upcountry_max_distance_threshold'];
                 $edit_partner_data['partner']['update_date'] = date("Y-m-d h:i:s");
                 $edit_partner_data['partner']['agent_id'] = $this->session->userdata('id');
                 $this->partner_model->edit_partner($edit_partner_data['partner'], $partner_id);
@@ -713,6 +721,7 @@ class Partner extends CI_Controller {
      * @return : array(of details) to view
      */
     function viewpartner($partner_id = "") {
+        $this->checkEmployeeUserSession();
         $partner_not_like ='';
         $service_brands = array();
         $active = 1;
@@ -4085,6 +4094,65 @@ class Partner extends CI_Controller {
         $this->load->view('partner/partner_footer');
     }
     
+
+    function partner_report(){
+        $where['state !=""' ] = NULL;
+        $allState =  $this->reusable_model->get_search_result_data("booking_details","DISTINCT(state)",$where,NULL,NULL,array("state"=>"ASC"),NULL,NULL,array());
+        $this->load->view('partner/header');
+        $this->load->view('partner/report', array('data'=>$allState));
+        $this->load->view('partner/partner_footer');
+    }
+    
+    function create_and_send_partner_report($partnerID){
+            $this->checkUserSession();
+            $dateArray  = explode(" - ",$this->input->post('create_date'));
+            $start = date('Y-m-d',strtotime($dateArray[0]));
+            $end = date('Y-m-d',strtotime($dateArray[1]));
+            $status = $this->input->post('status');
+            if($this->input->post('state')){
+                $state = explode(",",$this->input->post('state'));
+            }
+            else{
+                $state =array('all');
+            }
+            $newCSVFileName = "Booking_summary_" . $start ."_".$end.".csv";
+            $csv = TMP_FOLDER . $newCSVFileName;
+            $where[] = "(date(booking_details.create_date)>='".$start."' AND date(booking_details.create_date)<='".$end."')";
+            if($status != 'all'){
+                if($status == 'Pending'){
+                    $where[] = "booking_details.current_status NOT IN ('Cancelled','Completed')";
+              }
+                    else{
+                        $where[] = "booking_details.current_status IN('".$status."')";
+                    }
+                }
+                if(!in_array('all',$state)){
+                    $where[] = "booking_details.state IN ('".implode("','",$state)."')";
+                }
+               log_message('info', __FUNCTION__ . "Where ".print_r($where,true));
+               $report =  $this->partner_model->get_partner_leads_csv_for_summary_email($partnerID,0,implode(' AND ',$where));
+               $delimiter = ",";
+                $newline = "\r\n";
+                $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
+                $file = fopen($csv,"w");
+                fwrite($file,$new_report);
+                fclose($file);
+                //Downloading Generated CSV  
+                    header('Content-Description: File Transfer');
+                    header('Content-Type: application/octet-stream');
+                    header('Content-Disposition: attachment; filename="' . basename($csv) . '"');
+                    header('Expires: 0');
+                    header('Cache-Control: must-revalidate');
+                    header('Pragma: public');
+                    header('Content-Length: ' . filesize($csv));
+                    readfile($csv);
+                    exec("rm -rf " . escapeshellarg($csv));
+                    unlink($csv);
+//            $sendUrl = base_url().'employee/do_background_process/create_and_send_partner_requested_report';
+//            $this->asynchronous_lib->do_background_process($sendUrl, $data);
+    }
+    
+
     function download_partner_pending_bookings($partnerID){ 
         ob_start();
         $report = $this->partner_model->get_partners_pending_bookings($partnerID,0,1);

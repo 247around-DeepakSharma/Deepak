@@ -172,6 +172,9 @@ class Payment extends CI_Controller {
         $response = $this->paytm_payment_lib->paytm_cashback($this->input->post('transaction_id'),$this->input->post('order_id'),$this->input->post('cashback_amount'),
         $this->input->post('cashback_reason'),CASHBACK_FORM);
         $responseArray = json_decode($response,true);
+        if($responseArray['status'] == SUCCESS_STATUS){
+            $this->reusable_model->update_table("paytm_transaction_callback", array("discount_flag" => 1), array('txn_id' => $this->input->post('transaction_id')));
+        }
         echo "<p style='text-align:center'>".$responseArray['status']."</p>";
         echo "<p style='text-align:center'>".$responseArray['status_msg']."<p>";
     }

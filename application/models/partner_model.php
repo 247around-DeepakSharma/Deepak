@@ -401,7 +401,8 @@ function get_data_for_partner_callback($booking_id) {
             booking_date As 'Scheduled Appointment Date(DD/MM/YYYY)', 
             booking_timeslot AS 'Scheduled Appointment Time(HH:MM:SS)', 
             partner_internal_status AS 'Final Status',
-            booking_details.is_upcountry As 'Is Upcountry', 
+
+            CASE WHEN (booking_details.is_upcountry = '0') THEN 'Local' ELSE 'Upcountry' END as 'Is Upcountry', 
             GROUP_CONCAT(spare_parts_details.parts_requested) As 'Requested Part', 
             GROUP_CONCAT(spare_parts_details.date_of_request) As 'Part Request Date', 
             GROUP_CONCAT(spare_parts_details.parts_shipped) As 'Shipped Part', 

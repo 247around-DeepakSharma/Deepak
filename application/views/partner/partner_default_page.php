@@ -55,6 +55,9 @@
                         </ul>
                         <div id="myTabContent" class="tab-content">
                             <div class="tab-pane active" id="tabs-1"></div>
+                            <?php
+                            if($this->session->userdata('agent_id') != '980084' && $this->session->userdata('agent_id') != '980083'){
+                                ?>
                             <div class="tab-pane" id="tabs-2"></div>
                             <div class="tab-pane" id="tabs-3"></div>
                             <div class="tab-pane" id="tabs-4"></div>
@@ -89,6 +92,7 @@
                                     </div>
                                 </div>
                             </div>
+                         <?php    } ?>
                         </div>
                     </div>
                 </div>
@@ -187,8 +191,11 @@
     
     var spare_parts = '<?php echo $spare_parts?>';
     
-    $(function () {
-        if(parseInt(spare_parts) > 0 ){
+   $(function () {
+        <?php
+                            if($this->session->userdata('agent_id') != '980084' && $this->session->userdata('agent_id') != '980083'){
+                                ?>
+                                        if(parseInt(spare_parts) > 0 ){
             $("#myTabs li:eq(1) a").tab('show');
             //Loading Pending Spare Parts if Spare Parts Present
             load_view('employee/partner/get_spare_parts_booking/0/1', '#tabs-2');
@@ -196,7 +203,12 @@
             //Loading Pending Bookings in Else case
             load_view('employee/partner/pending_booking/0/1', '#tabs-1');
         }
-    
+                            <?php
+                            }
+                             else{
+                            ?>
+                                                load_view('employee/partner/pending_booking/0/1', '#tabs-1'); 
+                             <?php } ?>
     });
     
     

@@ -23,10 +23,11 @@ class Validate_serial_no {
      */
     function getLogicMethod($partnerID){
         log_message('info', __METHOD__. " Enterring... Partner ID ". $partnerID);
-	$logic = array();
+	    $logic = array();
 
-//	$logic[AKAI_ID] = 'akai_serialNoValidation';
-//        $logic[SALORA_ID] = 'salora_serialNoValidation';
+
+        $logic[AKAI_ID] = 'akai_serialNoValidation';
+        $logic[SALORA_ID] = 'salora_serialNoValidation';
         $logic[QFX_ID] = 'qfx_serialNoValidation';
         
 	if (isset($logic[$partnerID])) {
@@ -46,21 +47,15 @@ class Validate_serial_no {
      */
     function akai_serialNoValidation($partnerID, $serialNo){
         log_message('info', __METHOD__. " Enterring... Partner ID ". $partnerID. " Srial No ". $serialNo);
-        if((ctype_alnum($serialNo) && strlen($serialNo) == 19)){
+
+        $result = $this->MY_CI->partner_model->getpartner_serialno(array('partner_id' =>$partnerID, 'serial_number' => $serialNo));
+        if(!empty($result)){
             log_message('info', __METHOD__. " Partner ID ". $partnerID. " Srial No ". $serialNo. " code ".SUCCESS_CODE);
-            return SUCCESS_CODE;
+            return array('code' => SUCCESS_CODE);
         } else {
             log_message('info', __METHOD__. " Partner ID ". $partnerID. " Srial No ". $serialNo. " code ".FAILURE_CODE);
-            return FAILURE_CODE;
+            return array('code' => FAILURE_CODE, "message" => AKAI_SERIAL_NO_VALIDATION_FAILED_MSG);
         }
-//        $result = $this->MY_CI->partner_model->getpartner_serialno(array('partner_id' =>$partnerID, 'serial_number' => $serialNo));
-//        if(!empty($result)){
-//            log_message('info', __METHOD__. " Partner ID ". $partnerID. " Srial No ". $serialNo. " code ".SUCCESS_CODE);
-//            return SUCCESS_CODE;
-//        } else {
-//            log_message('info', __METHOD__. " Partner ID ". $partnerID. " Srial No ". $serialNo. " code ".FAILURE_CODE);
-//            return FAILURE_CODE;
-//        }
     }
     /**
      * @desc This is used to validate salora serial number
@@ -88,12 +83,14 @@ class Validate_serial_no {
             $currentString = date('y').date('m');
             $srString = $yearString.$monthString;
             if($srString > $currentString){
-                return FAILURE_CODE;
+
+                return array('code' => FAILURE_CODE, "message" => SALORA_SERIAL_NO_VALIDATION_FAILED_MSG);
             } else {
-                return SUCCESS_CODE;
+                return array('code' => SUCCESS_CODE);
             } 
         } else {
-            return FAILURE_CODE;
+            return array('code' => FAILURE_CODE, "message" => SALORA_SERIAL_NO_VALIDATION_FAILED_MSG);
+
         }
     }
     /**
@@ -109,26 +106,30 @@ class Validate_serial_no {
         if (!is_numeric($serialNo)) {
             
             log_message('info', __METHOD__ . " Partner ID " . $partnerID . " Srial No " . $serialNo . " Not Numeric");
-            return FAILURE_CODE;
+
+            return array('code' => FAILURE_CODE, "message" => QFX_SERIAL_NO_VALIDATION_FAILED_MSG);
             
         } else if($serialNo == 0){
             
-             log_message('info', __METHOD__ . " Partner ID " . $partnerID . " Srial No " . $serialNo . " zero");
-            return FAILURE_CODE;
+            log_message('info', __METHOD__ . " Partner ID " . $partnerID . " Srial No " . $serialNo . " zero");
+            return array('code' => FAILURE_CODE, "message" => QFX_SERIAL_NO_VALIDATION_FAILED_MSG);
             
         } else if (substr($serialNo, 0, 1) == '0') {
             
             log_message('info', __METHOD__ . " Partner ID " . $partnerID . " Srial No " . $serialNo . " Start with zero");
-           return FAILURE_CODE;
+
+           return array('code' => FAILURE_CODE, "message" => QFX_SERIAL_NO_VALIDATION_FAILED_MSG);
+
            
         } else if(strlen($serialNo) == 17 && is_numeric($serialNo)){
             
             log_message('info', __METHOD__ . " Partner ID " . $partnerID . " Srial No " . $serialNo . " 17 Digit numeric ");
-            return SUCCESS_CODE;
+
+            return array('code' => SUCCESS_CODE);
         } else {
             
             log_message('info', __METHOD__ . " Partner ID " . $partnerID . " Srial No " . $serialNo . " Retrun false");
-            return FAILURE_CODE;
+            return array('code' => FAILURE_CODE, "message" => QFX_SERIAL_NO_VALIDATION_FAILED_MSG);
         }
     }
 

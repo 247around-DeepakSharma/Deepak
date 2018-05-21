@@ -183,10 +183,11 @@ class Booking extends CI_Controller {
                 $appliances_details['model_number'] = $services_details['model_number'] = $model_number[$key];
                 // get appliance tag from appliance_tag array for only specific key such as $appliance_tag[0].
                 //$appliances_details['tag']  = $appliance_tags[$key];
-                $appliances_details['purchase_date'] = $services_details['purchase_date'] =  $purchase_date;
+                $appliances_details['purchase_year'] = $services_details['purchase_year'] = $purchase_date;
                 $services_details['booking_id'] = $booking['booking_id'];
                 //$appliances_details['serial_number'] = $services_details['serial_number'] = $serial_number[$key];
                 $appliances_details['description'] = $services_details['appliance_description'] = $appliance_description[$key];
+
                 $appliances_details['service_id'] = $services_details['service_id'] = $booking['service_id'];
                 $appliances_details['last_service_date'] = date('Y-m-d H:i:s');
                 $services_details['partner_id'] = $booking['partner_id'];
@@ -1287,7 +1288,7 @@ class Booking extends CI_Controller {
                 $remarks = 'Rating'.':'.$data['rating_stars'].'. '.$data['rating_comments'];
 
                 $update = $this->booking_model->update_booking($booking_id, $data);
-                if($data['rating_stars']<4){
+                if($data['rating_stars']<3){
                     $this->miscelleneous->send_bad_rating_email($data['rating_stars'],$booking_id);
                 }
                 if ($update) {
@@ -2022,7 +2023,7 @@ class Booking extends CI_Controller {
             $this->asynchronous_lib->do_background_process($cb_url, $pcb);
             
             if ($this->input->post('rating_stars') !== "") {
-                if($this->input->post('rating_stars')<4){
+                if($this->input->post('rating_stars')<3){
                     $this->miscelleneous->send_bad_rating_email($this->input->post('rating_stars'),$booking_id);
                 }
                 //update rating state
@@ -2779,6 +2780,8 @@ class Booking extends CI_Controller {
         $data['sf'] = $this->vendor_model->getVendorDetails('id,name',array('active' => '1'));
         $data['services'] = $this->booking_model->selectservice();
         $data['cities'] = $this->booking_model->get_advance_search_result_data("booking_details","DISTINCT(city)",NULL,NULL,NULL,array('city'=>'ASC'));
+        $data['internalStatus'] = $this->booking_model->get_advance_search_result_data("partner_booking_status_mapping","DISTINCT(partner_internal_status)",
+                array('247around_current_status'=>'Pending'),NULL,NULL,array('partner_internal_status'=>'ASC'));
        $this->miscelleneous->load_nav_header();
         if(strtolower($data['booking_status']) == 'pending'){
             $this->load->view('employee/view_pending_bookings', $data);
@@ -2821,7 +2824,6 @@ class Booking extends CI_Controller {
     private function get_bookings_data_by_status($booking_status) {
         $post = $this->get_post_data();
         $new_post = $this->get_filterd_post_data($post,$booking_status,'booking');
-        
         $select = "services.services,users.name as customername,penalty_on_booking.active as penalty_active,
             users.phone_number, booking_details.*, service_centres.name as service_centre_name,
             service_centres.district as city, service_centres.primary_contact_name,
@@ -2876,6 +2878,7 @@ class Booking extends CI_Controller {
         $appliance = $this->input->post('appliance');
         $booking_date = $this->input->post('booking_date');
         $city = $this->input->post('city');
+        $internal_status = $this->input->post('internal_status');
         
         if($type == 'booking'){
             if($booking_status == _247AROUND_COMPLETED || $booking_status == _247AROUND_CANCELLED){
@@ -2890,8 +2893,9 @@ class Booking extends CI_Controller {
             $post['where']['current_status'] = $booking_status;
             $post['order_by'] = "CASE WHEN booking_details.internal_status = 'Missed_call_confirmed' THEN 'a' WHEN  booking_details.booking_date = '' THEN 'b' WHEN  booking_details.booking_date = '' THEN 'b' ELSE 'c' END , booking_day";
         }
-        
-        
+        if(!empty($internal_status)){
+            $post['where_in']['booking_details.partner_internal_status'] =  explode(",",$internal_status);
+        }
         if(!empty($booking_id)){
             $post['where']['booking_details.booking_id'] =  $booking_id;
         }
@@ -2925,7 +2929,9 @@ class Booking extends CI_Controller {
         }
         
         if(!empty($booking_date)){
-            $post['where']['booking_details.booking_date = '] =  trim($booking_date);
+            $bookingDateArray = explode(" - ", $booking_date);
+            $post['where']['STR_TO_DATE(booking_details.booking_date, "%d-%m-%Y") >= '] =  date("Y-m-d", strtotime(trim($bookingDateArray[0])));
+            $post['where']['STR_TO_DATE(booking_details.booking_date, "%d-%m-%Y") < '] = date("Y-m-d", strtotime(trim($bookingDateArray[1])));
         }
         
         if(!empty($city)){
@@ -3834,13 +3840,8 @@ class Booking extends CI_Controller {
      */
     function get_service_id(){
         $appliance_list = $this->booking_model->selectservice();
-        
-        if($this->input->get('is_option_selected')){
-            $option = '<option selected disabled></option>';
-        }else{
-            $option = '';
-        }
-        
+        $option = '';
+
         foreach ($appliance_list as $value) {
             $option .= "<option value='" . $value->id . "'";
             $option .= " > ";
@@ -4054,7 +4055,6 @@ class Booking extends CI_Controller {
             redirect(base_url() . 'employee/booking/create_booking_payment_link');
         }
     }
-
     function customer_not_reachable_for_rating($bookingID,$userID,$phone_number){
         //Update unreachable Count in booking state table
         $response = $this->booking_model->update_customer_not_reachable_count($bookingID);
@@ -4196,27 +4196,23 @@ class Booking extends CI_Controller {
         
         if(!empty($result)){
             $flag = false;
+            $option = "<option selected disabled>Select Model Number</option>";
             foreach ($result as $value) {
                 if(!empty(trim($value['model']))){
                     $flag = true;
-                    $option = "<option>".$value['model']."</option>";
+                    $option .= "<option>".$value['model']."</option>";
                 }
                 
             }
             if($flag)  {
-                $res['status'] = TRUE;
-                $res['msg'] = $option;
+                echo $option;
             } else {
-                $res['status'] = FALSE;
-                $res['msg'] = 'no data found';
+                echo "no data found";
             }
             
         }else{
-            $res['status'] = FALSE;
-            $res['msg'] = 'no data found';
+            echo "no data found";
         }
-        echo json_encode($res);
         
     }
-
 }

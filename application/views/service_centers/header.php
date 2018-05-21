@@ -388,32 +388,10 @@
             }
         });
     }
+    
 
-    
-    function get_notifications(entity_id,entity_type){
-        $.ajax({
-            type: 'POST',
-            url: '<?php echo base_url(); ?>push_notification/get_notifications',
-            data: {entity_id: entity_id,entity_type: entity_type},
-            success: function (response) {
-                $("#notification_container").html(response);
-            }
-        });
-    }
-    
-    function get_notification_details(){
-        
-        $.ajax({
-            method:'GET',
-            url:'<?php echo base_url();?>employee/inventory/get_sf_notification_data',
-            success:function(data){
-                var obj = JSON.parse(data);
-                $('#brackets_count').html(obj.brackets);
-                $('#inventory_count').html(obj.inventory);
-            }
-        });
-    }
-    
+     <?php if($this->session->userdata('is_sf') === '1'){ ?>
+
     function get_defective_parts_count(){
        $.ajax({
             method:'GET',
@@ -424,6 +402,7 @@
             }
         });
     }
+     <?php } ?>
 
 
 </script>

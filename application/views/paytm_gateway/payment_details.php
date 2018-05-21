@@ -14,8 +14,8 @@
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
-                <div class="x_title">
-                    <h2>Make a payment</h2>
+                <div class="x_title" style="background: #2a3f54;">
+                    <h2 style="color:#fff;padding-left:10px;padding-top:7px;">Payment</h2>
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content">
@@ -23,21 +23,20 @@
                         
                         <div class="current_details">
                             <div class="row tile_count">
-                                <div class="col-md-3 col-sm-6 col-xs-6">
-                                    <span class="count_top">Account Balance</span>
-                                    <div class="count" id="acnt_bal"><i class="fa fa-spinner fa-spin"></i></div>
+                                <div class="col-md-6 col-sm-6 col-xs-6">
+                                    <span class="count_top" style="font-size:17px;"><b>Account Balance :</b>
+                                    <span class="count" id="acnt_bal"><i class="fa fa-spinner fa-spin"></i></span></span>
                                 </div>
-                                <div class="col-md-3 col-sm-6 col-xs-6">
+<!--                                <div class="col-md-3 col-sm-6 col-xs-6">
                                     <span class="count_top">Valid till</span>
                                     <div class="count" id="aggrement_end_date"><i class="fa fa-spinner fa-spin"></i></div>
-                                </div>
+                                </div>-->
                             </div>
-                            <p>Once your amount is below 0, you are not able to insert new booking</p>
                         </div>
                         <hr>
-                        <form method="post" action="<?php echo base_url();?>payment/checkout_processing" id="payment_form">
+                        <form method="post" action="<?php echo base_url();?>payment/checkout" id="payment_form">
                             
-                            <h2>Select Amount To make a payment</h2>
+                            <h2 style="font-size:17px;">Select Amount</h2>
                             
                             <div class="amount_details">
                                 <div class ="col-md-4 col-sm-6 col-xs-12">
@@ -78,7 +77,7 @@
                             <div class="clearfix"></div>
                             <hr>
                             <div class="col-md-6 col-sm-12 col-xs-12 payment_summary">
-                                <h2>Payment Summary</h2>
+                                <h2 style="font-size:17px;">Payment Summary</h2>
                                 <table class="table">
                                     <tr>
                                         <th>Central GST </th>
@@ -103,7 +102,7 @@
                             </div>-->
                             <hr>
                             <div class="final_amount">
-                                <h4> Total Amount To be Paid  
+                                <h4 style="font-size:17px;"> Total Amount To be Paid  
                                     <i class="fa fa-inr"></i>
                                     <span id="final_amount"></span>
                                 </h4>
@@ -125,7 +124,7 @@
                             <input type="hidden" name="ORDER_DETAILS" id="order_details" value="<?php echo $order_details;?>">
                             <input type="hidden" name="TXN_AMOUNT" id="txn_amount" value="">
                             <div class="form-group">
-                                <button type="submit" class="btn btn-success">Continue</button>
+                                <button type="submit" class="btn btn-success" style="background: #2a3f54;border-color:#2a3f54;">Continue</button>
                             </div> 
                         </form>
                     </div>

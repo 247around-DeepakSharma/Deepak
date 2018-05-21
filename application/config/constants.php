@@ -8,6 +8,7 @@ include('paytm_payment_constant.php');
 include('booking_status_actor_next_action_constant.php');
 include('paytm_gateway_transaction.php');
 include('partners_id_constant.php');
+include('serial_number_failed_msg_constant.php');
 /*
 |--------------------------------------------------------------------------
 | File and Directory Modes
@@ -291,6 +292,7 @@ define('ERR_INVALID_SERVICE_AREA_CODE', -1021);
 define('ERR_BOOKING_NOT_ASSIGNED_CODE', -1022);
 define('ERR_SPD_DATE_MANDATORY_CODE', -1023);
 define('ERR_INVALID_SPD_DATE_CODE', -1024);
+define('ERR_CALL_ALREADY_CANCELLED_CODE', -1024);
 
 define('ERR_BOOKING_NOT_INSERTED_MSG', 'Booking Insertion Failed');
 define('ERR_GENERIC_ERROR_MSG', 'Unknown Error');
@@ -317,6 +319,7 @@ define('ERR_INVALID_PRODUCT_MSG', 'Invalid Product');
 
 define('ERR_SPD_DATE_MANDATORY_MSG', 'Service Promise Date is Mandatory');
 define('ERR_INVALID_SPD_DATE_MSG', 'Invalid Service Promise Date');
+define('ERR_CALL_ALREADY_CANCELLED_MSG', 'Call is already cancelled');
 
 //ICICI Bank name constant
 define('ICICI_BANK_NAME', 'ICICI Bank Ltd');
