@@ -28,6 +28,7 @@ uploadfile.controller('uploadPriceChargesFile', ['$scope', 'fileUpload', functio
         $scope.uploadFile = function () {
             var file = $scope.myFile;
             var file_date = ''
+            $scope.errorMsg = false;
             $scope.ShowSpinnerStatus = true;
             var uploadUrl = baseUrl + "/buyback/upload_buyback_process/proces_upload_bb_price_charges";
             fileUpload.uploadFileToUrl($scope, file, uploadUrl,file_date);
