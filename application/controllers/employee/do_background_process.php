@@ -233,6 +233,7 @@ class Do_background_process extends CI_Controller {
                 log_message('info', ": " . " update booking unit details data " . print_r($unit_details, TRUE));
                 // update price in the booking unit details page
                 $this->booking_model->update_unit_details($unit_details);
+                $this->miscelleneous->update_serial_number_in_appliance_details($unit_details['id']);
             }
 
             $booking['closed_date'] = date("Y-m-d H:i:s");

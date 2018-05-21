@@ -2785,4 +2785,12 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
 
         log_message('info', __FUNCTION__ . " END  ".$bookingID.$number);
     }
+    function update_serial_number_in_appliance_details($unitTableID){
+       $applianceData = $this->My_CI->reusable_model->get_search_result_data("booking_unit_details","appliance_id,serial_number",array("id"=>$unitTableID),NULL,NULL,NULL,NULL,NULL,array());
+       if (!empty($applianceData)) {
+            $applianceID = $applianceData[0]['appliance_id'];
+            $data['sf_serial_number'] = $applianceData[0]['serial_number'];
+            $this->My_CI->booking_model->update_appliances($applianceID, $data);
+       }
+    }
 }
