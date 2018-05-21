@@ -2776,7 +2776,7 @@ class Inventory extends CI_Controller {
                                'i.receiver_entity_type' => trim($this->input->post('receiver_entity_type')),
                                'i.sender_entity_id'=>trim($this->input->post('sender_entity_id')),
                                'i.sender_entity_type' => trim($this->input->post('sender_entity_type')),
-                               'i.is_ack <> 1' => NULL);
+                               'i.is_wh_ack <> 1' => NULL);
         
         $select = "services.services,inventory_master_list.*,CASE WHEN(sc.name IS NOT NULL) THEN (sc.name) 
                     WHEN(p.public_name IS NOT NULL) THEN (p.public_name) 
@@ -2840,7 +2840,7 @@ class Inventory extends CI_Controller {
 
         if (!empty($sender_entity_id) && !empty($sender_entity_type) && !empty($receiver_entity_id) && !empty($receiver_entity_type) && !empty($postData)) {
             foreach ($postData as $value) {
-                //acknowledge spare by setting is_ack flag = 1 in inventory ledger table
+                //acknowledge spare by setting is_wh_ack flag = 1 in inventory ledger table
                 $update = $this->inventory_model->update_ledger_details(array('is_wh_ack' => 1, 'wh_ack_date' => date('Y-m-d H:i:s')), array('id' => $value->ledger_id));
                 if ($update) {
                     //update inventory stocks
@@ -2896,7 +2896,7 @@ class Inventory extends CI_Controller {
 
         if (!empty($sender_entity_id) && !empty($sender_entity_type) && !empty($postData)) {
             foreach ($postData as $value) {
-                //acknowledge spare by setting is_ack flag = 1 in inventory ledger table
+                //acknowledge spare by setting is_wh_ack flag = 1 in inventory ledger table
                 if(!empty($value->inventory_id)){
                     $ledger_data['receiver_entity_id'] = $value->partner_id;
                     $ledger_data['receiver_entity_type'] = _247AROUND_PARTNER_STRING;
@@ -3018,7 +3018,7 @@ class Inventory extends CI_Controller {
 
         if (!empty($receiver_entity_id) && !empty($receiver_entity_type) && !empty($postData)) {
             foreach ($postData as $value) {
-                //acknowledge spare by setting is_ack flag = 1 in inventory ledger table
+                //acknowledge spare by setting is_partner_ack flag = 1 in inventory ledger table
                 $update = $this->inventory_model->update_ledger_details(array('is_partner_ack' => 1, 'partner_ack_date' => date('Y-m-d H:i:s')), array('id' => $value->ledger_id));
                 if (!empty($update)) {
                     log_message("info", __FUNCTION__ . " Details updated successfully");
