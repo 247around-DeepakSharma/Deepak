@@ -2431,8 +2431,7 @@ class Api extends CI_Controller {
 
         $model_number = $requestData["model_number"];
         $tag = $requestData["tag"];
-        $purchase_month = $requestData["purchase_month"];
-        $purchase_year = $requestData["purchase_year"];
+        $purchase_date =  date("Y-m-d");
         $rating = $requestData["rating"];
 
         //check whether warranty card image file is there
@@ -2481,7 +2480,7 @@ class Api extends CI_Controller {
 
         //Save appliance in database
         $appliance_details = array($user_id, $service_id, $brand, $category, $capacity,
-            $model_number, $tag, $purchase_month, $purchase_year, $rating,
+            $model_number, $tag, $purchase_date, $rating,
             $wc_file, $invoice_file);
         $saved_appliance = $this->apis->addNewAppliance($appliance_details);
 
@@ -2589,8 +2588,7 @@ class Api extends CI_Controller {
 
         $model_number = $requestData["model_number"];
         $tag = $requestData["tag"];
-        $purchase_month = $requestData["purchase_month"];
-        $purchase_year = $requestData["purchase_year"];
+        $purchase_date = date("Y-m-d");
         $rating = $requestData["rating"];
 
 //        //check whether warranty card image file is there
@@ -2644,8 +2642,7 @@ class Api extends CI_Controller {
             'capacity' => $capacity,
             'model_number' => $model_number,
             'tag' => $tag,
-            'purchase_month' => $purchase_month,
-            'purchase_year' => $purchase_year,
+            'purchase_date' => $purchase_date,
             'rating' => $rating
         );
         $id_returned = $this->apis->updateApplianceDetails($appliance_id, $appliance_details);
