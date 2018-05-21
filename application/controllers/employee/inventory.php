@@ -2653,7 +2653,7 @@ class Inventory extends CI_Controller {
                         if($insert_id){
                             log_message("info", "Ledger details added successfully");
                         }else{
-                            log_message("info","error in adding inventory ledger details data: ". print_r($ledger_data));
+                            log_message("info","error in adding inventory ledger details data: ". print_r($ledger_data, TRUE));
                         }
                         
                 }
@@ -2732,20 +2732,31 @@ class Inventory extends CI_Controller {
         $invoice['qty'] = $value['quantity'];
         $invoice['rate'] = $value['part_total_price'];
         $invoice['taxable_value'] = $value['part_total_price'] * $value['quantity'];
-        $gst_amount = $invoice['taxable_value'] *($value['gst_rate']/100 );
- 
-        if ($c_s_gst) {
-
-            $invoice['cgst_tax_amount'] = $invoice['sgst_tax_amount'] = $gst_amount / 2;
-            $invoice['cgst_tax_rate'] = $invoice['sgst_tax_rate'] = $value['gst_rate'] / 2;
-            $invoice['igst_tax_amount'] = 0;
+        if(!empty($value['gst_rate'])){
+            $gst_amount = $invoice['taxable_value'] *($value['gst_rate']/100 );
         } else {
-
-            $invoice['igst_tax_amount'] = $gst_amount;
-            $invoice['igst_tax_rate'] = $value['gst_rate'];
-            $invoice['cgst_tax_amount'] = $invoice['sgst_tax_amount'] = 0;
+           
+            $gst_amount = $invoice['taxable_value'];
         }
         
+        if (!empty($value['gst_rate'])) {
+            if ($c_s_gst) {
+
+                $invoice['cgst_tax_amount'] = $invoice['sgst_tax_amount'] = $gst_amount / 2;
+                $invoice['cgst_tax_rate'] = $invoice['sgst_tax_rate'] = $value['gst_rate'] / 2;
+                $invoice['igst_tax_amount'] = 0;
+            } else {
+
+                $invoice['igst_tax_amount'] = $gst_amount;
+                $invoice['igst_tax_rate'] = $value['gst_rate'];
+                $invoice['cgst_tax_amount'] = $invoice['sgst_tax_amount'] = 0;
+            }
+        } else {
+             $invoice['cgst_tax_amount'] = $invoice['sgst_tax_amount'] = $invoice['igst_tax_amount'];
+             $invoice['cgst_tax_rate'] = $invoice['sgst_tax_rate'] = $invoice['igst_tax_rate'];
+        }
+
+
         $invoice['toal_amount'] = $invoice['taxable_value'] + $gst_amount;
         $invoice['create_date'] = date('Y-m-d H:i:s');
 
