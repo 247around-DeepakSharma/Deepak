@@ -184,8 +184,6 @@
                                                             <?php if ($price['pod'] == "1" || !empty($sr)) { ?>
                                                             <div class="form-group">
                                                                 <div class="col-md-12">
-                                                                    <input type="hidden" id="<?php echo "appliance_id" . $count ?>" name="<?php echo "appliance_id[" . $price['unit_id'] . "]" ?>"
-                                                                           value="<?php echo $unit_details['appliance_id'];?>" />
                                                                     <input type="hidden" id="<?php echo "serial_number_pic" . $count ?>" class="form-control" name="<?php echo "serial_number_pic[" . $price['unit_id'] . "]" ?>" 
                                                                         value="<?php if(isset($price['en_serial_number_pic'])){ echo $price['en_serial_number_pic'];} else {$price["serial_number_pic"];}  ?>" placeholder=""   />
                                                                     <input type="text" id="<?php echo "serial_number" . $count ?>" class="form-control" name="<?php echo "serial_number[" . $price['unit_id'] . "]" ?>" 
