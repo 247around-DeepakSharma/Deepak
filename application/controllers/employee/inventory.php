@@ -2255,47 +2255,6 @@ class Inventory extends CI_Controller {
         
     }
     
-    function upload_spare_parts_file(){
-        
-    }
-    
-    /**
-     *  @desc : This function is used to show partner warehouse details to 247around employee and 247around 
-     *          warehouse in-charge person.
-     *  @param : void
-     *  @return : void
-     */
-    function show_warehouse_list(){
-        
-    }
-    
-    
-    /** @desc: This function is used to add/edit the warehouse details
-     * @param: void
-     * @return void
-     */
-    function process_warehouse_data(){
-        
-    }
-    
-    
-    /**
-     *  @desc : This function is used to add warehouse details
-     *  @param : $data array()   //consist warehouse data
-     *  @return : $res array()  // consist response message and response status
-     */
-    function add_warehouse_details($data) {
-        
-    }
-    
-    /**
-     *  @desc : This function is used to edit warehouse details
-     *  @param : $data array() //consist warehouse data
-     *  @return : $res array() // consist response message and response status
-     */
-    function edit_warehouse_details($data) {
-        
-    }
     
     function get_inventory_stocks_details(){
         $post = $this->get_post_data();
@@ -3059,6 +3018,7 @@ class Inventory extends CI_Controller {
         }
 
         echo json_encode($res);
+    }
 
     /**
      * @desc: This function will check SF Session
