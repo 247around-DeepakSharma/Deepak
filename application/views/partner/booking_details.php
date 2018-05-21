@@ -461,7 +461,7 @@
                             <th>Upcountry Distance </th>
                             <th>Upcountry District </th>
                             <th>Upcountry Pincode</th>
-                            <th>Upcountry Remarks </th>
+                            <th>Get Route</th>
                         <thead>
                         <tbody>
                             <tr>
@@ -471,8 +471,8 @@
                                 <td><?php if($booking_history[0]['is_upcountry'] == 1){ echo $booking_history[0]["upcountry_distance"]." KM";} ?></td>
                                 <td> <?php if(isset($dhq[0]['district'])){echo $dhq[0]['district'];}?></td>
                                 <td><?php if(isset($dhq[0]['pincode'])){ echo $dhq[0]['pincode'];} ?></td>
-                                <td><?php echo $booking_history[0]["upcountry_remarks"];  ?>
-                                <div class="col-md-4 pull-right"> <button class="btn btn-success" onclick="GetRoute()">Get Route</button></div>
+                                <td>
+                                <div class="col-md-4"> <button class="btn btn-success" onclick="GetRoute()">Get Route</button></div>
                                 </td>
                             </tr>
                             <tr>
