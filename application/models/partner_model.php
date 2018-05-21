@@ -403,21 +403,14 @@ function get_data_for_partner_callback($booking_id) {
             partner_internal_status AS 'Final Status',
 
             CASE WHEN (booking_details.is_upcountry = '0') THEN 'Local' ELSE 'Upcountry' END as 'Is Upcountry', 
-            GROUP_CONCAT(spare_parts_details.parts_requested) As 'Requested Part', 
-            GROUP_CONCAT(spare_parts_details.date_of_request) As 'Part Request Date', 
-            GROUP_CONCAT(spare_parts_details.parts_shipped) As 'Shipped Part', 
-            GROUP_CONCAT(spare_parts_details.shipped_date) As 'Part Shipped Date', 
-            GROUP_CONCAT(spare_parts_details.defective_part_shipped) As 'Shipped Defective Part', 
-            GROUP_CONCAT(spare_parts_details.defective_part_shipped_date) As 'Defactive Part Shipped Date', 
             ".$closeDateSubQuery.",
             ".$tatSubQuery.",
             ".$agingSubQuery.",
             booking_details.rating_stars AS 'Rating',
             booking_details.rating_comments AS 'Rating Comments'
             $dependency
-            FROM  booking_details , booking_unit_details AS ud, services, users,spare_parts_details
+            FROM  booking_details , booking_unit_details AS ud, services, users
             WHERE booking_details.booking_id = ud.booking_id 
-            AND  spare_parts_details.booking_id = booking_details.booking_id
             AND booking_details.service_id = services.id 
             AND booking_details.user_id = users.user_id
             AND product_or_services != 'Product'
