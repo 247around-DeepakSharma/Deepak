@@ -486,29 +486,49 @@ class Upload_buyback_process extends CI_Controller {
             //check all column exist
             $response = $this->check_bb_price_sheet_column_exist($headings_new1);
             if ($response) {
-
+                $is_positive_margin = TRUE;
+                $negative_margin_row = 0;
                 for ($row = 2, $i = 0; $row <= $highestRow; $row++, $i++) {
                     //  Read a row of data into an array
                     $rowData = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row, NULL, TRUE, FALSE, FALSE);
                     $newRowData = array_combine($headings_new1, $rowData[0]);
-                    $dataToInsert = $this->set_charges_rows_data($newRowData);
-                    array_push($sheetData, $dataToInsert);
+                    //check uploaded file has positive margin
+                    $check_margin = $this->check_bb_price_margin($newRowData);
+                    if($check_margin){
+                        $dataToInsert = $this->set_charges_rows_data($newRowData);
+                        array_push($sheetData, $dataToInsert);
+                    }else{
+                        $negative_margin_row = $row;
+                        $is_positive_margin = FALSE;
+                        break;
+                    }
+                    
                 }
-                //insert data in batch
-                $is_insert = $this->bb_model->insert_charges_data_in_batch($sheetData);
-                if ($is_insert) {
+                
+                if($is_positive_margin){
+                    //insert data in batch
+                    $is_insert = $this->bb_model->insert_charges_data_in_batch($sheetData);
+                    if ($is_insert) {
 
+                        //Adding Details in File_Uploads table as well
+                        $this->miscelleneous->update_file_uploads($_FILES['file']['name'], $_FILES['file']['tmp_name'],_247AROUND_BB_PRICE_LIST,FILE_UPLOAD_SUCCESS_STATUS);
+                        //Return success Message
+                        $msg = "File Uploaded Successfully.";
+                        $response = array("code" => '247', "msg" => $msg);
+                        echo json_encode($response);
+                    } else {
+                        $msg = "Error!!! Please Try Again...";
+                        $response = array("code" => '-247', "msg" => $msg);
+                        echo json_encode($response);
+                    }
+                }else{
                     //Adding Details in File_Uploads table as well
-                    $this->miscelleneous->update_file_uploads($_FILES['file']['name'], $_FILES['file']['tmp_name'],_247AROUND_BB_PRICE_LIST,FILE_UPLOAD_SUCCESS_STATUS);
-                    //Return success Message
-                    $msg = "File Uploaded Successfully.";
-                    $response = array("code" => '247', "msg" => $msg);
-                    echo json_encode($response);
-                } else {
-                    $msg = "Error!!! Please Try Again...";
+                    $this->miscelleneous->update_file_uploads($_FILES['file']['name'], $_FILES['file']['tmp_name'],_247AROUND_BB_PRICE_LIST,FILE_UPLOAD_FAILED_STATUS);
+                    $msg = "Error!!! Uploaded File has negative margin at row $negative_margin_row . Please correct this and upload again.";
                     $response = array("code" => '-247', "msg" => $msg);
                     echo json_encode($response);
                 }
+                
             } else {
                 $this->miscelleneous->update_file_uploads($_FILES['file']['name'], $_FILES['file']['tmp_name'],_247AROUND_BB_PRICE_LIST,FILE_UPLOAD_FAILED_STATUS);
                 $msg = "Error!!! Please Try Again...";
@@ -904,6 +924,21 @@ class Upload_buyback_process extends CI_Controller {
         unlink(TMP_FOLDER . $latest_upload_price_sheet_file_name);
         
         return $response;
+    }
+    
+    
+    /**
+     * @desc This function is used to check buyback price sheet margin. In the file,all rows should have positive margin
+     * @param $data array()
+     * @return $flag boolean
+     */
+    function check_bb_price_margin($data){
+        $flag = false;
+        if($data['cp_total'] > $data['partner_total'] && $data['around_total'] > 0){
+            $flag = true;
+        }
+        
+        return $flag;
     }
 
 }
