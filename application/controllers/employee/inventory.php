@@ -2999,7 +2999,7 @@ class Inventory extends CI_Controller {
         $row[] = $inventory_list->type;
         $row[] = $inventory_list->part_name;
         $row[] = $inventory_list->quantity;
-        $row[] = $row[] = "<input type='checkbox' class= 'check_single_row' id='ack_spare_$inventory_list->inventory_id' data-inventory_id='".$inventory_list->inventory_id."' data-ledger_id = '".$inventory_list->id."' data-sender_entity_id = '".$inventory_list->sender_entity_id."' data-sender_entity_type = '".$inventory_list->sender_entity_type."'>";
+        $row[] = $row[] = "<input type='checkbox' class= 'check_single_row' id='ack_spare_$inventory_list->inventory_id' data-inventory_id='".$inventory_list->inventory_id."' data-ledger_id = '".$inventory_list->id."' data-sender_entity_id = '".$inventory_list->sender_entity_id."' data-sender_entity_type = '".$inventory_list->sender_entity_type."' data-booking_id = '".$inventory_list->booking_id."'>";
         
         return $row;
     }
