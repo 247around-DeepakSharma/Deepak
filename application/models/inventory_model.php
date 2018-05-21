@@ -823,7 +823,7 @@ class Inventory_model extends CI_Model {
         }
         $this->db->select($select,FALSE);
         $this->db->from('inventory_ledger as i');
-        $this->db->join('inventory_master_list', 'inventory_master_list.inventory_id = i.id','left');
+        $this->db->join('inventory_master_list', 'inventory_master_list.inventory_id = i.inventory_id','left');
         $this->db->join('services', 'services.id = inventory_master_list.service_id','left');
         $this->db->join('service_centres as sc', "sc.id = i.receiver_entity_id AND i.receiver_entity_type = 'vendor'",'left');
         $this->db->join('partners as p', "p.id = i.receiver_entity_id AND i.receiver_entity_type = 'partner'",'left');

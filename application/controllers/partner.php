@@ -348,7 +348,7 @@ class Partner extends CI_Controller {
                                     $this->booking_model->addunitdetails($unit_details);
                                 }
 
-                                $p_login_details = $this->dealer_model->entity_login(array('entity_id' => $this->partner['id'], "user_id" => strtolower($booking['partner_source'])));
+                                $p_login_details = $this->dealer_model->entity_login(array('entity_id' => $this->partner['id'], "user_id" => strtolower($booking['partner_source']."-sts")));
 
                                 $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY, $booking['query_remarks'], $p_login_details[0]['agent_id'], 
                                         $requestData['partnerName'],$actor,$next_action, $this->partner['id']);

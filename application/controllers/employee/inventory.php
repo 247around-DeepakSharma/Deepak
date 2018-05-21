@@ -2653,7 +2653,7 @@ class Inventory extends CI_Controller {
                         if($insert_id){
                             log_message("info", "Ledger details added successfully");
                         }else{
-                            log_message("info","error in adding inventory ledger details data: ". print_r($ledger_data));
+                            log_message("info","error in adding inventory ledger details data: ". print_r($ledger_data, TRUE));
                         }
                         
                 }
@@ -2732,20 +2732,31 @@ class Inventory extends CI_Controller {
         $invoice['qty'] = $value['quantity'];
         $invoice['rate'] = $value['part_total_price'];
         $invoice['taxable_value'] = $value['part_total_price'] * $value['quantity'];
-        $gst_amount = $invoice['taxable_value'] *($value['gst_rate']/100 );
- 
-        if ($c_s_gst) {
-
-            $invoice['cgst_tax_amount'] = $invoice['sgst_tax_amount'] = $gst_amount / 2;
-            $invoice['cgst_tax_rate'] = $invoice['sgst_tax_rate'] = $value['gst_rate'] / 2;
-            $invoice['igst_tax_amount'] = 0;
+        if(!empty($value['gst_rate'])){
+            $gst_amount = $invoice['taxable_value'] *($value['gst_rate']/100 );
         } else {
-
-            $invoice['igst_tax_amount'] = $gst_amount;
-            $invoice['igst_tax_rate'] = $value['gst_rate'];
-            $invoice['cgst_tax_amount'] = $invoice['sgst_tax_amount'] = 0;
+           
+            $gst_amount = $invoice['taxable_value'];
         }
         
+        if (!empty($value['gst_rate'])) {
+            if ($c_s_gst) {
+
+                $invoice['cgst_tax_amount'] = $invoice['sgst_tax_amount'] = $gst_amount / 2;
+                $invoice['cgst_tax_rate'] = $invoice['sgst_tax_rate'] = $value['gst_rate'] / 2;
+                $invoice['igst_tax_amount'] = 0;
+            } else {
+
+                $invoice['igst_tax_amount'] = $gst_amount;
+                $invoice['igst_tax_rate'] = $value['gst_rate'];
+                $invoice['cgst_tax_amount'] = $invoice['sgst_tax_amount'] = 0;
+            }
+        } else {
+             $invoice['cgst_tax_amount'] = $invoice['sgst_tax_amount'] = $invoice['igst_tax_amount'] = 0;
+             $invoice['cgst_tax_rate'] = $invoice['sgst_tax_rate'] = $invoice['igst_tax_rate'] = 0;
+        }
+
+
         $invoice['toal_amount'] = $invoice['taxable_value'] + $gst_amount;
         $invoice['create_date'] = date('Y-m-d H:i:s');
 
@@ -2765,7 +2776,7 @@ class Inventory extends CI_Controller {
                                'i.receiver_entity_type' => trim($this->input->post('receiver_entity_type')),
                                'i.sender_entity_id'=>trim($this->input->post('sender_entity_id')),
                                'i.sender_entity_type' => trim($this->input->post('sender_entity_type')),
-                               'i.is_ack <> 1' => NULL);
+                               'i.is_wh_ack <> 1' => NULL);
         
         $select = "services.services,inventory_master_list.*,CASE WHEN(sc.name IS NOT NULL) THEN (sc.name) 
                     WHEN(p.public_name IS NOT NULL) THEN (p.public_name) 
@@ -2829,7 +2840,7 @@ class Inventory extends CI_Controller {
 
         if (!empty($sender_entity_id) && !empty($sender_entity_type) && !empty($receiver_entity_id) && !empty($receiver_entity_type) && !empty($postData)) {
             foreach ($postData as $value) {
-                //acknowledge spare by setting is_ack flag = 1 in inventory ledger table
+                //acknowledge spare by setting is_wh_ack flag = 1 in inventory ledger table
                 $update = $this->inventory_model->update_ledger_details(array('is_wh_ack' => 1, 'wh_ack_date' => date('Y-m-d H:i:s')), array('id' => $value->ledger_id));
                 if ($update) {
                     //update inventory stocks
@@ -2885,7 +2896,7 @@ class Inventory extends CI_Controller {
 
         if (!empty($sender_entity_id) && !empty($sender_entity_type) && !empty($postData)) {
             foreach ($postData as $value) {
-                //acknowledge spare by setting is_ack flag = 1 in inventory ledger table
+                //acknowledge spare by setting is_wh_ack flag = 1 in inventory ledger table
                 if(!empty($value->inventory_id)){
                     $ledger_data['receiver_entity_id'] = $value->partner_id;
                     $ledger_data['receiver_entity_type'] = _247AROUND_PARTNER_STRING;
@@ -3007,7 +3018,7 @@ class Inventory extends CI_Controller {
 
         if (!empty($receiver_entity_id) && !empty($receiver_entity_type) && !empty($postData)) {
             foreach ($postData as $value) {
-                //acknowledge spare by setting is_ack flag = 1 in inventory ledger table
+                //acknowledge spare by setting is_partner_ack flag = 1 in inventory ledger table
                 $update = $this->inventory_model->update_ledger_details(array('is_partner_ack' => 1, 'partner_ack_date' => date('Y-m-d H:i:s')), array('id' => $value->ledger_id));
                 if (!empty($update)) {
                     log_message("info", __FUNCTION__ . " Details updated successfully");
