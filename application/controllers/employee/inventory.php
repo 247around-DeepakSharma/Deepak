@@ -2739,8 +2739,8 @@ class Inventory extends CI_Controller {
                 $invoice['cgst_tax_amount'] = $invoice['sgst_tax_amount'] = 0;
             }
         } else {
-             $invoice['cgst_tax_amount'] = $invoice['sgst_tax_amount'] = $invoice['igst_tax_amount'];
-             $invoice['cgst_tax_rate'] = $invoice['sgst_tax_rate'] = $invoice['igst_tax_rate'];
+             $invoice['cgst_tax_amount'] = $invoice['sgst_tax_amount'] = $invoice['igst_tax_amount'] = 0;
+             $invoice['cgst_tax_rate'] = $invoice['sgst_tax_rate'] = $invoice['igst_tax_rate'] = 0;
         }
 
 
