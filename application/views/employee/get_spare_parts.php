@@ -96,13 +96,14 @@
       //var booking_id = $('#modal-title').text();
       var courier_charge = $('#charges').val();
       if(remarks !== ""){
+        $('#reject_btn').attr('disabled',true);
         var url =  $('#url').val();
         $.ajax({
             type:'POST',
             url:url,
             data:{remarks:remarks,courier_charge:courier_charge},
             success: function(data){
-                
+                $('#reject_btn').attr('disabled',false);
                 if(data === "Success"){
                   //  $("#"+booking_id+"_1").hide()
                     $('#myModal2').modal('hide');
