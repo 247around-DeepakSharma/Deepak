@@ -131,7 +131,10 @@
     </div>
 </div>
 <script>
-    var table = $('#complete_booking_table').DataTable();
+    var table = $('#complete_booking_table').DataTable(
+            {
+                "pageLength": 50
+            });
     $("#serachInputCompleted").change(function () {
          if($('#serachInputCompleted').val() !== 'all'){
     table

@@ -43,7 +43,7 @@ if ($this->uri->segment(4)) {
                 </div>
                 <div class="x_content">
                     <form target="_blank"  action="<?php echo base_url(); ?>partner/print_all" name="fileinfo1"  method="POST" enctype="multipart/form-data">
-                        <table class="table table-bordered table-hover table-striped" id="spare_table">
+                        <table class="table table-bordered table-hover table-striped" id="spare_table" style=" z-index: -1;position: static;">
                             <thead>
                                 <tr>
                                     <th class="text-center">S.N</th>
@@ -100,8 +100,8 @@ if ($this->uri->segment(4)) {
                                             <div class="dropdown">
                                                 <button class="btn btn-sm btn-primary" type="button" data-toggle="dropdown" style="    border: 1px solid #2a3f54;background: #2a3f54;">Action
                                                 <span class="caret"></span></button>
-                                                <ul class="dropdown-menu" style="border: none;background: none;">
-                                                    <div class="action_holder" style="width: 43%;background: #fff;border: 1px solid #2c9d9c;padding: 1px;">
+                                                <ul class="dropdown-menu" style="border: none;background: none;z-index: 100;position: inherit;min-width: 70px;">
+                                                    <div class="action_holder" style="background: #fff;border: 1px solid #2c9d9c;padding: 1px;">
                                                     <li style="color: #fff;"><a href="<?php echo base_url() ?>partner/update_spare_parts_form/<?php echo $row['id']; ?>" class="btn btn-sm btn-success" title="Update" style="color:#fff;margin: 0px;padding: 5px 12px;" ></i>Update</a></li>
                                                     <li style="color: #fff;margin-top:5px;"><a href="#" data-toggle="modal" id="<?php echo "spare_parts" . $row['id']; ?>" data-url="<?php echo base_url(); ?>employee/inventory/update_action_on_spare_parts/<?php echo $row['id'] . "/" . $row['booking_id']; ?>/CANCEL_PARTS" data-booking_id="<?php echo $row['booking_id']; ?>" data-target="#myModal2" class="btn btn-sm btn-danger open-adminremarks" title="Reject" style="color:#fff;margin: 0px;padding: 5px 14.4px;" >Reject</a>
                                            </li>
@@ -303,7 +303,11 @@ if ($this->uri->segment(4)) {
     $this->session->unset_userdata('success');
 } ?>
 <script>
-    var table = $('#spare_table').DataTable();
+    var table = $('#spare_table').DataTable(
+            {
+                 "pageLength": 50
+             }
+      );
         $("#serachSpareInput").change(function () {
             if($('#serachSpareInput').val() !== 'all'){
     table

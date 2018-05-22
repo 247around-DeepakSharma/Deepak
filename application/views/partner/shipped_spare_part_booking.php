@@ -78,5 +78,8 @@ if ($this->uri->segment(3)) {
     </div>
 </div>
 <script>
-    var table = $('#shipped_spare_part_table').DataTable();
+    var table = $('#shipped_spare_part_table').DataTable(
+            {
+                    "pageLength": 50
+                });
     </script>
