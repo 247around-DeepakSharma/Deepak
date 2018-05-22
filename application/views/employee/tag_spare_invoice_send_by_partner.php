@@ -37,21 +37,21 @@
                         <form id="spareForm" method="post" class="form-horizontal" novalidate="novalidate">
                             <div class="static-form-box">
                                 <div class="form-group">
-                                    <label class="col-xs-2 control-label">Select Partner*</label>
+                                    <label class="col-xs-2 control-label">Select Partner *</label>
                                     <div class="col-xs-4">
                                         <select class="form-control" name="partner_id" id="partner_id" required=""></select>
                                     </div>
-                                    <label class="col-xs-2 control-label">Invoice Number*</label>
+                                    <label class="col-xs-2 control-label">Invoice Number *</label>
                                     <div class="col-xs-4">
                                         <input type="text" class="form-control" name="invoice_id" id="invoice_id" placeholder="Enter Invoice ID" required=""/>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="col-xs-2 control-label">Invoice Dated*</label>
+                                    <label class="col-xs-2 control-label">Invoice Date *</label>
                                     <div class="col-xs-4">
                                         <input type="text" class="form-control" name="dated" id="dated" placeholder="Select Date" required=""/>
                                     </div>
-                                    <label class="col-xs-2 control-label">Warehouse*</label>
+                                    <label class="col-xs-2 control-label">Warehouse *</label>
                                     <div class="col-xs-4">
                                         <select class="form-control" name="wh_id" id="wh_id">
                                             <option value="" disabled="">Select Warehouse</option>
@@ -197,7 +197,7 @@
         get_appliance(0);
         
         
-        $("#dated").datepicker({dateFormat: 'yy-mm-dd', minDate: 0});
+        $("#dated").datepicker({dateFormat: 'yy-mm-dd'});
         
         $("#spareForm").validate();    
         $("#spareForm").on('submit', function(e) {
