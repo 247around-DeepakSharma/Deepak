@@ -82,7 +82,6 @@
                                         </option>
                                     </select>
                                     <?php echo form_error('service_id'); ?>
-                                    <span id="error_pincode" style="color: red;"></span>
                                 </div>
                             </div>
                          
@@ -147,7 +146,7 @@
                             
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 <?php if( form_error('model_number') ) { echo 'has-error';} ?>">
-                                    <label for="model_number_1">Model Number  <span id="error_model" style="color: red;"></label>
+                                    <label for="model_number_1">Model Number *  <span id="error_model" style="color: red;"></label>
                                     <span id="model_number_2">
                                     <select class="form-control"  name="model_number" id="model_number_1" >
                                         <option selected disabled>Select Model</option>
@@ -435,6 +434,7 @@
         var dealer_phone_number = $("#dealer_phone_number").val();
         var not_visible = $("#not_visible").val();
         var purchase_date = $("#purchase_date").val();
+        var model_value = $("#model_number_1").val();
         if(!mobile_number.match(exp1)){
             alert('Please Enter Valid User Phone Number');   
             display_message("booking_primary_contact_no","error_mobile_number","red","Please Enter Valid User Phone Number");
@@ -481,7 +481,12 @@
         } else {
               display_message("appliance_category_1","error_category","green","");
         }
-        
+        if(model_value === ""){
+            display_message("model_number_1","error_model","red","Please Select Model");
+             return false;
+        } else {
+              display_message("model_number_1","error_model","green","");
+        }
         if(partner_source === ""){
            
             display_message("partner_source","error_seller","red","Please Seller Channel");
