@@ -89,7 +89,7 @@ class File_upload extends CI_Controller {
         }else{
             //redirect to upload page
             $this->session->set_flashdata('file_error', 'Empty file has been uploaded');
-            redirect(base_url() . "employee/booking_excel/$redirect_to");
+            redirect(base_url() . $redirect_to);
         }
     }
     

@@ -58,6 +58,12 @@
                                         </select>
                                     </div>
                                 </div>
+                                <div class="form-group">
+                                    <label class="col-xs-2 control-label">Invoice File *  <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Only pdf files are allowed and file size should not be greater than 2 mb."><i class="fa fa-info"></i></span></label>
+                                    <div class="col-xs-4">
+                                        <input type="file" class="form-control" name="file" id="invoice_file" required="" accept="application/pdf"/>
+                                    </div>
+                                </div>
 <!--                                <div class="form-group">
                                     <label class="col-xs-2 control-label">Despatch Document Number*</label>
                                     <div class="col-xs-4">
@@ -196,22 +202,46 @@
         get_vendor();
         get_appliance(0);
         
-        
+        $('[data-toggle="popover"]').popover(); 
         $("#dated").datepicker({dateFormat: 'yy-mm-dd'});
         
         $("#spareForm").validate();    
         $("#spareForm").on('submit', function(e) {
             var isvalid = $("#spareForm").valid();
             if (isvalid) {
+                $('#submit_btn').attr('disabled',true);
+                $('#submit_btn').html("<i class='fa fa-spinner fa-spin'></i> Processing...");
                 e.preventDefault();
-                var formData =  $('#spareForm').serializeArray(); 
+                
+                //Serializing all For Input Values (not files!) in an Array Collection so that we can iterate this collection later.
+                var params = $('#spareForm').serializeArray();
+
+                //Getting Files Collection
+                var files = $("#invoice_file")[0].files;
+
+                //Declaring new Form Data Instance  
+                var formData = new FormData();
+
+                //Looping through uploaded files collection in case there is a Multi File Upload. This also works for single i.e simply remove MULTIPLE attribute from file control in HTML.  
+                for (var i = 0; i < files.length; i++) {
+                    formData.append('file', files[i]);
+                }
+                //Now Looping the parameters for all form input fields and assigning them as Name Value pairs. 
+                $(params).each(function (index, element) {
+                    formData.append(element.name, element.value);
+                });
+                
                 $.ajax({
-                   method:"POST",
-                   url:"<?php echo base_url();?>employee/inventory/process_spare_invoice_tagging",
-                   data:formData,
-                   success:function(response){
-                       obj = JSON.parse(response);
-                       if(obj.status){
+                    method:"POST",
+                    url:"<?php echo base_url();?>employee/inventory/process_spare_invoice_tagging",
+                    data:formData,
+                    contentType: false,
+                    processData: false,
+                    success:function(response){
+                        obj = JSON.parse(response);
+                        $('#submit_btn').attr('disabled',false);
+                        $('#submit_btn').html("Submit");
+                        if(obj.status){
                             $('.success_msg_div').fadeTo(2000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
                             $('#success_msg').html(obj.message);
                             $("#spareForm")[0].reset();
