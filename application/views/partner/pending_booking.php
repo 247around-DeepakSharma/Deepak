@@ -48,7 +48,7 @@
             <div class="clearfix"></div>
         </div>
         <div class="x_content">
-            <table class="table table-bordered table-hover table-striped" id="pending_booking_table">
+            <table class="table table-bordered table-hover table-striped" id="pending_booking_table" style=" z-index: -1;position: static;">
                 <thead>
                     <tr>
                         <th class="text-center">S.N</th>
@@ -102,7 +102,7 @@
                             </td>
                             <td class="text-center"><?php echo $row->appliance_brand; ?></td>
                             <td class="text-center"><?php if ($row->count_escalation>0) { ?>
-                                    <i style="color:red; font-size:13px;" onclick=""
+                                    <i data-toggle="tooltip" title="Escalation" style="color:red; font-size:13px;" onclick=""
                                        class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></i><?php } ?>
                                    <?php echo $row->partner_internal_status; ?>
                             </td>
@@ -128,7 +128,7 @@
                                             <div class="dropdown">
                                                 <button class="btn btn-sm btn-primary" type="button" data-toggle="dropdown" style="border: 1px solid #2a3f54;background: #2a3f54;">Action
                                                 <span class="caret"></span></button>
-                                                <ul class="dropdown-menu" style="padding: 5px 5px 5px 5px;margin: 0px;min-width: 95px;">
+                                                <ul class="dropdown-menu" style="padding: 5px 5px 5px 5px;margin: 0px;min-width: 95px;position: inherit;z-index: 100;">
                                                     <li style="color: #fff;"><a class='btn btn-sm btn-primary' href="<?php echo base_url(); ?>partner/update_booking/<?= $row->booking_id ?>"  title='View' style="background-color:#2C9D9C; border-color: #2C9D9C;color:#fff;padding: 5px 0px;
     margin: 0px;">Update</a></li>
                                                     <li style="color: #fff;margin-top:5px;">
@@ -255,7 +255,14 @@
 <?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
 <?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>
 <script>
-    var table = $('#pending_booking_table').DataTable();
+    $(document).ready(function(){
+    $('[data-toggle="tooltip"]').tooltip();   
+});
+    var table = $('#pending_booking_table').DataTable(
+                {
+                    "pageLength": 50
+                }
+            );
         $("#serachInput").change(function () {
             if($('#serachInput').val() !== 'all'){
                 table

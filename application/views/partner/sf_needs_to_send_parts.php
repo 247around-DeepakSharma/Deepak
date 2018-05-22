@@ -74,7 +74,10 @@
 <div class="clearfix"></div>
 <?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
 <script type="text/javascript">
- var table = $('#sf_needs_to_send_table').DataTable();
+ var table = $('#sf_needs_to_send_table').DataTable(
+          {
+                    "pageLength": 50
+                });
 function confirm_received(){
     var c = confirm("Continue?");
     if(!c){
