@@ -144,6 +144,7 @@
             tmp_arr[key]['sender_entity_id'] = $(this).attr('data-sender_entity_id');
             tmp_arr[key]['sender_entity_type'] = $(this).attr('data-sender_entity_type');
             tmp_arr[key]['ledger_id'] = $(this).attr('data-ledger_id');
+            tmp_arr[key]['booking_id'] = $(this).attr('data-booking_id');
             flag = true;
         });
         

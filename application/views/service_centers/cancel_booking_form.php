@@ -61,20 +61,25 @@
                    <?php $isdisable = false; if(isset($user_and_booking_details['spare_parts'])){ 
                        foreach($user_and_booking_details['spare_parts'] as $sp){
                            switch ($sp['status']){
-                               case "Shipped":
-                               case "Defective Part Pending":
-                               case "Defective Part Received By Partner":
-                               case "Defective Part Rejected By Partner":
-                               case "Defective Part Shipped By SF":
-                               case "Delivered": 
-                                   $isdisable= true;
+                               case SPARE_PARTS_REQUESTED: 
+                                    $status = CANCEL_PAGE_SPARE_NOT_SHIPPED;
+                                    $isdisable= true;
                                    break;
+                               case SPARE_SHIPPED_BY_PARTNER:
+                               case SPARE_DELIVERED_TO_SF:
+                               case DEFECTIVE_PARTS_REJECTED:
+                               case DEFECTIVE_PARTS_RECEIVED:
+                               case DEFECTIVE_PARTS_SHIPPED:
+                               case DEFECTIVE_PARTS_PENDING:
+                                    $status = CANCEL_PAGE_SPARE_NOT_SHIPPED;
+                                    $isdisable= true;
+                                    break;
                            }
                           
                        }
                    } ?>
                     <?php if($isdisable) { ?>
-                    <p style="margin-bottom:60px;"> <strong> You are unable to cancel this booking because Spare Parts Shipped.</strong></p>
+                    <p style="margin-bottom:60px;"> <strong> <?php echo $status;?></strong></p>
                     <?php } else { ?>
                     <input type="submit" id="submitform" value="Cancel Booking" style="background-color: #2C9D9C; border-color: #2C9D9C; " onclick="return(check_text())" class="btn btn-danger btn-large">
                     <?php }?>

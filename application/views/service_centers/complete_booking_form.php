@@ -8,8 +8,36 @@
             </div>
         </div>
         <?php }?>
+        <?php $required_sp_id = array(); $can_sp_id = array(); ?>
+        <?php  $flag = 0; $requestedParts = false; if(isset($booking_history['spare_parts'])){ 
+            foreach ($booking_history['spare_parts'] as  $value) {
+                if($value['status'] == "Completed" || $value['status'] == "Cancelled"){} else {
+                    if($value['defective_part_required'] == 1 && $value['status'] != SPARE_PARTS_REQUESTED){
+                        if(!empty($value['parts_shipped'])){
+                            $flag = 1; 
+                            array_push($required_sp_id, $value['id']);   
+                        }
+                    }
+                }
+
+                if($value['status'] == SPARE_PARTS_REQUESTED){
+                    $date1=date_create($value['date_of_request']);
+                    $date2=date_create(date('Y-m-d'));
+                    $diff=date_diff($date1,$date2);
+                    $d = $diff->format("%R%a days");
+                    
+                    if($diff->format("%R%a days") < 15){
+                       $requestedParts = true;
+                    } else{
+                        array_push($can_sp_id, array('part_name' => $value['parts_requested'], "part_id" => $value['id']));
+                    }
+                }
+            }
+
+        }?>
+        <center><?php if($requestedParts) { ?><span style="color:red; font-weight: bold;" ><?php echo UNABLE_COMPLETE_BOOKING_SPARE_MSG;?></span><?php } ?></center>
         <div class="panel panel-info" style="margin-top:20px;">
-            <div class="panel-heading">Complete Booking</div>
+            <div class="panel-heading">Complete Booking </div>
             <div class="panel-body">
                 <form name="myForm" onSubmit="document.getElementById('submitform').disabled=true;" class="form-horizontal" id ="booking_form" action="<?php echo base_url() ?>employee/service_centers/process_complete_booking/<?php echo $booking_id; ?>"  method="POST" enctype="multipart/form-data">
                     <div class="row">
@@ -87,27 +115,10 @@
                         </div>
                     </div>
                     <!-- row End  -->
-                    <?php $required_sp_id = array(); ?>
-                    <?php  $flag = 0; $requestedParts = false; if(isset($booking_history['spare_parts'])){ 
-                        foreach ($booking_history['spare_parts'] as  $value) {
-                            if($value['status'] == "Completed" || $value['status'] == "Cancelled"){} else {
-                                if($value['defective_part_required'] == 1){
-                                    if(!empty($value['parts_shipped'])){
-                                        $flag = 1; 
-                                        array_push($required_sp_id, $value['id']);   
-                                    }
-                                }
-                            }
-                            
-                            if($value['status'] == SPARE_PARTS_REQUESTED){
-                                $requestedParts = true;
-                            }
-         
-                        }
-                        
-                    }?>
+                    
                     <input type="hidden" id="spare_parts_required" name="spare_parts_required" value="<?php echo $flag;?>" />
                     <input type="hidden" name="sp_required_id" value='<?php echo json_encode($required_sp_id,TRUE); ?>' />
+                    <input type="hidden" name="can_sp_required_id" value='<?php echo json_encode($can_sp_id,TRUE); ?>' />
                     <input type="hidden" name="partner_id" value='<?php echo $booking_history[0]['partner_id']; ?>' />
                     <input type="hidden" name="approval" value='0' />
                     <input type="hidden" name="count_unit"id ="count_unit" value="<?php echo count($bookng_unit_details);?>" />
