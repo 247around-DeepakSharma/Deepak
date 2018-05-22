@@ -2774,27 +2774,29 @@ function convert_html_to_pdf($html,$booking_id,$filename,$s3_folder){
             $bookingDetails = $this->My_CI->booking_model->get_missed_call_rating_booking_count($number);
             $bookingID = $bookingDetails[0]['booking_id'];
         }
-        $select = "booking_details.*,employee.official_email,service_centres.name,services.services";
-        $where["booking_details.booking_id"] = $bookingID; 
-        $partnerJoin["partners"] = "partners.id=booking_details.partner_id";
-        $join["employee_relation"] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.service_centres_id)";
-        $join["employee"] = "employee.id=employee_relation.agent_id";
-        $join["service_centres"] = "service_centres.id=booking_details.assigned_vendor_id";
-        $join["services"] = "services.id=booking_details.service_id";
-        $partnerJoin["employee"] = "employee.id=partners.account_manager_id";
-        $bookingData = $this->My_CI->reusable_model->get_search_result_data("booking_details",$select,$where,$join,NULL,NULL,NULL,NULL,array());
-        $amEmail = $this->My_CI->reusable_model->get_search_result_data("booking_details","employee.official_email",$where,$partnerJoin,NULL,NULL,NULL,NULL,array());
-        $subject = 'Bad Feedback From Customer, Rating ('.$rating.') For '.$bookingID;
-        $message = "Please take action as Customer is Not Satisfied with our Service.<br>"
-                . "SF : ".$bookingData[0]['name']."<br>"
-                . "Customer remarks : ".$bookingData[0]['rating_comments']."<br> "
-                . "Request Type : ".$bookingData[0]['request_type']."<br> "
-                . "Appliance : ".$bookingData[0]['services']."<br> ";
-        $to = ANUJ_EMAIL_ID;  
-        $cc = $bookingData[0]['official_email'].",".$amEmail[0]['official_email'].",".$this->My_CI->session->userdata("official_email");
-        $bcc = "chhavid@247around.com";
-        $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "","we_get_bad_rating");
-        log_message('info', __FUNCTION__ . " END  ".$bookingID.$number);
+        if($bookingID){
+            $select = "booking_details.*,employee.official_email,service_centres.name,services.services";
+            $where["booking_details.booking_id"] = $bookingID; 
+            $partnerJoin["partners"] = "partners.id=booking_details.partner_id";
+            $join["employee_relation"] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.service_centres_id)";
+            $join["employee"] = "employee.id=employee_relation.agent_id";
+            $join["service_centres"] = "service_centres.id=booking_details.assigned_vendor_id";
+            $join["services"] = "services.id=booking_details.service_id";
+            $partnerJoin["employee"] = "employee.id=partners.account_manager_id";
+            $bookingData = $this->My_CI->reusable_model->get_search_result_data("booking_details",$select,$where,$join,NULL,NULL,NULL,NULL,array());
+            $amEmail = $this->My_CI->reusable_model->get_search_result_data("booking_details","employee.official_email",$where,$partnerJoin,NULL,NULL,NULL,NULL,array());
+            $subject = 'Bad Feedback From Customer, Rating ('.$rating.') For '.$bookingID;
+            $message = "Please take action as Customer is Not Satisfied with our Service.<br>"
+                    . "SF : ".$bookingData[0]['name']."<br>"
+                    . "Customer remarks : ".$bookingData[0]['rating_comments']."<br> "
+                    . "Request Type : ".$bookingData[0]['request_type']."<br> "
+                    . "Appliance : ".$bookingData[0]['services']."<br> ";
+            $to = ANUJ_EMAIL_ID;  
+            $cc = $bookingData[0]['official_email'].",".$amEmail[0]['official_email'].",".$this->My_CI->session->userdata("official_email");
+            $bcc = "chhavid@247around.com";
+            $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "","we_get_bad_rating");
+            log_message('info', __FUNCTION__ . " END  ".$bookingID.$number);
+        }
     }
     function update_serial_number_in_appliance_details($unitTableID){
        $applianceData = $this->My_CI->reusable_model->get_search_result_data("booking_unit_details","appliance_id,serial_number",array("id"=>$unitTableID),NULL,NULL,NULL,NULL,NULL,array());
