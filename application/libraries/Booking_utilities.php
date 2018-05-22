@@ -53,9 +53,9 @@ class Booking_utilities {
             $qr = $this->get_qr_code_response($booking_details[0]['booking_id'], $booking_details[0]['amount_due'], 
             $booking_details[0]['primary_contact_phone_1'], $booking_details[0]['user_id'], 
             $booking_details[0]['booking_primary_contact_no'], $booking_details[0]['services']);
-            $unit_where = array('booking_id' => $booking_id, 'pay_to_sf' => '1');
-            $unit_details = $this->My_CI->booking_model->get_unit_details($unit_where);
+            $unit_where = array('booking_id' => $booking_id, 'pay_to_sf' => '1', 'booking_status != "Cancelled" ' => NULL);
             
+            $unit_details = $this->My_CI->booking_model->get_unit_details($unit_where);
             $meta = array();
             $meta['upcountry_charges'] = 0;
             
