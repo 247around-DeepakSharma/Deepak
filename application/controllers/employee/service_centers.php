@@ -228,7 +228,7 @@ class Service_centers extends CI_Controller {
      * @return: void
      */
     function process_complete_booking($booking_id) {
-        log_message('info', __FUNCTION__ . ' booking_id: ' . $booking_id);
+        log_message('info', __FUNCTION__ . ' booking_id: ' . $booking_id. " Json data ". json_encode($this->input->post(), true));
         $this->checkUserSession();
 
         $this->form_validation->set_rules('customer_basic_charge', 'Basic Charge', 'required');
@@ -264,7 +264,7 @@ class Service_centers extends CI_Controller {
                 $appliance_id = $this->input->post("appliance_id");
                 $is_update_spare_parts = FALSE;
                 $sp_required_id = json_decode($this->input->post("sp_required_id"), true);
-
+               
                 //$internal_status = "Cancelled";
                 $getremarks = $this->booking_model->getbooking_charges($booking_id);
                 $approval = $this->input->post("approval");
@@ -370,6 +370,10 @@ class Service_centers extends CI_Controller {
                 // Insert data into booking state change
                 $this->insert_details_in_state_change($booking_id, SF_BOOKING_COMPLETE_STATUS, $closing_remarks, "247Around", "Review the Booking");
                 $partner_id = $this->input->post("partner_id");
+                
+                //This is used to cancel those spare parts who has not shipped by partner.        
+                $this->cancel_spare_parts($partner_id, $booking_id);
+                
                 if ($is_update_spare_parts) {
                     foreach ($sp_required_id as $sp_id) {
 
@@ -388,6 +392,51 @@ class Service_centers extends CI_Controller {
                 $this->session->set_userdata('error',"You already marked this booking : $booking_id as completed");
                 redirect(base_url() . "service_center/pending_booking");
             }
+        }
+    }
+    /**
+     * @desc This is used to cancel spare who has not shipped by partner. Also inform to partner.
+     * @param String $partner_id
+     * @param String $booking_id
+     */
+    function cancel_spare_parts($partner_id, $booking_id){
+        log_message("info", __METHOD__. " For booking id ". $booking_id);
+        $can_sp_required_id = json_decode($this->input->post("can_sp_required_id"), true);
+        if(!empty($can_sp_required_id)){
+            $part_name = array();
+            foreach($can_sp_required_id as $sp){
+                $this->service_centers_model->update_spare_parts(array('id' => $sp['part_id']), 
+                        array('status' => _247AROUND_CANCELLED, "old_status" => SPARE_PARTS_REQUESTED));
+                array_push($part_name, $sp['part_name']);
+            }
+            
+            $get_partner_details = $this->partner_model->getpartner_details('account_manager_id, primary_contact_email, owner_email', array('partners.id' => $partner_id));
+            $am_email = "";
+            if (!empty($get_partner_details[0]['account_manager_id'])) {
+
+                $am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
+            }
+//        $sid = $this->session->userdata('service_center_id');
+//        $rm = $this->vendor_model->get_rm_sf_relation_by_sf_id($sid);
+//        $rm_email = "";
+//        if (!empty($rm)) {
+//            $rm_email = ", " . $rm[0]['official_email'];
+//        }
+        $part = implode(",", $part_name);
+        $email_template = $this->booking_model->get_booking_email_template("partner_spare_cancelled");
+        $to = $get_partner_details[0]['primary_contact_email'] . "," . $get_partner_details[0]['owner_email'];
+        $cc = "";
+        $subject = vsprintf($email_template[4], array($part,$booking_id));
+        $message = vsprintf($email_template[0], array($part,$booking_id));
+        if(!empty($am_email)){
+            $from = $am_email;
+        } else {
+            $from = $email_template[2];
+        }
+        
+        $this->notify->sendEmail($from, $to, $cc, "", $subject, $message, "",'partner_spare_cancelled');
+        } else {
+            log_message('info', __METHOD__. " No Data found for Cancel Spare parts");
         }
     }
 
