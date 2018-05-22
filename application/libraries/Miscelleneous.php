@@ -30,7 +30,7 @@ class Miscelleneous {
     }
 
     /**
-     * @desc This method is used to check upcountry avaliablity on the basis of booking pincode, service id.
+     * @desc This method is used to check upcountry availability on the basis of booking pincode, service id.
      * @param String $booking_city
      * @param String $booking_pincode
      * @param String $service_id
@@ -484,7 +484,7 @@ class Miscelleneous {
         log_message('info', __FUNCTION__ . " Update Service center action table  " . print_r($data_vendor, true));
         $this->My_CI->vendor_model->update_service_center_action($booking_id, $data_vendor);
 
-        $this->update_price_while_cancel_booking($booking_id);
+        $this->update_price_while_cancel_booking($booking_id, $agent_id);
         //Update Engineer table while booking cancelled
         $en_where1 = array("engineer_booking_action.booking_id" => $booking_id);
         $this->My_CI->engineer_model->update_engineer_table(array("current_status" => _247AROUND_CANCELLED, "internal_status" =>_247AROUND_CANCELLED), $en_where1);
@@ -510,7 +510,7 @@ class Miscelleneous {
         log_message('info', __METHOD__ . " => Exit " . $booking_id);
     }
 
-    function update_price_while_cancel_booking($booking_id) {
+    function update_price_while_cancel_booking($booking_id, $agent_id) {
         log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true));
         $unit_details['booking_status'] = "Cancelled";
         $unit_details['vendor_to_around'] = $unit_details['around_to_vendor'] = 0;
@@ -518,6 +518,33 @@ class Miscelleneous {
 
         log_message('info', __FUNCTION__ . " Update unit details  " . print_r($unit_details, true));
         $this->My_CI->booking_model->update_booking_unit_details($booking_id, $unit_details);
+        
+        $booking_unit_details = $this->My_CI->reusable_model->get_search_query('booking_unit_details', 'booking_unit_details.price_tags,booking_unit_details.appliance_capacity', array('booking_unit_details.booking_id' => $booking_id, "booking_unit_details.price_tags like '%" . _247AROUND_WALL_MOUNT__PRICE_TAG . "%'" => NULL), NULL, NULL, NULL, NULL, NULL)->result_array();
+        $booking_data = $this->My_CI->reusable_model->get_search_query('booking_details', 'booking_details.assigned_vendor_id', array('booking_details.booking_id' => $booking_id), NULL, NULL, NULL, NULL, NULL)->result_array();
+        if (!empty($booking_unit_details)) {
+            //process each unit if price tag is wall mount
+            foreach ($booking_unit_details as $value) {
+                $match = array();
+                //get the size from the capacity to know the part number
+                preg_match('/[0-9]+/', $value['appliance_capacity'], $match);
+                if (!empty($match)) {
+                    if ($match[0] <= 32) {
+                        $data['part_number'] = LESS_THAN_32_BRACKETS_PART_NUMBER;
+                    } else if ($match[0] > 32) {
+                        $data['part_number'] = GREATER_THAN_32_BRACKETS_PART_NUMBER;
+                    }
+
+                    $data['receiver_entity_id'] = $booking_data[0]['assigned_vendor_id'];
+                    $data['receiver_entity_type'] = _247AROUND_SF_STRING;
+                    $data['stock'] = 1;
+                    $data['booking_id'] = $booking_id;
+                    $data['agent_id'] = $agent_id;
+                    $data['agent_type'] = _247AROUND_PARTNER_STRING;
+
+                    $this->process_inventory_stocks($data);
+                }
+            }
+        }
     }
 
     /**

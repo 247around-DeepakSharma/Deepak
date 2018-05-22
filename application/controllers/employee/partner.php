@@ -1054,83 +1054,15 @@ class Partner extends CI_Controller {
     function process_cancel_form($booking_id, $status) {
         $this->checkUserSession();
         log_message('info', __FUNCTION__ . " Booking ID: " . print_r($booking_id, true) . ' status: ' . $status);
-        $data['closed_date'] = $data['update_date'] = date("Y-m-d H:i:s");
-        $data['current_status'] = _247AROUND_CANCELLED;
-        $data['internal_status'] = $data['cancellation_reason'] = $this->input->post('cancellation_reason');
-        $data['closing_remarks'] = $this->input->post('remarks');
-        $historyRemarks = $this->input->post('cancellation_reason') ." <br> ".$this->input->post('remarks');
+        $cancellation_reason = $this->input->post('cancellation_reason');
+        $historyRemarks = $this->input->post('remarks');
 
-        //check partner status from partner_booking_status_mapping table  
         $partner_id = $this->input->post("partner_id");
-        $actor = $next_action = 'not_define';
-        $partner_status = $this->booking_utilities->get_partner_status_mapping_data($data['current_status'], $data['internal_status'], $partner_id, $booking_id);
-        if (!empty($partner_status)) {
-            $data['partner_current_status'] = $partner_status[0];
-            $data['partner_internal_status'] = $partner_status[1];
-            $actor = $data['actor'] = $partner_status[2];
-            $next_action = $data['next_action'] = $partner_status[3];
-        }
+        $agent_id = $this->session->userdata('agent_id');
 
-        $update_status = $this->booking_model->update_booking($booking_id, $data);
-        if ($update_status) {
-            //Update in booking uunit details
-            $this->update_price_while_cancel_booking($booking_id);
-            $booking_data = $this->booking_model->getbooking_history($booking_id);
-            // Update in service center action table is booking is assigned
-            if (!is_null($booking_data[0]['assigned_vendor_id'])) {
+        $this->miscelleneous->process_cancel_form($booking_id, $status, $cancellation_reason, $historyRemarks, $agent_id, $this->session->userdata('partner_name'), $partner_id);
 
-                $data_vendor['cancellation_reason'] = $data['cancellation_reason'];
-                //Update this booking in vendor action table
-                $data_vendor['update_date'] = date("Y-m-d H:i:s");
-                $data_vendor['current_status'] = $data_vendor['internal_status'] = _247AROUND_CANCELLED;
-
-                $this->vendor_model->update_service_center_action($booking_id, $data_vendor);
-                //get the unit details data and update the inventory stock
-                $booking_unit_details = $this->reusable_model->get_search_query('booking_unit_details', 'booking_unit_details.price_tags,booking_unit_details.appliance_capacity', array('booking_unit_details.booking_id' => $booking_id,"booking_unit_details.price_tags like '%"._247AROUND_WALL_MOUNT__PRICE_TAG."%'" => NULL),NULL, NULL, NULL, NULL, NULL)->result_array();
-                if (!empty($booking_unit_details)) {    
-                    //process each unit if price tag is wall mount
-                    foreach($booking_unit_details as $value){
-                        $match = array();
-                        //get the size from the capacity to know the part number
-                        preg_match('/[0-9]+/', $value['appliance_capacity'], $match);
-                        if (!empty($match)) {
-                            if ($match[0] <= 32) {
-                                $data['part_number'] = LESS_THAN_32_BRACKETS_PART_NUMBER;
-                            } else if ($match[0] > 32) {
-                                $data['part_number'] = GREATER_THAN_32_BRACKETS_PART_NUMBER;
-                            }
-
-                            $data['receiver_entity_id'] = $booking_data[0]['assigned_vendor_id'];
-                            $data['receiver_entity_type'] = _247AROUND_SF_STRING;
-                            $data['stock'] = 1;
-                            $data['booking_id'] = $booking_id;
-                            $data['agent_id'] = $this->session->userdata('agent_id');
-                            $data['agent_type'] = _247AROUND_PARTNER_STRING;
-
-                            $this->miscelleneous->process_inventory_stocks($data);
-                        }
-                    }
-                }
-            }
-
-            //Log this state change as well for this booking
-            //param:-- booking id, new state, old state, remarks, agent_id, partner  name, partner id
-            $this->notify->insert_state_change($booking_id, $data['current_status'], $status, $historyRemarks, $this->session->userdata('agent_id'), 
-                    $this->session->userdata('partner_name'), $actor,$next_action,$this->session->userdata('partner_id'));
-
-            // this is used to send email or sms while booking cancelled
-            $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
-            $send['booking_id'] = $booking_id;
-            $send['state'] = $data['current_status'];
-            $this->asynchronous_lib->do_background_process($url, $send);
-            $msg = $booking_id . " Booking Cancelled.";
-            $this->session->set_userdata('success', $msg);
-
-            redirect(base_url() . "partner/get_user_form");
-        } else {
-            // Booking isnot updated
-            log_message('info', __FUNCTION__ . " Booking is not updated  " . print_r($data, true));
-        }
+        redirect(base_url() . "partner/get_user_form");
     }
 
     /**
