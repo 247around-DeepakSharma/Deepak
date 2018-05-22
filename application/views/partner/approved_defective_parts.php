@@ -70,5 +70,7 @@ if ($this->uri->segment(3)) {
     </div>
 </div>
 <script>
-    var table = $('#approved_defective_parts_table').DataTable();
+    var table = $('#approved_defective_parts_table').DataTable({
+                    "pageLength": 50
+                });
     </script>
