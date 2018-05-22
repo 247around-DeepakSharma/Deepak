@@ -332,7 +332,7 @@ class Upcountry_model extends CI_Model {
     }
     /**
      * @desc: This is used to combined booking id on the basis of booking date and booking Pincode while create FOC invoice
-     * And Also upcountry_paid_by_customer must be 0 means Cutomer did not pay upcountry charges
+     * And Also upcountry_paid_by_customer must be 0 means Customer did not pay upcountry charges
      * @param String $vendor_id
      * @param String $from_date
      * @param String $to_date
@@ -359,6 +359,7 @@ class Upcountry_model extends CI_Model {
                 . " AND bd.is_upcountry = '1' "
                 . " AND bd.current_status = 'Completed' "
                 . " AND bd.upcountry_paid_by_customer = 0 "
+                . " AND bd.upcountry_partner_approved = 1 "
                 . " GROUP BY bd.booking_date, bd.booking_pincode, bd.sf_upcountry_rate ";
         
         $query = $this->db->query($sql);
@@ -726,6 +727,7 @@ class Upcountry_model extends CI_Model {
                 . " AND bd.current_status = 'Completed' "
                 . " AND bd.upcountry_paid_by_customer = 0 "
                 . " AND ud.partner_invoice_id IS NULL "
+                . " AND bd.upcountry_partner_approved = 1 "
                 . " AND bd.upcountry_partner_invoice_id IS NULL"
                 . " GROUP BY bd.booking_date, bd.booking_pincode, bd.service_id ";
         
@@ -933,7 +935,8 @@ class Upcountry_model extends CI_Model {
                 . " AND bd.create_date > '2018-01-01' "
                 . " AND bd.current_status IN ('Completed', 'Pending', 'Rescheduled') "
                 . " AND bd.upcountry_paid_by_customer = 0 "
-                . " AND CASE WHEN (bd.current_status = 'Completed') THEN (bd.upcountry_partner_invoice_id IS NULL ) ELSE bd.partner_id = '$partner_id'  END "
+                . " AND bd.upcountry_partner_invoice_id IS NULL "
+                . " AND bd.upcountry_partner_approved = 1 "
                 . " GROUP BY bd.booking_date, bd.booking_pincode, bd.service_id ";
         $query = $this->db->query($sql);
 
