@@ -2695,7 +2695,9 @@ class Inventory extends CI_Controller {
             $booking_id_array, $tqty, $invoice_dated, $total_basic_amount, 
             $total_cgst_tax_amount, $total_sgst_tax_amount, 
             $total_igst_tax_amount,$invoice_file) {
+        log_message('info', __METHOD__. " For Invoice ID ". $invoice_id);
         $main_invoice = array();
+        $total_invoice_amount = ($total_basic_amount + $total_cgst_tax_amount + $total_sgst_tax_amount + $total_igst_tax_amount);
         $main_invoice['invoice_id'] = $invoice_id;
         $main_invoice['bill_to_party'] = _247AROUND;
         $main_invoice['entity_to'] = "partner";
@@ -2709,12 +2711,44 @@ class Inventory extends CI_Controller {
         $main_invoice['total_cgst_tax_amount'] = $total_cgst_tax_amount;
         $main_invoice['total_sgst_tax_amount'] = $total_sgst_tax_amount;
         $main_invoice['total_igst_tax_amount'] = $total_igst_tax_amount;
+        $main_invoice['total_invoice_amount'] = $total_invoice_amount;
         $main_invoice['settle'] = 0;
         $main_invoice['type'] = INVOCIE_TAG_FOR_INVENTORY;
         $main_invoice['agent_id'] = $this->session->userdata('id');
         $main_invoice['create_date'] = date('Y-m-d H:i:s');
 
         $this->invoices_model->insert_invoice($main_invoice);
+        log_message('info', __METHOD__. " New Invoice inserted ... ". $invoice_id);
+        
+        $invoice_details_insert = array(
+                    'invoice_id' => $invoice_id,
+                    'type' => 'FOC',
+                    'type_code' => 'B',
+                    'vendor_partner' => 'partner',
+                    'vendor_partner_id' => $partner_id,
+                    'invoice_file_main' => $invoice_file,
+                    'invoice_date' => date("Y-m-d", strtotime($invoice_dated)),
+                    'from_date' => date("Y-m-d", strtotime($invoice_dated)),
+                    'to_date' => date("Y-m-d", strtotime($invoice_dated)),
+                    'due_date' => date("Y-m-d", strtotime($invoice_dated)),
+                    'parts_cost' => $total_basic_amount,
+                    "parts_count" => $tqty,
+                    'total_amount_collected' => ($total_invoice_amount),
+                    //Amount needs to be Paid to Vendor
+                    'amount_collected_paid' => (0 - $total_invoice_amount),
+                    'agent_id' => $this->session->userdata('id'),
+                    "cgst_tax_rate" => 0,
+                    "sgst_tax_rate" => 0,
+                    "igst_tax_rate" => 0,
+                    "igst_tax_amount" => $total_igst_tax_amount,
+                    "sgst_tax_amount" => $total_sgst_tax_amount,
+                    "cgst_tax_amount" => $total_cgst_tax_amount
+                   
+                );
+
+                // insert invoice details into vendor partner invoices table
+                $this->invoices_model->action_partner_invoice($invoice_details_insert);
+                log_message('info', __METHOD__. "Vendor Partner Invoice inserted ... ". $invoice_id);
     }
 
     /**
@@ -3065,7 +3099,7 @@ class Inventory extends CI_Controller {
                     $file_name = 'spare_invoice_' . rand(10, 100) . '_' . $upload_file_name;
                     //Upload files to AWS
                     $directory_xls = "invoices-excel/" . $file_name;
-                    $this->My_CI->s3->putObjectFile($file_details['file']['tmp_name'], BITBUCKET_DIRECTORY, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $this->s3->putObjectFile($file_details['file']['tmp_name'], BITBUCKET_DIRECTORY, $directory_xls, S3::ACL_PUBLIC_READ);
 
                     $res['status'] = true;
                     $res['message'] = $file_name;
