@@ -188,8 +188,8 @@
                     data: fd,
                     processData: false,
                     contentType: false 
-                }).done(function (data) {
-                    alert(data);
+                }).done(function () {
+                    //console.log(data);
                 });
                 alert('File validation is in progress, please wait....');
             
