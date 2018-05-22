@@ -2590,39 +2590,39 @@ class Inventory extends CI_Controller {
      *  @param : void
      *  @return : $res JSON // consist response message and response status
      */
-    function process_spare_invoice_tagging(){
-        log_message("info",__METHOD__. json_encode($this->input->post(), true));
-        
+    function process_spare_invoice_tagging() {
+        log_message("info", __METHOD__ . json_encode($this->input->post(), true));
         $partner_id = $this->input->post('partner_id');
         $invoice_id = $this->input->post('invoice_id');
         $invoice_dated = $this->input->post('dated');
         $wh_id = $this->input->post('wh_id');
-        
-        if(!empty($partner_id) && !empty($invoice_id) && !empty($invoice_dated) && !empty($wh_id)){
+
+        if (!empty($partner_id) && !empty($invoice_id) && !empty($invoice_dated) && !empty($wh_id)) {
             $parts_details = $this->input->post('part');
-            if(!empty($parts_details)){
+            if (!empty($parts_details)) {
 
-                $entity_details = $this->partner_model->getpartner_details("state", array('partners.id' => $partner_id));
-                $c_s_gst = $this->invoices_model->check_gst_tax_type($entity_details[0]['state']);
-                $booking_id_array = array();
-                $tqty = 0;
-                $total_basic_amount = 0;
-                $total_cgst_tax_amount = $total_sgst_tax_amount = $total_igst_tax_amount = 0;
-                $invoice = array();
-                foreach ($parts_details as $value){
+                $invoice_file = $this->upload_spare_invoice_file($_FILES);
 
-                    array_push($booking_id_array, $value['booking_id']);
-                    $tqty += $value['quantity'];
-                    
-                        log_message("info", "Details added successfully");
-                        
+                if ($invoice_file['status']) {
+                    $entity_details = $this->partner_model->getpartner_details("state", array('partners.id' => $partner_id));
+                    $c_s_gst = $this->invoices_model->check_gst_tax_type($entity_details[0]['state']);
+                    $booking_id_array = array();
+                    $tqty = 0;
+                    $total_basic_amount = 0;
+                    $total_cgst_tax_amount = $total_sgst_tax_amount = $total_igst_tax_amount = 0;
+                    $invoice = array();
+                    foreach ($parts_details as $value) {
+
+                        array_push($booking_id_array, $value['booking_id']);
+                        $tqty += $value['quantity'];
+
                         $invoice_annexure = $this->generate_inventory_invoice_data($invoice_id, $c_s_gst, $value);
                         array_push($invoice, $invoice_annexure);
                         $total_basic_amount += $invoice_annexure['taxable_value'];
                         $total_cgst_tax_amount += $invoice_annexure['cgst_tax_amount'];
                         $total_sgst_tax_amount += $invoice_annexure['sgst_tax_amount'];
                         $total_igst_tax_amount += $invoice_annexure['igst_tax_amount'];
-                       
+
                         $ledger_data['receiver_entity_id'] = $wh_id;
                         $ledger_data['receiver_entity_type'] = _247AROUND_SF_STRING;
                         $ledger_data['sender_entity_id'] = $partner_id;
@@ -2634,38 +2634,38 @@ class Inventory extends CI_Controller {
                         $ledger_data['booking_id'] = $value['booking_id'];
                         $ledger_data['invoice_id'] = $invoice_id;
                         $ledger_data['is_wh_ack'] = 0;
-                        
+
                         $insert_id = $this->inventory_model->insert_inventory_ledger($ledger_data);
-                        
-                        if($insert_id){
+
+                        if ($insert_id) {
                             log_message("info", "Ledger details added successfully");
-                        }else{
-                            log_message("info","error in adding inventory ledger details data: ". print_r($ledger_data, TRUE));
+                        } else {
+                            log_message("info", "error in adding inventory ledger details data: " . print_r($ledger_data, TRUE));
                         }
-                        
+                    }
+
+                    $this->insert_inventory_main_invoice($invoice_id, $partner_id, $booking_id_array, $tqty, $invoice_dated, $total_basic_amount, $total_cgst_tax_amount, $total_sgst_tax_amount, $total_igst_tax_amount,$invoice_file['message']);
+
+                    $this->invoices_model->insert_invoice_breakup($invoice);
+
+                    $res['status'] = TRUE;
+                    $res['message'] = 'Details Updated Successfully';
+                } else {
+                    $res['status'] = false;
+                    $res['message'] = $invoice_file['message'];
                 }
-                
-                $this->insert_inventory_main_invoice($invoice_id, $partner_id, $booking_id_array, 
-            $tqty, $invoice_dated, $total_basic_amount, $total_cgst_tax_amount, 
-            $total_sgst_tax_amount, $total_igst_tax_amount);
-                
-
-                
-                $this->invoices_model->insert_invoice_breakup($invoice);
-
-                $res['status'] = TRUE;
-                $res['message'] = 'Details updated successfully';
-            }else{
+            } else {
                 $res['status'] = false;
                 $res['message'] = 'Please select parts details';
             }
-        }else{
+        } else {
             $res['status'] = false;
             $res['message'] = 'All fields are requried';
         }
-        
+
         echo json_encode($res);
     }
+
     /**
      * @desc This function is used to generate array data to insert main invoice table. 
      * @param String $invoice_id
@@ -2678,17 +2678,18 @@ class Inventory extends CI_Controller {
      * @param int $total_sgst_tax_amount
      * @param Int $total_igst_tax_amount
      */
-    function insert_inventory_main_invoice($invoice_id, $partner_id, $booking_id_array, 
-            $tqty, $invoice_dated, $total_basic_amount, $total_cgst_tax_amount, 
-            $total_sgst_tax_amount, $total_igst_tax_amount) {
+    function insert_inventory_main_invoice($invoice_id, $partner_id, 
+            $booking_id_array, $tqty, $invoice_dated, $total_basic_amount, 
+            $total_cgst_tax_amount, $total_sgst_tax_amount, 
+            $total_igst_tax_amount,$invoice_file) {
         $main_invoice = array();
         $main_invoice['invoice_id'] = $invoice_id;
         $main_invoice['bill_to_party'] = _247AROUND;
         $main_invoice['entity_to'] = "partner";
         $main_invoice['bill_from_party'] = $partner_id;
         $main_invoice['entity_from'] = "partner";
-        $main_invoice['main_invoice_file'] = "";
-        $main_invoice['booking_id'] = !empty($booking_id_array)? implode(",", $booking_id_array): '';
+        $main_invoice['main_invoice_file'] = $invoice_file;
+        $main_invoice['booking_id'] = !empty($booking_id_array) ? implode(",", $booking_id_array) : '';
         $main_invoice['total_qty'] = $tqty;
         $main_invoice['invoice_date'] = $main_invoice['from_date'] = $main_invoice['to_date'] = $main_invoice['due_date'] = $invoice_dated;
         $main_invoice['total_basic_amount'] = $total_basic_amount;
@@ -2699,9 +2700,8 @@ class Inventory extends CI_Controller {
         $main_invoice['type'] = INVOCIE_TAG_FOR_INVENTORY;
         $main_invoice['agent_id'] = $this->session->userdata('id');
         $main_invoice['create_date'] = date('Y-m-d H:i:s');
-        
+
         $this->invoices_model->insert_invoice($main_invoice);
-       
     }
 
     /**
@@ -3029,6 +3029,47 @@ class Inventory extends CI_Controller {
         }
 
         echo json_encode($res);
+    }
+    
+    /**
+     *  @desc : This function is used to upload the spare invoice file which send by partner to warehouse
+     *  @param : $file_details array()
+     *  @return :$res array
+     */
+    function upload_spare_invoice_file($file_details) {
+
+        $MB = 1048576;
+        //check if upload file is empty or not
+        if (!empty($file_details['file']['name'])) {
+            //check upload file size. it should not be greater than 2mb in size
+            if ($file_details['file']['size'] <= 2 * $MB) {
+                $allowed = array('pdf');
+                $ext = pathinfo($file_details['file']['name'], PATHINFO_EXTENSION);
+                //check upload file type. it should be pdf.
+                if (in_array($ext, $allowed)) {
+                    $upload_file_name = str_replace(' ', '_', trim($file_details['file']['name']));
+
+                    $file_name = 'spare_invoice_' . rand(10, 100) . '_' . $upload_file_name;
+                    //Upload files to AWS
+                    $directory_xls = "invoices-excel/" . $file_name;
+                    $this->My_CI->s3->putObjectFile($file_details['file']['tmp_name'], BITBUCKET_DIRECTORY, $directory_xls, S3::ACL_PUBLIC_READ);
+
+                    $res['status'] = true;
+                    $res['message'] = $file_name;
+                } else {
+                    $res['status'] = false;
+                    $res['message'] = 'Uploaded file must in pdf.';
+                }
+            } else {
+                $res['status'] = false;
+                $res['message'] = 'Uploaded file size can not be greater than 2 mb';
+            }
+        } else {
+            $res['status'] = false;
+            $res['message'] = 'Please Upload File';
+        }
+
+        return $res;
     }
 
     /**
