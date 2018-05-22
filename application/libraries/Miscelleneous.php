@@ -2771,7 +2771,7 @@ function convert_html_to_pdf($html,$booking_id,$filename,$s3_folder){
     function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
         log_message('info', __FUNCTION__ . " Start For  ".$bookingID.$number);
         if(!$bookingID){
-            $bookingDetails = $this->booking_model->get_missed_call_rating_booking_count($number);
+            $bookingDetails = $this->My_CI->booking_model->get_missed_call_rating_booking_count($number);
             $bookingID = $bookingDetails[0]['booking_id'];
         }
         $select = "booking_details.*,employee.official_email,service_centres.name,services.services";
