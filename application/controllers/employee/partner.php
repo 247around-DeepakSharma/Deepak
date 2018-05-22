@@ -4158,7 +4158,7 @@ class Partner extends CI_Controller {
          //Save File on AWS
         $bucket = BITBUCKET_DIRECTORY;
         $directory_xls = "summary-excels/" . $newCSVFileName;
-        $is_upload = $this->s3->putObjectFile(realpath(TMP_FOLDER . $newCSVFileName), $bucket, $directory_xls, S3::ACL_PRIVATE);
+        $is_upload = $this->s3->putObjectFile(realpath(TMP_FOLDER . $newCSVFileName), $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
         unlink(TMP_FOLDER . $newCSVFileName);
         if($is_upload == 1){
             //Save File log in report log table
