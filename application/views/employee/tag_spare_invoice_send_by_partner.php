@@ -5,6 +5,9 @@
     .form-horizontal .control-label{
         text-align: left;
     }
+    .col-md-2 {
+        width: 12.666667%;
+    }
 </style>
 <!-- page content -->
 <div id="page-wrapper" role="main">
@@ -37,30 +40,30 @@
                         <form id="spareForm" method="post" class="form-horizontal" novalidate="novalidate">
                             <div class="static-form-box">
                                 <div class="form-group">
-                                    <label class="col-xs-2 control-label">Select Partner *</label>
-                                    <div class="col-xs-4">
+                                    <label class="col-xs-4 col-sm-2 control-label">Select Partner *</label>
+                                    <div class="col-xs-8 col-sm-4">
                                         <select class="form-control" name="partner_id" id="partner_id" required=""></select>
                                     </div>
                                     <label class="col-xs-2 control-label">Invoice Number *</label>
-                                    <div class="col-xs-4">
+                                    <div class="col-xs-8 col-sm-4">
                                         <input type="text" class="form-control" name="invoice_id" id="invoice_id" placeholder="Enter Invoice ID" required=""/>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="col-xs-2 control-label">Invoice Date *</label>
-                                    <div class="col-xs-4">
+                                    <label class="col-xs-4 col-sm-2 control-label">Invoice Date *</label>
+                                    <div class="col-xs-8 col-sm-4">
                                         <input type="text" class="form-control" name="dated" id="dated" placeholder="Select Date" required=""/>
                                     </div>
-                                    <label class="col-xs-2 control-label">Warehouse *</label>
-                                    <div class="col-xs-4">
+                                    <label class="col-xs-4 col-sm-2 control-label">Warehouse *</label>
+                                    <div class="col-xs-8 col-sm-4">
                                         <select class="form-control" name="wh_id" id="wh_id">
                                             <option value="" disabled="">Select Warehouse</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="col-xs-2 control-label">Invoice File *  <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Only pdf files are allowed and file size should not be greater than 2 mb."><i class="fa fa-info"></i></span></label>
-                                    <div class="col-xs-4">
+                                    <label class="col-xs-4 col-sm-2 control-label">Invoice File *  <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Only pdf files are allowed and file size should not be greater than 2 mb."><i class="fa fa-info"></i></span></label>
+                                    <div class="col-xs-8 col-sm-4">
                                         <input type="file" class="form-control" name="file" id="invoice_file" required="" accept="application/pdf"/>
                                     </div>
                                 </div>
@@ -78,93 +81,116 @@
                             <hr>
                             <div class="dynamic-form-box">
                                 <div class="form-group">
-                                    <div class="col-xs-2">
+                                    <div class="col-xs-12 col-sm-6 col-md-2">
                                         <p class="text-center"><strong>Appliance</strong></p>
                                     </div>
-                                    <div class="col-xs-2">
+                                    <div class="col-xs-12 col-sm-6 col-md-2">
                                         <p class="text-center"><strong>Model Number</strong></p>
                                     </div>
-                                    <div class="col-xs-2">
-                                        <p class="text-center"><strong>Part Name</strong></p>
-                                    </div>
-                                    <div class="col-xs-2">
+                                    <div class="col-xs-12 col-sm-6 col-md-2">
                                         <p class="text-center"><strong>Part Type</strong></p>
                                     </div>
-                                    <div class="col-xs-2">
+                                    <div class="col-xs-12 col-sm-6 col-md-2">
+                                        <p class="text-center"><strong>Part Name</strong></p>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-6 col-md-2">
                                         <p class="text-center"><strong>Booking Id</strong></p>
                                     </div>
-                                    <div class="col-xs-1">
+                                    <div class="col-xs-12 col-sm-6 col-md-1">
                                         <p class="text-center"><strong>Quantity</strong></p>
                                     </div>
-                                    <div class="col-xs-1">
-                                        <p class="text-center"><strong>Price</strong></p>
+                                    <div class="col-xs-12 col-sm-6 col-md-1">
+                                        <p class="text-center"><strong>Basic Price</strong></p>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-6 col-md-1">
+                                        <p class="text-center"><strong>HSN Code</strong></p>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-6 col-md-1">
+                                        <p class="text-center"><strong>Gst Rate</strong></p>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <div class="col-xs-2">
+                                    <div class="col-xs-12 col-sm-6 col-md-2">
                                         <select class="form-control" name="part[0][service_id]" id="serviceId_0" required="" onchange="get_part_details(this.id)"></select>
                                     </div>
-                                    <div class="col-xs-2">
+                                    <div class="col-xs-12 col-sm-6 col-md-2">
                                         <select class="form-control" name="part[0][model_number]" id="modelNumber_0" required="" onchange="get_part_details(this.id)"></select>
                                     </div>
-                                    <div class="col-xs-2">
+                                    <div class="col-xs-12 col-sm-6 col-md-2">
                                         <select class="form-control" name="part[0][part_type]" id="partType_0" required="" onchange="get_part_details(this.id)"></select>
                                     </div>
-                                    <div class="col-xs-2">
+                                    <div class="col-xs-12 col-sm-6 col-md-2">
                                         <select class="form-control" name="part[0][part_name]" id="partName_0" required=""></select>
                                     </div>
-                                    <div class="col-xs-2">
+                                    <div class="col-xs-12 col-sm-6 col-md-2">
                                         <input type="text" class="form-control" name="part[0][booking_id]" id="booking_id_0" placeholder="Booking ID" />
                                     </div>
-                                    <div class="col-xs-1">
-                                        <input type="number" class="form-control" name="part[0][quantity]" id="quantity_0" placeholder="Quantity" required="" onblur="get_part_details(this.id)" />
+                                    <div class="col-xs-12 col-sm-6 col-md-1">
+                                        <input type="number" class="form-control" name="part[0][quantity]" id="quantity_0" min="1" placeholder="Quantity" required="" onblur="get_part_details(this.id)" />
                                     </div>
-                                    <div class="col-xs-1">
+                                    <div class="col-xs-12 col-sm-6 col-md-1">
                                         <input type="text" class="form-control" name="part[0][part_total_price]" id="partTotalPrice_0" value="0" readonly=""/>
                                     </div>
-                                    <div class="col-xs-1">
+                                    <div class="col-xs-12 col-sm-6 col-md-1">
+                                        <input type="text" class="form-control" name="part[0][hsn_code]" id="partHsnCode_0" value="" readonly=""/>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-6 col-md-1">
+                                        <input type="text" class="form-control" name="part[0][gst_rate]" id="partGstRate_0" value="" readonly=""/>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-6 col-md-1">
                                         <input type="hidden" class="form-control" name="part[0][inventory_id]" id="inventoryId_0" value=""/>
-                                        <input type="hidden" class="form-control" name="part[0][gst_rate]" id="gst_rate_0" value=""/>
-                                        <input type="hidden" class="form-control" name="part[0][hsn_code]" id="hsn_code_0" value=""/>
                                         <button type="button" class="btn btn-default addButton"><i class="fa fa-plus"></i></button>
                                     </div>
                                 </div>
 
                                 <!-- The template for adding new field -->
                                 <div class="form-group hide" id="partTemplate">
-                                    <div class="col-xs-2">
+                                    <div class="col-xs-12 col-sm-6 col-md-2">
                                         <select class="form-control" id="service_id"  required="" onchange="get_part_details(this.id)"></select>
                                     </div>
-                                    <div class="col-xs-2">
+                                    <div class="col-xs-12 col-sm-6 col-md-2">
                                         <select class="form-control" id="model_number"  required="" onchange="get_part_details(this.id)"></select>
                                     </div>
-                                    <div class="col-xs-2">
+                                    <div class="col-xs-12 col-sm-6 col-md-2">
                                         <select class="form-control" id="part_type"  required="" onchange="get_part_details(this.id)"></select>
                                     </div>
-                                    <div class="col-xs-2">
+                                    <div class="col-xs-12 col-sm-6 col-md-2">
                                         <select class="form-control" id="part_name"  required="" ></select>
                                     </div>
-                                    <div class="col-xs-2">
+                                    <div class="col-xs-12 col-sm-6 col-md-2">
                                         <input type="text" class="form-control" id="booking_id"  placeholder="Booking ID" />
                                     </div>
-                                    <div class="col-xs-1">
+                                    <div class="col-xs-12 col-sm-6 col-md-1">
                                         <input type="number" class="form-control" id="quantity"  placeholder="Quantity" min="1" required="" onblur="get_part_details(this.id)" />
                                     </div>
-                                    <div class="col-xs-1">
-                                        <input type="text" class="form-control" id="part_total_price"  value="0" readonly=""/>
+                                    <div class="col-xs-12 col-sm-6 col-md-1">
+                                        <input type="text" class="form-control part-total-price" id="part_total_price"  value="0" readonly=""/>
                                     </div>
-                                    <div class="col-xs-1">
+                                    <div class="col-xs-12 col-sm-6 col-md-1">
+                                        <input type="text" class="form-control" id="partHsnCode" value="" readonly=""/>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-6 col-md-1">
+                                        <input type="text" class="form-control" id="partGstRate" value="" readonly=""/>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-6 col-md-1">
                                         <input type="hidden" class="form-control" id="inventory_id"  value=""/>
-                                        <input type="hidden" class="form-control" id="gst_rate" value=""/>
-                                        <input type="hidden" class="form-control" id="hsn_code" value=""/>
                                         <button type="button" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
                                     </div>
                                 </div>
                             </div>
                             <hr>
                             <div class="form-group">
-                                <div class="col-xs-5">
-                                    <button type="submit" class="btn btn-success" id="submit_btn">Submit</button>
+                                <div class="row">
+                                    <div class="col-xs-5">
+                                        <button type="submit" class="btn btn-success" id="submit_btn">Submit</button>
+                                    </div>
+                                    <div class="col-xs-6">
+                                        <div class="pull-right">
+                                            <strong>
+                                                Total Basic Price : <span id="total_spare_invoice_price">0</span>
+                                            </strong>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </form>
@@ -176,6 +202,7 @@
 </div>
 <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
 <script>
+    
     $(document).ready(function () {
         
         partIndex = 0;
@@ -242,11 +269,11 @@
                         $('#submit_btn').attr('disabled',false);
                         $('#submit_btn').html("Submit");
                         if(obj.status){
-                            $('.success_msg_div').fadeTo(2000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
+                            $('.success_msg_div').fadeTo(5000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(5000);});   
                             $('#success_msg').html(obj.message);
                             $("#spareForm")[0].reset();
                         }else{
-                            $('.error_msg_div').fadeTo(2000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(1000);});
+                            $('.error_msg_div').fadeTo(5000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(5000);});
                             $('#error_msg').html(obj.message);
                         }
                        
@@ -275,8 +302,8 @@
                 .find('[id="booking_id"]').attr('name', 'part[' + partIndex + '][booking_id]').attr('id','bookingId_'+partIndex).end()
                 .find('[id="quantity"]').attr('name', 'part[' + partIndex + '][quantity]').attr('id','quantity_'+partIndex).end()
                 .find('[id="inventory_id"]').attr('name', 'part[' + partIndex + '][inventory_id]').attr('id','inventoryId_'+partIndex).end()
-                .find('[id="gst_rate"]').attr('name', 'part[' + partIndex + '][gst_rate]').attr('id','gst_rate_'+partIndex).end()
-                .find('[id="hsn_code"]').attr('name', 'part[' + partIndex + '][hsn_code]').attr('id','hsn_code_'+partIndex).end()
+                .find('[id="partGstRate"]').attr('name', 'part[' + partIndex + '][gst_rate]').attr('id','partGstRate_'+partIndex).end()
+                .find('[id="partHsnCode"]').attr('name', 'part[' + partIndex + '][hsn_code]').attr('id','partHsnCode_'+partIndex).end()
                 .find('[id="part_total_price"]').attr('name', 'part[' + partIndex + '][part_total_price]').attr('id','partTotalPrice_'+partIndex).end();
             get_appliance(partIndex);
         })
@@ -344,13 +371,20 @@
     function get_model_number(index){
         var partner_id = $('#partner_id').val();
         var service_id = $('#serviceId_'+index).val();
-        if(partner_id && service_id){
+        if(partner_id){
             $.ajax({
                 type: 'GET',
                 url: '<?php echo base_url() ?>employee/inventory/get_part_model_number',
                 data:{entity_id:partner_id,entity_type:'<?php echo _247AROUND_PARTNER_STRING; ?>',service_id:service_id},
                 success: function (response) {
-                    $("#modelNumber_"+index).html(response);
+                    $('#modelNumber_'+index).val('val', "");
+                    $('#modelNumber_'+index).val('Select Model Number').change();
+                    $('#modelNumber_'+index).html(response);
+                    $('#inventoryId_'+index).val('');
+                    $('#partTotalPrice_'+index).val('');
+                    $('#partGstRate_'+index).val('');
+                    $('#partHsnCode_'+index).val('');
+                    $('#quantity_'+index).val('');
                 }
             });
         }else{
@@ -362,13 +396,20 @@
         var partner_id = $('#partner_id').val();
         var service_id = $('#serviceId_'+index).val();
         var model_number = $('#modelNumber_'+index).val();
-        if(partner_id && service_id && model_number){
+        if(partner_id){
             $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url() ?>employee/inventory/get_parts_type',
                 data:{entity_id:partner_id,entity_type:'<?php echo _247AROUND_PARTNER_STRING; ?>',service_id:service_id,model_number:model_number},
                 success: function (response) {
-                    $("#partType_"+index).html(response);
+                    $('#partType_'+index).val('val', "");
+                    $('#partType_'+index).val('Select Part Type').change();
+                    $('#partType_'+index).html(response);
+                    $('#inventoryId_'+index).val('');
+                    $('#partTotalPrice_'+index).val('');
+                    $('#partGstRate_'+index).val('');
+                    $('#partHsnCode_'+index).val('');
+                    $('#quantity_'+index).val('');
                 }
             });
         }else{
@@ -381,13 +422,20 @@
         var service_id = $('#serviceId_'+index).val();
         var model_number = $('#modelNumber_'+index).val();
         var part_type = $('#partType_'+index).val();
-        if(partner_id && service_id && model_number && part_type){
+        if(partner_id){
             $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url() ?>employee/inventory/get_parts_name',
                 data:{entity_id:partner_id,entity_type:'<?php echo _247AROUND_PARTNER_STRING; ?>',service_id:service_id,model_number:model_number,part_type:part_type,is_option_selected:true},
                 success: function (response) {
-                    $("#partName_"+index).html(response);
+                    $('#partName_'+index).val('val', "");
+                    $('#partName_'+index).val('Select Part Name').change();
+                    $('#partName_'+index).html(response);
+                    $('#inventoryId_'+index).val('');
+                    $('#partTotalPrice_'+index).val('');
+                    $('#partGstRate_'+index).val('');
+                    $('#partHsnCode_'+index).val('');
+                    $('#quantity_'+index).val('');
                 }
             });
         }else{
@@ -407,14 +455,20 @@
                 data:{entity_id:partner_id,entity_type:'<?php echo _247AROUND_PARTNER_STRING; ?>',service_id:service_id,model_number:model_number,part_name:part_name},
                 success: function (response) {
                     var obj = JSON.parse(response);
-                   var parts_total_price = parseInt($('#quantity_'+index).val()) * parseInt(obj.price);
-                   $('#inventoryId_'+index).val(obj.inventory_id);
-                   $('#partTotalPrice_'+index).val(parts_total_price);
-                   $('#gst_rate_'+index).val(obj.gst_rate);
-                   $('#hsn_code'+index).val(obj.gst_rate);
+                    var parts_total_price = parseInt($('#quantity_'+index).val()) * parseInt(obj.price);
+                    $('#inventoryId_'+index).val(obj.inventory_id);
+                    $('#partTotalPrice_'+index).val(parts_total_price);
+                    $('#partGstRate_'+index).val(obj.gst_rate);
+                    $('#partHsnCode_'+index).val(obj.hsn_code);
+                    var total_spare_invoice_price = 0;
+                    $(".part-total-price").each(function(i) {
+                        total_spare_invoice_price += parseInt($('#partTotalPrice_'+i).val());
+                    });
+                    $('#total_spare_invoice_price').html(total_spare_invoice_price);
                 }
             });
         }else{
+            $('#quantity_'+index).val('');
             alert("Please Select All Field");
         }
     }

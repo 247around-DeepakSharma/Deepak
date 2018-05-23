@@ -2369,6 +2369,8 @@ class Inventory extends CI_Controller {
         
         $post['length'] = -1;
         $post['where'] = array('entity_id' => $this->input->post('entity_id'), 'entity_type' => $this->input->post('entity_type'), 'service_id' => $this->input->post('service_id'), 'model_number' => $model_number,'type'=> $part_type);
+        $post['order'] = array(array('column' => 0,'dir' => 'ASC'));
+        $post['column_order'] = array('model_number');
         $inventory_details = $this->inventory_model->get_inventory_master_list($post, 'inventory_master_list.part_name', true);
         
         if($this->input->post('is_option_selected')){
@@ -2479,6 +2481,8 @@ class Inventory extends CI_Controller {
         
         $post['length'] = -1;
         $post['where'] = array('entity_id' => $this->input->post('entity_id'), 'entity_type' => $this->input->post('entity_type'), 'service_id' => $this->input->post('service_id'), 'model_number' => $model_number);
+        $post['order'] = array(array('column' => 0,'dir' => 'ASC'));
+        $post['column_order'] = array('type');
         $inventory_details = $this->inventory_model->get_inventory_master_list($post, 'inventory_master_list.type', true);
         
         $option = '<option selected disabled>Select Part Type</option>';
@@ -2599,6 +2603,8 @@ class Inventory extends CI_Controller {
     function get_part_model_number(){
         $post['length'] = -1;
         $post['where'] = array('entity_id' => $this->input->get('entity_id'), 'entity_type' => $this->input->get('entity_type'), 'service_id' => $this->input->get('service_id'));
+        $post['order'] = array(array('column' => 0,'dir' => 'ASC'));
+        $post['column_order'] = array('model_number');
         $inventory_details = $this->inventory_model->get_inventory_master_list($post, 'inventory_master_list.model_number', true);
         
         $option = '<option selected disabled>Select Model Number</option>';
