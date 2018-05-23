@@ -2817,4 +2817,18 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
             $this->My_CI->booking_model->update_appliances($applianceID, $data);
        }
     }
+    function download_csv_from_s3($folder,$file){
+        $csv = TMP_FOLDER . $file;
+        $object = $this->My_CI->s3::getObject(BITBUCKET_DIRECTORY, $folder."/".$file);
+        write_file($csv, $object->body);
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename="' . basename($csv) . '"');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($csv));
+        readfile($csv);
+        exec("rm -rf " . escapeshellarg($csv));
+    }
 }

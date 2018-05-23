@@ -4227,7 +4227,7 @@ class Partner extends CI_Controller {
             $data['agent_id'] =$this->session->userdata('agent_id');
             $is_save = $this->reusable_model->insert_into_table("reports_log",$data);
             if($is_save){
-               $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/".$directory_xls;
+               $src=  base_url()."employee/partner/download_custom_summary_report/".$directory_xls;
                echo  json_encode(array("response"=>"SUCCESS","url"=>$src));
             }
             else{
@@ -4363,5 +4363,8 @@ class Partner extends CI_Controller {
         $this->load->view('partner/header');
             $this->load->view('partner/ack_spare_send_by_wh');
             $this->load->view('partner/partner_footer');
+    }
+    function download_custom_summary_report($folder,$file){
+       $this->miscelleneous->download_csv_from_s3($folder,$file);
     }
 }
