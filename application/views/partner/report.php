@@ -86,7 +86,6 @@
                                 <?php
                                 foreach($summaryReportData as $summaryReport){
                                     $finalFilterArray = array();
-                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/".$summaryReport['url'];
                                     $filterArray = json_decode($summaryReport['filters'],true);
                                     foreach($filterArray as $key=>$value){
                                         if($key == "Date_Range"){
@@ -105,7 +104,7 @@
                                 <tr>
                                     <td> <?php echo implode(", ", $finalFilterArray); ?></td>
                                     <td> <?php echo $summaryReport['create_date'] ?></td>
-                                    <td> <a class="btn btn-success" target="_blank" style="background: #2a3f54;" href="<?php echo $src?>">Download</a></td>
+                                    <td> <a class="btn btn-success" style="background: #2a3f54;" href="<?php echo base_url(); ?>employee/partner/download_custom_summary_report/<?php echo $summaryReport['url']?>">Download</a></td>
                                     </tr>
                                 <?php
                                 }
@@ -321,7 +320,7 @@
             success: function (response) {
                 var obj = JSON.parse(response);
                 if(obj.response === "SUCCESS"){
-                    cell3.innerHTML = '<a target="_blank" class="btn btn-success" style="background: #2a3f54;" href="'+obj.url+'">Download</a>';
+                    cell3.innerHTML = '<a class="btn btn-success" style="background: #2a3f54;" href="'+obj.url+'">Download</a>';
                 }
                 else{
                     alert("Something Went Wrong Please Try Again");
