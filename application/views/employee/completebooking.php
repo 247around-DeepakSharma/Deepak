@@ -337,6 +337,7 @@
 
 									<td> <?php if ($value['pod'] == "1") { ?>
 	    							    <input type="text" class="form-control"  id="<?php echo "serial_number" . $count; ?>" name="<?php echo "serial_number[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value="" placeholder= "Enter Serial Number" />
+                                                                    <input type="hidden" class="form-control" id="<?php echo "serial_number_pic" . $count; ?>" name="<?php echo "serial_number_pic[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value="" />
                                                                     <input type="hidden" id="<?php echo "pod" . $count ?>" class="form-control" name="<?php echo "pod[" . $price['unit_id'] . "]" ?>" value="<?php echo $price['pod']; ?>"   />
 								    <?php } ?>
 
