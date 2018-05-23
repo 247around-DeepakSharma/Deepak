@@ -228,7 +228,12 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
         if (!empty($getbooking)) {
             $date1 = date('d-m-Y', strtotime('now'));
             $date2 = $getbooking[0]['booking_date'];
-            $datediff = ($date1 - $date2) / (60 * 60 * 24);
+            $datetime1 = date_create($date1);
+            $datetime2 = date_create($date2);
+
+            $interval = date_diff($datetime1, $datetime2);
+
+            $datediff = $interval->format("%a") / (60 * 60 * 24);
 
             $month = date("m", strtotime($getbooking[0]['booking_date']));
             $dd = date("d", strtotime($getbooking[0]['booking_date']));
