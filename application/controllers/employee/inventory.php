@@ -2540,8 +2540,23 @@ class Inventory extends CI_Controller {
         
         //update status in booking unit details to cancel
         if(!empty($spare_details) && !empty($spare_details[0]['booking_unit_details_id'])){
-            $update_unit_details = $this->booking_model->update_booking_unit_details_by_any(array('id' => $spare_details[0]['booking_unit_details_id']),array('booking_status' => 'Cancelled','ud_closed_date'=> date("Y-m-d H:i:s")));
+            $update_unit_details = $this->booking_model->update_booking_unit_details_by_any(array('id' => $spare_details[0]['booking_unit_details_id']),array('booking_status' => _247AROUND_CANCELLED,'ud_closed_date'=> date("Y-m-d H:i:s")));
             if($update_unit_details){
+                
+                $booking_unit_details = $this->booking_model->get_unit_details(array('booking_id' => $booking_id,"booking_status NOT IN ('"._247AROUND_CANCELLED."')" => NULL ),false,'SUM(customer_net_payable) as customer_net_payable');
+                if(!empty($booking_unit_details)){
+                    $booking_details = $this->booking_model->getbooking_history($booking_id);
+                    $upcountry_price = 0;
+                    if(!empty($booking_details) && $booking_details[0]['is_upcountry'] = 1 && $booking_details[0]['upcountry_paid_by_customer'] = 1){
+                        $upcountry_price = $booking_details[0]['partner_upcountry_rate'] * $booking_details[0]['upcountry_distance'];
+                    }
+
+                    $booking['amount_due'] = $booking_unit_details[0]['customer_net_payable'] + $upcountry_price;
+                    
+                    // Update Booking Table
+                    $this->booking_model->update_booking($booking_id, $booking);
+                }
+                
                 log_message("info","Unit Details Updated Successfully");
             }else{
                 log_message("info","Error in updating unit details");
