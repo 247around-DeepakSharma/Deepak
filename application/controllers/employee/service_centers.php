@@ -245,6 +245,7 @@ class Service_centers extends CI_Controller {
             $old_state = $booking_state_change[count($booking_state_change) - 1]['new_state'];
             
             if (!in_array($old_state, array(SF_BOOKING_COMPLETE_STATUS,_247AROUND_COMPLETED))) {
+               
                 // customer paid basic charge is comming in array
                 // Array ( [100] =>  500 , [102] =>  300 )  
                 $customer_basic_charge = $this->input->post('customer_basic_charge');
@@ -440,6 +441,7 @@ class Service_centers extends CI_Controller {
      */
     function validate_serial_no() {
         $serial_number = $this->input->post('serial_number');
+        $upload_serial_number_pic = $_FILES['upload_serial_number_pic'];
         $pod = $this->input->post('pod');
         $booking_status = $this->input->post('booking_status');
         $partner_id = $this->input->post('partner_id');
@@ -449,14 +451,27 @@ class Service_centers extends CI_Controller {
                 if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
                     
                     switch ($value) {
-                        case 1:
+                        case '1':
                             $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number[$unit_id]));
                             if (!empty($status)) {
                                 if ($status['code'] == SUCCESS_CODE) {
                                     log_message('info', " Serial No validation success  for serial no " . trim($serial_number[$unit_id]));
+                                    if(isset($upload_serial_number_pic['name'][$unit_id])){
+                                        $this->upload_insert_upload_serial_no($upload_serial_number_pic, $unit_id, $partner_id, trim($serial_number[$unit_id]));
+                                    }
                                 } else {
-                                    $return_status = false;
-                                    $this->form_validation->set_message('validate_serial_no', $status['message']);
+                                    
+                                    if(!isset($upload_serial_number_pic['name'][$unit_id])){
+                                        $return_status = false;
+                                        $s = $this->form_validation->set_message('validate_serial_no', $status['message']. " Also Attach Serial No Image.");
+                                    } else {
+                                        $s = $this->upload_insert_upload_serial_no($upload_serial_number_pic, $unit_id, $partner_id, trim($serial_number[$unit_id]));
+                                        if(empty($s)){
+                                             $this->form_validation->set_message('validate_serial_no', 'Serial Number, File size or file type is not supported. Allowed extentions are png, jpg, jpeg and pdf. '
+                        . 'Maximum file size is 5 MB.');
+                                            $return_status = false;
+                                        }
+                                    }
                                 }
                             } else if ($value == 1 && empty(trim($serial_number[$unit_id]))) {
                                 $return_status = false;
@@ -477,6 +492,122 @@ class Service_centers extends CI_Controller {
             }
         } else {
             return TRUE;
+        }
+    }
+    /**
+     * @desc This is used to validate serial no image and insert serial no into DB
+     * @param Array $upload_serial_number_pic
+     * @param Int $unit
+     * @param Strng $partner_id
+     * @param String $serial_number
+     * @return boolean
+     */
+    function upload_insert_upload_serial_no($upload_serial_number_pic, $unit, $partner_id, $serial_number){
+        log_message('info', __METHOD__. " Enterring ...");
+        if (!empty($upload_serial_number_pic['tmp_name'][$unit])) {
+           
+            $pic_name = $this->upload_serial_no_image_to_s3($upload_serial_number_pic, 
+                    "serial_number_pic", $unit, "engineer-uploads", "serial_number_pic");
+            if($pic_name){
+                $this->partner_model->insert_partner_serial_number(array('partner_id' =>$partner_id, "serial_number" => $serial_number, "active" =>1 ));
+                $this->inform_partner_for_serial_no($partner_id, $serial_number, $pic_name);
+                return true;
+            } else {
+              
+                return false;
+            }
+            
+        } else {
+           
+            return FALSE;
+        }
+    }
+    /**
+     * @desc this is used to send email to partner to inform about serial no
+     * @param Int $partner_id
+     * @param String $serial_number
+     * @param String $pic_name
+     */
+    function inform_partner_for_serial_no($partner_id, $serial_number, $pic_name){
+        $get_partner_details = $this->partner_model->getpartner_details('account_manager_id, primary_contact_email, owner_email', array('partners.id' => $partner_id));
+        $am_email = "";
+        if (!empty($get_partner_details[0]['account_manager_id'])) {
+
+            $am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
+        }
+       
+        $email_template = $this->booking_model->get_booking_email_template("inform_partner_for_serial_no");
+        $to = $get_partner_details[0]['primary_contact_email'] . "," . $get_partner_details[0]['owner_email'];
+        $cc = $email_template[3];
+        $bcc = $email_template[5];
+        $subject = vsprintf($email_template[4], array($serial_number));
+        $message = vsprintf($email_template[0], array($serial_number));
+        if(!empty($am_email)){
+            $from = $am_email;
+        } else {
+            $from = $email_template[2];
+        }
+        $attachment = S3_WEBSITE_URL."engineer-uploads/".$pic_name;
+        $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment,'inform_partner_for_serial_no');
+    }
+    
+    /**
+     * @desc This is used to upload serial no image to S3
+     * @param Array $file
+     * @param String $type
+     * @param Int $unit
+     * @param String $s3_directory
+     * @param String $post_name
+     * @return boolean|string
+     */
+    public function upload_serial_no_image_to_s3($file, $type, $unit, $s3_directory, $post_name) {
+        log_message('info', __FUNCTION__ . " Enterring ");
+        $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
+        $MB = 1048576;
+        $temp = explode(".", $file['name'][$unit]);
+        $extension = end($temp);
+        //$filename = prev($temp);
+
+        if ($file["name"][$unit] != null) {
+            if (($file["size"][$unit] < 2 * $MB) && in_array($extension, $allowedExts)) {
+                if ($file["error"][$unit] > 0) {
+
+                   return false;
+                } else {
+                   
+                    $picName = $type . rand(10, 100) . $unit . "." . $extension;
+                    $_POST[$post_name][$unit] = $picName;
+                    $bucket = BITBUCKET_DIRECTORY;
+                    $directory = $s3_directory . "/" . $picName;
+                    $this->s3->putObjectFile($file["tmp_name"][$unit], $bucket, $directory, S3::ACL_PUBLIC_READ);
+
+                    return $picName;
+                }
+            } else {
+                
+                return FALSE;
+            }
+        } else {
+
+            return FALSE;
+        }
+        log_message('info', __FUNCTION__ . " Exit ");
+    }
+    
+    /**
+     * @desc this function is used to validate serial no from ajax.
+     */
+    function validate_booking_serial_number(){
+        log_message('info', __METHOD__. " Enterring .." .$this->input->post('serial_number'). " SF ID ". $this->session->userdata('service_center_id'));
+        $serial_number = $this->input->post('serial_number');
+        $partner_id = $this->input->post('partner_id');
+        $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number));
+        if (!empty($status)) {
+            log_message('info', __METHOD__.'Status '. print_r($status, true));
+            echo json_encode($status, true);
+        } else {
+            log_message('info',__METHOD__. 'Partner serial no validation is not define');
+            echo json_encode(array('code' => SUCCESS_CODE), true);
         }
     }
 
@@ -1801,7 +1932,7 @@ class Service_centers extends CI_Controller {
                 $from = NOREPLY_EMAIL_ID;
 
                 $to = "booking@247around.com";
-                $cc= $rm_email.",".NITS_EMAIL_ID;
+                $cc= $rm_email;
                
                 $subject = $this->session->userdata('service_center_name')." Updated Courier Details for Booking ID ".$booking_id;
                 $message = "Please Find Courier Invoice Attachment"."<br/>Courier Details:- <br/>";

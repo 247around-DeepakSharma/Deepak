@@ -802,6 +802,7 @@ class Booking extends CI_Controller {
                     $data['booking_unit_details'][$keys]['quantity'][$key]['customer_paid_extra_charges'] = $service_center_data[0]['additional_service_charge'];
                     $data['booking_unit_details'][$keys]['quantity'][$key]['serial_number'] = $service_center_data[0]['serial_number'];
                     $data['booking_unit_details'][$keys]['quantity'][$key]['customer_paid_parts'] = $service_center_data[0]['parts_cost'];
+                    $data['booking_unit_details'][$keys]['quantity'][$key]['serial_number_pic'] = $service_center_data[0]['serial_number_pic'];
                 }
 
                 // Searched already inserted price tag exist in the price array (get all service category)
@@ -1829,6 +1830,7 @@ class Booking extends CI_Controller {
         $total_amount_paid = $this->input->post('grand_total_price');
         $admin_remarks = $this->input->post('admin_remarks');
         $serial_number = $this->input->post('serial_number');
+        $serial_number_pic = $this->input->post('serial_number_pic');
         $upcountry_charges = $this->input->post("upcountry_charges");
         $internal_status = "Cancelled";
         $pincode = $this->input->post('booking_pincode');
@@ -1847,8 +1849,10 @@ class Booking extends CI_Controller {
             $data['customer_paid_parts'] = $parts_cost[$unit_id];
             if (isset($serial_number[$unit_id])) {
                 $data['serial_number'] = $serial_number[$unit_id];
+                $data['serial_number_pic'] = $serial_number_pic[$unit_id];
             } else {
                 $data['serial_number'] = "";
+                $data['serial_number_pic'] = "";
             }
 
             if (isset($customer_net_payable[$unit_id])) {
@@ -4158,9 +4162,9 @@ class Booking extends CI_Controller {
     }
 
     function test(){
-        $this->load->library('serial_no_validation');
-        $a = $this->serial_no_validation->validateSerialNo(247034,"12LE1610A1ME0100573666");
-        echo "<pre/>"; print_r($a);
+       // $this->load->library('serial_no_validation');
+        $a = $this->upcountry_model->getupcountry_for_partner_prepaid(247042);
+       // echo "<pre/>"; print_r($a);
 //        $this->partner_cb->partner_callback("SF-607901803235");
 //        $array = array(
 //            "ReferenceID" => "SP-1656351803085551" , 
