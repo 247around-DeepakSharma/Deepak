@@ -2819,7 +2819,7 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
     }
     function download_csv_from_s3($folder,$file){
         $csv = TMP_FOLDER . $file;
-        $object = $this->My_CI->s3::getObject(BITBUCKET_DIRECTORY, $folder."/".$file);
+        $object = $this->My_CI->s3->getObject(BITBUCKET_DIRECTORY, $folder."/".$file);
         write_file($csv, $object->body);
         header('Content-Description: File Transfer');
         header('Content-Type: application/octet-stream');
