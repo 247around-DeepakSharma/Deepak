@@ -2830,5 +2830,6 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
         header('Content-Length: ' . filesize($csv));
         readfile($csv);
         exec("rm -rf " . escapeshellarg($csv));
+        unlink($csv);
     }
 }
