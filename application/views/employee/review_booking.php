@@ -158,7 +158,7 @@
                                            <td><span class="<?php echo "category".$count; ?>"><?php echo $value1['appliance_category']."/". $value1['appliance_capacity']; ?></span></td>
                                           <td>
                                               <?php if(!empty($value1['serial_number_pic'])) {?>
-                                              <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $value1['serial_number_pic'];?>"> 
+                                              <a target="_blank" href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $value1['serial_number_pic'];?>"> 
                                                   <span class="<?php echo "serial_number".$count; ?>"><?php echo $value1['serial_number']; ?></span></a>
                                               <?php } else {?>
                                                <span class="<?php echo "serial_number".$count; ?>"><?php echo $value1['serial_number']; ?></span>

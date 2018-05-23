@@ -1540,5 +1540,14 @@ function get_data_for_partner_callback($booking_id) {
         $query = $this->db->get('partner_serial_no');
         return $query->result_array();
     }
+    /**
+     * @desc This is used to insert new serial number 
+     * @param Array $data
+     * @return int
+     */
+    function insert_partner_serial_number($data){
+        $this->db->insert('partner_serial_no', $data);
+        return $this->db->insert_id();
+    }
 }
 
