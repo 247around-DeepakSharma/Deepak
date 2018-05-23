@@ -1,6 +1,6 @@
 <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
-<link rel="stylesheet" href="http://247around-adminp-aws/css/jquery.loading.css">
- <script src="http://247around-adminp-aws/js/jquery.loading.js"></script>
+<link rel="stylesheet" href="<?php echo base_url();?>css/jquery.loading.css">
+ <script src="<?php echo base_url();?>js/jquery.loading.js"></script>
 <div id="page-wrapper" >
     <div class="container" >
         <?php if(validation_errors()){?>
