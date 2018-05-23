@@ -107,8 +107,7 @@
                 <th class='jumbotron' style="text-align: center">Action</th>
                 <th class='jumbotron' style="text-align: center">Generate Price</th>
                 <th class='jumbotron' style="text-align: center">Modify Price</th>
-                <th class='jumbotron' style="text-align: center">Send Summary Email</th>
-                <th class='jumbotron' style="text-align: center">View History</th>
+                <th class='jumbotron' style="text-align: center">Summary Report<br>Send / View</th>
                 <th class='jumbotron' style="text-align: center">Notifications</th>
           </tr>
 
@@ -159,11 +158,11 @@
              <td>
                  <a  class="btn btn-sm btn-warning" href="<?php echo base_url();?>employee/service_centre_charges/show_charge_list/<?php echo $row['id'];?>" title="Modify charge"><i class="fa fa-pencil" aria-hidden="true"></i></a>  
             </td>
-            <td>
-                <a href="<?php echo base_url();?>BookingSummary/send_leads_summary_mail_to_partners/<?php echo $row['id'];?>" class="btn btn-sm btn-color" title="Send Summary Email"><i class="fa fa-envelope" aria-hidden="true"></i></a>  
+            <td style="width: 96px;">
+                <a style="float:left" href="<?php echo base_url();?>BookingSummary/send_leads_summary_mail_to_partners/<?php echo $row['id'];?>" class="btn btn-sm btn-color" title="Send Summary Email"><i class="fa fa-envelope" aria-hidden="true"></i></a>  
+                <a target="_blank" style="float:right;" href="<?php echo base_url();?>BookingSummary/old_summary_report_view/<?php echo $row['id'];?>" class="btn btn-sm btn-color" title="Download Summary Report"><i class="glyphicon glyphicon-list-alt" aria-hidden="true"></i></a>  
             </td>
-            <td>  <button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#history_view" onclick="get_history_view(<?php echo $row['id']?>)" title="View History"><i class="fa fa-eye" aria-hidden="true"></i></button></td>
-          <td align="center">
+            <td align="center">
               <?php 
               if(array_key_exists($row['id'],$push_notification)){
                      $tooltipText ='';
@@ -174,16 +173,16 @@
                         $tooltipText = $tooltipText.", Blocked: ".$push_notification[$row['id']]['blocked_count'];
                       }
                   if(isset($push_notification[$row['id']]['blocked_count']) && !isset($push_notification[$row['id']]['subscription_count'])){
-                      echo '<button type="button" class="btn btn-info btn-lg glyphicon glyphicon-ban-circle" data-toggle="tooltip" data-placement="left" title="'.$tooltipText.'" style="padding: 11px 6px;margin: 0px 10px;"></button>';
+                      echo '<button type="button" class="btn btn-info btn-lg glyphicon glyphicon-ban-circle" data-toggle="tooltip" data-placement="left" title="'.$tooltipText.'" style="border-radius: 3px;padding: 2px 7px;margin: 0px 10px;"></button>';
                   }
                   else if(isset($push_notification[$row['id']]['unsubscription_count']) && !isset($push_notification[$row['id']]['subscription_count'])){
-                      echo '<button type="button" class="btn btn-info btn-lg " data-toggle="tooltip" data-placement="left" title="'.$tooltipText.'" style="padding: 11px 6px;margin: 0px 10px;"><i class="fa fa-bell-slash" aria-hidden="true"></i></button>';
+                      echo '<button type="button" class="btn btn-info btn-lg " data-toggle="tooltip" data-placement="left" title="'.$tooltipText.'" style="border-radius: 3px;padding: 2px 7px;margin: 0px 10px;"><i class="fa fa-bell-slash" aria-hidden="true"></i></button>';
                   }
                   else if(isset($push_notification[$row['id']]['subscription_count'])){
-                       echo '<button type="button" class="btn btn-info btn-lg " data-toggle="tooltip" data-placement="left" title="'.$tooltipText.'" style="padding: 11px 6px;margin: 0px 10px;"><i class="fa fa-bell" aria-hidden="true"></i></button>';
+                       echo '<button type="button" class="btn btn-info btn-lg " data-toggle="tooltip" data-placement="left" title="'.$tooltipText.'" style="border-radius: 3px;padding: 2px 7px;margin: 0px 10px;"><i class="fa fa-bell" aria-hidden="true"></i></button>';
                   }
               }
-              else{
+              else{ 
                   echo '<button type="button" class="btn btn-sm btn-info title="Notification"><i class="fa fa-spinner" aria-hidden="true"></i></button>';
               }
               ?>

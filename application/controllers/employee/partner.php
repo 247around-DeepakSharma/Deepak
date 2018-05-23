@@ -4158,7 +4158,7 @@ class Partner extends CI_Controller {
          //Save File on AWS
         $bucket = BITBUCKET_DIRECTORY;
         $directory_xls = "summary-excels/" . $newCSVFileName;
-        $is_upload = $this->s3->putObjectFile(realpath(TMP_FOLDER . $newCSVFileName), $bucket, $directory_xls, S3::ACL_PRIVATE);
+        $is_upload = $this->s3->putObjectFile(realpath(TMP_FOLDER . $newCSVFileName), $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
         unlink(TMP_FOLDER . $newCSVFileName);
         if($is_upload == 1){
             //Save File log in report log table
@@ -4170,7 +4170,7 @@ class Partner extends CI_Controller {
             $data['agent_id'] =$this->session->userdata('agent_id');
             $is_save = $this->reusable_model->insert_into_table("reports_log",$data);
             if($is_save){
-               $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/".$directory_xls;
+               $src=  base_url()."employee/partner/download_custom_summary_report/".$directory_xls;
                echo  json_encode(array("response"=>"SUCCESS","url"=>$src));
             }
             else{
@@ -4307,5 +4307,8 @@ class Partner extends CI_Controller {
         $this->load->view('partner/header');
             $this->load->view('partner/ack_spare_send_by_wh');
             $this->load->view('partner/partner_footer');
+    }
+    function download_custom_summary_report($folder,$file){
+       $this->miscelleneous->download_csv_from_s3($folder,$file);
     }
 }

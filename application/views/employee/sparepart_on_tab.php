@@ -75,7 +75,7 @@
             </div>
             <input type="hidden" id="url"></input>
             <div class="modal-footer">
-               <button type="button" class="btn btn-success" onclick="reject_parts()">Send</button>
+                <button type="button" class="btn btn-success" onclick="reject_parts()" id="reject_btn">Send</button>
                <button type="button" class="btn btn-default" data-dismiss="modal" >Close</button>
             </div>
          </div>

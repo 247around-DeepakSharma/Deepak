@@ -63,7 +63,6 @@
                                     <div class="x_panel">
                                         <div class="x_title">
                                          <h2>Pending Spares Quotes </h2>
-                                        <div class="pull-right"><button style="background: #2a3f54; border-color: #2a3f54;" id="spareDownload" class="btn btn-sm btn-primary">Download</button></div>
                                             <div class="clearfix"></div>
                                             </div>
                                         <div class="x_content">

@@ -2369,6 +2369,8 @@ class Inventory extends CI_Controller {
         
         $post['length'] = -1;
         $post['where'] = array('entity_id' => $this->input->post('entity_id'), 'entity_type' => $this->input->post('entity_type'), 'service_id' => $this->input->post('service_id'), 'model_number' => $model_number,'type'=> $part_type);
+        $post['order'] = array(array('column' => 0,'dir' => 'ASC'));
+        $post['column_order'] = array('model_number');
         $inventory_details = $this->inventory_model->get_inventory_master_list($post, 'inventory_master_list.part_name', true);
         
         if($this->input->post('is_option_selected')){
@@ -2479,6 +2481,8 @@ class Inventory extends CI_Controller {
         
         $post['length'] = -1;
         $post['where'] = array('entity_id' => $this->input->post('entity_id'), 'entity_type' => $this->input->post('entity_type'), 'service_id' => $this->input->post('service_id'), 'model_number' => $model_number);
+        $post['order'] = array(array('column' => 0,'dir' => 'ASC'));
+        $post['column_order'] = array('type');
         $inventory_details = $this->inventory_model->get_inventory_master_list($post, 'inventory_master_list.type', true);
         
         $option = '<option selected disabled>Select Part Type</option>';
@@ -2540,8 +2544,23 @@ class Inventory extends CI_Controller {
         
         //update status in booking unit details to cancel
         if(!empty($spare_details) && !empty($spare_details[0]['booking_unit_details_id'])){
-            $update_unit_details = $this->booking_model->update_booking_unit_details_by_any(array('id' => $spare_details[0]['booking_unit_details_id']),array('booking_status' => 'Cancelled','ud_closed_date'=> date("Y-m-d H:i:s")));
+            $update_unit_details = $this->booking_model->update_booking_unit_details_by_any(array('id' => $spare_details[0]['booking_unit_details_id']),array('booking_status' => _247AROUND_CANCELLED,'ud_closed_date'=> date("Y-m-d H:i:s")));
             if($update_unit_details){
+                
+                $booking_unit_details = $this->booking_model->get_unit_details(array('booking_id' => $booking_id,"booking_status NOT IN ('"._247AROUND_CANCELLED."')" => NULL ),false,'SUM(customer_net_payable) as customer_net_payable');
+                if(!empty($booking_unit_details)){
+                    $booking_details = $this->booking_model->getbooking_history($booking_id);
+                    $upcountry_price = 0;
+                    if(!empty($booking_details) && $booking_details[0]['is_upcountry'] = 1 && $booking_details[0]['upcountry_paid_by_customer'] = 1){
+                        $upcountry_price = $booking_details[0]['partner_upcountry_rate'] * $booking_details[0]['upcountry_distance'];
+                    }
+
+                    $booking['amount_due'] = $booking_unit_details[0]['customer_net_payable'] + $upcountry_price;
+                    
+                    // Update Booking Table
+                    $this->booking_model->update_booking($booking_id, $booking);
+                }
+                
                 log_message("info","Unit Details Updated Successfully");
             }else{
                 log_message("info","Error in updating unit details");
@@ -2584,6 +2603,8 @@ class Inventory extends CI_Controller {
     function get_part_model_number(){
         $post['length'] = -1;
         $post['where'] = array('entity_id' => $this->input->get('entity_id'), 'entity_type' => $this->input->get('entity_type'), 'service_id' => $this->input->get('service_id'));
+        $post['order'] = array(array('column' => 0,'dir' => 'ASC'));
+        $post['column_order'] = array('model_number');
         $inventory_details = $this->inventory_model->get_inventory_master_list($post, 'inventory_master_list.model_number', true);
         
         $option = '<option selected disabled>Select Model Number</option>';
