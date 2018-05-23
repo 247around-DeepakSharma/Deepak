@@ -509,8 +509,11 @@ class Service_centers extends CI_Controller {
             $pic_name = $this->upload_serial_no_image_to_s3($upload_serial_number_pic, 
                     "serial_number_pic", $unit, "engineer-uploads", "serial_number_pic");
             if($pic_name){
-                $this->partner_model->insert_partner_serial_number(array('partner_id' =>$partner_id, "serial_number" => $serial_number, "active" =>1 ));
-                $this->inform_partner_for_serial_no($partner_id, $serial_number, $pic_name);
+                if ($partner_id == AKAI_ID) {
+                    $this->partner_model->insert_partner_serial_number(array('partner_id' =>$partner_id, "serial_number" => $serial_number, "active" =>1 ));
+                    $this->inform_partner_for_serial_no($partner_id, $serial_number, $pic_name);
+                }
+                
                 return true;
             } else {
               
@@ -528,29 +531,32 @@ class Service_centers extends CI_Controller {
      * @param String $serial_number
      * @param String $pic_name
      */
-    function inform_partner_for_serial_no($partner_id, $serial_number, $pic_name){
+    function inform_partner_for_serial_no($partner_id, $serial_number, $pic_name) {
+        log_message('info', __METHOD__ . " Enterring..");
         $get_partner_details = $this->partner_model->getpartner_details('account_manager_id, primary_contact_email, owner_email', array('partners.id' => $partner_id));
         $am_email = "";
         if (!empty($get_partner_details[0]['account_manager_id'])) {
 
             $am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
         }
-       
+
         $email_template = $this->booking_model->get_booking_email_template("inform_partner_for_serial_no");
-        $to = $get_partner_details[0]['primary_contact_email'] . "," . $get_partner_details[0]['owner_email'];
-        $cc = $email_template[3];
-        $bcc = $email_template[5];
-        $subject = vsprintf($email_template[4], array($serial_number));
-        $message = vsprintf($email_template[0], array($serial_number));
-        if(!empty($am_email)){
-            $from = $am_email;
-        } else {
-            $from = $email_template[2];
+        if (!empty($email_template)) {
+            $to = $get_partner_details[0]['primary_contact_email'] . "," . $get_partner_details[0]['owner_email'];
+            $cc = $email_template[3];
+            $bcc = $email_template[5];
+            $subject = vsprintf($email_template[4], array($serial_number));
+            $message = vsprintf($email_template[0], array($serial_number));
+            if (!empty($am_email)) {
+                $from = $am_email;
+            } else {
+                $from = $email_template[2];
+            }
+            $attachment = S3_WEBSITE_URL . "engineer-uploads/" . $pic_name;
+            $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment, 'inform_partner_for_serial_no');
         }
-        $attachment = S3_WEBSITE_URL."engineer-uploads/".$pic_name;
-        $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment,'inform_partner_for_serial_no');
     }
-    
+
     /**
      * @desc This is used to upload serial no image to S3
      * @param Array $file
