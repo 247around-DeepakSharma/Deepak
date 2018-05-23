@@ -22,3 +22,6 @@ define('_247AROUND_DEMO_PARTNER',247050);
  //demo partner id
 define('QFX_ID',247066);
 
+//google flipkart partner id
+define('GOOGLE_FLIPKART_PARTNER_ID',247077);
+

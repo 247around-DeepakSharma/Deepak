@@ -4151,6 +4151,7 @@ class Partner extends CI_Controller {
      * This function is use to create and  save partner's custom summary report 
      */
     function create_and_save_partner_report($partnerID){
+        $this->checkUserSession();
         log_message('info', __FUNCTION__ . "Function Start For ".print_r($this->input->post(),true)." Partner ID : ".$partnerID);
         $postArray = $this->input->post();
         //Create Summary Report
