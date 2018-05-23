@@ -251,7 +251,7 @@ class Do_background_upload_excel extends CI_Controller {
         }
         
         
-        $to = NITS_ANUJ_EMAIL_ID.",".$file_upload_agent_email;
+        $to = ANUJ_EMAIL_ID.",".$file_upload_agent_email;
         $from = "noreply@247around.com";
         $cc = "";
         $bcc = "";
@@ -1149,7 +1149,7 @@ class Do_background_upload_excel extends CI_Controller {
             $file_upload_agent_email = $this->email_send_to;
         }
         
-	$to = NITS_ANUJ_EMAIL_ID.",".$file_upload_agent_email;
+	$to = ANUJ_EMAIL_ID.",".$file_upload_agent_email;
         $from = "noreply@247around.com";
 	$cc = "";
 	$bcc = "";

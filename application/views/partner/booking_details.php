@@ -130,9 +130,9 @@
                                             <th>Call Type</th>
                                             
                                             <?php if ($booking_history[0]['current_status'] != "Completed") { ?>
-                                                <?php if ($booking_history[0]['is_upcountry'] == 1) { ?>
+                                         
                                                     <th>Upcountry Charges</th>
-                                                <?php } ?>
+                                        
                                                 <th>Total Charges</th>
                                             <?php } else { ?>
                                                 <th>Paid Service Charges</th>
@@ -155,7 +155,9 @@
                                                     <td><?php echo $unit_detail['appliance_category'] ?></td>
                                                     <td><?php echo $unit_detail['appliance_capacity'] ?></td>
                                                     <td><?php echo $unit_detail['model_number'] ?></td>
-                                                    <td><?php echo $unit_detail['serial_number'] ." / ".$unit_detail['partner_serial_number'] ?></td>
+                                                    <td><?php if(!empty($unit_detail['serial_number_pic'])){?>
+                                        <a target="_blank" href="<?php echo S3_WEBSITE_URL;?>engineer-uploads/<?php echo $unit_detail['serial_number_pic'];?>"><?php echo $unit_detail['serial_number'];?></a>
+                                             <?php } else { echo $unit_detail['serial_number'];} ?> / <?php echo $unit_detail['partner_serial_number']?></td>
                                                     <td><?php echo $unit_detail['appliance_description'] ?></td>
                                                     <td><?php if(!empty($unit_detail['purchase_date'])) {echo $unit_detail['purchase_date'];}?></td>
                                                         <?php if ($booking_history[0]['current_status'] != "Completed") { ?>

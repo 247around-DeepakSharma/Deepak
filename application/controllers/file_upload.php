@@ -184,7 +184,7 @@ class File_upload extends CI_Controller {
         $sheetUniqueRowData = array();
         //$file_appliance_arr = array();
         //column which must be present in the  upload inventory file
-        $header_column_need_to_be_present = array('appliance','part_name','part_number','part_description','model_number','price');
+        $header_column_need_to_be_present = array('appliance','part_name','part_number','part_description','model_number','price','hsn_code','gst_rate');
         //check if required column is present in upload file header
         $check_header = $this->check_column_exist($header_column_need_to_be_present,$data['header_data']);
 
@@ -334,6 +334,7 @@ class File_upload extends CI_Controller {
         $tmp_data['size'] = (isset($data['size']) && !empty($data['size'])) ? trim($data['size']):null;
         $tmp_data['price'] = (isset($data['price']) && !empty($data['price'])) ? trim($data['price']):null;
         $tmp_data['hsn_code'] = (isset($data['hsn_code']) && !empty($data['hsn_code'])) ? trim($data['hsn_code']):null;
+        $tmp_data['gst_rate'] = (isset($data['gst_rate']) && !empty($data['gst_rate'])) ? trim($data['gst_rate']):null;
         $tmp_data['entity_id'] = $this->input->post('partner_id');
         $tmp_data['entity_type'] = _247AROUND_PARTNER_STRING;
         

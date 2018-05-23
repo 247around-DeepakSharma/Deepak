@@ -201,7 +201,9 @@
                         <td><?php echo $unit_detail['appliance_category'] ?></td>
                         <td><?php echo $unit_detail['appliance_capacity'] ?></td>
                         <td><?php echo $unit_detail['model_number'] ?></td>
-                        <td><?php echo $unit_detail['serial_number'] ?></td>
+                        <td><?php if(!empty($unit_detail['serial_number_pic'])){?>
+                             <a target="_blank" href="<?php echo S3_WEBSITE_URL;?>engineer-uploads/<?php echo $unit_detail['serial_number_pic'];?>"><?php echo $unit_detail['serial_number'];?></a>
+                             <?php } else { echo $unit_detail['serial_number'];} ?> / <?php echo $unit_detail['partner_serial_number']?></td>
                         <td><?php echo $unit_detail['appliance_description'] ?></td>
                         <td><?php print_r($unit_detail['price_tags']); ?></td>
 
