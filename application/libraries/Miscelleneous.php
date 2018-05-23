@@ -2819,5 +2819,6 @@ function convert_html_to_pdf($html,$booking_id,$filename,$s3_folder){
         header('Content-Length: ' . filesize($csv));
         readfile($csv);
         exec("rm -rf " . escapeshellarg($csv));
+        unlink($csv);
     }
 }
