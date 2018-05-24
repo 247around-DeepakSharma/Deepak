@@ -510,7 +510,7 @@ class Service_centers extends CI_Controller {
                     "serial_number_pic", $unit, "engineer-uploads", "serial_number_pic");
             if($pic_name){
                 if ($partner_id == AKAI_ID) {
-                    $this->partner_model->insert_partner_serial_number(array('partner_id' =>$partner_id, "serial_number" => $serial_number, "active" =>1 ));
+                    $this->partner_model->insert_partner_serial_number(array('partner_id' =>$partner_id, "serial_number" => $serial_number, "active" =>1, "added_by" => "vendor" ));
                     $this->inform_partner_for_serial_no($partner_id, $serial_number, $pic_name);
                 }
                 
