@@ -1624,7 +1624,8 @@ class Partner extends CI_Controller {
                                                     "booking_pincode" => $booking['booking_pincode'],
                                                     "service_id" => $booking['service_id'],
                                                     "partner_id" => $booking['partner_id'],
-                                                    "city" => $booking['city']
+                                                    "city" => $booking['city'],
+                                                    "order_id" => $booking['order_id']
                                                 ));
                                         }
                                         break;

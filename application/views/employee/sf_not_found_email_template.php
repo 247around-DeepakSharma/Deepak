@@ -53,6 +53,7 @@
                                                                         <tbody>
                                                                             <tr>
                                                                                 <td style="color:#000;"><b>Booking ID</b></td>
+                                                                                <td style="color:#000;"><b>Order ID</b></td>
                                                                                 <td style="color:#000;"><b>Booking Pincode</b></td>
                                                                                 <td style="color:#000;"><b>Booking City</b></td>
                                                                                 <td style="color:#000;"><b>Appliance</b></td>
@@ -61,6 +62,9 @@
                                                                             <tr>
                                                                                 <td style="color:#333;">
                                                                                     <?php if (isset($booking_id)) { echo $booking_id;} ?>
+                                                                                </td>
+                                                                                <td style="color:#333;">
+                                                                                    <?php if (isset($order_id)) { echo $order_id;} ?>
                                                                                 </td>
                                                                                 <td style="color:#333;">
                                                                                     <?php if (isset($booking_pincode)) { echo $booking_pincode; } ?>

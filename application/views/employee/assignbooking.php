@@ -44,6 +44,7 @@
                             <input type="hidden" name="partner_id[<?= $row['booking_id']; ?>]" value="<?php echo $row['partner_id']; ?>" />
                             <input type="hidden" name="service_id[<?= $row['booking_id']; ?>]" value="<?php echo $row['service_id']; ?>" />
                             <input type="hidden" name="city[<?= $row['booking_id']; ?>]" value="<?php echo $row['district']; ?>" />
+                            <input type="hidden" name="order_id[<?= $row['booking_id']; ?>]" value="<?php echo $row['order_id']; ?>" />
 
                                 <td style="width:200px;">
                                     <select type="text" class="js-example form-control" id="service_center<?php echo $count; ?>" name="service_center[<?= $row['booking_id']; ?>]" value="<?php echo set_value('service_center'); ?>">

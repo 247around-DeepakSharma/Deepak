@@ -38,7 +38,7 @@
                 <tbody>
                 <form name="myForm" class="form-horizontal" id ="brackets"  action='<?php echo base_url() ?>employee/partner/process_partner_login_details_form' method="POST" enctype="form-data">
                     <input type="hidden" name = "partner_id" value="<?php echo $login['partner_id']?>"/>
-                    <?php for ($i = 0; $i < 5; $i++) { ?>		
+                    <?php for ($i = 0; $i < 25; $i++) { ?>		
                         <tr>
                             <td> 
                                 <b>Login <?php echo ($i+1)?>:</b>
