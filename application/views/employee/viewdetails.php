@@ -235,13 +235,13 @@
                                     <button type="button" onclick="outbound_call(<?php echo $booking_history[0]['primary_contact_phone_1'] ?>)" class="btn btn-sm btn-info pull-right"><i class="fa fa-phone fa-lg" aria-hidden="true"></i></button>
                                     <?php }?>
                                 </td>
-                                <td><?php if($booking_history[0]['is_upcountry'] == 1){ echo $booking_history[0]["municipal_limit"]." KM";}  ?></td>
+                                <td><?php echo $booking_history[0]["municipal_limit"]." KM";  ?></td>
                             </tr>
                         </tbody>
                     </table>
                     <?php }  ?>
                     </div>
-                    <?php if($booking_history[0]['is_upcountry'] == 1){  ?>  
+                    
                     <table class="table  table-striped table-bordered">
                         <thead>
                             <th>One Way Distance </th>
@@ -253,7 +253,7 @@
                         <tbody>
                            
                             <tr>
-                                <td> <?php if(!empty($booking_history[0]['vendor_name'])){?>
+                                <td> <?php if($booking_history[0]['is_upcountry'] == 1){ ?>
                                     <?php echo round(($booking_history[0]["upcountry_distance"] + ($booking_history[0]["municipal_limit"] * 2))/2,2) . " KM"; ?>
                                 <?php } ?>
                                 </td>
@@ -263,7 +263,7 @@
                                 <td><?php echo $booking_history[0]["upcountry_remarks"];  ?></td>
                             </tr>
                            
-                                
+                               
                             <tr>
                                 <td colspan="8">
                                     <div class="col-md-12">
@@ -280,11 +280,11 @@
                                         </div
                                 </td>
                             </tr>
-                            
+                           
                             </tr>
                         </tbody>
                     </table>
-                    <?php } ?>
+                
                 </div>
             </div>
             <div class="tab-pane fade in" id="tab2">
