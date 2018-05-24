@@ -482,20 +482,27 @@ class Notify {
 		    break;
 
 		case 'Newbooking':
-		    $call_type = explode(" ", $query1[0]['request_type']);
-		    $sms['smsData']['service'] = $query1[0]['services'];
-                    $sms['smsData']['call_type'] = $call_type[0];
-		    $sms['smsData']['booking_date'] = date("d-M-Y", strtotime($query1[0]['booking_date']));
-		    //$sms['smsData']['booking_timeslot'] = explode("-",$query1[0]['booking_timeslot'])[1];
-                    $sms['smsData']['booking_id'] = $query1[0]['booking_id'];
                     
-                    if ($query1[0]['partner_id'] == JEEVES_ID) {
-                        $sms['smsData']['public_name'] = "";
-                    } else {
-                        $sms['smsData']['public_name'] = $query1[0]['public_name']. " Partner";
+                    if($query1[0]['partner_id'] == GOOGLE_FLIPKART_PARTNER_ID){
+                        $sms['tag'] = "flipkart_google_scheduled_sms";
+                        $sms['smsData'] = array();
+                    }else{
+                        $call_type = explode(" ", $query1[0]['request_type']);
+                        $sms['smsData']['service'] = $query1[0]['services'];
+                        $sms['smsData']['call_type'] = $call_type[0];
+                        $sms['smsData']['booking_date'] = date("d-M-Y", strtotime($query1[0]['booking_date']));
+                        //$sms['smsData']['booking_timeslot'] = explode("-",$query1[0]['booking_timeslot'])[1];
+                        $sms['smsData']['booking_id'] = $query1[0]['booking_id'];
+
+                        if ($query1[0]['partner_id'] == JEEVES_ID) {
+                            $sms['smsData']['public_name'] = "";
+                        } else {
+                            $sms['smsData']['public_name'] = $query1[0]['public_name']. " Partner";
+                        }
+
+                        $sms['tag'] = "add_new_booking";
                     }
-                    
-		    $sms['tag'] = "add_new_booking";
+		    
 		    
 		    $sms['booking_id'] = $query1[0]['booking_id'];
 		    $sms['type'] = "user";
@@ -642,7 +649,7 @@ class Notify {
                     $message = "Please check SMS tag and phone number. Booking id is : " .
                             $sms['booking_id'] . " Tag is '" . $sms['tag'] . "' & phone number is :" . $sms['phone_no'] . " Result:"
                             . " " . $status['content'];
-                    $to = DEVELOPER_EMAIL;
+                    $to = "anuj@247around.com, sachinj@247around.com";
 
                     $this->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "",'sms_sending_failed');
                 }
@@ -654,7 +661,7 @@ class Notify {
                 $message = "Please check SMS tag and phone number. Booking id is : " .
                         $sms['booking_id'] . " Tag is '" . $sms['tag'] . "' & phone number is :" . $sms['phone_no'] . " Result:"
                         . " " . $status['content'];
-                $to = DEVELOPER_EMAIL;
+                $to = "anuj@247around.com, sachinj@247around.com";
 
                 $this->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "",'sms_not_sent_template_not_found');
             }

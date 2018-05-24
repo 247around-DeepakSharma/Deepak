@@ -1169,9 +1169,9 @@
                             <div class="col-md-12">
                                 <div class="col-md-4">
                                 <div class="form-group ">
-                                    <label for="upcountry_min_distance_threshold" class="col-md-4">Min Distance</label>
+                                    <label for="upcountry_min_distance_threshold" class="col-md-4">Municipal Limit</label>
                                     <div class="col-md-8">
-                                        <input  type="text" class="form-control"  name="min_upcountry_distance" value = "<?php if (isset($query[0]['min_upcountry_distance'])) {
+                                        <input  type="text" id="municipal_limit" class="form-control"  name="min_upcountry_distance" value = "<?php if (isset($query[0]['min_upcountry_distance'])) {
                                             echo $query[0]['min_upcountry_distance'];
                                         } ?>">
                                     </div>
@@ -1601,6 +1601,11 @@
             //Checking registration number validation
         var check = validate_registration_no();
         if(check === false){
+            return false;
+        }
+        var municipal_limit = $("#municipal_limit").val();
+        if(Number(municipal_limit) < 1){
+            alert("Please Add Municipla Limit");
             return false;
         }
         form.submit();
