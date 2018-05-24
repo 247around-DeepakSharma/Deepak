@@ -1390,6 +1390,9 @@ class Miscelleneous {
      */
 
     function sf_not_exist_for_pincode($booking) {
+        if(!isset($booking['order_id'])){
+            $booking['order_id'] = 'Not_Generated';
+        }
         $notFoundSfArray = array('booking_id' => $booking['booking_id'], 'pincode' => $booking['booking_pincode'], 'city' => $booking['city'], 'service_id' => $booking['service_id']);
         $result = $this->My_CI->reusable_model->get_rm_for_pincode($notFoundSfArray['pincode']);
         if (!empty($result)) {
@@ -1405,7 +1408,7 @@ class Miscelleneous {
         }else{
             $rm = $this->My_CI->employee_model->get_rm_details();
             $rm_emails = implode(',', array_column($rm, 'official_email'));
-            $subject = "Pincode Not Exist In India Pincode" . $booking['booking_pincode'];
+            $subject = "Pincode Not Exist In India Pincode " . $booking['booking_pincode'];
             $this->send_sf_not_found_email_to_rm($booking, $rm_emails,$subject, FALSE);
         }
         if (array_key_exists('partner_id', $booking)) {

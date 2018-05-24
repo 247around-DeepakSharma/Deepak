@@ -2039,7 +2039,7 @@ class Api extends CI_Controller {
             } else {
 
                 $this->miscelleneous->sf_not_exist_for_pincode(array('booking_id' => "Not_Generated", 'booking_pincode' => $requestData["booking_pincode"], 
-                     'service_id' => $searched_service_id,'partner_id'=>'247001','city'=>'Not_Received'));
+                     'service_id' => $searched_service_id,'partner_id'=>'247001','city'=>'Not_Received','order_id'=>'Not_Received'));
                 $this->sendJsonResponse(array('0008', 'failure'));
             }
 
