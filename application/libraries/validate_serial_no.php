@@ -46,7 +46,7 @@ class Validate_serial_no {
      */
     function akai_serialNoValidation($partnerID, $serialNo){
         log_message('info', __METHOD__. " Enterring... Partner ID ". $partnerID. " Srial No ". $serialNo);
-        $result = $this->MY_CI->partner_model->getpartner_serialno(array('partner_id' =>$partnerID, 'serial_number' => $serialNo));
+        $result = $this->MY_CI->partner_model->getpartner_serialno(array('partner_id' =>$partnerID, 'serial_number' => $serialNo, "active" => 1));
         if(!empty($result)){
             log_message('info', __METHOD__. " Partner ID ". $partnerID. " Srial No ". $serialNo. " code ".SUCCESS_CODE);
             return array('code' => SUCCESS_CODE);

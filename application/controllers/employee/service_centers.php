@@ -312,7 +312,8 @@ class Service_centers extends CI_Controller {
                         $data['upcountry_charges'] = $upcountry_charges;
                     }
                     if (isset($serial_number[$unit_id])) {
-                        $data['serial_number'] =  trim($serial_number[$unit_id]);
+                        $trimSno = str_replace(' ', '', trim($serial_number[$unit_id]));
+                        $data['serial_number'] =  $trimSno;
                         $data['serial_number_pic']  = trim($serial_number_pic[$unit_id]);
                     }
                     if (!empty($getremarks[0]['service_center_remarks'])) {
@@ -449,15 +450,16 @@ class Service_centers extends CI_Controller {
         if (isset($_POST['pod'])) {
             foreach ($pod as $unit_id => $value) {
                 if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
+                    $trimSno = str_replace(' ', '', trim($serial_number[$unit_id]));
                     
                     switch ($value) {
                         case '1':
-                            $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number[$unit_id]));
+                            $status = $this->validate_serial_no->validateSerialNo($partner_id, $trimSno);
                             if (!empty($status)) {
                                 if ($status['code'] == SUCCESS_CODE) {
                                     log_message('info', " Serial No validation success  for serial no " . trim($serial_number[$unit_id]));
                                     if(isset($upload_serial_number_pic['name'][$unit_id])){
-                                        $this->upload_insert_upload_serial_no($upload_serial_number_pic, $unit_id, $partner_id, trim($serial_number[$unit_id]));
+                                        $this->upload_insert_upload_serial_no($upload_serial_number_pic, $unit_id, $partner_id, $trimSno);
                                     }
                                 } else {
                                     
@@ -465,7 +467,7 @@ class Service_centers extends CI_Controller {
                                         $return_status = false;
                                         $s = $this->form_validation->set_message('validate_serial_no', $status['message']. " Also Attach Serial No Image.");
                                     } else {
-                                        $s = $this->upload_insert_upload_serial_no($upload_serial_number_pic, $unit_id, $partner_id, trim($serial_number[$unit_id]));
+                                        $s = $this->upload_insert_upload_serial_no($upload_serial_number_pic, $unit_id, $partner_id, $trimSno);
                                         if(empty($s)){
                                              $this->form_validation->set_message('validate_serial_no', 'Serial Number, File size or file type is not supported. Allowed extentions are png, jpg, jpeg and pdf. '
                         . 'Maximum file size is 5 MB.');
@@ -473,7 +475,7 @@ class Service_centers extends CI_Controller {
                                         }
                                     }
                                 }
-                            } else if ($value == 1 && empty(trim($serial_number[$unit_id]))) {
+                            } else if ($value == 1 && empty($trimSno)) {
                                 $return_status = false;
                                 $this->form_validation->set_message('validate_serial_no', 'Please Enter Valid Serial Number');
                             } else if ($value == 1 && is_numeric($serial_number[$unit_id]) && $serial_number[$unit_id] == 0) {
@@ -510,7 +512,7 @@ class Service_centers extends CI_Controller {
                     "serial_number_pic", $unit, "engineer-uploads", "serial_number_pic");
             if($pic_name){
                 if ($partner_id == AKAI_ID) {
-                    $this->partner_model->insert_partner_serial_number(array('partner_id' =>$partner_id, "serial_number" => $serial_number, "active" =>1 ));
+                    $this->partner_model->insert_partner_serial_number(array('partner_id' =>$partner_id, "serial_number" => $serial_number, "active" =>1, "added_by" => "vendor" ));
                     $this->inform_partner_for_serial_no($partner_id, $serial_number, $pic_name);
                 }
                 
@@ -543,14 +545,23 @@ class Service_centers extends CI_Controller {
         $email_template = $this->booking_model->get_booking_email_template("inform_partner_for_serial_no");
         if (!empty($email_template)) {
             $to = $get_partner_details[0]['primary_contact_email'];
-            $cc = $email_template[3];
+            
+            $sid = $this->session->userdata('service_center_id');
+            $rm = $this->vendor_model->get_rm_sf_relation_by_sf_id($sid);
+            $rm_email = "";
+            if (!empty($rm)) {
+                $rm_email = ", " . $rm[0]['official_email'];
+            }
+
             $bcc = $email_template[5];
             $subject = vsprintf($email_template[4], array($serial_number));
             $message = vsprintf($email_template[0], array($serial_number));
             if (!empty($am_email)) {
                 $from = $am_email;
+                $cc = $email_template[3]. ",".$am_email.$rm_email;
             } else {
                 $from = $email_template[2];
+                $cc = $email_template[3].$rm_email;
             }
             $attachment = S3_WEBSITE_URL . "engineer-uploads/" . $pic_name;
             $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment, 'inform_partner_for_serial_no');
