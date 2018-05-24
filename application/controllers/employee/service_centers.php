@@ -312,7 +312,8 @@ class Service_centers extends CI_Controller {
                         $data['upcountry_charges'] = $upcountry_charges;
                     }
                     if (isset($serial_number[$unit_id])) {
-                        $data['serial_number'] =  trim($serial_number[$unit_id]);
+                        $trimSno = str_replace(' ', '', trim($serial_number[$unit_id]));
+                        $data['serial_number'] =  $trimSno;
                         $data['serial_number_pic']  = trim($serial_number_pic[$unit_id]);
                     }
                     if (!empty($getremarks[0]['service_center_remarks'])) {
@@ -449,15 +450,16 @@ class Service_centers extends CI_Controller {
         if (isset($_POST['pod'])) {
             foreach ($pod as $unit_id => $value) {
                 if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
+                    $trimSno = str_replace(' ', '', trim($serial_number[$unit_id]));
                     
                     switch ($value) {
                         case '1':
-                            $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number[$unit_id]));
+                            $status = $this->validate_serial_no->validateSerialNo($partner_id, $trimSno);
                             if (!empty($status)) {
                                 if ($status['code'] == SUCCESS_CODE) {
                                     log_message('info', " Serial No validation success  for serial no " . trim($serial_number[$unit_id]));
                                     if(isset($upload_serial_number_pic['name'][$unit_id])){
-                                        $this->upload_insert_upload_serial_no($upload_serial_number_pic, $unit_id, $partner_id, trim($serial_number[$unit_id]));
+                                        $this->upload_insert_upload_serial_no($upload_serial_number_pic, $unit_id, $partner_id, $trimSno);
                                     }
                                 } else {
                                     
@@ -465,7 +467,7 @@ class Service_centers extends CI_Controller {
                                         $return_status = false;
                                         $s = $this->form_validation->set_message('validate_serial_no', $status['message']. " Also Attach Serial No Image.");
                                     } else {
-                                        $s = $this->upload_insert_upload_serial_no($upload_serial_number_pic, $unit_id, $partner_id, trim($serial_number[$unit_id]));
+                                        $s = $this->upload_insert_upload_serial_no($upload_serial_number_pic, $unit_id, $partner_id, $trimSno);
                                         if(empty($s)){
                                              $this->form_validation->set_message('validate_serial_no', 'Serial Number, File size or file type is not supported. Allowed extentions are png, jpg, jpeg and pdf. '
                         . 'Maximum file size is 5 MB.');
@@ -473,7 +475,7 @@ class Service_centers extends CI_Controller {
                                         }
                                     }
                                 }
-                            } else if ($value == 1 && empty(trim($serial_number[$unit_id]))) {
+                            } else if ($value == 1 && empty($trimSno)) {
                                 $return_status = false;
                                 $this->form_validation->set_message('validate_serial_no', 'Please Enter Valid Serial Number');
                             } else if ($value == 1 && is_numeric($serial_number[$unit_id]) && $serial_number[$unit_id] == 0) {
