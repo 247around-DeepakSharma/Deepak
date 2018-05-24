@@ -4,10 +4,19 @@
 <style>.dataTables_filter{display: none;}</style>
 <div class="container" style="width:100%">
     <button type="button" style="float:right;margin:10px;" class="btn btn-info" data-toggle="modal" data-target="#add_new_heading">Add New Heading In Menu</button>
-    <table class="table table-bordered">
+<!--    <div class="right_holder" style="float:right;margin-right:10px;">
+        <lable>Entity Type</lable>
+        <select class="form-control " id="serachInput" style="border-radius:3px;">
+            <option value="all">All</option>
+            <option value="247Around">247Around</option>
+            <option value="Partner">Partner</option>
+        </select>            
+    </div>-->
+    <table class="table table-bordered" id="navigation_table">
     <thead>
       <tr>
         <th>S.N</th>
+         <th>Entity Type</th>
         <th>Title</th>
         <th>Link</th>
         <th>Parents</th>
@@ -31,7 +40,14 @@
             $groupIDArray = explode(",",$headerMenuData['groups']);
             $groupIDString .= '<select style="width:100%" name="roles_group_'.$headerMenuData['id'].'[]" ui-select2 id='.$headerMenuData['id'].' onchange="updateUserGroup(this.id)"   class="form-control roles_group" data-placeholder="Select Role Group" multiple>';
             $groupIDString .= '<option value="" ></option>';
-            foreach($roles_group as $groupTitle){
+            $tempArray = array();
+            if($headerMenuData['entity_type'] == 'Partner'){
+                 $tempArray = $partners_roles_group;
+            }
+            else{
+                $tempArray = $roles_group;
+            }
+            foreach($tempArray as $groupTitle){
                 $selected = '';
                 if(in_array($groupTitle['groups'], $groupIDArray)){
                     $selected = "Selected";
@@ -60,6 +76,7 @@
          ?>
         <tr>
             <td><?php echo $index+1; ?></td>
+            <td><?php echo $headerMenuData['entity_type']; ?></td>
             <td><?php echo $headerMenuData['title']; ?></td>
             <td><?php echo $linkString?></td>
             <td><?php echo $parentString ?></td>
@@ -91,6 +108,12 @@
             <input type="text" class="form-control" id="title" name="title" placeholder="Add Title">
         </div>
     </div>
+                 <div class="form-group">
+        <label for="level" class="control-label col-xs-2">Title Icon</label>
+        <div class="col-xs-10">
+            <input type="text" class="form-control" id="title_icon" name="title_icon" placeholder="title_icon">
+        </div>
+    </div>
                 <div class="form-group">
         <label for="level" class="control-label col-xs-2">Level</label>
         <div class="col-xs-10">
@@ -109,32 +132,30 @@
             <input type="text" class="form-control" id="nav_type" name="nav_type" placeholder="Add Nav Type">
         </div>
     </div>
-                <div class="form-group ">
-        <label for="parent" class="control-label col-xs-2">Parent</label>
+      <div class="form-group ">
+        <label for="parent" class="control-label col-xs-2">Entity</label>
         <div class="col-xs-10">
-            <select class="form-control roles_group_add_new" id="add_parents" name="add_parents">
-                <option value="">NULL</option>
-                <?php
-                foreach($header_navigation as $headerMenuData){
-                    ?>
-                <option value="<?php echo $headerMenuData['id']?>"><?php echo $headerMenuData['title']?></option>
-                    <?php
-                }
-                ?>
+            <select class="form-control roles_group_add_new" id="entity_type" name="entity_type" onchange="get_parent_roles(this.value)">
+                <option value="" >NULL</option>
+                <option value="247Around">247Around</option>
+                <option value="Partner">Partner</option>
             </select>
+        </div>
+    </div>
+    <div class="form-group ">
+        <label for="parent" class="control-label col-xs-2">Parent</label>
+        <div class="col-xs-10" id="parent_select" >
+            <select class="form-control roles_group_add_new" id="add_parents" name="add_parents" disabled="">
+                
+            </select>
+            
         </div>
     </div>
      <div class="form-group">
         <label for="parent" class="control-label col-xs-2">Roles</label>
-        <div class="col-xs-10">
-            <select class="form-control roles_group_add_new" name="roleGroups[]" multiple="">
-                 <?php
-                foreach($roles_group as $groupData){
-                    ?>
-                <option value="<?php echo $groupData['groups']?>"><?php echo $groupData['groups']?></option>
-                    <?php
-                }
-                ?>
+        <div class="col-xs-10" >
+            <select class="form-control roles_group_add_new" name="roleGroups[]" multiple="" id="group_select" disabled="">
+                
             </select>
         </div>
     </div>
@@ -154,6 +175,19 @@
     </div>
   </div>
 <script>
+    //var table = $('#navigation_table').DataTable();
+        $("#serachInput").change(function () {
+            if($('#serachInput').val() !== 'all'){
+                table
+                    .columns( 1 )
+                    .search($('#serachInput').val())
+                    .draw();
+            }
+            else{
+                location.reload();
+            }
+    } );
+    //$('#serachInput').select2();
     $(".roles_group").select2();
     $(".roles_group_add_new").select2();
     function updateUserGroup(headerID){
@@ -193,6 +227,33 @@
         else{
             return true;
         }
+    }
+    function get_parent(entity_type){
+        var url =  '<?php echo base_url();?>employee/login/get_header_navigation_parent_by_entity';
+        $.ajax({
+            type: 'POST',
+            url: url,
+            data: {entity_type: entity_type},
+            success: function (response) {
+                $("#parent_select").html(response);
+            }
+            });
+    }
+    function get_roles(entity_type){
+         var url =  '<?php echo base_url();?>employee/login/get_header_navigation_roles_by_entity';
+        $.ajax({
+            type: 'POST',
+            url: url,
+            data: {entity_type: entity_type},
+            success: function (response) {
+                $("#group_select").prop('disabled', false);
+                $("#group_select").html(response);
+            }
+            });
+    }
+    function get_parent_roles(entity_type){
+       get_parent(entity_type);
+       get_roles(entity_type);
     }
     </script>
     <style>
