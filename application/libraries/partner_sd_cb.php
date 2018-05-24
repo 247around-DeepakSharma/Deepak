@@ -529,7 +529,7 @@ class partner_sd_cb {
         log_message("info", __METHOD__. " JEEVES Callback failed ". $this->jsonRequestData);
         $subject = "Jeeves CallBack API failed. Please Check";
         $message = " POST Data ".$this->jsonRequestData. "<br/> Jeeves Callback Response ". $this->jsonResponseString['response'];
-        $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, DEVELOPER_EMAIL, "", "", $subject, $message, "","JEEVES CALLBACK Failed");
+        $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, "abhaya@247around.com", "", "", $subject, $message, "","JEEVES CALLBACK Failed");
     }
 
 }
