@@ -2695,7 +2695,8 @@ class Partner extends CI_Controller {
             }
             echo $option;
         } else {
-            $booking = array('booking_id' => 'Not_Generated', 'booking_pincode' => $pincode,'service_id' => $service_id, 'partner_id' => $this->session->userdata('partner_id'),'city'=>'Not_Received');
+            $booking = array('booking_id' => 'Not_Generated', 'booking_pincode' => $pincode,'service_id' => $service_id, 'partner_id' => $this->session->userdata('partner_id'),'city'=>'Not_Received',
+                'order_id'=>'Not_Received');
             $this->miscelleneous->sf_not_exist_for_pincode($booking);
             echo 'ERROR';
         }

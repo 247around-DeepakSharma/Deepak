@@ -336,6 +336,7 @@ class Booking extends CI_Controller {
                             $async_data['agent_type'] = _247AROUND_EMPLOYEE_STRING;
                             $b_id = $booking['booking_id'];
                             $async_data["partner_id[$b_id]"] = $booking['partner_id'];
+                            $async_data["order_id"] = array($booking['booking_id'] =>$booking['order_id']);
                             $this->asynchronous_lib->do_background_process($url, $async_data);
 
                             break;
@@ -357,7 +358,8 @@ class Booking extends CI_Controller {
                     "booking_pincode" => $booking['booking_pincode'],
                     "service_id" => $appliances_details['service_id'],
                     "partner_id" => $booking['partner_id'],
-                    "city" => $booking['city']
+                    "city" => $booking['city'],
+                    "order_id" => $booking['order_id']
                 ));
             }
 
