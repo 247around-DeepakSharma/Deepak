@@ -4861,7 +4861,8 @@ ALTER TABLE `invoice` ADD `type` VARCHAR(28) NULL DEFAULT NULL AFTER `invoice_id
 ALTER TABLE `invoice` ADD `settle_qty` INT NOT NULL DEFAULT '0' AFTER `settle`;
 
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'partner_spare_cancelled', 'Cancelled Request -Part Name %s for Booking ID %s ', 'Dear Partner, <br/> <br/> Part Name %s for Booking ID %s request has cancelled. Do not need to send part to Service Center', 'noreply@247around.com', '', 'sachinj@247around.com', '', '1', '2018-02-03 18:26:57');
-
---21 May Released
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'inform_partner_for_serial_no', 'Serial no %s', 'Dear Partner, <br/> <br/> Please find the attachment. %s', 'noreply@247around.com', '', '', '', '1', '2018-05-23 18:26:57');
+--21 May Released
+
+ALTER TABLE `partner_serial_no` ADD `added_by` VARCHAR(28) NULL DEFAULT NULL AFTER `active`;
 
