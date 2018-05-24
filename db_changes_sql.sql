@@ -4933,3 +4933,42 @@ ALTER TABLE `invoice` ADD `settle_qty` INT NOT NULL DEFAULT '0' AFTER `settle`;
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'partner_spare_cancelled', 'Cancelled Request -Part Name %s for Booking ID %s ', 'Dear Partner, <br/> <br/> Part Name %s for Booking ID %s request has cancelled. Do not need to send part to Service Center', 'noreply@247around.com', '', 'sachinj@247around.com', '', '1', '2018-02-03 18:26:57');
 
 --21 May Released
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'inform_partner_for_serial_no', 'Serial no %s', 'Dear Partner, <br/> <br/> Please find the attachment. %s', 'noreply@247around.com', '', '', '', '1', '2018-05-23 18:26:57');
+
+--Chhavi 18th May
+ALTER TABLE `header_navigation` ADD `entity_type` VARCHAR(128) NOT NULL AFTER `id`;
+ALTER TABLE `header_navigation` ADD `title_icon` VARCHAR(256) NULL AFTER `title`;
+
+--Chhavi 19th May
+ALTER TABLE `entity_login_table` ADD `groups` VARCHAR(256) NOT NULL AFTER `agent_id`;
+ALTER TABLE `entity_login_table` ADD `is_filter_applicable` INT(10) NOT NULL DEFAULT '0' AFTER `groups`;
+
+CREATE TABLE `agent_filters` (
+  `id` int(10) NOT NULL,
+  `entity_type` varchar(128) NOT NULL,
+  `entity_id` int(10) NOT NULL,
+  `agent_id` int(10) NOT NULL,
+  `state` varchar(256) NOT NULL,
+  `is_active` int(10) NOT NULL DEFAULT '1',
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `agent_filters`
+--
+ALTER TABLE `agent_filters`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `agent_filters`
+--
+ALTER TABLE `agent_filters`
+  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT;COMMIT;

@@ -247,7 +247,8 @@ class Paytm_gateway extends CI_Controller {
             //check if payment completed by partner or customer
             if($this->session->userdata('partner_id')){
                 log_message("info", "Payment done by Partner");
-                $this->load->view('partner/header');
+                $this->miscelleneous->load_partner_nav_header();
+                //$this->load->view('partner/header');
                 $this->load->view('paytm_gateway/payment_confirmation_details',$data);
                 $this->load->view('partner/partner_footer');
             }else if($this->session->userdata('payment_link_id')){
@@ -260,7 +261,8 @@ class Paytm_gateway extends CI_Controller {
         }else{
             $data['invalid_data'] = array();
             if($this->session->userdata('partner_id')){
-                $this->load->view('partner/header');
+                //$this->load->view('partner/header');
+                $this->miscelleneous->load_partner_nav_header();
                 $this->load->view('paytm_gateway/payment_confirmation_details',$data);
                 $this->load->view('partner/partner_footer');
             }else{

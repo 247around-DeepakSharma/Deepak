@@ -673,7 +673,7 @@ class Upcountry_model extends CI_Model {
      * @param type $partner_id
      * @return Array
      */
-    function get_waiting_for_approval_upcountry_charges($partner_id){
+    function get_waiting_for_approval_upcountry_charges($partner_id,$state=0){
         $this->db->distinct();
         $this->db->select('bd.booking_id,request_type,name,booking_primary_contact_no,services,'
                 . ' appliance_brand,appliance_category, appliance_capacity, '
@@ -686,6 +686,12 @@ class Upcountry_model extends CI_Model {
         $this->db->where('is_upcountry','1');
         if(!empty($partner_id)){
             $this->db->where('bd.partner_id',$partner_id);
+        }
+        if($state == 1){
+            $stateWhere['agent_filters.agent_id'] = $this->session->userdata('agent_id');
+            $stateWhere['agent_filters.is_active'] = 1;
+            $this->db->join('agent_filters', 'agent_filters.state =  bd.state');
+            $this->db->where($stateWhere, false);  
         }
         $this->db->join('booking_unit_details','bd.booking_id = booking_unit_details.booking_id');
         $this->db->join('users','bd.user_id = users.user_id');

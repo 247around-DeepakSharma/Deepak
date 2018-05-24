@@ -61,13 +61,17 @@ class Partner extends CI_Controller {
      */
     function pending_booking($offset = 0, $all = 0, $booking_id = '') {
         $this->checkUserSession();
+        $state = 0;
+        if($this->session->userdata('is_filter_applicable') == 1){
+            $state = 1;
+        }
         $partner_id = $this->session->userdata('partner_id');
         $config['base_url'] = base_url() . 'partner/pending_booking';
 
         if (!empty($booking_id)) {
-            $total_rows = $this->partner_model->getPending_booking($partner_id, $booking_id);
+            $total_rows = $this->partner_model->getPending_booking($partner_id, $booking_id,$state);
         } else {
-            $total_rows = $this->partner_model->getPending_booking($partner_id);
+            $total_rows = $this->partner_model->getPending_booking($partner_id,"",$state);
         }
         $config['total_rows'] = count($total_rows);
 
@@ -94,7 +98,8 @@ class Partner extends CI_Controller {
         $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
         $data['is_ajax'] = $this->input->post('is_ajax');
         if(empty($this->input->post('is_ajax'))){
-            $this->load->view('partner/header');
+            //$this->load->view('partner/header');
+            $this->miscelleneous->load_partner_nav_header();
             $this->load->view('partner/pending_booking', $data);
             $this->load->view('partner/partner_footer');
         }else{
@@ -131,8 +136,8 @@ class Partner extends CI_Controller {
 
         log_message('info', 'Partner View: Pending query: Partner id' . $partner_id . ", Partner name: " .
                 $this->session->userdata('partner_name'));
-
-        $this->load->view('partner/header');
+        $this->miscelleneous->load_partner_nav_header();
+       // $this->load->view('partner/header');
         $this->load->view('partner/pending_queries', $data);
     }
 
@@ -142,12 +147,15 @@ class Partner extends CI_Controller {
     function closed_booking($state, $offset = 0, $booking_id = "") {
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
-
+        $stateCity = 0;
+        if($this->session->userdata('is_filter_applicable') == 1){
+            $stateCity = 1;
+        }
         $config['base_url'] = base_url() . 'partner/closed_booking/' . $state;
         if (!empty($booking_id)) {
-            $config['total_rows'] = $this->partner_model->getclosed_booking("count", "", $partner_id, $state, $booking_id);
+            $config['total_rows'] = $this->partner_model->getclosed_booking("count", "", $partner_id, $state, $booking_id,$stateCity);
         } else {
-            $config['total_rows'] = $this->partner_model->getclosed_booking("count", "", $partner_id, $state);
+            $config['total_rows'] = $this->partner_model->getclosed_booking("count", "", $partner_id, $state,"",$stateCity);
         }
 
         $config['per_page'] = 50;
@@ -159,9 +167,9 @@ class Partner extends CI_Controller {
 
         $data['count'] = $config['total_rows'];
         if (!empty($booking_id)) {
-            $data['bookings'] = $this->partner_model->getclosed_booking($config['per_page'], $offset, $partner_id, $state, $booking_id);
+            $data['bookings'] = $this->partner_model->getclosed_booking($config['per_page'], $offset, $partner_id, $state, $booking_id,$stateCity);
         } else {
-            $data['bookings'] = $this->partner_model->getclosed_booking($config['per_page'], $offset, $partner_id, $state);
+            $data['bookings'] = $this->partner_model->getclosed_booking($config['per_page'], $offset, $partner_id, $state,"",$stateCity);
         }
 
         if ($this->session->flashdata('result') != '')
@@ -171,8 +179,8 @@ class Partner extends CI_Controller {
 
        $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
         log_message('info', 'Partner view ' . $state . ' booking  partner id' . $partner_id . " Partner name" . $this->session->userdata('partner_name') . " data " . print_r($data, true));
-
-        $this->load->view('partner/header');
+        $this->miscelleneous->load_partner_nav_header();
+        //$this->load->view('partner/header');
         $this->load->view('partner/closed_booking', $data);
         $this->load->view('partner/partner_footer');
     }
@@ -192,7 +200,8 @@ class Partner extends CI_Controller {
         }
         log_message('info', 'Partner view booking details booking  partner id' . $this->session->userdata('partner_id') . " Partner name" . $this->session->userdata('partner_name'));
 
-        $this->load->view('partner/header');
+        //$this->load->view('partner/header');
+        $this->miscelleneous->load_partner_nav_header();
         $this->load->view('partner/booking_details', $data);
         $this->load->view('partner/partner_footer');
     }
@@ -280,9 +289,9 @@ class Partner extends CI_Controller {
             } else {
                 $data['appliances'] = $services = $this->booking_model->selectservice();
             }
-
-            $data['phone_number'] = $phone_number;
-            $this->load->view('partner/header');
+            $data['phone_number'] = trim($phone_number);
+            $this->miscelleneous->load_partner_nav_header();
+            //$this->load->view('partner/header');
             $this->load->view('partner/get_addbooking', $data);
             $this->load->view('partner/partner_footer');
         }
@@ -879,7 +888,8 @@ class Partner extends CI_Controller {
      */
     function get_user_form() {
         $this->checkUserSession();
-        $this->load->view('partner/header');
+        $this->miscelleneous->load_partner_nav_header();
+        //$this->load->view('partner/header');
         $this->load->view('partner/finduser');
         $this->load->view('partner/partner_footer');
     }
@@ -925,7 +935,8 @@ class Partner extends CI_Controller {
                 $data['links'] = $this->pagination->create_links();
 
                 $data['data'] = $output_data;
-                $this->load->view('partner/header');
+                //$this->load->view('partner/header');
+                $this->miscelleneous->load_partner_nav_header();
                 $this->load->view('partner/bookinghistory', $data);
                 $this->load->view('partner/partner_footer');
             } else {
@@ -938,7 +949,8 @@ class Partner extends CI_Controller {
             $where = array('booking_details.booking_id' => $search_value);
             $Bookings = $this->booking_model->search_bookings($where, $this->session->userdata('partner_id'));
             $data['data'] = json_decode(json_encode($Bookings), True);
-            $this->load->view('partner/header');
+            $this->miscelleneous->load_partner_nav_header();
+           // $this->load->view('partner/header');
             $this->load->view('partner/bookinghistory', $data);
             $this->load->view('partner/partner_footer');
         } else if ($search_type === 'order_id') {
@@ -946,7 +958,8 @@ class Partner extends CI_Controller {
             $where = array('order_id' => $search_value);
             $Bookings = $this->booking_model->search_bookings($where, $this->session->userdata('partner_id'));
             $data['data'] = json_decode(json_encode($Bookings), True);
-            $this->load->view('partner/header');
+            $this->miscelleneous->load_partner_nav_header();
+            //$this->load->view('partner/header');
             $this->load->view('partner/bookinghistory', $data);
             $this->load->view('partner/partner_footer');
         } else if ($search_type === 'serial_number') {
@@ -955,7 +968,8 @@ class Partner extends CI_Controller {
             $Bookings = $this->booking_model->search_bookings($where, $this->session->userdata('partner_id'));
             $data['data'] = json_decode(json_encode($Bookings), True);
             $data['search'] = "Search";
-            $this->load->view('partner/header');
+            $this->miscelleneous->load_partner_nav_header();
+            //$this->load->view('partner/header');
             $this->load->view('partner/bookinghistory', $data);
             $this->load->view('partner/partner_footer');
         } else {
@@ -996,8 +1010,8 @@ class Partner extends CI_Controller {
         $invoice['unbilled_amount'] = $unbilled_amount;
         $invoice['unbilled_data'] = $unbilled_data;
         $invoice['invoice_amount'] = $this->invoices_model->get_summary_invoice_amount("partner", $partner_id)[0];
-      
-        $this->load->view('partner/header');
+        $this->miscelleneous->load_partner_nav_header();
+        //$this->load->view('partner/header');
         $this->load->view('partner/invoice_summary', $invoice);
         $this->load->view('partner/partner_footer');
     }
@@ -1008,7 +1022,8 @@ class Partner extends CI_Controller {
          $data2['partner_vendor'] = "partner";
          $data2['partner_vendor_id'] = $partner_id;
          $invoice['bank_statement'] = $this->invoices_model->get_bank_transactions_details('*', $data2);
-         $this->load->view('partner/header');
+         //$this->load->view('partner/header');
+         $this->miscelleneous->load_partner_nav_header();
          $this->load->view('partner/bank_transaction', $invoice);
          $this->load->view('partner/partner_footer');
     }
@@ -1035,7 +1050,8 @@ class Partner extends CI_Controller {
             $where = array('reason_of' => 'partner');
             $data['reason'] = $this->booking_model->cancelreason($where);
             $data['status'] = $status;
-            $this->load->view('partner/header');
+            //$this->load->view('partner/header');
+            $this->miscelleneous->load_partner_nav_header();
             $this->load->view('partner/cancel_form', $data);
             $this->load->view('partner/partner_footer');
         } else {
@@ -1093,8 +1109,8 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ . " Booking Id  " . $booking_id);
         $getbooking = $this->booking_model->getbooking_history($booking_id);
         if ($getbooking) {
-
-            $this->load->view('partner/header');
+            $this->miscelleneous->load_partner_nav_header();
+           // $this->load->view('partner/header');
             $this->load->view('partner/reschedulebooking', array('data' => $getbooking));
             $this->load->view('partner/partner_footer');
         } else {
@@ -1198,8 +1214,8 @@ class Partner extends CI_Controller {
         $this->checkUserSession();
         $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity' => 'partner', 'active' => '1'));
         $data['booking_id'] = $booking_id;
-
-        $this->load->view('partner/header');
+        $this->miscelleneous->load_partner_nav_header();
+        //$this->load->view('partner/header');
         $this->load->view('partner/escalation_form', $data);
     }
 
@@ -1357,8 +1373,8 @@ class Partner extends CI_Controller {
                     $data['dealer_data'] = $dealer_data[0];
                 }
             }
-
-            $this->load->view('partner/header');
+            $this->miscelleneous->load_partner_nav_header();
+            //$this->load->view('partner/header');
             $this->load->view('partner/edit_booking', $data);
             $this->load->view('partner/partner_footer');
         } else {
@@ -1574,12 +1590,16 @@ class Partner extends CI_Controller {
     function get_spare_parts_booking($offset = 0, $all = 0) {
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
         $this->checkUserSession();
+        $state = 0;
+        if($this->session->userdata('is_filter_applicable') == 1){
+            $state = 1;
+        }
         $partner_id = $this->session->userdata('partner_id');
         $where = "spare_parts_details.partner_id = '" . $partner_id . "' AND status = '" . SPARE_PARTS_REQUESTED . "' "
                 . " AND booking_details.current_status IN ('Pending', 'Rescheduled') ";
 
         $config['base_url'] = base_url() . 'partner/get_spare_parts_booking';
-        $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
+        $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false,$state);
         $config['total_rows'] = $total_rows[0]['total_rows'];
 
         if ($all == 1) {
@@ -1594,11 +1614,12 @@ class Partner extends CI_Controller {
         $data['links'] = $this->pagination->create_links();
 
         $data['count'] = $config['total_rows'];
-        $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true);
+        $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true,$state);
         $data['is_ajax'] = $this->input->post('is_ajax');
         $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
         if(empty($this->input->post('is_ajax'))){
-            $this->load->view('partner/header');
+            $this->miscelleneous->load_partner_nav_header();
+            //$this->load->view('partner/header');
             $this->load->view('partner/spare_parts_booking', $data);
             $this->load->view('partner/partner_footer');
         }else{
@@ -1664,7 +1685,8 @@ class Partner extends CI_Controller {
         $post['length'] = -1;
         $post['where'] = array('entity_id' => $data['spare_parts'][0]->partner_id,'entity_type' => _247AROUND_PARTNER_STRING,'service_id' => $data['spare_parts'][0]->service_id);
         $data['inventory_details'] = $this->inventory_model->get_inventory_master_list($post, 'inventory_master_list.model_number', true);
-        $this->load->view('partner/header');
+        //$this->load->view('partner/header');
+        $this->miscelleneous->load_partner_nav_header();
         $this->load->view('partner/update_spare_parts_form', $data);
         $this->load->view('partner/partner_footer');
     }
@@ -1945,12 +1967,16 @@ class Partner extends CI_Controller {
     function get_shipped_parts_list($offset = 0) {
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
         $this->checkUserSession();
+        $state = 0;
+        if($this->session->userdata('is_filter_applicable') == 1){
+            $state = 1;
+        }
         $partner_id = $this->session->userdata('partner_id');
         $where = "spare_parts_details.partner_id = '" . $partner_id . "' "
                 . " AND status IN ('Delivered', 'Shipped', '" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_SHIPPED . "')  ";
 
         $config['base_url'] = base_url() . 'partner/get_shipped_parts_list';
-        $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
+        $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false,$state);
         $config['total_rows'] = $total_rows[0]['total_rows'];
 
         $config['per_page'] = 50;
@@ -1961,10 +1987,10 @@ class Partner extends CI_Controller {
         $data['links'] = $this->pagination->create_links();
 
         $data['count'] = $config['total_rows'];
-        $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true);
+        $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true,$state);
 
-
-        $this->load->view('partner/header');
+        $this->miscelleneous->load_partner_nav_header();
+        //$this->load->view('partner/header');
         $this->load->view('partner/shipped_spare_part_booking', $data);
         $this->load->view('partner/partner_footer');
     }
@@ -1976,7 +2002,10 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
-
+        $state = 0;
+            if($this->session->userdata('is_filter_applicable') == 1){
+            $state = 1;
+         }
         $where = array(
             "spare_parts_details.defective_part_required" => 1,
             "approved_defective_parts_by_admin" => 1,
@@ -1992,7 +2021,7 @@ class Partner extends CI_Controller {
         $order_by = "spare_parts_details.defective_part_shipped_date DESC";
 
         $config['base_url'] = base_url() . 'partner/get_waiting_defective_parts';
-        $config['total_rows'] = $this->service_centers_model->count_spare_parts_booking($where, $select, $group_by);
+        $config['total_rows'] = $this->service_centers_model->count_spare_parts_booking($where, $select, $group_by,$state);
 
         if ($all == 1) {
             $config['per_page'] = $config['total_rows'];
@@ -2011,7 +2040,8 @@ class Partner extends CI_Controller {
         $data['internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
         $data['is_ajax'] = $this->input->post('is_ajax');
         if(empty($this->input->post('is_ajax'))){
-            $this->load->view('partner/header');
+            $this->miscelleneous->load_partner_nav_header();
+           // $this->load->view('partner/header');
             $this->load->view('partner/waiting_defective_parts', $data);
             $this->load->view('partner/partner_footer');
         }else{
@@ -2309,13 +2339,16 @@ class Partner extends CI_Controller {
     function get_approved_defective_parts_booking($offset = 0) {
         $this->checkUserSession();
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
-
         $partner_id = $this->session->userdata('partner_id');
+        $state = 0;
+        if($this->session->userdata('is_filter_applicable') == 1){
+            $state = 1;
+        }
         $where = "spare_parts_details.partner_id = '" . $partner_id . "' "
                 . " AND approved_defective_parts_by_partner = '1' ";
 
         $config['base_url'] = base_url() . 'partner/get_approved_defective_parts_booking';
-        $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
+        $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false,$state);
         $config['total_rows'] = $total_rows[0]['total_rows'];
 
         $config['per_page'] = 50;
@@ -2326,9 +2359,10 @@ class Partner extends CI_Controller {
         $data['links'] = $this->pagination->create_links();
 
         $data['count'] = $config['total_rows'];
-        $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true);
+        $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true,$state);
 
-        $this->load->view('partner/header');
+        //$this->load->view('partner/header');
+        $this->miscelleneous->load_partner_nav_header();
         $this->load->view('partner/approved_defective_parts', $data);
         $this->load->view('partner/partner_footer');
     }
@@ -2541,8 +2575,15 @@ class Partner extends CI_Controller {
                 . " AND booking_details.current_status IN ('Pending', 'Rescheduled') ";
         $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
         $data['spare_parts'] = $total_rows[0]['total_rows'];
-        $this->load->view('partner/header');
-        $this->load->view('partner/partner_default_page', $data);
+        $this->miscelleneous->load_partner_nav_header();
+        $this->session->userdata('user_group');
+        //$this->load->view('partner/header');
+        if($this->session->userdata('user_group') == PARTNER_CALL_CENTER_USER_GROUP){
+            $this->load->view('partner/partner_default_page_cc', $data);
+        }
+        else{
+            $this->load->view('partner/partner_default_page', $data);
+        }
         $this->load->view('partner/partner_footer');
         if(!$this->session->userdata("login_by")){
             $this->load->view('employee/header/push_notification');
@@ -2560,7 +2601,8 @@ class Partner extends CI_Controller {
         $data['data'] = $this->partner_model->search_booking_history(trim($searched_text), $partner_id);
 
         if (!empty($data['data'])) {
-            $this->load->view('partner/header');
+            $this->miscelleneous->load_partner_nav_header();
+            //$this->load->view('partner/header');
             $this->load->view('partner/bookinghistory', $data);
             $this->load->view('partner/partner_footer');
         } else {
@@ -2866,10 +2908,14 @@ class Partner extends CI_Controller {
      * @desc: used to display list of waiting to approve upcountry charges
      */
     function get_waiting_for_approval_upcountry_charges($offset = 0, $all = 0) {
-         $this->checkUserSession();
+        $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
+        $state = 0;
+        if($this->session->userdata('is_filter_applicable') == 1){
+            $state = 1;
+        }
         $config['base_url'] = base_url() . 'partner/get_waiting_for_approval_upcountry_charges';
-        $total_rows = $this->upcountry_model->get_waiting_for_approval_upcountry_charges($partner_id);
+        $total_rows = $this->upcountry_model->get_waiting_for_approval_upcountry_charges($partner_id,$state);
         $config['total_rows'] = count($total_rows);
         if ($all == 1) {
             $config['per_page'] = count($total_rows);
@@ -2885,7 +2931,8 @@ class Partner extends CI_Controller {
         $data['booking_details'] = array_slice($total_rows, $offset, $config['per_page']);
         $data['is_ajax'] = $this->input->post('is_ajax');
         if(empty($this->input->post('is_ajax'))){
-            $this->load->view('partner/header');
+            $this->miscelleneous->load_partner_nav_header();
+            //$this->load->view('partner/header');
             $this->load->view('partner/get_waiting_to_approval_upcountry', $data);
             $this->load->view('partner/partner_footer');
         }else{
@@ -2992,7 +3039,8 @@ class Partner extends CI_Controller {
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
         $data['partner_details'] = $this->partner_model->getpartner($partner_id);
-        $this->load->view('partner/header');
+        $this->miscelleneous->load_partner_nav_header();
+        //$this->load->view('partner/header');
         $this->load->view('partner/edit_partner_details', $data);
         $this->load->view('partner/partner_footer');
     }
@@ -3383,7 +3431,8 @@ class Partner extends CI_Controller {
         $data['account_manager_details'] = $this->miscelleneous->get_am_data($partner_id);
         $data['rm_details'] = $this->employee_model->get_employee_by_group(array('groups' => 'regionalmanager', 'active' => 1));
         $data['holidayList'] = $this->employee_model->get_holiday_list();
-        $this->load->view('partner/header');
+        //$this->load->view('partner/header');
+        $this->miscelleneous->load_partner_nav_header();
         $this->load->view('partner/contact_us', $data);
         $this->load->view('partner/partner_footer');
     }
@@ -3719,7 +3768,8 @@ class Partner extends CI_Controller {
      */
     function reset_partner_password(){
         $this->checkUserSession();
-        $this->load->view('partner/header');
+        //$this->load->view('partner/header');
+        $this->miscelleneous->load_partner_nav_header();
         $this->load->view('partner/reset_partner_passsword');
         $this->load->view('partner/partner_footer');
     }
@@ -4021,7 +4071,8 @@ class Partner extends CI_Controller {
      */
     function payment_details(){
         $this->checkUserSession();
-        $this->load->view('partner/header');
+        //$this->load->view('partner/header');
+        $this->miscelleneous->load_partner_nav_header();
         $this->load->view('paytm_gateway/payment_details');
         $this->load->view('partner/partner_footer');
     }
@@ -4113,7 +4164,8 @@ class Partner extends CI_Controller {
      */
     function inventory_stock_list(){
         $this->checkUserSession();
-        $this->load->view('partner/header');
+        $this->miscelleneous->load_partner_nav_header();
+        //$this->load->view('partner/header');
         $this->load->view('partner/inventory_stock_list');
         $this->load->view('partner/partner_footer');
     }
@@ -4121,7 +4173,10 @@ class Partner extends CI_Controller {
          log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
-
+        $state = 0;
+        if($this->session->userdata('is_filter_applicable') == 1){
+            $state = 1;
+        }
         $where = array(
             "spare_parts_details.defective_part_required" => 1,
             "spare_parts_details.partner_id" => $partner_id,
@@ -4135,7 +4190,7 @@ class Partner extends CI_Controller {
         $order_by = "spare_parts_details.defective_part_shipped_date DESC";
 
         $config['base_url'] = base_url() . 'partner/get_pending_part_on_sf';
-        $config['total_rows'] = $this->service_centers_model->count_spare_parts_booking($where, $select, $group_by);
+        $config['total_rows'] = $this->service_centers_model->count_spare_parts_booking($where, $select, $group_by,$state);
 
         if ($all == 1) {
             $config['per_page'] = $config['total_rows'];
@@ -4149,12 +4204,13 @@ class Partner extends CI_Controller {
         $data['links'] = $this->pagination->create_links();
 
         $data['count'] = $config['total_rows'];
-        $data['spare_parts'] = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $offset, $config['per_page']);
+        $data['spare_parts'] = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $offset, $config['per_page'],$state);
         $where_internal_status = array("page" => "defective_parts", "active" => '1');
         $data['internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
         $data['is_ajax'] = $this->input->post('is_ajax');
         if(empty($this->input->post('is_ajax'))){
-            $this->load->view('partner/header');
+            //$this->load->view('partner/header');
+            $this->miscelleneous->load_partner_nav_header();
             $this->load->view('partner/sf_needs_to_send_parts', $data);
             $this->load->view('partner/partner_footer');
         }else{
@@ -4163,11 +4219,15 @@ class Partner extends CI_Controller {
     }
     function get_reports(){
         $partnerID = $this->session->userdata('partner_id');
-        $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
+        $stateWhere['agent_filters.agent_id'] = $this->session->userdata('agent_id');
+        $stateWhere['agent_filters.is_active'] = 1;
+        $join['agent_filters'] = 'agent_filters.state =  state_code.state';
+        $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",$stateWhere,$join,NULL,array('state_code.state'=>'ASC'),NULL,NULL,array());
         $data['services'] = $this->booking_model->selectservice();
         $data['summaryReportData'] = $this->reusable_model->get_search_result_data("reports_log","filters,date(create_date) as create_date,url",array("entity_type"=>"partner","entity_id"=>$partnerID),NULL,array("length"=>50,"start"=>""),
                 array('id'=>'DESC'),NULL,NULL,array());
-        $this->load->view('partner/header');
+        $this->miscelleneous->load_partner_nav_header();
+        //$this->load->view('partner/header');
         $this->load->view('partner/report',$data);
         $this->load->view('partner/partner_footer');
     }
@@ -4360,9 +4420,10 @@ class Partner extends CI_Controller {
     }
     
     function ack_spare_send_by_wh(){
-        $this->load->view('partner/header');
-            $this->load->view('partner/ack_spare_send_by_wh');
-            $this->load->view('partner/partner_footer');
+        $this->miscelleneous->load_partner_nav_header();
+       // $this->load->view('partner/header');
+        $this->load->view('partner/ack_spare_send_by_wh');
+        $this->load->view('partner/partner_footer');
     }
     function download_custom_summary_report($folder,$file){
        $this->miscelleneous->download_csv_from_s3($folder,$file);

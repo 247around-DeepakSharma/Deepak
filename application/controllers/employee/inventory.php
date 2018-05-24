@@ -1806,7 +1806,8 @@ class Inventory extends CI_Controller {
             $this->miscelleneous->load_nav_header();
             $this->load->view("employee/show_inventory_ledger_list", $data);
         }else if($this->session->userdata('partner_id')){
-            $this->load->view('partner/header');
+            $this->miscelleneous->load_partner_nav_header();
+           // $this->load->view('partner/header');
             $this->load->view("partner/show_inventory_ledger_list", $data);
             $this->load->view('partner/partner_footer');
         }

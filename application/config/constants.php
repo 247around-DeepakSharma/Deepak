@@ -580,5 +580,6 @@ define("ENGINEER_ON_ROUTE", "Engineer on route");
 define('PARTNER_INVENTORY_DETAILS_FILE','Inventory-file');
 define("INVOCIE_TAG_FOR_INVENTORY", "inventory");
 
+define("PARTNER_CALL_CENTER_USER_GROUP", "callcenter");
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

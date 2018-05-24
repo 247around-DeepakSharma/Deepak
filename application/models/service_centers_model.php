@@ -308,8 +308,8 @@ class Service_centers_model extends CI_Model {
         return $query->result_array();
     }
     
-    function get_spare_parts_booking($where, $select, $group_by = false, $order_by = false, $offset = false, $limit = false){
-        $this->_spare_parts_booking_query($where, $select);
+    function get_spare_parts_booking($where, $select, $group_by = false, $order_by = false, $offset = false, $limit = false,$state=0){
+        $this->_spare_parts_booking_query($where, $select,$state);
         if($group_by){
             $this->db->group_by($group_by);
         }
@@ -324,17 +324,23 @@ class Service_centers_model extends CI_Model {
         return $query->result_array();
     }
     
-    function _spare_parts_booking_query($where, $select){
+    function _spare_parts_booking_query($where, $select,$state=0){
         $this->db->select($select, false);
         $this->db->from('spare_parts_details');
         $this->db->join('booking_details','booking_details.booking_id = spare_parts_details.booking_id');
         $this->db->join('users', 'users.user_id =  booking_details.user_id');
         $this->db->where($where, false);  
+        if($state == 1){
+            $stateWhere['agent_filters.agent_id'] = $this->session->userdata('agent_id');
+            $stateWhere['agent_filters.is_active'] = 1;
+            $this->db->join('agent_filters', 'agent_filters.state =  booking_details.state');
+            $this->db->where($stateWhere, false);  
+        }
     }
     
-    function count_spare_parts_booking($where, $select, $group_by = false){
+    function count_spare_parts_booking($where, $select, $group_by = false,$state=0){
         $this->db->distinct();
-        $this->_spare_parts_booking_query($where, $select);
+        $this->_spare_parts_booking_query($where, $select,$state);
         if($group_by){
             $this->db->group_by($group_by);
         }

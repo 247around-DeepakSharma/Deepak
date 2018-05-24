@@ -2092,14 +2092,16 @@ class Miscelleneous {
  * This Function is use to get nav data and convert data into structure Format
  * @input - Navigation Type (eg- main_nav,right_nav)
  */
-    private function get_main_nav_data($nav_type){
+    private function get_main_nav_data($nav_type,$entity_type){
         $where = array("header_navigation.groups LIKE '%".$this->My_CI->session->userdata('user_group')."%'"=>NULL,"header_navigation.is_active"=>"1");
         $where["header_navigation.nav_type"]=$nav_type;
+        $where["header_navigation.entity_type"]=$entity_type;
         $parentArray = $structuredData=$navFlowArray=array();
         $data= $this->My_CI->reusable_model->get_search_result_data("header_navigation","header_navigation.*,GROUP_CONCAT(p_m.title) as parent_name",$where,
                 array("header_navigation p_m"=>"FIND_IN_SET(p_m.id,header_navigation.parent_ids)"),NULL,array("level"=>"ASC"),NULL,array("header_navigation p_m"=>"LEFT"),array('header_navigation.id'));
          foreach($data as $navData){
             $structuredData["id_".$navData['id']]['title'] = $navData['title'];
+            $structuredData["id_".$navData['id']]['title_icon'] = $navData['title_icon'];
             $structuredData["id_".$navData['id']]['link'] = $navData['link'];
             $structuredData["id_".$navData['id']]['level'] = $navData['level'];
             $structuredData["id_".$navData['id']]['parent_ids'] = $navData['parent_ids'];
@@ -2116,11 +2118,17 @@ class Miscelleneous {
     /*
      * This Function is used to create navigation and set it into cache
      */
-    function set_header_navigation_in_cache(){
-        $data['main_nav'] = $this->get_main_nav_data("main_nav");
-        $data['right_nav'] = $this->get_main_nav_data("right_nav");
-        $msg = $this->My_CI->load->view('employee/header/header_navigation',$data,TRUE);
-        $this->My_CI->cache->file->save('navigationHeader_'.$this->My_CI->session->userdata('id'), $msg, 36000);
+    function set_header_navigation_in_cache($entity_type){
+        $data['main_nav'] = $this->get_main_nav_data("main_nav",$entity_type);
+        $data['right_nav'] = $this->get_main_nav_data("right_nav",$entity_type);
+        if($entity_type == "Partner"){
+            $msg = $this->My_CI->load->view('partner/header_navigation',$data,TRUE);
+           $this->My_CI->cache->file->save('navigationHeader_partner_'.$this->My_CI->session->userdata('user_group').'_'.$this->My_CI->session->userdata('agent_id'), $msg, 36000);
+        }
+        else{
+            $msg = $this->My_CI->load->view('employee/header/header_navigation',$data,TRUE);
+            $this->My_CI->cache->file->save('navigationHeader_'.$this->My_CI->session->userdata('id'), $msg, 36000);
+        }
     }
     /*
      * This Function used to load navigation header from cache
@@ -2129,11 +2137,12 @@ class Miscelleneous {
         //Check is navigation there in cache?
         // If not then create navigation and loads into cache
         if(!$this->My_CI->cache->file->get('navigationHeader_'.$this->My_CI->session->userdata('id'))){
-                $this->set_header_navigation_in_cache();
+                $this->set_header_navigation_in_cache("247Around");
          }
         $data['header_navigation_html'] = $this->My_CI->cache->file->get('navigationHeader_'.$this->My_CI->session->userdata('id'));
         $this->My_CI->load->view('employee/header/load_header_navigation', $data);
     }
+    
     /*
      * This is a helper function for fake_reschedule_handling , This function is used to get fake reschedule booking data
      */
@@ -2831,5 +2840,17 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
         readfile($csv);
         exec("rm -rf " . escapeshellarg($csv));
         unlink($csv);
+    }
+    /*
+     * This Function used to load navigation header from cache
+     */
+    function load_partner_nav_header(){
+        //Check is navigation there in cache?
+        // If not then create navigation and loads into cache
+        if(!$this->My_CI->cache->file->get('navigationHeader_partner_'.$this->My_CI->session->userdata('agent_id'))){
+                $this->set_header_navigation_in_cache("Partner");
+         }
+        $data['header_navigation_html'] = $this->My_CI->cache->file->get('navigationHeader_partner_'.$this->My_CI->session->userdata('user_group').'_'.$this->My_CI->session->userdata('agent_id'));
+        $this->My_CI->load->view('partner/header/load_header_navigation', $data);
     }
 }
