@@ -542,7 +542,7 @@ class Service_centers extends CI_Controller {
 
         $email_template = $this->booking_model->get_booking_email_template("inform_partner_for_serial_no");
         if (!empty($email_template)) {
-            $to = $get_partner_details[0]['primary_contact_email'] . "," . $get_partner_details[0]['owner_email'];
+            $to = $get_partner_details[0]['primary_contact_email'];
             $cc = $email_template[3];
             $bcc = $email_template[5];
             $subject = vsprintf($email_template[4], array($serial_number));
