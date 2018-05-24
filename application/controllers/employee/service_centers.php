@@ -543,14 +543,23 @@ class Service_centers extends CI_Controller {
         $email_template = $this->booking_model->get_booking_email_template("inform_partner_for_serial_no");
         if (!empty($email_template)) {
             $to = $get_partner_details[0]['primary_contact_email'];
-            $cc = $email_template[3];
+            
+            $sid = $this->session->userdata('service_center_id');
+            $rm = $this->vendor_model->get_rm_sf_relation_by_sf_id($sid);
+            $rm_email = "";
+            if (!empty($rm)) {
+                $rm_email = ", " . $rm[0]['official_email'];
+            }
+
             $bcc = $email_template[5];
             $subject = vsprintf($email_template[4], array($serial_number));
             $message = vsprintf($email_template[0], array($serial_number));
             if (!empty($am_email)) {
                 $from = $am_email;
+                $cc = $email_template[3]. ",".$am_email.$rm_email;
             } else {
                 $from = $email_template[2];
+                $cc = $email_template[3].$rm_email;
             }
             $attachment = S3_WEBSITE_URL . "engineer-uploads/" . $pic_name;
             $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment, 'inform_partner_for_serial_no');
