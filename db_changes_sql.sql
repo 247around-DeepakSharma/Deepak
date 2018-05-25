@@ -4866,3 +4866,41 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 
 ALTER TABLE `partner_serial_no` ADD `added_by` VARCHAR(28) NULL DEFAULT NULL AFTER `active`;
 
+--Chhavi 18th May
+ALTER TABLE `header_navigation` ADD `entity_type` VARCHAR(128) NOT NULL AFTER `id`;
+ALTER TABLE `header_navigation` ADD `title_icon` VARCHAR(256) NULL AFTER `title`;
+
+--Chhavi 19th May
+ALTER TABLE `entity_login_table` ADD `groups` VARCHAR(256) NOT NULL AFTER `agent_id`;
+ALTER TABLE `entity_login_table` ADD `is_filter_applicable` INT(10) NOT NULL DEFAULT '0' AFTER `groups`;
+
+CREATE TABLE `agent_filters` (
+  `id` int(10) NOT NULL,
+  `entity_type` varchar(128) NOT NULL,
+  `entity_id` int(10) NOT NULL,
+  `agent_id` int(10) NOT NULL,
+  `state` varchar(256) NOT NULL,
+  `is_active` int(10) NOT NULL DEFAULT '1',
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `agent_filters`
+--
+ALTER TABLE `agent_filters`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `agent_filters`
+--
+ALTER TABLE `agent_filters`
+  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT;COMMIT;
+

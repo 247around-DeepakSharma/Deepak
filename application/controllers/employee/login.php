@@ -60,7 +60,7 @@ class Login extends CI_Controller {
             if ($login) {
                 $this->session->sess_create();
                 $this->setSession($login[0]['employee_id'], $login[0]['id'], $login[0]['phone'],$login[0]['official_email'],$login[0]['full_name']);
-                $this->miscelleneous->set_header_navigation_in_cache();
+                $this->miscelleneous->set_header_navigation_in_cache("247Around");
                 $this->push_notification_lib->get_unsubscribers_by_cookies();
                 //Saving Login Details in Database
                 $data['browser'] = $this->agent->browser();
@@ -330,9 +330,11 @@ class Login extends CI_Controller {
             } else {
                 $logo_img = 'logo.png';
             }
-
-            $this->setPartnerSession($partner_details[0]['id'], $partner_details[0]['public_name'], 
-                    $agent[0]['agent_id'], $partner_details[0]['is_active'], $partner_details[0]['is_prepaid'],$partner_details[0]['is_wh'],$logo_img);
+            $this->setPartnerSession($partner_details[0]['id'], $partner_details[0]['public_name'], $agent[0]['agent_id'],
+                        $partner_details[0]['is_active'], $partner_details[0]['is_prepaid'],$partner_details[0]['is_wh'],$logo_img,0,$agent[0]['groups'],$agent[0]['is_filter_applicable']);
+                log_message('info', 'Partner loggedIn  partner id' .$partner_details[0]['id'] . " Partner name" . $partner_details[0]['public_name']);
+                // Add Navigation Header In Cache
+                $this->miscelleneous->set_header_navigation_in_cache("Partner");
             log_message('info', 'Partner loggedIn  partner id' .
                     $partner_details[0]['id'] . " Partner name" . $partner_details[0]['public_name']);
             
@@ -348,7 +350,7 @@ class Login extends CI_Controller {
      * @param: Partner name
      * @return: void
      */
-    function setPartnerSession($partner_id, $partner_name, $agent_id,$status, $is_prepaid,$is_wh,$logo_img,$is_login_by_247=1) {
+    function setPartnerSession($partner_id, $partner_name, $agent_id,$status, $is_prepaid,$is_wh,$logo_img,$is_login_by_247=1,$userGroup,$filter) {
         $userSession = array(
             'session_id' => md5(uniqid(mt_rand(), true)),
             'partner_id' => $partner_id,
@@ -360,7 +362,9 @@ class Login extends CI_Controller {
             'userType' => 'partner',
             'status' => $status,
             'partner_logo' => $logo_img,
-            'is_wh' => $is_wh
+            'is_wh' => $is_wh,
+            'user_group' => $userGroup,
+            'is_filter_applicable' => $filter
         );
         
         $this->session->set_userdata($userSession);
@@ -404,10 +408,10 @@ class Login extends CI_Controller {
                     $logo_img = 'logo.png';
                 }
                 $this->setPartnerSession($partner_details[0]['id'], $partner_details[0]['public_name'], $agent[0]['agent_id'],
-                        $partner_details[0]['is_active'], $partner_details[0]['is_prepaid'],$partner_details[0]['is_wh'],$logo_img,0);
-                log_message('info', 'Partner loggedIn  partner id' .
-                        $partner_details[0]['id'] . " Partner name" . $partner_details[0]['public_name']);
-
+                        $partner_details[0]['is_active'], $partner_details[0]['is_prepaid'],$partner_details[0]['is_wh'],$logo_img,0,$agent[0]['groups'],$agent[0]['is_filter_applicable']);
+                log_message('info', 'Partner loggedIn  partner id' .$partner_details[0]['id'] . " Partner name" . $partner_details[0]['public_name']);
+                // Add Navigation Header In Cache
+                $this->miscelleneous->set_header_navigation_in_cache("Partner");
                 //Adding Log Details
                  redirect(base_url() . "partner/home");
 
@@ -681,13 +685,15 @@ function user_role_management(){
             $structuredData["id_".$navData['id']]['parent_ids'] = $navData['parent_ids'];
             $structuredData["id_".$navData['id']]['groups'] = $navData['groups'];
             $structuredData["id_".$navData['id']]['is_active'] = $navData['is_active'];
+            $structuredData["id_".$navData['id']]['entity_type'] = $navData['entity_type'];
         }
         $data['header_navigation'] = $structuredData;
         // Get All roles group 
         $data['roles_group'] = $this->reusable_model->get_search_result_data("employee","DISTINCT groups",NULL,NULL,NULL,NULL,NULL,NULL,array("groups"));
+        $data['partners_roles_group'] = $this->reusable_model->get_search_result_data("entity_login_table","DISTINCT groups",NULL,NULL,NULL,NULL,NULL,NULL,array("groups"));
         //Get Header 
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/user_role',array("header_navigation"=>$data['header_navigation'],'roles_group'=>$data['roles_group']));
+        $this->load->view('employee/user_role',array("header_navigation"=>$data['header_navigation'],'roles_group'=>$data['roles_group'],'partners_roles_group'=>$data['partners_roles_group']));
     }
 /*
  * This Function Called From Ajax use to update Groups For Navigation 
@@ -725,6 +731,9 @@ function user_role_management(){
         if($this->input->post('title')){
             $data['title'] = $this->input->post('title');
         }
+        if($this->input->post('title_icon')){
+            $data['title_icon'] = $this->input->post('title_icon');
+        }
         if($this->input->post('link')){
             $data['link'] = $this->input->post('link');
         }
@@ -740,6 +749,9 @@ function user_role_management(){
          if($this->input->post('level')){
             $data['level'] = $this->input->post('level');
         }
+        if($this->input->post('entity_type')){
+            $data['entity_type'] = $this->input->post('entity_type');
+        }
          if($this->input->post('add_parents')){
             $data['parent_ids'] = $this->input->post('add_parents');
         }
@@ -748,8 +760,47 @@ function user_role_management(){
             redirect(base_url() . "employee/login/user_role_management");
         }
         else{
-            echo "Something Went Wrong";
+            echo "Something Went Wrong";    
         }
+    }
+    /*
+     * This function is use to get parents of entity from header navigation  
+     */
+    function get_header_navigation_parent_by_entity(){
+        $entity_type = $this->input->post('entity_type');
+        $where['entity_type'] = $entity_type;
+        $orderBYArray['title'] =  "ASC";
+        $data = $this->reusable_model->get_search_result_data("header_navigation","title,id",$where,NULL,NULL,$orderBYArray,NULL,NULL,array());
+        $select = '<select class="form-control roles_group_add_new" id="add_parents" name="add_parents">'
+                .'<option value="">NULL</option>';
+                foreach($data as $parent){
+                    $select = $select.'<option value="'.$parent["id"].'">'.$parent["title"].'</option>';
+                }
+           $select = $select. '</select>';
+           echo $select;
+    }
+    /*
+     * This function is used to get roles for a entity 
+     * It will get roles for 247Around From Employee table
+     * For Partner From entity_login_table Table
+     */
+    function get_header_navigation_roles_by_entity(){
+        $entity_type = $this->input->post('entity_type');
+        $orderBYArray['groups'] =  "ASC";
+        $where = array();
+        if($entity_type == 'Partner'){
+            $table = "entity_login_table";
+            $where['entity'] = $entity_type;
+        }
+        else{
+             $table = "employee";
+        }
+        $data = $this->reusable_model->get_search_result_data($table,"DISTINCT groups",$where,NULL,NULL,$orderBYArray,NULL,NULL,array());
+        $select = '<option value="">NULL</option>';
+                foreach($data as $group){
+                    $select = $select.'<option value="'.$group["groups"].'">'.$group["groups"].'</option>';
+                }
+           echo $select;
     }
 }
 /* End of file welcome.php */

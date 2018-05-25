@@ -149,8 +149,13 @@ function get_data_for_partner_callback($booking_id) {
       * @param: end limit, start limit, partner id
       * @return: Pending booking
       */
-     function getPending_booking($partner_id ,$booking_id = ''){
-        $where = "";
+     function getPending_booking($partner_id ,$booking_id = '',$state=0){
+         $join = "";
+         $where = "";
+         if($state == 1){
+             $join = "JOIN agent_filters ON agent_filters.state = booking_details.state";
+             $where = "agent_filters.agent_id= ".$this->session->userdata('agent_id')." AND agent_filters.is_active =1 AND" ;
+         }
         $where .= "  booking_details.partner_id = '" . $partner_id . "'";
         if(!empty($booking_id)){
             $where .= " AND `booking_details`.booking_id = '".$booking_id."' "
@@ -166,15 +171,15 @@ function get_data_for_partner_callback($booking_id) {
             booking_details.*,appliance_brand,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y')) as aging, count_escalation 
 
             from booking_details
-            JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
+             JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
+            ".$join."
             LEFT JOIN  `booking_unit_details` ON  `booking_unit_details`.`booking_id` =  `booking_details`.`booking_id`
 
             WHERE
             $where
             AND booking_details.upcountry_partner_approved ='1'"
         );
-          
           $temp = $query->result();
           usort($temp, array($this, 'date_compare_bookings'));
           return $temp;
@@ -220,7 +225,7 @@ function get_data_for_partner_callback($booking_id) {
       * @param: Booking Status(Cancelled or Completed)
       * @return: Array()
       */
-      function getclosed_booking($limit, $start, $partner_id, $status, $booking_id = ""){
+      function getclosed_booking($limit, $start, $partner_id, $status, $booking_id = "",$state=0){
         if($limit!="count"){
             $this->db->limit($limit, $start);
         }
@@ -235,6 +240,10 @@ function get_data_for_partner_callback($booking_id) {
         $this->db->from('booking_details');
         $this->db->join('services','services.id = booking_details.service_id');
         $this->db->join('users','users.user_id = booking_details.user_id');
+        if($state == 1){
+            $this->db->join('agent_filters','agent_filters.state = booking_details.state');
+            $this->db->where('agent_filters.agent_id', $this->session->userdata('agent_id'));
+        }
         $this->db->where('booking_details.current_status', $status);
         if(!empty($booking_id)){
             $this->db->where('booking_details.booking_id', $booking_id);
@@ -818,7 +827,10 @@ function get_data_for_partner_callback($booking_id) {
      * @param boolean $flag_select
      * @return Array
      */
-    function get_spare_parts_booking_list($where, $start, $end,$flag_select){
+    function get_spare_parts_booking_list($where, $start, $end,$flag_select,$state=0){
+        if($state ==1){
+            $where = $where." AND booking_details.state IN (SELECT state FROM agent_filters WHERE agent_id = ".$this->session->userdata('agent_id')." AND agent_filters.is_active=1)";
+        }
         $limit = "";
         $select = " ";
         if($flag_select){
