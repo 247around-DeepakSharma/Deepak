@@ -82,7 +82,7 @@
                     <label for="rating_star" class="col-md-2" style="margin-left: 13px;">Rating</label>
                                 <div class="col-md-6">
                                     <Select type="text" class="form-control"  name="rating_star" id="rating_star" value="<?php echo set_value('rating_star'); ?>" style="margin-left: 117px;width: 96%;">
-                                    <option>Select</option>
+                                    <option value ="">Select</option>
                                     <option>-1</option>
                                     <option>1</option>
                                     <option>2</option>
@@ -146,18 +146,17 @@
     }
     function validation(){
         var ratingStar = $("#rating_star").val();
-        if(ratingStar == 'Select'){
-            var not_reachable = $("#not_reachable").prop('checked');
-            if(not_reachable == true){
-                return true;
-            }
-            else{
-                alert("Please Enter the rating or select customer not reachable");
-                return false;
-            }
+        var not_reachable = $("#not_reachable").prop('checked');
+        if(ratingStar && not_reachable){
+            alert("Either Choose not reachable or add rating, Don't select both option together");
+            return false;
+        }
+        else if(ratingStar || not_reachable){
+            return true;
         }
         else{
-            return true;
+            alert("Please Select atleast 1 option");
+            return false;
         }
     }
     
