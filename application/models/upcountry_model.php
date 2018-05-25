@@ -912,6 +912,11 @@ class Upcountry_model extends CI_Model {
          return $this->db->insert_id();
     }
     
+    function insert_upcountry_services_sf_level($data){
+        $this->db->insert_ignore('upcountry_pincode_services_sf_level', $data);
+        return $this->db->insert_id();
+    }
+    
     function get_upcountry_non_upcountry_district(){
         $sql = "SELECT DISTINCT(sub_service_center_details.district) as District,'Upcountry' as Flag,service_centres.min_upcountry_distance as Municipal_Limit "
                 . "FROM sub_service_center_details JOIN service_centres ON service_centres.id = sub_service_center_details.service_center_id WHERE service_centres.active =1 "
@@ -969,5 +974,16 @@ class Upcountry_model extends CI_Model {
             return FALSE;
         }
     }
+    
+    function getpincode_upcountry_local(){
+        $sql = "SELECT distinct pincode as 'Pincode', district as 'District', case when is_upcountry =1 THEN ('Upcountry') ELSE 'Local' END as 'Upcountry/Local' FROM `upcountry_pincode_services_sf_level`";
+        return $this->db->query($sql);
+    }
+    
+    function truncate_upcountry_sf_level_table(){
+        $sql = "TRUNCATE TABLE `upcountry_pincode_services_sf_level`";
+        $this->db->query($sql);
+    }
+    
     
 }

@@ -967,7 +967,7 @@ class Upload_booking_file extends CI_Controller {
      */
     function get_invalid_data($invalid_data_with_reason, $filetype, $file_name) {
 
-        $to = NITS_ANUJ_EMAIL_ID . ", sales@247around.com";
+        $to = ANUJ_EMAIL_ID . ", sales@247around.com";
         $from = NOREPLY_EMAIL_ID;
         $cc = "";
         $bcc = "";
