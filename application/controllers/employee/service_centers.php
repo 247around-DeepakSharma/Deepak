@@ -535,6 +535,7 @@ class Service_centers extends CI_Controller {
      */
     function inform_partner_for_serial_no($partner_id, $serial_number, $pic_name) {
         log_message('info', __METHOD__ . " Enterring..");
+        $booking_id = $this->input->post('booking_id');
         $get_partner_details = $this->partner_model->getpartner_details('account_manager_id, primary_contact_email, owner_email', array('partners.id' => $partner_id));
         $am_email = "";
         if (!empty($get_partner_details[0]['account_manager_id'])) {
@@ -555,7 +556,7 @@ class Service_centers extends CI_Controller {
 
             $bcc = $email_template[5];
             $subject = vsprintf($email_template[4], array($serial_number));
-            $message = vsprintf($email_template[0], array($serial_number));
+            $message = vsprintf($email_template[0], array($serial_number, $booking_id));
             if (!empty($am_email)) {
                 $from = $am_email;
                 $cc = $email_template[3]. ",".$am_email.$rm_email;
