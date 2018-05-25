@@ -10,6 +10,7 @@
                 <div class="x_title">
                     <h2><?php echo $status." Bookings" ?></h2>
                      <div class="right_holder" style="float:right;margin-right:10px;">
+                         <a style="float: right;background: #2a3f54;border-color: #2a3f54;margin-left: 10px;height: 32px;"type="button" class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>employee/partner/download_partner_pending_bookings/<?php echo $this->session->userdata('partner_id')?>/<?php echo $status ?>">Download</a>
                             <lable>State</lable>
                             <select class="form-control " id="serachInputCompleted" style="border-radius:3px;">
                     <option value="all">All</option>
