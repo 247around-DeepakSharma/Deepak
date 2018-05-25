@@ -4081,10 +4081,10 @@ class Partner extends CI_Controller {
         $this->load->view('partner/partner_footer');
     }
     
-    function download_partner_pending_bookings($partnerID){ 
+    function download_partner_pending_bookings($partnerID,$status){ 
         ob_start();
-        $report = $this->partner_model->get_partners_pending_bookings($partnerID,0,1);
-        $newCSVFileName = "Pending_booking_" . date('j-M-Y-H-i-s') . ".csv";
+        $report = $this->partner_model->get_partners_pending_bookings($partnerID,0,1,$status);
+        $newCSVFileName = $status."_booking_" . date('j-M-Y-H-i-s') . ".csv";
         $csv = TMP_FOLDER . $newCSVFileName;
         $delimiter = ",";
         $newline = "\r\n";

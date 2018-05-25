@@ -1514,17 +1514,26 @@ function get_data_for_partner_callback($booking_id) {
         $this->db->insert('payment_transaction', $data);
         return $this->db->insert_id();
     }
-    function get_partners_pending_bookings($partner_id,$percentageLogic=0,$allPending=0){
-        $where = "booking_details.current_status IN ('Pending','Rescheduled')";
-        $agingSubQuery = 'DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) as Aging';
+    function get_partners_pending_bookings($partner_id,$percentageLogic=0,$allPending=0,$status){
+        $agingSubQuery = "";
+        if($status == 'Pending'){
+            $where = "booking_details.current_status IN ('Pending','Rescheduled')";
+            $agingSubQuery = ', DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) as Aging';
+        }
+        else if($status == 'Completed'){
+            $where = "booking_details.current_status IN ('Completed')";
+        }
+        else if($status == 'Cancelled'){
+            $where = "booking_details.current_status IN ('Cancelled')";
+        }
         
         return $query = $this->db->query("SELECT 
             order_id AS 'Sub Order ID',
             (CONCAT('''', booking_details.booking_id)) AS '247BookingID',
             date(booking_details.create_date) AS 'Referred Date and Time',
             ud.appliance_brand AS 'Brand', 
-            IFNULL(model_number,'') AS 'Model',
-            CASE WHEN(serial_number IS NULL OR serial_number = '') THEN '' ELSE (CONCAT('''', serial_number))  END AS 'Serial Number',
+            IFNULL(ud.model_number,'') AS 'Model',
+            CASE WHEN(ud.serial_number IS NULL OR ud.serial_number = '') THEN '' ELSE (CONCAT('''', ud.serial_number))  END AS 'Serial Number',
             services AS 'Product', 
             ud.appliance_description As 'Description',
             name As 'Customer', 
@@ -1540,14 +1549,18 @@ function get_data_for_partner_callback($booking_id) {
             booking_date As 'Scheduled Appointment Date(DD/MM/YYYY)', 
             booking_timeslot AS 'Scheduled Appointment Time(HH:MM:SS)', 
             partner_internal_status AS 'Final Status',
+            GROUP_CONCAT(spare_parts_details.parts_requested) As 'Requested Part', 
+            GROUP_CONCAT(spare_parts_details.date_of_request) As 'Part Request Date', 
+            GROUP_CONCAT(spare_parts_details.parts_shipped) As 'Shipped Part', 
+            GROUP_CONCAT(spare_parts_details.shipped_date) As 'Part Shipped Date', 
+            GROUP_CONCAT(spare_parts_details.defective_part_shipped) As 'Shipped Defective Part', 
+            GROUP_CONCAT(spare_parts_details.defective_part_shipped_date) As 'Defactive Part Shipped Date'
             ".$agingSubQuery."
-            FROM  booking_details , booking_unit_details AS ud, services, users
-            WHERE booking_details.booking_id = ud.booking_id 
-            AND booking_details.service_id = services.id 
-            AND booking_details.user_id = users.user_id
-            AND product_or_services != 'Product'
-            AND booking_details.partner_id = $partner_id
-            AND $where");
+            FROM booking_details JOIN booking_unit_details ud  ON booking_details.booking_id = ud.booking_id 
+            JOIN services ON booking_details.service_id = services.id 
+            JOIN users ON booking_details.user_id = users.user_id
+            LEFT JOIN spare_parts_details ON spare_parts_details.booking_id = booking_details.booking_id
+            WHERE product_or_services != 'Product' AND booking_details.partner_id = $partner_id AND $where GROUP BY ud.booking_id");
     }
     
     function getpartner_serialno($where){
