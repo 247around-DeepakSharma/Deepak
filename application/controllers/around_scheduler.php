@@ -1039,42 +1039,41 @@ class Around_scheduler extends CI_Controller {
                 $data['response'] = json_encode($up_details, TRUE);
                
                 $this->upcountry_model->insert_upcountry_services_sf_level($data);
-                 echo "No -" . $key . PHP_EOL;
-                
+                echo "No -" . $key . PHP_EOL;
+                 
             }
-            
-            
-            $newCSVFileName = "upcountry_local_file" . date('jMYHis') . ".csv";
-            $csv = TMP_FOLDER . $newCSVFileName;
-            $report = $this->upcountry_model->getpincode_upcountry_local();
-            $delimiter = ",";
-            $newline = "\r\n";
-            $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
-            log_message('info', __FUNCTION__ . ' => Rendered CSV');
-            write_file($csv, $new_report);
-            
-            $template = $this->booking_model->get_booking_email_template("upcountry_local_template");
-                   
-            if(!empty($template)){
-                 $to = $template[1];
-                 $subject = $template[4];
-                 $emailBody = $template[0];
-                 $bcc = $template[5];
-                 $cc = $template[3];
-                 $this->notify->sendEmail($template[2], $to , $cc, $bcc, $subject , $emailBody, $csv,'upcountry_local_template');
-            }
-            
-            $bucket = BITBUCKET_DIRECTORY;
-            $directory_xls = "vendor-partner-docs/" . $newCSVFileName;
-            $this->s3->putObjectFile($csv, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-            $fileData['entity_type'] = "partner";
-            $fileData['entity_id'] = _247AROUND;
-            $fileData['file_type'] = "upcountry_local_file";
-            $fileData['file_name'] = $csv;
-            $this->reusable_model->insert_into_table("file_uploads",$fileData);
-            
             log_message('info',__METHOD__. " Exit");
         }
+        
+        $newCSVFileName = "upcountry_local_file" . date('jMYHis') . ".csv";
+        $csv = TMP_FOLDER . $newCSVFileName;
+        $report = $this->upcountry_model->getpincode_upcountry_local();
+        $delimiter = ",";
+        $newline = "\r\n";
+        $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
+        log_message('info', __FUNCTION__ . ' => Rendered CSV');
+        write_file($csv, $new_report);
+
+        $template = $this->booking_model->get_booking_email_template("upcountry_local_template");
+
+        if(!empty($template)){
+             $to = $template[1];
+             $subject = $template[4];
+             $emailBody = $template[0];
+             $bcc = $template[5];
+             $cc = $template[3];
+             $this->notify->sendEmail($template[2], $to , $cc, $bcc, $subject , $emailBody, $csv,'upcountry_local_template');
+        }
+
+        $bucket = BITBUCKET_DIRECTORY;
+        $directory_xls = "vendor-partner-docs/" . $newCSVFileName;
+        $this->s3->putObjectFile($csv, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+        $fileData['entity_type'] = "partner";
+        $fileData['entity_id'] = _247AROUND;
+        $fileData['file_type'] = "upcountry_local_file";
+        $fileData['file_name'] = $csv;
+        $this->reusable_model->insert_into_table("file_uploads",$fileData);
+            
     }
 
     /**
