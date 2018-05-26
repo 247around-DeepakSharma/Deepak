@@ -4291,6 +4291,7 @@ class Service_centers extends CI_Controller {
     }
     
     function acknowledge_spares_send_by_partner(){
+        $this->check_WH_UserSession();
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/acknowledge_spares_send_by_partner');
     }

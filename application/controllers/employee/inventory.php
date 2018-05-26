@@ -2901,7 +2901,7 @@ class Inventory extends CI_Controller {
      */
     function process_acknowledge_spare_send_by_partner_to_wh() {
         log_message("info", __METHOD__);
-
+        $this->check_WH_UserSession();
         $sender_entity_id = $this->input->post('sender_entity_id');
         $sender_entity_type = $this->input->post('sender_entity_type');
         $receiver_entity_id = $this->input->post('receiver_entity_id');
@@ -2959,7 +2959,7 @@ class Inventory extends CI_Controller {
      */
     function send_defective_parts_to_partner_from_wh() {
         log_message("info", __METHOD__);
-
+        $this->check_WH_UserSession();
         $sender_entity_id = $this->input->post('sender_entity_id');
         $sender_entity_type = $this->input->post('sender_entity_type');
         $awb_by_wh = $this->input->post('awb_by_wh');
@@ -3263,6 +3263,22 @@ class Inventory extends CI_Controller {
         }
 
         return $res;
+    }
+    
+    /**
+     * @desc: This function is used to check warehouse session.
+     * @param: void
+     * @return: true if details matches else session is destroyed.
+     */
+    function check_WH_UserSession() {
+        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'service_center') 
+                && !empty($this->session->userdata('service_center_id')) && !empty($this->session->userdata('is_wh'))) {
+            return TRUE;
+        } else {
+            log_message('info', __FUNCTION__. " Session Expire for Service Center");
+            $this->session->sess_destroy();
+            redirect(base_url() . "service_center/login");
+        }
     }
 
 }
