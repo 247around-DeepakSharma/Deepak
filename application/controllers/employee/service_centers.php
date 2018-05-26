@@ -459,7 +459,7 @@ class Service_centers extends CI_Controller {
                                 if ($status['code'] == SUCCESS_CODE) {
                                     log_message('info', " Serial No validation success  for serial no " . trim($serial_number[$unit_id]));
                                     if(isset($upload_serial_number_pic['name'][$unit_id])){
-                                        $this->upload_insert_upload_serial_no($upload_serial_number_pic, $unit_id, $partner_id, $trimSno);
+                                        $this->upload_insert_upload_serial_no($upload_serial_number_pic, $unit_id, $partner_id, $trimSno, FALSE);
                                     }
                                 } else {
                                     
@@ -467,7 +467,7 @@ class Service_centers extends CI_Controller {
                                         $return_status = false;
                                         $s = $this->form_validation->set_message('validate_serial_no', $status['message']. " Also Attach Serial No Image.");
                                     } else {
-                                        $s = $this->upload_insert_upload_serial_no($upload_serial_number_pic, $unit_id, $partner_id, $trimSno);
+                                        $s = $this->upload_insert_upload_serial_no($upload_serial_number_pic, $unit_id, $partner_id, $trimSno, true);
                                         if(empty($s)){
                                              $this->form_validation->set_message('validate_serial_no', 'Serial Number, File size or file type is not supported. Allowed extentions are png, jpg, jpeg and pdf. '
                         . 'Maximum file size is 5 MB.');
@@ -504,14 +504,15 @@ class Service_centers extends CI_Controller {
      * @param String $serial_number
      * @return boolean
      */
-    function upload_insert_upload_serial_no($upload_serial_number_pic, $unit, $partner_id, $serial_number){
+    function upload_insert_upload_serial_no($upload_serial_number_pic, $unit, $partner_id, $serial_number, $Isinsert){
         log_message('info', __METHOD__. " Enterring ...");
         if (!empty($upload_serial_number_pic['tmp_name'][$unit])) {
            
             $pic_name = $this->upload_serial_no_image_to_s3($upload_serial_number_pic, 
                     "serial_number_pic", $unit, "engineer-uploads", "serial_number_pic");
             if($pic_name){
-                if ($partner_id == AKAI_ID) {
+                if ($partner_id == AKAI_ID && !empty($Isinsert)) {
+
                     $this->partner_model->insert_partner_serial_number(array('partner_id' =>$partner_id, "serial_number" => $serial_number, "active" =>1, "added_by" => "vendor" ));
                     $this->inform_partner_for_serial_no($partner_id, $serial_number, $pic_name);
                 }
