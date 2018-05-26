@@ -1370,7 +1370,7 @@ class Miscelleneous {
         $partner_email = $this->get_partner_email_constant();
         if(isset($partner_email[$booking['partner_id']])){
             $to = $partner_email[$booking['partner_id']];
-            $cc = NITS_ANUJ_EMAIL_ID;
+            $cc = ANUJ_EMAIL_ID;
             $booking['jeeves_not_assign'] = true;
             $message = $this->My_CI->load->view('employee/sf_not_found_email_template', $booking, true);
             $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "",$templatetag);
