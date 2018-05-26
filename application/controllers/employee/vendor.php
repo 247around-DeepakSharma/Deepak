@@ -4154,7 +4154,7 @@ class vendor extends CI_Controller {
             }
         }
         if($flag == 1){
-            $to = NITS_ANUJ_EMAIL_ID . ", sales@247around.com, booking@247around.com, vijaya@247around.com, adila@247around.com,".RM_EMAIL;
+            $to = ANUJ_EMAIL_ID . ", sales@247around.com, booking@247around.com, vijaya@247around.com, adila@247around.com,".RM_EMAIL;
 
             $cc = DEVELOPER_EMAIL;
             $message1 = "Booking should be upcountry but not marked properly. Please check and update booking.<br/>";

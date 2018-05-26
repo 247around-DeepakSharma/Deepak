@@ -1279,6 +1279,7 @@ class Booking extends CI_Controller {
      *  @return : rate for booking and load view
      */
     function process_rating_form($booking_id, $status) {
+        log_message('info', __FUNCTION__ . ' Received Data : '  . print_r($this->input->post(),true));
         $user_id = $this->input->post('user_id');
         $phone_no = $this->input->post('mobile_no');
         log_message('info', __FUNCTION__ . ' Booking ID : ' . $booking_id . ' Status' . $status . " Done By " . $this->session->userdata('employee_id'));

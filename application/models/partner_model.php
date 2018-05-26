@@ -149,8 +149,13 @@ function get_data_for_partner_callback($booking_id) {
       * @param: end limit, start limit, partner id
       * @return: Pending booking
       */
-     function getPending_booking($partner_id ,$booking_id = ''){
-        $where = "";
+     function getPending_booking($partner_id ,$booking_id = '',$state=0){
+         $join = "";
+         $where = "";
+         if($state == 1){
+             $join = "JOIN agent_filters ON agent_filters.state = booking_details.state";
+             $where = "agent_filters.agent_id= ".$this->session->userdata('agent_id')." AND agent_filters.is_active =1 AND" ;
+         }
         $where .= "  booking_details.partner_id = '" . $partner_id . "'";
         if(!empty($booking_id)){
             $where .= " AND `booking_details`.booking_id = '".$booking_id."' "
@@ -166,15 +171,15 @@ function get_data_for_partner_callback($booking_id) {
             booking_details.*,appliance_brand,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y')) as aging, count_escalation 
 
             from booking_details
-            JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
+             JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
+            ".$join."
             LEFT JOIN  `booking_unit_details` ON  `booking_unit_details`.`booking_id` =  `booking_details`.`booking_id`
 
             WHERE
             $where
             AND booking_details.upcountry_partner_approved ='1'"
         );
-          
           $temp = $query->result();
           usort($temp, array($this, 'date_compare_bookings'));
           return $temp;
@@ -220,7 +225,7 @@ function get_data_for_partner_callback($booking_id) {
       * @param: Booking Status(Cancelled or Completed)
       * @return: Array()
       */
-      function getclosed_booking($limit, $start, $partner_id, $status, $booking_id = ""){
+      function getclosed_booking($limit, $start, $partner_id, $status, $booking_id = "",$state=0){
         if($limit!="count"){
             $this->db->limit($limit, $start);
         }
@@ -235,6 +240,10 @@ function get_data_for_partner_callback($booking_id) {
         $this->db->from('booking_details');
         $this->db->join('services','services.id = booking_details.service_id');
         $this->db->join('users','users.user_id = booking_details.user_id');
+        if($state == 1){
+            $this->db->join('agent_filters','agent_filters.state = booking_details.state');
+            $this->db->where('agent_filters.agent_id', $this->session->userdata('agent_id'));
+        }
         $this->db->where('booking_details.current_status', $status);
         if(!empty($booking_id)){
             $this->db->where('booking_details.booking_id', $booking_id);
@@ -402,19 +411,23 @@ function get_data_for_partner_callback($booking_id) {
             booking_timeslot AS 'Scheduled Appointment Time(HH:MM:SS)', 
             partner_internal_status AS 'Final Status',
             CASE WHEN (booking_details.is_upcountry = '0') THEN 'Local' ELSE 'Upcountry' END as 'Is Upcountry', 
+            GROUP_CONCAT(spare_parts_details.parts_requested) As 'Requested Part', 
+            GROUP_CONCAT(spare_parts_details.date_of_request) As 'Part Request Date', 
+            GROUP_CONCAT(spare_parts_details.parts_shipped) As 'Shipped Part', 
+            GROUP_CONCAT(spare_parts_details.shipped_date) As 'Part Shipped Date', 
+            GROUP_CONCAT(spare_parts_details.defective_part_shipped) As 'Shipped Defective Part', 
+            GROUP_CONCAT(spare_parts_details.defective_part_shipped_date) As 'Defactive Part Shipped Date', 
             ".$closeDateSubQuery.",
             ".$tatSubQuery.",
             ".$agingSubQuery.",
             booking_details.rating_stars AS 'Rating',
             booking_details.rating_comments AS 'Rating Comments'
             $dependency
-            FROM  booking_details , booking_unit_details AS ud, services, users
-            WHERE booking_details.booking_id = ud.booking_id 
-            AND booking_details.service_id = services.id 
-            AND booking_details.user_id = users.user_id
-            AND product_or_services != 'Product'
-            AND booking_details.partner_id = $partner_id
-            AND $where GROUP BY ud.booking_id");
+            FROM booking_details JOIN booking_unit_details ud  ON booking_details.booking_id = ud.booking_id 
+            JOIN services ON booking_details.service_id = services.id 
+            JOIN users ON booking_details.user_id = users.user_id
+            LEFT JOIN spare_parts_details ON spare_parts_details.booking_id = booking_details.booking_id
+            WHERE product_or_services != 'Product' AND booking_details.partner_id = $partner_id AND $where GROUP BY ud.booking_id");
     } 
     
     //Return all leads shared by Partner in the last 30 days
@@ -818,7 +831,10 @@ function get_data_for_partner_callback($booking_id) {
      * @param boolean $flag_select
      * @return Array
      */
-    function get_spare_parts_booking_list($where, $start, $end,$flag_select){
+    function get_spare_parts_booking_list($where, $start, $end,$flag_select,$state=0){
+        if($state ==1){
+            $where = $where." AND booking_details.state IN (SELECT state FROM agent_filters WHERE agent_id = ".$this->session->userdata('agent_id')." AND agent_filters.is_active=1)";
+        }
         $limit = "";
         $select = " ";
         if($flag_select){
@@ -1498,17 +1514,26 @@ function get_data_for_partner_callback($booking_id) {
         $this->db->insert('payment_transaction', $data);
         return $this->db->insert_id();
     }
-    function get_partners_pending_bookings($partner_id,$percentageLogic=0,$allPending=0){
-        $where = "booking_details.current_status IN ('Pending','Rescheduled')";
-        $agingSubQuery = 'DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) as Aging';
+    function get_partners_pending_bookings($partner_id,$percentageLogic=0,$allPending=0,$status){
+        $agingSubQuery = "";
+        if($status == 'Pending'){
+            $where = "booking_details.current_status IN ('Pending','Rescheduled')";
+            $agingSubQuery = ', DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) as Aging';
+        }
+        else if($status == 'Completed'){
+            $where = "booking_details.current_status IN ('Completed')";
+        }
+        else if($status == 'Cancelled'){
+            $where = "booking_details.current_status IN ('Cancelled')";
+        }
         
         return $query = $this->db->query("SELECT 
             order_id AS 'Sub Order ID',
             (CONCAT('''', booking_details.booking_id)) AS '247BookingID',
             date(booking_details.create_date) AS 'Referred Date and Time',
             ud.appliance_brand AS 'Brand', 
-            IFNULL(model_number,'') AS 'Model',
-            CASE WHEN(serial_number IS NULL OR serial_number = '') THEN '' ELSE (CONCAT('''', serial_number))  END AS 'Serial Number',
+            IFNULL(ud.model_number,'') AS 'Model',
+            CASE WHEN(ud.serial_number IS NULL OR ud.serial_number = '') THEN '' ELSE (CONCAT('''', ud.serial_number))  END AS 'Serial Number',
             services AS 'Product', 
             ud.appliance_description As 'Description',
             name As 'Customer', 
@@ -1524,14 +1549,18 @@ function get_data_for_partner_callback($booking_id) {
             booking_date As 'Scheduled Appointment Date(DD/MM/YYYY)', 
             booking_timeslot AS 'Scheduled Appointment Time(HH:MM:SS)', 
             partner_internal_status AS 'Final Status',
+            GROUP_CONCAT(spare_parts_details.parts_requested) As 'Requested Part', 
+            GROUP_CONCAT(spare_parts_details.date_of_request) As 'Part Request Date', 
+            GROUP_CONCAT(spare_parts_details.parts_shipped) As 'Shipped Part', 
+            GROUP_CONCAT(spare_parts_details.shipped_date) As 'Part Shipped Date', 
+            GROUP_CONCAT(spare_parts_details.defective_part_shipped) As 'Shipped Defective Part', 
+            GROUP_CONCAT(spare_parts_details.defective_part_shipped_date) As 'Defactive Part Shipped Date'
             ".$agingSubQuery."
-            FROM  booking_details , booking_unit_details AS ud, services, users
-            WHERE booking_details.booking_id = ud.booking_id 
-            AND booking_details.service_id = services.id 
-            AND booking_details.user_id = users.user_id
-            AND product_or_services != 'Product'
-            AND booking_details.partner_id = $partner_id
-            AND $where");
+            FROM booking_details JOIN booking_unit_details ud  ON booking_details.booking_id = ud.booking_id 
+            JOIN services ON booking_details.service_id = services.id 
+            JOIN users ON booking_details.user_id = users.user_id
+            LEFT JOIN spare_parts_details ON spare_parts_details.booking_id = booking_details.booking_id
+            WHERE product_or_services != 'Product' AND booking_details.partner_id = $partner_id AND $where GROUP BY ud.booking_id");
     }
     
     function getpartner_serialno($where){

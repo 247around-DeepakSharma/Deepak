@@ -673,7 +673,7 @@ class Upcountry_model extends CI_Model {
      * @param type $partner_id
      * @return Array
      */
-    function get_waiting_for_approval_upcountry_charges($partner_id){
+    function get_waiting_for_approval_upcountry_charges($partner_id,$state=0){
         $this->db->distinct();
         $this->db->select('bd.booking_id,request_type,name,booking_primary_contact_no,services,'
                 . ' appliance_brand,appliance_category, appliance_capacity, '
@@ -686,6 +686,12 @@ class Upcountry_model extends CI_Model {
         $this->db->where('is_upcountry','1');
         if(!empty($partner_id)){
             $this->db->where('bd.partner_id',$partner_id);
+        }
+        if($state == 1){
+            $stateWhere['agent_filters.agent_id'] = $this->session->userdata('agent_id');
+            $stateWhere['agent_filters.is_active'] = 1;
+            $this->db->join('agent_filters', 'agent_filters.state =  bd.state');
+            $this->db->where($stateWhere, false);  
         }
         $this->db->join('booking_unit_details','bd.booking_id = booking_unit_details.booking_id');
         $this->db->join('users','bd.user_id = users.user_id');
@@ -906,6 +912,11 @@ class Upcountry_model extends CI_Model {
          return $this->db->insert_id();
     }
     
+    function insert_upcountry_services_sf_level($data){
+        $this->db->insert_ignore('upcountry_pincode_services_sf_level', $data);
+        return $this->db->insert_id();
+    }
+    
     function get_upcountry_non_upcountry_district(){
         $sql = "SELECT DISTINCT(sub_service_center_details.district) as District,'Upcountry' as Flag,service_centres.min_upcountry_distance as Municipal_Limit "
                 . "FROM sub_service_center_details JOIN service_centres ON service_centres.id = sub_service_center_details.service_center_id WHERE service_centres.active =1 "
@@ -963,5 +974,16 @@ class Upcountry_model extends CI_Model {
             return FALSE;
         }
     }
+    
+    function getpincode_upcountry_local(){
+        $sql = "SELECT distinct pincode as 'Pincode', district as 'District', case when is_upcountry =1 THEN ('Upcountry') ELSE 'Local' END as 'Upcountry/Local', distance as Distance FROM `upcountry_pincode_services_sf_level`";
+        return $this->db->query($sql);
+    }
+    
+    function truncate_upcountry_sf_level_table(){
+        $sql = "TRUNCATE TABLE `upcountry_pincode_services_sf_level`";
+        $this->db->query($sql);
+    }
+    
     
 }

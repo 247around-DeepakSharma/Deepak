@@ -979,10 +979,11 @@ class Around_scheduler extends CI_Controller {
     }
 
     /**
-     * @desc This funnction is used to calculate upcountry from India Pincode File
+     * @desc This function is used to calculate upcountry from India Pincode File
      */
     function get_upcountry_details_from_india_pincode() {
-        $pincode_array = $this->vendor_model->getPincode_from_india_pincode();
+        $this->upcountry_model->truncate_upcountry_sf_level_table();
+        $pincode_array = $this->vendor_model->getPincode_from_india_pincode("", true);
         $partner_data = array();
         $partner_data[0]['is_upcountry'] = 0;
         $partner_data[0]['upcountry_approval_email'] = '';
@@ -999,6 +1000,7 @@ class Around_scheduler extends CI_Controller {
                 $data['distance'] = 0;
                 $data['vendor_id'] = 0;
                 $data['sf_upcountry_rate'] = 0;
+                $data['district'] = $pincode['district'];
 
                 switch ($up_details['message']) {
                     case UPCOUNTRY_BOOKING:
@@ -1035,13 +1037,43 @@ class Around_scheduler extends CI_Controller {
                 }
 
                 $data['response'] = json_encode($up_details, TRUE);
+               
+                $this->upcountry_model->insert_upcountry_services_sf_level($data);
                 echo "No -" . $key . PHP_EOL;
-                print_r($data);
-                array_push($upcountry_data, $data);
+                 
             }
-
-            $this->upcountry_model->upcountry_pincode_services_sf_level($upcountry_data);
+            log_message('info',__METHOD__. " Exit");
         }
+        
+        $newCSVFileName = "upcountry_local_file" . date('jMYHis') . ".csv";
+        $csv = TMP_FOLDER . $newCSVFileName;
+        $report = $this->upcountry_model->getpincode_upcountry_local();
+        $delimiter = ",";
+        $newline = "\r\n";
+        $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
+        log_message('info', __FUNCTION__ . ' => Rendered CSV');
+        write_file($csv, $new_report);
+
+        $template = $this->booking_model->get_booking_email_template("upcountry_local_template");
+
+        if(!empty($template)){
+             $to = $template[1];
+             $subject = $template[4];
+             $emailBody = $template[0];
+             $bcc = $template[5];
+             $cc = $template[3];
+             $this->notify->sendEmail($template[2], $to , $cc, $bcc, $subject , $emailBody, $csv,'upcountry_local_template');
+        }
+
+        $bucket = BITBUCKET_DIRECTORY;
+        $directory_xls = "vendor-partner-docs/" . $newCSVFileName;
+        $this->s3->putObjectFile($csv, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+        $fileData['entity_type'] = "partner";
+        $fileData['entity_id'] = _247AROUND;
+        $fileData['file_type'] = "upcountry_local_file";
+        $fileData['file_name'] = $csv;
+        $this->reusable_model->insert_into_table("file_uploads",$fileData);
+            
     }
 
     /**
