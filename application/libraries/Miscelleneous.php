@@ -2611,11 +2611,13 @@ function convert_html_to_pdf($html,$booking_id,$filename,$s3_folder){
         $template = 'sf_without_gst_declaration.xlsx';
         $output_pdf_file = "";
         $excel_file = "";
+        $excel_data = array();
         if (!empty($sf_details[0]['signature_file'])) {
-            $excel_data['sf_name'] = $sf_details[0]['name'];
-            $excel_data['sf_address'] = $sf_details[0]['address'];
-            $excel_data['sf_owner_name'] = $sf_details[0]['owner_name'];
-            $excel_data['date'] = date('Y-m-d');
+            $excel_data['excel_data']['sf_name'] = $sf_details[0]['name'];
+            $excel_data['excel_data']['sf_address'] = $sf_details[0]['address'];
+            $excel_data['excel_data']['sf_owner_name'] = $sf_details[0]['owner_name'];
+            $excel_data['excel_data']['date'] = date('Y-m-d');
+            $excel_data['excel_data_line_item'] = array();
             $cell = 'B21';
             if (file_exists($sf_details[0]['signature_file'])) {
                 $signature_file = TMP_FOLDER . $sf_details[0]['signature_file'];

@@ -1661,9 +1661,8 @@ class Partner extends CI_Controller {
                 . "serial_number_pic,defective_parts_pic,spare_parts_details.id, booking_details.request_type, purchase_price, estimate_cost_given_date,booking_details.partner_id,booking_details.assigned_vendor_id,booking_details.service_id,parts_requested_type";
 
         $data['spare_parts'] = $this->inventory_model->get_spare_parts_query($where);
-        $post['length'] = -1;
-        $post['where'] = array('entity_id' => $data['spare_parts'][0]->partner_id,'entity_type' => _247AROUND_PARTNER_STRING,'service_id' => $data['spare_parts'][0]->service_id);
-        $data['inventory_details'] = $this->inventory_model->get_inventory_master_list($post, 'inventory_master_list.model_number', true);
+        $where = array('entity_id' => $data['spare_parts'][0]->partner_id, 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['spare_parts'][0]->service_id,'active' => 1);
+        $data['inventory_details'] = $this->inventory_model->get_appliance_model_details('id,model_number',$where);
         $this->load->view('partner/header');
         $this->load->view('partner/update_spare_parts_form', $data);
         $this->load->view('partner/partner_footer');
@@ -1678,6 +1677,7 @@ class Partner extends CI_Controller {
         
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id') . " Spare id: " . $id);
         $this->checkUserSession();
+        $this->form_validation->set_rules('shipped_model_number', 'Model Number', 'trim|required');
         $this->form_validation->set_rules('shipped_parts_name', 'Parts Name', 'trim|required');
         $this->form_validation->set_rules('remarks_by_partner', 'Remarks', 'trim|required');
         $this->form_validation->set_rules('courier_name', 'Courier Name', 'trim|required');
@@ -1726,13 +1726,10 @@ class Partner extends CI_Controller {
                 }
                 $data['status'] = "Shipped";
                 
-                $post['length'] = -1;
-                $post['where'] = array('model_number' => $data['model_number_shipped'], 'part_name' => $data['parts_shipped'], 'entity_id' => $partner_id, 'entity_type' => _247AROUND_PARTNER_STRING,'type' => $data['shipped_parts_type']);
-                $inventory_details = $this->inventory_model->get_inventory_master_list($post, 'inventory_master_list.inventory_id', true);
-                if (!empty($inventory_details)) {
-                    $data['shipped_inventory_id'] = $inventory_details[0]['inventory_id'];
+                if (!empty($this->input->post('inventory_id'))) {
+                    $data['shipped_inventory_id'] = $this->input->post('inventory_id');
                 }
-
+                
                 $where = array('id' => $id, 'partner_id' => $partner_id, 'entity_type' => _247AROUND_PARTNER_STRING);
                 $response = $this->service_centers_model->update_spare_parts($where, $data);
 

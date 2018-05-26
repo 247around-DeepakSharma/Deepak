@@ -2055,7 +2055,7 @@ class Inventory extends CI_Controller {
     function get_master_list_data(){
         $post = $this->get_post_data();
         $post['column_order'] = array();
-        $post['column_search'] = array('part_name','part_number','services.services','services.id','model_number','serial_number');
+        $post['column_search'] = array('part_name','part_number','services.services','services.id','serial_number');
         
         $select = "inventory_master_list.*,services.services";
         
@@ -2094,7 +2094,7 @@ class Inventory extends CI_Controller {
         }
         $row[] = $no;
         $row[] = $stock_list->services;
-        $row[] = $stock_list->model_number;
+//        $row[] = $stock_list->model_number;
         $row[] = $stock_list->type;
         $row[] = $stock_list->part_name;
         $row[] = $stock_list->part_number;
@@ -2120,7 +2120,7 @@ class Inventory extends CI_Controller {
             $data = array('part_name' => $this->input->post('part_name'),
                       'part_number' => $this->input->post('part_number'),
                       'serial_number' => $this->input->post('serial_number'),
-                      'model_number' => $this->input->post('model_number'),
+//                      'model_number' => $this->input->post('model_number'),
                       'size' => $this->input->post('size'),
                       'price' => $this->input->post('price'),
                       'type' => $this->input->post('type'),
@@ -2297,7 +2297,7 @@ class Inventory extends CI_Controller {
         $post = $this->get_post_data();
         $post[''] = array();
         $post['column_order'] = array();
-        $post['column_search'] = array('part_name','part_number','serial_number','model_number','type','services.id','services.services');
+        $post['column_search'] = array('part_name','part_number','serial_number','type','services.id','services.services');
         $post['where'] = array('inventory_master_list.entity_id'=>trim($this->input->post('entity_id')),'inventory_master_list.entity_type' => trim($this->input->post('entity_type')),'inventory_stocks.stock <> 0' => NULL);
         if($this->input->post('is_show_all')){
             unset($post['where']['inventory_stocks.stock <> 0']);
@@ -2338,7 +2338,7 @@ class Inventory extends CI_Controller {
         
         $row[] = $sn;
         $row[] = $inventory_list->services;
-        $row[] = $inventory_list->model_number;
+//        $row[] = $inventory_list->model_number;
         $row[] = $inventory_list->type;
         $row[] = $inventory_list->part_name;
         $row[] = $inventory_list->part_number;
@@ -2364,29 +2364,34 @@ class Inventory extends CI_Controller {
      */
     function get_parts_name(){
         
-        $model_number = $this->input->post('model_number');
+        $model_number_id = $this->input->post('model_number');
         $part_type = $this->input->post('part_type');
+        $where = array();
+        if(!empty($model_number_id)){
+            $where['model_number_id'] = $model_number_id;
+        }
         
-        $post['length'] = -1;
-        $post['where'] = array('entity_id' => $this->input->post('entity_id'), 'entity_type' => $this->input->post('entity_type'), 'service_id' => $this->input->post('service_id'), 'model_number' => $model_number,'type'=> $part_type);
-        $post['order'] = array(array('column' => 0,'dir' => 'ASC'));
-        $post['column_order'] = array('model_number');
-        $inventory_details = $this->inventory_model->get_inventory_master_list($post, 'inventory_master_list.part_name', true);
+        if(!empty($part_type)){
+            $where['type'] = $part_type;
+        }
+        
+        $inventory_type = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.part_name',$where);
         
         if($this->input->post('is_option_selected')){
             $option = '<option selected disabled>Select Part Name</option>';
         }else{
             $option = '';
         }
-        
 
-        foreach ($inventory_details as $value) {
+        foreach ($inventory_type as $value) {
             $option .= "<option value='" . $value['part_name'] . "'";
             $option .=" > ";
             $option .= $value['part_name'] . "</option>";
         }
 
         echo $option;
+        
+
     }
     
     /**
@@ -2396,14 +2401,20 @@ class Inventory extends CI_Controller {
      */
     function get_inventory_price(){
         
-        $model_number = $this->input->post('model_number');
+        $model_number_id = $this->input->post('model_number_id');
         $part_name = $this->input->post('part_name');
+        if(!empty($model_number_id)){
+            $part_number = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.part_number',array('model_number_id' => $model_number_id,'part_name' => $part_name))[0]['part_number'];
+        }else{
+            $part_number = $this->input->post('part_number');
+        }
+        
         $entity_id = $this->input->post('entity_id');
         $entity_type = $this->input->post('entity_type');
         $service_id = $this->input->post('service_id');
         
-        if($model_number && $part_name && $entity_id && $entity_type && $service_id){
-            $where= array('entity_id' => $entity_id, 'entity_type' => $entity_type, 'service_id' => $service_id, 'model_number' => $model_number,"part_name" => $part_name);
+        if($part_number && $entity_id && $entity_type && $service_id){
+            $where= array('entity_id' => $entity_id, 'entity_type' => $entity_type, 'service_id' => $service_id,'part_number' => $part_number);
             $inventory_details = $this->inventory_model->get_inventory_master_list_data('inventory_master_list.price as price,inventory_master_list.inventory_id, hsn_code,gst_rate', $where);
 
             if(!empty($inventory_details)){
@@ -2477,17 +2488,13 @@ class Inventory extends CI_Controller {
      */
     function get_parts_type(){
         
-        $model_number = $this->input->post('model_number');
+        $model_number_id = $this->input->post('model_number_id');
         
-        $post['length'] = -1;
-        $post['where'] = array('entity_id' => $this->input->post('entity_id'), 'entity_type' => $this->input->post('entity_type'), 'service_id' => $this->input->post('service_id'), 'model_number' => $model_number);
-        $post['order'] = array(array('column' => 0,'dir' => 'ASC'));
-        $post['column_order'] = array('type');
-        $inventory_details = $this->inventory_model->get_inventory_master_list($post, 'inventory_master_list.type', true);
+        $inventory_type = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.type',array('model_number_id' => $model_number_id));
         
         $option = '<option selected disabled>Select Part Type</option>';
 
-        foreach ($inventory_details as $value) {
+        foreach ($inventory_type as $value) {
             $option .= "<option value='" . $value['type'] . "'";
             $option .=" > ";
             $option .= $value['type'] . "</option>";
@@ -2636,7 +2643,7 @@ class Inventory extends CI_Controller {
             if (!empty($parts_details)) {
 
                 $invoice_file = $this->upload_spare_invoice_file($_FILES);
-
+                $not_updated_data = array();
                 if ($invoice_file['status']) {
                     $entity_details = $this->partner_model->getpartner_details("state", array('partners.id' => $partner_id));
                     $c_s_gst = $this->invoices_model->check_gst_tax_type($entity_details[0]['state']);
@@ -2674,6 +2681,7 @@ class Inventory extends CI_Controller {
                         if ($insert_id) {
                             log_message("info", "Ledger details added successfully");
                         } else {
+                            array_push($not_updated_data, $value['part_number']);
                             log_message("info", "error in adding inventory ledger details data: " . print_r($ledger_data, TRUE));
                         }
                     }
@@ -2681,9 +2689,15 @@ class Inventory extends CI_Controller {
                     $this->insert_inventory_main_invoice($invoice_id, $partner_id, $booking_id_array, $tqty, $invoice_dated, $total_basic_amount, $total_cgst_tax_amount, $total_sgst_tax_amount, $total_igst_tax_amount,$invoice_file['message']);
 
                     $this->invoices_model->insert_invoice_breakup($invoice);
-
-                    $res['status'] = TRUE;
-                    $res['message'] = 'Details Updated Successfully';
+                    
+                    if(empty($not_updated_data)){
+                        $res['status'] = TRUE;
+                        $res['message'] = 'Details Updated Successfully';
+                    }else{
+                        $res['status'] = false;
+                        $res['message'] = "For These Parts Details not updated :". implode(',', $not_updated_data). " Please Try again for these parts";
+                    }
+                    
                 } else {
                     $res['status'] = false;
                     $res['message'] = $invoice_file['message'];
@@ -2870,9 +2884,10 @@ class Inventory extends CI_Controller {
         
         $row[] = $no;
         $row[] = $inventory_list->services;
-        $row[] = $inventory_list->model_number;
+//        $row[] = $inventory_list->model_number;
         $row[] = $inventory_list->type;
         $row[] = $inventory_list->part_name;
+        $row[] = $inventory_list->part_number;
         $row[] = $inventory_list->quantity;
         $row[] = $row[] = "<input type='checkbox' class= 'check_single_row' id='ack_spare_$inventory_list->inventory_id' data-inventory_id='".$inventory_list->inventory_id."' data-quantity='".$inventory_list->quantity."' data-ledger_id = '".$inventory_list->id."'>";
         
@@ -2947,51 +2962,78 @@ class Inventory extends CI_Controller {
 
         $sender_entity_id = $this->input->post('sender_entity_id');
         $sender_entity_type = $this->input->post('sender_entity_type');
+        $awb_by_wh = $this->input->post('awb_by_wh');
+        $courier_name_by_wh = $this->input->post('courier_name_by_wh');
+        $courier_price_by_wh = $this->input->post('courier_price_by_wh');
+        $defective_parts_shippped_date_by_wh = $this->input->post('defective_parts_shippped_date_by_wh');
         $postData = json_decode($this->input->post('data'));
 
-        if (!empty($sender_entity_id) && !empty($sender_entity_type) && !empty($postData)) {
-            foreach ($postData as $value) {
-                //acknowledge spare by setting is_wh_ack flag = 1 in inventory ledger table
-                if(!empty($value->inventory_id)){
-                    $ledger_data['receiver_entity_id'] = $value->partner_id;
-                    $ledger_data['receiver_entity_type'] = _247AROUND_PARTNER_STRING;
-                    $ledger_data['sender_entity_id'] = $sender_entity_id;
-                    $ledger_data['sender_entity_type'] = $sender_entity_type;
-                    $ledger_data['inventory_id'] = $value->inventory_id;
-                    $ledger_data['quantity'] = 1;
-                    $ledger_data['agent_id'] = $this->session->userdata('service_center_id');
-                    $ledger_data['agent_type'] = _247AROUND_SF_STRING;
-                    $ledger_data['booking_id'] = $value->booking_id;
-                    $ledger_data['is_defective'] = 1;
+        if (!empty($sender_entity_id) && !empty($sender_entity_type) && !empty($postData) && !empty($awb_by_wh) && !empty($courier_name_by_wh) && !empty($courier_price_by_wh) && !empty($defective_parts_shippped_date_by_wh)) {
+            $courier_file = $this->upload_defective_parts_shipped_courier_file($_FILES);
 
-                    $insert_id = $this->inventory_model->insert_inventory_ledger($ledger_data);
+            if ($courier_file['status']) {
+                $not_updated_bookings = array();
+                foreach ($postData as $value) {
+                    //acknowledge spare by setting is_wh_ack flag = 1 in inventory ledger table
+                    if (!empty($value->inventory_id)) {
+                        $ledger_data['receiver_entity_id'] = $value->partner_id;
+                        $ledger_data['receiver_entity_type'] = _247AROUND_PARTNER_STRING;
+                        $ledger_data['sender_entity_id'] = $sender_entity_id;
+                        $ledger_data['sender_entity_type'] = $sender_entity_type;
+                        $ledger_data['inventory_id'] = $value->inventory_id;
+                        $ledger_data['quantity'] = 1;
+                        $ledger_data['agent_id'] = $this->session->userdata('service_center_id');
+                        $ledger_data['agent_type'] = _247AROUND_SF_STRING;
+                        $ledger_data['booking_id'] = $value->booking_id;
+                        $ledger_data['is_defective'] = 1;
 
-                    if ($insert_id) {
-                        log_message("info", "Ledger details added successfully");
-                        $where = array('id' => $value->spare_id);
-                        $data = array('status' => DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH);
-                        $update_spare_parts = $this->service_centers_model->update_spare_parts($where,$data);
-                        if($update_spare_parts){
-                            log_message("info", "Spare Status updated  successfully");
-                            $agent_id = $this->session->userdata('service_center_agent_id');
-                            $agent_name = $this->session->userdata('service_center_name');
-                            $service_center_id =$this->session->userdata('service_center_id');
-                            $actor = ACTOR_NOT_DEFINE;
-                            $next_action = NEXT_ACTION_NOT_DEFINE;
+                        $insert_id = $this->inventory_model->insert_inventory_ledger($ledger_data);
 
-                            $this->notify->insert_state_change($value->booking_id, DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, "", DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, $agent_id, $agent_name,$actor,$next_action, NULL, $service_center_id);
-                        }else{
-                            log_message("info", "Error in updating spare details");
+                        if ($insert_id) {
+                            log_message("info", "Ledger details added successfully");
+                            $where = array('id' => $value->spare_id);
+                            $data = array('status' => DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH,
+                                'awb_by_wh' => $awb_by_wh,
+                                'courier_name_by_wh' => $courier_name_by_wh,
+                                'courier_price_by_wh' => $courier_price_by_wh,
+                                'defective_parts_shippped_date_by_wh' => $defective_parts_shippped_date_by_wh,
+                                'defective_parts_shippped_courier_pic_by_wh' => $courier_file['message']
+                            );
+                            $update_spare_parts = $this->service_centers_model->update_spare_parts($where, $data);
+                            if ($update_spare_parts) {
+                                log_message("info", "Spare Status updated  successfully");
+                                $agent_id = $this->session->userdata('service_center_agent_id');
+                                $agent_name = $this->session->userdata('service_center_name');
+                                $service_center_id = $this->session->userdata('service_center_id');
+                                $actor = ACTOR_NOT_DEFINE;
+                                $next_action = NEXT_ACTION_NOT_DEFINE;
+
+                                $this->notify->insert_state_change($value->booking_id, DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, "", DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, $agent_id, $agent_name, $actor, $next_action, NULL, $service_center_id);
+                            } else {
+                                array_push($not_updated_bookings, $value->booking_id);
+                                log_message("info", "Error in updating spare details" . print_r($data, true));
+                            }
+                        } else {
+                            array_push($not_updated_bookings, $value->booking_id);
+                            log_message("info", "error in adding inventory ledger details data: " . print_r($ledger_data, true));
                         }
-                        
-                    } else {
-                        log_message("info", "error in adding inventory ledger details data: " . print_r($ledger_data));
+                    }else{
+                        array_push($not_updated_bookings, $value->booking_id);
+                        log_message("info", "error in adding inventory ledger details data: " . $value->booking_id);
                     }
                 }
-            }
 
-            $res['status'] = TRUE;
-            $res['message'] = 'Details updated successfully';
+                if (empty($not_updated_bookings)) {
+                    $res['status'] = TRUE;
+                    $res['message'] = 'Details Updated Successfully';
+                } else {
+                    $res['status'] = false;
+                    $res['message'] = "These Bookings not updated " . implode(',', $not_updated_bookings) . " Please Try agian to update these bookings.";
+                }
+            }else{
+                $res['status'] = false;
+                $res['message'] = $courier_file['message'];
+            }
         } else {
             $res['status'] = false;
             $res['message'] = 'All fields are required';
@@ -2999,8 +3041,7 @@ class Inventory extends CI_Controller {
 
         echo json_encode($res);
     }
-    
-    
+
     /**
      *  @desc : This function is used to get data for the spare which send by WH to partner
      *  @param : void
@@ -3127,6 +3168,90 @@ class Inventory extends CI_Controller {
                 } else {
                     $res['status'] = false;
                     $res['message'] = 'Uploaded file must in pdf.';
+                }
+            } else {
+                $res['status'] = false;
+                $res['message'] = 'Uploaded file size can not be greater than 2 mb';
+            }
+        } else {
+            $res['status'] = false;
+            $res['message'] = 'Please Upload File';
+        }
+
+        return $res;
+    }
+    
+    /**
+     *  @desc : This function is used to get inventory part number
+     *  @param : void
+     *  @return : $res array() // consist response message and response status
+     */
+    function get_parts_number(){
+        
+        $part_name = trim($this->input->post('part_name'));
+        
+        $post['length'] = -1;
+        $post['where'] = array('entity_id' => trim($this->input->post('entity_id')), 'entity_type' => trim($this->input->post('entity_type')), 'service_id' => trim($this->input->post('service_id')),'part_name' => $part_name);
+        $post['order'] = array(array('column' => 0,'dir' => 'ASC'));
+        $post['column_order'] = array('part_number');
+        $inventory_details = $this->inventory_model->get_inventory_master_list($post, 'inventory_master_list.part_number', true);
+        
+        if($this->input->post('is_option_selected')){
+            $option = '<option selected disabled>Select Part Number</option>';
+        }else{
+            $option = '';
+        }
+        
+
+        foreach ($inventory_details as $value) {
+            $option .= "<option value='" . $value['part_number'] . "'";
+            $option .=" > ";
+            $option .= $value['part_number'] . "</option>";
+        }
+
+        echo $option;
+    }
+    
+    /**
+     *  @desc : This function is used to upload partner appliance model details in appliance_model_details table
+     *  @param : void
+     *  @return :void
+     */
+    function upload_appliance_model_details(){
+        
+        $data['services'] = $this->booking_model->selectservice();
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/upload_appliance_model_details',$data);
+    }
+    
+    /**
+     *  @desc : This function is used to upload the defective spare shipped by warehouse courier file
+     *  @param : $file_details array()
+     *  @return :$res array
+     */
+    function upload_defective_parts_shipped_courier_file($file_details) {
+        log_message("info",__METHOD__);
+        $MB = 1048576;
+        //check if upload file is empty or not
+        if (!empty($file_details['file']['name'])) {
+            //check upload file size. it should not be greater than 2mb in size
+            if ($file_details['file']['size'] <= 2 * $MB) {
+                $allowed = array('pdf','jpg','png','jpeg');
+                $ext = pathinfo($file_details['file']['name'], PATHINFO_EXTENSION);
+                //check upload file type. it should be pdf.
+                if (in_array($ext, $allowed)) {
+                    $upload_file_name = str_replace(' ', '_', trim($file_details['file']['name']));
+
+                    $file_name = 'defective_spare_courier_by_wh_' . rand(10, 100) . '_' . $upload_file_name;
+                    //Upload files to AWS
+                    $directory_xls = "vendor-partner-docs/" . $file_name;
+                    $this->s3->putObjectFile($file_details['file']['tmp_name'], BITBUCKET_DIRECTORY, $directory_xls, S3::ACL_PUBLIC_READ);
+
+                    $res['status'] = true;
+                    $res['message'] = $file_name;
+                } else {
+                    $res['status'] = false;
+                    $res['message'] = 'Uploaded file type not valid.';
                 }
             } else {
                 $res['status'] = false;

@@ -38,7 +38,7 @@
                                 <tr>
                                     <th>S.No</th>
                                     <th>Appliance</th>
-                                    <th>Spare Model Number</th>
+<!--                                    <th>Spare Model Number</th>-->
                                     <th>Spare Type</th>
                                     <th>Spare Part Name</th>
                                     <th>Spare Part Number</th>

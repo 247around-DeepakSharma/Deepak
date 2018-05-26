@@ -94,10 +94,83 @@
             </div>
          </div>
       </div>
+    
+    <!-- courier Information when warehouse Shipped defective parts to partner -->
+    <div class="courier_model">
+        <div id="courier_model" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+
+              <!-- Modal content-->
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal">&times;</button>
+                  <h4 class="modal-title">Please Provide Courier Details</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal" id="courier_model_form" method="post" novalidate="novalidate">
+                        <div class='row'>
+                            <div class="col-md-6">
+                                <div class='form-group'>
+                                    <label for="awb_by_wh" class="col-md-4">AWB *</label>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control"  id="awb_by_wh" name="awb_by_wh" placeholder="Please Enter AWB" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class='form-group'>
+                                    <label for="courier_name_by_wh" class="col-md-4">Courier Name *</label>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control"  id="courier_name_by_wh" name="courier_name_by_wh" placeholder="Please Enter Courier Name" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='row'>
+                            <div class="col-md-6">
+                                <div class='form-group'>
+                                    <label for="courier_price_by_wh" class="col-md-4">Courier Price *</label>
+                                    <div class="col-md-8">
+                                        <input type="number" class="form-control"  id="courier_price_by_wh" name="courier_price_by_wh" placeholder="Please Enter Courier Price" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class='form-group'>
+                                    <label for="defective_parts_shippped_date_by_wh" class="col-md-4">Courier Shipped Date *</label>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control"  id="defective_parts_shippped_date_by_wh" name="defective_parts_shippped_date_by_wh" placeholder="Please enter Shiiped Date" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class='form-group'>
+                                    <label for="defective_parts_shippped_courier_pic_by_wh" class="col-md-4">Courier Pic *</label>
+                                    <div class="col-md-8">
+                                        <input type="file" class="form-control"  id="defective_parts_shippped_courier_pic_by_wh" name="defective_parts_shippped_courier_pic_by_wh" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" id="submit_courier_form">Submit</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+    </div>
    </div>
 <div class="custom_pagination" style="margin-left: 16px;" > <?php if(isset($links)) echo $links; ?></div>
 
 <script>
+    var postData = {};
+    $("#defective_parts_shippped_date_by_wh").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true});
     $('#send_all').on('click', function () {
         if ($(this).is(':checked', true))
         {
@@ -110,8 +183,8 @@
     });
     
     function process_send_all_spare(){
+        
         var tmp_arr = {};
-        var postData = {};
         var flag = false;
         $(".check_single_row:checked").each(function (key) {
             tmp_arr[key] = {};
@@ -127,24 +200,61 @@
         postData['sender_entity_type'] = '<?php echo _247AROUND_SF_STRING; ?>';
         
         if(flag){
+            $('#courier_model').modal('toggle');
+        }else{
+            alert("Please Select At Least One Checkbox");
+        }
+    }
+    
+    $('#submit_courier_form').on('click',function(){
+        $('#submit_courier_form').html("<i class = 'fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
+        postData['awb_by_wh'] = $('#awb_by_wh').val();
+        postData['courier_name_by_wh'] = $('#courier_name_by_wh').val();
+        postData['courier_price_by_wh'] = $('#courier_price_by_wh').val();
+        postData['defective_parts_shippped_date_by_wh'] = $('#defective_parts_shippped_date_by_wh').val();
+        
+        //Declaring new Form Data Instance  
+        var formData = new FormData();
+                
+        //Getting Files Collection
+        var files = $("#defective_parts_shippped_courier_pic_by_wh")[0].files;
+        
+        //Looping through uploaded files collection in case there is a Multi File Upload. This also works for single i.e simply remove MULTIPLE attribute from file control in HTML.  
+        for (var i = 0; i < files.length; i++) {
+            formData.append('file', files[i]);
+        }
+        
+        //Now Looping the parameters for all form input fields and assigning them as Name Value pairs. 
+        $.each(postData, function(index, element) {
+            formData.append(index, element);
+        });
+        
+        if(postData['awb_by_wh'] && postData['courier_name_by_wh'] && postData['courier_price_by_wh'] && postData['defective_parts_shippped_date_by_wh'] && files.length >= 1){
             $.ajax({
                 method:'POST',
                 url:'<?php echo base_url(); ?>employee/inventory/send_defective_parts_to_partner_from_wh',
-                data:postData,
+                data:formData,
+                contentType: false,
+                processData: false,
                 success:function(response){
+                    $('#submit_courier_form').html('Submit').attr('disabled',false);
+                    $('#courier_model').modal('toggle');
                     obj = JSON.parse(response);
                     if(obj.status){
-                        $('.success_msg_div').fadeTo(2000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
+                        $('.success_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
                         $('#success_msg').html(obj.message);
+                        alert(obj.message);
                         window.location.reload();
                     }else{
-                        $('.error_msg_div').fadeTo(2000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(1000);});
+                        $('.error_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(1000);});
                         $('#error_msg').html(obj.message);
                     }
                 }
             });
         }else{
-            alert("Please Select At Least One Checkbox");
+            $('#submit_courier_form').html('Submit').attr('disabled',false);
+            alert("Please enter all required field");
         }
-    }
+        
+    });
 </script>

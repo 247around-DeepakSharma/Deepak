@@ -574,5 +574,7 @@ define('RESCHEDULE_FOR_UPCOUNTRY', "Upcountry Booking");
 define("ENGINEER_ON_ROUTE", "Engineer on route");
 define("INVOCIE_TAG_FOR_INVENTORY", "inventory");
 
+//Define Constant for Partner Appliance model
+define('PARTNER_APPLIANCE_MODEL_FILe','Appliance-model-file');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

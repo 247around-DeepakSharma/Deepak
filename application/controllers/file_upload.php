@@ -55,6 +55,10 @@ class File_upload extends CI_Controller {
                         //process partner appliance file upload
                         $response = $this->process_partner_appliance_upload_file($data);
                         break;
+                    case PARTNER_APPLIANCE_MODEL_FILe:
+                        //process partner appliance file upload
+                        $response = $this->process_partner_appliance_model_details_file($data);
+                        break;
                     default :
                         log_message("info"," upload file type not found");
                         $response['status'] = FALSE;
@@ -184,7 +188,7 @@ class File_upload extends CI_Controller {
         $sheetUniqueRowData = array();
         //$file_appliance_arr = array();
         //column which must be present in the  upload inventory file
-        $header_column_need_to_be_present = array('appliance','part_name','part_number','part_description','model_number','price','hsn_code','gst_rate');
+        $header_column_need_to_be_present = array('appliance','part_name','part_number','part_description','price','hsn_code','gst_rate');
         //check if required column is present in upload file header
         $check_header = $this->check_column_exist($header_column_need_to_be_present,$data['header_data']);
 
@@ -208,7 +212,7 @@ class File_upload extends CI_Controller {
                         $rowData['part_number'] = $new_part_number;
                     }
                     
-                    $subArray = $this->get_sub_array($rowData, array('appliance','service_id', 'part_name', 'part_number', 'model_number'));
+                    $subArray = $this->get_sub_array($rowData, array('appliance','service_id', 'part_name', 'part_number'));
                     array_push($sheetUniqueRowData, implode('_join_', $subArray));
                     $this->sanitize_inventory_data_to_insert($rowData);
                 }
@@ -328,7 +332,6 @@ class File_upload extends CI_Controller {
         $tmp_data['part_name'] = trim(str_replace(array('"',"'"), "", $data['part_name']));
         $tmp_data['part_number'] = trim(str_replace(array('"',"'"), "", $data['part_number']));
         $tmp_data['description'] = trim(str_replace(array('"',"'"), "", $data['part_description']));
-        $tmp_data['model_number'] = trim(str_replace(array('"',"'"), "", $data['model_number']));
         $tmp_data['serial_number'] = (isset($data['serial_number']) && !empty($data['serial_number'])) ? trim($data['serial_number']):null;
         $tmp_data['type'] = (isset($data['part_type']) && !empty($data['part_type'])) ? trim($data['part_type']):null;
         $tmp_data['size'] = (isset($data['size']) && !empty($data['size'])) ? trim($data['size']):null;
@@ -429,7 +432,6 @@ class File_upload extends CI_Controller {
     function process_partner_appliance_upload_file($data) {
         log_message('info', __FUNCTION__ . " => process upload partner appliance file");
         $sheetUniqueRowData = array();
-        $file_partner_arr = array();
         //column which must be present in the  upload inventory file
         $header_column_need_to_be_present = array('partnerid', 'serviceid', 'brand', 'category', 'capacity', 'model');
         //check if required column is present in upload file header
@@ -444,7 +446,6 @@ class File_upload extends CI_Controller {
 
                 if (!empty(array_filter($sanitizes_row_data))) {
                     $rowData = array_combine($data['header_data'], $rowData_array[0]);
-                    array_push($file_partner_arr, $rowData['partnerid']);
                     $subArray = $this->get_sub_array($rowData, array('partnerid', 'serviceid', 'brand', 'category', 'capacity','model'));
                     array_push($sheetUniqueRowData, implode('_join_', $subArray));
                     $this->sanitize_partner_appliance_data_to_insert($rowData);
@@ -452,7 +453,7 @@ class File_upload extends CI_Controller {
             }
 
             //check file contains unique data
-            $is_file_contains_unique_data = $this->check_unique_in_array_data($sheetUniqueRowData, $file_partner_arr);
+            $is_file_contains_unique_data = $this->check_unique_in_array_data($sheetUniqueRowData);
 
             if ($is_file_contains_unique_data['status']) {
                 $partner_id = trim($this->input->post('partner_id'));
@@ -536,6 +537,98 @@ class File_upload extends CI_Controller {
         
         array_push($this->dataToInsert, $tmp_data);
         
+    }
+    
+    /**
+     * @desc: This function is used to update model in appliance_model_details table
+     * @param $data array  //consist file temporary name, file extension and status(file type is correct or not) and post data from upload form
+     * @param $response array  response message and status
+     */
+    function process_partner_appliance_model_details_file($data) {
+        log_message('info', __FUNCTION__ . " => process upload appliance model file");
+        $flag = true;
+        $row_number = "";
+        $sheet_unique_row_data = array();
+        //column which must be present in the  upload inventory file
+        $header_column_need_to_be_present = array('appliance', 'model_number');
+        //check if required column is present in upload file header
+        $check_header = $this->check_column_exist($header_column_need_to_be_present, $data['header_data']);
+        
+        if ($check_header['status']) {
+            $services_list = $this->booking_model->selectservice();
+            $services = array();
+            foreach ($services_list as $value) {
+                $services[$value->services] = $value->id;
+            }
+            //get file data to process
+            for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
+                $row_data_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
+                $sanitizes_row_data = array_map('trim', $row_data_array[0]);
+                if (!empty(array_filter($sanitizes_row_data))) {
+                    $rowData = array_combine($data['header_data'], $row_data_array[0]);
+                    $subArray = $this->get_sub_array($rowData, array('appliance', 'model_number'));
+                    if(isset($services[trim($rowData['appliance'])]) && !empty($services[trim($rowData['appliance'])])){
+                        $rowData['service_id'] = $services[trim($rowData['appliance'])];
+                        $rowData['partner_id'] = $this->input->post('partner_id');
+                        array_push($sheet_unique_row_data, implode('_join_', $subArray));
+                        $this->sanitize_partner_appliance_model_data_to_insert($rowData);
+                    }else{
+                        $flag = FALSE;
+                        $row_number = $row;
+                        break;
+                    }
+                    
+                }
+            }
+            
+            if($flag){
+                //check file contains unique data
+                $is_file_contains_unique_data = $this->check_unique_in_array_data($sheet_unique_row_data);
+                if ($is_file_contains_unique_data['status']) {
+                    $insert_id = $this->inventory_model->insert_appliance_model_details($this->dataToInsert);
+    
+                    if ($insert_id) {
+                        log_message("info", __METHOD__ . " partner appliance model details file data inserted succcessfully");
+                        $response['status'] = TRUE;
+                        $response['message'] = "Details inserted successfully.";
+                    } else {
+                        log_message("info", __METHOD__ . " error in inserting partner appliance file data");
+                        $response['status'] = FALSE;
+                        $response['message'] = "Something went wrong in inserting data.";
+                    }
+                } else {
+                    log_message("info", __METHOD__ . " " . $is_file_contains_unique_data['message']);
+                    $response['status'] = FALSE;
+                    $response['message'] = $is_file_contains_unique_data['message'];
+                }
+            }else{
+                log_message("info", __METHOD__ . " " . "Uploaded  file dose not contains right appliance name");
+                $response['status'] = FALSE;
+                $response['message'] = "Uploaded  file dose not contains right appliance name. Please check spelling in the file at line $row_number";
+            }
+            
+        } else {
+            $response['status'] = $check_header['status'];
+            $response['message'] = $check_header['message'];
+        }
+        
+        return $response;
+    }
+
+    /**
+     * @desc: This function is used to sanitize upload file data and make final data to insert in appliance_model_details
+     * @param $data array() 
+     * @return void
+     */
+    function sanitize_partner_appliance_model_data_to_insert($data){
+        
+        $tmp_data['entity_id'] = trim($data['partner_id']);
+        $tmp_data['entity_type'] = _247AROUND_PARTNER_STRING;
+        $tmp_data['service_id'] = trim($data['service_id']);
+        $tmp_data['model_number'] = trim($data['model_number']);
+        $tmp_data['create_date'] = date('Y-m-d H:i:s');
+        
+        array_push($this->dataToInsert, $tmp_data);
     }
 
 }

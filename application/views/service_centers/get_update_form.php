@@ -99,15 +99,17 @@
                                         <label for="model_number" class="col-md-4">Model Number *</label>
                                         <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                             <div class="col-md-6">
-                                                <select class="form-control spare_parts" id="model_number" name="model_number">
+                                                <select class="form-control spare_parts" id="model_number_id" name="model_number_id">
                                                     <option value="" disabled="" selected="">Select Model Number</option>
-                                                    <?php foreach (array_column($inventory_details, 'model_number') as $key => $value) { ?> 
-                                                        <option value="<?php echo $value; ?>"><?php echo $value; ?></option>
+                                                    <?php foreach ($inventory_details as $key => $value) { ?> 
+                                                        <option value="<?php echo $value['id']; ?>"><?php echo $value['model_number']; ?></option>
                                                     <?php } ?>
                                                 </select>
+                                                <input type="hidden" id="model_number" name="model_number">
                                             </div>
                                         <?php } else { ?> 
                                             <div class="col-md-6">
+                                                <input type="hidden" id="model_number_id" name="model_number_id">
                                                 <input type="text" class="form-control spare_parts" id="model_number" name="model_number" value = "<?php echo set_value('model_number'); ?>" placeholder="Model Number">
                                             </div>
                                         <?php } ?>
@@ -299,7 +301,7 @@
     
     <?php if(isset($inventory_details) && !empty($inventory_details)) { ?> 
         
-        $('#model_number').select2();
+        $('#model_number_id').select2();
         $('#parts_name').select2({
             placeholder: "Select Part Name",
             allowClear:true
@@ -309,15 +311,17 @@
             allowClear:true
         });
         
-        $('#model_number').on('change', function() {
+        $('#model_number_id').on('change', function() {
         
-            var model_number = $('#model_number').val();
+            var model_number_id = $('#model_number_id').val();
+            var model_number = $("#model_number_id option:selected").text();
             $('#spinner').addClass('fa fa-spinner').show();
             if(model_number){
+                $('#model_number').val(model_number);
                 $.ajax({
                     method:'POST',
                     url:'<?php echo base_url(); ?>employee/inventory/get_parts_type',
-                    data: { model_number:model_number, entity_id: '<?php echo $bookinghistory[0]['partner_id']?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo $bookinghistory[0]['service_id']; ?>' },
+                    data: { model_number_id:model_number_id},
                     success:function(data){
                         $('#parts_type').val('val', "");
                         $('#parts_type').val('Select Part Type').change();
@@ -334,24 +338,23 @@
         
         $('#parts_type').on('change', function() {
         
-            var model_number = $('#model_number').val();
+            var model_number_id = $('#model_number_id').val();
             var part_type = $('#parts_type').val();
             $('#spinner').addClass('fa fa-spinner').show();
-            if(model_number){
+            if(model_number_id && part_type){
                 $.ajax({
                     method:'POST',
                     url:'<?php echo base_url(); ?>employee/inventory/get_parts_name',
-                    data: { model_number:model_number, entity_id: '<?php echo $bookinghistory[0]['partner_id']?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo $bookinghistory[0]['service_id']; ?>', part_type:part_type },
+                    data: {model_number_id:model_number_id,entity_id: '<?php echo $bookinghistory[0]['partner_id']?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo $bookinghistory[0]['service_id']; ?>', part_type:part_type},
                     success:function(data){
                         $('#parts_name').val('val', "");
                         $('#parts_name').val('Select Part Name').change();
                         $('#parts_name').html(data);
-                        //$('#parts_name').html(data);
                         $('#spinner').removeClass('fa fa-spinner').hide();
                     }
                 });
             }else{
-                alert("Please Select Model Number");
+                console.log("Please Select Model Number");
             }
         });
         
