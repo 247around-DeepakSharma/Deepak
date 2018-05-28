@@ -41,6 +41,7 @@
                             <th class="text-center">Booking Id</th>
                             <th class="text-center">User Name</th>
                             <th class="text-center">Defective Parts Shipped</th>
+                            <th class="text-center">Model</th>
                             <th class="text-center">Shipped Date</th>
                             <th class="text-center">AWB</th>
                             <th class="text-center">Courier Name</th>
@@ -67,6 +68,9 @@
                                     <td>
                                         <?php echo $row['defective_part_shipped']; ?>
                                     </td>
+                                     <td>
+                                        <?php echo $row['model_number_shipped']; ?>
+                                    </td>
 
                                     <td>
                                         <?php if(!is_null($row['defective_part_shipped_date'])){  echo date("d-m-Y",strtotime($row['defective_part_shipped_date'])); }  ?>
@@ -81,7 +85,7 @@
                                         <?php echo $row['remarks_defective_part_by_sf']; ?>
                                     </td>
                                     <td>
-                                        <input type="checkbox" class="check_single_row" data-shipped_inventory_id = "<?php echo $row['shipped_inventory_id']?>" data-booking_id ="<?php echo $row['booking_id']?>" data-partner_id = "<?php echo $row['partner_id']?>" data-spare_id = "<?php echo $row['id']?>">
+                                        <input type="checkbox" class="check_single_row" data-part_name ="<?php echo $row['defective_part_shipped']; ?>" data-model="<?php echo $row['model_number_shipped']; ?>" data-shipped_inventory_id = "<?php echo $row['shipped_inventory_id']?>" data-booking_id ="<?php echo $row['booking_id']?>" data-partner_id = "<?php echo $row['partner_id']?>" data-spare_id = "<?php echo $row['id']?>">
                                     </td>
                                 </tr>
                                 <?php $sn_no++; } ?>
@@ -192,6 +196,8 @@
             tmp_arr[key]['booking_id'] = $(this).attr('data-booking_id');
             tmp_arr[key]['partner_id'] = $(this).attr('data-partner_id');
             tmp_arr[key]['spare_id'] = $(this).attr('data-spare_id');
+            tmp_arr[key]['part_name'] = $(this).attr('data-part_name');
+            tmp_arr[key]['model'] = $(this).attr('data-model');
             flag = true;
         });
         

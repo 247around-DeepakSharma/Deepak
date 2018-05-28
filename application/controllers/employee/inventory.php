@@ -27,6 +27,8 @@ class Inventory extends CI_Controller {
         $this->load->library("pagination");
         $this->load->library("miscelleneous");
 	$this->load->library('booking_utilities');
+        $this->load->library('invoice_lib');
+        $this->load->library('table');
 
     }
 
@@ -2056,7 +2058,7 @@ class Inventory extends CI_Controller {
     function get_master_list_data(){
         $post = $this->get_post_data();
         $post['column_order'] = array();
-        $post['column_search'] = array('part_name','part_number','services.services','services.id','serial_number');
+        $post['column_search'] = array('part_name','part_number','services.services','services.id','model_number','serial_number');
         
         $select = "inventory_master_list.*,services.services";
         
@@ -2658,7 +2660,7 @@ class Inventory extends CI_Controller {
                         array_push($booking_id_array, $value['booking_id']);
                         $tqty += $value['quantity'];
 
-                        $invoice_annexure = $this->generate_inventory_invoice_data($invoice_id, $c_s_gst, $value);
+                        $invoice_annexure = $this->inventory_invoice_data($invoice_id, $c_s_gst, $value);
                         array_push($invoice, $invoice_annexure);
                         $total_basic_amount += $invoice_annexure['taxable_value'];
                         $total_cgst_tax_amount += $invoice_annexure['cgst_tax_amount'];
@@ -2687,7 +2689,7 @@ class Inventory extends CI_Controller {
                         }
                     }
 
-                    $this->insert_inventory_main_invoice($invoice_id, $partner_id, $booking_id_array, $tqty, $invoice_dated, $total_basic_amount, $total_cgst_tax_amount, $total_sgst_tax_amount, $total_igst_tax_amount,$invoice_file['message']);
+                    $this->insert_inventory_main_invoice($invoice_id, $partner_id, $booking_id_array, $tqty, $invoice_dated, $total_basic_amount, $total_cgst_tax_amount, $total_sgst_tax_amount, $total_igst_tax_amount,$invoice_file['message'], $wh_id);
 
                     $this->invoices_model->insert_invoice_breakup($invoice);
                     
@@ -2730,37 +2732,16 @@ class Inventory extends CI_Controller {
     function insert_inventory_main_invoice($invoice_id, $partner_id, 
             $booking_id_array, $tqty, $invoice_dated, $total_basic_amount, 
             $total_cgst_tax_amount, $total_sgst_tax_amount, 
-            $total_igst_tax_amount,$invoice_file) {
+            $total_igst_tax_amount,$invoice_file, $wh_id) {
         log_message('info', __METHOD__. " For Invoice ID ". $invoice_id);
-        $main_invoice = array();
         $total_invoice_amount = ($total_basic_amount + $total_cgst_tax_amount + $total_sgst_tax_amount + $total_igst_tax_amount);
-        $main_invoice['invoice_id'] = $invoice_id;
-        $main_invoice['bill_to_party'] = _247AROUND;
-        $main_invoice['entity_to'] = "partner";
-        $main_invoice['bill_from_party'] = $partner_id;
-        $main_invoice['entity_from'] = "partner";
-        $main_invoice['main_invoice_file'] = $invoice_file;
-        $main_invoice['booking_id'] = !empty($booking_id_array) ? implode(",", $booking_id_array) : '';
-        $main_invoice['total_qty'] = $tqty;
-        $main_invoice['invoice_date'] = $main_invoice['from_date'] = $main_invoice['to_date'] = $main_invoice['due_date'] = $invoice_dated;
-        $main_invoice['total_basic_amount'] = $total_basic_amount;
-        $main_invoice['total_cgst_tax_amount'] = $total_cgst_tax_amount;
-        $main_invoice['total_sgst_tax_amount'] = $total_sgst_tax_amount;
-        $main_invoice['total_igst_tax_amount'] = $total_igst_tax_amount;
-        $main_invoice['total_invoice_amount'] = $total_invoice_amount;
-        $main_invoice['settle'] = 0;
-        $main_invoice['type'] = INVOCIE_TAG_FOR_INVENTORY;
-        $main_invoice['agent_id'] = $this->session->userdata('id');
-        $main_invoice['create_date'] = date('Y-m-d H:i:s');
-
-        $this->invoices_model->insert_invoice($main_invoice);
-        log_message('info', __METHOD__. " New Invoice inserted ... ". $invoice_id);
-        
         $invoice_details_insert = array(
                     'invoice_id' => $invoice_id,
                     'type' => 'FOC',
                     'type_code' => 'B',
                     'vendor_partner' => 'partner',
+                    "third_party_entity" => "vendor",
+                    "third_party_entity_id" => $wh_id,
                     'vendor_partner_id' => $partner_id,
                     'invoice_file_main' => $invoice_file,
                     'invoice_date' => date("Y-m-d", strtotime($invoice_dated)),
@@ -2776,6 +2757,7 @@ class Inventory extends CI_Controller {
                     "cgst_tax_rate" => 0,
                     "sgst_tax_rate" => 0,
                     "igst_tax_rate" => 0,
+                    "remarks" => !empty($booking_id_array) ? implode(",", $booking_id_array) : '',
                     "igst_tax_amount" => $total_igst_tax_amount,
                     "sgst_tax_amount" => $total_sgst_tax_amount,
                     "cgst_tax_amount" => $total_cgst_tax_amount
@@ -2793,7 +2775,7 @@ class Inventory extends CI_Controller {
      * @param Array $value
      * @return Array
      */
-    function generate_inventory_invoice_data($invoice_id, $c_s_gst, $value) {
+    function inventory_invoice_data($invoice_id, $c_s_gst, $value) {
         $invoice = array();
         $invoice['invoice_id'] = $invoice_id;
         $invoice['description'] = $value['part_name'];
@@ -2801,6 +2783,7 @@ class Inventory extends CI_Controller {
         $invoice['hsn_code'] = $value['hsn_code'];
         $invoice['qty'] = $value['quantity'];
         $invoice['rate'] = $value['part_total_price'];
+        $invoice['inventory_id'] = $value['inventory_id'];
         $invoice['taxable_value'] = $value['part_total_price'] * $value['quantity'];
         if(!empty($value['gst_rate'])){
             $gst_amount = $invoice['taxable_value'] *($value['gst_rate']/100 );
@@ -2968,81 +2951,299 @@ class Inventory extends CI_Controller {
         $courier_price_by_wh = $this->input->post('courier_price_by_wh');
         $defective_parts_shippped_date_by_wh = $this->input->post('defective_parts_shippped_date_by_wh');
         $postData = json_decode($this->input->post('data'));
+        
+        $data = $this->inventory_invoice_settlement($sender_entity_id, $sender_entity_type);
+        
+        if (!empty($data)) {
+            if (!empty($sender_entity_id) && !empty($sender_entity_type) && !empty($postData) && !empty($awb_by_wh) && !empty($courier_name_by_wh) && !empty($courier_price_by_wh) && !empty($defective_parts_shippped_date_by_wh)) {
+                $courier_file = $this->upload_defective_parts_shipped_courier_file($_FILES);
 
-        if (!empty($sender_entity_id) && !empty($sender_entity_type) && !empty($postData) && !empty($awb_by_wh) && !empty($courier_name_by_wh) && !empty($courier_price_by_wh) && !empty($defective_parts_shippped_date_by_wh)) {
-            $courier_file = $this->upload_defective_parts_shipped_courier_file($_FILES);
+                if ($courier_file['status']) {
+                    $not_updated_bookings = array();
+                    foreach ($postData as $value) {
+                        //acknowledge spare by setting is_wh_ack flag = 1 in inventory ledger table
+                        if (!empty($value->inventory_id)) {
+                            $ledger_data['receiver_entity_id'] = $value->partner_id;
+                            $ledger_data['receiver_entity_type'] = _247AROUND_PARTNER_STRING;
+                            $ledger_data['sender_entity_id'] = $sender_entity_id;
+                            $ledger_data['sender_entity_type'] = $sender_entity_type;
+                            $ledger_data['inventory_id'] = $value->inventory_id;
+                            $ledger_data['quantity'] = 1;
+                            $ledger_data['agent_id'] = $this->session->userdata('service_center_id');
+                            $ledger_data['agent_type'] = _247AROUND_SF_STRING;
+                            $ledger_data['booking_id'] = $value->booking_id;
+                            $ledger_data['is_defective'] = 1;
 
-            if ($courier_file['status']) {
-                $not_updated_bookings = array();
-                foreach ($postData as $value) {
-                    //acknowledge spare by setting is_wh_ack flag = 1 in inventory ledger table
-                    if (!empty($value->inventory_id)) {
-                        $ledger_data['receiver_entity_id'] = $value->partner_id;
-                        $ledger_data['receiver_entity_type'] = _247AROUND_PARTNER_STRING;
-                        $ledger_data['sender_entity_id'] = $sender_entity_id;
-                        $ledger_data['sender_entity_type'] = $sender_entity_type;
-                        $ledger_data['inventory_id'] = $value->inventory_id;
-                        $ledger_data['quantity'] = 1;
-                        $ledger_data['agent_id'] = $this->session->userdata('service_center_id');
-                        $ledger_data['agent_type'] = _247AROUND_SF_STRING;
-                        $ledger_data['booking_id'] = $value->booking_id;
-                        $ledger_data['is_defective'] = 1;
+                            $insert_id = $this->inventory_model->insert_inventory_ledger($ledger_data);
 
-                        $insert_id = $this->inventory_model->insert_inventory_ledger($ledger_data);
+                            if ($insert_id) {
+                                log_message("info", "Ledger details added successfully");
+                                $where = array('id' => $value->spare_id);
+                                $data = array('status' => DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH,
+                                    'awb_by_wh' => $awb_by_wh,
+                                    'courier_name_by_wh' => $courier_name_by_wh,
+                                    'courier_price_by_wh' => $courier_price_by_wh,
+                                    'defective_parts_shippped_date_by_wh' => $defective_parts_shippped_date_by_wh,
+                                    'defective_parts_shippped_courier_pic_by_wh' => $courier_file['message']
+                                );
+                                $update_spare_parts = $this->service_centers_model->update_spare_parts($where, $data);
+                                if ($update_spare_parts) {
+                                    log_message("info", "Spare Status updated  successfully");
+                                    $agent_id = $this->session->userdata('service_center_agent_id');
+                                    $agent_name = $this->session->userdata('service_center_name');
+                                    $service_center_id = $this->session->userdata('service_center_id');
+                                    $actor = ACTOR_NOT_DEFINE;
+                                    $next_action = NEXT_ACTION_NOT_DEFINE;
 
-                        if ($insert_id) {
-                            log_message("info", "Ledger details added successfully");
-                            $where = array('id' => $value->spare_id);
-                            $data = array('status' => DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH,
-                                'awb_by_wh' => $awb_by_wh,
-                                'courier_name_by_wh' => $courier_name_by_wh,
-                                'courier_price_by_wh' => $courier_price_by_wh,
-                                'defective_parts_shippped_date_by_wh' => $defective_parts_shippped_date_by_wh,
-                                'defective_parts_shippped_courier_pic_by_wh' => $courier_file['message']
-                            );
-                            $update_spare_parts = $this->service_centers_model->update_spare_parts($where, $data);
-                            if ($update_spare_parts) {
-                                log_message("info", "Spare Status updated  successfully");
-                                $agent_id = $this->session->userdata('service_center_agent_id');
-                                $agent_name = $this->session->userdata('service_center_name');
-                                $service_center_id = $this->session->userdata('service_center_id');
-                                $actor = ACTOR_NOT_DEFINE;
-                                $next_action = NEXT_ACTION_NOT_DEFINE;
-
-                                $this->notify->insert_state_change($value->booking_id, DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, "", DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, $agent_id, $agent_name, $actor, $next_action, NULL, $service_center_id);
+                                    $this->notify->insert_state_change($value->booking_id, DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, "", DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, $agent_id, $agent_name, $actor, $next_action, NULL, $service_center_id);
+                                } else {
+                                    array_push($not_updated_bookings, $value->booking_id);
+                                    log_message("info", "Error in updating spare details" . print_r($data, true));
+                                }
                             } else {
                                 array_push($not_updated_bookings, $value->booking_id);
-                                log_message("info", "Error in updating spare details" . print_r($data, true));
+                                log_message("info", "error in adding inventory ledger details data: " . print_r($ledger_data, true));
                             }
                         } else {
                             array_push($not_updated_bookings, $value->booking_id);
-                            log_message("info", "error in adding inventory ledger details data: " . print_r($ledger_data, true));
+                            log_message("info", "error in adding inventory ledger details data: " . $value->booking_id);
                         }
-                    }else{
-                        array_push($not_updated_bookings, $value->booking_id);
-                        log_message("info", "error in adding inventory ledger details data: " . $value->booking_id);
                     }
-                }
 
-                if (empty($not_updated_bookings)) {
-                    $res['status'] = TRUE;
-                    $res['message'] = 'Details Updated Successfully';
+                    if (empty($not_updated_bookings)) {
+                        $res['status'] = TRUE;
+                        $res['message'] = 'Details Updated Successfully';
+                    } else {
+                        $res['status'] = false;
+                        $res['message'] = "These Bookings not updated " . implode(',', $not_updated_bookings) . " Please Try agian to update these bookings.";
+                    }
                 } else {
                     $res['status'] = false;
-                    $res['message'] = "These Bookings not updated " . implode(',', $not_updated_bookings) . " Please Try agian to update these bookings.";
+                    $res['message'] = $courier_file['message'];
                 }
-            }else{
+            } else {
                 $res['status'] = false;
-                $res['message'] = $courier_file['message'];
+                $res['message'] = 'All fields are required';
             }
         } else {
             $res['status'] = false;
-            $res['message'] = 'All fields are required';
+            $res['message'] = 'Please refresh and try again';
         }
 
         echo json_encode($res);
     }
+    
+    /**
+     * @desc This function is used to settle inventor invoice and insert into inventory invoice leadger
+     * @param String $sender_entity_id
+     * @param String $sender_entity_type
+     * @return boolean
+     */
+    function inventory_invoice_settlement($sender_entity_id, $sender_entity_type){
+        $postData1 = json_decode($this->input->post('data'), true);
+        $data = $this->generate_inventory_invoice($postData1,$sender_entity_id, $sender_entity_type); 
+        if(!empty($data)){
+            foreach ($data as $key => $value) {
+                $where = array('inventory_id' => $value['inventory_id'], 
+                    'vendor_partner_id' =>$value['partner_id'], "invoice_details.is_settle" => 0 );
+                $order_by = array('column_name' => "(qty -settle_qty)", 'param' => 'asc');
+                $unsettle = $this->invoices_model->get_unsettle_inventory_invoice('invoice_details.*', $where, $order_by);
+               
+              if(!empty($unsettle)){
+                  $qty = $value['qty'];
+                  foreach ($unsettle as $key => $b) {
+                      $restQty = $b['qty'] - $b['settle_qty'];
+                      if($restQty == $qty){
+                          $array= array('is_settle' => 1, 'settle_qty' => $b['qty']);
+                         
+                          $this->invoices_model->update_invoice_breakup(array('id' => $b['id']), $array);
+                          $mapping = array('incoming_invoice_id' => $b['id'], 'outgoing_invoice_id' => $data[0]['invoice_id'],
+                              'settle_qty' => $qty, 'create_date' => date('Y-m-d H:i:s'));
+                          $this->invoices_model->insert_inventory_invoice($mapping);
+                          $qty = 0;
+                          break;
+                      } else if($restQty < $qty){
+                          $array= array('is_settle' => 1, 'settle_qty' => $b['qty']);
+                          
+                          $this->invoices_model->update_invoice_breakup(array('id' => $b['id']), $array);
+                          $mapping = array('incoming_invoice_id' => $b['id'], 'outgoing_invoice_id' => $data[0]['invoice_id'],
+                              'settle_qty' => $restQty, 'create_date' => date('Y-m-d H:i:s'));
+                          $this->invoices_model->insert_inventory_invoice($mapping);
+                          $qty = $qty - $restQty;
+                        
+                      } else if($restQty > $qty){
+                          $array= array('is_settle' => 0, 'settle_qty' => $b['settle_qty'] + $qty);
+                         
+                          $this->invoices_model->update_invoice_breakup(array('id' => $b['id']), $array);
+                          $mapping = array('incoming_invoice_id' => $b['id'], 'outgoing_invoice_id' => $data[0]['invoice_id'],
+                              'settle_qty' => $qty, 'create_date' => date('Y-m-d H:i:s'));
+                          $this->invoices_model->insert_inventory_invoice($mapping);
+                          $qty = 0;
+                          
+                          break;
+                      } else {
+                          $this->invoices_not_found($value);
+                      }
+                  }
+              } else {
+                  log_message('info', __METHOD__. " Invoices not exist");
+                  $this->invoices_not_found($value);
+              }
+            }
+            return true;
+        } else {
+            return FALSE;
+        }
+    }
+    /**
+     * @desc If there is no any un-settle invoice available then it will send a mail to developer or accountant
+     * @param Array $data
+     */
+    function invoices_not_found($data) {
+        log_message('info', __METHOD__ . " Invoice Qty Not found " . print_r($data, true));
 
+        $template1 = array(
+            'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
+        );
+
+        $this->table->set_template($template1);
+
+        $this->table->set_heading(array('Description', 'Company Name', 'Inventory ID', 'Invoice ID', 'Qty'));
+        
+        $this->table->add_row($data['description'], $data['company_name'], $data['inventory_id'], $data['invoice_id'], $data['qty']);
+        
+
+        $this->table->set_template($template1);
+        $html_table = $this->table->generate();
+
+        $email_template = $this->booking_model->get_booking_email_template("spare_invoice_not_found");
+        $subject = $email_template[4];
+        $message = vsprintf($email_template[0], array($html_table,json_encode($data, true)));
+        $email_from = $email_template[2];
+
+        $to = $email_template[1];
+        $cc = $email_template[3];
+        $bcc = $email_template[5];
+
+        $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, "", 'spare_inventory_invoice');
+    }
+    
+    /**
+     * @desc This is used to generate inventory invoice
+     * @param Array $postData
+     * @param int $sender_entity_id
+     * @param String $sender_entity_type
+     * @return boolean
+     */
+
+    function generate_inventory_invoice($postData, $sender_entity_id, $sender_entity_type){
+        log_message('info', __METHOD__. " Data ". print_r($postData, TRUE). " Entity id ".$sender_entity_id);
+        $invoice = array();
+        foreach ($postData as $value) {
+                $invoice_id = $this->invoice_lib->create_invoice_id("Around");
+                if(!array_key_exists($value['inventory_id'], $invoice)){
+                    $entity_details = $this->partner_model->getpartner_details("gst_number, invoice_email_to, invoice_email_cc,state, company_name, address, district, pincode,", array('partners.id' => $value['partner_id']));
+                    $gst_number = $entity_details[0]['gst_number'];
+                    if(empty($gst_number)){
+
+                        $gst_number = TRUE;
+                    }
+                
+                    $inventory_details = $this->inventory_model->get_inventory_master_list_data('*',array('inventory_id' => $value['inventory_id']));
+                    $invoice[$value['inventory_id']]['description'] = $inventory_details[0]['part_name']." Booking ID ".$value['booking_id'];
+                
+                    $invoice[$value['inventory_id']]['taxable_value'] = $inventory_details[0]['price'];
+                    $invoice[$value['inventory_id']]['invoice_id'] = $invoice_id;
+                    $invoice[$value['inventory_id']]['product_or_services'] = "Product";
+                    $invoice[$value['inventory_id']]['gst_number'] = $gst_number;
+                    $invoice[$value['inventory_id']]['company_name'] = $entity_details[0]['company_name'];
+                    $invoice[$value['inventory_id']]['company_address'] = $entity_details[0]['address'];
+                    $invoice[$value['inventory_id']]['district'] = $entity_details[0]['district'];
+                    $invoice[$value['inventory_id']]['pincode'] = $entity_details[0]['pincode'];
+                    $invoice[$value['inventory_id']]['state'] = $entity_details[0]['state'];
+                    $invoice[$value['inventory_id']]['rate'] = $inventory_details[0]['price'];
+                    $invoice[$value['inventory_id']]['gst_rate'] = $inventory_details[0]['gst_rate'];
+                    $invoice[$value['inventory_id']]['qty'] =  1;
+                    $invoice[$value['inventory_id']]['hsn_code'] = $inventory_details[0]['hsn_code'];
+                    $invoice[$value['inventory_id']]['inventory_id'] = $value['inventory_id'];
+                    $invoice[$value['inventory_id']]['invoice_email_to'] = $entity_details[0]['invoice_email_to'];
+                    $invoice[$value['inventory_id']]['invoice_email_cc'] = $entity_details[0]['invoice_email_cc'];
+                    $invoice[$value['inventory_id']]['partner_id'] = $value['partner_id'];
+
+                } else {
+                    $invoice[$value['inventory_id']]['qty'] = $invoice[$value['inventory_id']]['qty'] + 1;
+                    $invoice[$value['inventory_id']]['description'] = $invoice[$value['inventory_id']]['description']." - ".$value['booking_id'];
+                }
+        }
+        $sd = $ed = $invoice_date = date("Y-m-d");
+        $invoices = array_values($invoice);
+        log_message('info', __METHOD__. " Spare Invoice Data ". print_r($invoices, TRUE). " Entity id ".$sender_entity_id);
+        $response = $this->invoices_model->_set_partner_excel_invoice_data($invoices, $sd, $ed, "Tax Invoice",$invoice_date);
+        $response['meta']['invoice_id'] = $invoice_id;
+        $response['booking'][0]['invoice_id'] = $response['meta']['invoice_id'];
+        
+        $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
+        if($status){
+                
+            log_message('info', __FUNCTION__ . ' Invoice File is created. invoice id' . $response['meta']['invoice_id']);
+            $convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($response['meta']['invoice_id'], "final");
+            $this->invoice_lib->upload_invoice_to_S3($response['meta']['invoice_id'], false, false);
+            
+            $attachment = S3_WEBSITE_URL. "/invoices-excel/" . $convert['main_pdf_file_name'];
+            
+            $email_template = $this->booking_model->get_booking_email_template("spare_inventory_invoice");
+            $subject = vsprintf($email_template[4], array($response['meta']['company_name'], $sd, $ed));
+            $message = $email_template[0];
+            $email_from = $email_template[2];
+
+            $to = $response['booking'][0]['invoice_email_to'];
+            $cc = $response['booking'][0]['invoice_email_cc'];
+            $bcc = $email_template[5];
+            
+            $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $attachment,'spare_inventory_invoice');
+            
+            $invoice_details = array(
+                'invoice_id' => $response['meta']['invoice_id'],
+                'type_code' => 'A',
+                'type' => 'Cash',
+                'vendor_partner' => 'partner',
+                "third_party_entity" => $sender_entity_type,
+                "third_party_entity_id" => $sender_entity_id,
+                'vendor_partner_id' => $response['booking'][0]['partner_id'],
+                'invoice_file_main' => $convert['main_pdf_file_name'],
+                'invoice_file_excel' => $response['meta']['invoice_id'] . ".xlsx",
+                'invoice_detailed_excel' => '',
+                'from_date' => date("Y-m-d", strtotime($sd)), //??? Check this next time, format should be YYYY-MM-DD
+                'to_date' => date("Y-m-d", strtotime($ed)),
+                'parts_cost' => $response['meta']['total_taxable_value'],
+                'total_amount_collected' => $response['meta']['sub_total_amount'],
+                'invoice_date' => date('Y-m-d'),
+                'due_date' => date("Y-m-d", strtotime($ed)),
+                //Amount needs to be collected from Vendor
+                'amount_collected_paid' => $response['meta']['sub_total_amount'],
+                //add agent_id
+                'agent_id' => _247AROUND_DEFAULT_AGENT,
+                "cgst_tax_rate" => 0,
+                "sgst_tax_rate" => 0,
+                "igst_tax_rate" => 0,
+                "igst_tax_amount" => $response['meta']["igst_total_tax_amount"],
+                "sgst_tax_amount" => $response['meta']["sgst_total_tax_amount"],
+                "cgst_tax_amount" => $response['meta']["cgst_total_tax_amount"],
+                "parts_count" =>$response['meta']['parts_count'],
+                "invoice_file_pdf" => $convert['copy_file'], 
+                "hsn_code" => ''
+            );
+
+            $this->invoices_model->insert_new_invoice($invoice_details);
+            log_message('info', __METHOD__ . "=> Insert Invoices in partner invoice table");
+            
+            return $response['booking'];
+
+        } else {
+            return false;
+        }
+    }
+   
     /**
      *  @desc : This function is used to get data for the spare which send by WH to partner
      *  @param : void

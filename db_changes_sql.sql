@@ -4863,7 +4863,7 @@ ALTER TABLE `invoice` ADD `settle_qty` INT NOT NULL DEFAULT '0' AFTER `settle`;
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'partner_spare_cancelled', 'Cancelled Request -Part Name %s for Booking ID %s ', 'Dear Partner, <br/> <br/> Part Name %s for Booking ID %s request has cancelled. Do not need to send part to Service Center', 'noreply@247around.com', '', 'sachinj@247around.com', '', '1', '2018-02-03 18:26:57');
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'inform_partner_for_serial_no', 'Serial no %s', 'Dear Partner, <br/> <br/> Please find the attachment. %s', 'noreply@247around.com', '', '', '', '1', '2018-05-23 18:26:57');
 --21 May Released
-
+--Abhay 24 May
 ALTER TABLE `partner_serial_no` ADD `added_by` VARCHAR(28) NULL DEFAULT NULL AFTER `active`;
 
 
@@ -4969,3 +4969,15 @@ ALTER TABLE `agent_filters`
 ALTER TABLE `agent_filters`
   MODIFY `id` int(10) NOT NULL AUTO_INCREMENT;COMMIT;
 
+--Abhay 24 May
+
+ALTER TABLE `upcountry_pincode_services_sf_level` ADD `district` VARCHAR(64) NULL DEFAULT NULL AFTER `pincode`;
+ALTER TABLE `invoice_details` ADD `inventory_id` INT(11) NULL DEFAULT NULL AFTER `invoice_id`;
+ALTER TABLE `invoice_details` ADD `settle_qty` INT NULL DEFAULT '0' AFTER `inventory_id`, ADD `is_settle` INT(1) NULL DEFAULT '0' AFTER `settle_qty`;
+
+--Abhay 25 May
+ALTER TABLE `vendor_partner_invoices` ADD `third_party_entity` VARCHAR(28) NULL DEFAULT NULL AFTER `vendor_partner_id`, ADD `third_party_entity_id` INT(11) NULL DEFAULT NULL AFTER `third_party_entity`;
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'upcountry_local_template', 'Upcountry File', 'Dear Partner, <br/> <br/> Please find the attachment. ', 'noreply@247around.com', 'abhaya@247around.com', '', 'abhaya@247around.com', '1', '2018-05-25 18:26:57');
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'spare_inventory_invoice', 'Spare Invoice', 'Dear Partner, <br/> <br/> Please find the attachment. ', 'noreply@247around.com', 'abhaya@247around.com', '', '', '1', '2018-05-25 18:26:57');
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'spare_invoice_not_found', 'Spare Invoice', 'Dear Partner, <br/> <br/> Please find the attachment. ', 'noreply@247around.com', 'abhaya@247around.com', '', '', '1', '2018-05-25 18:26:57');

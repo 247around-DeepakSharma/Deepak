@@ -2953,8 +2953,9 @@ class Invoice extends CI_Controller {
         $data[0]['rate'] = 0;
         $data[0]['qty'] = $qty;
         $data[0]['hsn_code'] = $hsn_code;
+        $data[0]['gst_rate'] = $gst_rate;
                 
-        $response = $this->invoices_model->_set_partner_excel_invoice_data($gst_rate, $data, $sd, $ed, $invoice_type,$invoice_date);
+        $response = $this->invoices_model->_set_partner_excel_invoice_data($data, $sd, $ed, $invoice_type,$invoice_date);
         log_message("info", __METHOD__." Partner Advance Excel Data generated ".$invoice_id);
         $response['meta']['invoice_id'] = $invoice_id;
         if($invoice_type == "Receipt Voucher"){
@@ -3177,8 +3178,9 @@ class Invoice extends CI_Controller {
             $data[0]['hsn_code'] = SPARE_HSN_CODE;
             $sd = $ed = $invoice_date = date("Y-m-d");
             $gst_rate = DEFAULT_TAX_RATE;
+            $data[0]['gst_rate'] = $gst_rate;
 
-            $response = $this->invoices_model->_set_partner_excel_invoice_data($gst_rate, $data, $sd, $ed, "Tax Invoice",$invoice_date);
+            $response = $this->invoices_model->_set_partner_excel_invoice_data($data, $sd, $ed, "Tax Invoice",$invoice_date);
             $response['meta']['invoice_id'] = $this->create_invoice_id_to_insert("Around");
             $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
             if ($status) {
