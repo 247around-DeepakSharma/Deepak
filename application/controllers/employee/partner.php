@@ -2822,8 +2822,8 @@ class Partner extends CI_Controller {
             }
         } else {
             log_message('info', __FUNCTION__ . " => Failed: Partner try to approve Booking Id" . $booking_id);
-            $to = NITS_ANUJ_EMAIL_ID;
-            $cc = "vijaya@247around.com, abhaya@247around.com";
+            $to = "abhaya@247around.com";
+            $cc = "vijaya@247around.com";
             $message = "Partner try to approve Booking Id " . $booking_id . " but somehow it failed. <br/>Please check this booking.";
             $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, '', 'UpCountry Approval Failed', $message, '',PARTNER_APPROVAL_FAILED);
             $msg = "Your request has been submitted. We will fix it shortly.";

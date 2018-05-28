@@ -409,7 +409,7 @@ class File_upload extends CI_Controller {
         }
 
 
-        $cc = NITS_ANUJ_EMAIL_ID;
+        $cc = ANUJ_EMAIL_ID;
         $body = $response['message'];
         $body .= "<br> <b>File Name</b> " . $data['file_name'];
         $attachment = TMP_FOLDER.$data['file_name'];

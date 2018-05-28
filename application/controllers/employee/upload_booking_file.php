@@ -929,7 +929,7 @@ class Upload_booking_file extends CI_Controller {
        
         if ($flag == 1) {
             //SEND MAIl
-            $to = NITS_ANUJ_EMAIL_ID . ", sales@247around.com, booking@247around.com";
+            $to = ANUJ_EMAIL_ID . ", sales@247around.com, booking@247around.com";
 
             $cc = "";
             $message1 = "Appliance Not Found. Please chaeck File<br/>";
@@ -949,7 +949,7 @@ class Upload_booking_file extends CI_Controller {
      * @param boolean $validation
      */
     function send_mail_column($subject, $message, $validation,$emailTag) {
-        $to = NITS_ANUJ_EMAIL_ID . ", sales@247around.com, booking@247around.com";
+        $to = ANUJ_EMAIL_ID . ", sales@247around.com, booking@247around.com";
         $from = NOREPLY_EMAIL_ID;
         $cc = "";
         $bcc = "";

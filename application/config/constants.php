@@ -331,7 +331,7 @@ define("ADIL_EMAIL_ID", "adila@247around.com");
 define('RATING_NEW_STATE','Completed_With_Rating');
 
 //Regional Managers Email ID
-define("RM_EMAIL", "nits@247around.com, suresh@247around.com, oza@247around.com, arunk@247around.com");
+define("RM_EMAIL", "souvikg@247around.com, suresh@247around.com, oza@247around.com, arunk@247around.com");
 
 //Email IDs when SF is not found in Vendor Pincode Mapping file
 define("SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_TO", "adila@247around.com");

@@ -373,7 +373,7 @@ class Miscelleneous {
                         
                         if ($booking['upcountry_distance'] > 300) {
                             $subject = "Upcountry Distance More Than 300 - Booking ID " . $query1[0]['booking_id'];
-                            $to = NITS_ANUJ_EMAIL_ID.$rm_email;
+                            $to = ANUJ_EMAIL_ID.$rm_email;
                             $cc = $partner_am_email;
                         } else {
                             $subject = "Upcountry Charges Approval Required - Booking ID " . $query1[0]['booking_id'];
@@ -394,7 +394,7 @@ class Miscelleneous {
                         $this->My_CI->booking_model->update_booking($booking_id, $booking);
                         $this->process_cancel_form($booking_id, "Pending", UPCOUNTRY_CHARGES_NOT_APPROVED, " Upcountry  Distance " . $data['upcountry_distance'], $agent_id, $agent_name, $query1[0]['partner_id']);
 
-                        $to = NITS_ANUJ_EMAIL_ID;
+                        $to = ANUJ_EMAIL_ID;
                         $cc = $partner_am_email;
                         $message1 = $booking_id . " has auto cancelled because upcountry limit exceed "
                                 . "and partner does not provide upcountry charges approval. Upcountry Distance " . $data['upcountry_distance'] .
