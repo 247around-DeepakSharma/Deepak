@@ -3926,6 +3926,19 @@ class vendor extends CI_Controller {
             
             //Getting Booking Details 
             $booking_details = $this->booking_model->getbooking_history($booking_id[$key], 'service_centres');
+           
+                log_message("info", __METHOD__. " remove key ".$penalty_remove_reason[$key]);
+            $a = array('service_center_id' => $booking_details[0]['assigned_vendor_id'],
+                    "criteria_id" => BOOKING_NOT_UPDATED_PENALTY_CRITERIA,
+                    "active" => 1,
+                    "booking_id" => $booking_id[$key]);
+            $aData = $this->reusable_model->get_search_query('penalty_on_booking','*',$a,NULL,NULL,NULL,NULL,NULL,NULL)->result_array();
+            
+            if(empty($aData)){
+                $this->booking_model->update_booking($booking_id[$key], array('is_penalty' => 0));
+            }
+            
+            
             
             //Sending Mails
 
