@@ -129,7 +129,7 @@ class bookings_excel extends CI_Controller {
                 $response['upload_file_name'] = $_FILES["file"]["name"];
                 $html = $this->load->view('employee/email_paytm_upload_file_details',$response,TRUE);
                 $to = empty($this->email_send_to)?(empty($this->session->userdata('official_email'))?_247AROUND_SALES_EMAIL:$this->session->userdata('official_email')):$this->email_send_to;
-                $cc = NITS_EMAIL_ID.",".DEVELOPER_EMAIL;
+                $cc = DEVELOPER_EMAIL;
                 $agent_name = !empty($this->session->userdata('emp_name'))?$this->session->userdata('emp_name'):_247AROUND_DEFAULT_AGENT_NAME;
                 $subject = "Paytm File is uploaded by " . $agent_name;
                 $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $html, "",PAYTM_FILE_UPLOADED);
@@ -260,7 +260,7 @@ class bookings_excel extends CI_Controller {
                 
                 if($return_data){
                     $to = empty($this->email_send_to)?(empty($this->session->userdata('official_email'))?_247AROUND_SALES_EMAIL:$this->session->userdata('official_email')):$this->email_send_to;
-                    $cc = NITS_EMAIL_ID.",".DEVELOPER_EMAIL;
+                    $cc = DEVELOPER_EMAIL;
                     $subject = "PAYTM FILE UPLOAD FAILED!!!";
                     $agent_name = !empty($this->session->userdata('emp_name'))?$this->session->userdata('emp_name'):_247AROUND_DEFAULT_AGENT_NAME;
                     $message = "File Uploaded By ". $agent_name;

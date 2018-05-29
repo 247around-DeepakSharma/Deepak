@@ -84,14 +84,17 @@
                                     <div class="col-xs-12 col-sm-6 col-md-2">
                                         <p class="text-center"><strong>Appliance</strong></p>
                                     </div>
-                                    <div class="col-xs-12 col-sm-6 col-md-2">
+<!--                                    <div class="col-xs-12 col-sm-6 col-md-2">
                                         <p class="text-center"><strong>Model Number</strong></p>
                                     </div>
                                     <div class="col-xs-12 col-sm-6 col-md-2">
                                         <p class="text-center"><strong>Part Type</strong></p>
-                                    </div>
+                                    </div>-->
                                     <div class="col-xs-12 col-sm-6 col-md-2">
                                         <p class="text-center"><strong>Part Name</strong></p>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-6 col-md-2">
+                                        <p class="text-center"><strong>Part Number</strong></p>
                                     </div>
                                     <div class="col-xs-12 col-sm-6 col-md-2">
                                         <p class="text-center"><strong>Booking Id</strong></p>
@@ -113,14 +116,17 @@
                                     <div class="col-xs-12 col-sm-6 col-md-2">
                                         <select class="form-control" name="part[0][service_id]" id="serviceId_0" required="" onchange="get_part_details(this.id)"></select>
                                     </div>
-                                    <div class="col-xs-12 col-sm-6 col-md-2">
+<!--                                    <div class="col-xs-12 col-sm-6 col-md-2">
                                         <select class="form-control" name="part[0][model_number]" id="modelNumber_0" required="" onchange="get_part_details(this.id)"></select>
                                     </div>
                                     <div class="col-xs-12 col-sm-6 col-md-2">
                                         <select class="form-control" name="part[0][part_type]" id="partType_0" required="" onchange="get_part_details(this.id)"></select>
+                                    </div>-->
+                                    <div class="col-xs-12 col-sm-6 col-md-2">
+                                        <select class="form-control" name="part[0][part_name]" id="partName_0" required="" onchange="get_part_details(this.id)"></select>
                                     </div>
                                     <div class="col-xs-12 col-sm-6 col-md-2">
-                                        <select class="form-control" name="part[0][part_name]" id="partName_0" required=""></select>
+                                        <select class="form-control" name="part[0][part_number]" id="partNumber_0" ></select>
                                     </div>
                                     <div class="col-xs-12 col-sm-6 col-md-2">
                                         <input type="text" class="form-control" name="part[0][booking_id]" id="booking_id_0" placeholder="Booking ID" />
@@ -148,14 +154,17 @@
                                     <div class="col-xs-12 col-sm-6 col-md-2">
                                         <select class="form-control" id="service_id"  required="" onchange="get_part_details(this.id)"></select>
                                     </div>
-                                    <div class="col-xs-12 col-sm-6 col-md-2">
+<!--                                    <div class="col-xs-12 col-sm-6 col-md-2">
                                         <select class="form-control" id="model_number"  required="" onchange="get_part_details(this.id)"></select>
                                     </div>
                                     <div class="col-xs-12 col-sm-6 col-md-2">
                                         <select class="form-control" id="part_type"  required="" onchange="get_part_details(this.id)"></select>
+                                    </div>-->
+                                    <div class="col-xs-12 col-sm-6 col-md-2">
+                                        <select class="form-control" id="part_name"  required="" onchange="get_part_details(this.id)"></select>
                                     </div>
                                     <div class="col-xs-12 col-sm-6 col-md-2">
-                                        <select class="form-control" id="part_name"  required="" ></select>
+                                        <select class="form-control" id="part_number"></select>
                                     </div>
                                     <div class="col-xs-12 col-sm-6 col-md-2">
                                         <input type="text" class="form-control" id="booking_id"  placeholder="Booking ID" />
@@ -215,14 +224,17 @@
         $('#serviceId_0').select2({
             placeholder:'Select Appliance'
         });
-        $('#modelNumber_0').select2({
-            placeholder:'Select Model Number'
-        });
-        $('#partType_0').select2({
-            placeholder:'Select Part Type'
-        });
+//        $('#modelNumber_0').select2({
+//            placeholder:'Select Model Number'
+//        });
+//        $('#partType_0').select2({
+//            placeholder:'Select Part Type'
+//        });
         $('#partName_0').select2({
             placeholder:'Select Part Name'
+        });
+        $('#partNumber_0').select2({
+            placeholder:'Select Part Number'
         });
         
         get_partner_list();
@@ -269,11 +281,11 @@
                         $('#submit_btn').attr('disabled',false);
                         $('#submit_btn').html("Submit");
                         if(obj.status){
-                            $('.success_msg_div').fadeTo(5000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(5000);});   
+                            $('.success_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
                             $('#success_msg').html(obj.message);
                             $("#spareForm")[0].reset();
                         }else{
-                            $('.error_msg_div').fadeTo(5000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(5000);});
+                            $('.error_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(1000);});
                             $('#error_msg').html(obj.message);
                         }
                        
@@ -296,9 +308,10 @@
             // Update the name attributes
             $clone
                 .find('[id="service_id"]').attr('name', 'part[' + partIndex + '][service_id]').attr('id','serviceId_'+partIndex).select2({placeholder:'Select Appliance'}).end()
-                .find('[id="model_number"]').attr('name', 'part[' + partIndex + '][model_number]').attr('id','modelNumber_'+partIndex).select2({placeholder:'Select Model Number'}).end()
-                .find('[id="part_type"]').attr('name', 'part[' + partIndex + '][part_type]').attr('id','partType_'+partIndex).select2({placeholder:'Select Part Type'}).end()
+//                .find('[id="model_number"]').attr('name', 'part[' + partIndex + '][model_number]').attr('id','modelNumber_'+partIndex).select2({placeholder:'Select Model Number'}).end()
+//                .find('[id="part_type"]').attr('name', 'part[' + partIndex + '][part_type]').attr('id','partType_'+partIndex).select2({placeholder:'Select Part Type'}).end()
                 .find('[id="part_name"]').attr('name', 'part[' + partIndex + '][part_name]').attr('id','partName_'+partIndex).select2({placeholder:'Select Part Name'}).end()
+                .find('[id="part_number"]').attr('name', 'part[' + partIndex + '][part_number]').attr('id','partNumber_'+partIndex).select2({placeholder:'Select Part Number'}).end()
                 .find('[id="booking_id"]').attr('name', 'part[' + partIndex + '][booking_id]').attr('id','bookingId_'+partIndex).end()
                 .find('[id="quantity"]').attr('name', 'part[' + partIndex + '][quantity]').attr('id','quantity_'+partIndex).end()
                 .find('[id="inventory_id"]').attr('name', 'part[' + partIndex + '][inventory_id]').attr('id','inventoryId_'+partIndex).end()
@@ -354,13 +367,10 @@
         var part_element = element[0];
         switch(part_element){
             case 'serviceId':
-                get_model_number(index);
-                break;
-            case 'modelNumber':
-                get_part_type(index);
-                break;
-            case 'partType':
                 get_part_name(index);
+                break;
+            case 'partName':
+                get_part_number(index);
                 break;
             case 'quantity':
                 get_part_price(index);
@@ -368,65 +378,65 @@
         }
     }
     
-    function get_model_number(index){
-        var partner_id = $('#partner_id').val();
-        var service_id = $('#serviceId_'+index).val();
-        if(partner_id){
-            $.ajax({
-                type: 'GET',
-                url: '<?php echo base_url() ?>employee/inventory/get_part_model_number',
-                data:{entity_id:partner_id,entity_type:'<?php echo _247AROUND_PARTNER_STRING; ?>',service_id:service_id},
-                success: function (response) {
-                    $('#modelNumber_'+index).val('val', "");
-                    $('#modelNumber_'+index).val('Select Model Number').change();
-                    $('#modelNumber_'+index).html(response);
-                    $('#inventoryId_'+index).val('');
-                    $('#partTotalPrice_'+index).val('');
-                    $('#partGstRate_'+index).val('');
-                    $('#partHsnCode_'+index).val('');
-                    $('#quantity_'+index).val('');
-                }
-            });
-        }else{
-            alert("Please Select All Field");
-        }
-    }
-    
-    function get_part_type(index){
-        var partner_id = $('#partner_id').val();
-        var service_id = $('#serviceId_'+index).val();
-        var model_number = $('#modelNumber_'+index).val();
-        if(partner_id){
-            $.ajax({
-                type: 'POST',
-                url: '<?php echo base_url() ?>employee/inventory/get_parts_type',
-                data:{entity_id:partner_id,entity_type:'<?php echo _247AROUND_PARTNER_STRING; ?>',service_id:service_id,model_number:model_number},
-                success: function (response) {
-                    $('#partType_'+index).val('val', "");
-                    $('#partType_'+index).val('Select Part Type').change();
-                    $('#partType_'+index).html(response);
-                    $('#inventoryId_'+index).val('');
-                    $('#partTotalPrice_'+index).val('');
-                    $('#partGstRate_'+index).val('');
-                    $('#partHsnCode_'+index).val('');
-                    $('#quantity_'+index).val('');
-                }
-            });
-        }else{
-            alert("Please Select All Field");
-        }
-    }
+//    function get_model_number(index){
+//        var partner_id = $('#partner_id').val();
+//        var service_id = $('#serviceId_'+index).val();
+//        if(partner_id){
+//            $.ajax({
+//                type: 'GET',
+//                url: '<?php //echo base_url() ?>employee/inventory/get_part_model_number',
+//                data:{entity_id:partner_id,entity_type:'<?php //echo _247AROUND_PARTNER_STRING; ?>',service_id:service_id},
+//                success: function (response) {
+//                    $('#modelNumber_'+index).val('val', "");
+//                    $('#modelNumber_'+index).val('Select Model Number').change();
+//                    $('#modelNumber_'+index).html(response);
+//                    $('#inventoryId_'+index).val('');
+//                    $('#partTotalPrice_'+index).val('');
+//                    $('#partGstRate_'+index).val('');
+//                    $('#partHsnCode_'+index).val('');
+//                    $('#quantity_'+index).val('');
+//                }
+//            });
+//        }else{
+//            alert("Please Select All Field");
+//        }
+//    }
+//    
+//    function get_part_type(index){
+//        var partner_id = $('#partner_id').val();
+//        var service_id = $('#serviceId_'+index).val();
+//        var model_number = $('#modelNumber_'+index).val();
+//        if(partner_id){
+//            $.ajax({
+//                type: 'POST',
+//                url: '<?php //echo base_url() ?>employee/inventory/get_parts_type',
+//                data:{entity_id:partner_id,entity_type:'<?php //echo _247AROUND_PARTNER_STRING; ?>',service_id:service_id,model_number:model_number},
+//                success: function (response) {
+//                    $('#partType_'+index).val('val', "");
+//                    $('#partType_'+index).val('Select Part Type').change();
+//                    $('#partType_'+index).html(response);
+//                    $('#inventoryId_'+index).val('');
+//                    $('#partTotalPrice_'+index).val('');
+//                    $('#partGstRate_'+index).val('');
+//                    $('#partHsnCode_'+index).val('');
+//                    $('#quantity_'+index).val('');
+//                }
+//            });
+//        }else{
+//            alert("Please Select All Field");
+//        }
+//    }
     
     function get_part_name(index){
         var partner_id = $('#partner_id').val();
         var service_id = $('#serviceId_'+index).val();
-        var model_number = $('#modelNumber_'+index).val();
-        var part_type = $('#partType_'+index).val();
+//        var model_number = $('#modelNumber_'+index).val();
+//        var part_type = $('#partType_'+index).val();
         if(partner_id){
             $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url() ?>employee/inventory/get_parts_name',
-                data:{entity_id:partner_id,entity_type:'<?php echo _247AROUND_PARTNER_STRING; ?>',service_id:service_id,model_number:model_number,part_type:part_type,is_option_selected:true},
+                data:{entity_id:partner_id,entity_type:'<?php echo _247AROUND_PARTNER_STRING; ?>',service_id:service_id,is_option_selected:true},
                 success: function (response) {
                     $('#partName_'+index).val('val', "");
                     $('#partName_'+index).val('Select Part Name').change();
@@ -443,16 +453,44 @@
         }
     }
     
+    function get_part_number(index){
+        var partner_id = $('#partner_id').val();
+        var service_id = $('#serviceId_'+index).val();
+        var part_name = $('#partName_'+index).val();
+//        var model_number = $('#modelNumber_'+index).val();
+//        var part_type = $('#partType_'+index).val();
+        if(partner_id){
+            $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url() ?>employee/inventory/get_parts_number',
+                data:{entity_id:partner_id,entity_type:'<?php echo _247AROUND_PARTNER_STRING; ?>',service_id:service_id,part_name:part_name,is_option_selected:true},
+                success: function (response) {
+                    $('#partNumber_'+index).val('val', "");
+                    $('#partNumber_'+index).val('Select Part Name').change();
+                    $('#partNumber_'+index).html(response);
+                    $('#inventoryId_'+index).val('');
+                    $('#partTotalPrice_'+index).val('');
+                    $('#partGstRate_'+index).val('');
+                    $('#partHsnCode_'+index).val('');
+                    $('#quantity_'+index).val('');
+                }
+            });
+        }else{
+            alert("Please Select All Field");
+        }
+    }
+    
     function get_part_price(index){
         var partner_id = $('#partner_id').val();
         var service_id = $('#serviceId_'+index).val();
-        var model_number = $('#modelNumber_'+index).val();
-        var part_name = $('#partName_'+index).val();
-        if(partner_id && service_id && model_number && part_name){
+        //var model_number = $('#modelNumber_'+index).val();
+        //var part_name = $('#partName_'+index).val();
+        var part_number = $('#partNumber_'+index).val();
+        if(partner_id && service_id && part_number){
             $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url() ?>employee/inventory/get_inventory_price',
-                data:{entity_id:partner_id,entity_type:'<?php echo _247AROUND_PARTNER_STRING; ?>',service_id:service_id,model_number:model_number,part_name:part_name},
+                data:{entity_id:partner_id,entity_type:'<?php echo _247AROUND_PARTNER_STRING; ?>',service_id:service_id,part_number:part_number},
                 success: function (response) {
                     var obj = JSON.parse(response);
                     var parts_total_price = parseInt($('#quantity_'+index).val()) * parseInt(obj.price);

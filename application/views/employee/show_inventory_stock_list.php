@@ -63,6 +63,10 @@
             height: 100%;
             top: 10px;
     }
+    
+    #modal_data .modal-lg {
+        width: 100%!important;
+    }
 </style>
 <div id="page-wrapper" >
     <div class="row">

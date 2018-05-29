@@ -373,7 +373,7 @@ class Miscelleneous {
                         
                         if ($booking['upcountry_distance'] > 300) {
                             $subject = "Upcountry Distance More Than 300 - Booking ID " . $query1[0]['booking_id'];
-                            $to = NITS_ANUJ_EMAIL_ID.$rm_email;
+                            $to = ANUJ_EMAIL_ID.$rm_email;
                             $cc = $partner_am_email;
                         } else {
                             $subject = "Upcountry Charges Approval Required - Booking ID " . $query1[0]['booking_id'];
@@ -394,7 +394,7 @@ class Miscelleneous {
                         $this->My_CI->booking_model->update_booking($booking_id, $booking);
                         $this->process_cancel_form($booking_id, "Pending", UPCOUNTRY_CHARGES_NOT_APPROVED, " Upcountry  Distance " . $data['upcountry_distance'], $agent_id, $agent_name, $query1[0]['partner_id']);
 
-                        $to = NITS_ANUJ_EMAIL_ID;
+                        $to = ANUJ_EMAIL_ID;
                         $cc = $partner_am_email;
                         $message1 = $booking_id . " has auto cancelled because upcountry limit exceed "
                                 . "and partner does not provide upcountry charges approval. Upcountry Distance " . $data['upcountry_distance'] .
@@ -1370,7 +1370,7 @@ class Miscelleneous {
         $partner_email = $this->get_partner_email_constant();
         if(isset($partner_email[$booking['partner_id']])){
             $to = $partner_email[$booking['partner_id']];
-            $cc = NITS_ANUJ_EMAIL_ID;
+            $cc = ANUJ_EMAIL_ID;
             $booking['jeeves_not_assign'] = true;
             $message = $this->My_CI->load->view('employee/sf_not_found_email_template', $booking, true);
             $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "",$templatetag);
@@ -2620,11 +2620,13 @@ function convert_html_to_pdf($html,$booking_id,$filename,$s3_folder){
         $template = 'sf_without_gst_declaration.xlsx';
         $output_pdf_file = "";
         $excel_file = "";
+        $excel_data = array();
         if (!empty($sf_details[0]['signature_file'])) {
-            $excel_data['sf_name'] = $sf_details[0]['name'];
-            $excel_data['sf_address'] = $sf_details[0]['address'];
-            $excel_data['sf_owner_name'] = $sf_details[0]['owner_name'];
-            $excel_data['date'] = date('Y-m-d');
+            $excel_data['excel_data']['sf_name'] = $sf_details[0]['name'];
+            $excel_data['excel_data']['sf_address'] = $sf_details[0]['address'];
+            $excel_data['excel_data']['sf_owner_name'] = $sf_details[0]['owner_name'];
+            $excel_data['excel_data']['date'] = date('Y-m-d');
+            $excel_data['excel_data_line_item'] = array();
             $cell = 'B21';
             if (file_exists($sf_details[0]['signature_file'])) {
                 $signature_file = TMP_FOLDER . $sf_details[0]['signature_file'];

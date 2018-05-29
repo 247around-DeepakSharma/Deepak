@@ -4863,8 +4863,73 @@ ALTER TABLE `invoice` ADD `settle_qty` INT NOT NULL DEFAULT '0' AFTER `settle`;
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'partner_spare_cancelled', 'Cancelled Request -Part Name %s for Booking ID %s ', 'Dear Partner, <br/> <br/> Part Name %s for Booking ID %s request has cancelled. Do not need to send part to Service Center', 'noreply@247around.com', '', 'sachinj@247around.com', '', '1', '2018-02-03 18:26:57');
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'inform_partner_for_serial_no', 'Serial no %s', 'Dear Partner, <br/> <br/> Please find the attachment. %s', 'noreply@247around.com', '', '', '', '1', '2018-05-23 18:26:57');
 --21 May Released
-
+--Abhay 24 May
 ALTER TABLE `partner_serial_no` ADD `added_by` VARCHAR(28) NULL DEFAULT NULL AFTER `active`;
+
+
+
+--24 May 2018 
+
+CREATE TABLE `247around`.`inventory_master_list` 
+( `inventory_id` INT(11) NOT NULL AUTO_INCREMENT , 
+`service_id` INT(11) NOT NULL , 
+`part_number` VARCHAR(256) NOT NULL , 
+`part_name` VARCHAR(256) NOT NULL , 
+`serial_number` VARCHAR(128) NULL , 
+`description` VARCHAR(512) NULL , 
+`size` VARCHAR(64) NULL , 
+`price` DECIMAL(10,2) NULL , 
+`type` VARCHAR(256) NULL , 
+`entity_id` INT(11) NULL , 
+`entity_type` VARCHAR(64) NULL , 
+`hsn_code` VARCHAR(128) NULL , 
+`gst_rate` INT(11) NULL , 
+`create_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`inventory_id`)) ENGINE = InnoDB;
+
+INSERT INTO `inventory_master_list` 
+(`inventory_id`, `service_id`, `part_number`, `part_name`, `serial_number`, 
+`description`, `size`, `price`, `type`, `entity_id`, `entity_type`, `hsn_code`,
+ `gst_rate`, `create_date`) VALUES (NULL, '46', 'B-24732', 'Bracket', NULL, 
+'Brackets less than 32"', NULL, NULL, NULL, '247001', '247around', NULL, NULL,
+ CURRENT_TIMESTAMP);
+
+INSERT INTO `inventory_master_list` 
+(`inventory_id`, `service_id`, `part_number`, `part_name`, `serial_number`, 
+`description`, `size`, `price`, `type`, `entity_id`, `entity_type`, `hsn_code`, 
+`gst_rate`, `create_date`) VALUES (NULL, '46', 'B-24733', 'Bracket', NULL, 
+'Brackets greater than 32"', NULL, NULL, NULL, '247001', '247around', NULL, 
+NULL, CURRENT_TIMESTAMP);
+
+CREATE TABLE `247around`.`appliance_model_details` 
+( `id` INT(11) NOT NULL AUTO_INCREMENT , `service_id` INT(11) NOT NULL ,
+ `model_number` VARCHAR(256) NOT NULL , `entity_id` INT(11) NOT NULL , 
+`entity_type` VARCHAR(64) NOT NULL , `active` TINYINT(1) NOT NULL DEFAULT '1' , 
+`create_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+ALTER TABLE `inventory_master_list` ADD `part_image` VARCHAR(1024) NULL AFTER `gst_rate`;
+
+CREATE TABLE `247around`.`inventory_model_mapping` 
+( `id` INT(11) NOT NULL AUTO_INCREMENT , `inventory_id` INT(11) NOT NULL , 
+`model_number_id` INT(11) NOT NULL , `create_date` TIMESTAMP NOT NULL DEFAULT 
+CURRENT_TIMESTAMP , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+ALTER TABLE inventory_model_mapping
+ADD FOREIGN KEY (`inventory_id`) REFERENCES inventory_master_list(`inventory_id`);
+
+ALTER TABLE inventory_model_mapping
+ADD FOREIGN KEY (`model_number_id`) REFERENCES appliance_model_details(id);
+
+ALTER TABLE `inventory_master_list` ADD UNIQUE( `part_number`);
+ALTER TABLE `spare_parts_details` ADD `courier_price_by_partner` DECIMAL(10,2) NULL DEFAULT NULL AFTER `awb_by_partner`;
+
+ALTER TABLE `spare_parts_details` ADD 
+`awb_by_wh` VARCHAR(256) NULL DEFAULT NULL AFTER `challan_approx_value`, 
+ADD `courier_name_by_wh` VARCHAR(256) NULL DEFAULT NULL AFTER `awb_by_wh`, 
+ADD `courier_price_by_wh` DECIMAL(10,2) NULL DEFAULT NULL AFTER `courier_name_by_wh`, 
+ADD `defective_parts_shippped_date_by_wh` DATETIME NULL DEFAULT NULL AFTER `courier_price_by_wh`;
+
+ALTER TABLE `spare_parts_details` 
+ADD `defective_parts_shippped_courier_pic_by_wh` VARCHAR(526) NULL DEFAULT NULL AFTER `defective_parts_shippped_date_by_wh`;
 
 --Chhavi 18th May
 ALTER TABLE `header_navigation` ADD `entity_type` VARCHAR(128) NOT NULL AFTER `id`;
@@ -4904,3 +4969,15 @@ ALTER TABLE `agent_filters`
 ALTER TABLE `agent_filters`
   MODIFY `id` int(10) NOT NULL AUTO_INCREMENT;COMMIT;
 
+--Abhay 24 May
+
+ALTER TABLE `upcountry_pincode_services_sf_level` ADD `district` VARCHAR(64) NULL DEFAULT NULL AFTER `pincode`;
+ALTER TABLE `invoice_details` ADD `inventory_id` INT(11) NULL DEFAULT NULL AFTER `invoice_id`;
+ALTER TABLE `invoice_details` ADD `settle_qty` INT NULL DEFAULT '0' AFTER `inventory_id`, ADD `is_settle` INT(1) NULL DEFAULT '0' AFTER `settle_qty`;
+
+--Abhay 25 May
+ALTER TABLE `vendor_partner_invoices` ADD `third_party_entity` VARCHAR(28) NULL DEFAULT NULL AFTER `vendor_partner_id`, ADD `third_party_entity_id` INT(11) NULL DEFAULT NULL AFTER `third_party_entity`;
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'upcountry_local_template', 'Upcountry File', 'Dear Partner, <br/> <br/> Please find the attachment. ', 'noreply@247around.com', 'abhaya@247around.com', '', 'abhaya@247around.com', '1', '2018-05-25 18:26:57');
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'spare_inventory_invoice', 'Spare Invoice', 'Dear Partner, <br/> <br/> Please find the attachment. ', 'noreply@247around.com', 'abhaya@247around.com', '', '', '1', '2018-05-25 18:26:57');
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'spare_invoice_not_found', 'Spare Invoice', 'Dear Partner, <br/> <br/> Please find the attachment. ', 'noreply@247around.com', 'abhaya@247around.com', '', '', '1', '2018-05-25 18:26:57');

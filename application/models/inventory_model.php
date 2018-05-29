@@ -589,7 +589,7 @@ class Inventory_model extends CI_Model {
      *  @return: Array()
      */
     public function count_all_inventory_stocks($post) {
-        $this->_get_inventory_stocks($post, 'count(distinct(inventory_stocks.entity_id)) as numrows');
+        $this->_get_inventory_stocks($post, 'count(inventory_stocks.entity_id) as numrows');
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];
     }
@@ -607,11 +607,12 @@ class Inventory_model extends CI_Model {
             $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
             $sfIDArray = explode(",",$sfIDList);
         }
-        $this->_get_inventory_stocks($post, 'count(distinct(inventory_stocks.entity_id)) as numrows');
+        $this->_get_inventory_stocks($post, 'count(inventory_stocks.entity_id) as numrows');
         if($sfIDArray){
             $this->db->where_in('inventory_stocks.entity_id', $sfIDArray);
         }
         $query = $this->db->get();
+        log_message("info", print_r($post,true));
         return $query->result_array()[0]['numrows'];
     }
     
@@ -915,6 +916,54 @@ class Inventory_model extends CI_Model {
         }
         
         return $response;
+    }
+    
+    /**
+     * @desc This is used to insert details into appliance_model_details table
+     * @param Array $data
+     * @return string
+     */
+    function insert_appliance_model_details($data){
+        $this->db->insert_batch('appliance_model_details', $data);
+        return $this->db->insert_id();
+    }
+    
+    /**
+     * @Desc: This function is used to get data from the appliance_model_details table
+     * @params: $select string
+     * @params: $where array
+     * @return: $query array
+     * 
+     */
+    function get_appliance_model_details($select,$where = array()){
+        $this->db->distinct();
+        $this->db->select($select);
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        $this->db->order_by('model_number','ASC');
+        $query = $this->db->get('appliance_model_details');
+        return $query->result_array();
+    }
+    
+    /**
+     * @Desc: This function is used to get data from the inventory_model_mapping table
+     * @params: $select string
+     * @params: $where array
+     * @return: $query array
+     * 
+     */
+    function get_inventory_model_mapping_data($select,$where = array()){
+        $this->db->distinct();
+        $this->db->select($select);
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        $this->db->from('inventory_model_mapping');
+        $this->db->join('inventory_master_list','inventory_master_list.inventory_id = inventory_model_mapping.inventory_id');
+        $query = $this->db->get();
+        log_message("info", $this->db->last_query());
+        return $query->result_array();
     }
 
 }

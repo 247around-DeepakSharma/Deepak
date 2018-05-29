@@ -112,7 +112,7 @@
                     <tr>
                         <th>S.No</th>
                         <th>Service</th>
-                        <th>Spare Model Number</th>
+<!--                        <th>Spare Model Number</th>-->
                         <th>Spare Type</th>
                         <th>Spare Part Name</th>
                         <th>Spare Part Number</th>
@@ -177,7 +177,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
+<!--                        <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="control-label col-md-4" for="model_number">Model Number*</label>
@@ -194,7 +194,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div>-->
                         
                         <div class="row">
                             <div class="col-md-6">
@@ -233,15 +233,22 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
+                                    <label class="control-label col-md-4" for="size">Size</label>
+                                    <div class="col-md-7 col-md-offset-1">
+                                        <input type="text" class="form-control" id="size"  name="size" placeholder="Size">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
                                     <label class="control-label col-md-4" for="type">Part Type</label>
                                     <div class="col-md-7 col-md-offset-1">
                                         <textarea class="form-control" id="type" name="type" placeholder="Type"></textarea>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="control-label col-md-4" for="description">Description</label>
@@ -374,7 +381,7 @@
         $('#part_name').val(form_data.part_name);
         $('#part_number').val(form_data.part_number);
         $('#serial_number').val(form_data.serial_number);
-        $('#model_number').val(form_data.model_number);
+//        $('#model_number').val(form_data.model_number);
         $('#size').val(form_data.size);
         $('#price').val(JSON.parse(form_data.price));
         $('#type').val(form_data.type);
