@@ -209,6 +209,43 @@
                     </div>
                 </div>
             </div>
+            <div class="row" style="margin-top: 12px;">
+              <div class="col-md-4">
+                    <div class="item form-group">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <select class="form-control filter_table" id="request_type" multiple="" name="request_type[]">
+                                <?php foreach($requestType as $val){ ?>
+                                <option value="<?php echo $val['request_type']?>"><?php echo $val['request_type']?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="item form-group">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <select class="form-control filter_table" id="current_status">
+                                <option value="" selected="selected" disabled="">Select Current Status</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Rescheduled">Rescheduled</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="item form-group">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <select class="form-control filter_table" id="actor">
+                                <option value="" selected="selected" disabled="">Select Actor</option>
+                                <option value="247Around">247Around</option>
+                                <option value="Partner">Partner</option>
+                                <option value="Vendor" selected="">Vendor</option>
+                                <option value="not_define">not_define</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <hr>
         <div class="bookings_table">
@@ -311,6 +348,18 @@
         placeholder: "Select Partner Internal Status",
         allowClear: true
     });
+    $('#request_type').select2({
+        placeholder: "Select Request Type",
+        allowClear: true
+    });
+    $('#current_status').select2({
+        placeholder: "Select Current Status",
+        allowClear: true
+    });
+    $('#actor').select2({
+        placeholder: "Select Actor",
+        allowClear: true
+    });
     $(document).ready(function(){
         
         datatable1 = $('#datatable1').DataTable({
@@ -339,6 +388,9 @@
                     d.booking_date =  $('#booking_date').val();
                     d.city =  $('#city').val();
                     d.internal_status = getMultipleSelectedValues('internal_status');
+                    d.request_type = getMultipleSelectedValues('request_type');
+                    d.current_status = $('#current_status').val();
+                    d.actor = $('#actor').val();
                  }
             },
             "columnDefs": [
