@@ -18,7 +18,8 @@ class Notify {
 
 	$this->My_CI->load->helper(array('form', 'url'));
 	$this->My_CI->load->library('email');
-    $this->My_CI->load->library('miscelleneous');
+        $this->My_CI->load->library('miscelleneous');
+        $this->My_CI->load->model('partner_model');
 	$this->My_CI->load->model('vendor_model');
 	$this->My_CI->load->model('booking_model');
     }
@@ -179,8 +180,8 @@ class Notify {
 	    log_message('info', " Template" . print_r($email, true));
 	    $from = $template[2];
 	    $to = $template[1];
-	    $cc = "";
-	    $bcc = "";
+	    $cc = $template[3];
+	    $bcc = $template[5];
 	    $subject = $email['subject'];
 	    $message = $emailBody;
 	    $attachment = "";
@@ -364,26 +365,11 @@ class Notify {
 			//Send internal mails now
 			$this->send_email($email_data);
 		    } else {
-//			$email['name'] = $query1[0]['name'];
-//			$email['phone_no'] = $query1[0]['phone_number'];
-//			$email['user_email'] = $query1[0]['user_email'];
-//			$email['booking_id'] = $query1[0]['booking_id'];
-//			$email['service'] = $query1[0]['services'];
-//			$email['booking_date'] = $query1[0]['booking_date'];
-//			$email['booking_timeslot'] = $query1[0]['booking_timeslot'];
-//			$email['closed_date'] = $query1[0]['closed_date'];
-//			$email['cancellation_reason'] = $query1[0]['cancellation_reason'];
-//			if (isset($query1[0]['vendor_name'])) {
-//			    $email['vendor_name'] = $query1[0]['vendor_name'];
-//			    $email['city'] = $query1[0]['district'];
-//			} else {
-//			    $email['vendor_name'] = "";
-//			    $email['city'] = "";
-//			}
-//			$email['tag'] = "cancel_booking";
-//			$email['subject'] = "Pending Booking Cancellation - 247AROUND";
-//			//Send internal mails now
-//			$this->send_email($email);
+
+			if (isset($query1[0]['vendor_name'])) {
+                            //Inform SF when Partner/Admin cancels a booking
+                            $this->send_email_to_sf_when_booking_cancelled($query1);
+			} 
 
 			$call_type = explode(" ", $query1[0]['request_type']);
                         $sms['smsData']['call_type'] = $call_type[0];
@@ -551,6 +537,52 @@ class Notify {
 		   
 	    }
 	}
+    }
+    /**
+     * @desc This is used to send email to sf when some one cancel booking
+     * @param Array $query
+     */
+    function send_email_to_sf_when_booking_cancelled($query) {
+        log_message('info', __METHOD__ . " Booking ID " . $query[0]['booking_id']);
+        if (!empty($query[0]['assigned_vendor_id'])) {
+            $get_partner_details = $this->My_CI->partner_model->getpartner_details('account_manager_id, primary_contact_email, owner_email', array('partners.id' => $query[0]['partner_id']));
+            $am_email = "";
+            if (!empty($get_partner_details[0]['account_manager_id'])) {
+
+                $am_email = $this->My_CI->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
+            }
+
+            $email_template = $this->My_CI->booking_model->get_booking_email_template("inform_to_sf_for_cancellation");
+            if (!empty($email_template)) {
+                log_message('info', __METHOD__ . " Template Found ");
+                $vendor_details = $this->My_CI->vendor_model->getVendorDetails('primary_contact_email,owner_email', array('id' => $query[0]['assigned_vendor_id']));
+                $to = $vendor_details[0]['primary_contact_email'] . "," . $vendor_details[0]['owner_email'];
+
+                $sid = $query[0]['assigned_vendor_id'];
+                $rm = $this->My_CI->vendor_model->get_rm_sf_relation_by_sf_id($sid);
+                $rm_email = "";
+                if (!empty($rm)) {
+                    $rm_email = ", " . $rm[0]['official_email'];
+                }
+
+                $bcc = $email_template[5];
+                $subject = vsprintf($email_template[4], array($query[0]['booking_id']));
+                $message = vsprintf($email_template[0], array($query[0]['booking_id'], $query[0]['cancellation_reason']));
+                if (!empty($am_email)) {
+                    $from = $am_email;
+                    $cc = $email_template[3] . "," . $am_email . $rm_email;
+                } else {
+                    $from = $email_template[2];
+                    $cc = $email_template[3] . $rm_email;
+                }
+                $this->sendEmail($from, $to, $cc, $bcc, $subject, $message, "", 'inform_to_sf_for_cancellation');
+                log_message('info', __METHOD__ . " Booking ID " . $query[0]['booking_id'] . " mail Sent to " . $to);
+            } else {
+                log_message('info', __METHOD__ . " Template Not Found ");
+            }
+        } else {
+            log_message('info', __METHOD__ . " Booking is not assigned ");
+        }
     }
 
     /**
