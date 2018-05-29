@@ -1,11 +1,17 @@
 <script src="<?php echo base_url(); ?>js/base_url.js"></script>
 <script src="<?php echo base_url() ?>assest/datatables.net/js/jquery.dataTables.min.js"></script>
 <script src="<?php echo base_url() ?>assest/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.5.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.5.1/js/buttons.html5.min.js"></script>
 
 <script src="<?php echo base_url() ?>assest/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
 <script src="<?php echo base_url() ?>assest/datatables.net-responsive-bs/js/responsive.bootstrap.js"></script>
+<link href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet">
+<link href="https://cdn.datatables.net/buttons/1.4.0/css/buttons.dataTables.min.css" rel="stylesheet">
+
+
 <div id="page-wrapper">
-    <h2>Customer Invoice</h2>
+    <h2 style="margin-bottom: 25px;">Customer Invoice</h2>
     <table class="table table-bordered  table-hover table-striped data" id="datatable1" >
    <thead>
       <tr >
@@ -26,6 +32,10 @@
     #datatable1_filter{
         float: right;
     }
+    .dt-buttons{
+        margin-left:25px;
+        margin-top:-1px;
+    }
 </style>
 <script>
 
@@ -36,6 +46,17 @@ $(document).ready(function () {
             "serverSide": true, //Feature control DataTables' server-side processing mode.
             "order": [], //Initial no order.
             "pageLength": 50,
+            dom: 'lBfrtip',
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    text: 'Download Invoice',
+                    exportOptions: {
+                        columns: [ 0,1,2,3,4,5,6]
+                    },
+                    title: 'Customer Invoice'
+                }
+            ],
             // Load data for the table's content from an Ajax source
             "ajax": {
                 "url": "<?php echo base_url(); ?>apiDataRequest",
