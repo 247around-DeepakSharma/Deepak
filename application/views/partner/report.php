@@ -123,9 +123,8 @@
                                             <a style="float: right;background: #2a3f54;border: #2a3f54;" class="btn btn-success" href="<?php echo base_url(); ?>partner/download_sf_list_excel">Download Service Center List</a>
                                             <p style="font-size: 15px;padding: 5px 12px;background: #4b9c7a;color: #fff;width: 40%;border-radius: 3px;">Please Select Column For  Serviceability Report </p>
                                             <form>
-                                <div class="checkbox"><label><input type="checkbox" name="appliace_opt" id="appliace_opt" value="" onclick="showHideApplianceForm(this.checked)">Appliance</label></div>
-                                    <div id="appliance_id_holder" style="display:none;">
-                                        <select class="form-control" id="modal_service_id" name="service_id[]"  multiple="multiple"  style="width:40%;"> 
+                                    <div id="appliance_id_holder">
+                                        <select class="form-control" id="modal_service_id" name="service_id[]"   style="width:40%;"> 
                                             <?php
                                             foreach($services as $service){
                                                 ?>
@@ -275,7 +274,7 @@
         $.ajax({
         type: 'POST',
         url: '<?php echo base_url(); ?>partner/serviceability_list',
-        data: {appliance_opt: appliance_opt,pincode_opt: pincode_opt,state_opt: state_opt,city_opt: city_opt,service_id: service_id},
+        data: {appliance_opt: 1,pincode_opt: pincode_opt,state_opt: state_opt,city_opt: city_opt,service_id: service_id},
         success: function (response) {
              $("#loader_gif_title").hide();
             var jsondata = JSON.parse(response);
