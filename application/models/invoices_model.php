@@ -327,7 +327,7 @@ class invoices_model extends CI_Model {
         $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
         $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
 
-        $sql1 = "SELECT booking_unit_details.id AS unit_id, CONCAT('''', booking_unit_details.sub_order_id) as sub_order_id, CONCAT('''', `booking_details`.booking_id) as booking_id, "
+        $sql1 = "SELECT booking_unit_details.id AS unit_id, CONCAT('''', booking_unit_details.sub_order_id) as sub_order_id, `booking_details`.booking_id as booking_id, "
                 . "  invoice_email_to,invoice_email_cc, booking_details.rating_stars,  "
                 . " `booking_details`.partner_id, `booking_details`.source, "
                 . " CASE WHEN (serial_number_pic = '' OR serial_number_pic IS NULL) THEN ('') ELSE (CONCAT('".S3_WEBSITE_URL."engineer-uploads/', serial_number_pic)) END as serial_number_pic,"
