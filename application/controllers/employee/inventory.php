@@ -3125,7 +3125,7 @@ class Inventory extends CI_Controller {
         $cc = $email_template[3];
         $bcc = $email_template[5];
 
-        $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, "", 'spare_inventory_invoice');
+        $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, "", 'spare_invoice_not_found');
     }
     
     /**
@@ -3481,6 +3481,17 @@ class Inventory extends CI_Controller {
             $this->session->sess_destroy();
             redirect(base_url() . "service_center/login");
         }
+    }
+    
+    /**
+     *  @desc : This function is used to upload model and part number mapping file
+     *  @param : void
+     *  @return :void
+     */
+    function upload_bom_file(){
+        
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/upload_applinace_model_mapping_with_inventory');
     }
 
 }
