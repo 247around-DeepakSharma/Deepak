@@ -125,6 +125,7 @@
                                             <form>
                                     <div id="appliance_id_holder">
                                         <select class="form-control" id="modal_service_id" name="service_id[]"   style="width:40%;"> 
+                                            <option value="">Select Appliance</option>
                                             <?php
                                             foreach($services as $service){
                                                 ?>
