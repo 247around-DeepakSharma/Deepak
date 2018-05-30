@@ -2793,9 +2793,6 @@ class Booking extends CI_Controller {
         $data['sf'] = $this->vendor_model->getVendorDetails('id,name',array('active' => '1'));
         $data['services'] = $this->booking_model->selectservice();
         $data['cities'] = $this->booking_model->get_advance_search_result_data("booking_details","DISTINCT(city)",NULL,NULL,NULL,array('city'=>'ASC'));
-        $data['internalStatus'] = $this->booking_model->get_advance_search_result_data("partner_booking_status_mapping","DISTINCT(partner_internal_status)",
-                array('247around_current_status'=>'Pending'),NULL,NULL,array('partner_internal_status'=>'ASC'));
-        $data['requestType'] = $this->booking_model->get_advance_search_result_data("booking_details","DISTINCT(request_type)",NULL,NULL,NULL,array('request_type'=>'ASC'));
        $this->miscelleneous->load_nav_header();
         if(strtolower($data['booking_status']) == 'pending'){
             $this->load->view('employee/view_pending_bookings', $data);
@@ -4250,6 +4247,34 @@ class Booking extends CI_Controller {
         }
         echo json_encode($res);
         
+    }
+    function get_request_type($actor){
+        $where = array();
+        if($actor != 'blank'){
+            $where['actor'] = $actor;
+        }
+        $whereIN['current_status'] = array("Pending","Rescheduled") ;
+        $requestTypeArray= $this->reusable_model->get_search_result_data("booking_details","DISTINCT(request_type)",$where,NULL,NULL,array("request_type"=>"ASC"),
+        $whereIN,NULL,array());
+        $select ="";
+        foreach($requestTypeArray as $val){
+            $select  = $select. "<option value='".$val['request_type']."'>".$val['request_type']."</option>";
+        }
+        echo $select;
+    }
+    function get_internal_status($actor){
+        $where = array();
+        if($actor != 'blank'){
+            $where['actor'] = $actor;
+        }
+        $whereIN['current_status'] = array("Pending","Rescheduled") ;
+        $partnerStatusArray = $this->reusable_model->get_search_result_data("booking_details","DISTINCT(partner_internal_status)",$where,NULL,NULL,array("request_type"=>"ASC"),
+                $whereIN,NULL,array());
+        $select = "";
+        foreach($partnerStatusArray as $val){
+            $select  = $select. "<option value='".$val['partner_internal_status']."'>".$val['partner_internal_status']."</option>";
+        }
+        echo $select;
     }
 }
 
