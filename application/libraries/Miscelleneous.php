@@ -503,6 +503,8 @@ class Miscelleneous {
         $send['booking_id'] = $booking_id;
         $send['state'] = $data['current_status'];
         $this->My_CI->asynchronous_lib->do_background_process($url, $send);
+        //Inform to sf when partner/call center has cancelled booking
+        $this->My_CI->notify->send_email_to_sf_when_booking_cancelled($booking_id);
 
         // call partner callback
         $this->My_CI->partner_cb->partner_callback($booking_id);
