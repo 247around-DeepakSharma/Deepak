@@ -71,7 +71,9 @@ if ($this->uri->segment(3)) {
                             } ?>
                         </tbody>
                     </table>
-                    
+                    <div class="custom_pagination" style="margin-left: 16px;" > 
+                <?php if(isset($links)) { echo $links; } ?>
+            </div>
                 </div>
             </div>
         </div>
@@ -83,3 +85,8 @@ if ($this->uri->segment(3)) {
                     "pageLength": 50
                 });
     </script>
+        <style>
+        .pagination{
+            display: none;
+        }
+        </style>
