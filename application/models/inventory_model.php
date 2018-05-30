@@ -965,5 +965,15 @@ class Inventory_model extends CI_Model {
         log_message("info", $this->db->last_query());
         return $query->result_array();
     }
+    
+    /**
+     * @desc This is used to insert details into inventory_model_mapping table in batch
+     * @param Array $data
+     * @return string
+     */
+    function insert_batch_inventory_model_mapping($data) {
+      $this->db->insert_ignore_duplicate_batch('inventory_model_mapping', $data);
+      return $this->db->insert_id();
+    }
 
 }

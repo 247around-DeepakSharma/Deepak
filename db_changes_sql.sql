@@ -4890,14 +4890,14 @@ INSERT INTO `inventory_master_list`
 (`inventory_id`, `service_id`, `part_number`, `part_name`, `serial_number`, 
 `description`, `size`, `price`, `type`, `entity_id`, `entity_type`, `hsn_code`,
  `gst_rate`, `create_date`) VALUES (NULL, '46', 'B-24732', 'Bracket', NULL, 
-'Brackets less than 32"', NULL, NULL, NULL, '247001', '247around', NULL, NULL,
+'Brackets less than 32"', NULL, NULL, NULL, '1', '247around', NULL, NULL,
  CURRENT_TIMESTAMP);
 
 INSERT INTO `inventory_master_list` 
 (`inventory_id`, `service_id`, `part_number`, `part_name`, `serial_number`, 
 `description`, `size`, `price`, `type`, `entity_id`, `entity_type`, `hsn_code`, 
 `gst_rate`, `create_date`) VALUES (NULL, '46', 'B-24733', 'Bracket', NULL, 
-'Brackets greater than 32"', NULL, NULL, NULL, '247001', '247around', NULL, 
+'Brackets greater than 32"', NULL, NULL, NULL, '1', '247around', NULL, 
 NULL, CURRENT_TIMESTAMP);
 
 CREATE TABLE `247around`.`appliance_model_details` 
@@ -4982,5 +4982,11 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'spare_inventory_invoice', 'Spare Invoice', 'Dear Partner, <br/> <br/> Please find the attachment. ', 'noreply@247around.com', 'abhaya@247around.com', '', '', '1', '2018-05-25 18:26:57');
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'spare_invoice_not_found', 'Spare Invoice', 'Dear Partner, <br/> <br/> Please find the attachment. ', 'noreply@247around.com', 'abhaya@247around.com', '', '', '1', '2018-05-25 18:26:57');
 
+
+--sachin 30 may 
+
+ALTER TABLE `inventory_model_mapping` ADD UNIQUE( `inventory_id`, `model_number_id`);
+
 --Abhay 29 May
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'inform_to_sf_for_cancellation', 'Pending Booking Cancellation - 247AROUND', 'Dear Partner, <br/> <br/> Booking ID %s has cancelled.<br/><span style="font-weight:bold">Cancellation Reason: </span>%s', 'noreply@247around.com', '', '', '', '1', '2018-05-29 18:26:57');
+

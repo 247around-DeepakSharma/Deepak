@@ -576,8 +576,11 @@ define("INVOCIE_TAG_FOR_INVENTORY", "inventory");
 
 
 //Define Constant for Partner Appliance model
-define('PARTNER_APPLIANCE_MODEL_FILe','Appliance-model-file');
+define('PARTNER_APPLIANCE_MODEL_FILe','Appliance-model');
 
 define("PARTNER_CALL_CENTER_USER_GROUP", "callcenter");
+
+//Define Constant for Partner BOM file upload
+define('PARTNER_BOM_FILE','Partner-BOM');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

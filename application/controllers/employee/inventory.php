@@ -3482,5 +3482,16 @@ class Inventory extends CI_Controller {
             redirect(base_url() . "service_center/login");
         }
     }
+    
+    /**
+     *  @desc : This function is used to upload model and part number mapping file
+     *  @param : void
+     *  @return :void
+     */
+    function upload_bom_file(){
+        
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/upload_applinace_model_mapping_with_inventory');
+    }
 
 }
