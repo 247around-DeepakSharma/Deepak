@@ -1729,7 +1729,7 @@ class Apis extends CI_Model {
             . "(`user_id`, `service_id`, `brand`, `category`, `capacity`, "
             . "`model_number`, `tag`, `purchase_date`, `rating`,"
             . "`warranty_card_pic`, `invoice_pic`) "
-            . "VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
+            . "VALUES (?,?,?,?,?,?,?,?,?,?,?)";
 
         $this->db->query($sql, $appliance_details);
 

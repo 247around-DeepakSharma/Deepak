@@ -390,7 +390,7 @@ function get_data_for_partner_callback($booking_id) {
         
         return $query = $this->db->query("SELECT 
             order_id AS 'Sub Order ID',
-            (CONCAT('''', booking_details.booking_id)) AS '247BookingID',
+            booking_details.booking_id AS '247BookingID',
             date(booking_details.create_date) AS 'Referred Date and Time',
             GROUP_CONCAT(ud.appliance_brand) AS 'Brand', 
             IFNULL(GROUP_CONCAT(ud.model_number),'') AS 'Model',
@@ -1529,7 +1529,7 @@ function get_data_for_partner_callback($booking_id) {
         
         return $query = $this->db->query("SELECT 
             order_id AS 'Sub Order ID',
-            (CONCAT('''', booking_details.booking_id)) AS '247BookingID',
+            booking_details.booking_id AS '247BookingID',
             date(booking_details.create_date) AS 'Referred Date and Time',
             ud.appliance_brand AS 'Brand', 
             IFNULL(ud.model_number,'') AS 'Model',

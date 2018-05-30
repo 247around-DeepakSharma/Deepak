@@ -4982,6 +4982,11 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'spare_inventory_invoice', 'Spare Invoice', 'Dear Partner, <br/> <br/> Please find the attachment. ', 'noreply@247around.com', 'abhaya@247around.com', '', '', '1', '2018-05-25 18:26:57');
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'spare_invoice_not_found', 'Spare Invoice', 'Dear Partner, <br/> <br/> Please find the attachment. ', 'noreply@247around.com', 'abhaya@247around.com', '', '', '1', '2018-05-25 18:26:57');
 
+
 --sachin 30 may 
 
 ALTER TABLE `inventory_model_mapping` ADD UNIQUE( `inventory_id`, `model_number_id`);
+
+--Abhay 29 May
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'inform_to_sf_for_cancellation', 'Pending Booking Cancellation - 247AROUND', 'Dear Partner, <br/> <br/> Booking ID %s has cancelled.<br/><span style="font-weight:bold">Cancellation Reason: </span>%s', 'noreply@247around.com', '', '', '', '1', '2018-05-29 18:26:57');
+

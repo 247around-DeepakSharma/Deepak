@@ -2782,14 +2782,20 @@ class Booking extends CI_Controller {
      *  @return : void();
      */
     public function view_bookings_by_status($status,$booking_id=""){
+        $partnerWhere['is_active'] = 1;
+        if($this->session->userdata('is_am') == '1'){
+            $am_id = $this->session->userdata('id');
+            $partnerWhere['account_manager_id'] = $am_id;
+        }
         $data['booking_status'] = trim($status);
         $data['booking_id'] = trim($booking_id);
-        $data['partners'] = $this->partner_model->getpartner_details('partners.id,partners.public_name',array('is_active'=> '1'));
+        $data['partners'] = $this->partner_model->getpartner_details('partners.id,partners.public_name',$partnerWhere);
         $data['sf'] = $this->vendor_model->getVendorDetails('id,name',array('active' => '1'));
         $data['services'] = $this->booking_model->selectservice();
         $data['cities'] = $this->booking_model->get_advance_search_result_data("booking_details","DISTINCT(city)",NULL,NULL,NULL,array('city'=>'ASC'));
         $data['internalStatus'] = $this->booking_model->get_advance_search_result_data("partner_booking_status_mapping","DISTINCT(partner_internal_status)",
                 array('247around_current_status'=>'Pending'),NULL,NULL,array('partner_internal_status'=>'ASC'));
+        $data['requestType'] = $this->booking_model->get_advance_search_result_data("booking_details","DISTINCT(request_type)",NULL,NULL,NULL,array('request_type'=>'ASC'));
        $this->miscelleneous->load_nav_header();
         if(strtolower($data['booking_status']) == 'pending'){
             $this->load->view('employee/view_pending_bookings', $data);
@@ -2804,22 +2810,33 @@ class Booking extends CI_Controller {
      *  @param : $status string
      *  @return : $output JSON
      */
-    public function get_bookings_by_status($status){ 
-//        echo "<pre>";
-//        print_r($this->input->post());
-//        exit();
-        
+    public function get_bookings_by_status($status){   
         $booking_status = trim($status);
-        $data = $this->get_bookings_data_by_status($booking_status);
-        
+        //RM Specific Bookings
+         $sfIDArray =array();
+         $partnerArray = array();
+        if($this->session->userdata('user_group') == 'regionalmanager'){
+            $rm_id = $this->session->userdata('id');
+            $rmServiceCentersData= $this->reusable_model->get_search_result_data("employee_relation","service_centres_id",array("agent_id"=>$rm_id),NULL,NULL,NULL,NULL,NULL);
+            $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
+            $sfIDArray = explode(",",$sfIDList);
+        }
+        //AM Specific Bookings
+        if($this->session->userdata('is_am') == '1'){
+            $am_id = $this->session->userdata('id');
+            $partnerIDArray= $this->reusable_model->get_search_result_data("partners","id",array("account_manager_id"=>$am_id,'is_active'=>1),NULL,NULL,NULL,NULL,NULL);
+            foreach($partnerIDArray as $partner_ID){
+                $partnerArray[] = $partner_ID['id']; 
+            }
+        }
+        $data = $this->get_bookings_data_by_status($booking_status,$sfIDArray,$partnerArray);
         $post = $data['post'];
         $output = array(
             "draw" => $this->input->post('draw'),
             "recordsTotal" => $this->booking_model->count_all_bookings_by_status($post),
-            "recordsFiltered" =>  $this->booking_model->count_filtered_bookings_by_status($post),
+            "recordsFiltered" =>  $this->booking_model->count_filtered_bookings_by_status($post,$sfIDArray,$partnerArray),
             "data" => $data['data'],
         );
-        
         echo json_encode($output);
     }
     
@@ -2829,23 +2846,14 @@ class Booking extends CI_Controller {
      *  @param : $booking_status string
      *  @return : $output Array()
      */
-    private function get_bookings_data_by_status($booking_status) {
+    private function get_bookings_data_by_status($booking_status,$sfIDArray,$partnerArray) {
         $post = $this->get_post_data();
         $new_post = $this->get_filterd_post_data($post,$booking_status,'booking');
         $select = "services.services,users.name as customername,penalty_on_booking.active as penalty_active,
             users.phone_number, booking_details.*, service_centres.name as service_centre_name,
             service_centres.district as city, service_centres.primary_contact_name,
             service_centres.primary_contact_phone_1,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date_as_dateformat";
-        //RM Specific Bookings
-         $sfIDArray =array();
-        if($this->session->userdata('user_group') == 'regionalmanager'){
-            $rm_id = $this->session->userdata('id');
-            $rmServiceCentersData= $this->reusable_model->get_search_result_data("employee_relation","service_centres_id",array("agent_id"=>$rm_id),NULL,NULL,NULL,NULL,NULL);
-            $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
-            $sfIDArray = explode(",",$sfIDList);
-        }
-        
-        $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray);
+        $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray,$partnerArray);
         unset($new_post['order_performed_on_count']);
         $data = array();
         $no = $post['start'];
@@ -2887,7 +2895,9 @@ class Booking extends CI_Controller {
         $booking_date = $this->input->post('booking_date');
         $city = $this->input->post('city');
         $internal_status = $this->input->post('internal_status');
-        
+        $request_type = $this->input->post('request_type');
+        $current_status = $this->input->post('current_status');
+        $actor = $this->input->post('actor');
         if($type == 'booking'){
             if($booking_status == _247AROUND_COMPLETED || $booking_status == _247AROUND_CANCELLED){
                 $post['where']  = array('current_status' => $booking_status,'type' => 'Booking');
@@ -2903,6 +2913,15 @@ class Booking extends CI_Controller {
         }
         if(!empty($internal_status)){
             $post['where_in']['booking_details.partner_internal_status'] =  explode(",",$internal_status);
+        }
+        if(!empty($current_status)){
+            $post['where']['booking_details.current_status'] =  $current_status;
+        }
+        if(!empty($actor)){
+             $post['where']['booking_details.actor'] =  $actor;
+        }
+        if(!empty($request_type)){
+            $post['where_in']['booking_details.request_type'] =  explode(",",$request_type);
         }
         if(!empty($booking_id)){
             $post['where']['booking_details.booking_id'] =  $booking_id;
