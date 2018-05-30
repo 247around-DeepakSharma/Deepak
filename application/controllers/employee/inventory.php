@@ -3125,7 +3125,7 @@ class Inventory extends CI_Controller {
         $cc = $email_template[3];
         $bcc = $email_template[5];
 
-        $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, "", 'spare_inventory_invoice');
+        $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, "", 'spare_invoice_not_found');
     }
     
     /**
