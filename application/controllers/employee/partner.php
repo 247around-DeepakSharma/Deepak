@@ -164,7 +164,6 @@ class Partner extends CI_Controller {
         $config['last_link'] = 'Last';
         $this->pagination->initialize($config);
         $data['links'] = $this->pagination->create_links();
-
         $data['count'] = $config['total_rows'];
         if (!empty($booking_id)) {
             $data['bookings'] = $this->partner_model->getclosed_booking($config['per_page'], $offset, $partner_id, $state, $booking_id,$stateCity);
@@ -176,7 +175,6 @@ class Partner extends CI_Controller {
             $data['success'] = $this->session->flashdata('result');
 
         $data['status'] = $state;
-
        $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
         log_message('info', 'Partner view ' . $state . ' booking  partner id' . $partner_id . " Partner name" . $this->session->userdata('partner_name') . " data " . print_r($data, true));
         $this->miscelleneous->load_partner_nav_header();
@@ -1971,23 +1969,19 @@ class Partner extends CI_Controller {
             $state = 1;
         }
         $partner_id = $this->session->userdata('partner_id');
-        $where = "spare_parts_details.partner_id = '" . $partner_id . "' "
-                . " AND status IN ('Delivered', 'Shipped', '" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_SHIPPED . "')  ";
-
+        //Parts Shipped by Partner But Did'nt Get by SF
+        $where = "spare_parts_details.partner_id = '" . $partner_id . "'AND status IN ( 'Shipped')  ";
         $config['base_url'] = base_url() . 'partner/get_shipped_parts_list';
         $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false,$state);
         $config['total_rows'] = $total_rows[0]['total_rows'];
-
         $config['per_page'] = 50;
         $config['uri_segment'] = 3;
         $config['first_link'] = 'First';
         $config['last_link'] = 'Last';
         $this->pagination->initialize($config);
         $data['links'] = $this->pagination->create_links();
-
         $data['count'] = $config['total_rows'];
         $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true,$state);
-
         $this->miscelleneous->load_partner_nav_header();
         //$this->load->view('partner/header');
         $this->load->view('partner/shipped_spare_part_booking', $data);
@@ -4299,9 +4293,33 @@ class Partner extends CI_Controller {
         ob_start();
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
         $this->checkUserSession();
+        $CSVData = array();
         $partner_id = $this->session->userdata('partner_id');
         $where = "spare_parts_details.partner_id = '" . $partner_id . "' "
                 . " AND status IN ('Delivered', 'Shipped', '" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_SHIPPED . "')  ";
+        $data= $this->partner_model->get_spare_parts_booking_list($where, NULL, NULL, true);
+        $headings = array("Customer Name","Booking ID","Shipped Parts","Courier Name","AWB","Challan","Shipped Date","Remarks");
+        foreach($data as $sparePartBookings){
+            $tempArray = array();
+            $tempArray[] = $sparePartBookings['name'];
+            $tempArray[] = $sparePartBookings['booking_id'];
+            $tempArray[] = $sparePartBookings['parts_shipped'];
+            $tempArray[] = $sparePartBookings['courier_name_by_partner'];
+            $tempArray[] = $sparePartBookings['awb_by_partner'];
+            $tempArray[] = $sparePartBookings['partner_challan_number'];
+            $tempArray[] = $sparePartBookings['shipped_date'];
+            $tempArray[] = $sparePartBookings['remarks_by_partner'];
+            $CSVData[]  = $tempArray;
+        }
+        $this->miscelleneous->downloadCSV($CSVData, $headings, "Spare_Part_Shipped_By_Partner_".date("Y-m-d"));
+    }
+    function download_spare_part_shipped_by_partner_not_acknowledged(){
+        ob_start();
+        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
+        $this->checkUserSession();
+        $CSVData = array();
+        $partner_id = $this->session->userdata('partner_id');
+        $where = "spare_parts_details.partner_id = '" . $partner_id . "' AND status IN ('Shipped') ";
         $data= $this->partner_model->get_spare_parts_booking_list($where, NULL, NULL, true);
         $headings = array("Customer Name","Booking ID","Shipped Parts","Courier Name","AWB","Challan","Shipped Date","Remarks");
         foreach($data as $sparePartBookings){
