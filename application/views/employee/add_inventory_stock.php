@@ -69,7 +69,7 @@
 
                     <div class="form-group"> 
                         <div class="col-sm-offset-3 col-sm-10">
-                            <input type="submit" class="btn btn-success" id="inventory_stocks_form_submit_btn" name='submit_type' value="Submit">
+                            <button type="submit" class="btn btn-success" id="inventory_stocks_form_submit_btn">Submit</button>
                         </div>
                     </div>
                 </form>
@@ -88,7 +88,7 @@
     }
     
     $("#inventory_stocks_form_submit_btn").click(function(){
-        $('#inventory_stocks_form_submit_btn').val('Processing...');
+        $('#inventory_stocks_form_submit_btn').html("<i class = 'fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
         event.preventDefault();
 
         var form_data = $("#inventory_stocks_form").serializeArray();
@@ -100,6 +100,7 @@
                 url:'<?php echo base_url();?>employee/inventory/process_update_inventory_stock',
                 data : form_data,
                 success:function(response){
+                    $('#inventory_stocks_form_submit_btn').html("Submit").attr('disabled',false);
                     var data = JSON.parse(response);
                     if(data.response === 'success'){
                         $('.success_msg_div').fadeTo(2000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(500);});   

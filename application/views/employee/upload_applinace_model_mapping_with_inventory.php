@@ -34,7 +34,7 @@
                     }
                     ?>
                 <h1 class="page-header">
-                    <b> Upload File</b>
+                    <b> Upload Inventory Model Mapping File</b>
                 </h1>
                 <section>
                     <div class="col-md-6">

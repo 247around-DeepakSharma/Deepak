@@ -31,7 +31,7 @@
                     }
                     ?>
                 <h1 class="page-header">
-                    <b> Upload File</b>
+                    <b> Upload Inventory Master Details File</b>
                 </h1>
                 <section>
                     <div class="col-md-6">
@@ -73,26 +73,10 @@
                             </div>
                         </form>
                     </div>
-<!--                    <div class="col-md-6">
-                        <p style="font-size: 18px;"><b>Please write Appliance Name Only From Below List</b></p>
-                        <table class='table table-condensed table-bordered'>
-                            <thead>
-                                //<?php
-//                                foreach ($services as $index => $serviceName) {
-//                                    if ($index % 5 == 0) {
-//                                        echo "<tr>";
-//                                    }
-//                                    ?>
-                                <td>//<?php //echo $serviceName->services; ?></td>
-                                //<?php
-//                                if (($index + 1) % 5 == 0) {
-//                                    echo "</tr>";
-//                                }
-//                            }
-//                            ?>
-                            </thead>
-                        </table>
-                    </div>-->
+                    <div class="col-md-6">
+                        <p style="font-size: 18px;"><b>Download Sample File. Use this file to upload inventory details.</b></p>
+                        <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/vendor-partner-docs/inventory_master_list_sample_file.xlsx" class="btn btn-info" target="_blank">Download Sample File</a>
+                    </div>
                 </section>
                 <div class="col-md-12" style="margin-top:20px;">
                     <h3>File Upload History</h3>

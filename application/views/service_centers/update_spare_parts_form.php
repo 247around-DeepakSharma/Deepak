@@ -319,7 +319,7 @@
                             <input type="hidden" name="is_wh" id="is_wh" value="<?php echo $is_wh ;?>">
                             <input type="hidden" name="inventory_id" id="inventory_id">
                             <input type="submit"  <?php if (!is_null($spare_parts[0]->estimate_cost_given_date) || $spare_parts[0]->request_type == REPAIR_OOW_TAG) { ?> 
-                                       onclick="return check_invoice_amount('<?php echo $spare_parts[0]->purchase_price; ?>')" <?php } ?> value="Update Booking" class="btn btn-md btn-success" />
+                                       onclick="return check_invoice_amount('<?php echo $spare_parts[0]->purchase_price; ?>')" <?php } ?> value="Update Booking" class="btn btn-md btn-success" id="submit_form"/>
                         </div>
                     </div>
                 </div>
@@ -470,9 +470,12 @@
                     //console.log(data);
                     var obj = JSON.parse(data);
                     if(obj.price){
+                        $('#submit_form').attr('disabled',false);
                         $('#approx_value').val(obj.price);
                         $('#inventory_id').val(obj.inventory_id);
                     }else{
+                        alert("Inventory Details not found for the selected combination.");
+                        $('#submit_form').attr('disabled',true);
                         console.log(data);
                     }
                 }
