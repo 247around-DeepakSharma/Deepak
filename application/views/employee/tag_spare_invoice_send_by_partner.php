@@ -44,21 +44,21 @@
                                     <div class="col-xs-8 col-sm-4">
                                         <select class="form-control" name="partner_id" id="partner_id" required=""></select>
                                     </div>
-                                    <label class="col-xs-2 control-label">Invoice Number *</label>
+                                    <label class="col-xs-4 col-sm-2 control-label">247around Warehouses *</label>
                                     <div class="col-xs-8 col-sm-4">
-                                        <input type="text" class="form-control" name="invoice_id" id="invoice_id" placeholder="Enter Invoice ID" required=""/>
+                                        <select class="form-control" name="wh_id" id="wh_id" required="">
+                                            <option value="" disabled="">Select Warehouse</option>
+                                        </select>
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label class="col-xs-4 col-sm-2 control-label">Invoice Date *</label>
                                     <div class="col-xs-8 col-sm-4">
-                                        <input type="text" class="form-control" name="dated" id="dated" placeholder="Select Date" required=""/>
+                                        <input type="text" class="form-control" name="dated" id="dated" placeholder="Select Date" required="" autocomplete="off"/>
                                     </div>
-                                    <label class="col-xs-4 col-sm-2 control-label">Warehouse *</label>
+                                    <label class="col-xs-2 control-label">Invoice Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Please make sure invoice number does not contain '/'. You can replace '/' with '-' "><i class="fa fa-info"></i></span></label>
                                     <div class="col-xs-8 col-sm-4">
-                                        <select class="form-control" name="wh_id" id="wh_id">
-                                            <option value="" disabled="">Select Warehouse</option>
-                                        </select>
+                                        <input type="text" class="form-control" name="invoice_id" id="invoice_id" placeholder="Enter Invoice ID" required="" onblur="check_invoice_id(this.id)"/>
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -66,17 +66,31 @@
                                     <div class="col-xs-8 col-sm-4">
                                         <input type="file" class="form-control" name="file" id="invoice_file" required="" accept="application/pdf"/>
                                     </div>
-                                </div>
-<!--                                <div class="form-group">
-                                    <label class="col-xs-2 control-label">Despatch Document Number*</label>
+                                    <label class="col-xs-2 control-label">Invoice Amount *</label>
                                     <div class="col-xs-4">
-                                        <input type="text" class="form-control" name="despatch_doc_no" id="despatch_doc_no" placeholder="Enter Despatch Document No" required=""/>
+                                        <input type="number" class="form-control" name="invoice_amount" id="despatch_doc_no" placeholder="Enter Invoice Amount" required=""/>
                                     </div>
-                                    <label class="col-xs-2 control-label">Courier Name*</label>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-xs-2 control-label">AWB Number *</label>
+                                    <div class="col-xs-4">
+                                        <input type="text" class="form-control" name="awb_number" id="despatch_doc_no" placeholder="Enter AWB No" required=""/>
+                                    </div>
+                                    <label class="col-xs-2 control-label">Courier Name *</label>
                                     <div class="col-xs-4">
                                         <input type="text" class="form-control" name="courier_name" id="courier_name" placeholder="Enter Courier Name" required=""/>
                                     </div>
-                                </div>-->
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-xs-2 control-label">Courier Shipment Date</label>
+                                    <div class="col-xs-4">
+                                        <input type="text" class="form-control" name="courier_shipment_date" id="courier_shipment_date" placeholder="Enter Shipment Date" autocomplete="off"/>
+                                    </div>
+                                    <label class="col-xs-2 control-label">Courier file</label>
+                                    <div class="col-xs-4">
+                                        <input type="file" class="form-control" name="courier_file" id="courier_file"/>
+                                    </div>
+                                </div>
                             </div>
                             <hr>
                             <div class="dynamic-form-box">
@@ -84,12 +98,6 @@
                                     <div class="col-xs-12 col-sm-6 col-md-2">
                                         <p class="text-center"><strong>Appliance</strong></p>
                                     </div>
-<!--                                    <div class="col-xs-12 col-sm-6 col-md-2">
-                                        <p class="text-center"><strong>Model Number</strong></p>
-                                    </div>
-                                    <div class="col-xs-12 col-sm-6 col-md-2">
-                                        <p class="text-center"><strong>Part Type</strong></p>
-                                    </div>-->
                                     <div class="col-xs-12 col-sm-6 col-md-2">
                                         <p class="text-center"><strong>Part Name</strong></p>
                                     </div>
@@ -116,12 +124,6 @@
                                     <div class="col-xs-12 col-sm-6 col-md-2">
                                         <select class="form-control" name="part[0][service_id]" id="serviceId_0" required="" onchange="get_part_details(this.id)"></select>
                                     </div>
-<!--                                    <div class="col-xs-12 col-sm-6 col-md-2">
-                                        <select class="form-control" name="part[0][model_number]" id="modelNumber_0" required="" onchange="get_part_details(this.id)"></select>
-                                    </div>
-                                    <div class="col-xs-12 col-sm-6 col-md-2">
-                                        <select class="form-control" name="part[0][part_type]" id="partType_0" required="" onchange="get_part_details(this.id)"></select>
-                                    </div>-->
                                     <div class="col-xs-12 col-sm-6 col-md-2">
                                         <select class="form-control" name="part[0][part_name]" id="partName_0" required="" onchange="get_part_details(this.id)"></select>
                                     </div>
@@ -129,7 +131,7 @@
                                         <select class="form-control" name="part[0][part_number]" id="partNumber_0" ></select>
                                     </div>
                                     <div class="col-xs-12 col-sm-6 col-md-2">
-                                        <input type="text" class="form-control" name="part[0][booking_id]" id="booking_id_0" placeholder="Booking ID" />
+                                        <input type="text" class="form-control" name="part[0][booking_id]" id="booking_id_0" placeholder="Booking ID" onblur="check_booking_id(this.id)"/>
                                     </div>
                                     <div class="col-xs-12 col-sm-6 col-md-1">
                                         <input type="number" class="form-control" name="part[0][quantity]" id="quantity_0" min="1" placeholder="Quantity" required="" onblur="get_part_details(this.id)" />
@@ -154,12 +156,6 @@
                                     <div class="col-xs-12 col-sm-6 col-md-2">
                                         <select class="form-control" id="service_id"  required="" onchange="get_part_details(this.id)"></select>
                                     </div>
-<!--                                    <div class="col-xs-12 col-sm-6 col-md-2">
-                                        <select class="form-control" id="model_number"  required="" onchange="get_part_details(this.id)"></select>
-                                    </div>
-                                    <div class="col-xs-12 col-sm-6 col-md-2">
-                                        <select class="form-control" id="part_type"  required="" onchange="get_part_details(this.id)"></select>
-                                    </div>-->
                                     <div class="col-xs-12 col-sm-6 col-md-2">
                                         <select class="form-control" id="part_name"  required="" onchange="get_part_details(this.id)"></select>
                                     </div>
@@ -167,7 +163,7 @@
                                         <select class="form-control" id="part_number"></select>
                                     </div>
                                     <div class="col-xs-12 col-sm-6 col-md-2">
-                                        <input type="text" class="form-control" id="booking_id"  placeholder="Booking ID" />
+                                        <input type="text" class="form-control" id="booking_id"  placeholder="Booking ID" onblur="check_booking_id(this.id)"/>
                                     </div>
                                     <div class="col-xs-12 col-sm-6 col-md-1">
                                         <input type="number" class="form-control" id="quantity"  placeholder="Quantity" min="1" required="" onblur="get_part_details(this.id)" />
@@ -243,6 +239,7 @@
         
         $('[data-toggle="popover"]').popover(); 
         $("#dated").datepicker({dateFormat: 'yy-mm-dd'});
+        $("#courier_shipment_date").datepicker({dateFormat: 'yy-mm-dd'});
         
         $("#spareForm").validate();    
         $("#spareForm").on('submit', function(e) {
@@ -255,15 +252,23 @@
                 //Serializing all For Input Values (not files!) in an Array Collection so that we can iterate this collection later.
                 var params = $('#spareForm').serializeArray();
 
-                //Getting Files Collection
-                var files = $("#invoice_file")[0].files;
+                //Getting Invoice Files Collection
+                var invoice_files = $("#invoice_file")[0].files;
+                
+                //Getting Courier Files Collection
+                var courier_file = $("#courier_file")[0].files;
 
                 //Declaring new Form Data Instance  
                 var formData = new FormData();
 
                 //Looping through uploaded files collection in case there is a Multi File Upload. This also works for single i.e simply remove MULTIPLE attribute from file control in HTML.  
-                for (var i = 0; i < files.length; i++) {
-                    formData.append('file', files[i]);
+                for (var i = 0; i < invoice_files.length; i++) {
+                    formData.append('invoice_file', invoice_files[i]);
+                }
+                
+                //Looping through uploaded files collection in case there is a Multi File Upload. This also works for single i.e simply remove MULTIPLE attribute from file control in HTML.  
+                for (var i = 0; i < courier_file.length; i++) {
+                    formData.append('courier_file', courier_file[i]);
                 }
                 //Now Looping the parameters for all form input fields and assigning them as Name Value pairs. 
                 $(params).each(function (index, element) {
@@ -277,6 +282,7 @@
                     contentType: false,
                     processData: false,
                     success:function(response){
+                        //console.log(response);
                         obj = JSON.parse(response);
                         $('#submit_btn').attr('disabled',false);
                         $('#submit_btn').html("Submit");
@@ -308,8 +314,6 @@
             // Update the name attributes
             $clone
                 .find('[id="service_id"]').attr('name', 'part[' + partIndex + '][service_id]').attr('id','serviceId_'+partIndex).select2({placeholder:'Select Appliance'}).end()
-//                .find('[id="model_number"]').attr('name', 'part[' + partIndex + '][model_number]').attr('id','modelNumber_'+partIndex).select2({placeholder:'Select Model Number'}).end()
-//                .find('[id="part_type"]').attr('name', 'part[' + partIndex + '][part_type]').attr('id','partType_'+partIndex).select2({placeholder:'Select Part Type'}).end()
                 .find('[id="part_name"]').attr('name', 'part[' + partIndex + '][part_name]').attr('id','partName_'+partIndex).select2({placeholder:'Select Part Name'}).end()
                 .find('[id="part_number"]').attr('name', 'part[' + partIndex + '][part_number]').attr('id','partNumber_'+partIndex).select2({placeholder:'Select Part Number'}).end()
                 .find('[id="booking_id"]').attr('name', 'part[' + partIndex + '][booking_id]').attr('id','bookingId_'+partIndex).end()
@@ -378,60 +382,9 @@
         }
     }
     
-//    function get_model_number(index){
-//        var partner_id = $('#partner_id').val();
-//        var service_id = $('#serviceId_'+index).val();
-//        if(partner_id){
-//            $.ajax({
-//                type: 'GET',
-//                url: '<?php //echo base_url() ?>employee/inventory/get_part_model_number',
-//                data:{entity_id:partner_id,entity_type:'<?php //echo _247AROUND_PARTNER_STRING; ?>',service_id:service_id},
-//                success: function (response) {
-//                    $('#modelNumber_'+index).val('val', "");
-//                    $('#modelNumber_'+index).val('Select Model Number').change();
-//                    $('#modelNumber_'+index).html(response);
-//                    $('#inventoryId_'+index).val('');
-//                    $('#partTotalPrice_'+index).val('');
-//                    $('#partGstRate_'+index).val('');
-//                    $('#partHsnCode_'+index).val('');
-//                    $('#quantity_'+index).val('');
-//                }
-//            });
-//        }else{
-//            alert("Please Select All Field");
-//        }
-//    }
-//    
-//    function get_part_type(index){
-//        var partner_id = $('#partner_id').val();
-//        var service_id = $('#serviceId_'+index).val();
-//        var model_number = $('#modelNumber_'+index).val();
-//        if(partner_id){
-//            $.ajax({
-//                type: 'POST',
-//                url: '<?php //echo base_url() ?>employee/inventory/get_parts_type',
-//                data:{entity_id:partner_id,entity_type:'<?php //echo _247AROUND_PARTNER_STRING; ?>',service_id:service_id,model_number:model_number},
-//                success: function (response) {
-//                    $('#partType_'+index).val('val', "");
-//                    $('#partType_'+index).val('Select Part Type').change();
-//                    $('#partType_'+index).html(response);
-//                    $('#inventoryId_'+index).val('');
-//                    $('#partTotalPrice_'+index).val('');
-//                    $('#partGstRate_'+index).val('');
-//                    $('#partHsnCode_'+index).val('');
-//                    $('#quantity_'+index).val('');
-//                }
-//            });
-//        }else{
-//            alert("Please Select All Field");
-//        }
-//    }
-    
     function get_part_name(index){
         var partner_id = $('#partner_id').val();
         var service_id = $('#serviceId_'+index).val();
-//        var model_number = $('#modelNumber_'+index).val();
-//        var part_type = $('#partType_'+index).val();
         if(partner_id){
             $.ajax({
                 type: 'POST',
@@ -457,8 +410,6 @@
         var partner_id = $('#partner_id').val();
         var service_id = $('#serviceId_'+index).val();
         var part_name = $('#partName_'+index).val();
-//        var model_number = $('#modelNumber_'+index).val();
-//        var part_type = $('#partType_'+index).val();
         if(partner_id){
             $.ajax({
                 type: 'POST',
@@ -483,8 +434,6 @@
     function get_part_price(index){
         var partner_id = $('#partner_id').val();
         var service_id = $('#serviceId_'+index).val();
-        //var model_number = $('#modelNumber_'+index).val();
-        //var part_name = $('#partName_'+index).val();
         var part_number = $('#partNumber_'+index).val();
         if(partner_id && service_id && part_number){
             $.ajax({
@@ -493,21 +442,88 @@
                 data:{entity_id:partner_id,entity_type:'<?php echo _247AROUND_PARTNER_STRING; ?>',service_id:service_id,part_number:part_number},
                 success: function (response) {
                     var obj = JSON.parse(response);
-                    var parts_total_price = parseInt($('#quantity_'+index).val()) * parseInt(obj.price);
-                    $('#inventoryId_'+index).val(obj.inventory_id);
-                    $('#partTotalPrice_'+index).val(parts_total_price);
-                    $('#partGstRate_'+index).val(obj.gst_rate);
-                    $('#partHsnCode_'+index).val(obj.hsn_code);
-                    var total_spare_invoice_price = 0;
-                    $(".part-total-price").each(function(i) {
-                        total_spare_invoice_price += parseInt($('#partTotalPrice_'+i).val());
-                    });
-                    $('#total_spare_invoice_price').html(total_spare_invoice_price);
+                    
+                    if(obj.inventory_id){
+                        $('#submit_btn').attr('disabled',false);
+                        var parts_total_price = parseInt($('#quantity_'+index).val()) * parseInt(obj.price);
+                        $('#inventoryId_'+index).val(obj.inventory_id);
+                        $('#partTotalPrice_'+index).val(parts_total_price);
+                        $('#partGstRate_'+index).val(obj.gst_rate);
+                        $('#partHsnCode_'+index).val(obj.hsn_code);
+                        var total_spare_invoice_price = 0;
+                        $(".part-total-price").each(function(i) {
+                            total_spare_invoice_price += parseInt($('#partTotalPrice_'+i).val());
+                        });
+                        $('#total_spare_invoice_price').html(total_spare_invoice_price);
+                    }else{
+                        alert("Inventory Details not found for the selected combination.");
+                        $('#submit_btn').attr('disabled',true);
+                    }
+                    
                 }
             });
         }else{
             $('#quantity_'+index).val('');
             alert("Please Select All Field");
+        }
+    }
+    
+    function check_booking_id(id){
+    
+        var booking_id = $('#'+id).val().trim();
+        if(booking_id){
+            $.ajax({
+                method:'POST',
+                url:'<?php echo base_url(); ?>check_booking_id_exists/'+booking_id,
+                data:{is_ajax:true},
+                success:function(res){
+                    //console.log(res);
+                    var obj = JSON.parse(res);
+                    if(obj.status === true){
+                        $('#'+id).css('border','1px solid #ccc');
+                        $('#submit_btn').attr('disabled',false);
+                    }else{
+                        $('#'+id).css('border','1px solid red');
+                        $('#submit_btn').attr('disabled',true);
+                        alert('Please Enter Valid Booking ID. Enter booking Id is not exists in our record,');
+                    }
+                }
+            });
+        }else{
+            $('#'+id).css('border','1px solid #ccc');
+            $('#submit_btn').attr('disabled',false);
+        }
+    }
+    
+    function check_invoice_id(id){
+    
+        var invoice_id = $('#'+id).val().trim();
+        if(invoice_id){
+            
+            if( invoice_id.indexOf('/') !== -1 ){
+                $('#'+id).css('border','1px solid red');
+                $('#submit_btn').attr('disabled',true);
+                alert("Please make sure invoice number does not contain '/'. You can replace '/' with '-'");
+            }
+            else{
+                $.ajax({
+                    method:'POST',
+                    url:'<?php echo base_url(); ?>check_invoice_id_exists/'+invoice_id,
+                    data:{is_ajax:true},
+                    success:function(res){
+                        //console.log(res);
+                        var obj = JSON.parse(res);
+                        if(obj.status === true){
+                            $('#'+id).css('border','1px solid red');
+                            $('#submit_btn').attr('disabled',true);
+                            alert('Enter invoice number already exists in our record.');
+                        }else{
+                            $('#'+id).css('border','1px solid #ccc');
+                            $('#submit_btn').attr('disabled',false);
+                        }
+                    }
+                });
+            }
         }
     }
     

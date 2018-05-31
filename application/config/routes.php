@@ -201,5 +201,8 @@ $route['payment/verify_booking_payment/(:any)'] = 'paytm_gateway/process_gateway
 $route['upload_file'] = 'file_upload/process_upload_file';
 $route['upload_inventory_details_file'] = 'employee/inventory/upload_inventory_details_file';
 
+$route['check_booking_id_exists/(:any)'] = 'employee/inventory/check_booking_id_exists/$1';
+$route['check_invoice_id_exists/(:any)'] = 'employee/inventory/check_invoice_id_exists/$1';
+
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

@@ -195,12 +195,12 @@ class File_upload extends CI_Controller {
         $sheetUniqueRowData = array();
         //$file_appliance_arr = array();
         //column which must be present in the  upload inventory file
-        $header_column_need_to_be_present = array('appliance','part_name','part_number','part_description','price','hsn_code','gst_rate');
+        $header_column_need_to_be_present = array('part_name','part_number','part_type','basic_price','hsn_code','gst_rate');
         //check if required column is present in upload file header
         $check_header = $this->check_column_exist($header_column_need_to_be_present,$data['header_data']);
-
+        
         if($check_header['status']){
-            
+            $invalid_data = array();
             //get file data to process
             for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
                 $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
@@ -214,17 +214,22 @@ class File_upload extends CI_Controller {
                      * if its value is not presnet then create new part number
                      * based on partner_id,service_id and unique number
                     */
-                    if(empty($rowData['part_number'])){
-                        $new_part_number = $this->create_inventory_part_number($partner_id,$service_id,$rowData);
-                        $rowData['part_number'] = $new_part_number;
+                    
+                    if(!empty($rowData['hsn_code']) && !empty($rowData['basic_price'])){
+                        if(empty($rowData['part_number'])){
+                            $new_part_number = $this->create_inventory_part_number($partner_id,$service_id,$rowData);
+                            $rowData['part_number'] = $new_part_number;
+                        }
+
+                        $subArray = $this->get_sub_array($rowData, array('appliance','service_id', 'part_name', 'part_number'));
+                        array_push($sheetUniqueRowData, implode('_join_', $subArray));
+                        $this->sanitize_inventory_data_to_insert($rowData);
+                    }else{
+                        array_push($invalid_data, array('part_name' => $rowData['part_name'], 'part_number' => $rowData['part_number'],'hsn_code' => $rowData['hsn_code'],'basic_price'=>$rowData['basic_price']));
                     }
                     
-                    $subArray = $this->get_sub_array($rowData, array('appliance','service_id', 'part_name', 'part_number'));
-                    array_push($sheetUniqueRowData, implode('_join_', $subArray));
-                    $this->sanitize_inventory_data_to_insert($rowData);
                 }
             }
-            
             
             $is_file_contains_unique_data = $this->check_unique_in_array_data($sheetUniqueRowData);
             
@@ -235,7 +240,26 @@ class File_upload extends CI_Controller {
                 if($insert_id){
                     log_message("info", __METHOD__." inventory file data inserted succcessfully");
                     $response['status'] = TRUE;
-                    $response['message'] = "Details inserted successfully.";
+                    
+                    $message = "Details inserted successfully.";
+                    
+                    if (!empty($invalid_data)) {
+                        $template = array(
+                            'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
+                        );
+
+                        $this->table->set_template($template);
+
+                        $this->table->set_heading(array('Part Name','Part Number', 'HSN Code', 'Basic Price'));
+                        foreach ($invalid_data as $value) {
+                            $this->table->add_row($value['part_name'],$value['part_number'],$value['hsn_code'],$value['basic_price']);
+                        }
+
+                        $message .= " Below parts have invalid hsn code or price. Please modify these and upload only below data again: <br>";
+                        $message .= $this->table->generate();
+                    }
+
+                    $response['message'] = $message;
                 }else{
                     log_message("info", __METHOD__." error in inserting inventory file data");
                     $response['status'] = FALSE;
@@ -287,8 +311,8 @@ class File_upload extends CI_Controller {
     function create_inventory_part_number($partner_id, $service_id, $data) {
 
         $new_part_number = "";
-        $tmp_serial_number = $partner_id . "-" . $service_id . "-";
-        $old_part_number = $this->inventory_model->get_inventory_master_list_data('part_number', array('model_number' => $data['model_number'], 'part_name' => $data['part_name'], 'entity_id' => $partner_id, 'entity_type' => _247AROUND_PARTNER_STRING));
+        $tmp_serial_number = $data['part_name'].'-'.$partner_id . "-" . $service_id . "-";
+        $old_part_number = $this->inventory_model->get_inventory_master_list_data('part_number', array('part_name' => $data['part_name'], 'entity_id' => $partner_id, 'entity_type' => _247AROUND_PARTNER_STRING));
         
         if (!empty($old_part_number)) {
             $part_number_arr = array_values(array_column($old_part_number, 'part_number'));
@@ -297,7 +321,7 @@ class File_upload extends CI_Controller {
             */
             $is_tmp_serial_number_exists = array_filter($part_number_arr, function($value) use ($tmp_serial_number) { return stripos($value, $tmp_serial_number) !== false;});
             if (!empty($is_tmp_serial_number_exists)) {
-                
+
                 $new_serial_num = array();
                 foreach ($is_tmp_serial_number_exists as $key => $value) {
                     $old_serial_num = explode($tmp_serial_number,$part_number_arr[$key])[1];
@@ -305,7 +329,7 @@ class File_upload extends CI_Controller {
                 }
                 
                 rsort($new_serial_num);
-                $new_part_number = $tmp_serial_number.$new_serial_num[0];
+                $new_part_number = $tmp_serial_number.($new_serial_num[0] + 1);
                 
             }else{
                 $new_part_number = $tmp_serial_number . "1";
@@ -342,7 +366,7 @@ class File_upload extends CI_Controller {
         $tmp_data['serial_number'] = (isset($data['serial_number']) && !empty($data['serial_number'])) ? trim($data['serial_number']):null;
         $tmp_data['type'] = (isset($data['part_type']) && !empty($data['part_type'])) ? trim($data['part_type']):null;
         $tmp_data['size'] = (isset($data['size']) && !empty($data['size'])) ? trim($data['size']):null;
-        $tmp_data['price'] = (isset($data['price']) && !empty($data['price'])) ? trim($data['price']):null;
+        $tmp_data['price'] = (isset($data['basic_price']) && !empty($data['basic_price'])) ? trim($data['basic_price']):null;
         $tmp_data['hsn_code'] = (isset($data['hsn_code']) && !empty($data['hsn_code'])) ? trim($data['hsn_code']):null;
         $tmp_data['gst_rate'] = (isset($data['gst_rate']) && !empty($data['gst_rate'])) ? trim($data['gst_rate']):null;
         $tmp_data['entity_id'] = $this->input->post('partner_id');
@@ -385,7 +409,7 @@ class File_upload extends CI_Controller {
             
         }else{
             $response['status'] = FALSE;
-            $response['message'] = "File Contains Duplicate Row";
+            $response['message'] = "File contains invalid data. Please check file and upload again.";
         }
         
         return $response;
@@ -440,6 +464,7 @@ class File_upload extends CI_Controller {
     function process_partner_appliance_upload_file($data) {
         log_message('info', __FUNCTION__ . " => process upload partner appliance file");
         $sheetUniqueRowData = array();
+        $file_partner_arr = array();
         //column which must be present in the  upload inventory file
         $header_column_need_to_be_present = array('partnerid', 'serviceid', 'brand', 'category', 'capacity', 'model');
         //check if required column is present in upload file header
@@ -456,54 +481,57 @@ class File_upload extends CI_Controller {
                     $rowData = array_combine($data['header_data'], $rowData_array[0]);
                     $subArray = $this->get_sub_array($rowData, array('partnerid', 'serviceid', 'brand', 'category', 'capacity','model'));
                     array_push($sheetUniqueRowData, implode('_join_', $subArray));
+                    array_push($file_partner_arr, $rowData['partnerid']);
                     $this->sanitize_partner_appliance_data_to_insert($rowData);
                 }
             }
 
             //check file contains unique data
-            $is_file_contains_unique_data = $this->check_unique_in_array_data($sheetUniqueRowData);
-
+            $is_file_contains_unique_data = $this->check_unique_in_array_data($sheetUniqueRowData,$file_partner_arr);
             if ($is_file_contains_unique_data['status']) {
                 $partner_id = trim($this->input->post('partner_id'));
                 $upload_file_partner_id = $file_partner_arr[0];
                 if ($partner_id == $upload_file_partner_id) {
                     if (!empty($partner_id)) {
+                        // for now remove upload file data should be greater then or equal to our database check as we might don't have correct data in this table
+//                        //check if upload file data is less than previous data
+//                        $old_partner_data = $this->partner_model->get_partner_specific_details(array('partner_id' => $partner_id), 'count(id) as total_data');
+//
+//                        if (count($this->dataToInsert) >= $old_partner_data[0]['total_data']) {
+//                            //first delete all the previous data for selected partner and then insert new data
+//                            $delete = $this->partner_model->delete_partner_brand_relation($partner_id);
+//
+//                            if (!empty($delete)) {
+//
+//                                
+//                            } else {
+//                                log_message("info", __METHOD__ . " error in inserting partner appliance file data");
+//                                $response['status'] = FALSE;
+//                                $response['message'] = "Something went wrong in inserting data.";
+//                            }
+//                        } else {
+//                            log_message("info", __METHOD__ . " upload partner appliance file has less data as we have in our database.");
+//                            $response['status'] = FALSE;
+//                            $response['message'] = "upload partner appliance file has less data as we have in our database.";
+//                        }
+                        
+                        $delete = $this->partner_model->delete_partner_brand_relation($partner_id);
+                        $insert_id = $this->partner_model->insert_batch_partner_brand_relation($this->dataToInsert);
 
-                        //check if upload file data is less than previous data
-                        $old_partner_data = $this->partner_model->get_partner_specific_details(array('partner_id' => $partner_id), 'count(id) as total_data');
-
-                        if (count($this->dataToInsert) >= $old_partner_data[0]['total_data']) {
-                            //first delete all the previous data for selected partner and then insert new data
-                            $delete = $this->partner_model->delete_partner_brand_relation($partner_id);
-
-                            if (!empty($delete)) {
-
-                                $insert_id = $this->partner_model->insert_batch_partner_brand_relation($this->dataToInsert);
-
-                                if ($insert_id) {
-                                    log_message("info", __METHOD__ . " partner appliance file data inserted succcessfully");
-                                    //check brand_name and service_id is exist in appliance_brand table or not
-                                    $not_exist_data = $this->booking_model->get_not_exist_appliance_brand_data();
-                                    if ($not_exist_data) {
-                                        $this->booking_model->insert_not_exist_appliance_brand_data($not_exist_data);
-                                        log_message('info', __FUNCTION__ . 'Not exist brand name and service id added into the table appliance_brand');
-                                    }
-                                    $response['status'] = TRUE;
-                                    $response['message'] = "Details inserted successfully.";
-                                } else {
-                                    log_message("info", __METHOD__ . " error in inserting partner appliance file data");
-                                    $response['status'] = FALSE;
-                                    $response['message'] = "Something went wrong in inserting data.";
-                                }
-                            } else {
-                                log_message("info", __METHOD__ . " error in inserting partner appliance file data");
-                                $response['status'] = FALSE;
-                                $response['message'] = "Something went wrong in inserting data.";
+                        if ($insert_id) {
+                            log_message("info", __METHOD__ . " partner appliance file data inserted succcessfully");
+                            //check brand_name and service_id is exist in appliance_brand table or not
+                            $not_exist_data = $this->booking_model->get_not_exist_appliance_brand_data();
+                            if ($not_exist_data) {
+                                $this->booking_model->insert_not_exist_appliance_brand_data($not_exist_data);
+                                log_message('info', __FUNCTION__ . 'Not exist brand name and service id added into the table appliance_brand');
                             }
+                            $response['status'] = TRUE;
+                            $response['message'] = "Details inserted successfully.";
                         } else {
-                            log_message("info", __METHOD__ . " upload partner appliance file has less data as we have in our database.");
+                            log_message("info", __METHOD__ . " error in inserting partner appliance file data");
                             $response['status'] = FALSE;
-                            $response['message'] = "upload partner appliance file has less data as we have in our database.";
+                            $response['message'] = "Something went wrong in inserting data.";
                         }
                     } else {
                         log_message("info", __METHOD__ . " Partner id can not be empty");
@@ -690,7 +718,7 @@ class File_upload extends CI_Controller {
                         //generate not exists model table to send in email
                         if(!empty($this->not_exists_model)){
                             $this->table->set_heading(array('Model Number'));
-                            foreach ($this->not_exists_model as $value) {
+                            foreach (array_unique($this->not_exists_model) as $value) {
                                 $this->table->add_row($value);
                             }
                             
@@ -700,7 +728,7 @@ class File_upload extends CI_Controller {
                         //generate not exists parts table to send in email
                         if(!empty($this->not_exists_parts)){
                             $this->table->set_heading(array('Part Number'));
-                            foreach ($this->not_exists_parts as $value) {
+                            foreach (array_unique($this->not_exists_parts) as $value) {
                                 $this->table->add_row($value);
                             }
                             $message .= "<br> Below part number does not exists in our record: <br>";

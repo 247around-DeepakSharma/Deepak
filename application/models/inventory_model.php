@@ -924,7 +924,7 @@ class Inventory_model extends CI_Model {
      * @return string
      */
     function insert_appliance_model_details($data){
-        $this->db->insert_batch('appliance_model_details', $data);
+        $this->db->insert_ignore_duplicate_batch('appliance_model_details', $data);
         return $this->db->insert_id();
     }
     
@@ -962,7 +962,7 @@ class Inventory_model extends CI_Model {
         $this->db->from('inventory_model_mapping');
         $this->db->join('inventory_master_list','inventory_master_list.inventory_id = inventory_model_mapping.inventory_id');
         $query = $this->db->get();
-        log_message("info", $this->db->last_query());
+        //log_message("info", $this->db->last_query());
         return $query->result_array();
     }
     
@@ -974,6 +974,17 @@ class Inventory_model extends CI_Model {
     function insert_batch_inventory_model_mapping($data) {
       $this->db->insert_ignore_duplicate_batch('inventory_model_mapping', $data);
       return $this->db->insert_id();
+    }
+    
+    
+    /**
+     * @desc This is used to insert courier details into courier_details table
+     * @param Array $data
+     * @return string
+     */
+    function insert_courier_details($data){
+        $this->db->insert('courier_details', $data);
+        return $this->db->insert_id();
     }
 
 }

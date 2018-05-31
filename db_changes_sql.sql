@@ -4990,3 +4990,40 @@ ALTER TABLE `inventory_model_mapping` ADD UNIQUE( `inventory_id`, `model_number_
 --Abhay 29 May
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'inform_to_sf_for_cancellation', 'Pending Booking Cancellation - 247AROUND', 'Dear Partner, <br/> <br/> Booking ID %s has cancelled.<br/><span style="font-weight:bold">Cancellation Reason: </span>%s', 'noreply@247around.com', '', '', '', '1', '2018-05-29 18:26:57');
 
+--sachin 30 may 
+ALTER TABLE `inventory_ledger` CHANGE `partner_ack_date` `partner_ack_date` DATETIME NULL DEFAULT NULL;
+
+CREATE TABLE `courier_details` (
+  `id` int(11) NOT NULL,
+  `sender_entity_id` int(11) NOT NULL,
+  `sender_entity_type` varchar(64) NOT NULL,
+  `receiver_entity_id` int(11) NOT NULL,
+  `receiver_entity_type` varchar(64) NOT NULL,
+  `AWB_no` varchar(256) NOT NULL,
+  `courier_name` varchar(256) NOT NULL,
+  `courier_file` varchar(1024) DEFAULT NULL,
+  `shipment_date` datetime DEFAULT NULL,
+  `remarks` varchar(1024) DEFAULT NULL,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `create_date` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `courier_details`
+--
+ALTER TABLE `courier_details`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `courier_details`
+--
+ALTER TABLE `courier_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;

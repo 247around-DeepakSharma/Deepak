@@ -31,7 +31,7 @@
                     }
                     ?>
                 <h1 class="page-header">
-                    <b> Upload File</b>
+                    <b> Upload Appliance Model File</b>
                 </h1>
                 <section>
                     <div class="col-md-6">
