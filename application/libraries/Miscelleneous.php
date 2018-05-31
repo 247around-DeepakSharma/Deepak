@@ -392,7 +392,7 @@ class Miscelleneous {
 
                         log_message('info', __METHOD__ . " => Upcountry, partner does not provide approval" . $booking_id);
                         $this->My_CI->booking_model->update_booking($booking_id, $booking);
-                        $this->process_cancel_form($booking_id, "Pending", UPCOUNTRY_CHARGES_NOT_APPROVED, " Upcountry  Distance " . $data['upcountry_distance'], $agent_id, $agent_name, $query1[0]['partner_id']);
+                        $this->process_cancel_form($booking_id, "Pending", UPCOUNTRY_CHARGES_NOT_APPROVED, " Upcountry  Distance " . $data['upcountry_distance'], $agent_id, $agent_name, $query1[0]['partner_id'], _247AROUND);
 
                         $to = ANUJ_EMAIL_ID;
                         $cc = $partner_am_email;
@@ -450,7 +450,7 @@ class Miscelleneous {
         return $return_status;
     }
 
-    function process_cancel_form($booking_id, $status, $cancellation_reason, $cancellation_text, $agent_id, $agent_name, $partner_id) {
+    function process_cancel_form($booking_id, $status, $cancellation_reason, $cancellation_text, $agent_id, $agent_name, $partner_id, $cancelled_by) {
         log_message('info', __METHOD__ . " => Entering " . $booking_id, ' status: ' . $status . ' cancellation_reason: ' . $cancellation_reason . ' agent_id: ' . $agent_id . ' agent_name: ' . $agent_name . ' partner_id: ' . $partner_id);
         $data['internal_status'] = $data['cancellation_reason'] = $cancellation_reason;
         $historyRemarks = $cancellation_reason."<br> ".$cancellation_text;
@@ -483,7 +483,7 @@ class Miscelleneous {
         log_message('info', __FUNCTION__ . " Update Service center action table  " . print_r($data_vendor, true));
         $this->My_CI->vendor_model->update_service_center_action($booking_id, $data_vendor);
 
-        $this->update_price_while_cancel_booking($booking_id, $agent_id);
+        $this->update_price_while_cancel_booking($booking_id, $agent_id, $cancelled_by);
         //Update Engineer table while booking cancelled
         $en_where1 = array("engineer_booking_action.booking_id" => $booking_id);
         $this->My_CI->engineer_model->update_engineer_table(array("current_status" => _247AROUND_CANCELLED, "internal_status" =>_247AROUND_CANCELLED), $en_where1);
@@ -496,7 +496,7 @@ class Miscelleneous {
 
         //Log this state change as well for this booking
         //param:-- booking id, new state, old state, employee id, employee name
-        $this->My_CI->notify->insert_state_change($booking_id, $data['current_status'], $status, $historyRemarks, $agent_id, $agent_name,$actor,$next_action, _247AROUND);
+        $this->My_CI->notify->insert_state_change($booking_id, $data['current_status'], $status, $historyRemarks, $agent_id, $agent_name,$actor,$next_action, $cancelled_by);
         // Not send Cancallation sms to customer for Query booking
         // this is used to send email or sms while booking cancelled
         $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
@@ -511,7 +511,7 @@ class Miscelleneous {
         log_message('info', __METHOD__ . " => Exit " . $booking_id);
     }
 
-    function update_price_while_cancel_booking($booking_id, $agent_id) {
+    function update_price_while_cancel_booking($booking_id, $agent_id, $cancelled_by) {
         log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true));
         $unit_details['booking_status'] = "Cancelled";
         $unit_details['vendor_to_around'] = $unit_details['around_to_vendor'] = 0;
@@ -540,8 +540,12 @@ class Miscelleneous {
                     $data['stock'] = 1;
                     $data['booking_id'] = $booking_id;
                     $data['agent_id'] = $agent_id;
-                    $data['agent_type'] = _247AROUND_PARTNER_STRING;
-
+                    if($cancelled_by == _247AROUND){
+                        $data['agent_type'] = _247AROUND_EMPLOYEE_STRING;
+                    } else {
+                        $data['agent_type'] = _247AROUND_PARTNER_STRING;
+                    }
+                    
                     $this->process_inventory_stocks($data);
                 }
             }
