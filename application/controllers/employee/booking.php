@@ -899,7 +899,7 @@ class Booking extends CI_Controller {
             $cancellation_reason = $this->input->post('cancellation_reason');
             $cancellation_text = $this->input->post("cancellation_reason_text");
 
-            $this->miscelleneous->process_cancel_form($booking_id, $status, $cancellation_reason, $cancellation_text, $agent_id, $agent_name, $partner_id);
+            $this->miscelleneous->process_cancel_form($booking_id, $status, $cancellation_reason, $cancellation_text, $agent_id, $agent_name, $partner_id, _247AROUND);
             //get the unit details data and update the inventory stock
             $booking_details = $this->reusable_model->get_search_query('booking_details', 'booking_details.assigned_vendor_id,booking_unit_details.price_tags,booking_unit_details.appliance_capacity', array('booking_details.booking_id' => $booking_id,"booking_unit_details.price_tags like '%"._247AROUND_WALL_MOUNT__PRICE_TAG."%'" => NULL,'booking_details.assigned_vendor_id IS NOT null'=>NULL), array('booking_unit_details'=>'booking_details.booking_id = booking_unit_details.booking_id'), NULL, NULL, NULL, NULL)->result_array();
             if (!empty($booking_details)) { 
@@ -911,28 +911,6 @@ class Booking extends CI_Controller {
             $notificationTextArray['msg'] = array($booking_id,"Cancel");
             $this->push_notification_lib->create_and_send_push_notiifcation(BOOKING_UPDATED_BY_247AROUND,$receiverArray,$notificationTextArray);
             //End Push Notification
-                //process each unit if price tag is wall mount
-                foreach($booking_details as $value){
-                    $match = array();
-                    //get the size from the capacity to know the part number
-                    preg_match('/[0-9]+/', $value['appliance_capacity'], $match);
-                    if (!empty($match)) {
-                        if ($match[0] <= 32) {
-                            $data['part_number'] = LESS_THAN_32_BRACKETS_PART_NUMBER;
-                        } else if ($match[0] > 32) {
-                            $data['part_number'] = GREATER_THAN_32_BRACKETS_PART_NUMBER;
-                        }
-
-                        $data['receiver_entity_id'] = $value['assigned_vendor_id'];
-                        $data['receiver_entity_type'] = _247AROUND_SF_STRING;
-                        $data['stock'] = 1;
-                        $data['booking_id'] = $booking_id;
-                        $data['agent_id'] = $agent_id;
-                        $data['agent_type'] = _247AROUND_EMPLOYEE_STRING;
-
-                        $this->miscelleneous->process_inventory_stocks($data);
-                    }
-                }
             }
             redirect(base_url() . DEFAULT_SEARCH_PAGE);
         } else {
@@ -2793,9 +2771,6 @@ class Booking extends CI_Controller {
         $data['sf'] = $this->vendor_model->getVendorDetails('id,name',array('active' => '1'));
         $data['services'] = $this->booking_model->selectservice();
         $data['cities'] = $this->booking_model->get_advance_search_result_data("booking_details","DISTINCT(city)",NULL,NULL,NULL,array('city'=>'ASC'));
-        $data['internalStatus'] = $this->booking_model->get_advance_search_result_data("partner_booking_status_mapping","DISTINCT(partner_internal_status)",
-                array('247around_current_status'=>'Pending'),NULL,NULL,array('partner_internal_status'=>'ASC'));
-        $data['requestType'] = $this->booking_model->get_advance_search_result_data("booking_details","DISTINCT(request_type)",NULL,NULL,NULL,array('request_type'=>'ASC'));
        $this->miscelleneous->load_nav_header();
         if(strtolower($data['booking_status']) == 'pending'){
             $this->load->view('employee/view_pending_bookings', $data);
@@ -4250,6 +4225,34 @@ class Booking extends CI_Controller {
         }
         echo json_encode($res);
         
+    }
+    function get_request_type($actor){
+        $where = array();
+        if($actor != 'blank'){
+            $where['actor'] = $actor;
+        }
+        $whereIN['current_status'] = array("Pending","Rescheduled") ;
+        $requestTypeArray= $this->reusable_model->get_search_result_data("booking_details","DISTINCT(request_type)",$where,NULL,NULL,array("request_type"=>"ASC"),
+        $whereIN,NULL,array());
+        $select ="";
+        foreach($requestTypeArray as $val){
+            $select  = $select. "<option value='".$val['request_type']."'>".$val['request_type']."</option>";
+        }
+        echo $select;
+    }
+    function get_internal_status($actor){
+        $where = array();
+        if($actor != 'blank'){
+            $where['actor'] = $actor;
+        }
+        $whereIN['current_status'] = array("Pending","Rescheduled") ;
+        $partnerStatusArray = $this->reusable_model->get_search_result_data("booking_details","DISTINCT(partner_internal_status)",$where,NULL,NULL,array("request_type"=>"ASC"),
+                $whereIN,NULL,array());
+        $select = "";
+        foreach($partnerStatusArray as $val){
+            $select  = $select. "<option value='".$val['partner_internal_status']."'>".$val['partner_internal_status']."</option>";
+        }
+        echo $select;
     }
 }
 

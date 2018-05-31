@@ -56,7 +56,11 @@ if ($this->uri->segment(3)) {
                                      <td> 
                                         <?php  if(!empty($row['partner_challan_file'])) { ?> 
                                             <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY ?>/vendor-partner-docs/<?php echo $row['partner_challan_file']; ?>" target="_blank"><?php echo $row['partner_challan_number']?></a>
-                                        <?php } ?>
+                                        <?php }
+                                        else if(!empty($row['partner_challan_number'])) {
+                                            echo $row['partner_challan_number'];
+                                        }
+?>
                                       </td>
                                     <td>
                                         <?php echo date("d-m-Y", strtotime($row['shipped_date'])); ?>
@@ -71,7 +75,9 @@ if ($this->uri->segment(3)) {
                             } ?>
                         </tbody>
                     </table>
-                    
+                    <div class="custom_pagination" style="margin-left: 16px;" > 
+                <?php if(isset($links)) { echo $links; } ?>
+            </div>
                 </div>
             </div>
         </div>
@@ -83,3 +89,8 @@ if ($this->uri->segment(3)) {
                     "pageLength": 50
                 });
     </script>
+        <style>
+        .pagination{
+            display: none;
+        }
+        </style>

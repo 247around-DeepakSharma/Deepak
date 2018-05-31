@@ -366,10 +366,6 @@ class Notify {
 			$this->send_email($email_data);
 		    } else {
 
-			if (isset($query1[0]['vendor_name'])) {
-                            //Inform SF when Partner/Admin cancels a booking
-                            $this->send_email_to_sf_when_booking_cancelled($query1);
-			} 
 
 			$call_type = explode(" ", $query1[0]['request_type']);
                         $sms['smsData']['call_type'] = $call_type[0];
@@ -542,9 +538,10 @@ class Notify {
      * @desc This is used to send email to sf when some one cancel booking
      * @param Array $query
      */
-    function send_email_to_sf_when_booking_cancelled($query) {
-        log_message('info', __METHOD__ . " Booking ID " . $query[0]['booking_id']);
-        if (!empty($query[0]['assigned_vendor_id'])) {
+    function send_email_to_sf_when_booking_cancelled($booking_id) {
+        log_message('info', __METHOD__ . " Booking ID " . $booking_id);
+        $query = $this->My_CI->booking_model->getbooking_filter_service_center($booking_id);
+        if (!empty($query) && !empty($query[0]['assigned_vendor_id'])) {
             $get_partner_details = $this->My_CI->partner_model->getpartner_details('account_manager_id, primary_contact_email, owner_email', array('partners.id' => $query[0]['partner_id']));
             $am_email = "";
             if (!empty($get_partner_details[0]['account_manager_id'])) {
@@ -576,7 +573,7 @@ class Notify {
                     $cc = $email_template[3] . $rm_email;
                 }
                 $this->sendEmail($from, $to, $cc, $bcc, $subject, $message, "", 'inform_to_sf_for_cancellation');
-                log_message('info', __METHOD__ . " Booking ID " . $query[0]['booking_id'] . " mail Sent to " . $to);
+                log_message('info', __METHOD__ . " Booking ID " . $booking_id . " mail Sent to " . $to);
             } else {
                 log_message('info', __METHOD__ . " Template Not Found ");
             }

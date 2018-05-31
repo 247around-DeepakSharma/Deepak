@@ -3178,7 +3178,7 @@ class Inventory extends CI_Controller {
         $cc = $email_template[3];
         $bcc = $email_template[5];
 
-        $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, "", 'spare_inventory_invoice');
+        $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, "", 'spare_invoice_not_found');
     }
     
     /**
@@ -3195,7 +3195,7 @@ class Inventory extends CI_Controller {
         foreach ($postData as $value) {
                 $invoice_id = $this->invoice_lib->create_invoice_id("Around");
                 if(!array_key_exists($value['inventory_id'], $invoice)){
-                    $entity_details = $this->partner_model->getpartner_details("gst_number, invoice_email_to, invoice_email_cc,state, company_name, address, district, pincode,", array('partners.id' => $value['partner_id']));
+                    $entity_details = $this->partner_model->getpartner_details("gst_number, primary_contact_email,state, company_name, address, district, pincode,", array('partners.id' => $value['partner_id']));
                     $gst_number = $entity_details[0]['gst_number'];
                     if(empty($gst_number)){
 
@@ -3219,8 +3219,7 @@ class Inventory extends CI_Controller {
                     $invoice[$value['inventory_id']]['qty'] =  1;
                     $invoice[$value['inventory_id']]['hsn_code'] = $inventory_details[0]['hsn_code'];
                     $invoice[$value['inventory_id']]['inventory_id'] = $value['inventory_id'];
-                    $invoice[$value['inventory_id']]['invoice_email_to'] = $entity_details[0]['invoice_email_to'];
-                    $invoice[$value['inventory_id']]['invoice_email_cc'] = $entity_details[0]['invoice_email_cc'];
+                    $invoice[$value['inventory_id']]['primary_contact_email'] = $entity_details[0]['primary_contact_email'];
                     $invoice[$value['inventory_id']]['partner_id'] = $value['partner_id'];
 
                 } else {
@@ -3242,18 +3241,28 @@ class Inventory extends CI_Controller {
             $convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($response['meta']['invoice_id'], "final");
             $this->invoice_lib->upload_invoice_to_S3($response['meta']['invoice_id'], false, false);
             
-            $attachment = S3_WEBSITE_URL. "/invoices-excel/" . $convert['main_pdf_file_name'];
+            
             
             $email_template = $this->booking_model->get_booking_email_template("spare_inventory_invoice");
-            $subject = vsprintf($email_template[4], array($response['meta']['company_name'], $sd, $ed));
-            $message = $email_template[0];
-            $email_from = $email_template[2];
+            if(!empty($email_template)){
+                
+                $attachment = S3_WEBSITE_URL. "/invoices-excel/" . $convert['main_pdf_file_name'];
+                
+                $vendor = $this->vendor_model->getVendorDetails('name', array('id' => $sender_entity_id));
+                $awb_by_wh = $this->input->post('awb_by_wh');
+                $courier_name_by_wh = $this->input->post('courier_name_by_wh');
+                
+                $subject = $email_template[4];
+                $message = vsprintf($email_template[0], array($response['meta']['parts_count'], 
+                    round($response['meta']['sub_total_amount'],0), $vendor[0]['name'], $courier_name_by_wh, $awb_by_wh));
+                $email_from = $email_template[2];
 
-            $to = $response['booking'][0]['invoice_email_to'];
-            $cc = $response['booking'][0]['invoice_email_cc'];
-            $bcc = $email_template[5];
-            
-            $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $attachment,'spare_inventory_invoice');
+                $to = $response['booking'][0]['primary_contact_email'];
+                $cc = ACCOUNTANT_EMAILID.$email_template[3];
+                $bcc = $email_template[5];
+
+                $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $attachment,'spare_inventory_invoice');
+            }
             
             $invoice_details = array(
                 'invoice_id' => $response['meta']['invoice_id'],

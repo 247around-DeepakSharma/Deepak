@@ -40,12 +40,23 @@
                                 <td><?php if($value->current_status == "Pending"){ echo $value->internal_status; } else { echo $value->current_status."(<strong> ".$value->internal_status."</strong>)";};?></td>
                                 <td><?php echo ($value->cp_basic_charge + $value->cp_tax_charge);?></td>
                                 <td>
-
-                                    <div class='dropdown'>
+                                    
+                                    <?php $ishowDropdown = TRUE; if(($value->current_status == "Delivered" && $value->internal_status == "To Be Claimed Not Delivered" ) ||
+                                                  ($value->current_status == "Delivered" && $value->internal_status == "Refunded" ) ||
+                                            ($value->current_status == "InProcess" && $value->internal_status == "Damaged" )||
+                                             ($value->current_status == "InProcess" && $value->internal_status == "To Be Claimed Not Delivered") ||
+                                            ($value->current_status == "Damaged" && $value->internal_status == "Refunded") ||
+                                            ($value->current_status == "Delivered" && $value->internal_status == "Delivered")){
+                                       
+                                                $ishowDropdown = false;
+                                            }?>
+                                   
+                                    <?php  if($ishowDropdown){ ?>
+                                        <div class='dropdown'>
                                         <button class='btn btn-default dropdown-toggle' type='button' id='menu1' data-toggle='dropdown'>Actions
                                         <span class='caret'></span></button>
                                         <ul class='dropdown-menu' role='menu' aria-labelledby='menu1'>
-                                            <?php $is_show_deliver = TRUE; if($value->current_status == "Pending" && $value->current_status == "Delivered") {
+                                            <?php $is_show_deliver = TRUE; if($value->current_status == "Pending" && $value->internal_status == "Delivered") {
                                                
                                                 $datetime1 = date_create(date("Y-m-d"));
                                                 $datetime2 = date_create(date('Y-m-d', strtotime($value->delivery_date)));
@@ -60,7 +71,9 @@
                                                 } else {
                                                      $is_show_deliver = FALSE;
                                                 }
-                                            } if ($is_show_deliver) {?>
+                                            } ?>
+                                            
+                                            <?php if ($is_show_deliver) {?>
                                             <li role='presentation'><a role='menuitem' tabindex='-1' onclick="showConfirmDialougeBox('<?php echo base_url();?>service_center/buyback/update_received_bb_order/<?php echo 
                                                 rawurlencode($value->partner_order_id) . "/" . rawurlencode($value->service_id) . "/" . rawurlencode($value->city) . "/" .
                                                         rawurlencode($value->assigned_cp_id)?>')" >Received</a></li>
@@ -76,6 +89,8 @@
                                             </li>
                                         </ul>
                                     </div>
+                                    <?php } ?>
+                                    
                                     
                                 </td>
                             </tr>

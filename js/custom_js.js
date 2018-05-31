@@ -364,10 +364,12 @@ function addBookingDialog() {
         alert("Please Enter Dealer Name");
         return false;
     }
-    if (purchase_date === "") {
-        alert("Please fill Purchase date ");
-        return false;
-    } 
+    if(type === "Booking"){
+        if (purchase_date === "") {
+            alert("Please fill Purchase date ");
+            return false;
+        } 
+    }
 
     if (booking_date === "") {
 
