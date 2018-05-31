@@ -1596,7 +1596,8 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                 $agent_id = _247AROUND_DEFAULT_AGENT;
                 $agent_name = _247AROUND_DEFAULT_AGENT_NAME;
                 $partner_id = $bookingData['partner_id'];
-                $this->miscelleneous->process_cancel_form($booking_id, $status, $cancellation_reason, $cancellation_text, $agent_id, $agent_name, $partner_id);
+              
+                $this->miscelleneous->process_cancel_form($booking_id, $status, $cancellation_reason, $cancellation_text, $agent_id, $agent_name, $partner_id, _247AROUND);
             }
         }
         log_message('info', __FUNCTION__ . " Function End  ");

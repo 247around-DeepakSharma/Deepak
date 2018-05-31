@@ -1077,7 +1077,7 @@ class Partner extends CI_Controller {
         $partner_id = $this->input->post("partner_id");
         $agent_id = $this->session->userdata('agent_id');
 
-        $this->miscelleneous->process_cancel_form($booking_id, $status, $cancellation_reason, $historyRemarks, $agent_id, $this->session->userdata('partner_name'), $partner_id);
+        $this->miscelleneous->process_cancel_form($booking_id, $status, $cancellation_reason, $historyRemarks, $agent_id, $this->session->userdata('partner_name'), $partner_id, $partner_id);
 
         redirect(base_url() . "partner/get_user_form");
     }
