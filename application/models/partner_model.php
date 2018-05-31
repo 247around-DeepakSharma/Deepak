@@ -799,6 +799,7 @@ function get_data_for_partner_callback($booking_id) {
 	    $this->db->where_in('is_reporting_mail', $is_reporting_mail);
 	}
         $this->db->join('bookings_sources','bookings_sources.partner_id = partners.id','right');
+        $this->db->order_by('partners.public_name', "ASC");
 	$query = $this->db->get();
 
 	return $query->result_array();

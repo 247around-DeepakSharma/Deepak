@@ -192,11 +192,9 @@
                 </div>
                 <div class="col-md-4">
                     <div class="item form-group">
-                        <div class="col-md-12 col-sm-12 col-xs-12">
+                        <div class="col-md-12 col-sm-12 col-xs-12" >
                             <select class="form-control filter_table" id="internal_status" multiple="" name="internal_status[]">
-                                <?php foreach($internalStatus as $val){ ?>
-                                <option value="<?php echo $val['partner_internal_status']?>"><?php echo $val['partner_internal_status']?></option>
-                                <?php } ?>
+                                
                             </select>
                         </div>
                     </div>
@@ -214,10 +212,7 @@
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <select class="form-control filter_table" id="request_type" multiple="" name="request_type[]">
-                                <?php foreach($requestType as $val){ ?>
-                                <option value="<?php echo $val['request_type']?>"><?php echo $val['request_type']?></option>
-                                <?php } ?>
-                            </select>
+                                </select>
                         </div>
                     </div>
                 </div>
@@ -235,7 +230,7 @@
                 <div class="col-md-4">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
-                            <select class="form-control filter_table" id="actor">
+                            <select class="form-control filter_table" id="actor" onchange="get_internal_status_and_request_type(this.value)">
                                 <option value="" selected="selected" disabled="">Select Actor</option>
                                 <option value="247Around">247Around</option>
                                 <option value="Partner">Partner</option>
@@ -361,7 +356,7 @@
         allowClear: true
     });
     $(document).ready(function(){
-        
+        get_internal_status_and_request_type("Vendor");
         datatable1 = $('#datatable1').DataTable({
             "processing": true,
             "language":{ 
@@ -563,7 +558,31 @@ $('input[name="booking_date"]').daterangepicker({
         $('input[name="booking_date"]').on('cancel.daterangepicker', function (ev, picker) {
             $('input[name="booking_date"]').val("");
         });
-
+        function get_internal_status(actor){
+            $.ajax({
+                    type: 'POST',
+                    url: '<?php echo base_url(); ?>employee/booking/get_internal_status/' + actor,
+                    success: function(response) {
+                           $("#internal_status").html(response);
+                    }
+            });
+        }
+        function get_request_type(actor){
+            $.ajax({
+                    type: 'POST',
+                    url: '<?php echo base_url(); ?>employee/booking/get_request_type/' + actor,
+                    success: function(response) {
+                        $("#request_type").html(response);
+                    }
+            });
+        }
+        function get_internal_status_and_request_type(actor){
+            if(actor === ""){
+                actor = "blank";
+            }
+            get_internal_status(actor);
+            get_request_type(actor);
+        }
 </script>
 <?php if ($this->session->userdata('success')) {$this->session->unset_userdata('success');} ?>
 <?php if ($this->session->userdata('error')) {$this->session->unset_userdata('error');} ?>
