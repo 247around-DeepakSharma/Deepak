@@ -314,7 +314,7 @@ class Service_centers extends CI_Controller {
                     if (isset($serial_number[$unit_id])) {
                         $trimSno = str_replace(' ', '', trim($serial_number[$unit_id]));
                         $data['serial_number'] =  $trimSno;
-                        $data['serial_number_pic']  = trim($serial_number_pic[$unit_id]);
+                        $data['serial_number_pic']  = "";//trim($serial_number_pic[$unit_id]);
                     }
                     if (!empty($getremarks[0]['service_center_remarks'])) {
 
@@ -454,7 +454,7 @@ class Service_centers extends CI_Controller {
                     
                     switch ($value) {
                         case '1':
-                            $status = $this->validate_serial_no->validateSerialNo($partner_id, $trimSno);
+                            $status = FALSE;#$this->validate_serial_no->validateSerialNo($partner_id, $trimSno);
                             if (!empty($status)) {
                                 if ($status['code'] == SUCCESS_CODE) {
                                     log_message('info', " Serial No validation success  for serial no " . trim($serial_number[$unit_id]));
