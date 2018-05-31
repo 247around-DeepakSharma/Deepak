@@ -4303,7 +4303,7 @@ class Partner extends CI_Controller {
         $where = "spare_parts_details.partner_id = '" . $partner_id . "' "
                 . " AND status IN ('Delivered', 'Shipped', '" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_SHIPPED . "')  ";
         $data= $this->partner_model->get_spare_parts_booking_list($where, NULL, NULL, true);
-        $headings = array("Customer Name","Booking ID","Shipped Parts","Courier Name","AWB","Shipped Date","Remarks");
+        $headings = array("Customer Name","Booking ID","Shipped Parts","Courier Name","AWB","Challan","Shipped Date","Remarks");
         foreach($data as $sparePartBookings){
             $tempArray = array();
             $tempArray[] = $sparePartBookings['name'];
@@ -4311,6 +4311,7 @@ class Partner extends CI_Controller {
             $tempArray[] = $sparePartBookings['parts_shipped'];
             $tempArray[] = $sparePartBookings['courier_name_by_partner'];
             $tempArray[] = $sparePartBookings['awb_by_partner'];
+            $tempArray[] = $sparePartBookings['partner_challan_number'];
             $tempArray[] = $sparePartBookings['shipped_date'];
             $tempArray[] = $sparePartBookings['remarks_by_partner'];
             $CSVData[]  = $tempArray;
