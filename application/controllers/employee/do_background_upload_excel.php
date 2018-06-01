@@ -864,7 +864,8 @@ class Do_background_upload_excel extends CI_Controller {
                 if (stristr($prod, "Television") || stristr($prod, "TV") ||  stristr($prod, "Tv") ||  stristr($prod, "LED")) {
                     $data['valid_data'][$key]['appliance'] = 'Television';
                 }
-                if (stristr($prod, "Airconditioner") || stristr($prod, "Air Conditioner") || strstr($prod, "AC")) {
+                //remove AC beacuse when description contain active then it mapped other appliance booking into ac
+                if (stristr($prod, "Airconditioner") || stristr($prod, "Air Conditioner")) {
                     $data['valid_data'][$key]['appliance'] = 'Air Conditioner';
                 }
                 if (stristr($prod, "Refrigerator")) {
