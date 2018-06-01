@@ -4207,7 +4207,7 @@ class Booking extends CI_Controller {
             foreach ($result as $value) {
                 if(!empty(trim($value['model']))){
                     $flag = true;
-                    $option .= "<option>".$value['model']."</option>";
+                    $option .= "<option value='".$value['model']."'>".$value['model']."</option>";
                 }
                 
             }
