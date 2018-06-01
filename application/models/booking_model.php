@@ -507,7 +507,7 @@ class Booking_model extends CI_Model {
         
         if($partner_id === true){
             $where .= " AND partner_id IN ('"._247AROUND."') ";
-            $where .=" AND request_type IN ('Repair','Repair - In Warranty','".REPAIR_OOW_TAG."')";
+            $where .=" AND request_type IN ('Repair','".REPAIR_IN_WARRANTY_TAG."','".REPAIR_OOW_TAG."')";
         }
 
         $query = $this->db->query("Select count(*) as count from booking_details
