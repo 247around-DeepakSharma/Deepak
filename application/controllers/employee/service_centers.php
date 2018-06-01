@@ -1960,7 +1960,7 @@ class Service_centers extends CI_Controller {
                     
                     $rm_email = $this->get_rm_email($service_center_id);
 
-                    $attachment = S3_WEBSITE_URL."/misc-images/".$defective_courier_receipt;
+                    $attachment = S3_WEBSITE_URL."misc-images/".$defective_courier_receipt;
 
                     $subject = vsprintf($email_template[4], array($this->session->userdata('service_center_name'), $booking_id));
                     
