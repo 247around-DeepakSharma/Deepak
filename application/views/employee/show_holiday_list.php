@@ -1,6 +1,6 @@
 <div id="page-wrapper" >
     <div class="panel panel-info" style="margin-top:20px;">
-        <div class="panel-heading"><center style="font-size:130%;"><b>Holiday List 2017</b></center></div>
+        <div class="panel-heading"><center style="font-size:130%;"><b>Holiday List <?php echo date("Y") ?></b></center></div>
         <div style='border-radius: 5px;background: #EEEEEE;margin-top: 10px;margin-bottom: 10px;width:330px;' class='col-md-6'><b>NOTE:</b> <i>Checkmark shows Holiday declared.</i></div>
         <div class="panel-body">
             <table class="table table-condensed table-bordered table-striped">

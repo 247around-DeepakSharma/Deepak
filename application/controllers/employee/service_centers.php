@@ -4291,10 +4291,14 @@ class Service_centers extends CI_Controller {
                 return FALSE;
         }
     }
-    
     function acknowledge_spares_send_by_partner(){
         $this->check_WH_UserSession();
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/acknowledge_spares_send_by_partner');
+    }
+    function holiday_list(){
+        $data['data'] = $this->employee_model->get_holiday_list();
+        $this->load->view('service_centers/header');
+        $this->load->view('employee/show_holiday_list',$data);
     }
 }
