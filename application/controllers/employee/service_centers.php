@@ -454,26 +454,27 @@ class Service_centers extends CI_Controller {
                     
                     switch ($value) {
                         case '1':
-                            $status = FALSE;#$this->validate_serial_no->validateSerialNo($partner_id, $trimSno);
+                            $status = $this->validate_serial_no->validateSerialNo($partner_id, $trimSno);
                             if (!empty($status)) {
                                 if ($status['code'] == SUCCESS_CODE) {
                                     log_message('info', " Serial No validation success  for serial no " . trim($serial_number[$unit_id]));
-                                    if(isset($upload_serial_number_pic['name'][$unit_id])){
-                                        $this->upload_insert_upload_serial_no($upload_serial_number_pic, $unit_id, $partner_id, $trimSno, FALSE);
-                                    }
+//                                    if(isset($upload_serial_number_pic['name'][$unit_id])){
+//                                        $this->upload_insert_upload_serial_no($upload_serial_number_pic, $unit_id, $partner_id, $trimSno, FALSE);
+//                                    }
                                 } else {
-                                    
-                                    if(!isset($upload_serial_number_pic['name'][$unit_id])){
-                                        $return_status = false;
-                                        $s = $this->form_validation->set_message('validate_serial_no', $status['message']. " Also Attach Serial No Image.");
-                                    } else {
-                                        $s = $this->upload_insert_upload_serial_no($upload_serial_number_pic, $unit_id, $partner_id, $trimSno, true);
-                                        if(empty($s)){
-                                             $this->form_validation->set_message('validate_serial_no', 'Serial Number, File size or file type is not supported. Allowed extentions are png, jpg, jpeg and pdf. '
-                        . 'Maximum file size is 5 MB.');
-                                            $return_status = false;
-                                        }
-                                    }
+                                     $return_status = false;
+                                     $this->form_validation->set_message('validate_serial_no', $status['message']);
+//                                    if(!isset($upload_serial_number_pic['name'][$unit_id])){
+//                                        $return_status = false;
+//                                        $s = $this->form_validation->set_message('validate_serial_no', $status['message']. " Also Attach Serial No Image.");
+//                                    } else {
+//                                        $s = $this->upload_insert_upload_serial_no($upload_serial_number_pic, $unit_id, $partner_id, $trimSno, true);
+//                                        if(empty($s)){
+//                                             $this->form_validation->set_message('validate_serial_no', 'Serial Number, File size or file type is not supported. Allowed extentions are png, jpg, jpeg and pdf. '
+//                        . 'Maximum file size is 5 MB.');
+//                                            $return_status = false;
+//                                        }
+//                                    }
                                 }
                             } else if ($value == 1 && empty($trimSno)) {
                                 $return_status = false;
@@ -1415,36 +1416,10 @@ class Service_centers extends CI_Controller {
             }
 
             //send email to partner,sf and 247around that inventory out of stock for this inventory
-            if (!empty($parts_stock_not_found)) {
-                //Getting template from Database
-                $email_template = $this->booking_model->get_booking_email_template("out_of_stock_inventory");
-                if (!empty($email_template)) {
-
-                    $get_partner_details = $this->partner_model->getpartner_details('partners.public_name,account_manager_id,primary_contact_email,owner_email', array('partners.id' => $this->input->post('partner_id')));
-                    $am_email = "";
-                    if (!empty($get_partner_details[0]['account_manager_id'])) {
-                        $am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
-                    }
-                    
-                    $this->load->library('table');
-                    $template = array(
-                        'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
-                    );
-
-                    $this->table->set_template($template);
-
-                    $this->table->set_heading(array('Model Number', 'Part Type', 'Part Name'));
-                    foreach($parts_stock_not_found as $value){
-                        $this->table->add_row($value['model_number'], $value['part_type'], $value['part_name']);
-                    }
-                    $body_msg = $this->table->generate();
-                    $to = $get_partner_details[0]['primary_contact_email'] . "," . $get_partner_details[0]['owner_email'];
-                    $cc = $email_template[3] . "," . $am_email;
-                    $subject = vsprintf($email_template[4], array($data['model_number'], $data['parts_requested']));
-                    $emailBody = vsprintf($email_template[0], $body_msg);
-                    $this->notify->sendEmail($email_template[2], $to, $cc, '', $subject, $emailBody, "", 'out_of_stock_inventory');
-                }
+            if(!empty($parts_stock_not_found)){
+                $this->send_out_of_stock_mail($parts_stock_not_found, $value, $data);
             }
+            
             
             //$where = array('booking_id' => $booking_id, 'service_center_id' => $data['service_center_id']);
             $status_spare = $this->service_centers_model->insert_data_into_spare_parts($data_to_insert,true);
@@ -1494,6 +1469,39 @@ class Service_centers extends CI_Controller {
         }
 
         log_message('info', __FUNCTION__ . " Exit Service_center ID: " . $this->session->userdata('service_center_id'));
+    }
+    
+    function send_out_of_stock_mail($parts_stock_not_found, $value, $data) {
+        if (!empty($parts_stock_not_found)) {
+            //Getting template from Database
+            $email_template = $this->booking_model->get_booking_email_template("out_of_stock_inventory");
+            if (!empty($email_template)) {
+
+                $get_partner_details = $this->partner_model->getpartner_details('partners.public_name,account_manager_id,primary_contact_email,owner_email', array('partners.id' => $this->input->post('partner_id')));
+                $am_email = "";
+                if (!empty($get_partner_details[0]['account_manager_id'])) {
+                    $am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
+                }
+
+                $this->load->library('table');
+                $template = array(
+                    'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
+                );
+
+                $this->table->set_template($template);
+
+                $this->table->set_heading(array('Model Number', 'Part Type', 'Part Name'));
+                foreach ($parts_stock_not_found as $value) {
+                    $this->table->add_row($value['model_number'], $value['part_type'], $value['part_name']);
+                }
+                $body_msg = $this->table->generate();
+                $to = $get_partner_details[0]['primary_contact_email'] . "," . $get_partner_details[0]['owner_email'];
+                $cc = $email_template[3] . "," . $am_email;
+                $subject = vsprintf($email_template[4], array($data['model_number'], $data['parts_requested']));
+                $emailBody = vsprintf($email_template[0], $body_msg);
+                $this->notify->sendEmail($email_template[2], $to, $cc, '', $subject, $emailBody, "", 'out_of_stock_inventory');
+            }
+        }
     }
 
     function upload_defective_spare_pic(){
@@ -1946,21 +1954,28 @@ class Service_centers extends CI_Controller {
                 $this->vendor_model->update_service_center_action($booking_id, $sc_data);
                 
                 $this->update_booking_internal_status($booking_id,  DEFECTIVE_PARTS_SHIPPED, $partner_id);
-                
-                $rm_email = $this->get_rm_email($service_center_id);
-                $from = NOREPLY_EMAIL_ID;
 
-                $to = "booking@247around.com";
-                $cc= $rm_email;
-               
-                $subject = $this->session->userdata('service_center_name')." Updated Courier Details for Booking ID ".$booking_id;
-                $message = "Please Find Courier Invoice Attachment"."<br/>Courier Details:- <br/>";
-                $message .= "AWB ".$data['awb_by_sf']."<br/>";
-                $message .= "Courier Name ".$data['courier_name_by_sf']."<br/>";
-                $message .= "Courier Charge ".$this->input->post('courier_charges_by_sf')."<br/>";
-                $message .= "Shipped Date ".$data['defective_part_shipped_date']."<br/>";
-                $attachment = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$defective_courier_receipt;
-                $this->notify->sendEmail($from, $to, $cc, "", $subject, $message, $attachment,COURIER_DETAILS);
+                $email_template = $this->booking_model->get_booking_email_template(COURIER_DETAILS);
+                if(!empty($email_template)){
+                    
+                    $rm_email = $this->get_rm_email($service_center_id);
+
+                    $attachment = S3_WEBSITE_URL."misc-images/".$defective_courier_receipt;
+
+                    $subject = vsprintf($email_template[4], array($this->session->userdata('service_center_name'), $booking_id));
+                    
+                    $message = vsprintf($email_template[0], array($data['awb_by_sf'], 
+                       $data['courier_name_by_sf'], $this->input->post('courier_charges_by_sf'), $data['defective_part_shipped_date']));
+                    
+                    $email_from = $email_template[2];
+
+                    $to = $email_template[1];
+                    $cc = $rm_email.",".$email_template[3];
+                    $bcc = $email_template[5];
+
+                    $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $attachment, COURIER_DETAILS);
+                }
+            
                 $userSession = array('success' => 'Parts Updated.');
 
                 $this->session->set_userdata($userSession);
@@ -4291,10 +4306,14 @@ class Service_centers extends CI_Controller {
                 return FALSE;
         }
     }
-    
     function acknowledge_spares_send_by_partner(){
         $this->check_WH_UserSession();
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/acknowledge_spares_send_by_partner');
+    }
+    function holiday_list(){
+        $data['data'] = $this->employee_model->get_holiday_list();
+        $this->load->view('service_centers/header');
+        $this->load->view('employee/show_holiday_list',$data);
     }
 }

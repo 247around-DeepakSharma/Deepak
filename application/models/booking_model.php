@@ -507,7 +507,7 @@ class Booking_model extends CI_Model {
         
         if($partner_id === true){
             $where .= " AND partner_id IN ('"._247AROUND."') ";
-            $where .=" AND request_type IN ('Repair','Repair - In Warranty','".REPAIR_OOW_TAG."')";
+            $where .=" AND request_type IN ('Repair','".REPAIR_IN_WARRANTY_TAG."','".REPAIR_OOW_TAG."')";
         }
 
         $query = $this->db->query("Select count(*) as count from booking_details
@@ -1977,9 +1977,10 @@ class Booking_model extends CI_Model {
         $this->db->join('service_centres','service_centres.id = booking_details.assigned_vendor_id');
         $this->db->join('bookings_sources','bookings_sources.partner_id = booking_details.partner_id');
         $this->db->where_in("current_status", array("Pending","Rescheduled"));
-        $this->db->order_by('spare_parts_details.create_date', 'desc');  
+        $this->db->order_by('spare_parts_details.create_date', 'DESC');  
+        $this->db->order_by('service_centres.name', 'ASC');  
+        $this->db->order_by('spare_parts_details.courier_name_by_sf', 'ASC');  
         $query = $this->db->get();
-      
         return $query->result_array();
         
     }

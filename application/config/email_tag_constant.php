@@ -65,7 +65,7 @@ define('BOOKING_ESCALATION','booking_escalation');
 define('PARTNER_APPROVAL_FAILED','partner_approval_failed');
 define('UPCOUNTRY_BOOKING_CANCELLED','upcountry_booking_cancelled');
 define('PARTNER_DETAILS_UPDATED','partner_details_updated');
-define('COURIER_DETAILS','courier_details');
+define('COURIER_DETAILS','courier_invoice_sent');
 define('GST_FORM_UPDATED','gst_form_updated');
 define('SERVICE_PRICE_FILE_FAILED','service_price_file_failed');
 define('APPLIANCE_NOT_FOUND','appliance_not_found');
