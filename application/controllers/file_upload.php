@@ -773,9 +773,9 @@ class File_upload extends CI_Controller {
         foreach ($uploaded_file_parts as $value){
             //check if uploaded part exists in our database
             if (!empty($value)) {
-                if(array_key_exists($value, $part_number_arr)){
+                if(array_key_exists(str_replace(array('"',"'"), "", $value), $part_number_arr)){
                     $tmp = array();
-                    $tmp['inventory_id'] = $part_number_arr[$value];
+                    $tmp['inventory_id'] = $part_number_arr[str_replace(array('"',"'"), "", $value)];
                     $tmp['model_number_id'] = $model_number_id;
                     array_push($this->dataToInsert, $tmp);
                 }else{

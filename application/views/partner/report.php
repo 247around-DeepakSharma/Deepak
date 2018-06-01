@@ -27,7 +27,7 @@
                             </li>
                             <li role="presentation">
                                 <a href="#tabs-3" role="tab" data-toggle="tab" aria-expanded="true">
-                                    Upcountry Report
+                                    Downloads
                                 </a>
                             </li>
                         </ul>
@@ -154,7 +154,7 @@
                                     <div class="x_panel">
                                         <div class="x_title" style="border-bottom: none;">
                                             <a style="float: left;background: #2a3f54;border: #2a3f54;" class="btn btn-success" href="<?php echo base_url(); ?>partner/upcountry_report">Download Upcountry Details</a>
-                                           
+                                           <a style="float: left;background: #2a3f54;border: #2a3f54;" class="btn btn-success" href="<?php echo base_url(); ?>partner/download_spare_part_shipped_by_partner">Download All Shipped Spare Parts</a>
                                         </div>
                                     </div>
                                 </div>

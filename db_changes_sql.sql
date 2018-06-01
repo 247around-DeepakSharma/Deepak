@@ -5027,3 +5027,7 @@ ALTER TABLE `courier_details`
 --
 ALTER TABLE `courier_details`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+
+--Abhay 31 May
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'courier_invoice_sent', '%s Updated Courier Details for Booking ID %s', 'Please Find Courier Invoice Attachment <br/> Courier Details:- <br/> AWB %s <br/> Courier Name %s <br/> Courier Charge %s <br/> Shipped Date %s <br/>', 'noreply@247around.com', 'sachins@247around.com', 'abhaya@247around.com', '', '1', '2018-05-29 18:26:57');
