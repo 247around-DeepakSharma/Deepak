@@ -235,8 +235,19 @@
                         <li>
                             <a href="<?php echo base_url();?>service_center/gst_details"  >GST</a>
                         </li>
-                        <li>
-                            <a href="#" class="dropdown-toggle" data-toggle="modal" data-target="#contactUsModal"><i class="fa fa-phone"></i>&nbsp;Contact Us&nbsp;</a>
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i ></i> Contacts <i class="fa fa-caret-down"></i>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                            <a href="#" class="dropdown-toggle" data-toggle="modal" data-target="#contactUsModal"><b>&nbsp;Contact Us&nbsp;</b></a>
+                        </li>
+                                <li role="separator" class="divider"></li>
+                             <li>
+                            <a href="<?php echo base_url();?>employee/service_centers/holiday_list"><b>&nbsp;Holiday List&nbsp;</b></a>
+                        </li>
+                            </ul>
                         </li>
                         
                     </ul>
