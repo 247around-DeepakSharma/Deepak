@@ -250,8 +250,7 @@ function addBookingDialog() {
     var dealer_name = $('#dealer_name').val();
     var booking_type = $("#booking_type").val();
     var is_active = $("#is_active").val();
-    var purchase_date = $("#purchase_date").val();
-    
+    var purchase_date_count = $('.purchase_date').length
     if (pincode.length !== 6) {
 
         alert("Please Select 6 Digit Valid Pincode Number");
@@ -365,14 +364,16 @@ function addBookingDialog() {
         return false;
     }
     if(type === "Booking"){
-        if (purchase_date === "") {
-            alert("Please fill Purchase date ");
+        for(var t=1; t<=purchase_date_count; t++){
+            var p_date_value = $("#purchase_date_"+t).val();
+            if (p_date_value === "") {
+                alert("Purchase Date Should not be blank");
             return false;
         } 
     }
+    }
 
     if (booking_date === "") {
-
         alert("Please fill Booking date ");
         return false;
     } else {
