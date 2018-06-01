@@ -622,6 +622,7 @@ class invoices_model extends CI_Model {
                 $up_country[0]['qty'] = '';
                 $up_country[0]['rate'] = '';
                 $up_country[0]['qty'] = '';
+                $up_country[0]['gst_rate'] = DEFAULT_TAX_RATE;
                 $up_country[0]['product_or_services'] = 'Upcountry';
                 $up_country[0]['taxable_value'] = $upcountry_data[0]['total_upcountry_price'];
                 $result['result'] = array_merge($result['result'], $up_country);
@@ -635,6 +636,7 @@ class invoices_model extends CI_Model {
                 $c_data[0]['qty'] = '';
                 $c_data[0]['rate'] = '';
                 $c_data[0]['qty'] = '';
+                $c_data[0]['gst_rate'] = DEFAULT_TAX_RATE;
                 $c_data[0]['product_or_services'] = 'Courier';
                 $c_data[0]['taxable_value'] = (array_sum(array_column($courier, 'courier_charges_by_sf')));
                 $result['result'] = array_merge($result['result'], $c_data);
