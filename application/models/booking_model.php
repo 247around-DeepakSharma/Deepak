@@ -2199,6 +2199,7 @@ class Booking_model extends CI_Model {
         }
         if($partnerIDArray){
             $this->db->where_in('booking_details.partner_id', $partnerIDArray);
+            $this->db->where_not_in('booking_details.internal_status', array('InProcess_Cancelled','InProcess_Completed'));
         }
         $query = $this->db->get();
         return $query->result();

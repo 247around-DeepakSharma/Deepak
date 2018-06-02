@@ -250,7 +250,9 @@ function addBookingDialog() {
     var dealer_name = $('#dealer_name').val();
     var booking_type = $("#booking_type").val();
     var is_active = $("#is_active").val();
-    var purchase_date_count = $('.purchase_date').length
+    var div_count = $('.purchase_date').length;
+   // var customer_paid = $("#grand_total_price").val();
+    
     if (pincode.length !== 6) {
 
         alert("Please Select 6 Digit Valid Pincode Number");
@@ -363,14 +365,27 @@ function addBookingDialog() {
         alert("Please Enter Dealer Name");
         return false;
     }
+//    if(customer_paid == 0  && type === "Booking"){
+//        var select_model = $(".select-model");
+//        var input_model = $(".input-model");
+//        for(var tt = 0; tt< select_model.length; tt++){
+//            var select_model_value = $(select_model[tt]).val();
+//            var input_model_value = $(input_model[tt]).val();
+//            if(select_model_value || input_model_value){
+//            }
+//            else{
+//                  alert("Please Add Model Number");
+//            }
+//        }
+//    }
     if(type === "Booking"){
-        for(var t=1; t<=purchase_date_count; t++){
+        for(var t=1; t<=div_count; t++){
             var p_date_value = $("#purchase_date_"+t).val();
             if (p_date_value === "") {
                 alert("Purchase Date Should not be blank");
-            return false;
-        } 
-    }
+                return false;
+            } 
+        }
     }
 
     if (booking_date === "") {
@@ -457,7 +472,6 @@ function setAppliances(i) {
 
     var model_number = $("#model_number_" + i).val();
     if (model_number === null) {
-
         alert("Please fill Model Number " + i);
         return false;
     }
