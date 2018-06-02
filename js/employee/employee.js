@@ -87,7 +87,7 @@ var ad_table;
                     d.capacity =  $("#capacity option:selected").val();
                     d.brand =  $("#brand option:selected").val();
                     d.paid_by =  $("#paid_by option:selected").val();
-                    d.request_type =  $("#request_type option:selected").val();
+                    d.request_type =  getMultipleSelectedValues("request_type");
                     d.state =  getMultipleSelectedValues("state");
                  }
             },

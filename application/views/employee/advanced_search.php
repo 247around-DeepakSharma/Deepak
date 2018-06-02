@@ -121,7 +121,7 @@
                                             </select>
                                         </td>
                                         <td>
-                                            <select style="width:100%" name="request_type" ui-select2 id="request_type"  class="form-control data_change"data-placeholder="Request Type">
+                                            <select multiple style="width:100%" name="request_type[]" ui-select2 id="request_type"  class="form-control data_change"data-placeholder="Request Type">
                                                 <option value="" ng-show="false"></option>
                                                 <option ng-repeat="y in request_type_list" value="{{y.request_type}}">{{y.request_type}}</option>
                                             </select>

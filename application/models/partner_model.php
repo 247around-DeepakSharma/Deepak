@@ -372,26 +372,26 @@ function get_data_for_partner_callback($booking_id) {
             $where = $whereConditions;
         }
         $dependency = "";
-        $closeDateSubQuery = "booking_details.closed_date AS 'Completion Date'";
-        $tatSubQuery  = '(CASE WHEN current_status  = "Completed" THEN (CASE WHEN DATEDIFF(date(booking_details.closed_date),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) < 0 THEN 0 ELSE'
-                . ' DATEDIFF(date(booking_details.closed_date),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) END) ELSE "" END) as TAT';
-        $agingSubQuery = '(CASE WHEN current_status  IN ("Pending","Rescheduled","FollowUp") THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) ELSE "" END) as Aging';
+        $closeDateSubQuery = "booking_details.service_center_closed_date AS 'Completion Date'";
+        $tatSubQuery  = '(CASE WHEN current_status  = "Completed" THEN (CASE WHEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) < 0 THEN 0 ELSE'
+                . ' DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) END) ELSE "" END) as TAT';
+        $agingSubQuery = '(CASE WHEN current_status  IN ("Pending","Rescheduled","FollowUp") THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) ELSE "" END) as Ageing';
         if($partner_id == JEEVES_ID || $partner_id == AKAI_ID){
             $dependency = ', IF(dependency_on =1, "'.DEPENDENCY_ON_AROUND.'", "'.DEPENDENCY_ON_CUSTOMER.'") as Dependency ';
         }
         if ($percentageLogic == 1){
             $tatSubQuery  = '(CASE WHEN service_center_closed_date IS NOT NULL AND !(current_status = "Cancelled" OR internal_status ="InProcess_Cancelled") '
-                    . 'THEN (CASE WHEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) < 0 THEN 0 ELSE'
-                . ' DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) END) ELSE "" END) as TAT';
+                    . 'THEN (CASE WHEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,"%d-%m-%Y")) < 0 THEN 0 ELSE'
+                . ' DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,"%d-%m-%Y")) END) ELSE "" END) as TAT';
             
-            $agingSubQuery = '(CASE WHEN booking_details.service_center_closed_date IS NULL THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) ELSE "" END) as Aging';
+            $agingSubQuery = '(CASE WHEN booking_details.service_center_closed_date IS NULL THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,"%d-%m-%Y")) ELSE "" END) as Ageing';
             $closeDateSubQuery = "date(booking_details.service_center_closed_date) AS 'Completion Date'";
         }
         
         return $query = $this->db->query("SELECT 
             order_id AS 'Sub Order ID',
             booking_details.booking_id AS '247BookingID',
-            date(booking_details.create_date) AS 'Referred Date and Time',
+            booking_details.create_date AS 'Referred Date and Time',
             GROUP_CONCAT(ud.appliance_brand) AS 'Brand', 
             IFNULL(GROUP_CONCAT(ud.model_number),'') AS 'Model',
             CASE WHEN(ud.serial_number IS NULL OR ud.serial_number = '') THEN '' ELSE (CONCAT('''', GROUP_CONCAT(ud.serial_number)))  END AS 'Serial Number',
@@ -411,17 +411,17 @@ function get_data_for_partner_callback($booking_id) {
             booking_timeslot AS 'Scheduled Appointment Time(HH:MM:SS)', 
             partner_internal_status AS 'Final Status',
             CASE WHEN (booking_details.is_upcountry = '0') THEN 'Local' ELSE 'Upcountry' END as 'Is Upcountry', 
+            ".$closeDateSubQuery.",
+            ".$tatSubQuery.",
+            ".$agingSubQuery.",
+            booking_details.rating_stars AS 'Rating',
+            booking_details.rating_comments AS 'Rating Comments',
             GROUP_CONCAT(spare_parts_details.parts_requested) As 'Requested Part', 
             GROUP_CONCAT(spare_parts_details.date_of_request) As 'Part Request Date', 
             GROUP_CONCAT(spare_parts_details.parts_shipped) As 'Shipped Part', 
             GROUP_CONCAT(spare_parts_details.shipped_date) As 'Part Shipped Date', 
             GROUP_CONCAT(spare_parts_details.defective_part_shipped) As 'Shipped Defective Part', 
-            GROUP_CONCAT(spare_parts_details.defective_part_shipped_date) As 'Defactive Part Shipped Date', 
-            ".$closeDateSubQuery.",
-            ".$tatSubQuery.",
-            ".$agingSubQuery.",
-            booking_details.rating_stars AS 'Rating',
-            booking_details.rating_comments AS 'Rating Comments'
+            GROUP_CONCAT(spare_parts_details.defective_part_shipped_date) As 'Defective Part Shipped Date'
             $dependency
             FROM booking_details JOIN booking_unit_details ud  ON booking_details.booking_id = ud.booking_id 
             JOIN services ON booking_details.service_id = services.id 
@@ -1576,7 +1576,7 @@ function get_data_for_partner_callback($booking_id) {
      * @return int
      */
     function insert_partner_serial_number($data){
-        $this->db->insert('partner_serial_no', $data);
+        $this->db->insert_ignore('partner_serial_no', $data);
         return $this->db->insert_id();
     }
 }
