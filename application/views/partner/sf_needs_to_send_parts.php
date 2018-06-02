@@ -82,6 +82,13 @@
                     } ?>
                     </tbody>
                 </table>
+                 <div class="custom_pagination" style="margin-left: 16px;" > 
+                    <?php
+                        if (isset($links)) {
+                            echo $links;
+                        }
+                    ?>
+                </div>
         </div>
     </div>
 </div>
@@ -104,3 +111,8 @@ function confirm_received(){
 }
 
 </script>
+    <style>
+        .paging_simple_numbers{
+            display: none;
+        }
+        </style>
