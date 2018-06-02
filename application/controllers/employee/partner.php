@@ -1619,7 +1619,7 @@ class Partner extends CI_Controller {
         if(empty($this->input->post('is_ajax'))){
             $this->miscelleneous->load_partner_nav_header();
             //$this->load->view('partner/header');
-            $this->load->view('partner/spare_parts_booking', $data);
+           $this->load->view('partner/spare_parts_booking', $data);
             $this->load->view('partner/partner_footer');
         }else{
             $this->load->view('partner/spare_parts_booking', $data);
@@ -4266,11 +4266,12 @@ class Partner extends CI_Controller {
             "status IN ('" . DEFECTIVE_PARTS_SHIPPED . "')  " => NULL
         );
         $select = "CONCAT( '', GROUP_CONCAT((defective_part_shipped ) ) , '' ) as defective_part_shipped, "
-                . " spare_parts_details.booking_id, name, courier_name_by_sf, awb_by_sf,defective_part_shipped_date,remarks_defective_part_by_sf";
+                . " spare_parts_details.booking_id, name, courier_name_by_sf, awb_by_sf, spare_parts_details.sf_challan_number, spare_parts_details.partner_challan_number, "
+                . "defective_part_shipped_date,remarks_defective_part_by_sf";
         $group_by = "spare_parts_details.booking_id";
         $order_by = "spare_parts_details.defective_part_shipped_date DESC";
         $data = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by);
-        $headings = array("Parts Shipped","Booking ID","Customer Name","Courier Name","AWB","Shipped Date","Remarks");
+        $headings = array("Parts Shipped","Booking ID","Customer Name","Courier Name","AWB","SF Challan","Partner Challan","Shipped Date","Remarks");
         foreach($data as $spareData){
             $CSVData[]  = array_values($spareData);
         }
@@ -4348,11 +4349,12 @@ class Partner extends CI_Controller {
             "status IN ('" . DEFECTIVE_PARTS_PENDING . "')  " => NULL
         );
         $select = "CONCAT( '', GROUP_CONCAT((parts_shipped ) ) , '' ) as defective_part_shipped, "
-                . " spare_parts_details.booking_id, name,DATEDIFF(CURDATE(),date(booking_details.service_center_closed_date)) as aging";
+                . " spare_parts_details.booking_id, name,spare_parts_details.courier_name_by_partner,spare_parts_details.awb_by_partner, spare_parts_details.partner_challan_number, "
+                . "DATEDIFF(CURDATE(),date(booking_details.service_center_closed_date)) as aging";
         $group_by = "spare_parts_details.booking_id";
         $order_by = "spare_parts_details.defective_part_shipped_date DESC";
         $data = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by);
-        $headings = array("Parts","Booking ID","Name","Aging");
+        $headings = array("Parts","Booking ID","Name","Courier","AWB","Challan","Aging");
         foreach($data as $sparePartBookings){
             $tempArray = array_values($sparePartBookings);
             $CSVData[]  = $tempArray;
@@ -4367,15 +4369,16 @@ class Partner extends CI_Controller {
         $where = "spare_parts_details.partner_id = '" . $partner_id . "' "
                 . " AND approved_defective_parts_by_partner = '1' ";
         $data = $this->partner_model->get_spare_parts_booking_list($where, NULL,NULL, true);
-        $headings = array("Name","Booking ID","Received Parts","Received Date","AWB","Courier Name","SF Remarks");
+        $headings = array("Name","Booking ID","Received Parts","Received Date","AWB","Courier Name","Challan","SF Remarks");
         foreach($data as $sparePartBookings){
             $tempArray = array();
             $tempArray[] = $sparePartBookings['name'];
             $tempArray[] = $sparePartBookings['booking_id'];
             $tempArray[] = $sparePartBookings['defective_part_shipped'];
             $tempArray[] = $sparePartBookings['received_defective_part_date'];
-            $tempArray[] = $sparePartBookings['awb_by_sf'];
-            $tempArray[] = $sparePartBookings['courier_name_by_sf'];
+            $tempArray[] = $sparePartBookings['awb_by_partner'];
+            $tempArray[] = $sparePartBookings['	courier_name_by_partner'];
+            $tempArray[] = $sparePartBookings['	partner_challan_number'];
             $tempArray[] = $sparePartBookings['remarks_defective_part_by_sf'];
             $CSVData[]  = $tempArray;
         }

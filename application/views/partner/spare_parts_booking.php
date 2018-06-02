@@ -326,4 +326,7 @@ if ($this->uri->segment(4)) {
 $('#serachSpareInput').select2();
     </script>
     <style>
+        .paging_simple_numbers{
+            display: none;
+        }
         </style>

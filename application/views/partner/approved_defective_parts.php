@@ -52,10 +52,10 @@ if ($this->uri->segment(3)) {
                                         } ?>
                                     </td>
                                     <td>
-                                        <?php echo $row['awb_by_sf']; ?>
+                                        <?php echo $row['awb_by_partner']; ?>
                                     </td>
                                     <td>
-                                        <?php echo $row['courier_name_by_sf']; ?>
+                                        <?php echo $row['courier_name_by_partner']; ?>
                                     </td>
                                     <td> 
                                         <?php  if(!empty($row['partner_challan_file'])) { ?> 
