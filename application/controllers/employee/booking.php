@@ -3080,7 +3080,7 @@ class Booking extends CI_Controller {
         $data['brands'] = $this->booking_model->get_advance_search_result_data("appliance_brands","brand_name",NULL,NULL,NULL,array('brand_name'=>'ASC'));
         $data['category'] = $this->booking_model->get_advance_search_result_data("service_centre_charges","DISTINCT(category)",NULL,NULL,NULL,array('category'=>'ASC'));
         $data['capacity'] = $this->booking_model->get_advance_search_result_data("service_centre_charges","DISTINCT(capacity)",NULL,NULL,NULL,array('capacity'=>'ASC'));
-        $data['request_type'] = $this->booking_model->get_advance_search_result_data("booking_unit_details","DISTINCT(price_tags) as request_type",NULL,NULL,NULL,array('price_tags'=>'ASC'));
+        $data['request_type'] = $this->booking_model->get_advance_search_result_data("booking_details","DISTINCT(request_type) as request_type",NULL,NULL,NULL,array('request_type'=>'ASC'));
         $data['is_upcountry'] = array(array("option"=>'yes',"value"=>'1'),array("option"=>'No',"value"=>'0'));
         $data['paid_by'] = array(array("option"=>'Customer'),array("option"=>'Partner'));
         $data['product_or_service'] = array(array("option"=>'Product'),array("option"=>'Service'));
@@ -3154,7 +3154,7 @@ class Booking extends CI_Controller {
             'rating'=>'booking_details.rating_stars','service'=>'booking_details.service_id','categories'=>'booking_unit_details.appliance_category','capacity'=>'booking_unit_details.appliance_capacity',
             'brand'=>'booking_unit_details.appliance_brand','paid_by'=>'booking_unit_details.customer_net_payable','request_type'=>'booking_unit_details.price_tags','state'=>'booking_details.state');
         // array of filtered options and there selected values (which can be handled by direct where condition)
-        $whereOptionArray = elements(array('partner','city','sf','internal_status','product_or_service','upcountry','rating','categories','capacity','brand','request_type'), $receieved_Data);
+        $whereOptionArray = elements(array('partner','city','sf','internal_status','product_or_service','upcountry','rating','categories','capacity','brand'), $receieved_Data);
         //join condition array table name and join condition
         $joinDataArray = array("bookings_sources"=>"bookings_sources.partner_id=booking_details.partner_id","service_centres"=>"service_centres.id=booking_details.assigned_vendor_id",
             "services"=>"services.id=booking_details.service_id","booking_unit_details"=>"booking_unit_details.booking_id=booking_details.booking_id",
@@ -3167,6 +3167,7 @@ class Booking extends CI_Controller {
         $currentStatusArray = explode(",",$receieved_Data['current_status']);
         $serviceArray = explode(",",$receieved_Data['service']);
         $stateArray = explode(",",$receieved_Data['state']);
+        $requestTypeArray = explode(",",$receieved_Data['request_type']);
         $whereInArray = NULL;
         if($receieved_Data['current_status']){
             $whereInArray['booking_details.current_status'] = $currentStatusArray;
@@ -3176,6 +3177,9 @@ class Booking extends CI_Controller {
         }
         if($receieved_Data['state']){
             $whereInArray['booking_details.state'] = $stateArray;
+        }
+         if($receieved_Data['request_type']){
+            $whereInArray['booking_details.request_type'] = $requestTypeArray;
         }
         $JoinTypeTableArray = array('service_centres'=>'left','bookings_sources'=>'left','booking_unit_details'=>'left','services'=>'left');
        //process query and get result from database
@@ -3201,7 +3205,7 @@ class Booking extends CI_Controller {
         $receieved_Data = $this->input->post(); 
                 // select field to display
         $select = "booking_details.booking_id,bookings_sources.source,booking_details.city,service_centres.company_name,services.services,booking_unit_details.appliance_brand,"
-                . "booking_unit_details.appliance_category,booking_unit_details.appliance_capacity,booking_unit_details.price_tags,booking_unit_details.product_or_services,booking_details."
+                . "booking_unit_details.appliance_category,booking_unit_details.appliance_capacity,booking_details.request_type,booking_unit_details.product_or_services,booking_details."
                 . "current_status";
         $data = $this->get_advance_search_result_data($receieved_Data,$select);
         foreach ($data['data'] as $index=>$serachResultData){
@@ -3232,6 +3236,12 @@ class Booking extends CI_Controller {
        else{
            $receieved_Data['state'] = '';
        }
+       if(isset($receieved_Data['request_type'])){
+            $receieved_Data['request_type'] = implode(',',$receieved_Data['request_type']);
+       }
+       else{
+           $receieved_Data['request_type'] = '';
+       }
        $is_not_empty = FALSE;
        foreach($receieved_Data as $values){
            if($values){
@@ -3240,7 +3250,7 @@ class Booking extends CI_Controller {
            }
        }
       
-        $select = "users.name as customer_name, booking_details.booking_id,bookings_sources.source,booking_details.city,service_centres.company_name,services.services,booking_unit_details.appliance_brand,"
+        $select = "users.name as customer_name, booking_details.booking_id,booking_details.sub_order_id,bookings_sources.source,booking_details.city,service_centres.company_name,services.services,booking_unit_details.appliance_brand,"
                 . "booking_unit_details.appliance_category,booking_unit_details.appliance_capacity,booking_unit_details.price_tags,booking_unit_details.product_or_services,booking_details."
                 . "current_status,booking_details.order_id,booking_details.type,booking_details.partner_source,booking_details.partner_current_status,booking_details.partner_internal_status,"
                 . "booking_details.booking_address,booking_details.booking_pincode,booking_details.district,booking_details.state,"
@@ -3258,7 +3268,7 @@ class Booking extends CI_Controller {
                 $receieved_Data['draw'] = 1;
                 $data = $this->get_advance_search_result_data($receieved_Data,$select);
                
-                $headings = array("S.no","Customer Name ","Booking ID","Partner","City","Service Center","Service","Brand","Category","Capacity","Request Type","Product/Service","Current_status","Order_ID","Type",
+                $headings = array("S.no","Customer Name ","Booking ID","Sub Order ID","Partner","City","Service Center","Service","Brand","Category","Capacity","Request Type","Product/Service","Current_status","Order_ID","Type",
                     "Partner Source","Partner Current Status","Partner Internal Status","Booking Address","Pincode","District","State","Primary Contact Number","Current Booking Date","First Booking Date","Age Of Booking",
                     "Booking Timeslot","Booking Remarks","Query Remarks","Discount Coupon","Discount Amount","Total Price","Cancellation Reason","Reschedule_reason","Vendor(SF)",
                     "Rating","Vendor Rating Comments","Amount Due","Service Charge","Additional Service Charge","Parts Cost","Amount Paid","Closing Remarks","Count Reschedule","Count Escalation",
