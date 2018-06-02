@@ -2853,4 +2853,44 @@ function convert_html_to_pdf($html,$booking_id,$filename,$s3_folder){
         $data['header_navigation_html'] = $this->My_CI->cache->file->get('navigationHeader_partner_'.$this->My_CI->session->userdata('user_group').'_'.$this->My_CI->session->userdata('agent_id'));
         $this->My_CI->load->view('partner/header/load_header_navigation', $data);
     }
+    
+    /**
+     * @desc this is used to send email to partner to inform about serial no
+     * @param Int $partner_id
+     * @param String $serial_number
+     * @param String $pic_name
+     */
+    function inform_partner_for_serial_no($booking_id, $sid, $partner_id, $serial_number, $pic_name) {
+        log_message('info', __METHOD__ . " Enterring..");
+        $get_partner_details = $this->My_CI->partner_model->getpartner_details('account_manager_id, primary_contact_email, owner_email', array('partners.id' => $partner_id));
+        $am_email = "";
+        if (!empty($get_partner_details[0]['account_manager_id'])) {
+
+            $am_email = $this->My_CI->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
+        }
+
+        $email_template = $this->My_CI->booking_model->get_booking_email_template(INFORM_PARTNER_FOR_NEW_SERIAL_NUMBER);
+        if (!empty($email_template)) {
+            $to = $get_partner_details[0]['primary_contact_email'];
+            
+            $rm = $this->My_CI->vendor_model->get_rm_sf_relation_by_sf_id($sid);
+            $rm_email = "";
+            if (!empty($rm)) {
+                $rm_email = ", " . $rm[0]['official_email'];
+            }
+
+            $bcc = $email_template[5];
+            $subject = vsprintf($email_template[4], array($serial_number));
+            $message = vsprintf($email_template[0], array($serial_number, $booking_id));
+            if (!empty($am_email)) {
+                $from = $am_email;
+                $cc = $email_template[3]. ",".$am_email.$rm_email;
+            } else {
+                $from = $email_template[2];
+                $cc = $email_template[3].$rm_email;
+            }
+            $attachment = S3_WEBSITE_URL . "engineer-uploads/" . $pic_name;
+            $this->My_CI->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment, INFORM_PARTNER_FOR_NEW_SERIAL_NUMBER);
+        }
+    }
 }
