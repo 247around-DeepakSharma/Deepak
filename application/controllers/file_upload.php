@@ -621,7 +621,7 @@ class File_upload extends CI_Controller {
                 //check file contains unique data
                 $is_file_contains_unique_data = $this->check_unique_in_array_data($sheet_unique_row_data);
                 if ($is_file_contains_unique_data['status']) {
-                    $insert_id = $this->inventory_model->insert_appliance_model_details($this->dataToInsert);
+                    $insert_id = $this->inventory_model->insert_appliance_model_details_batch($this->dataToInsert);
     
                     if ($insert_id) {
                         log_message("info", __METHOD__ . " partner appliance model details file data inserted succcessfully");
