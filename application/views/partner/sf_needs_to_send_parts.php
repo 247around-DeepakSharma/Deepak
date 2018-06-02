@@ -33,6 +33,9 @@
                             <th class="text-center">Booking ID</th>
                             <th class="text-center">Name</th>
                             <th class="text-center">Spare Details</th>
+                            <th class="text-center">Courier Name</th>
+                            <th class="text-center">AWB</th>
+                            <th class="text-center">Challan</th>
                             <th class="text-center">Age</th>
                         </tr>
                     </thead>
@@ -54,6 +57,21 @@
                                 <td>
                                     <?php echo $row['defective_part_shipped']; ?>
                                 </td>
+                                   <td>
+                                        <?php echo $row['courier_name_by_partner']; ?>
+                                    </td>
+                                    <td>
+                                        <?php echo $row['awb_by_partner']; ?>
+                                    </td>
+                                     <td> 
+                                        <?php  if(!empty($row['partner_challan_file'])) { ?> 
+                                            <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY ?>/vendor-partner-docs/<?php echo $row['partner_challan_file']; ?>" target="_blank"><?php echo $row['partner_challan_number']?></a>
+                                        <?php }
+                                        else if(!empty($row['partner_challan_number'])) {
+                                            echo $row['partner_challan_number'];
+                                        }
+?>
+                                      </td>
                                  <td>
                                     <?php echo $row['aging']; ?>
                                 </td>
