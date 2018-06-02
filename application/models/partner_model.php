@@ -1576,7 +1576,7 @@ function get_data_for_partner_callback($booking_id) {
      * @return int
      */
     function insert_partner_serial_number($data){
-        $this->db->insert('partner_serial_no', $data);
+        $this->db->insert_ignore('partner_serial_no', $data);
         return $this->db->insert_id();
     }
 }

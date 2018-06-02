@@ -1813,9 +1813,10 @@ class Booking extends CI_Controller {
         $serial_number = $this->input->post('serial_number');
         $serial_number_pic = $this->input->post('serial_number_pic');
         $upcountry_charges = $this->input->post("upcountry_charges");
-        $internal_status = "Cancelled";
+        $internal_status = _247AROUND_CANCELLED;
         $pincode = $this->input->post('booking_pincode');
         $state = $this->vendor_model->get_state_from_pincode($pincode);
+        $partner_id = $this->input->post('partner_id');
         $service_center_details = $this->booking_model->getbooking_charges($booking_id);
         $b_unit_details = array();
         if($status == 1){
@@ -1834,6 +1835,14 @@ class Booking extends CI_Controller {
             } else {
                 $data['serial_number'] = "";
                 $data['serial_number_pic'] = "";
+            }
+            
+            if(!empty($data['serial_number_pic'])){
+                $insertd = $this->partner_model->insert_partner_serial_number(array('partner_id' =>$partner_id, 
+                       "serial_number" => $data['serial_number'], "active" =>1, "added_by" => "vendor" ));
+                if(!empty($insertd) && $partner_id == AKAI_ID){
+                    $this->miscelleneous->inform_partner_for_serial_no($booking_id, $service_center_details[0]['service_center_id'], $partner_id, $data['serial_number'], $data['serial_number_pic']);
+                }
             }
 
             if (isset($customer_net_payable[$unit_id])) {
@@ -1953,7 +1962,6 @@ class Booking extends CI_Controller {
         $booking['upcountry_paid_by_customer'] = $upcountry_charges;
 
         // check partner status
-        $partner_id = $this->input->post('partner_id');
         $actor = $next_action = 'NULL';
         $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $partner_id, $booking_id);
         if (!empty($partner_status)) {
@@ -2026,7 +2034,7 @@ class Booking extends CI_Controller {
                 $this->asynchronous_lib->do_background_process($invoice_url, $payment);
 
             } else {
-                log_message("info", " Amount Paid less then 5  for booking ID ". $booking_id. " Amount Paid ". $data['amount_paid']);
+                log_message("info", " Amount Paid less then 5  for booking ID ". $booking_id. " Amount Paid ". $total_amount_paid);
             }
         
             redirect(base_url() . 'employee/booking/view_bookings_by_status/Pending');
