@@ -60,7 +60,7 @@
                         <li><a id="4" href="#tabs-4" ><span class="panel-title" onclick="alert('Please Add Basic Details FIrst')">Contracts</span></a></li>
                         <li><a id="5" href="#tabs-5" ><span class="panel-title" onclick="alert('Please Add Basic Details FIrst')">Brand Mapping</span></a></li>
                         <li><a id="6" href="#tabs-6" ><span class="panel-title" onclick="alert('Please Add Basic Details FIrst')">Brand Collateral</span></a></li>
-                        <li><a id="7" href="#tabs-7" ><span class="panel-title" onclick="alert('Please Add Basic Details FIrst')">Brand Collateral</span></a></li>
+                        <li><a id="7" href="#tabs-7" ><span class="panel-title" onclick="alert('Please Add Basic Details FIrst')">Upload Serial No</span></a></li>
                         <?php
                             }
                             else{
@@ -1827,9 +1827,7 @@ else{
     }
 
     }
-    
-   
-    function getserial_number_history(){
+     $(document).ready(function () {
         serialNo = $('#datatable1').DataTable({
             processing: true,
             serverSide: true,
@@ -1850,6 +1848,10 @@ else{
                 }
             ]
         });
+    });
+   
+    function getserial_number_history(){
+        serialNo.ajax.reload(null, false);
     }
     <?php if(isset($query[0]['id'])) { ?>
     $(function () {
