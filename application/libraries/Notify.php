@@ -29,7 +29,7 @@ class Notify {
      *  @param : From, To, CC, BCC, Subject, Message, Attachment
      *  @return : if mail send return true else false
      */
-    function sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment,$template_tag) {
+    function sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment,$template_tag, $attachment2 = "") {
 	switch (ENVIRONMENT) {
 	    case 'production':
 		//Clear previous email
@@ -39,6 +39,10 @@ class Notify {
                     //Attach file with mail
                     if (!empty($attachment)) {
                         $this->My_CI->email->attach($attachment, 'attachment');
+                    }
+                    
+                    if(!empty($attachment2)){
+                        $this->My_CI->email->attach($attachment2, 'attachment');
                     }
 
                     $this->My_CI->email->from($from, '247around Team');

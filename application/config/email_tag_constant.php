@@ -92,3 +92,4 @@ define('NEW_PARTNER_ADDED_EMAIL_TAG','new_partner_added');
 define('VENDOR_UPDATED','vendor_updated');
 define('SEND_LOG_FILE','log_file');
 define('INFORM_PARTNER_FOR_NEW_SERIAL_NUMBER','inform_partner_for_serial_no');
+define('INVENTORY_INVOICE', 'spare_inventory_invoice');

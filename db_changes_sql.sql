@@ -5036,3 +5036,8 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 --Abhay 2 June
 ALTER TABLE `partner_serial_no` ADD `invoice_date` DATE NULL DEFAULT NULL AFTER `create_date`, ADD `sku_name` VARCHAR(128) NULL DEFAULT NULL AFTER `invoice_date`, ADD `sku_code` VARCHAR(128) NULL DEFAULT NULL AFTER `sku_name`, ADD `category_name` VARCHAR(128) NULL DEFAULT NULL AFTER `sku_code`, ADD `brand_name` VARCHAR(128) NULL DEFAULT NULL AFTER `category_name`, ADD `model_number` VARCHAR(128) NOT NULL AFTER `brand_name`;
 ALTER TABLE `partner_serial_no` ADD `color` VARCHAR(128) NULL DEFAULT NULL AFTER `model_number`, ADD `stock_bin` VARCHAR(128) NULL DEFAULT NULL AFTER `color`;
+
+
+--Abhay 4 June
+ALTER TABLE `inventory_invoice_mapping` CHANGE `incoming_invoice_id` `incoming_invoice_id` VARCHAR(64) NOT NULL;
+ALTER TABLE `inventory_invoice_mapping` ADD `inventory_id` INT NULL DEFAULT NULL AFTER `outgoing_invoice_id`;

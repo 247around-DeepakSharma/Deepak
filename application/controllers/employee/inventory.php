@@ -3028,7 +3028,7 @@ class Inventory extends CI_Controller {
      *  @return :$res JSON
      */
     function send_defective_parts_to_partner_from_wh() {
-        log_message("info", __METHOD__);
+        log_message("info", __METHOD__. json_encode($this->input->post(), true));
         $this->check_WH_UserSession();
         $sender_entity_id = $this->input->post('sender_entity_id');
         $sender_entity_type = $this->input->post('sender_entity_type');
@@ -3039,7 +3039,7 @@ class Inventory extends CI_Controller {
         $postData = json_decode($this->input->post('data'));
         
         $data = $this->inventory_invoice_settlement($sender_entity_id, $sender_entity_type);
-        
+
         if (!empty($data)) {
             if (!empty($sender_entity_id) && !empty($sender_entity_type) && !empty($postData) && !empty($awb_by_wh) && !empty($courier_name_by_wh) && !empty($courier_price_by_wh) && !empty($defective_parts_shippped_date_by_wh)) {
                 $courier_file = $this->upload_defective_parts_shipped_courier_file($_FILES);
@@ -3127,59 +3127,8 @@ class Inventory extends CI_Controller {
      */
     function inventory_invoice_settlement($sender_entity_id, $sender_entity_type){
         $postData1 = json_decode($this->input->post('data'), true);
-        $data = $this->generate_inventory_invoice($postData1,$sender_entity_id, $sender_entity_type); 
-        if(!empty($data)){
-            foreach ($data as $key => $value) {
-                $where = array('inventory_id' => $value['inventory_id'], 
-                    'vendor_partner_id' =>$value['partner_id'], "invoice_details.is_settle" => 0 );
-                $order_by = array('column_name' => "(qty -settle_qty)", 'param' => 'asc');
-                $unsettle = $this->invoices_model->get_unsettle_inventory_invoice('invoice_details.*', $where, $order_by);
-               
-              if(!empty($unsettle)){
-                  $qty = $value['qty'];
-                  foreach ($unsettle as $key => $b) {
-                      $restQty = $b['qty'] - $b['settle_qty'];
-                      if($restQty == $qty){
-                          $array= array('is_settle' => 1, 'settle_qty' => $b['qty']);
-                         
-                          $this->invoices_model->update_invoice_breakup(array('id' => $b['id']), $array);
-                          $mapping = array('incoming_invoice_id' => $b['id'], 'outgoing_invoice_id' => $data[0]['invoice_id'],
-                              'settle_qty' => $qty, 'create_date' => date('Y-m-d H:i:s'));
-                          $this->invoices_model->insert_inventory_invoice($mapping);
-                          $qty = 0;
-                          break;
-                      } else if($restQty < $qty){
-                          $array= array('is_settle' => 1, 'settle_qty' => $b['qty']);
-                          
-                          $this->invoices_model->update_invoice_breakup(array('id' => $b['id']), $array);
-                          $mapping = array('incoming_invoice_id' => $b['id'], 'outgoing_invoice_id' => $data[0]['invoice_id'],
-                              'settle_qty' => $restQty, 'create_date' => date('Y-m-d H:i:s'));
-                          $this->invoices_model->insert_inventory_invoice($mapping);
-                          $qty = $qty - $restQty;
-                        
-                      } else if($restQty > $qty){
-                          $array= array('is_settle' => 0, 'settle_qty' => $b['settle_qty'] + $qty);
-                         
-                          $this->invoices_model->update_invoice_breakup(array('id' => $b['id']), $array);
-                          $mapping = array('incoming_invoice_id' => $b['id'], 'outgoing_invoice_id' => $data[0]['invoice_id'],
-                              'settle_qty' => $qty, 'create_date' => date('Y-m-d H:i:s'));
-                          $this->invoices_model->insert_inventory_invoice($mapping);
-                          $qty = 0;
-                          
-                          break;
-                      } else {
-                          $this->invoices_not_found($value);
-                      }
-                  }
-              } else {
-                  log_message('info', __METHOD__. " Invoices not exist");
-                  $this->invoices_not_found($value);
-              }
-            }
-            return true;
-        } else {
-            return FALSE;
-        }
+        return $this->generate_inventory_invoice($postData1,$sender_entity_id, $sender_entity_type); 
+ 
     }
     /**
      * @desc If there is no any un-settle invoice available then it will send a mail to developer or accountant
@@ -3274,9 +3223,9 @@ class Inventory extends CI_Controller {
             $convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($response['meta']['invoice_id'], "final");
             $this->invoice_lib->upload_invoice_to_S3($response['meta']['invoice_id'], false, false);
             
-            
-            
-            $email_template = $this->booking_model->get_booking_email_template("spare_inventory_invoice");
+            $annexure = $this->settle_inventory_invoice_annexure($response);
+
+            $email_template = $this->booking_model->get_booking_email_template(INVENTORY_INVOICE);
             if(!empty($email_template)){
                 
                 $attachment = S3_WEBSITE_URL. "/invoices-excel/" . $convert['main_pdf_file_name'];
@@ -3294,9 +3243,10 @@ class Inventory extends CI_Controller {
                 $cc = ACCOUNTANT_EMAILID.$email_template[3];
                 $bcc = $email_template[5];
 
-                $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $attachment,'spare_inventory_invoice');
+                $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $attachment, INVENTORY_INVOICE, TMP_FOLDER.$annexure);
+                log_message('info', __METHOD__. " Invoice Email Sent");
             }
-            
+  
             $invoice_details = array(
                 'invoice_id' => $response['meta']['invoice_id'],
                 'type_code' => 'A',
@@ -3307,7 +3257,7 @@ class Inventory extends CI_Controller {
                 'vendor_partner_id' => $response['booking'][0]['partner_id'],
                 'invoice_file_main' => $convert['main_pdf_file_name'],
                 'invoice_file_excel' => $response['meta']['invoice_id'] . ".xlsx",
-                'invoice_detailed_excel' => '',
+                'invoice_detailed_excel' => $annexure,
                 'from_date' => date("Y-m-d", strtotime($sd)), //??? Check this next time, format should be YYYY-MM-DD
                 'to_date' => date("Y-m-d", strtotime($ed)),
                 'parts_cost' => $response['meta']['total_taxable_value'],
@@ -3331,11 +3281,97 @@ class Inventory extends CI_Controller {
 
             $this->invoices_model->insert_new_invoice($invoice_details);
             log_message('info', __METHOD__ . "=> Insert Invoices in partner invoice table");
+            if(file_exists(TMP_FOLDER.$annexure)){
+                unlink(TMP_FOLDER.$annexure);
+            }
             
-            return $response['booking'];
+            if(file_exists(TMP_FOLDER.$response['meta']['invoice_id'] . ".xlsx")){
+                unlink(TMP_FOLDER.$response['meta']['invoice_id'] . ".xlsx");
+            }
+            
+            if(file_exists(TMP_FOLDER.$convert['copy_file'])){
+                unlink(TMP_FOLDER.$convert['copy_file']);
+            }
+            return true;
 
         } else {
             return false;
+        }
+    }
+    /**
+     * @desc this is used to create inventory annexure invoice file.
+     * In this function, we will settle incoming invoice and add it into annexure.
+     * @param type $data
+     * @return boolean|string
+     */
+    function settle_inventory_invoice_annexure($data){
+        if(!empty($data['booking'])){
+            $meta = $data['meta'];
+            $settle_invoice = array();
+            foreach ($data['booking'] as $key => $value) {
+                $where = array('inventory_id' => $value['inventory_id'], 
+                    'vendor_partner_id' =>$value['partner_id'], "invoice_details.is_settle" => 0 );
+                $order_by = array('column_name' => "(qty -settle_qty)", 'param' => 'asc');
+                $unsettle = $this->invoices_model->get_unsettle_inventory_invoice('invoice_details.*', $where, $order_by);
+               
+              if(!empty($unsettle)){
+                  $qty = $value['qty'];
+                  foreach ($unsettle as $key => $b) {
+                      $restQty = $b['qty'] - $b['settle_qty'];
+                      if($restQty == $qty){
+                          $array= array('is_settle' => 1, 'settle_qty' => $b['qty']);
+                         
+                          $this->invoices_model->update_invoice_breakup(array('id' => $b['id']), $array);
+                          $mapping = array('incoming_invoice_id' => $b['invoice_id'], 'outgoing_invoice_id' => $meta['invoice_id'],
+                              'settle_qty' => $qty, 'create_date' => date('Y-m-d H:i:s'), "inventory_id" =>$b['inventory_id'] );
+                          $this->invoices_model->insert_inventory_invoice($mapping);
+                          array_push($settle_invoice, array('incoming_invoice_id' => $b['invoice_id'], "qty" => $restQty));
+                          log_message('info', __METHOD__. " Settle ". print_r($mapping, true) );
+                          $qty = 0;
+                          break;
+                      } else if($restQty < $qty){
+                          $array= array('is_settle' => 1, 'settle_qty' => $b['qty']);
+                          
+                          $this->invoices_model->update_invoice_breakup(array('id' => $b['id']), $array);
+                          $mapping = array('incoming_invoice_id' => $b['invoice_id'], 'outgoing_invoice_id' => $meta['invoice_id'],
+                              'settle_qty' => $restQty, 'create_date' => date('Y-m-d H:i:s'), "inventory_id" =>$b['inventory_id']);
+                          $this->invoices_model->insert_inventory_invoice($mapping);
+                         
+                          array_push($settle_invoice, array('incoming_invoice_id' => $b['invoice_id'], "qty" => $restQty));
+                          log_message('info', __METHOD__. " Settle ". print_r($mapping, true) );
+                          $qty = $qty - $restQty;
+                        
+                      } else if($restQty > $qty){
+                          $array= array('is_settle' => 0, 'settle_qty' => $b['settle_qty'] + $qty);
+                         
+                          $this->invoices_model->update_invoice_breakup(array('id' => $b['id']), $array);
+                          $mapping = array('incoming_invoice_id' => $b['invoice_id'], 'outgoing_invoice_id' => $meta['invoice_id'],
+                              'settle_qty' => $qty, 'create_date' => date('Y-m-d H:i:s'), "inventory_id" => $b['inventory_id']);
+                          $this->invoices_model->insert_inventory_invoice($mapping);
+                          array_push($settle_invoice, array('incoming_invoice_id' => $b['invoice_id'], "qty" => $qty));
+                          log_message('info', __METHOD__. " Settle ". print_r($mapping, true) );
+                          $qty = 0;
+                          
+                          break;
+                      } else {
+                          $this->invoices_not_found($value);
+                      }
+                  }
+              } else {
+                  log_message('info', __METHOD__. " Invoices not exist");
+                  $this->invoices_not_found($value);
+              }
+            }
+            $output_file = "";
+            if(!empty($settle_invoice)){
+                $template = "partner_inventory_invoice_annexure-v1.xlsx";
+                $output_file = $meta['invoice_id']."-annexure.xlsx";
+                $this->invoice_lib->generate_invoice_excel($template, $meta, $settle_invoice, TMP_FOLDER.$output_file);
+            }
+            
+            return $output_file;
+        } else {
+            return FALSE;
         }
     }
    
