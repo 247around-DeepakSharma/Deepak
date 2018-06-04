@@ -582,5 +582,8 @@ define("PARTNER_CALL_CENTER_USER_GROUP", "callcenter");
 
 //Define Constant for Partner BOM file upload
 define('PARTNER_BOM_FILE','Partner-BOM');
+
+//Partner Serial no file type
+define('PARTNER_SERIAL_NUMBER_FILE_TYPE','partner_serial_number');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

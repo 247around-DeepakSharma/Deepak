@@ -5031,3 +5031,8 @@ ALTER TABLE `courier_details`
 
 --Abhay 31 May
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'courier_invoice_sent', '%s Updated Courier Details for Booking ID %s', 'Please Find Courier Invoice Attachment <br/> Courier Details:- <br/> AWB %s <br/> Courier Name %s <br/> Courier Charge %s <br/> Shipped Date %s <br/>', 'noreply@247around.com', 'sachins@247around.com', 'abhaya@247around.com', '', '1', '2018-05-29 18:26:57');
+
+
+--Abhay 2 June
+ALTER TABLE `partner_serial_no` ADD `invoice_date` DATE NULL DEFAULT NULL AFTER `create_date`, ADD `sku_name` VARCHAR(128) NULL DEFAULT NULL AFTER `invoice_date`, ADD `sku_code` VARCHAR(128) NULL DEFAULT NULL AFTER `sku_name`, ADD `category_name` VARCHAR(128) NULL DEFAULT NULL AFTER `sku_code`, ADD `brand_name` VARCHAR(128) NULL DEFAULT NULL AFTER `category_name`, ADD `model_number` VARCHAR(128) NOT NULL AFTER `brand_name`;
+ALTER TABLE `partner_serial_no` ADD `color` VARCHAR(128) NULL DEFAULT NULL AFTER `model_number`, ADD `stock_bin` VARCHAR(128) NULL DEFAULT NULL AFTER `color`;

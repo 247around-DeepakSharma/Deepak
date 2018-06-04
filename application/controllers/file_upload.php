@@ -784,5 +784,123 @@ class File_upload extends CI_Controller {
             }
         }
     }
+    /**
+     * @desc This function is used to upload partner serial no file
+     */
+    function process_upload_serial_number(){
+        $partner_id = trim($this->input->post('partner_id'));
+        if(!empty($partner_id)){
+            $file_status = $this->get_upload_file_type();
+            if ($file_status['status']) {
+                $data = $this->read_upload_file_header($file_status);
+                if ($data['status']) {
+                    log_message('info', __METHOD__. " ". print_r($data['header_data'], TRUE));
+                    $data['post_data']['file_type'] = PARTNER_SERIAL_NUMBER_FILE_TYPE;
+                    
+                    //column which must be present in the  upload inventory file
+                    $header_column_need_to_be_present = array('invoicedate','skuname','skucode','productcategoryname',
+                        'brandname', 'modelname', 'colorname', 'stockbin', 'serialnumber');
+                    //check if required column is present in upload file header
+                    $check_header = $this->check_column_exist($header_column_need_to_be_present,$data['header_data']);
+                    if ($check_header['status']) {
+                        $existingData = array();
+                        $emptyarray = 0;
+                        $validData = array();
+                        $template = array(
+                            'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
+                        );
 
+                        $this->table->set_template($template);
+
+                        $this->table->set_heading(array('Serial Number'));
+                       
+                        //get file data to process
+                        for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
+                            $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
+                            $sanitizes_row_data = array_map('trim',$rowData_array[0]);
+                            if(!empty(array_filter($sanitizes_row_data))){
+                                $rowData = array_combine($data['header_data'], $rowData_array[0]);
+
+                                if(!empty($rowData['serialnumber'])){
+
+                                    $result = $this->partner_model->getpartner_serialno(array('partner_id' =>$partner_id, 'serial_number' => $rowData['serialnumber'], "active" => 1));
+                                    if(empty($result)){
+                                        $invoiceData = NULL;
+                                        if(!empty($rowData['invoicedate'])){
+                                            $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData['invoicedate']);
+                                            $invoiceData =  $dateObj2->format('Y-m-d');
+                                        }
+                                        $array = array('partner_id' =>$partner_id,
+                                           'serial_number' => $rowData['serialnumber'],
+                                           'invoice_date' => $invoiceData,
+                                           'sku_name' => $rowData['skuname'],
+                                           'sku_code' => $rowData['skucode'],
+                                           'category_name' => $rowData['productcategoryname'],
+                                           'brand_name' => $rowData['brandname'],
+                                           'model_number' => $rowData['modelname'], 
+                                           'added_by' => "247around", 
+                                           'color' => $rowData['colorname'], 
+                                           'stock_bin' => $rowData['stockbin']);
+                                       
+                                       array_push($validData, $array);
+                                    } else {
+                                        $this->table->add_row($rowData['serialnumber']);
+                                        array_push($existingData, $rowData['serialnumber']);
+                                    }
+                                } else {
+                                    $emptyarray ++;
+                                }
+                            }
+                        }
+                       
+                        $file_upload_status = FILE_UPLOAD_FAILED_STATUS;
+                        if(!empty($validData)){
+                            $status =$this->partner_model->insert_partner_serial_number_in_batch($validData);
+                            if($status){
+                                $response['status'] = TRUE;
+                                $response['message'] = "File Successfully uploaded.";
+                                $file_upload_status = FILE_UPLOAD_SUCCESS_STATUS;
+                                $message = "File Successfully uploaded.";
+                                
+                            } else {
+                                $response['status'] = FALSE;
+                                $response['message'] = "File upload Failed.";
+                                $message = "File upload Failed. ";
+                                
+                            }
+                        } else {
+                            $response['status'] = FALSE;
+                            $response['message'] = "File upload Failed. ";
+                            $message = "File upload Failed. ";
+                        }
+                    } else {
+                        $response['status'] = FALSE;
+                        $response['message'] = "File upload Failed. ".$check_header['message'];
+                        $message = "File upload Failed. ".$check_header['message'];
+                        
+                        
+                    }
+                } else {
+                    $response['status'] = FALSE;
+                    $response['message'] = "File upload Failed. Empty file has been uploaded";
+                    $message = "File upload Failed. Empty file has been uploaded";
+                   
+                }
+                $this->miscelleneous->update_file_uploads($data['file_name'],TMP_FOLDER.$data['file_name'], 
+                    $data['post_data']['file_type'], $file_upload_status);
+            
+                $this->send_email($data,$response);
+            } else {
+                
+                $message = "File upload Failed. Empty file has been uploaded";
+            }
+            
+        } else {
+            
+            $message = "Unable to find Partner, Please refresh and try again";
+            
+        }
+        
+        echo $message;
+    }
 }

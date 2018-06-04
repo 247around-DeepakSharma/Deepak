@@ -60,6 +60,7 @@
                         <li><a id="4" href="#tabs-4" ><span class="panel-title" onclick="alert('Please Add Basic Details FIrst')">Contracts</span></a></li>
                         <li><a id="5" href="#tabs-5" ><span class="panel-title" onclick="alert('Please Add Basic Details FIrst')">Brand Mapping</span></a></li>
                         <li><a id="6" href="#tabs-6" ><span class="panel-title" onclick="alert('Please Add Basic Details FIrst')">Brand Collateral</span></a></li>
+                        <li><a id="7" href="#tabs-7" ><span class="panel-title" onclick="alert('Please Add Basic Details FIrst')">Brand Collateral</span></a></li>
                         <?php
                             }
                             else{
@@ -70,6 +71,7 @@
                         <li><a id="4" href="#tabs-4" onclick="load_form(this.id)"><span class="panel-title">Contracts</span></a></li>
                         <li><a id="5" href="#tabs-5" onclick="load_form(this.id)"><span class="panel-title">Brand Mapping</span></a></li>
                         <li><a id="6" href="#tabs-6" onclick="load_form(this.id)"><span class="panel-title">Brand Collateral</span></a></li>
+                        <li><a id="7" href="#tabs-7" onclick="load_form(this.id)"><span class="panel-title">Upload Serial No</span></a></li>
                         <?php
                             }
                             ?>
@@ -1361,6 +1363,46 @@
                 </div>
              </div>
              <div class="clear"></div>
+<!--             action="<?php //echo base_url(); ?>file_upload/process_upload_serial_number" -->
+             <div id="container_7" style="display:none;" class="form_container">
+<!--                  <form class="form-horizontal"  id="fileinfo"  method="POST" enctype="multipart/form-data">-->
+                    <div class="form-group  <?php if (form_error('excel')) {
+                        echo 'has-error';
+                        } ?>">
+                        <label for="excel" class="col-md-1">Upload Serial No</label>
+                        <div class="col-md-4">
+<!--                            <input type="text" name="partner_id"  value="247034" />-->
+                            <input type="file" class="form-control" id="SerialNofile"  name="file" >
+                        </div>
+<!--                        <input type= "submit" class="btn btn-danger btn-md"  value="upload">-->
+                        <button id="serialNobtn" class="btn btn-primary btn-md"  >Upload</button>
+                    </div>
+<!--                  </form>-->
+                 <div class="form-group">
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-success myprogress" role="progressbar" style="width:0%">0%</div>
+                        </div>
+                        <div class="msg"></div>
+                    </div>
+                
+                <div class="col-md-12" style="margin-top:20px;">
+                    <h3>File Upload History</h3>
+                    <table id="datatable1" class="table table-striped table-bordered table-hover" style="width: 100%;">
+                        <thead>
+                            <tr>
+                                <th>S.No.</th>
+                                <th>Download</th>
+                                <th>Uploaded By</th>
+                                <th>Uploaded Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+             </div>
+             <div class="clear"></div>
         </div>
     </div>
 </div>
@@ -1501,6 +1543,7 @@ function up_message(){
     
 </script>
 <script type="text/javascript">
+     var serialNo;
     $.validator.addMethod("regx", function (value, element, regexpr) {
         return regexpr.test(value);
     }, "Please enter a valid Number.");
@@ -1657,8 +1700,13 @@ function up_message(){
                 document.getElementById(i).style.background='#fff';
             }
        }
-       if(tab_id == 6){
+      
+       if(tab_id === '6'){
            get_partner_services();
+       }
+       else if(tab_id === '7'){
+
+           getserial_number_history();
        }
     }
     function add_more_fields(id){
@@ -1779,6 +1827,83 @@ else{
     }
 
     }
+    
+   
+    function getserial_number_history(){
+        serialNo = $('#datatable1').DataTable({
+            processing: true,
+            serverSide: true,
+            order: [],
+            lengthMenu: [[5,10, 25, 50], [5,10, 25, 50]],
+            pageLength: 5,
+            ajax: {
+                url: "<?php echo base_url(); ?>employee/upload_booking_file/get_upload_file_history",
+                type: "POST",
+                data: function(d){
+                    d.file_type = '<?PHP echo PARTNER_SERIAL_NUMBER_FILE_TYPE ;?>';
+                }
+            },
+            columnDefs: [
+                {
+                    "targets": [0, 1, 2, 3,4],
+                    "orderable": false
+                }
+            ]
+        });
+    }
+    <?php if(isset($query[0]['id'])) { ?>
+    $(function () {
+        $('#serialNobtn').click(function () {
+            $('.myprogress').css('width', '0');
+            $('.msg').text('');
+
+            var file = $('#SerialNofile').val();
+
+            if (file === '') {
+                alert('Please select a file');
+                return;
+            }
+            var formData = new FormData();
+            formData.append('file', $('#SerialNofile')[0].files[0]);
+            formData.append('partner_id', '<?php echo $query[0]['id']; ?>');
+
+            $('#serialNobtn').attr('disabled', 'disabled');
+            $('.progress').css('display', 'block');
+            $('.msg').text('Uploading in progress...');
+            $.ajax({
+                url: '<?php echo base_url(); ?>file_upload/process_upload_serial_number',
+                data: formData,
+                processData: false,
+                contentType: false,
+                type: 'POST',
+                // this part is progress bar
+                xhr: function () {
+                    var xhr = new window.XMLHttpRequest();
+                    xhr.upload.addEventListener("progress", function (evt) {
+                        if (evt.lengthComputable) {
+                            var percentComplete = evt.loaded / evt.total;
+                            percentComplete = parseInt(percentComplete * 100);
+                            $('.myprogress').text(percentComplete + '%');
+                            $('.myprogress').css('width', percentComplete + '%');
+                        }
+                    }, false);
+                    return xhr;
+                },
+                success: function (data) {
+                    alert(data);
+                    $('.msg').text(data);
+                    serialNo.ajax.reload(null, false);
+                   
+                }
+            });
+        });
+    });
+    <?php } ?>
 </script>
+<style>
+    .progress{
+        display:none;
+    }
+</style>
 <?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>
 <?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
