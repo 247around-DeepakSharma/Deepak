@@ -454,6 +454,15 @@ class Service_centers extends CI_Controller {
                     
                     switch ($value) {
                         case '1':
+                            if($partner_id == AKAI_ID){
+                                log_message('info', " Akai partner");
+                                if (empty($trimSno) || !ctype_alnum($trimSno)){
+                                    log_message('info', " Serial No with special character ".$trimSno);
+                                    $this->form_validation->set_message('validate_serial_no', 'Please Enter Serial Number Without any Special Character');
+                                    $return_status = false;
+                                    break;
+                                }
+                            }
                             $status = $this->validate_serial_no->validateSerialNo($partner_id, $trimSno);
                             if (!empty($status)) {
                                 if ($status['code'] == SUCCESS_CODE) {
