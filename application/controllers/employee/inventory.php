@@ -2453,7 +2453,7 @@ class Inventory extends CI_Controller {
         $entity_id = $this->input->post('entity_id');
         $entity_type = $this->input->post('entity_type');
         $service_id = $this->input->post('service_id');
-        $part_number = '';
+        
         if($part_number && $entity_id && $entity_type && $service_id){
             $where= array('entity_id' => $entity_id, 'entity_type' => $entity_type, 'service_id' => $service_id,'part_number' => $part_number);
             $inventory_details = $this->inventory_model->get_inventory_master_list_data('inventory_master_list.price as price,inventory_master_list.inventory_id, hsn_code,gst_rate', $where);
