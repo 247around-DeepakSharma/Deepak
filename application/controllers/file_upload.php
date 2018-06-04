@@ -3,7 +3,7 @@
 if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
-
+ini_set('memory_limit', '1256M');
 class File_upload extends CI_Controller {
     
     //global variable
