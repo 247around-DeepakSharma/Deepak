@@ -52,10 +52,10 @@ if ($this->uri->segment(3)) {
                                         } ?>
                                     </td>
                                     <td>
-                                        <?php echo $row['awb_by_sf']; ?>
+                                        <?php echo $row['awb_by_partner']; ?>
                                     </td>
                                     <td>
-                                        <?php echo $row['courier_name_by_sf']; ?>
+                                        <?php echo $row['courier_name_by_partner']; ?>
                                     </td>
                                     <td> 
                                         <?php  if(!empty($row['partner_challan_file'])) { ?> 
@@ -74,6 +74,13 @@ if ($this->uri->segment(3)) {
                                 } ?>
                         </tbody>
                     </table>
+                    <div class="custom_pagination" style="margin-left: 16px;" > 
+                            <?php
+                            if (isset($links)) {
+                                echo $links;
+                            }
+                            ?>
+                        </div>
                 </div>
             </div>
         </div>
@@ -84,3 +91,8 @@ if ($this->uri->segment(3)) {
                     "pageLength": 50
                 });
     </script>
+        <style>
+        .paging_simple_numbers{
+            display: none;
+        }
+        </style>

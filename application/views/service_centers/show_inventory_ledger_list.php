@@ -10,6 +10,7 @@
                         <th>Sender Name</th>
                         <th>Receiver Name</th>
                         <th>Spare Part Name</th>
+                        <th>Spare Part Number</th>
                         <th>Quantity</th>
                         <th>Booking Id</th>
                         <th>Date</th>
@@ -22,6 +23,7 @@
                         <td><?php echo $value['sender'];?></td>
                         <td><?php echo $value['receiver'];?></td>
                         <td><?php echo $value['part_name'];?></td>
+                        <td><?php echo $value['part_number'];?></td>
                         <td><?php echo $value['quantity'];?></td>
                         <td>
                             <a href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($value['booking_id'])) ; ?>">
