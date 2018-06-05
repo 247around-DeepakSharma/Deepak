@@ -138,7 +138,9 @@
                         <th>Spare Part Number</th>
                         <th>Spare Description</th>
                         <th>Spare Size</th>
-                        <th>Price</th>
+                        <th>Spare Basic Price</th>
+                        <th>HSN</th>
+                        <th>Gst Rate</th>
                         <th>Edit</th>
                         <th>Get Model</th>
                     </tr>
@@ -221,9 +223,9 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="control-label col-md-4" for="price">Price</label>
+                                    <label class="control-label col-md-4" for="price">Price*</label>
                                     <div class="col-md-7 col-md-offset-1">
-                                        <input type="number" class="form-control" id="price" name="price" placeholder="Price">
+                                        <input type="number" class="form-control" id="price" name="price"  placeholder="Price">
                                     </div>
                                 </div>
                             </div>
@@ -239,6 +241,24 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
+                                    <label class="control-label col-md-4" for="hsn_code">Hsn Code*</label>
+                                    <div class="col-md-7 col-md-offset-1">
+                                        <input type="text" class="form-control" id="hsn_code" name="hsn_code" placeholder="HSN Code">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="gst_rate">Gst Rate*</label>
+                                    <div class="col-md-7 col-md-offset-1">
+                                        <input type="number" class="form-control" id="gst_rate"  name="gst_rate" placeholder="GST Rate">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
                                     <label class="control-label col-md-4" for="serial_number">Serial Number</label>
                                     <div class="col-md-7 col-md-offset-1">
                                         <input type="text" class="form-control" id="serial_number" name="serial_number" placeholder="Serial Number">
@@ -247,7 +267,7 @@
                             </div>
                             <div class="col-md-6" id="model_number_div">
                                 <div class="form-group">
-                                    <label class="control-label col-md-4" for="model_number_id">Model Number *</label>
+                                    <label class="control-label col-md-4" for="model_number_id">Model Number*</label>
                                     <div class="col-md-7 col-md-offset-1">
                                         <select class="form-control" id="model_number_id" name="model_number_id">
                                             <option value="" selected="" disabled="">Please Select Model</option>
@@ -441,6 +461,8 @@
         $('#entity_type').val(form_data.entity_type);
         $('#size').val(form_data.size);
         $('#price').val(JSON.parse(form_data.price));
+        $('#hsn').val(form_data.hsn_code);
+        $('#gst_rate').val(form_data.gst_rate);
         $('#type').val(form_data.type);
         $('#description').val(form_data.description);
         $('#inventory_id').val(form_data.inventory_id);
@@ -454,7 +476,6 @@
         event.preventDefault();
         var arr = {};
         var form_data = $("#master_list_details").serializeArray();
-        
         if(!$('#service_id').val()){
             alert('Please Select Appliance');
         }else if(!$('#entity_id').val()){
@@ -465,6 +486,12 @@
             alert("Please Enter Part Number");
         }else if($('#type').val().trim() === "" || $('#type').val().trim() === " "){
             alert("Please Enter Part Type");
+        }else if($('#price').val().trim() === "" || $('#price').val().trim() === " " || $('#price').val().trim() === '0'){
+            alert("Please Enter Valid Price");
+        }else if($('#hsn_code').val().trim() === "" || $('#hsn_code').val().trim() === " " || $('#hsn_code').val().trim() === '0'){
+            alert("Please Enter Valid Hsn Code");
+        }else if($('#gst_rate').val().trim() === "" || $('#gst_rate').val().trim() === " "){
+            alert("Please Enter Valid Gst Rate");
         }else{
             $('#master_list_submit_btn').attr('disabled',true).html("<i class = 'fa fa-spinner fa-spin'></i> Processing...");
             arr.name = 'submit_type';

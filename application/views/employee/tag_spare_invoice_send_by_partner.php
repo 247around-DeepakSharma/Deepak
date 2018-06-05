@@ -458,7 +458,7 @@
                             $('#partHsnCode_'+index).val(obj.hsn_code);
                             var total_spare_invoice_price = 0;
                             $(".part-total-price").each(function(i) {
-                                total_spare_invoice_price += parseInt($('#partTotalPrice_'+i).val());
+                                total_spare_invoice_price += Number($('#partTotalPrice_'+i).val());
                             });
                             $('#total_spare_invoice_price').html(total_spare_invoice_price);
                         }else{

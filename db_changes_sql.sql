@@ -5044,3 +5044,10 @@ ALTER TABLE `inventory_invoice_mapping` ADD `inventory_id` INT NULL DEFAULT NULL
 
 --Sachin 4 June
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'inventory_details_mapping_not_found', NULL, 'Inventory details mapping not found for the below spare <br> <b> Partner ID : %s </b> <br> <b> Model Number ID : %s </b> <br> <b> Service ID : %s </b> <br> <b> Part Name : %s </b> <br>', 'noreply@247around.com', 'abhaya@247around.com, sachinj@247around.com', '', '', '1', '2016-06-17 00:00:00');
+
+--sachin 5 june
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'file_upload_email', NULL, '', 'noreply@247around.com', '', 'sachinj@247around.com', '', '1', '2016-06-17 00:00:00');
+
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+(NULL, '247Around', 'Inventory Send By Partner To Warehouse', NULL, 'employee/inventory/acknowledge_spares_send_by_partner_by_admin', 0, '89', 'admin,closure,developer', 'main_nav', 1, '2018-06-05 13:05:52');

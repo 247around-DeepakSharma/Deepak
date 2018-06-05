@@ -2096,6 +2096,8 @@ class Inventory extends CI_Controller {
         $row[] = $stock_list->description;
         $row[] = $stock_list->size;
         $row[] = $stock_list->price;
+        $row[] = $stock_list->hsn_code;
+        $row[] = $stock_list->gst_rate;
         $row[] = "<a href='javascript:void(0)' class ='btn btn-primary' id='edit_master_details' data-id='$json_data' title='Edit Details'><i class = 'fa fa-edit'></i></a>";
         $row[] = "<a href='".base_url()."employee/inventory/get_appliance_by_inventory_id/".urlencode($stock_list->inventory_id)."' class = 'btn btn-primary' title='Get Model Details' target='_blank'><i class ='fa fa-eye'></i></a>";
         
@@ -2115,6 +2117,8 @@ class Inventory extends CI_Controller {
                       'serial_number' => trim($this->input->post('serial_number')),
                       'size' => trim($this->input->post('size')),
                       'price' => trim($this->input->post('price')),
+                      'hsn_code' => trim($this->input->post('hsn_code')),
+                      'gst_rate' => trim($this->input->post('gst_rate')),
                       'type' => trim($this->input->post('type')),
                       'description' => trim($this->input->post('description')),
                       'service_id' => $this->input->post('service_id'),
@@ -2124,15 +2128,22 @@ class Inventory extends CI_Controller {
             
             
             if(!empty($data['service_id']) && !empty($data['part_name']) && !empty($data['part_number']) && !empty($data['type']) && !empty($data['entity_id']) && !empty($data['entity_type']) ){
-                switch (strtolower($submit_type)) {
-                    case 'add':
-                        $data['create_date'] = date('Y-m-d H:i:s');
-                        $response = $this->add_inventoy_master_list_data($data);
-                        break;
-                    case 'edit':
-                        $response = $this->edit_inventoy_master_list_data($data);
-                        break;
+                
+                if(!empty($data['price']) && !empty($data['hsn_code']) && !empty($data['gst_rate'])){
+                    switch (strtolower($submit_type)) {
+                        case 'add':
+                            $data['create_date'] = date('Y-m-d H:i:s');
+                            $response = $this->add_inventoy_master_list_data($data);
+                            break;
+                        case 'edit':
+                            $response = $this->edit_inventoy_master_list_data($data);
+                            break;
+                    }
+                }else{
+                    $response['response'] = 'error';
+                    $response['msg'] = 'Please Enter Valid Price/Hsn/Gst Rate.';
                 }
+                
             }else{
                 $response['response'] = 'error';
                 $response['msg'] = 'All fields are required';
@@ -2981,7 +2992,12 @@ class Inventory extends CI_Controller {
      */
     function process_acknowledge_spare_send_by_partner_to_wh() {
         log_message("info", __METHOD__);
-        $this->check_WH_UserSession();
+        if($this->session->userdata('employee_id')){
+            $this->checkUserSession();
+        }else if($this->session->userdata('service_center_id')){
+            $this->check_WH_UserSession();
+        }
+        
         $sender_entity_id = $this->input->post('sender_entity_id');
         $sender_entity_type = $this->input->post('sender_entity_type');
         $receiver_entity_id = $this->input->post('receiver_entity_id');
@@ -3957,6 +3973,17 @@ class Inventory extends CI_Controller {
         }
         
         echo json_encode($data);
+    }
+    
+    /**
+     *  @desc : This function is used to show those spare which need to be acknowledge by warehouse
+     *  @param : void
+     *  @return : void
+     */
+    function acknowledge_spares_send_by_partner_by_admin(){
+        $this->checkUserSession();
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/acknowledge_spares_send_by_partner_by_admin');
     }
     
 
