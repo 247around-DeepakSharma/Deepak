@@ -2407,7 +2407,7 @@ class Inventory extends CI_Controller {
         }
         
         if($this->input->post('service_id')){
-            $where['service_id'] = $this->input->post('service_id');
+            $where['inventory_master_list.service_id'] = $this->input->post('service_id');
         }
         
         $inventory_type = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.part_name',$where);
@@ -2475,11 +2475,21 @@ class Inventory extends CI_Controller {
             $data['gst_rate'] = '';
             $data['hsn_code'] = '';
             
-            $subject = 'Inventory Details Not Found';
-            $body = 'Inventory details not found for the below spare <br>';
-            $body .= "<b> Partner ID : $entity_id </b> <br> <b> Model Number Id: $model_number_id</b> <br><b> Service ID: $service_id</b> <br> <b> Part Name : $part_name</b> ";
+            //Getting template from Database
+            $template = $this->booking_model->get_booking_email_template("inventory_details_mapping_not_found");
             
-            $this->notify->sendEmail(NOREPLY_EMAIL_ID, DEVELOPER_EMAIL, "", "", $subject, $body, "", 'inventory_not_found');
+            if(!empty($template)){
+                $data = array();
+                $data['partner_id'] = $entity_id;
+                $data['model_number_id'] = $model_number_id;
+                $data['service_id'] = $service_id;
+                $data['part_name'] = $part_name;
+
+                $body = vsprintf($template[0], $data);
+            
+                $this->notify->sendEmail($template[2], $template[1], $template[3], "", $template[4], $body, "", 'inventory_not_found');
+            }
+            
         }
         
         echo json_encode($data);
@@ -2789,7 +2799,7 @@ class Inventory extends CI_Controller {
                     }
                 }else{
                     $res['status'] = false;
-                    $res['message'] = "Please make sure invoice number does not contain '/'. You can replace '/' with '-'";
+                    $res['message'] = "Invoice ID is invalid.Please make sure invoice number does not contain '/'. You can replace '/' with '-'";
                 }
             } else {
                 $res['status'] = false;

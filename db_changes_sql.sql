@@ -5041,3 +5041,6 @@ ALTER TABLE `partner_serial_no` ADD `color` VARCHAR(128) NULL DEFAULT NULL AFTER
 --Abhay 4 June
 ALTER TABLE `inventory_invoice_mapping` CHANGE `incoming_invoice_id` `incoming_invoice_id` VARCHAR(64) NOT NULL;
 ALTER TABLE `inventory_invoice_mapping` ADD `inventory_id` INT NULL DEFAULT NULL AFTER `outgoing_invoice_id`;
+
+--Sachin 4 June
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'inventory_details_mapping_not_found', NULL, 'Inventory details mapping not found for the below spare <br> <b> Partner ID : %s </b> <br> <b> Model Number ID : %s </b> <br> <b> Service ID : %s </b> <br> <b> Part Name : %s </b> <br>', 'noreply@247around.com', 'abhaya@247around.com, sachinj@247around.com', '', '', '1', '2016-06-17 00:00:00');
