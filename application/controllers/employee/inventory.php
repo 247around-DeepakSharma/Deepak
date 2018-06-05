@@ -3054,7 +3054,7 @@ class Inventory extends CI_Controller {
      *  @return :$res JSON
      */
     function send_defective_parts_to_partner_from_wh() {
-        log_message("info", __METHOD__. json_encode($this->input->post(), true));
+        log_message("info", __METHOD__ . json_encode($this->input->post(), true));
         $this->check_WH_UserSession();
         $sender_entity_id = $this->input->post('sender_entity_id');
         $sender_entity_type = $this->input->post('sender_entity_type');
@@ -3063,14 +3063,16 @@ class Inventory extends CI_Controller {
         $courier_price_by_wh = $this->input->post('courier_price_by_wh');
         $defective_parts_shippped_date_by_wh = $this->input->post('defective_parts_shippped_date_by_wh');
         $postData = json_decode($this->input->post('data'));
-        
-        $data = $this->inventory_invoice_settlement($sender_entity_id, $sender_entity_type);
 
-        if (!empty($data)) {
-            if (!empty($sender_entity_id) && !empty($sender_entity_type) && !empty($postData) && !empty($awb_by_wh) && !empty($courier_name_by_wh) && !empty($courier_price_by_wh) && !empty($defective_parts_shippped_date_by_wh)) {
-                $courier_file = $this->upload_defective_parts_shipped_courier_file($_FILES);
+        if (!empty($sender_entity_id) && !empty($sender_entity_type) && !empty($postData) 
+                && !empty($awb_by_wh) && !empty($courier_name_by_wh) && !empty($courier_price_by_wh) 
+                && !empty($defective_parts_shippped_date_by_wh)) {
 
-                if ($courier_file['status']) {
+            $courier_file = $this->upload_defective_parts_shipped_courier_file($_FILES);
+
+            if ($courier_file['status']) {
+                $data = $this->inventory_invoice_settlement($sender_entity_id, $sender_entity_type);
+                if (!empty($data)) {
                     $not_updated_bookings = array();
                     foreach ($postData as $value) {
                         //acknowledge spare by setting is_wh_ack flag = 1 in inventory ledger table
@@ -3121,7 +3123,6 @@ class Inventory extends CI_Controller {
                             log_message("info", "error in adding inventory ledger details data: " . $value->booking_id);
                         }
                     }
-
                     if (empty($not_updated_bookings)) {
                         $res['status'] = TRUE;
                         $res['message'] = 'Details Updated Successfully';
@@ -3131,20 +3132,20 @@ class Inventory extends CI_Controller {
                     }
                 } else {
                     $res['status'] = false;
-                    $res['message'] = $courier_file['message'];
+                    $res['message'] = "There is issue in the invoice generation";
                 }
             } else {
                 $res['status'] = false;
-                $res['message'] = 'All fields are required';
+                $res['message'] = $courier_file['message'];
             }
         } else {
             $res['status'] = false;
-            $res['message'] = 'Please refresh and try again';
+            $res['message'] = 'All fields are required';
         }
 
         echo json_encode($res);
     }
-    
+
     /**
      * @desc This function is used to settle inventor invoice and insert into inventory invoice leadger
      * @param String $sender_entity_id
@@ -3229,6 +3230,7 @@ class Inventory extends CI_Controller {
                     $invoice[$value['inventory_id']]['inventory_id'] = $value['inventory_id'];
                     $invoice[$value['inventory_id']]['primary_contact_email'] = $entity_details[0]['primary_contact_email'];
                     $invoice[$value['inventory_id']]['partner_id'] = $value['partner_id'];
+                    $invoice[$value['inventory_id']]['part_number'] = $inventory_details[0]['part_number'];
 
                 } else {
                     $invoice[$value['inventory_id']]['qty'] = $invoice[$value['inventory_id']]['qty'] + 1;
@@ -3247,14 +3249,18 @@ class Inventory extends CI_Controller {
                 
             log_message('info', __FUNCTION__ . ' Invoice File is created. invoice id' . $response['meta']['invoice_id']);
             $convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($response['meta']['invoice_id'], "final");
-            $this->invoice_lib->upload_invoice_to_S3($response['meta']['invoice_id'], false, false);
             
             $annexure = $this->settle_inventory_invoice_annexure($response);
-
+            if(!empty($annexure)){
+                 $this->invoice_lib->upload_invoice_to_S3($response['meta']['invoice_id'], true, false);
+            } else {
+                 $this->invoice_lib->upload_invoice_to_S3($response['meta']['invoice_id'], FALSE, false);
+            }
+            
             $email_template = $this->booking_model->get_booking_email_template(INVENTORY_INVOICE);
             if(!empty($email_template)){
                 
-                $attachment = S3_WEBSITE_URL. "/invoices-excel/" . $convert['main_pdf_file_name'];
+                $attachment = S3_WEBSITE_URL. "invoices-excel/" . $convert['main_pdf_file_name'];
                 
                 $vendor = $this->vendor_model->getVendorDetails('name', array('id' => $sender_entity_id));
                 $awb_by_wh = $this->input->post('awb_by_wh');
@@ -3331,6 +3337,7 @@ class Inventory extends CI_Controller {
      * @return boolean|string
      */
     function settle_inventory_invoice_annexure($data){
+        log_message('info', __METHOD__. " Invoice ". print_r($data, TRUE));
         if(!empty($data['booking'])){
             $meta = $data['meta'];
             $settle_invoice = array();
@@ -3351,7 +3358,8 @@ class Inventory extends CI_Controller {
                           $mapping = array('incoming_invoice_id' => $b['invoice_id'], 'outgoing_invoice_id' => $meta['invoice_id'],
                               'settle_qty' => $qty, 'create_date' => date('Y-m-d H:i:s'), "inventory_id" =>$b['inventory_id'] );
                           $this->invoices_model->insert_inventory_invoice($mapping);
-                          array_push($settle_invoice, array('incoming_invoice_id' => $b['invoice_id'], "qty" => $restQty));
+                          array_push($settle_invoice, array('incoming_invoice_id' => $b['invoice_id'], 
+                              "qty" => $restQty, "part_number" => $value['part_number']));
                           log_message('info', __METHOD__. " Settle ". print_r($mapping, true) );
                           $qty = 0;
                           break;
@@ -3363,7 +3371,7 @@ class Inventory extends CI_Controller {
                               'settle_qty' => $restQty, 'create_date' => date('Y-m-d H:i:s'), "inventory_id" =>$b['inventory_id']);
                           $this->invoices_model->insert_inventory_invoice($mapping);
                          
-                          array_push($settle_invoice, array('incoming_invoice_id' => $b['invoice_id'], "qty" => $restQty));
+                          array_push($settle_invoice, array('incoming_invoice_id' => $b['invoice_id'], "qty" => $restQty, "part_number" => $value['part_number']));
                           log_message('info', __METHOD__. " Settle ". print_r($mapping, true) );
                           $qty = $qty - $restQty;
                         
@@ -3374,7 +3382,7 @@ class Inventory extends CI_Controller {
                           $mapping = array('incoming_invoice_id' => $b['invoice_id'], 'outgoing_invoice_id' => $meta['invoice_id'],
                               'settle_qty' => $qty, 'create_date' => date('Y-m-d H:i:s'), "inventory_id" => $b['inventory_id']);
                           $this->invoices_model->insert_inventory_invoice($mapping);
-                          array_push($settle_invoice, array('incoming_invoice_id' => $b['invoice_id'], "qty" => $qty));
+                          array_push($settle_invoice, array('incoming_invoice_id' => $b['invoice_id'], "qty" => $qty, "part_number" => $value['part_number']));
                           log_message('info', __METHOD__. " Settle ". print_r($mapping, true) );
                           $qty = 0;
                           
@@ -3391,7 +3399,7 @@ class Inventory extends CI_Controller {
             $output_file = "";
             if(!empty($settle_invoice)){
                 $template = "partner_inventory_invoice_annexure-v1.xlsx";
-                $output_file = $meta['invoice_id']."-annexure.xlsx";
+                $output_file = $meta['invoice_id']."-detailed.xlsx";
                 $this->invoice_lib->generate_invoice_excel($template, $meta, $settle_invoice, TMP_FOLDER.$output_file);
             }
             
@@ -3985,6 +3993,6 @@ class Inventory extends CI_Controller {
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/acknowledge_spares_send_by_partner_by_admin');
     }
-    
-
+  
+        
 }
