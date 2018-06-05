@@ -2799,7 +2799,7 @@ class Inventory extends CI_Controller {
                     }
                 }else{
                     $res['status'] = false;
-                    $res['message'] = "Please make sure invoice number does not contain '/'. You can replace '/' with '-'";
+                    $res['message'] = "Invoice ID is invalid.Please make sure invoice number does not contain '/'. You can replace '/' with '-'";
                 }
             } else {
                 $res['status'] = false;
