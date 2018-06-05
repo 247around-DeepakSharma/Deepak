@@ -1789,20 +1789,16 @@ class Miscelleneous {
      * This Function is used to perform update or insert  action on the basis of input type over bank details table
      */
 
-    function update_insert_bank_account_details($bankDetailsArray, $actionType) {
-        $affectedRows = 0;
-
-        if ($actionType == 'insert') {
-            // If all values are not blank, atleast one column has value then create entry in bank details table
-            if (array_key_exists('bank_name', $bankDetailsArray) || array_key_exists('account_type', $bankDetailsArray) || array_key_exists('bank_account', $bankDetailsArray) || array_key_exists('ifsc_code', $bankDetailsArray) || array_key_exists('cancelled_cheque_file', $bankDetailsArray) || array_key_exists('beneficiary_name', $bankDetailsArray) || array_key_exists('beneficiary_name', $bankDetailsArray)) {
-                return $affectedRows = $this->My_CI->reusable_model->insert_into_table('account_holders_bank_details', $bankDetailsArray);
-            }
-        } else if ($actionType == 'update') {
+    function update_insert_bank_account_details($bankDetailsArray) {
         $where['entity_id'] = $bankDetailsArray['entity_id'];
         $where['entity_type'] = $bankDetailsArray['entity_type'];
-            $this->My_CI->reusable_model->update_table("account_holders_bank_details",$bankDetailsArray,$where);
+        $affectedRows = $this->My_CI->reusable_model->update_table("account_holders_bank_details",$bankDetailsArray,$where);
+        if($affectedRows == 0){
+            if (array_key_exists('bank_name', $bankDetailsArray) || array_key_exists('account_type', $bankDetailsArray) || array_key_exists('bank_account', $bankDetailsArray) || array_key_exists('ifsc_code', $bankDetailsArray) || array_key_exists('cancelled_cheque_file', $bankDetailsArray) || array_key_exists('beneficiary_name', $bankDetailsArray) || array_key_exists('beneficiary_name', $bankDetailsArray)) {
+                $affectedRows = $this->My_CI->reusable_model->insert_into_table('account_holders_bank_details', $bankDetailsArray);
             }
-           
+        } 
+        return $affectedRows;
     }
 
     /**
