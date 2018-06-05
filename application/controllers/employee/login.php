@@ -60,7 +60,7 @@ class Login extends CI_Controller {
             if ($login) {
                 $is_am = 0;
                 $this->session->sess_create();
-                $amArray = $this->reusable_model->get_search_result_data("partners",'1',array("partners.account_manager_id"=>$login[0]['id'],"employee.groups != 'admin'"=>NULL),
+                $amArray = $this->reusable_model->get_search_result_data("partners",'1',array("partners.account_manager_id"=>$login[0]['id'],"employee.groups != 'admin'"=>NULL,'partners.is_active'=>1),
                         array("employee"=>"employee.id = partners.account_manager_id"),NULL,NULL,NULL,NULL,array()); 
                 if(!empty($amArray)){
                     $is_am = 1;
