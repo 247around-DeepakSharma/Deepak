@@ -4972,3 +4972,90 @@ ALTER TABLE `agent_filters`
 --
 ALTER TABLE `agent_filters`
   MODIFY `id` int(10) NOT NULL AUTO_INCREMENT;COMMIT;
+
+--Abhay 24 May
+
+ALTER TABLE `upcountry_pincode_services_sf_level` ADD `district` VARCHAR(64) NULL DEFAULT NULL AFTER `pincode`;
+ALTER TABLE `invoice_details` ADD `inventory_id` INT(11) NULL DEFAULT NULL AFTER `invoice_id`;
+ALTER TABLE `invoice_details` ADD `settle_qty` INT NULL DEFAULT '0' AFTER `inventory_id`, ADD `is_settle` INT(1) NULL DEFAULT '0' AFTER `settle_qty`;
+
+--Abhay 25 May
+ALTER TABLE `vendor_partner_invoices` ADD `third_party_entity` VARCHAR(28) NULL DEFAULT NULL AFTER `vendor_partner_id`, ADD `third_party_entity_id` INT(11) NULL DEFAULT NULL AFTER `third_party_entity`;
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'upcountry_local_template', 'Upcountry File', 'Dear Partner, <br/> <br/> Please find the attachment. ', 'noreply@247around.com', 'abhaya@247around.com', '', 'abhaya@247around.com', '1', '2018-05-25 18:26:57');
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'spare_inventory_invoice', 'Spare Invoice', 'Dear Partner, <br/> <br/> Please find the attachment. ', 'noreply@247around.com', 'abhaya@247around.com', '', '', '1', '2018-05-25 18:26:57');
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'spare_invoice_not_found', 'Spare Invoice', 'Dear Partner, <br/> <br/> Please find the attachment. ', 'noreply@247around.com', 'abhaya@247around.com', '', '', '1', '2018-05-25 18:26:57');
+
+
+--sachin 30 may 
+
+ALTER TABLE `inventory_model_mapping` ADD UNIQUE( `inventory_id`, `model_number_id`);
+
+--Abhay 29 May
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'inform_to_sf_for_cancellation', 'Pending Booking Cancellation - 247AROUND', 'Dear Partner, <br/> <br/> Booking ID %s has cancelled.<br/><span style="font-weight:bold">Cancellation Reason: </span>%s', 'noreply@247around.com', '', '', '', '1', '2018-05-29 18:26:57');
+
+--sachin 30 may 
+ALTER TABLE `inventory_ledger` CHANGE `partner_ack_date` `partner_ack_date` DATETIME NULL DEFAULT NULL;
+
+CREATE TABLE `courier_details` (
+  `id` int(11) NOT NULL,
+  `sender_entity_id` int(11) NOT NULL,
+  `sender_entity_type` varchar(64) NOT NULL,
+  `receiver_entity_id` int(11) NOT NULL,
+  `receiver_entity_type` varchar(64) NOT NULL,
+  `AWB_no` varchar(256) NOT NULL,
+  `courier_name` varchar(256) NOT NULL,
+  `courier_file` varchar(1024) DEFAULT NULL,
+  `shipment_date` datetime DEFAULT NULL,
+  `remarks` varchar(1024) DEFAULT NULL,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `create_date` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `courier_details`
+--
+ALTER TABLE `courier_details`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `courier_details`
+--
+ALTER TABLE `courier_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+
+--Abhay 31 May
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'courier_invoice_sent', '%s Updated Courier Details for Booking ID %s', 'Please Find Courier Invoice Attachment <br/> Courier Details:- <br/> AWB %s <br/> Courier Name %s <br/> Courier Charge %s <br/> Shipped Date %s <br/>', 'noreply@247around.com', 'sachins@247around.com', 'abhaya@247around.com', '', '1', '2018-05-29 18:26:57');
+
+
+--Abhay 2 June
+ALTER TABLE `partner_serial_no` ADD `invoice_date` DATE NULL DEFAULT NULL AFTER `create_date`, ADD `sku_name` VARCHAR(128) NULL DEFAULT NULL AFTER `invoice_date`, ADD `sku_code` VARCHAR(128) NULL DEFAULT NULL AFTER `sku_name`, ADD `category_name` VARCHAR(128) NULL DEFAULT NULL AFTER `sku_code`, ADD `brand_name` VARCHAR(128) NULL DEFAULT NULL AFTER `category_name`, ADD `model_number` VARCHAR(128) NOT NULL AFTER `brand_name`;
+ALTER TABLE `partner_serial_no` ADD `color` VARCHAR(128) NULL DEFAULT NULL AFTER `model_number`, ADD `stock_bin` VARCHAR(128) NULL DEFAULT NULL AFTER `color`;
+
+
+--Abhay 4 June
+ALTER TABLE `inventory_invoice_mapping` CHANGE `incoming_invoice_id` `incoming_invoice_id` VARCHAR(64) NOT NULL;
+ALTER TABLE `inventory_invoice_mapping` ADD `inventory_id` INT NULL DEFAULT NULL AFTER `outgoing_invoice_id`;
+
+--Sachin 4 June
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'inventory_details_mapping_not_found', NULL, 'Inventory details mapping not found for the below spare <br> <b> Partner ID : %s </b> <br> <b> Model Number ID : %s </b> <br> <b> Service ID : %s </b> <br> <b> Part Name : %s </b> <br>', 'noreply@247around.com', 'abhaya@247around.com, sachinj@247around.com', '', '', '1', '2016-06-17 00:00:00');
+
+--sachin 5 june
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'file_upload_email', NULL, '', 'noreply@247around.com', '', 'sachinj@247around.com', '', '1', '2016-06-17 00:00:00');
+
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+(NULL, '247Around', 'Inventory Send By Partner To Warehouse', NULL, 'employee/inventory/acknowledge_spares_send_by_partner_by_admin', 0, '89', 'admin,closure,developer', 'main_nav', 1, '2018-06-05 13:05:52');
+--4th June
+ALTER TABLE `contact_person` ADD `is_active` INT(10) NOT NULL DEFAULT '1' AFTER `update_date`;
+ALTER TABLE `contact_person` ADD `agent_id` INT(10) NOT NULL AFTER `is_active`;
+ALTER TABLE `entity_login_table` ADD `contact_person_id` INT(10) NULL AFTER `entity_name`;

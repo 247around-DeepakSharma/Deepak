@@ -41,12 +41,20 @@
     <div class="row">
         <div class="clear"></div>
         <div class="panel panel-info">
-            <div class="panel-heading">
+            <div class="panel-heading" style="padding: 6px 7px 0px 10px;">
                 <b><?php if (isset($query[0]['id'])) {
                     echo "EDIT PARTNER";
                     } else {
                     echo "ADD PARTNER";
                     } ?></b>
+                 <div class="pull-right">
+                        <a class="btn btn-primary" href="<?php echo base_url(); ?>employee/partner/viewpartner" style="margin-right:5px;">View Partners</a>
+                    <?php if (isset($query[0]['id'])) { ?>
+                        <a class="btn btn-primary" href="<?php echo base_url(); ?>employee/partner/upload_partner_brand_logo/<?php echo $query[0]['id'] ?>/<?php echo $query[0]['public_name'] ?>" style="margin-right:5px;">Upload Partner Brand Logo</a>
+                        <a href="<?php echo base_url() ?>employee/partner/get_partner_login_details_form/<?php echo $query[0]['id'] ?>" class="btn btn-primary"><b>MANAGE LOGIN</b></a>
+                    <?php } ?>
+            </div>
+                <div class="clear"></div>
             </div>
             <div id="tabs" style="border:0px solid #fff;float:left;">
                 <div class="col-md-12" style="">
@@ -60,6 +68,8 @@
                         <li><a id="4" href="#tabs-4" ><span class="panel-title" onclick="alert('Please Add Basic Details FIrst')">Contracts</span></a></li>
                         <li><a id="5" href="#tabs-5" ><span class="panel-title" onclick="alert('Please Add Basic Details FIrst')">Brand Mapping</span></a></li>
                         <li><a id="6" href="#tabs-6" ><span class="panel-title" onclick="alert('Please Add Basic Details FIrst')">Brand Collateral</span></a></li>
+                        <li><a id="7" href="#tabs-7" ><span class="panel-title" onclick="alert('Please Add Basic Details FIrst')">Upload Serial No</span></a></li>
+                        <li><a id="8" href="#tabs-8" ><span class="panel-title" onclick="alert('Please Add Basic Details FIrst')">Add Contacts</span></a></li>
                         <?php
                             }
                             else{
@@ -70,28 +80,14 @@
                         <li><a id="4" href="#tabs-4" onclick="load_form(this.id)"><span class="panel-title">Contracts</span></a></li>
                         <li><a id="5" href="#tabs-5" onclick="load_form(this.id)"><span class="panel-title">Brand Mapping</span></a></li>
                         <li><a id="6" href="#tabs-6" onclick="load_form(this.id)"><span class="panel-title">Brand Collateral</span></a></li>
+                        <li><a id="7" href="#tabs-7" onclick="load_form(this.id)"><span class="panel-title">Upload Serial No</span></a></li>
+                         <li><a id="8" href="#tabs-8" onclick="load_form(this.id)"><span class="panel-title">Add Contacts</span></a></li>
                         <?php
                             }
                             ?>
                     </ul>
                 </div>
             </div>
-            <div class="pull-right" style="margin-top:10px;">
-                <div class="row">
-                    <div class="col-md-3" style="width: 22%;">
-                        <a class="btn btn-primary" href="<?php echo base_url(); ?>employee/partner/viewpartner" style="margin-right:5px;">View Partners</a>
-                    </div>
-                    <?php if (isset($query[0]['id'])) { ?>
-                    <div class="col-md-3" style="width: 37.5%;">
-                        <a class="btn btn-primary" href="<?php echo base_url(); ?>employee/partner/upload_partner_brand_logo/<?php echo $query[0]['id'] ?>/<?php echo $query[0]['public_name'] ?>" style="margin-right:5px;">Upload Partner Brand Logo</a>
-                    </div>
-                    <div class="col-md-3" style="width: 22%;">
-                        <a href="<?php echo base_url() ?>employee/partner/get_partner_login_details_form/<?php echo $query[0]['id'] ?>" class="btn btn-primary"><b>MANAGE LOGIN</b></a>
-                    </div>
-                    <?php } ?>
-                </div>
-            </div>
-            <br>
             <div class="clear"></div>
             <?php
                 if ($this->session->userdata('success')) {
@@ -966,10 +962,12 @@
                             <tr>
                                 <?php
                                     }
+                                    ?>
+                                                    </table>
+                </div>
+                                <?php
                                     }
                                     ?>
-                    </table>
-                </div>
             </div>
             <div class="clear"></div>
             <div id="container_3" style="display:none;" class="form_container">
@@ -1040,7 +1038,7 @@
                         <div class="panel panel-default">
                             <div class="panel-heading">
                                 <p><b>Contracts</b></p>
-                                <button type="button" class="btn btn-success" style="float:right;margin-top: -33px;" id="add_more_1" onclick="add_more_fields(this.id)">Add More Contracts</button>
+                                <button type="button" class="btn btn-success" style="float:right;margin-top: -33px;background: #31b0d5;border-color: #31b0d5;" id="add_more_1" onclick="add_more_fields(this.id)">Add More Contracts</button>
                             </div>
                             <div class="panel-body contract_holder" id="contract_holder_1">
                                 <div class="col-md-6 form-group <?php if (form_error('agreement_start_date')) {
@@ -1175,13 +1173,16 @@
                                 <?php
                                     }
                                   }
+                                  ?>
+                                                    </table>
+                </div>
+                                <?php
                                     }
                                     ?>
-                    </table>
-                </div>
+
             </div>
             <div class="clear"></div>
-             <div id="container_5" style="display:none;" class="form_container">
+             <div id="container_5" style="display:none;margin: 30px 10px;" class="form_container">
                 <form name="myForm" class="form-horizontal" id ="operation_region_form" novalidate="novalidate" action="<?php echo base_url() ?>employee/partner/process_partner_brand_mapping" method="POST" enctype="multipart/form-data">
                     <?php
                         if(isset($query[0]['id'])){
@@ -1357,10 +1358,287 @@
                 </div>
              </div>
              <div class="clear"></div>
+<!--             action="<?php //echo base_url(); ?>file_upload/process_upload_serial_number" -->
+             <div id="container_7" style="display:none;" class="form_container">
+<!--                  <form class="form-horizontal"  id="fileinfo"  method="POST" enctype="multipart/form-data">-->
+                    <div class="form-group  <?php if (form_error('excel')) {
+                        echo 'has-error';
+                        } ?>">
+                        <label for="excel" class="col-md-1">Upload Serial No</label>
+                        <div class="col-md-4">
+<!--                            <input type="text" name="partner_id"  value="247034" />-->
+                            <input type="file" class="form-control" id="SerialNofile"  name="file" >
+                        </div>
+<!--                        <input type= "submit" class="btn btn-danger btn-md"  value="upload">-->
+                        <button id="serialNobtn" class="btn btn-primary btn-md"  >Upload</button>
+                    </div>
+<!--                  </form>-->
+                 <div class="form-group">
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-success myprogress" role="progressbar" style="width:0%">0%</div>
+                        </div>
+                        <div class="msg"></div>
+                    </div>
+                
+                <div class="col-md-12" style="margin-top:20px;">
+                    <h3>File Upload History</h3>
+                    <table id="datatable1" class="table table-striped table-bordered table-hover" style="width: 100%;">
+                        <thead>
+                            <tr>
+                                <th>S.No.</th>
+                                <th>Download</th>
+                                <th>Uploaded By</th>
+                                <th>Uploaded Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+             </div>
+             <div class="clear"></div>
+              <div id="container_8" style="display:none;margin: 30px 10px;" class="form_container">
+                 <button class="btn" onclick="show_add_contact_form()" style="background-color: #337ab7;color: #fff;margin-bottom: 10px;">Add Contacts</button>
+                 <form name="contact_form" class="form-horizontal" id ="contact_form" action="<?php echo base_url() ?>employee/partner/process_partner_contacts" method="POST" enctype="multipart/form-data" onsubmit="return process_contact_persons_validations()">
+                    <?php
+                        if(isset($query[0]['id'])){
+                            if($query[0]['id']){
+                            ?>
+                    <input type="hidden" id="partner_id" name="partner_id" value=<?php echo  $query[0]['id']?>>
+                    <?php
+                        }
+                        }
+                        ?>
+                        <div class="clonedInput panel panel-info " id="clonedInput1">
+                        <!--  <i class="fa fa-plus addsection pull-right fa-3x" aria-hidden="true" style ="margin-top:15px; margin-bottom: 15px; margin-right:40px; "></i>
+                            <i class="fa fa-times pull-right deletesection  fa-3x"  style ="margin-top:15px; margin-bottom: 15px; margin-right:20px; " aria-hidden="true"></i>-->
+                            <div class="panel-heading" style=" background-color: #f5f5f5;">
+                                <p style="color: #000;"><b>Contact Persons</b></p>  
+                                <div class="clone_button_holder" style="float:right;margin-top: -31px;">
+                                    <button class="clone btn btn-sm btn-info">Add</button>
+                            <button class="remove btn btn-sm btn-info">Remove</button>
+                                    </div>
+                        </div> 
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="col-md-6">
+                                        <div class="form-group ">
+                                            <label for="service_name" class="col-md-4">Name *</label>
+                                            <div class="col-md-6">
+                                                <input  type="text" class="form-control input-contact-name"  name="contact_person_name[]" id="contact_person_name_1" value = "" placeholder="Enter Name">
+                                            </div>
+                                        </div>
+                                       <div class="form-group ">
+                                            <label for="service_name" class="col-md-4">Email *</label>
+                                            <div class="col-md-6">
+                                                <input  type="text" class="form-control input-model"  name="contact_person_email[]" id="contact_person_email_1" value = "" placeholder="Enter Email">
+                                            </div>
+                                        </div>
+                                        <div class="form-group ">
+                                            <label for="service_name" class="col-md-4">Contact Number *</label>
+                                            <div class="col-md-6">
+                                                <input  type="text" class="form-control input-model"  name="contact_person_contact[]" id="contact_person_contact_1" value = "" placeholder="Enter Contact">
+                                            </div>
+                                        </div>
+                                         <div class="form-group ">
+                                            <label for="service_name" class="col-md-4">Alternate Email </label>
+                                            <div class="col-md-6">
+                                                <input  type="text" class="form-control input-model"  name="contact_person_alt_email[]" id="contact_person_alt_email_1" value = "" placeholder="Alternative Email">
+                                            </div>
+                                        </div>
+                                        <div class="form-group ">
+                                            <label for="service_name" class="col-md-4">Alternate Contact Number</label>
+                                            <div class="col-md-6">
+                                                <input  type="text" class="form-control input-model"  name="contact_person_alt_contact[]" id="contact_person_alt_contact_1" value = "" placeholder="Alternative Contact">
+                                            </div>
+                                        </div> 
+                                        <div class="form-group "> 
+                                            <input type="hidden" value="" id="checkbox_value_holder_1" name="checkbox_value_holder[]">
+                                              <div class="col-md-6"> 
+                                                  <label><b>Create Login</b></label><input style="margin-left: 167px;" type="checkbox" value="" id="login_checkbox_1" name="login_checkbox[]">
+                                            </div>   
+                                                  </div>
+                                </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group ">
+                                            <label for="service_name" class="col-md-4">Department *</label>
+                                            <div class="col-md-6">
+                                                <select type="text" class="form-control"  id="contact_person_department_1" name="contact_person_department[]" onChange="getRoles(this.value,this.id)" >
+                                                    <option value="" disabled="" selected="">Select Department</option>
+                                                <?php
+                                                foreach ($department as $value){
+                                                ?> 
+                                                     <option value="<?php echo $value['department'] ?>"> <?php echo $value['department'] ?></option>
+                                                <?php
+                                                }
+                                                ?>
+                                                            </select>  
+                                          </div>
+                                        </div>
+                                        <div class="form-group ">
+                                            <label for="service_name" class="col-md-4">Role *</label>
+                                            <div class="col-md-6">
+                                                <select disabled="" type="text" class="form-control"  id="contact_person_role_1" name="contact_person_role[]" onChange="getFilters(this.value,this.id)" >
+                                                    <option value = "">Select Roles</option>
+                                                </select>
+                                            </div>
+                                        </div> 
+                                        <div class="form-group ">
+                                            <input type="hidden" value="" id="states_value_holder_1" name="states_value_holder[]">
+                                            <label for="service_name" class="col-md-4">States </label>
+                                            <div class="col-md-6">
+                                                <div class="filter_holder" id="filter_holder_1">
+                                                    <select multiple="" class=" form-control contact_person_states" name ="contact_person_states[0][]" id="contact_person_states_1" disabled="">
+                                                      <option value = "">Select States</option>
+                                                <?php
+                                                    foreach ($results['select_state'] as $state) {
+                                                        ?>
+                                                <option value = "<?php echo $state['state'] ?>">
+                                                    <?php echo $state['state']; ?>
+                                                </option>
+                                                <?php } ?>
+                                            </select>
+                                                  </div>
+                                            </div>
+                                        </div> 
+                                        <div class="form-group ">
+                                            <label for="service_name" class="col-md-4">Permanent Address</label>
+                                            <div class="col-md-6">
+                                                <textarea  type="text" rows="1" class="form-control input-model"  name="contact_person_address[]" id="contact_person_address_1" value = "" placeholder="Enter Address"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="form-group ">
+                                            <label for="service_name" class="col-md-4">Correspondence Address</label>
+                                            <div class="col-md-6">
+                                                <textarea  type="text" rows="1" class="form-control input-model"  name="contact_person_c_address[]" id="contact_person_c_address_1" value = "" placeholder="Enter Address"></textarea>
+                                            </div>
+                                        </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <div class="cloned"></div>
+                    <div class="form-group " style="text-align:center">
+                    <input type="submit" class="btn btn-primary" value="Save Contacts">
+                    </div>
+                </form>
+                  <?php
+                    if(!empty($results['contact_persons'])){
+                        ?>
+                <div id="exist_documents">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>S.N</th>
+                                <th>Name</th>
+                                <th>Department</th>
+                                <th>Role</th>
+                                <th>Email</th>
+                                <th>Contact</th>
+                                <th>Permanent Address</th>
+                                <th>Alt Email</th>
+                                <th>Alt Contact</th>
+                                <th>Correspondence Address</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            $index = 0;
+                                foreach($results['contact_persons'] as $value){
+                                    $index ++;
+                                ?>
+                            <tr>
+                                <td><?php echo $index; ?></td>
+                                <td><?php echo $value['name'] ?></td>
+                                <td><?php echo $value['department'] ?></td>
+                                <td><?php echo $value['role'] ?></td>
+                                <td><?php echo $value['officail_email'] ?></td>
+                                <td><?php echo $value['official_contact_number'] ?></td>
+                                <td><?php echo $value['permanent_address'] ?></td>
+                                 <td><?php echo $value['alternate_email'] ?></td>
+                                <td><?php echo $value['alternate_contact_number'] ?></td>
+                                <td><?php echo $value['correspondence_address'] ?></td>
+                            </tr>
+                            <tr>
+                                <?php
+                                  }
+                                  ?>
+                                </table>
+            </div>
+                                <?php
+                                    }
+                                    ?>
+             </div>
+             <div class="clear"></div>
         </div>
     </div>
 </div>
 <script type="text/javascript">
+    var regex = /^(.+?)(\d+)$/i;
+    var cloneIndex = $(".clonedInput").length +1;
+
+    function clone(){
+       $(this).parents(".clonedInput").clone()
+           .appendTo(".cloned")
+           .attr("id", "cat" +  cloneIndex)
+           .find("*")
+           .each(function() {
+               var id = this.id || "";
+               var match = id.match(regex) || [];
+               //console.log(match.length);
+               if (match.length === 3) {
+                   this.id = match[1] + (cloneIndex);
+               }
+           })
+            .on('click', 'button.clone', clone)
+            .on('click', 'button.remove', remove);
+            $('#filter_holder_'+cloneIndex+' .select2').hide();
+          // $("#e1").select2('destroy'); 
+            $('#contact_person_states_'+cloneIndex).select2({
+                 placeholder: "Select State",
+                 allowClear: true,
+                 includeSelectAllOption:true
+             });
+             document.getElementById("contact_person_states_"+cloneIndex).name = 'contact_person_states['+(cloneIndex-1)+'][]';
+             $('#contact_person_states_'+cloneIndex).attr('disabled', true);
+             $("#contact_person_name_"+cloneIndex).val("");
+             $("#contact_person_email_"+cloneIndex).val("");
+             $("#contact_person_contact_"+cloneIndex).val("");
+             $("#contact_person_department_"+cloneIndex).val("");
+             $("#contact_person_role_"+cloneIndex).val("");
+             $("#contact_person_alt_email_"+cloneIndex).val("");
+             $("#contact_person_alt_contact_"+cloneIndex).val("");
+             $("#contact_person_address_"+cloneIndex).val("");
+             $("#contact_person_c_address"+cloneIndex).val("");
+       cloneIndex++;
+       return false;
+    }
+    function remove(){
+       $(this).parents(".clonedInput").remove();
+       final_price();
+       return false;
+    }
+    $("button.clone").on("click", clone);
+
+    $("button.remove").on("click", remove);
+    
+     $(document).ready(function () {
+  $('#contact_form').hide();
+  //called when key is pressed in textbox
+  $("#grand_total_price").keypress(function (e) {
+     //if the letter is not digit then display error and don't type anything
+     if (e.which !== 8 && e.which !== 0 && (e.which < 48 || e.which > 57)) {
+        //display error message
+        $("#errmsg1").html("Digits Only").show().fadeOut("slow");
+               return false;
+    }
+   });
+   
+   
+});
 up_message();
 $(document).on('keyup', '.up_message', function (e) {
     up_message();
@@ -1380,6 +1658,11 @@ function up_message(){
     $('.select_state').select2({
         placeholder: "Select State",
         allowClear: true
+    });
+     $('#contact_person_states_1').select2({
+        placeholder: "Select State",
+        allowClear: true,
+        includeSelectAllOption:true
     });
     $('.brand_mapping').select2({
         placeholder: "Enter Brand",
@@ -1775,6 +2058,152 @@ else{
     }
 
     }
+     $(document).ready(function () {
+        serialNo = $('#datatable1').DataTable({
+            processing: true,
+            serverSide: true,
+            order: [],
+            lengthMenu: [[5,10, 25, 50], [5,10, 25, 50]],
+            pageLength: 5,
+            ajax: {
+                url: "<?php echo base_url(); ?>employee/upload_booking_file/get_upload_file_history",
+                type: "POST",
+                data: function(d){
+                    d.file_type = '<?PHP echo PARTNER_SERIAL_NUMBER_FILE_TYPE ;?>';
+                }
+            },
+            columnDefs: [
+                {
+                    "targets": [0, 1, 2, 3,4],
+                    "orderable": false
+                }
+            ]
+        });
+    });
+   
+    function getserial_number_history(){
+        serialNo.ajax.reload(null, false);
+    }
+    <?php if(isset($query[0]['id'])) { ?>
+    $(function () {
+        $('#serialNobtn').click(function () {
+            $('.myprogress').css('width', '0');
+            $('.msg').text('');
+
+            var file = $('#SerialNofile').val();
+
+            if (file === '') {
+                alert('Please select a file');
+                return;
+            }
+            var formData = new FormData();
+            formData.append('file', $('#SerialNofile')[0].files[0]);
+            formData.append('partner_id', '<?php echo $query[0]['id']; ?>');
+
+            $('#serialNobtn').attr('disabled', 'disabled');
+            $('.progress').css('display', 'block');
+            $('.msg').text('Uploading in progress...');
+            $.ajax({
+                url: '<?php echo base_url(); ?>file_upload/process_upload_serial_number',
+                data: formData,
+                processData: false,
+                contentType: false,
+                type: 'POST',
+                // this part is progress bar
+                xhr: function () {
+                    var xhr = new window.XMLHttpRequest();
+                    xhr.upload.addEventListener("progress", function (evt) {
+                        if (evt.lengthComputable) {
+                            var percentComplete = evt.loaded / evt.total;
+                            percentComplete = parseInt(percentComplete * 100);
+                            $('.myprogress').text(percentComplete + '%');
+                            $('.myprogress').css('width', percentComplete + '%');
+                        }
+                    }, false);
+                    return xhr;
+                },
+                success: function (data) {
+                    alert(data);
+                    $('.msg').text(data);
+                    serialNo.ajax.reload(null, false);
+                   
+                }
+            });
+        });
+    });
+    <?php } ?>
+function sendAjaxRequest(postData, url,type) {
+        return $.ajax({
+            data: postData,
+            url: url,
+            type: type
+        });
+    }
+    function getRoles(department,id){
+        divID = id.split("_")[3];
+        var data = {department:department};
+        url =  '<?php echo base_url(); ?>employee/partner/get_partner_roles/'+department;
+        sendAjaxRequest(data,url,"POST").done(function(response){
+            $("#contact_person_role_"+divID).prop('disabled', false);
+            $("#contact_person_role_"+divID).html(response);
+        });
+    }
+    function getMultipleSelectedValues(fieldName){
+    fieldObj = document.getElementById(fieldName);
+    var values = [];
+    var length = fieldObj.length;
+    for(var i=0;i<length;i++){
+       if (fieldObj[i].selected == true){
+           values.push(fieldObj[i].value);
+       }
+    }
+   return values.toString();
+}
+    function process_contact_persons_validations(){
+        var div_count = $('.input-contact-name').length;
+        for(var i=1;i<=div_count;i++){
+            name = $("#contact_person_name_"+i).val();
+            email = $("#contact_person_email_"+i).val();
+            contact = $("#contact_person_contact_"+i).val();
+            department = $("#contact_person_department_"+i).val();
+            role = $("#contact_person_role_"+i).val();
+            states = getMultipleSelectedValues("contact_person_states_"+i);
+            if(name && email && contact && department && role){ 
+                $('#checkbox_value_holder_'+i).val($('#login_checkbox_'+i).is(':checked'));
+                $('#states_value_holder_'+i).val(states);
+            }
+            else{
+                alert('Please add all mendatory fields');
+                return false;
+            }
+        }
+        return true;
+    }
+    function getFilters(role,id){
+        divID = id.split("_")[3];
+        department = $("#contact_person_department_"+divID).val();
+        var data = {department:department,role:role};
+        url =  '<?php echo base_url(); ?>employee/partner/get_partner_roles_filters';
+        sendAjaxRequest(data,url,"POST").done(function(response){
+            if(response == 1){
+                $("#contact_person_states_"+divID).prop('disabled', false);
+            }
+            else{
+                $("#contact_person_states_"+divID).prop('disabled', true);
+            }
+        });
+    }
+    function show_add_contact_form(){
+        $('#contact_form').show();
+    }
 </script>
+<style>
+    .progress{
+        display:none;
+    }
+    .panel-title {
+    font-size: 15px;
+}
+</style>
 <?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>
 <?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>

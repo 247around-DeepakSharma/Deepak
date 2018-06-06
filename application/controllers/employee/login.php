@@ -317,7 +317,7 @@ class Login extends CI_Controller {
         $data['entity'] = "partner";
         $data['entity_id'] = $partner_id;
         $data['active'] = 1;
-        $agent = $this->dealer_model->entity_login($data);
+        $agent = $this->dealer_model->get_entity_login_details($data);
         
         if (!empty($agent)) {
             //get partner details now
@@ -330,8 +330,8 @@ class Login extends CI_Controller {
             } else {
                 $logo_img = 'logo.png';
             }
-            $this->setPartnerSession($partner_details[0]['id'], $partner_details[0]['public_name'], $agent[0]['agent_id'],
-                        $partner_details[0]['is_active'], $partner_details[0]['is_prepaid'],$partner_details[0]['is_wh'],$logo_img,0,$agent[0]['groups'],$agent[0]['is_filter_applicable']);
+             $this->setPartnerSession($partner_details[0]['id'], $partner_details[0]['public_name'], $agent[0]['agent_id'],
+                        $partner_details[0]['is_active'], $partner_details[0]['is_prepaid'],$partner_details[0]['is_wh'],$logo_img,0,$agent[0]['department'],$agent[0]['role'],$agent[0]['is_filter_applicable']);
                 log_message('info', 'Partner loggedIn  partner id' .$partner_details[0]['id'] . " Partner name" . $partner_details[0]['public_name']);
                 // Add Navigation Header In Cache
                 $this->miscelleneous->set_header_navigation_in_cache("Partner");
@@ -350,7 +350,7 @@ class Login extends CI_Controller {
      * @param: Partner name
      * @return: void
      */
-    function setPartnerSession($partner_id, $partner_name, $agent_id,$status, $is_prepaid,$is_wh,$logo_img,$is_login_by_247=1,$userGroup,$filter) {
+    function setPartnerSession($partner_id, $partner_name, $agent_id,$status, $is_prepaid,$is_wh,$logo_img,$is_login_by_247=1,$department,$role,$filter) {
         $userSession = array(
             'session_id' => md5(uniqid(mt_rand(), true)),
             'partner_id' => $partner_id,
@@ -363,7 +363,8 @@ class Login extends CI_Controller {
             'status' => $status,
             'partner_logo' => $logo_img,
             'is_wh' => $is_wh,
-            'user_group' => $userGroup,
+            'department' => $department,
+            'user_group' => $role,
             'is_filter_applicable' => $filter
         );
         
@@ -389,12 +390,11 @@ class Login extends CI_Controller {
     }
     
      function partner_login() {
-        $data['user_id'] = $this->input->post('user_name');
-        $data['password'] = md5($this->input->post('password'));
-        $data['entity'] = "partner";
+        $data['entity_login_table.user_id'] = $this->input->post('user_name');
+        $data['entity_login_table.password'] = md5($this->input->post('password'));
+        $data['entity_login_table.entity'] = "partner";
         $data['active'] = 1;
-        $agent = $this->dealer_model->entity_login($data);
-       
+        $agent = $this->dealer_model->get_entity_login_details($data);
         if ($agent) {
             //get partner details now
             $partner_details = $this->partner_model->getpartner($agent[0]['entity_id'],TRUE);
@@ -408,7 +408,7 @@ class Login extends CI_Controller {
                     $logo_img = 'logo.png';
                 }
                 $this->setPartnerSession($partner_details[0]['id'], $partner_details[0]['public_name'], $agent[0]['agent_id'],
-                        $partner_details[0]['is_active'], $partner_details[0]['is_prepaid'],$partner_details[0]['is_wh'],$logo_img,0,$agent[0]['groups'],$agent[0]['is_filter_applicable']);
+                        $partner_details[0]['is_active'], $partner_details[0]['is_prepaid'],$partner_details[0]['is_wh'],$logo_img,0,$agent[0]['department'],$agent[0]['role'],$agent[0]['is_filter_applicable']);
                 log_message('info', 'Partner loggedIn  partner id' .$partner_details[0]['id'] . " Partner name" . $partner_details[0]['public_name']);
                 // Add Navigation Header In Cache
                 $this->miscelleneous->set_header_navigation_in_cache("Partner");

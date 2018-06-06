@@ -1796,10 +1796,10 @@ class Miscelleneous {
                 return $affectedRows = $this->My_CI->reusable_model->insert_into_table('account_holders_bank_details', $bankDetailsArray);
             }
         } else if ($actionType == 'update') {
-            $where['entity_id'] = $bankDetailsArray['entity_id'];
-             $where['entity_type'] = $bankDetailsArray['entity_type'];
+        $where['entity_id'] = $bankDetailsArray['entity_id'];
+        $where['entity_type'] = $bankDetailsArray['entity_type'];
             $this->My_CI->reusable_model->update_table("account_holders_bank_details",$bankDetailsArray,$where);
-        }
+            }
            
     }
 
@@ -2122,8 +2122,8 @@ class Miscelleneous {
         $data['main_nav'] = $this->get_main_nav_data("main_nav",$entity_type);
         $data['right_nav'] = $this->get_main_nav_data("right_nav",$entity_type);
         if($entity_type == "Partner"){
-            $msg = $this->My_CI->load->view('partner/header_navigation',$data,TRUE);
-           $this->My_CI->cache->file->save('navigationHeader_partner_'.$this->My_CI->session->userdata('user_group').'_'.$this->My_CI->session->userdata('agent_id'), $msg, 36000);
+           $msg = $this->My_CI->load->view('partner/header_navigation',$data,TRUE);
+           $this->My_CI->cache->file->save('navigationHeader_partner_'.$this->My_CI->session->userdata('role').'_'.$this->My_CI->session->userdata('agent_id'), $msg, 36000);
         }
         else{
             $msg = $this->My_CI->load->view('employee/header/header_navigation',$data,TRUE);
@@ -2852,5 +2852,84 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
          }
         $data['header_navigation_html'] = $this->My_CI->cache->file->get('navigationHeader_partner_'.$this->My_CI->session->userdata('user_group').'_'.$this->My_CI->session->userdata('agent_id'));
         $this->My_CI->load->view('partner/header/load_header_navigation', $data);
+    }
+    
+    /**
+     * @desc this is used to send email to partner to inform about serial no
+     * @param Int $partner_id
+     * @param String $serial_number
+     * @param String $pic_name
+     */
+    function inform_partner_for_serial_no($booking_id, $sid, $partner_id, $serial_number, $pic_name) {
+        log_message('info', __METHOD__ . " Enterring..");
+        $get_partner_details = $this->My_CI->partner_model->getpartner_details('account_manager_id, primary_contact_email, owner_email', array('partners.id' => $partner_id));
+        $am_email = "";
+        if (!empty($get_partner_details[0]['account_manager_id'])) {
+
+            $am_email = $this->My_CI->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
+        }
+
+        $email_template = $this->My_CI->booking_model->get_booking_email_template(INFORM_PARTNER_FOR_NEW_SERIAL_NUMBER);
+        if (!empty($email_template)) {
+            $to = $get_partner_details[0]['primary_contact_email'];
+            
+            $rm = $this->My_CI->vendor_model->get_rm_sf_relation_by_sf_id($sid);
+            $rm_email = "";
+            if (!empty($rm)) {
+                $rm_email = ", " . $rm[0]['official_email'];
+            }
+
+            $bcc = $email_template[5];
+            $subject = vsprintf($email_template[4], array($serial_number));
+            $message = vsprintf($email_template[0], array($serial_number, $booking_id));
+            if (!empty($am_email)) {
+                $from = $am_email;
+                $cc = $email_template[3]. ",".$am_email.$rm_email;
+            } else {
+                $from = $email_template[2];
+                $cc = $email_template[3].$rm_email;
+            }
+            $attachment = S3_WEBSITE_URL . "engineer-uploads/" . $pic_name;
+            $this->My_CI->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment, INFORM_PARTNER_FOR_NEW_SERIAL_NUMBER);
+        }
+    }
+    function create_entity_login($data){
+        $check_username = $this->My_CI->dealer_model->entity_login(array('entity' => 'partner', 'user_id' => $data['user_id']));
+        if(empty($check_username)) {
+            $p_where = array('id' => $data['entity_id']);
+            //Getting name of Partner by Partner ID
+            $partner_details = $this->My_CI->partner_model->get_all_partner($p_where);
+            $data['entity_name'] = $partner_details[0]['public_name'];
+            $s1 = $this->My_CI->dealer_model->insert_entity_login($data);
+            if ($s1) {
+                //Log Message
+                log_message('info', __FUNCTION__ . ' Partner Login has been Added for id : ' . $data['entity_id'] . ' with values ' . print_r($data, TRUE));
+                //Getting template from Database to send mail
+                $accountManagerData = $this->get_am_data($data['entity_id']);
+                $login_template = $this->My_CI->booking_model->get_booking_email_template("partner_login_details");
+                if (!empty($login_template)) {
+                    $login_email['username'] = $data['user_id'];
+                    $login_email['password'] = $data['clear_password'];
+                    $cc = $login_template[3];
+                    if($accountManagerData){
+                        $accountManagerEmail = $accountManagerData[0]['official_email'];
+                        $cc = $login_template[3].",".$accountManagerEmail;
+                    }
+                    $login_subject = $login_template[4];
+                    $login_emailBody = vsprintf($login_template[0], $login_email);
+                    $this->My_CI->notify->sendEmail($login_template[2], $data['email'], $cc, "",$login_subject, $login_emailBody, "",'partner_login_details');
+                    log_message('info', $login_subject . " Email Send successfully" . $login_emailBody);
+                    return $s1;
+                } else {
+                    //Logging Error
+                    log_message('info', " Error in Getting Email Template for New Vendor Login credentials Mail");
+                    return false;
+                }
+            } else {
+                //Log Message
+                log_message('info', __FUNCTION__ . ' Error in Adding Partner Login Details for id : ' . $partner_id . ' with values ' . print_r($data, TRUE));
+                return false;
+            }
+        }
     }
 }
