@@ -578,7 +578,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach ($booking_history['spare_parts'] as $sp) { ?>
+                                    <?php foreach ($booking_history['spare_parts'] as $sp) { if(!empty($sp['defective_part_shipped'])){ ?>
                                     <tr>
                                         <td><?php echo $sp['defective_part_shipped']; ?></td>
                                         <td><?php echo $sp['courier_name_by_sf']; ?></td>
@@ -595,7 +595,7 @@
                                             <?php } ?>
                                         </td>
                                     </tr>
-                                    <?php } ?>
+                                    <?php } } ?>
                                 </tbody>
                             </table>
                         </div>

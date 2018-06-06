@@ -398,7 +398,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($booking_history['spare_parts'] as $sp) { ?>
+                            <?php foreach ($booking_history['spare_parts'] as $sp) { if(!empty($sp['defective_part_shipped'])){ ?>
                             <tr>
                                 <td><?php echo $sp['defective_part_shipped']; ?></td>
                                 <td><?php echo $sp['courier_name_by_sf']; ?></td>
@@ -411,10 +411,10 @@
                                 <td>
                                     <?php if(!empty($sp['sf_challan_file'])) { ?>
                                         <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY?>/vendor-partner-docs/<?php echo $sp['sf_challan_file']; ?>" target="_blank">Click Here to view</a>
-                                    <?php } ?>
+                            <?php } ?>
                                 </td>
                             </tr>
-                            <?php } ?>
+                            <?php } }?>
                         </tbody>
                     </table>
                 </div>
