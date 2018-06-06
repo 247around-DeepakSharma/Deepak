@@ -126,7 +126,7 @@
                     <div class="col-md-6 col-sm-6 col-xs-12 profile_details">
                         <div class="well profile_view" style="width:100%!important;">
                             <div class="left col-xs-12">
-                                <h2><b>Mr. Manoja Jena</b></h2>
+                                <h2><b>Mr. Manoj Jena</b></h2>
                                 <p><strong>About: </strong> Accountant </p>
                                 <ul class="list-unstyled">
                                     <li><i class="fa fa-phone"></i> Phone: 9555009004</li>
