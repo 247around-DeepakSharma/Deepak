@@ -34,7 +34,7 @@
                     $('#btn').attr('disabled', 'disabled');
                      $('.msg').text('Uploading in progress...');
                     $.ajax({
-                        url: '<?php echo base_url();?>/partner/processUploadPincode',
+                        url: '<?php echo base_url();?>partner/processUploadPincode',
                         data: formData,
                         processData: false,
                         contentType: false,

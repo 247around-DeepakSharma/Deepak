@@ -1579,5 +1579,14 @@ function get_data_for_partner_callback($booking_id) {
         $this->db->insert_ignore('partner_serial_no', $data);
         return $this->db->insert_id();
     }
+    /**
+     * @desc This is used to insert serial no data in a batch
+     * @param Array $data
+     * @return boolean
+     */
+    function insert_partner_serial_number_in_batch($data){
+        $this->db->insert_ignore_duplicate_batch('partner_serial_no', $data);
+        return $this->db->insert_id();
+    }
 }
 

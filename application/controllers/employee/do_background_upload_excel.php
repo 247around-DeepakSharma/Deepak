@@ -441,9 +441,9 @@ class Do_background_upload_excel extends CI_Controller {
 
                             //Set delivered date only
                             $booking['delivery_date'] = $dateObj2->format('Y-m-d H:i:s');
-                            $booking['estimated_delivery_date'] = '';
+                            //$booking['estimated_delivery_date'] = '';
                             $booking['backup_delivery_date'] = isset($value['delivery_date'])?$value['delivery_date']:'';
-                            $booking['backup_estimated_delivery_date'] = '';
+                            //$booking['backup_estimated_delivery_date'] = '';
 
                             $booking['internal_status'] = "Missed_call_not_confirmed";
                             $booking['query_remarks'] = 'Product Delivered, Call Customer For Booking';

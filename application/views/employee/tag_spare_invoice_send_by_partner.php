@@ -68,7 +68,7 @@
                                     </div>
                                     <label class="col-xs-2 control-label">Invoice Amount *</label>
                                     <div class="col-xs-4">
-                                        <input type="number" class="form-control" name="invoice_amount" id="despatch_doc_no" placeholder="Enter Invoice Amount" required=""/>
+                                        <input type="number" class="form-control" name="invoice_amount" id="invoice_amount" placeholder="Enter Invoice Amount" required=""/>
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -207,7 +207,7 @@
 </div>
 <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
 <script>
-    
+    var is_valid_booking = true;
     $(document).ready(function () {
         
         partIndex = 0;
@@ -241,62 +241,81 @@
         $("#dated").datepicker({dateFormat: 'yy-mm-dd'});
         $("#courier_shipment_date").datepicker({dateFormat: 'yy-mm-dd'});
         
-        $("#spareForm").validate();    
+        //$("#spareForm").validate();    
         $("#spareForm").on('submit', function(e) {
+            e.preventDefault();
             var isvalid = $("#spareForm").valid();
             if (isvalid) {
-                $('#submit_btn').attr('disabled',true);
-                $('#submit_btn').html("<i class='fa fa-spinner fa-spin'></i> Processing...");
-                e.preventDefault();
                 
-                //Serializing all For Input Values (not files!) in an Array Collection so that we can iterate this collection later.
-                var params = $('#spareForm').serializeArray();
+                var entered_invoice_amt = Number($('#invoice_amount').val());
+                var our_invoice_amt = Number($('#total_spare_invoice_price').text());
+                if((our_invoice_amt >= entered_invoice_amt - 10) && (our_invoice_amt <= entered_invoice_amt + 10) ){
+                    $('#invoice_amount').css('border','1px solid #ccc');
+                    $('#total_spare_invoice_price').removeClass('text-danger');
+                    
+                    if(confirm('Are you sure to continue')){
+                        $('#submit_btn').attr('disabled',true);
+                        $('#submit_btn').html("<i class='fa fa-spinner fa-spin'></i> Processing...");
 
-                //Getting Invoice Files Collection
-                var invoice_files = $("#invoice_file")[0].files;
-                
-                //Getting Courier Files Collection
-                var courier_file = $("#courier_file")[0].files;
 
-                //Declaring new Form Data Instance  
-                var formData = new FormData();
+                        //Serializing all For Input Values (not files!) in an Array Collection so that we can iterate this collection later.
+                        var params = $('#spareForm').serializeArray();
 
-                //Looping through uploaded files collection in case there is a Multi File Upload. This also works for single i.e simply remove MULTIPLE attribute from file control in HTML.  
-                for (var i = 0; i < invoice_files.length; i++) {
-                    formData.append('invoice_file', invoice_files[i]);
-                }
-                
-                //Looping through uploaded files collection in case there is a Multi File Upload. This also works for single i.e simply remove MULTIPLE attribute from file control in HTML.  
-                for (var i = 0; i < courier_file.length; i++) {
-                    formData.append('courier_file', courier_file[i]);
-                }
-                //Now Looping the parameters for all form input fields and assigning them as Name Value pairs. 
-                $(params).each(function (index, element) {
-                    formData.append(element.name, element.value);
-                });
-                
-                $.ajax({
-                    method:"POST",
-                    url:"<?php echo base_url();?>employee/inventory/process_spare_invoice_tagging",
-                    data:formData,
-                    contentType: false,
-                    processData: false,
-                    success:function(response){
-                        //console.log(response);
-                        obj = JSON.parse(response);
-                        $('#submit_btn').attr('disabled',false);
-                        $('#submit_btn').html("Submit");
-                        if(obj.status){
-                            $('.success_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
-                            $('#success_msg').html(obj.message);
-                            $("#spareForm")[0].reset();
-                        }else{
-                            $('.error_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(1000);});
-                            $('#error_msg').html(obj.message);
+                        //Getting Invoice Files Collection
+                        var invoice_files = $("#invoice_file")[0].files;
+
+                        //Getting Courier Files Collection
+                        var courier_file = $("#courier_file")[0].files;
+
+                        //Declaring new Form Data Instance  
+                        var formData = new FormData();
+
+                        //Looping through uploaded files collection in case there is a Multi File Upload. This also works for single i.e simply remove MULTIPLE attribute from file control in HTML.  
+                        for (var i = 0; i < invoice_files.length; i++) {
+                            formData.append('invoice_file', invoice_files[i]);
                         }
-                       
-                   }
-                });
+
+                        //Looping through uploaded files collection in case there is a Multi File Upload. This also works for single i.e simply remove MULTIPLE attribute from file control in HTML.  
+                        for (var i = 0; i < courier_file.length; i++) {
+                            formData.append('courier_file', courier_file[i]);
+                        }
+                        //Now Looping the parameters for all form input fields and assigning them as Name Value pairs. 
+                        $(params).each(function (index, element) {
+                            formData.append(element.name, element.value);
+                        });
+
+                        $.ajax({
+                            method:"POST",
+                            url:"<?php echo base_url();?>employee/inventory/process_spare_invoice_tagging",
+                            data:formData,
+                            contentType: false,
+                            processData: false,
+                            success:function(response){
+                                //console.log(response);
+                                obj = JSON.parse(response);
+                                $('#submit_btn').attr('disabled',false);
+                                $('#submit_btn').html("Submit");
+                                if(obj.status){
+                                    $('.success_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
+                                    $('#success_msg').html(obj.message);
+                                    $("#spareForm")[0].reset();
+                                }else{
+                                    $('.error_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(1000);});
+                                    $('#error_msg').html(obj.message);
+                                }
+    
+                           }
+                        });
+                    }else{
+                        return false;
+                    }
+                    
+                }else{
+                    alert('Amount of invoice does not match with total basic price');
+                    $('#invoice_amount').css('border','1px solid red');
+                    $('#total_spare_invoice_price').addClass('text-danger');
+                    return false;
+                }
             }
         });
         
@@ -432,40 +451,50 @@
     }
     
     function get_part_price(index){
-        var partner_id = $('#partner_id').val();
-        var service_id = $('#serviceId_'+index).val();
-        var part_number = $('#partNumber_'+index).val();
-        if(partner_id && service_id && part_number){
-            $.ajax({
-                type: 'POST',
-                url: '<?php echo base_url() ?>employee/inventory/get_inventory_price',
-                data:{entity_id:partner_id,entity_type:'<?php echo _247AROUND_PARTNER_STRING; ?>',service_id:service_id,part_number:part_number},
-                success: function (response) {
-                    var obj = JSON.parse(response);
-                    
-                    if(obj.inventory_id){
-                        $('#submit_btn').attr('disabled',false);
-                        var parts_total_price = parseInt($('#quantity_'+index).val()) * parseInt(obj.price);
-                        $('#inventoryId_'+index).val(obj.inventory_id);
-                        $('#partTotalPrice_'+index).val(parts_total_price);
-                        $('#partGstRate_'+index).val(obj.gst_rate);
-                        $('#partHsnCode_'+index).val(obj.hsn_code);
-                        var total_spare_invoice_price = 0;
-                        $(".part-total-price").each(function(i) {
-                            total_spare_invoice_price += parseInt($('#partTotalPrice_'+i).val());
-                        });
-                        $('#total_spare_invoice_price').html(total_spare_invoice_price);
-                    }else{
-                        alert("Inventory Details not found for the selected combination.");
-                        $('#submit_btn').attr('disabled',true);
-                    }
-                    
-                }
-            });
-        }else{
-            $('#quantity_'+index).val('');
-            alert("Please Select All Field");
+        var booking_id = $('#booking_id_0');
+        if(booking_id){
+            check_booking_id('booking_id_0');
         }
+        
+        if(is_valid_booking){
+            var partner_id = $('#partner_id').val();
+            var service_id = $('#serviceId_'+index).val();
+            var part_number = $('#partNumber_'+index).val();
+            if(partner_id && service_id && part_number){
+                $.ajax({
+                    type: 'POST',
+                    url: '<?php echo base_url() ?>employee/inventory/get_inventory_price',
+                    data:{entity_id:partner_id,entity_type:'<?php echo _247AROUND_PARTNER_STRING; ?>',service_id:service_id,part_number:part_number},
+                    success: function (response) {
+                        var obj = JSON.parse(response);
+
+                        if(obj.inventory_id){
+                            $('#submit_btn').attr('disabled',false);
+                            var parts_total_price = parseInt($('#quantity_'+index).val()) * parseInt(obj.price);
+                            $('#inventoryId_'+index).val(obj.inventory_id);
+                            $('#partTotalPrice_'+index).val(parts_total_price);
+                            $('#partGstRate_'+index).val(obj.gst_rate);
+                            $('#partHsnCode_'+index).val(obj.hsn_code);
+                            var total_spare_invoice_price = 0;
+                            $(".part-total-price").each(function(i) {
+                                total_spare_invoice_price += Number($('#partTotalPrice_'+i).val());
+                            });
+                            $('#total_spare_invoice_price').html(total_spare_invoice_price);
+                        }else{
+                            alert("Inventory Details not found for the selected combination.");
+                            $('#submit_btn').attr('disabled',true);
+                        }
+
+                    }
+                });
+            }else{
+                $('#quantity_'+index).val('');
+                alert("Please Select All Field");
+            }
+        }else{
+            alert('Booking id not found');
+        }
+        
     }
     
     function check_booking_id(id){
@@ -482,14 +511,17 @@
                     if(obj.status === true){
                         $('#'+id).css('border','1px solid #ccc');
                         $('#submit_btn').attr('disabled',false);
+                        is_valid_booking = true;
                     }else{
+                        is_valid_booking = false;
                         $('#'+id).css('border','1px solid red');
                         $('#submit_btn').attr('disabled',true);
-                        alert('Please Enter Valid Booking ID. Enter booking Id is not exists in our record,');
+                        alert('Booking id not found');
                     }
                 }
             });
         }else{
+            is_valid_booking = true;
             $('#'+id).css('border','1px solid #ccc');
             $('#submit_btn').attr('disabled',false);
         }
@@ -503,7 +535,7 @@
             if( invoice_id.indexOf('/') !== -1 ){
                 $('#'+id).css('border','1px solid red');
                 $('#submit_btn').attr('disabled',true);
-                alert("Please make sure invoice number does not contain '/'. You can replace '/' with '-'");
+                alert("Invoice ID is invalid.Please make sure invoice number does not contain '/'. You can replace '/' with '-'");
             }
             else{
                 $.ajax({
@@ -516,7 +548,7 @@
                         if(obj.status === true){
                             $('#'+id).css('border','1px solid red');
                             $('#submit_btn').attr('disabled',true);
-                            alert('Enter invoice number already exists in our record.');
+                            alert('Invoice number already exists');
                         }else{
                             $('#'+id).css('border','1px solid #ccc');
                             $('#submit_btn').attr('disabled',false);

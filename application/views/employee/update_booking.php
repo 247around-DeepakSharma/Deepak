@@ -188,6 +188,7 @@
                                             <option <?php if($booking_history[0]['partner_source'] === "Snapdeal-delivered-excel" ){ echo "selected"; } ?> >Snapdeal-delivered-excel</option>
                                             <option <?php if($booking_history[0]['partner_source'] === "Snapdeal-shipped-excel" ){ echo "selected"; } ?> >Snapdeal-shipped-excel</option>
                                             <option <?php if($booking_history[0]['partner_source'] === "TataCliq" ){ echo "selected"; } ?> >TataCliq</option>
+                                            <option <?php if($booking_history[0]['partner_source'] === "VibgyorNXT" ){ echo "selected"; } ?> >VibgyorNXT</option>
                                             <option <?php if($booking_history[0]['partner_source'] === "Website" ){ echo "selected"; } ?> >Website</option>
                                         </select>
                                     </div>
