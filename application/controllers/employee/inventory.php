@@ -2889,9 +2889,9 @@ class Inventory extends CI_Controller {
         $invoice['product_or_services'] = "Product";
         $invoice['hsn_code'] = $value['hsn_code'];
         $invoice['qty'] = $value['quantity'];
-        $invoice['rate'] = $value['part_total_price'];
+        $invoice['rate'] = $value['part_total_price']/$value['quantity'];
         $invoice['inventory_id'] = $value['inventory_id'];
-        $invoice['taxable_value'] = $value['part_total_price'] * $value['quantity'];
+        $invoice['taxable_value'] = $value['part_total_price'];
         if(!empty($value['gst_rate'])){
             $gst_amount = $invoice['taxable_value'] *($value['gst_rate']/100 );
         } else {
