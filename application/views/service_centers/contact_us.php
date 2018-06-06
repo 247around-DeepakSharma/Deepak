@@ -116,7 +116,7 @@
         <div class="col-md-12">
             <div class="card" style="width:40%;">
                 <div class="container">
-                    <h5><b>Mr. Manoja Jena</b></h5> 
+                    <h5><b>Mr. Manoj Jena</b></h5> 
                     <p>Delhi Office</p>
                     <p>‭+91 9555009004</p>
                     <p>manojaj@247around.com</p>
