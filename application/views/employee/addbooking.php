@@ -175,6 +175,7 @@
                                     <option>Snapdeal</option
                                     <option>Paytm-delivered-excel</option>
                                     <option>Paytm</option>
+                                    <option>VibgyorNXT</option>
                                     <option>Website</option>
                                     
                                     
