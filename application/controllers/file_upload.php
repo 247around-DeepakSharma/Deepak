@@ -439,18 +439,21 @@ class File_upload extends CI_Controller {
         } else {
             $subject = "Failed!!! " . str_replace('-', '', $data['post_data']['file_type']) . " File uploaded by " . $agent_name;
         }
+        
+        //Getting template from Database
+        $template = $this->booking_model->get_booking_email_template("file_upload_email");
 
-
-        $cc = ANUJ_EMAIL_ID;
-        $body = $response['message'];
-        $body .= "<br> <b>File Name</b> " . $data['file_name'];
-        $attachment = TMP_FOLDER.$data['file_name'];
-        $sendmail = $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $body, $attachment, $data['post_data']['file_type']);
-
-        if ($sendmail) {
-            log_message('info', __FUNCTION__ . 'Mail Send successfully');
-        } else {
-            log_message('info', __FUNCTION__ . 'Error in Sending Mail');
+        if (!empty($template)) {
+            $body = $response['message'];
+            $body .= "<br> <b>File Name</b> " . $data['file_name'];
+            $attachment = TMP_FOLDER.$data['file_name'];
+            $sendmail = $this->notify->sendEmail($template[2], $to, $template[3], "", $subject, $body, "", 'inventory_not_found');
+            
+            if ($sendmail) {
+                log_message('info', __FUNCTION__ . 'Mail Send successfully');
+            } else {
+                log_message('info', __FUNCTION__ . 'Error in Sending Mail');
+            }
         }
         
         unlink($attachment);
@@ -702,48 +705,48 @@ class File_upload extends CI_Controller {
                     }
                 }
                 
+                $not_exist_data_msg = '';
+                
+                $template = array(
+                    'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
+                );
+                
+                $this->table->set_template($template);
+                //generate not exists model table to send in email
+                if (!empty($this->not_exists_model)) {
+                    $this->table->set_heading(array('Model Number'));
+                    foreach (array_unique($this->not_exists_model) as $value) {
+                        $this->table->add_row($value);
+                    }
+
+                    $not_exist_data_msg .= " Below models does not exists in our record: <br>";
+                    $not_exist_data_msg .= $this->table->generate();
+                }
+                //generate not exists parts table to send in email
+                if (!empty($this->not_exists_parts)) {
+                    $this->table->set_heading(array('Part Number'));
+                    foreach (array_unique($this->not_exists_parts) as $value) {
+                        $this->table->add_row($value);
+                    }
+                    $not_exist_data_msg .= "<br> Below part number does not exists in our record: <br>";
+                    $not_exist_data_msg .= $this->table->generate();
+                }
+                
                 if(!empty($this->dataToInsert)){
-                    $insert_id = $this->inventory_model->insert_batch_inventory_model_mapping($this->dataToInsert);
-    
-                    if ($insert_id) {
-                        log_message("info", __METHOD__ . " mapping created succcessfully");
+                    $insert_data = $this->inventory_model->insert_batch_inventory_model_mapping($this->dataToInsert);
+                    if ($insert_data) {
+                        log_message("info", __METHOD__ . count($this->dataToInsert). " mapping created succcessfully");
                         $response['status'] = TRUE;
                         $message = "<b>".count($this->dataToInsert)."</b> mapping created successfully.";
-                        
-                        $template = array(
-                            'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
-                        );
-
-                        $this->table->set_template($template);
-                        //generate not exists model table to send in email
-                        if(!empty($this->not_exists_model)){
-                            $this->table->set_heading(array('Model Number'));
-                            foreach (array_unique($this->not_exists_model) as $value) {
-                                $this->table->add_row($value);
-                            }
-                            
-                            $message .= " Below models does not exists in our record: <br>";
-                            $message .= $this->table->generate();
-                        }
-                        //generate not exists parts table to send in email
-                        if(!empty($this->not_exists_parts)){
-                            $this->table->set_heading(array('Part Number'));
-                            foreach (array_unique($this->not_exists_parts) as $value) {
-                                $this->table->add_row($value);
-                            }
-                            $message .= "<br> Below part number does not exists in our record: <br>";
-                            $message .= $this->table->generate();
-                        }
-                        
-                        $response['message'] = $message;
+                        $response['message'] = $message.' '.$not_exist_data_msg;
                     } else {
                         log_message("info", __METHOD__ . " error in creating mapping.");
                         $response['status'] = FALSE;
-                        $response['message'] = "Something went wrong in creating mapping.";
+                        $response['message'] = "Either mapping already exists or something gone wrong. Please contact 247around developer.";
                     }
                 }else{
-                    $response['status'] = FALSE;
-                    $response['message'] = 'File has been uploaded successfully. No New Mapping Created.';
+                    $response['status'] = True;
+                    $response['message'] = "File has been uploaded successfully. No New Mapping Created. $not_exist_data_msg";
                 }
             }else{
                 $response['status'] = FALSE;
