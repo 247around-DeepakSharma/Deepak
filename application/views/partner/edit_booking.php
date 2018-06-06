@@ -158,6 +158,7 @@
                                         <option <?php if(set_value('partner_source') == "Shopclues"){ echo "selected";} else if($booking_history[0]['partner_source'] == 'Shopclues') { echo "selected";} ?>>Shopclues</option>
                                         <option <?php if(set_value('partner_source') == "TataCliq"){ echo "selected";} else if($booking_history[0]['partner_source'] == 'TataCliq') { echo "selected";} ?>>TataCliq</option>
                                         <option <?php if(set_value('partner_source') == "Snapdeal"){ echo "selected";} else if($booking_history[0]['partner_source'] == 'Snapdeal') { echo "selected";} ?>>Snapdeal</option>
+                                         <option <?php if(set_value('partner_source') == "VibgyorNXT"){ echo "selected";} else if($booking_history[0]['partner_source'] == 'VibgyorNXT') { echo "selected";} ?>>VibgyorNXT</option>
                                     </select>
                                     <?php echo form_error('partner_source'); ?>
                                 </div>
