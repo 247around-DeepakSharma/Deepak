@@ -461,7 +461,7 @@
         $('#entity_type').val(form_data.entity_type);
         $('#size').val(form_data.size);
         $('#price').val(JSON.parse(form_data.price));
-        $('#hsn').val(form_data.hsn_code);
+        $('#hsn_code').val(form_data.hsn_code);
         $('#gst_rate').val(form_data.gst_rate);
         $('#type').val(form_data.type);
         $('#description').val(form_data.description);
