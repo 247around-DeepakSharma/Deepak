@@ -856,7 +856,7 @@ class Partner extends CI_Controller {
     function editpartner($id) {
         log_message('info', __FUNCTION__ . ' partner_id:' . $id);
         $query = $this->partner_model->viewpartner($id);
-        $results['select_state'] = $this->vendor_model->getall_state();
+        $results['select_state'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
         $results['services'] = $this->vendor_model->selectservice();
         //Getting Login Details for this partner
         $results['partner_code'] = $this->partner_model->get_partner_code($id);
@@ -4437,26 +4437,35 @@ class Partner extends CI_Controller {
                 // Create Login If Checkbox Checked
                 if($this->input->post('checkbox_value_holder')[$index] == 'true'){
                         $password = mt_rand(100000, 999999);
-                        $loginData['user_id'] = str_replace(" ","_",$data['name']."_".$partnerID."_".substr(rand(0,26),2));
+                        $loginData['user_id'] = str_replace(" ","_",$data['name']."_".$partnerID."_".mt_rand(10, 99));
                         $loginData['password'] = md5($password);
                         $loginData['clear_password'] = $password;
                         $loginData['active'] = 1;
                         $agent_id = $this->miscelleneous->create_entity_login($loginData);
                     }
-                // Map States in agent_filters table if states are given
-                if($this->input->post('states_value_holder')){
-                    if($this->input->post('states_value_holder')[$index]){
-                        $stateString =  $this->input->post('states_value_holder')[$index];
-                        $states = explode(",",$stateString);
-                        foreach ($states as $state){
-                            $stateData['agent_id'] = $agent_id;
-                            $stateData['state'] = $state;
-                            $stateData['is_active'] = 1;
-                            $finalStateData[] = $stateData; 
-                        }
-                        $this->reusable_model->insert_batch('agent_filters',$finalStateData);
+                    // Map States in agent_filters table 
+                    // If state is not selected then add all states
+                    $stateString =  $this->input->post('states_value_holder')[$index];
+                    if(!$stateString){
+                        $states = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
+                        $all =1;
                     }
-                }
+                    else{
+                        $states = explode(",",$stateString);
+                         $all =0; 
+                    }
+                    foreach ($states as $state){
+                        $stateData['agent_id'] = $agent_id;
+                        if($all ==  1){
+                            $stateData['state'] = $state['state'];
+                        }
+                        else{
+                            $stateData['state'] = $state;
+                        }
+                        $stateData['is_active'] = 1;
+                        $finalStateData[] = $stateData; 
+                    }
+                    $this->reusable_model->insert_batch('agent_filters',$finalStateData);
             }
             if($id){
                 $msg =  "Contact Persons has been Added successfully ";
