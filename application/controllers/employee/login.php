@@ -690,7 +690,7 @@ function user_role_management(){
         $data['header_navigation'] = $structuredData;
         // Get All roles group 
         $data['roles_group'] = $this->reusable_model->get_search_result_data("employee","DISTINCT groups",NULL,NULL,NULL,NULL,NULL,NULL,array("groups"));
-        $data['partners_roles_group'] = $this->reusable_model->get_search_result_data("entity_login_table","DISTINCT groups",NULL,NULL,NULL,NULL,NULL,NULL,array("groups"));
+        $data['partners_roles_group'] = $this->reusable_model->get_search_result_data("entity_role","role as groups",array("entity_type"=>'partner'),NULL,NULL,NULL,NULL,NULL,array());
         //Get Header 
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/user_role',array("header_navigation"=>$data['header_navigation'],'roles_group'=>$data['roles_group'],'partners_roles_group'=>$data['partners_roles_group']));

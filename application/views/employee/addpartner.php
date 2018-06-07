@@ -2181,8 +2181,7 @@ function sendAjaxRequest(postData, url,type) {
     }
     function getFilters(role,id){
         divID = id.split("_")[3];
-        department = $("#contact_person_department_"+divID).val();
-        var data = {department:department,role:role};
+        var data = {role:role};
         url =  '<?php echo base_url(); ?>employee/partner/get_partner_roles_filters';
         sendAjaxRequest(data,url,"POST").done(function(response){
             if(response == 1){

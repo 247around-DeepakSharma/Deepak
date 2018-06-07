@@ -878,7 +878,8 @@ class Partner extends CI_Controller {
         $results['collateral_type'] = $this->reusable_model->get_search_result_data("collateral_type", '*', array("collateral_tag" => "Contract"), NULL, NULL, array("collateral_type" => "ASC"), NULL, NULL);
         $employee_list = $this->employee_model->get_employee_by_group(array("groups NOT IN ('developer') AND active = '1'" => NULL));
         $departmentArray = $this->reusable_model->get_search_result_data("entity_role", 'DISTINCT department',array("entity_type" => 'partner'),NULL, NULL, array('department'=>'ASC'), NULL, NULL,array());
-        $results['contact_persons'] = $this->reusable_model->get_search_result_data("contact_person", '*',array("entity_type" => 'partner','entity_id'=>$id),NULL, NULL, array('name'=>'ASC'), NULL, NULL,array());
+        $results['contact_persons'] = $this->reusable_model->get_search_result_data("entity_role", 'contact_person.*,entity_role.role,entity_role.department',
+                array("contact_person.entity_type" => 'partner','entity_id'=>$id),array("contact_person"=>"contact_person.role = entity_role.id"), NULL, array('name'=>'ASC'), NULL, NULL,array());
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/addpartner', array('query' => $query, 'results' => $results, 'employee_list' => $employee_list, 'form_type' => 'update','department'=>$departmentArray));
     }
@@ -4434,15 +4435,15 @@ class Partner extends CI_Controller {
        $this->miscelleneous->download_csv_from_s3($folder,$file);
     }
     function get_partner_roles($department){
-       $data =  $this->reusable_model->get_search_result_data("entity_role","role",array('department'=>$department),NULL,NULL,array('role'=>"ASC"),NULL,NULL,array());
+       $data =  $this->reusable_model->get_search_result_data("entity_role","role,id",array('department'=>$department),NULL,NULL,array('role'=>"ASC"),NULL,NULL,array());
        $option = "<option value='' disabled selected>Select Role</option>";
        foreach($data as $roles){
-           $option = $option."<option value = '".$roles['role']."'>".$roles['role']."</option>";
+           $option = $option."<option value = '".$roles['id']."'>".$roles['role']."</option>";
        }
        echo $option;
     }
     function get_partner_roles_filters(){
-       $data =  $this->reusable_model->get_search_result_data("entity_role","is_filter_applicable",array('department'=>$this->input->post('department'),'role'=>$this->input->post('role')),NULL,
+       $data =  $this->reusable_model->get_search_result_data("entity_role","is_filter_applicable",array('id'=>$this->input->post('role')),NULL,
                NULL,array('role'=>"ASC"),NULL,NULL,array());
        echo  $data[0]['is_filter_applicable'];
     }
@@ -4462,7 +4463,6 @@ class Partner extends CI_Controller {
                 $data['permanent_address'] = $this->input->post('contact_person_address')[$index];
                 $data['correspondence_address'] = $this->input->post('contact_person_c_address')[$index];
                 $data['role'] = $this->input->post('contact_person_role')[$index];
-                $data['department'] = $this->input->post('contact_person_department')[$index];
                 $data['entity_id'] = $loginData['entity_id'] = $stateData['entity_id'] = $partnerID;
                 $data['entity_type'] = $loginData['entity'] = $stateData['entity_type'] = "partner";
                 $data['agent_id'] = $this->session->userdata('id');

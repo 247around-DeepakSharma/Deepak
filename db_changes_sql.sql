@@ -5059,3 +5059,4 @@ INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `li
 ALTER TABLE `contact_person` ADD `is_active` INT(10) NOT NULL DEFAULT '1' AFTER `update_date`;
 ALTER TABLE `contact_person` ADD `agent_id` INT(10) NOT NULL AFTER `is_active`;
 ALTER TABLE `entity_login_table` ADD `contact_person_id` INT(10) NULL AFTER `entity_name`;
+ALTER TABLE contact_person AUTO_INCREMENT = 10000;
