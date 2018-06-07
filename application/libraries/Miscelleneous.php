@@ -2915,12 +2915,11 @@ function convert_html_to_pdf($html,$booking_id,$filename,$s3_folder){
                     $login_emailBody = vsprintf($login_template[0], $login_email);
                     $this->My_CI->notify->sendEmail($login_template[2], $data['email'], $cc, "",$login_subject, $login_emailBody, "",'partner_login_details');
                     log_message('info', $login_subject . " Email Send successfully" . $login_emailBody);
-                    return $s1;
                 } else {
                     //Logging Error
                     log_message('info', " Error in Getting Email Template for New Vendor Login credentials Mail");
-                    return false;
                 }
+                return $s1;
             } else {
                 //Log Message
                 log_message('info', __FUNCTION__ . ' Error in Adding Partner Login Details for id : ' . $partner_id . ' with values ' . print_r($data, TRUE));
