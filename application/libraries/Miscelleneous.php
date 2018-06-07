@@ -2123,7 +2123,7 @@ class Miscelleneous {
         $data['right_nav'] = $this->get_main_nav_data("right_nav",$entity_type);
         if($entity_type == "Partner"){
            $msg = $this->My_CI->load->view('partner/header_navigation',$data,TRUE);
-           $this->My_CI->cache->file->save('navigationHeader_partner_'.$this->My_CI->session->userdata('role').'_'.$this->My_CI->session->userdata('agent_id'), $msg, 36000);
+           $this->My_CI->cache->file->save('navigationHeader_partner_'.$this->My_CI->session->userdata('user_group').'_'.$this->My_CI->session->userdata('agent_id'), $msg, 36000);
         }
         else{
             $msg = $this->My_CI->load->view('employee/header/header_navigation',$data,TRUE);
@@ -2847,7 +2847,7 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
     function load_partner_nav_header(){
         //Check is navigation there in cache?
         // If not then create navigation and loads into cache
-        if(!$this->My_CI->cache->file->get('navigationHeader_partner_'.$this->My_CI->session->userdata('agent_id'))){
+        if(!$this->My_CI->cache->file->get('navigationHeader_partner_'.$this->My_CI->session->userdata('user_group').'_'.$this->My_CI->session->userdata('agent_id'))){
                 $this->set_header_navigation_in_cache("Partner");
          }
         $data['header_navigation_html'] = $this->My_CI->cache->file->get('navigationHeader_partner_'.$this->My_CI->session->userdata('user_group').'_'.$this->My_CI->session->userdata('agent_id'));
