@@ -314,11 +314,10 @@ class Login extends CI_Controller {
         $this->session->sess_create();
         $this->session->set_userdata(array("login_by"=>_247AROUND_EMPLOYEE_STRING));
        // $partner_id = $this->input->post('partner_id');
-        $data['entity'] = "partner";
-        $data['entity_id'] = $partner_id;
-        $data['active'] = 1;
+        $data['entity_login_table.entity'] = "partner";
+        $data['entity_login_table.entity_id'] = $partner_id;
+        $data['entity_login_table.active'] = 1;
         $agent = $this->dealer_model->get_entity_login_details($data);
-        
         if (!empty($agent)) {
             //get partner details now
             $partner_details = $this->partner_model->getpartner($partner_id, false);
