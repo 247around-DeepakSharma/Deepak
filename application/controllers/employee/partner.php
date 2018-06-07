@@ -4477,29 +4477,31 @@ class Partner extends CI_Controller {
                         $loginData['active'] = 1;
                         $agent_id = $this->miscelleneous->create_entity_login($loginData);
                     }
-                    // Map States in agent_filters table 
-                    // If state is not selected then add all states
-                    $stateString =  $this->input->post('states_value_holder')[$index];
-                    if(!$stateString){
-                        $states = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
-                        $all =1;
-                    }
-                    else{
-                        $states = explode(",",$stateString);
-                         $all =0; 
-                    }
-                    foreach ($states as $state){
-                        $stateData['agent_id'] = $agent_id;
-                        if($all ==  1){
-                            $stateData['state'] = $state['state'];
+                    if($agent_id){
+                        // Map States in agent_filters table 
+                        // If state is not selected then add all states
+                        $stateString =  $this->input->post('states_value_holder')[$index];
+                        if(!$stateString){
+                            $states = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
+                            $all =1;
                         }
                         else{
-                            $stateData['state'] = $state;
+                            $states = explode(",",$stateString);
+                             $all =0; 
                         }
-                        $stateData['is_active'] = 1;
-                        $finalStateData[] = $stateData; 
+                        foreach ($states as $state){
+                            $stateData['agent_id'] = $agent_id;
+                            if($all ==  1){
+                                $stateData['state'] = $state['state'];
+                            }
+                            else{
+                                $stateData['state'] = $state;
+                            }
+                            $stateData['is_active'] = 1;
+                            $finalStateData[] = $stateData; 
+                        }
+                        $this->reusable_model->insert_batch('agent_filters',$finalStateData);
                     }
-                    $this->reusable_model->insert_batch('agent_filters',$finalStateData);
             }
             if($id){
                 $msg =  "Contact Persons has been Added successfully ";
