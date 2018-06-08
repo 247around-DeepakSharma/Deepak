@@ -2408,7 +2408,7 @@ class Inventory extends CI_Controller {
      */
     function get_parts_name(){
         
-        $model_number_id = $this->input->post('model_number');
+        $model_number_id = $this->input->post('model_number_id');
         $part_type = $this->input->post('part_type');
         $where = array();
         if(!empty($model_number_id)){

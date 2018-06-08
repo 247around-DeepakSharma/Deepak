@@ -28,7 +28,7 @@
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
                 <div class="x_title">
-                    <h2>Tag Spare Invoice</h2>
+                    <h2>Spare Dispatched by Partner</h2>
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content">
@@ -125,7 +125,7 @@
                                         <p class="text-center"><strong>HSN Code</strong></p>
                                     </div>
                                     <div class="col-xs-12 col-sm-6 col-md-1">
-                                        <p class="text-center"><strong>Gst Rate</strong></p>
+                                        <p class="text-center"><strong>GST Rate</strong></p>
                                     </div>
                                 </div>
                                 <div class="form-group">
