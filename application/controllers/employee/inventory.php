@@ -4017,6 +4017,4 @@ class Inventory extends CI_Controller {
             redirect(base_url() . "partner/login");
         }
     }
-  
-        
 }
