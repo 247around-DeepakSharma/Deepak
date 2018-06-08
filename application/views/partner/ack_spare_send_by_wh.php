@@ -8,7 +8,7 @@
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0 40px;">
             <div class="x_panel">
                 <div class="x_title">
-                    <h3>Spare need to acknowledge</h3>
+                    <h3>Acknowledge Defective Spare Send By Warehouse</h3>
                     <ul class="nav navbar-right panel_toolbox">
                         <li>
                             <div class="approved">
@@ -43,10 +43,10 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Appliance</th>
-                                    <th>Spare Model Number</th>
-                                    <th>Spare Type</th>
-                                    <th>Spare Part Name</th>
-                                    <th>Spare Quantity</th>
+                                    <th>Model Number</th>
+                                    <th>Type</th>
+                                    <th>Name</th>
+                                    <th>Quantity</th>
                                     <th>
                                         Acknowledge
                                         <input type="checkbox" id="ack_all">
