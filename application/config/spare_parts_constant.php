@@ -4,8 +4,8 @@ define('SPARE_INVOICE_EMAIL_TAG','spare_invoice_sent');
 define('SEND_DEFECTIVE_SPARE_PARTS_NOTIFICATION',7 );
 define("SPARE_PART_RADIO_BUTTON_NOT_REQUIRED", "0"); 
 define("ESTIMATE_APPROVED_BY_CUSTOMER", "Spare Estimate Approved By Customer");
-define("REPAIR_OOW_TAG", "Repair - Out Of Warranty");
-define("REPAIR_IN_WARRANTY_TAG", "Repair - In Warranty");
+define("REPAIR_OOW_TAG", "Repair - Out Of Warranty (Home Visit)");
+define("REPAIR_IN_WARRANTY_TAG", "Repair - In Warranty (Home Visit)");
 define('SPARE_OOW_EST_REQUESTED','Request Quote for Spare Part');
 define('SPARE_OOW_EST_GIVEN','Spare Estimate Cost Given');
 define('SPARE_OOW_EST_MARGIN','0.25');
@@ -43,7 +43,7 @@ define("SPARE_DELIVERED_TO_SF", "Delivered");
 define("SPARE_SHIPPED_BY_PARTNER", "Shipped");
 define("SPARE_PARTS_NOT_DELIVERED_TO_SF", "Spare parts not received");
 //MSG- Sf can not complete a booking if spare part request is pending on partner
-define("UNABLE_COMPLETE_BOOKING_SPARE_MSG", "Please wait, your requested part is pending for shippment. Partner will send part to you");
+define("UNABLE_COMPLETE_BOOKING_SPARE_MSG", "Please wait, your requested part is pending for shipment. Partner will send part to you");
 define("CANCEL_PAGE_SPARE_NOT_SHIPPED", "Please wait, partner will send Spare Part.");
 define("CANCEL_PAGE_SPARE_SHIPPED", "You are unable to cancel this booking because Spare Parts Shipped.");
 

@@ -80,9 +80,13 @@ class User_invoice extends CI_Controller {
                 $invoice[0]['rate'] = 0;
                 $invoice[0]['qty'] = $data[0]->quantity;
                 $invoice[0]['hsn_code'] = HSN_CODE;
+                $invoice[0]['gst_rate'] = DEFAULT_TAX_RATE;
 
                 $sd = $ed = $invoice_date = $data[0]->closed_date;
-                $response = $this->invoices_model->_set_partner_excel_invoice_data(DEFAULT_TAX_RATE, $invoice, $sd, $ed, "Tax Invoice", $invoice_date, true, $data[0]->state);
+
+
+                $response = $this->invoices_model->_set_partner_excel_invoice_data($invoice, $sd, $ed, "Tax Invoice", $invoice_date, true, $data[0]->state);
+
                 $response['meta']['customer_name'] = $data[0]->name;
                 $response['meta']['customer_address'] = $data[0]->home_address . ", " . $data[0]->city . ", Pincode - " . $data[0]->pincode . ", " . $data[0]->state;
                 $response['meta']['customer_phone_number'] = $data[0]->booking_primary_contact_no;
@@ -307,9 +311,12 @@ class User_invoice extends CI_Controller {
                 $invoice[0]['qty'] = $data[0]->quantity;
                 //As Aditya, No need to add hsn code
                 $invoice[0]['hsn_code'] = "";
+                $invoice[0]['gst_rate'] = DEFAULT_TAX_RATE;
 
                 $sd = $ed = $invoice_date = date("Y-m-d");
-                $response = $this->invoices_model->_set_partner_excel_invoice_data(DEFAULT_TAX_RATE, $invoice, $sd, $ed, "Payment Voucher", $invoice_date);
+
+                $response = $this->invoices_model->_set_partner_excel_invoice_data($invoice, $sd, $ed, "Payment Voucher", $invoice_date);
+
                 $response['meta']['customer_name'] = $data[0]->name;
                 $response['meta']['customer_address'] = $data[0]->home_address . ", " . $data[0]->city . ", Pincode - " . $data[0]->pincode . ", " . $data[0]->state;
                 $response['meta']['customer_phone_number'] = $data[0]->booking_primary_contact_no;

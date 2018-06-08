@@ -164,7 +164,6 @@ class Partner extends CI_Controller {
         $config['last_link'] = 'Last';
         $this->pagination->initialize($config);
         $data['links'] = $this->pagination->create_links();
-
         $data['count'] = $config['total_rows'];
         if (!empty($booking_id)) {
             $data['bookings'] = $this->partner_model->getclosed_booking($config['per_page'], $offset, $partner_id, $state, $booking_id,$stateCity);
@@ -176,7 +175,6 @@ class Partner extends CI_Controller {
             $data['success'] = $this->session->flashdata('result');
 
         $data['status'] = $state;
-
        $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
         log_message('info', 'Partner view ' . $state . ' booking  partner id' . $partner_id . " Partner name" . $this->session->userdata('partner_name') . " data " . print_r($data, true));
         $this->miscelleneous->load_partner_nav_header();
@@ -1079,7 +1077,7 @@ class Partner extends CI_Controller {
         $partner_id = $this->input->post("partner_id");
         $agent_id = $this->session->userdata('agent_id');
 
-        $this->miscelleneous->process_cancel_form($booking_id, $status, $cancellation_reason, $historyRemarks, $agent_id, $this->session->userdata('partner_name'), $partner_id);
+        $this->miscelleneous->process_cancel_form($booking_id, $status, $cancellation_reason, $historyRemarks, $agent_id, $this->session->userdata('partner_name'), $partner_id, $partner_id);
 
         redirect(base_url() . "partner/get_user_form");
     }
@@ -1276,7 +1274,7 @@ class Partner extends CI_Controller {
                 $partner_details = $this->dealer_model->entity_login(array('agent_id' => $this->session->userdata('agent_id')))[0];
                 $rm_mail = $this->vendor_model->get_rm_sf_relation_by_sf_id($bookinghistory[0]['assigned_vendor_id'])[0]['official_email'];
                 $partner_mail_to = $partner_details['email'];
-                $partner_mail_cc = NITS_EMAIL_ID . ",escalations@247around.com ," . $rm_mail.",".$am_email;
+                $partner_mail_cc = "escalations@247around.com ," . $rm_mail.",".$am_email;
                 $partner_subject = "Booking " . $booking_id . " Escalated ";
                 $partner_message = "<p>This booking is ESCALATED to 247around, we will look into this very soon.</p><br><b>Booking ID : </b>" . $booking_id . " Escalated <br><br><strong>Remarks : </strong>" . $remarks;
                 $this->notify->sendEmail(NOREPLY_EMAIL_ID, $partner_mail_to, $partner_mail_cc, $bcc, $partner_subject, $partner_message, $attachment,BOOKING_ESCALATION);
@@ -1685,9 +1683,8 @@ class Partner extends CI_Controller {
                 . "serial_number_pic,defective_parts_pic,spare_parts_details.id, booking_details.request_type, purchase_price, estimate_cost_given_date,booking_details.partner_id,booking_details.assigned_vendor_id,booking_details.service_id,parts_requested_type";
 
         $data['spare_parts'] = $this->inventory_model->get_spare_parts_query($where);
-        $post['length'] = -1;
-        $post['where'] = array('entity_id' => $data['spare_parts'][0]->partner_id,'entity_type' => _247AROUND_PARTNER_STRING,'service_id' => $data['spare_parts'][0]->service_id);
-        $data['inventory_details'] = $this->inventory_model->get_inventory_master_list($post, 'inventory_master_list.model_number', true);
+        $where = array('entity_id' => $data['spare_parts'][0]->partner_id, 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['spare_parts'][0]->service_id,'active' => 1);
+        $data['inventory_details'] = $this->inventory_model->get_appliance_model_details('id,model_number',$where);
         //$this->load->view('partner/header');
         $this->miscelleneous->load_partner_nav_header();
         $this->load->view('partner/update_spare_parts_form', $data);
@@ -1703,6 +1700,7 @@ class Partner extends CI_Controller {
         
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id') . " Spare id: " . $id);
         $this->checkUserSession();
+        $this->form_validation->set_rules('shipped_model_number', 'Model Number', 'trim|required');
         $this->form_validation->set_rules('shipped_parts_name', 'Parts Name', 'trim|required');
         $this->form_validation->set_rules('remarks_by_partner', 'Remarks', 'trim|required');
         $this->form_validation->set_rules('courier_name', 'Courier Name', 'trim|required');
@@ -1749,13 +1747,10 @@ class Partner extends CI_Controller {
                 }
                 $data['status'] = "Shipped";
                 
-                $post['length'] = -1;
-                $post['where'] = array('model_number' => $data['model_number_shipped'], 'part_name' => $data['parts_shipped'], 'entity_id' => $partner_id, 'entity_type' => _247AROUND_PARTNER_STRING,'type' => $data['shipped_parts_type']);
-                $inventory_details = $this->inventory_model->get_inventory_master_list($post, 'inventory_master_list.inventory_id', true);
-                if (!empty($inventory_details)) {
-                    $data['shipped_inventory_id'] = $inventory_details[0]['inventory_id'];
+                if (!empty($this->input->post('inventory_id'))) {
+                    $data['shipped_inventory_id'] = $this->input->post('inventory_id');
                 }
-
+                
                 $where = array('id' => $id, 'partner_id' => $partner_id, 'entity_type' => _247AROUND_PARTNER_STRING);
                 $response = $this->service_centers_model->update_spare_parts($where, $data);
 
@@ -1975,20 +1970,17 @@ class Partner extends CI_Controller {
             $state = 1;
         }
         $partner_id = $this->session->userdata('partner_id');
-        $where = "spare_parts_details.partner_id = '" . $partner_id . "' "
-                . " AND status IN ('Delivered', 'Shipped', '" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_SHIPPED . "')  ";
-
+        //Parts Shipped by Partner But Did'nt Get by SF
+        $where = "spare_parts_details.partner_id = '" . $partner_id . "'AND status IN ( 'Shipped')  ";
         $config['base_url'] = base_url() . 'partner/get_shipped_parts_list';
         $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false,$state);
         $config['total_rows'] = $total_rows[0]['total_rows'];
-
         $config['per_page'] = 50;
         $config['uri_segment'] = 3;
         $config['first_link'] = 'First';
         $config['last_link'] = 'Last';
         $this->pagination->initialize($config);
         $data['links'] = $this->pagination->create_links();
-
         $data['count'] = $config['total_rows'];
         $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true,$state);
 
@@ -2741,7 +2733,8 @@ class Partner extends CI_Controller {
             }
             echo $option;
         } else {
-            $booking = array('booking_id' => 'Not_Generated', 'booking_pincode' => $pincode,'service_id' => $service_id, 'partner_id' => $this->session->userdata('partner_id'),'city'=>'Not_Received');
+            $booking = array('booking_id' => 'Not_Generated', 'booking_pincode' => $pincode,'service_id' => $service_id, 'partner_id' => $this->session->userdata('partner_id'),'city'=>'Not_Received',
+                'order_id'=>'Not_Received');
             $this->miscelleneous->sf_not_exist_for_pincode($booking);
             echo 'ERROR';
         }
@@ -2828,8 +2821,8 @@ class Partner extends CI_Controller {
             }
         } else {
             log_message('info', __FUNCTION__ . " => Failed: Partner try to approve Booking Id" . $booking_id);
-            $to = NITS_ANUJ_EMAIL_ID;
-            $cc = "vijaya@247around.com, abhaya@247around.com";
+            $to = "abhaya@247around.com";
+            $cc = "vijaya@247around.com";
             $message = "Partner try to approve Booking Id " . $booking_id . " but somehow it failed. <br/>Please check this booking.";
             $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, '', 'UpCountry Approval Failed', $message, '',PARTNER_APPROVAL_FAILED);
             $msg = "Your request has been submitted. We will fix it shortly.";
@@ -2914,7 +2907,7 @@ class Partner extends CI_Controller {
      * @desc: used to display list of waiting to approve upcountry charges
      */
     function get_waiting_for_approval_upcountry_charges($offset = 0, $all = 0) {
-        $this->checkUserSession();
+         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
         $state = 0;
         if($this->session->userdata('is_filter_applicable') == 1){
@@ -3980,10 +3973,10 @@ class Partner extends CI_Controller {
         $partner_details = array();
         $select = "partners.id,public_name,company_type,primary_contact_name,primary_contact_email,primary_contact_phone_1,owner_name,owner_email,owner_phone_1,gst_number,pan";
         $where = array('is_active' => 1);
-        $partner_details['excel_data'] = $this->partner_model->getpartner_details($select,$where);
+        $partner_details['excel_data_line_item'] = $this->partner_model->getpartner_details($select,$where);
         $template = 'partner_summary_details.xlsx';
         $output_file = "partner_summary_details". date('d_M_Y_H_i_s');
-        $partner_details['excel_data_line_item'] = array();
+        $partner_details['excel_data'] = array();
         $generated_file = $this->miscelleneous->generate_excel_data($template,$output_file,$partner_details);
         
         if (file_exists($generated_file)) {
@@ -4142,10 +4135,10 @@ class Partner extends CI_Controller {
     }
     
 
-    function download_partner_pending_bookings($partnerID){ 
+    function download_partner_pending_bookings($partnerID,$status){ 
         ob_start();
-        $report = $this->partner_model->get_partners_pending_bookings($partnerID,0,1);
-        $newCSVFileName = "Pending_booking_" . date('j-M-Y-H-i-s') . ".csv";
+        $report = $this->partner_model->get_partners_pending_bookings($partnerID,0,1,$status);
+        $newCSVFileName = $status."_booking_" . date('j-M-Y-H-i-s') . ".csv";
         $csv = TMP_FOLDER . $newCSVFileName;
         $delimiter = ",";
         $newline = "\r\n";
@@ -4190,7 +4183,8 @@ class Partner extends CI_Controller {
         );
 
         $select = "CONCAT( '', GROUP_CONCAT((parts_shipped ) ) , '' ) as defective_part_shipped, "
-                . " spare_parts_details.booking_id, name,DATEDIFF(CURDATE(),date(booking_details.service_center_closed_date)) as aging";
+                . " spare_parts_details.booking_id, name,DATEDIFF(CURDATE(),date(booking_details.service_center_closed_date)) as aging,spare_parts_details.courier_name_by_partner, "
+                . "spare_parts_details.awb_by_partner,spare_parts_details.partner_challan_number";
 
         $group_by = "spare_parts_details.booking_id";
         $order_by = "spare_parts_details.defective_part_shipped_date DESC";
@@ -4274,6 +4268,7 @@ class Partner extends CI_Controller {
      * This function is use to create and  save partner's custom summary report 
      */
     function create_and_save_partner_report($partnerID){
+        $this->checkUserSession();
         log_message('info', __FUNCTION__ . "Function Start For ".print_r($this->input->post(),true)." Partner ID : ".$partnerID);
         $postArray = $this->input->post();
         //Create Summary Report
@@ -4334,11 +4329,12 @@ class Partner extends CI_Controller {
             "status IN ('" . DEFECTIVE_PARTS_SHIPPED . "')  " => NULL
         );
         $select = "CONCAT( '', GROUP_CONCAT((defective_part_shipped ) ) , '' ) as defective_part_shipped, "
-                . " spare_parts_details.booking_id, name, courier_name_by_sf, awb_by_sf,defective_part_shipped_date,remarks_defective_part_by_sf";
+                . " spare_parts_details.booking_id, name, courier_name_by_sf, awb_by_sf, spare_parts_details.sf_challan_number, spare_parts_details.partner_challan_number, "
+                . "defective_part_shipped_date,remarks_defective_part_by_sf";
         $group_by = "spare_parts_details.booking_id";
         $order_by = "spare_parts_details.defective_part_shipped_date DESC";
         $data = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by);
-        $headings = array("Parts Shipped","Booking ID","Customer Name","Courier Name","AWB","Shipped Date","Remarks");
+        $headings = array("Parts Shipped","Booking ID","Customer Name","Courier Name","AWB","SF Challan","Partner Challan","Shipped Date","Remarks");
         foreach($data as $spareData){
             $CSVData[]  = array_values($spareData);
         }
@@ -4362,11 +4358,12 @@ class Partner extends CI_Controller {
         ob_start();
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
         $this->checkUserSession();
+        $CSVData = array();
         $partner_id = $this->session->userdata('partner_id');
         $where = "spare_parts_details.partner_id = '" . $partner_id . "' "
                 . " AND status IN ('Delivered', 'Shipped', '" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_SHIPPED . "')  ";
         $data= $this->partner_model->get_spare_parts_booking_list($where, NULL, NULL, true);
-        $headings = array("Customer Name","Booking ID","Shipped Parts","Courier Name","AWB","Shipped Date","Remarks");
+        $headings = array("Customer Name","Booking ID","Shipped Parts","Courier Name","AWB","Challan","Shipped Date","Remarks");
         foreach($data as $sparePartBookings){
             $tempArray = array();
             $tempArray[] = $sparePartBookings['name'];
@@ -4374,6 +4371,30 @@ class Partner extends CI_Controller {
             $tempArray[] = $sparePartBookings['parts_shipped'];
             $tempArray[] = $sparePartBookings['courier_name_by_partner'];
             $tempArray[] = $sparePartBookings['awb_by_partner'];
+            $tempArray[] = $sparePartBookings['partner_challan_number'];
+            $tempArray[] = $sparePartBookings['shipped_date'];
+            $tempArray[] = $sparePartBookings['remarks_by_partner'];
+            $CSVData[]  = $tempArray;
+        }
+        $this->miscelleneous->downloadCSV($CSVData, $headings, "Spare_Part_Shipped_By_Partner_".date("Y-m-d"));
+    }
+    function download_spare_part_shipped_by_partner_not_acknowledged(){
+        ob_start();
+        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
+        $this->checkUserSession();
+        $CSVData = array();
+        $partner_id = $this->session->userdata('partner_id');
+        $where = "spare_parts_details.partner_id = '" . $partner_id . "' AND status IN ('Shipped') ";
+        $data= $this->partner_model->get_spare_parts_booking_list($where, NULL, NULL, true);
+        $headings = array("Customer Name","Booking ID","Shipped Parts","Courier Name","AWB","Challan","Shipped Date","Remarks");
+        foreach($data as $sparePartBookings){
+            $tempArray = array();
+            $tempArray[] = $sparePartBookings['name'];
+            $tempArray[] = $sparePartBookings['booking_id'];
+            $tempArray[] = $sparePartBookings['parts_shipped'];
+            $tempArray[] = $sparePartBookings['courier_name_by_partner'];
+            $tempArray[] = $sparePartBookings['awb_by_partner'];
+            $tempArray[] = $sparePartBookings['partner_challan_number'];
             $tempArray[] = $sparePartBookings['shipped_date'];
             $tempArray[] = $sparePartBookings['remarks_by_partner'];
             $CSVData[]  = $tempArray;
@@ -4391,11 +4412,12 @@ class Partner extends CI_Controller {
             "status IN ('" . DEFECTIVE_PARTS_PENDING . "')  " => NULL
         );
         $select = "CONCAT( '', GROUP_CONCAT((parts_shipped ) ) , '' ) as defective_part_shipped, "
-                . " spare_parts_details.booking_id, name,DATEDIFF(CURDATE(),date(booking_details.service_center_closed_date)) as aging";
+                . " spare_parts_details.booking_id, name,spare_parts_details.courier_name_by_partner,spare_parts_details.awb_by_partner, spare_parts_details.partner_challan_number, "
+                . "DATEDIFF(CURDATE(),date(booking_details.service_center_closed_date)) as aging";
         $group_by = "spare_parts_details.booking_id";
         $order_by = "spare_parts_details.defective_part_shipped_date DESC";
         $data = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by);
-        $headings = array("Parts","Booking ID","Name","Aging");
+        $headings = array("Parts","Booking ID","Name","Courier","AWB","Challan","Aging");
         foreach($data as $sparePartBookings){
             $tempArray = array_values($sparePartBookings);
             $CSVData[]  = $tempArray;
@@ -4410,19 +4432,20 @@ class Partner extends CI_Controller {
         $where = "spare_parts_details.partner_id = '" . $partner_id . "' "
                 . " AND approved_defective_parts_by_partner = '1' ";
         $data = $this->partner_model->get_spare_parts_booking_list($where, NULL,NULL, true);
-        $headings = array("Name","Booking ID","Received Parts","Received Date","AWB","Courier Name","SF Remarks");
+        $headings = array("Name","Booking ID","Received Parts","Received Date","AWB","Courier Name","Challan","SF Remarks");
         foreach($data as $sparePartBookings){
             $tempArray = array();
             $tempArray[] = $sparePartBookings['name'];
             $tempArray[] = $sparePartBookings['booking_id'];
             $tempArray[] = $sparePartBookings['defective_part_shipped'];
             $tempArray[] = $sparePartBookings['received_defective_part_date'];
-            $tempArray[] = $sparePartBookings['awb_by_sf'];
-            $tempArray[] = $sparePartBookings['courier_name_by_sf'];
+            $tempArray[] = $sparePartBookings['awb_by_partner'];
+            $tempArray[] = $sparePartBookings['	courier_name_by_partner'];
+            $tempArray[] = $sparePartBookings['	partner_challan_number'];
             $tempArray[] = $sparePartBookings['remarks_defective_part_by_sf'];
             $CSVData[]  = $tempArray;
         }
-        $this->miscelleneous->downloadCSV($CSVData, $headings, "Spare_Part_Shipped_By_Partner_".date("Y-m-d"));
+        $this->miscelleneous->downloadCSV($CSVData, $headings, "Spare_Part_Received_By_Partner_".date("Y-m-d"));
     }
     
     function ack_spare_send_by_wh(){

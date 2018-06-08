@@ -981,16 +981,17 @@ class Around_scheduler extends CI_Controller {
         
     }
     /**
-     * @desc This funnction is used to calculate upcountry from India Pincode File
+     * @desc This function is used to calculate upcountry from India Pincode File
      */
     function get_upcountry_details_from_india_pincode() {
-        $pincode_array = $this->vendor_model->getPincode_from_india_pincode();
+        $this->upcountry_model->truncate_upcountry_sf_level_table();
+        $pincode_array = $this->vendor_model->getPincode_from_india_pincode("", true);
         $partner_data = array();
         $partner_data[0]['is_upcountry'] = 0;
         $partner_data[0]['upcountry_approval_email'] = '';
         $services = $this->booking_model->selectservice();
         foreach ($services as $service_id) {
-        $upcountry_data = array();
+            $upcountry_data = array();
             foreach ($pincode_array as $key => $pincode) {
                 $up_details = $this->miscelleneous->check_upcountry_vendor_availability("", $pincode['pincode'], $service_id->id, $partner_data);
                 $data = array();
@@ -998,22 +999,23 @@ class Around_scheduler extends CI_Controller {
                 $data['service_id'] = $service_id->id;
                 $data['hq_pincode'] = NULL;
                 $data['sub_vendor_id'] = 0;
-                $data['distance']= 0;
+                $data['distance'] = 0;
                 $data['vendor_id'] = 0;
                 $data['sf_upcountry_rate'] = 0;
-                
-                switch ($up_details['message']){
-                      case UPCOUNTRY_BOOKING:
-                      case UPCOUNTRY_LIMIT_EXCEED:
-                            $data['is_upcountry'] = 1;
-                            $data['hq_pincode'] = $up_details['upcountry_pincode'];
-                            $data['sub_vendor_id'] = $up_details['sub_vendor_id'];
-                            $data['distance'] = $up_details['upcountry_distance'];
-                            $data['vendor_id'] = $up_details['vendor_id'];
-                            $data['sf_upcountry_rate'] = $up_details['sf_upcountry_rate'];
-                            $data['remarks'] = UPCOUNTRY_BOOKING;
-                            
-                    break;
+                $data['district'] = $pincode['district'];
+
+                switch ($up_details['message']) {
+                    case UPCOUNTRY_BOOKING:
+                    case UPCOUNTRY_LIMIT_EXCEED:
+                        $data['is_upcountry'] = 1;
+                        $data['hq_pincode'] = $up_details['upcountry_pincode'];
+                        $data['sub_vendor_id'] = $up_details['sub_vendor_id'];
+                        $data['distance'] = $up_details['upcountry_distance'];
+                        $data['vendor_id'] = $up_details['vendor_id'];
+                        $data['sf_upcountry_rate'] = $up_details['sf_upcountry_rate'];
+                        $data['remarks'] = UPCOUNTRY_BOOKING;
+
+                        break;
                     case NOT_UPCOUNTRY_BOOKING:
                         $data['is_upcountry'] = 0;
                         $data['vendor_id'] = $up_details['vendor_id'];
@@ -1028,24 +1030,52 @@ class Around_scheduler extends CI_Controller {
                         break;
                     case SF_DOES_NOT_EXIST:
                         $data['is_upcountry'] = 0;
-                        if(isset($up_details['vendor_not_found'])){
+                        if (isset($up_details['vendor_not_found'])) {
                             $data['remarks'] = SF_DOES_NOT_EXIST;
-                             
                         } else {
-                           $data['remarks'] = NOT_UPCOUNTRY_BOOKING;
-                            
+                            $data['remarks'] = NOT_UPCOUNTRY_BOOKING;
                         }
                         break;
                 }
-                
+
                 $data['response'] = json_encode($up_details, TRUE);
-                echo "No -".$key.PHP_EOL; print_r($data);
-                array_push($upcountry_data, $data);  
                
+                $this->upcountry_model->insert_upcountry_services_sf_level($data);
+                echo "No -" . $key . PHP_EOL;
+                 
             }
-            
-            $this->upcountry_model->upcountry_pincode_services_sf_level($upcountry_data);
+            log_message('info',__METHOD__. " Exit");
         }
+        
+        $newCSVFileName = "upcountry_local_file" . date('jMYHis') . ".csv";
+        $csv = TMP_FOLDER . $newCSVFileName;
+        $report = $this->upcountry_model->getpincode_upcountry_local();
+        $delimiter = ",";
+        $newline = "\r\n";
+        $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
+        log_message('info', __FUNCTION__ . ' => Rendered CSV');
+        write_file($csv, $new_report);
+
+        $template = $this->booking_model->get_booking_email_template("upcountry_local_template");
+
+        if(!empty($template)){
+             $to = $template[1];
+             $subject = $template[4];
+             $emailBody = $template[0];
+             $bcc = $template[5];
+             $cc = $template[3];
+             $this->notify->sendEmail($template[2], $to , $cc, $bcc, $subject , $emailBody, $csv,'upcountry_local_template');
+        }
+
+        $bucket = BITBUCKET_DIRECTORY;
+        $directory_xls = "vendor-partner-docs/" . $newCSVFileName;
+        $this->s3->putObjectFile($csv, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+        $fileData['entity_type'] = "partner";
+        $fileData['entity_id'] = _247AROUND;
+        $fileData['file_type'] = "upcountry_local_file";
+        $fileData['file_name'] = $csv;
+        $this->reusable_model->insert_into_table("file_uploads",$fileData);
+            
     }
     
     /**
@@ -1577,7 +1607,8 @@ class Around_scheduler extends CI_Controller {
                 $agent_id = _247AROUND_DEFAULT_AGENT;
                 $agent_name = _247AROUND_DEFAULT_AGENT_NAME;
                 $partner_id = $bookingData['partner_id'];
-                $this->miscelleneous->process_cancel_form($booking_id, $status, $cancellation_reason, $cancellation_text, $agent_id, $agent_name, $partner_id);
+              
+                $this->miscelleneous->process_cancel_form($booking_id, $status, $cancellation_reason, $cancellation_text, $agent_id, $agent_name, $partner_id, _247AROUND);
             }
         }
         log_message('info', __FUNCTION__ . " Function End  ");

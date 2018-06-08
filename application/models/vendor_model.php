@@ -514,9 +514,14 @@ class vendor_model extends CI_Model {
      *  @param : $district
      *  @return : array of pincodes
      */
-    function getPincode_from_india_pincode($district="") {
+    function getPincode_from_india_pincode($district="", $is_district = false) {
         $this->db->distinct();
-        $this->db->select('pincode');
+        if($is_district){
+            $this->db->select('pincode, district');
+        } else{
+            $this->db->select('pincode');
+        }
+        
         if($district != ""){
             $this->db->where('LOWER(district)', strtolower($district));
         }
@@ -697,7 +702,7 @@ class vendor_model extends CI_Model {
      * @param: Array
      * @return : Array
      */
-    function getVendorDetails($select, $where ="" , $order_by='name',$whereIN=array()) {
+    function getVendorDetails($select, $where =array(), $order_by='name',$whereIN=array()) {
         $this->db->select($select,FALSE);
         if(!empty($where)){
            $this->db->where($where);

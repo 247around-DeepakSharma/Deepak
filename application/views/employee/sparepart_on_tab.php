@@ -157,14 +157,12 @@
                                     <tr>
                                         <th class="text-center" >No</th>
                                         <th class="text-center" data-orderable="false">Booking Id</th>
-                                        <th class="text-center" data-orderable="false">User</th>
-                                        <th class="text-center" data-orderable="false">Mobile</th>
                                         <th class="text-center" data-orderable="false">Service Center</th>
                                         <th class="text-center" data-orderable="false">Partner</th>
-                                        <th class="text-center" data-orderable="false">Requested Part</th>
-                                        <th class="text-center" data-orderable="false">Booking Type</th>
-					<th class="text-center" data-orderable="false">Defective Parts</th>
-                                        <th class="text-center" data-orderable="true">Age Of shipped</th>
+		<th class="text-center" data-orderable="false">Defective Parts</th>
+                                        <th class="text-center" data-orderable="false">Courier Name</th>
+                                        <th class="text-center" data-orderable="false">AWB</th>
+                                        <th class="text-center" data-orderable="false">Courier Charges</th>
                                         <th class="text-center" data-orderable="false">SF Remarks</th>
                                         <th class="text-center" data-orderable="false">Courier Invoice</th>
                                         <th class="text-center" data-orderable="false">Challan File</th>
@@ -184,14 +182,12 @@
                                         <td class="text-center"><a 
                                           href="<?php echo base_url(); ?>employee/booking/viewdetails/<?php echo $value['booking_id']; ?>" target='_blank' title='view'><?php echo $value['booking_id'];?></a>
                                         </td>
-                                        <td class="text-center"><?php echo $value['name'];?></td>
-                                        <td class="text-center"><?php echo $value['booking_primary_contact_no'];?></td>
                                         <td class="text-center"><?php echo $value['sc_name'];?></td>
                                         <td class="text-center"><?php echo $value['source'];?></td>
-                                        <td class="text-center"><?php echo $value['parts_requested'];?></td>
-                                        <td class="text-center"><?php echo $value['request_type'];?></td>
-					<td class="text-center"><?php echo $value['defective_part_shipped'];?></td>
-                                        <td class="text-center"><?php $age_requested = date_diff(date_create($value['defective_part_shipped_date']), date_create('today')); echo $age_requested->days. " Days";?></td> 
+		<td class="text-center"><?php echo $value['defective_part_shipped'];?></td>
+                                        <td class="text-center"><?php echo $value['courier_name_by_sf'];?></td>
+                                        <td class="text-center"><?php echo $value['awb_by_sf'];?></td>
+                                        <td class="text-center"><?php echo $value['courier_charges_by_sf'];?></td>
                                         <td class="text-center"><?php echo $value['remarks_defective_part_by_sf'];?></td> 
                                         <td><a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $value['defective_courier_receipt']; ?> " target="_blank">Click Here to view</a></td>
                                         <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY?>/vendor-partner-docs/<?php echo $value['sf_challan_file']; ?>" target="_blank">Click Here to view</a></td>

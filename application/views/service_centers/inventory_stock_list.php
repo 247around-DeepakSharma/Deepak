@@ -38,11 +38,9 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Appliance</th>
-                                    <th>Spare Model Number</th>
                                     <th>Spare Type</th>
                                     <th>Spare Part Name</th>
                                     <th>Spare Part Number</th>
-                                    <th>Spare Serial Number</th>
                                     <th>Spare Stock</th>
                                     <th>Spare Size</th>
                                     <th>Spare Price</th>
@@ -106,13 +104,15 @@
             "pageLength": 25,
             "ordering": false,
             "ajax": {
-                url: "<?php echo base_url(); ?>employee/inventory/get_inventory_stocks_details_for_warehouse",
+                url: "<?php echo base_url(); ?>employee/inventory/get_inventory_stocks_details",
                 type: "POST",
                 data: function(d){
                     
                     var entity_details = get_entity_details();
-                    d.entity_id = entity_details.entity_id,
-                    d.entity_type = entity_details.entity_type,
+                    d.receiver_entity_id = entity_details.receiver_entity_id,
+                    d.receiver_entity_type = entity_details.receiver_entity_type,
+                    d.sender_entity_id = entity_details.sender_entity_id
+                    d.sender_entity_type = entity_details.sender_entity_type,
                     d.is_show_all = entity_details.is_show_all_checked
                 }
             },
@@ -122,8 +122,10 @@
     
     function get_entity_details(){
         var data = {
-            'entity_id': $('#partner_id').val(),
-            'entity_type' : '<?php echo _247AROUND_PARTNER_STRING; ?>',
+            'receiver_entity_id': '<?php echo $this->session->userdata('service_center_id'); ?>',
+            'receiver_entity_type' : '<?php echo _247AROUND_SF_STRING; ?>',
+            'sender_entity_id': $('#partner_id').val(),
+            'sender_entity_type' : '<?php echo _247AROUND_PARTNER_STRING; ?>',
             'is_show_all_checked':$('#show_all_inventory:checked').val()
         };
         

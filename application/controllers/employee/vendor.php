@@ -387,7 +387,7 @@ class vendor extends CI_Controller {
                 $bankDetailsArray['agent_id'] = $agentID;
                 $bankDetailsArray['entity_type'] = "SF";
                 $this->vendor_model->edit_vendor($vendor_data, $this->input->post('id'));
-                $this->miscelleneous->update_insert_bank_account_details($bankDetailsArray,'update');
+                $this->miscelleneous->update_insert_bank_account_details($bankDetailsArray);
                
       
                 //Log Message
@@ -442,7 +442,7 @@ class vendor extends CI_Controller {
                 $bankDetailsArray['entity_id'] = $sc_id;
                 $bankDetailsArray['entity_type'] = 'SF';
                 $bankDetailsArray['agent_id'] = $agentID;
-                $this->miscelleneous->update_insert_bank_account_details($bankDetailsArray,'insert');
+                $this->miscelleneous->update_insert_bank_account_details($bankDetailsArray);
                 //Logging
                 log_message('info', __FUNCTION__.' SF has been Added :'.print_r($vendor_data,TRUE));
                 $log = array(
@@ -1170,6 +1170,7 @@ class vendor extends CI_Controller {
         $partner_id = $this->input->post('partner_id');
         $service_id = $this->input->post('service_id');
         $city = $this->input->post('city');
+        $order_id = $this->input->post('order_id');
         $url = base_url() . "employee/do_background_process/assign_booking";
         $sf_status = $this->input->post("sf_status");
         $count = 0;
@@ -1195,7 +1196,7 @@ class vendor extends CI_Controller {
                         if($sf_status[$booking_id] == "SF_NOT_EXIST"){
                             //$this->send_mail_when_sf_not_exist($booking_id);
                             $this->miscelleneous->sf_not_exist_for_pincode(array('booking_id' => $booking_id, 'booking_pincode' => $pincode[$booking_id], 
-                                'service_id' => $service_id[$booking_id],'partner_id'=>$partner_id[$booking_id],'city'=>$city[$booking_id]));
+                                'service_id' => $service_id[$booking_id],'partner_id'=>$partner_id[$booking_id],'city'=>$city[$booking_id],'order_id'=>$order_id[$booking_id]));
                         }
                     } else {
                         log_message('info', __METHOD__ . "=> Not Assign for Sc "
@@ -4172,7 +4173,7 @@ class vendor extends CI_Controller {
             }
         }
         if($flag == 1){
-            $to = NITS_ANUJ_EMAIL_ID . ", sales@247around.com, booking@247around.com, vijaya@247around.com, adila@247around.com,".RM_EMAIL;
+            $to = ANUJ_EMAIL_ID . ", sales@247around.com, booking@247around.com, vijaya@247around.com, adila@247around.com,".RM_EMAIL;
 
             $cc = DEVELOPER_EMAIL;
             $message1 = "Booking should be upcountry but not marked properly. Please check and update booking.<br/>";

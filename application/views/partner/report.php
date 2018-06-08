@@ -27,7 +27,7 @@
                             </li>
                             <li role="presentation">
                                 <a href="#tabs-3" role="tab" data-toggle="tab" aria-expanded="true">
-                                    Upcountry Report
+                                    Downloads
                                 </a>
                             </li>
                         </ul>
@@ -123,9 +123,9 @@
                                             <a style="float: right;background: #2a3f54;border: #2a3f54;" class="btn btn-success" href="<?php echo base_url(); ?>partner/download_sf_list_excel">Download Service Center List</a>
                                             <p style="font-size: 15px;padding: 5px 12px;background: #4b9c7a;color: #fff;width: 40%;border-radius: 3px;">Please Select Column For  Serviceability Report </p>
                                             <form>
-                                <div class="checkbox"><label><input type="checkbox" name="appliace_opt" id="appliace_opt" value="" onclick="showHideApplianceForm(this.checked)">Appliance</label></div>
-                                    <div id="appliance_id_holder" style="display:none;">
-                                        <select class="form-control" id="modal_service_id" name="service_id[]"  multiple="multiple"  style="width:40%;"> 
+                                    <div id="appliance_id_holder">
+                                        <select class="form-control" id="modal_service_id" name="service_id[]"   style="width:40%;"> 
+                                            <option value="">Select Appliance</option>
                                             <?php
                                             foreach($services as $service){
                                                 ?>
@@ -154,7 +154,7 @@
                                     <div class="x_panel">
                                         <div class="x_title" style="border-bottom: none;">
                                             <a style="float: left;background: #2a3f54;border: #2a3f54;" class="btn btn-success" href="<?php echo base_url(); ?>partner/upcountry_report">Download Upcountry Details</a>
-                                           
+                                           <a style="float: left;background: #2a3f54;border: #2a3f54;" class="btn btn-success" href="<?php echo base_url(); ?>partner/download_spare_part_shipped_by_partner">Download All Shipped Spare Parts</a>
                                         </div>
                                     </div>
                                 </div>
@@ -232,13 +232,10 @@
                 }
             }
             function process_serviceability_report(){
-                var appliance_opt = 0;
+                var service_opt = 0;
                 var pincode_opt = 0;
                 var city_opt = 0;
                 var state_opt =0;
-                if ($('#appliace_opt').is(":checked")){
-                    appliance_opt = 1; 
-                }
                 if ($('#pincode_opt').is(":checked")){
                     pincode_opt = 1;
                 }
@@ -249,11 +246,11 @@
                     state_opt = 1;
                 }
                 var service_id = getMultipleSelectedValues('modal_service_id');
-                if(appliance_opt === 1 || pincode_opt === 1 || city_opt ===  1 || state_opt === 1){
-                      send_csv_request(appliance_opt,pincode_opt,state_opt,city_opt,service_id);
+                if(service_id && (pincode_opt === 1 || city_opt ===  1 || state_opt === 1)){
+                      send_csv_request(pincode_opt,state_opt,city_opt,service_id);
                 }
                 else{
-                     alert("Please Select atleast 1 option");
+                     alert("Please Select atleast 1 option and Appliance");
                 }
             }
     function getMultipleSelectedValues(fieldName){
@@ -267,7 +264,7 @@
        }
       return values.toString();
    }
-    function send_csv_request(appliance_opt,pincode_opt,state_opt,city_opt,service_id){
+    function send_csv_request(pincode_opt,state_opt,city_opt,service_id){
         $("#loader_gif_title").show();
         if(!service_id){
             service_id = 'all';
@@ -275,7 +272,7 @@
         $.ajax({
         type: 'POST',
         url: '<?php echo base_url(); ?>partner/serviceability_list',
-        data: {appliance_opt: appliance_opt,pincode_opt: pincode_opt,state_opt: state_opt,city_opt: city_opt,service_id: service_id},
+        data: {appliance_opt: 1,pincode_opt: pincode_opt,state_opt: state_opt,city_opt: city_opt,service_id: service_id},
         success: function (response) {
              $("#loader_gif_title").hide();
             var jsondata = JSON.parse(response);

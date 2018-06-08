@@ -20,7 +20,7 @@
             <?php
             if($this->session->userdata('agent_id') != '980084' && $this->session->userdata('agent_id') != '980083'){
             ?>
-            <a style="float: right;background: #2a3f54;border-color: #2a3f54;"type="button" class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>employee/partner/download_partner_pending_bookings/<?php echo $this->session->userdata('partner_id')?>">Download</a>
+            <a style="float: right;background: #2a3f54;border-color: #2a3f54;"type="button" class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>employee/partner/download_partner_pending_bookings/<?php echo $this->session->userdata('partner_id')?>/Pending">Download</a>
             <?php
             }
             ?>

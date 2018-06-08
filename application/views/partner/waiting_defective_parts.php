@@ -35,7 +35,8 @@
                             <th class="text-center">Parts Shipped</th>
                             <th class="text-center">Courier Name</th>
                             <th class="text-center">AWB</th>
-                            <th class="text-center">Challan</th>
+                            <th class="text-center">SF Challan</th>
+                            <th class="text-center">Partner Challan</th>
                             <th class="text-center">Shipped Date</th>
                             <th class="text-center">Remarks</th>
                             <th class="text-center">Receive</th>
@@ -71,6 +72,15 @@
                                      <a style="color: blue;" href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY ?>/vendor-partner-docs/<?php echo $row['sf_challan_file']; ?>" target="_blank"><?php echo $row['sf_challan_number']?></a>
                                     <?php } ?>
                                 </td>
+                                <td> 
+                                        <?php  if(!empty($row['partner_challan_file'])) { ?> 
+                                            <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY ?>/vendor-partner-docs/<?php echo $row['partner_challan_file']; ?>" target="_blank"><?php echo $row['partner_challan_number']?></a>
+                                        <?php }
+                                        else if(!empty($row['partner_challan_number'])) {
+                                            echo $row['partner_challan_number'];
+                                        }
+?>
+                                      </td>
                                 <td>
                                     <?php if (!is_null($row['defective_part_shipped_date'])) {
                                         echo date("d-m-Y", strtotime($row['defective_part_shipped_date']));
@@ -141,3 +151,8 @@ function confirm_received(){
 }
 
 </script>
+    <style>
+        .paging_simple_numbers{
+            display: none;
+        }
+        </style>

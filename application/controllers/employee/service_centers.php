@@ -245,6 +245,7 @@ class Service_centers extends CI_Controller {
             $old_state = $booking_state_change[count($booking_state_change) - 1]['new_state'];
             
             if (!in_array($old_state, array(SF_BOOKING_COMPLETE_STATUS,_247AROUND_COMPLETED))) {
+               
                 // customer paid basic charge is comming in array
                 // Array ( [100] =>  500 , [102] =>  300 )  
                 $customer_basic_charge = $this->input->post('customer_basic_charge');
@@ -311,7 +312,8 @@ class Service_centers extends CI_Controller {
                         $data['upcountry_charges'] = $upcountry_charges;
                     }
                     if (isset($serial_number[$unit_id])) {
-                        $data['serial_number'] =  trim($serial_number[$unit_id]);
+                        $trimSno = str_replace(' ', '', trim($serial_number[$unit_id]));
+                        $data['serial_number'] =  $trimSno;
                         $data['serial_number_pic']  = trim($serial_number_pic[$unit_id]);
                     }
                     if (!empty($getremarks[0]['service_center_remarks'])) {
@@ -344,14 +346,14 @@ class Service_centers extends CI_Controller {
                 $booking_date = $this->reusable_model->get_search_result_data("booking_details", 'STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y") as booking_date', array('booking_id' => $booking_id), NULL, NULL, NULL, NULL, NULL, array())[0]['booking_date'];
                 $bookingData['service_center_closed_date'] = date('Y-m-d H:i:s');
                 // If time is before 12 PM then completion date will be yesturday's date
-                if (date('H') < 13) {
+                //if (date('H') < 13) {
                     $bookingData['service_center_closed_date'] = date('Y-m-d H:i:s', (strtotime('-1 day', strtotime(date('Y-m-d H:i:s')))));
                     $dayofweek = date('w', strtotime(date('Y-m-d H:i:s')));
                     // If day is monday then completion date will be saturday's date
                     if ($dayofweek == '1') {
                         $bookingData['service_center_closed_date'] = date('Y-m-d H:i:s', (strtotime('-2 day', strtotime(date('Y-m-d H:i:s')))));
                     }
-                }
+              //  }
                 $booking_timeStamp = strtotime($booking_date);
                 $close_timeStamp = strtotime($bookingData['service_center_closed_date']);
                 $datediff = $close_timeStamp - $booking_timeStamp;
@@ -440,6 +442,7 @@ class Service_centers extends CI_Controller {
      */
     function validate_serial_no() {
         $serial_number = $this->input->post('serial_number');
+        $upload_serial_number_pic = $_FILES['upload_serial_number_pic'];
         $pod = $this->input->post('pod');
         $booking_status = $this->input->post('booking_status');
         $partner_id = $this->input->post('partner_id');
@@ -447,18 +450,41 @@ class Service_centers extends CI_Controller {
         if (isset($_POST['pod'])) {
             foreach ($pod as $unit_id => $value) {
                 if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
+                    $trimSno = str_replace(' ', '', trim($serial_number[$unit_id]));
                     
                     switch ($value) {
-                        case 1:
-                            $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number[$unit_id]));
+                        case '1':
+                            if($partner_id == AKAI_ID){
+                                log_message('info', " Akai partner");
+                                if (empty($trimSno) || !ctype_alnum($trimSno)){
+                                    log_message('info', " Serial No with special character ".$trimSno);
+                                    $this->form_validation->set_message('validate_serial_no', 'Please Enter Serial Number Without any Special Character');
+                                    $return_status = false;
+                                    break;
+                                }
+                            }
+                            $status = $this->validate_serial_no->validateSerialNo($partner_id, $trimSno);
                             if (!empty($status)) {
                                 if ($status['code'] == SUCCESS_CODE) {
                                     log_message('info', " Serial No validation success  for serial no " . trim($serial_number[$unit_id]));
+                                    if(isset($upload_serial_number_pic['name'][$unit_id])){
+                                        $this->upload_insert_upload_serial_no($upload_serial_number_pic, $unit_id, $partner_id, $trimSno);
+                                    }
                                 } else {
-                                    $return_status = false;
-                                    $this->form_validation->set_message('validate_serial_no', $status['message']);
+                                     
+                                    if(!isset($upload_serial_number_pic['name'][$unit_id])){
+                                        $return_status = false;
+                                        $s = $this->form_validation->set_message('validate_serial_no', "Please upload serial number image as entered serial number is wrong");
+                                    } else {
+                                        $s = $this->upload_insert_upload_serial_no($upload_serial_number_pic, $unit_id, $partner_id, $trimSno);
+                                        if(empty($s)){
+                                             $this->form_validation->set_message('validate_serial_no', 'Serial Number, File size or file type is not supported. Allowed extentions are png, jpg, jpeg and pdf. '
+                        . 'Maximum file size is 5 MB.');
+                                            $return_status = false;
+                                        }
+                                    }
                                 }
-                            } else if ($value == 1 && empty(trim($serial_number[$unit_id]))) {
+                            } else if ($value == 1 && empty($trimSno)) {
                                 $return_status = false;
                                 $this->form_validation->set_message('validate_serial_no', 'Please Enter Valid Serial Number');
                             } else if ($value == 1 && is_numeric($serial_number[$unit_id]) && $serial_number[$unit_id] == 0) {
@@ -477,6 +503,93 @@ class Service_centers extends CI_Controller {
             }
         } else {
             return TRUE;
+        }
+    }
+    /**
+     * @desc This is used to validate serial no image and insert serial no into DB
+     * @param Array $upload_serial_number_pic
+     * @param Int $unit
+     * @param Strng $partner_id
+     * @param String $serial_number
+     * @return boolean
+     */
+    function upload_insert_upload_serial_no($upload_serial_number_pic, $unit, $partner_id, $serial_number){
+        log_message('info', __METHOD__. " Enterring ...");
+        if (!empty($upload_serial_number_pic['tmp_name'][$unit])) {
+           
+            $pic_name = $this->upload_serial_no_image_to_s3($upload_serial_number_pic, 
+                    "serial_number_pic", $unit, "engineer-uploads", "serial_number_pic");
+            if($pic_name){
+                
+                return true;
+            } else {
+              
+                return false;
+            }
+            
+        } else {
+           
+            return FALSE;
+        }
+    }
+
+    /**
+     * @desc This is used to upload serial no image to S3
+     * @param Array $file
+     * @param String $type
+     * @param Int $unit
+     * @param String $s3_directory
+     * @param String $post_name
+     * @return boolean|string
+     */
+    public function upload_serial_no_image_to_s3($file, $type, $unit, $s3_directory, $post_name) {
+        log_message('info', __FUNCTION__ . " Enterring ");
+        $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
+        $MB = 1048576;
+        $temp = explode(".", $file['name'][$unit]);
+        $extension = end($temp);
+        //$filename = prev($temp);
+
+        if ($file["name"][$unit] != null) {
+            if (($file["size"][$unit] < 2 * $MB) && in_array($extension, $allowedExts)) {
+                if ($file["error"][$unit] > 0) {
+
+                   return false;
+                } else {
+                   
+                    $picName = $type . rand(10, 100) . $unit . "." . $extension;
+                    $_POST[$post_name][$unit] = $picName;
+                    $bucket = BITBUCKET_DIRECTORY;
+                    $directory = $s3_directory . "/" . $picName;
+                    $this->s3->putObjectFile($file["tmp_name"][$unit], $bucket, $directory, S3::ACL_PUBLIC_READ);
+
+                    return $picName;
+                }
+            } else {
+                
+                return FALSE;
+            }
+        } else {
+
+            return FALSE;
+        }
+        log_message('info', __FUNCTION__ . " Exit ");
+    }
+    
+    /**
+     * @desc this function is used to validate serial no from ajax.
+     */
+    function validate_booking_serial_number(){
+        log_message('info', __METHOD__. " Enterring .." .$this->input->post('serial_number'). " SF ID ". $this->session->userdata('service_center_id'));
+        $serial_number = $this->input->post('serial_number');
+        $partner_id = $this->input->post('partner_id');
+        $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number));
+        if (!empty($status)) {
+            log_message('info', __METHOD__.'Status '. print_r($status, true));
+            echo json_encode($status, true);
+        } else {
+            log_message('info',__METHOD__. 'Partner serial no validation is not define');
+            echo json_encode(array('code' => SUCCESS_CODE), true);
         }
     }
 
@@ -548,13 +661,13 @@ class Service_centers extends CI_Controller {
                             NULL,NULL,NULL,NULL,NULL,array())[0]['booking_date'];
                     $bookingData['service_center_closed_date'] = date('Y-m-d H:i:s');
                     // If time is before 12 PM then completion date will be yesturday's date
-                    if (date('H') < 12) {
+                  //  if (date('H') < 12) {
                         $bookingData['service_center_closed_date'] =  date('Y-m-d H:i:s',(strtotime ( '-1 day' , strtotime (date('Y-m-d H:i:s')) ) ));
                         $dayofweek = date('w', strtotime(date('Y-m-d H:i:s')));
                         // If day is monday then completion date will be saturday's date
                         if($dayofweek == '1'){
                           $bookingData['service_center_closed_date'] =  date('Y-m-d H:i:s',(strtotime ( '-2 day' , strtotime (date('Y-m-d H:i:s')) ) ));  
-                        }
+                      //  }
                     }
                     $booking_timeStamp = strtotime($booking_date);
                     $close_timeStamp = strtotime($bookingData['service_center_closed_date']);
@@ -977,9 +1090,10 @@ class Service_centers extends CI_Controller {
                     }
                 }
 
-                $post['length'] = -1;
-                $post['where'] = array('entity_id' => $data['bookinghistory'][0]['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['bookinghistory'][0]['service_id']);
-                $data['inventory_details'] = $this->inventory_model->get_inventory_master_list($post, 'inventory_master_list.model_number', true);
+                $where = array('entity_id' => $data['bookinghistory'][0]['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['bookinghistory'][0]['service_id'],'active' => 1);
+                $data['inventory_details'] = $this->inventory_model->get_appliance_model_details('id,model_number',$where);
+
+
                 $data['spare_shipped_flag'] = $spare_shipped_flag;
                 $this->load->view('service_centers/header');
                 $this->load->view('service_centers/get_update_form', $data);
@@ -1169,6 +1283,7 @@ class Service_centers extends CI_Controller {
         $this->checkUserSession();
         $this->form_validation->set_rules('booking_id', 'Booking Id', 'trim|required|xss_clean');
         $this->form_validation->set_rules('model_number', 'Model Number', 'trim|required|xss_clean');
+        $this->form_validation->set_rules('model_number_id', 'Model Number', 'trim|xss_clean');
         $this->form_validation->set_rules('parts_name', 'Part Name', 'required|xss_clean');
         $this->form_validation->set_rules('parts_type', 'Part Type', 'trim|required|xss_clean');
         $this->form_validation->set_rules('serial_number', 'Serial Number', 'trim|required|xss_clean');
@@ -1242,7 +1357,7 @@ class Service_centers extends CI_Controller {
                 */
                if (!empty($partner_details[0]['is_wh'])) {
                    $sf_state = $this->vendor_model->getVendorDetails("service_centres.state", array('service_centres.id' => $this->session->userdata('service_center_id')));
-                   $warehouse_details = $this->get_warehouse_details(array('model_number' => $data['model_number'], 'part_name' => $value,'part_type' =>$data['parts_requested_type'], 'state' => $sf_state[0]['state']));
+                   $warehouse_details = $this->get_warehouse_details(array('model_number_id' => $this->input->post('model_number_id'), 'part_name' => $value,'part_type' =>$data['parts_requested_type'], 'state' => $sf_state[0]['state']));
                    if (!empty($warehouse_details)) {
                        $data['partner_id'] = $warehouse_details['entity_id'];
                        $data['entity_type'] = $warehouse_details['entity_type'];
@@ -1264,35 +1379,8 @@ class Service_centers extends CI_Controller {
             }
 
             //send email to partner,sf and 247around that inventory out of stock for this inventory
-            if (!empty($parts_stock_not_found)) {
-                //Getting template from Database
-                $email_template = $this->booking_model->get_booking_email_template("out_of_stock_inventory");
-                if (!empty($email_template)) {
-
-                    $get_partner_details = $this->partner_model->getpartner_details('partners.public_name,account_manager_id,primary_contact_email,owner_email', array('partners.id' => $this->input->post('partner_id')));
-                    $am_email = "";
-                    if (!empty($get_partner_details[0]['account_manager_id'])) {
-                        $am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
-                    }
-                    
-                    $this->load->library('table');
-                    $template = array(
-                        'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
-                    );
-
-                    $this->table->set_template($template);
-
-                    $this->table->set_heading(array('Model Number', 'Part Type', 'Part Name'));
-                    foreach($parts_stock_not_found as $value){
-                        $this->table->add_row($value['model_number'], $value['part_type'], $value['part_name']);
-                    }
-                    $body_msg = $this->table->generate();
-                    $to = $get_partner_details[0]['primary_contact_email'] . "," . $get_partner_details[0]['owner_email'];
-                    $cc = $email_template[3] . "," . $am_email;
-                    $subject = vsprintf($email_template[4], array($data['model_number'], $data['parts_requested']));
-                    $emailBody = vsprintf($email_template[0], $body_msg);
-                    $this->notify->sendEmail($email_template[2], $to, $cc, '', $subject, $emailBody, "", 'out_of_stock_inventory');
-                }
+            if(!empty($parts_stock_not_found)){
+                $this->send_out_of_stock_mail($parts_stock_not_found, $value, $data);
             }
             
             //$where = array('booking_id' => $booking_id, 'service_center_id' => $data['service_center_id']);
@@ -1343,6 +1431,39 @@ class Service_centers extends CI_Controller {
         }
 
         log_message('info', __FUNCTION__ . " Exit Service_center ID: " . $this->session->userdata('service_center_id'));
+    }
+    
+    function send_out_of_stock_mail($parts_stock_not_found, $value, $data) {
+        if (!empty($parts_stock_not_found)) {
+            //Getting template from Database
+            $email_template = $this->booking_model->get_booking_email_template("out_of_stock_inventory");
+            if (!empty($email_template)) {
+
+                $get_partner_details = $this->partner_model->getpartner_details('partners.public_name,account_manager_id,primary_contact_email,owner_email', array('partners.id' => $this->input->post('partner_id')));
+                $am_email = "";
+                if (!empty($get_partner_details[0]['account_manager_id'])) {
+                    $am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
+                }
+
+                $this->load->library('table');
+                $template = array(
+                    'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
+                );
+
+                $this->table->set_template($template);
+
+                $this->table->set_heading(array('Model Number', 'Part Type', 'Part Name'));
+                foreach ($parts_stock_not_found as $value) {
+                    $this->table->add_row($value['model_number'], $value['part_type'], $value['part_name']);
+                }
+                $body_msg = $this->table->generate();
+                $to = $get_partner_details[0]['primary_contact_email'] . "," . $get_partner_details[0]['owner_email'];
+                $cc = $email_template[3] . "," . $am_email;
+                $subject = vsprintf($email_template[4], array($data['model_number'], $data['parts_requested']));
+                $emailBody = vsprintf($email_template[0], $body_msg);
+                $this->notify->sendEmail($email_template[2], $to, $cc, '', $subject, $emailBody, "", 'out_of_stock_inventory');
+            }
+        }
     }
 
     function upload_defective_spare_pic(){
@@ -1450,7 +1571,7 @@ class Service_centers extends CI_Controller {
                             . $service_center_id .
                             "Booking ID: " . $booking_id);
                     if( $this->session->userdata('service_center_id')){
-                        $userSession = array('success' => 'Please Booking is not updated');
+                        $userSession = array('error' => 'Booking is not updated');
                         $this->session->set_userdata($userSession);
                     }
                 }
@@ -1795,21 +1916,28 @@ class Service_centers extends CI_Controller {
                 $this->vendor_model->update_service_center_action($booking_id, $sc_data);
                 
                 $this->update_booking_internal_status($booking_id,  DEFECTIVE_PARTS_SHIPPED, $partner_id);
-                
-                $rm_email = $this->get_rm_email($service_center_id);
-                $from = NOREPLY_EMAIL_ID;
 
-                $to = "booking@247around.com";
-                $cc= $rm_email.",".NITS_EMAIL_ID;
-               
-                $subject = $this->session->userdata('service_center_name')." Updated Courier Details for Booking ID ".$booking_id;
-                $message = "Please Find Courier Invoice Attachment"."<br/>Courier Details:- <br/>";
-                $message .= "AWB ".$data['awb_by_sf']."<br/>";
-                $message .= "Courier Name ".$data['courier_name_by_sf']."<br/>";
-                $message .= "Courier Charge ".$this->input->post('courier_charges_by_sf')."<br/>";
-                $message .= "Shipped Date ".$data['defective_part_shipped_date']."<br/>";
-                $attachment = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$defective_courier_receipt;
-                $this->notify->sendEmail($from, $to, $cc, "", $subject, $message, $attachment,COURIER_DETAILS);
+                $email_template = $this->booking_model->get_booking_email_template(COURIER_DETAILS);
+                if(!empty($email_template)){
+                    
+                    $rm_email = $this->get_rm_email($service_center_id);
+
+                    $attachment = S3_WEBSITE_URL."misc-images/".$defective_courier_receipt;
+
+                    $subject = vsprintf($email_template[4], array($this->session->userdata('service_center_name'), $booking_id));
+                    
+                    $message = vsprintf($email_template[0], array($data['awb_by_sf'], 
+                       $data['courier_name_by_sf'], $this->input->post('courier_charges_by_sf'), $data['defective_part_shipped_date']));
+                    
+                    $email_from = $email_template[2];
+
+                    $to = $email_template[1];
+                    $cc = $rm_email.",".$email_template[3];
+                    $bcc = $email_template[5];
+
+                    $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $attachment, COURIER_DETAILS);
+                }
+            
                 $userSession = array('success' => 'Parts Updated.');
 
                 $this->session->set_userdata($userSession);
@@ -3584,9 +3712,10 @@ function get_learning_collateral_for_bookings(){
         $where['select'] = "booking_details.booking_id, users.name, booking_primary_contact_no,parts_requested, model_number,serial_number,date_of_purchase, invoice_pic,"
                 . "serial_number_pic,defective_parts_pic,spare_parts_details.id, booking_details.request_type, purchase_price, estimate_cost_given_date,booking_details.partner_id,booking_details.service_id,booking_details.assigned_vendor_id,parts_requested_type";
         $data['spare_parts'] = $this->inventory_model->get_spare_parts_query($where);
-        $post['length'] = -1;
-        $post['where'] = array('entity_id' => $data['spare_parts'][0]->partner_id,'entity_type' => _247AROUND_PARTNER_STRING,'service_id' => $data['spare_parts'][0]->service_id);
-        $data['inventory_details'] = $this->inventory_model->get_inventory_master_list($post, 'inventory_master_list.model_number', true);
+        
+        $where = array('entity_id' => $data['spare_parts'][0]->partner_id, 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['spare_parts'][0]->service_id,'active' => 1);
+        $data['inventory_details'] = $this->inventory_model->get_appliance_model_details('id,model_number',$where);
+        
         $data['is_wh'] = $this->partner_model->getpartner_details('is_wh',array('partners.id' => $data['spare_parts'][0]->partner_id))[0]['is_wh'];
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/update_spare_parts_form', $data);
@@ -3607,6 +3736,7 @@ function get_learning_collateral_for_bookings(){
         $this->form_validation->set_rules('remarks_by_partner', 'Remarks', 'trim|required');
         $this->form_validation->set_rules('courier_name', 'Courier Name', 'trim|required');
         $this->form_validation->set_rules('awb', 'AWB', 'trim|required');
+        $this->form_validation->set_rules('courier_price_by_partner', 'courier_price_by_partner', 'trim|required');
         $this->form_validation->set_rules('incoming_invoice', 'Invoice', 'callback_spare_incoming_invoice');
         //$this->form_validation->set_rules('partner_challan_number', 'Partner Challan Number', 'trim|required');
         $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required');
@@ -3627,6 +3757,7 @@ function get_learning_collateral_for_bookings(){
             $data['parts_shipped'] = $this->input->post('shipped_parts_name');
             $data['courier_name_by_partner'] = $this->input->post('courier_name');
             $data['awb_by_partner'] = $this->input->post('awb');
+            $data['courier_price_by_partner'] = $this->input->post('courier_price_by_partner');
             $data['remarks_by_partner'] = $this->input->post('remarks_by_partner');
             $data['shipped_date'] = $this->input->post('shipment_date');
             $data['challan_approx_value'] = $this->input->post('approx_value');
@@ -3652,13 +3783,10 @@ function get_learning_collateral_for_bookings(){
                 $data['incoming_invoice_pdf'] = $incoming_invoice_pdf;
             }
             
-            $post['length'] = -1;
-            $post['where'] = array('model_number' => $data['model_number_shipped'], 'part_name' => $data['parts_shipped'], 'entity_id' => $partner_id, 'entity_type' => _247AROUND_PARTNER_STRING,'type' => $data['shipped_parts_type']);
-            $inventory_details = $this->inventory_model->get_inventory_master_list($post, 'inventory_master_list.inventory_id', true);
-            if (!empty($inventory_details)) {
-                $data['shipped_inventory_id'] = $inventory_details[0]['inventory_id'];
+            if (!empty($this->input->post('inventory_id'))) {
+                $data['shipped_inventory_id'] = $this->input->post('inventory_id');
             }
-
+            
             $where = array('id' => $id, 'partner_id' => $sf_id, 'entity_type' => _247AROUND_SF_STRING);
             $response = $this->service_centers_model->update_spare_parts($where, $data);
 
@@ -3907,28 +4035,34 @@ function get_learning_collateral_for_bookings(){
     function get_warehouse_details($data){
         $response = array();
         $post['length'] = -1;
-        $post['where'] = array('model_number' => $data['model_number'],'part_name' => $data['part_name'],'inventory_stocks.entity_type' => _247AROUND_SF_STRING,'inventory_stocks.stock != 0'=>NULL);
-        $select = 'inventory_stocks.stock,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id';
-        $inventory_stock_details = $this->inventory_model->get_inventory_stock_list($post,$select,array(),FALSE);
-        if(!empty($inventory_stock_details)){
-            if(count($inventory_stock_details) > 1){
-                $warehouse_details = $this->inventory_model->get_warehouse_details('warehouse_state_relationship.state,contact_person.entity_id',array('warehouse_state_relationship.state' => $data['state'],'contact_person.entity_type' => _247AROUND_SF_STRING));
-                if(!empty($warehouse_details)){
-                    $response['entity_id'] = $warehouse_details[0]['entity_id'];
-                    $response['entity_type'] = _247AROUND_SF_STRING;
-                    $response['inventory_id'] = $inventory_stock_details[array_search($warehouse_details[0]['entity_id'], array_column($inventory_stock_details, 'entity_id'))]['inventory_id'];
+        
+        $inventory_part_number = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.part_number',array('model_number_id' => $data['model_number_id'],'part_name' => $data['part_name']));
+        
+        if(!empty($inventory_part_number)){
+            $post['where'] = array('part_number' => $inventory_part_number[0]['part_number'],'inventory_stocks.entity_type' => _247AROUND_SF_STRING,'inventory_stocks.stock != 0'=>NULL);
+            $select = 'inventory_stocks.stock,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id';
+            $inventory_stock_details = $this->inventory_model->get_inventory_stock_list($post,$select,array(),FALSE);
+            if(!empty($inventory_stock_details)){
+                if(count($inventory_stock_details) > 1){
+                    $warehouse_details = $this->inventory_model->get_warehouse_details('warehouse_state_relationship.state,contact_person.entity_id',array('warehouse_state_relationship.state' => $data['state'],'contact_person.entity_type' => _247AROUND_SF_STRING));
+                    if(!empty($warehouse_details)){
+                        $response['entity_id'] = $warehouse_details[0]['entity_id'];
+                        $response['entity_type'] = _247AROUND_SF_STRING;
+                        $response['inventory_id'] = $inventory_stock_details[array_search($warehouse_details[0]['entity_id'], array_column($inventory_stock_details, 'entity_id'))]['inventory_id'];
+                    }else{
+                        $response = array();
+                    }
                 }else{
-                    $response = array();
+                    $response['entity_id'] = $inventory_stock_details[0]['entity_id'];
+                    $response['entity_type'] = $inventory_stock_details[0]['entity_type'];
+                    $response['inventory_id'] = $inventory_stock_details[0]['inventory_id'];
                 }
             }else{
-                $response['entity_id'] = $inventory_stock_details[0]['entity_id'];
-                $response['entity_type'] = $inventory_stock_details[0]['entity_type'];
-                $response['inventory_id'] = $inventory_stock_details[0]['inventory_id'];
+                $response = array();
             }
         }else{
             $response = array();
         }
-        
         return $response;
     }
     
@@ -4137,9 +4271,14 @@ function get_learning_collateral_for_bookings(){
                 return FALSE;
         }
     }
-    
     function acknowledge_spares_send_by_partner(){
+        $this->check_WH_UserSession();
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/acknowledge_spares_send_by_partner');
+    }
+    function holiday_list(){
+        $data['data'] = $this->employee_model->get_holiday_list();
+        $this->load->view('service_centers/header');
+        $this->load->view('employee/show_holiday_list',$data);
     }
 }

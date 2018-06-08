@@ -5,7 +5,7 @@
     
     .spinner {
         margin: 0px auto;
-        width: 50px;
+        wiinventory_master_list_tableh: 50px;
         height: 50px;
         text-align: center;
         font-size: 10px;
@@ -13,7 +13,7 @@
 
     .spinner > div {
         height: 100%;
-        width: 6px;
+        wiinventory_master_list_tableh: 6px;
         display: inline-block;
 
         -webkit-animation: sk-stretchdelay 1.2s infinite ease-in-out;
@@ -58,7 +58,7 @@
     #inventory_master_list_processing{
             position: absolute;
             z-index: 999999;
-            width: 100%;
+            wiinventory_master_list_tableh: 100%;
             background: rgba(0,0,0,0.5);
             height: 100%;
             top: 10px;
@@ -82,10 +82,31 @@
         <div class="title">
             <div class="row">
                 <div class="col-md-6">
-                    <h3>Inventory List</h3>
+                    <h3>Inventory Master List</h3>
                 </div>
                 <div class="col-md-6">
-                    <a class="btn btn-success pull-right" style="margin-top: 10px;" id="add_master_list">Add New List</a>
+                    <a class="btn btn-success pull-right" style="margin-top: 10px;" id="add_master_list" title="Add New Inventory"><i class="fa fa-plus"></i></a>
+                </div>
+            </div>
+        </div>
+        <hr>
+        <div class="filter_box">
+            <div class="row">
+                <div class="form-inline">
+                    <div class="form-group col-md-3">
+                        <select class="form-control" id="partner_id">
+                            <option value="" disabled="">Select Partner</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-3">
+                        <select class="form-control" id="inventory_service_id">
+                            <option value="" disabled="">Select Appliance</option>
+                        </select>
+                    </div>
+<!--                    <div class="form-group col-md-2">
+                        <label class="checkbox-inline"><input type="checkbox" value="1" id="show_all_inventory">Show All</label>
+                    </div>-->
+                    <button class="btn btn-success col-md-2" id="get_inventory_data">Submit</button>
                 </div>
             </div>
         </div>
@@ -112,17 +133,16 @@
                     <tr>
                         <th>S.No</th>
                         <th>Service</th>
-                        <th>Spare Model Number</th>
                         <th>Spare Type</th>
                         <th>Spare Part Name</th>
                         <th>Spare Part Number</th>
-                        <th>Spare Serial Number</th>
                         <th>Spare Description</th>
                         <th>Spare Size</th>
-                        <th>Price</th>
-                        <th>Entity Type</th>
-                        <th>Entity Name</th>
+                        <th>Spare Basic Price</th>
+                        <th>HSN</th>
+                        <th>Gst Rate</th>
                         <th>Edit</th>
+                        <th>Get Model</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -143,17 +163,20 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="control-label col-md-4" for="service_id">Service</label>
+                                    <label class="control-label col-md-4" for="service_id">Appliance*</label>
                                     <div class="col-md-7 col-md-offset-1">
                                         <select class="form-control" id="service_id" name="service_id"></select>
                                     </div>
                                 </div>
                             </div>
+                            
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="control-label col-md-4" for="part_name">Part Name*</label>
+                                    <label class="control-label col-md-4" for="entity_id">Partner *</label>
                                     <div class="col-md-7 col-md-offset-1">
-                                        <input type="text" class="form-control" id="part_name" name="part_name" placeholder="Part Name">
+                                        <select class="form-control" id="entity_id" name="entity_id">
+                                            <option value="" selected="" disabled="">Please Select Partner</option>
+                                        </select>
                                     </div>
                                 </div>
                             </div>
@@ -162,27 +185,47 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
+                                    <label class="control-label col-md-4" for="part_name">Part Name*</label>
+                                    <div class="col-md-7 col-md-offset-1">
+                                        <input type="text" class="form-control" id="part_name" name="part_name" placeholder="Part Name">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
                                     <label class="control-label col-md-4" for="part_number">Part Number*</label>
                                     <div class="col-md-7 col-md-offset-1">
                                         <input type="text" class="form-control" id="part_number" name="part_number" placeholder="Part Number">
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                        
+                        <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="control-label col-md-4" for="serial_number">Serial Number</label>
+                                    <label class="control-label col-md-4" for="type">Part Type*</label>
                                     <div class="col-md-7 col-md-offset-1">
-                                        <input type="text" class="form-control" id="serial_number" name="serial_number" placeholder="Serial Number">
+                                        <textarea class="form-control" id="type" name="type" placeholder="Type"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="description">Description</label>
+                                    <div class="col-md-7 col-md-offset-1">
+                                        <textarea class="form-control" id="description" name="description" placeholder="description"></textarea>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                        
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="control-label col-md-4" for="model_number">Model Number*</label>
+                                    <label class="control-label col-md-4" for="price">Price*</label>
                                     <div class="col-md-7 col-md-offset-1">
-                                        <input type="text" class="form-control" id="model_number" name="model_number" placeholder="Model Number">
+                                        <input type="number" class="form-control" id="price" name="price"  placeholder="Price">
                                     </div>
                                 </div>
                             </div>
@@ -195,66 +238,49 @@
                                 </div>
                             </div>
                         </div>
-                        
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="control-label col-md-4" for="entity_type">Entity Type</label>
+                                    <label class="control-label col-md-4" for="hsn_code">Hsn Code*</label>
                                     <div class="col-md-7 col-md-offset-1">
-                                        <select class="form-control" id="entity_type" name="entity_type">
-                                            <option value="" selected="" disabled="">Select Entity</option>
-                                            <option value="<?php echo _247AROUND_EMPLOYEE_STRING; ?>"><?php echo _247AROUND_EMPLOYEE_STRING; ?></option>
-                                            <option value="<?php echo _247AROUND_PARTNER_STRING; ?>"><?php echo _247AROUND_PARTNER_STRING; ?></option>
-                                            <option value="<?php echo _247AROUND_SF_STRING; ?>"><?php echo _247AROUND_SF_STRING; ?></option>
-                                        </select>
+                                        <input type="text" class="form-control" id="hsn_code" name="hsn_code" placeholder="HSN Code">
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="control-label col-md-4" for="entity_id">Entity Id</label>
+                                    <label class="control-label col-md-4" for="gst_rate">Gst Rate*</label>
                                     <div class="col-md-7 col-md-offset-1">
-                                        <select class="form-control" id="entity_id" name="entity_id">
-                                            <option value="" selected="" disabled="">Please Select Entity Type First</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="control-label col-md-4" for="price">Price</label>
-                                    <div class="col-md-7 col-md-offset-1">
-                                        <input type="number" class="form-control" id="price" name="price" placeholder="Price">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="control-label col-md-4" for="type">Part Type</label>
-                                    <div class="col-md-7 col-md-offset-1">
-                                        <textarea class="form-control" id="type" name="type" placeholder="Type"></textarea>
+                                        <input type="number" class="form-control" id="gst_rate"  name="gst_rate" placeholder="GST Rate">
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="row">
-                            
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="control-label col-md-4" for="description">Description</label>
+                                    <label class="control-label col-md-4" for="serial_number">Serial Number</label>
                                     <div class="col-md-7 col-md-offset-1">
-                                        <textarea class="form-control" id="description" name="description" placeholder="description"></textarea>
+                                        <input type="text" class="form-control" id="serial_number" name="serial_number" placeholder="Serial Number">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6" id="model_number_div">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="model_number_id">Model Number*</label>
+                                    <div class="col-md-7 col-md-offset-1">
+                                        <select class="form-control" id="model_number_id" name="model_number_id">
+                                            <option value="" selected="" disabled="">Please Select Model</option>
+                                        </select>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         
                         <div class="modal-footer">
-                            <input type="hidden" class="btn btn-success" id="inventory_id" name='inventory_id' value="">
-                            <input type="submit" class="btn btn-success" id="master_list_submit_btn" name='submit_type' value="Submit">
+                            <input type="hidden"  id="entity_type" name='entity_type' value="partner">
+                            <input type="hidden"  id="inventory_id" name='inventory_id' value="">
+                            <button type="submit" class="btn btn-success" id="master_list_submit_btn" name='submit_type' value="Submit">Submit</button>
                             <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                             <p class="pull-left text-danger">* These Fields are required</p>
                         </div>
@@ -269,11 +295,39 @@
     var inventory_master_list_table;
     var entity_type = '';
     var entity_id = '';
+    var time = moment().format('D-MMM-YYYY');
     $(document).ready(function(){
         
+        get_partner('partner_id');
+        get_inventory_list();
+        get_services('inventory_service_id');
+    });
+    
+    $('#get_inventory_data').on('click',function(){
+        var partner_id = $('#partner_id').val();
+        if(partner_id){
+            inventory_master_list_table.ajax.reload();
+        }else{
+            alert("Please Select Partner");
+        }
+    });
+    
+    function get_inventory_list(){
         inventory_master_list_table = $('#inventory_master_list').DataTable({
             "processing": true, 
             "serverSide": true,
+            "dom": 'lBfrtip',
+            "buttons": [
+                {
+                    extend: 'excel',
+                    text: 'Export',
+                    exportOptions: {
+                        columns: [ 0, 1, 2,3,4, 5,6,7 ]
+                    },
+                    title: 'inventory_master_list_'+time,
+                    action: newExportAction
+                },
+            ],
             "language":{ 
                 "processing": "<div class='spinner'>\n\
                                     <div class='rect1' style='background-color:#db3236'></div>\n\
@@ -282,22 +336,42 @@
                                     <div class='rect4' style='background-color:#3cba54'></div>\n\
                                 </div>"
             },
+            select: {
+                style: 'multi'
+            },
             "order": [], 
             "pageLength": 25,
             "ordering": false,
             "ajax": {
-                "url": "<?php echo base_url(); ?>employee/inventory/get_inventory_master_list/",
-                "type": "POST"
+                "url": "<?php echo base_url(); ?>employee/inventory/get_inventory_master_list",
+                "type": "POST",
+                data: function(d){
+                    
+                    var entity_details = get_entity_details();
+                    d.entity_id = entity_details.entity_id,
+                    d.entity_type = entity_details.entity_type,
+                    d.service_id = entity_details.service_id
+                }
             },
             "deferRender": true       
         });
+    }
+    
+    function get_entity_details(){
+        var data = {
+            'entity_id': $('#partner_id').val(),
+            'entity_type' : '<?php echo _247AROUND_PARTNER_STRING; ?>',
+            'service_id': $('#inventory_service_id').val()
+        };
         
-    });
+        return data;
+    }
     
     function get_partner(div_to_update){
         $.ajax({
             type:'POST',
             url:'<?php echo base_url();?>employee/partner/get_partner_list',
+            data:{is_wh:true},
             success:function(response){
                 $('#'+div_to_update).html(response);
                 $('#'+div_to_update).select2();
@@ -305,13 +379,14 @@
         });
     }
     
-    function get_services(){
+    function get_services(div_to_update){
         $.ajax({
-            type:'POST',
+            type:'GET',
             url:'<?php echo base_url();?>employee/booking/get_service_id',
+            data:{is_option_selected:true},
             success:function(response){
-                $('#service_id').html(response);
-                //$('#service_id').select2();
+                $('#'+div_to_update).html(response);
+                $('#'+div_to_update).select2();
             }
         });
     }
@@ -327,42 +402,51 @@
         });
     }
     
-    $('#entity_type').change(function(){
-        entity_type = $('#entity_type').val();
-        if(entity_type === '<?php echo _247AROUND_PARTNER_STRING; ?>'){
-            get_partner('entity_id');
-        }else if(entity_type === '<?php echo _247AROUND_EMPLOYEE_STRING; ?>'){
-            var entity_id_options = "<option value='<?php echo _247AROUND_DEFAULT_AGENT;?>' selected='' ><?php echo _247AROUND_DEFAULT_AGENT_NAME; ?></option>";
-            $('#entity_id').html(entity_id_options);
-        }else if(entity_type === '<?php echo _247AROUND_SF_STRING; ?>'){
-            get_service_center('entity_id');
-        }else{
-            var entity_id_options = "<option value='' selected='' >Select</option>";
-            $('#entity_id').html(entity_id_options);
-        }
-    });
     $('#add_master_list').click(function(){
-        get_services();
+        $('#model_number_div').show();
+        get_services('service_id');
+        get_partner('entity_id');
         $("#master_list_details")[0].reset();
         $('#master_list_submit_btn').val('Add');
         $('#modal_title_action').html("Add New Inventory");
         $('#inventory_master_list_data').modal('toggle');
     });
     
-    $(document).on("click", "#edit_master_details", function () {
+    $('#entity_id, #service_id').on('change',function(){
+        var service_id = $('#service_id').val();
+        var entity_id = $('#entity_id').val();
         
+        if(service_id && entity_id){
+            $('#model_number_id').val(null).trigger('change');
+            $("#model_number_id").select2({
+                ajax: { 
+                    url: '<?php echo base_url()?>employee/inventory/get_appliance_models',
+                    type: 'post',
+                    dataType: 'json',
+                    data:{entity_id:entity_id,entity_type: '<?php echo _247AROUND_PARTNER_STRING ; ?>', service_id:service_id},
+                    delay: 250,
+                    processResults: function (data) {
+                        return {
+                            results: $.map(data, function(obj) {
+                                return { id: obj.id, text: obj.model_number };
+                            })
+                        };
+                    },
+                    cache: true
+                 }
+            });
+        }
+        
+    });
+    
+    $(document).on("click", "#edit_master_details", function () {
+        $('#model_number_div').hide();
         var form_data = $(this).data('id');
         if(form_data.service_id){
             var service_options = "<option value='"+form_data.service_id+"' selected=''>"+form_data.services+"</option>";
             $('#service_id').html(service_options);
         }else{
-            get_services();
-        }
-        
-        
-        if(form_data.entity_type){
-            var entity_type_options = "<option value='"+form_data.entity_type+"' selected='' >"+form_data.entity_type+"</option>";
-            $('#entity_type').html(entity_type_options);
+            get_services('service_id');
         }
         
         if(form_data.entity_id){
@@ -374,9 +458,11 @@
         $('#part_name').val(form_data.part_name);
         $('#part_number').val(form_data.part_number);
         $('#serial_number').val(form_data.serial_number);
-        $('#model_number').val(form_data.model_number);
+        $('#entity_type').val(form_data.entity_type);
         $('#size').val(form_data.size);
         $('#price').val(JSON.parse(form_data.price));
+        $('#hsn_code').val(form_data.hsn_code);
+        $('#gst_rate').val(form_data.gst_rate);
         $('#type').val(form_data.type);
         $('#description').val(form_data.description);
         $('#inventory_id').val(form_data.inventory_id);
@@ -390,15 +476,24 @@
         event.preventDefault();
         var arr = {};
         var form_data = $("#master_list_details").serializeArray();
-        
-        if($('#part_name').val() === ""){
+        if(!$('#service_id').val()){
+            alert('Please Select Appliance');
+        }else if(!$('#entity_id').val()){
+            alert("Please Select Partner");
+        }else if($('#part_name').val().trim() === "" || $('#part_name').val().trim() === " "){
             alert("Please Enter Part Name");
-        }else if($('#part_number').val() === ""){
+        }else if($('#part_number').val().trim() === "" || $('#part_number').val().trim() === " "){
             alert("Please Enter Part Number");
-        }else if($('#model_number').val() === ""){
-            alert("Please Enter Model Number");
+        }else if($('#type').val().trim() === "" || $('#type').val().trim() === " "){
+            alert("Please Enter Part Type");
+        }else if($('#price').val().trim() === "" || $('#price').val().trim() === " " || $('#price').val().trim() === '0'){
+            alert("Please Enter Valid Price");
+        }else if($('#hsn_code').val().trim() === "" || $('#hsn_code').val().trim() === " " || $('#hsn_code').val().trim() === '0'){
+            alert("Please Enter Valid Hsn Code");
+        }else if($('#gst_rate').val().trim() === "" || $('#gst_rate').val().trim() === " "){
+            alert("Please Enter Valid Gst Rate");
         }else{
-            $('#master_list_submit_btn').attr('disabled',true).html('Processing...');
+            $('#master_list_submit_btn').attr('disabled',true).html("<i class = 'fa fa-spinner fa-spin'></i> Processing...");
             arr.name = 'submit_type';
             arr.value = $('#master_list_submit_btn').val();
             form_data.push(arr);
@@ -410,20 +505,65 @@
                     $('#inventory_master_list_data').modal('toggle');
                     var data = JSON.parse(response);
                     if(data.response === 'success'){
-                        $('.success_msg_div').fadeTo(2000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
+                        $('.success_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
                         $('#success_msg').html(data.msg);
                         inventory_master_list_table.ajax.reload();
                     }else if(data.response === 'error'){
-                        $('.error_msg_div').fadeTo(2000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(1000);});
+                        $('.error_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(1000);});
                         $('#error_msg').html(data.msg);
                         inventory_master_list_table.ajax.reload();
                     }
-                    $('#master_list_submit_btn').attr('disabled',false).Html('Add');
+                    $('#master_list_submit_btn').attr('disabled',false).html('Add');
                 }
             });
         }
 
     });
+    
+    var oldExportAction = function (self, e, inventory_master_list_table, button, config) {
+        if (button[0].className.indexOf('buttons-excel') >= 0) {
+            if ($.fn.dataTable.ext.buttons.excelHtml5.available(inventory_master_list_table, config)) {
+                $.fn.dataTable.ext.buttons.excelHtml5.action.call(self, e, inventory_master_list_table, button, config);
+            }
+            else {
+                $.fn.dataTable.ext.buttons.excelFlash.action.call(self, e, inventory_master_list_table, button, config);
+            }
+        } else if (button[0].className.indexOf('buttons-print') >= 0) {
+            $.fn.dataTable.ext.buttons.print.action(e, inventory_master_list_table, button, config);
+        }
+    };
+
+    var newExportAction = function (e, inventory_master_list_table, button, config) {
+        var self = this;
+        var oldStart = inventory_master_list_table.settings()[0]._iDisplayStart;
+
+        inventory_master_list_table.one('preXhr', function (e, s, data) {
+            // Just this once, load all data from the server...
+            data.start = 0;
+            data.length = inventory_master_list_table.page.info().recordsTotal;
+
+            inventory_master_list_table.one('preDraw', function (e, settings) {
+                // Call the original action function 
+                oldExportAction(self, e, inventory_master_list_table, button, config);
+
+                inventory_master_list_table.one('preXhr', function (e, s, data) {
+                    // DataTables thinks the first item displayed is index 0, but we're not drawing that.
+                    // Set the property to what it was before exporting.
+                    settings._iDisplayStart = oldStart;
+                    data.start = oldStart;
+                });
+
+                // Reload the grid with the original page. Otherwise, API functions like table.cell(this) don't work properly.
+                setTimeout(inventory_master_list_table.ajax.reload, 0);
+
+                // Prevent rendering of the full data to the DOM
+                return false;
+            });
+        });
+
+        // Requery the server with the new one-time export settings
+        inventory_master_list_table.ajax.reload();
+    };
     
     
 </script>

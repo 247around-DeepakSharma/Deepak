@@ -374,7 +374,7 @@ class Miscelleneous {
                         
                         if ($booking['upcountry_distance'] > 300) {
                             $subject = "Upcountry Distance More Than 300 - Booking ID " . $query1[0]['booking_id'];
-                            $to = NITS_ANUJ_EMAIL_ID.$rm_email;
+                            $to = ANUJ_EMAIL_ID.$rm_email;
                             $cc = $partner_am_email;
                         } else {
                             $subject = "Upcountry Charges Approval Required - Booking ID " . $query1[0]['booking_id'];
@@ -393,9 +393,9 @@ class Miscelleneous {
 
                         log_message('info', __METHOD__ . " => Upcountry, partner does not provide approval" . $booking_id);
                         $this->My_CI->booking_model->update_booking($booking_id, $booking);
-                        $this->process_cancel_form($booking_id, "Pending", UPCOUNTRY_CHARGES_NOT_APPROVED, " Upcountry  Distance " . $data['upcountry_distance'], $agent_id, $agent_name, $query1[0]['partner_id']);
+                        $this->process_cancel_form($booking_id, "Pending", UPCOUNTRY_CHARGES_NOT_APPROVED, " Upcountry  Distance " . $data['upcountry_distance'], $agent_id, $agent_name, $query1[0]['partner_id'], _247AROUND);
 
-                        $to = NITS_ANUJ_EMAIL_ID;
+                        $to = ANUJ_EMAIL_ID;
                         $cc = $partner_am_email;
                         $message1 = $booking_id . " has auto cancelled because upcountry limit exceed "
                                 . "and partner does not provide upcountry charges approval. Upcountry Distance " . $data['upcountry_distance'] .
@@ -439,7 +439,7 @@ class Miscelleneous {
 
                 $this->My_CI->booking_model->update_booking($booking_id, $booking);
 
-                $to = NITS_ANUJ_EMAIL_ID . ", sales@247around.com , ". $rm_email;
+                $to = ANUJ_EMAIL_ID . ", sales@247around.com , ". $rm_email;
                 $cc = "sachinj@247around.com, abhaya@247around.com";
                 $message1 = "Upcountry did not calculate for " . $booking_id;
                 $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", 'Upcountry Failed', $message1, "",UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE_EMAIL_TAG);
@@ -451,7 +451,7 @@ class Miscelleneous {
         return $return_status;
     }
 
-    function process_cancel_form($booking_id, $status, $cancellation_reason, $cancellation_text, $agent_id, $agent_name, $partner_id) {
+    function process_cancel_form($booking_id, $status, $cancellation_reason, $cancellation_text, $agent_id, $agent_name, $partner_id, $cancelled_by) {
         log_message('info', __METHOD__ . " => Entering " . $booking_id, ' status: ' . $status . ' cancellation_reason: ' . $cancellation_reason . ' agent_id: ' . $agent_id . ' agent_name: ' . $agent_name . ' partner_id: ' . $partner_id);
         $data['internal_status'] = $data['cancellation_reason'] = $cancellation_reason;
         $historyRemarks = $cancellation_reason."<br> ".$cancellation_text;
@@ -484,7 +484,7 @@ class Miscelleneous {
         log_message('info', __FUNCTION__ . " Update Service center action table  " . print_r($data_vendor, true));
         $this->My_CI->vendor_model->update_service_center_action($booking_id, $data_vendor);
 
-        $this->update_price_while_cancel_booking($booking_id, $agent_id);
+        $this->update_price_while_cancel_booking($booking_id, $agent_id, $cancelled_by);
         //Update Engineer table while booking cancelled
         $en_where1 = array("engineer_booking_action.booking_id" => $booking_id);
         $this->My_CI->engineer_model->update_engineer_table(array("current_status" => _247AROUND_CANCELLED, "internal_status" =>_247AROUND_CANCELLED), $en_where1);
@@ -497,20 +497,22 @@ class Miscelleneous {
 
         //Log this state change as well for this booking
         //param:-- booking id, new state, old state, employee id, employee name
-        $this->My_CI->notify->insert_state_change($booking_id, $data['current_status'], $status, $historyRemarks, $agent_id, $agent_name,$actor,$next_action, _247AROUND);
+        $this->My_CI->notify->insert_state_change($booking_id, $data['current_status'], $status, $historyRemarks, $agent_id, $agent_name,$actor,$next_action, $cancelled_by);
         // Not send Cancallation sms to customer for Query booking
         // this is used to send email or sms while booking cancelled
         $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
         $send['booking_id'] = $booking_id;
         $send['state'] = $data['current_status'];
         $this->My_CI->asynchronous_lib->do_background_process($url, $send);
+        //Inform to sf when partner/call center has cancelled booking
+        $this->My_CI->notify->send_email_to_sf_when_booking_cancelled($booking_id);
 
         // call partner callback
         $this->My_CI->partner_cb->partner_callback($booking_id);
         log_message('info', __METHOD__ . " => Exit " . $booking_id);
     }
 
-    function update_price_while_cancel_booking($booking_id, $agent_id) {
+    function update_price_while_cancel_booking($booking_id, $agent_id, $cancelled_by) {
         log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true));
         $unit_details['booking_status'] = "Cancelled";
         $unit_details['vendor_to_around'] = $unit_details['around_to_vendor'] = 0;
@@ -539,8 +541,12 @@ class Miscelleneous {
                     $data['stock'] = 1;
                     $data['booking_id'] = $booking_id;
                     $data['agent_id'] = $agent_id;
-                    $data['agent_type'] = _247AROUND_PARTNER_STRING;
-
+                    if($cancelled_by == _247AROUND){
+                        $data['agent_type'] = _247AROUND_EMPLOYEE_STRING;
+                    } else {
+                        $data['agent_type'] = _247AROUND_PARTNER_STRING;
+                    }
+                    
                     $this->process_inventory_stocks($data);
                 }
             }
@@ -1373,7 +1379,7 @@ class Miscelleneous {
         $partner_email = $this->get_partner_email_constant();
         if(isset($partner_email[$booking['partner_id']])){
             $to = $partner_email[$booking['partner_id']];
-            $cc = NITS_ANUJ_EMAIL_ID;
+            $cc = ANUJ_EMAIL_ID;
             $booking['jeeves_not_assign'] = true;
             $message = $this->My_CI->load->view('employee/sf_not_found_email_template', $booking, true);
 
@@ -1397,6 +1403,9 @@ class Miscelleneous {
      */
 
     function sf_not_exist_for_pincode($booking) {
+        if(!isset($booking['order_id'])){
+            $booking['order_id'] = 'Not_Generated';
+        }
         $notFoundSfArray = array('booking_id' => $booking['booking_id'], 'pincode' => $booking['booking_pincode'], 'city' => $booking['city'], 'service_id' => $booking['service_id']);
         $result = $this->My_CI->reusable_model->get_rm_for_pincode($notFoundSfArray['pincode']);
         if (!empty($result)) {
@@ -1412,7 +1421,7 @@ class Miscelleneous {
         }else{
             $rm = $this->My_CI->employee_model->get_rm_details();
             $rm_emails = implode(',', array_column($rm, 'official_email'));
-            $subject = "Pincode Not Exist In India Pincode" . $booking['booking_pincode'];
+            $subject = "Pincode Not Exist In India Pincode " . $booking['booking_pincode'];
             $this->send_sf_not_found_email_to_rm($booking, $rm_emails,$subject, FALSE);
         }
         if (array_key_exists('partner_id', $booking)) {
@@ -1787,20 +1796,16 @@ class Miscelleneous {
      * This Function is used to perform update or insert  action on the basis of input type over bank details table
      */
 
-    function update_insert_bank_account_details($bankDetailsArray, $actionType) {
-        $affectedRows = 0;
-
-        if ($actionType == 'insert') {
-            // If all values are not blank, atleast one column has value then create entry in bank details table
-            if (array_key_exists('bank_name', $bankDetailsArray) || array_key_exists('account_type', $bankDetailsArray) || array_key_exists('bank_account', $bankDetailsArray) || array_key_exists('ifsc_code', $bankDetailsArray) || array_key_exists('cancelled_cheque_file', $bankDetailsArray) || array_key_exists('beneficiary_name', $bankDetailsArray) || array_key_exists('beneficiary_name', $bankDetailsArray)) {
-                return $affectedRows = $this->My_CI->reusable_model->insert_into_table('account_holders_bank_details', $bankDetailsArray);
-            }
-        } else if ($actionType == 'update') {
+    function update_insert_bank_account_details($bankDetailsArray) {
         $where['entity_id'] = $bankDetailsArray['entity_id'];
         $where['entity_type'] = $bankDetailsArray['entity_type'];
-            $this->My_CI->reusable_model->update_table("account_holders_bank_details",$bankDetailsArray,$where);
+        $affectedRows = $this->My_CI->reusable_model->update_table("account_holders_bank_details",$bankDetailsArray,$where);
+        if($affectedRows == 0){
+            if (array_key_exists('bank_name', $bankDetailsArray) || array_key_exists('account_type', $bankDetailsArray) || array_key_exists('bank_account', $bankDetailsArray) || array_key_exists('ifsc_code', $bankDetailsArray) || array_key_exists('cancelled_cheque_file', $bankDetailsArray) || array_key_exists('beneficiary_name', $bankDetailsArray) || array_key_exists('beneficiary_name', $bankDetailsArray)) {
+                $affectedRows = $this->My_CI->reusable_model->insert_into_table('account_holders_bank_details', $bankDetailsArray);
             }
-           
+        } 
+        return $affectedRows;
     }
 
     /**
@@ -2142,7 +2147,6 @@ class Miscelleneous {
         $data['header_navigation_html'] = $this->My_CI->cache->file->get('navigationHeader_'.$this->My_CI->session->userdata('id'));
         $this->My_CI->load->view('employee/header/load_header_navigation', $data);
     }
-    
     /*
      * This is a helper function for fake_reschedule_handling , This function is used to get fake reschedule booking data
      */
@@ -2624,11 +2628,13 @@ function convert_html_to_pdf($html,$booking_id,$filename,$s3_folder){
         $template = 'sf_without_gst_declaration.xlsx';
         $output_pdf_file = "";
         $excel_file = "";
+        $excel_data = array();
         if (!empty($sf_details[0]['signature_file'])) {
-            $excel_data['sf_name'] = $sf_details[0]['name'];
-            $excel_data['sf_address'] = $sf_details[0]['address'];
-            $excel_data['sf_owner_name'] = $sf_details[0]['owner_name'];
-            $excel_data['date'] = date('Y-m-d');
+            $excel_data['excel_data']['sf_name'] = $sf_details[0]['name'];
+            $excel_data['excel_data']['sf_address'] = $sf_details[0]['address'];
+            $excel_data['excel_data']['sf_owner_name'] = $sf_details[0]['owner_name'];
+            $excel_data['excel_data']['date'] = date('Y-m-d');
+            $excel_data['excel_data_line_item'] = array();
             $cell = 'B21';
             if (file_exists($sf_details[0]['signature_file'])) {
                 $signature_file = TMP_FOLDER . $sf_details[0]['signature_file'];
@@ -2841,6 +2847,7 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
         exec("rm -rf " . escapeshellarg($csv));
         unlink($csv);
     }
+
     /*
      * This Function used to load navigation header from cache
      */

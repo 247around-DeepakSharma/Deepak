@@ -201,7 +201,9 @@
                         <td><?php echo $unit_detail['appliance_category'] ?></td>
                         <td><?php echo $unit_detail['appliance_capacity'] ?></td>
                         <td><?php echo $unit_detail['model_number'] ?></td>
-                        <td><?php echo $unit_detail['serial_number'] ?></td>
+                        <td><?php if(!empty($unit_detail['serial_number_pic'])){?>
+                             <a target="_blank" href="<?php echo S3_WEBSITE_URL;?>engineer-uploads/<?php echo $unit_detail['serial_number_pic'];?>"><?php echo $unit_detail['serial_number'];?></a>
+                             <?php } else { echo $unit_detail['serial_number'];} ?> / <?php echo $unit_detail['partner_serial_number']?></td>
                         <td><?php echo $unit_detail['appliance_description'] ?></td>
                         <td><?php print_r($unit_detail['price_tags']); ?></td>
 
@@ -396,7 +398,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($booking_history['spare_parts'] as $sp) { ?>
+                            <?php foreach ($booking_history['spare_parts'] as $sp) { if(!empty($sp['defective_part_shipped'])){ ?>
                             <tr>
                                 <td><?php echo $sp['defective_part_shipped']; ?></td>
                                 <td><?php echo $sp['courier_name_by_sf']; ?></td>
@@ -409,10 +411,10 @@
                                 <td>
                                     <?php if(!empty($sp['sf_challan_file'])) { ?>
                                         <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY?>/vendor-partner-docs/<?php echo $sp['sf_challan_file']; ?>" target="_blank">Click Here to view</a>
-                                    <?php } ?>
+                            <?php } ?>
                                 </td>
                             </tr>
-                            <?php } ?>
+                            <?php } }?>
                         </tbody>
                     </table>
                 </div>

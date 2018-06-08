@@ -175,6 +175,7 @@
                                     <option>Snapdeal</option
                                     <option>Paytm-delivered-excel</option>
                                     <option>Paytm</option>
+                                    <option>VibgyorNXT</option>
                                     <option>Website</option>
                                     
                                     
@@ -285,7 +286,7 @@
                                 <label for="booking_date" class="col-md-4">Purchase Date *</label>
                                 <div class="col-md-6">
                                 <div class="input-group input-append date">
-                                    <input id="purchase_date" class="form-control"  name="purchase_date[]" type="date" value = "">
+                                    <input id="purchase_date_1" class="form-control purchase_date"  name="purchase_date[]" type="date" value = "">
                                     <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                 </div>
                                 </div>

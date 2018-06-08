@@ -441,9 +441,9 @@ class Do_background_upload_excel extends CI_Controller {
 
                             //Set delivered date only
                             $booking['delivery_date'] = $dateObj2->format('Y-m-d H:i:s');
-                            $booking['estimated_delivery_date'] = '';
+                            //$booking['estimated_delivery_date'] = '';
                             $booking['backup_delivery_date'] = isset($value['delivery_date'])?$value['delivery_date']:'';
-                            $booking['backup_estimated_delivery_date'] = '';
+                            //$booking['backup_estimated_delivery_date'] = '';
 
                             $booking['internal_status'] = "Missed_call_not_confirmed";
                             $booking['query_remarks'] = 'Product Delivered, Call Customer For Booking';
@@ -541,11 +541,25 @@ class Do_background_upload_excel extends CI_Controller {
 
                     //Send SMS to customers regarding delivery confirmation through missed call for delivered file only
                     //Check whether vendor is available or not
-                    $is_sms = $this->miscelleneous->check_upcountry($booking, $value['appliance'], $is_price, $file_type);
-                    if (!$is_sms) {
-                        $booking['internal_status'] = SF_UNAVAILABLE_SMS_NOT_SENT;
-                    } else {
+                    if($booking['partner_id'] == GOOGLE_FLIPKART_PARTNER_ID){
                         $booking['sms_count'] = 1;
+                        $booking['internal_status'] = _247AROUND_FOLLOWUP;
+                        
+                        //send sms to google customer. right now it is hard coded change this in future
+                        $sms['tag'] = "flipkart_google_sms";
+                        $sms['smsData'] = array();
+                        $sms['phone_no'] = $booking['booking_primary_contact_no'];
+                        $sms['booking_id'] = $booking['booking_id'];
+                        $sms['type'] = "user";
+                        $sms['type_id'] = $user_id;
+                        $this->notify->send_sms_msg91($sms);
+                    }else{
+                        $is_sms = $this->miscelleneous->check_upcountry($booking, $value['appliance'], $is_price, $file_type);
+                        if (!$is_sms) {
+                            $booking['internal_status'] = SF_UNAVAILABLE_SMS_NOT_SENT;
+                        } else {
+                            $booking['sms_count'] = 1;
+                        }
                     }
                     $booking_details_id = $this->booking_model->addbooking($booking);
 
@@ -851,7 +865,8 @@ class Do_background_upload_excel extends CI_Controller {
                 if (stristr($prod, "Television") || stristr($prod, "TV") ||  stristr($prod, "Tv") ||  stristr($prod, "LED")) {
                     $data['valid_data'][$key]['appliance'] = 'Television';
                 }
-                if (stristr($prod, "Airconditioner") || stristr($prod, "Air Conditioner") || strstr($prod, "AC")) {
+                //remove AC beacuse when description contain active then it mapped other appliance booking into ac
+                if (stristr($prod, "Airconditioner") || stristr($prod, "Air Conditioner")) {
                     $data['valid_data'][$key]['appliance'] = 'Air Conditioner';
                 }
                 if (stristr($prod, "Refrigerator")) {
@@ -1206,7 +1221,9 @@ class Do_background_upload_excel extends CI_Controller {
 	$partner_booking['247aroundBookingStatus'] = "FollowUp";
 	$partner_booking['247aroundBookingRemarks'] = "FollowUp";
 	$partner_booking['create_date'] = date('Y-m-d H:i:s');
-        $partner_booking['spd_date'] = $booking['service_promise_date'];
+        if(isset($booking['service_promise_date'])){
+            $partner_booking['spd_date']= $booking['service_promise_date'];
+        }
 
 	$partner_leads_id = $this->partner_model->insert_partner_lead($partner_booking);
 	if ($partner_leads_id) {
@@ -1367,7 +1384,7 @@ class Do_background_upload_excel extends CI_Controller {
                         $to = $this->email_send_to;
                     }
                     
-                    $cc = "";
+                    $cc = NITS_ANUJ_EMAIL_ID;
                     $agent_name = !empty($this->session->userdata('emp_name')) ? $this->session->userdata('emp_name') : _247AROUND_DEFAULT_AGENT_NAME;
                     $subject = "Failed! $upload_file_type File uploaded by " . $agent_name;
                     $body = $response['msg'];
@@ -1521,7 +1538,7 @@ class Do_background_upload_excel extends CI_Controller {
             $tmpArr['city'] = '';
         }
         $tmpArr['phone'] = $data[$header_data['phone']];
-        if(isset($data[$header_data['alternate_phone']]) && !empty($data[$header_data['alternate_phone']])){
+        if(isset($data[$header_data['alternate_phone']]) && !empty($data[trim($header_data['alternate_phone'])])){
             $tmpArr['phone'] = $data[$header_data['phone']]."/".$data[$header_data['alternate_phone']];
         }else{
             $tmpArr['phone'] = $data[$header_data['phone']];
@@ -1549,7 +1566,7 @@ class Do_background_upload_excel extends CI_Controller {
             $tmpArr['order_item_id'] = '';
         }
         
-        if(isset($data[$header_data['spd']]) && !empty($data[$header_data['spd']])){
+        if(isset($data[$header_data['spd']]) && !empty($data[trim($header_data['spd'])])){
             $tmpArr['service_promise_date'] = $data['promise_before_date'];
         }else{
             $tmpArr['service_promise_date'] = '';

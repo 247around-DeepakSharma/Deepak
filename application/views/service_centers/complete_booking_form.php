@@ -1,4 +1,6 @@
 <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
+<link rel="stylesheet" href="<?php echo base_url();?>css/jquery.loading.css">
+<script src="<?php echo base_url();?>js/jquery.loading.js"></script>
 <div id="page-wrapper" >
     <div class="container" >
         <?php if(validation_errors()){?>
@@ -197,10 +199,16 @@
                                                                 <div class="col-md-12">
                                                                     <input type="hidden" id="<?php echo "serial_number_pic" . $count ?>" class="form-control" name="<?php echo "serial_number_pic[" . $price['unit_id'] . "]" ?>" 
                                                                         value="<?php if(isset($price['en_serial_number_pic'])){ echo $price['en_serial_number_pic'];} else {$price["serial_number_pic"];}  ?>" placeholder=""   />
-                                                                    <input type="text" id="<?php echo "serial_number" . $count ?>" class="form-control" name="<?php echo "serial_number[" . $price['unit_id'] . "]" ?>" 
+<!--                                                                    onblur="validateSerialNo('<?php //echo $count;?>')" -->
+                                                                    <input type="text" id="<?php echo "serial_number" . $count ?>" onblur="validateSerialNo('<?php echo $count;?>')" class="form-control" name="<?php echo "serial_number[" . $price['unit_id'] . "]" ?>"  
                                                                         value="<?php if(isset($price['en_serial_number'])){ echo $price['en_serial_number'];} else {$price["serial_number"];}  ?>" placeholder="Enter Serial No" required  />
                                                                     <input type="hidden" id="<?php echo "pod" . $count ?>" class="form-control" name="<?php echo "pod[" . $price['unit_id'] . "]" ?>" value="<?php echo $price['pod']; ?>"   />
+                                                                    <input type="hidden" id="<?php echo "sno_required" . $count ?>" class="form-control" name="<?php echo "is_sn_file[" . $price['unit_id'] . "]" ?>" value="0"   />
+                                                                    <br/>
+                                                                    <input type="file" style="display:none" id="<?php echo "upload_serial_number_pic" . $count ?>"   class="form-control" name="<?php echo "upload_serial_number_pic[" . $price['unit_id'] . "]" ?>"   />
+                                                                    <span style="color:red;" id="<?php echo 'error_serial_no'.$count;?>"></span>
                                                                 </div>
+                                                                
                                                             </div>
                                                             <?php } ?>
                                                         </td>
@@ -463,6 +471,15 @@
                             
                         }
                     }
+                    var requiredPic = $('#sno_required'+ div_no[2]).val();
+                    if(requiredPic === '1'){
+                        if( document.getElementById("upload_serial_number_pic"+div_no[2]).files.length === 0 ){
+                            alert('Please Attach Serial Number image');
+                            document.getElementById('upload_serial_number_pic' + div_no[2]).style.borderColor = "red";
+                            flag = 1;
+                        }
+                        
+                    }
                 }
                
                 var amount_due = $("#amount_due" + div_no[2]).text();
@@ -501,7 +518,7 @@
                 }
             }
         });
-      
+ 
         if (Number(number_of_div) !== Number(div_count)) {
             alert('Please Select All Services Delivered Or Not Delivered.');
             flag = 1;
@@ -659,6 +676,51 @@
                no++;
             }
         }
+    }
+    
+    function validateSerialNo(index){
+       var serialNo = $("#serial_number" +index).val();
+       if(serialNo !== ''){
+            $.ajax({
+                type: 'POST',
+                beforeSend: function(){
+
+                    $('body').loadingModal({
+                    position: 'auto',
+                    text: 'Loading Please Wait...',
+                    color: '#fff',
+                    opacity: '0.7',
+                    backgroundColor: 'rgb(0,0,0)',
+                    animation: 'wave'
+                });
+
+                    },
+                url: '<?php echo base_url() ?>employee/service_centers/validate_booking_serial_number',
+                data:{serial_number:serialNo,partner_id:'<?php echo $booking_history[0]['partner_id'];?>'},
+                success: function (response) {
+                    
+                    var data = jQuery.parseJSON(response);
+                    console.log(data);
+                    if(data.code === 247){
+                        $('body').loadingModal('destroy');
+                        $("#upload_serial_number_pic"+index).css('display', "none");
+                        $("#error_serial_no" +index).text("");
+                        $("#sno_required"+index).val('0');
+                    } else {
+                        $("#sno_required"+index).val('1');
+                        $("#error_serial_no" +index).html(data.message);
+                        $("#upload_serial_number_pic"+index).css('display', "block");
+                        $('body').loadingModal('destroy');
+                    }
+                    
+                }
+            });
+       } else {
+       
+            $("#upload_serial_number_pic"+index).css('display', "none");
+            $("#error_serial_no" +index).text("");
+            $("#sno_required"+index).val('0');
+       }
     }
     
 </script>

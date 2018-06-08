@@ -1780,6 +1780,7 @@ function up_message(){
     
 </script>
 <script type="text/javascript">
+     var serialNo;
     $.validator.addMethod("regx", function (value, element, regexpr) {
         return regexpr.test(value);
     }, "Please enter a valid Number.");
@@ -1936,8 +1937,13 @@ function up_message(){
                 document.getElementById(i).style.background='#fff';
             }
        }
-       if(tab_id == 6){
+      
+       if(tab_id === '6'){
            get_partner_services();
+       }
+       else if(tab_id === '7'){
+
+           getserial_number_history();
        }
     }
     function add_more_fields(id){

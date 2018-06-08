@@ -229,6 +229,17 @@ class Do_background_process extends CI_Controller {
                 $unit_details['customer_paid_parts'] = $value['parts_cost'];
                 $unit_details['is_broken'] = $value['is_broken'];
                 $unit_details['serial_number_pic'] = $value['serial_number_pic'];
+                
+                if(!empty($value['serial_number_pic'])){
+                    
+                   $is_inserted =$this->partner_model->insert_partner_serial_number(array('partner_id' =>$partner_id, 
+                       "serial_number" => $value['serial_number'], "active" =>1, "added_by" => "vendor" ));
+                   
+                   if(!empty($is_inserted) && $partner_id == AKAI_ID){
+                       
+                       $this->miscelleneous->inform_partner_for_serial_no($booking_id, $value['service_center_id'], $partner_id, $value['serial_number'], $value['serial_number_pic']);
+                   } 
+                }
 
                 log_message('info', ": " . " update booking unit details data " . print_r($unit_details, TRUE));
                 // update price in the booking unit details page

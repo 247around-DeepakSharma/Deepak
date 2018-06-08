@@ -143,14 +143,15 @@
                                         if (form_error('shipped_model_number')) {
                                             echo 'has-error';
                                         } ?>">
-                                   <label for="shipped_model_number" class="col-md-4">Shipped Model Number*</label>
+                                   <label for="shipped_model_number" class="col-md-4">Shipped Model Number *</label>
                                     <div class="col-md-6">
-                                        <select class="form-control spare_parts" id="shipped_model_number" name="shipped_model_number">
+                                        <select class="form-control spare_parts" id="shipped_model_number_id" name="shipped_model_number_id">
                                             <option value="" disabled="" selected="">Select Model Number</option>
-                                            <?php foreach (array_column($inventory_details, 'model_number') as $key => $value) { ?> 
-                                                <option value="<?php echo $value; ?>"><?php echo $value; ?></option>
+                                            <?php foreach ($inventory_details as $key => $value) { ?> 
+                                                <option value="<?php echo $value['id']; ?>"><?php echo $value['model_number']; ?></option>
                                             <?php } ?>
                                         </select>
+                                        <input type="hidden" id="shipped_model_number" name="shipped_model_number">
                                      <?php echo form_error('shipped_model_number'); ?>
                                     </div> 
 
@@ -159,7 +160,7 @@
                                         if (form_error('shipped_part_type')) {
                                             echo 'has-error';
                                         } ?>">
-                                   <label for="shipped_part_type" class="col-md-4">Shipped Part Type*</label>
+                                   <label for="shipped_part_type" class="col-md-4">Shipped Part Type *</label>
                                     <div class="col-md-6">
                                         <select class="form-control spare_parts" id="shipped_part_type" name="shipped_part_type">
                                             <option selected disabled>Select Part Type</option>
@@ -172,7 +173,7 @@
                                     if (form_error('shipped_parts_name')) {
                                         echo 'has-error';
                                     } ?>">
-                               <label for="shipped_parts_name" class="col-md-4">Shipped Parts*</label>
+                               <label for="shipped_parts_name" class="col-md-4">Shipped Parts *</label>
                                 <div class="col-md-6">
                                     <select class="form-control spare_parts" id="shipped_parts_name" name="shipped_parts_name">
 <!--                                        <option selected disabled >Select Parts Name</option>-->
@@ -187,7 +188,7 @@
                             <input type="hidden" class="form-control" name="booking_id" value = "<?php echo $spare_parts[0]->booking_id; ?>">
                             <div class="form-group <?php
                                     if (form_error('remarks_by_partner')) { echo 'has-error'; } ?>">
-                                <label for="remarks_by_partner" class="col-md-4">Remarks*</label>
+                                <label for="remarks_by_partner" class="col-md-4">Remarks *</label>
                                 <div class="col-md-6">
                                     <textarea class="form-control" id="remarks" name="remarks_by_partner" placeholder="Please Enter Remarks"  required></textarea>
                                     <?php echo form_error('remarks_by_partner'); ?>
@@ -210,7 +211,7 @@
                             <?php } ?>
                             <div class="form-group <?php
                                     if (form_error('awb')) { echo 'has-error'; } ?>">
-                               <label for="awb" class="col-md-4">AWB*</label>
+                               <label for="awb" class="col-md-4">AWB *</label>
                                 <div class="col-md-6">
                                     <input type="text" class="form-control" id="awb" name="awb" value = "" placeholder="Please Enter AWB"  required>
                                      <?php echo form_error('awb'); ?>
@@ -220,7 +221,7 @@
                             
                             <div class="form-group <?php
                                 if (form_error('courier_name')) {echo 'has-error';} ?>">
-                                <label for="courier" class="col-md-4">Courier Name*</label>
+                                <label for="courier" class="col-md-4">Courier Name *</label>
                                 <div class="col-md-6">
                                     <input type="text" class="form-control" id="courier_name" name="courier_name" value = "" placeholder="Please Enter courier Name"  required>
                                     <?php echo form_error('courier_name'); ?>
@@ -233,6 +234,16 @@
                                 <div class="col-md-6">
                                     <input type="text" class="form-control"  id="shipment_date" name="shipment_date"  value = "<?php echo  date("Y-m-d", strtotime("+0 day")); ?>"  required readonly=''>
                                     <?php echo form_error('shipment_date'); ?>
+                                </div>
+                                 
+                            </div>
+                            
+                            <div class="form-group <?php
+                                if (form_error('courier_price_by_partner')) { echo 'has-error';} ?>">
+                                <label for="courier_price_by_partner" class="col-md-4">Courier Price *</label>
+                                <div class="col-md-6">
+                                    <input type="number" class="form-control"  id="courier_price_by_partner" name="courier_price_by_partner" placeholder="Please Enter courier price" required>
+                                    <?php echo form_error('courier_price_by_partner'); ?>
                                 </div>
                                  
                             </div>
@@ -306,8 +317,9 @@
                             <input type="hidden" name="partner_id" id="partner_id" value="<?php echo $spare_parts[0]->partner_id ;?>">
                             <input type="hidden" name="assigned_vendor_id" id="assigned_vendor_id" value="<?php echo $spare_parts[0]->assigned_vendor_id ;?>">
                             <input type="hidden" name="is_wh" id="is_wh" value="<?php echo $is_wh ;?>">
+                            <input type="hidden" name="inventory_id" id="inventory_id">
                             <input type="submit"  <?php if (!is_null($spare_parts[0]->estimate_cost_given_date) || $spare_parts[0]->request_type == REPAIR_OOW_TAG) { ?> 
-                                       onclick="return check_invoice_amount('<?php echo $spare_parts[0]->purchase_price; ?>')" <?php } ?> value="Update Booking" class="btn btn-md btn-success" />
+                                       onclick="return check_invoice_amount('<?php echo $spare_parts[0]->purchase_price; ?>')" <?php } ?> value="Update Booking" class="btn btn-md btn-success" id="submit_form"/>
                         </div>
                     </div>
                 </div>
@@ -388,7 +400,7 @@
        
     }
     
-    $('#shipped_model_number').select2();
+    $('#shipped_model_number_id').select2();
     $('#shipped_parts_name').select2({
         placeholder:'Select Part Name',
         allowClear:true
@@ -397,15 +409,17 @@
         placeholder:'Select Part Type',
         allowClear:true
     });
-    $('#shipped_model_number').on('change', function() {
+    $('#shipped_model_number_id').on('change', function() {
         
-        var model_number = $('#shipped_model_number').val();
+        var model_number_id = $('#shipped_model_number_id').val();
+        var model_number = $("#shipped_model_number_id option:selected").text();
         $('#spinner').addClass('fa fa-spinner').show();
         if(model_number){
+            $('#shipped_model_number').val(model_number);
             $.ajax({
                 method:'POST',
                 url:'<?php echo base_url(); ?>employee/inventory/get_parts_type',
-                data: { model_number:model_number, entity_id: '<?php echo $spare_parts[0]->partner_id ;?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo $spare_parts[0]->service_id; ?>' },
+                data: { model_number_id:model_number_id},
                 success:function(data){
                     $('#shipped_part_type').val('val', "");
                     $('#shipped_part_type').val('Select Part Type').change();
@@ -422,19 +436,18 @@
     
     $('#shipped_part_type').on('change', function() {
         
-        var model_number = $('#shipped_model_number').val();
+        var model_number_id = $('#shipped_model_number_id').val();
         var part_type = $('#shipped_part_type').val();
         $('#spinner').addClass('fa fa-spinner').show();
-        if(model_number){
+        if(model_number_id){
             $.ajax({
                 method:'POST',
                 url:'<?php echo base_url(); ?>employee/inventory/get_parts_name',
-                data: { model_number:model_number, entity_id: '<?php echo $spare_parts[0]->partner_id ;?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo $spare_parts[0]->service_id; ?>',part_type:part_type,is_option_selected:true },
+                data: { model_number_id:model_number_id, entity_id: '<?php echo $spare_parts[0]->partner_id ;?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo $spare_parts[0]->service_id; ?>',part_type:part_type,is_option_selected:true },
                 success:function(data){
                     $('#shipped_parts_name').val('val', "");
                     $('#shipped_parts_name').val('Select Part Name').change();
                     $('#shipped_parts_name').html(data);
-                    //$('#shipped_parts_name').html(data);
                     $('#spinner').removeClass('fa fa-spinner').hide();
                 }
             });
@@ -445,20 +458,24 @@
     
     $('#shipped_parts_name').on('change', function() {
         
-        var model_number = $('#shipped_model_number').val();
+        var model_number_id = $('#shipped_model_number_id').val();
         var part_name = $('#shipped_parts_name').val();
         
-        if(model_number && part_name){
+        if(model_number_id && part_name){
             $.ajax({
                 method:'POST',
                 url:'<?php echo base_url(); ?>employee/inventory/get_inventory_price',
-                data: { model_number:model_number, entity_id: '<?php echo $spare_parts[0]->partner_id ;?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo $spare_parts[0]->service_id; ?>' , 'part_name' : part_name },
+                data: { part_name:part_name,model_number_id:model_number_id, entity_id: '<?php echo $spare_parts[0]->partner_id ;?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo $spare_parts[0]->service_id; ?>' },
                 success:function(data){
-                    console.log(data);
+                    //console.log(data);
                     var obj = JSON.parse(data);
                     if(obj.price){
+                        $('#submit_form').attr('disabled',false);
                         $('#approx_value').val(obj.price);
+                        $('#inventory_id').val(obj.inventory_id);
                     }else{
+                        alert("Inventory Details not found for the selected combination.");
+                        $('#submit_form').attr('disabled',true);
                         console.log(data);
                     }
                 }

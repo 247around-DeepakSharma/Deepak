@@ -329,7 +329,8 @@ class invoices_model extends CI_Model {
 
         $sql1 = "SELECT booking_unit_details.id AS unit_id, CONCAT('''', booking_unit_details.sub_order_id) as sub_order_id, `booking_details`.booking_id as booking_id, "
                 . "  invoice_email_to,invoice_email_cc, booking_details.rating_stars,  "
-                . " `booking_details`.partner_id, `booking_details`.source,"
+                . " `booking_details`.partner_id, `booking_details`.source, "
+                . " CASE WHEN (serial_number_pic = '' OR serial_number_pic IS NULL) THEN ('') ELSE (CONCAT('".S3_WEBSITE_URL."engineer-uploads/', serial_number_pic)) END as serial_number_pic,"
                 . "  DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y'), '%D %b %Y') as booking_date, "
                 . " `booking_details`.city, DATE_FORMAT(`booking_unit_details`.ud_closed_date, '%D %b %Y') as closed_date,price_tags, "
                 . " `booking_unit_details`.appliance_capacity,`booking_unit_details`.appliance_category, "
@@ -587,8 +588,8 @@ class invoices_model extends CI_Model {
                 '-',MAX( ud.`appliance_capacity` ),') ' )
                 
                 
-                END AS description,
-                  
+                END AS description, 
+                ".DEFAULT_TAX_RATE." as gst_rate,
                 COUNT( ud.`appliance_capacity` ) AS qty, 
                 (partner_net_payable * COUNT( ud.`appliance_capacity` )) AS taxable_value,
                 `partners`.company_name, product_or_services,
@@ -621,6 +622,7 @@ class invoices_model extends CI_Model {
                 $up_country[0]['qty'] = '';
                 $up_country[0]['rate'] = '';
                 $up_country[0]['qty'] = '';
+                $up_country[0]['gst_rate'] = DEFAULT_TAX_RATE;
                 $up_country[0]['product_or_services'] = 'Upcountry';
                 $up_country[0]['taxable_value'] = $upcountry_data[0]['total_upcountry_price'];
                 $result['result'] = array_merge($result['result'], $up_country);
@@ -634,6 +636,7 @@ class invoices_model extends CI_Model {
                 $c_data[0]['qty'] = '';
                 $c_data[0]['rate'] = '';
                 $c_data[0]['qty'] = '';
+                $c_data[0]['gst_rate'] = DEFAULT_TAX_RATE;
                 $c_data[0]['product_or_services'] = 'Courier';
                 $c_data[0]['taxable_value'] = (array_sum(array_column($courier, 'courier_charges_by_sf')));
                 $result['result'] = array_merge($result['result'], $c_data);
@@ -661,8 +664,7 @@ class invoices_model extends CI_Model {
 
         if (!empty($result_data['result'])) {
             $result =  $result_data['result'];
-            $gst_rate = DEFAULT_TAX_RATE;
-            $response = $this->_set_partner_excel_invoice_data($gst_rate, $result,$from_date_tmp,$to_date_tmp, "Tax Invoice");
+            $response = $this->_set_partner_excel_invoice_data($result,$from_date_tmp,$to_date_tmp, "Tax Invoice");
 
             $data['booking'] = $response['booking'];
             $data['meta'] = $response['meta'];
@@ -675,7 +677,7 @@ class invoices_model extends CI_Model {
         }
     }
     
-    function _set_partner_excel_invoice_data($gst_rate, $result, $sd, $ed, $invoice_type, 
+    function _set_partner_excel_invoice_data($result, $sd, $ed, $invoice_type, 
             $invoice_date = false, $is_customer = false, $customer_state =false){
             $c_s_gst =$this->check_gst_tax_type($result[0]['state'], $customer_state);
             
@@ -688,8 +690,8 @@ class invoices_model extends CI_Model {
             foreach ($result as $key => $value) {
                 if($is_customer && empty($result[0]['gst_number'])){
                   
-                    $meta['total_taxable_value'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * ($gst_rate/100))));
-                    $result[$key]['toal_amount'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * ($gst_rate/100))));
+                    $meta['total_taxable_value'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * ($value['gst_rate']/100))));
+                    $result[$key]['toal_amount'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * ($value['gst_rate']/100))));
                     
                     
                 } else if((empty($is_customer)) && empty($result[0]['gst_number'])){
@@ -702,23 +704,23 @@ class invoices_model extends CI_Model {
                 }else if($c_s_gst){
 
                     $result[$key]['cgst_rate'] =  $result[$key]['sgst_rate'] = 9;
-                    $result[$key]['cgst_tax_amount'] = sprintf("%1\$.2f",($value['taxable_value'] * ($gst_rate/100)/2));
-                    $result[$key]['sgst_tax_amount'] = sprintf("%1\$.2f",($value['taxable_value'] * ($gst_rate/100)/2));
+                    $result[$key]['cgst_tax_amount'] = sprintf("%1\$.2f",($value['taxable_value'] * ($value['gst_rate']/100)/2));
+                    $result[$key]['sgst_tax_amount'] = sprintf("%1\$.2f",($value['taxable_value'] * ($value['gst_rate']/100)/2));
                     $meta['cgst_total_tax_amount'] +=  $result[$key]['cgst_tax_amount'];
                     $meta['sgst_total_tax_amount'] += $result[$key]['sgst_tax_amount'];
                     $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = 9;
                     $meta['total_taxable_value'] += $value['taxable_value'];
                     
-                    $result[$key]['toal_amount'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * ($gst_rate/100))));
+                    $result[$key]['toal_amount'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * ($value['gst_rate']/100))));
                    
                 } else {
                    
                     $result[$key]['igst_rate'] =  $meta['igst_tax_rate'] = DEFAULT_TAX_RATE;
-                    $result[$key]['igst_tax_amount'] = sprintf("%1\$.2f",($value['taxable_value'] * ($gst_rate/100)));
+                    $result[$key]['igst_tax_amount'] = sprintf("%1\$.2f",($value['taxable_value'] * ($value['gst_rate']/100)));
                     $meta['igst_total_tax_amount'] +=  $result[$key]['igst_tax_amount'];
                     $meta['total_taxable_value'] += $value['taxable_value'];
                     
-                    $result[$key]['toal_amount'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * ($gst_rate/100))));
+                    $result[$key]['toal_amount'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * ($value['gst_rate']/100))));
                 }
                 
                 
@@ -1660,6 +1662,24 @@ class invoices_model extends CI_Model {
 
         $query = $this->db->get();
         return $query->num_rows();
+    }
+    
+    function get_unsettle_inventory_invoice($select, $where, $order_by = array()){
+        $this->db->select($select);
+        $this->db->from('invoice_details');
+        $this->db->join('vendor_partner_invoices', 'invoice_details.invoice_id = vendor_partner_invoices.invoice_id');
+        $this->db->where($where);
+        if(!empty($order_by)){
+            $this->db->order_by($order_by['column_name'], $order_by['param']);
+        }
+        
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    
+    function insert_inventory_invoice($data){
+        $this->db->insert('inventory_invoice_mapping', $data);
+        return $data;
     }
 
 }

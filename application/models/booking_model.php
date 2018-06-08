@@ -510,7 +510,7 @@ class Booking_model extends CI_Model {
         
         if($partner_id === true){
             $where .= " AND partner_id IN ('"._247AROUND."') ";
-            $where .=" AND request_type IN ('Repair','Repair - In Warranty','".REPAIR_OOW_TAG."')";
+            $where .=" AND request_type IN ('Repair','".REPAIR_IN_WARRANTY_TAG."','".REPAIR_OOW_TAG."')";
         }
 
         $query = $this->db->query("Select count(*) as count from booking_details
@@ -1980,9 +1980,10 @@ class Booking_model extends CI_Model {
         $this->db->join('service_centres','service_centres.id = booking_details.assigned_vendor_id');
         $this->db->join('bookings_sources','bookings_sources.partner_id = booking_details.partner_id');
         $this->db->where_in("current_status", array("Pending","Rescheduled"));
-        $this->db->order_by('spare_parts_details.create_date', 'desc');  
+        $this->db->order_by('spare_parts_details.create_date', 'DESC');  
+        $this->db->order_by('service_centres.name', 'ASC');  
+        $this->db->order_by('spare_parts_details.courier_name_by_sf', 'ASC');  
         $query = $this->db->get();
-      
         return $query->result_array();
         
     }
@@ -2191,13 +2192,17 @@ class Booking_model extends CI_Model {
      *  @param : $select string
      *  @return: Array()
      */
-    function get_bookings_by_status($post, $select = "",$sfIDArray=array()) {
+    function get_bookings_by_status($post, $select = "",$sfIDArray = array(),$partnerIDArray = array()) {
         $this->_get_bookings_by_status($post, $select);
         if ($post['length'] != -1) {
             $this->db->limit($post['length'], $post['start']);
         }
         if($sfIDArray){
             $this->db->where_in('booking_details.assigned_vendor_id', $sfIDArray);
+        }
+        if($partnerIDArray){
+            $this->db->where_in('booking_details.partner_id', $partnerIDArray);
+            $this->db->where_not_in('booking_details.internal_status', array('InProcess_Cancelled','InProcess_Completed'));
         }
         $query = $this->db->get();
         return $query->result();
@@ -2208,17 +2213,13 @@ class Booking_model extends CI_Model {
      *  @param : $post string
      *  @return: Array()
      */
-    function count_filtered_bookings_by_status($post){
-        $sfIDArray =array();
-        if($this->session->userdata('user_group') == 'regionalmanager'){
-            $rm_id = $this->session->userdata('id');
-            $rmServiceCentersData= $this->reusable_model->get_search_result_data("employee_relation","service_centres_id",array("agent_id"=>$rm_id),NULL,NULL,NULL,NULL,NULL);
-            $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
-            $sfIDArray = explode(",",$sfIDList);
-        }
+    function count_filtered_bookings_by_status($post,$sfIDArray = array() ,$partnerIDArray = array()){
         $this->_get_bookings_by_status($post,'count(distinct(booking_details.booking_id)) as numrows');
         if($sfIDArray){
             $this->db->where_in('booking_details.assigned_vendor_id', $sfIDArray);
+        }
+        if($partnerIDArray){
+            $this->db->where_in('booking_details.partner_id', $partnerIDArray);
         }
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];

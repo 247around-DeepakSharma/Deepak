@@ -58,9 +58,15 @@ class Login extends CI_Controller {
             $employee_password = $this->input->post('employee_password');
             $login = $this->employeelogin->login($employee_id, md5($employee_password));
             if ($login) {
+                $is_am = 0;
                 $this->session->sess_create();
-                $this->setSession($login[0]['employee_id'], $login[0]['id'], $login[0]['phone'],$login[0]['official_email'],$login[0]['full_name']);
-                $this->miscelleneous->set_header_navigation_in_cache("247Around");
+                $amArray = $this->reusable_model->get_search_result_data("partners",'1',array("partners.account_manager_id"=>$login[0]['id'],"employee.groups != 'admin'"=>NULL,'partners.is_active'=>1),
+                        array("employee"=>"employee.id = partners.account_manager_id"),NULL,NULL,NULL,NULL,array()); 
+                if(!empty($amArray)){
+                    $is_am = 1;
+                }
+                $this->setSession($login[0]['employee_id'], $login[0]['id'], $login[0]['phone'],$login[0]['official_email'],$login[0]['full_name'],$is_am);
+                $this->miscelleneous->set_header_navigation_in_cache('247Around');
                 $this->push_notification_lib->get_unsubscribers_by_cookies();
                 //Saving Login Details in Database
                 $data['browser'] = $this->agent->browser();
@@ -121,7 +127,7 @@ class Login extends CI_Controller {
      *  @param : employee_id- id of employee for whom session is created
      *  @return : void
      */
-    function setSession($employee_id, $id, $phone,$official_email,$emp_name) {
+    function setSession($employee_id, $id, $phone,$official_email,$emp_name,$is_am) {
         // Getting values for Groups of particular employee
         $groups = $this->employeelogin->get_employee_group_name($employee_id);
         if($groups){
@@ -135,7 +141,8 @@ class Login extends CI_Controller {
                 'userType' => 'employee',
                 'user_group'=> $groups,
             'official_email'=>$official_email,
-            'emp_name' => $emp_name
+            'emp_name' => $emp_name,
+            'is_am' => $is_am
         );
         }
         else{

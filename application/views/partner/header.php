@@ -304,8 +304,8 @@
                                         <li><a href="<?php echo base_url(); ?>partner/download_sf_list_excel">Service Center List</a></li>
                                     </ul>
                                 </li>-->
-                                 <li><a href="<?php echo base_url(); ?>partner/reports" data-toggle="tooltip" data-placement="right" title="" data-original-title="Reports">
-                                         <i class="fa fa-line-chart"></i><span class="side_menu_list_title">Reports</span></a></li>
+                                 <li><a href="<?php echo base_url(); ?>partner/reports" data-toggle="tooltip" data-placement="right" title="" data-original-title="Downloads">
+                                         <i class="glyphicon glyphicon-download-alt"></i><span class="side_menu_list_title">Downloads</span></a></li>
                                          
                                  <li><a href="<?php echo base_url(); ?>partner/contracts" data-toggle="tooltip" data-placement="right" title="" data-original-title="Contracts">
                                          <i class="fa fa-handshake-o"></i><span class="side_menu_list_title">Contracts</span></a></li>

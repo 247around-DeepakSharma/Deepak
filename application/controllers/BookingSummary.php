@@ -1016,11 +1016,11 @@ EOD;
                     if (!empty($data['data']) && $data['data'][0]['not_update'] > 0) {
                         
                         //get rm email
-//                        $rm_email = "";
-//                        $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($value['id']);
-//                        if(!empty($rm_details)){
-//                            $rm_email = $rm_details[0]['official_email'];
-//                        }
+                        $rm_email = "";
+                        $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($value['id']);
+                        if(!empty($rm_details)){
+                            $rm_email = $rm_details[0]['official_email'];
+                        }
                         
                         $view = $this->load->view('employee/get_crimes', $data, TRUE);
                         $file_data = $this->penalty_model->get_penalty_on_booking_any(array('penalty_on_booking.service_center_id' => $data['data'][0]['service_center_id'],
@@ -1041,7 +1041,7 @@ EOD;
                         $to = $value['primary_contact_email'] . "," . $value['owner_email'];
 
                         $bcc = "";
-                        $cc = "";
+                        $cc = $rm_email;
                         $subject = $value['name'] . " - Bookings Not Updated Report - " . date("d-M-Y");
 
                         $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $view, $file_path . ".txt",SC_CRIME_REPORT_FOR_SF);
@@ -1587,7 +1587,7 @@ EOD;
         //Upload File On AWS and save link in file_upload table
         $this->save_partner_summary_report($partnerID,$newCSVFileName,$csv);
         $emailTemplateDataArray['jeevesDate'] = $this->partner_model->get_partner_report_overview_in_percentage_format($partnerID,"date(booking_details.create_date)");
-        $emailTemplateDataArray['aroundDate'] = $this->partner_model->get_partner_report_overview_in_percentage_format($partnerID,"STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y')");
+        $emailTemplateDataArray['aroundDate'] = $this->partner_model->get_partner_report_overview_in_percentage_format($partnerID,"STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')");
         $email_body = $this->load->view('employee/partner_report',$emailTemplateDataArray,true);
         $this->notify->sendEmail(NOREPLY_EMAIL_ID,"vinesh.poojari@flipkart.com,manish.agarwal@flipkart.com", "anuj@247around.com,nits@247around.com", "", 
                 $subject, $email_body,

@@ -235,13 +235,13 @@
                                     <button type="button" onclick="outbound_call(<?php echo $booking_history[0]['primary_contact_phone_1'] ?>)" class="btn btn-sm btn-info pull-right"><i class="fa fa-phone fa-lg" aria-hidden="true"></i></button>
                                     <?php }?>
                                 </td>
-                                <td><?php if($booking_history[0]['is_upcountry'] == 1){ echo $booking_history[0]["municipal_limit"]." KM";}  ?></td>
+                                <td><?php echo $booking_history[0]["municipal_limit"]." KM";  ?></td>
                             </tr>
                         </tbody>
                     </table>
                     <?php }  ?>
                     </div>
-                    <?php if($booking_history[0]['is_upcountry'] == 1){  ?>  
+                    
                     <table class="table  table-striped table-bordered">
                         <thead>
                             <th>One Way Distance </th>
@@ -253,7 +253,7 @@
                         <tbody>
                            
                             <tr>
-                                <td> <?php if(!empty($booking_history[0]['vendor_name'])){?>
+                                <td> <?php if($booking_history[0]['is_upcountry'] == 1){ ?>
                                     <?php echo round(($booking_history[0]["upcountry_distance"] + ($booking_history[0]["municipal_limit"] * 2))/2,2) . " KM"; ?>
                                 <?php } ?>
                                 </td>
@@ -263,7 +263,7 @@
                                 <td><?php echo $booking_history[0]["upcountry_remarks"];  ?></td>
                             </tr>
                            
-                                
+                               
                             <tr>
                                 <td colspan="8">
                                     <div class="col-md-12">
@@ -280,11 +280,11 @@
                                         </div
                                 </td>
                             </tr>
-                            
+                           
                             </tr>
                         </tbody>
                     </table>
-                    <?php } ?>
+                
                 </div>
             </div>
             <div class="tab-pane fade in" id="tab2">
@@ -338,7 +338,9 @@
                                     <td><?php echo $unit_detail['appliance_brand']?></td>
                                     <td><?php echo $unit_detail['appliance_category']."/<br/>".$unit_detail['appliance_capacity']?></td>
                                     <td><?php echo $unit_detail['model_number']?></td>
-                                    <td><?php echo $unit_detail['serial_number']?> / <?php echo $unit_detail['partner_serial_number']?></td>
+                                    <td><?php if(!empty($unit_detail['serial_number_pic'])){?>
+                                        <a target="_blank" href="<?php echo S3_WEBSITE_URL;?>engineer-uploads/<?php echo $unit_detail['serial_number_pic'];?>"><?php echo $unit_detail['serial_number'];?></a>
+                                             <?php } else { echo $unit_detail['serial_number'];} ?> / <?php echo $unit_detail['partner_serial_number']?></td>
                                     <td><?php if(!empty($unit_detail['purchase_month'])) {echo $unit_detail['purchase_month'];}?></td>
                                     <td><?php echo $unit_detail['appliance_description']?></td>
                                     <?php if($booking_history[0]['current_status'] != "Completed"){ ?>
@@ -576,7 +578,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach ($booking_history['spare_parts'] as $sp) { ?>
+                                    <?php foreach ($booking_history['spare_parts'] as $sp) { if(!empty($sp['defective_part_shipped'])){ ?>
                                     <tr>
                                         <td><?php echo $sp['defective_part_shipped']; ?></td>
                                         <td><?php echo $sp['courier_name_by_sf']; ?></td>
@@ -593,7 +595,7 @@
                                             <?php } ?>
                                         </td>
                                     </tr>
-                                    <?php } ?>
+                                    <?php } } ?>
                                 </tbody>
                             </table>
                         </div>

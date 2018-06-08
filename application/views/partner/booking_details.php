@@ -130,9 +130,9 @@
                                             <th>Call Type</th>
                                             
                                             <?php if ($booking_history[0]['current_status'] != "Completed") { ?>
-                                                <?php if ($booking_history[0]['is_upcountry'] == 1) { ?>
+                                         
                                                     <th>Upcountry Charges</th>
-                                                <?php } ?>
+                                        
                                                 <th>Total Charges</th>
                                             <?php } else { ?>
                                                 <th>Paid Service Charges</th>
@@ -155,7 +155,9 @@
                                                     <td><?php echo $unit_detail['appliance_category'] ?></td>
                                                     <td><?php echo $unit_detail['appliance_capacity'] ?></td>
                                                     <td><?php echo $unit_detail['model_number'] ?></td>
-                                                    <td><?php echo $unit_detail['serial_number'] ." / ".$unit_detail['partner_serial_number'] ?></td>
+                                                    <td><?php if(!empty($unit_detail['serial_number_pic'])){?>
+                                        <a target="_blank" href="<?php echo S3_WEBSITE_URL;?>engineer-uploads/<?php echo $unit_detail['serial_number_pic'];?>"><?php echo $unit_detail['serial_number'];?></a>
+                                             <?php } else { echo $unit_detail['serial_number'];} ?> / <?php echo $unit_detail['partner_serial_number']?></td>
                                                     <td><?php echo $unit_detail['appliance_description'] ?></td>
                                                     <td><?php if(!empty($unit_detail['purchase_date'])) {echo $unit_detail['purchase_date'];}?></td>
                                                         <?php if ($booking_history[0]['current_status'] != "Completed") { ?>
@@ -404,7 +406,7 @@
                                                             </tr>
                                                         </thead>
                                                         <tbody>
-                                                            <?php foreach ($booking_history['spare_parts'] as $sp) { ?>
+                                                            <?php foreach ($booking_history['spare_parts'] as $sp) { if(!empty($sp['defective_part_shipped'])){ ?>
                                                                 <tr>
                                                                     <td><?php echo $sp['defective_part_shipped']; ?></td>
                                                                     <td><?php echo $sp['courier_name_by_sf']; ?></td>
@@ -421,7 +423,7 @@
                                                                     </td>
 
                                                                 </tr>
-                                            <?php } ?>
+                                                            <?php } } ?>
                                                         </tbody>
                                                     </table>
                                                 </div>
@@ -465,7 +467,7 @@
                         <thead>
                         <tbody>
                             <tr>
-                                <td> <?php if(isset($booking_history[0]['primary_contact_name'])){ ?>
+                                <td> <?php if($booking_history[0]['is_upcountry'] == 1){  ?>
                                     <?php echo round(($booking_history[0]["upcountry_distance"] + ($booking_history[0]["municipal_limit"] * 2))/2,2) . " KM"; ?>
                                 <?php } ?></td>
                                 <td><?php if($booking_history[0]['is_upcountry'] == 1){ echo $booking_history[0]["upcountry_distance"]." KM";} ?></td>

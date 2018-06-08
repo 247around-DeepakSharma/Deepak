@@ -10,8 +10,8 @@ if ($this->uri->segment(3)) {
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
                 <div class="x_title">
-                    <h2>Spare Parts Shipped By <?php echo $this->session->userdata('partner_name'); ?></h2>
-                    <div class="pull-right"><a style="background: #2a3f54;border-color: #2a3f54;" href="<?php echo base_url(); ?>partner/download_spare_part_shipped_by_partner"  class="btn btn-sm btn-primary">Download</a></div>
+                    <h2>Spare Parts Shipped By <?php echo $this->session->userdata('partner_name'); ?>, Waiting For Confirmation From SF</h2>
+                    <div class="pull-right"><a style="background: #2a3f54;border-color: #2a3f54;" href="<?php echo base_url(); ?>employee/partner/download_spare_part_shipped_by_partner_not_acknowledged"  class="btn btn-sm btn-primary">Download</a></div>
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content">
@@ -56,7 +56,11 @@ if ($this->uri->segment(3)) {
                                      <td> 
                                         <?php  if(!empty($row['partner_challan_file'])) { ?> 
                                             <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY ?>/vendor-partner-docs/<?php echo $row['partner_challan_file']; ?>" target="_blank"><?php echo $row['partner_challan_number']?></a>
-                                        <?php } ?>
+                                        <?php }
+                                        else if(!empty($row['partner_challan_number'])) {
+                                            echo $row['partner_challan_number'];
+                                        }
+?>
                                       </td>
                                     <td>
                                         <?php echo date("d-m-Y", strtotime($row['shipped_date'])); ?>
@@ -71,7 +75,9 @@ if ($this->uri->segment(3)) {
                             } ?>
                         </tbody>
                     </table>
-                    
+                    <div class="custom_pagination" style="margin-left: 16px;" > 
+                <?php if(isset($links)) { echo $links; } ?>
+            </div>
                 </div>
             </div>
         </div>
@@ -83,3 +89,8 @@ if ($this->uri->segment(3)) {
                     "pageLength": 50
                 });
     </script>
+        <style>
+        .pagination{
+            display: none;
+        }
+        </style>

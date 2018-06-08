@@ -41,7 +41,7 @@
                                     <button class="btn btn-success btn-sm col-md-2" id="get_inventory_data">Submit</button>
                                 </div>
                                 <div class="approved pull-right">
-                                    <div class="btn btn-info btn-sm acknowledge_all_spare" onclick="process_acknowledge_spare();">Acknowledge spare received</div>
+                                    <div class="btn btn-info btn-sm acknowledge_all_spare" onclick="process_acknowledge_spare();" id="ack_spare">Acknowledge spare received</div>
                                 </div>
                             </div>
                         </section>
@@ -54,9 +54,10 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Appliance</th>
-                                    <th>Spare Model Number</th>
+<!--                                    <th>Spare Model Number</th>-->
                                     <th>Spare Type</th>
                                     <th>Spare Part Name</th>
+                                    <th>Spare Part Number</th>
                                     <th>Spare Quantity</th>
                                     <th>
                                         Acknowledge
@@ -190,11 +191,13 @@
         postData['receiver_entity_type'] = '<?php echo _247AROUND_SF_STRING; ?>';
         
         if(flag){
+            $('#ack_spare').html("<i class='fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
             $.ajax({
                 method:'POST',
                 url:'<?php echo base_url(); ?>employee/inventory/process_acknowledge_spare_send_by_partner_to_wh',
                 data:postData,
                 success:function(response){
+                    $('#ack_spare').html("Acknowledge spare received").attr('disabled',false);
                     obj = JSON.parse(response);
                     if(obj.status){
                         $('.success_msg_div').fadeTo(2000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   

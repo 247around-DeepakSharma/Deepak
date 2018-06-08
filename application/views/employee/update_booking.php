@@ -188,6 +188,7 @@
                                             <option <?php if($booking_history[0]['partner_source'] === "Snapdeal-delivered-excel" ){ echo "selected"; } ?> >Snapdeal-delivered-excel</option>
                                             <option <?php if($booking_history[0]['partner_source'] === "Snapdeal-shipped-excel" ){ echo "selected"; } ?> >Snapdeal-shipped-excel</option>
                                             <option <?php if($booking_history[0]['partner_source'] === "TataCliq" ){ echo "selected"; } ?> >TataCliq</option>
+                                            <option <?php if($booking_history[0]['partner_source'] === "VibgyorNXT" ){ echo "selected"; } ?> >VibgyorNXT</option>
                                             <option <?php if($booking_history[0]['partner_source'] === "Website" ){ echo "selected"; } ?> >Website</option>
                                         </select>
                                     </div>
@@ -358,7 +359,7 @@
                                 <label for="purchase_date" class="col-md-4">Purchase Date *</label>
                                 <div class="col-md-6">
                                 <div class="input-group input-append date">
-                                    <input id="purchase_date" class="form-control"  name="purchase_date" type="date" value = "">
+                                    <input id="purchase_date" class="form-control"  name="purchase_date" type="date" value = "<?php if(isset($unit_details[0]['purchase_date'])){ echo $unit_details[0]['purchase_date']; }?>">
                                     <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                 </div>
                                 </div>
