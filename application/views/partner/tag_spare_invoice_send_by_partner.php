@@ -66,7 +66,7 @@
                                     <div class="col-xs-4">
                                         <input type="text" class="form-control allowNumericWithDecimal" name="invoice_amount" id="invoice_amount" required=""/>
                                     </div>
-                                    <label class="col-xs-4 col-sm-2 control-label">Invoice / DC File *  <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Only pdf files are allowed and file size should not be greater than 2 mb."><i class="fa fa-info"></i></span></label>
+                                    <label class="col-xs-4 col-sm-2 control-label">Invoice / DC File *  <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Only pdf files are allowed and file size should not be greater than 2 MB."><i class="fa fa-info"></i></span></label>
                                     <div class="col-xs-8 col-sm-4">
                                         <input type="file" class="form-control" name="file" id="invoice_file" required=""/>
                                     </div>

@@ -15,7 +15,7 @@
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
                 <div class="x_title">
-                    <h2>Tag Spare Invoice</h2>
+                    <h2>Spare Dispatched by Partner</h2>
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content">
@@ -40,7 +40,7 @@
                         <form id="spareForm" method="post" class="form-horizontal" novalidate="novalidate">
                             <div class="static-form-box">
                                 <div class="form-group">
-                                    <label class="col-xs-4 col-sm-2 control-label">Select Partner *</label>
+                                    <label class="col-xs-4 col-sm-2 control-label">Partner *</label>
                                     <div class="col-xs-8 col-sm-4">
                                         <select class="form-control" name="partner_id" id="partner_id" required=""></select>
                                     </div>
@@ -52,39 +52,39 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="col-xs-4 col-sm-2 control-label">Invoice Date *</label>
+                                    <label class="col-xs-4 col-sm-2 control-label">Invoice / DC Date *</label>
                                     <div class="col-xs-8 col-sm-4">
-                                        <input type="text" class="form-control" name="dated" id="dated" placeholder="Select Date" required="" autocomplete="off"/>
+                                        <input type="text" class="form-control" name="dated" id="dated" required="" autocomplete="off"/>
                                     </div>
-                                    <label class="col-xs-2 control-label">Invoice Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Please make sure invoice number does not contain '/'. You can replace '/' with '-' "><i class="fa fa-info"></i></span></label>
+                                    <label class="col-xs-2 control-label">Invoice / DC Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Please make sure invoice number does not contain '/'. You can replace '/' with '-' "><i class="fa fa-info"></i></span></label>
                                     <div class="col-xs-8 col-sm-4">
-                                        <input type="text" class="form-control" name="invoice_id" id="invoice_id" placeholder="Enter Invoice ID" required="" onblur="check_invoice_id(this.id)"/>
+                                        <input type="text" class="form-control" name="invoice_id" id="invoice_id" required="" onblur="check_invoice_id(this.id)"/>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="col-xs-4 col-sm-2 control-label">Invoice File *  <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Only pdf files are allowed and file size should not be greater than 2 mb."><i class="fa fa-info"></i></span></label>
+                                    <label class="col-xs-2 control-label">Invoice / DC Amount * </label>
+                                    <div class="col-xs-4">
+                                        <input type="text" class="form-control allowNumericWithDecimal" name="invoice_amount" id="invoice_amount" required=""/>
+                                    </div>
+                                    <label class="col-xs-4 col-sm-2 control-label">Invoice / DC File *  <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Only pdf files are allowed and file size should not be greater than 2 MB."><i class="fa fa-info"></i></span></label>
                                     <div class="col-xs-8 col-sm-4">
                                         <input type="file" class="form-control" name="file" id="invoice_file" required="" accept="application/pdf"/>
-                                    </div>
-                                    <label class="col-xs-2 control-label">Invoice Amount *</label>
-                                    <div class="col-xs-4">
-                                        <input type="number" class="form-control" name="invoice_amount" id="invoice_amount" placeholder="Enter Invoice Amount" required=""/>
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label class="col-xs-2 control-label">AWB Number *</label>
                                     <div class="col-xs-4">
-                                        <input type="text" class="form-control" name="awb_number" id="despatch_doc_no" placeholder="Enter AWB No" required=""/>
+                                        <input type="text" class="form-control" name="awb_number" id="despatch_doc_no" required=""/>
                                     </div>
                                     <label class="col-xs-2 control-label">Courier Name *</label>
                                     <div class="col-xs-4">
-                                        <input type="text" class="form-control" name="courier_name" id="courier_name" placeholder="Enter Courier Name" required=""/>
+                                        <input type="text" class="form-control" name="courier_name" id="courier_name" required=""/>
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label class="col-xs-2 control-label">Courier Shipment Date</label>
                                     <div class="col-xs-4">
-                                        <input type="text" class="form-control" name="courier_shipment_date" id="courier_shipment_date" placeholder="Enter Shipment Date" autocomplete="off"/>
+                                        <input type="text" class="form-control" name="courier_shipment_date" id="courier_shipment_date" autocomplete="off"/>
                                     </div>
                                     <label class="col-xs-2 control-label">Courier file</label>
                                     <div class="col-xs-4">
@@ -105,7 +105,7 @@
                                         <p class="text-center"><strong>Part Number</strong></p>
                                     </div>
                                     <div class="col-xs-12 col-sm-6 col-md-2">
-                                        <p class="text-center"><strong>Booking Id</strong></p>
+                                        <p class="text-center"><strong>Booking Id <small>(Optional)</small></strong></p>
                                     </div>
                                     <div class="col-xs-12 col-sm-6 col-md-1">
                                         <p class="text-center"><strong>Quantity</strong></p>
@@ -117,7 +117,7 @@
                                         <p class="text-center"><strong>HSN Code</strong></p>
                                     </div>
                                     <div class="col-xs-12 col-sm-6 col-md-1">
-                                        <p class="text-center"><strong>Gst Rate</strong></p>
+                                        <p class="text-center"><strong>GST Rate</strong></p>
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -131,13 +131,13 @@
                                         <select class="form-control" name="part[0][part_number]" id="partNumber_0" ></select>
                                     </div>
                                     <div class="col-xs-12 col-sm-6 col-md-2">
-                                        <input type="text" class="form-control" name="part[0][booking_id]" id="booking_id_0" placeholder="Booking ID" onblur="check_booking_id(this.id)"/>
+                                        <input type="text" class="form-control" name="part[0][booking_id]" id="booking_id_0" onblur="check_booking_id(this.id)"/>
                                     </div>
                                     <div class="col-xs-12 col-sm-6 col-md-1">
-                                        <input type="number" class="form-control" name="part[0][quantity]" id="quantity_0" min="1" placeholder="Quantity" required="" onblur="get_part_details(this.id)" />
+                                        <input type="number" class="form-control" name="part[0][quantity]" id="quantity_0" min="1" required="" onblur="get_part_details(this.id)" />
                                     </div>
                                     <div class="col-xs-12 col-sm-6 col-md-1">
-                                        <input type="text" class="form-control" name="part[0][part_total_price]" id="partTotalPrice_0" value="0" readonly=""/>
+                                        <input type="text" class="form-control" name="part[0][part_total_price]" id="partBasicPrice_0" value="0" readonly=""/>
                                     </div>
                                     <div class="col-xs-12 col-sm-6 col-md-1">
                                         <input type="text" class="form-control" name="part[0][hsn_code]" id="partHsnCode_0" value="" readonly=""/>
@@ -163,10 +163,10 @@
                                         <select class="form-control" id="part_number"></select>
                                     </div>
                                     <div class="col-xs-12 col-sm-6 col-md-2">
-                                        <input type="text" class="form-control" id="booking_id"  placeholder="Booking ID" onblur="check_booking_id(this.id)"/>
+                                        <input type="text" class="form-control" id="booking_id"  onblur="check_booking_id(this.id)"/>
                                     </div>
                                     <div class="col-xs-12 col-sm-6 col-md-1">
-                                        <input type="number" class="form-control" id="quantity"  placeholder="Quantity" min="1" required="" onblur="get_part_details(this.id)" />
+                                        <input type="number" class="form-control" id="quantity" min="1" required="" onblur="get_part_details(this.id)" />
                                     </div>
                                     <div class="col-xs-12 col-sm-6 col-md-1">
                                         <input type="text" class="form-control part-total-price" id="part_total_price"  value="0" readonly=""/>
@@ -186,15 +186,18 @@
                             <hr>
                             <div class="form-group">
                                 <div class="row">
-                                    <div class="col-xs-5">
-                                        <button type="submit" class="btn btn-success" id="submit_btn">Submit</button>
-                                    </div>
-                                    <div class="col-xs-6">
-                                        <div class="pull-right">
+                                    <div class="col-xs-12">
+                                        <div class="pull-right" style="margin-right:15px;">
                                             <strong>
-                                                Total Basic Price : <span id="total_spare_invoice_price">0</span>
+                                                Total Price : <span id="total_spare_invoice_price">0</span>
                                             </strong>
                                         </div>
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-xs-5">
+                                        <button type="submit" class="btn btn-success" id="submit_btn">Submit</button>
                                     </div>
                                 </div>
                             </div>
@@ -240,6 +243,38 @@
         $('[data-toggle="popover"]').popover(); 
         $("#dated").datepicker({dateFormat: 'yy-mm-dd'});
         $("#courier_shipment_date").datepicker({dateFormat: 'yy-mm-dd'});
+        
+        $(".allowNumericWithDecimal").keydown(function (e) {
+            // Allow: backspace, delete, tab, escape, enter and .
+            if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
+                // Allow: Ctrl+A, Command+A
+                (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) || 
+                // Allow: home, end, left, right, down, up
+                (e.keyCode >= 35 && e.keyCode <= 40) || e.ctrlKey) {
+                // let it happen, don't do anything
+                return;
+            }
+            // Ensure that it is a number and stop the keypress
+            if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                e.preventDefault();
+            }
+        });
+    
+        $(".allowNumericWithOutDecimal").keydown(function (e) {
+            // Allow: backspace, delete, tab, escape, enter and .
+            if ($.inArray(e.keyCode, [46,8, 9, 27, 13, 190]) !== -1 ||
+                // Allow: Ctrl+A, Command+A
+                (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) || 
+                // Allow: home, end, left, right, down, up
+                (e.keyCode >= 35 && e.keyCode <= 40) || e.ctrlKey) {
+                // let it happen, don't do anything
+                return;
+            }
+            // Ensure that it is a number and stop the keypress
+            if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                e.preventDefault();
+            }
+        });
         
         //$("#spareForm").validate();    
         $("#spareForm").on('submit', function(e) {
@@ -311,7 +346,7 @@
                     }
                     
                 }else{
-                    alert('Amount of invoice does not match with total basic price');
+                    alert('Amount of invoice does not match with total price');
                     $('#invoice_amount').css('border','1px solid red');
                     $('#total_spare_invoice_price').addClass('text-danger');
                     return false;
@@ -340,7 +375,7 @@
                 .find('[id="inventory_id"]').attr('name', 'part[' + partIndex + '][inventory_id]').attr('id','inventoryId_'+partIndex).end()
                 .find('[id="partGstRate"]').attr('name', 'part[' + partIndex + '][gst_rate]').attr('id','partGstRate_'+partIndex).end()
                 .find('[id="partHsnCode"]').attr('name', 'part[' + partIndex + '][hsn_code]').attr('id','partHsnCode_'+partIndex).end()
-                .find('[id="part_total_price"]').attr('name', 'part[' + partIndex + '][part_total_price]').attr('id','partTotalPrice_'+partIndex).end();
+                .find('[id="part_total_price"]').attr('name', 'part[' + partIndex + '][part_total_price]').attr('id','partBasicPrice_'+partIndex).end();
             get_appliance(partIndex);
         })
 
@@ -414,7 +449,7 @@
                     $('#partName_'+index).val('Select Part Name').change();
                     $('#partName_'+index).html(response);
                     $('#inventoryId_'+index).val('');
-                    $('#partTotalPrice_'+index).val('');
+                    $('#partBasicPrice_'+index).val('');
                     $('#partGstRate_'+index).val('');
                     $('#partHsnCode_'+index).val('');
                     $('#quantity_'+index).val('');
@@ -439,7 +474,7 @@
                     $('#partNumber_'+index).val('Select Part Name').change();
                     $('#partNumber_'+index).html(response);
                     $('#inventoryId_'+index).val('');
-                    $('#partTotalPrice_'+index).val('');
+                    $('#partBasicPrice_'+index).val('');
                     $('#partGstRate_'+index).val('');
                     $('#partHsnCode_'+index).val('');
                     $('#quantity_'+index).val('');
@@ -472,12 +507,12 @@
                             $('#submit_btn').attr('disabled',false);
                             var parts_total_price = parseInt($('#quantity_'+index).val()) * parseInt(obj.price);
                             $('#inventoryId_'+index).val(obj.inventory_id);
-                            $('#partTotalPrice_'+index).val(parts_total_price);
+                            $('#partBasicPrice_'+index).val(parts_total_price);
                             $('#partGstRate_'+index).val(obj.gst_rate);
                             $('#partHsnCode_'+index).val(obj.hsn_code);
                             var total_spare_invoice_price = 0;
                             $(".part-total-price").each(function(i) {
-                                total_spare_invoice_price += Number($('#partTotalPrice_'+i).val());
+                                total_spare_invoice_price += Number($('#partBasicPrice_'+i).val()) + (Number($('#partBasicPrice_'+i).val()) * Number($('#partGstRate_'+i).val())/100);
                             });
                             $('#total_spare_invoice_price').html(total_spare_invoice_price);
                         }else{

@@ -2736,7 +2736,7 @@ class Inventory extends CI_Controller {
                                     $ledger_data['quantity'] = $value['quantity'];
                                     $ledger_data['agent_id'] = $this->session->userdata('id');
                                     $ledger_data['agent_type'] = _247AROUND_EMPLOYEE_STRING;
-                                    $ledger_data['booking_id'] = $value['booking_id'];
+                                    $ledger_data['booking_id'] = trim($value['booking_id']);
                                     $ledger_data['invoice_id'] = $invoice_id;
                                     $ledger_data['is_wh_ack'] = 0;
 
@@ -3926,7 +3926,7 @@ class Inventory extends CI_Controller {
             $this->miscelleneous->load_nav_header();
             $this->load->view('employee/show_inventory_details_by_model',$data);
         }else if($this->session->userdata('partner_id')){
-            $this->load->view('partner/header');
+            $this->miscelleneous->load_partner_nav_header();
             $this->load->view('employee/show_inventory_details_by_model',$data);
             $this->load->view('partner/partner_footer');
         }
@@ -3952,7 +3952,7 @@ class Inventory extends CI_Controller {
             $this->miscelleneous->load_nav_header();
             $this->load->view('employee/show_appliance_model_by_inventory_id',$data);
         }else if($this->session->userdata('partner_id')){
-            $this->load->view('partner/header');
+            $this->miscelleneous->load_partner_nav_header();
             $this->load->view('employee/show_appliance_model_by_inventory_id',$data);
             $this->load->view('partner/partner_footer');
         }
@@ -4015,7 +4015,7 @@ class Inventory extends CI_Controller {
             redirect(base_url() . "service_center/login");
         }
     }
-
+        
     /**
      * @desc: This function is used to check partner session.
      * @param: void
@@ -4030,5 +4030,5 @@ class Inventory extends CI_Controller {
             redirect(base_url() . "partner/login");
         }
     }
-
+        
 }

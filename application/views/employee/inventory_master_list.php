@@ -76,16 +76,19 @@
     .select2-container--default .select2-selection--single .select2-selection__arrow{
         height: 31px;
     }
+    .form-horizontal .control-label {
+        text-align: left;
+    }
 </style>
 <div id="page-wrapper">
     <div class="row">
         <div class="title">
             <div class="row">
                 <div class="col-md-6">
-                    <h3>Inventory Master List</h3>
+                    <h3>Spare Part List</h3>
                 </div>
                 <div class="col-md-6">
-                    <a class="btn btn-success pull-right" style="margin-top: 10px;" id="add_master_list" title="Add New Inventory"><i class="fa fa-plus"></i></a>
+                    <a class="btn btn-success pull-right" style="margin-top: 10px;" id="add_master_list" title="Add Item"><i class="fa fa-plus"></i></a>
                 </div>
             </div>
         </div>
@@ -103,9 +106,6 @@
                             <option value="" disabled="">Select Appliance</option>
                         </select>
                     </div>
-<!--                    <div class="form-group col-md-2">
-                        <label class="checkbox-inline"><input type="checkbox" value="1" id="show_all_inventory">Show All</label>
-                    </div>-->
                     <button class="btn btn-success col-md-2" id="get_inventory_data">Submit</button>
                 </div>
             </div>
@@ -132,15 +132,15 @@
                 <thead>
                     <tr>
                         <th>S.No</th>
-                        <th>Service</th>
-                        <th>Spare Type</th>
-                        <th>Spare Part Name</th>
-                        <th>Spare Part Number</th>
-                        <th>Spare Description</th>
-                        <th>Spare Size</th>
-                        <th>Spare Basic Price</th>
+                        <th>Appliance</th>
+                        <th>Type</th>
+                        <th>Name</th>
+                        <th>Number</th>
+                        <th>Description</th>
+                        <th>Size</th>
+                        <th>Price</th>
                         <th>HSN</th>
-                        <th>Gst Rate</th>
+                        <th>GST Rate</th>
                         <th>Edit</th>
                         <th>Get Model</th>
                     </tr>
@@ -187,7 +187,7 @@
                                 <div class="form-group">
                                     <label class="control-label col-md-4" for="part_name">Part Name*</label>
                                     <div class="col-md-7 col-md-offset-1">
-                                        <input type="text" class="form-control" id="part_name" name="part_name" placeholder="Part Name">
+                                        <input type="text" class="form-control" id="part_name" name="part_name">
                                     </div>
                                 </div>
                             </div>
@@ -195,7 +195,7 @@
                                 <div class="form-group">
                                     <label class="control-label col-md-4" for="part_number">Part Number*</label>
                                     <div class="col-md-7 col-md-offset-1">
-                                        <input type="text" class="form-control" id="part_number" name="part_number" placeholder="Part Number">
+                                        <input type="text" class="form-control" id="part_number" name="part_number">
                                     </div>
                                 </div>
                             </div>
@@ -206,7 +206,7 @@
                                 <div class="form-group">
                                     <label class="control-label col-md-4" for="type">Part Type*</label>
                                     <div class="col-md-7 col-md-offset-1">
-                                        <textarea class="form-control" id="type" name="type" placeholder="Type"></textarea>
+                                        <textarea class="form-control" id="type" name="type"></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -214,7 +214,7 @@
                                 <div class="form-group">
                                     <label class="control-label col-md-4" for="description">Description</label>
                                     <div class="col-md-7 col-md-offset-1">
-                                        <textarea class="form-control" id="description" name="description" placeholder="description"></textarea>
+                                        <textarea class="form-control" id="description" name="description"></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -225,7 +225,7 @@
                                 <div class="form-group">
                                     <label class="control-label col-md-4" for="price">Price*</label>
                                     <div class="col-md-7 col-md-offset-1">
-                                        <input type="number" class="form-control" id="price" name="price"  placeholder="Price">
+                                        <input type="text" class="form-control allowNumericWithDecimal" id="price" name="price">
                                     </div>
                                 </div>
                             </div>
@@ -233,7 +233,7 @@
                                 <div class="form-group">
                                     <label class="control-label col-md-4" for="size">Size</label>
                                     <div class="col-md-7 col-md-offset-1">
-                                        <input type="text" class="form-control" id="size"  name="size" placeholder="Size">
+                                        <input type="text" class="form-control" id="size"  name="size">
                                     </div>
                                 </div>
                             </div>
@@ -241,17 +241,17 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="control-label col-md-4" for="hsn_code">Hsn Code*</label>
+                                    <label class="control-label col-md-4" for="hsn_code">HSN Code*</label>
                                     <div class="col-md-7 col-md-offset-1">
-                                        <input type="text" class="form-control" id="hsn_code" name="hsn_code" placeholder="HSN Code">
+                                        <input type="text" class="form-control allowNumericWithOutDecimal" id="hsn_code" name="hsn_code">
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="control-label col-md-4" for="gst_rate">Gst Rate*</label>
+                                    <label class="control-label col-md-4" for="gst_rate">GST Rate*</label>
                                     <div class="col-md-7 col-md-offset-1">
-                                        <input type="number" class="form-control" id="gst_rate"  name="gst_rate" placeholder="GST Rate">
+                                        <input type="text" class="form-control allowNumericWithOutDecimal" id="gst_rate"  name="gst_rate">
                                     </div>
                                 </div>
                             </div>
@@ -282,7 +282,7 @@
                             <input type="hidden"  id="inventory_id" name='inventory_id' value="">
                             <button type="submit" class="btn btn-success" id="master_list_submit_btn" name='submit_type' value="Submit">Submit</button>
                             <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                            <p class="pull-left text-danger">* These Fields are required</p>
+                            <p class="pull-left text-danger">* These fields are required</p>
                         </div>
                     </form>
                 </div>
@@ -312,6 +312,38 @@
         }
     });
     
+    $(".allowNumericWithDecimal").keydown(function (e) {
+        // Allow: backspace, delete, tab, escape, enter and .
+        if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
+            // Allow: Ctrl+A, Command+A
+            (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) || 
+            // Allow: home, end, left, right, down, up
+            (e.keyCode >= 35 && e.keyCode <= 40) || e.ctrlKey) {
+            // let it happen, don't do anything
+            return;
+        }
+        // Ensure that it is a number and stop the keypress
+        if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+            e.preventDefault();
+        }
+    });
+    
+    $(".allowNumericWithOutDecimal").keydown(function (e) {
+        // Allow: backspace, delete, tab, escape, enter and .
+        if ($.inArray(e.keyCode, [46,8, 9, 27, 13, 190]) !== -1 ||
+            // Allow: Ctrl+A, Command+A
+            (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) || 
+            // Allow: home, end, left, right, down, up
+            (e.keyCode >= 35 && e.keyCode <= 40) || e.ctrlKey) {
+            // let it happen, don't do anything
+            return;
+        }
+        // Ensure that it is a number and stop the keypress
+        if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+            e.preventDefault();
+        }
+    });
+    
     function get_inventory_list(){
         inventory_master_list_table = $('#inventory_master_list').DataTable({
             "processing": true, 
@@ -322,7 +354,7 @@
                     extend: 'excel',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 0, 1, 2,3,4, 5,6,7 ]
+                        columns: [ 0, 1, 2,3,4, 5,6,7,8,9 ]
                     },
                     title: 'inventory_master_list_'+time,
                     action: newExportAction
@@ -386,7 +418,10 @@
             data:{is_option_selected:true},
             success:function(response){
                 $('#'+div_to_update).html(response);
-                $('#'+div_to_update).select2();
+                $('#'+div_to_update).select2({
+                    allowClear: true,
+                    placeholder: 'Select Appliance'
+                });
             }
         });
     }

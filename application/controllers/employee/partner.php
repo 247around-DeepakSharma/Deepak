@@ -4449,14 +4449,15 @@ class Partner extends CI_Controller {
     }
     
     function ack_spare_send_by_wh(){
+        $this->checkUserSession();
         $this->miscelleneous->load_partner_nav_header();
-       // $this->load->view('partner/header');
         $this->load->view('partner/ack_spare_send_by_wh');
         $this->load->view('partner/partner_footer');
     }
     function download_custom_summary_report($folder,$file){
        $this->miscelleneous->download_csv_from_s3($folder,$file);
     }
+    
     function get_partner_roles($department){
        $data =  $this->reusable_model->get_search_result_data("entity_role","role,id",array('department'=>$department),NULL,NULL,array('role'=>"ASC"),NULL,NULL,array());
        $option = "<option value='' disabled selected>Select Role</option>";
@@ -4538,7 +4539,8 @@ class Partner extends CI_Controller {
         }
        $this->session->set_userdata('success', $msg);
        redirect(base_url() . 'employee/partner/editpartner/' . $partnerID);
-
+    }
+        
     /**
      * @desc: This function is used to get service_id from Ajax call
      * @params: void
@@ -4569,7 +4571,7 @@ class Partner extends CI_Controller {
      */
     function show_inventory_master_details(){
         $this->checkUserSession();
-        $this->load->view('partner/header');
+        $this->miscelleneous->load_partner_nav_header();
         $this->load->view('partner/partner_inventory_master_list');
         $this->load->view('partner/partner_footer');
     }
@@ -4581,7 +4583,7 @@ class Partner extends CI_Controller {
      */
     function show_appliance_model_list(){
         $this->checkUserSession();
-        $this->load->view('partner/header');
+        $this->miscelleneous->load_partner_nav_header();
         $this->load->view('partner/partner_appliance_model_details');
         $this->load->view('partner/partner_footer');
     }
@@ -4593,9 +4595,8 @@ class Partner extends CI_Controller {
      */
     function tag_spare_invoice(){
         $this->checkUserSession();
-        $this->load->view('partner/header');
+        $this->miscelleneous->load_partner_nav_header();
         $this->load->view("partner/tag_spare_invoice_send_by_partner");
         $this->load->view('partner/partner_footer');
->>>>>>> 4e52b4970... #CRM-827 show inventory views on partner CRM
     }
 }
