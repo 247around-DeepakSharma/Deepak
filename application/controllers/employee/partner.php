@@ -856,7 +856,7 @@ class Partner extends CI_Controller {
     function editpartner($id) {
         log_message('info', __FUNCTION__ . ' partner_id:' . $id);
         $query = $this->partner_model->viewpartner($id);
-        $results['select_state'] = $this->vendor_model->getall_state();
+        $results['select_state'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
         $results['services'] = $this->vendor_model->selectservice();
         //Getting Login Details for this partner
         $results['partner_code'] = $this->partner_model->get_partner_code($id);
@@ -876,8 +876,11 @@ class Partner extends CI_Controller {
                 NULL, NULL, NULL, array('services'=>'LEFT'));
         $results['collateral_type'] = $this->reusable_model->get_search_result_data("collateral_type", '*', array("collateral_tag" => "Contract"), NULL, NULL, array("collateral_type" => "ASC"), NULL, NULL);
         $employee_list = $this->employee_model->get_employee_by_group(array("groups NOT IN ('developer') AND active = '1'" => NULL));
+        $departmentArray = $this->reusable_model->get_search_result_data("entity_role", 'DISTINCT department',array("entity_type" => 'partner'),NULL, NULL, array('department'=>'ASC'), NULL, NULL,array());
+        $results['contact_persons'] = $this->reusable_model->get_search_result_data("entity_role", 'contact_person.*,entity_role.role,entity_role.department',
+                array("contact_person.entity_type" => 'partner','entity_id'=>$id),array("contact_person"=>"contact_person.role = entity_role.id"), NULL, array('name'=>'ASC'), NULL, NULL,array());
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/addpartner', array('query' => $query, 'results' => $results, 'employee_list' => $employee_list, 'form_type' => 'update'));
+        $this->load->view('employee/addpartner', array('query' => $query, 'results' => $results, 'employee_list' => $employee_list, 'form_type' => 'update','department'=>$departmentArray));
     }
 
     /**
@@ -2404,13 +2407,13 @@ class Partner extends CI_Controller {
      * 
      */
     function process_partner_login_details_form() {
-        $choice = $this->input->post('choice');
-        $partner_id = $this->input->post('partner_id');
-        $login_id_array = $this->input->post('id');
-        $email_array = $this->input->post('email');
-        $password_array = $this->input->post('password');
-        $retype_password_array = $this->input->post('retype_password');
-        $username_array = $this->input->post('username');
+            $choice = $this->input->post('choice');
+            $partner_id = $this->input->post('partner_id');
+            $login_id_array = $this->input->post('id');
+            $email_array = $this->input->post('email');
+            $password_array = $this->input->post('password');
+            $retype_password_array = $this->input->post('retype_password');
+            $username_array = $this->input->post('username');
         if (!empty($choice)) {
             foreach ($choice as $key => $value) {
                 $password = $password_array[$key];
@@ -2483,7 +2486,7 @@ class Partner extends CI_Controller {
                         $data['active'] = 1;
 
                         $check_username = $this->dealer_model->entity_login(array('entity' => 'partner', 'user_id' => $username));
-
+                        
                         if (empty($check_username)) {
                             $p_where = array('id' => $partner_id);
                             //Getting name of Partner by Partner ID
@@ -2563,13 +2566,16 @@ class Partner extends CI_Controller {
         $this->checkUserSession();
         //Getting Spare Parts Details
         $partner_id = $this->session->userdata('partner_id');
+        $state = 0;
+        if($this->session->userdata('is_filter_applicable') == 1){
+            $state = 1;
+        }
         $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity' => 'partner', 'active' => '1'));
         $where = "spare_parts_details.partner_id = '" . $partner_id . "' AND status = '" . SPARE_PARTS_REQUESTED . "' "
                 . " AND booking_details.current_status IN ('Pending', 'Rescheduled') ";
-        $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
+        $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false,$state);
         $data['spare_parts'] = $total_rows[0]['total_rows'];
         $this->miscelleneous->load_partner_nav_header();
-        $this->session->userdata('user_group');
         //$this->load->view('partner/header');
         if($this->session->userdata('user_group') == PARTNER_CALL_CENTER_USER_GROUP){
             $this->load->view('partner/partner_default_page_cc', $data);
@@ -4453,5 +4459,90 @@ class Partner extends CI_Controller {
         $this->miscelleneous->load_partner_nav_header();
         $this->load->view("partner/tag_spare_invoice_send_by_partner");
         $this->load->view('partner/partner_footer');
+    }
+    
+    function get_partner_roles($department){
+       $data =  $this->reusable_model->get_search_result_data("entity_role","role,id",array('department'=>$department),NULL,NULL,array('role'=>"ASC"),NULL,NULL,array());
+       $option = "<option value='' disabled selected>Select Role</option>";
+       foreach($data as $roles){
+           $option = $option."<option value = '".$roles['id']."'>".$roles['role']."</option>";
+       }
+       echo $option;
+    }
+    
+    function get_partner_roles_filters(){
+       $data =  $this->reusable_model->get_search_result_data("entity_role","is_filter_applicable",array('id'=>$this->input->post('role')),NULL,
+               NULL,array('role'=>"ASC"),NULL,NULL,array());
+       echo  $data[0]['is_filter_applicable'];
+    }
+    
+    /*
+     * This function is used to add partner contact persons
+     */
+    function process_partner_contacts(){
+        if($this->input->post('partner_id')){
+            $partnerID = $this->input->post('partner_id'); 
+            foreach($this->input->post('contact_person_email') as $index=>$contactEmails){
+                $agent_id = NULL;
+                $data['name'] = $loginData['agent_name']  =  $this->input->post('contact_person_name')[$index];
+                $data['officail_email'] = $loginData['email'] =  $contactEmails;
+                $data['alternate_email'] = $this->input->post('contact_person_alt_email')[$index];
+                $data['official_contact_number'] = $this->input->post('contact_person_contact')[$index];
+                $data['alternate_contact_number'] = $this->input->post('contact_person_alt_contact')[$index];
+                $data['permanent_address'] = $this->input->post('contact_person_address')[$index];
+                $data['correspondence_address'] = $this->input->post('contact_person_c_address')[$index];
+                $data['role'] = $this->input->post('contact_person_role')[$index];
+                $data['entity_id'] = $loginData['entity_id'] = $stateData['entity_id'] = $partnerID;
+                $data['entity_type'] = $loginData['entity'] = $stateData['entity_type'] = "partner";
+                $data['agent_id'] = $this->session->userdata('id');
+                $id = $this->reusable_model->insert_into_table("contact_person",$data);
+                $loginData['contact_person_id'] = $stateData['contact_person_id'] = $id;
+                // Create Login If Checkbox Checked
+                if($this->input->post('checkbox_value_holder')[$index] == 'true'){
+                        $password = mt_rand(100000, 999999);
+                        $loginData['user_id'] = str_replace(" ","_",$data['name']."_".$partnerID."_".mt_rand(10, 99));
+                        $loginData['password'] = md5($password);
+                        $loginData['clear_password'] = $password;
+                        $loginData['active'] = 1;
+                        $agent_id = $this->miscelleneous->create_entity_login($loginData);
+                    }
+                    if($agent_id){
+                        // Map States in agent_filters table 
+                        // If state is not selected then add all states
+                        $stateString =  $this->input->post('states_value_holder')[$index];
+                        if(!$stateString){
+                            $states = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
+                            $all =1;
+                        }
+                        else{
+                            $states = explode(",",$stateString);
+                             $all =0; 
+                        }
+                        foreach ($states as $state){
+                            $stateData['agent_id'] = $agent_id;
+                            if($all ==  1){
+                                $stateData['state'] = $state['state'];
+                            }
+                            else{
+                                $stateData['state'] = $state;
+                            }
+                            $stateData['is_active'] = 1;
+                            $finalStateData[] = $stateData; 
+                        }
+                        $this->reusable_model->insert_batch('agent_filters',$finalStateData);
+                    }
+            }
+            if($id){
+                $msg =  "Contact Persons has been Added successfully ";
+            }
+            else{
+                $msg =  "Something went Wrong Please try again or contact to admin";
+            }
+        }
+        else{
+            $msg =  "Something went Wrong Please try again or contact to admin";
+        }
+       $this->session->set_userdata('success', $msg);
+       redirect(base_url() . 'employee/partner/editpartner/' . $partnerID);
     }
 }

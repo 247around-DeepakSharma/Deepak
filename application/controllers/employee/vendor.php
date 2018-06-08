@@ -387,7 +387,7 @@ class vendor extends CI_Controller {
                 $bankDetailsArray['agent_id'] = $agentID;
                 $bankDetailsArray['entity_type'] = "SF";
                 $this->vendor_model->edit_vendor($vendor_data, $this->input->post('id'));
-                $this->miscelleneous->update_insert_bank_account_details($bankDetailsArray,'update');
+                $this->miscelleneous->update_insert_bank_account_details($bankDetailsArray);
                
       
                 //Log Message
@@ -442,7 +442,7 @@ class vendor extends CI_Controller {
                 $bankDetailsArray['entity_id'] = $sc_id;
                 $bankDetailsArray['entity_type'] = 'SF';
                 $bankDetailsArray['agent_id'] = $agentID;
-                $this->miscelleneous->update_insert_bank_account_details($bankDetailsArray,'insert');
+                $this->miscelleneous->update_insert_bank_account_details($bankDetailsArray);
                 //Logging
                 log_message('info', __FUNCTION__.' SF has been Added :'.print_r($vendor_data,TRUE));
                 $log = array(

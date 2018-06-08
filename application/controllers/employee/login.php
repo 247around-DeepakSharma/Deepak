@@ -60,7 +60,7 @@ class Login extends CI_Controller {
             if ($login) {
                 $is_am = 0;
                 $this->session->sess_create();
-                $amArray = $this->reusable_model->get_search_result_data("partners",'1',array("partners.account_manager_id"=>$login[0]['id'],"employee.groups != 'admin'"=>NULL),
+                $amArray = $this->reusable_model->get_search_result_data("partners",'1',array("partners.account_manager_id"=>$login[0]['id'],"employee.groups != 'admin'"=>NULL,'partners.is_active'=>1),
                         array("employee"=>"employee.id = partners.account_manager_id"),NULL,NULL,NULL,NULL,array()); 
                 if(!empty($amArray)){
                     $is_am = 1;
@@ -321,11 +321,10 @@ class Login extends CI_Controller {
         $this->session->sess_create();
         $this->session->set_userdata(array("login_by"=>_247AROUND_EMPLOYEE_STRING));
        // $partner_id = $this->input->post('partner_id');
-        $data['entity'] = "partner";
-        $data['entity_id'] = $partner_id;
-        $data['active'] = 1;
-        $agent = $this->dealer_model->entity_login($data);
-        
+        $data['entity_login_table.entity'] = "partner";
+        $data['entity_login_table.entity_id'] = $partner_id;
+        $data['entity_login_table.active'] = 1;
+        $agent = $this->dealer_model->get_entity_login_details($data);
         if (!empty($agent)) {
             //get partner details now
             $partner_details = $this->partner_model->getpartner($partner_id, false);
@@ -337,8 +336,8 @@ class Login extends CI_Controller {
             } else {
                 $logo_img = 'logo.png';
             }
-            $this->setPartnerSession($partner_details[0]['id'], $partner_details[0]['public_name'], $agent[0]['agent_id'],
-                        $partner_details[0]['is_active'], $partner_details[0]['is_prepaid'],$partner_details[0]['is_wh'],$logo_img,0,$agent[0]['groups'],$agent[0]['is_filter_applicable']);
+             $this->setPartnerSession($partner_details[0]['id'], $partner_details[0]['public_name'], $agent[0]['agent_id'],
+                        $partner_details[0]['is_active'], $partner_details[0]['is_prepaid'],$partner_details[0]['is_wh'],$logo_img,0,$agent[0]['department'],$agent[0]['role'],$agent[0]['is_filter_applicable']);
                 log_message('info', 'Partner loggedIn  partner id' .$partner_details[0]['id'] . " Partner name" . $partner_details[0]['public_name']);
                 // Add Navigation Header In Cache
                 $this->miscelleneous->set_header_navigation_in_cache("Partner");
@@ -357,7 +356,7 @@ class Login extends CI_Controller {
      * @param: Partner name
      * @return: void
      */
-    function setPartnerSession($partner_id, $partner_name, $agent_id,$status, $is_prepaid,$is_wh,$logo_img,$is_login_by_247=1,$userGroup,$filter) {
+    function setPartnerSession($partner_id, $partner_name, $agent_id,$status, $is_prepaid,$is_wh,$logo_img,$is_login_by_247=1,$department,$role,$filter) {
         $userSession = array(
             'session_id' => md5(uniqid(mt_rand(), true)),
             'partner_id' => $partner_id,
@@ -370,7 +369,8 @@ class Login extends CI_Controller {
             'status' => $status,
             'partner_logo' => $logo_img,
             'is_wh' => $is_wh,
-            'user_group' => $userGroup,
+            'department' => $department,
+            'user_group' => $role,
             'is_filter_applicable' => $filter
         );
         
@@ -396,12 +396,11 @@ class Login extends CI_Controller {
     }
     
      function partner_login() {
-        $data['user_id'] = $this->input->post('user_name');
-        $data['password'] = md5($this->input->post('password'));
-        $data['entity'] = "partner";
+        $data['entity_login_table.user_id'] = $this->input->post('user_name');
+        $data['entity_login_table.password'] = md5($this->input->post('password'));
+        $data['entity_login_table.entity'] = "partner";
         $data['active'] = 1;
-        $agent = $this->dealer_model->entity_login($data);
-       
+        $agent = $this->dealer_model->get_entity_login_details($data);
         if ($agent) {
             //get partner details now
             $partner_details = $this->partner_model->getpartner($agent[0]['entity_id'],TRUE);
@@ -415,7 +414,7 @@ class Login extends CI_Controller {
                     $logo_img = 'logo.png';
                 }
                 $this->setPartnerSession($partner_details[0]['id'], $partner_details[0]['public_name'], $agent[0]['agent_id'],
-                        $partner_details[0]['is_active'], $partner_details[0]['is_prepaid'],$partner_details[0]['is_wh'],$logo_img,0,$agent[0]['groups'],$agent[0]['is_filter_applicable']);
+                        $partner_details[0]['is_active'], $partner_details[0]['is_prepaid'],$partner_details[0]['is_wh'],$logo_img,0,$agent[0]['department'],$agent[0]['role'],$agent[0]['is_filter_applicable']);
                 log_message('info', 'Partner loggedIn  partner id' .$partner_details[0]['id'] . " Partner name" . $partner_details[0]['public_name']);
                 // Add Navigation Header In Cache
                 $this->miscelleneous->set_header_navigation_in_cache("Partner");
@@ -697,7 +696,7 @@ function user_role_management(){
         $data['header_navigation'] = $structuredData;
         // Get All roles group 
         $data['roles_group'] = $this->reusable_model->get_search_result_data("employee","DISTINCT groups",NULL,NULL,NULL,NULL,NULL,NULL,array("groups"));
-        $data['partners_roles_group'] = $this->reusable_model->get_search_result_data("entity_login_table","DISTINCT groups",NULL,NULL,NULL,NULL,NULL,NULL,array("groups"));
+        $data['partners_roles_group'] = $this->reusable_model->get_search_result_data("entity_role","role as groups",array("entity_type"=>'partner'),NULL,NULL,NULL,NULL,NULL,array());
         //Get Header 
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/user_role',array("header_navigation"=>$data['header_navigation'],'roles_group'=>$data['roles_group'],'partners_roles_group'=>$data['partners_roles_group']));
