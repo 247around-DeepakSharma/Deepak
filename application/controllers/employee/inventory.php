@@ -3071,8 +3071,8 @@ class Inventory extends CI_Controller {
             $courier_file = $this->upload_defective_parts_shipped_courier_file($_FILES);
 
             if ($courier_file['status']) {
-                $data = $this->inventory_invoice_settlement($sender_entity_id, $sender_entity_type);
-                if (!empty($data)) {
+                $invoice_id = $this->inventory_invoice_settlement($sender_entity_id, $sender_entity_type);
+                if (!empty($invoice_id)) {
                     $not_updated_bookings = array();
                     foreach ($postData as $value) {
                         //acknowledge spare by setting is_wh_ack flag = 1 in inventory ledger table
@@ -3087,6 +3087,7 @@ class Inventory extends CI_Controller {
                             $ledger_data['agent_type'] = _247AROUND_SF_STRING;
                             $ledger_data['booking_id'] = $value->booking_id;
                             $ledger_data['is_defective'] = 1;
+                            $ledger_data['invoice_id'] = $invoice_id;
 
                             $insert_id = $this->inventory_model->insert_inventory_ledger($ledger_data);
 
@@ -3324,7 +3325,7 @@ class Inventory extends CI_Controller {
             if(file_exists(TMP_FOLDER.$convert['copy_file'])){
                 unlink(TMP_FOLDER.$convert['copy_file']);
             }
-            return true;
+            return $response['meta']['invoice_id'];
 
         } else {
             return false;
