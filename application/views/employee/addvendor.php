@@ -1482,8 +1482,8 @@
                  return false;
              } 
              var  gst_n = $('#gst_no').val();
-             var  sign_n = $('#signature_file').val();
-             if(!(gst_n || sign_n)){
+             var is_signature_file = <?php if(isset($query[0]['signature_file']) && !empty($query[0]['signature_file'])){ echo '1';}else{echo '0';}?>;
+             if(!(gst_n || is_signature_file)){
                    alert('Please Update GST details or Signature ');
                    return false;
                }

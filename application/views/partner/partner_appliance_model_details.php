@@ -5,7 +5,7 @@
     
     .spinner {
         margin: 0px auto;
-        width: 50px;
+        wiappliance_model_details_tableh: 50px;
         height: 50px;
         text-align: center;
         font-size: 10px;
@@ -13,7 +13,7 @@
 
     .spinner > div {
         height: 100%;
-        width: 6px;
+        wiappliance_model_details_tableh: 6px;
         display: inline-block;
 
         -webkit-animation: sk-stretchdelay 1.2s infinite ease-in-out;
@@ -58,7 +58,7 @@
     #appliance_model_details_processing{
             position: absolute;
             z-index: 999999;
-            width: 100%;
+            wiappliance_model_details_tableh: 100%;
             background: rgba(0,0,0,0.5);
             height: 100%;
             top: 10px;
@@ -76,130 +76,118 @@
     .select2-container--default .select2-selection--single .select2-selection__arrow{
         height: 31px;
     }
+    
+    .dataTables_length{
+        width: 20%;
+    }
     .form-horizontal .control-label {
         text-align: left;
     }
 </style>
-<div id="page-wrapper">
+<div class="right_col" role="main">
     <div class="row">
-        <div class="title">
-            <div class="row">
-                <div class="col-md-6">
-                    <h3>Appliance Model List</h3>
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>Model List</h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                        <a class="btn btn-success pull-right" style="margin-top: 10px;" id="add_model" title="Add New Model"><i class="fa fa-plus"></i></a>
+                    </ul>
+                    <div class="clearfix"></div>
                 </div>
-                <div class="col-md-6">
-                    <a class="btn btn-success pull-right" style="margin-top: 10px;" id="add_model" title="Add New Model"><i class="fa fa-plus"></i></a>
-                </div>
-            </div>
-        </div>
-        <hr>
-        <div class="filter_box">
-            <div class="row">
-                <div class="form-inline">
-                    <div class="form-group col-md-3">
-                        <select class="form-control" id="partner_id">
-                            <option value="" disabled="">Select Partner</option>
-                        </select>
+                <div class="x_content">
+                    <div class="filter_box">
+                        <div class="row">
+                            <div class="form-inline">
+                                <div class="form-group col-md-3">
+                                    <select class="form-control" id="model_service_id">
+                                        <option value="" disabled="">Select Appliance</option>
+                                    </select>
+                                </div>
+                                <button class="btn btn-success col-md-2" id="get_appliance_model_data">Submit</button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group col-md-3">
-                        <select class="form-control" id="model_service_id">
-                            <option value="" disabled="">Select Appliance</option>
-                        </select>
+                    <hr>
+                    <div class="success_msg_div" style="display:none;">
+                        <div class="alert alert-success alert-dismissible" role="alert" style="margin-top:15px;">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <strong><span id="success_msg"></span></strong>
+                        </div>
                     </div>
-<!--                    <div class="form-group col-md-2">
-                        <label class="checkbox-inline"><input type="checkbox" value="1" id="show_all_inventory">Show All</label>
-                    </div>-->
-                    <button class="btn btn-success col-md-2" id="get_appliance_model_data">Submit</button>
-                </div>
-            </div>
-        </div>
-        <hr>
-        <div class="success_msg_div" style="display:none;">
-            <div class="alert alert-success alert-dismissible" role="alert" style="margin-top:15px;">
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-                <strong><span id="success_msg"></span></strong>
-            </div>
-        </div>
-        <div class="error_msg_div" style="display:none;">
-            <div class="alert alert-danger alert-dismissible" role="alert" style="margin-top:15px;">
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-                <strong><span id="error_msg"></span></strong>
-            </div>
-        </div>
-        <div class="model-table">
-            <table class="table table-bordered table-hover table-striped" id="appliance_model_details">
-                <thead>
-                    <tr>
-                        <th>S.No</th>
-                        <th>Appliance</th>
-                        <th>Model Number</th>
-                        <th>Edit</th>
-                        <th>Get Part Details</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-    </div>
-    
-    <!--Modal start-->
-    <div id="appliance_model_details_data" class="modal fade" role="dialog">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title" id="modal_title_action"> </h4>
-                </div>
-                <div class="modal-body">
+                    <div class="error_msg_div" style="display:none;">
+                        <div class="alert alert-danger alert-dismissible" role="alert" style="margin-top:15px;">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <strong><span id="error_msg"></span></strong>
+                        </div>
+                    </div>
+                    <div class="inventory-table">
+                        <table class="table table-bordered table-hover table-striped" id="appliance_model_details">
+                            <thead>
+                                <tr>
+                                    <th>S.No</th>
+                                    <th>Appliance</th>
+                                    <th>Model Number</th>
+                                    <th>Edit</th>
+                                    <th>Get Part Details</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
 
-                    <form class="form-horizontal" id="applince_model_list_details">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="control-label col-md-4" for="service_id">Appliance*</label>
-                                    <div class="col-md-7 col-md-offset-1">
-                                        <select class="form-control" id="service_id" name="service_id"></select>
-                                    </div>
+                    <!--Modal start-->
+                    <div id="appliance_model_details_data" class="modal fade" role="dialog">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title" id="modal_title_action"> </h4>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="control-label col-md-4" for="entity_id">Partner*</label>
-                                    <div class="col-md-7 col-md-offset-1">
-                                        <select class="form-control" id="entity_id" name="entity_id">
-                                            <option value="" selected="" disabled="">Please Select Entity Type First</option>
-                                        </select>
-                                    </div>
+                                <div class="modal-body">
+
+                                    <form class="form-horizontal" id="applince_model_list_details">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label class="control-label col-md-4" for="service_id">Appliance*</label>
+                                                    <div class="col-md-7 col-md-offset-1">
+                                                        <select class="form-control" id="service_id" name="service_id"></select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label class="control-label col-md-4" for="part_name">Model Number *</label>
+                                                    <div class="col-md-7 col-md-offset-1">
+                                                        <input type="text" class="form-control" id="model_number" name="model_number">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="modal-footer">
+                                            <input type="hidden"  id="entity_id" name='entity_id' value='<?php echo $this->session->userdata('partner_id') ?>'>
+                                            <input type="hidden" id="entity_type" name='entity_type' value="partner">
+                                            <input type="hidden" id="model_id" name='model_id' value="">
+                                            <button type="submit" class="btn btn-success" id="model_submit_btn" name='submit_type' value="">Submit</button>
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                                            <p class="pull-left text-danger">* These fields are required</p>
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="control-label col-md-4" for="model_number">Model Number *</label>
-                                    <div class="col-md-7 col-md-offset-1">
-                                        <input type="text" class="form-control" id="model_number" name="model_number">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="modal-footer">
-                            <input type="hidden" id="entity_type" name='entity_type' value="partner">
-                            <input type="hidden" id="model_id" name='model_id' value="">
-                            <button type="submit" class="btn btn-success" id="model_submit_btn" name='submit_type' value="">Submit</button>
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                            <p class="pull-left text-danger">* These Fields are required</p>
-                        </div>
-                    </form>
+                    </div>
+                    <!-- Modal end -->
                 </div>
             </div>
         </div>
+        <div class="clearfix"></div>
     </div>
-    <!-- Modal end -->
 </div>
 <script>
     var appliance_model_details_table;
@@ -207,15 +195,13 @@
     var entity_id = '';
     var time = moment().format('D-MMM-YYYY');
     $(document).ready(function(){
-        
-        get_partner('partner_id');
         get_services('model_service_id');
         get_appliance_model_list();
     });
     
     $('#get_appliance_model_data').on('click',function(){
-        var partner_id = $('#partner_id').val();
-        if(partner_id){
+        var model_service_id = $('#model_service_id').val();
+        if(model_service_id){
             appliance_model_details_table.ajax.reload();
         }else{
             alert("Please Select Partner");
@@ -246,9 +232,6 @@
                                     <div class='rect4' style='background-color:#3cba54'></div>\n\
                                 </div>"
             },
-            select: {
-                style: 'multi'
-            },
             "order": [], 
             "pageLength": 25,
             "ordering": false,
@@ -269,7 +252,7 @@
     
     function get_entity_details(){
         var data = {
-            'entity_id': $('#partner_id').val(),
+            'entity_id': '<?php echo $this->session->userdata('partner_id') ?>',
             'entity_type' : '<?php echo _247AROUND_PARTNER_STRING; ?>',
             'service_id': $('#model_service_id').val()
         };
@@ -277,22 +260,10 @@
         return data;
     }
     
-    function get_partner(div_to_update){
-        $.ajax({
-            type:'POST',
-            url:'<?php echo base_url();?>employee/partner/get_partner_list',
-            data:{is_wh:true},
-            success:function(response){
-                $('#'+div_to_update).html(response);
-                $('#'+div_to_update).select2();
-            }
-        });
-    }
-    
     function get_services(div_to_update){
         $.ajax({
             type:'GET',
-            url:'<?php echo base_url();?>employee/booking/get_service_id',
+            url:'<?php echo base_url();?>employee/partner/get_service_id',
             data:{is_option_selected:true},
             success:function(response){
                 $('#'+div_to_update).html(response);
@@ -306,10 +277,9 @@
     
     $('#add_model').click(function(){
         get_services('service_id');
-        get_partner('entity_id');
         $("#applince_model_list_details")[0].reset();
         $('#model_submit_btn').val('Add');
-        $('#modal_title_action').html("Add New Model");
+        $('#modal_title_action').html("Add Item");
         $('#appliance_model_details_data').modal('toggle');
     });
     
@@ -343,8 +313,6 @@
         var form_data = $("#applince_model_list_details").serializeArray();
         if(!$('#service_id').val()){
             alert("Please Select Appliance");
-        }else if(!$('#entity_id').val()){
-            alert("Please Select Partner");
         }else if($('#model_number').val().trim() === "" || $('#model_number').val().trim() === " "){
             alert("Please Enter Model Number");
         }else{
@@ -419,6 +387,4 @@
         // Requery the server with the new one-time export settings
         appliance_model_details_table.ajax.reload();
     };
-    
-    
 </script>

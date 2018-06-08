@@ -2749,7 +2749,7 @@ class Inventory extends CI_Controller {
                                     $ledger_data['quantity'] = $value['quantity'];
                                     $ledger_data['agent_id'] = $this->session->userdata('id');
                                     $ledger_data['agent_type'] = _247AROUND_EMPLOYEE_STRING;
-                                    $ledger_data['booking_id'] = $value['booking_id'];
+                                    $ledger_data['booking_id'] = trim($value['booking_id']);
                                     $ledger_data['invoice_id'] = $invoice_id;
                                     $ledger_data['is_wh_ack'] = 0;
 
@@ -3923,15 +3923,20 @@ class Inventory extends CI_Controller {
      *  @return : void
      */
     function get_inventory_by_model($model_number_id){
-        $this->checkUserSession();
         if($model_number_id){
             $model_number_id = urldecode($model_number_id);
             $data['inventory_details'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.*,appliance_model_details.model_number,services.services',array('inventory_model_mapping.model_number_id' => $model_number_id));
+        }else{  
+            $data['inventory_details'] = array();
+        }
+        
+        if($this->session->userdata('employee_id')){
             $this->miscelleneous->load_nav_header();
             $this->load->view('employee/show_inventory_details_by_model',$data);
-        }else{  
-            $this->miscelleneous->load_nav_header();     
-            echo 'Model Number Does Not Exists.';
+        }else if($this->session->userdata('partner_id')){
+            $this->miscelleneous->load_partner_nav_header();
+            $this->load->view('employee/show_inventory_details_by_model',$data);
+            $this->load->view('partner/partner_footer');
         }
         
     }
@@ -3942,15 +3947,22 @@ class Inventory extends CI_Controller {
      *  @return : void
      */
     function get_appliance_by_inventory_id($inventory_id){
-        $this->checkUserSession();
+
         if($inventory_id){
             $inventory_id = urldecode($inventory_id);
             $data['model_details'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.part_number,appliance_model_details.model_number,services.services',array('inventory_model_mapping.inventory_id' => $inventory_id));
+            
+        }else{
+            $data['model_details'] = array();
+        }
+        
+        if($this->session->userdata('employee_id')){
             $this->miscelleneous->load_nav_header();
             $this->load->view('employee/show_appliance_model_by_inventory_id',$data);
-        }else{  
-            $this->miscelleneous->load_nav_header();     
-            echo 'Model Number Does Not Exists.';
+        }else if($this->session->userdata('partner_id')){
+            $this->miscelleneous->load_partner_nav_header();
+            $this->load->view('employee/show_appliance_model_by_inventory_id',$data);
+            $this->load->view('partner/partner_footer');
         }
         
     }
@@ -3993,6 +4005,21 @@ class Inventory extends CI_Controller {
         $this->checkUserSession();
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/acknowledge_spares_send_by_partner_by_admin');
+    }
+    
+    /**
+     * @desc: This function is used to check partner session.
+     * @param: void
+     * @return: true if details matches else session is destroyed.
+     */
+    function check_PartnerSession() {
+        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'partner')) {
+            return TRUE;
+        } else {
+            log_message('info', __FUNCTION__. " Session Expire for Service Center");
+            $this->session->sess_destroy();
+            redirect(base_url() . "partner/login");
+        }
     }
   
         

@@ -5051,3 +5051,8 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 
 INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
 (NULL, '247Around', 'Inventory Send By Partner To Warehouse', NULL, 'employee/inventory/acknowledge_spares_send_by_partner_by_admin', 0, '89', 'admin,closure,developer', 'main_nav', 1, '2018-06-05 13:05:52');
+--4th June
+ALTER TABLE `contact_person` ADD `is_active` INT(10) NOT NULL DEFAULT '1' AFTER `update_date`;
+ALTER TABLE `contact_person` ADD `agent_id` INT(10) NOT NULL AFTER `is_active`;
+ALTER TABLE `entity_login_table` ADD `contact_person_id` INT(10) NULL AFTER `entity_name`;
+ALTER TABLE contact_person AUTO_INCREMENT = 10000;

@@ -1789,20 +1789,16 @@ class Miscelleneous {
      * This Function is used to perform update or insert  action on the basis of input type over bank details table
      */
 
-    function update_insert_bank_account_details($bankDetailsArray, $actionType) {
-        $affectedRows = 0;
-
-        if ($actionType == 'insert') {
-            // If all values are not blank, atleast one column has value then create entry in bank details table
+    function update_insert_bank_account_details($bankDetailsArray) {
+        $where['entity_id'] = $bankDetailsArray['entity_id'];
+        $where['entity_type'] = $bankDetailsArray['entity_type'];
+        $affectedRows = $this->My_CI->reusable_model->update_table("account_holders_bank_details",$bankDetailsArray,$where);
+        if($affectedRows == 0){
             if (array_key_exists('bank_name', $bankDetailsArray) || array_key_exists('account_type', $bankDetailsArray) || array_key_exists('bank_account', $bankDetailsArray) || array_key_exists('ifsc_code', $bankDetailsArray) || array_key_exists('cancelled_cheque_file', $bankDetailsArray) || array_key_exists('beneficiary_name', $bankDetailsArray) || array_key_exists('beneficiary_name', $bankDetailsArray)) {
-                return $affectedRows = $this->My_CI->reusable_model->insert_into_table('account_holders_bank_details', $bankDetailsArray);
+                $affectedRows = $this->My_CI->reusable_model->insert_into_table('account_holders_bank_details', $bankDetailsArray);
             }
-        } else if ($actionType == 'update') {
-            $where['entity_id'] = $bankDetailsArray['entity_id'];
-             $where['entity_type'] = $bankDetailsArray['entity_type'];
-            $this->My_CI->reusable_model->update_table("account_holders_bank_details",$bankDetailsArray,$where);
-        }
-           
+        } 
+        return $affectedRows;
     }
 
     /**
@@ -2124,7 +2120,7 @@ class Miscelleneous {
         $data['main_nav'] = $this->get_main_nav_data("main_nav",$entity_type);
         $data['right_nav'] = $this->get_main_nav_data("right_nav",$entity_type);
         if($entity_type == "Partner"){
-            $msg = $this->My_CI->load->view('partner/header_navigation',$data,TRUE);
+           $msg = $this->My_CI->load->view('partner/header_navigation',$data,TRUE);
            $this->My_CI->cache->file->save('navigationHeader_partner_'.$this->My_CI->session->userdata('user_group').'_'.$this->My_CI->session->userdata('agent_id'), $msg, 36000);
         }
         else{
@@ -2847,7 +2843,7 @@ function convert_html_to_pdf($html,$booking_id,$filename,$s3_folder){
     function load_partner_nav_header(){
         //Check is navigation there in cache?
         // If not then create navigation and loads into cache
-        if(!$this->My_CI->cache->file->get('navigationHeader_partner_'.$this->My_CI->session->userdata('agent_id'))){
+        if(!$this->My_CI->cache->file->get('navigationHeader_partner_'.$this->My_CI->session->userdata('user_group').'_'.$this->My_CI->session->userdata('agent_id'))){
                 $this->set_header_navigation_in_cache("Partner");
          }
         $data['header_navigation_html'] = $this->My_CI->cache->file->get('navigationHeader_partner_'.$this->My_CI->session->userdata('user_group').'_'.$this->My_CI->session->userdata('agent_id'));
@@ -2891,6 +2887,44 @@ function convert_html_to_pdf($html,$booking_id,$filename,$s3_folder){
             }
             $attachment = S3_WEBSITE_URL . "engineer-uploads/" . $pic_name;
             $this->My_CI->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment, INFORM_PARTNER_FOR_NEW_SERIAL_NUMBER);
+        }
+    }
+    function create_entity_login($data){
+        $check_username = $this->My_CI->dealer_model->entity_login(array('entity' => 'partner', 'user_id' => $data['user_id']));
+        if(empty($check_username)) {
+            $p_where = array('id' => $data['entity_id']);
+            //Getting name of Partner by Partner ID
+            $partner_details = $this->My_CI->partner_model->get_all_partner($p_where);
+            $data['entity_name'] = $partner_details[0]['public_name'];
+            $s1 = $this->My_CI->dealer_model->insert_entity_login($data);
+            if ($s1) {
+                //Log Message
+                log_message('info', __FUNCTION__ . ' Partner Login has been Added for id : ' . $data['entity_id'] . ' with values ' . print_r($data, TRUE));
+                //Getting template from Database to send mail
+                $accountManagerData = $this->get_am_data($data['entity_id']);
+                $login_template = $this->My_CI->booking_model->get_booking_email_template("partner_login_details");
+                if (!empty($login_template)) {
+                    $login_email['username'] = $data['user_id'];
+                    $login_email['password'] = $data['clear_password'];
+                    $cc = $login_template[3];
+                    if($accountManagerData){
+                        $accountManagerEmail = $accountManagerData[0]['official_email'];
+                        $cc = $login_template[3].",".$accountManagerEmail;
+                    }
+                    $login_subject = $login_template[4];
+                    $login_emailBody = vsprintf($login_template[0], $login_email);
+                    $this->My_CI->notify->sendEmail($login_template[2], $data['email'], $cc, "",$login_subject, $login_emailBody, "",'partner_login_details');
+                    log_message('info', $login_subject . " Email Send successfully" . $login_emailBody);
+                } else {
+                    //Logging Error
+                    log_message('info', " Error in Getting Email Template for New Vendor Login credentials Mail");
+                }
+                return $s1;
+            } else {
+                //Log Message
+                log_message('info', __FUNCTION__ . ' Error in Adding Partner Login Details for id : ' . $partner_id . ' with values ' . print_r($data, TRUE));
+                return false;
+            }
         }
     }
 }

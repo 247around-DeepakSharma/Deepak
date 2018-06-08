@@ -232,13 +232,10 @@
                 }
             }
             function process_serviceability_report(){
-                var appliance_opt = 0;
+                var service_opt = 0;
                 var pincode_opt = 0;
                 var city_opt = 0;
                 var state_opt =0;
-                if ($('#appliace_opt').is(":checked")){
-                    appliance_opt = 1; 
-                }
                 if ($('#pincode_opt').is(":checked")){
                     pincode_opt = 1;
                 }
@@ -249,11 +246,11 @@
                     state_opt = 1;
                 }
                 var service_id = getMultipleSelectedValues('modal_service_id');
-                if(appliance_opt === 1 || pincode_opt === 1 || city_opt ===  1 || state_opt === 1){
-                      send_csv_request(appliance_opt,pincode_opt,state_opt,city_opt,service_id);
+                if(service_id && (pincode_opt === 1 || city_opt ===  1 || state_opt === 1)){
+                      send_csv_request(pincode_opt,state_opt,city_opt,service_id);
                 }
                 else{
-                     alert("Please Select atleast 1 option");
+                     alert("Please Select atleast 1 option and Appliance");
                 }
             }
     function getMultipleSelectedValues(fieldName){
@@ -267,7 +264,7 @@
        }
       return values.toString();
    }
-    function send_csv_request(appliance_opt,pincode_opt,state_opt,city_opt,service_id){
+    function send_csv_request(pincode_opt,state_opt,city_opt,service_id){
         $("#loader_gif_title").show();
         if(!service_id){
             service_id = 'all';

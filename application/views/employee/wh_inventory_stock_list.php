@@ -20,7 +20,7 @@
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0 40px;">
             <div class="x_panel">
                 <div class="x_title">
-                    <h3>Warehouse Inventory List</h3>
+                    <h3>Warehouse Spare Parts Inventory</h3>
                     <hr>
                     <div class="clearfix"></div>
                 </div>
@@ -60,12 +60,12 @@
                                 <tr>
                                     <th>S.No</th>
                                     <th>Appliance</th>
-                                    <th>Spare Type</th>
-                                    <th>Spare Part Name</th>
-                                    <th>Spare Part Number</th>
-                                    <th>Spare Stock</th>
-                                    <th>Spare Size</th>
-                                    <th>Spare Price</th>
+                                    <th>Type</th>
+                                    <th>Name</th>
+                                    <th>Number</th>
+                                    <th>Stock</th>
+                                    <th>Size</th>
+                                    <th>Price</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -211,7 +211,10 @@
             data:{is_option_selected:true},
             success: function (response) {
                 $('#service_id').html(response);
-                $('#service_id').select2();
+                $('#service_id').select2({
+                    allowClear: true,
+                    placeholder: 'Select Appliance'
+                });
             }
         });
     }

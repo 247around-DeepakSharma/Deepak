@@ -19,7 +19,7 @@
             <?php if(!empty($inventory_details)) { ?>
             <div class="x_panel">
                 <div class="x_title">
-                    <h3>Parts Details For Model Number <strong><?php echo array_unique(array_column($inventory_details, 'model_number'))[0] ;?></strong></h3>
+                    <h3>Spare Part Details For Model Number <strong><?php echo array_unique(array_column($inventory_details, 'model_number'))[0] ;?></strong></h3>
                     <hr>
                     <div class="clearfix"></div>
                 </div>
@@ -32,11 +32,13 @@
                                 <tr>
                                     <th>S.No</th>
                                     <th>Appliance</th>
-                                    <th>Spare Type</th>
-                                    <th>Spare Part Name</th>
-                                    <th>Spare Part Number</th>
-                                    <th>Spare Size</th>
-                                    <th>Spare Price</th>
+                                    <th>Type</th>
+                                    <th>Name</th>
+                                    <th>Number</th>
+                                    <th>Size</th>
+                                    <th>Price</th>
+                                    <th>HSN</th>
+                                    <th>GST Rate</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -49,6 +51,8 @@
                                     <td><?php echo $value['part_number']; ?></td>
                                     <td><?php echo $value['size']; ?></td>
                                     <td><?php echo $value['price']; ?></td>
+                                    <td><?php echo $value['hsn_code']; ?></td>
+                                    <td><?php echo $value['gst_rate']; ?></td>
                                     
                                 </tr>
                                 <?php $sn++;} ?>
