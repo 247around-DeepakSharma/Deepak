@@ -115,7 +115,7 @@
         if(partner_id && wh_id){
             inventory_spare_table.ajax.reload();
         }else{
-            alert("Please Select Partner");
+            alert("Please Select All Field");
         }
     });
     

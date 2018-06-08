@@ -176,6 +176,9 @@ $route['partner/download_spare_part_shipped_by_partner'] = 'employee/partner/dow
 $route['partner/download_sf_needs_to_send_parts'] = 'employee/partner/download_sf_needs_to_send_parts';
 $route['partner/download_received_spare_by_partner'] = 'employee/partner/download_received_spare_by_partner';
 $route['partner/inventory/ack_spare_send_by_wh'] = 'employee/partner/ack_spare_send_by_wh';
+$route['partner/inventory/show_inventory_details'] = 'employee/partner/show_inventory_master_details';
+$route['partner/inventory/show_inventory_appliance_details'] = 'employee/partner/show_appliance_model_list';
+$route['partner/inventory/tag_spare_invoice'] = 'employee/partner/tag_spare_invoice';
 
 
 

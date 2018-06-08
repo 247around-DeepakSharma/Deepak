@@ -19,7 +19,7 @@
             <?php if(!empty($model_details)) { ?>
             <div class="x_panel">
                 <div class="x_title">
-                    <h3>Model Detail For Part <strong><?php echo array_unique(array_column($model_details, 'part_number'))[0] ;?></strong></h3>
+                    <h3>Part Used In Model <strong><?php echo array_unique(array_column($model_details, 'part_number'))[0] ;?></strong></h3>
                     <hr>
                     <div class="clearfix"></div>
                 </div>
@@ -32,7 +32,7 @@
                                 <tr>
                                     <th>S.No</th>
                                     <th>Appliance</th>
-                                    <th>Spare Model Number</th>
+                                    <th>Model Number</th>
                                 </tr>
                             </thead>
                             <tbody>

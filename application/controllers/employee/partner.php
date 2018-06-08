@@ -4386,6 +4386,7 @@ class Partner extends CI_Controller {
     }
     
     function ack_spare_send_by_wh(){
+        $this->checkUserSession();
         $this->miscelleneous->load_partner_nav_header();
        // $this->load->view('partner/header');
         $this->load->view('partner/ack_spare_send_by_wh');
@@ -4393,5 +4394,64 @@ class Partner extends CI_Controller {
     }
     function download_custom_summary_report($folder,$file){
        $this->miscelleneous->download_csv_from_s3($folder,$file);
+    }
+    
+    /**
+     * @desc: This function is used to get service_id from Ajax call
+     * @params: void
+     * @return: string
+     */
+    function get_service_id(){
+        $appliance_list = $this->booking_model->selectservice();
+        
+        if($this->input->get('is_option_selected')){
+            $option = '<option  selected="" disabled="">Select Appliance</option>';
+        }else{
+            $option = '';
+        }
+        
+        foreach ($appliance_list as $value) {
+            $option .= "<option value='" . $value->id . "'";
+            $option .= " > ";
+            $option .= $value->services . "</option>";
+        }
+        $option .= '<option value="all" >All</option>';
+        echo $option;
+    }
+    
+    /**
+     * @desc: This function is used to show the inventory details of the partner
+     * @params: void
+     * @return: void
+     */
+    function show_inventory_master_details(){
+        $this->checkUserSession();
+        $this->miscelleneous->load_partner_nav_header();
+        $this->load->view('partner/partner_inventory_master_list');
+        $this->load->view('partner/partner_footer');
+    }
+    
+    /**
+     * @desc: This function is used to show the inventory appliance model details of the partner
+     * @params: void
+     * @return: void
+     */
+    function show_appliance_model_list(){
+        $this->checkUserSession();
+        $this->miscelleneous->load_partner_nav_header();
+        $this->load->view('partner/partner_appliance_model_details');
+        $this->load->view('partner/partner_footer');
+    }
+    
+    /**
+     *  @desc : This function is used to show the view so that partner can tag spare invoice send by him
+     *  @param : void
+     *  @return :void
+     */
+    function tag_spare_invoice(){
+        $this->checkUserSession();
+        $this->miscelleneous->load_partner_nav_header();
+        $this->load->view("partner/tag_spare_invoice_send_by_partner");
+        $this->load->view('partner/partner_footer');
     }
 }
