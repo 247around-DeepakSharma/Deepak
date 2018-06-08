@@ -2829,6 +2829,11 @@ class Inventory extends CI_Controller {
             $total_igst_tax_amount,$invoice_file, $wh_id) {
         log_message('info', __METHOD__. " For Invoice ID ". $invoice_id);
         $total_invoice_amount = ($total_basic_amount + $total_cgst_tax_amount + $total_sgst_tax_amount + $total_igst_tax_amount);
+	if($this->session->userdata('id')){
+		$agent_id = $this->session->userdata('id');
+	}else{
+		$agent_id = _247AROUND_DEFAULT_AGENT;
+	}
         $invoice_details_insert = array(
                     'invoice_id' => $invoice_id,
                     'type' => 'FOC',
@@ -2847,7 +2852,7 @@ class Inventory extends CI_Controller {
                     'total_amount_collected' => ($total_invoice_amount),
                     //Amount needs to be Paid to Vendor
                     'amount_collected_paid' => (0 - $total_invoice_amount),
-                    'agent_id' => $this->session->userdata('id'),
+                    'agent_id' => $agent_id,
                     "cgst_tax_rate" => 0,
                     "sgst_tax_rate" => 0,
                     "igst_tax_rate" => 0,
