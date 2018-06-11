@@ -845,7 +845,7 @@ function get_data_for_partner_callback($booking_id) {
                 . " booking_details.booking_address,booking_details.initial_booking_date, booking_details.is_upcountry, booking_details.upcountry_paid_by_customer,"
                     . "booking_details.amount_due,booking_details.state, "
                 . " service_centres.name as vendor_name, service_centres.address, service_centres.state, "
-                . " service_centres.pincode, service_centres.district,service_centres.id as sf_id,service_centres.is_gst_doc,"
+                . " service_centres.pincode, service_centres.district,service_centres.id as sf_id,service_centres.is_gst_doc,service_centres.signature_file,"
                 . " DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request ";
             if($end){
                 $limit = "LIMIT $start, $end";
