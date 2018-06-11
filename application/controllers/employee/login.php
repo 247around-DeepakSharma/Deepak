@@ -697,6 +697,7 @@ function user_role_management(){
         // Get All roles group 
         $data['roles_group'] = $this->reusable_model->get_search_result_data("employee","DISTINCT groups",NULL,NULL,NULL,NULL,NULL,NULL,array("groups"));
         $data['partners_roles_group'] = $this->reusable_model->get_search_result_data("entity_role","role as groups",array("entity_type"=>'partner'),NULL,NULL,NULL,NULL,NULL,array());
+
         //Get Header 
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/user_role',array("header_navigation"=>$data['header_navigation'],'roles_group'=>$data['roles_group'],'partners_roles_group'=>$data['partners_roles_group']));
@@ -795,13 +796,15 @@ function user_role_management(){
         $orderBYArray['groups'] =  "ASC";
         $where = array();
         if($entity_type == 'Partner'){
-            $table = "entity_login_table";
-            $where['entity'] = $entity_type;
+            $table = "entity_role";
+            $where['entity_type'] = $entity_type;
+            $select = "DISTINCT role as groups";
         }
         else{
              $table = "employee";
+             $select = "DISTINCT groups";
         }
-        $data = $this->reusable_model->get_search_result_data($table,"DISTINCT groups",$where,NULL,NULL,$orderBYArray,NULL,NULL,array());
+        $data = $this->reusable_model->get_search_result_data($table,$select,$where,NULL,NULL,$orderBYArray,NULL,NULL,array());
         $select = '<option value="">NULL</option>';
                 foreach($data as $group){
                     $select = $select.'<option value="'.$group["groups"].'">'.$group["groups"].'</option>';
