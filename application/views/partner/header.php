@@ -279,12 +279,22 @@
                                          <li><a href="<?php echo base_url(); ?>partner/get_pending_part_on_sf">Pending Spares On SF</a></li>
                                         <li><a href="<?php echo base_url(); ?>partner/get_waiting_defective_parts">Shipped Spares by SF</a></li>
                                         <li><a href="<?php echo base_url(); ?>partner/get_approved_defective_parts_booking">Received Spares by <?php echo $partner_name ?></a></li>
-                                        <?php if($this->session->userdata('is_wh')) { ?> 
-                                        <li><a href="<?php echo base_url(); ?>partner/inventory/inventory_list">247around warehouse Inventory</a></li>
-                                        <li><a href="<?php echo base_url(); ?>partner/inventory/ack_spare_send_by_wh">Acknowledge Defective Spare Send by Warehouse</a></li>
-                                        <?php } ?>
                                     </ul>
                                 </li>
+				<?php if($this->session->userdata('is_wh')) { ?> 
+				<li>
+                                    <a data-toggle="tooltip" data-placement="right" title="" data-original-title="Inventory"><i class="fa fa-dropbox"></i><span class="side_menu_list_title">Inventory</span><span class="fa fa-chevron-down"></span></a>
+                                    <ul class="nav child_menu">
+                                        
+                                        <li><a href="<?php echo base_url(); ?>partner/inventory/inventory_list">247around warehouse Inventory</a></li>
+                                        <li><a href="<?php echo base_url(); ?>partner/inventory/ack_spare_send_by_wh">Acknowledge Defective Spare Send by Warehouse</a></li>
+					<li><a href="<?php echo base_url(); ?>partner/inventory/show_inventory_details">Spare Part List</a></li>
+                                        <li><a href="<?php echo base_url(); ?>partner/inventory/show_inventory_appliance_details">Spare Model List</a></li>
+					<li><a href="<?php echo base_url(); ?>partner/inventory/tag_spare_invoice">Spare Dispatched by Partner To Warehouse</a></li>
+                                      
+                                    </ul>
+                                </li>
+				<?php } ?>
                                 <li>
                                     <a data-toggle="tooltip" data-placement="right" title="" data-original-title="Invoices"><i class="fa fa-inr"></i><span class="side_menu_list_title">Invoice</span><span class="fa fa-chevron-down"></span></a>
                                     <ul class="nav child_menu">

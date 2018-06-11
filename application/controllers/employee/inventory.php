@@ -2095,9 +2095,10 @@ class Inventory extends CI_Controller {
         $row[] = $stock_list->part_number;
         $row[] = $stock_list->description;
         $row[] = $stock_list->size;
-        $row[] = $stock_list->price;
         $row[] = $stock_list->hsn_code;
+        $row[] = $stock_list->price;
         $row[] = $stock_list->gst_rate;
+        $row[] = number_format((float)($stock_list->price + ($stock_list->price * ($stock_list->gst_rate/100))), 2, '.', '');
         $row[] = "<a href='javascript:void(0)' class ='btn btn-primary' id='edit_master_details' data-id='$json_data' title='Edit Details'><i class = 'fa fa-edit'></i></a>";
         $row[] = "<a href='".base_url()."employee/inventory/get_appliance_by_inventory_id/".urlencode($stock_list->inventory_id)."' class = 'btn btn-primary' title='Get Model Details' target='_blank'><i class ='fa fa-eye'></i></a>";
         
@@ -2385,15 +2386,10 @@ class Inventory extends CI_Controller {
         $row[] = $inventory_list->type;
         $row[] = $inventory_list->part_name;
         $row[] = $inventory_list->part_number;
-        $row[] = '<a href="'. base_url().'employee/inventory/show_inventory_ledger_list/0/'.$inventory_list->receiver_entity_type.'/'.$inventory_list->receiver_entity_id.'/'.$inventory_list->inventory_id.'" target="_blank" title="Get Ledger Details">'.$inventory_list->stock.'<a>'; 
-//        if($inventory_list->stock){
-//           $row[] = '<a href="'. base_url().'employee/inventory/show_inventory_ledger_list/0/'.$inventory_list->receiver_entity_type.'/'.$inventory_list->receiver_entity_id.'/'.$inventory_list->inventory_id.'" target="_blank" title="Get Ledger Details">'.$inventory_list->stock.'<a>'; 
-//        }else{
-//            $row[] = '<a href="javascript:void(0);" title="Out Of Stock">0<a>';
-//        }
-        
-        $row[] = $inventory_list->size;
+        $row[] = '<a href="'. base_url().'employee/inventory/show_inventory_ledger_list/0/'.$inventory_list->receiver_entity_type.'/'.$inventory_list->receiver_entity_id.'/'.$inventory_list->inventory_id.'" target="_blank" title="Get Ledger Details">'.$inventory_list->stock.'<a>';
         $row[] = $inventory_list->price;
+        $row[] = $inventory_list->gst_rate;
+        $row[] = number_format((float)($inventory_list->price + ($inventory_list->price * ($inventory_list->gst_rate/100))), 2, '.', '');
 
         return $row;
     }
@@ -2406,7 +2402,7 @@ class Inventory extends CI_Controller {
      */
     function get_parts_name(){
         
-        $model_number_id = $this->input->post('model_number');
+        $model_number_id = $this->input->post('model_number_id');
         $part_type = $this->input->post('part_type');
         $where = array();
         if(!empty($model_number_id)){
@@ -2842,6 +2838,11 @@ class Inventory extends CI_Controller {
             $total_igst_tax_amount,$invoice_file, $wh_id) {
         log_message('info', __METHOD__. " For Invoice ID ". $invoice_id);
         $total_invoice_amount = ($total_basic_amount + $total_cgst_tax_amount + $total_sgst_tax_amount + $total_igst_tax_amount);
+	if($this->session->userdata('id')){
+		$agent_id = $this->session->userdata('id');
+	}else{
+		$agent_id = _247AROUND_DEFAULT_AGENT;
+	}
         $invoice_details_insert = array(
                     'invoice_id' => $invoice_id,
                     'type' => 'FOC',
@@ -2860,7 +2861,7 @@ class Inventory extends CI_Controller {
                     'total_amount_collected' => ($total_invoice_amount),
                     //Amount needs to be Paid to Vendor
                     'amount_collected_paid' => (0 - $total_invoice_amount),
-                    'agent_id' => $this->session->userdata('id'),
+                    'agent_id' => $agent_id,
                     "cgst_tax_rate" => 0,
                     "sgst_tax_rate" => 0,
                     "igst_tax_rate" => 0,
@@ -4021,6 +4022,4 @@ class Inventory extends CI_Controller {
             redirect(base_url() . "partner/login");
         }
     }
-  
-        
 }

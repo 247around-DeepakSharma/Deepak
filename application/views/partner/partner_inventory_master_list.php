@@ -136,9 +136,10 @@
                                     <th>Number</th>
                                     <th>Description</th>
                                     <th>Size</th>
-                                    <th>Basic Price</th>
                                     <th>HSN</th>
+                                    <th>Basic Price</th>
                                     <th>GST Rate</th>
+                                    <th>Total Price</th>
                                     <th>Edit</th>
                                     <th>Get Model</th>
                                 </tr>

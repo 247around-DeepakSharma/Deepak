@@ -13,6 +13,7 @@
                         <th>Spare Part Number</th>
                         <th>Quantity</th>
                         <th>Booking Id</th>
+                        <th>Invoice Id</th>
                         <th>Date</th>
                     </tr>
                 </thead>
@@ -29,6 +30,9 @@
                             <a href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($value['booking_id'])) ; ?>">
                                 <?php echo $value['booking_id'];?>
                             </a>
+                        </td>
+                        <td>
+                            <?php echo $value['invoice_id'];?>
                         </td>
                         <td><?php echo date('d F Y H:i:s', strtotime($value['create_date'])) ; ?></td>
                     </tr>

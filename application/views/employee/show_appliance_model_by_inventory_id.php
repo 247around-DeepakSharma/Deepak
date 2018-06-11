@@ -11,6 +11,12 @@
     .select2-container--default .select2-selection--single .select2-selection__arrow{
         height: 31px;
     }
+    #inventory_part_and_model_mapping_table_filter{
+        text-align: right;
+    }
+    .x_title span {
+        color: #333;
+    }
 </style>
 <div class="right_col" role="main">
     <div class="row">
@@ -19,15 +25,15 @@
             <?php if(!empty($model_details)) { ?>
             <div class="x_panel">
                 <div class="x_title">
-                    <h3>Part Used In Model <strong><?php echo array_unique(array_column($model_details, 'part_number'))[0] ;?></strong></h3>
+                    <h3>Model Used In Part <span id="part_name"><strong><?php echo array_unique(array_column($model_details, 'part_number'))[0] ;?></strong></span></h3>
                     <hr>
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content">
                     <div class="clearfix"></div>
                     <hr>
-                    <div class="inventory_stock_list">
-                        <table id="inventory_stock_table" class="table table-bordered table-responsive">
+                    <div class="inventory_part_and_model_mapping">
+                        <table id="inventory_part_and_model_mapping_table" class="table table-bordered table-responsive">
                             <thead>
                                 <tr>
                                     <th>S.No</th>
@@ -72,3 +78,20 @@
         <!-- Modal end -->
     </div>
 </div>
+<script>
+    var time = moment().format('D-MMM-YYYY-H-i-s');
+    var part_name = $('#part_name').text();
+    $('#inventory_part_and_model_mapping_table').DataTable({
+        "dom": 'lBfrtip',
+        "buttons": [
+                {
+                    extend: 'excel',
+                    text: 'Export',
+                    exportOptions: {
+                        columns: [ 0, 1, 2]
+                    },
+                    title: 'model_used_in_part_'+part_name+time
+                },
+            ],
+    });
+</script>
