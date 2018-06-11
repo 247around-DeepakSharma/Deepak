@@ -139,7 +139,7 @@
                 <option value="" >NULL</option>
                 <option value="247Around">247Around</option>
                 <option value="Partner">Partner</option>
-            </select>
+            </select> 
         </div>
     </div>
     <div class="form-group ">
