@@ -86,7 +86,7 @@
                                     <div class="col-xs-4">
                                         <input type="text" class="form-control" name="courier_shipment_date" id="courier_shipment_date" autocomplete="off"/>
                                     </div>
-                                    <label class="col-xs-2 control-label">Courier file</label>
+                                    <label class="col-xs-2 control-label">Courier File</label>
                                     <div class="col-xs-4">
                                         <input type="file" class="form-control" name="courier_file" id="courier_file"/>
                                     </div>
@@ -196,7 +196,7 @@
                                 </div>
                                 <hr>
                                 <div class="row">
-                                    <div class="col-xs-5">
+                                    <div class="col-xs-5 col-md-4 col-md-offset-5">
                                         <button type="submit" class="btn btn-success" id="submit_btn">Submit</button>
                                     </div>
                                 </div>
@@ -402,6 +402,7 @@
         $.ajax({
             type: 'POST',
             url: '<?php echo base_url() ?>employee/partner/get_partner_list',
+            data:{is_wh:true},
             success: function (response) {
                 $("#partner_id").html(response);
             }

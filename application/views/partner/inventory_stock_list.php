@@ -42,8 +42,9 @@
                                     <th>Spare Part Name</th>
                                     <th>Spare Part Number</th>
                                     <th>Spare Stock</th>
-                                    <th>Spare Size</th>
-                                    <th>Spare Price</th>
+                                    <th>Spare Basic Price</th>
+                                    <th>Spare GST Rate</th>
+                                    <th>Spare Total Price</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>

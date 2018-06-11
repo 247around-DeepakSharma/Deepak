@@ -11,6 +11,12 @@
     .select2-container--default .select2-selection--single .select2-selection__arrow{
         height: 31px;
     }
+    #inventory_part_and_model_mapping_table_filter{
+        text-align: right;
+    }
+    .x_title span {
+        color: #333;
+    }
 </style>
 <div class="right_col" role="main">
     <div class="row">
@@ -19,15 +25,15 @@
             <?php if(!empty($inventory_details)) { ?>
             <div class="x_panel">
                 <div class="x_title">
-                    <h3>Spare Part Details For Model Number <strong><?php echo array_unique(array_column($inventory_details, 'model_number'))[0] ;?></strong></h3>
+                    <h3>Spare Part Details For Model Number <span id="model_name"><strong><?php echo array_unique(array_column($inventory_details, 'model_number'))[0] ;?></strong></span></h3>
                     <hr>
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content">
                     <div class="clearfix"></div>
                     <hr>
-                    <div class="inventory_stock_list">
-                        <table id="inventory_stock_table" class="table table-bordered table-responsive">
+                    <div class="inventory_part_and_model_mapping">
+                        <table id="inventory_part_and_model_mapping_table" class="table table-bordered table-responsive">
                             <thead>
                                 <tr>
                                     <th>S.No</th>
@@ -35,10 +41,10 @@
                                     <th>Type</th>
                                     <th>Name</th>
                                     <th>Number</th>
-                                    <th>Size</th>
-                                    <th>Price</th>
                                     <th>HSN</th>
+                                    <th>Basic Price</th>
                                     <th>GST Rate</th>
+                                    <th>Total Price</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -49,10 +55,10 @@
                                     <td><?php echo $value['type']; ?></td>
                                     <td><?php echo $value['part_name']; ?></td>
                                     <td><?php echo $value['part_number']; ?></td>
-                                    <td><?php echo $value['size']; ?></td>
-                                    <td><?php echo $value['price']; ?></td>
                                     <td><?php echo $value['hsn_code']; ?></td>
+                                    <td><?php echo $value['price']; ?></td>
                                     <td><?php echo $value['gst_rate']; ?></td>
+                                    <td><?php echo number_format((float)($value['price'] + ($value['price'] * ($value['gst_rate']/100))), 2, '.', ''); ?></td>
                                     
                                 </tr>
                                 <?php $sn++;} ?>
@@ -84,3 +90,20 @@
         <!-- Modal end -->
     </div>
 </div>
+<script>
+    var time = moment().format('D-MMM-YYYY-H-i-s');
+    var model_name = $('#model_name').text();
+    $('#inventory_part_and_model_mapping_table').DataTable({
+        "dom": 'lBfrtip',
+        "buttons": [
+                {
+                    extend: 'excel',
+                    text: 'Export',
+                    exportOptions: {
+                        columns: [ 0,1,2,3,4,5,6,7,8]
+                    },
+                    title: 'parts_used_in_model_'+model_name+time
+                },
+            ],
+    });
+</script>
