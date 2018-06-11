@@ -571,7 +571,7 @@
             if( invoice_id.indexOf('/') !== -1 ){
                 $('#'+id).css('border','1px solid red');
                 $('#submit_btn').attr('disabled',true);
-                alert("Invoice ID is invalid.Please make sure invoice number does not contain '/'. You can replace '/' with '-'");
+                alert("Use '-' in place of '/'");
             }
             else{
                 $.ajax({
