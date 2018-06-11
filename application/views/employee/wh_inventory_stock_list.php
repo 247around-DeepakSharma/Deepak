@@ -64,8 +64,9 @@
                                     <th>Name</th>
                                     <th>Number</th>
                                     <th>Stock</th>
-                                    <th>Size</th>
-                                    <th>Price</th>
+                                    <th>Baisc Price</th>
+                                    <th>GST Rate</th>
+                                    <th>Total Price</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>

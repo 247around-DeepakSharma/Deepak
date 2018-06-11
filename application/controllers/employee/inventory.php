@@ -2095,9 +2095,10 @@ class Inventory extends CI_Controller {
         $row[] = $stock_list->part_number;
         $row[] = $stock_list->description;
         $row[] = $stock_list->size;
-        $row[] = $stock_list->price;
         $row[] = $stock_list->hsn_code;
+        $row[] = $stock_list->price;
         $row[] = $stock_list->gst_rate;
+        $row[] = number_format((float)($stock_list->price + ($stock_list->price * ($stock_list->gst_rate/100))), 2, '.', '');
         $row[] = "<a href='javascript:void(0)' class ='btn btn-primary' id='edit_master_details' data-id='$json_data' title='Edit Details'><i class = 'fa fa-edit'></i></a>";
         $row[] = "<a href='".base_url()."employee/inventory/get_appliance_by_inventory_id/".urlencode($stock_list->inventory_id)."' class = 'btn btn-primary' title='Get Model Details' target='_blank'><i class ='fa fa-eye'></i></a>";
         
@@ -2387,15 +2388,10 @@ class Inventory extends CI_Controller {
         $row[] = $inventory_list->type;
         $row[] = $inventory_list->part_name;
         $row[] = $inventory_list->part_number;
-        $row[] = '<a href="'. base_url().'employee/inventory/show_inventory_ledger_list/0/'.$inventory_list->receiver_entity_type.'/'.$inventory_list->receiver_entity_id.'/'.$inventory_list->inventory_id.'" target="_blank" title="Get Ledger Details">'.$inventory_list->stock.'<a>'; 
-//        if($inventory_list->stock){
-//           $row[] = '<a href="'. base_url().'employee/inventory/show_inventory_ledger_list/0/'.$inventory_list->receiver_entity_type.'/'.$inventory_list->receiver_entity_id.'/'.$inventory_list->inventory_id.'" target="_blank" title="Get Ledger Details">'.$inventory_list->stock.'<a>'; 
-//        }else{
-//            $row[] = '<a href="javascript:void(0);" title="Out Of Stock">0<a>';
-//        }
-        
-        $row[] = $inventory_list->size;
+        $row[] = '<a href="'. base_url().'employee/inventory/show_inventory_ledger_list/0/'.$inventory_list->receiver_entity_type.'/'.$inventory_list->receiver_entity_id.'/'.$inventory_list->inventory_id.'" target="_blank" title="Get Ledger Details">'.$inventory_list->stock.'<a>';
         $row[] = $inventory_list->price;
+        $row[] = $inventory_list->gst_rate;
+        $row[] = number_format((float)($inventory_list->price + ($inventory_list->price * ($inventory_list->gst_rate/100))), 2, '.', '');
 
         return $row;
     }
