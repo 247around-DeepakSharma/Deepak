@@ -55,7 +55,9 @@ if ($this->uri->segment(4)) {
                                     <th class="text-center">Serial Number</th>
                                     <th class="text-center">State</th>
                                     <th class="text-center">Problem Description</th>
+                                    <?php if(!$this->session->userdata('is_wh')) { ?> 
                                     <th class="text-center">Action</th>
+                                    <?php } ?>
                                     <th class="text-center">SF GST Declaration</th>
                                     <th class="text-center" >Address <input type="checkbox" id="selectall_address" > </th>
                                     <th class="text-center" >Courier Manifest <input type="checkbox" id="selectall_manifest" ></th>
@@ -96,6 +98,7 @@ if ($this->uri->segment(4)) {
                                         <td>
                                             <?php echo $row['remarks_by_sc']; ?>
                                         </td>
+                                        <?php if(!$this->session->userdata('is_wh')) { ?> 
                                         <td class="text-center">
                                             <div class="dropdown">
                                                 <button class="btn btn-sm btn-primary" type="button" data-toggle="dropdown" style="    border: 1px solid #2a3f54;background: #2a3f54;">Action
@@ -109,6 +112,7 @@ if ($this->uri->segment(4)) {
                                                 </ul>
                                             </div>
                                         </td>
+                                        <?php } ?>
 
 <!--                                        <td>
                                             <a href="<?php echo base_url() ?>partner/update_spare_parts_form/<?php echo $row['id']; ?>" class="btn btn-sm btn-primary" title="Update" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>
@@ -118,7 +122,7 @@ if ($this->uri->segment(4)) {
                                         </td>-->
                                         <td>
                                             <?php if(!empty($row['is_gst_doc'])){ ?> 
-                                                <a class="btn btn-sm btn-success" href="#" title="GST number available" style="background-color:#2C9D9C; border-color: #2C9D9C; cursor: not-allowed;"><i class="fa fa-check"></i></a>
+                                                <a class="btn btn-sm btn-success" href="#" title="GST number not available" style="background-color:#2C9D9C; border-color: #2C9D9C; cursor: not-allowed;"><i class="fa fa-check"></i></a>
                                             <?php }else if(empty ($row['signature_file'])) { ?> 
                                                 <a class="btn btn-sm btn-success" href="#" title="Signature file is not available" style="background-color:#2C9D9C; border-color: #2C9D9C;cursor: not-allowed;"><i class="fa fa-times"></i></a>
                                             <?php }else{ ?>
