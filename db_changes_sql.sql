@@ -5066,7 +5066,9 @@ CREATE TABLE `entity_role` (
 --
 
 INSERT INTO `entity_role` (`id`, `entity_type`, `department`, `role`, `is_filter_applicable`, `create_date`) VALUES
-(1, 'partner', 'admin', 'poc', 0, '2018-06-11 05:20:44');
+(1, 'partner', 'Admin', 'poc', 0, '2018-06-11 05:20:44');
+INSERT INTO `entity_role` (`id`, `entity_type`, `department`, `role`, `is_filter_applicable`, `create_date`) VALUES
+(1, 'partner', 'Management', 'area_sales_manager', 1, '2018-06-11 05:20:44');
 
 --
 -- Indexes for dumped tables
@@ -9513,4 +9515,8 @@ ALTER TABLE `header_navigation`
 --
 ALTER TABLE `header_navigation`
   MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=148;COMMIT;
+INSERT INTO `agent_filters` (`id`, `entity_type`, `entity_id`, `contact_person_id`, `agent_id`, `state`, `is_active`, `create_date`) VALUES (NULL, 'Partner', '247034', '1001188', '980180', 'DELHI', '1', CURRENT_TIMESTAMP);
+INSERT INTO `agent_filters` (`id`, `entity_type`, `entity_id`, `contact_person_id`, `agent_id`, `state`, `is_active`, `create_date`) VALUES (NULL, 'Partner', '247034', '1001189', '980181', 'UTTAR PRADESH', '1', CURRENT_TIMESTAMP);
+INSERT INTO `agent_filters` (`id`, `entity_type`, `entity_id`, `contact_person_id`, `agent_id`, `state`, `is_active`, `create_date`) VALUES (NULL, 'Partner', '247034', '1001190', '980182', 'CHANDIGARH', '1', CURRENT_TIMESTAMP);
+UPDATE `contact_person` SET `role` = 2 WHERE id IN ('1001188','1001189','1001190');
 
