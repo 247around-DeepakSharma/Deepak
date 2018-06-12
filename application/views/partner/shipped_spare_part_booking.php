@@ -93,4 +93,7 @@ if ($this->uri->segment(3)) {
         .pagination{
             display: none;
         }
+                .dataTables_info{
+    display: none;
+}
         </style>

@@ -119,7 +119,7 @@
                         </tbody>
                     </table>
                     <div class="custom_pagination" style="margin-left: 16px;" > 
-                <?php if(isset($links)) { echo $links; } ?>
+                <?php if(isset($links)) { echo $links;} ?>
             </div>
                 </div>
             </div>
@@ -167,6 +167,9 @@ $('#serachInputCompleted').select2();
     </script>
     <style>
         .pagination{
+            display: none;
+        }
+                .dataTables_info{
             display: none;
         }
         </style>

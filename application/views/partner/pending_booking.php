@@ -269,3 +269,15 @@
 } );
 $('#serachInput').select2();
     </script>
+    <style>
+/*        .dataTables_filter{
+            display:none;
+        }*/
+#a_hover a:hover {
+  background: #26b99a !important;
+  text-decoration:none;
+}
+.dataTables_info{
+    display: none;
+}
+        </style>
