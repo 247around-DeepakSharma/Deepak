@@ -2109,6 +2109,7 @@ class Booking extends CI_Controller {
         log_message('info', __FUNCTION__ . " Booking id: " . $booking_id . " status: " . $status . " Done By " . $this->session->userdata('employee_id'));
         $this->form_validation->set_rules('booking_date', 'Booking Date', 'required|xss_clean');
         $this->form_validation->set_rules('booking_timeslot', 'Booking Time Slot', 'required|xss_clean');
+        $this->form_validation->set_rules('admin_remarks', 'Reason', 'required|xss_clean|trim');
         if ($this->form_validation->run() === false) {
             $this->get_convert_booking_to_pending_form($booking_id, $status);
         } else {
@@ -2154,11 +2155,16 @@ class Booking extends CI_Controller {
                     $service_center_data['serial_number'] = "";
                     $service_center_data['cancellation_reason'] = NULL;
                     $service_center_data['reschedule_reason'] = NULL;
-                    $service_center_data['admin_remarks'] = NULL;
                     $service_center_data['service_center_remarks'] = $service_center_data['admin_remarks'] = NULL;
                     $service_center_data['booking_date'] = $service_center_data['booking_timeslot'] = NUll;
                     $service_center_data['closed_date'] = NULL;
                     $service_center_data['service_charge'] = $service_center_data['additional_service_charge'] = $service_center_data['parts_cost'] = "0.00";
+                    
+                    if($this->input->post('admin_remarks')){
+                        $service_center_data['admin_remarks'] = $remarks = $this->input->post('admin_remarks');
+                    }else{
+                        $service_center_data['admin_remarks'] = $remarks = NULL;
+                    }
                     log_message('info', __FUNCTION__ . " Convert booking, Service center data : " . print_r($service_center_data, true));
                     $this->vendor_model->update_service_center_action($booking_id, $service_center_data);
                     //if booking status is cancelled then do action on inventory
@@ -2213,7 +2219,7 @@ class Booking extends CI_Controller {
          
 
                 //Log this state change as well for this booking          
-                $this->notify->insert_state_change($booking_id, _247AROUND_PENDING, $status, "", $this->session->userdata('id'), $this->session->userdata('employee_id'),$actor,$next_action, _247AROUND);
+                $this->notify->insert_state_change($booking_id, _247AROUND_PENDING, $status, $remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'),$actor,$next_action, _247AROUND);
                 if (!empty($assigned_vendor_id)) {
 
                     $up_flag = 1;
