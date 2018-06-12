@@ -1977,9 +1977,7 @@ class Booking_model extends CI_Model {
         $this->db->join('service_centres','service_centres.id = booking_details.assigned_vendor_id');
         $this->db->join('bookings_sources','bookings_sources.partner_id = booking_details.partner_id');
         $this->db->where_in("current_status", array("Pending","Rescheduled"));
-        $this->db->order_by('spare_parts_details.create_date', 'DESC');  
-        $this->db->order_by('service_centres.name', 'ASC');  
-        $this->db->order_by('spare_parts_details.courier_name_by_sf', 'ASC');  
+        $this->db->order_by('spare_parts_details.awb_by_sf', 'DESC');  
         $query = $this->db->get();
         return $query->result_array();
         
