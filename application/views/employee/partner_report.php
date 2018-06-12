@@ -10,6 +10,9 @@
                     <img src="https://aroundhomzapp.com/images/logo.jpg" alt="" style="border:0" width="" height="" class="CToWUd">
                 </center>
             </div>
+            <?php
+            if(isset($jeevesDate)){
+            ?>
             <div style="float:left; padding: 15px; padding"><p><b>Dear Partner</b></p>
                 <p style="color:#515151;">Please find Service Status Sheet attached for leads shared in last One Month and Pending Bookings for all time thanks.</p>
               <p><b>TAT Calculation Using Jeeves Reference Date:</b></p>
@@ -77,6 +80,9 @@
     </tr>
                 </table>
             </div>
+            <?php
+            }
+            ?>
 <div style="float:left; padding: 15px; padding">
               <p><b>TAT Calculation Using 247Around Booking Date:</b></p>
             </div>

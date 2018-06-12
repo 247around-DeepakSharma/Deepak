@@ -1620,4 +1620,21 @@ EOD;
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/partner_summary_report_list', $data);
     }
+    /*
+     * This Function is used to send D0 Report to Partners
+     */
+    function send_days_format_reports_to_all_partners(){
+        $partnersArray[0] = array("id"=>'247010',"public_name"=>'Wybor');
+        $partnersArray[1] = array("id"=>'247034',"public_name"=>'Akai');
+        $partnersArray[2] = array("id"=>'247064',"public_name"=>'Salora');
+        $partnersArray[3] = array("id"=>'247073',"public_name"=>'T-Series');
+        $partnersArray[4] = array("id"=>'247018',"public_name"=>'Murphy');
+        foreach($partnersArray as $partners){
+            $emailTemplateDataArray['aroundDate'] = $this->partner_model->get_partner_report_overview_in_percentage_format($partners['id'],"STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')");
+            $email_body = $this->load->view('employee/partner_report',$emailTemplateDataArray,true);
+            $subject = "247around Services Report  - ".$partners['public_name']." - " . date('d-M-Y');
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID,"anuj@247around.com,nits@247around.com", "arunk@247around.com,souvikg@247around.com,suresh@247around.com,oza@247around.com",
+                    "chhavid@247around.com", $subject, $email_body,"","partner_summary_report_percentage_format");
+        }
+    }
 }
