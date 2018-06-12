@@ -284,4 +284,7 @@ $('#serachInput').select2();
   background: #26b99a !important;
   text-decoration:none;
 }
+.dataTables_info{
+    display: none;
+}
         </style>

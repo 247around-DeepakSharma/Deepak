@@ -127,3 +127,8 @@
              }
                      );
     </script>
+    <style>
+        .dataTables_info{
+    display: none;
+}
+        </style>

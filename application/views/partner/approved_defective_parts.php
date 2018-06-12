@@ -95,4 +95,7 @@ if ($this->uri->segment(3)) {
         .paging_simple_numbers{
             display: none;
         }
+        .dataTables_info{
+    display: none;
+}
         </style>
