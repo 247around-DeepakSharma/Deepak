@@ -1610,4 +1610,114 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
     function triggerPartnerCallBack($booking_id){
          $this->partner_cb->partner_callback($booking_id);
     }
+    
+    
+    /**
+     * @desc This is used to get paytm uploaded data from s3 file 
+     * @param $from_date string
+     * @param $to_date string
+     */
+    function get_paytm_order_item_id($from_date = null, $to_date = null) {
+
+        $where = array('start' => NULL,
+            'length' => NULL,
+            'file_type' => _247AROUND_PAYTM_DELIVERED,
+            'result' => FILE_UPLOAD_SUCCESS_STATUS,
+        );
+
+        if (!empty($from_date)) {
+            $where['from_date'] = "p.create_date >= '" . date('Y-m-d', strtotime($from_date)) . "'";
+        }
+
+        if (!empty($to_date)) {
+            $where['to_date'] = "p.create_date <= '" . date('Y-m-d', strtotime($to_date . "+1 days")) . "'";
+        }
+
+        $paytm_upload_file = $this->reporting_utils->get_uploaded_file_history($where);
+
+        if (!empty($paytm_upload_file)) {
+            $reader = "";
+            $bigExcel = new PHPExcel();
+            $bigExcel->setActiveSheetIndex(0);
+            $sheetData = [];
+            foreach($paytm_upload_file as $key => $value){
+                $s3_bucket = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . urlencode($value->file_name);
+                copy($s3_bucket, TMP_FOLDER . $value->file_name);
+                system(" chmod 777 " . TMP_FOLDER . $value->file_name);
+                
+                //Making process for file upload
+                $pathinfo = pathinfo(TMP_FOLDER . $value->file_name);
+                if ($pathinfo['extension'] == 'xlsx') {
+                    $inputFileExtn = 'Excel2007';
+                } else {
+                    $inputFileExtn = 'Excel5';
+                }
+                
+                try {
+                    $reader = PHPExcel_IOFactory::createReader($inputFileExtn);
+                } catch (Exception $e) {
+                    die('Error loading file "' . TMP_FOLDER . $value->file_name . '": ' . $e->getMessage());
+                }
+
+                $excel = $reader->load(TMP_FOLDER.$value->file_name);
+
+                 //get first sheet 
+                $sheet = $excel->getSheet(0);
+                //get total number of rows
+                $highestRow = $sheet->getHighestDataRow();
+                //get total number of columns
+                $highestColumn = $sheet->getHighestDataColumn();
+                //get first row
+                $headings = $sheet->rangeToArray('A1:' . $highestColumn . 1, NULL, TRUE, FALSE);
+
+                //replace all unwanted character from headers
+                $headings_new = array();
+                foreach ($headings as $heading) {
+                    $heading = str_replace(array("/", "(", ")", " ", "."), "", $heading);
+                    array_push($headings_new, str_replace(array(" "), "_", $heading));
+                }
+                $headings_new1 = array_map('strtolower', $headings_new[0]);
+                
+                for ($row = 2, $i = 0; $row <= $highestRow; $row++, $i++) {
+                    //  Read a row of data into an array
+                    $rowData = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row, NULL, TRUE, FALSE, FALSE);
+                    $newRowData = array_combine($headings_new1, $rowData[0]);
+                    array_push($sheetData,$newRowData);
+                }
+            }
+            
+            // Add some data 
+            $bigExcel->getActiveSheet()->SetCellValue('A1', 'Order ID'); 
+            $bigExcel->getActiveSheet()->SetCellValue('B1', 'Order Item ID'); 
+
+            //column number, which we will be incrementing 
+            $colnum=1; 
+
+            foreach ($sheetData as $value)
+            { 
+                $colnum++; 
+                $bigExcel->getActiveSheet()->SetCellValue('A'."$colnum", $value["order_id"]); 
+                $bigExcel->getActiveSheet()->SetCellValue('B'."$colnum", isset($value["order_item_id"])?$value['order_item_id']:$value['item_id']); 
+            } 
+
+            // Optionally, set the title of the Sheet 
+            $bigExcel->getActiveSheet()->setTitle('order_ids'); 
+
+            // Create a write object to save the the excel 
+            $objWriter = PHPExcel_IOFactory::createWriter($bigExcel, 'Excel2007'); 
+
+            // save to a file 
+            $objWriter->save(TMP_FOLDER.'paytm_order_id_details.xlsx');
+            
+            if(file_exists(TMP_FOLDER.'paytm_order_id_details.xlsx')){
+                $this->load->helper('download');
+                $data = file_get_contents(TMP_FOLDER.'Paytm_order_id_details.xlsx'); // Read the file's contents
+                $name = 'Paytm_order_id_details.xlsx';
+
+                force_download($name, $data);
+            }
+
+        }
+    }
+
 }
