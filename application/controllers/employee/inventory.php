@@ -2705,6 +2705,13 @@ class Inventory extends CI_Controller {
                         $not_updated_data = array();
                         if ($invoice_file['status']) {
                             if ($courier_file['status']) {
+                                if($this->session->userdata('id')){
+                                        $agent_id = $this->session->userdata('id');
+                                        $agent_type = _247AROUND_EMPLOYEE_STRING;
+                                }else{
+                                        $agent_id = $this->session->userdata('partner_id');
+                                        $agent_type = _247AROUND_PARTNER_STRING;
+                                }
                                 $entity_details = $this->partner_model->getpartner_details("state", array('partners.id' => $partner_id));
                                 $c_s_gst = $this->invoices_model->check_gst_tax_type($entity_details[0]['state']);
                                 $booking_id_array = array();
@@ -2730,8 +2737,8 @@ class Inventory extends CI_Controller {
                                     $ledger_data['sender_entity_type'] = _247AROUND_PARTNER_STRING;
                                     $ledger_data['inventory_id'] = $value['inventory_id'];
                                     $ledger_data['quantity'] = $value['quantity'];
-                                    $ledger_data['agent_id'] = $this->session->userdata('id');
-                                    $ledger_data['agent_type'] = _247AROUND_EMPLOYEE_STRING;
+                                    $ledger_data['agent_id'] = $agent_id;
+                                    $ledger_data['agent_type'] = $agent_type;
                                     $ledger_data['booking_id'] = trim($value['booking_id']);
                                     $ledger_data['invoice_id'] = $invoice_id;
                                     $ledger_data['is_wh_ack'] = 0;
