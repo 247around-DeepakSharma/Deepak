@@ -3275,13 +3275,13 @@ class Invoice extends CI_Controller {
     function generate_spare_purchase_invoice() {
         log_message("info", __METHOD__ . " Post " . print_r($this->input->post("spare_id"), true));
 
-        $this->form_validation->set_rules('spare_id', 'Spare ID', 'required|xss_clean');
-        $this->form_validation->set_rules('invoice_date', 'Invoice Date', 'required|xss_clean');
-        $this->form_validation->set_rules('remarks', 'Remarks', 'required|xss_clean');
-        $this->form_validation->set_rules('parts_count', 'Count', 'required|xss_clean');
-        $this->form_validation->set_rules('invoice_id', 'Invoice ID', 'required|xss_clean');
-        $this->form_validation->set_rules('hsn_code', 'HSN Code', 'required|xss_clean');
-        $this->form_validation->set_rules('parts_charge', '', 'required|xss_clean');
+        $this->form_validation->set_rules('spare_id', 'Spare ID', 'required');
+        $this->form_validation->set_rules('invoice_date', 'Invoice Date', 'required');
+        $this->form_validation->set_rules('remarks', 'Remarks', 'required');
+        $this->form_validation->set_rules('parts_count', 'Count', 'required');
+        $this->form_validation->set_rules('invoice_id', 'Invoice ID', 'required');
+        $this->form_validation->set_rules('hsn_code', 'HSN Code', 'required');
+        $this->form_validation->set_rules('parts_charge', '', 'required');
         $validation = $this->form_validation->run();
         if ($validation) {
             $spare_id = $this->input->post("spare_id");
