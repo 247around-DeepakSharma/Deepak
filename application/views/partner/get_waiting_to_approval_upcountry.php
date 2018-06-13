@@ -90,8 +90,8 @@
                                             <div class="dropdown">
                                                 <button class="btn btn-sm btn-primary" type="button" data-toggle="dropdown" style="border: 1px solid #2a3f54;background: #2a3f54;">Action
                                                 <span class="caret"></span></button>
-                                                <ul class="dropdown-menu" style="border: none;background: none;position: inherit;z-index: 100;">
-                                                    <div class="action_holder" style="width: 43%;background: #fff;border: 1px solid #2c9d9c;padding: 1px;">
+                                                <ul class="dropdown-menu" style="border: none;background: none;position: inherit;z-index: 100;min-width: 70px;">
+                                                    <div class="action_holder" style="background: #fff;border: 1px solid #2c9d9c;padding: 1px;">
                                                     <li style="color: #fff;">
                                                         <a href="<?php echo base_url() ?>partner/upcountry_charges_approval/<?php echo $row['booking_id'] ?>/1" class="btn btn-md btn-success" style="color:#fff;margin: 0px;padding: 5px 5.5px;">Approve</a></li>
                                                     <li style="color: #fff;margin-top:5px;">
@@ -129,6 +129,9 @@
     </script>
     <style>
         .dataTables_info{
+    display: none;
+}
+.dropdown-backdrop{
     display: none;
 }
         </style>
