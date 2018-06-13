@@ -1629,6 +1629,7 @@ EOD;
         $partnersArray[2] = array("id"=>'247064',"public_name"=>'Salora');
         $partnersArray[3] = array("id"=>'247073',"public_name"=>'T-Series');
         $partnersArray[4] = array("id"=>'247018',"public_name"=>'Murphy');
+        $partnersArray[4] = array("id"=>'247030',"public_name"=>'Jeeves');
         foreach($partnersArray as $partners){
             $emailTemplateDataArray['aroundDate'] = $this->partner_model->get_partner_report_overview_in_percentage_format($partners['id'],"STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')");
             $email_body = $this->load->view('employee/partner_report',$emailTemplateDataArray,true);
