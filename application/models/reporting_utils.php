@@ -1806,6 +1806,14 @@ function get_booking_by_service_center_query_data($where,$groupBY){
             $sql .= " AND result = '".$post_data['result']."' ";
         }
         
+        if(!empty($post_data['from_date'])){
+            $sql .= " AND ".$post_data['from_date'] ;
+        }
+        
+        if(!empty($post_data['to_date'])){
+            $sql .= " AND ".$post_data['to_date'] ;
+        }
+        
         $sql .= " ORDER BY p.create_date DESC"; 
         
         if(($post_data['start'] !== NULL)  && ($post_data['length'] !== NULL)){

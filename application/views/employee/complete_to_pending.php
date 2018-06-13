@@ -38,7 +38,7 @@
 
 
                <div class="form-group <?php if( form_error('booking_date') ) { echo 'has-error';} ?>">
-                  <label for="booking_date" class="col-md-2">New Booking Date</label>
+                  <label for="booking_date" class="col-md-2">New Booking Date *</label>
                   <div class="col-md-6">
                     <div class="input-group input-append date">
                         <input id="booking_date" class="form-control" name="booking_date" type="text" value = "<?php echo set_value('booking_date'); ?>" required="">
@@ -50,7 +50,7 @@
 
 
                 <div class="form-group <?php if( form_error('booking_timeslot') ) { echo 'has-error';} ?>">
-                    <label for="booking_timeslot" class="col-md-2">New Booking Timeslot</label>
+                    <label for="booking_timeslot" class="col-md-2">New Booking Timeslot *</label>
                     <div class="col-md-6">
                         <select class="form-control" name="booking_timeslot" required="">
                             <option value="">Select</option>
@@ -62,28 +62,16 @@
                     </div>
                 </div>
                   
-                  <input type="hidden" class="form-control" id="partner_id" name="partner_id" value = "<?php if (isset($partner_id)) {echo $partner_id; } ?>" >
-<!--
-                  
-                <?php if(!empty($updation_reason)){?>  
-                <div class="form-group <?php if( form_error('reason') ) { echo 'has-error';} ?>">
-                  <label for="reason" class="col-md-2">Reason</label>
-                  <div class="col-md-6">
-                      <ul>
-                <?php foreach($updation_reason as $value){ ?>
-                    <div class="radio">
-                        <label>
-                        <input type="radio" name="reason"  value="<?php  echo $value['reason']?>" required>
-                        <?php  echo $value['reason'];?>
-                        </label>
-                     </div>
-                       
-                <?php }?>
+                <div class="form-group <?php if( form_error('admin_remarks') ) { echo 'has-error';} ?>">
+                    <label for="admin_remarks" class="col-md-2">Reason *</label>
+                    <div class="col-md-6">
+                        <textarea name="admin_remarks" class="form-control" required=""></textarea>
+                        <?php echo form_error('admin_remarks'); ?>
                     </div>
-                  </div>
-                <?php  } echo form_error('reason'); ?>
-                     
--->
+                </div>
+                  
+                <input type="hidden" class="form-control" id="partner_id" name="partner_id" value = "<?php if (isset($partner_id)) {echo $partner_id; } ?>" >
+                  
 
                 <div>
                   <center>

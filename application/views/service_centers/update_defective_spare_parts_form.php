@@ -54,7 +54,7 @@
             <?php $sp_id = array();?>
           
                 <?php  foreach ($spare_parts as $value) { ?>
-                <input type="hidden" class="form-control" id="defective_part_shipped" name="defective_part_shipped[<?php echo $value['id'];?>]" value="<?php echo $value['parts_requested']; ?>">
+                <input type="hidden" class="form-control" id="defective_part_shipped" name="defective_part_shipped[<?php echo $value['id'];?>]" value="<?php echo $value['parts_shipped']; ?>">
                 <input type="hidden" class="form-control" id="defective_part_shipped" name="partner_challan_number[<?php echo $value['id'];?>]" value="<?php echo $value['partner_challan_number']; ?>">
                 <input type="hidden" class="form-control" id="defective_part_shipped" name="challan_approx_value[<?php echo $value['id'];?>]" value="<?php echo $value['challan_approx_value']; ?>">
                 <input type="hidden" class="form-control" id="defective_part_shipped" name="parts_requested[<?php echo $value['id'];?>]" value="<?php echo $value['parts_requested']; ?>">
