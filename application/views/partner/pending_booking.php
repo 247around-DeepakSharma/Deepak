@@ -280,4 +280,11 @@ $('#serachInput').select2();
 .dataTables_info{
     display: none;
 }
+
+.paging_simple_numbers{
+    display: none;
+}
+.dropdown-backdrop{
+    display: none;
+}
         </style>
