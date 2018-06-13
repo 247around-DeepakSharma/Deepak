@@ -502,7 +502,7 @@ define("QC_HSN_CODE", 998397);
 define("HSN_CODE", "998715");
 define("STAND_HSN_CODE", "8302");
 define("COMMISION_CHARGE_HSN_CODE", "996111");
-define('ACCOUNTANT_EMAILID',"adityag@247around.com" );
+define('ACCOUNTANT_EMAILID',"manojaj@247around.com" );
 
 
 //Booking Rescheduled Confirmation SMS Constant
