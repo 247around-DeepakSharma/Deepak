@@ -948,7 +948,7 @@ class vendor extends CI_Controller {
      * @return : If validation ok returns true else false
      */
     function checkValidation() {
-        $this->form_validation->set_rules('company_name', 'Vendor Name', 'trim|required|xss_clean');
+        $this->form_validation->set_rules('company_name', 'Vendor Name', 'trim|required');
         $this->form_validation->set_rules('address', 'Vendor Address', 'trim|required');
         $this->form_validation->set_rules('state', 'State', 'trim|required');
         $this->form_validation->set_rules('district', 'District', 'trim|required');
@@ -1419,11 +1419,11 @@ class vendor extends CI_Controller {
      */
     function process_broadcast_mail_to_vendors_form() {
 
-        $this->form_validation->set_rules('mail_from', 'Email From', 'trim|required|valid_email|xss_clean');
-        $this->form_validation->set_rules('subject', 'Subject', 'trim|required|xss_clean');
-        $this->form_validation->set_rules('mail_body', 'Message', 'trim|required|xss_clean');
-        $this->form_validation->set_rules('mail_to', 'Email To', 'trim|valid_email|xss_clean');
-        $this->form_validation->set_rules('mail_cc', 'Email CC', 'trim|valid_email|xss_clean');
+        $this->form_validation->set_rules('mail_from', 'Email From', 'trim|required|valid_email');
+        $this->form_validation->set_rules('subject', 'Subject', 'trim|required');
+        $this->form_validation->set_rules('mail_body', 'Message', 'trim|required');
+        $this->form_validation->set_rules('mail_to', 'Email To', 'trim|valid_email');
+        $this->form_validation->set_rules('mail_cc', 'Email CC', 'trim|valid_email');
         if($this->form_validation->run() === FALSE) {
             $this->miscelleneous->load_nav_header();
             $this->load->view('employee/broadcastemailtovendor');
@@ -2275,17 +2275,17 @@ class vendor extends CI_Controller {
      */
     function engineer_form_validation(){
 
-        $this->form_validation->set_rules('name', 'Name', 'required|xss_clean');
-        $this->form_validation->set_rules('phone', 'Mobile Number', 'trim|numeric|required|xss_clean');
-        $this->form_validation->set_rules('alternate_phone', 'Alternate Mobile Number', 'trim|numeric|xss_clean');
-        $this->form_validation->set_rules('identity_id_number', 'ID Number', 'xss_clean');
-        $this->form_validation->set_rules('identity_proof', 'Identity Proof', 'xss_clean');
-        $this->form_validation->set_rules('bank_account_no', 'Bank Account No', 'numeric|xss_clean');
-	$this->form_validation->set_rules('service_id', 'Appliance ', 'xss_clean');
+        $this->form_validation->set_rules('name', 'Name', 'required');
+        $this->form_validation->set_rules('phone', 'Mobile Number', 'trim|numeric|required');
+        $this->form_validation->set_rules('alternate_phone', 'Alternate Mobile Number', 'trim|numeric');
+        $this->form_validation->set_rules('identity_id_number', 'ID Number', 'trim');
+        $this->form_validation->set_rules('identity_proof', 'Identity Proof', 'trim');
+        $this->form_validation->set_rules('bank_account_no', 'Bank Account No', 'numeric');
+	$this->form_validation->set_rules('service_id', 'Appliance ', 'trim');
         $this->form_validation->set_rules('file', 'Identity Proof Pic ', 'callback_upload_identity_proof_pic');
-//        $this->form_validation->set_rules('bank_name', 'Bank Name', 'trim|xss_clean');
-//        $this->form_validation->set_rules('bank_ifsc_code', 'IFSC Code', 'trim|xss_clean');
-//        $this->form_validation->set_rules('bank_holder_name', 'Account Holder Name', 'trim|xss_clean');
+//        $this->form_validation->set_rules('bank_name', 'Bank Name', 'trim');
+//        $this->form_validation->set_rules('bank_ifsc_code', 'IFSC Code', 'trim');
+//        $this->form_validation->set_rules('bank_holder_name', 'Account Holder Name', 'trim');
         
 //	$this->form_validation->set_rules('bank_proof_pic', 'Bank Proof Pic', 'callback_upload_bank_proof_pic');
 
@@ -3252,20 +3252,20 @@ class vendor extends CI_Controller {
      function file_input_validation($file_type){
          switch($file_type){
              case 'pan_file': 
-                    $this->form_validation->set_rules('name_on_pan', 'Name on Pan', 'trim|required|xss_clean');
-                    $this->form_validation->set_rules('pan_no', 'Pan Number', 'trim|required|xss_clean');
+                    $this->form_validation->set_rules('name_on_pan', 'Name on Pan', 'trim|required');
+                    $this->form_validation->set_rules('pan_no', 'Pan Number', 'trim|required');
                     break;
                 
              case 'cst_file': 
-                    $this->form_validation->set_rules('cst_no', 'CST Number', 'trim|required|xss_clean');
+                    $this->form_validation->set_rules('cst_no', 'CST Number', 'trim|required');
                     break;
                 
              case 'tin_file': 
-                    $this->form_validation->set_rules('tin_no', 'TIN/VAT Number', 'trim|required|xss_clean');
+                    $this->form_validation->set_rules('tin_no', 'TIN/VAT Number', 'trim|required');
                     break;
                 
              case 'service_tax_file': 
-                    $this->form_validation->set_rules('service_tax_no', 'Service Tax Number', 'trim|required|xss_clean');
+                    $this->form_validation->set_rules('service_tax_no', 'Service Tax Number', 'trim|required');
                     break;
          }
          return $this->form_validation->run();

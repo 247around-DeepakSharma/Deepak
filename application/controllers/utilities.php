@@ -130,9 +130,9 @@ class Utilities extends CI_Controller {
     
     function process_update_appliance(){
         
-        $this->form_validation->set_rules('service_id', 'Appliance', 'required|xss_clean');
-        $this->form_validation->set_rules('appliance_brand', 'Brand', 'required|xss_clean');
-        $this->form_validation->set_rules('appliance_category', 'Category', 'required|xss_clean');
+        $this->form_validation->set_rules('service_id', 'Appliance', 'required');
+        $this->form_validation->set_rules('appliance_brand', 'Brand', 'required');
+        $this->form_validation->set_rules('appliance_category', 'Category', 'required');
         if($this->form_validation->run()){
             $data = $this->input->post();
             $booking_unit_details = $this->booking_model->get_unit_details(array("booking_id" => $data['booking_id']));
