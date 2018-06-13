@@ -210,7 +210,7 @@ class User extends CI_Controller {
      */
     public function checkValidation() {
 
-        $this->form_validation->set_rules('phone_number', 'phone_number', 'trim|exact_length[10]|required|xss_clean');
+        $this->form_validation->set_rules('phone_number', 'phone_number', 'trim|exact_length[10]|required');
         $this->form_validation->set_rules('name', 'name', 'required');
         $this->form_validation->set_rules('home_address', 'home_address', 'required');
         $this->form_validation->set_error_delimiters('<div class="error" role="alert">', '</div>');

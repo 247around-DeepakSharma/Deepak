@@ -113,5 +113,41 @@ class Utilities extends CI_Controller {
         }
     }
     
+
+    function update_appliance_view(){
+        $booking_id = $this->input->get("booking_id");
+        if(!empty($booking_id)){
+            
+            $data['data'] = $this->booking_model->get_unit_details(array("booking_id" =>$booking_id), false, "*");
+            $data['sources'] = $this->partner_model->get_all_partner_source("0");
+            $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+            $this->load->view("employee/change_appliance_form", $data);
+        } else {
+            $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+            $this->load->view("employee/change_appliance_form");
+        }
+    }
+    
+    function process_update_appliance(){
+        
+        $this->form_validation->set_rules('service_id', 'Appliance', 'required');
+        $this->form_validation->set_rules('appliance_brand', 'Brand', 'required');
+        $this->form_validation->set_rules('appliance_category', 'Category', 'required');
+        if($this->form_validation->run()){
+            $data = $this->input->post();
+            $booking_unit_details = $this->booking_model->get_unit_details(array("booking_id" => $data['booking_id']));
+           //  $result = $this->booking_model->getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, $brand);
+            if ($partner_type == OEM) {
+                $result = $this->booking_model->getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, $brand);
+            } else {
+                $result = $this->booking_model->getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, "");
+            }
+            echo "<pre/>"; print_r($data);
+        } else {
+            echo '<script>alert("Price Update Failed");</script>';
+            $this->db->update_appliance_view();
+        }
+    }
+    
 }
 
