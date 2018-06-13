@@ -235,7 +235,7 @@
                                     <button type="button" onclick="outbound_call(<?php echo $booking_history[0]['primary_contact_phone_1'] ?>)" class="btn btn-sm btn-info pull-right"><i class="fa fa-phone fa-lg" aria-hidden="true"></i></button>
                                     <?php }?>
                                 </td>
-                                <td><?php echo $booking_history[0]["municipal_limit"]." KM";  ?></td>
+                                <td><?php if(isset($booking_history[0]["municipal_limit"])) { echo $booking_history[0]["municipal_limit"]." KM"; }  ?></td>
                             </tr>
                         </tbody>
                     </table>
