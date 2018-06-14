@@ -23,7 +23,7 @@
                     <div class="" role="tabpanel" data-example-id="togglable-tabs">
                         <ul id="myTabs" class="nav nav-tabs bar_tabs" role="tablist">
                             <li role="presentation" class="active">
-                                <a href="#tabs-1" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>partner/pending_booking/0/1">
+                                <a href="#tabs-1" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>partner/pending_booking/0/0">
                                     Pending Bookings 
                                 </a>
                             </li>
@@ -31,17 +31,17 @@
                             if($this->session->userdata('agent_id') != '980084' && $this->session->userdata('agent_id') != '980083'){
                             ?>
                             <li role="presentation">
-                                <a href="#tabs-2" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>partner/get_spare_parts_booking/0/1">
+                                <a href="#tabs-2" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>partner/get_spare_parts_booking/0/0">
                                     Pending Spares
                                 </a>
                             </li>
                             <li role="presentation">
-                                <a href="#tabs-3" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>partner/get_waiting_defective_parts/0/1">
+                                <a href="#tabs-3" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>partner/get_waiting_defective_parts/0/0">
                                     Shipped Spares by SF
                                 </a>
                             </li>
                             <li role="presentation">
-                                <a href="#tabs-4" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>partner/get_waiting_for_approval_upcountry_charges/0/1">
+                                <a href="#tabs-4" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>partner/get_waiting_for_approval_upcountry_charges/0/0">
                                     Waiting Approval Upcountry Charges
                                 </a>
                             </li>
@@ -190,10 +190,10 @@
         if(parseInt(spare_parts) > 0 ){
             $("#myTabs li:eq(1) a").tab('show');
             //Loading Pending Spare Parts if Spare Parts Present
-            load_view('employee/partner/get_spare_parts_booking/0/1', '#tabs-2');
+            load_view('employee/partner/get_spare_parts_booking/0/0', '#tabs-2');
         }else{
             //Loading Pending Bookings in Else case
-            load_view('employee/partner/pending_booking/0/1', '#tabs-1');
+            load_view('employee/partner/pending_booking/0/0', '#tabs-1');
         }
     
     });
