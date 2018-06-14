@@ -1126,6 +1126,13 @@ class invoices_model extends CI_Model {
                     $meta['igst_total_tax_amount'] +=  $data['booking'][$key]['igst_tax_amount'];
                     $data['booking'][$key]['toal_amount'] = sprintf("%1\$.2f",( $value['taxable_value'] + ($value['taxable_value'] * 0.18)));
                 }
+                if(empty($value['qty'])){
+                    $value['qty'] = 0;
+                }
+                
+                if(empty($value['rate'])){
+                    $value['rate'] = 0;
+                }
                 
                
                 $meta['total_qty'] += $value['qty'];

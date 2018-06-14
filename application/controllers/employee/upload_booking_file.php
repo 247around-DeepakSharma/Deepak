@@ -64,8 +64,8 @@ class Upload_booking_file extends CI_Controller {
      */
     function index() {
         log_message('info', __FUNCTION__);
-        $this->form_validation->set_rules('file_type', 'File Type', 'required|xss_clean');
-        $this->form_validation->set_rules('partner_id', 'Partner', 'required|xss_clean');
+        $this->form_validation->set_rules('file_type', 'File Type', 'required');
+        $this->form_validation->set_rules('partner_id', 'Partner', 'required');
         if ($this->form_validation->run()) {
             $file_type = $this->input->post("file_type");
             $partner_id = $this->input->post("partner_id");

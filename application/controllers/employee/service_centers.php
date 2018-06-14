@@ -1262,7 +1262,7 @@ class Service_centers extends CI_Controller {
      */
     function checkvalidation_for_update_by_service_center() {
 	$this->checkUserSession();
-	$this->form_validation->set_rules('booking_id', 'Booking Id', 'trim|required|xss_clean');
+	$this->form_validation->set_rules('booking_id', 'Booking Id', 'trim|required');
 	$this->form_validation->set_rules('reason', 'Reason', 'trim|required');
 	$this->form_validation->set_rules('reason_text', 'reason_text', 'trim|');
 	if ($this->form_validation->run() == FALSE) {
@@ -1280,12 +1280,12 @@ class Service_centers extends CI_Controller {
     function update_spare_parts() {
         log_message('info', __FUNCTION__ . " Service_center ID: " . $this->session->userdata('service_center_id') . " Booking Id: " . $this->input->post('booking_id'));
         $this->checkUserSession();
-        $this->form_validation->set_rules('booking_id', 'Booking Id', 'trim|required|xss_clean');
-        $this->form_validation->set_rules('model_number', 'Model Number', 'trim|required|xss_clean');
-        $this->form_validation->set_rules('model_number_id', 'Model Number', 'trim|xss_clean');
-        $this->form_validation->set_rules('parts_name', 'Part Name', 'required|xss_clean');
-        $this->form_validation->set_rules('parts_type', 'Part Type', 'trim|required|xss_clean');
-        $this->form_validation->set_rules('serial_number', 'Serial Number', 'trim|required|xss_clean');
+        $this->form_validation->set_rules('booking_id', 'Booking Id', 'trim|required');
+        $this->form_validation->set_rules('model_number', 'Model Number', 'trim|required');
+        $this->form_validation->set_rules('model_number_id', 'Model Number', 'trim');
+        $this->form_validation->set_rules('parts_name', 'Part Name', 'required');
+        $this->form_validation->set_rules('parts_type', 'Part Type', 'trim|required');
+        $this->form_validation->set_rules('serial_number', 'Serial Number', 'trim|required');
 
         $this->form_validation->set_rules('invoice_image', 'Invoice Image', 'callback_validate_invoice_image_upload_file');
         $this->form_validation->set_rules('serial_number_pic', 'Invoice Image', 'callback_validate_serial_number_pic_upload_file');

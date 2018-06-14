@@ -2044,7 +2044,7 @@ class Partner extends CI_Controller {
     
     function processUploadPincode() {
         log_message("info", __METHOD__ . " Enterring.. Email " . $this->input->post("email_id"));
-        $this->form_validation->set_rules('email_id', 'Email', 'trim|required|valid_email|xss_clean');
+        $this->form_validation->set_rules('email_id', 'Email', 'trim|required|valid_email');
         if ($this->form_validation->run()) {
             
                 if (!empty($_FILES['file']['name']) && $_FILES['file']['size'] > 0) {
