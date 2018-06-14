@@ -4458,6 +4458,36 @@ class Partner extends CI_Controller {
        $this->miscelleneous->download_csv_from_s3($folder,$file);
     }
     
+    /**
+     * @desc: This function is used to get service_id from Ajax call
+     * @params: void
+     * @return: string
+     */
+    function get_service_id(){
+        $partner_id = $this->input->get('partner_id');
+        if($partner_id){
+            $appliance_list = $this->partner_model->get_service_brands_for_partner($partner_id);
+            if($this->input->get('is_option_selected')){
+                $option = '<option  selected="" disabled="">Select Appliance</option>';
+            }else{
+                $option = '';
+            }
+
+            foreach ($appliance_list as $value) {
+                $option .= "<option value='" . $value['id'] . "'";
+                $option .= " > ";
+                $option .= $value['services'] . "</option>";
+            }
+            
+            if($this->input->get('is_all_option')){
+                $option .= '<option value="all" >All</option>';
+            }
+            echo $option;
+        }else{
+            echo FALSE;
+        }
+    }
+   
     function get_partner_roles($department){
        $data =  $this->reusable_model->get_search_result_data("entity_role","role,id",array('department'=>$department),NULL,NULL,array('role'=>"ASC"),NULL,NULL,array());
        $option = "<option value='' disabled selected>Select Role</option>";
@@ -4539,29 +4569,6 @@ class Partner extends CI_Controller {
         }
        $this->session->set_userdata('success', $msg);
        redirect(base_url() . 'employee/partner/editpartner/' . $partnerID);
-    }
-        
-    /**
-     * @desc: This function is used to get service_id from Ajax call
-     * @params: void
-     * @return: string
-     */
-    function get_service_id(){
-        $appliance_list = $this->booking_model->selectservice();
-        
-        if($this->input->get('is_option_selected')){
-            $option = '<option  selected="" disabled="">Select Appliance</option>';
-        }else{
-            $option = '';
-        }
-        
-        foreach ($appliance_list as $value) {
-            $option .= "<option value='" . $value->id . "'";
-            $option .= " > ";
-            $option .= $value->services . "</option>";
-        }
-        $option .= '<option value="all" >All</option>';
-        echo $option;
     }
     
     /**

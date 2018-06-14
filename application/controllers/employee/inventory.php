@@ -2067,13 +2067,15 @@ class Inventory extends CI_Controller {
         }
         
         $select = "inventory_master_list.*,services.services";
-        
+
         $list = $this->inventory_model->get_inventory_master_list($post,$select);
+        
+        $partners = array_column($this->partner_model->getpartner_details("partners.id,public_name",array('partners.is_active' => 1,'partners.is_wh' => 1)), 'public_name','id');
         $data = array();
         $no = $post['start'];
         foreach ($list as $stock_list) {
             $no++;
-            $row = $this->get_inventory_master_list_table($stock_list, $no);
+            $row = $this->get_inventory_master_list_table($stock_list, $no,$partners);
             $data[] = $row;
         }
         
@@ -2084,8 +2086,11 @@ class Inventory extends CI_Controller {
         );
     }
     
-    function get_inventory_master_list_table($stock_list, $no){
+    function get_inventory_master_list_table($stock_list, $no,$partners){
         $row = array();
+        if($stock_list->entity_type === _247AROUND_PARTNER_STRING){
+            $stock_list->entity_public_name = $partners[$stock_list->entity_id];
+        }
         $json_data = json_encode($stock_list);
        
         $row[] = $no;
@@ -2266,10 +2271,8 @@ class Inventory extends CI_Controller {
      */
     function upload_inventory_details_file(){
         $this->checkUserSession();
-        $data['services'] = $this->vendor_model->selectservice();
         $this->miscelleneous->load_nav_header();
-	$this->load->view('employee/upload_spare_part_details',$data);
-        
+	$this->load->view('employee/upload_spare_part_details');
     }
     
     
@@ -3788,11 +3791,12 @@ class Inventory extends CI_Controller {
         $select = "appliance_model_details.*,services.services";
         
         $list = $this->inventory_model->get_appliance_model_list($post,$select);
+        $partners = array_column($this->partner_model->getpartner_details("partners.id,public_name",array('partners.is_active' => 1,'partners.is_wh' => 1)), 'public_name','id');
         $data = array();
         $no = $post['start'];
         foreach ($list as $model_list) {
             $no++;
-            $row = $this->get_appliance_model_table($model_list, $no);
+            $row = $this->get_appliance_model_table($model_list, $no,$partners);
             $data[] = $row;
         }
         
@@ -3803,8 +3807,11 @@ class Inventory extends CI_Controller {
         );
     }
     
-    function get_appliance_model_table($model_list, $no){
+    function get_appliance_model_table($model_list, $no,$partners){
         $row = array();
+        if($model_list->entity_type === _247AROUND_PARTNER_STRING){
+            $model_list->entity_public_name = $partners[$model_list->entity_id];
+        }
         $json_data = json_encode($model_list);
         
         $row[] = $no;

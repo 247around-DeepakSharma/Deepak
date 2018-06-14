@@ -194,6 +194,10 @@
     var entity_type = '';
     var entity_id = '';
     var time = moment().format('D-MMM-YYYY');
+    $('#model_service_id').select2({
+        allowClear: true,
+        placeholder: 'Select Appliance'
+    });
     $(document).ready(function(){
         get_services('model_service_id');
         get_appliance_model_list();
@@ -264,7 +268,7 @@
         $.ajax({
             type:'GET',
             url:'<?php echo base_url();?>employee/partner/get_service_id',
-            data:{is_option_selected:true},
+            data:{is_option_selected:true,partner_id: '<?php echo $this->session->userdata('partner_id')?>'},
             success:function(response){
                 $('#'+div_to_update).html(response);
                 $('#'+div_to_update).select2({
@@ -276,6 +280,7 @@
     }
     
     $('#add_model').click(function(){
+        $('#service_id').val(null).trigger('change');
         get_services('service_id');
         $("#applince_model_list_details")[0].reset();
         $('#model_submit_btn').val('Add');
@@ -287,8 +292,15 @@
         
         var form_data = $(this).data('id');
         if(form_data.service_id){
-            var service_options = "<option value='"+form_data.service_id+"' selected=''>"+form_data.services+"</option>";
-            $('#service_id').html(service_options);
+            // Set the value, creating a new option if necessary
+                if ($('#service_id').find("option[value='" + form_data.service_id + "']").length) {
+                $('#service_id').val(form_data.service_id).trigger('change');
+                } else { 
+                 // Create a DOM Option and pre-select by default
+                    var newOption = new Option(form_data.services, form_data.service_id, true, true);
+                    // Append it to the select
+                    $('#service_id').append(newOption).trigger('change');
+                } 
         }else{
             get_services('service_id');
         }

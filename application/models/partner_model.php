@@ -981,7 +981,7 @@ function get_data_for_partner_callback($booking_id) {
      * 
      */
     function get_service_brands_for_partner($partner_id){
-        $sql = "Select Distinct partner_appliance_details.brand, services.services  "
+        $sql = "Select Distinct partner_appliance_details.brand, services.services,services.id  "
                 . "From partner_appliance_details, services "
                 . "where partner_appliance_details.service_id = services.id "
                 . "AND partner_appliance_details.partner_id = '".$partner_id."'";

@@ -101,10 +101,13 @@
         $('#wh_id').select2({
             placeholder:"Select Warehouse"
         });
+        $('#service_id').select2({
+            allowClear: true,
+            placeholder: 'Select Appliance'
+        });
         
         get_partner();
         get_vendor();
-        get_appliance();
         get_inventory_list();
     });
     
@@ -129,7 +132,7 @@
                     extend: 'excel',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 0, 1, 2,3,4, 5,6,7 ]
+                        columns: [ 0, 1, 2,3,4, 5,6,7,8]
                     },
                     title: 'stock_details_'+time,
                     action: newExportAction
@@ -205,17 +208,21 @@
         });
     }
     
-    function get_appliance(){
+    $('#partner_id').on('change',function(){
+        var partner_id = $('#partner_id').val();
+        if(partner_id){
+            get_appliance(partner_id);
+        }else{
+            alert('Please Select Partner');
+        }
+    });
+    function get_appliance(partner_id){
         $.ajax({
             type: 'GET',
-            url: '<?php echo base_url() ?>employee/booking/get_service_id',
-            data:{is_option_selected:true},
+            url: '<?php echo base_url() ?>employee/booking/get_service_id_by_partner',
+            data:{is_option_selected:true,partner_id:partner_id},
             success: function (response) {
                 $('#service_id').html(response);
-                $('#service_id').select2({
-                    allowClear: true,
-                    placeholder: 'Select Appliance'
-                });
             }
         });
     }
