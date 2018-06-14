@@ -48,9 +48,6 @@
                                 <div class="col-md-9">
                                     <select class="form-control" id="service_id" required="" name="service_id">
                                         <option value="" selected="" disabled="">Select Appliance</option>
-                                        <?php foreach($services as $value){ ?>
-                                            <option value="<?php echo $value->id; ?>"><?php echo $value->services; ?></option>
-                                        <?php } ?>
                                     </select>
                                 </div>
                                 <?php echo form_error('service_id'); ?>
@@ -168,6 +165,31 @@
                 }
             ]
         });
+    }
+    
+    
+    $('#partner_id').on('change',function(){
+        get_appliance();
+    });
+    
+    function get_appliance(){
+        var partner_id = $('#partner_id').val();
+        if(partner_id){
+            $.ajax({
+                type: 'GET',
+                url: '<?php echo base_url() ?>employee/booking/get_service_id_by_partner',
+                data:{is_option_selected:true,partner_id:partner_id},
+                success: function (response) {
+                    if(response){
+                        $('#service_id').html(response);
+                    }else{
+                        console.log(response);
+                    }
+                }
+            });
+        }else{
+            alert('Please Select Partner');
+        }
     }
 </script>
 <?php  if ($this->session->flashdata('file_error')) {$this->session->unset_userdata('file_error');} ?>

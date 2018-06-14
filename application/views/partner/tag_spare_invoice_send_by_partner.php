@@ -439,7 +439,7 @@
         $.ajax({
             type: 'GET',
             url: '<?php echo base_url() ?>employee/partner/get_service_id',
-            data:{is_option_selected:true},
+            data:{is_option_selected:true,partner_id:'<?php echo $this->session->userdata('partner_id');?>'},
             success: function (response) {
                 $('#serviceId_'+index).html(response);
             }

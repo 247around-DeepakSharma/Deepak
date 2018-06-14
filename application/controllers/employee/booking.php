@@ -4278,5 +4278,37 @@ class Booking extends CI_Controller {
         }
         echo $select;
     }
+    
+    /**
+     * @desc: This function is used to get service_id by partner from Ajax call
+     * @params: void
+     * @return: string
+     */
+    function get_service_id_by_partner(){
+        
+        $partner_id = $this->input->get('partner_id');
+        if($partner_id){
+            $appliance_list = $this->partner_model->get_service_brands_for_partner($partner_id);
+            if($this->input->get('is_option_selected')){
+                $option = '<option  selected="" disabled="">Select Appliance</option>';
+            }else{
+                $option = '';
+            }
+
+            foreach ($appliance_list as $value) {
+                $option .= "<option value='" . $value['id'] . "'";
+                $option .= " > ";
+                $option .= $value['services'] . "</option>";
+            }
+            
+            if($this->input->get('is_all_option')){
+                $option .= '<option value="all" >All</option>';
+            }
+            echo $option;
+        }else{
+            echo FALSE;
+        }
+        
+    }
 }
 
