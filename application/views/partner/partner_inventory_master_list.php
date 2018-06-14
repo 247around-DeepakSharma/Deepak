@@ -289,6 +289,10 @@
     var entity_type = '';
     var entity_id = '';
     var time = moment().format('D-MMM-YYYY');
+    $('#inventory_service_id').select2({
+        allowClear: true,
+        placeholder: 'Select Appliance'
+    });
     $(document).ready(function(){
         get_services('inventory_service_id');
         get_inventory_list();
@@ -346,7 +350,7 @@
                     extend: 'excel',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 0, 1, 2,3,4, 5,6,7,8,9 ]
+                        columns: [ 0, 1, 2,3,4, 5,6,7,8,9,10 ]
                     },
                     title: 'inventory_master_list_'+time,
                     action: newExportAction
@@ -392,7 +396,7 @@
         $.ajax({
             type:'GET',
             url:'<?php echo base_url();?>employee/partner/get_service_id',
-            data:{is_option_selected:true},
+            data:{is_option_selected:true,partner_id:<?php echo $this->session->userdata('partner_id');?>},
             success:function(response){
                 $('#'+div_to_update).html(response);
                 $('#'+div_to_update).select2({
@@ -405,6 +409,7 @@
     
     $('#add_master_list').click(function(){
         $('#model_number_div').show();
+        $('#service_id').val(null).trigger('change');
         get_services('service_id');
         $("#master_list_details")[0].reset();
         $('#master_list_submit_btn').val('Add');
@@ -443,8 +448,15 @@
         $('#model_number_div').hide();
         var form_data = $(this).data('id');
         if(form_data.service_id){
-            var service_options = "<option value='"+form_data.service_id+"' selected=''>"+form_data.services+"</option>";
-            $('#service_id').html(service_options);
+            // Set the value, creating a new option if necessary
+            if ($('#service_id').find("option[value='" + form_data.service_id + "']").length) {
+            $('#service_id').val(form_data.service_id).trigger('change');
+            } else { 
+                // Create a DOM Option and pre-select by default
+                var newOption = new Option(form_data.services, form_data.service_id, true, true);
+                // Append it to the select
+                $('#service_id').append(newOption).trigger('change');
+            } 
         }else{
             get_services('service_id');
         }

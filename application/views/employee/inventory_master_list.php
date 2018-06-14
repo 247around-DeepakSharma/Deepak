@@ -164,20 +164,19 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="control-label col-md-4" for="service_id">Appliance*</label>
-                                    <div class="col-md-7 col-md-offset-1">
-                                        <select class="form-control" id="service_id" name="service_id"></select>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-6">
-                                <div class="form-group">
                                     <label class="control-label col-md-4" for="entity_id">Partner *</label>
                                     <div class="col-md-7 col-md-offset-1">
                                         <select class="form-control" id="entity_id" name="entity_id">
                                             <option value="" selected="" disabled="">Please Select Partner</option>
                                         </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="service_id">Appliance*</label>
+                                    <div class="col-md-7 col-md-offset-1">
+                                        <select class="form-control" id="service_id" name="service_id"></select>
                                     </div>
                                 </div>
                             </div>
@@ -297,11 +296,14 @@
     var entity_type = '';
     var entity_id = '';
     var time = moment().format('D-MMM-YYYY');
+    $('#inventory_service_id').select2({
+        allowClear: true,
+        placeholder: 'Select Appliance'
+    });
     $(document).ready(function(){
         
         get_partner('partner_id');
         get_inventory_list();
-        get_services('inventory_service_id');
     });
     
     $('#get_inventory_data').on('click',function(){
@@ -355,7 +357,7 @@
                     extend: 'excel',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 0, 1, 2,3,4, 5,6,7,8,9 ]
+                        columns: [ 0, 1, 2,3,4, 5,6,7,8,9,10]
                     },
                     title: 'inventory_master_list_'+time,
                     action: newExportAction
@@ -412,17 +414,31 @@
         });
     }
     
-    function get_services(div_to_update){
+    $('#partner_id').on('change',function(){
+        var partner_id = $('#partner_id').val();
+        if(partner_id){
+            get_services('inventory_service_id',partner_id);
+        }else{
+            alert('Please Select Partner');
+        }
+    });
+    
+    $('#entity_id').on('change',function(){
+        var partner_id = $('#entity_id').val();
+        if(partner_id){
+            get_services('service_id',partner_id);
+        }else{
+            alert('Please Select Partner');
+        }
+    });
+    
+    function get_services(div_to_update,partner_id){
         $.ajax({
             type:'GET',
-            url:'<?php echo base_url();?>employee/booking/get_service_id',
-            data:{is_option_selected:true},
+            url:'<?php echo base_url();?>employee/booking/get_service_id_by_partner',
+            data:{is_option_selected:true,partner_id:partner_id},
             success:function(response){
                 $('#'+div_to_update).html(response);
-                $('#'+div_to_update).select2({
-                    allowClear: true,
-                    placeholder: 'Select Appliance'
-                });
             }
         });
     }
@@ -440,8 +456,11 @@
     
     $('#add_master_list').click(function(){
         $('#model_number_div').show();
-        get_services('service_id');
         get_partner('entity_id');
+        $('#service_id').val(null).trigger('change');
+        $('#service_id').select2({
+            placeholder: 'Select Appliance'
+        });
         $("#master_list_details")[0].reset();
         $('#master_list_submit_btn').val('Add');
         $('#modal_title_action').html("Add New Inventory");
@@ -479,14 +498,21 @@
         $('#model_number_div').hide();
         var form_data = $(this).data('id');
         if(form_data.service_id){
-            var service_options = "<option value='"+form_data.service_id+"' selected=''>"+form_data.services+"</option>";
-            $('#service_id').html(service_options);
+                // Set the value, creating a new option if necessary
+                if ($('#service_id').find("option[value='" + form_data.service_id + "']").length) {
+                $('#service_id').val(form_data.service_id).trigger('change');
+                } else { 
+                 // Create a DOM Option and pre-select by default
+                    var newOption = new Option(form_data.services, form_data.service_id, true, true);
+                    // Append it to the select
+                    $('#service_id').append(newOption).trigger('change');
+                }
         }else{
             get_services('service_id');
         }
         
         if(form_data.entity_id){
-            var entity_id_options = "<option value='"+form_data.entity_id+"' selected='' >"+form_data.entity_id+"</option>";
+            var entity_id_options = "<option value='"+form_data.entity_id+"' selected='' >"+form_data.entity_public_name+"</option>";
             $('#entity_id').html(entity_id_options);
         }
         

@@ -238,7 +238,6 @@
         
         get_partner_list();
         get_vendor();
-        get_appliance(0);
         
         $('[data-toggle="popover"]').popover(); 
         $("#dated").datepicker({dateFormat: 'yy-mm-dd'});
@@ -387,6 +386,10 @@
         });
     });
     
+    $('#partner_id').on('change',function(){
+        get_appliance(0);
+    });
+    
     function get_vendor() {
         $.ajax({
             type: 'POST',
@@ -410,14 +413,23 @@
     }
     
     function get_appliance(index){
-        $.ajax({
-            type: 'GET',
-            url: '<?php echo base_url() ?>employee/booking/get_service_id',
-            data:{is_option_selected:true},
-            success: function (response) {
-                $('#serviceId_'+index).html(response);
-            }
-        });
+        var partner_id = $('#partner_id').val();
+        if(partner_id){
+            $.ajax({
+                type: 'GET',
+                url: '<?php echo base_url() ?>employee/booking/get_service_id_by_partner',
+                data:{is_option_selected:true,partner_id:partner_id},
+                success: function (response) {
+                    if(response){
+                        $('#serviceId_'+index).html(response);
+                    }else{
+                        console.log(response);
+                    }
+                }
+            });
+        }else{
+            alert('Please Select Partner');
+        }
     }
     
     function get_part_details(e){
