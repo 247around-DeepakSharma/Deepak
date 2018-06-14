@@ -149,9 +149,6 @@
                         } ?>
                 </tbody>
             </table>
-            <div class="custom_pagination" style="margin-left: 16px;" > 
-                <?php if(isset($links)) { echo $links; } ?>
-            </div>
         </div>
     </div>
 </div>
@@ -260,7 +257,7 @@
 });
     var table = $('#pending_booking_table').DataTable(
                 {
-                    "pageLength": 50
+                    "pageLength": 10
                 }
             );
         $("#serachInput").change(function () {
@@ -283,12 +280,6 @@ $('#serachInput').select2();
 #a_hover a:hover {
   background: #26b99a !important;
   text-decoration:none;
-}
-.dataTables_info{
-    display: none;
-}
-.paging_simple_numbers{
-    display: none;
 }
 .dropdown-backdrop{
     display: none;

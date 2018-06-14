@@ -107,9 +107,6 @@
                     } ?>
                 </tbody>
             </table>
-            <div class="custom_pagination" style="margin-left: 16px;" > 
-                <?php if(isset($links)) { echo $links; } ?>
-            </div>
         </div>
     </div>
 </div>
@@ -128,9 +125,6 @@
                      );
     </script>
     <style>
-        .dataTables_info{
-    display: none;
-}
 .dropdown-backdrop{
     display: none;
 }
