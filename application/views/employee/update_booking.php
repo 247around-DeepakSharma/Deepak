@@ -359,7 +359,7 @@
                                 <label for="purchase_date" class="col-md-4">Purchase Date *</label>
                                 <div class="col-md-6">
                                 <div class="input-group input-append date">
-                                    <input id="purchase_date" class="form-control"  name="purchase_date" type="date" value = "<?php if(isset($unit_details[0]['purchase_date'])){ echo $unit_details[0]['purchase_date']; }?>">
+                                    <input id="purchase_date_1" class="form-control"  name="purchase_date[]" type="date" value = "<?php if(isset($unit_details[0]['purchase_date'])){ echo $unit_details[0]['purchase_date']; }?>">
                                     <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                 </div>
                                 </div>
@@ -552,7 +552,7 @@
                                 <label for="purchase_date" class="col-md-4">Purchase Date *</label>
                                 <div class="col-md-6">
                                 <div class="input-group input-append date">
-                                    <input id="purchase_date" class="form-control"  name="purchase_date" type="date" value = "">
+                                    <input class="form-control" name= "purchase_date[]" type="date" value = "<?php if(isset($booking_unit_details['purchase_date'])) { echo $booking_unit_details['purchase_date']; } ?>" id="<?php echo "order_item_id_".$number ;?>"/>
                                     <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                 </div>
                                 </div>
