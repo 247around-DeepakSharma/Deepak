@@ -341,8 +341,8 @@ function get_data_for_partner_callback($booking_id) {
     function get_partner_report_overview_in_percentage_format($partner_id,$bookingDateColumn){
         $finalArray = array();
         $query = $this->db->query("SELECT COUNT(booking_id) as count,DATEDIFF(date(booking_details.service_center_closed_date),$bookingDateColumn) as TAT FROM booking_details "
-                . "WHERE partner_id = '".$partner_id."' AND service_center_closed_date IS NOT NULL AND !(current_status = 'Cancelled' OR internal_status ='InProcess_Cancelled') AND MONTH(booking_details.create_date) "
-                . "= MONTH(CURDATE())  GROUP BY TAT");
+                . "WHERE partner_id = '".$partner_id."' AND service_center_closed_date IS NOT NULL AND !(current_status = 'Cancelled' OR internal_status ='InProcess_Cancelled') AND "
+                . "DATEDIFF(CURDATE(),date(booking_details.service_center_closed_date)) < 31 GROUP BY TAT");
         $overViewData = $query->result_array();
         foreach($overViewData as $overView){
             if($overView['TAT']<=0){
@@ -353,6 +353,9 @@ function get_data_for_partner_callback($booking_id) {
             }
             else{
                 if($overView['TAT']>5){
+                        if(!array_key_exists('day_5', $finalArray)){
+                            $finalArray['day_5'] = 0;
+                        }
                         $finalArray["day_5"] = $overView['count']+$finalArray["day_5"];
                }
                else{

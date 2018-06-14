@@ -703,19 +703,19 @@ class invoices_model extends CI_Model {
                     
                 }else if($c_s_gst){
 
-                    $result[$key]['cgst_rate'] =  $result[$key]['sgst_rate'] = 9;
+                    $result[$key]['cgst_rate'] =  $result[$key]['sgst_rate'] = $value['gst_rate'];
                     $result[$key]['cgst_tax_amount'] = sprintf("%1\$.2f",($value['taxable_value'] * ($value['gst_rate']/100)/2));
                     $result[$key]['sgst_tax_amount'] = sprintf("%1\$.2f",($value['taxable_value'] * ($value['gst_rate']/100)/2));
                     $meta['cgst_total_tax_amount'] +=  $result[$key]['cgst_tax_amount'];
                     $meta['sgst_total_tax_amount'] += $result[$key]['sgst_tax_amount'];
-                    $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = 9;
+                    $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = $value['gst_rate'];
                     $meta['total_taxable_value'] += $value['taxable_value'];
                     
                     $result[$key]['toal_amount'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * ($value['gst_rate']/100))));
                    
                 } else {
                    
-                    $result[$key]['igst_rate'] =  $meta['igst_tax_rate'] = DEFAULT_TAX_RATE;
+                    $result[$key]['igst_rate'] =  $meta['igst_tax_rate'] = $value['gst_rate'];
                     $result[$key]['igst_tax_amount'] = sprintf("%1\$.2f",($value['taxable_value'] * ($value['gst_rate']/100)));
                     $meta['igst_total_tax_amount'] +=  $result[$key]['igst_tax_amount'];
                     $meta['total_taxable_value'] += $value['taxable_value'];
@@ -1125,6 +1125,13 @@ class invoices_model extends CI_Model {
                     $data['booking'][$key]['igst_tax_amount'] = sprintf("%1\$.2f",($value['taxable_value'] * 0.18));
                     $meta['igst_total_tax_amount'] +=  $data['booking'][$key]['igst_tax_amount'];
                     $data['booking'][$key]['toal_amount'] = sprintf("%1\$.2f",( $value['taxable_value'] + ($value['taxable_value'] * 0.18)));
+                }
+                if(empty($value['qty'])){
+                    $value['qty'] = 0;
+                }
+                
+                if(empty($value['rate'])){
+                    $value['rate'] = 0;
                 }
                 
                

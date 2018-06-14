@@ -164,13 +164,13 @@ class Accounting extends CI_Controller {
      * @return : string
      */
     function checkChallanValidationForm() {
-        $this->form_validation->set_rules('challan_type', 'Challan Type', 'required|trim|xss_clean');
-        $this->form_validation->set_rules('serial_no', 'Serial Number', 'required|trim|xss_clean');
-        $this->form_validation->set_rules('cin_no', 'CIN Number', 'required|trim|xss_clean');
-        $this->form_validation->set_rules('amount', 'Amount', 'required|trim|xss_clean');
-        $this->form_validation->set_rules('bank_name', 'Bank Name', 'required|trim|xss_clean');
-        $this->form_validation->set_rules('paid_by', 'Paid By', 'required|trim|xss_clean');
-        $this->form_validation->set_rules('daterange', 'DateRange', 'required|trim|xss_clean');
+        $this->form_validation->set_rules('challan_type', 'Challan Type', 'required|trim');
+        $this->form_validation->set_rules('serial_no', 'Serial Number', 'required|trim');
+        $this->form_validation->set_rules('cin_no', 'CIN Number', 'required|trim');
+        $this->form_validation->set_rules('amount', 'Amount', 'required|trim');
+        $this->form_validation->set_rules('bank_name', 'Bank Name', 'required|trim');
+        $this->form_validation->set_rules('paid_by', 'Paid By', 'required|trim');
+        $this->form_validation->set_rules('daterange', 'DateRange', 'required|trim');
         if ($this->form_validation->run() == FALSE) {
             $this->get_challan_upload_form();
         } else {

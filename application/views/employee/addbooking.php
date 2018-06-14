@@ -443,6 +443,7 @@
 
            $('#priceList_'+cloneIndex).html("");
            $('#order_item_id_'+cloneIndex).val("");
+           $('#purchase_date_'+cloneIndex).val("");
            
        cloneIndex++;
        return false;

@@ -885,8 +885,8 @@ class Booking extends CI_Controller {
     function process_cancel_form($booking_id, $status, $agent_id = false, $agent_name = false) {
         log_message('info', __FUNCTION__ . " Booking ID: " . $booking_id . " Done By " . $this->session->userdata('employee_id')." And Status:".$status);
 
-        $this->form_validation->set_rules('cancellation_reason', 'Cancellation Reason', 'required|xss_clean');
-        $this->form_validation->set_rules('partner_id', 'Partner Id', 'required|xss_clean');
+        $this->form_validation->set_rules('cancellation_reason', 'Cancellation Reason', 'required');
+        $this->form_validation->set_rules('partner_id', 'Partner Id', 'required');
         $validation = $this->form_validation->run();
         if ($validation) {
 
@@ -2107,9 +2107,9 @@ class Booking extends CI_Controller {
      */
     function process_convert_booking_to_pending_form($booking_id, $status) {
         log_message('info', __FUNCTION__ . " Booking id: " . $booking_id . " status: " . $status . " Done By " . $this->session->userdata('employee_id'));
-        $this->form_validation->set_rules('booking_date', 'Booking Date', 'required|xss_clean');
-        $this->form_validation->set_rules('booking_timeslot', 'Booking Time Slot', 'required|xss_clean');
-        $this->form_validation->set_rules('admin_remarks', 'Reason', 'required|xss_clean|trim');
+        $this->form_validation->set_rules('booking_date', 'Booking Date', 'required');
+        $this->form_validation->set_rules('booking_timeslot', 'Booking Time Slot', 'required');
+        $this->form_validation->set_rules('admin_remarks', 'Reason', 'required|trim');
         if ($this->form_validation->run() === false) {
             $this->get_convert_booking_to_pending_form($booking_id, $status);
         } else {
@@ -2320,19 +2320,19 @@ class Booking extends CI_Controller {
      * return: void
      */
     function validate_booking() {
-        $this->form_validation->set_rules('service_id', 'Appliance', 'required|xss_clean');
-        $this->form_validation->set_rules('source_code', 'Source Code', 'required|xss_clean');
-        $this->form_validation->set_rules('type', 'Booking Type', 'required|xss_clean');
+        $this->form_validation->set_rules('service_id', 'Appliance', 'required');
+        $this->form_validation->set_rules('source_code', 'Source Code', 'required');
+        $this->form_validation->set_rules('type', 'Booking Type', 'required');
         $this->form_validation->set_rules('grand_total_price', 'Total Price', 'required');
-        $this->form_validation->set_rules('city', 'City', 'required|xss_clean');
+        $this->form_validation->set_rules('city', 'City', 'required');
         $this->form_validation->set_rules('booking_date', 'Date', 'required');
         $this->form_validation->set_rules('appliance_brand', 'Appliance Brand', 'required');
         $this->form_validation->set_rules('appliance_category', 'Appliance Category', 'required');
 
         $this->form_validation->set_rules('partner_paid_basic_charges', 'Please Select Partner Charged', 'required');
-        $this->form_validation->set_rules('booking_primary_contact_no', 'Mobile', 'required|trim|xss_clean|regex_match[/^[6-9]{1}[0-9]{9}$/]');
-        $this->form_validation->set_rules('dealer_phone_number', 'Dealer Mobile Number', 'trim|xss_clean|regex_match[/^[6-9]{1}[0-9]{9}$/]');
-        $this->form_validation->set_rules('booking_timeslot', 'Time Slot', 'required|xss_clean');
+        $this->form_validation->set_rules('booking_primary_contact_no', 'Mobile', 'required|trim|regex_match[/^[6-9]{1}[0-9]{9}$/]');
+        $this->form_validation->set_rules('dealer_phone_number', 'Dealer Mobile Number', 'trim|regex_match[/^[6-9]{1}[0-9]{9}$/]');
+        $this->form_validation->set_rules('booking_timeslot', 'Time Slot', 'required');
         $this->form_validation->set_rules('support_file', 'Suppoart File', 'callback_validate_upload_orderId_support_file');
 
         return $this->form_validation->run();

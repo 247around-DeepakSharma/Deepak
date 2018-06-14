@@ -672,9 +672,10 @@ class Invoice extends CI_Controller {
             header('Content-Description: File Transfer');
             header('Content-Type: application/octet-stream');
             header("Content-Disposition: attachment; filename=\"$invoice_id.zip\"");
-            readfile(TMP_FOLDER . $invoice_id. '.zip');
+            
             $res1 = 0;
             system(" chmod 777 " . TMP_FOLDER . $invoice_id . '.zip ', $res1);
+            readfile(TMP_FOLDER . $invoice_id. '.zip');
             exec("rm -rf " . escapeshellarg(TMP_FOLDER . $invoice_id . '.zip'));
             exec("rm -rf " . escapeshellarg(TMP_FOLDER . "copy_" . $invoice_id . "-draft.xlsx"));
             exec("rm -rf " . escapeshellarg(TMP_FOLDER . $invoice_id . '-draft.pdf'));
@@ -2171,12 +2172,12 @@ class Invoice extends CI_Controller {
     function process_insert_update_invoice($vendor_partner) {
          $this->checkUserSession();
         log_message('info', __FUNCTION__ . " Entering...." . $vendor_partner);
-        $this->form_validation->set_rules('vendor_partner_id', 'Vendor Partner', 'required|trim|xss_clean');
-        $this->form_validation->set_rules('invoice_id', 'Invoice ID', 'required|trim|xss_clean');
-        $this->form_validation->set_rules('around_type', 'Around Type', 'required|trim|xss_clean');
-        $this->form_validation->set_rules('gst_rate', 'GST Rate', 'required|trim|xss_clean');
-        $this->form_validation->set_rules('from_date', 'Invoice Period', 'required|trim|xss_clean');
-        $this->form_validation->set_rules('type', 'Type', 'required|trim|xss_clean');
+        $this->form_validation->set_rules('vendor_partner_id', 'Vendor Partner', 'required|trim');
+        $this->form_validation->set_rules('invoice_id', 'Invoice ID', 'required|trim');
+        $this->form_validation->set_rules('around_type', 'Around Type', 'required|trim');
+        $this->form_validation->set_rules('gst_rate', 'GST Rate', 'required|trim');
+        $this->form_validation->set_rules('from_date', 'Invoice Period', 'required|trim');
+        $this->form_validation->set_rules('type', 'Type', 'required|trim');
         if ($this->form_validation->run()) {
             $data = $this->get_create_update_invoice_input($vendor_partner);
             $total_amount_collected = ($data['total_service_charge'] +
@@ -2641,11 +2642,11 @@ class Invoice extends CI_Controller {
     function generate_crm_setup() {
          $this->checkUserSession();
         log_message('info', __FUNCTION__ . " Entering....");
-        $this->form_validation->set_rules('partner_name', 'Partner Name', 'trim|xss_clean');
-        $this->form_validation->set_rules('partner_id', 'Partner ID', 'required|trim|xss_clean');
-        $this->form_validation->set_rules('daterange', 'Start Date', 'required|trim|xss_clean');
-        $this->form_validation->set_rules('invoice_type', 'Invoice Type', 'required|trim|xss_clean');
-        $this->form_validation->set_rules('service_charge', 'Service Charge', 'required|trim|xss_clean');
+        $this->form_validation->set_rules('partner_name', 'Partner Name', 'trim');
+        $this->form_validation->set_rules('partner_id', 'Partner ID', 'required|trim');
+        $this->form_validation->set_rules('daterange', 'Start Date', 'required|trim');
+        $this->form_validation->set_rules('invoice_type', 'Invoice Type', 'required|trim');
+        $this->form_validation->set_rules('service_charge', 'Service Charge', 'required|trim');
         if ($this->form_validation->run() == TRUE) {
           
             $date_range = $this->input->post('daterange');
@@ -2936,7 +2937,7 @@ class Invoice extends CI_Controller {
         log_message("info", __METHOD__." Partner ID ".$invoice_id);
         $data = array();
         $data[0]['description'] =  $description;
-        $tax_charge = $this->booking_model->get_calculated_tax_charge($amount, DEFAULT_TAX_RATE);
+        $tax_charge = $this->booking_model->get_calculated_tax_charge($amount, $gst_rate);
         $data[0]['taxable_value'] = ($amount  - $tax_charge);
         $data[0]['product_or_services'] = "Service";
         if(!empty($partner_data['gst_number'])){
@@ -3271,13 +3272,13 @@ class Invoice extends CI_Controller {
     function generate_spare_purchase_invoice() {
         log_message("info", __METHOD__ . " Post " . print_r($this->input->post("spare_id"), true));
 
-        $this->form_validation->set_rules('spare_id', 'Spare ID', 'required|xss_clean');
-        $this->form_validation->set_rules('invoice_date', 'Invoice Date', 'required|xss_clean');
-        $this->form_validation->set_rules('remarks', 'Remarks', 'required|xss_clean');
-        $this->form_validation->set_rules('parts_count', 'Count', 'required|xss_clean');
-        $this->form_validation->set_rules('invoice_id', 'Invoice ID', 'required|xss_clean');
-        $this->form_validation->set_rules('hsn_code', 'HSN Code', 'required|xss_clean');
-        $this->form_validation->set_rules('parts_charge', '', 'required|xss_clean');
+        $this->form_validation->set_rules('spare_id', 'Spare ID', 'required');
+        $this->form_validation->set_rules('invoice_date', 'Invoice Date', 'required');
+        $this->form_validation->set_rules('remarks', 'Remarks', 'required');
+        $this->form_validation->set_rules('parts_count', 'Count', 'required');
+        $this->form_validation->set_rules('invoice_id', 'Invoice ID', 'required');
+        $this->form_validation->set_rules('hsn_code', 'HSN Code', 'required');
+        $this->form_validation->set_rules('parts_charge', '', 'required');
         $validation = $this->form_validation->run();
         if ($validation) {
             $spare_id = $this->input->post("spare_id");
@@ -3364,17 +3365,17 @@ class Invoice extends CI_Controller {
     function generate_credit_debit_note() {
         log_message('info', __METHOD__ . " POST DATA " . json_encode($this->input->post(), TRUE));
         $this->checkUserSession();
-        $this->form_validation->set_rules('vendor_partner_id', 'Vendor Partner ID', 'required|trim|xss_clean');
-        $this->form_validation->set_rules('vendor_partner', 'Vendor_partner', 'required|trim|xss_clean');
-        $this->form_validation->set_rules('invoice_type', 'Invoice Type', 'required|trim|xss_clean');
-        $this->form_validation->set_rules('service_count', 'Service QTY', 'required|trim|xss_clean');
-        $this->form_validation->set_rules('parts_count', 'Parts QTY', 'required|trim|xss_clean');
-        $this->form_validation->set_rules('parts_charge', 'Parts Charge', 'required|trim|xss_clean');
-        $this->form_validation->set_rules('service_charge', 'Service Charge', 'required|trim|xss_clean');
-        $this->form_validation->set_rules('gst_rate', 'GST Rate', 'required|trim|xss_clean');
-        $this->form_validation->set_rules('invoice_date', 'Invoice Period', 'required|trim|xss_clean');
-        $this->form_validation->set_rules('remarks', 'Remarks', 'required|trim|xss_clean');
-        $this->form_validation->set_rules('description', 'Description', 'required|trim|xss_clean');
+        $this->form_validation->set_rules('vendor_partner_id', 'Vendor Partner ID', 'required|trim');
+        $this->form_validation->set_rules('vendor_partner', 'Vendor_partner', 'required|trim');
+        $this->form_validation->set_rules('invoice_type', 'Invoice Type', 'required|trim');
+        $this->form_validation->set_rules('service_count', 'Service QTY', 'required|trim');
+        $this->form_validation->set_rules('parts_count', 'Parts QTY', 'required|trim');
+        $this->form_validation->set_rules('parts_charge', 'Parts Charge', 'required|trim');
+        $this->form_validation->set_rules('service_charge', 'Service Charge', 'required|trim');
+        $this->form_validation->set_rules('gst_rate', 'GST Rate', 'required|trim');
+        $this->form_validation->set_rules('invoice_date', 'Invoice Period', 'required|trim');
+        $this->form_validation->set_rules('remarks', 'Remarks', 'required|trim');
+        $this->form_validation->set_rules('description', 'Description', 'required|trim');
 
         if ($this->form_validation->run()) {
             $data['vendor_partner'] = $this->input->post('vendor_partner');

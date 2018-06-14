@@ -336,4 +336,7 @@ $('#serachSpareInput').select2();
         .dataTables_info{
     display: none;
 }
+.dropdown-backdrop{
+    display: none;
+}
         </style>

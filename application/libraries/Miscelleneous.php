@@ -1790,6 +1790,7 @@ class Miscelleneous {
      */
 
     function update_insert_bank_account_details($bankDetailsArray) {
+        if($bankDetailsArray['entity_id']){
         $where['entity_id'] = $bankDetailsArray['entity_id'];
         $where['entity_type'] = $bankDetailsArray['entity_type'];
         $affectedRows = $this->My_CI->reusable_model->update_table("account_holders_bank_details",$bankDetailsArray,$where);
@@ -1799,6 +1800,7 @@ class Miscelleneous {
             }
         } 
         return $affectedRows;
+    }
     }
 
     /**
