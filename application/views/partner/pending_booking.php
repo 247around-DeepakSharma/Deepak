@@ -142,9 +142,6 @@
                         } ?>
                 </tbody>
             </table>
-            <div class="custom_pagination" style="margin-left: 16px;" > 
-                <?php if(isset($links)) { echo $links; } ?>
-            </div>
         </div>
     </div>
 </div>
@@ -253,7 +250,7 @@
 });
     var table = $('#pending_booking_table').DataTable(
                 {
-                    "pageLength": 50
+                    "pageLength": 10
                 }
             );
         $("#serachInput").change(function () {
