@@ -3284,7 +3284,7 @@ class Inventory extends CI_Controller {
                     round($response['meta']['sub_total_amount'],0), $vendor[0]['name'], $courier_name_by_wh, $awb_by_wh));
                 $email_from = $email_template[2];
 
-                $to = $response['booking'][0]['primary_contact_email'];
+                $to = $email_template[1];
                 $cc = ACCOUNTANT_EMAILID.$email_template[3];
                 $bcc = $email_template[5];
 
