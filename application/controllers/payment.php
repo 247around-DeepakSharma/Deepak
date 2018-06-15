@@ -197,4 +197,10 @@ class Payment extends CI_Controller {
         echo "<p style='text-align:center;background: #2c9d9c;padding:10px;color:fff;font:20px Century Gothic'>".$msg."</p>";
          echo '<script>setTimeout(function(){ window.close(); }, 1500);</script>';
     }
+    function test($bookingID){
+         $response = $this->paytm_payment_lib->generate_qr_code($bookingID, QR_CHANNEL_APP, 
+                    50, "8826186751");
+         echo "<pre>";
+         print_r($response);
+    }
 }
