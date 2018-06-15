@@ -3248,6 +3248,7 @@ class Inventory extends CI_Controller {
                 } else {
                     $invoice[$value['inventory_id']]['qty'] = $invoice[$value['inventory_id']]['qty'] + 1;
                     $invoice[$value['inventory_id']]['description'] = $invoice[$value['inventory_id']]['description']." - ".$value['booking_id'];
+                    $invoice[$value['inventory_id']]['taxable_value'] = $invoice[$value['inventory_id']]['qty'] * $inventory_details[0]['price'];
                 }
         }
         $sd = $ed = $invoice_date = date("Y-m-d");
@@ -3284,7 +3285,7 @@ class Inventory extends CI_Controller {
                     round($response['meta']['sub_total_amount'],0), $vendor[0]['name'], $courier_name_by_wh, $awb_by_wh));
                 $email_from = $email_template[2];
 
-                $to = $response['booking'][0]['primary_contact_email'];
+                $to = $email_template[1];
                 $cc = ACCOUNTANT_EMAILID.$email_template[3];
                 $bcc = $email_template[5];
 
