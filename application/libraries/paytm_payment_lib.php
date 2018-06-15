@@ -314,9 +314,6 @@ class paytm_payment_lib {
         //Send Curl request to paytm API
         $output = $this->_send_curl_request($data_string,$headers,QR_CODE_URL,"QR_Code_generation");
         $outputArray = json_decode($output,true);
-        echo "<pre>";
-        print_r($outputArray);
-        exit();
         // QR_001 -> SUCCESS, QR-1020 -> IF QR already exist for same input
         //In both case save into databse
         if($outputArray['statusCode'] == SUCCESS_PAYTM_QR_RESPONSE || $outputArray['statusCode'] == ALREADY_GENERATED_PAYTM_QR_RESPONSE){
