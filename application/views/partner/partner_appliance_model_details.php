@@ -5,7 +5,7 @@
     
     .spinner {
         margin: 0px auto;
-        wiappliance_model_details_tableh: 50px;
+        width: 50px;
         height: 50px;
         text-align: center;
         font-size: 10px;
@@ -13,7 +13,7 @@
 
     .spinner > div {
         height: 100%;
-        wiappliance_model_details_tableh: 6px;
+        width: 6px;
         display: inline-block;
 
         -webkit-animation: sk-stretchdelay 1.2s infinite ease-in-out;
@@ -58,10 +58,11 @@
     #appliance_model_details_processing{
             position: absolute;
             z-index: 999999;
-            wiappliance_model_details_tableh: 100%;
+            width: 100%;
             background: rgba(0,0,0,0.5);
             height: 100%;
             top: 10px;
+            left:6%;
     }
     
     .select2-container{

@@ -2,6 +2,57 @@
     .select2.select2-container.select2-container--default{
         width: 100%!important;
     }
+    .spinner {
+        margin: 0px auto;
+        width: 50px;
+        height: 50px;
+        text-align: center;
+        font-size: 10px;
+    }
+
+    .spinner > div {
+        height: 100%;
+        width: 6px;
+        display: inline-block;
+
+        -webkit-animation: sk-stretchdelay 1.2s infinite ease-in-out;
+        animation: sk-stretchdelay 1.2s infinite ease-in-out;
+    }
+
+    .spinner .rect2 {
+        -webkit-animation-delay: -1.1s;
+        animation-delay: -1.1s;
+    }
+
+    .spinner .rect3 {
+        -webkit-animation-delay: -1.0s;
+        animation-delay: -1.0s;
+    }
+
+    .spinner .rect4 {
+        -webkit-animation-delay: -0.9s;
+        animation-delay: -0.9s;
+    }
+
+    .spinner .rect5 {
+        -webkit-animation-delay: -0.8s;
+        animation-delay: -0.8s;
+    }
+
+    @-webkit-keyframes sk-stretchdelay {
+        0%, 40%, 100% { -webkit-transform: scaleY(0.4) }  
+        20% { -webkit-transform: scaleY(1.0) }
+    }
+
+    @keyframes sk-stretchdelay {
+        0%, 40%, 100% { 
+            transform: scaleY(0.4);
+            -webkit-transform: scaleY(0.4);
+        }  20% { 
+            transform: scaleY(1.0);
+            -webkit-transform: scaleY(1.0);
+        }
+    }
 </style>
 <div class="right_col" role="main">
     <div class="row">
@@ -79,6 +130,9 @@
 <script>
 
     var inventory_spare_table;
+    var tmp_arr = {};
+    var postData = {};
+    var flag = false;
 
     $(document).ready(function () {
         get_inventory_list();
@@ -135,9 +189,7 @@
     });
     
     function process_ack_all_order(){
-        var tmp_arr = {};
-        var postData = {};
-        var flag = false;
+        
         $(".check_single_row:checked").each(function (key) {
             tmp_arr[key] = {};
             tmp_arr[key]['inventory_id'] = $(this).attr('data-inventory_id');
@@ -153,25 +205,51 @@
         postData['receiver_entity_type'] = '<?php echo _247AROUND_PARTNER_STRING; ?>';
         
         if(flag){
-            $.ajax({
-                method:'POST',
-                url:'<?php echo base_url(); ?>employee/inventory/process_ack_spare_send_by_wh',
-                data:postData,
-                success:function(response){
-                    obj = JSON.parse(response);
-                    if(obj.status){
-                        $('.success_msg_div').fadeTo(2000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
-                        $('#success_msg').html(obj.message);
-                        inventory_spare_table.ajax.reload();
-                    }else{
-                        $('.error_msg_div').fadeTo(2000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(1000);});
-                        $('#error_msg').html(obj.message);
-                    }
-                }
+            showConfirmDialougeBox('Are you sure you want to continue ?', 'info');
+        }else{
+            showConfirmDialougeBox('Please Select At Least One Checkbox', 'warning');
+        }
+    }
+    
+    function showConfirmDialougeBox(title,type){
+        if(type === 'info'){
+            swal({
+            title: title,
+            type: type,
+            showCancelButton: true,
+            closeOnConfirm: false,
+            showLoaderOnConfirm: true
+        },
+            function(){
+                 ajax_call();
             });
         }else{
-            alert("Please Select At Least One Checkbox");
+            swal({
+                title: title,
+                type: type
+            });
         }
+    }
+    
+    function ajax_call(){
+        $.ajax({
+            method:'POST',
+            url:'<?php echo base_url(); ?>employee/inventory/process_ack_spare_send_by_wh',
+            data:postData,
+            success:function(response){
+                obj = JSON.parse(response);
+                if(obj.status){
+                    swal("Thanks!", "Details updated successfully!", "success");
+                    $('.success_msg_div').fadeTo(2000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
+                    $('#success_msg').html(obj.message);
+                    inventory_spare_table.ajax.reload();
+                }else{
+                    showConfirmDialougeBox(obj.message, 'warning');
+                    $('.error_msg_div').fadeTo(2000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(1000);});
+                    $('#error_msg').html(obj.message);
+                }
+            }
+        });
     }
 
 </script>
