@@ -143,13 +143,6 @@ if ($this->uri->segment(4)) {
                                 ?>
                             </tbody>
                         </table>
-                        <div class="custom_pagination" style="margin-left: 16px;" > 
-                            <?php
-                            if (isset($links)) {
-                                echo $links;
-                            }
-                            ?>
-                        </div>
                         <input type= "submit"  class="btn btn-md col-md-offset-4" style="background-color:#2C9D9C; border-color: #2C9D9C; color:#fff;" name="download_shippment_address" value ="Print Address/Courier Mainfest" >
                     </form>
                 </div>
@@ -330,12 +323,6 @@ if ($this->uri->segment(4)) {
 $('#serachSpareInput').select2();
     </script>
     <style>
-        .paging_simple_numbers{
-            display: none;
-        }
-        .dataTables_info{
-    display: none;
-}
 .dropdown-backdrop{
     display: none;
 }
