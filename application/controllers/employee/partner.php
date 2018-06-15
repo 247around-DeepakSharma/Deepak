@@ -4059,7 +4059,7 @@ class Partner extends CI_Controller {
         $data['contracts'] = $this->reusable_model->get_search_result_data("collateral", 'collateral.*,collateral_type.*',
                     array("entity_id" => $id, "entity_type" => "partner",'collateral_type.collateral_tag'=>'Contract'), array("collateral_type" => "collateral_type.id=collateral.collateral_id"), 
                     NULL, NULL, NULL,NULL);
-        $this->load->view('partner/header');
+        $this->miscelleneous->load_nav_header();
         $this->load->view('partner/get_contracts',$data);
         $this->load->view('partner/partner_footer');
     }   
@@ -4259,7 +4259,7 @@ class Partner extends CI_Controller {
         readfile($csv);
         exec("rm -rf " . escapeshellarg($csv));
         log_message('info', __FUNCTION__ . ' Function End');
-        unlink($csv);
+        //unlink($csv);
     }
     function download_waiting_defective_parts(){
          log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
