@@ -4259,7 +4259,7 @@ class Partner extends CI_Controller {
         readfile($csv);
         exec("rm -rf " . escapeshellarg($csv));
         log_message('info', __FUNCTION__ . ' Function End');
-        unlink($csv);
+        //unlink($csv);
     }
     function download_waiting_defective_parts(){
          log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
