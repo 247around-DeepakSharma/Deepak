@@ -355,14 +355,14 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
            $way_final['temporary_on_off'] = $temporary_on_off;
            $way_final['service_center_name'] = $service_center_name;
            $way_final['service_center_id'] = $service_center_id;
-           $way_final['yesterday_booked'] = (isset($data['data'][$val]['yesterday_booked']['booked']) ? $data['data'][$val]['yesterday_booked']['booked'] : '  ');
-           $way_final['yesterday_completed'] = (isset($data['data'][$val]['yesterday_completed']['completed']) ? $data['data'][$val]['yesterday_completed']['completed'] : ' ');
-           $way_final['yesterday_cancelled'] = (isset($data['data'][$val]['yesterday_cancelled']['cancelled']) ? $data['data'][$val]['yesterday_cancelled']['cancelled'] : '  ');
-           $way_final['month_completed'] = (isset($data['data'][$val]['month_completed']['completed']) ? $data['data'][$val]['month_completed']['completed'] : '  ');
-           $way_final['month_cancelled'] = (isset($data['data'][$val]['month_cancelled']['cancelled']) ? $data['data'][$val]['month_cancelled']['cancelled'] : '  ');
-           $way_final['last_2_day'] = (isset($data['data'][$val]['last_2_day']['booked']) ? $data['data'][$val]['last_2_day']['booked'] : '  ');
-           $way_final['last_3_day'] = (isset($data['data'][$val]['last_3_day']['booked']) ? $data['data'][$val]['last_3_day']['booked'] : '  ');
-           $way_final['greater_than_5_days'] = (isset($data['data'][$val]['greater_than_5_days']['booked']) ? $data['data'][$val]['greater_than_5_days']['booked'] : '  ');
+           $way_final['yesterday_booked'] = (isset($data['data'][$val]['yesterday_booked']['booked']) ? $data['data'][$val]['yesterday_booked']['booked'] : '0');
+           $way_final['yesterday_completed'] = (isset($data['data'][$val]['yesterday_completed']['completed']) ? $data['data'][$val]['yesterday_completed']['completed'] : '0');
+           $way_final['yesterday_cancelled'] = (isset($data['data'][$val]['yesterday_cancelled']['cancelled']) ? $data['data'][$val]['yesterday_cancelled']['cancelled'] : '0');
+           $way_final['month_completed'] = (isset($data['data'][$val]['month_completed']['completed']) ? $data['data'][$val]['month_completed']['completed'] : '0');
+           $way_final['month_cancelled'] = (isset($data['data'][$val]['month_cancelled']['cancelled']) ? $data['data'][$val]['month_cancelled']['cancelled'] : '0');
+           $way_final['last_2_day'] = (isset($data['data'][$val]['last_2_day']['booked']) ? $data['data'][$val]['last_2_day']['booked'] : '0');
+           $way_final['last_3_day'] = (isset($data['data'][$val]['last_3_day']['booked']) ? $data['data'][$val]['last_3_day']['booked'] : '0');
+           $way_final['greater_than_5_days'] = (isset($data['data'][$val]['greater_than_5_days']['booked']) ? $data['data'][$val]['greater_than_5_days']['booked'] : '0');
 
            $final_way[] = $way_final;
        }
