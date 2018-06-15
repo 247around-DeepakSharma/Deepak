@@ -257,7 +257,7 @@
 });
     var table = $('#pending_booking_table').DataTable(
                 {
-                    "pageLength": 10
+                    "pageLength": 50
                 }
             );
         $("#serachInput").change(function () {
