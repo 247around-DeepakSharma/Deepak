@@ -541,7 +541,7 @@ class Inventory_model extends CI_Model {
                     $query[$key]['part_name'] = "";
                     $query[$key]['part_number'] = "";
                 }
-                //get agent name
+                //get agent name 
                 if($value['agent_type'] === _247AROUND_EMPLOYEE_STRING){
                     $employe_details = $this->employee_model->getemployeefromid($value['agent_id']);
                     $query[$key]['agent_name'] = $employe_details[0]['full_name'];
