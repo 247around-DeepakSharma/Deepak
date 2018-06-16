@@ -2660,14 +2660,14 @@ class Service_centers extends CI_Controller {
                     $this->gst_update_form();
                     $status_flag = false;
                 } else {
-                    $is_gst_number = $this->input->post('gst_number');
+                    $is_gst_number = trim($this->input->post('gst_number'));
                     $gst_file_name = $this->input->post('gst_cer_file');
-                    $gst_number = $this->input->post('gst_number');
+                    $gst_number = trim($this->input->post('gst_number'));
                 }
             }
 
             if (!empty($this->input->post('is_signature_doc'))) {
-                $gst_details['signature_file'] = $this->input->post('signature_file_name');
+                $gst_details['signature_file'] = trim($this->input->post('signature_file_name'));
                 $sc['is_signature_doc'] = 1;
                 $sc['signature_file'] = $gst_details['signature_file'];
             }
@@ -2676,9 +2676,9 @@ class Service_centers extends CI_Controller {
             // It not Accessed When validation failed above
             if ($status_flag) {
                 $gst_details['service_center_id'] = $this->session->userdata('service_center_id');
-                $gst_details['company_name'] = $this->input->post('company_name');
-                $gst_details['company_address'] = $this->input->post('company_address');
-                $gst_details['company_pan_number'] = $this->input->post('pan_number');
+                $gst_details['company_name'] = trim($this->input->post('company_name'));
+                $gst_details['company_address'] = preg_replace('/\s+/', ' ', trim($this->input->post('company_address')));
+                $gst_details['company_pan_number'] = trim($this->input->post('pan_number'));
                 $gst_details['is_gst'] = $this->input->post('is_gst');
                 $gst_details['company_gst_number'] = $gst_number;
                 $gst_details['gst_certificate_file'] = $gst_file_name;

@@ -88,7 +88,7 @@ class vendor extends CI_Controller {
                     }
                     //Making process for file upload
                     $tmpFile = $_FILES['pan_file']['tmp_name'];
-                    $pan_file = implode("", explode(" ", $this->input->post('name'))) . '_panfile_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['pan_file']['name'])[1];
+                    $pan_file = preg_replace('/\s+/', '', $this->input->post('name')) . '_panfile_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['pan_file']['name'])[1];
                     move_uploaded_file($tmpFile, TMP_FOLDER.$pan_file);
 
                     //Upload files to AWS
@@ -238,7 +238,7 @@ class vendor extends CI_Controller {
             //Processing Address Proof File Upload
                 if(($_FILES['address_proof_file']['error'] != 4) && !empty($_FILES['address_proof_file']['tmp_name'])){
                     $tmpFile = $_FILES['address_proof_file']['tmp_name'];
-                    $address_proof_file = implode("",explode(" ",$this->input->post('name'))).'_addressprooffile_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['address_proof_file']['name'])[1];
+                    $address_proof_file = str_replace(' ', '', $this->input->post('name')).'_addressprooffile_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['address_proof_file']['name'])[1];
                     move_uploaded_file($tmpFile, TMP_FOLDER.$address_proof_file);
                     
                     //Upload files to AWS
@@ -256,7 +256,7 @@ class vendor extends CI_Controller {
                 //Processing Cancelled Cheque File Upload
                 if(($_FILES['cancelled_cheque_file']['error'] != 4) && !empty($_FILES['cancelled_cheque_file']['tmp_name'])){
                     $tmpFile = $_FILES['cancelled_cheque_file']['tmp_name'];
-                    $cancelled_cheque_file = implode("",explode(" ",$this->input->post('name'))).'_cancelledchequefile_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['cancelled_cheque_file']['name'])[1];
+                    $cancelled_cheque_file = preg_replace('/\s+/', '', $this->input->post('name')).'_cancelledchequefile_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['cancelled_cheque_file']['name'])[1];
                     move_uploaded_file($tmpFile, TMP_FOLDER.$cancelled_cheque_file);
                     
                     //Upload files to AWS
@@ -274,7 +274,7 @@ class vendor extends CI_Controller {
                 //Processing ID Proof 1 File Upload
                 if(($_FILES['id_proof_1_file']['error'] != 4) && !empty($_FILES['id_proof_1_file']['tmp_name'])){
                     $tmpFile = $_FILES['id_proof_1_file']['tmp_name'];
-                    $id_proof_1_file = implode("",explode(" ",$this->input->post('name'))).'_idproof1file_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['id_proof_1_file']['name'])[1];
+                    $id_proof_1_file = preg_replace('/\s+/', '', $this->input->post('name')).'_idproof1file_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['id_proof_1_file']['name'])[1];
                     move_uploaded_file($tmpFile, TMP_FOLDER.$id_proof_1_file);
                     
                     //Upload files to AWS
@@ -292,7 +292,7 @@ class vendor extends CI_Controller {
                 //Processing ID Proof 1 File Upload
                 if(($_FILES['id_proof_2_file']['error'] != 4) && !empty($_FILES['id_proof_2_file']['tmp_name'])){
                     $tmpFile = $_FILES['id_proof_2_file']['tmp_name'];
-                    $id_proof_2_file = implode("",explode(" ",$this->input->post('name'))).'_idproof2file_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['id_proof_2_file']['name'])[1];
+                    $id_proof_2_file = preg_replace('/\s+/', '', $this->input->post('name')).'_idproof2file_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['id_proof_2_file']['name'])[1];
                     move_uploaded_file($tmpFile, TMP_FOLDER.$id_proof_2_file);
                     
                     //Upload files to AWS
@@ -310,7 +310,7 @@ class vendor extends CI_Controller {
                 //Processing Contract File Upload
                 if(($_FILES['contract_file']['error'] != 4) && !empty($_FILES['contract_file']['tmp_name'])){
                     $tmpFile = $_FILES['contract_file']['tmp_name'];
-                    $contract_file = implode("",explode(" ",$this->input->post('name'))).'_contractfile_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['contract_file']['name'])[1];
+                    $contract_file = preg_replace('/\s+/', '', $this->input->post('name')).'_contractfile_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['contract_file']['name'])[1];
                     move_uploaded_file($tmpFile, TMP_FOLDER.$contract_file);
                     
                     //Upload files to AWS
@@ -551,7 +551,7 @@ class vendor extends CI_Controller {
                 }
                 //Making process for file upload
                 $tmpFile = $_FILES['gst_file']['tmp_name'];
-                $gst_file = implode("", explode(" ", $this->input->post('name'))) . '_gstfile_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['gst_file']['name'])[1];
+                $gst_file = str_replace(' ', '', $this->input->post('name')) . '_gstfile_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['gst_file']['name'])[1];
                 move_uploaded_file($tmpFile, TMP_FOLDER . $gst_file);
 
                 //Upload files to AWS
@@ -2311,7 +2311,7 @@ class vendor extends CI_Controller {
 		if ($_FILES["bank_proof_pic"]["error"] > 0) {
 		    $this->form_validation->set_message('upload_bank_proof_pic', $_FILES["bank_proof_pic"]["error"]);
 		} else {
-		    $pic = str_replace(' ', '-', $this->input->post('name')) . "_" . str_replace(' ', '', $this->input->post('bank_name')) . "_" . uniqid(rand());
+		    $pic = preg_replace('/\s+/', '', $this->input->post('name')) . "_" . preg_replace('/\s+/', ' ', $this->input->post('bank_name')) . "_" . uniqid(rand());
 		    $picName = $pic . "." . $extension;
 		    $_POST['bank_proof_pic'] = $picName;
                     // Uploading to S3
@@ -2343,7 +2343,7 @@ class vendor extends CI_Controller {
 		if ($_FILES["file"]["error"] > 0) {
 		    $this->form_validation->set_message('upload_identity_proof_pic', $_FILES["file"]["error"]);
 		} else {
-		    $pic = str_replace(' ', '-', $this->input->post('name')) . "_" . str_replace(' ', '', $this->input->post('identity_proof')) . "_" . uniqid(rand());
+		    $pic = preg_replace('/\s+/', '', $this->input->post('name')) . "_" . preg_replace('/\s+/', '', $this->input->post('identity_proof')) . "_" . uniqid(rand());
 		    $picName = $pic . "." . $extension;
 		    $_POST['identity_file'] = $picName;
                     //Uploading to S3
@@ -4273,7 +4273,7 @@ class vendor extends CI_Controller {
                 
                 //Making process for file upload
                 $tmpFile = $_FILES['signature_file']['tmp_name'];
-                $signature_file = implode("", explode(" ", $this->input->post('name'))) . '_signature_file_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['signature_file']['name'])[1];
+                $signature_file = preg_replace('/\s+/', '', $this->input->post('name')) . '_signature_file_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['signature_file']['name'])[1];
                 move_uploaded_file($tmpFile, TMP_FOLDER . $signature_file);
 
                 //Upload files to AWS
