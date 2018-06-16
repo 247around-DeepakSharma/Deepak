@@ -669,12 +669,17 @@ class Dashboard extends CI_Controller {
     /*
      * This function use to create full view of missing pincode table
      */
-    function missing_pincode_full_view($agentID){
+    function missing_pincode_full_view($agentID = NULL){
         $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
         //SELECT sf.pincode, COUNT(sf.pincode) as pincodeCount, sf.state, sf.city FROM (sf_not_exist_booking_details sf) WHERE `sf`.`rm_id` = '11' AND `sf`.`active_flag` = 1 
         //AND `sf`.`is_pincode_valid` = 1 GROUP BY sf.pincode ORDER BY pincodeCount DESC
         $select = "sf.pincode,COUNT(sf.pincode) as pincodeCount,sf.state,sf.city,sf.service_id,services.services";
+        if($agentID){
         $where['sf.rm_id'] = $agentID;
+        } 
+        else{
+             $where['rm_id IS NULL'] = NULL;  
+        }
         $where['sf.active_flag'] = 1;
         $where['sf.is_pincode_valid'] = 1;
         $orderBYArray['pincodeCount'] = 'DESC';
@@ -748,7 +753,7 @@ class Dashboard extends CI_Controller {
      * @input - rm_id
      * @output - Excel
      */
-    function download_missing_sf_pincode_excel($rmID){
+    function download_missing_sf_pincode_excel($rmID = NULL){
         ob_start();
         $pincodeArray =  $this->dashboard_model->get_pincode_data_for_not_found_sf($rmID);
         $config = array('template' => "missing_sf_pincode.xlsx", 'templateDir' => __DIR__ . "/../excel-templates/");
@@ -1338,9 +1343,14 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                                 </table>
 <?php
     }
-    function get_missing_pincode_data_group_by_district($agentID){
+    function get_missing_pincode_data_group_by_district($agentID = NULL){
         $select = "COUNT(sf.pincode) as pincodeCount,services.services,UPPER(sf.city) as city ,sf.pincode";
+        if($agentID){
         $where['sf.rm_id'] = $agentID;
+        }
+       else{
+            $where['sf.rm_id IS NULL'] = NULL;
+       }
         $where['sf.active_flag'] = 1;
         $where['sf.is_pincode_valid'] = 1;
         $orderBYArray['pincodeCount'] = 'DESC';
@@ -1351,9 +1361,14 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $finalPincodeArray = $this->missing_pincode_group_by_data_helper($dataArray,'city','services');
         $this->missing_pincode_group_by_view_helper($finalPincodeArray,'district_appliance','District','services');
     }
-    function get_missing_pincode_data_group_by_partner($agentID){
+    function get_missing_pincode_data_group_by_partner($agentID = NULL){
         $select = "partners.public_name,COUNT(sf.pincode) as pincodeCount,sf.city as District,sf.pincode";
+        if($agentID){
         $where['sf.rm_id'] = $agentID;
+        }
+        else{
+            $where['sf.rm_id IS NULL'] = NULL;  
+        }
         $where['sf.active_flag'] = 1;
         $where['sf.is_pincode_valid'] = 1;
         $orderBYArray['pincodeCount'] = 'DESC';
@@ -1364,9 +1379,14 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $finalPincodeArray = $this->missing_pincode_group_by_data_helper($dataArray,'public_name','District');
         $this->missing_pincode_group_by_view_helper($finalPincodeArray,'partner_appliance','Partner','District');
     }
-    function get_missing_pincode_data_group_by_appliance($agentID){
+    function get_missing_pincode_data_group_by_appliance($agentID = NULL){
         $select = "COUNT(sf.pincode) as pincodeCount,services.services,sf.city as District,sf.pincode";
+        if($agentID){
         $where['sf.rm_id'] = $agentID;
+        }
+        else{
+            $where['sf.rm_id IS NULL'] = NULL;
+        }
         $where['sf.active_flag'] = 1;
         $where['sf.is_pincode_valid'] = 1;
         $orderBYArray['pincodeCount'] = 'DESC';

@@ -541,12 +541,12 @@ class Inventory_model extends CI_Model {
                     $query[$key]['part_name'] = "";
                     $query[$key]['part_number'] = "";
                 }
-                //get agent name
+                //get agent name 
                 if($value['agent_type'] === _247AROUND_EMPLOYEE_STRING){
                     $employe_details = $this->employee_model->getemployeefromid($value['agent_id']);
                     $query[$key]['agent_name'] = $employe_details[0]['full_name'];
                 }else if($value['agent_type'] === _247AROUND_PARTNER_STRING){
-                    $partner_details = $this->partner_model->getpartner_details('public_name',array('id'=>$value['agent_id']));
+                    $partner_details = $this->partner_model->getpartner_details('public_name',array('partners.id'=>$value['agent_id']));
                     $query[$key]['agent_name'] = $partner_details[0]['public_name'];
                 }else if($value['agent_type'] === _247AROUND_SF_STRING){
                     $vendor_details = $this->vendor_model->getVendorDetails('name',array('id'=>$value['agent_id']));
