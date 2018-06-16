@@ -759,6 +759,7 @@
                             if($query[0]['id']){
                             ?>
                     <input type="hidden" id="partner_id" name="partner_id" value=<?php echo  $query[0]['id']?>>
+                    <input type="hidden" id="partner_public_name" name="partner_public_name" value=<?php echo  $query[0]['public_name']?>>
                     <?php
                         }
                         }

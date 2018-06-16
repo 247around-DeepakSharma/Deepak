@@ -3509,7 +3509,7 @@ class Partner extends CI_Controller {
         //Processing Pan File
         if (($_FILES['pan_file']['error'] != 4) && !empty($_FILES['pan_file']['tmp_name'])) {
             $tmpFile = $_FILES['pan_file']['tmp_name'];
-            $pan_file = "Partner-" . $this->input->post('public_name') . '-PAN' . "." . explode(".", $_FILES['pan_file']['name'])[1];
+            $pan_file = "Partner-" . preg_replace('/\s+/', '', strtolower($this->input->post('partner_public_name'))) . '-PAN' . "." . explode(".", $_FILES['pan_file']['name'])[1];
             move_uploaded_file($tmpFile, TMP_FOLDER . $pan_file);
 
             //Upload files to AWS
@@ -3527,7 +3527,7 @@ class Partner extends CI_Controller {
         //Processing Registration File
         if (($_FILES['registration_file']['error'] != 4) && !empty($_FILES['registration_file']['tmp_name'])) {
             $tmpFile = $_FILES['registration_file']['tmp_name'];
-            $registration_file = "Partner-" . $this->input->post('public_name') . '-Registration' . "." . explode(".", $_FILES['registration_file']['name'])[1];
+            $registration_file = "Partner-" . preg_replace('/\s+/', '', strtolower($this->input->post('partner_public_name'))) . '-Registration' . "." . explode(".", $_FILES['registration_file']['name'])[1];
             move_uploaded_file($tmpFile, TMP_FOLDER . $registration_file);
 
             //Upload files to AWS
@@ -3544,7 +3544,7 @@ class Partner extends CI_Controller {
         //Processing TIN File
         if (($_FILES['tin_file']['error'] != 4) && !empty($_FILES['tin_file']['tmp_name'])) {
             $tmpFile = $_FILES['tin_file']['tmp_name'];
-            $tin_file = "Partner-" . $this->input->post('public_name') . '-TIN' . "." . explode(".", $_FILES['tin_file']['name'])[1];
+            $tin_file = "Partner-" . preg_replace('/\s+/', '', strtolower($this->input->post('partner_public_name'))) . '-TIN' . "." . explode(".", $_FILES['tin_file']['name'])[1];
             move_uploaded_file($tmpFile, TMP_FOLDER . $tin_file);
 
             //Upload files to AWS
@@ -3561,7 +3561,7 @@ class Partner extends CI_Controller {
         //Processing CST File
         if (($_FILES['cst_file']['error'] != 4) && !empty($_FILES['cst_file']['tmp_name'])) {
             $tmpFile = $_FILES['cst_file']['tmp_name'];
-            $cst_file = "Partner-" . $this->input->post('public_name') . '-CST' . "." . explode(".", $_FILES['cst_file']['name'])[1];
+            $cst_file = "Partner-" . preg_replace('/\s+/', '', strtolower($this->input->post('partner_public_name'))) . '-CST' . "." . explode(".", $_FILES['cst_file']['name'])[1];
             move_uploaded_file($tmpFile, TMP_FOLDER . $cst_file);
 
             //Upload files to AWS
@@ -3578,7 +3578,7 @@ class Partner extends CI_Controller {
         //Processing Service Tax File
         if (($_FILES['service_tax_file']['error'] != 4) && !empty($_FILES['service_tax_file']['tmp_name'])) {
             $tmpFile = $_FILES['service_tax_file']['tmp_name'];
-            $service_tax_file = "Partner-" . $this->input->post('public_name') . '-CST' . "." . explode(".", $_FILES['service_tax_file']['name'])[1];
+            $service_tax_file = "Partner-" . preg_replace('/\s+/', '', strtolower($this->input->post('partner_public_name'))) . '-CST' . "." . explode(".", $_FILES['service_tax_file']['name'])[1];
             move_uploaded_file($tmpFile, TMP_FOLDER . $service_tax_file);
 
             //Upload files to AWS
@@ -3592,12 +3592,12 @@ class Partner extends CI_Controller {
             //Logging success for file uppload
             log_message('info', __FUNCTION__ . ' Service Tax FILE is being uploaded sucessfully.');
         }
-        $return_data['partner']['gst_number'] = $this->input->post("gst_number");
-        $return_data['partner']['pan'] = $this->input->post("pan");
-        $return_data['partner']['registration_no'] = $this->input->post("registration_no");
-        $return_data['partner']['tin'] = $this->input->post("tin");
-        $return_data['partner']['cst_no'] = $this->input->post("cst_no");
-        $return_data['partner']['service_tax'] = $this->input->post("service_tax");
+        $return_data['partner']['gst_number'] = trim($this->input->post("gst_number"));
+        $return_data['partner']['pan'] = trim($this->input->post("pan"));
+        $return_data['partner']['registration_no'] = trim($this->input->post("registration_no"));
+        $return_data['partner']['tin'] = trim($this->input->post("tin"));
+        $return_data['partner']['cst_no'] = trim($this->input->post("cst_no"));
+        $return_data['partner']['service_tax'] = trim($this->input->post("service_tax"));
         $return_data['partner']['update_date'] = date("Y-m-d h:i:s");
         $return_data['partner']['agent_id'] = $this->session->userdata('id');
         if ($return_data) {
