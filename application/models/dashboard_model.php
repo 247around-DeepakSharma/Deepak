@@ -326,19 +326,20 @@ class dashboard_model extends CI_Model {
  */    
      function get_pincode_data_for_not_found_sf($rmID){
          $this->db->_reserved_identifiers = array('*','CASE');
+         if($rmID){
          $this->db->select('sf.pincode,sf.city,sf.state,sf.service_id,sf.rm_id,partners.public_name,services.services');
          $this->db->where('sf.rm_id',$rmID); 
-         $this->db->order_by('count(sf.pincode) DESC');
+             $this->db->join('employee', 'employee.id = sf.rm_id',"left");
+         }
+           else{
+               $this->db->select('sf.pincode,sf.city,sf.state,sf.service_id,partners.public_name,services.services');
+               $this->db->where('sf.rm_id IS NULL'); 
+           }   
          $this->db->where('active_flag',1); 
          $this->db->where('is_pincode_valid',1); 
          $this->db->join('services', 'services.id = sf.service_id','left');
-         $this->db->join('employee', 'employee.id = sf.rm_id',"left");
             $this->db->join('partners', 'partners.id = sf.partner_id',"left");
-            if($limit){
-                    $this->db->limit($limit); 
-            }
-            $this->db->get('sf_not_exist_booking_details sf')->result_array();
-            echo $this->db->last_query();
+         return $this->db->get('sf_not_exist_booking_details sf')->result_array();
     }
     
      function update_query_report($where, $data){
