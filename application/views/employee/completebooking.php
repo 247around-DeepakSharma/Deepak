@@ -294,7 +294,7 @@
 
 											    <div class="radio">
 											<label>
-											    <input type="radio" class="my_checkbox" id="<?php echo "completed_" . $price['pod'] . "_" . $count; ?>" name="<?php echo "booking_status[" . $price['unit_id'] . "]" ?>"  value="Completed" <?php
+											    <input type="radio" class="<?php echo "completed_".$count."_".$keys;?>" id="<?php echo "completed_" . $price['pod'] . "_" . $count; ?>" name="<?php echo "booking_status[" . $price['unit_id'] . "]" ?>"  value="Completed" <?php
 												   if ($price['booking_status'] == "Completed") {
 												       echo "checked";
 												   }
@@ -306,7 +306,7 @@
 											   }
 											    ?><br/>
 
-													   <input type="radio" class="my_checkbox" id="<?php echo "cancelled_" . $price['pod'] . "_" . $count; ?>" name="<?php echo "booking_status[" . $price['unit_id'] . "]" ?>"  value="Cancelled" <?php
+													   <input type="radio" class="<?php echo "cancelled_".$count."_".$keys;?>" id="<?php echo "cancelled_" . $price['pod'] . "_" . $count; ?>" name="<?php echo "booking_status[" . $price['unit_id'] . "]" ?>"  value="Cancelled" <?php
 												   if ($price['booking_status'] == "Cancelled") {
 												       echo "checked";
 												   }
@@ -360,9 +360,9 @@
 
 											    <div class="radio">
 											<label>
-											    <input type="radio" name="<?php echo "booking_status[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value="Completed" id="<?php echo "completed_" . $value['pod'] . "_" . $count; ?>" > Completed<br/>
+											    <input <?php echo "completed_".$count."_".$keys;?> type="radio" name="<?php echo "booking_status[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value="Completed" id="<?php echo "completed_" . $value['pod'] . "_" . $count; ?>" > Completed<br/>
 
-												    <input type="radio" name="<?php echo "booking_status[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value="Cancelled" id="<?php echo "cancelled_" . $value['pod'] . "_" . $count; ?>" > Not Completed
+												    <input <?php echo "Cancelled_".$count."_".$keys;?> type="radio" name="<?php echo "booking_status[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value="Cancelled" id="<?php echo "cancelled_" . $value['pod'] . "_" . $count; ?>" > Not Completed
 											</label>
 										    </div>
 
@@ -520,6 +520,7 @@
     var div_count = 0;
     var is_completed_checkbox = [];
     var serial_number_tmp = [];
+    var prediv = -1;
     $(':radio:checked').each(function(i) {
         div_count = div_count + 1;
 
@@ -529,9 +530,19 @@
         if (div_no[0] === "completed") {
             //if POD is also 1, only then check for serial number.
             if (div_no[1] === "1") {
+                
+                var completedRadioButton = document.getElementById(this.id);
+                    
+                var className = completedRadioButton.className;
+                var appdiv = Number(className.split('_')[2]);
                 var serial_number = $("#serial_number" + div_no[2]).val();
+                if(prediv !== appdiv){
+                      
+                    prediv = appdiv;
+                    serial_number_tmp.push(serial_number);
+                }
                
-                serial_number_tmp.push(serial_number);
+
                 if (serial_number === "") {
                     alert("Please Enter Serial Number");
                     document.getElementById('serial_number' + div_no[2]).style.borderColor = "red";
@@ -594,11 +605,11 @@
         }
     });
 
-    var is_sp_required = $("#spare_parts_required").val();
-
-    if (Number(is_sp_required) === 1) {
-        alert("Ship Defective Spare Parts");
-    }
+//    var is_sp_required = $("#spare_parts_required").val();
+//
+//    if (Number(is_sp_required) === 1) {
+//        alert("Ship Defective Spare Parts");
+//    }
 
     if (Number(upcountry_flag) === 1) {
         var upcountry_charges = $("#upcountry_charges").val();

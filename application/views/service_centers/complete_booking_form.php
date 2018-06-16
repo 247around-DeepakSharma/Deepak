@@ -123,7 +123,7 @@
                     <input type="hidden" name="can_sp_required_id" value='<?php echo json_encode($can_sp_id,TRUE); ?>' />
                     <input type="hidden" name="partner_id" value='<?php echo $booking_history[0]['partner_id']; ?>' />
                     <input type="hidden" name="approval" value='0' />
-                    <input type="hidden" name="count_unit"id ="count_unit" value="<?php echo count($bookng_unit_details);?>" />
+                    <input type="hidden" name="count_unit" id ="count_unit" value="<?php echo count($bookng_unit_details);?>" />
                     <input type="hidden" name="mismatch_pincode" id="mismatch_pincode" value="<?php if(isset($mismatch_pincode)) { echo $mismatch_pincode; }?>" />
                     <?php $count = 0; foreach ($bookng_unit_details as $key1 => $unit_details) { ?>
                     <div class="clonedInput panel panel-info " id="clonedInput1">
@@ -436,17 +436,30 @@
                 return false;
             }
         }
+        var prediv = -1;
         $(':radio:checked').each(function(i) {
             div_count = div_count + 1;
-    
+        
             //console.log($(this).val());
             var div_no = this.id.split('_');
             is_completed_checkbox[i] = div_no[0];
             if (div_no[0] === "completed") {
+                
                 //if POD is also 1, only then check for serial number.
                 if (div_no[1] === "1") {
+                   
+                    var completedRadioButton = document.getElementById(this.id);
+                    
+                    var className = completedRadioButton.className;
+                    var appdiv = Number(className.split('_')[2]);
+                    
                     var serial_number = $("#serial_number" + div_no[2]).val();
-                    serial_number_tmp.push(serial_number);
+                    if(prediv !== appdiv){
+                      
+                        prediv = appdiv;
+                        serial_number_tmp.push(serial_number);
+                    }
+                    
                     if (serial_number === "") {
     
                         document.getElementById('serial_number' + div_no[2]).style.borderColor = "red";
@@ -581,7 +594,7 @@
                 return false;
             }
         }
-        
+
         if (flag === 0) {
             $('#submitform').val("Please wait.....");
             return true;
