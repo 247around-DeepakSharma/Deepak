@@ -2723,8 +2723,11 @@ class Inventory extends CI_Controller {
                                 $total_cgst_tax_amount = $total_sgst_tax_amount = $total_igst_tax_amount = 0;
                                 $invoice = array();
                                 foreach ($parts_details as $value) {
+                                    
+                                    if(!empty($value['booking_id'])){
+                                        array_push($booking_id_array, $value['booking_id']);
+                                    }
 
-                                    array_push($booking_id_array, $value['booking_id']);
                                     $tqty += $value['quantity'];
 
                                     $invoice_annexure = $this->inventory_invoice_data($invoice_id, $c_s_gst, $value);
@@ -2765,7 +2768,11 @@ class Inventory extends CI_Controller {
                                 $courier_data['AWB_no'] = $awb_number;
                                 $courier_data['courier_name'] = $courier_name;
                                 $courier_data['create_date'] = date('Y-m-d H:i:s');
-
+                                $courier_data['quantity'] = $tqty;
+                                if(!empty($booking_id_array)){
+                                    $courier_data['booking_id'] = implode(",", $booking_id_array);
+                                }
+                                
                                 if (!empty($courier_file['message'])) {
                                     $courier_data['courier_file'] = $courier_file['message'];
                                 }
@@ -3072,6 +3079,7 @@ class Inventory extends CI_Controller {
                 $invoice_id = $this->inventory_invoice_settlement($sender_entity_id, $sender_entity_type);
                 if (!empty($invoice_id)) {
                     $not_updated_bookings = array();
+                    $booking_id_array = array();
                     foreach ($postData as $value) {
                         //acknowledge spare by setting is_wh_ack flag = 1 in inventory ledger table
                         if (!empty($value->inventory_id)) {
@@ -3086,20 +3094,37 @@ class Inventory extends CI_Controller {
                             $ledger_data['booking_id'] = $value->booking_id;
                             $ledger_data['is_defective'] = 1;
                             $ledger_data['invoice_id'] = $invoice_id;
+                            array_push($booking_id_array,  $value->booking_id);
 
                             $insert_id = $this->inventory_model->insert_inventory_ledger($ledger_data);
 
                             if ($insert_id) {
                                 log_message("info", "Ledger details added successfully");
                                 $where = array('id' => $value->spare_id);
-                                $data = array('status' => DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH,
-                                    'awb_by_wh' => $awb_by_wh,
-                                    'courier_name_by_wh' => $courier_name_by_wh,
-                                    'courier_price_by_wh' => $courier_price_by_wh,
-                                    'defective_parts_shippped_date_by_wh' => $defective_parts_shippped_date_by_wh,
-                                    'defective_parts_shippped_courier_pic_by_wh' => $courier_file['message']
-                                );
+                                $data = array('status' => DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH);
+                                
                                 $update_spare_parts = $this->service_centers_model->update_spare_parts($where, $data);
+                                 
+                                $courier_details['sender_entity_id'] = $sender_entity_id;
+                                $courier_details['sender_entity_type'] = $sender_entity_type;
+                                $courier_details['receiver_entity_id'] = $value->partner_id;
+                                $courier_details['receiver_entity_type'] = _247AROUND_PARTNER_STRING;
+                                $courier_details['AWB_no'] = $awb_by_wh;
+                                $courier_details['courier_name'] = $courier_name_by_wh;
+                                $courier_details['courier_file'] = $courier_file['message'];
+                                $courier_details['shipment_date'] = $defective_parts_shippped_date_by_wh;
+                                $courier_details['courier_charge'] = $courier_price_by_wh;
+                                $courier_details['quantity'] = count($booking_id_array);
+                                $courier_details['booking_id'] = implode(",", $booking_id_array);
+                                $courier_details['create_date'] = date('Y-m-d H:i:s');
+                                $insert_courier_details = $this->inventory_model->insert_courier_details($courier_details);
+
+                                if (!empty($insert_courier_details)) {
+                                    log_message('info', 'Courier Details added successfully.');
+                                } else {
+                                    log_message('info', 'Error in inserting courier details.');
+                                }                                
+                               
                                 if ($update_spare_parts) {
                                     log_message("info", "Spare Status updated  successfully");
                                     $agent_id = $this->session->userdata('service_center_agent_id');
@@ -3239,6 +3264,7 @@ class Inventory extends CI_Controller {
         }
         $sd = $ed = $invoice_date = date("Y-m-d");
         $invoices = array_values($invoice);
+        
         log_message('info', __METHOD__. " Spare Invoice Data ". print_r($invoices, TRUE). " Entity id ".$sender_entity_id);
         $response = $this->invoices_model->_set_partner_excel_invoice_data($invoices, $sd, $ed, "Tax Invoice",$invoice_date);
         $response['meta']['invoice_id'] = $invoice_id;
