@@ -2468,14 +2468,15 @@ Your browser does not support the audio element.
     
     function get_SF_payout($booking_id, $service_center_id, $amount_due){
        
-        $where['where'] = array('booking_unit_details.booking_id' =>$booking_id, "booking_status != 'Cancelled'" => NULL);
-        $where['length'] = -1;
+        $where = array('booking_unit_details.booking_id' =>$booking_id, "booking_status != 'Cancelled'" => NULL);
+        
         $select = "(vendor_basic_charges + vendor_st_or_vat_basic_charges "
                 . "+ vendor_extra_charges + vendor_st_extra_charges+ vendor_parts+ vendor_st_parts) as sf_earned";
-        $b_earned = $this->My_CI->booking_model->get_bookings_by_status($where, $select);
+      
+        $b_earned = $this->My_CI->booking_model->get_unit_details($where, FALSE, $select);
         $unit_amount = 0;
         foreach($b_earned as $earn){
-            $unit_amount += $earn->sf_earned;
+            $unit_amount += $earn['sf_earned'];
         }
         
         $penalty_select = "CASE WHEN ((count(booking_id) *  penalty_on_booking.penalty_amount) > cap_amount) THEN (cap_amount)
@@ -2496,7 +2497,7 @@ Your browser does not support the audio element.
             }
             $up_charges = $upcountry[0]['upcountry_price']/$upcountry[0]['count_booking'];
         }
-        $return['sf_earned'] = $unit_amount -$p_amount[0]['p_amount'] + $up_charges;
+        $return['sf_earned'] = round($unit_amount -$p_amount[0]['p_amount'] + $up_charges, 0);
         if($p_amount[0]['p_amount'] > 0){
             $return['penalty'] = TRUE;
         } else{
