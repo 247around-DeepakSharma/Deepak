@@ -772,3 +772,39 @@ rm_dashboard.controller('bracketsSnapshot_Controller', function ($scope, $http) 
             $("#brackets_loader").css("display", "none");
      });
 });
+
+ //This Function is used to call Completed Booking Days Reports
+admin_dashboard.controller('completedBooking_Controller', function ($scope, $http) {
+    $scope.loadCompletedBookingView = function(pending_url){
+        $("#loader_gif_pending").css("display", "block");
+            $scope.completedBookingByRM = "";
+            $http.get(pending_url).then(function (response) {
+            $("#loader_gif_pending").css("display", "none");
+            $scope.completedBookingByRM = response.data;
+         });
+     }
+     $scope.ShowRMCompletedBookingBYDateRange = function(){
+                dateRange = $("#completed_daterange_id").val();
+                dateArray = dateRange.split(" - ");
+                startDate = dateArray[0];
+                endDate = dateArray[1];
+              $scope.loadCompletedBookingView(baseUrl + "/employee/dashboard/completed_booking_count_by_rm/"+startDate+"/"+endDate);
+    }
+});
+rm_dashboard.controller('completedBooking_Controller', function ($scope, $http) {
+    $scope.loadCompletedBookingView = function(pending_url){
+        $("#loader_gif_pending").css("display", "block");
+            $scope.completedBookingByRM = "";
+            $http.get(pending_url).then(function (response) {
+            $("#loader_gif_pending").css("display", "none");
+            $scope.completedBookingByRM = response.data;
+         });
+     }
+     $scope.ShowRMCompletedBookingBYDateRange = function(){
+                dateRange = $("#completed_daterange_id").val();
+                dateArray = dateRange.split(" - ");
+                startDate = dateArray[0];
+                endDate = dateArray[1];
+              $scope.loadCompletedBookingView(baseUrl + "/employee/dashboard/completed_booking_count_by_rm/"+startDate+"/"+endDate);
+    }
+});
