@@ -1791,16 +1791,16 @@ class Miscelleneous {
 
     function update_insert_bank_account_details($bankDetailsArray) {
         if($bankDetailsArray['entity_id']){
-        $where['entity_id'] = $bankDetailsArray['entity_id'];
-        $where['entity_type'] = $bankDetailsArray['entity_type'];
-        $affectedRows = $this->My_CI->reusable_model->update_table("account_holders_bank_details",$bankDetailsArray,$where);
-        if($affectedRows == 0){
-            if (array_key_exists('bank_name', $bankDetailsArray) || array_key_exists('account_type', $bankDetailsArray) || array_key_exists('bank_account', $bankDetailsArray) || array_key_exists('ifsc_code', $bankDetailsArray) || array_key_exists('cancelled_cheque_file', $bankDetailsArray) || array_key_exists('beneficiary_name', $bankDetailsArray) || array_key_exists('beneficiary_name', $bankDetailsArray)) {
-                $affectedRows = $this->My_CI->reusable_model->insert_into_table('account_holders_bank_details', $bankDetailsArray);
-            }
-        } 
-        return $affectedRows;
-    }
+            $where['entity_id'] = $bankDetailsArray['entity_id'];
+            $where['entity_type'] = $bankDetailsArray['entity_type'];
+            $affectedRows = $this->My_CI->reusable_model->update_table("account_holders_bank_details",$bankDetailsArray,$where);
+            if($affectedRows == 0){
+                if (array_key_exists('bank_name', $bankDetailsArray) || array_key_exists('account_type', $bankDetailsArray) || array_key_exists('bank_account', $bankDetailsArray) || array_key_exists('ifsc_code', $bankDetailsArray) || array_key_exists('cancelled_cheque_file', $bankDetailsArray) || array_key_exists('beneficiary_name', $bankDetailsArray) || array_key_exists('beneficiary_name', $bankDetailsArray)) {
+                    $affectedRows = $this->My_CI->reusable_model->insert_into_table('account_holders_bank_details', $bankDetailsArray);
+                }
+            } 
+            return $affectedRows;
+        }
     }
 
     /**
@@ -2122,7 +2122,7 @@ class Miscelleneous {
         $data['main_nav'] = $this->get_main_nav_data("main_nav",$entity_type);
         $data['right_nav'] = $this->get_main_nav_data("right_nav",$entity_type);
         if($entity_type == "Partner"){
-           $msg = $this->My_CI->load->view('partner/header_navigation',$data,TRUE);
+          $msg = $this->My_CI->load->view('partner/header_navigation',$data,TRUE);
            $this->My_CI->cache->file->save('navigationHeader_partner_'.$this->My_CI->session->userdata('user_group').'_'.$this->My_CI->session->userdata('agent_id'), $msg, 36000);
         }
         else{
@@ -2930,4 +2930,37 @@ function convert_html_to_pdf($html,$booking_id,$filename,$s3_folder){
             }
         }
     }
+    function multi_array_sort_by_key($array, $on, $order=SORT_ASC){
+    $new_array = array();
+    $sortable_array = array();
+
+    if (count($array) > 0) {
+        foreach ($array as $k => $v) {
+            if (is_array($v)) {
+                foreach ($v as $k2 => $v2) {
+                    if ($k2 == $on) {
+                        $sortable_array[$k] = $v2;
+                    }
+                }
+            } else {
+                $sortable_array[$k] = $v;
+            }
+        }
+
+        switch ($order) {
+            case SORT_ASC:
+                asort($sortable_array);
+                break;
+            case SORT_DESC:
+                arsort($sortable_array);
+                break;
+        }
+
+        foreach ($sortable_array as $k => $v) {
+            $new_array[$k] = $array[$k];
+        }
+    }
+
+    return $new_array;
+}
 }
