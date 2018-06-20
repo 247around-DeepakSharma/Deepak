@@ -3123,6 +3123,7 @@ class Inventory extends CI_Controller {
                                 $courier_details['sender_entity_type'] = $sender_entity_type;
                                 $courier_details['receiver_entity_id'] = $value->partner_id;
                                 $courier_details['receiver_entity_type'] = _247AROUND_PARTNER_STRING;
+                                $courier_details['bill_to_partner'] = $value->partner_id;
                                 $courier_details['AWB_no'] = $awb_by_wh;
                                 $courier_details['courier_name'] = $courier_name_by_wh;
                                 $courier_details['courier_file'] = $courier_file['message'];
