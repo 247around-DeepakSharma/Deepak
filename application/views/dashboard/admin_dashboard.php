@@ -21,9 +21,17 @@
                     <div class="clearfix"></div>
                 </div>
                 <div class="table-responsive" id="escalation_data" ng-controller="completedBooking_Controller" ng-cloak="">
-                                    <div class="form-group" style="float:right;">
+                                    <div class="form-group" style="float:right;col-md-3">
                                          <label for="">Booking Completed Date Range</label>
                                          <input type="text" class="form-control" name="daterange_completed_bookings" id="completed_daterange_id" ng-change="ShowRMCompletedBookingBYDateRange()" ng-model="dates">
+                            </div>
+                    <div class="form-group col-md-3" style="float:right;">
+                                         <label for="">Booking Status</label>
+                                        <select class="form-control" ng-change="ShowRMCompletedBookingBYDateRange()" ng-model="status" id="completed_status">
+                                            <option value="">All</option>
+                                            <option value="Completed" ng-selected="true">Completed</option>
+                                            <option value="Cancelled">Cancelled</option>
+                                        </select>
                             </div>
                 <br>
                 <div class="clear"></div>
