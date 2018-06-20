@@ -423,7 +423,7 @@ class partner_sd_cb {
                         "minute" => date('i', strtotime($data['booking_date'])));
                 }
                 
-                return $this->post_jeeves_data($postData);
+                return $this->post_jeeves_data($postData, $data['order_id'], $data['booking_id'], $StatusReason);
                 
             } else {
                  log_message('info', __METHOD__ . "=> Call already updated cancelled");
@@ -461,7 +461,7 @@ class partner_sd_cb {
         $this->My_CI->partner_model->log_partner_activity($activity);
     }
 
-    function post_jeeves_data($postData){
+    function post_jeeves_data($postData, $order_id, $booking_id, $statusReason){
          $curl = curl_init();
 
         $this->header = array(
@@ -497,6 +497,7 @@ class partner_sd_cb {
 
         $activity = array(
             'partner_id' => $this->partner,
+            'order_id' => $order_id,
             'activity' => $this->requestUrl,
             'header' => json_encode($this->header),
             'json_request_data' => $this->jsonRequestData,
@@ -507,7 +508,14 @@ class partner_sd_cb {
         $res = json_decode($response, true);
         if (isset($res['ResponseCode'])) {
             if ($res['ResponseCode'] != 201) {
+                
                 $this->jeevesCallbackAPIFailed();
+                
+            } else {
+                if(!empty($StatusReason)){
+                    $this->My_CI->booking_model->update_booking($booking_id, array('api_call_status_updated_on_completed' => $statusReason));
+                }
+                
             }
         } else {
             $this->jeevesCallbackAPIFailed();
