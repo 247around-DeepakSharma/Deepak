@@ -1093,5 +1093,10 @@ class Inventory_model extends CI_Model {
       $this->db->insert_ignore('inventory_model_mapping', $data);
       return $this->db->insert_id();
     }
+    
+    function update_courier_detail($where, $data){
+        $this->db->where($where);
+        $this->db->update('courier_details',$data);
+    }
 
 }

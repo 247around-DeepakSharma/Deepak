@@ -1077,6 +1077,7 @@ class invoices_model extends CI_Model {
                 $result['c_penalty'] = $credit_penalty;
             }
         }
+
         return $result;
     }
 
@@ -1134,8 +1135,8 @@ class invoices_model extends CI_Model {
                     $value['rate'] = 0;
                 }
                 
-               
                 $meta['total_qty'] += $value['qty'];
+                
                 $meta['total_rate'] += $value['rate'];
                 $meta['total_taxable_value'] += $value['taxable_value'];
                 $meta['sub_total_amount'] +=  $data['booking'][$key]['toal_amount'];
@@ -1686,7 +1687,162 @@ class invoices_model extends CI_Model {
     
     function insert_inventory_invoice($data){
         $this->db->insert('inventory_invoice_mapping', $data);
-        return $data;
+        return $this->db->insert_id();
+    }
+    
+    function warehouse_inventory_ledger_invoice_details($warehouse_id, $from_date, $to_date, $is_regenerate){
+        $this->db->_reserved_identifiers = array('*','""');
+        $this->db->select('"" As awb_no, "" As courier_name, "" AS courier_receipt_link, l.inventory_id`,part_name, quantity, l.id, CAST(l.create_date AS DATE) as create_date, l.booking_id');
+        $this->db->from("inventory_ledger as l");
+        $this->db->join('inventory_master_list as m', 'm.inventory_id = l.inventory_id');
+        $this->db->where('sender_entity_id', $warehouse_id);
+        $this->db->where('sender_entity_type', "vendor");
+        $this->db->where('l.create_date >= ', $from_date);
+        $this->db->where('l.create_date < ', $to_date);
+        $this->db->where_not_in('l.inventory_id', array(1,2));
+        if(empty($is_regenerate)){
+            $this->db->where('vendor_warehouse_invoice_id IS NULL', NULL);
+        }
+
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    /**
+     * @desc This is used to get warehouse invoice data(both main and annexure)
+     * @param String $vendor_id
+     * @param String $from_date_tmp
+     * @param String $to_date
+     * @param int $is_regenerate
+     * @return boolean
+     */
+    function get_warehouse_invoice_data($vendor_id, $from_date_tmp, $to_date, $is_regenerate){
+        $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
+            
+        // For Monthly warehouse charges
+        $fm =$this->get_fixed_warehouse_charge(array('entity_type' => "vendor", "entity_id" => $vendor_id, "charges_type" => FIXED_MONTHLY_WAREHOUSE_CHARGES_TAG));
+        $result['booking'] = array();
+        $result['annexure'] = array();
+        
+        if(!empty($fm)){
+            $wfm = array();
+            $wfm[0]['description'] = $fm[0]['description'];
+            $wfm[0]['part_name'] = "";
+            $wfm[0]['booking_id'] = "";
+            $wfm[0]['hsn_code'] = $fm[0]['hsn_code'];
+            $wfm[0]['rate'] = 0;
+            $wfm[0]['qty'] = 1;
+            $wfm[0]['part_name'] = $fm[0]['description'];
+            $wfm[0]['gst_rate'] = $fm[0]['gst_rate'];
+            $wfm[0]['product_or_services'] = $fm[0]['description'];
+            $wfm[0]['taxable_value'] = $fm[0]['fixed_charges'];
+            $wfm[0]['courier_receipt_link'] = "";
+            $wfm[0]['courier_name'] = "";
+            $wfm[0]['awb_no'] = "";
+
+            $result['booking'] = array_merge($result['booking'], $wfm);
+            $result['annexure'] = array_merge($result['annexure'], $wfm);
+           
+        }
+        // For the packaging
+        $packaging =$this->get_fixed_warehouse_charge(array('entity_type' => "vendor", "entity_id" => $vendor_id, "charges_type" => PACKAGING_RATE_TAG));
+        $ledgerData = $this->warehouse_inventory_ledger_invoice_details($vendor_id, $from_date, $to_date, $is_regenerate);
+        if(!empty($ledgerData) && !empty($packaging)){
+            $wp = array();
+            $wp[0]['description'] = $packaging[0]['description'];
+            $wp[0]['hsn_code'] = $packaging[0]['hsn_code'];
+            $wp[0]['rate'] = $packaging[0]['fixed_charges'];
+            $wp[0]['qty'] = (array_sum(array_column($ledgerData, 'quantity')));
+            $wp[0]['gst_rate'] = $packaging[0]['gst_rate'];
+            $wp[0]['product_or_services'] = 'Packaging';
+            $wp[0]['taxable_value'] = $packaging[0]['fixed_charges'] * $wp[0]['qty'];
+            
+            $wp[0]['booking_id'] = "";
+            
+            foreach ($ledgerData as $key => $value) {
+                $ledgerData[$key]['taxable_value'] = $value['quantity'] * $packaging[0]['fixed_charges'];
+            }
+            
+            $result['booking'] = array_merge($result['booking'], $wp);
+            $result['annexure'] = array_merge($result['annexure'], $ledgerData);
+            $result['inventory_ledger'] = $ledgerData;
+        }
+        // Courier
+        $getcourier1 = $this->get_courier_details("*, courier_charge as taxable_value, 'Courier Charge' as part_name,"
+                . "AWB_no as awb_no, courier_name, concat('".S3_WEBSITE_URL."/vendor-partner-docs/',courier_file) as courier_receipt_link", 
+                array('sender_entity_type' => "vendor", 
+            "sender_entity_id" => $vendor_id, "courier_charge > 0" => NULL,
+            "create_date >= '".$from_date."' " => NULL, "create_date < '".$to_date."' " => NULL,
+            "sender_invoice_id IS NULL " => NULL));
+        $courier = array();
+        if(!empty($getcourier1)){
+            
+            $courier[0]['description'] = "Courier Charge";
+            $courier[0]['hsn_code'] = HSN_CODE;
+            $courier[0]['rate'] = 0;
+            $courier[0]['qty'] = (array_sum(array_column($getcourier1, 'quantity')));
+            $courier[0]['gst_rate'] = DEFAULT_TAX_RATE;
+            $courier[0]['product_or_services'] = "Courier Charge";
+            $courier[0]['taxable_value'] = (array_sum(array_column($getcourier1, 'courier_charge')));
+            $result['annexure'] = array_merge($result['annexure'], $getcourier1);
+            $result['courier_details'] = $getcourier1;
+
+        }
+
+        $sp_data = $this->partner_model->get_spare_parts_by_any('id,booking_id, spare_parts_details.partner_id as sender_entity_id, '
+                . 'courier_price_by_partner as taxable_value, '
+                . 'courier_name_by_partner as courier_name, awb_by_partner as awb_no,'
+                . '"" as courier_receipt_link,'
+                . '"Courier Charge" as part_name', 
+                array('partner_id' => $vendor_id, "entity_type" => "vendor", 
+                    "courier_price_by_partner > 0" => NULL, 
+                    "status != 'Cancelled'" => NULL,
+                    "warehouse_courier_invoice_id IS NULL" => NULL,
+                    "create_date >= '".$from_date."' " => NULL,
+                    "create_date < '".$to_date."' " => NULL));
+        
+        if(!empty($sp_data)){
+            $qty = count($sp_data);
+            if(!empty($courier)){
+                $courier[0]['qty'] = $courier[0]['qty'] + $qty;
+                $courier[0]['taxable_value'] = $courier[0]['taxable_value'] + (array_sum(array_column($sp_data, 'taxable_value')));
+            } else {
+                $courier[0]['description'] = "Courier Details";
+                $courier[0]['hsn_code'] = HSN_CODE;
+                $courier[0]['rate'] = 0;
+                $courier[0]['qty'] = $qty;
+                $courier[0]['gst_rate'] = DEFAULT_TAX_RATE;
+                $courier[0]['product_or_services'] = "Courier Charge";
+                $courier[0]['taxable_value'] = (array_sum(array_column($sp_data, 'taxable_value')));
+            }
+            $result['annexure'] = array_merge($result['annexure'], $sp_data);
+            $result['spare_courier'] = $sp_data;  
+        }
+        
+        if(!empty($courier)){
+
+            $result['booking'] = array_merge($result['booking'], $courier);
+        }
+        
+        if(!empty($result['booking'] )){
+            return $result;
+        } else {
+            return false;
+        }
+    }
+    
+    function get_courier_details($select, $where){
+        
+        $this->db->select($select, FALSE);
+        $this->db->where($where);
+        $query = $this->db->get('courier_details');
+        return $query->result_array();
+    }
+    
+    function get_fixed_warehouse_charge($where){
+        $this->db->select('*');
+        $this->db->where($where);
+        $query = $this->db->get('vendor_partner_varialble_charges');
+        return $query->result_array();
     }
 
 }
