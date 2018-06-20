@@ -2159,7 +2159,9 @@ class Booking_model extends CI_Model {
             $this->db->where($post['where']);
         }
         if (!empty($post['where_in'])) {
-            $this->db->where_in(array_keys($post['where_in'])[0], array_values($post['where_in'])[0]);
+            foreach($post['where_in'] as $key=>$values){
+                $this->db->where_in($key, $values);
+            }
         }
         
         if (!empty($post['search_value'])) {
