@@ -135,16 +135,16 @@
                                 <th>Remarks </th>
                                 <td><?php echo $booking_history[0]['booking_remarks']; ?></td>
                             </tr>
-                            <?php if(isset($dhq[0]['district'])){ ?>
+                            <?php if($booking_history[0]['is_upcountry'] ==  1){ ?>
                             <tr>
                                 <th colspan="1">Upcountry</th>
                                 <td colspan="3">
                                     <p>Municipal Limit: <?php echo $this->session->userdata('municipal_limit')." KM"; ?></p>
                                     <div class="col-md-12">
-                                        <div class="col-md-4"> <input type="hidden" class="form-control" id="txtSource" value="<?php echo $booking_history[0]['city'].", ".
+                                        <div class="col-md-4"> <input type="hidden" class="form-control" id="txtSource" value="<?php echo 
                                             $booking_history[0]['booking_pincode'].", india"; ?>"></div>
-                                        <div class="col-md-4">   <input type="hidden" class="form-control" id="txtDestination" value="<?php if(isset($dhq[0]['district'])){
-                                        echo $dhq[0]['district'].",".$dhq[0]['pincode'].", India";}?>"></div>
+                                        <div class="col-md-4">   <input type="hidden" class="form-control" id="txtDestination" value="<?php if(isset($dhq[0]['pincode'])){
+                                        echo $dhq[0]['pincode'].", India";}?>"></div>
 <!--                                        <div class="col-md-4"> <button class="btn btn-success" onclick="GetRoute()">Get Route</button></div>-->
                                              
                                     </div>
