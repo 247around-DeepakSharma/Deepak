@@ -2116,6 +2116,7 @@ class Booking extends CI_Controller {
      */
     function process_convert_booking_to_pending_form($booking_id, $status) {
         log_message('info', __FUNCTION__ . " Booking id: " . $booking_id . " status: " . $status . " Done By " . $this->session->userdata('employee_id'));
+
         $this->form_validation->set_rules('booking_date', 'Booking Date', 'required');
         $this->form_validation->set_rules('booking_timeslot', 'Booking Time Slot', 'required');
         $this->form_validation->set_rules('admin_remarks', 'Reason', 'required|trim');
