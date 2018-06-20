@@ -1282,6 +1282,8 @@ class vendor extends CI_Controller {
                 'is_penalty' => 0,
                 'upcountry_partner_approved' => 1,
                 'upcountry_paid_by_customer' => 0,
+                'service_center_closed_date' => NULL,
+                'cancellation_reason' => NULL,
                 'upcountry_distance' => NULL);
             
             $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, ASSIGNED_VENDOR, $previous_sf_id[0]['partner_id'], $booking_id);

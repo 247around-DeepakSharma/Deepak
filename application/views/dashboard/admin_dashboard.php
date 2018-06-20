@@ -17,7 +17,58 @@
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
                 <div class="x_title">
-                    <h2>RM Booking Report</h2>
+                    <h2>RM Completed Booking Reports</h2>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="table-responsive" id="escalation_data" ng-controller="completedBooking_Controller" ng-cloak="">
+                                    <div class="form-group" style="float:right;col-md-3">
+                                         <label for="">Booking Completed Date Range</label>
+                                         <input type="text" class="form-control" name="daterange_completed_bookings" id="completed_daterange_id" ng-change="ShowRMCompletedBookingBYDateRange()" ng-model="dates">
+                            </div>
+                    <div class="form-group col-md-3" style="float:right;">
+                                         <label for="">Booking Status</label>
+                                        <select class="form-control" ng-change="ShowRMCompletedBookingBYDateRange()" ng-model="status" id="completed_status">
+                                            <option value="">All</option>
+                                            <option value="Completed" ng-selected="true">Completed</option>
+                                            <option value="Cancelled">Cancelled</option>
+                                        </select>
+                            </div>
+                <br>
+                <div class="clear"></div>
+                <table class="table table-striped table-bordered jambo_table bulk_action">
+                    <thead>
+                        <tr>
+                            <th>S.no</th>
+                            <th>RM</th>
+                            <th>D0</th>
+                            <th>D1</th>
+                            <th>D2</th>
+                            <th>D3</th>
+                            <th>D4</th>
+                            <th>D5 - D7</th>
+                             <th>D8 - D15</th>
+                             <th>> D15</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="x in completedBookingByRM | orderBy:'TAT_16'">
+                           <td>{{$index+1}}</td>
+                           <td><a type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" href="<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/{{x.id}}">{{x.RM}}</a></td>
+                           <td>{{x.TAT_0}} <br> ({{x.TAT_0_per}}%) </td>
+                           <td>{{x.TAT_1}} <br> ({{x.TAT_1_per}}%) </td>
+                           <td>{{x.TAT_2}} <br> ({{x.TAT_2_per}}%)</td>
+                           <td>{{x.TAT_3}} <br> ({{x.TAT_3_per}}%)</td>
+                           <td>{{x.TAT_4}} <br> ({{x.TAT_4_per}}%)</td>
+                           <td>{{x.TAT_5}} <br> ({{x.TAT_5_per}}%) </td>
+                           <td>{{x.TAT_8}} <br> ({{x.TAT_8_per}}%)</td>
+                           <td>{{x.TAT_16}} <br> ({{x.TAT_16_per}}%)</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <center><img id="loader_gif_pending" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
+            </div>
+                      <div class="x_title">
+                    <h2>RM Pending Booking Report</h2>
                     <div class="clearfix"></div>
                 </div>
             <div class="table-responsive" id="escalation_data" ng-controller="pendngBooking_Controller" ng-cloak="">
@@ -419,11 +470,8 @@
         function cb(start, end) {
             $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
         }
-    
         $('#reportrange').daterangepicker(options, cb);
-    
         cb(start, end);
-    
     });
     
     $(function () {
@@ -1041,6 +1089,20 @@ $(function() {
             format: 'YYYY-MM-DD'
         },
         startDate: y+'-'+n+'-01'
+    });
+});
+$(function() {
+     var d = new Date();
+        n = d.getMonth();
+        y = d.getFullYear();
+        date = d.getDate();
+        $('input[name="daterange_completed_bookings"]').daterangepicker({
+             timePicker: true,
+        timePickerIncrement: 30,
+        locale: {
+            format: 'YYYY-MM-DD'
+        },
+        startDate: y+'-'+n+'-'+date
     });
 });
     </script>

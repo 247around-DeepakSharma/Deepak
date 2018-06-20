@@ -384,6 +384,8 @@ class Booking extends CI_Controller {
         $remarks = $this->input->post('query_remarks');
 
         $booking['quantity'] = $quantity;
+        $booking['service_center_closed_date'] = NULL;
+        $booking['cancellation_reason'] = NULL;
        
         switch ($booking_id) {
             case INSERT_NEW_BOOKING:
@@ -955,6 +957,8 @@ class Booking extends CI_Controller {
 
         $data['booking_date'] = date('d-m-Y', strtotime($this->input->post('booking_date')));
         $data['booking_timeslot'] = $this->input->post('booking_timeslot');
+        $data['service_center_closed_date'] = NULL;
+        $data['cancellation_reason'] = NULL;
         //$data['booking_remarks'] = $this->input->post('reason');
         $data['current_status'] = 'Rescheduled';
         $data['internal_status'] = 'Rescheduled';
@@ -1258,6 +1262,7 @@ class Booking extends CI_Controller {
      */
     function process_rating_form($booking_id, $status) {
         log_message('info', __FUNCTION__ . ' Received Data : '  . print_r($this->input->post(),true));
+        if($this->input->post('mobile_no')){
         $user_id = $this->input->post('user_id');
         $phone_no = $this->input->post('mobile_no');
         log_message('info', __FUNCTION__ . ' Booking ID : ' . $booking_id . ' Status' . $status . " Done By " . $this->session->userdata('employee_id'));
@@ -1283,7 +1288,10 @@ class Booking extends CI_Controller {
                 }
             }
         }
-
+        }
+        else{
+           $this->session->set_userdata(array('rating_error' => "Rating Not submitted for ".$booking_id." Please Try Again"));
+        }
         redirect(base_url() . 'employee/booking/view_bookings_by_status/' . $status);
     }
 
@@ -1677,7 +1685,9 @@ class Booking extends CI_Controller {
         $data['serial_number'] = "";
         $data['service_center_remarks'] = NULL;
         $data['booking_date'] = $data['booking_timeslot'] = NUll;
-        $data['closed_date'] = NUll;
+        $data['closed_date'] = NULL;
+        $data['service_center_closed_date'] = NULL;
+        $data['cancellation_reason'] = NULL;
         $data['service_charge'] = $data['additional_service_charge'] = $data['parts_cost'] = "0.00";
         $data['admin_remarks'] = date("F j") . "  :-" . $admin_remarks;
         log_message('info', __FUNCTION__ . " Booking_id " . $booking_id . " Update service center action table: " . print_r($data, true));
