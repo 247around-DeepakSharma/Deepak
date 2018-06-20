@@ -1524,9 +1524,18 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         }
         return $this->get_TAT_days_total_completed_bookings($finalData,$key,$key2);
     }
-    function completed_booking_count_by_rm($startDate = NULL,$endDate = NULL){
+    function completed_booking_count_by_rm($startDate = NULL,$endDate = NULL,$status = NULL){
         $finalData = array();
         $where["(date(booking_details.service_center_closed_date) >= '".$startDate."' AND date(booking_details.service_center_closed_date) <= '".$endDate."') "] = NULL;
+        $where['service_center_closed_date IS NOT NULL'] = NULL;
+        if($status){
+            if($status == 'Completed'){
+                 $where['!(current_status = "Cancelled" OR internal_status ="InProcess_Cancelled")'] = NULL; 
+            }
+            else{
+                $where['!(current_status = "Completed" OR internal_status = "InProcess_Completed")'] = NULL; 
+            }
+        }
         $select = "employee.full_name as RM,employee_relation.agent_id as id,COUNT(booking_id) as count,DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as TAT";
         $groupBY=array("RM","TAT");
         $join['	employee_relation'] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.service_centres_id)";
@@ -1538,10 +1547,21 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         echo json_encode($finalData);
     }
     function tat_calculation_full_view($rmID){
-        $whereIN = $stateData = $sfData = array();
+        $whereIN = $stateData = $sfData = $joinType = array();
         if($this->input->post('daterange_completed_bookings')){
             $dateArray = explode(" - ",$this->input->post('daterange_completed_bookings')); 
             $where["(date(booking_details.service_center_closed_date) >= '".$dateArray[0]."' AND date(booking_details.service_center_closed_date) <= '".$dateArray[1]."') "] = NULL;
+        }
+        else{
+             $where["DATEDIFF(CURDATE(),date(booking_details.service_center_closed_date)) < 31"] = NULL;
+        }
+        if($this->input->post('status')){
+            if($this->input->post('status') == 'Completed'){
+                 $where['!(current_status = "Cancelled" OR internal_status ="InProcess_Cancelled")'] = NULL; 
+            }
+            else{
+                $where['!(current_status = "Completed" OR internal_status = "InProcess_Completed")'] = NULL; 
+            }
         }
         if($this->input->post('services')){
             $where['booking_details.appliance_id'] = $this->input->post('services');
@@ -1558,13 +1578,14 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         }
         if($this->input->post('request_type')){
                 if(strpos($this->input->post('request_type'),"Repair") !== false){
+                    $where['request_type LIKE "%Repair%"'] = NULL;
                     if($this->input->post('request_type') == 'Repair'){
-                        $where['request_type LIKE "%Repair%"'] = NULL;
                     }
                     else{
                         $stateJoin['spare_parts_details']  = $sfJoin['spare_parts_details'] = "spare_parts_details.booking_id = booking_details.booking_id";
                         if($this->input->post('request_type') != 'Repair_with_part'){
                             $where['spare_parts_details.booking_id IS NULL'] = NULL;
+                            $joinType['spare_parts_details']  = "left";
                         }
                     }
                      if($this->input->post('free_paid')){
@@ -1593,7 +1614,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $serviceWhere['isBookingActive'] =1;
         $partners = $this->partner_model->getpartner_details('partners.id,partners.public_name',$partnerWhere);
         $services = $this->reusable_model->get_search_result_data("services","*",$serviceWhere,NULL,NULL,NULL,NULL,NULL,array());
-        $where["DATEDIFF(CURDATE(),date(booking_details.service_center_closed_date)) < 30"] = NULL;
+        $where['service_center_closed_date IS NOT NULL'] = NULL;
         if($rmID != "00"){
               $where["employee_relation.agent_id"] = $rmID;
         }
@@ -1602,7 +1623,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $stateJoin['employee_relation'] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.service_centres_id)";
         $stateJoin['employee'] = "employee_relation.agent_id = employee.id";
         $stateGroupBY = array("State","TAT");
-        $stateRawData = $this->reusable_model->get_search_result_data("booking_details",$stateSelect,$where,$stateJoin,NULL,NULL,$whereIN,NULL,$stateGroupBY);
+        $stateRawData = $this->reusable_model->get_search_result_data("booking_details",$stateSelect,$where,$stateJoin,NULL,NULL,$whereIN,$joinType,$stateGroupBY);
         if(!empty($stateRawData)){
             $stateData= $this->get_rm_completed_booking_TAT_IN_structured_format($stateRawData,"State");
             $stateData = $this->miscelleneous->multi_array_sort_by_key($stateData, 'TAT_2', SORT_ASC);
@@ -1613,7 +1634,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $sfJoin['employee_relation'] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.service_centres_id)";
         $sfJoin['employee'] = "employee_relation.agent_id = employee.id";
         $sfGroupBY=array("SF","TAT");
-        $sfRawData = $this->reusable_model->get_search_result_data("booking_details",$sfSelect,$where,$sfJoin,NULL,NULL,$whereIN,NULL,$sfGroupBY);
+        $sfRawData = $this->reusable_model->get_search_result_data("booking_details",$sfSelect,$where,$sfJoin,NULL,NULL,$whereIN,$joinType,$sfGroupBY);
         if(!empty($sfRawData)){
             $sfData= $this->get_rm_completed_booking_TAT_IN_structured_format($sfRawData,"SF","State");
             $sfData = $this->miscelleneous->multi_array_sort_by_key($sfData, 'TAT_2', SORT_ASC);
