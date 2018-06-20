@@ -1425,6 +1425,8 @@ class Partner extends CI_Controller {
             $booking_details['service_id'] = $post['service_id'];
             $booking_details['booking_remarks'] = $post['remarks'];
             $booking_details['user_id'] = $user['user_id'];
+            $booking_details['service_center_closed_date'] = NULL;
+            $booking_details['cancellation_reason'] = NULL;
             $upcountry_data = json_decode($post['upcountry_data'], TRUE);
 
             $unit_details['service_id'] = $appliance_details['service_id'] = $booking_details['service_id'];
