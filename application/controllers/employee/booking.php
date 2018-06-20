@@ -383,6 +383,8 @@ class Booking extends CI_Controller {
         $remarks = $this->input->post('query_remarks');
 
         $booking['quantity'] = $quantity;
+        $booking['service_center_closed_date'] = NULL;
+        $booking['cancellation_reason'] = NULL;
        
         switch ($booking_id) {
             case INSERT_NEW_BOOKING:
@@ -954,6 +956,8 @@ class Booking extends CI_Controller {
 
         $data['booking_date'] = date('d-m-Y', strtotime($this->input->post('booking_date')));
         $data['booking_timeslot'] = $this->input->post('booking_timeslot');
+        $data['service_center_closed_date'] = NULL;
+        $data['cancellation_reason'] = NULL;
         //$data['booking_remarks'] = $this->input->post('reason');
         $data['current_status'] = 'Rescheduled';
         $data['internal_status'] = 'Rescheduled';
@@ -1680,7 +1684,9 @@ class Booking extends CI_Controller {
         $data['serial_number'] = "";
         $data['service_center_remarks'] = NULL;
         $data['booking_date'] = $data['booking_timeslot'] = NUll;
-        $data['closed_date'] = NUll;
+        $data['closed_date'] = NULL;
+        $data['service_center_closed_date'] = NULL;
+        $data['cancellation_reason'] = NULL;
         $data['service_charge'] = $data['additional_service_charge'] = $data['parts_cost'] = "0.00";
         $data['admin_remarks'] = date("F j") . "  :-" . $admin_remarks;
         log_message('info', __FUNCTION__ . " Booking_id " . $booking_id . " Update service center action table: " . print_r($data, true));
