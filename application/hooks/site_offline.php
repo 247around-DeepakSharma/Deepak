@@ -24,7 +24,7 @@ class Site_Offline extends CI_Hooks {
             $base_url.= str_replace(basename($_SERVER['SCRIPT_NAME']), '', $_SERVER['SCRIPT_NAME']);
             $_247_CRM = explode('/',$_SERVER['REQUEST_URI'])[1];
             //&& $_247_CRM !="employee"
-            if (isset($config['is_offline']) && $config['is_offline'] === TRUE ) {
+            if (isset($config['is_offline']) && $config['is_offline'] === TRUE && $_247_CRM =="service_center" ) {
                
                 $this->show_site_offline($base_url);
                 exit;
