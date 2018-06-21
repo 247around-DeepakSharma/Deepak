@@ -70,7 +70,7 @@
                             </select>
                         </div>
                                 <div class="form-group">
-                                    <input type="button" class="btn btn-success" style="float:right; border: 1px solid #2a3f54;background: #2a3f54;margin-bottom: 0px;" value="Generate Report" onclick="generate_summary_report()">
+                                    <input type="button" class="btn btn-success" style="float:right; border: 1px solid #2a3f54;background: #2a3f54;margin-bottom: 0px;" value="Generate Report" onclick="generate_summary_report(<?php echo $this->session->userdata('partner_id'); ?>)">
                                     </div>
                     </form>
                                             <hr>
@@ -283,7 +283,7 @@
         });
         
     }   
-    function generate_summary_report(){
+    function generate_summary_report(partnerID){
         var create_date = $('#create_date').val();
         var dateArray = create_date.split(" - ");
         var startDate = dateArray[0];
@@ -312,7 +312,7 @@
             cell3.innerHTML = '<img id="loader_gif_title" src="<?php echo base_url(); ?>images/loadring.gif" style="width: 15%;">';
             $.ajax({
             type: 'POST',
-            url: '<?php echo base_url(); ?>employee/partner/create_and_save_partner_report/<?php echo $this->session->userdata('partner_id'); ?>',
+            url: '<?php echo base_url(); ?>employee/partner/create_and_save_partner_report/'+partnerID,
             data: {Date_Range: create_date,Status: status,State: state},
             success: function (response) {
                 var obj = JSON.parse(response);
