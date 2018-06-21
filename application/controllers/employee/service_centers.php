@@ -442,7 +442,11 @@ class Service_centers extends CI_Controller {
      */
     function validate_serial_no() {
         $serial_number = $this->input->post('serial_number');
-        $upload_serial_number_pic = $_FILES['upload_serial_number_pic'];
+        $upload_serial_number_pic = array();
+        if(isset($_FILES['upload_serial_number_pic'])){
+            $upload_serial_number_pic = $_FILES['upload_serial_number_pic'];
+        }
+        
         $pod = $this->input->post('pod');
         $booking_status = $this->input->post('booking_status');
         $partner_id = $this->input->post('partner_id');
@@ -1770,7 +1774,7 @@ class Service_centers extends CI_Controller {
             
         );
         
-        $select = "CONCAT( '', GROUP_CONCAT((parts_shipped ) SEPARATOR ' / <br/> ' ) , '' ) as parts_shipped, "
+        $select = "booking_details.service_center_closed_date, CONCAT( '', GROUP_CONCAT((parts_shipped ) SEPARATOR ' / <br/> ' ) , '' ) as parts_shipped, "
                 . " spare_parts_details.booking_id, name, "
                 . "CONCAT( '', GROUP_CONCAT((remarks_defective_part_by_partner ) SEPARATOR ' / <br/> ' ) , '' ) as remarks_defective_part_by_partner, "
                 . "CONCAT( '', GROUP_CONCAT((remarks_by_partner ) SEPARATOR ' / <br/> ' ) , '' ) as remarks_by_partner, spare_parts_details.partner_id,spare_parts_details.entity_type";
