@@ -393,7 +393,34 @@ class Do_background_upload_excel extends CI_Controller {
                     $appliance_details['brand'] = $unit_details['appliance_brand'] = trim($value['brand']);
 
                     switch ($file_type) {
-                        case 'shipped':
+                        case 'delivered':
+                            if (isset($value['fso_delivery_date'])) {
+                                $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['fso_delivery_date']);
+                            } else if(isset($value['delivery_date'])){
+                                $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['delivery_date']);
+                            } else {
+                                $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject();
+                            }
+                            //For delivered file, set booking date empty so that the queries come on top of the page
+                            $yy = date("y");
+                            $mm = date("m");
+                            $dd = date("d");
+                            $booking['partner_source'] = $value['partner_source'];
+                            $booking['booking_date'] = '';
+
+                            //Set delivered date only
+                            $booking['delivery_date'] = $dateObj2->format('Y-m-d H:i:s');
+                            //$booking['estimated_delivery_date'] = '';
+                            $booking['backup_delivery_date'] = isset($value['delivery_date'])?$value['delivery_date']:'';
+                            //$booking['backup_estimated_delivery_date'] = '';
+
+                            $booking['internal_status'] = "Missed_call_not_confirmed";
+                            $booking['query_remarks'] = 'Product Delivered, Call Customer For Booking';
+                            $booking['booking_remarks'] = 'Installation and Demo';
+                            $booking['booking_timeslot'] = '4PM-7PM';
+                            break;
+                            
+                        default :
                             if (isset($value['delivery_end_date'])) {
                                 $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['delivery_end_date']);
                             } else {
@@ -423,32 +450,6 @@ class Do_background_upload_excel extends CI_Controller {
                             $booking['booking_timeslot'] = '4PM-7PM';
 
                             break;
-
-                        case 'delivered':
-                            if (isset($value['fso_delivery_date'])) {
-                                $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['fso_delivery_date']);
-                            } else if(isset($value['delivery_date'])){
-                                $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['delivery_date']);
-                            } else {
-                                $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject();
-                            }
-                            //For delivered file, set booking date empty so that the queries come on top of the page
-                            $yy = date("y");
-                            $mm = date("m");
-                            $dd = date("d");
-                            $booking['partner_source'] = $value['partner_source'];
-                            $booking['booking_date'] = '';
-
-                            //Set delivered date only
-                            $booking['delivery_date'] = $dateObj2->format('Y-m-d H:i:s');
-                            //$booking['estimated_delivery_date'] = '';
-                            $booking['backup_delivery_date'] = isset($value['delivery_date'])?$value['delivery_date']:'';
-                            //$booking['backup_estimated_delivery_date'] = '';
-
-                            $booking['internal_status'] = "Missed_call_not_confirmed";
-                            $booking['query_remarks'] = 'Product Delivered, Call Customer For Booking';
-                            $booking['booking_remarks'] = 'Installation and Demo';
-                            $booking['booking_timeslot'] = '4PM-7PM';
                     }
 
                     //log_message('info', print_r($dateObj2, true));
@@ -702,7 +703,7 @@ class Do_background_upload_excel extends CI_Controller {
 
                             break;
 
-                        case 'shipped':
+                        default :
                             if (isset($value['delivery_end_date'])) {
                                 $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['delivery_end_date']);
                             } else {
@@ -733,9 +734,6 @@ class Do_background_upload_excel extends CI_Controller {
 
                                 $count_booking_not_updated++;
                             }
-                            break;
-
-                        default :
                             break;
                     }
                 }
@@ -1170,11 +1168,11 @@ class Do_background_upload_excel extends CI_Controller {
 	$bcc = "";
 	$subject = "";
            
-	if ($filetype == "shipped") {
-	    $subject = "Shipped File is uploaded";
+	if ($filetype == "delivered") {
+	    $subject = "Delivered File is uploaded";
 	    $message = " Please check shipped file data:<br/>". " Agent Name ". $this->session->userdata('employee_id');
 	} else {
-	    $subject = "Delivered File is uploaded";
+	    $subject = "Shipped File is uploaded";
 	    $message = " Please check delivered file data:<br/>". " Agent Name ". $this->session->userdata('employee_id');
 	}
         $invalid_data_with_reason['file_name']= $file_name;

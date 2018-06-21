@@ -97,6 +97,15 @@
                    <strong>' . $this->session->userdata('failed') . '</strong>
                </div>';
         }
+                if ($this->session->userdata('rating_error')) {
+            echo '<div class="alert alert-danger alert-dismissible" role="alert" style="width: 60%;margin-left: 20%;margin-top: 0px;">
+
+                   <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                       <span aria-hidden="true">&times;</span>
+                   </button>
+                   <strong>' . $this->session->userdata('rating_error') . '</strong>
+               </div>';
+        }
         ?> 
         <div class="table_filter">
             <div class="row">
@@ -408,4 +417,4 @@
 </script>
 <?php if ($this->session->userdata('success')) {$this->session->unset_userdata('success');} ?>
 <?php if ($this->session->userdata('error')) {$this->session->unset_userdata('error');} ?>
-<?php if ($this->session->userdata('failed')) {$this->session->unset_userdata('failed');} ?>
+<?php if ($this->session->userdata('failed')) {$this->session->unset_userdata('failed');} ?><?php if ($this->session->userdata('rating_error')) {$this->session->unset_userdata('rating_error');} ?>

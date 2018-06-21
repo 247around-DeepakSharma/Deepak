@@ -789,7 +789,8 @@ admin_dashboard.controller('completedBooking_Controller', function ($scope, $htt
                 dateArray = dateRange.split(" - ");
                 startDate = dateArray[0];
                 endDate = dateArray[1];
-              $scope.loadCompletedBookingView(baseUrl + "/employee/dashboard/completed_booking_count_by_rm/"+startDate+"/"+endDate);
+                status = $("#completed_status").val();
+              $scope.loadCompletedBookingView(baseUrl + "/employee/dashboard/completed_booking_count_by_rm/"+startDate+"/"+endDate+"/"+status);
     }
 });
 rm_dashboard.controller('completedBooking_Controller', function ($scope, $http) {
@@ -806,6 +807,7 @@ rm_dashboard.controller('completedBooking_Controller', function ($scope, $http) 
                 dateArray = dateRange.split(" - ");
                 startDate = dateArray[0];
                 endDate = dateArray[1];
-              $scope.loadCompletedBookingView(baseUrl + "/employee/dashboard/completed_booking_count_by_rm/"+startDate+"/"+endDate);
+                status = $("#completed_status").val();
+              $scope.loadCompletedBookingView(baseUrl + "/employee/dashboard/completed_booking_count_by_rm/"+startDate+"/"+endDate+"/"+status);
     }
 });
