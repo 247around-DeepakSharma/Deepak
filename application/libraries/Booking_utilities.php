@@ -151,7 +151,6 @@ class Booking_utilities {
                 $this->My_CI->booking_model->update_booking($booking_id,  array('booking_jobcard_filename'=>$output_file_pdf));
                 $directory_xls = "jobcards-excel/" . $output_file . ".xlsx";
                 $this->My_CI->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-
             } else {
                 
                 $directory_pdf = "jobcards-pdf/" . $output_file . ".xlsx";
@@ -163,6 +162,7 @@ class Booking_utilities {
             exec("rm -rf " . escapeshellarg($output_file_excel));
         }
         log_message('info', __FUNCTION__ . " => Exiting, Booking ID: " . $booking_id);
+        unlink($output_file_excel);
     }
 
     function send_qr_code_sms($booking_id, $pocNumber, $user_id, $userPhone, $services,$regenrate_flag=0){

@@ -3521,6 +3521,7 @@ class Partner extends CI_Controller {
             $return_data['partner']['pan_file'] = $pan_file;
 
             $attachment_pan = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $pan_file;
+            unlink(TMP_FOLDER . $pan_file);
 
             //Logging success for file uppload
             log_message('info', __FUNCTION__ . ' PAN FILE is being uploaded sucessfully.');
@@ -3539,6 +3540,7 @@ class Partner extends CI_Controller {
             $return_data['partner']['registration_file'] = $registration_file;
 
             $attachment_registration_file = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $registration_file;
+             unlink(TMP_FOLDER . $registration_file);
 
             //Logging success for file uppload
             log_message('info', __FUNCTION__ . ' Registration FILE is being uploaded sucessfully.');
@@ -3556,6 +3558,7 @@ class Partner extends CI_Controller {
             $return_data['partner']['tin_file'] = $tin_file;
 
             $attachment_tin_file = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $tin_file;
+            unlink(TMP_FOLDER . $tin_file);
 
             //Logging success for file uppload
             log_message('info', __FUNCTION__ . ' TIN FILE is being uploaded sucessfully.');
@@ -3573,6 +3576,7 @@ class Partner extends CI_Controller {
             $return_data['partner']['cst_file'] = $cst_file;
 
             $attachment_cst_file = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $cst_file;
+            unlink(TMP_FOLDER . $cst_file);
 
             //Logging success for file uppload
             log_message('info', __FUNCTION__ . ' CST FILE is being uploaded sucessfully.');
@@ -3590,6 +3594,7 @@ class Partner extends CI_Controller {
             $return_data['partner']['service_tax_file'] = $registration_file;
 
             $attachment_service_tax_file = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $service_tax_file;
+            unlink(TMP_FOLDER . $service_tax_file);
 
             //Logging success for file uppload
             log_message('info', __FUNCTION__ . ' Service Tax FILE is being uploaded sucessfully.');
@@ -3673,6 +3678,7 @@ class Partner extends CI_Controller {
                 $directory_xls = "vendor-partner-docs/" . $contract_file;
                 $this->s3->putObjectFile(TMP_FOLDER . $contract_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                 $attachment_contract = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $contract_file;
+                unlink(TMP_FOLDER . $contract_file);
                 //Logging success for file uppload
                 log_message('info', __FUNCTION__ . ' CONTRACT FILE is being uploaded sucessfully.');
                 $insertArray = array("entity_id" => $partner_id, "entity_type" => "partner", "collateral_id" => $contract_type,
@@ -3901,6 +3907,7 @@ class Partner extends CI_Controller {
                     $directory_xls = "vendor-partner-docs/" . $contract_file;
                     $this->s3->putObjectFile(TMP_FOLDER . $contract_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $attachment_contract = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $contract_file;
+                    unlink(TMP_FOLDER . $contract_file);
                     //Logging success for file uppload
                     log_message('info', __FUNCTION__ . ' Learning Collateral FILE is being uploaded sucessfully.');
             }
@@ -4155,6 +4162,7 @@ class Partner extends CI_Controller {
         header('Content-Length: ' . filesize($csv));
         readfile($csv);
         exec("rm -rf " . escapeshellarg($csv));
+        unlink($csv);
      }
     
     
@@ -4271,32 +4279,32 @@ class Partner extends CI_Controller {
      * This function is use to create and  save partner's custom summary report 
      */
     function create_and_save_partner_report($partnerID){
-        log_message('info', __FUNCTION__ . "Function Start For ".print_r($this->input->post(),true)." Partner ID : ".$partnerID);
-        $postArray = $this->input->post();
-        //Create Summary Report
-        $newCSVFileName = $this->create_custom_summary_report($partnerID,$postArray);
-         //Save File on AWS
-        $bucket = BITBUCKET_DIRECTORY;
-        $directory_xls = "summary-excels/" . $newCSVFileName;
-        $is_upload = $this->s3->putObjectFile(realpath(TMP_FOLDER . $newCSVFileName), $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-        unlink(TMP_FOLDER . $newCSVFileName);
-        if($is_upload == 1){
-            //Save File log in report log table
-            $data['entity_type'] = "Partner";
-            $data['entity_id'] = $partnerID;
-            $data['report_type'] = "partner_custom_summary_report";
-            $data['filters'] = json_encode($postArray);
-            $data['url'] =$directory_xls;
-            $data['agent_id'] =$this->session->userdata('agent_id');
-            $is_save = $this->reusable_model->insert_into_table("reports_log",$data);
-            if($is_save){
-               $src=  base_url()."employee/partner/download_custom_summary_report/".$directory_xls;
-               echo  json_encode(array("response"=>"SUCCESS","url"=>$src));
+            log_message('info', __FUNCTION__ . "Function Start For ".print_r($this->input->post(),true)." Partner ID : ".$partnerID);
+            $postArray = $this->input->post();
+            //Create Summary Report
+            $newCSVFileName = $this->create_custom_summary_report($partnerID,$postArray);
+             //Save File on AWS
+            $bucket = BITBUCKET_DIRECTORY;
+            $directory_xls = "summary-excels/" . $newCSVFileName;
+            $is_upload = $this->s3->putObjectFile(realpath(TMP_FOLDER . $newCSVFileName), $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+            unlink(TMP_FOLDER . $newCSVFileName);
+            if($is_upload == 1){
+                //Save File log in report log table
+                $data['entity_type'] = "Partner";
+                $data['entity_id'] = $partnerID;
+                $data['report_type'] = "partner_custom_summary_report";
+                $data['filters'] = json_encode($postArray);
+                $data['url'] =$directory_xls;
+                $data['agent_id'] =$this->session->userdata('agent_id');
+                $is_save = $this->reusable_model->insert_into_table("reports_log",$data);
+                if($is_save){
+                   $src=  base_url()."employee/partner/download_custom_summary_report/".$directory_xls;
+                   echo  json_encode(array("response"=>"SUCCESS","url"=>$src));
+                }
+                else{
+                    echo  json_encode(array("response"=>"FAILURE","url"=>$directory_xls));
+                }
             }
-            else{
-                echo  json_encode(array("response"=>"FAILURE","url"=>$directory_xls));
-            }
-        }
     }
     function download_upcountry_report(){
         log_message('info', __FUNCTION__ . ' Function Start For Partner '.$this->session->userdata('partner_id'));
