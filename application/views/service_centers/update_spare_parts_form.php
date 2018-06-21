@@ -11,6 +11,24 @@
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
+                <?php
+                    if ($this->session->userdata('success')) {
+                        echo '<div class="alert alert-success alert-dismissible" role="alert" style="margin-top: 55px;">
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                        <strong>' . $this->session->userdata('success') . '</strong>
+                                    </div>';
+                    }
+                    if ($this->session->userdata('error')) {
+                        echo '<div class="alert alert-danger alert-dismissible" role="alert" style="margin-top: 55px;">
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                        <strong>' . $this->session->userdata('error') . '</strong>
+                                    </div>';
+                    }
+                ?>
                 <div class="x_title">
                     <h3>Requested Spare Parts</h3>
                     <hr>
@@ -244,6 +262,15 @@
                                 <div class="col-md-6">
                                     <input type="number" class="form-control"  id="courier_price_by_partner" name="courier_price_by_partner" placeholder="Please Enter courier price" required>
                                     <?php echo form_error('courier_price_by_partner'); ?>
+                                </div>
+                                 
+                            </div>
+                            <div class="form-group <?php
+                                if (form_error('courier_image')) { echo 'has-error';} ?>">
+                                <label for="courier_image" class="col-md-4">Courier Image *</label>
+                                <div class="col-md-6">
+                                    <input type="file" class="form-control"  id="courier_image" name="courier_image" required>
+                                    <?php echo form_error('courier_image'); ?>
                                 </div>
                                  
                             </div>
@@ -484,3 +511,5 @@
     });
 
 </script>
+<?php if ($this->session->userdata('success')) {$this->session->unset_userdata('success');} ?>
+<?php if ($this->session->userdata('error')) {$this->session->unset_userdata('error');} ?>
