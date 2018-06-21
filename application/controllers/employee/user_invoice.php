@@ -177,6 +177,16 @@ class User_invoice extends CI_Controller {
 
                     $this->insert_payment_invoice($booking_id, $response, $data[0]->assigned_vendor_id, 
                             $data[0]->closed_date, $agent_id, $convert, $data[0]->user_id,$preinvoice_id);
+                    
+                    if(file_exists(TMP_FOLDER.$response['meta']['invoice_id'] . '.xlsx')){
+                        unlink($invoice['meta']['invoice_id'] . '.xlsx');
+                    }
+                    if(file_exists(TMP_FOLDER.$convert['triplicate_file'])){
+                        unlink($convert['triplicate_file']);
+                    }
+                    if(file_exists(TMP_FOLDER.$convert['copy_file'])){
+                        unlink($convert['copy_file']);
+                    }
                     echo json_encode(array(
                         'status' => true,
                         'message' => $invoice_id
@@ -349,6 +359,10 @@ class User_invoice extends CI_Controller {
                     //$this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $pdf_attachement_url);
 
                     $this->insert_sf_credit_note($booking_id, $response, $data[0]->assigned_vendor_id, $sd, $agent_id, $convert, $txnID);
+                    
+                    if(file_exists(TMP_FOLDER.$response['meta']['invoice_id'] . '.xlsx')){
+                        unlink($response['meta']['invoice_id'] . '.xlsx');
+                    }
                 } else {
 
                     log_message("info" . __METHOD__ . " Excel Not Created Booking ID" . $booking_id);
