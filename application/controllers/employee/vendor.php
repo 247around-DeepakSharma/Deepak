@@ -248,6 +248,7 @@ class vendor extends CI_Controller {
                     $_POST['address_proof_file'] = $address_proof_file;
                     
                     $attachment_address_proof = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$address_proof_file;
+                     unlink(TMP_FOLDER.$address_proof_file);
                     
                     //Logging success for file uppload
                     log_message('info',__CLASS__.' ADDRESS PROOF FILE is being uploaded sucessfully.');
@@ -266,6 +267,8 @@ class vendor extends CI_Controller {
                     $_POST['cancelled_cheque_file'] = $cancelled_cheque_file;
                     
                     $attachment_cancelled_cheque = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$cancelled_cheque_file;
+                    //Unlink Attachment File
+                    unlink(TMP_FOLDER.$cancelled_cheque_file);
                     
                     //Logging success for file uppload
                     log_message('info',__CLASS__.' CANCELLED CHEQUE FILE is being uploaded sucessfully.');
@@ -284,6 +287,8 @@ class vendor extends CI_Controller {
                     $_POST['id_proof_1_file'] = $id_proof_1_file;
                     
                     $attachment_id_proof_1 = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$id_proof_1_file;
+                     //Unlink Attachment File
+                    unlink(TMP_FOLDER.$id_proof_1_file);
                     
                     //Logging success for file uppload
                     log_message('info',__CLASS__.' ID PROOF 1 FILE is being uploaded sucessfully.');
@@ -302,6 +307,7 @@ class vendor extends CI_Controller {
                     $_POST['id_proof_2_file'] = $id_proof_2_file;
                     
                     $attachment_id_proof_2 = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$id_proof_2_file;
+                    unlink(TMP_FOLDER.$id_proof_2_file);
                     
                     //Logging success for file uppload
                     log_message('info',__CLASS__.' ID PROOF 2 FILE is being uploaded sucessfully.');
@@ -320,6 +326,7 @@ class vendor extends CI_Controller {
                     $_POST['contract_file'] = $contract_file;
                     
                     $attachment_contract = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$contract_file;
+                    unlink(TMP_FOLDER.$contract_file);
                     
                     //Logging success for file uppload
                     log_message('info',__CLASS__.' CONTRACT FILE is being uploaded sucessfully.');
@@ -559,6 +566,7 @@ class vendor extends CI_Controller {
                 $directory_xls = "vendor-partner-docs/" . $gst_file;
                 $this->s3->putObjectFile(TMP_FOLDER . $gst_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                 $_POST['gst_file'] = $gst_file;
+                unlink(TMP_FOLDER . $gst_file);
 
                 return "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $gst_file;
 
@@ -4285,6 +4293,7 @@ class vendor extends CI_Controller {
                 $_POST['signature_file'] = $signature_file;
 
                 $attachment_signature = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $signature_file;
+                unlink(TMP_FOLDER . $signature_file);
 
                 //Logging success for file uppload
                 log_message('info', __CLASS__ . ' signature file is being uploaded sucessfully.');
