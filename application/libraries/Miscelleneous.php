@@ -528,7 +528,7 @@ class Miscelleneous {
                 $match = array();
                 //get the size from the capacity to know the part number
                 preg_match('/[0-9]+/', $value['appliance_capacity'], $match);
-                if (!empty($match)) {
+                if (!empty($match) && !empty($booking_data[0]['assigned_vendor_id'])) {
                     if ($match[0] <= 32) {
                         $data['part_number'] = LESS_THAN_32_BRACKETS_PART_NUMBER;
                     } else if ($match[0] > 32) {
@@ -925,6 +925,7 @@ class Miscelleneous {
                 $this->My_CI->s3->putObjectFile($output_pdf_file, BITBUCKET_DIRECTORY, $directory_pdf, S3::ACL_PUBLIC_READ);
                 
                 exec("rm -rf " . escapeshellarg($output_pdf_file));
+                unlink($output_pdf_file);
                 
                 return json_encode(array(
                     'response' => 'Success',
@@ -2525,7 +2526,7 @@ function generate_image($base64, $image_name,$directory){
 
         $this->My_CI->s3->putObjectFile(TMP_FOLDER.$image_name, BITBUCKET_DIRECTORY, $s3directory, S3::ACL_PUBLIC_READ,array(),"binary/octet-stream");
         
-        //unlink($image_path);
+        unlink($image_path);
         return $s3directory;
     }
     
@@ -2721,17 +2722,24 @@ function convert_html_to_pdf($html,$booking_id,$filename,$s3_folder){
      * @param String $name
      * @return String
      */
-    function create_sf_challan_id($name){
+    function create_sf_challan_id($name,$is_wh = false){
         $challan_id_tmp = $name."-DC-";
         $where['length'] = -1;
-        $where['where'] = array("( sf_challan_number LIKE '%".$challan_id_tmp."%' )" => NULL);
-        $where['select'] = "sf_challan_number";
+        
+        if($is_wh){
+            $where['where'] = array("( partner_challan_number LIKE '%".$challan_id_tmp."%' )" => NULL);
+            $where['select'] = "partner_challan_number as challan_number";
+        }else{
+            $where['where'] = array("( sf_challan_number LIKE '%".$challan_id_tmp."%' )" => NULL);
+            $where['select'] = "sf_challan_number as challan_number";
+        }
+        
         $challan_no_temp = $this->My_CI->inventory_model->get_spare_parts_query($where);
         $challan_no = 1;
         $int_challan_no = array();
         if (!empty($challan_no_temp)) {
             foreach ($challan_no_temp as  $value) {
-                 $explode = explode($challan_id_tmp, $value->sf_challan_number);
+                 $explode = explode($challan_id_tmp, $value->challan_number);
                  array_push($int_challan_no, $explode[1] + 1);
             }
             rsort($int_challan_no);
