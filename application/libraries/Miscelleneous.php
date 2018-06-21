@@ -926,7 +926,9 @@ class Miscelleneous {
                 $this->My_CI->s3->putObjectFile($output_pdf_file, BITBUCKET_DIRECTORY, $directory_pdf, S3::ACL_PUBLIC_READ);
                 
                 exec("rm -rf " . escapeshellarg($output_pdf_file));
-                unlink($output_pdf_file);
+                if(file_exists($output_pdf_file)){
+                    unlink($output_pdf_file);
+                }
                 
                 return json_encode(array(
                     'response' => 'Success',

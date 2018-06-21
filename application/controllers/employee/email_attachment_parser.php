@@ -62,14 +62,22 @@ class Email_attachment_parser extends CI_Controller {
                                                         $extract_file_name = pathinfo($extract_file_name, PATHINFO_FILENAME) . ".xlsx";
                                                         $res1 = 0;
                                                         system(" chmod 777 " . TMP_FOLDER . pathinfo($extract_file_name, PATHINFO_FILENAME) . ".xlsx", $res1);
+                                                        unlink(TMP_FOLDER . pathinfo($extract_file_name, PATHINFO_FILENAME) . ".csv");
                                                     }
                                                 }
                                             }
                                             $file_upload_response = $this->process_uploading_extract_file($file_details['url'], TMP_FOLDER . $extract_file_name, $val['email_message_id'], $file_details);
-
+                                            log_message('info',TMP_FOLDER . $extract_file_name);
                                             //delete file from the system after processing
                                             if (file_exists(TMP_FOLDER . $extract_file_name)) {
+                                                $res1 = 0;
+                                                system(" chmod 777 " . TMP_FOLDER.$extract_file_name, $res1);
                                                 unlink(TMP_FOLDER . $extract_file_name);
+                                            }
+                                            if (file_exists(TMP_FOLDER . $v['file_name'])) {
+                                                $res1 = 0;
+                                                system(" chmod 777 " . TMP_FOLDER.$v['file_name'], $res1);
+                                                unlink(TMP_FOLDER . $v['file_name']);
                                             }
                                             //set flag to read after processing the attachment
                                             $status = imap_setflag_full($conn, $val['email_no'], "\\Seen");

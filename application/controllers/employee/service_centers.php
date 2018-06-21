@@ -3492,7 +3492,15 @@ class Service_centers extends CI_Controller {
                 $json_result = $this->miscelleneous->convert_excel_to_pdf($excel_file, $spare_details['booking_id'], 'vendor-partner-docs');
                 log_message('info', __FUNCTION__ . ' PDF JSON RESPONSE' . print_r($json_result, TRUE));
                 $pdf_response = json_decode($json_result, TRUE);
-
+                if($signature_file && file_exists(TMP_FOLDER.$sf_details[0]['signature_file'])){
+                    unlink(TMP_FOLDER.$sf_details[0]['signature_file']);
+                }
+                
+                if(file_exists(TMP_FOLDER.$output_file.'.xlsx')){
+                    $res1 = 0;
+                    system(" chmod 777 " . TMP_FOLDER.$output_file.'.xlsx', $res1);
+                    unlink(TMP_FOLDER.$output_file.'.xlsx');
+                }
                 if ($pdf_response['response'] === 'Success') {
                     $output_pdf_file_name = $pdf_response['output_pdf_file'];
                     log_message('info', __FUNCTION__ . ' Generated PDF File Name' . $output_pdf_file_name);
