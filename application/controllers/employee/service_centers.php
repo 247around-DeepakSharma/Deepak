@@ -3742,7 +3742,6 @@ function get_learning_collateral_for_bookings(){
         $this->form_validation->set_rules('awb', 'AWB', 'trim|required');
         $this->form_validation->set_rules('courier_price_by_partner', 'courier_price_by_partner', 'trim|required');
         $this->form_validation->set_rules('incoming_invoice', 'Invoice', 'callback_spare_incoming_invoice');
-        //$this->form_validation->set_rules('partner_challan_number', 'Partner Challan Number', 'trim|required');
         $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required');
 
         if ($this->form_validation->run() == FALSE) {
@@ -3750,99 +3749,106 @@ function get_learning_collateral_for_bookings(){
                     " Spare id " . $id . " Data" . print_r($this->input->post(), true));
             $this->update_spare_parts_form($id);
         } else {
-//            $challan_file = $this->upload_challan_file($id);
-//            if ($challan_file) {
-//                $data['partner_challan_file'] = $challan_file;
-//            }
-            $sf_id = $this->session->userdata('service_center_id');
-            $partner_id = $this->input->post('partner_id');
-            $data['model_number_shipped'] = $this->input->post('shipped_model_number');
-            $data['shipped_parts_type'] = $this->input->post('shipped_part_type');
-            $data['parts_shipped'] = $this->input->post('shipped_parts_name');
-            $data['courier_name_by_partner'] = $this->input->post('courier_name');
-            $data['awb_by_partner'] = $this->input->post('awb');
-            $data['courier_price_by_partner'] = $this->input->post('courier_price_by_partner');
-            $data['remarks_by_partner'] = $this->input->post('remarks_by_partner');
-            $data['shipped_date'] = $this->input->post('shipment_date');
-            $data['challan_approx_value'] = $this->input->post('approx_value');
-            $data['status'] = "Shipped";
-            
-            if(is_null($this->input->post('estimate_cost_given_date_h')) || $this->input->post('request_type') !== REPAIR_OOW_TAG){
-                
-                $sf_details = $this->vendor_model->getVendorDetails('name,address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,is_signature_doc',array('id'=>$sf_id));
-                $assigned_sf_details = $this->vendor_model->getVendorDetails('name as company_name,address,owner_name,gst_no as gst_number',array('id'=>$this->input->post('assigned_vendor_id')));
-            
-                
-                $data['partner_challan_number'] = $this->miscelleneous->create_sf_challan_id($sf_details[0]['sc_code']);
-                $spare_details['challan_approx_value'] = $data['challan_approx_value'];
-                $spare_details['booking_id'] = $booking_id;
-                $spare_details['parts_requested'] = explode("_explode_", $data['parts_shipped'] . '_explode_');
-                $spare_details['part_price'][$data['parts_shipped']] = $spare_details['challan_approx_value'];
-                $data['partner_challan_file'] = $this->create_sf_challan_file($sf_details,$assigned_sf_details,$data['partner_challan_number'],$id,$spare_details);
-            }
-            
-            
-            $incoming_invoice_pdf = $this->input->post("incoming_invoice_pdf");
-            if (!empty($incoming_invoice_pdf)) {
-                $data['incoming_invoice_pdf'] = $incoming_invoice_pdf;
-            }
-            
-            if (!empty($this->input->post('inventory_id'))) {
-                $data['shipped_inventory_id'] = $this->input->post('inventory_id');
-            }
-            
-            $where = array('id' => $id, 'partner_id' => $sf_id, 'entity_type' => _247AROUND_SF_STRING);
-            $response = $this->service_centers_model->update_spare_parts($where, $data);
+            $courier_image = $this->upload_courier_image_file($id);
+            if ($courier_image['status']) {
+                $data['courier_pic_by_partner'] = $courier_image['message'];
 
-            if ($response) {
+                $sf_id = $this->session->userdata('service_center_id');
+                $partner_id = $this->input->post('partner_id');
+                $data['model_number_shipped'] = $this->input->post('shipped_model_number');
+                $data['shipped_parts_type'] = $this->input->post('shipped_part_type');
+                $data['parts_shipped'] = $this->input->post('shipped_parts_name');
+                $data['courier_name_by_partner'] = $this->input->post('courier_name');
+                $data['awb_by_partner'] = $this->input->post('awb');
+                $data['courier_price_by_partner'] = $this->input->post('courier_price_by_partner');
+                $data['remarks_by_partner'] = $this->input->post('remarks_by_partner');
+                $data['shipped_date'] = $this->input->post('shipment_date');
+                $data['challan_approx_value'] = $this->input->post('approx_value');
+                $data['status'] = "Shipped";
 
-                $sc_data['current_status'] = "InProcess";
-                $sc_data['internal_status'] = SPARE_PARTS_SHIPPED;
-                $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+                if (is_null($this->input->post('estimate_cost_given_date_h')) || $this->input->post('request_type') !== REPAIR_OOW_TAG) {
 
-                $booking['internal_status'] = SPARE_PARTS_SHIPPED;
-                $actor = $next_action = 'not_define';
-                $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $booking_id);
-                if (!empty($partner_status)) {
-                    $booking['partner_current_status'] = $partner_status[0];
-                    $booking['partner_internal_status'] = $partner_status[1];
-                    $actor = $booking['actor'] = $partner_status[2];
-                    $next_action = $booking['next_action'] = $partner_status[3];
+                    $sf_details = $this->vendor_model->getVendorDetails('name,address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,is_signature_doc', array('id' => $sf_id));
+                    $assigned_sf_details = $this->vendor_model->getVendorDetails('name as company_name,address,owner_name,gst_no as gst_number', array('id' => $this->input->post('assigned_vendor_id')));
+
+
+                    $data['partner_challan_number'] = $this->miscelleneous->create_sf_challan_id($sf_details[0]['sc_code'],true);
+                    $spare_details['challan_approx_value'] = $data['challan_approx_value'];
+                    $spare_details['booking_id'] = $booking_id;
+                    $spare_details['parts_requested'] = explode("_explode_", $data['parts_shipped'] . '_explode_');
+                    $spare_details['part_price'][$data['parts_shipped']] = $spare_details['challan_approx_value'];
+                    $data['partner_challan_file'] = $this->create_sf_challan_file($sf_details, $assigned_sf_details, $data['partner_challan_number'], $id, $spare_details);
                 }
-                $this->insert_details_in_state_change($booking_id, SPARE_PARTS_SHIPPED, "Partner acknowledged to shipped spare parts", $actor, $next_action);
 
-                $this->booking_model->update_booking($booking_id, $booking);
+
+                $incoming_invoice_pdf = $this->input->post("incoming_invoice_pdf");
                 if (!empty($incoming_invoice_pdf)) {
-                    // Send OOW invoice to aditya
-                    $url = base_url() . "employee/invoice/generate_oow_parts_invoice/" . $id;
-                    $async_data['booking_id'] = $booking_id;
-                    $this->asynchronous_lib->do_background_process($url, $async_data);
-                }
-                
-                if ($this->input->post('is_wh') && !empty($data['shipped_inventory_id'])) {
-                    //update inventory stocks
-                    $data['receiver_entity_id'] = $this->input->post('assigned_vendor_id');
-                    $data['receiver_entity_type'] = _247AROUND_SF_STRING;
-                    $data['sender_entity_id'] = $this->session->userdata('service_center_id');
-                    $data['sender_entity_type'] = _247AROUND_SF_STRING;
-                    $data['stock'] = -1;
-                    $data['booking_id'] = $booking_id;
-                    $data['agent_id'] = $this->session->userdata('service_center_id');
-                    $data['agent_type'] = _247AROUND_SF_STRING;
-                    $data['is_wh'] = TRUE;
-                    $data['inventory_id'] = $data['shipped_inventory_id'];
-                    $this->miscelleneous->process_inventory_stocks($data);
+                    $data['incoming_invoice_pdf'] = $incoming_invoice_pdf;
                 }
 
-                $userSession = array('success' => 'Parts Updated');
-                $this->session->set_userdata($userSession);
-                redirect(base_url() . "service_center/spare_parts");
-            } else { //if($response){
+                if (!empty($this->input->post('inventory_id'))) {
+                    $data['shipped_inventory_id'] = $this->input->post('inventory_id');
+                }
+                
+                $where = array('id' => $id, 'partner_id' => $sf_id, 'entity_type' => _247AROUND_SF_STRING);
+                $response = $this->service_centers_model->update_spare_parts($where, $data);
+
+                if ($response) {
+
+                    $sc_data['current_status'] = "InProcess";
+                    $sc_data['internal_status'] = SPARE_PARTS_SHIPPED;
+                    $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+
+                    $booking['internal_status'] = SPARE_PARTS_SHIPPED;
+                    $actor = $next_action = 'not_define';
+                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $booking_id);
+                    if (!empty($partner_status)) {
+                        $booking['partner_current_status'] = $partner_status[0];
+                        $booking['partner_internal_status'] = $partner_status[1];
+                        $actor = $booking['actor'] = $partner_status[2];
+                        $next_action = $booking['next_action'] = $partner_status[3];
+                    }
+                    $this->insert_details_in_state_change($booking_id, SPARE_PARTS_SHIPPED, "Partner acknowledged to shipped spare parts", $actor, $next_action);
+
+                    $this->booking_model->update_booking($booking_id, $booking);
+                    if (!empty($incoming_invoice_pdf)) {
+                        // Send OOW invoice to aditya
+                        $url = base_url() . "employee/invoice/generate_oow_parts_invoice/" . $id;
+                        $async_data['booking_id'] = $booking_id;
+                        $this->asynchronous_lib->do_background_process($url, $async_data);
+                    }
+
+                    if ($this->input->post('is_wh') && !empty($data['shipped_inventory_id'])) {
+                        //update inventory stocks
+                        $data['receiver_entity_id'] = $this->input->post('assigned_vendor_id');
+                        $data['receiver_entity_type'] = _247AROUND_SF_STRING;
+                        $data['sender_entity_id'] = $this->session->userdata('service_center_id');
+                        $data['sender_entity_type'] = _247AROUND_SF_STRING;
+                        $data['stock'] = -1;
+                        $data['booking_id'] = $booking_id;
+                        $data['agent_id'] = $this->session->userdata('service_center_id');
+                        $data['agent_type'] = _247AROUND_SF_STRING;
+                        $data['is_wh'] = TRUE;
+                        $data['inventory_id'] = $data['shipped_inventory_id'];
+                        $this->miscelleneous->process_inventory_stocks($data);
+                    }
+
+                    $userSession = array('success' => 'Parts Updated');
+                    $this->session->set_userdata($userSession);
+                    redirect(base_url() . "service_center/spare_parts");
+                } else { //if($response){
+                    log_message('info', __FUNCTION__ . '=> Spare parts booking is not updated by SF ' . $this->session->userdata('service_center_id') .
+                            " booking id " . $booking_id . " Data" . print_r($this->input->post(), true));
+                    $userSession = array('error' => 'Parts Not Updated');
+                    $this->session->set_userdata($userSession);
+                    redirect(base_url() . "service_center/update_spare_parts/" . $id);
+                }
+            } else {
                 log_message('info', __FUNCTION__ . '=> Spare parts booking is not updated by SF ' . $this->session->userdata('service_center_id') .
                         " booking id " . $booking_id . " Data" . print_r($this->input->post(), true));
-                $userSession = array('success' => 'Parts Not Updated');
+                $userSession = array('error' => $courier_image['message']);
                 $this->session->set_userdata($userSession);
-                redirect(base_url() . "service_center/update_spare_parts/" . $booking_id);
+                redirect(base_url() . "service_center/update_spare_parts_form/" . $id);
             }
         }
     }
@@ -4284,5 +4290,45 @@ function get_learning_collateral_for_bookings(){
         $data['data'] = $this->employee_model->get_holiday_list();
         $this->load->view('service_centers/header');
         $this->load->view('employee/show_holiday_list',$data);
+    }
+    
+    /**
+     * @desc: This function is used to upload the courier file when warehouse shipped spare parts to sf
+     * @params: void
+     * @return: $res
+     */
+    function upload_courier_image_file($id) {
+        
+        $MB = 1048576;
+        //check if upload file is empty or not
+        if (!empty($_FILES['courier_image']['name'])) {
+            //check upload file size. it should not be greater than 2mb in size
+            if ($_FILES['courier_image']['size'] <= 2 * $MB) {
+                $allowed = array('pdf','jpg','png','jpeg');
+                $ext = pathinfo($_FILES['courier_image']['name'], PATHINFO_EXTENSION);
+                //check upload file type. it should be pdf.
+                if (in_array($ext, $allowed)) {
+                    $file_name = $wh_courier_image = "wh_courier_image_" . $this->input->post('booking_id'). "_".$id."_" . preg_replace('/\s+/', '',$_FILES['courier_image']['name']);
+                    //Upload files to AWS
+                    $directory_xls = "vendor-partner-docs/" . $file_name;
+                    $this->s3->putObjectFile($_FILES['courier_image']['tmp_name'], BITBUCKET_DIRECTORY, $directory_xls, S3::ACL_PUBLIC_READ);
+
+                    $res['status'] = true;
+                    $res['message'] = $file_name;
+                }else{
+                    $res['status'] = false;
+                    $res['message'] = 'Upload file type not valid. Only PDF/JPG/PNG/JPEG format allow';
+                }
+                
+            } else {
+                $res['status'] = false;
+                $res['message'] = 'Uploaded file size can not be greater than 2 mb';
+            }
+        } else {
+            $res['status'] = false;
+            $res['message'] = 'Couries Image is required';
+        }
+
+        return $res;
     }
 }

@@ -7440,3 +7440,7 @@ ALTER TABLE `spare_parts_details` ADD `warehouse_courier_invoice_id` VARCHAR(128
 
 --Abhay 19 June
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'sf_warehouse_invoice', '247around - %s - FOC Invoice for period: %s to %s', 'Dear Partner,Please find attached Warehouse invoice. Please do <strong>Reply All</strong> for raising any query or concern regarding the invoice. <br/><br/>Thanks,<br/>247around Team', 'billing@247around.com', 'abhaya@247around.com', 'abhaya@247around.com', '', '1', '2017-05-29 23:56:58');
+
+
+-- 20 June
+ALTER TABLE `spare_parts_details` ADD `courier_pic_by_partner` VARCHAR(1024) NULL DEFAULT NULL AFTER `courier_price_by_partner`;
