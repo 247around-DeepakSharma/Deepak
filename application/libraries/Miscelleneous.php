@@ -529,7 +529,7 @@ class Miscelleneous {
                 $match = array();
                 //get the size from the capacity to know the part number
                 preg_match('/[0-9]+/', $value['appliance_capacity'], $match);
-                if (!empty($match)) {
+                if (!empty($match) && !empty($booking_data[0]['assigned_vendor_id'])) {
                     if ($match[0] <= 32) {
                         $data['part_number'] = LESS_THAN_32_BRACKETS_PART_NUMBER;
                     } else if ($match[0] > 32) {
