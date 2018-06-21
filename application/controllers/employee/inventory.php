@@ -2753,6 +2753,16 @@ class Inventory extends CI_Controller {
 
                                     if ($insert_id) {
                                         log_message("info", "Ledger details added successfully");
+                                        //map spare from partner to warehouse if initialy it is not mapped
+                                        if(!empty($value['booking_id'])){
+                                            $data = array('entity_type' => _247AROUND_SF_STRING,'partner_id' => $wh_id);
+                                            $update_spare_part = $this->service_centers_model->update_spare_parts(array('booking_id' => trim($value['booking_id'])), $data);
+                                            if($update_spare_part){
+                                                log_message('info',' Spare mapped to warehouse successfully');
+                                            }else{
+                                                log_message('info',' error in updating spare details');
+                                            }
+                                        }
                                     } else {
                                         array_push($not_updated_data, $value['part_number']);
                                         log_message("info", "error in adding inventory ledger details data: " . print_r($ledger_data, TRUE));
