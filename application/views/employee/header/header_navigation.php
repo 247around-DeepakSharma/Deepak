@@ -8,6 +8,7 @@
         <meta name="author" content="">
         <meta name="format-detection" content="telephone=no">
         <title>247around</title>    
+        <link rel="shortcut icon" href="<?php echo base_url();?>images/favicon.ico" />
         <!-- Bootstrap Core CSS -->
         <link href="<?php echo base_url()?>css/bootstrap.min.css" rel="stylesheet">
         <!-- Custom CSS -->
