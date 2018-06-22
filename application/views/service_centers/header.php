@@ -6,6 +6,7 @@
             Service Center
         </title>
         <meta charset="utf-8">
+        <link rel="shortcut icon" href="<?php echo base_url();?>images/favicon.ico" />
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link href="<?php echo base_url()?>css/bootstrap.min.css" rel="stylesheet">
         <link href="<?php echo base_url()?>font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
