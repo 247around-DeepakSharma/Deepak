@@ -59,9 +59,11 @@ class bookingjobcard extends CI_Controller {
      */
 
     public function prepare_job_card_using_booking_id($booking_id) {
- 
         log_message('info', $booking_id);
-        $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
+        $mpdf = $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
+        if(!$mpdf){
+            $this->booking_utilities->mpdf_failure_backup_jobcard($booking_id);
+        }
         redirect(base_url() . 'employee/booking/view_bookings_by_status/Pending');
     }
 
