@@ -85,7 +85,7 @@
       </div>
     
          <div id="myModal2" class="modal fade" role="dialog">
-      <div class="modal-dialog">
+             <div class="modal-dialog modal-lg" style="width: 62%;">
          <!-- Modal content-->
          <div class="modal-content">
             <div class="modal-header">
@@ -95,7 +95,7 @@
             <div class="modal-body">
                 <form class="form-horizontal" id ="cn_dn_form" action="#"  method="POST" >
                     <div class="col-md-12" >
-                        <div class="col-md-6 ">
+                        <div class="col-md-4 ">
                             <div class="form-group col-md-12  ">
                                 <label for="Invoice type">Select Type *</label>
                                 <select name="invoice_type" id="invoice_type" class="form-control">
@@ -104,57 +104,97 @@
                                 </select>
                             </div>
                         </div>
-                         <div class="col-md-6 ">
+                         <div class="col-md-4 ">
                             <div class="form-group col-md-12  ">
-                                <label for="invoice Date">Invoice Date *</label>
+                                <label for="invoice Date">Date *</label>
                                  
                                 <input type="text" class="form-control" style="font-size: 13px; background-color:#fff;" placeholder="Select Date" id="invoice_date" name="invoice_date" required readonly='true' >
                             </div>
                         </div>
-                        <div class="col-md-6 ">
+                        <div class="col-md-4 ">
                             <div class="form-group col-md-12  ">
-                                <label for="Service Charge">Basic Service Charge *</label>
-                                <input type="number" step=".02" class="form-control" style="font-size: 13px;"  id="service_charge" placeholder="Enter Serivce Charge" name="service_charge" value = "0" >
+                                <label for="reference_numner">Reference Number </label>
+                                <input type="text" class="form-control" style="font-size: 13px;"  id="reference_numner" placeholder="Enter Reference Number" name="reference_numner" value = "" required>
                             </div>
                         </div>
-                        <div class="col-md-6 ">
+                    
+                        <div class="col-md-12 ">
+                         <hr/>
+                        <h4><label for="Invoice type">Service Charge</label></h4>
+                        </div>
+                       
+                        <div class="col-md-4" style="width:25%;">
                             <div class="form-group col-md-12  ">
-                                <label for="Parts Charge">Basic Parts Charge *</label>
-                                <input type="number" step=".02" class="form-control" style="font-size: 13px;"  id="parts_charge" placeholder="Enter Parts Charge" name="parts_charge" value = "0" >
+                                <label for="Service Charge">Service Rate *</label>
+                                <input type="number" step=".02" class="form-control" style="font-size: 13px;"  id="service_rate" placeholder="Enter Serivce Rate" name="service_rate" value = "0" >
                             </div>
                         </div>
-                        <div class="col-md-6 ">
+                        <div class="col-md-4 " style="width:25%;">
                             <div class="form-group col-md-12  ">
                                 <label for="Service Qty">Service Qty *</label>
                                 <input type="number" class="form-control" style="font-size: 13px;"  id="service_count" placeholder="Enter Service Quantity" name="service_count" value = "0" >
                             </div>
                         </div>
-                        <div class="col-md-6 ">
+                         <div class="col-md-4 " style="width:25%;">
                             <div class="form-group col-md-12  ">
-                                <label for="Parts Qty">Parts Qty *</label>
-                                <input type="number" class="form-control" style="font-size: 13px;"  id="parts_count" placeholder="Enter Parts Quantity" name="parts_count" value = "0" >
+                                
+                                <label for="GST Rate">Service GST Rate *</label>
+                                <input type="number" step=".02" class="form-control" style="font-size: 13px;" id="gst_rate" placeholder="Enter GST Rate" name="service_gst_rate" value = "18" >
                             </div>
+                        </div>
+                        <div class="col-md-4 " style="width:25%;">
+                            <div class="form-group col-md-12  ">
+                                <label for="HSN CODE">Service HSN Code </label>
+                                <input type="text" class="form-control" style="font-size: 13px;"  id="hsn_code" placeholder="Enter HSN Code" name="service_hsn_code" value = "" >
+                            </div>
+                        </div>
+                         <div class="col-md-12 ">
+                            <div class="form-group col-md-12  ">
+                                <label for="Description">Service Description *</label>
+                                <input type="text" class="form-control" style="font-size: 13px;"  id="description" placeholder="Enter Description" name="service_description" value = "" >
+                            </div>
+                        </div>
+                        <div class="col-md-12"> <hr/></div>
+                         
+                        <div class="col-md-12 ">
+                        
+                        <h4><label for="Invoice type">Part Charge</label></h4>
                         </div>
                        
-                        
-                        <div class="col-md-6 ">
+                        <div class="col-md-4" style="width:25%;">
                             <div class="form-group col-md-12  ">
-                                <label for="GST Rate">GST Rate *</label>
-                                <input type="number" step=".02" class="form-control" style="font-size: 13px;" id="gst_rate" placeholder="Enter GST Rate" name="gst_rate" value = "18" required>
+                                <label for="Part Charge">Part Rate *</label>
+                                <input type="number" step=".02" class="form-control" style="font-size: 13px;"  id="part_rate" placeholder="Enter Part Rate" name="part_rate" value = "0" >
                             </div>
                         </div>
-                        <div class="col-md-6 ">
+                        <div class="col-md-4 " style="width:25%;">
                             <div class="form-group col-md-12  ">
-                                <label for="HSN CODE">HSN Code </label>
-                                <input type="text" class="form-control" style="font-size: 13px;"  id="hsn_code" placeholder="Enter HSN Code" name="hsn_code" value = "" >
+                                <label for="Service Qty">Part Qty *</label>
+                                <input type="number" class="form-control" style="font-size: 13px;"  id="part_count" placeholder="Enter Part Quantity" name="part_count" value = "0" >
                             </div>
                         </div>
-                        <div class="col-md-12 ">
+                         <div class="col-md-4 " style="width:25%;">
+                            <div class="form-group col-md-12  ">
+                                
+                                <label for="GST Rate">Part GST Rate *</label>
+                                <input type="number" step=".02" class="form-control" style="font-size: 13px;" id="part_gst_rate" placeholder="Enter Part GST Rate" name="part_gst_rate" value = "18" >
+                            </div>
+                        </div>
+                        <div class="col-md-4 " style="width:25%;">
+                            <div class="form-group col-md-12  ">
+                                <label for="HSN CODE">Part HSN Code </label>
+                                <input type="text" class="form-control" style="font-size: 13px;"  id="part_hsn_code" placeholder="Enter HSN Code" name="part_hsn_code" value = "" >
+                            </div>
+                        </div>
+                         <div class="col-md-12 ">
                             <div class="form-group col-md-12  ">
                                 <label for="Description">Description *</label>
-                                <input type="text" class="form-control" style="font-size: 13px;"  id="description" placeholder="Enter Description" name="description" value = "" required>
+                                <input type="text" class="form-control" style="font-size: 13px;"  id="part_description" placeholder="Enter Description" name="part_description" value = "" >
                             </div>
                         </div>
+                        <div class="col-md-12"> <hr/></div>
+                       
+                      
                         <div class="col-md-12 ">
                             <div class="form-group col-md-12  ">
                                 <label for="remarks">Remarks *</label>
@@ -183,7 +223,16 @@
 
 <script type="text/javascript">
    $("#invoice_id").select2();
-   $("#invoice_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
+   $(function() {
+        $('#invoice_date').daterangepicker({
+            locale: {
+               format: 'YYYY/MM/DD'
+            },
+            startDate: '<?php echo date("Y-m-01", strtotime("-1 month")) ?>',
+            endDate: '<?php echo date('Y-m-d', strtotime('last day of previous month')); ?>'
+        });
+
+        });
 
    $(document).ready(function () {
 
@@ -232,8 +281,8 @@
     function genaerate_cn_dn_invoice(){
         var fd = new FormData(document.getElementById("cn_dn_form"));
         var vendor_partner_id = $('#invoice_id').val();
-        var service_charge = Number($("#service_charge").val());
-        var parts_charge = Number($("#parts_charge").val());
+        var service_charge = Number($("#service_rate").val());
+        var parts_charge = Number($("#part_rate").val());
         if(Number(parts_charge + service_charge) > 0){
    <?php if (isset($service_center)) { ?>
                  fd.append('vendor_partner','vendor');

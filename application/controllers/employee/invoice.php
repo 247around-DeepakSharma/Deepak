@@ -3005,10 +3005,7 @@ class Invoice extends CI_Controller {
             $response['meta']['invoice_file_excel'] = $invoice_id.".xlsx";
             
             $this->upload_invoice_to_S3($invoice_id, false);
-            
-            
-            
-         
+
             if(!empty($email_tag)){
                 $email_template = $this->booking_model->get_booking_email_template($email_tag);
                 $subject = vsprintf($email_template[4], array($partner_data['company_name'], $sd, $ed));
@@ -3394,53 +3391,50 @@ class Invoice extends CI_Controller {
      */
     function generate_credit_debit_note() {
         log_message('info', __METHOD__ . " POST DATA " . json_encode($this->input->post(), TRUE));
+
         $this->checkUserSession();
         $this->form_validation->set_rules('vendor_partner_id', 'Vendor Partner ID', 'required|trim');
         $this->form_validation->set_rules('vendor_partner', 'Vendor_partner', 'required|trim');
         $this->form_validation->set_rules('invoice_type', 'Invoice Type', 'required|trim');
-        $this->form_validation->set_rules('service_count', 'Service QTY', 'required|trim');
-        $this->form_validation->set_rules('parts_count', 'Parts QTY', 'required|trim');
-        $this->form_validation->set_rules('parts_charge', 'Parts Charge', 'required|trim');
-        $this->form_validation->set_rules('service_charge', 'Service Charge', 'required|trim');
-        $this->form_validation->set_rules('gst_rate', 'GST Rate', 'required|trim');
         $this->form_validation->set_rules('invoice_date', 'Invoice Period', 'required|trim');
         $this->form_validation->set_rules('remarks', 'Remarks', 'required|trim');
-        $this->form_validation->set_rules('description', 'Description', 'required|trim');
+
+        if ($this->input->post('service_rate') > 0) {
+            $this->form_validation->set_rules('service_count', 'Service QTY', 'required|trim|greater_than[0]');
+            $this->form_validation->set_rules('service_description', 'Description', 'required|trim');
+            $this->form_validation->set_rules('service_gst_rate', 'GST Rate', 'required|trim');
+        }
+
+        if ($this->input->post('part_rate') > 0) {
+            $this->form_validation->set_rules('part_count', 'Part QTY', 'required|trim|greater_than[0]');
+            $this->form_validation->set_rules('part_description', 'Description', 'required|trim');
+            $this->form_validation->set_rules('part_gst_rate', 'GST Rate', 'required|trim');
+        }
+
 
         if ($this->form_validation->run()) {
             $data['vendor_partner'] = $this->input->post('vendor_partner');
             $data['vendor_partner_id'] = $this->input->post('vendor_partner_id');
             $data['type'] = $this->input->post('invoice_type');
-            $data['total_service_charge'] = $this->input->post('service_charge');
-            $data['parts_cost'] = $this->input->post('parts_charge');
+            $service_rate = $this->input->post('service_rate');
+            $parts_rate = $this->input->post('part_rate');
             $data['num_bookings'] = $this->input->post('service_count');
-            $data['parts_count'] = $this->input->post('parts_count');
-            $gst_rate = trim($this->input->post('gst_rate'));
-            $data['hsn_code'] = $this->input->post('hsn_code');
+            $data['parts_count'] = $this->input->post('part_count');
+            $service_gst_rate = trim($this->input->post('service_gst_rate'));
+            $part_gst_rate = trim($this->input->post('part_gst_rate'));
+            $service_hsn_code = $this->input->post('service_hsn_code');
+            $part_hsn_code = $this->input->post('part_hsn_code');
             $data['remarks'] = $this->input->post('remarks');
+            $service_description = $this->input->post('service_description');
+            $part_description = $this->input->post('part_description');
+            $reference_number = $this->input->post('reference_numner');
 
-            $total_qty = $data['parts_count'] + $data['num_bookings'];
-            $description = $this->input->post('description');
+            $custom_date = explode("-", $this->input->post('invoice_date'));
+            $sd = $custom_date[0];
+            $ed = $custom_date[1];
 
-            $invoice_date = date("Y-m-d", strtotime($this->input->post('invoice_date')));
-
-            $sd = $ed = $invoice_date;
-
-            $total_basic_amount = $data['total_service_charge'] + $data['parts_cost'];
-            $total_amount = $total_basic_amount * (1 + $gst_rate / 100);
-            
-            if ($data['type'] == "CreditNote") {
-
-
-                $invoice_id = $this->invoice_lib->create_invoice_id("ARD-CN");
-                $type = "Credit Note";
-                $data['type_code'] = "B";
-            } else {
-
-                $invoice_id = $this->invoice_lib->create_invoice_id("ARD-DN");
-                $type = "Debit Note";
-                $data['type_code'] = "A";
-            }
+            $invoice_date = date('Y-m-d');
+            $hsn_code ="";
 
             if ($data['vendor_partner'] == "vendor") {
 
@@ -3453,47 +3447,128 @@ class Invoice extends CI_Controller {
                         . "invoice_email_to,invoice_email_cc", array('partners.id' => $data['vendor_partner_id']));
             }
 
-            $response = $this->generate_partner_additional_invoice($entity_details[0], $description, $total_amount, $invoice_id, $sd, $ed, $invoice_date, $data['hsn_code'], $type, "", $total_qty, $gst_rate);
-            $file = $this->upload_create_update_invoice_to_s3($invoice_id);
-
-            if (isset($file['invoice_detailed_excel'])) {
-                $data['invoice_detailed_excel'] = $file['invoice_detailed_excel'];
-            }
-
-            $data['invoice_id'] = $invoice_id;
-            $data['invoice_file_main'] = $response['meta']['invoice_file_main'];
-            $data['invoice_file_excel'] = $response['meta']['invoice_id'] . ".xlsx";
-            $data['from_date'] = date("Y-m-d", strtotime($sd));
-            $data['to_date'] = date("Y-m-d", strtotime($sd));
-            $data['due_date'] = date("Y-m-d", strtotime($sd));
-            $data['total_amount_collected'] = $response['meta']['sub_total_amount'];
-            $data['invoice_date'] = date("Y-m-d", strtotime($sd));
             if ($data['type'] == "CreditNote") {
-                $data['amount_collected_paid'] = -$response['meta']['sub_total_amount'];
+
+                $invoice_id = $this->invoice_lib->create_invoice_id("ARD-CN");
+                $type = "Credit Note";
+                $data['type_code'] = "B";
             } else {
-                $data['amount_collected_paid'] = $response['meta']['sub_total_amount'];
+
+                $invoice_id = $this->invoice_lib->create_invoice_id("ARD-DN");
+                $type = "Debit Note";
+                $data['type_code'] = "A";
             }
-            $data['agent_id'] = $this->session->userdata('id');
-            $data['cgst_tax_rate'] = $response['meta']['cgst_tax_rate'];
-            $data['sgst_tax_rate'] = $response['meta']['sgst_tax_rate'];
-            $data['igst_tax_rate'] = $response['meta']['igst_tax_rate'];
-            $data['igst_tax_amount'] = $response['meta']['igst_total_tax_amount'];
-            $data['sgst_tax_amount'] = $response['meta']['sgst_total_tax_amount'];
-            $data['cgst_tax_amount'] = $response['meta']['cgst_total_tax_amount'];
-           
-            $status = $this->invoices_model->insert_new_invoice($data);
-            if (!empty($status)) {
-                 log_message("info", __METHOD__ . " Invoice Inserted ");
-                echo "Success";
+
+            $invoice = array();
+            if ($service_rate > 0) {
+                $s = $this->get_credit_debit_note_array_data(0, $service_description, $service_rate, $data['num_bookings'], "Service", $service_gst_rate, $service_hsn_code, $entity_details[0], true);
+                array_push($invoice, $s[0]);
+                $hsn_code = $service_hsn_code;
+            }
+
+            if ($parts_rate > 0) {
+                $p = $this->get_credit_debit_note_array_data(0, $part_description, $parts_rate, $data['parts_count'], "Product", $part_gst_rate, $part_hsn_code, $entity_details[0], true);
+                array_push($invoice, $p[0]);
+                $hsn_code = $part_hsn_code;
+            }
+
+            if (!empty($invoice)) {
+                $response = $this->invoices_model->_set_partner_excel_invoice_data($invoice, $sd, $ed, $type, $invoice_date);
+                $response['meta']['invoice_id'] = $invoice_id;
+                $response['meta']['reference_invoice_id'] = $reference_number;
+                $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
+                if (!empty($status)) {
+                    $convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($invoice_id, "final");
+                    $output_pdf_file_name = $convert['main_pdf_file_name'];
+                    $response['meta']['invoice_file_main'] = $output_pdf_file_name;
+                    $response['meta']['copy_file'] = $convert['copy_file'];
+                    $response['meta']['invoice_file_excel'] = $invoice_id . ".xlsx";
+
+                    $this->upload_invoice_to_S3($invoice_id, false);
+                    $file = $this->upload_create_update_invoice_to_s3($invoice_id);
+                    if (isset($file['invoice_detailed_excel'])) {
+                        $data['invoice_detailed_excel'] = $file['invoice_detailed_excel'];
+                    }
+
+
+                    $data['invoice_id'] = $invoice_id;
+                    $data['total_service_charge'] = $response['meta']['total_ins_charge'];
+                    $data['parts_cost'] = $response['meta']['total_parts_charge'];
+                    $data['invoice_file_main'] = $response['meta']['invoice_file_main'];
+                    $data['invoice_file_excel'] = $response['meta']['invoice_id'] . ".xlsx";
+                    $data['from_date'] = date("Y-m-d", strtotime($sd));
+                    $data['to_date'] = date("Y-m-d", strtotime($sd));
+                    $data['due_date'] = date("Y-m-d", strtotime($sd));
+                    $data['total_amount_collected'] = $response['meta']['sub_total_amount'];
+                    $data['invoice_date'] = date("Y-m-d", strtotime($sd));
+                    if ($data['type'] == "CreditNote") {
+                        $data['amount_collected_paid'] = -$response['meta']['sub_total_amount'];
+                    } else {
+                        $data['amount_collected_paid'] = $response['meta']['sub_total_amount'];
+                    }
+                    $data['agent_id'] = $this->session->userdata('id');
+                    $data['cgst_tax_rate'] = $response['meta']['cgst_tax_rate'];
+                    $data['sgst_tax_rate'] = $response['meta']['sgst_tax_rate'];
+                    $data['igst_tax_rate'] = $response['meta']['igst_tax_rate'];
+                    $data['igst_tax_amount'] = $response['meta']['igst_total_tax_amount'];
+                    $data['sgst_tax_amount'] = $response['meta']['sgst_total_tax_amount'];
+                    $data['cgst_tax_amount'] = $response['meta']['cgst_total_tax_amount'];
+                    $data['hsn_code'] = $part_hsn_code;
+                    $data['reference_invoice_id'] = $response['meta']['reference_invoice_id'];
+
+                    $status = $this->invoices_model->insert_new_invoice($data);
+                    if (!empty($status)) {
+                        log_message("info", __METHOD__ . " Invoice Inserted ");
+                        echo "Success";
+                    } else {
+                        log_message("info", __METHOD__ . " Invoice not Inserted ");
+                        echo "Error";
+                    }
+
+                    unlink(TMP_FOLDER . $invoice_id . ".xlsx");
+                    unlink(TMP_FOLDER . "copy_" . $invoice_id . ".xlsx");
+                } else {
+                    echo "Invoice is not generating";
+                }
             } else {
-                log_message("info", __METHOD__ . " Invoice not Inserted ");
-                echo "Error";
+                echo "Invoice is not generating";
             }
         } else {
             log_message("info", __METHOD__ . " validation failed");
-            echo validation_errors(); 
+            echo validation_errors();
         }
     }
+
+    function get_credit_debit_note_array_data($key, $description, $rate, $qty, $product_or_services, 
+            $gst_rate, $hsn_code,$partner_data,$is_gst_required){
+        $data = array();
+        $data[$key]['description'] =  $description;
+        $data[$key]['rate'] = $rate;
+        $data[$key]['qty'] = $qty;
+        $data[$key]['taxable_value'] = ($rate * $qty);
+        $data[$key]['product_or_services'] = $product_or_services;
+        if(!empty($partner_data['gst_number'])){
+             $data[$key]['gst_number'] = $partner_data['gst_number'];
+             
+        } else if($is_gst_required){
+             $data[$key]['gst_number'] = TRUE;
+             
+        } else {
+            $data[$key]['gst_number'] = "";
+        }
+        
+        $data[$key]['company_name'] = $partner_data['company_name'];
+        $data[$key]['company_address'] = $partner_data['company_address'];
+        $data[$key]['district'] = $partner_data['district'];
+        $data[$key]['pincode'] = $partner_data['pincode'];
+        $data[$key]['state'] = $partner_data['state'];
+        $data[$key]['hsn_code'] = $hsn_code;
+       
+        $data[$key]['gst_rate'] = $gst_rate;
+        
+        return $data;
+    }
+    
     /**
      * @desc This is used to generate sf warehouse invoice
      * @param Array $details
