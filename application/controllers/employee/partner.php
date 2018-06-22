@@ -4616,4 +4616,8 @@ class Partner extends CI_Controller {
         $this->load->view("partner/tag_spare_invoice_send_by_partner");
         $this->load->view('partner/partner_footer');
     }
+    function get_partner_tollfree_numbers(){
+         echo json_encode($this->reusable_model->get_search_query('partners','customer_care_contact,public_name',array("is_active"=>1,"customer_care_contact IS NOT NULL"=>NULL,
+             "customer_care_contact !=''"=>NULL),NULL,NULL,NULL,NULL,NULL,NULL)->result_array());
+     }
 }
