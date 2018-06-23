@@ -1263,36 +1263,36 @@ class Booking extends CI_Controller {
     function process_rating_form($booking_id, $status) {
         log_message('info', __FUNCTION__ . ' Received Data : '  . print_r($this->input->post(),true));
         if($this->input->post('mobile_no')){
-        $user_id = $this->input->post('user_id');
-        $phone_no = $this->input->post('mobile_no');
-        log_message('info', __FUNCTION__ . ' Booking ID : ' . $booking_id . ' Status' . $status . " Done By " . $this->session->userdata('employee_id'));
-        if($this->input->post('not_reachable')){
-            $this->customer_not_reachable_for_rating($booking_id,$user_id,$phone_no);
-        }
-        else{
-            if ($this->input->post('rating_star') != "Select") {
-                $data['rating_stars'] = $this->input->post('rating_star');
-                $data['rating_comments'] = $this->input->post('rating_comments');
-                $remarks = 'Rating'.':'.$data['rating_stars'].'. '.$data['rating_comments'];
+            $user_id = $this->input->post('user_id');
+            $phone_no = $this->input->post('mobile_no');
+            log_message('info', __FUNCTION__ . ' Booking ID : ' . $booking_id . ' Status' . $status . " Done By " . $this->session->userdata('employee_id'));
+            if($this->input->post('not_reachable')){
+                $this->customer_not_reachable_for_rating($booking_id,$user_id,$phone_no);
+            }
+            else{
+                if ($this->input->post('rating_star') != "Select") {
+                    $data['rating_stars'] = $this->input->post('rating_star');
+                    $data['rating_comments'] = $this->input->post('rating_comments');
+                    $remarks = 'Rating'.':'.$data['rating_stars'].'. '.$data['rating_comments'];
 
-                $update = $this->booking_model->update_booking($booking_id, $data);
-                if($data['rating_stars']<3){
-                    $this->miscelleneous->send_bad_rating_email($data['rating_stars'],$booking_id);
-                }
-                if ($update) {
-                    //update state
-                    $this->notify->insert_state_change($booking_id, RATING_NEW_STATE, $status, $remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'),
-                            ACTOR_BOOKING_RATING,RATING_NEXT_ACTION,_247AROUND);
-                    // send sms after rating
-                    $this->send_rating_sms($phone_no, $data['rating_stars'],$user_id,$booking_id);
+                    $update = $this->booking_model->update_booking($booking_id, $data);
+                    if($data['rating_stars']<3){
+                        $this->miscelleneous->send_bad_rating_email($data['rating_stars'],$booking_id);
+                    }
+                    if ($update) {
+                        //update state
+                        $this->notify->insert_state_change($booking_id, RATING_NEW_STATE, $status, $remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'),
+                                ACTOR_BOOKING_RATING,RATING_NEXT_ACTION,_247AROUND);
+                        // send sms after rating
+                        $this->send_rating_sms($phone_no, $data['rating_stars'],$user_id,$booking_id);
+                    }
                 }
             }
-        }
         }
         else{
            $this->session->set_userdata(array('rating_error' => "Rating Not submitted for ".$booking_id." Please Try Again"));
         }
-        redirect(base_url() . 'employee/booking/view_bookings_by_status/' . $status);
+         redirect(base_url() . 'employee/booking/view_bookings_by_status/' . $status);
     }
 
     /**
@@ -1683,11 +1683,9 @@ class Booking extends CI_Controller {
         $data['current_status'] = _247AROUND_PENDING;
         $data['update_date'] = date("Y-m-d H:i:s");
         $data['serial_number'] = "";
-        $data['service_center_remarks'] = NULL;
+        $data['service_center_remarks'] = NULL; 
         $data['booking_date'] = $data['booking_timeslot'] = NUll;
         $data['closed_date'] = NULL;
-        $data['service_center_closed_date'] = NULL;
-        $data['cancellation_reason'] = NULL;
         $data['service_charge'] = $data['additional_service_charge'] = $data['parts_cost'] = "0.00";
         $data['admin_remarks'] = date("F j") . "  :-" . $admin_remarks;
         log_message('info', __FUNCTION__ . " Booking_id " . $booking_id . " Update service center action table: " . print_r($data, true));
@@ -1715,6 +1713,7 @@ class Booking extends CI_Controller {
             $actor = $booking['actor'] = $partner_status[2];
             $next_action = $booking['next_action'] = $partner_status[3];
             $booking['service_center_closed_date'] = NULL;
+            $data['cancellation_reason'] = NULL;
             $this->booking_model->update_booking($booking_id, $booking);
         }
         
@@ -2902,7 +2901,7 @@ class Booking extends CI_Controller {
                 $post['where']  = array('current_status' => $booking_status,'type' => 'Booking');
             }else if(strtolower($booking_status) == 'pending' && empty ($booking_id)){
                 $post['where']  = array("current_status IN ('Pending','Rescheduled')" => NULL,
-                    "DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1" => NULL );
+                    "DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1" => NULL,"service_center_closed_date IS NULL"=>NULL);
                 $post['order_performed_on_count'] = TRUE;
             }
         }else if($type == 'query'){

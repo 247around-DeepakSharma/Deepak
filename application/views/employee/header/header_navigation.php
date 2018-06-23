@@ -8,6 +8,7 @@
         <meta name="author" content="">
         <meta name="format-detection" content="telephone=no">
         <title>247around</title>    
+        <link rel="shortcut icon" href="<?php echo base_url();?>images/favicon.ico" />
         <!-- Bootstrap Core CSS -->
         <link href="<?php echo base_url()?>css/bootstrap.min.css" rel="stylesheet">
         <!-- Custom CSS -->
@@ -322,15 +323,44 @@
         
         <script type="text/javascript" src="https://blackmelon.atlassian.net/s/d41d8cd98f00b204e9800998ecf8427e-T/v7ee31/b/4/a44af77267a987a660377e5c46e0fb64/_/download/batch/com.atlassian.jira.collector.plugin.jira-issue-collector-plugin:issuecollector/com.atlassian.jira.collector.plugin.jira-issue-collector-plugin:issuecollector.js?locale=en-US&collectorId=b41bd36b"></script>
 
-  <div class="main_search">
+        <div class="main_search">
             <form name="myForm1" class="form-horizontal" action="<?php echo base_url()?>employee/user/finduser" method="GET">
                 <input type="search" id="search_in" class="search_in "name="search_value" placeholder="Booking ID/Phone Number" style="position: absolute; padding-left:10px; ">
             </form>
             <label class="search_fab " for="search_in"> <i class="fa fa-search" aria-hidden="true" ></i> </label>
-
+                    <button type="button" class="search_fab"  id="partner_tollfree" data-toggle="modal" style="margin-left:90%;border: none;background-color: #1a8a2dd4">
+    <i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i> </button>
         </div>
+        <!-- Modal -->
+         <div id="partner_tollfree_no_modal" class="modal fade" role="dialog">
+             <div class="modal-dialog">
+
+                 <!-- Modal content-->
+                 <div class="modal-content">
+                     <div class="modal-header well"  style="background-color: #2C9D9C;border-color: #2C9D9C;">
+                         <button type="button" class="close btn-primary well" data-dismiss="modal"style="color:white;">&times;</button>
+                         <h4 class="modal-title"style="color:white;text-align: center;">Partners Customer Care Numbers</h4>
+                     </div>
+                     <div class="modal-body">
+
+                     </div>
+                     </div>
+
+
+             </div>
+         </div>
+
         
         <style>
+            #partner_tollfree,
+#partner_tollfree:focus,
+#partner_tollfree:active{
+	border:1px solid black;
+	background:none;
+	outline:none;
+	padding:0;
+}
+
             .nav .open>a, .nav .open>a:focus, .nav .open>a:hover {
     background-color: #2c9d9c;
 }
@@ -429,5 +459,45 @@ function send_csv_request(appliance_opt,pincode_opt,state_opt,city_opt,service_i
                 }
                 
             }
+            $(document).ready(function(){
+                 $("#partner_tollfree").click(function(){
+                     $.ajax({
+                         type: 'post',
+                         url: '<?php echo base_url()?>employee/partner/get_partner_tollfree_numbers',
+                         success: function (response) {
+                             var result = JSON.parse(response);
+                             var data="";
+                             for(var element in result){
+                                data =data + "<tr><td>"+result[element].public_name+"</td><td>"+result[element].customer_care_contact+"</td></tr>";
+                             }
+                             var tb="<table class='table table-bordered table-condensed ' id='partner_toll_free_table'>";
+                             tb+='<thead>';
+                             tb+='<tr>';
+                             tb+='<th class="jumbotron col-md-6">Partner</th>';
+                             tb+='<th class="jumbotron col-md-5">Toll-Free No.</th>';
+                             tb+='</tr>';
+                             tb+='</thead>';
+                             tb+='<tbody>';
+                             tb+=data;
+                             tb+='</tbody>';
+                             tb+='</table>';
+                             $("#partner_tollfree_no_modal .modal-body").html(tb);
+                             $('#partner_toll_free_table').DataTable();
+                             $('#partner_toll_free_table th').css("background-color","#ECEFF1");
+                             $('#partner_toll_free_table tr:nth-child(even)').css("background-color","#FAFAFA");
+                             $("#partner_tollfree_no_modal").modal("show");
+                        }
+                     });
+                 });
+             });
+
                 </script>
+                <style>
+                    #partner_toll_free_table_filter{
+                        padding-left: 30px;
+                    }
+                    #partner_toll_free_table_length{
+                        display: none;
+                    }
+                    </style>
                 

@@ -753,6 +753,7 @@ class invoices_model extends CI_Model {
             
             $meta['gst_number'] = $result[0]['gst_number'];
             $meta['reverse_charge_type'] = "N";
+            $meta['reference_number'] = "";
             $meta['reverse_charge'] = '';
             $meta['invoice_type'] = $invoice_type;
            

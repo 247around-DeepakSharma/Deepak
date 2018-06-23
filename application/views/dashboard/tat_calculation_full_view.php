@@ -149,14 +149,14 @@
         <tr>
             <td><?php echo $key+1   ;?></td>
             <td><button style="margin: 0px;padding: 3px 9px;font-size: 15px;" type="button" class="btn btn-info" id="district_level"><?php echo $values['State']?></button></td>
-            <td><?php echo $values['TAT_0'] ."<br>(". round($values['TAT_0_per'],2)."%)";?></td>
-            <td><?php echo $values['TAT_1'] ."<br>(". round($values['TAT_1_per'],2)."%)";?></td>
-            <td><?php echo $values['TAT_2'] ."<br>(". round($values['TAT_2_per'],2)."%)";?></td>
-            <td><?php echo $values['TAT_3'] ."<br>(". round($values['TAT_3_per'],2)."%)";?></td>
-            <td><?php echo $values['TAT_4'] ."<br>(". round($values['TAT_4_per'],2)."%)";?></td>
-            <td><?php echo $values['TAT_5'] ."<br>(". round($values['TAT_5_per'],2)."%)";?></td>
-            <td><?php echo $values['TAT_8'] ."<br>(". round($values['TAT_8_per'],2)."%)";?></td>
-            <td><?php echo $values['TAT_16'] ."<br>(". round($values['TAT_16_per'],2)."%)";?></td>
+            <td><?php echo $values['TAT_0'] ."<br>(". $values['TAT_0_per']."%)";?></td>
+            <td><?php echo $values['TAT_1'] ."<br>(". $values['TAT_1_per']."%)";?></td>
+            <td><?php echo $values['TAT_2'] ."<br>(". $values['TAT_2_per']."%)";?></td>
+            <td><?php echo $values['TAT_3'] ."<br>(". $values['TAT_3_per']."%)";?></td>
+            <td><?php echo $values['TAT_4'] ."<br>(". $values['TAT_4_per']."%)";?></td>
+            <td><?php echo $values['TAT_5'] ."<br>(". $values['TAT_5_per']."%)";?></td>
+            <td><?php echo $values['TAT_8'] ."<br>(". $values['TAT_8_per']."%)";?></td>
+            <td><?php echo $values['TAT_16'] ."<br>(".$values['TAT_16_per']."%)";?></td>
         </tr>
         <?php
         }
@@ -187,16 +187,16 @@
             ?>
         <tr>
             <td><?php echo $key+1   ;?></td>
-            <td><button style="margin: 0px;padding: 3px 9px;font-size: 15px;" type="button" class="btn btn-info"><?php echo $values['SF']?></button></td>
+            <td><button style="margin: 0px;padding: 3px 9px;font-size: 15px;text-align:left;" type="button" class="btn btn-info"><?php echo wordwrap($values['SF'], 30, "<br />\n")?></button></td>
             <td><button style="margin: 0px;padding: 3px 9px;font-size: 15px;background: #405467;border: 1px solid #405467;" type="button" class="btn btn-info"><?php echo $values['State']?></button></td>
-            <td><?php echo $values['TAT_0'] ."<br>(". round($values['TAT_0_per'],2)."%)";?></td>
-            <td><?php echo $values['TAT_1'] ."<br>(". round($values['TAT_1_per'],2)."%)";?></td>
-            <td><?php echo $values['TAT_2'] ."<br>(". round($values['TAT_2_per'],2)."%)";?></td>
-            <td><?php echo $values['TAT_3'] ."<br>(". round($values['TAT_3_per'],2)."%)";?></td>
-            <td><?php echo $values['TAT_4'] ."<br>(". round($values['TAT_4_per'],2)."%)";?></td>
-            <td><?php echo $values['TAT_5'] ."<br>(". round($values['TAT_5_per'],2)."%)";?></td>
-            <td><?php echo $values['TAT_8'] ."<br>(". round($values['TAT_8_per'],2)."%)";?></td>
-            <td><?php echo $values['TAT_16'] ."<br>(". round($values['TAT_16_per'],2)."%)";?></td>
+            <td><?php echo $values['TAT_0'] ."<br>(". $values['TAT_0_per']."%)";?></td>
+            <td><?php echo $values['TAT_1'] ."<br>(". $values['TAT_1_per']."%)";?></td>
+            <td><?php echo $values['TAT_2'] ."<br>(". $values['TAT_2_per']."%)";?></td>
+            <td><?php echo $values['TAT_3'] ."<br>(". $values['TAT_3_per']."%)";?></td>
+            <td><?php echo $values['TAT_4'] ."<br>(". $values['TAT_4_per']."%)";?></td>
+            <td><?php echo $values['TAT_5'] ."<br>(". $values['TAT_5_per']."%)";?></td>
+            <td><?php echo $values['TAT_8'] ."<br>(". $values['TAT_8_per']."%)";?></td>
+            <td><?php echo $values['TAT_16'] ."<br>(".$values['TAT_16_per']."%)";?></td>
         </tr>
         <?php
         }
