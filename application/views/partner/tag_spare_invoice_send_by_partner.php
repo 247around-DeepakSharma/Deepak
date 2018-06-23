@@ -208,6 +208,7 @@
                                     <div class="col-xs-12 col-md-4 col-md-offset-5">
                                         <input type="hidden" class="form-control" id="partner_id"  name="partner_id" value="<?php echo $this->session->userdata('partner_id');?>"/>
                                         <input type="hidden" class="form-control" id="partner_name"  name="partner_name" value="<?php echo $this->session->userdata('partner_name');?>"/>
+                                        <input type="hidden" class="form-control" id="wh_name"  name="wh_name" value=""/>
                                         <button type="submit" class="btn btn-success" id="submit_btn">Submit</button>
                                     </div>
                                 </div>
@@ -299,7 +300,8 @@
             e.preventDefault();
             var isvalid = $("#spareForm").valid();
             if (isvalid) {
-                
+                var wh_name = $('#wh_id option:selected').text();
+                $('#wh_name').val(wh_name);
                 var entered_invoice_amt = Number($('#invoice_amount').val());
                 var our_invoice_amt = Number($('#total_spare_invoice_price').text());
                 if((our_invoice_amt >= entered_invoice_amt - 10) && (our_invoice_amt <= entered_invoice_amt + 10) ){
@@ -541,7 +543,7 @@
                             $(".part-total-price").each(function(i) {
                                 total_spare_invoice_price += Number($('#partBasicPrice_'+i).val()) + (Number($('#partBasicPrice_'+i).val()) * Number($('#partGstRate_'+i).val())/100);
                             });
-                            $('#total_spare_invoice_price').html(total_spare_invoice_price);
+                            $('#total_spare_invoice_price').html(Number(total_spare_invoice_price.toFixed(2)));
                         }else{
                             showConfirmDialougeBox('Inventory Details not found for the selected combination', 'warning');
                             $('#submit_btn').attr('disabled',true);

@@ -4520,7 +4520,7 @@ class Partner extends CI_Controller {
             foreach($this->input->post('contact_person_email') as $index=>$contactEmails){
                 $agent_id = NULL;
                 $data['name'] = $loginData['agent_name']  =  $this->input->post('contact_person_name')[$index];
-                $data['officail_email'] = $loginData['email'] =  $contactEmails;
+                $data['official_email'] = $loginData['email'] =  $contactEmails;
                 $data['alternate_email'] = $this->input->post('contact_person_alt_email')[$index];
                 $data['official_contact_number'] = $this->input->post('contact_person_contact')[$index];
                 $data['alternate_contact_number'] = $this->input->post('contact_person_alt_contact')[$index];

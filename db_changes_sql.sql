@@ -7417,6 +7417,7 @@ INSERT INTO `agent_filters` (`id`, `entity_type`, `entity_id`, `contact_person_i
 UPDATE `contact_person` SET `role` = 2 WHERE id IN ('1001188','1001189','1001190');
 
 
+<<<<<<< Updated upstream
 --4th June
 ALTER TABLE `contact_person` ADD `is_active` INT(10) NOT NULL DEFAULT '1' AFTER `update_date`;
 ALTER TABLE `contact_person` ADD `agent_id` INT(10) NOT NULL AFTER `is_active`;
@@ -7444,3 +7445,44 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 
 -- 20 June
 ALTER TABLE `spare_parts_details` ADD `courier_pic_by_partner` VARCHAR(1024) NULL DEFAULT NULL AFTER `courier_price_by_partner`;
+
+--sachin 14 june
+ALTER TABLE `contact_person` CHANGE `officail_email` `official_email` VARCHAR(256) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
+
+--sachin 22 june
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
+VALUES (NULL, 'spare_send_by_partner_to_wh', 'Spare shipped by %s to %s', 
+'Dear Partner,<br><br>
+
+<b>%s</b> shipped below spare to your warehouse.<br><br>
+%s
+<br>
+
+<b>Courier Details </b><br><br>
+%s<br>
+
+Regards,<br>
+247around
+', 
+'noreply@247around.com', '', 'sachins@247around.com', '', '1', '2016-06-17 00:00:00');
+
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES 
+(NULL, 'spare_received_by_wh_from_partner', 'Spare received by %s send from %s', 
+'Dear Partner,<br><br> <b>%s</b> received below spare <br><br> %s <br> Regards,<br> 247around', 
+'noreply@247around.com', '', 'sachinj@247around.com', '', '1', '2016-06-17 00:00:00');
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
+VALUES (NULL, 'defective_spare_send_by_wh_to_partner', 'Defective Spare shipped by %s to %s', 
+'Dear Partner,<br><br> <b>%s</b> shipped below defective spare to your warehouse.<br><br> %s <br> <b>Courier Details </b><br><br> %s<br> Regards,<br> 247around', 
+'noreply@247around.com', '', 'sachins@247around.com', '', '1', '2016-06-17 00:00:00');
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
+ (NULL, 'defective_spare_received_by_partner_from_wh', 'Defective Spare received by %s', 
+'Dear Partner,<br><br> <b>%s</b> received below defective spare <br><br> %s <br> Regards,<br> 247around', 
+'noreply@247around.com', '', 'sachinj@247around.com', '', '1', '2016-06-17 00:00:00');
+
+INSERT INTO `entity_role` (`id`, `entity_type`, `department`, `role`, `is_filter_applicable`, `create_date`) VALUES
+(null, 'partner', 'warehouse', 'wh_incharge', 0, '2018-06-22 11:16:20'),
+(null, 'vendor', 'warehouse', 'wh_incharge', 0, '2018-06-22 11:16:20');

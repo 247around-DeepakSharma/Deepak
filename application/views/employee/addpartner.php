@@ -1556,7 +1556,7 @@
                                 <td><?php echo $value['name'] ?></td>
                                 <td><?php echo $value['department'] ?></td>
                                 <td><?php echo $value['role'] ?></td>
-                                <td><?php echo $value['officail_email'] ?></td>
+                                <td><?php echo $value['official_email'] ?></td>
                                 <td><?php echo $value['official_contact_number'] ?></td>
                                 <td><?php echo $value['permanent_address'] ?></td>
                                  <td><?php echo $value['alternate_email'] ?></td>
