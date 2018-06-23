@@ -842,7 +842,7 @@ function get_data_for_partner_callback($booking_id) {
         $limit = "";
         $select = " ";
         if($flag_select){
-            $select = "SELECT spare_parts_details.*, users.name, booking_details.booking_primary_contact_no, booking_details.partner_id,"
+            $select = "SELECT spare_parts_details.*, users.name, booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id,"
                 . " booking_details.booking_address,booking_details.initial_booking_date, booking_details.is_upcountry, booking_details.upcountry_paid_by_customer,"
                     . "booking_details.amount_due,booking_details.state, "
                 . " service_centres.name as vendor_name, service_centres.address, service_centres.state, "

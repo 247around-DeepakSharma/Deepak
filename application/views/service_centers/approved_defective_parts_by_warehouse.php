@@ -85,7 +85,7 @@
                                         <?php echo $row['remarks_defective_part_by_sf']; ?>
                                     </td>
                                     <td>
-                                        <input type="checkbox" class="check_single_row" data-part_name ="<?php echo $row['defective_part_shipped']; ?>" data-model="<?php echo $row['model_number_shipped']; ?>" data-shipped_inventory_id = "<?php echo $row['shipped_inventory_id']?>" data-booking_id ="<?php echo $row['booking_id']?>" data-partner_id = "<?php echo $row['partner_id']?>" data-spare_id = "<?php echo $row['id']?>">
+                                        <input type="checkbox" class="check_single_row" data-part_name ="<?php echo $row['defective_part_shipped']; ?>" data-model="<?php echo $row['model_number_shipped']; ?>" data-shipped_inventory_id = "<?php echo $row['shipped_inventory_id']?>" data-booking_id ="<?php echo $row['booking_id']?>" data-partner_id = "<?php echo $row['partner_id']?>" data-spare_id = "<?php echo $row['id']?>" data-booking_partner_id = "<?php echo $row['booking_partner_id']?>">
                                     </td>
                                 </tr>
                                 <?php $sn_no++; } ?>
@@ -198,12 +198,14 @@
             tmp_arr[key]['spare_id'] = $(this).attr('data-spare_id');
             tmp_arr[key]['part_name'] = $(this).attr('data-part_name');
             tmp_arr[key]['model'] = $(this).attr('data-model');
+            tmp_arr[key]['booking_partner_id'] = $(this).attr('data-booking_partner_id');
             flag = true;
         });
         
         postData['data'] = JSON.stringify(tmp_arr);
         postData['sender_entity_id'] =  '<?php echo $this->session->userdata('service_center_id')?>';
         postData['sender_entity_type'] = '<?php echo _247AROUND_SF_STRING; ?>';
+        postData['wh_name'] = '<?php echo $this->session->userdata('wh_name')?>';
         
         if(flag){
             $('#courier_model').modal('toggle');

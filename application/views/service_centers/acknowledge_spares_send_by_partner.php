@@ -181,6 +181,8 @@
             tmp_arr[key]['inventory_id'] = $(this).attr('data-inventory_id');
             tmp_arr[key]['quantity'] = $(this).attr('data-quantity');
             tmp_arr[key]['ledger_id'] = $(this).attr('data-ledger_id');
+            tmp_arr[key]['part_name'] = $(this).attr('data-part_name');
+            tmp_arr[key]['part_number'] = $(this).attr('data-part_number');
             flag = true;
         });
         
@@ -189,6 +191,8 @@
         postData['sender_entity_type'] = '<?php echo _247AROUND_PARTNER_STRING; ?>';
         postData['receiver_entity_id'] = '<?php echo $this->session->userdata('service_center_id')?>';
         postData['receiver_entity_type'] = '<?php echo _247AROUND_SF_STRING; ?>';
+        postData['sender_entity_name'] = $('#partner_id option:selected').text();
+        postData['receiver_entity_name'] = '<?php echo $this->session->userdata('wh_name')?>';
         
         if(flag){
             $('#ack_spare').html("<i class='fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
