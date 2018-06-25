@@ -562,14 +562,13 @@ class Partner extends CI_Controller {
                 if (!empty($partner_id)) {
                     //Create Login For Partner
                     $loginData['partner_id'] = $partner_id;
-                    $loginData['choice'][] = 1;
-                    $loginData['username'][] = str_replace(" ","_",$return_data['partner']['public_name']);
-                    $loginData['id'] = array("","","","","");
-                    $loginData['email'][] = $return_data['partner']['primary_contact_email'];
-                    $loginData['password'][] = $temp_rand = mt_rand(100000, 999999);
-                    $loginData['retype_password'][] = $temp_rand;
-                     $sendUrl = base_url().'employee/partner/process_partner_login_details_form';
-                     $this->asynchronous_lib->do_background_process($sendUrl, $loginData);
+                    $loginData['contact_person_name'][] = $return_data['partner']['primary_contact_name'];
+                    $loginData['contact_person_email'][] = $return_data['partner']['primary_contact_email'];
+                    $loginData['contact_person_contact'][] = $return_data['partner']['primary_contact_phone_1'];
+                    $loginData['checkbox_value_holder'][] = 'true';
+                    $loginData['contact_person_role'][] = PARTNER_POC_ROLE_ID;
+                    $sendUrl = base_url().'employee/partner/process_partner_contacts';
+                    $this->asynchronous_lib->do_background_process($sendUrl, $loginData);
                     //End Login
                     $msg = "Partner added successfully Please update documents and Operation Regions.";
                     $this->session->set_userdata('success', $msg);

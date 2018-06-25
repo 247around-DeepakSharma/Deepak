@@ -561,10 +561,10 @@
                                         <?php if(!is_null($row['parts_shipped'])){ ?>  <a class="btn btn-sm btn-success" href="<?php echo base_url(); ?>service_center/acknowledge_delivered_spare_parts/<?php echo $row['booking_id']; ?>/<?php echo $this->session->userdata('service_center_id') ?>/<?php echo $row['id']; ?>/<?php echo $row['partner_id']; ?>" style="<?php if(is_null($row['parts_shipped'])){ echo 'pointer-events:none;';}?>">Received</a> <?php } else { echo "Part Shipment Pending";} ?>
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            <a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('<?php echo $row->booking_id?>')"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+                                            <a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('<?php echo$row['booking_id'];?>')"><i class="fa fa-envelope" aria-hidden="true"></i></a>
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Content" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id)"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
+                                            <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Content" id ="<?php echo $row['booking_id'];?>"  onclick="show_contacts(this.id)"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
                                         </td>
                                 </tr>
                                 <?php $sn_no1++; } ?>
@@ -702,7 +702,7 @@
                         success: function (response) {
                             var data="";
                              var result = JSON.parse(response);
-                            data =data +  "<tr><td>2) </td><td>Account Manager</td><td>"+result[0].am+"</td><td>"+result[0].am+"</td></tr>";
+                            data =data +  "<tr><td>2) </td><td>Account Manager</td><td>"+result[0].am+"</td><td>"+result[0].am_caontact+"</td></tr>";
                             data =data +  "<tr><td>3) </td><td>Partner POC</td><td>"+result[0].partner_poc+"</td><td>"+result[0].poc_contact+"</td></tr>";
                             var tb="<table class='table  table-bordered table-condensed ' >";
                             tb+='<thead>';

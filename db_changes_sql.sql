@@ -7569,3 +7569,6 @@ ALTER TABLE `miscellaneous_charges`
 --
 ALTER TABLE `miscellaneous_charges`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--sachin 25 June
+ALTER TABLE `inventory_ledger` ADD `courier_id` INT NULL DEFAULT NULL AFTER `partner_ack_date`;
