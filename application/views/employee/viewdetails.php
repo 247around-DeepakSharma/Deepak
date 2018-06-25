@@ -292,6 +292,7 @@
                     <div class="col-md-12">
                         <?php if(!empty($unit_details)) { ?>
                         <table class="table  table-striped table-bordered">
+                            <thead>
                             <tr>
                                 <th>Brand</th>
                                 <th>Category/<br/>Capacity</th>
@@ -329,6 +330,7 @@
                                 <?php } ?>
                                 <th>SF Earning</th>
                             </tr>
+                            </thead>
                             <tbody>
                                 <?php $user_invoice_id  = ""; foreach ( $unit_details as $key =>  $unit_detail) { 
                                    if(!empty($unit_detail['user_invoice_id'])){
@@ -340,7 +342,8 @@
                                     <td><?php echo $unit_detail['model_number']?></td>
                                     <td><?php if(!empty($unit_detail['serial_number_pic'])){?>
                                         <a target="_blank" href="<?php echo S3_WEBSITE_URL;?>engineer-uploads/<?php echo $unit_detail['serial_number_pic'];?>"><?php echo $unit_detail['serial_number'];?></a>
-                                             <?php } else { echo $unit_detail['serial_number'];} ?> / <?php echo $unit_detail['partner_serial_number']?></td>
+                                             <?php } else { echo $unit_detail['serial_number'];} ?> / <?php echo $unit_detail['partner_serial_number']?>
+                                    </td>
                                     <td><?php if(!empty($unit_detail['purchase_date'])) {echo $unit_detail['purchase_date'];}?></td>
                                     <td><?php echo $unit_detail['appliance_description']?></td>
                                     <?php if($booking_history[0]['current_status'] != "Completed"){ ?>
@@ -409,10 +412,21 @@
                                              $unit_detail['vendor_parts']  + $unit_detail['vendor_st_parts'] +
                                             $sf_upcountry_charges);?>
                                     </td>
+                                </tr>
                                     <?php } ?>
                             </tbody>
                         </table>
                         <?php  } ?>
+                    </div>
+                </div>
+                <div class="row">
+                    <center><img id="misc_charge_loader" style="width: 50px;" src="<?php echo base_url(); ?>images/loader.gif"/></center>
+                     <div class="col-md-12" id="misc_charge_div" >
+                        <h1 style='font-size:24px;margin-top: 40px;'>Miscellaneous Charge</h1>
+                       
+                        <div id="misc_charge">
+                            
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1082,7 +1096,7 @@ function sf_tab_active(){
     <?php if(!empty($booking_history[0]['dealer_id'])) { ?>
          $.ajax({
              method:'GET',
-             url:'<?php echo base_url(); ?>employee/dealers/get_dealer_data/'+<?php echo $booking_history[0]['dealer_id']?>,
+             url:'<?php echo base_url(); ?>employee/dealers/get_dealer_data/<?php echo $booking_history[0]['dealer_id']?>',
              success:function(response){
                  obj = JSON.parse(response);
                  if(obj.msg){
@@ -1095,6 +1109,22 @@ function sf_tab_active(){
              }
          });
     <?php } ?>
+    $.ajax({
+        method:'GET',
+        url:'<?php echo base_url(); ?>employee/vendor/get_miscellaneous_charges/<?php echo $booking_history[0]['booking_id']?>/1/1',
+        success:function(response){
+            console.log(response);
+            if(response === "Failed"){
+               $("#misc_charge_loader").css('display','none');
+            } else{
+                $("#misc_charge_loader").css('display','none');
+               $("#misc_charge_div").css('display', 'block');
+               $("#misc_charge").html(response);
+              
+            }
+
+        }
+    });
 </script>
 <script>
     var spareID = 0;

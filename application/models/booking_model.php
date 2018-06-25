@@ -2471,4 +2471,21 @@ class Booking_model extends CI_Model {
         $this->db->query($query);
         return $this->db->affected_rows();
     }
+    
+    function insert_misc_charges_in_batch($data){
+        $this->db->insert_batch("miscellaneous_charges", $data);
+        return $this->db->insert_id();
+    }
+    
+    function get_misc_charges_data($select, $where){
+        $this->db->select($select);
+        $this->db->where($where);
+        $query = $this->db->get('miscellaneous_charges');
+        return $query->result_array();
+    }
+    
+    function update_misc_charges($where, $data){
+        $this->db->where($where);
+        $this->db->update('miscellaneous_charges', $data);
+    }
 }

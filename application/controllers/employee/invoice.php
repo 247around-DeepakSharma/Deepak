@@ -523,6 +523,7 @@ class Invoice extends CI_Controller {
         $courier = $misc_data['courier'];
         $meta = $misc_data['meta'];
         $upcountry = $misc_data['upcountry'];
+        $miscellaneous_charge = $misc_data['misc'];
         unset($misc_data);
         $meta['total_courier_charge'] = (array_sum(array_column($courier, 'courier_charges_by_sf')));
         $meta['total_upcountry_price'] = 0;
@@ -548,6 +549,13 @@ class Invoice extends CI_Controller {
 
         if (!empty($courier)) {
             $c_files_name = $this->generate_partner_courier_excel($courier, $meta);
+            array_push($files, $c_files_name);
+            log_message('info', __METHOD__ . "=> File created " . $c_files_name);
+        }
+
+        if(!empty($miscellaneous_charge)){
+            $meta['total_misc_charge'] = (array_sum(array_column($miscellaneous_charge, 'partner_charge')));
+            $c_files_name = $this->generate_partner_misc_excel($miscellaneous_charge, $meta);
             array_push($files, $c_files_name);
             log_message('info', __METHOD__ . "=> File created " . $c_files_name);
         }
@@ -640,6 +648,13 @@ class Invoice extends CI_Controller {
 
                 }
             }
+            
+            if(!empty($miscellaneous_charge)){
+                foreach ($miscellaneous_charge as $value) {
+                    $this->booking_model->update_misc_charges(array('id' => $value['id']), array('partner_invoice_id' => $meta['invoice_id']));
+                }
+                exec("rm -rf " . escapeshellarg(TMP_FOLDER . $meta['invoice_id'] . "-miscellaneous-detailed.xlsx.xlsx"));
+            }
             exec("rm -rf " . escapeshellarg(TMP_FOLDER . "copy_" . $meta['invoice_id'] . ".xlsx"));
         } else {
 
@@ -706,6 +721,13 @@ class Invoice extends CI_Controller {
         
         $template = 'Partner_invoice_detail_template-v2-courier.xlsx';
         $output_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-courier-detailed.xlsx";
+        $this->invoice_lib->generate_invoice_excel($template, $meta, $data, $output_file_excel);
+        return $output_file_excel;
+    }
+    
+    function generate_partner_misc_excel($data, $meta){
+        $template = 'Partner_invoice_detail_template-v2-misc.xlsx';
+        $output_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-miscellaneous-detailed.xlsx";
         $this->invoice_lib->generate_invoice_excel($template, $meta, $data, $output_file_excel);
         return $output_file_excel;
     }
@@ -900,9 +922,10 @@ class Invoice extends CI_Controller {
 
                 foreach ($invoices_data as $value) {
                     if ($value['price_tags'] != "Upcountry Services") {
-
-                        log_message('info', __METHOD__ . ': update invoice id in booking unit details ' . $value['unit_id'] . " invoice id " . $invoice_id);
-                        $this->booking_model->update_booking_unit_details_by_any(array('id' => $value['unit_id']), array($unit_column => $invoice_id));
+                        if($value['unit_id'] != "Misc"){
+                            log_message('info', __METHOD__ . ': update invoice id in booking unit details ' . $value['unit_id'] . " invoice id " . $invoice_id);
+                            $this->booking_model->update_booking_unit_details_by_any(array('id' => $value['unit_id']), array($unit_column => $invoice_id));
+                        }
                     }
                 }
             }
@@ -962,9 +985,12 @@ class Invoice extends CI_Controller {
                
                 $invoice_details[$j]['amount_paid'] = round(($invoice_details[$j]['vendor_installation_charge'] + 
                         $invoice_details[$j]['vendor_stand']), 0);
-                $rating += $invoice_details[$j]['rating_stars'];
+                
                 if(!empty($invoice_details[$j]['rating_stars'])){
+                    $rating += $invoice_details[$j]['rating_stars'];
                     $rating_count++;
+                } else {
+                    $rating += 1;
                 }
             }
             if($rating_count == 0){
@@ -1122,6 +1148,12 @@ class Invoice extends CI_Controller {
                 }
 
                 log_message('info', __METHOD__ . ': Invoice ' . $invoice_data['meta']['invoice_id'] . ' details  entered into invoices table');
+                
+                if(!empty($invoice_data['misc'])){
+                    foreach ($invoice_data['misc'] as $misc) {
+                        $this->booking_model->update_misc_charges(array('id' => $misc['misc_id']), array('vendor_invoice_id' => $invoice_data['meta']['invoice_id']));
+                    }
+                }
 
                 /*
                  * Update booking-invoice table to capture this new invoice against these bookings.
@@ -2139,7 +2171,9 @@ class Invoice extends CI_Controller {
 
 
                     $in_detailed = $this->invoices_model->generate_vendor_foc_detailed_invoices($vendor_id, $from_date, $to_date, $is_regenerate);
-                    return $this->generate_foc_details_invoices_for_vendors($in_detailed, $invoices, $vendor_id, $invoice_type, $details['agent_id'], $from_date,$to_date );
+                  
+                   $in_detailed1 = array_merge($in_detailed, $invoices['misc']);
+                    return $this->generate_foc_details_invoices_for_vendors($in_detailed1, $invoices, $vendor_id, $invoice_type, $details['agent_id'], $from_date,$to_date );
                 } else {
                     log_message('info', __FUNCTION__ . ' Invoice File did not create. invoice id' . $invoices['meta']['invoice_id']);
                     return FALSE;
