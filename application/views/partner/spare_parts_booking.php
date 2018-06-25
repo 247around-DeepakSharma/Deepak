@@ -177,6 +177,42 @@ if ($this->uri->segment(4)) {
 </div>
 <?php } ?>
 <div class="clearfix"></div>
+<div id="send_email_form" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header well" style="background-color:  #15202a;border-color: #15202a;">
+                <button type="button" class="close btn-primary well"  data-dismiss="modal"style="color: white;">&times;</button>
+                <p class="modal-title"style="color: white;background-color: #15202a;border-color: #15202a;border: 0px; text-align: center; font-size:18px;" id="email_title"></p>
+            </div>
+            <div class="modal-body">
+                <div id="form_container">
+                <form action="" method="post">
+                    <input type="hidden" value="" id="internal_email_booking_id">
+                    <div class="form-group">
+                    <label for="subject">Subject</label>
+                    <input type="text" class="form-control" id="internal_email_booking_subject">
+                    </div>
+                    <div class="form-group">
+                    <label for="text">Message</label>
+                    <textarea class="form-control" rows="5" id="internal_email_booking_msg"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <button type="button" class="btn btn-default" style="color: #fff;background-color: #15202a;border-color: #15202a;float:right;" onclick="send_booking_internal_conversation_email()">Send Email</button>
+                    </div>
+                    <div class="clear" style="clear:both;"></div>
+                    </form>
+                    </div>
+                        <div id="msg_container" style="display:none;text-align: center;">
+                     <center><img id="loader_gif_title" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
+                    </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
 <script>
     $(document).ready(function () {
         $('body').popover({
