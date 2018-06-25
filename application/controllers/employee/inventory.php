@@ -2791,6 +2791,7 @@ class Inventory extends CI_Controller {
                                 $courier_data['courier_name'] = $courier_name;
                                 $courier_data['create_date'] = date('Y-m-d H:i:s');
                                 $courier_data['quantity'] = $tqty;
+                                $courier_data['bill_to_partner'] = $partner_id;
                                 if(!empty($booking_id_array)){
                                     $courier_data['booking_id'] = implode(",", $booking_id_array);
                                 }
