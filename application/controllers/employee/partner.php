@@ -4566,4 +4566,38 @@ class Partner extends CI_Controller {
          echo json_encode($this->reusable_model->get_search_query('partners','customer_care_contact,public_name',array("is_active"=>1,"customer_care_contact IS NOT NULL"=>NULL,
              "customer_care_contact !=''"=>NULL),NULL,NULL,NULL,NULL,NULL,NULL)->result_array());
      }
+     function get_booking_contacts($bookingID){
+        $select = "e.phone as am_caontact,e.official_email as am_email, e.full_name as am,partners.primary_contact_name as partner_poc,"
+                . "partners.primary_contact_phone_1 as poc_contact,service_centres.primary_contact_email as service_center_email,employee.official_email as rm_email";
+        $join['employee_relation'] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.service_centres_id)";
+        $join['partners'] = "partners.id = booking_details.partner_id";
+        $join['service_centres'] = "service_centres.id = booking_details.assigned_vendor_id";
+        $join['employee e'] = "e.id = partners.account_manager_id";
+        $join['employee'] = "employee.id = employee_relation.agent_id";
+        $where['booking_details.booking_id'] = $bookingID;
+        $data = $this->reusable_model->get_search_result_data("booking_details",$select,$where,$join,NULL,NULL,NULL,NULL,array());
+        return $data;
+    }
+     function process_booking_internal_conversation_email(){
+         log_message('info', __FUNCTION__ . " Booking ID: " . $this->input->post('booking_id'));
+        if($this->session->userdata('partner_id')){
+            if($this->input->post('booking_id')){
+                $data = $this->get_booking_contacts($this->input->post('booking_id'));
+                $join['entity_login_table'] = "entity_login_table.contact_person_id = contact_person.id";
+                $from_email = $this->reusable_model->get_search_result_data("contact_person","officail_email",array("entity_login_table.agent_id"=>$this->session->userdata('agent_id')),$join,
+                        NULL,NULL,NULL,NULL,array())[0]['officail_email'];
+                $row_id = $this->miscelleneous->send_and_save_booking_internal_conversation_email("Partner",$this->input->post('booking_id'),$data[0]['am_email'],$data[0]['rm_email'].",".$data[0]['service_center_email']
+                        ,$from_email,$this->input->post('subject'),$this->input->post('msg'),$this->session->userdata('agent_id'),$this->session->userdata('partner_id'));    
+                if($row_id){
+                    echo "Successfully Sent";
+                }
+                else{
+                     echo "Please Try Again";
+                }
+            }
+            else{
+                echo "Please Try Again";
+            }
+    }
+     }
 }

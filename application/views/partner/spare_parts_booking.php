@@ -55,6 +55,7 @@ if ($this->uri->segment(4)) {
                                     <th class="text-center">Serial Number</th>
                                     <th class="text-center">State</th>
                                     <th class="text-center">Problem Description</th>
+                                    <th class="text-center">Send Email</th>
                                     <?php if(!$this->session->userdata('is_wh')) { ?> 
                                     <th class="text-center">Action</th>
                                     <?php } ?>
@@ -97,6 +98,9 @@ if ($this->uri->segment(4)) {
                                         </td>
                                         <td>
                                             <?php echo $row['remarks_by_sc']; ?>
+                                        </td>
+                                           <td style="vertical-align: middle;">
+                                            <a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('<?php echo $row->booking_id?>')"><i class="fa fa-envelope" aria-hidden="true"></i></a>
                                         </td>
                                         <?php if(!$this->session->userdata('is_wh')) { ?> 
                                         <td class="text-center">
@@ -321,6 +325,39 @@ if ($this->uri->segment(4)) {
             }
 } );
 $('#serachSpareInput').select2();
+function create_email_form(booking_id){
+                    $("#email_title").html("Send Email For Booking "+booking_id);
+                    $("#send_email_form").modal("show");
+                    $("#internal_email_booking_id").val(booking_id);
+                    $("#msg_container").html("");
+                    document.getElementById("msg_container").style.display='none';
+                    document.getElementById("form_container").style.display='block';
+                }
+                function send_booking_internal_conversation_email(){
+                    var booking_id = $("#internal_email_booking_id").val();
+                    var subject = $("#internal_email_booking_subject").val();
+                    var msg = $("#internal_email_booking_msg").val();
+                    if(booking_id && subject && msg){
+                        document.getElementById("msg_container").style.display='block';
+                        document.getElementById("form_container").style.display='none';
+                        $.ajax({
+                           type: 'post',
+                           url: '<?php echo base_url()  ?>employee/partner/process_booking_internal_conversation_email',
+                           data: {'booking_id':booking_id,'subject':subject,'msg':msg},
+                           success: function (response) {
+                                $("#msg_container").html(response);
+                                $("#internal_email_booking_id").val("");
+                                $("#internal_email_booking_subject").val("");
+                                $("#internal_email_booking_msg").val("");
+                                location.reload();
+                          }
+                       });
+                    }
+                    else{
+                        alert("Subject Or Message should not be blank ");
+                        return false;
+                    }
+                }
     </script>
     <style>
 .dropdown-backdrop{
