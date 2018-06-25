@@ -1564,7 +1564,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             }
         }
         if($this->input->post('services')){
-            $where['booking_details.appliance_id'] = $this->input->post('services');
+            $where['booking_details.service_id'] = $this->input->post('services');
         }
         if($this->input->post('partner_id')){
             $where['booking_details.partner_id'] = $this->input->post('partner_id');

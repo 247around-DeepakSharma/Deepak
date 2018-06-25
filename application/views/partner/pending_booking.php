@@ -62,6 +62,7 @@
                        <th class="text-center">State</th>
                         <th class="text-center">Booking Date</th>
                         <th class="text-center">Age (Days)</th>
+                        <th class="text-center">Send Email</th>
                         <th class="text-center">Action</th>
                         <th class="text-center">JobCard</th>
                         <th class="text-center">Escalate</th>
@@ -124,6 +125,9 @@
                              <td class="text-center">
                                 <?= $row->aging; ?>
                             </td>
+                             <td style="vertical-align: middle;">
+                                            <a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('<?php echo $row->booking_id?>')"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+                                        </td>
                             <td class="text-center">
                                             <div class="dropdown">
                                                 <button class="btn btn-sm btn-primary" type="button" data-toggle="dropdown" style="border: 1px solid #2a3f54;background: #2a3f54;">Action
@@ -249,6 +253,42 @@
 </div>
 <?php } ?>
 <div class="clearfix"></div>
+<div id="send_email_form" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header well" style="background-color:  #15202a;border-color: #15202a;">
+                <button type="button" class="close btn-primary well"  data-dismiss="modal"style="color: white;">&times;</button>
+                <p class="modal-title"style="color: white;background-color: #15202a;border-color: #15202a;border: 0px; text-align: center; font-size:18px;" id="email_title"></p>
+            </div>
+            <div class="modal-body">
+                <div id="form_container">
+                <form action="" method="post">
+                    <input type="hidden" value="" id="internal_email_booking_id">
+                    <div class="form-group">
+                    <label for="subject">Subject</label>
+                    <input type="text" class="form-control" id="internal_email_booking_subject">
+                    </div>
+                    <div class="form-group">
+                    <label for="text">Message</label>
+                    <textarea class="form-control" rows="5" id="internal_email_booking_msg"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <button type="button" class="btn btn-default" style="color: #fff;background-color: #15202a;border-color: #15202a;float:right;" onclick="send_booking_internal_conversation_email()">Send Email</button>
+                    </div>
+                    <div class="clear" style="clear:both;"></div>
+                    </form>
+                    </div>
+                        <div id="msg_container" style="display:none;text-align: center;">
+                     <center><img id="loader_gif_title" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
+                    </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
 <?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
 <?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>
 <script>
@@ -272,6 +312,39 @@
             }
 } );
 $('#serachInput').select2();
+ function create_email_form(booking_id){
+                    $("#email_title").html("Send Email For Booking "+booking_id);
+                    $("#send_email_form").modal("show");
+                    $("#internal_email_booking_id").val(booking_id);
+                    $("#msg_container").html("");
+                    document.getElementById("msg_container").style.display='none';
+                    document.getElementById("form_container").style.display='block';
+                }
+                function send_booking_internal_conversation_email(){
+                    var booking_id = $("#internal_email_booking_id").val();
+                    var subject = $("#internal_email_booking_subject").val();
+                    var msg = $("#internal_email_booking_msg").val();
+                    if(booking_id && subject && msg){
+                        document.getElementById("msg_container").style.display='block';
+                        document.getElementById("form_container").style.display='none';
+                        $.ajax({
+                           type: 'post',
+                           url: '<?php echo base_url()  ?>employee/partner/process_booking_internal_conversation_email',
+                           data: {'booking_id':booking_id,'subject':subject,'msg':msg},
+                           success: function (response) {
+                                $("#msg_container").html(response);
+                                $("#internal_email_booking_id").val("");
+                                $("#internal_email_booking_subject").val("");
+                                $("#internal_email_booking_msg").val("");
+                               // location.reload();
+                          }
+                       });
+                    }
+                    else{
+                        alert("Subject Or Message should not be blank ");
+                        return false;
+                    }
+                }
     </script>
     <style>
 /*        .dataTables_filter{
