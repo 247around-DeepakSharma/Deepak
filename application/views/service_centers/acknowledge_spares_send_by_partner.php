@@ -54,11 +54,12 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Appliance</th>
-<!--                                    <th>Spare Model Number</th>-->
                                     <th>Spare Type</th>
                                     <th>Spare Part Name</th>
                                     <th>Spare Part Number</th>
                                     <th>Spare Quantity</th>
+                                    <th>Courier Name</th>
+                                    <th>Courier AWB Number</th>
                                     <th>
                                         Acknowledge
                                         <input type="checkbox" id="ack_all">
