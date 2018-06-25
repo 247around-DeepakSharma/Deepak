@@ -93,8 +93,8 @@
                             <thead>
                                 <tr>
                                     <th>No</th>
+                                    <th>Booking ID</th>
                                     <th>Appliance</th>
-                                    <th>Model Number</th>
                                     <th>Type</th>
                                     <th>Name</th>
                                     <th>Quantity</th>
@@ -197,12 +197,14 @@
             tmp_arr[key]['sender_entity_type'] = $(this).attr('data-sender_entity_type');
             tmp_arr[key]['ledger_id'] = $(this).attr('data-ledger_id');
             tmp_arr[key]['booking_id'] = $(this).attr('data-booking_id');
+            tmp_arr[key]['part_name'] = $(this).attr('data-part_name');
             flag = true;
         });
         
         postData['data'] = JSON.stringify(tmp_arr);
         postData['receiver_entity_id'] = '<?php echo $this->session->userdata('partner_id')?>';
         postData['receiver_entity_type'] = '<?php echo _247AROUND_PARTNER_STRING; ?>';
+        postData['receiver_entity_name'] = '<?php echo $this->session->userdata('partner_name')?>';
         
         if(flag){
             showConfirmDialougeBox('Are you sure you want to continue ?', 'info');

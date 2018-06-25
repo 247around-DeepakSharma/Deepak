@@ -1307,7 +1307,7 @@ class Partner extends CI_Controller {
                     $time_difference = "";
                 }
 
-                if (!empty($time_difference) && $time_difference < 0) {
+                if (!empty($time_difference) && $time_difference < 0 && !empty($bookinghistory[0]['assigned_vendor_id'])) {
                     $value['booking_id'] = $escalation['booking_id'];
                     $value['assigned_vendor_id'] = $bookinghistory[0]['assigned_vendor_id'];
                     $value['current_state'] = "Escalation";
@@ -4502,7 +4502,7 @@ class Partner extends CI_Controller {
             foreach($this->input->post('contact_person_email') as $index=>$contactEmails){
                 $agent_id = NULL;
                 $data['name'] = $loginData['agent_name']  =  $this->input->post('contact_person_name')[$index];
-                $data['officail_email'] = $loginData['email'] =  $contactEmails;
+                $data['official_email'] = $loginData['email'] =  $contactEmails;
                 $data['alternate_email'] = $this->input->post('contact_person_alt_email')[$index];
                 $data['official_contact_number'] = $this->input->post('contact_person_contact')[$index];
                 $data['alternate_contact_number'] = $this->input->post('contact_person_alt_contact')[$index];

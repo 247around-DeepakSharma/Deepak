@@ -454,10 +454,11 @@ class Login extends CI_Controller {
             }else{
                $is_gst_exist = TRUE;
             }
+            $wh_name =  _247AROUND_EMPLOYEE_STRING." ".$sc_details[0]['district'] ." (". $sc_details[0]['state']. ")";
             //Setting logging vendor session details
             $this->setVendorSession($sc_details[0]['id'], $sc_details[0]['name'], 
                     $agent[0]['id'], $sc_details[0]['is_update'], 
-                    $sc_details[0]['is_upcountry'],$sc_details[0]['is_sf'], $sc_details[0]['is_cp'], $sc_details[0]['is_wh'],$is_gst_exist, $sc_details[0]['isEngineerApp'],
+                    $sc_details[0]['is_upcountry'],$sc_details[0]['is_sf'], $sc_details[0]['is_cp'], $sc_details[0]['is_wh'],$wh_name,$is_gst_exist, $sc_details[0]['isEngineerApp'],
                     $sc_details[0]['min_upcountry_distance'], TRUE);
            
             if ($this->session->userdata('is_sf') === '1') {
@@ -478,7 +479,7 @@ class Login extends CI_Controller {
      * @param: is update
      * @return: void
      */
-    function setVendorSession($service_center_id, $service_center_name, $sc_agent_id, $update, $is_upcountry,$sf, $cp,$wh,$is_gst_doc,$engineer, $municipal_limit, $is_login_by_247=1) {
+    function setVendorSession($service_center_id, $service_center_name, $sc_agent_id, $update, $is_upcountry,$sf, $cp,$wh,$wh_name,$is_gst_doc,$engineer, $municipal_limit, $is_login_by_247=1) {
 	$userSession = array(
 	    'session_id' => md5(uniqid(mt_rand(), true)),
 	    'service_center_id' => $service_center_id,
@@ -494,6 +495,7 @@ class Login extends CI_Controller {
             'is_sf' => $sf,
             'is_cp' => $cp,
             'is_wh' => $wh,
+            'wh_name' => $wh_name,
             'is_gst_exist' => $is_gst_doc
 	);
 
@@ -538,11 +540,14 @@ class Login extends CI_Controller {
                 }else{
                     $is_gst_exist = TRUE;
                 }
+                
+                $wh_name =  _247AROUND_EMPLOYEE_STRING." ".$sc_details[0]['district'] ." (". $sc_details[0]['state'].")";
                 $this->setVendorSession($sc_details[0]['id'], $sc_details[0]['name'], 
                         $agent['id'], $sc_details[0]['is_update'], 
                         $sc_details[0]['is_upcountry'],$sc_details[0]['is_sf'], 
                         $sc_details[0]['is_cp'],
                         $sc_details[0]['is_wh'],
+                        $wh_name,
                         $is_gst_exist,$sc_details[0]['isEngineerApp'], $sc_details[0]['min_upcountry_distance'],0);
                 
                 if($this->session->userdata('is_sf') === '1'){

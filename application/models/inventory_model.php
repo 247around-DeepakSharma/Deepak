@@ -765,7 +765,7 @@ class Inventory_model extends CI_Model {
      *  @param : $where array()  
      *  @return : $res array()
      */
-    function get_warehouse_details($select,$where, $join = true) {
+    function get_warehouse_details($select,$where, $join = true,$is_entity_join = false) {
         $this->db->select($select,FALSE);
         $this->db->where($where,FALSE);
         $this->db->from('warehouse_person_relationship');
@@ -773,6 +773,10 @@ class Inventory_model extends CI_Model {
         $this->db->join('warehouse_details','warehouse_person_relationship.warehouse_id = warehouse_details.id');
         if($join){
             $this->db->join('warehouse_state_relationship','warehouse_person_relationship.warehouse_id = warehouse_state_relationship.warehouse_id');
+        }
+        
+        if($is_entity_join){
+             $this->db->join('entity_role','contact_person.role = entity_role.id');
         }
         $query = $this->db->get();
         return $query->result_array();
