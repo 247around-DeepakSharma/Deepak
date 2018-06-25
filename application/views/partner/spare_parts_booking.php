@@ -100,7 +100,7 @@ if ($this->uri->segment(4)) {
                                             <?php echo $row['remarks_by_sc']; ?>
                                         </td>
                                            <td style="vertical-align: middle;">
-                                            <a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('<?php echo $row->booking_id?>')"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+                                            <a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('<?php echo $row['booking_id']?>')"><i class="fa fa-envelope" aria-hidden="true"></i></a>
                                         </td>
                                         <?php if(!$this->session->userdata('is_wh')) { ?> 
                                         <td class="text-center">
