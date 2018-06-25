@@ -2984,4 +2984,17 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
 
     return $new_array;
 }
+    function send_and_save_booking_internal_conversation_email($entity_type,$booking_id,$to,$cc = NULL,$from,$subject,$msg,$agentID,$sender_entity_id){
+        $this->My_CI->notify->sendEmail($from, $to, $cc, "", $subject, $msg, "",INTERNAL_CONVERSATION_EMAIL);
+        $data['booking_id'] = $booking_id;
+        $data['subject'] = $subject;
+        $data['msg'] = $msg;
+        $data['sender_entity_type'] = $entity_type;
+        $data['sender_entity_id'] = $sender_entity_id;
+        $data['agent_id'] = $agentID;
+        $data['email_to'] = $to;
+        $data['email_cc'] = $cc;
+        $data['email_from'] = $from;
+        return $this->My_CI->reusable_model->insert_into_table("booking_internal_conversation",$data);
+    }
 }

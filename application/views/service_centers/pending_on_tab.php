@@ -24,6 +24,8 @@
                                         <?php } ?> 
                                         <th class="text-center" data-orderable="false">Brands</th>
                                         <th  class="text-center" >Escalation</th>
+                                       <th class="text-center" data-orderable="false">Send Email</th> 
+                                      <th class="text-center" data-orderable="false">Contacts</th> 
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <th class="text-center" data-orderable="false">Update</th>
                                         <?php } ?>
@@ -130,7 +132,12 @@
                                             </div>
                                             <?php  echo $row->count_escalation." times"; ?>
                                         </td>
-                                        
+                                        <td style="vertical-align: middle;">
+                                            <a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('<?php echo $row->booking_id?>')"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+                                        </td>
+                                        <td style="vertical-align: middle;">
+                                            <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Contact" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id)"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
+                                        </td>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <td style="vertical-align: middle;">
                                             <a class="btn btn-sm btn-primary <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } ?>" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="<?php echo base_url(); ?>service_center/update_booking_status/<?php echo urlencode(base64_encode($row->booking_id));?>" ><i class='fa fa-edit' aria-hidden='true'></i></a>
@@ -196,6 +203,8 @@
                                         <?php } ?> 
                                         <th  class="text-center">Brands</th>
                                         <th  class="text-center">Escalation</th>
+                                        <th class="text-center" data-orderable="false">Send Email</th> 
+                                        <th class="text-center" data-orderable="false">Contacts</th>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <th class="text-center" data-orderable="false">Update</th>
                                         <?php } ?>
@@ -291,6 +300,12 @@
                                             </div>
                                             <?php  echo $row->count_escalation." times"; ?>
                                         </td>
+                                        <td style="vertical-align: middle;">
+                                            <a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('<?php echo $row->booking_id?>')"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+                                        </td>
+                                        <td style="vertical-align: middle;">
+                                            <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Content" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id)"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
+                                        </td>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <td style="vertical-align: middle;">
                                             <a class="btn btn-sm btn-primary <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } ?>" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="<?php echo base_url(); ?>service_center/update_booking_status/<?php echo urlencode(base64_encode($row->booking_id));?>" ><i class='fa fa-edit' aria-hidden='true'></i></a>
@@ -355,6 +370,8 @@
                                         <?php } ?> 
                                         <th  class="text-center" >Brands</th>
                                         <th  class="text-center" >Escalation</th>
+                                        <th class="text-center" data-orderable="false">Send Email</th> 
+                                        <th class="text-center" data-orderable="false">Contacts</th>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <th class="text-center" data-orderable="false">Update</th>
                                         <?php } ?>
@@ -451,6 +468,12 @@
                                             </div>
                                             <?php  echo $row->count_escalation." times"; ?>
                                         </td>
+                                        <td style="vertical-align: middle;">
+                                            <a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('<?php echo $row->booking_id?>')"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+                                        </td>
+                                        <td style="vertical-align: middle;">
+                                            <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Content" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id)"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
+                                        </td>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <td style="vertical-align: middle;">
                                             <a class="btn btn-sm btn-primary <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } ?>" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="<?php echo base_url(); ?>service_center/update_booking_status/<?php echo urlencode(base64_encode($row->booking_id));?>" ><i class='fa fa-edit' aria-hidden='true'></i></a>
@@ -506,6 +529,8 @@
                                     <th class="text-center" data-orderable="false">Shipped Date</th>
                                     <th class="text-center" data-orderable="false">View</th>
                                     <th class="text-center" data-orderable="false">Received</th>
+                                    <th class="text-center" data-orderable="false">Send Email</th> 
+                                    <th class="text-center" data-orderable="false">Contacts</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -535,6 +560,12 @@
                                       <td>
                                         <?php if(!is_null($row['parts_shipped'])){ ?>  <a class="btn btn-sm btn-success" href="<?php echo base_url(); ?>service_center/acknowledge_delivered_spare_parts/<?php echo $row['booking_id']; ?>/<?php echo $this->session->userdata('service_center_id') ?>/<?php echo $row['id']; ?>/<?php echo $row['partner_id']; ?>" style="<?php if(is_null($row['parts_shipped'])){ echo 'pointer-events:none;';}?>">Received</a> <?php } else { echo "Part Shipment Pending";} ?>
                                         </td>
+                                        <td style="vertical-align: middle;">
+                                            <a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('<?php echo $row->booking_id?>')"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+                                        </td>
+                                        <td style="vertical-align: middle;">
+                                            <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Content" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id)"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
+                                        </td>
                                 </tr>
                                 <?php $sn_no1++; } ?>
                             </tbody>
@@ -548,6 +579,7 @@
         </div>
     </div>
 </div>
+<?php } ?>
 <?php if($this->session->userdata('is_engineer_app') == 1){ ?>
 <div role="tabpanel" class="tab-pane" id="bookings_on_approval">
     <div class="container-fluid">
@@ -567,8 +599,60 @@
         </div>
     </div>
 </div>
-<?php } } ?>
+<?php } ?>
+<div id="relevant_content_modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
 
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header well" style="background-color:  #2C9D9C;border-color: #2C9D9C;">
+                <button type="button" class="close btn-primary well"  data-dismiss="modal"style="color: white;">&times;</button>
+                <h4 class="modal-title"style="color: white;background-color: #2c9d9c;border-color: #2c9d9c;border: 0px; text-align: center;">Contacts</h4>
+            </div>
+            <div class="modal-body">
+
+            </div>
+        </div>
+
+
+    </div>
+</div>
+<div id="send_email_form" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header well" style="background-color:  #2C9D9C;border-color: #2C9D9C;">
+                <button type="button" class="close btn-primary well"  data-dismiss="modal"style="color: white;">&times;</button>
+                <p class="modal-title"style="color: white;background-color: #2c9d9c;border-color: #2c9d9c;border: 0px; text-align: center; font-size:18px;" id="email_title"></p>
+            </div>
+            <div class="modal-body">
+                <div id="form_container">
+                <form action="" method="post">
+                    <input type="hidden" value="" id="internal_email_booking_id">
+                    <div class="form-group">
+                    <label for="subject">Subject</label>
+                    <input type="text" class="form-control" id="internal_email_booking_subject">
+                    </div>
+                    <div class="form-group">
+                    <label for="text">Message</label>
+                    <textarea class="form-control" rows="5" id="internal_email_booking_msg"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <button type="button" class="btn btn-default" style="color: #fff;background-color: #2c9d9c;border-color: #2c9d9c;float:right;" onclick="send_booking_internal_conversation_email()">Send Email</button>
+                    </div>
+                    <div class="clear" style="clear:both;"></div>
+                    </form>
+                    </div>
+                        <div id="msg_container" style="display:none;text-align: center;">
+                     <center><img id="loader_gif_title" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
+                    </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
 <?php if($this->session->userdata('is_engineer_app') == 1){ ?>
 <script>
     get_review_table();
@@ -590,22 +674,66 @@
 </script>
 
 <?php } ?>
-<div id="showBrandCollateral" class="modal fade" role="dialog">
-  <div class="modal-dialog">
-
-    <!-- Modal content-->
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title">Brand Collateral</h4>
-      </div>
-        <div class="modal-body" id="collatral_container">
-             <center><img id="loader_gif_pending" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-      </div>
-    </div>
-
-  </div>
-</div>
+<script>
+     function show_contacts(bookingID){
+                    $.ajax({
+                        type: 'post',
+                        url: '<?php echo base_url()  ?>employee/service_centers/get_booking_contacts/'+bookingID,
+                        data: {},
+                        success: function (response) {
+                            var data="";
+                             var result = JSON.parse(response);
+                            data =data +  "<tr><td>2) </td><td>Account Manager</td><td>"+result[0].am+"</td><td>"+result[0].am+"</td></tr>";
+                            data =data +  "<tr><td>3) </td><td>Partner POC</td><td>"+result[0].partner_poc+"</td><td>"+result[0].poc_contact+"</td></tr>";
+                            var tb="<table class='table  table-bordered table-condensed ' >";
+                            tb+='<thead>';
+                            tb+='<tr>';
+                            tb+='<th class="jumbotron col-md-1">SNo.</th> ';
+                            tb+='<th class="jumbotron col-md-6">Role</th>';
+                            tb+='<th class="jumbotron  col-md-5">Name</th>';
+                            tb+='<th class="jumbotron  col-md-5">Contact</th>';
+                            tb+='</tr>';
+                            tb+='</thead>';
+                            tb+='<tbody>';
+                            tb+=data;
+                            tb+='</tbody>';
+                            tb+='</table>';
+                            $("#relevant_content_modal .modal-body").html(tb);
+                            $('#relevant_content_table').DataTable();
+                            $('#relevant_content_table  th').css("background-color","#ECEFF1");
+                            $('#relevant_content_table  tr:nth-child(even)').css("background-color","#FAFAFA");
+                            $("#relevant_content_modal").modal("show");
+                       }
+                    });
+                }
+                function create_email_form(booking_id){
+                    $("#email_title").html("Send Email For Booking "+booking_id);
+                    $("#send_email_form").modal("show");
+                    $("#internal_email_booking_id").val(booking_id);
+                }
+                function send_booking_internal_conversation_email(){
+                    var booking_id = $("#internal_email_booking_id").val();
+                    var subject = $("#internal_email_booking_subject").val();
+                    var msg = $("#internal_email_booking_msg").val();
+                    if(booking_id && subject && msg){
+                        $.ajax({
+                           type: 'post',
+                           url: '<?php echo base_url()  ?>employee/service_centers/process_booking_internal_conversation_email',
+                           data: {'booking_id':booking_id,'subject':subject,'msg':msg},
+                           success: function (response) {
+                                document.getElementById("msg_container").style.display='block';
+                                document.getElementById("form_container").style.display='none';
+                                $("#msg_container").html(response);
+                                $("#internal_email_booking_id").val("");
+                                $("#internal_email_booking_subject").val("");
+                                $("#internal_email_booking_msg").val("");
+                                location.reload();
+                          }
+                       });
+                    }
+                    else{
+                        alert("Subject Or Message should not be blank ");
+                        return false;
+                    }
+                }
+    </script>
