@@ -591,5 +591,12 @@ define('PARTNER_BOM_FILE','Partner-BOM');
 
 //Partner Serial no file type
 define('PARTNER_SERIAL_NUMBER_FILE_TYPE','partner_serial_number');
+
+//warehouse incharge constant
+define('WAREHOUSE_INCHARCGE_CONSTANT','wh_incharge');
+
+//Partner Login
+define('PARTNER_POC_ROLE_ID','1');
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
