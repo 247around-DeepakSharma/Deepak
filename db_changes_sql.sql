@@ -7513,3 +7513,7 @@ ALTER TABLE `booking_internal_conversation`
 --
 ALTER TABLE `booking_internal_conversation`
   MODIFY `id` int(10) NOT NULL AUTO_INCREMENT;COMMIT;
+
+
+--sachin 25 June
+ALTER TABLE `inventory_ledger` ADD `courier_id` INT NULL DEFAULT NULL AFTER `partner_ack_date`;
