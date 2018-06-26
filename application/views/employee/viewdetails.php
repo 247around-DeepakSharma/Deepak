@@ -201,13 +201,15 @@
                         <tr>
                             <th>Service Promise Date</th>
                             <td ><?php echo $booking_history[0]['service_promise_date'];?></td>
-                            <th >Paid By Customer(STS)</th>
-                            <td ><?php if(!is_null($booking_history[0]['paid_by_customer'])) { if($booking_history[0]['paid_by_customer'] == 1){ echo "Paid By Customer"; } 
-                            else {echo "Free For Customer";}} ?></td>
+                            <th >Jeeves CD/BD</th>
+                            <td ><?php echo $booking_history[0]['api_call_status_updated_on_completed']; ?></td>
                         </tr>
                         <tr>
                             <th>Closing Remarks</th>
-                            <td colspan="3"><?php echo $booking_history[0]['closing_remarks'];?></td>
+                            <td ><?php echo $booking_history[0]['closing_remarks'];?></td>
+                            <th >Paid By Customer(STS)</th>
+                            <td ><?php if(!is_null($booking_history[0]['paid_by_customer'])) { if($booking_history[0]['paid_by_customer'] == 1){ echo "Paid By Customer"; } 
+                            else {echo "Free For Customer";}} ?></td>
                         </tr>
                     </table>
                 </div>

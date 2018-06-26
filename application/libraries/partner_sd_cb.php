@@ -422,8 +422,17 @@ class partner_sd_cb {
                         "hour" => date('H', strtotime($data['booking_date'])),
                         "minute" => date('i', strtotime($data['booking_date'])));
                 }
+                if($data['partner_source'] == "STS"){
+                    
+                    return $this->post_jeeves_data($postData, $data['order_id'], $data['booking_id'], $StatusReason);
+                    
+                } else {
+                    if(!empty($StatusReason)){
+                         $this->My_CI->booking_model->update_booking($data['booking_id'], array('api_call_status_updated_on_completed' => $StatusReason));
+                         return true;
+                    }
+                }
                 
-                return $this->post_jeeves_data($postData, $data['order_id'], $data['booking_id'], $StatusReason);
                 
             } else {
                  log_message('info', __METHOD__ . "=> Call already updated cancelled");
@@ -512,7 +521,7 @@ class partner_sd_cb {
                 $this->jeevesCallbackAPIFailed();
                 
             } else {
-                if(!empty($StatusReason)){
+                if(!empty($statusReason)){
                     $this->My_CI->booking_model->update_booking($booking_id, array('api_call_status_updated_on_completed' => $statusReason));
                 }
                 
