@@ -206,7 +206,7 @@
                         </tr>
                         <tr>
                             <th>Closing Remarks</th>
-                            <td ><?php echo $booking_history[0]['closing_remarks'];?></td>
+                            <td style="max-width: 330px;"><?php echo $booking_history[0]['closing_remarks'];?></td>
                             <th >Paid By Customer(STS)</th>
                             <td ><?php if(!is_null($booking_history[0]['paid_by_customer'])) { if($booking_history[0]['paid_by_customer'] == 1){ echo "Paid By Customer"; } 
                             else {echo "Free For Customer";}} ?></td>
