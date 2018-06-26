@@ -7433,8 +7433,11 @@ ALTER TABLE `spare_parts_details` ADD `warehouse_courier_invoice_id` VARCHAR(128
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'sf_warehouse_invoice', '247around - %s - FOC Invoice for period: %s to %s', 'Dear Partner,Please find attached Warehouse invoice. Please do <strong>Reply All</strong> for raising any query or concern regarding the invoice. <br/><br/>Thanks,<br/>247around Team', 'billing@247around.com', 'abhaya@247around.com', 'abhaya@247around.com', '', '1', '2017-05-29 23:56:58');
 
 
+
 -- 20 June
 ALTER TABLE `spare_parts_details` ADD `courier_pic_by_partner` VARCHAR(1024) NULL DEFAULT NULL AFTER `courier_price_by_partner`;
+
+--Released 22 June
 
 --sachin 14 june
 ALTER TABLE `contact_person` CHANGE `officail_email` `official_email` VARCHAR(256) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
@@ -7513,6 +7516,59 @@ ALTER TABLE `booking_internal_conversation`
 ALTER TABLE `booking_internal_conversation`
   MODIFY `id` int(10) NOT NULL AUTO_INCREMENT;COMMIT;
 
+--Abhay 20 June
+ALTER TABLE `blacklist_brand` ADD `blacklist` INT(1) NOT NULL DEFAULT '0' AFTER `brand`, ADD `whitelist` INT(1) NOT NULL DEFAULT '0' AFTER `blacklist`;
+ALTER TABLE `vendor_partner_invoices` ADD `reference_invoice_id` VARCHAR(64) NULL DEFAULT NULL AFTER `invoice_id`;
+
+
+--Abhay 22 June
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES
+(NULL, 'booking_misc_charges_details', 'New Miscellaneous Charges Added For Booking ID \n %s', 'Hi,<br/><br/>\nNew Miscellaneous Charges added By %s. Please find the details below: <br/><br/>\n%s<br/><br/>\n\nPlease %s to check these details.\n<br/>Thanks!!;', 'booking@247around.com', 'abhaya@247around.com', 'sachinj@247around.com', '', '1', '2018-06-21 18:30:00');
+
+
+--
+-- Table structure for table `miscellaneous_charges`
+--
+
+CREATE TABLE `miscellaneous_charges` (
+  `id` int(11) NOT NULL,
+  `description` varchar(128) NOT NULL,
+  `booking_id` varchar(64) NOT NULL,
+  `vendor_basic_charges` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `vendor_tax` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `tax_rate` int(11) NOT NULL,
+  `partner_charge` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `approval_file` varchar(128) DEFAULT NULL,
+  `remarks` varchar(128) DEFAULT NULL,
+  `product_or_services` varchar(64) DEFAULT NULL,
+  `status` varchar(64) DEFAULT NULL,
+  `active` int(11) NOT NULL DEFAULT '1',
+  `partner_invoice_id` varchar(64) DEFAULT NULL,
+  `vendor_invoice_id` varchar(64) DEFAULT NULL,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `create_date` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `miscellaneous_charges`
+--
+ALTER TABLE `miscellaneous_charges`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `miscellaneous_charges`
+--
+ALTER TABLE `miscellaneous_charges`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --sachin 25 June
 ALTER TABLE `inventory_ledger` ADD `courier_id` INT NULL DEFAULT NULL AFTER `partner_ack_date`;

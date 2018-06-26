@@ -2365,10 +2365,13 @@ class Booking extends CI_Controller {
                     if (is_null($partner_booking)) {
                         return true;
                     } else {
-                        $output = "Duplicate Order ID";
-                        $userSession = array('error' => $output);
-                        $this->session->set_userdata($userSession);
-                        return FALSE;
+                        if($partner_booking['current_status'] !== _247AROUND_CANCELLED){
+                            $output = "Duplicate Order ID";
+                            $userSession = array('error' => $output);
+                            $this->session->set_userdata($userSession);
+                            return FALSE;
+                        }
+                        
                     }
                 } else if(empty($dealer_phone_number) && $amount_due ==0){
                     
