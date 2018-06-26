@@ -7408,7 +7408,6 @@ INSERT INTO `agent_filters` (`id`, `entity_type`, `entity_id`, `contact_person_i
 UPDATE `contact_person` SET `role` = 2 WHERE id IN ('1001188','1001189','1001190');
 
 
-<<<<<<< Updated upstream
 --4th June
 ALTER TABLE `contact_person` ADD `is_active` INT(10) NOT NULL DEFAULT '1' AFTER `update_date`;
 ALTER TABLE `contact_person` ADD `agent_id` INT(10) NOT NULL AFTER `is_active`;
