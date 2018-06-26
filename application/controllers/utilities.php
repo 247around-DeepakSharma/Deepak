@@ -27,6 +27,8 @@ class Utilities extends CI_Controller {
         $this->load->model('reporting_utils');
         $this->load->model('pc_distance_model');
         $this->load->model('upcountry_model');
+        $this->load->library('form_validation');
+        $this->load->library('miscelleneous');
         
     }
 
@@ -123,7 +125,7 @@ class Utilities extends CI_Controller {
             $this->load->view('employee/header/'.$this->session->userdata('user_group'));
             $this->load->view("employee/change_appliance_form", $data);
         } else {
-            $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+            $this->miscelleneous->load_nav_header();
             $this->load->view("employee/change_appliance_form");
         }
     }

@@ -4947,5 +4947,43 @@ class vendor extends CI_Controller {
     function get_challan_id($sc_code){
         echo $this->miscelleneous->create_sf_challan_id($sc_code);
     }
-        
+    /**
+     * @desc This is used to get misc charges data as table
+     * @param String $booking_id
+     */
+    function get_miscellaneous_charges($booking_id, $is_sf = 0, $is_partner = 0){
+       if(!empty($booking_id)){
+            $data = $this->booking_model->get_misc_charges_data('*', array('booking_id' => $booking_id, 'active' => 1));
+            $html = "<table class='table  table-striped table-bordered' ><thead><tr><th>Description</th>";
+            if($is_partner){
+               $html  .= "<th>Partner Offer</th>";
+            }
+            if($is_sf){
+                $html  .= "<th>SF Earning</th>";
+            }
+            
+            $html .=  "<th>Approval File</th><th>Remarks</th></tr></thead><tbody>";
+           foreach ($data as $value) {
+               $html .= "<tr>";
+               $html .= '<td>'.$value['description'].'</td>';
+               if($is_partner){
+               $html .= '<td>'.$value['partner_charge'].'</td>';
+               }
+               if($is_sf){
+                   $html .= '<td>'.($value['vendor_basic_charges'] + $value['vendor_tax']).'</td>';
+               }
+               if(!empty($value['approval_file'])){
+                   $html .= '<td><a target="_blank" href="'.S3_WEBSITE_URL.'misc-images/'.$value['approval_file'].'" >Click Here</a></td>';
+               } else {
+                   $html .= '<td></td>';
+               }
+               $html .= '<td>'.$value['remarks'].'</td>';
+               $html .= "</tr>";
+           }
+           $html .= "</tbody></table>";
+           echo $html;
+       } else {
+            echo "Failed";
+       }
+   }     
 }

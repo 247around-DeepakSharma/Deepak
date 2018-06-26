@@ -258,11 +258,21 @@
                     <?php } ?>
                 </tbody>
             </table>
-            
+            <div class="row">
+                <center><img id="misc_charge_loader" style="width: 50px;" src="<?php echo base_url(); ?>images/loader.gif"/></center>
+                 <div class="col-md-12" id="misc_charge_div" >
+                    <h1 style='font-size:24px;margin-top: 40px;'>Miscellaneous Charge</h1>
+
+                    <div id="misc_charge">
+
+                    </div>
+                </div>
+            </div>
             <div style="margin-top:20px;" id="sf_payout"></div>
             <?php }else{?> 
             <div class="text-danger">No Data Found</div>
             <?php }?>
+            
         </div>
         <div class="tab-pane fade in" id="tab3">
             <?php if (isset($booking_history['spare_parts'])) { $estimate_given = false; $parts_shipped = false; $defective_parts_shipped = FALSE; ?>
@@ -664,6 +674,23 @@
              console.log(data);
              $("#sf_payout").html(data);
           }
+        });
+        
+        $.ajax({
+            method:'GET',
+            url:'<?php echo base_url(); ?>employee/vendor/get_miscellaneous_charges/<?php echo $booking_history[0]['booking_id']?>/1/0',
+            success:function(response){
+                
+                if(response === "Failed"){
+                   $("#misc_charge_loader").css('display','none');
+                } else{
+                   $("#misc_charge_loader").css('display','none');
+                   $("#misc_charge_div").css('display', 'block');
+                   $("#misc_charge").html(response);
+
+                }
+
+            }
         });
     
     });

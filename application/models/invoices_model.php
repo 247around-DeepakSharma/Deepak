@@ -613,15 +613,22 @@ class invoices_model extends CI_Model {
         if (!empty($result['result'])) {
             $upcountry_data = $this->upcountry_model->upcountry_partner_invoice($partner_id, $from_date, $to_date);
             $courier = $this->get_partner_courier_charges($partner_id, $from_date, $to_date);
+            $misc_select = 'booking_details.order_id, miscellaneous_charges.booking_id, '
+                . 'miscellaneous_charges.product_or_services, miscellaneous_charges.description, vendor_basic_charges,'
+                . 'miscellaneous_charges.partner_charge, miscellaneous_charges.id,'
+                . 'CONCAT("'.S3_WEBSITE_URL.'misc-images/",approval_file) as file';
+            
+            $misc = $this->get_misc_charges_invoice_data($misc_select, "miscellaneous_charges.partner_invoice_id IS NULL", $from_date, 
+                    $to_date, "booking_details.partner_id", $partner_id, "partner_charge");
             $result['upcountry'] = array();
             $result['courier'] = array();
+            $result['misc'] = array();
             if (!empty($upcountry_data)) {
                 $up_country = array();
                 $up_country[0]['description'] = 'Upcountry Charges';
                 $up_country[0]['hsn_code'] = '';
                 $up_country[0]['qty'] = '';
                 $up_country[0]['rate'] = '';
-                $up_country[0]['qty'] = '';
                 $up_country[0]['gst_rate'] = DEFAULT_TAX_RATE;
                 $up_country[0]['product_or_services'] = 'Upcountry';
                 $up_country[0]['taxable_value'] = $upcountry_data[0]['total_upcountry_price'];
@@ -635,12 +642,24 @@ class invoices_model extends CI_Model {
                 $c_data[0]['hsn_code'] = '';
                 $c_data[0]['qty'] = '';
                 $c_data[0]['rate'] = '';
-                $c_data[0]['qty'] = '';
                 $c_data[0]['gst_rate'] = DEFAULT_TAX_RATE;
                 $c_data[0]['product_or_services'] = 'Courier';
                 $c_data[0]['taxable_value'] = (array_sum(array_column($courier, 'courier_charges_by_sf')));
                 $result['result'] = array_merge($result['result'], $c_data);
                 $result['courier'] = $courier;
+            }
+            
+            if(!empty($misc)){
+                $m = array();
+                $m[0]['description'] = 'Miscellaneous Charge';
+                $m[0]['hsn_code'] = '';
+                $m[0]['qty'] = '';
+                $m[0]['rate'] = '';
+                $m[0]['gst_rate'] = DEFAULT_TAX_RATE;
+                $m[0]['product_or_services'] = 'Service';
+                $m[0]['taxable_value'] = (array_sum(array_column($misc, 'partner_charge')));
+                $result['result'] = array_merge($result['result'], $m);
+                $result['misc'] = $misc;
             }
             
             return $result;
@@ -670,6 +689,7 @@ class invoices_model extends CI_Model {
             $data['meta'] = $response['meta'];
             $data['courier'] = $result_data['courier'];
             $data['upcountry'] = $result_data['upcountry'];
+            $data['misc'] = $result_data['misc'];
           
             return $data;
         } else {
@@ -723,12 +743,19 @@ class invoices_model extends CI_Model {
                     $result[$key]['toal_amount'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * ($value['gst_rate']/100))));
                 }
                 
+                if(empty($value['qty'])){
+                    $value['qty'] = 0;
+                    $result[$key]['qty'] = "";
+                }
+
+                if(empty($value['rate'])){
+                    $value['rate'] = 0;
+                    $result[$key]['rate'] = "";
+                }
                 
                 $meta['total_qty'] += $value['qty'];
                 $meta['total_rate'] += $value['rate'];
-                if($value['rate'] == 0){
-                    $result[$key]['rate'] = "";
-                }
+               
                
                 $meta['sub_total_amount'] += $result[$key]['toal_amount'];
                 if($value['product_or_services'] == "Service"){
@@ -1026,13 +1053,22 @@ class invoices_model extends CI_Model {
             $debit_penalty = $this->penalty_model->add_penalty_in_invoice($vendor_id, $from_date, $to_date, "", $is_regenerate);
             $courier = $this->get_sf_courier_charges($vendor_id, $from_date, $to_date, $is_regenerate);
             $credit_penalty = $this->penalty_model->get_removed_penalty($vendor_id, $from_date_tmp, "distinct" );
+            $closed_date = "date_format(closed_date,'%d/%m/%Y') as closed_date";
+            $misc_select = '"Misc" AS unit_id, "Completed" As internal_status,closed_date as closed_booking_date,"" As rating_stars,'
+                    . '"0" AS customer_net_payable, partner_charge AS partner_net_payable, "" AS around_net_payable, "" AS owner_phone_1, "" AS primary_contact_phone_1, '
+                    . 'booking_details.booking_id, booking_details.city, services, "" As appliance_category,'
+                . '"" AS appliance_capacity, '.$closed_date.', description as price_tags, miscellaneous_charges.id AS misc_id, '
+                . '(case when (product_or_services = "Service" )  THEN (round(vendor_basic_charges,2)) ELSE 0 END) as vendor_installation_charge, '
+                . '(case when (product_or_services = "Product" )  THEN (round(vendor_basic_charges,2)) ELSE 0 END) as vendor_stand,'
+                . 'vendor_basic_charges as total_booking_charge, product_or_services';
+            $misc = $this->get_misc_charges_invoice_data($misc_select, "miscellaneous_charges.vendor_invoice_id IS NULL", $from_date, 
+                    $to_date, "booking_details.assigned_vendor_id", $vendor_id, "vendor_basic_charges");
             if (!empty($upcountry_data)) {
                 $up_country = array();
                 $up_country[0]['description'] = 'Upcountry Charges';
                 $up_country[0]['hsn_code'] = '';
                 $up_country[0]['qty'] = '';
                 $up_country[0]['rate'] = '';
-                $up_country[0]['qty'] = '';
                 $up_country[0]['product_or_services'] = 'Upcountry';
                 $up_country[0]['taxable_value'] = $upcountry_data[0]['total_upcountry_price'];
                 $result['booking'] = array_merge($result['booking'], $up_country);
@@ -1045,7 +1081,6 @@ class invoices_model extends CI_Model {
                 $d_penalty[0]['hsn_code'] = '';
                 $d_penalty[0]['qty'] = '';
                 $d_penalty[0]['rate'] = '';
-                $d_penalty[0]['qty'] = '';
                 $d_penalty[0]['product_or_services'] = 'Debit Penalty';
                 $d_penalty[0]['taxable_value'] = -(array_sum(array_column($debit_penalty, 'p_amount')));
                 $result['booking'] = array_merge($result['booking'], $d_penalty);
@@ -1058,7 +1093,6 @@ class invoices_model extends CI_Model {
                 $c_data[0]['hsn_code'] = '';
                 $c_data[0]['qty'] = '';
                 $c_data[0]['rate'] = '';
-                $c_data[0]['qty'] = '';
                 $c_data[0]['product_or_services'] = 'Courier';
                 $c_data[0]['taxable_value'] = (array_sum(array_column($courier, 'courier_charges_by_sf')));
                 $result['booking'] = array_merge($result['booking'], $c_data);
@@ -1071,11 +1105,22 @@ class invoices_model extends CI_Model {
                 $cp_data[0]['hsn_code'] = '';
                 $cp_data[0]['qty'] = '';
                 $cp_data[0]['rate'] = '';
-                $cp_data[0]['qty'] = '';
                 $cp_data[0]['product_or_services'] = 'Credit Penalty';
                 $cp_data[0]['taxable_value'] = (array_sum(array_column($credit_penalty, 'p_amount')));
                 $result['booking'] = array_merge($result['booking'], $cp_data);
                 $result['c_penalty'] = $credit_penalty;
+            }
+            
+            if (!empty($misc)) {
+                $m = array();
+                $m[0]['description'] = 'Miscellaneous Charge';
+                $m[0]['hsn_code'] = '';
+                $m[0]['qty'] = '';
+                $m[0]['rate'] = '';
+                $m[0]['product_or_services'] = 'Misc Charge';
+                $m[0]['taxable_value'] = (array_sum(array_column($misc, 'total_booking_charge')));
+                $result['booking'] = array_merge($result['booking'], $m);
+                $result['misc'] = $misc;
             }
         }
 
@@ -1097,7 +1142,7 @@ class invoices_model extends CI_Model {
         if (!empty($data['booking'])) {
             
             $meta['total_qty'] = $meta['total_rate'] =  $meta['total_taxable_value'] =  
-             $meta['cgst_total_tax_amount'] = $meta['sgst_total_tax_amount'] =   $meta['igst_total_tax_amount'] =  $meta['sub_total_amount'] = 0;
+            $meta['cgst_total_tax_amount'] = $meta['sgst_total_tax_amount'] =   $meta['igst_total_tax_amount'] =  $meta['sub_total_amount'] = 0;
             $meta['total_sc_charge'] = $meta['total_parts_charge'] =  $meta['total_parts_tax'] =  $meta['total_inst_tax'] = 0;
             $meta['igst_tax_rate'] =$meta['cgst_tax_rate'] = $meta['sgst_tax_rate'] = 0;
             
@@ -1130,10 +1175,12 @@ class invoices_model extends CI_Model {
                 }
                 if(empty($value['qty'])){
                     $value['qty'] = 0;
+                    $data['booking'][$key]['qty'] = "";
                 }
                 
                 if(empty($value['rate'])){
                     $value['rate'] = 0;
+                    $data['booking'][$key]['rate'] = "";
                 }
                 
                 $meta['total_qty'] += $value['qty'];
@@ -1843,6 +1890,23 @@ class invoices_model extends CI_Model {
         $this->db->select('*');
         $this->db->where($where);
         $query = $this->db->get('vendor_partner_varialble_charges');
+        return $query->result_array();
+    }
+    
+    function get_misc_charges_invoice_data($select, $vendor_partner_invoice, 
+            $from_date, $to_date, $vendor_partner,$vendor_partner_id, $sf_partner_charge){
+        $this->db->select($select, false);
+        $this->db->from('miscellaneous_charges');
+        $this->db->join('booking_details', 'booking_details.booking_id = miscellaneous_charges.booking_id');
+        $this->db->join('services', 'booking_details.service_id = services.id');
+        $this->db->where('booking_details.current_status', _247AROUND_COMPLETED);
+        $this->db->where($vendor_partner_invoice, NULL);
+        $this->db->where("active", 1);
+        $this->db->where($sf_partner_charge. " > 0", NULL);
+        $this->db->where('booking_details.closed_date >= ', $from_date );
+        $this->db->where('booking_details.closed_date < ', $to_date );
+        $this->db->where($vendor_partner, $vendor_partner_id );
+        $query = $this->db->get();
         return $query->result_array();
     }
 
