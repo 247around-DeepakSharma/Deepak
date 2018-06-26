@@ -589,11 +589,9 @@ define('PARTNER_SERIAL_NUMBER_FILE_TYPE','partner_serial_number');
 
 //warehouse incharge constant
 define('WAREHOUSE_INCHARCGE_CONSTANT','wh_incharge');
-
+define('NEW_CHARGES_ADDED','New Charges Added');
 //Partner Login
 define('PARTNER_POC_ROLE_ID','1');
-
-
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

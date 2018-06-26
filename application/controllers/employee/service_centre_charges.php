@@ -39,6 +39,7 @@ class service_centre_charges extends CI_Controller {
         $this->load->library('partner_utilities');
         $this->load->library('notify');
         $this->load->library("miscelleneous");
+        $this->load->library('table');
 
         $this->load->model('user_model');
         $this->load->model('booking_model');
@@ -1310,5 +1311,267 @@ class service_centre_charges extends CI_Controller {
             }
         }
     }
+    
+    function add_miscellaneous_charges(){
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/get_add_miscellaneous_charges_form');
+    }
+    
+    function process_add_misc_charges(){
+        $this->form_validation->set_rules('booking_id', 'Booking ID', 'required|trim');
+        $this->form_validation->set_rules('remarks', 'Remarks', 'required|trim');
+        $this->form_validation->set_rules('validate_approval_misc_charges_file', 'Approval File', 'callback_validate_approval_misc_charges_file');
+        if ($this->form_validation->run() == TRUE) {
+         
+            $booking_id = $this->input->post('booking_id');
+            $booking_details = $this->booking_model->get_bookings_count_by_any("assigned_vendor_id", array('booking_id' => $booking_id));
+            
+            if(!empty($booking_details)){
+                if(!empty($booking_details[0]['assigned_vendor_id'])){
+                    
+                    $remarks = $this->input->post("remarks");
+                    $vendor_details = $this->vendor_model->getVendorDetails('gst_no', array('id' => $booking_details[0]['assigned_vendor_id']));
+                   
+                    $data = $this->input->post('misc');
+                    $misc_charge_data = array();
+                    $disc_not_fount = 0;
+                    $template = array(
+                        'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
+                    );
 
+                    $this->table->set_template($template);
+
+                    $this->table->set_heading(array('Booking ID', 'Description', 'Vendor Charge', 'Partner Charge', 'Remarks'));
+                    foreach ($data as $key => $value){
+
+                        if(!empty($value['description'])){
+                            $misc_charge_data[$key]['description'] = $value['description'];
+                            $misc_charge_data[$key]['vendor_basic_charges'] = $value['vendor_charge'];
+                            if(!empty($vendor_details[0]['gst_no'])){
+                                $misc_charge_data[$key]['vendor_tax'] = $value['vendor_charge'] * DEFAULT_TAX_RATE/100;
+                                
+                            } else {
+                                $misc_charge_data[$key]['vendor_tax'] = 0;
+                            }
+                            $misc_charge_data[$key]['product_or_services'] = $value['product_or_services'];
+                            $misc_charge_data[$key]['tax_rate'] = DEFAULT_TAX_RATE;
+                            $misc_charge_data[$key]['partner_charge'] = $value['partner_charge'];
+                            $misc_charge_data[$key]['remarks'] = $remarks;
+                            $misc_charge_data[$key]['booking_id'] = $booking_id;
+                            if(!empty($this->input->post("approval_file"))){
+                                $misc_charge_data[$key]['approval_file'] = $this->input->post("approval_file");
+                            } 
+                            
+                            $misc_charge_data[$key]['create_date'] = date('Y-m-d H:i:s');
+                            
+                            $this->table->add_row($booking_id, $value['description'], $value['vendor_charge'], $value['partner_charge'], 
+                                    $remarks);
+                        } else {
+                            $disc_not_fount++;
+                        }
+                    }
+                    if(!empty($misc_charge_data)){
+                        $this->booking_model->insert_misc_charges_in_batch($misc_charge_data);
+                        
+                        $actor = $next_action = NULL;
+                        
+                        $this->notify->insert_state_change($booking_id, NEW_CHARGES_ADDED,  _247AROUND_PENDING, $remarks, 
+                                $this->session->userdata('id'), $this->session->userdata('employee_id'),
+                    $actor, $next_action, _247AROUND);
+                        
+                        $email_template = $this->booking_model->get_booking_email_template(MISC_CHARGES_DETAILS_ON_EMAIL);
+                        if(!empty($email_template)){
+                            $to = $email_template[1];
+                            $cc = $email_template[3];
+                            $subject = vsprintf($email_template[4], array($booking_id));
+                            $bcc = $email_template[5];
+                            $agent_id = $this->session->userdata('emp_name');
+                            $a = "<a href='". base_url()."employee/service_centre_charges/update_misc_charges/".$booking_id."'>Click Here</a>";
+                            $message = vsprintf($email_template[0], array($agent_id, $this->table->generate(), $a));
+
+                            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "",MISC_CHARGES_DETAILS_ON_EMAIL);
+                        }
+                        
+                        $this->session->set_userdata(array('success' => "Charges Added Successfully"));
+                        redirect(base_url()."employee/service_centre_charges/add_miscellaneous_charges");
+                    } else {
+                        $this->session->set_userdata(array('error' => "Please try again, Insertion Failed!"));
+                        redirect(base_url()."employee/service_centre_charges/add_miscellaneous_charges");
+                    }
+
+                } else {
+                    $this->session->set_userdata(array('error' => "Please Assign Booking First"));
+                    redirect(base_url()."employee/service_centre_charges/add_miscellaneous_charges");
+                }
+            } else {
+                $this->session->set_userdata(array('error' => "Booking ID is not Exist"));
+                redirect(base_url()."employee/service_centre_charges/add_miscellaneous_charges");
+            }
+            
+        } else {
+            $this->session->set_userdata(array('error' => validation_errors()));
+            redirect(base_url()."employee/service_centre_charges/add_miscellaneous_charges");
+        }
+    }
+    
+    function update_misc_charges($booking_id) {
+        if (!empty($booking_id)) {
+            log_message('info', __METHOD__ . " Booking ID " . $booking_id);
+            $data['data'] = $this->booking_model->get_misc_charges_data("*", array('booking_id' => $booking_id, "active" => 1));
+            if (!empty($data['data'])) {
+                $data['booking_id'] = $booking_id;
+                $this->miscelleneous->load_nav_header();
+                $this->load->view('employee/update_misc_charges', $data);
+            } else {
+                $this->session->set_userdata(array('error' => "Booking ID is not exist"));
+                redirect(base_url() . "employee/service_centre_charges/add_miscellaneous_charges");
+            }
+        } else {
+            $this->session->set_userdata(array('error' => "Booking ID is not exist"));
+            redirect(base_url() . "employee/service_centre_charges/add_miscellaneous_charges");
+        }
+    }
+
+    function validate_approval_misc_charges_file() {
+      
+        if (!empty($_FILES['approval_misc_charges_file']['tmp_name'])) {
+            $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
+            $booking_id = $this->input->post("booking_id");
+            $defective_courier_receipt = $this->miscelleneous->upload_file_to_s3($_FILES["approval_misc_charges_file"], 
+                    "approval_file", $allowedExts, $booking_id, "misc-images", "approval_file");
+            if($defective_courier_receipt){
+                
+               return true;
+            } else {
+                $this->form_validation->set_message('validate_approval_misc_charges_file', 'Image, File size or '
+                        . 'file type is not supported. Allowed extentions are png, jpg, jpeg and pdf. '
+                        . 'Maximum file size is 5 MB.');
+                return false;
+            }
+           
+        } else {
+            $is_required = $this->input->post("file_required");
+            if($is_required){
+                
+                $this->form_validation->set_message('validate_approval_misc_charges_file', 'Approval/Email File is required ');
+                return FALSE;
+            } else {
+                return TRUE;
+            }
+            
+        }
+    }
+    
+    function process_upload_misc_charges($booking_id) {
+        if (!empty($booking_id)) {
+            $this->form_validation->set_rules('misc', 'Miscellaneous', 'callback_validate_form_data');
+            $this->form_validation->set_rules('remarks', 'Remarks', 'required|trim');
+            $this->form_validation->set_rules('validate_approval_misc_charges_file', 'Approval File', 'callback_validate_approval_misc_charges_file');
+            if ($this->form_validation->run() == TRUE) {
+                $booking_details = $this->booking_model->get_bookings_count_by_any("assigned_vendor_id", array('booking_id' => $booking_id));
+                if (!empty($booking_details)) {
+                    if (!empty($booking_details[0]['assigned_vendor_id'])) {
+                        $remarks = $this->input->post("remarks");
+                        $vendor_details = $this->vendor_model->getVendorDetails('gst_no', array('id' => $booking_details[0]['assigned_vendor_id']));
+
+                        $data = $this->input->post('misc');
+                        
+                        $template = array(
+                            'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
+                        );
+
+                        $this->table->set_template($template);
+
+                        $this->table->set_heading(array('Booking ID', 'Description', 'Vendor Charge', 'Partner Charge', 'Remarks'));
+
+                        foreach ($data as $id => $value) {
+
+                            if (!empty($value['description'])) {
+                                $misc_charge_data = array();
+                                $misc_charge_data['description'] = $value['description'];
+                                $misc_charge_data['vendor_basic_charges'] = $value['vendor_charge'];
+                                if (!empty($vendor_details[0]['gst_no'])) {
+                                    
+                                    $misc_charge_data['vendor_tax'] = $value['vendor_charge'] * DEFAULT_TAX_RATE / 100;
+                                    
+                                } else {
+                                    
+                                    $misc_charge_data['vendor_tax'] = 0;
+                                }
+                                $misc_charge_data['product_or_services'] = $value['product_or_services'];
+                                $misc_charge_data['tax_rate'] = DEFAULT_TAX_RATE;
+                                $misc_charge_data['partner_charge'] = $value['partner_charge'];
+                                $misc_charge_data['remarks'] = $remarks;
+                                $misc_charge_data['booking_id'] = $booking_id;
+                                if(!empty($this->input->post("approval_file"))){
+                                    $misc_charge_data['approval_file'] = $this->input->post("approval_file");
+                                }
+                                
+                                $this->booking_model->update_misc_charges(array('id' => $id), $misc_charge_data);
+
+                                $this->table->add_row($booking_id, $value['description'], $value['vendor_charge'], $value['partner_charge'], $remarks);
+                            } 
+                        }
+                        
+                        $this->session->set_userdata(array('success' => "Charges Updated Successfully"));
+                        redirect(base_url()."employee/service_centre_charges/update_misc_charges/".$booking_id);
+                    } else {
+                        $this->session->set_userdata(array('error' => "Booking is not assigned to any Vendor"));
+                        redirect(base_url()."employee/service_centre_charges/update_misc_charges/".$booking_id);
+                    }
+                } else {
+                    $this->session->set_userdata(array('error' => "Booking ID is not exist"));
+                     redirect(base_url()."employee/service_centre_charges/update_misc_charges/".$booking_id);
+                }
+            } else {
+
+                $this->session->set_userdata(array('error' => validation_errors()));
+                 redirect(base_url()."employee/service_centre_charges/update_misc_charges/".$booking_id);
+            }
+        } else {
+            $this->session->set_userdata(array('error' => "Booking ID is not exist"));
+            redirect(base_url() . "employee/service_centre_charges/add_miscellaneous_charges");
+        }
+    }
+
+    function validate_form_data(){
+        $data = $this->input->post('misc');
+        $is_validate = false;
+        $m = array();
+        foreach ($data as $key => $value) {
+           
+            if(empty($value['product_or_services'])){
+                array_push($m,"Product Or Sevice");
+                $is_validate = true;
+            }
+            if(empty($value['description'])){
+                $is_validate = true;
+                if(empty($m)){
+                     array_push($m,"Description");
+                } else {
+                    array_push($m,"/Description");
+                }
+               
+                break;
+            }
+            
+        }
+      
+        if($is_validate){
+             $this->form_validation->set_message('validate_form_data', implode(",", $m). ", All are mandatory");
+             return false;
+        } else {
+           return true;
+        }
+    }
+    
+    function cancel_misc_charges($id){
+        log_message('info', __METHOD__. "id " .$id);
+        if(!empty($id)){
+            $this->booking_model->update_misc_charges(array('id' => $id), array('active' => 0));
+            echo "success";
+        } else {
+            echo "Failed";
+        }
+    }
 }

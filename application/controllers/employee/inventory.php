@@ -2724,76 +2724,29 @@ class Inventory extends CI_Controller {
                         $not_updated_data = array();
                         if ($invoice_file['status']) {
                             if ($courier_file['status']) {
-                                
+
                                 $template1 = array(
                                     'table_open' => '<table border="1" cellpadding="2" cellspacing="0" class="mytable">'
                                 );
 
                                 $this->table->set_template($template1);
-                                
-                                $this->table->set_heading(array('Part Name','Part Number', 'Quantity', 'Booking Id'));
 
-                                if($this->session->userdata('id')){
-                                        $agent_id = $this->session->userdata('id');
-                                        $agent_type = _247AROUND_EMPLOYEE_STRING;
-                                }else{
-                                        $agent_id = $this->session->userdata('partner_id');
-                                        $agent_type = _247AROUND_PARTNER_STRING;
+                                $this->table->set_heading(array('Part Name', 'Part Number', 'Quantity', 'Booking Id'));
+
+                                if ($this->session->userdata('id')) {
+                                    $agent_id = $this->session->userdata('id');
+                                    $agent_type = _247AROUND_EMPLOYEE_STRING;
+                                } else {
+                                    $agent_id = $this->session->userdata('partner_id');
+                                    $agent_type = _247AROUND_PARTNER_STRING;
                                 }
                                 $entity_details = $this->partner_model->getpartner_details("state", array('partners.id' => $partner_id));
                                 $c_s_gst = $this->invoices_model->check_gst_tax_type($entity_details[0]['state']);
-                                $booking_id_array = array();
+                                $booking_id_array = array_column($parts_details, 'booking_id');
                                 $tqty = 0;
                                 $total_basic_amount = 0;
                                 $total_cgst_tax_amount = $total_sgst_tax_amount = $total_igst_tax_amount = 0;
                                 $invoice = array();
-                                foreach ($parts_details as $value) {
-                                    $this->table->add_row($value['part_name'],$value['part_number'],$value['quantity'],$value['booking_id']);
-                                    
-                                    if(!empty($value['booking_id'])){
-                                        array_push($booking_id_array, $value['booking_id']);
-                                    }
-
-                                    $tqty += $value['quantity'];
-                                    
-                                    $invoice_annexure = $this->inventory_invoice_data($invoice_id, $c_s_gst, $value);
-                                    array_push($invoice, $invoice_annexure);
-                                    $total_basic_amount += $invoice_annexure['taxable_value'];
-                                    $total_cgst_tax_amount += $invoice_annexure['cgst_tax_amount'];
-                                    $total_sgst_tax_amount += $invoice_annexure['sgst_tax_amount'];
-                                    $total_igst_tax_amount += $invoice_annexure['igst_tax_amount'];
-
-                                    $ledger_data['receiver_entity_id'] = $wh_id;
-                                    $ledger_data['receiver_entity_type'] = _247AROUND_SF_STRING;
-                                    $ledger_data['sender_entity_id'] = $partner_id;
-                                    $ledger_data['sender_entity_type'] = _247AROUND_PARTNER_STRING;
-                                    $ledger_data['inventory_id'] = $value['inventory_id'];
-                                    $ledger_data['quantity'] = $value['quantity'];
-                                    $ledger_data['agent_id'] = $agent_id;
-                                    $ledger_data['agent_type'] = $agent_type;
-                                    $ledger_data['booking_id'] = trim($value['booking_id']);
-                                    $ledger_data['invoice_id'] = $invoice_id;
-                                    $ledger_data['is_wh_ack'] = 0;
-
-                                    $insert_id = $this->inventory_model->insert_inventory_ledger($ledger_data);
-
-                                    if ($insert_id) {
-                                        log_message("info", "Ledger details added successfully");
-                                        //map spare from partner to warehouse if initialy it is not mapped
-                                        if(!empty($value['booking_id'])){
-                                            $data = array('entity_type' => _247AROUND_SF_STRING,'partner_id' => $wh_id,'purchase_invoice_id' =>$invoice_id);
-                                            $update_spare_part = $this->service_centers_model->update_spare_parts(array('booking_id' => trim($value['booking_id'])), $data);
-                                            if($update_spare_part){
-                                                log_message('info',' Spare mapped to warehouse successfully');
-                                            }else{
-                                                log_message('info',' error in updating spare details');
-                                            }
-                                        }
-                                    } else {
-                                        array_push($not_updated_data, $value['part_number']);
-                                        log_message("info", "error in adding inventory ledger details data: " . print_r($ledger_data, TRUE));
-                                    }
-                                }
 
                                 //update courier details
                                 $courier_data = array();
@@ -2806,10 +2759,10 @@ class Inventory extends CI_Controller {
                                 $courier_data['create_date'] = date('Y-m-d H:i:s');
                                 $courier_data['quantity'] = $tqty;
                                 $courier_data['bill_to_partner'] = $partner_id;
-                                if(!empty($booking_id_array)){
+                                if (!empty($booking_id_array)) {
                                     $courier_data['booking_id'] = implode(",", $booking_id_array);
                                 }
-                                
+
                                 if (!empty($courier_file['message'])) {
                                     $courier_data['courier_file'] = $courier_file['message'];
                                 }
@@ -2817,55 +2770,100 @@ class Inventory extends CI_Controller {
                                 if (!empty($courier_shipment_date)) {
                                     $courier_data['shipment_date'] = $courier_shipment_date;
                                 }
-                                
+
                                 $insert_courier_details = $this->inventory_model->insert_courier_details($courier_data);
 
                                 if (!empty($insert_courier_details)) {
                                     log_message('info', 'Courier Details added successfully.');
+                                    foreach ($parts_details as $value) {
+                                        $this->table->add_row($value['part_name'], $value['part_number'], $value['quantity'], $value['booking_id']);
+
+                                        $tqty += $value['quantity'];
+
+                                        $invoice_annexure = $this->inventory_invoice_data($invoice_id, $c_s_gst, $value);
+                                        array_push($invoice, $invoice_annexure);
+                                        $total_basic_amount += $invoice_annexure['taxable_value'];
+                                        $total_cgst_tax_amount += $invoice_annexure['cgst_tax_amount'];
+                                        $total_sgst_tax_amount += $invoice_annexure['sgst_tax_amount'];
+                                        $total_igst_tax_amount += $invoice_annexure['igst_tax_amount'];
+
+                                        $ledger_data['receiver_entity_id'] = $wh_id;
+                                        $ledger_data['receiver_entity_type'] = _247AROUND_SF_STRING;
+                                        $ledger_data['sender_entity_id'] = $partner_id;
+                                        $ledger_data['sender_entity_type'] = _247AROUND_PARTNER_STRING;
+                                        $ledger_data['inventory_id'] = $value['inventory_id'];
+                                        $ledger_data['quantity'] = $value['quantity'];
+                                        $ledger_data['agent_id'] = $agent_id;
+                                        $ledger_data['agent_type'] = $agent_type;
+                                        $ledger_data['booking_id'] = trim($value['booking_id']);
+                                        $ledger_data['invoice_id'] = $invoice_id;
+                                        $ledger_data['is_wh_ack'] = 0;
+                                        $ledger_data['courier_id'] = $insert_courier_details;
+
+                                        $insert_id = $this->inventory_model->insert_inventory_ledger($ledger_data);
+
+                                        if ($insert_id) {
+                                            log_message("info", "Ledger details added successfully");
+                                            //map spare from partner to warehouse if initialy it is not mapped
+                                            if (!empty($value['booking_id'])) {
+                                                $data = array('entity_type' => _247AROUND_SF_STRING, 'partner_id' => $wh_id, 'purchase_invoice_id' => $invoice_id);
+                                                $update_spare_part = $this->service_centers_model->update_spare_parts(array('booking_id' => trim($value['booking_id'])), $data);
+                                                if ($update_spare_part) {
+                                                    log_message('info', ' Spare mapped to warehouse successfully');
+                                                } else {
+                                                    log_message('info', ' error in updating spare details');
+                                                }
+                                            }
+                                        } else {
+                                            array_push($not_updated_data, $value['part_number']);
+                                            log_message("info", "error in adding inventory ledger details data: " . print_r($ledger_data, TRUE));
+                                        }
+                                    }
+
+                                    $this->insert_inventory_main_invoice($invoice_id, $partner_id, $booking_id_array, $tqty, $invoice_dated, $total_basic_amount, $total_cgst_tax_amount, $total_sgst_tax_amount, $total_igst_tax_amount, $invoice_file['message'], $wh_id);
+
+                                    $this->invoices_model->insert_invoice_breakup($invoice);
+
+                                    //send email to 247around warehouse incharge
+                                    $email_template = $this->booking_model->get_booking_email_template("spare_send_by_partner_to_wh");
+                                    $wh_incharge_id = $this->reusable_model->get_search_result_data("entity_role", "id", array("entity_type" => _247AROUND_SF_STRING, 'role' => WAREHOUSE_INCHARCGE_CONSTANT), NULL, NULL, NULL, NULL, NULL, array());
+                                    if (!empty($wh_incharge_id)) {
+
+                                        //get 247around warehouse incharge email
+                                        $wh_where = array('contact_person.role' => $wh_incharge_id[0]['id'],
+                                            'contact_person.entity_id' => $wh_id,
+                                            'contact_person.entity_type' => _247AROUND_SF_STRING
+                                        );
+                                        $email_details = $this->inventory_model->get_warehouse_details('contact_person.official_email', $wh_where, FALSE, TRUE);
+                                        if (!empty($email_details) && !empty($email_template)) {
+                                            //generate part details table                                        
+                                            $parts_details_table = $this->table->generate();
+
+                                            //generate courier details table
+                                            $this->table->set_heading(array('Courier Name', 'AWB Number', 'Shipment Date'));
+                                            $this->table->add_row(array($courier_name, $awb_number, $courier_shipment_date));
+                                            $courier_details_table = $this->table->generate();
+
+                                            $to = $email_details[0]['official_email'];
+                                            $cc = $email_template[3];
+                                            $subject = vsprintf($email_template[4], array($partner_name, $wh_name));
+                                            $message = vsprintf($email_template[0], array($partner_name, $parts_details_table, $courier_details_table));
+
+                                            $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "", 'spare_send_by_partner_to_wh');
+                                        }
+                                    }
+
+                                    if (empty($not_updated_data)) {
+                                        $res['status'] = TRUE;
+                                        $res['message'] = 'Details Updated Successfully';
+                                    } else {
+                                        $res['status'] = false;
+                                        $res['message'] = "For These Parts Details not updated :" . implode(',', $not_updated_data) . " Please Try again for these parts";
+                                    }
                                 } else {
                                     log_message('info', 'Error in inserting courier details.');
-                                }
-
-                                $this->insert_inventory_main_invoice($invoice_id, $partner_id, $booking_id_array, $tqty, $invoice_dated, $total_basic_amount, $total_cgst_tax_amount, $total_sgst_tax_amount, $total_igst_tax_amount, $invoice_file['message'], $wh_id);
-
-                                $this->invoices_model->insert_invoice_breakup($invoice);
-                                
-                                //send email to 247around warehouse incharge
-                                $email_template = $this->booking_model->get_booking_email_template("spare_send_by_partner_to_wh");
-                                $wh_incharge_id = $this->reusable_model->get_search_result_data("entity_role","id",array("entity_type"=>_247AROUND_SF_STRING,'role'=> WAREHOUSE_INCHARCGE_CONSTANT),NULL,NULL,NULL,NULL,NULL,array());
-                                if(!empty($wh_incharge_id)){
-                                    
-                                    //get 247around warehouse incharge email
-                                    $wh_where = array('contact_person.role' => $wh_incharge_id[0]['id'],
-                                                    'contact_person.entity_id' => $wh_id,
-                                                    'contact_person.entity_type' => _247AROUND_SF_STRING
-                                    );
-                                    $email_details = $this->inventory_model->get_warehouse_details('contact_person.official_email',$wh_where,FALSE,TRUE);
-                                    if(!empty($email_details) && !empty($email_template)){
-                                        //generate part details table                                        
-                                        $parts_details_table = $this->table->generate();
-                                        
-                                        //generate courier details table
-                                        $this->table->set_heading(array('Courier Name','AWB Number', 'Shipment Date'));
-                                        $this->table->add_row(array($courier_name,$awb_number,$courier_shipment_date));
-                                        $courier_details_table = $this->table->generate();
-                                        
-                                        $to = $email_details[0]['official_email'];
-                                        $cc = $email_template[3];
-                                        $subject = vsprintf($email_template[4], array($partner_name,$wh_name));
-                                        $message = vsprintf($email_template[0], array($partner_name,$parts_details_table,$courier_details_table));
-
-                                        $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "",'spare_send_by_partner_to_wh');
-                                    }
-                                    
-                                }
-
-                                if (empty($not_updated_data)) {
-                                    $res['status'] = TRUE;
-                                    $res['message'] = 'Details Updated Successfully';
-                                } else {
                                     $res['status'] = false;
-                                    $res['message'] = "For These Parts Details not updated :" . implode(',', $not_updated_data) . " Please Try again for these parts";
+                                    $res['message'] = 'Something went wrong. Please try again.';
                                 }
                             }
                         } else {
@@ -2876,7 +2874,7 @@ class Inventory extends CI_Controller {
                         $res['status'] = false;
                         $res['message'] = 'Enter invoice number already exists in our record.';
                     }
-                }else{
+                } else {
                     $res['status'] = false;
                     $res['message'] = "Invoice ID is invalid.Please make sure invoice number does not contain '/'. You can replace '/' with '-'";
                 }
@@ -3003,8 +3001,9 @@ class Inventory extends CI_Controller {
      */
     function get_spare_send_by_partner_to_wh(){
         $post = $this->get_post_data();
+        $post['is_courier_details_required'] = TRUE;
         $post['column_order'] = array();
-        $post['column_search'] = array('part_name','model_number','type');
+        $post['column_search'] = array('part_name','type','courier_details.AWB_no','courier_details.courier_name');
         $post['where'] = array('i.receiver_entity_id'=>trim($this->input->post('receiver_entity_id')),
                                'i.receiver_entity_type' => trim($this->input->post('receiver_entity_type')),
                                'i.sender_entity_id'=>trim($this->input->post('sender_entity_id')),
@@ -3016,7 +3015,7 @@ class Inventory extends CI_Controller {
                     WHEN (e.full_name IS NOT NULL) THEN (e.full_name) END as receiver, 
                     CASE WHEN(sc1.name IS NOT NULL) THEN (sc1.name) 
                     WHEN(p1.public_name IS NOT NULL) THEN (p1.public_name) 
-                    WHEN (e1.full_name IS NOT NULL) THEN (e1.full_name) END as sender,i.*";
+                    WHEN (e1.full_name IS NOT NULL) THEN (e1.full_name) END as sender,i.*,courier_details.AWB_no,courier_details.courier_name";
         $list = $this->inventory_model->get_spare_need_to_acknowledge($post,$select);
         $data = array();
         $no = $post['start'];
@@ -3048,11 +3047,12 @@ class Inventory extends CI_Controller {
         
         $row[] = $no;
         $row[] = $inventory_list->services;
-//        $row[] = $inventory_list->model_number;
         $row[] = $inventory_list->type;
         $row[] = $inventory_list->part_name;
         $row[] = $inventory_list->part_number;
         $row[] = $inventory_list->quantity;
+        $row[] = $inventory_list->courier_name;
+        $row[] = $inventory_list->AWB_no;
         $row[] = $row[] = "<input type='checkbox' class= 'check_single_row' id='ack_spare_$inventory_list->inventory_id' data-inventory_id='".$inventory_list->inventory_id."' data-quantity='".$inventory_list->quantity."' data-ledger_id = '".$inventory_list->id."' data-part_name = '".$inventory_list->part_name."' data-part_number = '".$inventory_list->part_number."'>";
         
         return $row;
