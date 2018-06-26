@@ -7485,9 +7485,6 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 
 INSERT INTO `entity_role` (`id`, `entity_type`, `department`, `role`, `is_filter_applicable`, `create_date`) VALUES
 (null, 'partner', 'warehouse', 'wh_incharge', 0, '2018-06-22 11:16:20'),
-<<<<<<< HEAD
-(null, 'vendor', 'warehouse', 'wh_incharge', 0, '2018-06-22 11:16:20');
-=======
 (null, 'vendor', 'warehouse', 'wh_incharge', 0, '2018-06-22 11:16:20');
 
 -- Chhavi 25th June
@@ -7529,4 +7526,3 @@ ALTER TABLE `booking_internal_conversation`
 
 --sachin 25 June
 ALTER TABLE `inventory_ledger` ADD `courier_id` INT NULL DEFAULT NULL AFTER `partner_ack_date`;
->>>>>>> 6ab9246... #CRM-839 Show courier details on warehouse inventory acknowledge page
