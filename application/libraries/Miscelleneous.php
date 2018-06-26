@@ -2985,6 +2985,7 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
     return $new_array;
 }
     function send_and_save_booking_internal_conversation_email($entity_type,$booking_id,$to,$cc = NULL,$from,$subject,$msg,$agentID,$sender_entity_id){
+        $msg = "Booking ID : ".$booking_id."<br>".$msg;
         $this->My_CI->notify->sendEmail($from, $to, $cc, "", $subject, $msg, "",INTERNAL_CONVERSATION_EMAIL);
         $data['booking_id'] = $booking_id;
         $data['subject'] = $subject;

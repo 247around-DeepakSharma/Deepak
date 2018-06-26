@@ -3275,7 +3275,7 @@ class Inventory extends CI_Controller {
                 } else {
                     $invoice[$value['inventory_id']]['qty'] = $invoice[$value['inventory_id']]['qty'] + 1;
                     $invoice[$value['inventory_id']]['description'] = $invoice[$value['inventory_id']]['description']." - ".$value['booking_id'];
-                    $invoice[$value['inventory_id']]['taxable_value'] = $invoice[$value['inventory_id']]['qty'] * $inventory_details[0]['price'];
+                    $invoice[$value['inventory_id']]['taxable_value'] = $invoice[$value['inventory_id']]['qty'] * $invoice[$value['inventory_id']]['rate'];
                 }
         }
         $sd = $ed = $invoice_date = date("Y-m-d");

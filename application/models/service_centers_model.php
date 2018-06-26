@@ -73,7 +73,7 @@ class Service_centers_model extends CI_Model {
             
             
             $sql = " SELECT DISTINCT (sc.`booking_id`), `sc`.admin_remarks, "
-                . " bd.booking_primary_contact_no, " 
+                . " bd.booking_primary_contact_no, "
                 . " users.name as customername,  "
                 . " bd.booking_date,"
                 . " bd.booking_jobcard_filename,"
@@ -89,8 +89,15 @@ class Service_centers_model extends CI_Model {
                 . " bd.is_penalty, "
                 . " bd.booking_address, "
                 . " bd.booking_pincode, "
+                . " bd.create_date, "
+                . " bd.order_id, "
+                . " bd.booking_address, "
+                . " bd.booking_alternate_contact_no, "
+                . " bd.request_type, "
+                . " bd.internal_status, "
                 . " services,"
                 . " (SELECT GROUP_CONCAT(DISTINCT brand.appliance_brand) FROM booking_unit_details brand WHERE brand.booking_id = bd.booking_id GROUP BY brand.booking_id ) as appliance_brand,"
+                . " (SELECT GROUP_CONCAT(model_number) FROM booking_unit_details brand WHERE booking_id = bd.booking_id) as model_numbers,"
                  . "CASE WHEN (SELECT Distinct 1 FROM booking_unit_details as bu1 WHERE bu1.booking_id = bd.booking_id "
                     . "AND price_tags = 'Wall Mount Stand' AND bu1.service_id = 46 ) THEN (1) ELSE 0 END as is_bracket, " 
                     
