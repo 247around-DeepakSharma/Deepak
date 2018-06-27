@@ -2021,10 +2021,10 @@ class Miscelleneous {
                     $stock = "stock + '" . $data['stock'] . "'";
                     $update_stocks = $this->My_CI->inventory_model->update_inventory_stock(array('id' => $is_entity_exist[0]['id']), $stock);
                     if ($update_stocks) {
-                        log_message("info", __FUNCTION__ . " Stocks has been updated successfully");
+                        log_message("info", __FUNCTION__ . " Stocks has been updated successfully". print_r($data,true). ' stock '.$stock);
                         $flag = TRUE;
                     } else {
-                        log_message("info", __FUNCTION__ . " Error in updating stocks");
+                        log_message("info", __FUNCTION__ . " Error in updating stocks".print_r($data,true). ' stock '.$stock);
                     }
                 } else {
                     $insert_data['entity_id'] = isset($data['is_wh'])?data['sender_entity_id']:data['receiver_entity_id'];
