@@ -4339,29 +4339,17 @@ function get_learning_collateral_for_bookings(){
 
         return $res;
     }
-    function get_booking_contacts($bookingID,$ajax=1){
-        $select = "e.phone as am_caontact,e.official_email as am_email, e.full_name as am,partners.primary_contact_name as partner_poc,"
-                . "partners.primary_contact_phone_1 as poc_contact,service_centres.primary_contact_email as service_center_email";
-        $join['employee_relation'] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.service_centres_id)";
-        $join['partners'] = "partners.id = booking_details.partner_id";
-        $join['service_centres'] = "service_centres.id = booking_details.assigned_vendor_id";
-        $join['employee e'] = "e.id = partners.account_manager_id";
-        $where['booking_details.booking_id'] = $bookingID;
-        $data = $this->reusable_model->get_search_result_data("booking_details",$select,$where,$join,NULL,NULL,NULL,NULL,array());
-        if($ajax == 0){
-            return $data;
-        }
-        else{
-            echo json_encode($data);
-        }
+    function get_booking_contacts($bookingID){
+        $data = $this->miscelleneous->get_booking_contacts($bookingID);
+        echo json_encode($data);
     }
     function process_booking_internal_conversation_email(){
         log_message('info', __FUNCTION__ . " Booking ID: " . $this->input->post('booking_id'));
         if($this->session->userdata('service_center_id')){
             if($this->input->post('booking_id')){
-                $data = $this->get_booking_contacts($this->input->post('booking_id'),0);
-                $row_id = $this->miscelleneous->send_and_save_booking_internal_conversation_email("Vendor",$this->input->post('booking_id'),$data[0]['am_email'],"",$data[0]['service_center_email'],
-                       $this->input->post('subject'),$this->input->post('msg'),$this->session->userdata('service_center_agent_id'),$this->session->userdata('service_center_id'));    
+                $to = explode(",",$this->input->post('to'));
+                $row_id = $this->miscelleneous->send_and_save_booking_internal_conversation_email("Vendor",$this->input->post('booking_id'),implode(",",$to),$this->input->post('cc'),
+                        $this->input->post('cc'),$this->input->post('subject'),$this->input->post('msg'),$this->session->userdata('service_center_agent_id'),$this->session->userdata('service_center_id'));    
                 if($row_id){
                     echo "Successfully Sent";
                 }
