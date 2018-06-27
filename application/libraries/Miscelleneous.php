@@ -1073,9 +1073,9 @@ class Miscelleneous {
         }
 
         $where['where'] = array('assigned_cp_id' => $cp_id, 'cp_invoice_id IS NULL' => NULL);
-        $where['where_in'] = array('current_status' => array('Delivered', 'Completed'));
+        $where['where_in'] = array('bb_unit_details.order_status' => array('Delivered', 'Completed'));
 
-        $cp_delivered_charge = $this->My_CI->bb_model->get_bb_order_list($where, "SUM(cp_basic_charge + cp_tax_charge) as cp_delivered_charge")[0]->cp_delivered_charge;
+        $cp_delivered_charge = $this->My_CI->bb_model->get_bb_order_list($where, " SUM(CASE WHEN ( bb_unit_details.cp_claimed_price > 0) THEN (round(bb_unit_details.cp_claimed_price,0)) ELSE (round(bb_unit_details.cp_basic_charge + cp_tax_charge,0)) END ) as cp_delivered_charge")[0]->cp_delivered_charge;
         $where['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted'));
 
         $cp_intransit = $this->My_CI->bb_model->get_bb_order_list($where, "SUM(cp_basic_charge + cp_tax_charge) as cp_intransit")[0]->cp_intransit;
