@@ -2974,7 +2974,6 @@ function convert_html_to_pdf($html,$booking_id,$filename,$s3_folder){
     return $new_array;
 }
     function send_and_save_booking_internal_conversation_email($entity_type,$booking_id,$to,$cc = NULL,$from,$subject,$msg,$agentID,$sender_entity_id){
-        $msg = "Booking ID : ".$booking_id."<br>".$msg;
         $this->My_CI->notify->sendEmail($from, $to, $cc, "", $subject, $msg, "",INTERNAL_CONVERSATION_EMAIL);
         $data['booking_id'] = $booking_id;
         $data['subject'] = $subject;
@@ -2986,5 +2985,18 @@ function convert_html_to_pdf($html,$booking_id,$filename,$s3_folder){
         $data['email_cc'] = $cc;
         $data['email_from'] = $from;
         return $this->My_CI->reusable_model->insert_into_table("booking_internal_conversation",$data);
+    }
+    function get_booking_contacts($bookingID){
+        $select = "e.phone as am_caontact,e.official_email as am_email, e.full_name as am,partners.primary_contact_name as partner_poc,"
+                . "partners.primary_contact_phone_1 as poc_contact,service_centres.primary_contact_email as service_center_email,partners.public_name as partner,"
+                . "booking_details.assigned_vendor_id,employee.official_email as rm_email";
+        $join['employee_relation'] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.service_centres_id)";
+        $join['partners'] = "partners.id = booking_details.partner_id";
+        $join['service_centres'] = "service_centres.id = booking_details.assigned_vendor_id";
+        $join['employee e'] = "e.id = partners.account_manager_id";
+        $join['employee'] = "employee.id = employee_relation.agent_id";
+        $where['booking_details.booking_id'] = $bookingID;
+        $data = $this->My_CI->reusable_model->get_search_result_data("booking_details",$select,$where,$join,NULL,NULL,NULL,NULL,array());
+        return $data;
     }
 }
