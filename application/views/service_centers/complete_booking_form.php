@@ -218,6 +218,7 @@
                                                                         value="<?php if(isset($price['en_serial_number'])){ echo $price['en_serial_number'];} else {$price["serial_number"];}  ?>" placeholder="Enter Serial No" required  />
                                                                     <input type="hidden" id="<?php echo "pod" . $count ?>" class="form-control" name="<?php echo "pod[" . $price['unit_id'] . "]" ?>" value="<?php echo $price['pod']; ?>"   />
                                                                     <input type="hidden" id="<?php echo "sno_required" . $count ?>" class="form-control" name="<?php echo "is_sn_file[" . $price['unit_id'] . "]" ?>" value="0"   />
+                                                                    <input type="hidden" id="<?php echo "duplicate_sno_required" . $count ?>" class="form-control" name="<?php echo "is_dupliacte[" . $price['unit_id'] . "]" ?>" value="0"   />
                                                                     <br/>
                                                                     <input type="file" style="display:none" id="<?php echo "upload_serial_number_pic" . $count ?>"   class="form-control" name="<?php echo "upload_serial_number_pic[" . $price['unit_id'] . "]" ?>"   />
                                                                     <span style="color:red;" id="<?php echo 'error_serial_no'.$count;?>"></span>
@@ -226,9 +227,10 @@
                                                             </div>
                                                             <?php } ?>
                                                         </td>
-                                                        <td id="<?php echo "price_tags".$count; ?>"><?php echo $price['price_tags'] ?></td>
+                                                        <td id="<?php echo "price_tags".$count; ?>"><?php echo $price['price_tags']; ?></td>
                                                         <td id="<?php echo "amount_due".$count; ?>"><?php echo $price['customer_net_payable']; ?></td>
                                                         <td>  
+                                                            <input type="hidden" name="<?php echo "price_tags[" . $price['unit_id'] . "]" ?>" value="<?php echo $price['price_tags'];?>">
                                                             <?php if($price['product_or_services'] != "Product"){  ?>
                                                             <input  id="<?php echo "basic_charge".$count; ?>" type="<?php  if (($price['product_or_services'] == "Service" 
                                                                 && $price['customer_net_payable'] == 0) ){ echo "hidden";} ?>" 
@@ -284,6 +286,7 @@
                                                                                     }
                                                                                     ?>
                                                                                 </label>
+                                                                                
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -516,6 +519,13 @@
                         }
                         
                     }
+                    var duplicateSerialNo = $('#duplicate_sno_required'+ div_no[2]).val();
+                    if(duplicateSerialNo === '1'){
+                        alert('<?php echo DUPLICATE_SERIAL_NUMBER_USED;?>');
+                        document.getElementById('serial_number' + div_no[2]).style.borderColor = "red";
+                        $("#error_serial_no" +div_no[2]).html('<?php echo DUPLICATE_SERIAL_NUMBER_USED;?>');
+                        flag = 1;
+                    }
                 }
                
                 var amount_due = $("#amount_due" + div_no[2]).text();
@@ -716,6 +726,8 @@
     
     function validateSerialNo(index){
        var serialNo = $("#serial_number" +index).val();
+       var price_tags = $("#price_tags"+index).text();
+       
        if(serialNo !== ''){
             $.ajax({
                 type: 'POST',
@@ -732,20 +744,26 @@
 
                     },
                 url: '<?php echo base_url() ?>employee/service_centers/validate_booking_serial_number',
-                data:{serial_number:serialNo,partner_id:'<?php echo $booking_history[0]['partner_id'];?>'},
+                data:{serial_number:serialNo,partner_id:'<?php echo $booking_history[0]['partner_id'];?>', price_tags:price_tags},
                 success: function (response) {
-                    
+                    console.log(response);
                     var data = jQuery.parseJSON(response);
-                    console.log(data);
                     if(data.code === 247){
                         $('body').loadingModal('destroy');
                         $("#upload_serial_number_pic"+index).css('display', "none");
                         $("#error_serial_no" +index).text("");
                         $("#sno_required"+index).val('0');
+                        $("#duplicate_sno_required"+index).val('0');
+                    } else if(data.code === Number(<?php echo DUPLICATE_SERIAL_NO_CODE; ?>)){
+                        $("#duplicate_sno_required"+index).val('1');
+                        $("#error_serial_no" +index).html(data.message);
+                        $('body').loadingModal('destroy');
+                        
                     } else {
                         $("#sno_required"+index).val('1');
                         $("#error_serial_no" +index).html(data.message);
                         $("#upload_serial_number_pic"+index).css('display', "block");
+                        $("#duplicate_sno_required"+index).val('0');
                         $('body').loadingModal('destroy');
                     }
                     
