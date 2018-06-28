@@ -50,6 +50,8 @@ class Booking extends CI_Controller {
         $this->load->library("paytm_payment_lib");
         $this->load->library('paytmlib/encdec_paytm');
         $this->load->library('validate_serial_no');
+        $this->load->helper('file');
+        $this->load->dbutil();
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
             return TRUE;
         } else {
@@ -4327,5 +4329,54 @@ class Booking extends CI_Controller {
             echo FALSE;
         }
         
+    }
+     function download_pending_bookings($status) {
+        $booking_status = trim($status);
+        //RM Specific Bookings
+         $sfIDArray =array();
+         $partnerArray = array();
+        if($this->session->userdata('user_group') == 'regionalmanager'){
+            $rm_id = $this->session->userdata('id');
+            $rmServiceCentersData=  $this->reusable_model->get_search_result_data("employee_relation","service_centres_id",array("agent_id"=>$rm_id),NULL,NULL,NULL,NULL,NULL);
+            $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
+            $sfIDArray = explode(",",$sfIDList);
+        }
+        //AM Specific Bookings
+        if($this->session->userdata('is_am') == '1'){
+            $am_id = $this->session->userdata('id');
+            $partnerIDArray=  $this->reusable_model->get_search_result_data("partners","id",array("account_manager_id"=>$am_id,'is_active'=>1),NULL,NULL,NULL,NULL,NULL);
+            foreach($partnerIDArray as $partner_ID){
+                $partnerArray[] = $partner_ID['id'];
+            }
+        }
+        $select = "booking_details.booking_id,users.name as  Customer_Name,services.services,penalty_on_booking.active as penalty_active,
+            users.phone_number,booking_details.order_id,booking_details.request_type,booking_details.internal_status,
+            booking_details.booking_address,booking_details.booking_pincode,booking_details.booking_date,booking_details.booking_timeslot,
+            booking_details.booking_remarks,service_centres.name as service_centre_name,booking_details.is_upcountry,
+            service_centres.district as city,  service_centres.primary_contact_name,
+             service_centres.primary_contact_phone_1,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as  initial_booking_date_as_dateformat";
+        $post['length'] = -1;
+        $post['start'] = NULL;
+        $post['search_value'] = NULL;
+        $post['order'] = NULL;
+        $post['draw'] = NULL;
+        $list =  $this->booking_model->get_bookings_by_status($post,$select,$sfIDArray,$partnerArray,1);
+        $newCSVFileName = "Pending_booking" . date('j-M-Y-H-i-s') . ".csv";
+        $csv = TMP_FOLDER . $newCSVFileName;
+        $delimiter = ",";
+        $newline = "\r\n";
+        $new_report = $this->dbutil->csv_from_result($list, $delimiter, $newline);
+        write_file($csv, $new_report);
+         //Downloading Generated CSV  
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename="' . basename($csv) . '"');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($csv));
+        readfile($csv);
+        exec("rm -rf " . escapeshellarg($csv));
+        exit;
     }
 }
