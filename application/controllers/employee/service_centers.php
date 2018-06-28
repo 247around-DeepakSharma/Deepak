@@ -466,11 +466,13 @@ class Service_centers extends CI_Controller {
         $pod = $this->input->post('pod');
         $booking_status = $this->input->post('booking_status');
         $partner_id = $this->input->post('partner_id');
+        $price_tags_array = $this->input->post('price_tags');
         $return_status = true;
         if (isset($_POST['pod'])) {
             foreach ($pod as $unit_id => $value) {
                 if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
                     $trimSno = str_replace(' ', '', trim($serial_number[$unit_id]));
+                    $price_tag = $price_tags_array[$unit_id];
                     
                     switch ($value) {
                         case '1':
@@ -483,14 +485,17 @@ class Service_centers extends CI_Controller {
                                     break;
                                 }
                             }
-                            $status = $this->validate_serial_no->validateSerialNo($partner_id, $trimSno);
+                            $status = $this->validate_serial_no->validateSerialNo($partner_id, $trimSno, $price_tag);
                             if (!empty($status)) {
                                 if ($status['code'] == SUCCESS_CODE) {
                                     log_message('info', " Serial No validation success  for serial no " . trim($serial_number[$unit_id]));
                                     if(isset($upload_serial_number_pic['name'][$unit_id])){
                                         $this->upload_insert_upload_serial_no($upload_serial_number_pic, $unit_id, $partner_id, $trimSno);
                                     }
-                                } else {
+                                } else  if ($status['code'] == DUPLICATE_SERIAL_NO_CODE) {
+                                    $return_status = false;
+                                    $this->form_validation->set_message('validate_serial_no', $status['message']); 
+                                }else {
                                      
                                     if(!isset($upload_serial_number_pic['name'][$unit_id])){
                                         $return_status = false;
@@ -510,7 +515,7 @@ class Service_centers extends CI_Controller {
                             } else if ($value == 1 && is_numeric($serial_number[$unit_id]) && $serial_number[$unit_id] == 0) {
                                 $return_status = false;
                                 $this->form_validation->set_message('validate_serial_no', 'Please Enter Valid Serial Number');
-                            }
+                            } 
                             break;
                     }
                 }
@@ -600,10 +605,12 @@ class Service_centers extends CI_Controller {
      * @desc this function is used to validate serial no from ajax.
      */
     function validate_booking_serial_number(){
-        log_message('info', __METHOD__. " Enterring .." .$this->input->post('serial_number'). " SF ID ". $this->session->userdata('service_center_id'));
+        
+        log_message('info', __METHOD__. " Enterring .. POST DATA " .json_encode($this->input->post(), true). " SF ID ". $this->session->userdata('service_center_id'));
         $serial_number = $this->input->post('serial_number');
         $partner_id = $this->input->post('partner_id');
-        $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number));
+        $price_tags = $this->input->post("price_tags");
+        $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number), trim($price_tags));
         if (!empty($status)) {
             log_message('info', __METHOD__.'Status '. print_r($status, true));
             echo json_encode($status, true);
