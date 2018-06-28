@@ -133,10 +133,10 @@
                                             <?php  echo $row->count_escalation." times"; ?>
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            <a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('<?php echo $row->booking_id?>')"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+                                            <a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('<?php echo $row->booking_id?>',0)"><i class="fa fa-envelope" aria-hidden="true"></i></a>
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Contact" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id)"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
+                                            <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Contact" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id,1)"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
                                         </td>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <td style="vertical-align: middle;">
@@ -301,10 +301,10 @@
                                             <?php  echo $row->count_escalation." times"; ?>
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            <a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('<?php echo $row->booking_id?>')"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+                                            <a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('<?php echo $row->booking_id?>',0)"><i class="fa fa-envelope" aria-hidden="true"></i></a>
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Content" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id)"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
+                                            <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Content" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id,1)"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
                                         </td>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <td style="vertical-align: middle;">
@@ -469,10 +469,10 @@
                                             <?php  echo $row->count_escalation." times"; ?>
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            <a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('<?php echo $row->booking_id?>')"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+                                            <a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('<?php echo $row->booking_id?>',0)"><i class="fa fa-envelope" aria-hidden="true"></i></a>
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Content" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id)"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
+                                            <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Content" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id,1)"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
                                         </td>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <td style="vertical-align: middle;">
@@ -561,10 +561,10 @@
                                         <?php if(!is_null($row['parts_shipped'])){ ?>  <a class="btn btn-sm btn-success" href="<?php echo base_url(); ?>service_center/acknowledge_delivered_spare_parts/<?php echo $row['booking_id']; ?>/<?php echo $this->session->userdata('service_center_id') ?>/<?php echo $row['id']; ?>/<?php echo $row['partner_id']; ?>" style="<?php if(is_null($row['parts_shipped'])){ echo 'pointer-events:none;';}?>">Received</a> <?php } else { echo "Part Shipment Pending";} ?>
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            <a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('<?php echo$row['booking_id'];?>')"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+                                            <a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('<?php echo$row['booking_id'];?>',0)"><i class="fa fa-envelope" aria-hidden="true"></i></a>
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Content" id ="<?php echo $row['booking_id'];?>"  onclick="show_contacts(this.id)"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
+                                            <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Content" id ="<?php echo $row['booking_id'];?>"  onclick="show_contacts(this.id,1)"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
                                         </td>
                                 </tr>
                                 <?php $sn_no1++; } ?>
@@ -649,6 +649,15 @@
                 <div id="form_container">
                 <form action="" method="post">
                     <input type="hidden" value="" id="internal_email_booking_id">
+                    <input type="hidden" value="" id="internal_email_booking_vendor">  
+                    <div class="form-group">
+                    <label for="subject">To : </label>
+                    <input type="text" class="form-control" id="internal_email_booking_to">
+                    </div>
+                    <div class="form-group">
+                    <label for="subject">CC: </label>
+                    <input type="text" class="form-control" id="internal_email_booking_cc">
+                    </div>
                     <div class="form-group">
                     <label for="subject">Subject</label>
                     <input type="text" class="form-control" id="internal_email_booking_subject">
@@ -663,8 +672,8 @@
                     <div class="clear" style="clear:both;"></div>
                     </form>
                     </div>
-                        <div id="msg_container" style="display:none;text-align: center;">
-                     <center><img id="loader_gif_title" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
+                        <div id="msg_container" style="text-align: center;display: none;">
+                     <center><img id="loader_gif_title" src="<?php echo base_url(); ?>images/loadring.gif"></center>
                     </div>
             </div>
         </div>
@@ -694,55 +703,51 @@
 
 <?php } ?>
 <script>
-     function show_contacts(bookingID){
+     function show_contacts(bookingID,create_booking_contacts_flag){
                     $.ajax({
                         type: 'post',
                         url: '<?php echo base_url()  ?>employee/service_centers/get_booking_contacts/'+bookingID,
                         data: {},
                         success: function (response) {
-                            var data="";
-                             var result = JSON.parse(response);
-                            data =data +  "<tr><td>2) </td><td>Account Manager</td><td>"+result[0].am+"</td><td>"+result[0].am_caontact+"</td></tr>";
-                            data =data +  "<tr><td>3) </td><td>Partner POC</td><td>"+result[0].partner_poc+"</td><td>"+result[0].poc_contact+"</td></tr>";
-                            var tb="<table class='table  table-bordered table-condensed ' >";
-                            tb+='<thead>';
-                            tb+='<tr>';
-                            tb+='<th class="jumbotron col-md-1">SNo.</th> ';
-                            tb+='<th class="jumbotron col-md-6">Role</th>';
-                            tb+='<th class="jumbotron  col-md-5">Name</th>';
-                            tb+='<th class="jumbotron  col-md-5">Contact</th>';
-                            tb+='</tr>';
-                            tb+='</thead>';
-                            tb+='<tbody>';
-                            tb+=data;
-                            tb+='</tbody>';
-                            tb+='</table>';
-                            $("#relevant_content_modal .modal-body").html(tb);
-                            $('#relevant_content_table').DataTable();
-                            $('#relevant_content_table  th').css("background-color","#ECEFF1");
-                            $('#relevant_content_table  tr:nth-child(even)').css("background-color","#FAFAFA");
-                            $("#relevant_content_modal").modal("show");
+                            if(create_booking_contacts_flag){
+                              create_booking_contacts(response);
+                            }
+                            else{
+                                var result = JSON.parse(response);
+                                $("#internal_email_booking_vendor").val(result[0].assigned_vendor_id);
+                                $("#internal_email_booking_to").val(result[0].am_email+",");
+                                $("#internal_email_booking_cc").val(result[0].service_center_email);
+                                $("#internal_email_booking_subject").val(result[0].partner+"- Query From SF For - "+bookingID);
+                            }
                        }
                     });
                 }
-                function create_email_form(booking_id){
+                function create_email_form(booking_id,create_booking_contacts_flag){
+                    $("#internal_email_booking_subject").prop('disabled', true);
+                    $("#internal_email_booking_cc").prop('disabled', true);
                     $("#email_title").html("Send Email For Booking "+booking_id);
                     $("#send_email_form").modal("show");
                     $("#internal_email_booking_id").val(booking_id);
+                    show_contacts(booking_id,create_booking_contacts_flag);
                 }
-                function send_booking_internal_conversation_email(){
+                function send_booking_internal_conversation_email(){ 
+                    var to = $("#internal_email_booking_to").val();
+                    var cc = $("#internal_email_booking_cc").val();
+                    var booking_vendor = $("#internal_email_booking_vendor").val();
                     var booking_id = $("#internal_email_booking_id").val();
                     var subject = $("#internal_email_booking_subject").val();
-                    var msg = $("#internal_email_booking_msg").val();
+                    var msg = $(" #internal_email_booking_msg").val();
+                    document.getElementById("msg_container").style.display='block';
+                    document.getElementById("form_container").style.display='none';
                     if(booking_id && subject && msg){
                         $.ajax({
                            type: 'post',
                            url: '<?php echo base_url()  ?>employee/service_centers/process_booking_internal_conversation_email',
-                           data: {'booking_id':booking_id,'subject':subject,'msg':msg},
+                           data: {'booking_id':booking_id,'subject':subject,'msg':msg,'to':to,'cc':cc,'booking_vendor':booking_vendor},
                            success: function (response) {
-                                document.getElementById("msg_container").style.display='block';
-                                document.getElementById("form_container").style.display='none';
                                 $("#msg_container").html(response);
+                                $("#internal_email_booking_to").val("");
+                                $("#internal_email_booking_cc").val("");
                                 $("#internal_email_booking_id").val("");
                                 $("#internal_email_booking_subject").val("");
                                 $("#internal_email_booking_msg").val("");
@@ -755,4 +760,28 @@
                         return false;
                     }
                 }
+                function create_booking_contacts(response){
+        var data="";
+        var result = JSON.parse(response);
+        data =data +  "<tr><td>2) </td><td>Account Manager</td><td>"+result[0].am+"</td><td>"+result[0].am_caontact+"</td></tr>";
+        data =data +  "<tr><td>3) </td><td>Partner POC</td><td>"+result[0].partner_poc+"</td><td>"+result[0].poc_contact+"</td></tr>";
+        var tb="<table class='table  table-bordered table-condensed ' >";
+        tb+='<thead>';
+        tb+='<tr>';
+        tb+='<th class="jumbotron col-md-1">SNo.</th> ';
+        tb+='<th class="jumbotron col-md-6">Role</th>';
+        tb+='<th class="jumbotron  col-md-5">Name</th>';
+        tb+='<th class="jumbotron  col-md-5">Contact</th>';
+        tb+='</tr>';
+        tb+='</thead>';
+        tb+='<tbody>';
+        tb+=data;
+        tb+='</tbody>';
+        tb+='</table>';
+        $("#relevant_content_modal .modal-body").html(tb);
+        $('#relevant_content_table').DataTable();
+        $('#relevant_content_table  th').css("background-color","#ECEFF1");
+        $('#relevant_content_table  tr:nth-child(even)').css("background-color","#FAFAFA");
+        $("#relevant_content_modal").modal("show");
+    }
     </script>
