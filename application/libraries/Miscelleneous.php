@@ -2005,7 +2005,7 @@ class Miscelleneous {
                  * if exist then get update the stock
                  * else insert into the table
                  */
-                if(isset($data['is_wh'])){
+                if(isset($data['is_wh']) && !isset($data['is_cancel_part'])){
                     $is_entity_exist = $this->My_CI->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $data['sender_entity_id'], 'entity_type' => $data['sender_entity_type'], 'inventory_id' => $is_part_exist[0]['inventory_id']), NULL, NULL, NULL, NULL, NULL)->result_array();
                 }else{
                     $is_entity_exist = $this->My_CI->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $data['receiver_entity_id'], 'entity_type' => $data['receiver_entity_type'], 'inventory_id' => $is_part_exist[0]['inventory_id']), NULL, NULL, NULL, NULL, NULL)->result_array();
@@ -2020,8 +2020,8 @@ class Miscelleneous {
                         log_message("info", __FUNCTION__ . " Error in updating stocks");
                     }
                 } else {
-                    $insert_data['entity_id'] = $data['receiver_entity_id'];
-                    $insert_data['entity_type'] = $data['receiver_entity_type'];
+                    $insert_data['entity_id'] = isset($data['is_wh'])?$data['sender_entity_id']:$data['receiver_entity_id'];
+                    $insert_data['entity_type'] = isset($data['is_wh'])?$data['sender_entity_type']:$data['receiver_entity_type'];
                     $insert_data['inventory_id'] = $is_part_exist[0]['inventory_id'];
                     $insert_data['stock'] = $data['stock'];
                     $insert_data['create_date'] = date('Y-m-d H:i:s');

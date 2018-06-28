@@ -334,13 +334,17 @@ class partner_sd_cb {
             $appointmentDate = "";
 
             $isTrigger = true;
+            if($data['partner_source'] == "STS"){
             //if current status is not cancelled then check this is open booking or not  
-            if ($data['current_status'] != _247AROUND_CANCELLED) {
-                $bstateChange = $this->My_CI->booking_model->getbooking_state_change_by_any(array('booking_id LIKE "%' . $data['booking_id'] . '%"' => NULL,
-                    'new_state' => _247AROUND_CANCELLED));
-                if (!empty($bstateChange)) {
-                    $isTrigger = false;
+                if ($data['current_status'] != _247AROUND_CANCELLED) {
+                    $bstateChange = $this->My_CI->booking_model->getbooking_state_change_by_any(array('booking_id LIKE "%' . $data['booking_id'] . '%"' => NULL,
+                        'new_state' => _247AROUND_CANCELLED));
+                    if (!empty($bstateChange)) {
+                        $isTrigger = false;
+                    }
                 }
+            } else {
+                $isTrigger = true;
             }
             if ($isTrigger) {
                 if ($data['current_status'] == _247AROUND_COMPLETED) {
@@ -368,8 +372,13 @@ class partner_sd_cb {
                             $is_valid = TRUE;
                         } else if (date('Y') == (date('Y', strtotime($data['service_promise_date'])) - 1)) {
                             $is_valid = TRUE;
-                        } else if (date('Y') == (date('Y', strtotime($data['service_promise_date'])) + 1))
+                        } else if (date('Y') == (date('Y', strtotime($data['service_promise_date'])) + 1)){
                             $is_valid = TRUE;
+                        } else {
+                           //$data['service_promise_date'] =  date("Y-m-d", strtotime('+4 day', strtotime($data['create_date'])));
+                          // $is_valid = TRUE;
+                        }
+                            
                     }
 
                     if ($is_valid) {
@@ -547,6 +556,69 @@ class partner_sd_cb {
         $subject = "Jeeves CallBack API failed. Please Check";
         $message = " POST Data ".$this->jsonRequestData. "<br/> Jeeves Callback Response ". $this->jsonResponseString['response'];
         $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, "abhaya@247around.com", "", "", $subject, $message, "","JEEVES CALLBACK Failed");
+    }
+    
+    function test() {
+        $data1 = $this->My_CI->booking_model->get_bookings_count_by_any("*", array());
+        
+        foreach ($data1 as $key => $data) {
+            if ($data['current_status'] == _247AROUND_COMPLETED) {
+                $StatusReason = "";
+
+                $CallCompletedDate = array(
+                    "year" => date('Y', strtotime($data['service_center_closed_date'])),
+                    "month" => date('m', strtotime($data['service_center_closed_date'])),
+                    "day" => date('d', strtotime($data['service_center_closed_date'])),
+                    "hour" => "08",
+                    "minute" => date('i', strtotime($data['service_center_closed_date'])));
+                $is_valid = false;
+                if (!empty($data['service_promise_date'])) {
+
+                    if (date('Y') == date('Y', strtotime($data['service_promise_date']))) {
+
+                        $is_valid = TRUE;
+                    } else if (date('Y') == (date('Y', strtotime($data['service_promise_date'])) - 1)) {
+                        $is_valid = TRUE;
+                    } else if (date('Y') == (date('Y', strtotime($data['service_promise_date'])) + 1)){
+                        $is_valid = TRUE;
+                    } else {
+                    
+                        $data['service_promise_date'] =  date("Y-m-d", strtotime('+4 day', strtotime($data['create_date'])));
+                        $is_valid = TRUE;
+                    }
+                        
+                }
+
+                if ($is_valid) {
+                    if (date('Y-m-d', strtotime($data['service_center_closed_date'])) >
+                            date('Y-m-d', strtotime($data['service_promise_date']))) {
+
+                        if (!empty($data['partner_call_status_on_completed'])) {
+                            log_message('info', __METHOD__ . "Status  " . $data['partner_call_status_on_completed'] . " "
+                                    . $data['service_center_closed_date'] .
+                                    " SPD date " . date('Y-m-d', strtotime($data['service_promise_date'])));
+
+                            $StatusReason = $data['partner_call_status_on_completed'];
+                        } else {
+                            log_message('info', __METHOD__ . " Delay By 247Around " . $data['service_center_closed_date'] .
+                                    " SPD date " . date('Y-m-d', strtotime($data['service_promise_date'])));
+                            $StatusReason = JEEVES_BOOKING_DELAY_BY_AROUND;
+                        }
+                    } else {
+                        log_message('info', __METHOD__ . " WITH In TAT closed_date " . $data['service_center_closed_date'] .
+                                " SPD date " . date('Y-m-d', strtotime($data['service_promise_date'])));
+                        $StatusReason = JEEVES_CALL_COMPLETED_WITH_IN_TAT;
+                    }
+                } else {
+                    log_message('info', __METHOD__ . " Invalid SPD date");
+                    $StatusReason = JEEVES_CALL_COMPLETED_WITH_IN_TAT;
+                }
+
+                if (!empty($StatusReason)) {
+                    $this->My_CI->booking_model->update_booking($data['booking_id'], array('api_call_status_updated_on_completed' => $StatusReason));
+                }
+            }
+        }
     }
 
 }
