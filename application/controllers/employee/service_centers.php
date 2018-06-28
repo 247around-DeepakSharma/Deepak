@@ -177,47 +177,58 @@ class Service_centers extends CI_Controller {
         $data['booking_id'] = $booking_id;
         $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
         $bookng_unit_details = $this->booking_model->getunit_details($booking_id);
-        if($this->session->userdata('is_engineer_app') == 1){
-        foreach($bookng_unit_details as $key1 => $b){
-           $broken = 0;
-                foreach ($b['quantity'] as $key2 => $u) {
 
-                    $unitWhere = array("engineer_booking_action.booking_id" => $booking_id, 
+        foreach ($bookng_unit_details as $key1 => $b) {
+            $broken = 0;
+            foreach ($b['quantity'] as $key2 => $u) {
+                if ($this->session->userdata('is_engineer_app') == 1) {
+
+                    $unitWhere = array("engineer_booking_action.booking_id" => $booking_id,
                         "engineer_booking_action.unit_details_id" => $u['unit_id'], "service_center_id" => $data['booking_history'][0]['assigned_vendor_id']);
                     $en = $this->engineer_model->getengineer_action_data("engineer_booking_action.*", $unitWhere);
-                    if(!empty($en)){
+                    if (!empty($en)) {
                         $bookng_unit_details[$key1]['quantity'][$key2]['en_serial_number'] = $en[0]['serial_number'];
                         $bookng_unit_details[$key1]['quantity'][$key2]['en_serial_number_pic'] = $en[0]['serial_number_pic'];
                         $bookng_unit_details[$key1]['quantity'][$key2]['en_is_broken'] = $en[0]['is_broken'];
                         $bookng_unit_details[$key1]['quantity'][$key2]['en_internal_status'] = $en[0]['internal_status'];
-                        if($en[0]['is_broken'] == 1){
+                        if ($en[0]['is_broken'] == 1) {
                             $broken = 1;
                         }
                     }
-                    
                 }
-               $bookng_unit_details[$key1]['is_broken'] = $broken; 
-                 
+                
+                if($u['pod'] == 1){
+                    $where = array("partner_id" => $data['booking_history'][0]['partner_id'], 'service_id' => $data['booking_history'][0]['service_id'], 
+                        'brand' => $b['brand'], 'category' => $b['category'], 'active'=> 1, 'capacity' => $b['capacity']);
+
+                    $m =$this->partner_model->get_partner_specific_details($where, "model", "model");
+                    if(!empty($m)){
+                        $bookng_unit_details[$key1]['quantity'][$key2]['model_data'] = $m;
+                    }
+                }
+
             }
-            $sig_table = $this->engineer_model->getengineer_sign_table_data("*", array("booking_id" => $booking_id, 
+            $bookng_unit_details[$key1]['is_broken'] = $broken;
+        }
+        if ($this->session->userdata('is_engineer_app') == 1) {
+            $sig_table = $this->engineer_model->getengineer_sign_table_data("*", array("booking_id" => $booking_id,
                 "service_center_id" => $data['booking_history'][0]['assigned_vendor_id']));
-            if(!empty($sig_table)){
+            if (!empty($sig_table)) {
                 $data['signature'] = $sig_table[0]['signature'];
                 $data['amount_paid'] = $sig_table[0]['amount_paid'];
                 $data['mismatch_pincode'] = $sig_table[0]['mismatch_pincode'];
             }
-            
         }
-        
+
         $isPaytmTxn = $this->paytm_payment_lib->get_paytm_transaction_data($booking_id);
-        if(!empty($isPaytmTxn)){
-            if($isPaytmTxn['status']){
+        if (!empty($isPaytmTxn)) {
+            if ($isPaytmTxn['status']) {
                 $data['booking_history'][0]['onlinePaymentAmount'] = $isPaytmTxn['total_amount'];
             }
         }
-        
+
         $data['bookng_unit_details'] = $bookng_unit_details;
-        
+
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/complete_booking_form', $data);
     }
@@ -264,6 +275,8 @@ class Service_centers extends CI_Controller {
                 $mismatch_pincode = $this->input->post("mismatch_pincode");
                 $is_update_spare_parts = FALSE;
                 $sp_required_id = json_decode($this->input->post("sp_required_id"), true);
+                
+                $model_number = $this->input->post('model_number');
 
                 //$internal_status = "Cancelled";
                 $getremarks = $this->booking_model->getbooking_charges($booking_id);
@@ -286,7 +299,10 @@ class Service_centers extends CI_Controller {
 //                    //$data['closed_date'] = $en[0]->closed_date;
 //                    
 //                 }
-                    $data['service_charge'] = $value;
+                    if(isset($model_number[$unit_id])){
+                        $data['model_number'] = $model_number[$unit_id];
+                    } 
+                    
                     $data['additional_service_charge'] = $additional_charge[$unit_id];
                     $data['parts_cost'] = $parts_cost[$unit_id];
                     if ($booking_status[$unit_id] == _247AROUND_COMPLETED && $spare_parts_required == 1) {

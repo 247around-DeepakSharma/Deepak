@@ -2,7 +2,7 @@
 <link rel="stylesheet" href="<?php echo base_url();?>css/jquery.loading.css">
 <script src="<?php echo base_url();?>js/jquery.loading.js"></script>
 <div id="page-wrapper" >
-    <div class="container" >
+    <div class="" >
         <?php if(validation_errors()){?>
         <div class="panel panel-danger" style="margin-top:10px;margin-bottom:-10px;">
             <div class="panel-heading" style="padding:7px 0px 0px 13px">
@@ -132,7 +132,7 @@
                                 <div class="col-md-12">
                                     <div <?php if($this->session->userdata('is_engineer_app') == 1){?> class="col-md-8" <?php } else { ?> class="col-md-12" <?php } ?> >
                                         <div class="form-group col-md-4" style="<?php if($this->session->userdata('is_engineer_app') == 1){?>width:26.32%;
-                                            <?php } else {?> width:26.32%;<?php }?>">
+                                            <?php } else {?> width:28.32%;<?php }?>">
                                             <div class="col-md-12" style="padding-left:0px;">
                                                 <label> Product Found Broken</label>
                                                 <select type="text" class="form-control appliance_broken" id="<?php echo "broken_".$key1?>" name="broken[]" onchange="check_broken('<?php echo $key1;?>')" >
@@ -152,7 +152,7 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="form-group col-md-4" style="width:29.3%">
+                                        <div class="form-group col-md-4" style="width:26.3%">
                                             <div class="col-md-12 ">
                                                 <label> Category</label>
                                                 <select type="text" disabled="" class="form-control appliance_category"   id="appliance_category_1" name="appliance_category[]"  >
@@ -160,7 +160,7 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="form-group col-md-4"style="width:29.2%" style=" padding-right: 0px;">
+                                        <div class="form-group col-md-4"style="width:26.2%" style=" padding-right: 0px;">
                                             <div class="col-md-12">
                                                 <label> Capacity</label>
                                                 <select type="text" disabled="" class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity[]" >
@@ -174,6 +174,7 @@
                                         <div class="col-md-12" style="padding-left:0px;">
                                             <table class="table priceList table-striped table-bordered" name="priceList" >
                                                 <tr>
+                                                    <th style="width:300px;">Model Number</th>
                                                     <th style="width:320px;">Serial Number</th>
                                                     <th>Service Category</th>
                                                     <th>Amount Due</th>
@@ -192,6 +193,19 @@
                                                         foreach ($unit_details['quantity'] as $key => $price) {
                                                             ?>
                                                     <tr>
+                                                        <td>
+                                                            <?php if(isset($price['model_data']) && !empty($price['model_data'])){ ?>
+                                                            <select class="form-control model_number" id="<?php echo "model_number_" . $count ?>" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>"  required="">
+                                                                <option value="" selected desa>Please Select Model Number</option>
+                                                                <?php foreach ($price['model_data'] as $m) { ?>
+                                                                <option value="<?php echo $m['model'];?>"><?php echo $m['model'];?></option>
+                                                                                
+                                                                <?php }?>
+                                                            </select>
+                                                           <?php } else { ?>
+                                                            <input type="hidden" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" value="">
+                                                          <?php } ?>
+                                                        </td>
                                                         <td>
                                                             <?php $sr =FALSE; if(isset($price['en_serial_number'])){ if(!empty($price['en_serial_number'])){ $sr = TRUE; }} ?>
                                                             <?php if ($price['pod'] == "1" || !empty($sr)) { ?>
@@ -454,6 +468,15 @@
                     var appdiv = Number(className.split('_')[2]);
                     
                     var serial_number = $("#serial_number" + div_no[2]).val();
+                    if($("#model_number_" + div_no[2]).length !== 0) {
+                        var model_number = $("#model_number_" + div_no[2]).val();
+                        if(model_number === ""){
+                            alert("Please Select Model Number");
+                            document.getElementById('model_number_' + div_no[2]).style.borderColor = "red";
+                            flag = 1;
+                        }
+                    }
+                  
                     if(prediv !== appdiv){
                       
                         prediv = appdiv;
