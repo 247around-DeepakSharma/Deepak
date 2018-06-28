@@ -2614,14 +2614,14 @@ class Inventory extends CI_Controller {
      * @return: $response boolean
      */
     function update_inventory_on_cancel_parts($spare_id, $booking_id){
-        log_message("info", __METHOD__);
+        log_message("info", __METHOD__. ' spare id '.  $spare_id. ' booking id'. $booking_id);
         $spare_details = $this->service_centers_model->get_spare_parts_booking(array('spare_parts_details.id' => $spare_id),'spare_parts_details.booking_unit_details_id,spare_parts_details.shipped_inventory_id,spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.requested_inventory_id');
         
         //update status in booking unit details to cancel
         if(!empty($spare_details) && !empty($spare_details[0]['booking_unit_details_id'])){
             $update_unit_details = $this->booking_model->update_booking_unit_details_by_any(array('id' => $spare_details[0]['booking_unit_details_id']),array('booking_status' => _247AROUND_CANCELLED,'ud_closed_date'=> date("Y-m-d H:i:s")));
             if($update_unit_details){
-                
+                log_message("info","Unit Details Updated Successfully");
                 $booking_unit_details = $this->booking_model->get_unit_details(array('booking_id' => $booking_id,"booking_status NOT IN ('"._247AROUND_CANCELLED."')" => NULL ),false,'SUM(customer_net_payable) as customer_net_payable');
                 if(!empty($booking_unit_details)){
                     $booking_details = $this->booking_model->getbooking_history($booking_id);
@@ -2634,24 +2634,28 @@ class Inventory extends CI_Controller {
                     
                     // Update Booking Table
                     $this->booking_model->update_booking($booking_id, $booking);
+                }else{
+                    log_message('info','unit details not found');
                 }
-                
-                log_message("info","Unit Details Updated Successfully");
             }else{
                 log_message("info","Error in updating unit details");
             }
+        }else{
+            log_message('info','details not found '.  print_r($spare_details,true));
         }
         
         //if stock consumend them increase the inventory stock
-        if (!empty($spare_details) && !empty($spare_details[0]['shipped_inventory_id']) && !empty($spare_details[0]['requested_inventory_id'])) {
+        if (!empty($spare_details) && !empty($spare_details[0]['shipped_inventory_id'])) {
+            log_message('info','Spare part cancelled. Update spare details. '.  print_r($spare_details,true));
             $data['receiver_entity_id'] = $spare_details[0]['partner_id'];
             $data['receiver_entity_type'] = $spare_details[0]['entity_type'];
-            $data['stock'] = -1;
+            $data['stock'] = 1;
             $data['booking_id'] = $booking_id;
             $data['agent_id'] = $this->session->userdata('id');
             $data['agent_type'] = _247AROUND_EMPLOYEE_STRING;
             $data['is_wh'] = TRUE;
             $data['inventory_id'] = $spare_details[0]['shipped_inventory_id'];
+            $data['is_cancel_part'] = TRUE;
             $this->miscelleneous->process_inventory_stocks($data);
         }
         
@@ -2731,7 +2735,7 @@ class Inventory extends CI_Controller {
 
                                 $this->table->set_template($template1);
 
-                                $this->table->set_heading(array('Part Name', 'Part Number', 'Quantity', 'Booking Id'));
+                                $this->table->set_heading(array('Part Name', 'Part Number', 'Quantity', 'Booking Id','Basic Price','GST Rate','HSN Code'));
 
                                 if ($this->session->userdata('id')) {
                                     $agent_id = $this->session->userdata('id');
@@ -2776,7 +2780,7 @@ class Inventory extends CI_Controller {
                                 if (!empty($insert_courier_details)) {
                                     log_message('info', 'Courier Details added successfully.');
                                     foreach ($parts_details as $value) {
-                                        $this->table->add_row($value['part_name'], $value['part_number'], $value['quantity'], $value['booking_id']);
+                                        $this->table->add_row($value['part_name'], $value['part_number'], $value['quantity'], $value['booking_id'],$value['part_total_price'],$value['gst_rate'],$value['hsn_code']);
 
                                         $tqty += $value['quantity'];
 
@@ -2840,8 +2844,8 @@ class Inventory extends CI_Controller {
                                             $parts_details_table = $this->table->generate();
 
                                             //generate courier details table
-                                            $this->table->set_heading(array('Courier Name', 'AWB Number', 'Shipment Date'));
-                                            $this->table->add_row(array($courier_name, $awb_number, $courier_shipment_date));
+                                            $this->table->set_heading(array('Courier Name', 'AWB Number', 'Shipment Date','Invoice Amount'));
+                                            $this->table->add_row(array($courier_name, $awb_number, $courier_shipment_date,$invoice_amount));
                                             $courier_details_table = $this->table->generate();
 
                                             $to = $email_details[0]['official_email'];
@@ -3092,7 +3096,7 @@ class Inventory extends CI_Controller {
                 if ($update) {
                     $this->table->add_row($value->part_name, $value->part_number, $value->quantity);
                     //update inventory stocks
-                    $is_entity_exist = $is_entity_exist = $this->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $receiver_entity_id, 'entity_type' => $receiver_entity_type, 'inventory_id' => $value->inventory_id), NULL, NULL, NULL, NULL, NULL)->result_array();
+                    $is_entity_exist = $this->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $receiver_entity_id, 'entity_type' => $receiver_entity_type, 'inventory_id' => $value->inventory_id), NULL, NULL, NULL, NULL, NULL)->result_array();
                     if (!empty($is_entity_exist)) {
                         $stock = "stock + '" . $value->quantity . "'";
                         $update_stocks = $this->inventory_model->update_inventory_stock(array('id' => $is_entity_exist[0]['id']), $stock);
