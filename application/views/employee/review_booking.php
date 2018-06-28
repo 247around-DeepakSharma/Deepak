@@ -130,6 +130,7 @@
                                     <thead>
                                         <th class="jumbotron" >Brand</th>
                                        <th class="jumbotron" >Category/Capacity</th>
+                                       <th class="jumbotron" >Model No</th>
                                        <th class="jumbotron" >Serial Number</th>
                                        <th class="jumbotron" >Tags</th>
                                        <th class="jumbotron" >Service Charge</th>
@@ -156,7 +157,8 @@
                                        <tr style="<?php echo $style?>">
                                             <td><span class="<?php echo "brand".$count; ?>"><?php echo $value1['appliance_brand']; ?></span></td>
                                            <td><span class="<?php echo "category".$count; ?>"><?php echo $value1['appliance_category']."/". $value1['appliance_capacity']; ?></span></td>
-                                          <td>
+                                           <td><span class="<?php echo "model_number".$count; ?>"><?php echo $value1['model_number']; ?></span></td>
+                                           <td>
                                               <?php if(!empty($value1['serial_number_pic'])) {?>
                                               <a target="_blank" href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $value1['serial_number_pic'];?>"> 
                                                   <span class="<?php echo "serial_number".$count; ?>"><?php echo $value1['serial_number']; ?></span></a>
