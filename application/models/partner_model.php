@@ -966,8 +966,11 @@ function get_data_for_partner_callback($booking_id) {
      * @return: Boolean
      * 
      */
-    function delete_partner_brand_relation($partner_id){
+    function delete_partner_brand_relation($partner_id,$service_id = ''){
         $this->db->where('partner_id',$partner_id);
+        if(!empty($service_id)){
+            $this->db->where('service_id',$service_id);
+        }
         $this->db->delete('partner_appliance_details');
         if($this->db->affected_rows() > 0 ){
             return TRUE;

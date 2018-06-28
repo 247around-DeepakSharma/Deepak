@@ -95,6 +95,11 @@
                             <option value="" disabled="">Select Partner</option>
                         </select>
                     </div>
+                    <div class="col-md-3">
+                        <select class="form-control" id="service_id" required="" name="service_id">
+                            <option value="" disabled="">Select Appliance</option>
+                        </select>
+                    </div>
                     <input type= "submit"  class="col-md-2 btn btn-success btn-sm" value ="Upload" > 
                 
                 </div>
@@ -124,10 +129,19 @@
 <script>
     var table;
     var table1;
+    $('#partner_id').select2({
+        placeholder:'Select Partner',
+        allowClear:true
+    });
+    $('#service_id').select2({
+        placeholder:'Select Appliance',
+        allowClear:true
+    });
 
     $(document).ready(function () {
         
         get_partner_details();
+        get_appliance();
 
         //datatables
 //        table = $('#datatable1').DataTable({
@@ -206,9 +220,26 @@
             url: '<?php echo base_url(); ?>employee/partner/get_partner_list',
             success: function (response) {
                 $('#partner_id').html(response);
-                $('#partner_id').select2();
             }
         });
+    }
+    
+    function get_appliance(){
+        if(partner_id){
+            $.ajax({
+                type: 'GET',
+                url: '<?php echo base_url() ?>employee/booking/get_service_id',
+                success: function (response) {
+                    if(response){
+                        $('#service_id').html(response);
+                    }else{
+                        console.log(response);
+                    }
+                }
+            });
+        }else{
+            alert('Please Select Partner');
+        }
     }
 </script>
 <?php if($this->session->userdata('success')) {$this->session->unset_userdata('success');} ?>
