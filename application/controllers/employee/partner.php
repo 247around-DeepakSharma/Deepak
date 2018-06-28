@@ -561,14 +561,13 @@ class Partner extends CI_Controller {
                 if (!empty($partner_id)) {
                     //Create Login For Partner
                     $loginData['partner_id'] = $partner_id;
-                    $loginData['choice'][] = 1;
-                    $loginData['username'][] = str_replace(" ","_",$return_data['partner']['public_name']);
-                    $loginData['id'] = array("","","","","");
-                    $loginData['email'][] = $return_data['partner']['owner_email'];
-                    $loginData['password'][] = $temp_rand = mt_rand(100000, 999999);
-                    $loginData['retype_password'][] = $temp_rand;
-                     $sendUrl = base_url().'employee/partner/process_partner_login_details_form';
-                     $this->asynchronous_lib->do_background_process($sendUrl, $loginData);
+                    $loginData['contact_person_name'][] = $return_data['partner']['primary_contact_name'];
+                    $loginData['contact_person_email'][] = $return_data['partner']['primary_contact_email'];
+                    $loginData['contact_person_contact'][] = $return_data['partner']['primary_contact_phone_1'];
+                    $loginData['checkbox_value_holder'][] = 'true';
+                    $loginData['contact_person_role'][] = PARTNER_POC_ROLE_ID;
+                    $sendUrl = base_url().'employee/partner/process_partner_contacts';
+                    $this->asynchronous_lib->do_background_process($sendUrl, $loginData);
                     //End Login
                     $msg = "Partner added successfully Please update documents and Operation Regions.";
                     $this->session->set_userdata('success', $msg);
@@ -4616,4 +4615,31 @@ class Partner extends CI_Controller {
         $this->load->view("partner/tag_spare_invoice_send_by_partner");
         $this->load->view('partner/partner_footer');
     }
+    function get_partner_tollfree_numbers(){
+         echo json_encode($this->reusable_model->get_search_query('partners','customer_care_contact,public_name',array("is_active"=>1,"customer_care_contact IS NOT NULL"=>NULL,
+             "customer_care_contact !=''"=>NULL),NULL,NULL,NULL,NULL,NULL,NULL)->result_array());
+     }
+     function process_booking_internal_conversation_email(){
+         log_message('info', __FUNCTION__ . " Booking ID: " . $this->input->post('booking_id'));
+        if($this->session->userdata('partner_id')){
+            if($this->input->post('booking_id')){
+                $to = explode(",",$this->input->post('to'));
+                $join['entity_login_table'] = "entity_login_table.contact_person_id = contact_person.id";
+                $from_email = $this->reusable_model->get_search_result_data("contact_person","official_email",array("entity_login_table.agent_id"=>$this->session->userdata('agent_id')),$join,
+                        NULL,NULL,NULL,NULL,array())[0]['official_email'];
+                $cc = $this->input->post('cc').",".$from_email;
+                $row_id = $this->miscelleneous->send_and_save_booking_internal_conversation_email("Partner",$this->input->post('booking_id'),implode(",",$to),$cc
+                        ,$from_email,$this->input->post('subject'),$this->input->post('msg'),$this->session->userdata('agent_id'),$this->session->userdata('partner_id'));    
+                if($row_id){
+                    echo "Successfully Sent";
+                }
+                else{
+                     echo "Please Try Again";
+                }
+            }
+            else{
+                echo "Please Try Again";
+            }
+    }
+     }
 }

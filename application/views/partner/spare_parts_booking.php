@@ -55,6 +55,7 @@ if ($this->uri->segment(4)) {
                                     <th class="text-center">Serial Number</th>
                                     <th class="text-center">State</th>
                                     <th class="text-center">Problem Description</th>
+                                    <th class="text-center">Send Email</th>
                                     <?php if(!$this->session->userdata('is_wh')) { ?> 
                                     <th class="text-center">Action</th>
                                     <?php } ?>
@@ -97,6 +98,9 @@ if ($this->uri->segment(4)) {
                                         </td>
                                         <td>
                                             <?php echo $row['remarks_by_sc']; ?>
+                                        </td>
+                                           <td style="vertical-align: middle;">
+                                            <a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('<?php echo $row['booking_id']?>')"><i class="fa fa-envelope" aria-hidden="true"></i></a>
                                         </td>
                                         <?php if(!$this->session->userdata('is_wh')) { ?> 
                                         <td class="text-center">
@@ -173,6 +177,50 @@ if ($this->uri->segment(4)) {
 </div>
 <?php } ?>
 <div class="clearfix"></div>
+<div id="send_email_form" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header well" style="background-color:  #2a3f54;border-color: #2a3f54;">
+                <button type="button" class="close btn-primary well"  data-dismiss="modal"style="color: white;">&times;</button>
+                <p class="modal-title"style="color: white;background-color: #2a3f54;border-color: #2a3f54;border: 0px; text-align: center; font-size:18px;" id="email_title"></p>
+            </div>
+            <div class="modal-body">
+                <div id="form_container">
+                <form action="" method="post">
+                    <input type="hidden" value="" id="internal_email_booking_id">
+                    <div class="form-group">
+                    <label for="subject">To : </label>
+                    <input type="text" class="form-control" id="internal_email_booking_to">
+                    </div>
+                    <div class="form-group">
+                    <label for="subject">CC: </label>
+                    <input type="text" class="form-control" id="internal_email_booking_cc">
+                    </div>
+                    <div class="form-group">
+                    <label for="subject">Subject</label>
+                    <input type="text" class="form-control" id="internal_email_booking_subject">
+                    </div>
+                    <div class="form-group">
+                    <label for="text">Message</label>
+                    <textarea class="form-control" rows="5" id="internal_email_booking_msg"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <button type="button" class="btn btn-default" style="color: #fff;background-color: #2a3f54;border-color: #2a3f54;float:right;" onclick="send_booking_internal_conversation_email()">Send Email</button>
+                    </div>
+                    <div class="clear" style="clear:both;"></div>
+                    </form>
+                    </div>
+                        <div id="msg_container" style="text-align: center;display: none;">
+                     <center><img id="loader_gif_title" src="<?php echo base_url(); ?>images/loadring.gif"></center>
+                    </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
 <script>
     $(document).ready(function () {
         $('body').popover({
@@ -323,6 +371,56 @@ if ($this->uri->segment(4)) {
             }
 } );
 $('#serachSpareInput').select2();
+      function add_data_in_create_email_form(bookingID){
+            $.ajax({
+                type: 'post',
+                url: '<?php echo base_url()  ?>employee/service_centers/get_booking_contacts/'+bookingID,
+                data: {},
+                success: function (response) {
+                     var result = JSON.parse(response);
+                    $("#internal_email_booking_to").val(result[0].am_email+",");
+                    $("#internal_email_booking_cc").val(result[0].rm_email+","+result[0].service_center_email);
+                    $("#internal_email_booking_subject").val(result[0].partner+"- Query From Partner For - "+bookingID);
+               }
+            });
+        }
+        function create_email_form(booking_id){
+            $("#internal_email_booking_subject").prop('disabled', true);
+            $("#internal_email_booking_cc").prop('disabled', true);
+            $("#email_title").html("Send Email For Booking "+booking_id);
+            $("#send_email_form").modal("show");
+            $("#internal_email_booking_id").val(booking_id);
+            add_data_in_create_email_form(booking_id);
+        }
+        function send_booking_internal_conversation_email(){ 
+            var to = $("#internal_email_booking_to").val();
+            var cc = $("#internal_email_booking_cc").val();
+            var booking_id = $("#internal_email_booking_id").val();
+            var subject = $("#internal_email_booking_subject").val();
+            var msg = $(" #internal_email_booking_msg").val();
+            document.getElementById("msg_container").style.display='block';
+            document.getElementById("form_container").style.display='none';
+            if(booking_id && subject && msg){
+                $.ajax({
+                   type: 'post',
+                   url: '<?php echo base_url()  ?>employee/partner/process_booking_internal_conversation_email',
+                   data: {'booking_id':booking_id,'subject':subject,'msg':msg,'to':to,'cc':cc},
+                   success: function (response) {
+                        $("#msg_container").html(response);
+                        $("#internal_email_booking_to").val("");
+                        $("#internal_email_booking_cc").val("");
+                        $("#internal_email_booking_id").val("");
+                        $("#internal_email_booking_subject").val("");
+                        $("#internal_email_booking_msg").val("");
+                        location.reload();
+                  }
+               });
+            }
+            else{
+                alert("Subject Or Message should not be blank ");
+                return false;
+            }
+        }
     </script>
     <style>
 .dropdown-backdrop{

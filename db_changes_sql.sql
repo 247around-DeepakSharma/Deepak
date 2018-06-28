@@ -7446,7 +7446,9 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 -- 20 June
 ALTER TABLE `spare_parts_details` ADD `courier_pic_by_partner` VARCHAR(1024) NULL DEFAULT NULL AFTER `courier_price_by_partner`;
 
+
 --Released 22 June
+
 
 --sachin 14 june
 ALTER TABLE `contact_person` CHANGE `officail_email` `official_email` VARCHAR(256) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
@@ -7524,6 +7526,7 @@ ALTER TABLE `booking_internal_conversation`
 --
 ALTER TABLE `booking_internal_conversation`
   MODIFY `id` int(10) NOT NULL AUTO_INCREMENT;COMMIT;
+
 
 
 --sachin 25 June

@@ -32,8 +32,9 @@ class Booking_utilities {
 	$this->My_CI->load->model('reporting_utils');
         $this->My_CI->load->library('paytm_payment_lib');
     }
-
-    public function lib_prepare_job_card_using_booking_id($booking_id) {
+    
+    
+     public function mpdf_failure_backup_jobcard($booking_id) {
         log_message('info', __FUNCTION__ . " => Entering, Booking ID: " . $booking_id);
         $template = 'BookingJobCard_Template-v9.xlsx';
         //set absolute path to directory with template files
@@ -163,6 +164,66 @@ class Booking_utilities {
         }
         log_message('info', __FUNCTION__ . " => Exiting, Booking ID: " . $booking_id);
         unlink($output_file_excel);
+    }
+
+        public function lib_prepare_job_card_using_booking_id($booking_id) {
+        log_message('info', __FUNCTION__ . " => Entering, Booking ID: " . $booking_id);
+        $booking_details = $this->My_CI->booking_model->getbooking_history($booking_id, "join");
+        if (!empty($booking_details)) {
+            $qr = $this->get_qr_code_response($booking_details[0]['booking_id'], $booking_details[0]['amount_due'], 
+            $booking_details[0]['primary_contact_phone_1'], $booking_details[0]['user_id'], 
+            $booking_details[0]['booking_primary_contact_no'], $booking_details[0]['services']);
+            $unit_where = array('booking_id' => $booking_id, 'pay_to_sf' => '1', 'booking_status != "Cancelled" ' => NULL);
+            $unit_details = $this->My_CI->booking_model->get_unit_details($unit_where);
+            $meta = array();
+            $meta['upcountry_charges'] = 0;
+            if ($booking_details[0]['upcountry_paid_by_customer'] == 1) {
+                $meta['upcountry_charges'] = $booking_details[0]['upcountry_distance'] * DEFAULT_UPCOUNTRY_RATE;
+            }
+            $meta['appliance_description'] = "";
+            if(!empty($unit_details)){
+                $meta['appliance_description'] = $unit_details[0]['appliance_description'];
+            }
+            $booking_unit_details = array();
+            log_message('info', __FUNCTION__ . " => Entering, Booking ID: " . print_r($unit_details, true));
+            foreach ($unit_details as $value) {
+                $array = array();
+                $array['appliance_category'] = $value['appliance_category'];
+                $array['appliance_capacity'] = $value['appliance_capacity'];
+                $array['appliance_brand'] = $value['appliance_brand'];
+                $array['model_number'] = $value['model_number'];
+                $array['price_tags'] = $value['price_tags'];
+                $array['customer_net_payable'] = $value['customer_net_payable'];
+                array_push($booking_unit_details, $array);
+            }
+            if($qr){
+                $booking_details[0]['qr_message'] = "Scan QR To Pay Through Paytm";
+            } else {
+                $booking_details[0]['qr_message'] = "";
+            }
+            //Get populated XLS with data
+            if ($booking_details[0]['current_status'] == "Rescheduled") {
+                $output_file_suffix = "-RESC-" . $booking_details[0]['booking_date'];
+            } else {
+                $output_file_suffix = "";
+            }
+            $output_file = "BookingJobCard-" . $booking_id . $output_file_suffix;
+            $output_file_pdf = $output_file . ".pdf";
+            //Create html for job card
+           $html = $this->My_CI->load->view('employee/jobcard_html', array("booking_details"=>$booking_details,"booking_unit_details"=>$booking_unit_details,'meta'=>$meta,'qr'=>$qr),true);     
+            //convert html into pdf
+           $json_result = $this->My_CI->miscelleneous->convert_html_to_pdf($html,$booking_details[0]['booking_id'],$output_file_pdf,"jobcards-pdf");
+            $pdf_response = json_decode($json_result,TRUE);
+            if($pdf_response['response'] === 'Success'){ 
+                //Update Job Card Booking
+                $this->My_CI->booking_model->update_booking($booking_id,  array('booking_jobcard_filename'=>$output_file_pdf));
+                return true;
+            } else {
+                log_message('info', __FUNCTION__ . ' Error in Booking PDF not created '. $booking_id);
+                return false;
+            }
+        }
+        log_message('info', __FUNCTION__ . " => Exiting, Booking ID: " . $booking_id);
     }
 
     function send_qr_code_sms($booking_id, $pocNumber, $user_id, $userPhone, $services,$regenrate_flag=0){

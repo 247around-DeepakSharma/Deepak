@@ -83,11 +83,11 @@ p{
 foreach($booking_unit_details as $data){
     ?>
   <tr>
-    <td><p><?php echo $booking_unit_details[0]['appliance_category']?></p></td>
-    <td ><p><?php echo $booking_unit_details[0]['appliance_capacity']?></p></td>
-    <td><p><?php echo $booking_unit_details[0]['appliance_brand']."/".$booking_unit_details[0]['model_number']?></p></td>
-    <td colspan="2"><p><?php echo $booking_unit_details[0]['price_tags']?></p></td>
-    <td><p><?php echo round($booking_unit_details[0]['customer_net_payable'])?></p></td>
+    <td><p><?php echo $data['appliance_category']?></p></td>
+    <td ><p><?php echo $data['appliance_capacity']?></p></td>
+    <td><p><?php echo $data['appliance_brand']."/".$booking_unit_details[0]['model_number']?></p></td>
+    <td colspan="2"><p><?php echo $data['price_tags']?></p></td>
+    <td><p><?php echo round($data['customer_net_payable'])?></p></td>
   </tr>
   <?php
   }

@@ -1622,10 +1622,10 @@ function get_booking_by_service_center_query_data($where,$groupBY){
             $calls_placed = "SELECT count(agent_id) AS calls_placed FROM agent_outbound_call_log
                              WHERE agent_outbound_call_log.agent_id= '" . $value['id'] . "'  $where2";
             //getting received incomming calls data
-            $calls_recevied = "SELECT COUNT(DialWhomNumber) AS incomming , full_name 
+           $calls_recevied = "SELECT COUNT(DialWhomNumber) AS incomming , full_name 
                                FROM passthru_misscall_log JOIN employee ON passthru_misscall_log.DialWhomNumber 
                                LIKE concat('%' , employee.phone ) 
-                               WHERE callType = 'completed' AND employee.id='" . $value['id'] . "' $where3";
+                               WHERE callType = 'completed' AND employee. phone !='' AND employee.id='" . $value['id'] . "' $where3";
             
             //getting agent rating data
             $rating_query = "SELECT count(old_state) AS rating FROM booking_state_change 

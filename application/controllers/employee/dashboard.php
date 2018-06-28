@@ -1533,7 +1533,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                  $where['!(current_status = "Cancelled" OR internal_status ="InProcess_Cancelled")'] = NULL; 
             }
             else{
-                $where['!(current_status = "Completed" OR internal_status = "InProcess_Completed")'] = NULL; 
+                $where['(current_status = "Cancelled" OR internal_status = "InProcess_Cancelled")'] = NULL; 
             }
         }
         $select = "employee.full_name as RM,employee_relation.agent_id as id,COUNT(booking_id) as count,DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as TAT";
@@ -1560,11 +1560,11 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                  $where['!(current_status = "Cancelled" OR internal_status ="InProcess_Cancelled")'] = NULL; 
             }
             else{
-                $where['!(current_status = "Completed" OR internal_status = "InProcess_Completed")'] = NULL; 
+                $where['(current_status = "Cancelled" OR internal_status = "InProcess_Cancelled")'] = NULL; 
             }
         }
         if($this->input->post('services')){
-            $where['booking_details.appliance_id'] = $this->input->post('services');
+            $where['booking_details.service_id'] = $this->input->post('services');
         }
         if($this->input->post('partner_id')){
             $where['booking_details.partner_id'] = $this->input->post('partner_id');

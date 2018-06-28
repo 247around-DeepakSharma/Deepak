@@ -1469,10 +1469,12 @@
                                                 <select type="text" class="form-control"  id="contact_person_department_1" name="contact_person_department[]" onChange="getRoles(this.value,this.id)" >
                                                     <option value="" disabled="" selected="">Select Department</option>
                                                 <?php
-                                                foreach ($department as $value){
-                                                ?> 
-                                                     <option value="<?php echo $value['department'] ?>"> <?php echo $value['department'] ?></option>
-                                                <?php
+                                                if(isset($department)){
+                                                    foreach ($department as $value){
+                                                    ?> 
+                                                         <option value="<?php echo $value['department'] ?>"> <?php echo $value['department'] ?></option>
+                                                    <?php
+                                                    }
                                                 }
                                                 ?>
                                                             </select>  

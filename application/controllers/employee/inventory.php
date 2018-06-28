@@ -2745,7 +2745,9 @@ class Inventory extends CI_Controller {
                                 $courier_data['create_date'] = date('Y-m-d H:i:s');
                                 $courier_data['quantity'] = $tqty;
                                 $courier_data['bill_to_partner'] = $partner_id;
+
                                 if (!empty($booking_id_array)) {
+
                                     $courier_data['booking_id'] = implode(",", $booking_id_array);
                                 }
 
@@ -2822,7 +2824,7 @@ class Inventory extends CI_Controller {
                                         );
                                         $email_details = $this->inventory_model->get_warehouse_details('contact_person.official_email', $wh_where, FALSE, TRUE);
                                         if (!empty($email_details) && !empty($email_template)) {
-                                            //generate part details table                                        
+                                            //generate part details table
                                             $parts_details_table = $this->table->generate();
 
                                             //generate courier details table
@@ -2874,7 +2876,7 @@ class Inventory extends CI_Controller {
         }
 
         echo json_encode($res);
-    }
+    } 
 
     /**
      * @desc This function is used to generate array data to insert main invoice table. 
@@ -3032,6 +3034,11 @@ class Inventory extends CI_Controller {
         $row = array();
         
         $row[] = $no;
+	if($this->session->userdata('service_center_id')){
+		$row[] = "<a href='".base_url()."service_center/booking_details/".urlencode(base64_encode($inventory_list->booking_id))."'target='_blank'>".$inventory_list->booking_id."</a>";
+	}else if($this->session->userdata('id')){
+		$row[] = "<a href='".base_url()."employee/booking/viewdetails/".$inventory_list->booking_id."'target='_blank'>".$inventory_list->booking_id."</a>";
+	}
         $row[] = $inventory_list->services;
         $row[] = $inventory_list->type;
         $row[] = $inventory_list->part_name;
@@ -3388,7 +3395,7 @@ class Inventory extends CI_Controller {
                 } else {
                     $invoice[$value['inventory_id']]['qty'] = $invoice[$value['inventory_id']]['qty'] + 1;
                     $invoice[$value['inventory_id']]['description'] = $invoice[$value['inventory_id']]['description']." - ".$value['booking_id'];
-                    $invoice[$value['inventory_id']]['taxable_value'] = $invoice[$value['inventory_id']]['qty'] * $inventory_details[0]['price'];
+                    $invoice[$value['inventory_id']]['taxable_value'] = $invoice[$value['inventory_id']]['qty'] * $invoice[$value['inventory_id']]['rate'];
                 }
         }
         $sd = $ed = $invoice_date = date("Y-m-d");

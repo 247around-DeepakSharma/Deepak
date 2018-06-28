@@ -53,6 +53,7 @@
                             <thead>
                                 <tr>
                                     <th>No</th>
+				    <th>Booking ID</th>
                                     <th>Appliance</th>
                                     <th>Spare Type</th>
                                     <th>Spare Part Name</th>

@@ -2365,10 +2365,13 @@ class Booking extends CI_Controller {
                     if (is_null($partner_booking)) {
                         return true;
                     } else {
-                        $output = "Duplicate Order ID";
-                        $userSession = array('error' => $output);
-                        $this->session->set_userdata($userSession);
-                        return FALSE;
+                        if($partner_booking['current_status'] !== _247AROUND_CANCELLED){
+                            $output = "Duplicate Order ID";
+                            $userSession = array('error' => $output);
+                            $this->session->set_userdata($userSession);
+                            return FALSE;
+                        }
+                        
                     }
                 } else if(empty($dealer_phone_number) && $amount_due ==0){
                     
@@ -2900,8 +2903,14 @@ class Booking extends CI_Controller {
             if($booking_status == _247AROUND_COMPLETED || $booking_status == _247AROUND_CANCELLED){
                 $post['where']  = array('current_status' => $booking_status,'type' => 'Booking');
             }else if(strtolower($booking_status) == 'pending' && empty ($booking_id)){
-                $post['where']  = array("current_status IN ('Pending','Rescheduled')" => NULL,
-                    "DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1" => NULL );
+                if($this->session->userdata('is_am') == '1'){
+                    $post['where']  = array("(current_status = 'Rescheduled' OR (current_status = 'Pending' AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1))"=>NULL,
+                        "service_center_closed_date IS NULL"=>NULL);
+                }
+                else{
+                    $post['where']  = array("current_status IN ('Pending','Rescheduled')" => NULL,
+                    "DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1" => NULL,"service_center_closed_date IS NULL"=>NULL);
+                }
                 $post['order_performed_on_count'] = TRUE;
             }
         }else if($type == 'query'){

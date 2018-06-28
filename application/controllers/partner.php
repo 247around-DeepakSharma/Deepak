@@ -1718,13 +1718,15 @@ class Partner extends CI_Controller {
             $lead = $this->partner_model->get_order_id_for_partner($this->partner['id'], $request['orderID']);
             if (!is_null($lead)) {
                 log_message('info', "Lead details: " . print_r($lead, true));
+                if($lead['current_status'] != _247AROUND_CANCELLED){
+                    
+                    //order id exists, return booking id
+                    $resultArr['code'] = ERR_ORDER_ID_EXISTS_CODE;
+                    $resultArr['msg'] = ERR_ORDER_ID_EXISTS_MSG;
+                    $resultArr['lead'] = $lead;
 
-                //order id exists, return booking id
-                $resultArr['code'] = ERR_ORDER_ID_EXISTS_CODE;
-                $resultArr['msg'] = ERR_ORDER_ID_EXISTS_MSG;
-                $resultArr['lead'] = $lead;
-
-                $flag = FALSE;
+                    $flag = FALSE;
+                }
             }
         }
 

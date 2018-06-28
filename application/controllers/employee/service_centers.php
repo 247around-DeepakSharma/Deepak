@@ -4339,4 +4339,27 @@ function get_learning_collateral_for_bookings(){
 
         return $res;
     }
+    function get_booking_contacts($bookingID){
+        $data = $this->miscelleneous->get_booking_contacts($bookingID);
+        echo json_encode($data);
+    }
+    function process_booking_internal_conversation_email(){
+        log_message('info', __FUNCTION__ . " Booking ID: " . $this->input->post('booking_id'));
+        if($this->session->userdata('service_center_id')){
+            if($this->input->post('booking_id')){
+                $to = explode(",",$this->input->post('to'));
+                $row_id = $this->miscelleneous->send_and_save_booking_internal_conversation_email("Vendor",$this->input->post('booking_id'),implode(",",$to),$this->input->post('cc'),
+                        $this->input->post('cc'),$this->input->post('subject'),$this->input->post('msg'),$this->session->userdata('service_center_agent_id'),$this->session->userdata('service_center_id'));    
+                if($row_id){
+                    echo "Successfully Sent";
+                }
+                else{
+                     echo "Please Try Again";
+                }
+            }
+            else{
+                echo "Please Try Again";
+            }
+    }
+  }
 }
