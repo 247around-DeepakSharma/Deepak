@@ -2192,7 +2192,7 @@ class Booking_model extends CI_Model {
      *  @param : $select string
      *  @return: Array()
      */
-    function get_bookings_by_status($post, $select = "",$sfIDArray = array(),$partnerIDArray = array()) {
+    function get_bookings_by_status($post, $select = "",$sfIDArray = array(),$partnerIDArray = array(),$is_download=0) {
         $this->_get_bookings_by_status($post, $select);
         if ($post['length'] != -1) {
             $this->db->limit($post['length'], $post['start']);
@@ -2204,7 +2204,14 @@ class Booking_model extends CI_Model {
             $this->db->where_in('booking_details.partner_id', $partnerIDArray);
             $this->db->where_not_in('booking_details.internal_status', array('InProcess_Cancelled','InProcess_Completed'));
         }
+         if($is_download){
+             $this->db->where_in('booking_details.current_status', array('Pending','Rescheduled'));
+         }
         $query = $this->db->get();
+        if($is_download){
+            
+            return $query;
+        }
         return $query->result();
     }
     
