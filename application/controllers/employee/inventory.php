@@ -2735,7 +2735,7 @@ class Inventory extends CI_Controller {
 
                                 $this->table->set_template($template1);
 
-                                $this->table->set_heading(array('Part Name', 'Part Number', 'Quantity', 'Booking Id'));
+                                $this->table->set_heading(array('Part Name', 'Part Number', 'Quantity', 'Booking Id','Basic Price','GST Rate','HSN Code'));
 
                                 if ($this->session->userdata('id')) {
                                     $agent_id = $this->session->userdata('id');
@@ -2780,7 +2780,7 @@ class Inventory extends CI_Controller {
                                 if (!empty($insert_courier_details)) {
                                     log_message('info', 'Courier Details added successfully.');
                                     foreach ($parts_details as $value) {
-                                        $this->table->add_row($value['part_name'], $value['part_number'], $value['quantity'], $value['booking_id']);
+                                        $this->table->add_row($value['part_name'], $value['part_number'], $value['quantity'], $value['booking_id'],$value['part_total_price'],$value['gst_rate'],$value['hsn_code']);
 
                                         $tqty += $value['quantity'];
 
@@ -2844,8 +2844,8 @@ class Inventory extends CI_Controller {
                                             $parts_details_table = $this->table->generate();
 
                                             //generate courier details table
-                                            $this->table->set_heading(array('Courier Name', 'AWB Number', 'Shipment Date'));
-                                            $this->table->add_row(array($courier_name, $awb_number, $courier_shipment_date));
+                                            $this->table->set_heading(array('Courier Name', 'AWB Number', 'Shipment Date','Invoice Amount'));
+                                            $this->table->add_row(array($courier_name, $awb_number, $courier_shipment_date,$invoice_amount));
                                             $courier_details_table = $this->table->generate();
 
                                             $to = $email_details[0]['official_email'];
