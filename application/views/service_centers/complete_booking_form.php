@@ -194,7 +194,7 @@
                                                             ?>
                                                     <tr>
                                                         <td>
-                                                            <?php if(isset($price['model_data']) && !empty($price['model_data'])){ ?>
+                                                            <?php if(isset($price['model_data']) && !empty($price['model_data']) && !empty($price['model_data'][0]['model'])){ ?>
                                                             <select class="form-control model_number" id="<?php echo "model_number_" . $count ?>" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>"  required="">
                                                                 <option value="" selected desa>Please Select Model Number</option>
                                                                 <?php foreach ($price['model_data'] as $m) { ?>
