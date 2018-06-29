@@ -4615,10 +4615,6 @@ class Partner extends CI_Controller {
         $this->load->view("partner/tag_spare_invoice_send_by_partner");
         $this->load->view('partner/partner_footer');
     }
-    function get_partner_tollfree_numbers(){
-         echo json_encode($this->reusable_model->get_search_query('partners','customer_care_contact,public_name',array("is_active"=>1,"customer_care_contact IS NOT NULL"=>NULL,
-             "customer_care_contact !=''"=>NULL),NULL,NULL,NULL,NULL,NULL,NULL)->result_array());
-     }
      function process_booking_internal_conversation_email(){
          log_message('info', __FUNCTION__ . " Booking ID: " . $this->input->post('booking_id'));
         if($this->session->userdata('partner_id')){
@@ -4641,10 +4637,10 @@ class Partner extends CI_Controller {
                 echo "Please Try Again";
             }
     }
-    
+     }   
     function get_partner_tollfree_numbers(){
         $data = $this->partner_model->get_tollfree_and_contact_persons();
         $this->miscelleneous->multi_array_sort_by_key($data,"name","ASC");
         echo json_encode($data);    
-     }
+    }
 }
