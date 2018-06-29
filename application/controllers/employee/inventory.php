@@ -2832,16 +2832,25 @@ class Inventory extends CI_Controller {
                                             $parts_details_table = $this->table->generate();
 
                                             //generate courier details table
-                                            $this->table->set_heading(array('Courier Name', 'AWB Number', 'Shipment Date','Invoice Amount'));
-                                            $this->table->add_row(array($courier_name, $awb_number, $courier_shipment_date,$invoice_amount));
+                                            $this->table->set_heading(array('Courier Name', 'AWB Number', 'Shipment Date','Invoice Amount','Invoice Number'));
+                                            $this->table->add_row(array($courier_name, $awb_number, $courier_shipment_date, round($invoice_amount),$invoice_id));
                                             $courier_details_table = $this->table->generate();
 
                                             $to = $email_details[0]['official_email'];
                                             $cc = $email_template[3];
                                             $subject = vsprintf($email_template[4], array($partner_name, $wh_name));
                                             $message = vsprintf($email_template[0], array($partner_name, $parts_details_table, $courier_details_table));
-
-                                            $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "", 'spare_send_by_partner_to_wh');
+                                            if(!empty($invoice_file['message'])){
+                                                $invoice_attchment = S3_WEBSITE_URL."invoices-excel/".$invoice_file['message'];
+                                            }else{
+                                                $invoice_attchment = '';
+                                            }
+                                            if(!empty($courier_file['message'])){
+                                                $courier_attchment = S3_WEBSITE_URL."vendor-partner-docs/".$courier_file['message'];
+                                            }else{
+                                                $courier_attchment = '';
+                                            }
+                                            $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, $invoice_attchment, 'spare_send_by_partner_to_wh',$courier_attchment);
                                         }
                                     }
 
