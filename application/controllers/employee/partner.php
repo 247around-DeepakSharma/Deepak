@@ -4587,5 +4587,10 @@ class Partner extends CI_Controller {
                 echo "Please Try Again";
             }
     }
+    
+    function get_partner_tollfree_numbers(){
+        $data = $this->partner_model->get_tollfree_and_contact_persons();
+        $this->miscelleneous->multi_array_sort_by_key($data,"name","ASC");
+        echo json_encode($data);    
      }
 }
