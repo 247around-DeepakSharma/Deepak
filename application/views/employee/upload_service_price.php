@@ -87,10 +87,6 @@
             <form id="fileinfo" onsubmit="return submitForm();" name="fileinfo"  method="POST" enctype="multipart/form-data">
                 <div class="form-group  <?php if( form_error('file') ) { echo 'has-error';} ?>">
                     <div class="col-md-3">
-                       <input type="file" class="form-control"  name="file" >
-                       <?php echo form_error('file'); ?>
-                    </div>
-                    <div class="col-md-3">
                         <select class="form-control" id="partner_id" required="" name="partner_id">
                             <option value="" disabled="">Select Partner</option>
                         </select>
@@ -99,6 +95,10 @@
                         <select class="form-control" id="service_id" required="" name="service_id">
                             <option value="" disabled="">Select Appliance</option>
                         </select>
+                    </div>
+                    <div class="col-md-3">
+                       <input type="file" class="form-control"  name="file" >
+                       <?php echo form_error('file'); ?>
                     </div>
                     <input type= "submit"  class="col-md-2 btn btn-success btn-sm" value ="Upload" > 
                 
@@ -190,10 +190,11 @@
     
     function submitForm() {
         
-        if($('#partner_id').val()){
+        if($('#partner_id').val() && $('#service_id').val()){
             var fd = new FormData(document.getElementById("fileinfo"));
                 fd.append("label", "WEBUPLOAD");
                 fd.append('partner_id',$('#partner_id').val());
+                fd.append('service_id',$('#service_id').val());
                 fd.append('file_type','<?PHP echo _247AROUND_PARTNER_APPLIANCE_DETAILS ;?>');
                 fd.append('redirect_url','employee/service_centre_charges/upload_excel_form');
                 $.ajax({
@@ -208,7 +209,7 @@
                 alert('File validation is in progress, please wait....');
             
         }else{
-            alert("Please Select Partner ");
+            alert("Please Select Partner and Appliance both ");
             return false;
         }
         
