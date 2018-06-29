@@ -2,7 +2,7 @@
 <link rel="stylesheet" href="<?php echo base_url();?>css/jquery.loading.css">
 <script src="<?php echo base_url();?>js/jquery.loading.js"></script>
 <div id="page-wrapper" >
-    <div class="container" >
+    <div class="" >
         <?php if(validation_errors()){?>
         <div class="panel panel-danger" style="margin-top:10px;margin-bottom:-10px;">
             <div class="panel-heading" style="padding:7px 0px 0px 13px">
@@ -132,7 +132,7 @@
                                 <div class="col-md-12">
                                     <div <?php if($this->session->userdata('is_engineer_app') == 1){?> class="col-md-8" <?php } else { ?> class="col-md-12" <?php } ?> >
                                         <div class="form-group col-md-4" style="<?php if($this->session->userdata('is_engineer_app') == 1){?>width:26.32%;
-                                            <?php } else {?> width:26.32%;<?php }?>">
+                                            <?php } else {?> width:28.32%;<?php }?>">
                                             <div class="col-md-12" style="padding-left:0px;">
                                                 <label> Product Found Broken</label>
                                                 <select type="text" class="form-control appliance_broken" id="<?php echo "broken_".$key1?>" name="broken[]" onchange="check_broken('<?php echo $key1;?>')" >
@@ -152,7 +152,7 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="form-group col-md-4" style="width:29.3%">
+                                        <div class="form-group col-md-4" style="width:26.3%">
                                             <div class="col-md-12 ">
                                                 <label> Category</label>
                                                 <select type="text" disabled="" class="form-control appliance_category"   id="appliance_category_1" name="appliance_category[]"  >
@@ -160,7 +160,7 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="form-group col-md-4"style="width:29.2%" style=" padding-right: 0px;">
+                                        <div class="form-group col-md-4"style="width:26.2%" style=" padding-right: 0px;">
                                             <div class="col-md-12">
                                                 <label> Capacity</label>
                                                 <select type="text" disabled="" class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity[]" >
@@ -174,6 +174,7 @@
                                         <div class="col-md-12" style="padding-left:0px;">
                                             <table class="table priceList table-striped table-bordered" name="priceList" >
                                                 <tr>
+                                                    <th style="width:300px;">Model Number</th>
                                                     <th style="width:320px;">Serial Number</th>
                                                     <th>Service Category</th>
                                                     <th>Amount Due</th>
@@ -193,6 +194,19 @@
                                                             ?>
                                                     <tr>
                                                         <td>
+                                                            <?php if(isset($price['model_data']) && !empty($price['model_data'])){ ?>
+                                                            <select class="form-control model_number" id="<?php echo "model_number_" . $count ?>" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>"  required="">
+                                                                <option value="" selected desa>Please Select Model Number</option>
+                                                                <?php foreach ($price['model_data'] as $m) { ?>
+                                                                <option value="<?php echo $m['model'];?>"><?php echo $m['model'];?></option>
+                                                                                
+                                                                <?php }?>
+                                                            </select>
+                                                           <?php } else { ?>
+                                                            <input type="hidden" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" value="">
+                                                          <?php } ?>
+                                                        </td>
+                                                        <td>
                                                             <?php $sr =FALSE; if(isset($price['en_serial_number'])){ if(!empty($price['en_serial_number'])){ $sr = TRUE; }} ?>
                                                             <?php if ($price['pod'] == "1" || !empty($sr)) { ?>
                                                             <div class="form-group">
@@ -204,6 +218,7 @@
                                                                         value="<?php if(isset($price['en_serial_number'])){ echo $price['en_serial_number'];} else {$price["serial_number"];}  ?>" placeholder="Enter Serial No" required  />
                                                                     <input type="hidden" id="<?php echo "pod" . $count ?>" class="form-control" name="<?php echo "pod[" . $price['unit_id'] . "]" ?>" value="<?php echo $price['pod']; ?>"   />
                                                                     <input type="hidden" id="<?php echo "sno_required" . $count ?>" class="form-control" name="<?php echo "is_sn_file[" . $price['unit_id'] . "]" ?>" value="0"   />
+                                                                    <input type="hidden" id="<?php echo "duplicate_sno_required" . $count ?>" class="form-control" name="<?php echo "is_dupliacte[" . $price['unit_id'] . "]" ?>" value="0"   />
                                                                     <br/>
                                                                     <input type="file" style="display:none" id="<?php echo "upload_serial_number_pic" . $count ?>"   class="form-control" name="<?php echo "upload_serial_number_pic[" . $price['unit_id'] . "]" ?>"   />
                                                                     <span style="color:red;" id="<?php echo 'error_serial_no'.$count;?>"></span>
@@ -212,9 +227,10 @@
                                                             </div>
                                                             <?php } ?>
                                                         </td>
-                                                        <td id="<?php echo "price_tags".$count; ?>"><?php echo $price['price_tags'] ?></td>
+                                                        <td id="<?php echo "price_tags".$count; ?>"><?php echo $price['price_tags']; ?></td>
                                                         <td id="<?php echo "amount_due".$count; ?>"><?php echo $price['customer_net_payable']; ?></td>
                                                         <td>  
+                                                            <input type="hidden" name="<?php echo "price_tags[" . $price['unit_id'] . "]" ?>" value="<?php echo $price['price_tags'];?>">
                                                             <?php if($price['product_or_services'] != "Product"){  ?>
                                                             <input  id="<?php echo "basic_charge".$count; ?>" type="<?php  if (($price['product_or_services'] == "Service" 
                                                                 && $price['customer_net_payable'] == 0) ){ echo "hidden";} ?>" 
@@ -270,6 +286,7 @@
                                                                                     }
                                                                                     ?>
                                                                                 </label>
+                                                                                
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -454,6 +471,15 @@
                     var appdiv = Number(className.split('_')[2]);
                     
                     var serial_number = $("#serial_number" + div_no[2]).val();
+                    if($("#model_number_" + div_no[2]).length !== 0) {
+                        var model_number = $("#model_number_" + div_no[2]).val();
+                        if(model_number === ""){
+                            alert("Please Select Model Number");
+                            document.getElementById('model_number_' + div_no[2]).style.borderColor = "red";
+                            flag = 1;
+                        }
+                    }
+                  
                     if(prediv !== appdiv){
                       
                         prediv = appdiv;
@@ -492,6 +518,13 @@
                             flag = 1;
                         }
                         
+                    }
+                    var duplicateSerialNo = $('#duplicate_sno_required'+ div_no[2]).val();
+                    if(duplicateSerialNo === '1'){
+                        alert('<?php echo DUPLICATE_SERIAL_NUMBER_USED;?>');
+                        document.getElementById('serial_number' + div_no[2]).style.borderColor = "red";
+                        $("#error_serial_no" +div_no[2]).html('<?php echo DUPLICATE_SERIAL_NUMBER_USED;?>');
+                        flag = 1;
                     }
                 }
                
@@ -693,6 +726,8 @@
     
     function validateSerialNo(index){
        var serialNo = $("#serial_number" +index).val();
+       var price_tags = $("#price_tags"+index).text();
+       
        if(serialNo !== ''){
             $.ajax({
                 type: 'POST',
@@ -709,20 +744,26 @@
 
                     },
                 url: '<?php echo base_url() ?>employee/service_centers/validate_booking_serial_number',
-                data:{serial_number:serialNo,partner_id:'<?php echo $booking_history[0]['partner_id'];?>'},
+                data:{serial_number:serialNo,partner_id:'<?php echo $booking_history[0]['partner_id'];?>', price_tags:price_tags},
                 success: function (response) {
-                    
+                    console.log(response);
                     var data = jQuery.parseJSON(response);
-                    console.log(data);
                     if(data.code === 247){
                         $('body').loadingModal('destroy');
                         $("#upload_serial_number_pic"+index).css('display', "none");
                         $("#error_serial_no" +index).text("");
                         $("#sno_required"+index).val('0');
+                        $("#duplicate_sno_required"+index).val('0');
+                    } else if(data.code === Number(<?php echo DUPLICATE_SERIAL_NO_CODE; ?>)){
+                        $("#duplicate_sno_required"+index).val('1');
+                        $("#error_serial_no" +index).html(data.message);
+                        $('body').loadingModal('destroy');
+                        
                     } else {
                         $("#sno_required"+index).val('1');
                         $("#error_serial_no" +index).html(data.message);
                         $("#upload_serial_number_pic"+index).css('display', "block");
+                        $("#duplicate_sno_required"+index).val('0');
                         $('body').loadingModal('destroy');
                     }
                     

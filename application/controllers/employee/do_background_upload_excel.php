@@ -476,9 +476,13 @@ class Do_background_upload_excel extends CI_Controller {
                     //get partner data to check the price
 
                     $this->initialized_variable->fetch_partner_data($booking['partner_id']);
-
-                    if ($this->initialized_variable->get_partner_data()[0]['partner_type'] == OEM) {
-                        //if partner type is OEM then sent appliance brand in argument
+//
+//                    if ($this->initialized_variable->get_partner_data()[0]['partner_type'] == OEM) {
+//                        //if partner type is OEM then sent appliance brand in argument
+//                        $prices = $this->partner_model->getPrices($booking['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $booking['partner_id'], 'Installation & Demo', $unit_details['appliance_brand'], false);
+//                    } else 
+                    if(!empty($data['brand'])){ 
+                        
                         $prices = $this->partner_model->getPrices($booking['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $booking['partner_id'], 'Installation & Demo', $unit_details['appliance_brand'], false);
                     } else {
                         //if partner type is not OEM then dose not sent appliance brand in argument

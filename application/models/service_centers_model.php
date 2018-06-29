@@ -209,7 +209,10 @@ class Service_centers_model extends CI_Model {
                     . ' amount_paid, price_tags,appliance_brand, appliance_category,'
                     . ' appliance_capacity, service_center_booking_action.internal_status, '
                     . ' service_center_booking_action.serial_number, customer_net_payable, '
-                    . 'service_center_booking_action.is_broken, service_center_booking_action.serial_number_pic, service_center_booking_action.mismatch_pincode');
+                    . ' service_center_booking_action.is_broken, '
+                    . ' service_center_booking_action.serial_number_pic, '
+                    . ' service_center_booking_action.mismatch_pincode, '
+                    . ' service_center_booking_action.model_number');
             $this->db->where('service_center_booking_action.booking_id', $value['booking_id']);
             $this->db->from('service_center_booking_action');
             $this->db->join('booking_unit_details', 'booking_unit_details.id = service_center_booking_action.unit_details_id');

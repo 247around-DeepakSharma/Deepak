@@ -229,6 +229,7 @@ class Do_background_process extends CI_Controller {
                 $unit_details['customer_paid_parts'] = $value['parts_cost'];
                 $unit_details['is_broken'] = $value['is_broken'];
                 $unit_details['serial_number_pic'] = $value['serial_number_pic'];
+                $unit_details['sf_model_number'] = $value['model_number'];
                 
                 if(!empty($value['serial_number_pic'])){
                     
