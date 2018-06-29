@@ -231,9 +231,16 @@ class Partner extends CI_Controller {
                                 $appliance_details['capacity'] = $unit_details['appliance_capacity'] = isset($lead_details['service_appliance_data']['capacity']) ? $lead_details['service_appliance_data']['capacity'] : $capacity;
 
 
-                                if ($this->initialized_variable->get_partner_data()[0]['partner_type'] == OEM) {
-                                    //if partner type is OEM then sent appliance brand in argument
+//                                if ($this->initialized_variable->get_partner_data()[0]['partner_type'] == OEM) {
+//                                    //if partner type is OEM then sent appliance brand in argument
+//                                    $prices = $this->partner_model->getPrices($service_id, $unit_details['appliance_category'], $unit_details['appliance_capacity'], $booking['partner_id'], $requestData['requestType'], $unit_details['appliance_brand'], false);
+//                                
+//                                    
+//                                } else 
+                                if(!empty($is_partner_id['brand'])){ 
+                                    
                                     $prices = $this->partner_model->getPrices($service_id, $unit_details['appliance_category'], $unit_details['appliance_capacity'], $booking['partner_id'], $requestData['requestType'], $unit_details['appliance_brand'], false);
+                                    
                                 } else {
                                     //if partner type is not OEM then dose not sent appliance brand in argument
                                     $prices = $this->partner_model->getPrices($service_id, $unit_details['appliance_category'], $unit_details['appliance_capacity'], $booking['partner_id'], $requestData['requestType'], "", false);

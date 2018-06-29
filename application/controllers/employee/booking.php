@@ -792,10 +792,18 @@ class Booking extends CI_Controller {
         //log_message('info', __FUNCTION__ . " data " . print_r($data, true));
         $upcountry_price = 0;
         foreach ($data['booking_unit_details'] as $keys => $value) {
+            
+                    
             if ($source[0]['partner_type'] == OEM) {
                 $prices = $this->booking_model->getPricesForCategoryCapacity($data['booking_history'][0]['service_id'], $data['booking_unit_details'][$keys]['category'], $data['booking_unit_details'][$keys]['capacity'], $partner_id, $value['brand']);
             } else {
-                $prices = $this->booking_model->getPricesForCategoryCapacity($data['booking_history'][0]['service_id'], $data['booking_unit_details'][$keys]['category'], $data['booking_unit_details'][$keys]['capacity'], $partner_id, "");
+                $isWbrand = "";
+                $whiteListBrand = $this->partner_model->get_partner_blocklist_brand(array("partner_id" => $partner_id, "brand" => $value['brand'],
+            "service_id" => $data['booking_history'][0]['service_id'], "whitelist" => 1), "*");
+                if(!empty($whiteListBrand)){
+                    $isWbrand = $value['brand'];
+                }
+                $prices = $this->booking_model->getPricesForCategoryCapacity($data['booking_history'][0]['service_id'], $data['booking_unit_details'][$keys]['category'], $data['booking_unit_details'][$keys]['capacity'], $partner_id, $isWbrand);
             }
             $upcountry_price = 0;
             //log_message('info', __FUNCTION__ . " Prices " . print_r($prices, true));
@@ -1049,9 +1057,9 @@ class Booking extends CI_Controller {
 
         print_r(json_encode($data, true));
     }
-
+    
     /**
-     * @desc: This is used to get appliabce list its called by Ajax
+     * @desc: This is used to get appliance list its called by Ajax
      */
     function get_appliances($selected_service_id) {
         $partner_id = $this->input->post('partner_id');
@@ -1102,8 +1110,13 @@ class Booking extends CI_Controller {
         if ($partner_type == OEM) {
             $result = $this->booking_model->getCategoryForService($service_id, $partner_id, $brand);
         } else {
-
-            $result = $this->booking_model->getCategoryForService($service_id, $partner_id, "");
+            $isWbrand = "";
+            $whiteListBrand = $this->partner_model->get_partner_blocklist_brand(array("partner_id" => $partner_id, "brand" => $brand,
+            "service_id" => $service_id, "whitelist" => 1), "*");
+            if(!empty($whiteListBrand)){
+                $whiteListBrand = $brand;
+            }
+            $result = $this->booking_model->getCategoryForService($service_id, $partner_id, $isWbrand);
         }
 
         echo "<option selected disabled>Select Appliance Category</option>";
@@ -1128,7 +1141,13 @@ class Booking extends CI_Controller {
         if ($partner_type == OEM) {
             $result = $this->booking_model->getCapacityForCategory($service_id, $category, $brand, $partner_id);
         } else {
-            $result = $this->booking_model->getCapacityForCategory($service_id, $category, "", $partner_id);
+            $isWbrand = "";
+            $whiteListBrand = $this->partner_model->get_partner_blocklist_brand(array("partner_id" => $partner_id, "brand" => $brand,
+            "service_id" => $service_id, "whitelist" => 1), "*");
+            if(!empty($whiteListBrand)){
+                $isWbrand = $brand;
+            }
+            $result = $this->booking_model->getCapacityForCategory($service_id, $category, $isWbrand, $partner_id);
         }
 
         foreach ($result as $capacity) {
@@ -1166,7 +1185,16 @@ class Booking extends CI_Controller {
         if ($partner_type == OEM) {
             $result = $this->booking_model->getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, $brand);
         } else {
-            $result = $this->booking_model->getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, "");
+            $isWbrand = "";
+            $whiteListBrand = $this->partner_model->get_partner_blocklist_brand(array("partner_id" => $partner_id, "brand" => $brand,
+            "service_id" => $service_id, "whitelist" => 1), "*");
+            if(!empty($whiteListBrand)){
+                 $isWbrand = $brand;
+                 
+            } 
+             
+            $result = $this->booking_model->getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, $isWbrand);
+            
         }
 
         $where = array('service_id' => $service_id, 'brand_name' => $brand);
@@ -1317,7 +1345,7 @@ class Booking extends CI_Controller {
     }
 
     /**
-     *  @desc : This function is to view deatils of any particular booking.
+     *  @desc : This function is to view details of any particular booking.
      *
      * 	We get all the details like User's details, booking details, and also the appliance's unit details.
      *
@@ -1514,28 +1542,36 @@ class Booking extends CI_Controller {
             $booking['follow_up_internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
 
             foreach ($booking['unit_details'] as $key => $value) {
+                
+                 $isWbrand = "";
+                
                 if ($booking['partner_type'] == OEM) {
+                    $isWbrand = $value['brand'];
+                    
                     $where = array("partner_appliance_details.service_id" => $booking_history[0]['service_id'],
                         'partner_id' => $booking_history[0]['partner_id'], "active" => 1);
                     $select = 'brand As brand_name';
 
                     $brand = $this->partner_model->get_partner_specific_details($where, $select, "brand");
-                    $category = $this->booking_model->getCategoryForService($booking_history[0]['service_id'], $value['partner_id'], $value['brand']);
-
-                    $capacity = $this->booking_model->getCapacityForCategory($booking_history[0]['service_id'], $value['category'], $value['brand'], $value['partner_id']);
-
-                    $prices = $this->booking_model->getPricesForCategoryCapacity($booking_history[0]['service_id'], $value['category'], $value['capacity'], $value['partner_id'], $value['brand']);
+                    
                     $where['brand'] = $value['brand'];
                     $model = $this->partner_model->get_partner_specific_details($where, 'model');
                 } else {
-                    $where = array("partner_appliance_details.service_id" => $booking_history[0]['service_id'],
-                        'partner_id' => $booking_history[0]['partner_id'], "active" => 1);
+
+                    $whiteListBrand = $this->partner_model->get_partner_blocklist_brand(array("partner_id" => $value['partner_id'], "brand" => $value['brand'],
+            "service_id" => $booking_history[0]['service_id'], "whitelist" => 1), "*");
+                    if(!empty($whiteListBrand)){
+                        $isWbrand = $value['brand'];
+                    }
+                    
                     $brand = $this->booking_model->getBrandForService($booking_history[0]['service_id']);
-                    $category = $this->booking_model->getCategoryForService($booking_history[0]['service_id'], $value['partner_id'], "");
-                    $capacity = $this->booking_model->getCapacityForCategory($booking_history[0]['service_id'], $value['category'], "", $value['partner_id']);
-                    $prices = $this->booking_model->getPricesForCategoryCapacity($booking_history[0]['service_id'], $value['category'], $value['capacity'], $value['partner_id'], "");
-                    $model = $this->partner_model->get_partner_specific_details($where, 'model');
+                    $model = array();
                 }
+                
+                $category = $this->booking_model->getCategoryForService($booking_history[0]['service_id'], $value['partner_id'], $isWbrand);
+                $capacity = $this->booking_model->getCapacityForCategory($booking_history[0]['service_id'], $value['category'], $isWbrand, $value['partner_id']);
+                $prices = $this->booking_model->getPricesForCategoryCapacity($booking_history[0]['service_id'], $value['category'], $value['capacity'], $value['partner_id'], $isWbrand);
+                    
 
 
 
@@ -4203,8 +4239,12 @@ class Booking extends CI_Controller {
     }
 
     function test(){
+        $this->partner_sd_cb->test();
+       // $bucket = "bookings-collateral";
+       // $directory_xls = "invoices-excel/Around-1819-1016.xlsx";
+       // $this->s3->putObjectFile(TMP_FOLDER."Around-1819-1016.xlsx", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
        // $this->load->library('serial_no_validation');
-        $a = $this->upcountry_model->getupcountry_for_partner_prepaid(247042);
+      //  $a = $this->upcountry_model->getupcountry_for_partner_prepaid(247042);
        // echo "<pre/>"; print_r($a);
 //        $this->partner_cb->partner_callback("SF-607901803235");
 //        $array = array(
