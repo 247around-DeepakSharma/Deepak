@@ -2481,6 +2481,11 @@ Your browser does not support the audio element.
         foreach($b_earned as $earn){
             $unit_amount += $earn['sf_earned'];
         }
+        $misc_charge = 0;
+        $misc_charge_data = $this->My_CI->booking_model->get_misc_charges_data('sum(vendor_basic_charges + vendor_tax) as misc_charge', array('booking_id' => $booking_id, 'active' => 1));
+        if(!empty($misc_charge_data)){
+            $misc_charge = $misc_charge_data[0]['misc_charge'];
+        }
         
         $penalty_select = "CASE WHEN ((count(booking_id) *  penalty_on_booking.penalty_amount) > cap_amount) THEN (cap_amount)
 
@@ -2500,7 +2505,7 @@ Your browser does not support the audio element.
             }
             $up_charges = $upcountry[0]['upcountry_price']/$upcountry[0]['count_booking'];
         }
-        $return['sf_earned'] = round($unit_amount -$p_amount[0]['p_amount'] + $up_charges, 0);
+        $return['sf_earned'] = round($unit_amount -$p_amount[0]['p_amount'] + $up_charges + $misc_charge, 0);
         if($p_amount[0]['p_amount'] > 0){
             $return['penalty'] = TRUE;
         } else{
