@@ -199,7 +199,8 @@ class Service_centers extends CI_Controller {
                 
                 if($u['pod'] == 1){
                     $where = array("partner_id" => $data['booking_history'][0]['partner_id'], 'service_id' => $data['booking_history'][0]['service_id'], 
-                        'brand' => $b['brand'], 'category' => $b['category'], 'active'=> 1, 'capacity' => $b['capacity']);
+                        'brand' => $b['brand'], 'category' => $b['category'], 'active'=> 1, 'capacity' => $b['capacity'],
+                        "model NOT IN ('', NULL)" => NULL);
 
                     $m =$this->partner_model->get_partner_specific_details($where, "model", "model");
                     if(!empty($m)){
