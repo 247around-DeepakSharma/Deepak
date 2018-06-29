@@ -25,7 +25,7 @@
             <div class="col-md-4" id="brand_div">
                 <div class="form-group col-md-12 ">
                     <label for="Appliance">Brand *</label>
-                    <select  style="<?php if($partner_type != OEM){ echo 'display:none'; }?>" class="form-control select2-multiple2" id="appliance_brand" name="brand[]" onchange="getCategory()" multiple>
+                    <select  class="form-control select2-multiple2" id="appliance_brand" name="brand[]" onchange="getCategory()" multiple>
                         
                     </select>
                 </div>
@@ -248,7 +248,7 @@
     });
     
     function getBrand(){
-        <?php if($partner_type == OEM){ ?>
+
         var postData = {};
         postData['service_id'] = $("#service_id").val();
         postData['partner_id'] = '<?php echo $partner_id; ?>';
@@ -260,16 +260,11 @@
             
             $('#appliance_brand').append(data).change();
             getCategory();
-             getcapacity();
+            getcapacity();
             getPriceTags();
            
         });
-       <?php } else { ?>
-          
-           document.getElementById("brand_div").style.display="none";
-           getCategory();
-    
-       <?php } ?>
+       
     }
     
     function getCategory(){

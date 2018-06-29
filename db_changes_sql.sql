@@ -7472,7 +7472,7 @@ VALUES (NULL, 'defective_spare_send_by_wh_to_partner', 'Defective Spare shipped 
 'noreply@247around.com', '', 'sachins@247around.com', '', '1', '2016-06-17 00:00:00');
 
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
- (NULL, 'defective_spare_received_by_partner_from_wh', 'Defective Spare received by %s', 
+ VALUES (NULL, 'defective_spare_received_by_partner_from_wh', 'Defective Spare received by %s', 
 'Dear Partner,<br><br> <b>%s</b> received below defective spare <br><br> %s <br> Regards,<br> 247around', 
 'noreply@247around.com', '', 'sachinj@247around.com', '', '1', '2016-06-17 00:00:00');
 
@@ -7524,7 +7524,7 @@ ALTER TABLE `vendor_partner_invoices` ADD `reference_invoice_id` VARCHAR(64) NUL
 --Abhay 22 June
 
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES
-(NULL, 'booking_misc_charges_details', 'New Miscellaneous Charges Added For Booking ID \n %s', 'Hi,<br/><br/>\nNew Miscellaneous Charges added By %s. Please find the details below: <br/><br/>\n%s<br/><br/>\n\nPlease %s to check these details.\n<br/>Thanks!!;', 'booking@247around.com', 'abhaya@247around.com', 'sachinj@247around.com', '', '1', '2018-06-21 18:30:00');
+(NULL, 'booking_misc_charges_details', 'New Miscellaneous Charges Added For Booking ID \n %s', 'Hi,<br/><br/>\nNew Miscellaneous Charges added By %s. Please find the details below: <br/><br/>\n%s<br/><br/>\n\nPlease %s to check these details.\n<br/>Thanks!!;', 'booking@247around.com', 'anuj@247around.com, nits@247around.com', 'abhaya@247around.com', '', '1', '2018-06-21 18:30:00');
 
 
 --
@@ -7572,3 +7572,49 @@ ALTER TABLE `miscellaneous_charges`
 
 --sachin 25 June
 ALTER TABLE `inventory_ledger` ADD `courier_id` INT NULL DEFAULT NULL AFTER `partner_ack_date`;
+
+
+--
+-- Table structure for table `vendor_partner_varialble_charges`
+--
+
+CREATE TABLE `vendor_partner_varialble_charges` (
+  `id` int(11) NOT NULL,
+  `entity_type` varchar(28) NOT NULL,
+  `entity_id` varchar(11) NOT NULL,
+  `charges_type` varchar(64) NOT NULL,
+  `description` varchar(128) NOT NULL,
+  `fixed_charges` decimal(10,0) DEFAULT '0',
+  `percentage_charge` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `hsn_code` varchar(64) DEFAULT NULL,
+  `gst_rate` decimal(10,0) DEFAULT '0',
+  `create_date` datetime NOT NULL,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `vendor_partner_varialble_charges`
+--
+ALTER TABLE `vendor_partner_varialble_charges`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `vendor_partner_varialble_charges`
+--
+ALTER TABLE `vendor_partner_varialble_charges`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+-- Released 28 June
+
+--Abhay 28 June
+ALTER TABLE `service_center_booking_action` ADD `model_number` VARCHAR(128) NULL DEFAULT NULL AFTER `serial_number`;
+ALTER TABLE `booking_unit_details` ADD `sf_model_number` VARCHAR(128) NULL DEFAULT NULL AFTER `model_number`;
+

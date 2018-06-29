@@ -401,6 +401,7 @@ function get_data_for_partner_callback($booking_id) {
             booking_details.booking_id AS '247BookingID',
             booking_details.create_date AS 'Referred Date and Time',
             GROUP_CONCAT(ud.appliance_brand) AS 'Brand', 
+            GROUP_CONCAT(ud.purchase_date) AS 'Purchase Date', 
             IFNULL(GROUP_CONCAT(ud.model_number),'') AS 'Model',
             CASE WHEN(ud.serial_number IS NULL OR ud.serial_number = '') THEN '' ELSE (CONCAT('''', GROUP_CONCAT(ud.serial_number)))  END AS 'Serial Number',
             services AS 'Product', 
@@ -979,6 +980,11 @@ function get_data_for_partner_callback($booking_id) {
         }
     }
     
+    function get_tollfree_and_contact_persons(){
+        $sql = "SELECT official_contact_number as contact, name,partners.public_name as partner  FROM contact_person JOIN partners ON partners.id =  contact_person.entity_id UNION SELECT customer_care_contact as contact, 'Toll Free Number' as name , partners.public_name as partner FROM partners ";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
    
     /**
      * @Desc: This function is used to get Partner Services and Brands details
