@@ -981,6 +981,11 @@ function get_data_for_partner_callback($booking_id) {
         }
     }
     
+    function get_tollfree_and_contact_persons(){
+        $sql = "SELECT official_contact_number as contact, name,partners.public_name as partner  FROM contact_person JOIN partners ON partners.id =  contact_person.entity_id UNION SELECT customer_care_contact as contact, 'Toll Free Number' as name , partners.public_name as partner FROM partners ";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
    
     /**
      * @Desc: This function is used to get Partner Services and Brands details
