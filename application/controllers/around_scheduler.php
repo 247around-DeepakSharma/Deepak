@@ -1730,6 +1730,72 @@ class Around_scheduler extends CI_Controller {
 
         }
     }
+    /**
+     * @desc This is used to send outstanding amount to CP through SMS/Email
+     */
+    function send_reminder_mail_for_cp_outstanding() {
+        log_message('info', __METHOD__ . " Enterring..");
+        $cp = $this->vendor_model->getVendorDetails('id, company_name, primary_contact_email, owner_email, owner_phone_1', array('is_cp' => 1));
+        if (!empty($cp)) {
+            foreach ($cp as $value) {
+                $amount_cr_deb = $this->miscelleneous->get_cp_buyback_credit_debit($value['id']);
+                if ($amount_cr_deb['total_balance'] < CP_OUTSTANDING_AMOUNT_LIMIT) {
+                    log_message('info', __METHOD__ . " CP Id ". $value['id']. " Outstanding Amount ".$amount_cr_deb['total_balance']);
+                    
+                    //Send SMS
+                    $sms['phone_no'] = $value['owner_phone_1'];
+                    $sms['smsData']['amount'] = abs(round($amount_cr_deb['total_balance'],0));
+		    $sms['tag'] = "cp_outstanding_sms";
+		    $sms['booking_id'] = "";
+		    $sms['type'] = "vendor";
+		    $sms['type_id'] = $value['id'];
+
+		    $this->notify->send_sms_msg91($sms);
+                    
+                    //Send Email
+
+                    $html = '<html><head><title>Outstanding Amount</title><link href="' . base_url() . 
+                            'css/bootstrap.min.css" rel="stylesheet"></head><body>';
+
+                    $template = array(
+                        'table_open' => '<table  border="1" cellpadding="2" cellspacing="1"'
+                        . ' class="table table-striped table-bordered jambo_table bulk_action">'
+                    );
+                    $this->table->set_template($template);
+                    $this->table->set_heading(array('Name', 'Advance Paid', 'Un-Settle Invoice (Rs)', 'Un-billed Delivered (Rs)', 
+                        'Un-billed In-transit (Rs)', 'Balance (Rs)'));
+                    $this->table->add_row($value['company_name'], round(abs($amount_cr_deb['advance']), 0), 
+                            -round($amount_cr_deb['unbilled'], 0), -round($amount_cr_deb['cp_delivered'], 0), 
+                            -round($amount_cr_deb['cp_transit'], 0), round($amount_cr_deb['total_balance'], 0));
+
+                    $html .= $this->table->generate();
+                    $html .= '</body></html>';
+                    $email_template = $this->booking_model->get_booking_email_template(CP_OUTSTANDING_AMOUNT);
+                    if(!empty($email_template)){
+                        $rm = $this->vendor_model->get_rm_sf_relation_by_sf_id($value['id']);
+                        $rm_email = "";
+                        $from = $email_template[2];
+                        if(!empty($rm)){
+                            $rm_email = ", ".$rm[0]['official_email'];
+                            $from = $rm[0]['official_email'];
+                        }
+                        $to = $value['primary_contact_email'] . "," . $value['owner_email'];
+                        $bcc = $email_template[5];
+                        $cc = $email_template[3]. $rm_email;
+                        $subject = vsprintf($email_template[4], array($value['company_name']));
+                        $message = vsprintf($email_template[0], array(round($amount_cr_deb['total_balance'], 0), $html));
+                        
+                        
+                        $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "",CP_OUTSTANDING_AMOUNT);
+                    }
+                } else {
+                    log_message('info', __METHOD__ . " CP outstanding Amount  ".$amount_cr_deb['total_balance']. " CP ID ". $value['id']);
+                }
+            }
+        } else {
+            log_message('info', __METHOD__ . " CP is not exist ");
+        }
+    }
 
 }
 
