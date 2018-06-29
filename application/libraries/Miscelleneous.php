@@ -1972,7 +1972,7 @@ class Miscelleneous {
      * @return bookean $flag
      */
     function process_inventory_stocks($data) {
-        log_message("info", __FUNCTION__ . " process inventory update" . print_r($data, true));
+        log_message("info", __FUNCTION__ . " process inventory update entering..." . print_r($data, true));
         $flag = FALSE;
         $is_process = FALSE;
 
@@ -2006,18 +2006,25 @@ class Miscelleneous {
                  * else insert into the table
                  */
                 if(isset($data['is_wh']) && !isset($data['is_cancel_part'])){
-                    $is_entity_exist = $this->My_CI->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $data['sender_entity_id'], 'entity_type' => $data['sender_entity_type'], 'inventory_id' => $is_part_exist[0]['inventory_id']), NULL, NULL, NULL, NULL, NULL)->result_array();
+                    $is_entity_exist = $this->My_CI->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id,inventory_stocks.stock', array('entity_id' => $data['sender_entity_id'], 'entity_type' => $data['sender_entity_type'], 'inventory_id' => $is_part_exist[0]['inventory_id']), NULL, NULL, NULL, NULL, NULL)->result_array();
                 }else{
-                    $is_entity_exist = $this->My_CI->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $data['receiver_entity_id'], 'entity_type' => $data['receiver_entity_type'], 'inventory_id' => $is_part_exist[0]['inventory_id']), NULL, NULL, NULL, NULL, NULL)->result_array();
+                    $is_entity_exist = $this->My_CI->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id,inventory_stocks.stock', array('entity_id' => $data['receiver_entity_id'], 'entity_type' => $data['receiver_entity_type'], 'inventory_id' => $is_part_exist[0]['inventory_id']), NULL, NULL, NULL, NULL, NULL)->result_array();
                 }
                 if (!empty($is_entity_exist)) {
-                    $stock = "stock + '" . $data['stock'] . "'";
-                    $update_stocks = $this->My_CI->inventory_model->update_inventory_stock(array('id' => $is_entity_exist[0]['id']), $stock);
-                    if ($update_stocks) {
-                        log_message("info", __FUNCTION__ . " Stocks has been updated successfully");
-                        $flag = TRUE;
-                    } else {
-                        log_message("info", __FUNCTION__ . " Error in updating stocks");
+                    //if stock goes negative then do not update stock
+                    $updated_stock = $is_entity_exist[0]['stock'] + $data['stock'];
+                    if($updated_stock >= 0){
+                        log_message('info',' passed the testt');
+                        $stock = "stock + '" . $data['stock'] . "'";
+                        $update_stocks = $this->My_CI->inventory_model->update_inventory_stock(array('id' => $is_entity_exist[0]['id']), $stock);
+                        if ($update_stocks) {
+                            log_message("info", __FUNCTION__ . " Stocks has been updated successfully");
+                            $flag = TRUE;
+                        } else {
+                            log_message("info", __FUNCTION__ . " Error in updating stocks");
+                        }
+                    }else{
+                        log_message('info','inventory id '. $is_part_exist[0]['inventory_id'] . ' details for which stock not found ' .print_r($data,true) );
                     }
                 } else {
                     $insert_data['entity_id'] = isset($data['is_wh'])?$data['sender_entity_id']:$data['receiver_entity_id'];
@@ -2081,7 +2088,7 @@ class Miscelleneous {
                         $flag = FALSE;
                     }
                 } else {
-                    log_message("info", __FUNCTION__ . " Error in updating inventory" . print_r($data, true));
+                    log_message("info", __FUNCTION__ . " Error in updating inventory " . print_r($data, true));
                 }
             } else {
                 log_message("info", __FUNCTION__ . " Error in updating inventory. Part number does not exist in the inventory_master_list table" . print_r($data, true));
