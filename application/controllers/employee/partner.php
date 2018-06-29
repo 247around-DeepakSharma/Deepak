@@ -1007,8 +1007,15 @@ class Partner extends CI_Controller {
         if(!empty($unbilled_data)){
             $unbilled_amount = (array_sum(array_column($unbilled_data, 'partner_net_payable')));
         }
-       
-        $invoice['unbilled_amount'] = $unbilled_amount;
+        
+        $upcountry = $this->upcountry_model->getupcountry_for_partner_prepaid($partner_id);
+        $upcountry_basic = 0;
+        if(!empty($upcountry)){
+            $upcountry_basic = $upcountry[0]['total_upcountry_price'];
+            
+        }
+        $invoice['upcountry'] = $upcountry_basic;
+        $invoice['unbilled_amount'] = ($unbilled_amount + $upcountry_basic)* (1 + SERVICE_TAX_RATE);
         $invoice['unbilled_data'] = $unbilled_data;
         $invoice['invoice_amount'] = $this->invoices_model->get_summary_invoice_amount("partner", $partner_id)[0];
         $this->miscelleneous->load_partner_nav_header();
