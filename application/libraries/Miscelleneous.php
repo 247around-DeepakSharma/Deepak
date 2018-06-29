@@ -1184,52 +1184,65 @@ class Miscelleneous {
      *
      */
 
-    function _allot_source_partner_id_for_pincode($service_id, $state, $brand, $default_partner, $api =false) {
+    function _allot_source_partner_id_for_pincode($service_id, $state, $brand, $default_partner, $api = false) {
         log_message('info', __FUNCTION__ . ' ' . $service_id, $state, $brand);
-        $data = [];
+        $data = array();
         $flag = FALSE;
 
-        $partner_array = $this->My_CI->partner_model->get_active_partner_id_by_service_id_brand($brand, $service_id);
-
-        if (!empty($partner_array)) {
-
-            foreach ($partner_array as $value) {
-                //Now getting details for each Partner
-                $filtered_partner_state = $this->My_CI->partner_model->check_activated_partner_for_state_service($state, $value['partner_id'], $service_id);
-                if ($filtered_partner_state) {
-                    //Now assigning this case to Partner
-                    $data['partner_id'] = $value['partner_id'];
-                    $data['source'] = $partner_array[0]['code'];
-                    $flag = FALSE;
-                } else {
-                    if ($value['partner_id'] == VIDEOTEX && !$api) {
-                        return false;
-                    } else {
-                        $flag = TRUE;
-                    }
-                }
+        $blocked_brand = $this->My_CI->partner_model->get_partner_blocklist_brand(array("partner_id" => $default_partner, "brand" => $brand,
+            "service_id" => $service_id), "*");
+        if (!empty($blocked_brand)) {
+            if($blocked_brand[0]['whitelist'] == 1){
+               log_message('info', ' Whitelist Brand ' . $brand . ' and service_id ' . $service_id. " partner Id ".$default_partner);
+               $get_partner_source = $this->My_CI->partner_model->getpartner_details('bookings_sources.code', array('partners.id' => $default_partner));
+               $data['partner_id'] = $default_partner;
+               $data['source'] = $get_partner_source[0]['code'];
+               $data['brand'] = $brand;
+               $flag = FALSE;
+                
+            } else if($blocked_brand[0]['blacklist'] == 1){
+                log_message('info', ' Blacklist Brand ' . $brand . ' and service_id ' . $service_id. " partner Id ".$default_partner);
+                $data['partner_id'] = _247AROUND;
+                $data['source'] = 'SB';
+                $data['brand'] = "";
+                $flag = FALSE;
             }
         } else {
-            log_message('info', ' No Active Partner has been Found in for Brand ' . $brand . ' and service_id ' . $service_id);
-            $flag = TRUE;
+            log_message('info', ' Not found in the vlacklist table- Brand ' . $brand . ' and service_id ' . $service_id. " partner Id ".$default_partner);
+            $partner_array = $this->My_CI->partner_model->get_active_partner_id_by_service_id_brand($brand, $service_id);
+            if (!empty($partner_array)) {
+
+                foreach ($partner_array as $value) {
+                    //Now getting details for each Partner
+                    $filtered_partner_state = $this->My_CI->partner_model->check_activated_partner_for_state_service($state, $value['partner_id'], $service_id);
+                    if ($filtered_partner_state) {
+                        //Now assigning this case to Partner
+                        $data['partner_id'] = $value['partner_id'];
+                        $data['source'] = $partner_array[0]['code'];
+                        $data['brand'] = $brand;
+                        $flag = FALSE;
+                    } else {
+                        if ($value['partner_id'] == VIDEOTEX && !$api) {
+                            return false;
+                        } else {
+                            $flag = TRUE;
+                        }
+                    }
+                }
+            } else {
+                log_message('info', ' No Active Partner has been Found in for Brand ' . $brand . ' and service_id ' . $service_id);
+                $flag = TRUE;
+            }
         }
 
         if ($flag) {
             $get_partner_source = $this->My_CI->partner_model->getpartner_details('bookings_sources.code', array('partners.id' => $default_partner));
             $data['partner_id'] = $default_partner;
             $data['source'] = $get_partner_source[0]['code'];
+            $data['brand'] = "";
         }
-
-        $blocked_brand = $this->My_CI->partner_model->get_partner_blocklist_brand(array("partner_id" => $data['partner_id'], "brand" => $brand, 
-            "service_id" => $service_id), "*");
-
-        if(!empty($blocked_brand)){
-           $data['partner_id'] = _247AROUND;
-           $data['source'] = 'SB';
-        }
-
+        
         return $data;
-
     }
 
     /**
