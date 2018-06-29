@@ -858,9 +858,9 @@ class Booking_model extends CI_Model {
         $this->db->where('active', 1);
         $this->db->where('check_box', 1);
         $this->db->where('partner_id', $partner_id);
-        if($brand !=""){
+        //if($brand !=""){
             $this->db->where('brand', $brand);
-        }
+        //}
 
     	if (!empty($capacity)) {
     		$this->db->where('capacity', $capacity);
