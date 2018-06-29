@@ -401,6 +401,7 @@ function get_data_for_partner_callback($booking_id) {
             booking_details.booking_id AS '247BookingID',
             booking_details.create_date AS 'Referred Date and Time',
             GROUP_CONCAT(ud.appliance_brand) AS 'Brand', 
+            GROUP_CONCAT(ud.purchase_date) AS 'Purchase Date', 
             IFNULL(GROUP_CONCAT(ud.model_number),'') AS 'Model',
             CASE WHEN(ud.serial_number IS NULL OR ud.serial_number = '') THEN '' ELSE (CONCAT('''', GROUP_CONCAT(ud.serial_number)))  END AS 'Serial Number',
             services AS 'Product', 
