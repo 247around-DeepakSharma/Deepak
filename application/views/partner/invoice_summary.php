@@ -20,7 +20,7 @@
                             <b>Un-Billed Amount</b>
                         </span><br/>
                        <span data-toggle="modal" data-target="#myModal2" style="color:red; font-size: 16px; cursor: pointer;" onclick="unbilledBooking();">
-                            <b>Rs. <?php echo round(($unbilled_amount *(1 + SERVICE_TAX_RATE)),0);?> 
+                            <b>Rs. <?php echo round($unbilled_amount,0);?> 
                                 <i class="fa fa-info-circle" aria-hidden="true"></i>
                             </b>
                        </span>
@@ -108,6 +108,10 @@
                             <td><?php echo $value['booking_id']; ?></td>
                             <td><?php echo $value['partner_net_payable'] *(1 + SERVICE_TAX_RATE); ?></td>
                         </tr>
+                        <?php }?>
+                        <?php if($upcountry > 0){ ?>
+                            <td><?php echo "Upcountry Charges"; ?></td>
+                            <td><?php echo round($upcountry *(1 + SERVICE_TAX_RATE),0); ?></td>
                         <?php }?>
                     </tbody>
                 </table>
