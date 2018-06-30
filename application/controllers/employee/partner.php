@@ -1007,8 +1007,15 @@ class Partner extends CI_Controller {
         if(!empty($unbilled_data)){
             $unbilled_amount = (array_sum(array_column($unbilled_data, 'partner_net_payable')));
         }
-       
-        $invoice['unbilled_amount'] = $unbilled_amount;
+        
+        $upcountry = $this->upcountry_model->getupcountry_for_partner_prepaid($partner_id);
+        $upcountry_basic = 0;
+        if(!empty($upcountry)){
+            $upcountry_basic = $upcountry[0]['total_upcountry_price'];
+            
+        }
+        $invoice['upcountry'] = $upcountry_basic;
+        $invoice['unbilled_amount'] = ($unbilled_amount + $upcountry_basic)* (1 + SERVICE_TAX_RATE);
         $invoice['unbilled_data'] = $unbilled_data;
         $invoice['invoice_amount'] = $this->invoices_model->get_summary_invoice_amount("partner", $partner_id)[0];
         $this->miscelleneous->load_partner_nav_header();
@@ -4561,36 +4568,32 @@ class Partner extends CI_Controller {
        $this->session->set_userdata('success', $msg);
        redirect(base_url() . 'employee/partner/editpartner/' . $partnerID);
     }
-    function get_partner_tollfree_numbers(){
-         echo json_encode($this->reusable_model->get_search_query('partners','customer_care_contact,public_name',array("is_active"=>1,"customer_care_contact IS NOT NULL"=>NULL,
-             "customer_care_contact !=''"=>NULL),NULL,NULL,NULL,NULL,NULL,NULL)->result_array());
-     }
-     function process_booking_internal_conversation_email(){
-         log_message('info', __FUNCTION__ . " Booking ID: " . $this->input->post('booking_id'));
-        if($this->session->userdata('partner_id')){
-            if($this->input->post('booking_id')){
-                $to = explode(",",$this->input->post('to'));
+    
+    function process_booking_internal_conversation_email() {
+        log_message('info', __FUNCTION__ . " Booking ID: " . $this->input->post('booking_id'));
+        if ($this->session->userdata('partner_id')) {
+            if ($this->input->post('booking_id')) {
+                $to = explode(",", $this->input->post('to'));
                 $join['entity_login_table'] = "entity_login_table.contact_person_id = contact_person.id";
-                $from_email = $this->reusable_model->get_search_result_data("contact_person","official_email",array("entity_login_table.agent_id"=>$this->session->userdata('agent_id')),$join,
-                        NULL,NULL,NULL,NULL,array())[0]['official_email'];
-                $cc = $this->input->post('cc').",".$from_email;
-                $row_id = $this->miscelleneous->send_and_save_booking_internal_conversation_email("Partner",$this->input->post('booking_id'),implode(",",$to),$cc
-                        ,$from_email,$this->input->post('subject'),$this->input->post('msg'),$this->session->userdata('agent_id'),$this->session->userdata('partner_id'));    
-                if($row_id){
+                $from_email = $this->reusable_model->get_search_result_data("contact_person", "official_email", array("entity_login_table.agent_id" => $this->session->userdata('agent_id')), $join, NULL, NULL, NULL, NULL, array())[0]['official_email'];
+                $cc = $this->input->post('cc') . "," . $from_email;
+                $row_id = $this->miscelleneous->send_and_save_booking_internal_conversation_email("Partner", $this->input->post('booking_id'), implode(",", $to), $cc
+                        , $from_email, $this->input->post('subject'), $this->input->post('msg'), $this->session->userdata('agent_id'), $this->session->userdata('partner_id'));
+                if ($row_id) {
                     echo "Successfully Sent";
+                } else {
+                    echo "Please Try Again";
                 }
-                else{
-                     echo "Please Try Again";
-                }
-            }
-            else{
+            } else {
                 echo "Please Try Again";
             }
+        }
     }
-    
-    function get_partner_tollfree_numbers(){
+
+    function get_partner_tollfree_numbers() {
         $data = $this->partner_model->get_tollfree_and_contact_persons();
-        $this->miscelleneous->multi_array_sort_by_key($data,"name","ASC");
-        echo json_encode($data);    
-     }
+        $this->miscelleneous->multi_array_sort_by_key($data, "name", "ASC");
+        echo json_encode($data);
+    }
+
 }

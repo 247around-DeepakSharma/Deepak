@@ -277,13 +277,16 @@ class Paytm_gateway extends CI_Controller {
         
         $partner_id = $this->session->userdata('partner_id');
         $am_email = "";
+        $partner_email = '';
+        $payer_name = '';
         if(!empty($partner_id)){
             $partner_details = $this->partner_model->getpartner_details('public_name,owner_email,primary_contact_email,account_manager_id',array('partners.id' => $partner_id));
             if (!empty($partner_details[0]['account_manager_id'])) {
                 $am_email = $this->employee_model->getemployeefromid($partner_details[0]['account_manager_id'])[0]['official_email'];
             }
             
-            $to = $partner_details[0]['owner_email'];
+            $partner_email = $partner_details[0]['owner_email'];
+            $payer_name = $partner_details[0]['public_name'];
         }else{
             $update_payment_link_details = $this->booking_model->update_payment_link_details($this->session->userdata('payment_link_id'),array('status' => 1));
             
@@ -312,8 +315,10 @@ class Paytm_gateway extends CI_Controller {
         
         if($this->session->userdata('user_email')){
             $to = $this->session->userdata('user_email');
+        }else if(!empty ($partner_id)){
+            $to = $partner_email;
         }else{
-            $to = NOREPLY_EMAIL_ID;
+            $to = NITS_ANUJ_EMAIL_ID;
         }
         
         $email_template = $this->booking_model->get_booking_email_template("payment_transaction_email");
@@ -334,9 +339,9 @@ class Paytm_gateway extends CI_Controller {
             $subject_text = "Payment Failed";
         }   
         
-        $bcc = $email_template[3].$am_email;
+        $bcc = $email_template[3].','.$am_email.','.ACCOUNTANT_EMAILID;
         $subject = vsprintf($email_template[4], $subject_text);
-        
+        $data['payer_name'] = $payer_name;
         $email_body = $this->load->view('paytm_gateway/transaction_email_template',$data,TRUE);
 
         $sendmail = $this->notify->sendEmail($email_template[2], $to, "", $bcc, $subject, $email_body, "",'payment_transaction_email');
