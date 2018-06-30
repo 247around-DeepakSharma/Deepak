@@ -744,8 +744,8 @@
                 function create_booking_contacts(response){
         var data="";
         var result = JSON.parse(response);
-        data =data +  "<tr><td>2) </td><td>Account Manager</td><td>"+result[0].am+"</td><td>"+result[0].am_caontact+"</td></tr>";
-        data =data +  "<tr><td>3) </td><td>Partner POC</td><td>"+result[0].partner_poc+"</td><td>"+result[0].poc_contact+"</td></tr>";
+        data =data +  "<tr><td>1) </td><td>Account Manager</td><td>"+result[0].am+"</td><td>"+result[0].am_caontact+"</td></tr>";
+        data =data +  "<tr><td>2) </td><td>Partner POC</td><td>"+result[0].partner_poc+"</td><td>"+result[0].poc_contact+"</td></tr>";
         var tb="<table class='table  table-bordered table-condensed ' >";
         tb+='<thead>';
         tb+='<tr>';
