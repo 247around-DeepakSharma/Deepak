@@ -465,19 +465,18 @@ function get_data_for_partner_callback($booking_id) {
     function get_partner_summary_params($partner_id) {
         
         $where1 = array('booking_details.partner_id' => $partner_id, 'MONTH(booking_details.create_date) = MONTH(CURDATE())' => NULL, 'YEAR(booking_details.create_date) = YEAR(CURDATE())' => NULL);
-        $current_month_booking = $this->booking_model->get_bookings_count_by_any( 'DISTINCT current_status,booking_details.create_date,booking_details.closed_date,booking_details.request_type,booking_details.booking_date',$where1, "", "", true);
+        $current_month_booking = $this->booking_model->get_bookings_count_by_any( 'DISTINCT current_status,booking_details.create_date,booking_details.service_center_closed_date as closed_date,booking_details.request_type,booking_details.booking_date',$where1, "", "", true);
 
         $where2 = array('booking_details.partner_id' => $partner_id, 'DATE(booking_details.create_date) = CURDATE()' => NULL);
-        $today_booking = $this->booking_model->get_bookings_count_by_any('DISTINCT current_status,booking_details.create_date,booking_details.closed_date,booking_details.request_type,booking_details.booking_date', $where2, "", "", true );
+        $today_booking = $this->booking_model->get_bookings_count_by_any('DISTINCT current_status,booking_details.create_date,booking_details.service_center_closed_date as closed_date,booking_details.request_type,booking_details.booking_date', $where2, "", "", true );
 
         $where3 = array('booking_details.partner_id' => $partner_id, 'DATE(booking_details.create_date) = DATE(DATE_SUB(NOW(), INTERVAL 1 DAY))' => NULL);
-        $yesterday_booking = $this->booking_model->get_bookings_count_by_any('DISTINCT current_status,booking_details.create_date,booking_details.closed_date,booking_details.request_type,booking_details.booking_date', $where3, "", "", true );
+        $yesterday_booking = $this->booking_model->get_bookings_count_by_any('DISTINCT current_status,booking_details.create_date,booking_details.service_center_closed_date as closed_date,booking_details.request_type,booking_details.booking_date', $where3, "", "", true );
         
         $where4 = array('booking_details.partner_id' => $partner_id, "booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."')" => NULL);
-       
-        $totalPending = $this->booking_model->get_bookings_count_by_any('DISTINCT current_status,booking_details.create_date,booking_details.closed_date,booking_details.request_type,booking_details.booking_date', $where4, "", "", true);
-
         
+        $totalPending = $this->booking_model->get_bookings_count_by_any('DISTINCT current_status,booking_details.create_date,booking_details.service_center_closed_date as closed_date,booking_details.request_type,booking_details.booking_date', $where4, "", "", true);
+
         $current_month_status = array_count_values(array_column($current_month_booking, 'current_status'));
         if (count($today_booking) !== 0 || count($yesterday_booking) !== 0 || (isset($current_month_status['Pending']) && !empty($current_month_status['Pending'])) || (isset($current_month_status['Rescheduled']) && !empty($current_month_status['Rescheduled']))) {
             $result['current_month_installation_booking_requested'] = 0;
@@ -1606,5 +1605,5 @@ function get_data_for_partner_callback($booking_id) {
         $this->db->insert_ignore_duplicate_batch('partner_serial_no', $data);
         return $this->db->insert_id();
     }
-}
+    }
 
