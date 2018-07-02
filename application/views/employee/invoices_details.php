@@ -32,7 +32,7 @@
              </div>
       </div>
       <div class="row" >
-         <div class="form-group col-md-6">
+         <div class="form-group col-md-5">
             <label for="state" class="col-sm-2">Select</label>
             <div class="col-md-10">
                 <?php if(isset($service_center)){ ?>
@@ -65,13 +65,19 @@
                 <?php }?>
             </div>
          </div>
-          <div class="form-group col-md-6">
+          <div class="form-group col-md-5">
             <label for="invoice_period" class="col-sm-4">Select Invoice Period</label>
             <div class="col-md-8">
                 <select class="form-control" id="invoice_period" onchange="getInvoicingData('<?php echo $vendor_partner; ?>')">
                     <option value="cur_fin_year">Current Financial Year</option>
                     <option value="all">All</option>
                 </select>
+            </div>
+         </div>
+          <div class="form-group col-md-2">
+            <label for="settle_invoice_checkbox" class="col-sm-8">Invoice Settled</label>
+            <div class="col-md-4">
+                <input type="checkbox" id="settle_invoice_checkbox" name="settle_invoice_checkbox" class="form-control">
             </div>
          </div>
       </div>
@@ -244,12 +250,17 @@
 
        $('#loader_gif').attr('src', '<?php echo base_url() ?>images/loader.gif');
     var vendor_partner_id = $('#invoice_id').val();
+    var settle_invoice_checkbox = $('#settle_invoice_checkbox').val();
+    var c = 0;
+    if($("#settle_invoice_checkbox").prop('checked', true)){
+        c=1;
+    }
     var invoice_period = $('#invoice_period').val();
     $('#overall_summary').css('display', 'none');
     $.ajax({
           type: 'POST',
           url: '<?php echo base_url(); ?>employee/invoice/getInvoicingData',
-          data: {vendor_partner_id: vendor_partner_id, source: source,invoice_period:invoice_period},
+          data: {vendor_partner_id: vendor_partner_id, source: source,invoice_period:invoice_period, settle_invoice: c},
           success: function (data) {
 
             $('#loader_gif').attr('src', '');
