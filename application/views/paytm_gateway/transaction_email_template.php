@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>A Responsive Email Template</title>
+<title>Payment Details</title>
 <!--
 
     An email present from your friends at Litmus (@litmusapp)
@@ -22,7 +22,7 @@
     img{-ms-interpolation-mode: bicubic;} /* Allow smoother rendering of resized image in Internet Explorer */
 
     /* RESET STYLES */
-    img{border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none;}
+    img{border: 0; height: 120px; line-height: 100%; outline: none; text-decoration: none;}
     table{border-collapse: collapse !important;}
     body{height: 100% !important; margin: 0 !important; padding: 0 !important; width: 100% !important;}
 
@@ -130,28 +130,35 @@
                         <!-- COPY -->
                         <table width="100%" border="0" cellspacing="0" cellpadding="0">
                             <tr>
-                                <td align="center" style="font-size: 32px; font-family: Helvetica, Arial, sans-serif; color: #fff; padding-top: 30px;" class="padding-copy">
+                                <td align="left" style="padding: 0px; text-align:center;" class="padding-copy"><img src="<?php echo S3_WEBSITE_URL; ?>misc-images/logo_transparent.png"></td>
+                            </tr>
+                            <tr>
+                                <td align="center" style="font-size: 32px; font-family: Helvetica, Arial, sans-serif; color: #fff; padding-top: 0px;" class="padding-copy">
                                     <?php if($is_txn_successfull) { 
                                         switch ($final_txn_status){ 
                                             case 'TXN_SUCCESS':
                                                 echo "Payment Successful";
+                                                $img_type = 'card-success.png';
                                                 break;
                                             case 'TXN_FAILURE':
                                                 echo "Payment Failed";
+                                                $img_type = 'card-failed.png';
                                                 break;
                                             case 'PENDING':
                                             case 'OPEN':
                                                 echo "Payment Pending";
+                                                $img_type = 'card-failed.png';
                                                 break;
                                         }
                                     }else{ 
                                         echo "Payment Failed";
+                                        $img_type = 'card-failed.png';
                                     } 
                                 ?>
                                 </td>
                             </tr>
                             <tr>
-                                <td align="left" style="padding: 20px 0 30px 0; font-size: 15px; line-height: 25px; font-family: Helvetica, Arial, sans-serif; color: #fff;text-align:center;" class="padding-copy">247Around</td>
+                                <td align="left" style="padding: 0px; font-size: 15px; line-height: 25px; font-family: Helvetica, Arial, sans-serif; color: #fff;text-align:center;" class="padding-copy"><img src="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $img_type; ?>"></td>
                             </tr>
                         </table>
                     </td>
@@ -282,6 +289,38 @@
                                     </table>
                                 </td>
                             </tr>
+                            <?php if(isset($payer_name)) { ?> 
+                            
+                            <tr>
+                                <td valign="top" class="mobile-wrapper" style="padding: 0px 20px;">
+                                    <!-- LEFT COLUMN -->
+                                    <table cellpadding="0" cellspacing="0" border="0" width="47%" style="width: 47%;" align="left">
+                                        <tr>
+                                            <td style="padding: 0 0 10px 0;">
+                                                <table cellpadding="0" cellspacing="0" border="0" width="100%">
+                                                    <tr>
+                                                        <td align="left" style="font-family: Arial, sans-serif; color: #333333; font-size: 16px;">Paid By</td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <!-- RIGHT COLUMN -->
+                                    <table cellpadding="0" cellspacing="0" border="0" width="47%" style="width: 47%;" align="right">
+                                        <tr>
+                                            <td style="padding: 0 0 10px 0;">
+                                                <table cellpadding="0" cellspacing="0" border="0" width="100%">
+                                                    <tr>
+                                                        <td align="right" style="font-family: Arial, sans-serif; color: #333333; font-size: 16px;"><?php echo $payer_name; ?></td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <?php } ?>
+                            
                             <?php if(isset($payment_mode) && !empty($payment_mode)) {?>
                             <tr>
                                 <td valign="top" class="mobile-wrapper" style="padding: 0px 20px;">

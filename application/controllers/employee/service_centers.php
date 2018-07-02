@@ -199,7 +199,8 @@ class Service_centers extends CI_Controller {
                 
                 if($u['pod'] == 1){
                     $where = array("partner_id" => $data['booking_history'][0]['partner_id'], 'service_id' => $data['booking_history'][0]['service_id'], 
-                        'brand' => $b['brand'], 'category' => $b['category'], 'active'=> 1, 'capacity' => $b['capacity']);
+                        'brand' => $b['brand'], 'category' => $b['category'], 'active'=> 1, 'capacity' => $b['capacity'],
+                        "model NOT IN ('', NULL)" => NULL);
 
                     $m =$this->partner_model->get_partner_specific_details($where, "model", "model");
                     if(!empty($m)){
@@ -4147,7 +4148,7 @@ class Service_centers extends CI_Controller {
         $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
         $config['total_rows'] = $total_rows[0]['total_rows'];
 
-        $config['per_page'] = 50;
+        $config['per_page'] = 75;
         $config['uri_segment'] = 3;
         $config['first_link'] = 'First';
         $config['last_link'] = 'Last';
