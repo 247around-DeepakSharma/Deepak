@@ -102,7 +102,7 @@
 
                                     <tr>
                                         <th>Booking closed date: </th>
-                                        <td><?php echo $booking_history[0]['closed_date']; ?></td>
+                                        <td><?php echo $booking_history[0]['service_center_closed_date']; ?></td>
                                         <th>Rating Star </th>
                                         <td><?php if (!empty($booking_history[0]['rating_stars'])) {
                                                 echo $booking_history[0]['rating_stars'] . '/5';
