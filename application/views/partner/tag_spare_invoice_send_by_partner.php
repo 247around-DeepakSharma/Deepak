@@ -534,7 +534,7 @@
 
                         if(obj.inventory_id){
                             $('#submit_btn').attr('disabled',false);
-                            var parts_total_price = parseInt($('#quantity_'+index).val()) * parseInt(obj.price);
+                            var parts_total_price = Number($('#quantity_'+index).val()) * Number(obj.price);
                             $('#inventoryId_'+index).val(obj.inventory_id);
                             $('#partBasicPrice_'+index).val(parts_total_price);
                             $('#partGstRate_'+index).val(obj.gst_rate);
@@ -543,7 +543,7 @@
                             $(".part-total-price").each(function(i) {
                                 total_spare_invoice_price += Number($('#partBasicPrice_'+i).val()) + (Number($('#partBasicPrice_'+i).val()) * Number($('#partGstRate_'+i).val())/100);
                             });
-                            $('#total_spare_invoice_price').html(Number(total_spare_invoice_price.toFixed(2)));
+                            $('#total_spare_invoice_price').html(Number(Math.round(total_spare_invoice_price)));
                         }else{
                             showConfirmDialougeBox('Inventory Details not found for the selected combination', 'warning');
                             $('#submit_btn').attr('disabled',true);
