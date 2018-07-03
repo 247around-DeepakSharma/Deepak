@@ -1585,9 +1585,12 @@ class invoices_model extends CI_Model {
       
         
         $sql = " SELECT bd.order_id, bd.booking_id,services,
-                courier_charges_by_sf, bd.city
+                courier_charges_by_sf, bd.city,
+                CASE WHEN (defective_courier_receipt IS NOT NULL) THEN 
+                 (concat('".S3_WEBSITE_URL."misc-images/',defective_courier_receipt)) ELSE '' END AS courier_receipt_link
                 FROM  booking_details as bd, booking_unit_details as ud,
                 spare_parts_details as sp,services
+                
                 WHERE 
                 ud.booking_status =  'Completed'
                 AND bd.partner_id = '$partner_id'
@@ -1815,7 +1818,7 @@ class invoices_model extends CI_Model {
         }
         // Courier
         $getcourier1 = $this->get_courier_details("*, courier_charge as taxable_value, 'Courier Charge' as part_name,"
-                . "AWB_no as awb_no, courier_name, concat('".S3_WEBSITE_URL."/vendor-partner-docs/',courier_file) as courier_receipt_link", 
+                . "AWB_no as awb_no, courier_name, concat('".S3_WEBSITE_URL."vendor-partner-docs/',courier_file) as courier_receipt_link", 
                 array('sender_entity_type' => "vendor", 
             "sender_entity_id" => $vendor_id, "courier_charge > 0" => NULL,
             "create_date >= '".$from_date."' " => NULL, "create_date < '".$to_date."' " => NULL,

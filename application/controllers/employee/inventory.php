@@ -4242,6 +4242,70 @@ class Inventory extends CI_Controller {
         }
     }
     
+     /**
+     * @desc: This function is used to get update spare courier details form
+     * @params: $id
+     * @return: view
+     * 
+     */
+    
+     function update_spare_courier_details($id){
+        $this->miscelleneous->load_nav_header();
+        $select = "id, partner_id, service_center_id, entity_type, booking_id, defective_part_shipped, courier_name_by_sf, awb_by_sf, courier_charges_by_sf, defective_courier_receipt, defective_part_shipped_date, remarks_defective_part_by_sf, sf_challan_number, sf_challan_file"; 
+        $where = array('spare_parts_details.id' => $id);
+        $data['data'] = $this->partner_model->get_spare_parts_by_any($select, $where);
+        $this->load->view('employee/update_spare_courier_details', $data);
+         
+    }
+                    
+    /**
+     * @desc: This function is used to upload the courier receipt for spare parts
+     * @params: void
+     * @return: returns true if file is uploaded 
+     * 
+     */
+    function upload_defective_courier_receipt(){
+         if (!empty($_FILES['defective_courier_receipt']['tmp_name'])) {
+            
+            $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
+            $booking_id = $this->input->post("booking_id");
+            
+            
+            
+            
+            $defective_courier_receipt = $this->miscelleneous->upload_file_to_s3($_FILES["defective_courier_receipt"], 
+                    "defective_courier_receipt", $allowedExts, $booking_id, "misc-images", "defective_courier_receipt");
+            if($defective_courier_receipt){
+                
+               return true;
+            } else {
+                $this->form_validation->set_message('upload_defective_courier_receipt', 'Defective Front Parts, File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
+                        . 'Maximum file size is 5 MB.');
+                return false;
+            }
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * @desc: This function is used to remove uploaded image
+     * @params: void
+     * @return: prints message if removed successfully
+     * 
+     */
+     function remove_uploaded_image() {
+        $courier[$this->input->post('type')] = '';
+        //Making Database Entry as Empty for selected file
+        $status = $this->inventory_model->update_spare_courier_details($this->input->post('id'), $courier);
+
+        //Logging 
+        if($status == true){
+        log_message('info', __FUNCTION__ . $this->input->post('type') . '  File has been removed sucessfully for id ' . $this->input->post('id'));
+        echo TRUE;
+        }
+    }
+    
      public function update_tagged_invoice() {
         
         $data['inventory'] = $this->inventory_model->get_inventory_master_list_data('inventory_id,part_name,part_number');
@@ -4250,4 +4314,6 @@ class Inventory extends CI_Controller {
     }
     
 
+   
+    
 }

@@ -375,7 +375,7 @@ class Service_centers extends CI_Controller {
                 $close_timeStamp = strtotime($bookingData['service_center_closed_date']);
                 $datediff = $close_timeStamp - $booking_timeStamp;
                 $booking_date_days = round($datediff / (60 * 60 * 24)) - 1;
-                if($booking_date_days >= 0){
+                if($booking_date_days <= 0){
                     $bookingData['service_center_closed_date'] = date('Y-m-d H:i:s');
                 }
                 $this->reusable_model->update_table("booking_details", $bookingData, array('booking_id' => $booking_id));
@@ -701,7 +701,7 @@ class Service_centers extends CI_Controller {
                     $close_timeStamp = strtotime($bookingData['service_center_closed_date']);
                     $datediff = $close_timeStamp - $booking_timeStamp;
                     $booking_date_days = round($datediff / (60 * 60 * 24))-1;
-                    if($booking_date_days >= 0){
+                    if($booking_date_days <= 0){
                         $bookingData['service_center_closed_date'] = date('Y-m-d H:i:s');
                     }
                     $this->reusable_model->update_table("booking_details",$bookingData,array('booking_id'=>$booking_id));
@@ -4389,4 +4389,91 @@ class Service_centers extends CI_Controller {
             }
     }
   }
+  /**
+     * @desc: This function is used to update spare parts courier details along with generating sf challan file
+     * @params: $id
+     * @return: prints message whether data already exists or updated
+     * 
+     */
+  
+   function process_update_spare_courier_details($id){
+        $this->form_validation->set_rules('shipped_parts', 'shipped_parts', 'required');
+        $this->form_validation->set_rules('courier_name','courier_name', 'required');
+        $this->form_validation->set_rules('awb', 'awb','required');
+        $this->form_validation->set_rules('courier_charge', 'courier_charge','required');
+        $this->form_validation->set_rules('shipped_date', 'shipped_date','required');
+        $this->form_validation->set_rules('remarks_by_sf', 'remarks_by_sf','required');
+
+
+        
+        if ($this->form_validation->run() == TRUE) {
+
+           
+           $booking_id = $this->input->post('booking_id');
+           $sf_challan_number = $this->input->post("sf_challan_number");
+           $partner_id = $this->input->post("partner_id");
+           $service_center_id = $this->input->post("service_center_id");
+           $entity_type = $this->input->post("entity_type");
+           
+            $data = array();
+                $data['defective_part_shipped'] = trim($this->input->post('shipped_parts'));
+                $data['courier_name_by_sf'] = trim($this->input->post('courier_name'));
+                $data['awb_by_sf'] = trim($this->input->post('awb'));
+                $data['courier_charges_by_sf'] = trim($this->input->post('courier_charge'));
+                $data['defective_courier_receipt'] = ($this->input->post('defective_courier_receipt'));
+                $data['defective_part_shipped_date'] = ($this->input->post('shipped_date'));
+                $data['remarks_defective_part_by_sf'] = trim($this->input->post('remarks_by_sf'));
+            
+           
+                
+            
+            
+            if($this->input->post('regenerate_challan_file')==1){
+                
+                $spare_details = array();
+                $spare_details['parts_requested'] = array($this->input->post('shipped_parts'));
+                $shipped_part = $this->input->post('shipped_parts');
+                $spare_details['part_price']["$shipped_part"] = $this->input->post('courier_charge');
+                $spare_details['challan_approx_value'] = $this->input->post('courier_charge');
+                $spare_details['booking_id'] = $this->input->post('booking_id');
+                
+                //getting service center details
+                $sf_details = $this->vendor_model->getVendorDetails('name,address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,is_signature_doc',array('id'=>$service_center_id));
+                //chekc if entity type is partner then get partner details otherwise get vendor details
+                if($entity_type == _247AROUND_PARTNER_STRING){
+                    $partner_details = $this->partner_model->getpartner_details('company_name,address,gst_number',array('partners.id'=> $partner_id));
+                }else if($entity_type === _247AROUND_SF_STRING){
+                    $partner_details = $this->vendor_model->getVendorDetails('name as company_name,address,owner_name,gst_no as gst_number',array('id'=>$partner_id));
+                }
+                
+                if(empty($this->input->post('sf_challan_number'))){
+                    $sf_challan_number = $this->miscelleneous->create_sf_challan_id($sf_details[0]['sc_code']);
+                }
+                $data['sf_challan_file'] =  $this->create_sf_challan_file($sf_details, $partner_details, $sf_challan_number, $booking_id,$spare_details);
+                print_r($data);
+                $status = $this->inventory_model->update_spare_courier_details($id,$data);
+                exit();
+            if (!empty($status)) {
+                
+                        log_message("info", __METHOD__ . " Data Updated");
+                        $this->session->set_userdata('success', 'Data Updated');
+                        redirect(base_url() . 'employee/inventory/update_spare_courier_details/'.$id);
+                
+            } else {
+                
+                
+                        log_message("info", __METHOD__ . " Data Already Exists");
+                        $this->session->set_userdata('failed', 'Data Already Exists');
+                        redirect(base_url() . 'employee/inventory/update_spare_courier_details/'.$id);
+                
+            }
+                
+                
+                }
+            
+            }else {
+           
+            $this->update_spare_courier_details($id);
+        }
+    }
 }

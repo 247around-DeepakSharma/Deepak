@@ -129,7 +129,7 @@
                                 <div class="form-group ">
                                     <label for="service_name" class="col-md-4">Order ID </label>
                                     <div class="col-md-6">
-                                        <input class="form-control" name= "order_id" value="<?php if(isset($booking_history[0]['order_id'])){ echo $booking_history[0]['order_id']; } ?>" placeholder="Enter Order ID" id="order_id"></input>
+                                        <input class="form-control" name= "order_id" value="<?php if(isset($booking_history[0]['order_id'])){ echo $booking_history[0]['order_id']; } ?>" <?php if(!empty($booking_history[0]['order_id'])){?> readonly <?php }?> placeholder="Enter Order ID" id="order_id"></input>
                                     </div>
                                 </div>
                                 <div class="form-group ">
