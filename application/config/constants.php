@@ -593,7 +593,5 @@ define('NEW_CHARGES_ADDED','New Charges Added');
 //Partner Login
 define('PARTNER_POC_ROLE_ID','1');
 
-define('CP_OUTSTANDING_AMOUNT_LIMIT', -5000);
-
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
