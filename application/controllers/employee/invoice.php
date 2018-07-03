@@ -114,18 +114,29 @@ class Invoice extends CI_Controller {
         $data = array('vendor_partner' => $this->input->post('source'),
                       'vendor_partner_id' => $this->input->post('vendor_partner_id'));
         
-         $settle_amount = 0;
+        $settle_amount = 1;
         if($this->input->post('settle_invoice')){
+          
            if($this->input->post('settle_invoice') == 1){
-               $settle_amount =1;
+               $settle_amount = 0;
            }
         }
         
         if($invoice_period === 'all'){
             $where = array('vendor_partner' => $this->input->post('source'),
                       'vendor_partner_id' => $this->input->post('vendor_partner_id'));
+            if($settle_amount == 0){
+                $where['settle_amount'] = 0;
+            }
+         
         }else if($invoice_period === 'cur_fin_year'){
-            $where = "vendor_partner = '".$this->input->post('source')."' AND vendor_partner_id = '".$this->input->post('vendor_partner_id')."' AND case WHEN month(CURDATE()) IN ('1','2','3') THEN from_date >= CONCAT(YEAR(CURDATE())-1,'-04-01') and from_date <= CONCAT(YEAR(CURDATE()),'-03-31') WHEN month(from_date) NOT IN ('1','2','3') THEN from_date >= CONCAT(YEAR(CURDATE()),'-04-01') and from_date <= CONCAT(YEAR(CURDATE())+1,'-03-31') END";
+            $where = "vendor_partner = '".$this->input->post('source')."' AND vendor_partner_id = '".$this->input->post('vendor_partner_id')
+                    ."' AND case WHEN month(CURDATE()) IN ('1','2','3') THEN from_date >= CONCAT(YEAR(CURDATE())-1,'-04-01') "
+                    . "and from_date <= CONCAT(YEAR(CURDATE()),'-03-31') WHEN month(from_date) NOT IN ('1','2','3') "
+                    . "THEN from_date >= CONCAT(YEAR(CURDATE()),'-04-01') and from_date <= CONCAT(YEAR(CURDATE())+1,'-03-31') END";
+            if($settle_amount == 0){
+                $where .= " AND settle_amount = 0 ";
+            }
         }
         
         $invoice['invoice_array'] = $this->invoices_model->getInvoicingData($where);
