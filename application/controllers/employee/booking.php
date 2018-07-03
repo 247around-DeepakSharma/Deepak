@@ -1864,6 +1864,8 @@ class Booking extends CI_Controller {
         $pincode = $this->input->post('booking_pincode');
         $state = $this->vendor_model->get_state_from_pincode($pincode);
         $partner_id = $this->input->post('partner_id');
+        $sp_required_id = json_decode($this->input->post("sp_required_id"), true);
+        $spare_parts_required = $this->input->post('spare_parts_required');
         $service_center_details = $this->booking_model->getbooking_charges($booking_id);
         $b_unit_details = array();
         if($status == 1){
@@ -1906,19 +1908,28 @@ class Booking extends CI_Controller {
                         $unit_id = $remove_string_new[0];
                         $service_charges_id = $remove_string_new[1];
                         $data['booking_id'] = $booking_id;
-                        $data['booking_status'] = "Completed";
-                        $internal_status = "Completed";
-                        if ($status == 1) {
-                            if(!empty($b_unit_details)){
-                                $data_service_center['closed_date'] = $data['ud_closed_date'] = $b_unit_details[0]['ud_closed_date'];
-                            } else {
-                                $data_service_center['closed_date'] = $data['ud_closed_date'] = date('Y-m-d H:i:s');
-                            }
-                           
-                        } else {
-                            $data_service_center['closed_date'] = $data['ud_closed_date'] = date('Y-m-d H:i:s');
-                        }
                         
+                       
+                        $closed_date = date('Y-m-d H:i:s');
+
+                        if(!empty($b_unit_details)){
+                            $closed_date  = $b_unit_details[0]['ud_closed_date'];
+                        } 
+                           
+                        if($spare_parts_required == 1){
+                            $data_service_center['closed_date'] = $closed_date;
+                            $data['booking_status'] = _247AROUND_PENDING;
+                            $internal_status = _247AROUND_COMPLETED;
+                            $data_service_center['current_status'] = "InProcess";
+                            $data_service_center['internal_status'] = DEFECTIVE_PARTS_PENDING;
+                            
+                        } else {
+                            $data_service_center['current_status'] = $data_service_center['internal_status'] = _247AROUND_COMPLETED;
+                            $data['booking_status'] = _247AROUND_COMPLETED;
+                            $internal_status = _247AROUND_COMPLETED;
+                            
+                            $data_service_center['closed_date'] = $data['ud_closed_date'] = $closed_date;
+                        }
 
                         log_message('info', __FUNCTION__ . " New unit selected, previous unit " . print_r($unit_id, true)
                                 . " Service charges id: "
@@ -1934,7 +1945,6 @@ class Booking extends CI_Controller {
                         $data_service_center['additional_service_charge'] = $data['customer_paid_extra_charges'];
                         $data_service_center['parts_cost'] = $data['customer_paid_parts'];
                         $data_service_center['serial_number'] = $data['serial_number'];
-                        $data_service_center['current_status'] = $data_service_center['internal_status'] = "Completed";
                         $data_service_center['amount_paid'] = $total_amount_paid;
                         if ($k == 0) {
                             $data_service_center['upcountry_charges'] = $upcountry_charges;
@@ -1947,18 +1957,25 @@ class Booking extends CI_Controller {
                 }
             } else {
                 $data['booking_status'] = $booking_status[$unit_id];
-
+                $closed_date = date('Y-m-d H:i:s');
+                if(!empty($b_unit_details)){
+                    $closed_date = $b_unit_details[0]['ud_closed_date'];
+                }
+            
                 if ($data['booking_status'] === _247AROUND_COMPLETED) {
                     $internal_status = _247AROUND_COMPLETED;
                 }
-                if ($status == 1) {
-                    if(!empty($b_unit_details)){
-                         $service_center['closed_date'] = $data['ud_closed_date'] = $b_unit_details[0]['ud_closed_date'];
-                    } else {
-                        $service_center['closed_date'] = $data['ud_closed_date'] = date('Y-m-d H:i:s');
-                    }
+                
+                if($spare_parts_required == 1){
+                    $service_center['current_status'] = "InProcess";
+                    $service_center['internal_status'] = DEFECTIVE_PARTS_PENDING;
+                    $service_center['closed_date'] = $closed_date;
+                    
                 } else {
-                    $service_center['closed_date'] = $data['ud_closed_date'] = date('Y-m-d H:i:s');
+                    
+                    $service_center['closed_date'] = $data['ud_closed_date'] = $closed_date;
+                    $service_center['current_status'] = $data['booking_status'];
+                    $service_center['internal_status'] = $data['booking_status'];
                 }
 
                 $data['id'] = $unit_id;
@@ -1985,7 +2002,6 @@ class Booking extends CI_Controller {
                     $service_center['closing_remarks'] = "Admin:-  " . $admin_remarks;
                 }
 
-                $service_center['internal_status'] = $service_center['current_status'] = $data['booking_status'];
                 $service_center['unit_details_id'] = $unit_id;
                 $service_center['update_date'] = date('Y-m-d H:i:s');
                 $service_center['service_charge'] = $data['customer_paid_basic_charges'];
@@ -2002,9 +2018,19 @@ class Booking extends CI_Controller {
             }
             $k = $k + 1;
         }
+        
+        if($spare_parts_required == 1){
+            $booking['current_status'] = _247AROUND_PENDING;
+            $booking['internal_status'] = DEFECTIVE_PARTS_PENDING;
+        } else {
+            $booking['current_status'] = $internal_status;
+            $booking['internal_status'] = $internal_status;
+            $booking['closed_date'] = date('Y-m-d H:i:s');
+            if(!empty($b_unit_details)){
+                $booking['closed_date'] = $b_unit_details[0]['ud_closed_date'];
+            }
+        }
 
-        $booking['current_status'] = $internal_status;
-        $booking['internal_status'] = $internal_status;
         $booking['booking_id'] = $booking_id;
         $booking['upcountry_paid_by_customer'] = $upcountry_charges;
 
@@ -2026,15 +2052,6 @@ class Booking extends CI_Controller {
         $booking['closing_remarks'] = $service_center['closing_remarks'];
         
         $booking['update_date'] = date('Y-m-d H:i:s');
-        if ($status == 1) {
-            if(!empty($b_unit_details)){
-               $booking['closed_date'] = $b_unit_details[0]['ud_closed_date'];
-            } else {
-                $booking['closed_date'] = date('Y-m-d H:i:s');
-            }
-        } else {
-            $booking['closed_date'] = date('Y-m-d H:i:s');
-        }
 
         $booking['amount_paid'] = $total_amount_paid;
 
@@ -2042,7 +2059,11 @@ class Booking extends CI_Controller {
         log_message('info', ": " . " update booking details data (" . $booking['current_status'] . ")" . print_r($booking, TRUE));
         // this function is used to update booking details table
         if(!$this->input->post('service_center_closed_date')){
-        $booking['service_center_closed_date'] = date('Y-m-d H:i:s');
+            $booking['service_center_closed_date'] = date('Y-m-d H:i:s');
+        }
+        
+        if($internal_status == _247AROUND_CANCELLED){
+            $booking['api_call_status_updated_on_completed'] = DEPENDENCY_ON_CUSTOMER;
         }
         $this->booking_model->update_booking($booking_id, $booking);
         $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status", array('booking_id' => $booking_id, 'status NOT IN ("Completed","Cancelled")' =>NULL ), false);
@@ -2050,20 +2071,29 @@ class Booking extends CI_Controller {
             //Update Spare parts details table
             $this->service_centers_model->update_spare_parts(array('id'=> $sp['id']), array('old_status' => $sp['status'],'status' => $internal_status));
         }
+        if(!empty($sp_required_id)){
+            foreach ($sp_required_id as $sp_id) {
+
+                $sp['status'] = DEFECTIVE_PARTS_PENDING;
+                $this->service_centers_model->update_spare_parts(array('id' => $sp_id), $sp);
+            }
+        }
         
         if ($status == 0) {
             //Log this state change as well for this booking
             //param:-- booking id, new state, old state, employee id, employee name
-            $this->notify->insert_state_change($booking_id, $internal_status, _247AROUND_PENDING, $booking['closing_remarks'], $this->session->userdata('id'), 
+            $this->notify->insert_state_change($booking_id, $booking['internal_status'], _247AROUND_PENDING, $booking['closing_remarks'], $this->session->userdata('id'), 
                     $this->session->userdata('employee_id'), $actor,$next_action,_247AROUND);
-            $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
-            $send['booking_id'] = $booking_id;
-            $send['state'] = $internal_status;
-            $this->asynchronous_lib->do_background_process($url, $send);
-
-            $cb_url = base_url() . "employee/do_background_process/send_request_for_partner_cb/".$booking_id;
-            $pcb = array();
-            $this->asynchronous_lib->do_background_process($cb_url, $pcb);
+            if($booking['internal_status'] == _247AROUND_COMPLETED){
+                $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
+                $send['booking_id'] = $booking_id;
+                $send['state'] = $internal_status;
+                $this->asynchronous_lib->do_background_process($url, $send);
+                
+                $cb_url = base_url() . "employee/do_background_process/send_request_for_partner_cb/".$booking_id;
+                $pcb = array();
+                $this->asynchronous_lib->do_background_process($cb_url, $pcb);
+            }
             
             if ($this->input->post('rating_stars') !== "") {
                 if($this->input->post('rating_stars')<3){

@@ -144,7 +144,7 @@ class Booking_model extends CI_Model {
      */
     function update_unit_details($data){
 
-        if($data['booking_status'] == "Completed"){
+        if($data['booking_status'] == _247AROUND_COMPLETED || $data['booking_status'] == _247AROUND_PENDING ){
             // get booking unit data on the basis of id
             $this->db->select('booking_id, around_net_payable,booking_status, '
 

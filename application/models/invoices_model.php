@@ -1909,4 +1909,20 @@ class invoices_model extends CI_Model {
         return $query->result_array();
     }
 
+      /**
+     * @desc: This function is used to get partner annual charges data from vendor_partener table 
+     * @params: Array $where
+     * @return: string
+     * 
+     */
+    
+     public function get_partners_annual_charges($where = array()) {
+        $this->db->select('*');
+        if (!empty($where)) {
+            $this->db->where($where);
+        }
+        $this->db->join('partners', 'vendor_partner_id = partners.id');
+        $query = $this->db->get('vendor_partner_invoices');
+        return $query->result();
+    }
 }

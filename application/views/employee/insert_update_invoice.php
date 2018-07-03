@@ -17,6 +17,16 @@
     });
 </script>
 <div class='container' style="margin-top:20px;">
+    <?php
+                if ($this->session->userdata('error')) {
+                    echo '<div class="alert alert-danger alert-dismissible" role="alert" style="margin-top:10px;">
+                   <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                       <span aria-hidden="true">&times;</span>
+                   </button>
+                   <strong>' . $this->session->userdata('error') . '</strong>
+               </div>';
+                }
+                ?>
     <div class="panel panel-default">
         <div class="panel-heading">
             <h1 class="panel-title"><i class="fa fa-money fa-fw"></i> <?php if (isset($invoice_details[0]['invoice_id'])) { echo "Update Invoice"; } else { echo "Insert Invoice";}?>  </h1>
@@ -434,3 +444,4 @@
       });
 
 </script>
+<?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>

@@ -113,11 +113,30 @@ class Invoice extends CI_Controller {
         $invoice_period = $this->input->post('invoice_period');
         $data = array('vendor_partner' => $this->input->post('source'),
                       'vendor_partner_id' => $this->input->post('vendor_partner_id'));
+        
+        $settle_amount = 1;
+        if($this->input->post('settle_invoice')){
+          
+           if($this->input->post('settle_invoice') == 1){
+               $settle_amount = 0;
+           }
+        }
+        
         if($invoice_period === 'all'){
             $where = array('vendor_partner' => $this->input->post('source'),
                       'vendor_partner_id' => $this->input->post('vendor_partner_id'));
+            if($settle_amount == 0){
+                $where['settle_amount'] = 0;
+            }
+         
         }else if($invoice_period === 'cur_fin_year'){
-            $where = "vendor_partner = '".$this->input->post('source')."' AND vendor_partner_id = '".$this->input->post('vendor_partner_id')."' AND case WHEN month(CURDATE()) IN ('1','2','3') THEN from_date >= CONCAT(YEAR(CURDATE())-1,'-04-01') and from_date <= CONCAT(YEAR(CURDATE()),'-03-31') WHEN month(from_date) NOT IN ('1','2','3') THEN from_date >= CONCAT(YEAR(CURDATE()),'-04-01') and from_date <= CONCAT(YEAR(CURDATE())+1,'-03-31') END";
+            $where = "vendor_partner = '".$this->input->post('source')."' AND vendor_partner_id = '".$this->input->post('vendor_partner_id')
+                    ."' AND case WHEN month(CURDATE()) IN ('1','2','3') THEN from_date >= CONCAT(YEAR(CURDATE())-1,'-04-01') "
+                    . "and from_date <= CONCAT(YEAR(CURDATE()),'-03-31') WHEN month(from_date) NOT IN ('1','2','3') "
+                    . "THEN from_date >= CONCAT(YEAR(CURDATE()),'-04-01') and from_date <= CONCAT(YEAR(CURDATE())+1,'-03-31') END";
+            if($settle_amount == 0){
+                $where .= " AND settle_amount = 0 ";
+            }
         }
         
         $invoice['invoice_array'] = $this->invoices_model->getInvoicingData($where);
@@ -2230,7 +2249,7 @@ class Invoice extends CI_Controller {
      * @param String $vendor_partner
      */
     function process_insert_update_invoice($vendor_partner) {
-         $this->checkUserSession();
+        $this->checkUserSession();
         log_message('info', __FUNCTION__ . " Entering...." . $vendor_partner);
         $this->form_validation->set_rules('vendor_partner_id', 'Vendor Partner', 'required|trim');
         $this->form_validation->set_rules('invoice_id', 'Invoice ID', 'required|trim');
@@ -2239,113 +2258,128 @@ class Invoice extends CI_Controller {
         $this->form_validation->set_rules('from_date', 'Invoice Period', 'required|trim');
         $this->form_validation->set_rules('type', 'Type', 'required|trim');
         if ($this->form_validation->run()) {
+            $flag = true;
             $data = $this->get_create_update_invoice_input($vendor_partner);
-            $total_amount_collected = ($data['total_service_charge'] +
-                    $data['total_additional_service_charge'] +
-                    $data['parts_cost'] + $data['courier_charges'] + $data['upcountry_price'] + $data['credit_penalty_amount'] - $data['penalty_amount']);
-            
-
-            $entity_details = array();
-            $gst_number = "";
-
-            if ($data['vendor_partner'] == "vendor") {
-                $entity_details = $this->vendor_model->viewvendor($data['vendor_partner_id']);
-                $gst_number = $entity_details[0]['gst_no'];
-            } else {
-
-                $entity_details = $this->partner_model->getpartner_details("gst_number, state", array('partners.id' => $data['vendor_partner_id']));
-                $gst_number = $entity_details[0]['gst_number'];
-                if(empty($gst_number)){
-                    
-                    $gst_number = TRUE;
+            $in_data = $this->invoices_model->get_invoices_details(array('invoice_id' => $data['invoice_id']),'*');
+            if (!empty($in_data)) {
+                if ($data['vendor_partner_id'] != $in_data[0]['vendor_partner_id']) {
+                    $flag = false;
                 }
             }
-            
-            if(empty($gst_number)){
-                $gst_rate = 0;
-            } else {
-                $gst_rate = $this->input->post('gst_rate');
-            }
-            
-            
-            $gst_amount = $total_amount_collected * ($gst_rate / 100);
-            $data['total_amount_collected'] = round(($total_amount_collected + $gst_amount), 0);
 
-            $data['rcm'] = 0;
-
-            $c_s_gst = $this->invoices_model->check_gst_tax_type($entity_details[0]['state']);
-            if ($c_s_gst) {
-
-                $data['cgst_tax_amount'] = $data['sgst_tax_amount'] = $gst_amount / 2;
-                $data['cgst_tax_rate'] = $data['sgst_tax_rate'] = $gst_rate / 2;
-            } else {
-
-                $data['igst_tax_amount'] = $gst_amount;
-                $data['igst_tax_rate'] = $gst_rate;
-            }
+            if ($flag) {
+                $total_amount_collected = ($data['total_service_charge'] +
+                        $data['total_additional_service_charge'] +
+                        $data['parts_cost'] + $data['courier_charges'] + $data['upcountry_price'] + $data['credit_penalty_amount'] - $data['penalty_amount']);
 
 
-            switch ($data['type_code']) {
-                case 'A':
-                    log_message('info', __FUNCTION__ . " .. type code:- " . $data['type']);
-                    $data['around_royalty'] = round($data['total_amount_collected'], 0);
-                    $data['amount_collected_paid'] = round($data['total_amount_collected'], 0);
+                $entity_details = array();
+                $gst_number = "";
 
-                    break;
-                case 'B':
-                    log_message('info', __FUNCTION__ . " .. type code:- " . $data['type']);
+                if ($data['vendor_partner'] == "vendor") {
+                    $entity_details = $this->vendor_model->viewvendor($data['vendor_partner_id']);
+                    $gst_number = $entity_details[0]['gst_no'];
+                } else {
 
-                    $tds['tds'] = 0;
-                    $tds['tds_rate'] = 0;
-                    if ($data['type'] == 'FOC') {
+                    $entity_details = $this->partner_model->getpartner_details("gst_number, state", array('partners.id' => $data['vendor_partner_id']));
+                    $gst_number = $entity_details[0]['gst_number'];
+                    if (empty($gst_number)) {
 
-                        if ($vendor_partner == "vendor") {
-                            $tds = $this->check_tds_sc($entity_details[0], ($total_amount_collected - $data['parts_cost']));
-                            if (empty($gst_number)) {
+                        $gst_number = TRUE;
+                    }
+                }
 
-                                $data['cgst_tax_amount'] = $data['sgst_tax_amount'] = $data['sgst_tax_rate'] = $data['cgst_tax_rate'] = 0;
-                                $data['igst_tax_amount'] = 0;
-                                $data['igst_tax_rate'] = 0;
-                               // $data['rcm'] = $total_amount_collected * ($this->input->post('gst_rate') / 100);
-                            } 
-                        } else {
-                            $tds['tds'] = 0;
-                            $tds['tds_rate'] = 0;
-                        }
-                    } else if ($data['type'] == 'CreditNote' || $data['type'] == 'Buyback' || $data['type'] == 'Stand' || $data['type'] == "Parts") {
+                if (empty($gst_number)) {
+                    $gst_rate = 0;
+                } else {
+                    $gst_rate = $this->input->post('gst_rate');
+                }
+
+
+                $gst_amount = $total_amount_collected * ($gst_rate / 100);
+                $data['total_amount_collected'] = round(($total_amount_collected + $gst_amount), 0);
+
+                $data['rcm'] = 0;
+
+                $c_s_gst = $this->invoices_model->check_gst_tax_type($entity_details[0]['state']);
+                if ($c_s_gst) {
+
+                    $data['cgst_tax_amount'] = $data['sgst_tax_amount'] = $gst_amount / 2;
+                    $data['cgst_tax_rate'] = $data['sgst_tax_rate'] = $gst_rate / 2;
+                } else {
+
+                    $data['igst_tax_amount'] = $gst_amount;
+                    $data['igst_tax_rate'] = $gst_rate;
+                }
+
+
+                switch ($data['type_code']) {
+                    case 'A':
+                        log_message('info', __FUNCTION__ . " .. type code:- " . $data['type']);
+                        $data['around_royalty'] = round($data['total_amount_collected'], 0);
+                        $data['amount_collected_paid'] = round($data['total_amount_collected'], 0);
+
+                        break;
+                    case 'B':
+                        log_message('info', __FUNCTION__ . " .. type code:- " . $data['type']);
 
                         $tds['tds'] = 0;
                         $tds['tds_rate'] = 0;
-                    }
+                        if ($data['type'] == 'FOC') {
 
-                    $data['around_royalty'] = 0;
-                    $data['amount_collected_paid'] = -($data['total_amount_collected'] - $tds['tds'] - $data['rcm']);
-                    $data['tds_amount'] = $tds['tds'];
-                    $data['tds_rate'] = $tds['tds_rate'];
-                    break;
-            }
+                            if ($vendor_partner == "vendor") {
+                                $tds = $this->check_tds_sc($entity_details[0], ($total_amount_collected - $data['parts_cost']));
+                                if (empty($gst_number)) {
 
-            $file = $this->upload_create_update_invoice_to_s3($data['invoice_id']);
-            if (isset($file['invoice_file_main'])) {
-                $data['invoice_file_main'] = $file['invoice_file_main'];
-            }
-            if (isset($file['invoice_detailed_excel'])) {
-                $data['invoice_detailed_excel'] = $file['invoice_detailed_excel'];
-            }
-            if (isset($file['invoice_file_excel'])) {
-                $data['invoice_file_excel'] = $file['invoice_file_excel'];
-            }
-            $data['agent_id'] = $this->session->userdata("id");
-            $status = $this->invoices_model->action_partner_invoice($data);
+                                    $data['cgst_tax_amount'] = $data['sgst_tax_amount'] = $data['sgst_tax_rate'] = $data['cgst_tax_rate'] = 0;
+                                    $data['igst_tax_amount'] = 0;
+                                    $data['igst_tax_rate'] = 0;
+                                    // $data['rcm'] = $total_amount_collected * ($this->input->post('gst_rate') / 100);
+                                }
+                            } else {
+                                $tds['tds'] = 0;
+                                $tds['tds_rate'] = 0;
+                            }
+                        } else if ($data['type'] == 'CreditNote' || $data['type'] == 'Buyback' || $data['type'] == 'Stand' || $data['type'] == "Parts") {
 
-            if ($status) {
-                log_message('info', __METHOD__ . ' Invoice details inserted ' . $data['invoice_id']);
+                            $tds['tds'] = 0;
+                            $tds['tds_rate'] = 0;
+                        }
+
+                        $data['around_royalty'] = 0;
+                        $data['amount_collected_paid'] = -($data['total_amount_collected'] - $tds['tds'] - $data['rcm']);
+                        $data['tds_amount'] = $tds['tds'];
+                        $data['tds_rate'] = $tds['tds_rate'];
+                        break;
+                }
+
+                $file = $this->upload_create_update_invoice_to_s3($data['invoice_id']);
+                if (isset($file['invoice_file_main'])) {
+                    $data['invoice_file_main'] = $file['invoice_file_main'];
+                }
+                if (isset($file['invoice_detailed_excel'])) {
+                    $data['invoice_detailed_excel'] = $file['invoice_detailed_excel'];
+                }
+                if (isset($file['invoice_file_excel'])) {
+                    $data['invoice_file_excel'] = $file['invoice_file_excel'];
+                }
+                $data['agent_id'] = $this->session->userdata("id");
+                $status = $this->invoices_model->action_partner_invoice($data);
+
+                if ($status) {
+                    log_message('info', __METHOD__ . ' Invoice details inserted ' . $data['invoice_id']);
+                } else {
+
+                    log_message('info', __METHOD__ . ' Invoice details not inserted ' . $data['invoice_id']);
+                }
+
+                redirect(base_url() . 'employee/invoice/invoice_summary/' . $data['vendor_partner'] . "/" . $data['vendor_partner_id']);
             } else {
-
-                log_message('info', __METHOD__ . ' Invoice details not inserted ' . $data['invoice_id']);
+               
+                $userSession = array('error' => "Invoice already mapped to another partner");
+                $this->session->set_userdata($userSession);
+                redirect(base_url() . 'employee/invoice/insert_update_invoice/' . $vendor_partner);
             }
-
-            redirect(base_url() . 'employee/invoice/invoice_summary/' . $data['vendor_partner'] . "/" . $data['vendor_partner_id']);
         } else {
             $this->insert_update_invoice($vendor_partner);
         }
@@ -3780,5 +3814,18 @@ class Invoice extends CI_Controller {
             }
         }
     }
-
+/**
+     * @desc: This function is used to get partners annual charges consolidated table view
+     * @params: void
+     * @return: view
+     * 
+     */
+    
+     public function partners_annual_charges()  
+      {  
+         $this->miscelleneous->load_nav_header();
+         $where = array('type' => 'annual', 'vendor_partner' => 'partner');
+         $data['annual_charges_data'] =$this->invoices_model->get_partners_annual_charges($where);  
+         $this->load->view('employee/partners_annual_charges_view', $data);  
+      } 
 }
