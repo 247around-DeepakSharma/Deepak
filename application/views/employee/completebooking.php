@@ -8,11 +8,47 @@
             </div>
         </div>
         <?php }?>
+        <?php $required_sp_id = array(); $can_sp_id = array(); ?>
+        <?php  $flag = 0; $requestedParts = false; if(isset($booking_history['spare_parts'])){ 
+                foreach ($booking_history['spare_parts'] as  $value) {
+                    if($value['status'] == "Completed" || $value['status'] == "Cancelled"){} else {
+                        if($value['defective_part_required'] == 1 && $value['status'] != SPARE_PARTS_REQUESTED){
+                            if(!empty($value['parts_shipped'])){
+                                switch ($value['status']){
+                                    case SPARE_SHIPPED_BY_PARTNER:
+                                    case SPARE_DELIVERED_TO_SF:
+                                    case DEFECTIVE_PARTS_REJECTED:
+                                    case DEFECTIVE_PARTS_PENDING:
+                                        $flag = 1; 
+                                        array_push($required_sp_id, $value['id']); 
+                                }
+                                  
+                            }
+                        }
+                    }
+
+                    if($value['status'] == SPARE_PARTS_REQUESTED){
+                        $date1=date_create($value['date_of_request']);
+                        $date2=date_create(date('Y-m-d'));
+                        $diff=date_diff($date1,$date2);
+                        $d = $diff->format("%R%a days");
+
+                        if($diff->format("%R%a days") < 15){
+                           $requestedParts = true;
+                        } else{
+                            array_push($can_sp_id, array('part_name' => $value['parts_requested'], "part_id" => $value['id']));
+                        }
+                    } 
+                }
+
+            }?>
+        <center><?php if($requestedParts) { ?><span style="color:red; font-weight: bold;" ><?php echo UNABLE_COMPLETE_BOOKING_SPARE_MSG;?></span><?php } ?></center>
 	<div class="panel panel-info" style="margin-top:20px;">
             <div class="panel-heading">Complete Booking <span class="pull-right"><input id="enable_change_unit" type="checkbox" onchange="update_brand_details()" name="enable_change_unit"> <span>Change Brand Details</span></span></div>
 	    <div class="panel-body">
-
+         
 		<?php
+                
 		if (isset($booking_history[0]['current_status'])) {
 		    if ($booking_history[0]['current_status'] == "Completed") {
 			$status = "1";
@@ -23,6 +59,7 @@
 		    echo $status = "1";
 		}
 		?>
+                
 		<form name="myForm" class="form-horizontal" id ="booking_form" action="<?php echo base_url() ?>employee/booking/process_complete_booking/<?php echo $booking_id; ?>/<?php echo $status; ?>"  method="POST" enctype="multipart/form-data">
                     <input type="hidden" value="<?php echo $booking_history[0]['service_center_closed_date']; ?>" name="service_center_closed_date">
 		    <div class="row">
@@ -40,6 +77,9 @@
 						   echo $booking_history[0]['booking_id'];
 					       }
 					       ?>" readonly="readonly">
+                                        <input type="hidden" id="spare_parts_required" name="spare_parts_required" value="<?php echo $flag;?>" />
+                                        <input type="hidden" name="sp_required_id" value='<?php echo json_encode($required_sp_id,TRUE); ?>' />
+                                        <input type="hidden" name="can_sp_required_id" value='<?php echo json_encode($can_sp_id,TRUE); ?>' />
 				    </div>
 				</div>
 
@@ -471,11 +511,18 @@
 		    </div>
 		    <br>
 		    <div class="form-group  col-md-12" >
+                         <?php if($requestedParts) { ?>
+                         <center style="margin-top:60px; font-weight: bold;">
+                            <?php echo UNABLE_COMPLETE_BOOKING_SPARE_MSG;?>
+                         </center>
+                        <?php } else { ?>
 			<center>
                             <input type="hidden" id="customer_id" name="customer_id" value="<?php echo $booking_history[0]['user_id']; ?>">
 			    <input type="submit" id="submitform" onclick="return onsubmit_form('<?php echo $booking_history[0]['upcountry_paid_by_customer']; ?>', '<?php echo $k_count; ?>')" class="btn btn-info" value="Complete Booking">
-			    </div>
+			    
 			</center>
+                        <?php } ?>
+                    </div>
 		    </div>
 		</form>
 		
@@ -611,11 +658,11 @@
         }
     });
 
-//    var is_sp_required = $("#spare_parts_required").val();
-//
-//    if (Number(is_sp_required) === 1) {
-//        alert("Ship Defective Spare Parts");
-//    }
+    var is_sp_required = $("#spare_parts_required").val();
+
+    if (Number(is_sp_required) === 1) {
+        alert("Ship Defective Spare Parts");
+    }
 
     if (Number(upcountry_flag) === 1) {
         var upcountry_charges = $("#upcountry_charges").val();
