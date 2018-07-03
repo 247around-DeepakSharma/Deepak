@@ -1788,4 +1788,129 @@ class service_centre_charges extends CI_Controller {
         }
     }
     
+    /**
+     * @desc: This function is used to get services for the drop box
+     * @params: void
+     * @return: services
+     * 
+     */
+
+    function get_services() {
+
+        $services = $this->booking_model->selectservice();
+        $service_id = $this->input->post('service_id');
+
+        $option = '<option selected disabled>Select Appliance</option>';
+
+        foreach ($services as $value) {
+            $option .= "<option value='" . $value->id . "'";
+            if ($service_id == $value->id) {
+                $option .= " selected ";
+            }
+            $option .= " > ";
+            $option .= $value->services . "</option>";
+        }
+
+        echo $option;
+    }
+    
+    /**
+     * @desc: This function is used to get the list of all appliances in a tabular format
+     * @params: void
+     * @return: view
+     * 
+     */
+
+    public function appliance_list() {
+        $this->miscelleneous->load_nav_header(); 
+        $data['appliance_name'] = $this->booking_model->selectservice();
+        $this->load->view('employee/add_appliance_view', $data);
+    }
+    
+    /**
+     * @desc: This function is used to get the form to add new appliance name
+     * @params: void
+     * @return: view
+     * 
+     */
+
+    public function add_new_appliance_name() {
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/add_appliance_name_form');
+    }
+    
+    /**
+     * @desc: This function is used to add the appliance name to the database table from the add new appliance form
+     * @params: void
+     * @return: prints message if the data is added or already exists
+     * 
+     */
+
+    public function process_add_new_appliance_name() {
+
+
+        $this->form_validation->set_rules('appliance', 'appliance', 'required');
+
+        if ($this->form_validation->run() == TRUE) {
+            $data = array(
+                'services' => trim($this->input->post('appliance')),
+                'isBookingActive' => 1
+            );
+
+            $status = $this->service_centre_charges_model->insert_appliance_name($data);
+            if (!empty($status)) {
+
+                log_message("info", __METHOD__ . " Data Entered Successfully");
+                $this->session->set_userdata('success', 'Data Entered Successfully');
+                redirect(base_url() . 'employee/service_centre_charges/appliance_list');
+            } else {
+
+
+                log_message("info", __METHOD__ . " Data Already Exists");
+                $this->session->set_userdata('failed', 'Data Already Exists');
+                redirect(base_url() . 'employee/service_centre_charges/add_new_appliance_name');
+            }
+        } else {
+            $this->add_new_appliance_name();
+        }
+    }
+    
+    /**
+     * @desc: This function is used to update appliance name in the appliance list tabular view
+     * @params: void
+     * @return: prints message if the data is updated or exists already
+     * 
+     */
+
+    public function update_appliance_name() {
+
+
+        $this->form_validation->set_rules('appliance', 'appliance', 'required');
+        $this->form_validation->set_rules('rowid', 'rowid', 'required');
+
+
+        if ($this->form_validation->run() == TRUE) {
+            $id = $this->input->post('rowid');
+            $data = array(
+                'services' => trim($this->input->post('appliance')),
+            );
+
+            $status = $this->service_centre_charges_model->update_appliance_name($id, $data);
+            if (!empty($status)) {
+
+                log_message("info", __METHOD__ . " Data Updated");
+                $this->session->set_userdata('success', 'Data Updated');
+                redirect(base_url() . 'employee/service_centre_charges/appliance_list');
+            } else {
+
+
+                log_message("info", __METHOD__ . " Data Already Exists");
+                $this->session->set_userdata('failed', 'Data Already Exists');
+                redirect(base_url() . 'employee/service_centre_charges/appliance_list');
+            }
+        } else {
+
+            $this->appliance_list();
+        }
+    }
 }

@@ -468,6 +468,65 @@ class service_centre_charges_model extends CI_Model {
             return false;
         }
     }
+    /**
+     * @desc: This function is used to get distinct appliances from services table 
+     * @params: void
+     * @return: string
+     * 
+     */
+    
+     function get_appliance(){
+        $this->db->distinct();
+        $this->db->select('services');
+        $this->db->from('services');
+        $this->db->order_by('services');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+ 
+
+      /**
+     * @desc: This function is used to insert new appliance name into services table
+     * @params: Array $data
+     * @return: true if inserted
+     * 
+     */
+        function insert_appliance_name($data){
+        
+        $this->db->select('*');
+        $this->db->from('services');
+        $this->db->where($data);
+        $query = $this->db->get();
+        if ($query->num_rows() == 0) {
+
+        $this->db->insert('services', $data);
+        return $this->db->insert_id();
+
+        }else {
+            return false;
+        }
+        }
+      
+      /**
+     * @desc: This function is used to update appliance name in services table
+     * @params: Array $data
+     * @params: $id
+     * @return: true if updated
+     * 
+     */
+        function update_appliance_name($id, $data) {
+        $this->db->where('id', $id);
+        $this->db->update('services', $data);
+     
+        
+        if ($this->db->affected_rows() > 0) {
+                return true;
+            
+        } else {
+            return false;
+        }    
+        
+    }
      /**
      * @desc: This function is used to insert service category data into request_type table
      * @params: Array $data
