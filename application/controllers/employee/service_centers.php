@@ -375,7 +375,7 @@ class Service_centers extends CI_Controller {
                 $close_timeStamp = strtotime($bookingData['service_center_closed_date']);
                 $datediff = $close_timeStamp - $booking_timeStamp;
                 $booking_date_days = round($datediff / (60 * 60 * 24)) - 1;
-                if($booking_date_days >= 0){
+                if($booking_date_days <= 0){
                     $bookingData['service_center_closed_date'] = date('Y-m-d H:i:s');
                 }
                 $this->reusable_model->update_table("booking_details", $bookingData, array('booking_id' => $booking_id));
@@ -701,7 +701,7 @@ class Service_centers extends CI_Controller {
                     $close_timeStamp = strtotime($bookingData['service_center_closed_date']);
                     $datediff = $close_timeStamp - $booking_timeStamp;
                     $booking_date_days = round($datediff / (60 * 60 * 24))-1;
-                    if($booking_date_days >= 0){
+                    if($booking_date_days <= 0){
                         $bookingData['service_center_closed_date'] = date('Y-m-d H:i:s');
                     }
                     $this->reusable_model->update_table("booking_details",$bookingData,array('booking_id'=>$booking_id));
