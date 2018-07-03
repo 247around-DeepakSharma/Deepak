@@ -1372,7 +1372,7 @@ class Miscelleneous {
      */
 
     function send_sf_not_found_email_to_rm($booking, $rm_email,$subject, $isPartner) {
-        $cc = ANUJ_EMAIL_ID;
+        $cc = "";
         $booking['service'] = NULL;
         $tempPartner = $this->My_CI->reusable_model->get_search_result_data("partners", "public_name", array('id' => $booking['partner_id']), NULL, NULL, NULL, NULL, NULL);
         if(!empty($booking['service_id'])){
