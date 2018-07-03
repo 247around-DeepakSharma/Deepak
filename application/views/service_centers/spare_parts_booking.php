@@ -46,6 +46,7 @@ if ($this->uri->segment(4)) {
                                     <th class="text-center">Model Number</th>
                                     <th class="text-center">Serial Number</th>
                                     <th class="text-center">Problem Description</th>
+                                    <th class="text-center">Inventory Stock</th>
                                     <th class="text-center">Update</th>
                                     <th class="text-center">Reject</th>
                                     <th class="text-center">SF GST Declaration</th>
@@ -89,6 +90,9 @@ if ($this->uri->segment(4)) {
 
                                         <td>
                                             <?php echo $row['remarks_by_sc']; ?>
+                                        </td>
+                                        <td>
+                                            <?php echo $row['stock']; ?>
                                         </td>
 
                                         <td>
