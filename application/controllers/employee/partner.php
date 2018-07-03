@@ -3638,6 +3638,22 @@ class Partner extends CI_Controller {
             //Logging success for file uppload
             log_message('info', __FUNCTION__ . ' Service Tax FILE is being uploaded sucessfully.');
         }
+         //Processing GST Number File
+        if (($_FILES['gst_number_file']['error'] != 4) && !empty($_FILES['gst_number_file']['tmp_name'])) {
+            $tmpFile = $_FILES['gst_number_file']['tmp_name'];
+            $gst_number_file = "Partner-" . $this->input->post('public_name') . '-GST Number' . "." . explode(".", $_FILES['gst_number_file']['name'])[1];
+                   
+            //Upload files to AWS
+            $bucket = BITBUCKET_DIRECTORY;
+            $directory_xls = "vendor-partner-docs/" . $gst_number_file;
+            $this->s3->putObjectFile($tmpFile, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+            $return_data['partner']['gst_number_file'] = $gst_number_file;
+
+            $attachment_gst_number_file = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $gst_number_file;
+
+            //Logging success for file uppload
+            log_message('info', __FUNCTION__ . ' GST Number FILE is being uploaded sucessfully.');
+        }
         $return_data['partner']['gst_number'] = trim($this->input->post("gst_number"));
         $return_data['partner']['pan'] = trim($this->input->post("pan"));
         $return_data['partner']['registration_no'] = trim($this->input->post("registration_no"));
