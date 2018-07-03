@@ -432,4 +432,61 @@ class service_centre_charges_model extends CI_Model {
         }
     }
     
+    /**
+     * @desc: This function is used to get data from request_type table
+     * @params: Array $where
+     * @return: string
+     * 
+     */
+            function get_service_category_data($where = array()){  
+             $this->db->select('request_type.*, services.services');
+             $this->db->from('request_type');
+             $this->db->join('services', 'services.id =  request_type.service_id');
+             if(!empty($where)){
+                 $this->db->where($where);
+             }
+             $query = $this->db->get();
+            return $query->result();  
+        } 
+        
+        /**
+     * @desc: This function is used to update data in request_type table
+     * @params: Array $data
+     * @params: $id 
+     * @return: true if inserted
+     * 
+     */
+     function update_service_category_detail($id, $data) {
+        $this->db->where('id', $id);
+        $this->db->update('request_type', $data);
+     
+        
+        if ($this->db->affected_rows() > 0) {
+                return true;
+            
+        } else {
+            return false;
+        }
+    }
+     /**
+     * @desc: This function is used to insert service category data into request_type table
+     * @params: Array $data
+     * @return: true if inserted
+     * 
+     */
+    function insert_service_category($data) {
+
+        $this->db->select('*');
+        $this->db->from('request_type');
+        $this->db->where($data);
+        $query = $this->db->get();
+        if ($query->num_rows() == 0) {
+
+            $this->db->insert('request_type', $data);
+            return $this->db->insert_id();
+            
+        } else {
+            return false;
+        }
+    }
 }
