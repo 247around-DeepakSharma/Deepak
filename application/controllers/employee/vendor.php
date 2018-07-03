@@ -711,6 +711,7 @@ class vendor extends CI_Controller {
                 if(!empty($this->input->post('gst_file'))){
                      $vendor_data['gst_file'] = $this->input->post('gst_file');
                 }
+                $vendor_data['cp_credit_limit'] = $this->input->post('cp_credit_limit');
                    
             
             return $vendor_data;
