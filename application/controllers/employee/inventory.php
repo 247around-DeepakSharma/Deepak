@@ -1235,14 +1235,16 @@ class Inventory extends CI_Controller {
             
             }
             
-            $partner_id = $this->input->post('partner_id');
-            $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $b['internal_status'], $partner_id, $booking_id);
-            if (!empty($partner_status)) {
-                $b['partner_current_status'] = $partner_status[0];
-                $b['partner_internal_status'] = $partner_status[1];
-            }
-            
-            $this->booking_model->update_booking($booking_id, $b); 
+            $partner_id = $this->reusable_model->get_search_query('booking_details','booking_details.partner_id',array('booking_details.booking_id' => trim($booking_id)),NULL,NULL,NULL,NULL,NULL)->result_array();
+            if(!empty($partner_id)){
+                $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $b['internal_status'], $partner_id[0]['partner_id'], $booking_id);
+                if (!empty($partner_status)) {
+                    $b['partner_current_status'] = $partner_status[0];
+                    $b['partner_internal_status'] = $partner_status[1];
+                }
+
+                $this->booking_model->update_booking($booking_id, $b);
+            } 
            
             
             echo "Success";
