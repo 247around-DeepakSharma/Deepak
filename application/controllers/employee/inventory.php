@@ -4239,4 +4239,13 @@ class Inventory extends CI_Controller {
             redirect(base_url() . "partner/login");
         }
     }
+    
+     public function update_tagged_invoice() {
+        
+        $data['inventory'] = $this->inventory_model->get_inventory_master_list_data('inventory_id,part_name,part_number');
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/update_tagged_invoice', $data);
+    }
+    
+
 }
