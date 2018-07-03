@@ -372,4 +372,64 @@ class service_centre_charges_model extends CI_Model {
         }
        
     }
+    
+        /**
+     * @desc: This function is used to insert service category capacity data into service_category_mapping table
+     * @params: Array $app_data
+     * @return: true if inserted
+     * 
+     */
+     function insert_appliance_detail($app_data){
+       
+        $this->db->select('*');
+        $this->db->from('service_category_mapping');
+        $this->db->where($app_data);
+        $query = $this->db->get();
+        if ($query->num_rows() == 0) {
+
+        $this->db->insert('service_category_mapping', $app_data);
+        return $this->db->insert_id();
+        } else {
+            return false;
+        }
+        }
+
+
+    /**
+     * @desc: This function is used to get data from service_category_mapping table
+     * @params: Array $where
+     * @return: string
+     * 
+     */
+             function get_appliance_data($where = array()){  
+             $this->db->select('service_category_mapping.*, services.services');
+             $this->db->from('service_category_mapping');
+             $this->db->join('services', 'services.id =  service_category_mapping.service_id');
+             if(!empty($where)){
+                 $this->db->where($where);
+             }
+             $query = $this->db->get();
+            return $query->result();  
+        } 
+        
+        /**
+     * @desc: This function is used to update service category capacity data in service_category_mapping table
+     * @params: Array $data
+     * @params: $id
+     * @return: true if updated
+     * 
+     */
+     function update_appliance_detail($id, $data) {
+        $this->db->where('id', $id);
+        $this->db->update('service_category_mapping', $data);
+     
+        
+        if ($this->db->affected_rows() > 0) {
+                return true;
+            
+        } else {
+            return false;
+        }
+    }
+    
 }
