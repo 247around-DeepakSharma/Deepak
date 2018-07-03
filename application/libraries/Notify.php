@@ -489,7 +489,7 @@ class Notify {
                         $sms['tag'] = "add_new_booking";
                     }
 		    
-		    
+		    $sms['smsData']['jobcard'] = S3_WEBSITE_URL."jobcards-excel/".$query1[0]['booking_jobcard_filename'];
 		    $sms['booking_id'] = $query1[0]['booking_id'];
 		    $sms['type'] = "user";
 		    $sms['type_id'] = $query1[0]['user_id'];
