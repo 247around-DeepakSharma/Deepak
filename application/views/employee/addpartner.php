@@ -67,13 +67,14 @@
                             if (!isset($query[0]['id'])) {
                             ?>
                         <li style="background:#fff"><a id="1" href="#tabs-1"><span class="panel-title">Basic Details</span></a></li>
-                        <li><a id="2" href="#tabs-2" ><span class="panel-title" onclick="alert('Please Add Basic Details FIrst')">Documents</span></a></li>
-                        <li><a id="3" href="#tabs-3" ><span class="panel-title" onclick="alert('Please Add Basic Details FIrst')">Operation Region</span></a></li>
-                        <li><a id="4" href="#tabs-4" ><span class="panel-title" onclick="alert('Please Add Basic Details FIrst')">Contracts</span></a></li>
-                        <li><a id="5" href="#tabs-5" ><span class="panel-title" onclick="alert('Please Add Basic Details FIrst')">Brand Mapping</span></a></li>
-                        <li><a id="6" href="#tabs-6" ><span class="panel-title" onclick="alert('Please Add Basic Details FIrst')">Brand Collateral</span></a></li>
-                        <li><a id="7" href="#tabs-7" ><span class="panel-title" onclick="alert('Please Add Basic Details FIrst')">Upload Serial No</span></a></li>
-                        <li><a id="8" href="#tabs-8" ><span class="panel-title" onclick="alert('Please Add Basic Details FIrst')">Add Contacts</span></a></li>
+                        <li><a id="2" href="#tabs-2" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Documents</span></a></li>
+                        <li><a id="3" href="#tabs-3" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Operation Region</span></a></li>
+                        <li><a id="4" href="#tabs-4" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Contracts</span></a></li>
+                        <li><a id="5" href="#tabs-5" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Brand Mapping</span></a></li>
+                        <li><a id="6" href="#tabs-6" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Brand Collateral</span></a></li>
+                        <li><a id="7" href="#tabs-7" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Upload Serial No</span></a></li>
+                        <li><a id="8" href="#tabs-8" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Add Contacts</span></a></li>
+                        <li><a id="9" href="#tabs-9" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Warehouse Details</span></a></li>
                         <?php
                             }
                             else{
@@ -86,6 +87,9 @@
                         <li><a id="6" href="#tabs-6" onclick="load_form(this.id)"><span class="panel-title">Brand Collateral</span></a></li>
                         <li><a id="7" href="#tabs-7" onclick="load_form(this.id)"><span class="panel-title">Upload Serial No</span></a></li>
                          <li><a id="8" href="#tabs-8" onclick="load_form(this.id)"><span class="panel-title">Add Contacts</span></a></li>
+                         <?php if($query[0]['is_wh']==1){?>
+                         <li><a id="9" href="#tabs-9" onclick="load_form(this.id)"><span class="panel-title">Warehouse Details</span></a></li>
+                         <?php }?>
                         <?php
                             }
                             ?>
@@ -111,6 +115,7 @@
                     </div>';
                 }
                 ?>
+           
             <div id="container_1" class="form_container">
                 <form name="myForm" class="form-horizontal" id ="booking_form" novalidate="novalidate" action="<?php echo base_url() ?>employee/partner/process_add_edit_partner_form" method="POST" enctype="multipart/form-data">
                     <div>
@@ -644,7 +649,7 @@
                                     <label for="invoice_email_cc" class="col-md-4">cc</label>
                                     <div class="col-md-6">
                                         <input type="text" class="form-control"  name="invoice_email_cc" value = "<?php if (isset($query[0]['invoice_email_cc'])) {
-                                            echo $query[0]['invoice_email_cc'];}  else { echo "anuj@247around.com,nits@247around.com,manojaj@247around.com"; }
+                                            echo $query[0]['invoice_email_cc'];}  else { echo "anuj@247around.com,nits@247around.com,adityag@247around.com"; }
                                             ?>">
                                         <?php echo form_error('invoice_email_cc'); ?>
                                     </div>
@@ -743,6 +748,25 @@
                             </div>
                         </div>
                     </div>
+                         <div class="col-md-12">
+                        <div class="col-md-12">
+                            <div class="panel panel-default">
+                                <div class="panel-heading"><b>Warehouse Details</b></div>
+                                <div class="panel-body">
+                                    <div class="col-md-6">
+                                        <div class="form-group ">
+                                            <label for="is_wh" class="col-md-4">Does Warehouse Exist</label>
+                                            <div class="col-md-1">
+                                                <input  type="checkbox" class="form-control"  name="is_wh" value = "1" <?php if (isset($query[0])) {
+                                                    if($query[0]['is_wh'] == '1'){ echo "checked"; }
+                                                    } ?> >
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="clear clear_bottom">
                         <br>
                         <center><input type="Submit" value="<?php if (isset($query[0]['id'])) {
@@ -762,8 +786,7 @@
                         if(isset($query[0]['id'])){
                             if($query[0]['id']){
                             ?>
-                    <input type="hidden" id="partner_id" name="partner_id" value=<?php echo  $query[0]['id']?>>
-                    <input type="hidden" id="partner_public_name" name="partner_public_name" value=<?php echo  $query[0]['public_name']?>>
+                    <input type="hidden" id="partner_id" name="partner_id" value=<?php echo $query[0]['id']?>>
                     <?php
                         }
                         }
@@ -921,14 +944,32 @@
                                     <div class="form-group <?php if (form_error('gst_number')) {
                                         echo 'has-error';
                                         } ?>">
-                                        <label for="service_tax" class="col-md-3">GST Number</label>
+                                        <label for="gst_number" class="col-md-3">GST Number</label>
                                         <div class="col-md-4" style="width:25%">
                                             <input type="text" style="text-transform:uppercase" class="form-control blockspacialchar"  name="gst_number" id="gst_number" value = "<?php if (isset($query[0]['gst_number'])) {
                                                 echo $query[0]['gst_number'];
                                                 } ?>" placeholder="GST Number">
                                         </div>
+                                        <div class="col-md-4">
+                                            <input type="file" class="form-control"  name="gst_number_file">
+                                        </div>
+                                        <div class="col-md-1">
+                                            <?php
+                                                $src = base_url() . 'images/no_image.png';
+                                                $image_src = $src;
+                                                if (isset($query[0]['gst_number_file']) && !empty($query[0]['gst_number_file'])) {
+                                                    $src = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $query[0]['gst_number_file'];
+                                                    $image_src = base_url() . 'images/view_image.png';
+                                                }
+                                                ?>
+                                            <a href="<?php echo $src ?>" target="_blank"> <img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
+                                            <?php if (isset($query[0]['gst_number_file']) && !empty($query[0]['gst_number_file'])) { ?>
+                                            <a href="javascript:void(0)" onclick="remove_image(<?php echo $query[0]['id'] ?>, '<?php echo $query[0]['gst_number_file'] ?>', 'gst_number_file')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                                            <?php } ?>
+                                        </div>
                                     </div>
                                 </div>
+                                <input type="hidden" id="public_name" name="public_name" value="<?php if (isset($query[0]['public_name'])) {echo $query[0]['public_name'];} ?>"
                             </div>
                         </div>
                     </div>
@@ -973,6 +1014,7 @@
                                 <?php
                                     }
                                     ?>
+            </div>
             </div>
             <div class="clear"></div>
             <div id="container_3" style="display:none;" class="form_container">
@@ -1473,12 +1515,10 @@
                                                 <select type="text" class="form-control"  id="contact_person_department_1" name="contact_person_department[]" onChange="getRoles(this.value,this.id)" >
                                                     <option value="" disabled="" selected="">Select Department</option>
                                                 <?php
-                                                if(isset($department)){
-                                                    foreach ($department as $value){
-                                                    ?> 
-                                                         <option value="<?php echo $value['department'] ?>"> <?php echo $value['department'] ?></option>
-                                                    <?php
-                                                    }
+                                                foreach ($department as $value){
+                                                ?> 
+                                                     <option value="<?php echo $value['department'] ?>"> <?php echo $value['department'] ?></option>
+                                                <?php
                                                 }
                                                 ?>
                                                             </select>  
@@ -1563,7 +1603,7 @@
                                 <td><?php echo $value['name'] ?></td>
                                 <td><?php echo $value['department'] ?></td>
                                 <td><?php echo $value['role'] ?></td>
-                                <td><?php echo $value['official_email'] ?></td>
+                                <td><?php echo $value['officail_email'] ?></td>
                                 <td><?php echo $value['official_contact_number'] ?></td>
                                 <td><?php echo $value['permanent_address'] ?></td>
                                  <td><?php echo $value['alternate_email'] ?></td>
@@ -1710,6 +1750,7 @@
             </div>
                                 
              </div>
+
         </div>
     </div>
 </div>
@@ -1898,6 +1939,7 @@
     
      $(document).ready(function () {
   $('#contact_form').hide();
+  $('#warehouse_form').hide();
   //called when key is pressed in textbox
   $("#grand_total_price").keypress(function (e) {
      //if the letter is not digit then display error and don't type anything
@@ -2216,6 +2258,9 @@ function up_message(){
 
            getserial_number_history();
        }
+       else if(tab_id=== '9'){
+           get_warehouse_details();
+       }
     }
     function add_more_fields(id){
       var buttonIdArray =  id.split("_");
@@ -2523,6 +2568,36 @@ function sendAjaxRequest(postData, url,type) {
     function show_add_contact_form(){
         $('#contact_form').show();
     }
+     function show_add_warehouse_form(){
+        $('#warehouse_form').show();
+    }
+    
+    function get_warehouse_details(){
+        var partner = $("#partner_id").val();
+        $(document).ready(function() {
+        $('#myTable').DataTable({
+            processing : true,
+            ajax: {
+                    url: "<?php echo base_url(); ?>employee/partner/get_warehouse_details",
+                    "type" : "POST",
+                    data: {partner_id: partner},
+                    dataSrc: function (json) {
+                             return json;
+                             }
+                             },
+            columns : [
+                        { data : "name" },
+                        { data : "warehouse_address_line1" },
+                        { data : "warehouse_address_line2" },
+                        { data : "warehouse_city" },
+                        { data : "warehouse_region" },
+                        { data : "warehouse_pincode" },
+                        { data : "warehouse_state" }
+                      ]
+        });
+    }); 
+    }
+    
 </script>
 <style>
     .progress{
@@ -2534,6 +2609,7 @@ function sendAjaxRequest(postData, url,type) {
 </style>
 <?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>
 <?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
+
 <script type="text/javascript">
 
     $('#contact_person_states').select2({

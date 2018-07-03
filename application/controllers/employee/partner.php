@@ -659,6 +659,7 @@ class Partner extends CI_Controller {
         $return_data['prepaid_amount_limit'] = $this->input->post('prepaid_amount_limit');
         $return_data['prepaid_notification_amount'] = $this->input->post('prepaid_notification_amount');
         $return_data['grace_period_date'] = $this->input->post('grace_period_date');
+        $return_data['is_wh'] = $this->input->post('is_wh');
         $is_prepaid = $this->input->post('is_prepaid');
         if (!empty($is_prepaid)) {
             $return_data['is_prepaid'] = 1;
@@ -882,9 +883,10 @@ class Partner extends CI_Controller {
                 array("contact_person.entity_type" =>  "partner","contact_person.entity_id"=>$id),
                 array("entity_role"=>"contact_person.role = entity_role.id","agent_filters"=>"contact_person.id=agent_filters.contact_person_id","entity_login_table"=>"entity_login_table.contact_person_id = contact_person.id"), NULL, 
                 array("name"=>'ASC'), NULL,  array("agent_filters"=>"left","entity_role"=>"left","entity_login_table"=>"left"),array("contact_person.id"));
+       $results['contact_name'] = $this->partner_model->select_contact_person($id);
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/addpartner', array('query' => $query, 'results' => $results, 'employee_list' => $employee_list, 'form_type' => 'update','department'=>$departmentArray));
-        }
+    }
 
     /**
      * @desc: This is used to get find user form in Partner CRM
@@ -4780,4 +4782,63 @@ class Partner extends CI_Controller {
         $this->session->set_userdata('success', $msg);
        redirect(base_url() . 'employee/partner/editpartner/' . $partnerID);
     }
+
+
+      /**
+     * @desc: This function is used to get display the warehouse information of a partner
+     * @params: void
+     * @return: warehouse details from table
+     * 
+     */
+       function get_warehouse_details(){
+        
+        $id = $this->input->post('partner_id');
+        $select = "warehouse_address_line1, warehouse_address_line2, warehouse_city, warehouse_region, warehouse_pincode, warehouse_state, name";
+        $where1 = array("warehouse_details.entity_id" => $id, "warehouse_details.entity_type" => "partner");
+        $data= $this->inventory_model->get_warehouse_details($select, $where1,false);
+        echo json_encode($data);
+
+        
+    }
+    /**
+     * @desc: This function is used to insert new warehouse information in the table
+     * @params: void
+     * @return: prints message if data inserted correctly or not
+     * 
+     */
+    
+    public function process_add_warehouse_details() {
+
+
+        $this->form_validation->set_rules('warehouse_address_line1', 'warehouse_address_line1', 'required');
+        $this->form_validation->set_rules('warehouse_city','warehouse_city', 'required');
+        $this->form_validation->set_rules('warehouse_region', 'warehouse_region','required');
+        $this->form_validation->set_rules('warehouse_pincode', 'warehouse_pincode','required');
+        $this->form_validation->set_rules('warehouse_state', 'warehouse_state','required');
+        $this->form_validation->set_rules('contact_name', 'contact_name','required');
+
+        if ($this->form_validation->run() == TRUE) {
+            $data = array(
+                'warehouse_address_line1' => $this->input->post('warehouse_address_line1'),
+                'warehouse_address_line2' => $this->input->post('warehouse_address_line2'),
+                'warehouse_city' => $this->input->post('warehouse_city'),
+                'warehouse_region' => $this->input->post('warehouse_region'),
+                'warehouse_pincode' => $this->input->post('warehouse_pincode'),
+                'warehouse_state' => $this->input->post('warehouse_state'),
+                'entity_id' =>$this->input->post('partner_id'),
+                'create_date' => date('Y-m-d H:i:s')
+               
+            );
+            $status = $this->partner_model->insert_warehouse_details($data);
+            if (!empty($status)) {
+                log_message("info", __METHOD__ . " Data Entered Successfully");
+                $this->session->set_userdata('success', 'Data Entered Successfully');
+                redirect(base_url() . 'employee/partner/get_add_partner_form');
+            } else {
+                log_message("info", __METHOD__ . " Data Already Exists");
+                $this->session->set_userdata('failed', 'Data Already Exists');
+                redirect(base_url() . 'employee/partner/get_add_partner_form');
+            }
+        } 
+    }  
 }

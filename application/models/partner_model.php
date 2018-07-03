@@ -1618,5 +1618,45 @@ function get_data_for_partner_callback($booking_id) {
         $this->db->insert_ignore_duplicate_batch('partner_serial_no', $data);
         return $this->db->insert_id();
     }
+    /**
+     * @desc: This function is used to insert warehouse data into warehouse_details table
+     * @params: Array $data
+     * @return: true if inserted
+     * 
+     */
+     function insert_warehouse_details($data){
+        
+         
+         
+        $condition = "warehouse_address_line1 =" . "'" . $data['warehouse_address_line1'] . "' AND " . "warehouse_address_line2 =" . "'" . $data['warehouse_address_line2'] . "' AND " . "warehouse_city =" . "'" . $data['warehouse_city'] . "' AND " . "warehouse_region =" . "'" . $data['warehouse_region'] . "' AND " . "warehouse_pincode =" . "'" . $data['warehouse_pincode'] . "' AND " . "warehouse_state =" . "'" . $data['warehouse_state'] . "'";
+        $this->db->select('*');
+        $this->db->from('warehouse_details');
+        $this->db->where($condition);
+        $this->db->limit(1);
+        $query = $this->db->get();
+        if ($query->num_rows() == 0) {
+
+        $this->db->insert('warehouse_details', $data);
+        return $this->db->insert_id();
+
+
+            if ($this->db->affected_rows() > 0) {
+                return true;
+            }
+        } else {
+            return false;
+        }
+        }
+        
+      /**
+     * @desc: This function is used to get the contact persons of warehouse from contact_person table
+     * @params: $id
+     * @return: string
+     * 
+     */
+    function select_contact_person($id) {
+        $query = $this->db->query("Select id, name from contact_person where entity_id= '".$id."' AND is_active='1' AND entity_type = 'partner' AND name IS NOT NULL order by name");
+        return $query->result();
     }
+}
 
