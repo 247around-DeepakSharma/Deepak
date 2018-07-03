@@ -267,6 +267,7 @@ class Do_background_process extends CI_Controller {
             if ($current_status == _247AROUND_CANCELLED) {
                 $booking['cancellation_reason'] = $data[0]['cancellation_reason'];
                 $booking['internal_status'] = $booking['cancellation_reason'];
+                $booking['api_call_status_updated_on_completed'] = DEPENDENCY_ON_CUSTOMER;
             }
 
             //check partner status from partner_booking_status_mapping table  

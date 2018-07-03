@@ -7618,5 +7618,10 @@ ALTER TABLE `vendor_partner_varialble_charges`
 ALTER TABLE `service_center_booking_action` ADD `model_number` VARCHAR(128) NULL DEFAULT NULL AFTER `serial_number`;
 ALTER TABLE `booking_unit_details` ADD `sf_model_number` VARCHAR(128) NULL DEFAULT NULL AFTER `model_number`;
 
+
 --sachin 28 june
 UPDATE `email_template` SET `subject` = '247around %s through CRM Payment Gateway' WHERE `email_template`.`tag` = 'payment_transaction_email';
+
+--Abhay 29 June
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'cp_out_standing_email', '%s', 'Dear Partner,<br/><br/> outstanding Amount %s <br/><br/> %s<br/><br/> <br/>Thanks!!;', 'booking@247around.com', '', 'abhaya@247around.com', '', '1', '2018-06-29 00:00:00');
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'cp_outstanding_sms', '%s', '', '1', '2018-06-29 18:59:32');
