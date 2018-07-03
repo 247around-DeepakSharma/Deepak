@@ -75,9 +75,9 @@
             </div>
          </div>
           <div class="form-group col-md-2">
-            <label for="settle_invoice_checkbox" class="col-sm-8">Invoice Settled</label>
+            <label for="settle_invoice_checkbox" class="col-sm-8">Invoice Un-Settled</label>
             <div class="col-md-4">
-                <input type="checkbox" id="settle_invoice_checkbox" name="settle_invoice_checkbox" class="form-control">
+                <input type="checkbox" onclick="getInvoicingData('<?php echo $vendor_partner; ?>');" checked id="settle_invoice_checkbox" name="settle_invoice_checkbox" class="form-control">
             </div>
          </div>
       </div>
@@ -250,10 +250,11 @@
 
        $('#loader_gif').attr('src', '<?php echo base_url() ?>images/loader.gif');
     var vendor_partner_id = $('#invoice_id').val();
-    var settle_invoice_checkbox = $('#settle_invoice_checkbox').val();
-    var c = 0;
-    if($("#settle_invoice_checkbox").prop('checked', true)){
-        c=1;
+    
+    if($('#settle_invoice_checkbox').is(":checked")){
+        c = 1;
+    } else {
+        c = 0;
     }
     var invoice_period = $('#invoice_period').val();
     $('#overall_summary').css('display', 'none');
