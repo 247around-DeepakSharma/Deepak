@@ -1643,34 +1643,27 @@ class Booking extends CI_Controller {
      */
     function call_customer($cust_phone) {
         // log_message('info', __FUNCTION__);
-
         $s1 = $_SERVER['HTTP_REFERER'];
         //$s2 = "https://www.aroundhomzapp.com/";
         $s2 = base_url();
         $redirect_url = substr($s1, strlen($s2));
-
         $this->checkUserSession();
-
         //Get customer id
         $cust_id = '';
         $user = $this->user_model->get_users_by_any(array("users.phone_number" => $cust_phone));
         if ($user) {
             $cust_id = $user[0]['user_id'];
         }
-
         //Find agent phone from session
         $agent_id = $this->session->userdata('id');
         $agent_phone = $this->session->userdata('phone');
-
         //Save call log
         $this->booking_model->insert_outbound_call_log(array(
             'agent_id' => $agent_id, 'customer_id' => $cust_id,
             'customer_phone' => $cust_phone
         ));
-
         //Make call to customer now
         $this->notify->make_outbound_call($agent_phone, $cust_phone);
-
         //Redirect to the page from where you landed in this function, do not refresh
         redirect(base_url() . $redirect_url);
     }
@@ -2893,7 +2886,8 @@ class Booking extends CI_Controller {
         $select = "services.services,users.name as customername,penalty_on_booking.active as penalty_active,
             users.phone_number, booking_details.*, service_centres.name as service_centre_name,
             service_centres.district as city, service_centres.primary_contact_name,
-            service_centres.primary_contact_phone_1,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date_as_dateformat";
+            service_centres.primary_contact_phone_1,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
+            STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date_as_dateformat,DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as booking_age";
         $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray,$partnerArray);
         unset($new_post['order_performed_on_count']);
         $data = array();
@@ -2944,12 +2938,15 @@ class Booking extends CI_Controller {
                 $post['where']  = array('current_status' => $booking_status,'type' => 'Booking');
             }else if(strtolower($booking_status) == 'pending' && empty ($booking_id)){
                 if($this->session->userdata('is_am') == '1'){
-                    $post['where']  = array("(current_status = 'Rescheduled' OR (current_status = 'Pending' AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1))"=>NULL,
+                    $post['where']  = array("(current_status = 'Rescheduled' OR (current_status = 'Pending' AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0))"=>NULL,
                         "service_center_closed_date IS NULL"=>NULL);
+                    $post['where_not_in']['booking_details.partner_internal_status']  = array('Booking Completed - Defective Part To Be Shipped By SF','Booking Completed - Defective Part Shipped By SF',
+                        'Spare Parts Requested By Service Centre','Booking Completed - Defective Part Received By Partner','Spare Parts Shipped by Partner','Service Centre Requested Quote for Spare Part',
+                        'Booking Completed - Defective Part Rejected By Partner');
                 }
                 else{
                     $post['where']  = array("current_status IN ('Pending','Rescheduled')" => NULL,
-                    "DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1" => NULL,"service_center_closed_date IS NULL"=>NULL);
+                    "DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0" => NULL,"service_center_closed_date IS NULL"=>NULL);
                 }
                 $post['order_performed_on_count'] = TRUE;
             }
@@ -3485,7 +3482,7 @@ class Booking extends CI_Controller {
         $row[] = "<a class='col-md-12' href='".base_url()."employee/user/finduser?phone_number=".$order_list->phone_number."'>$order_list->customername</a>"."<b>".$order_list->booking_primary_contact_no."</b>";
         $row[] = "<b>".$order_list->services."</b>"."<br>".$order_list->request_type;
         $row[] = $order_list->booking_date." / ".$order_list->booking_timeslot;
-        $row[] = date_diff(date_create(date('Y-m-d',strtotime($order_list->initial_booking_date_as_dateformat))),date_create(date('Y-m-d')))->format("%a days");
+        $row[] = $order_list->booking_age." days";
         $row[] = $escalation." ".$order_list->partner_internal_status;
         $row[] = "<a target = '_blank' href='".base_url()."employee/vendor/viewvendor/".$order_list->assigned_vendor_id."'>$sf</a>";
         $row[] = "<a id ='view' class ='btn btn-sm btn-color' href='".base_url()."employee/booking/viewdetails/".$order_list->booking_id."' title = 'view' target = '_blank'><i class = 'fa fa-eye' aria-hidden = 'true'></i></a>";
