@@ -1724,11 +1724,12 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
      */
     function send_reminder_mail_for_cp_outstanding() {
         log_message('info', __METHOD__ . " Enterring..");
-        $cp = $this->vendor_model->getVendorDetails('id, company_name, primary_contact_email, owner_email, owner_phone_1', array('is_cp' => 1));
+        $cp = $this->vendor_model->getVendorDetails('id, cp_credit_limit, company_name, primary_contact_email, owner_email, owner_phone_1', 
+                array('is_cp' => 1));
         if (!empty($cp)) {
             foreach ($cp as $value) {
                 $amount_cr_deb = $this->miscelleneous->get_cp_buyback_credit_debit($value['id']);
-                if ($amount_cr_deb['total_balance'] < CP_OUTSTANDING_AMOUNT_LIMIT) {
+                if ($amount_cr_deb['total_balance'] < $value['cp_credit_limit']) {
                     log_message('info', __METHOD__ . " CP Id ". $value['id']. " Outstanding Amount ".$amount_cr_deb['total_balance']);
                     
                     //Send SMS

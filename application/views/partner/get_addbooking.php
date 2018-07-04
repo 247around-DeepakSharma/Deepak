@@ -190,7 +190,7 @@
                                     <label for="appliance_unit">Unit* <span id="error_seller" style="color: red;"></label>
                                     <select style="width:55%" class="form-control" onchange="final_price()"   id="appliance_unit" name="appliance_unit" >
                                       
-                                        <?php for($i =1; $i <26; $i++) { ?>
+                                        <?php for($i =1; $i <11; $i++) { ?>
                                         <option value="<?php echo $i;?>"><?php echo $i; ?></option>
                                         <?php }?>
                                     </select>

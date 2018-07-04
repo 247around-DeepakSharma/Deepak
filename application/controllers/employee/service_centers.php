@@ -200,7 +200,7 @@ class Service_centers extends CI_Controller {
                 if($u['pod'] == 1){
                     $where = array("partner_id" => $data['booking_history'][0]['partner_id'], 'service_id' => $data['booking_history'][0]['service_id'], 
                         'brand' => $b['brand'], 'category' => $b['category'], 'active'=> 1, 'capacity' => $b['capacity'],
-                        "model NOT IN ('', NULL)" => NULL);
+                        "NULLIF(model, '') IS NOT NULL" => NULL);
 
                     $m =$this->partner_model->get_partner_specific_details($where, "model", "model");
                     if(!empty($m)){
@@ -3620,11 +3620,11 @@ class Service_centers extends CI_Controller {
         log_message('info', __FUNCTION__ . " sf Id: " . $this->session->userdata('service_center_id'));
         $this->check_WH_UserSession();
         $sf_id = $this->session->userdata('service_center_id');
-        $where = "spare_parts_details.partner_id = '" . $sf_id . "' AND  entity_type =  '"._247AROUND_SF_STRING."' AND status = '" . SPARE_PARTS_REQUESTED . "' "
-                . " AND booking_details.current_status IN ('Pending', 'Rescheduled') ";
+        $where = "spare_parts_details.partner_id = '" . $sf_id . "' AND  spare_parts_details.entity_type =  '"._247AROUND_SF_STRING."' AND status = '" . SPARE_PARTS_REQUESTED . "' "
+                . " AND booking_details.current_status IN ('Pending', 'Rescheduled') AND inventory_stocks.entity_id = '".$sf_id."' and inventory_stocks.entity_type = '"._247AROUND_SF_STRING."'";
 
         $config['base_url'] = base_url() . 'service_center/spare_parts';
-        $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
+        $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false,0,true);
         $config['total_rows'] = $total_rows[0]['total_rows'];
 
         if ($all == 1) {
@@ -3639,7 +3639,7 @@ class Service_centers extends CI_Controller {
         $data['links'] = $this->pagination->create_links();
 
         $data['count'] = $config['total_rows'];
-        $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true);
+        $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true,0,true);
         $data['is_ajax'] = $this->input->post('is_ajax');
         if(empty($this->input->post('is_ajax'))){
             $this->load->view('service_centers/header');
