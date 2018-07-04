@@ -56,9 +56,7 @@ if ($this->uri->segment(4)) {
                                     <th class="text-center">State</th>
                                     <th class="text-center">Problem Description</th>
                                     <th class="text-center">Send Email</th>
-                                    <?php if(!$this->session->userdata('is_wh')) { ?> 
                                     <th class="text-center">Action</th>
-                                    <?php } ?>
                                     <th class="text-center">SF GST Declaration</th>
                                     <th class="text-center" >Address <input type="checkbox" id="selectall_address" > </th>
                                     <th class="text-center" >Courier Manifest <input type="checkbox" id="selectall_manifest" ></th>
@@ -102,7 +100,6 @@ if ($this->uri->segment(4)) {
                                            <td style="vertical-align: middle;">
                                             <a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('<?php echo $row['booking_id']?>')"><i class="fa fa-envelope" aria-hidden="true"></i></a>
                                         </td>
-                                        <?php if(!$this->session->userdata('is_wh')) { ?> 
                                         <td class="text-center">
                                             <div class="dropdown">
                                                 <button class="btn btn-sm btn-primary" type="button" data-toggle="dropdown" style="    border: 1px solid #2a3f54;background: #2a3f54;">Action
@@ -116,7 +113,6 @@ if ($this->uri->segment(4)) {
                                                 </ul>
                                             </div>
                                         </td>
-                                        <?php } ?>
 
 <!--                                        <td>
                                             <a href="<?php echo base_url() ?>partner/update_spare_parts_form/<?php echo $row['id']; ?>" class="btn btn-sm btn-primary" title="Update" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>
