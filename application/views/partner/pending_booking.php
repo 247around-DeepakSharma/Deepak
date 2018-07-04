@@ -139,7 +139,7 @@
                             </td>
                             <td class="text-center"><a href="javascript: w=window.open('https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $row->booking_jobcard_filename; ?>'); w.print()" class='btn btn-sm btn-primary btn-sm' target="_blank" ><i class="fa fa-download" aria-hidden="true"></i></a></td>
                             <td class="text-center">
-                                <a <?php if ($row->type == "Query") { ?> style="pointer-events: none;background: #ccc;border-color:#ccc;" <?php } ?> href="#" class='btn btn-sm btn-warning open-AddBookDialog' data-id= "<?php echo $row->booking_id; ?>" data-toggle="modal" data-target="#myModal" title="Escalate"><i class="fa fa-circle" aria-hidden="true"></i></a>
+                                <a <?php if ($row->type == "Query") { ?> style="pointer-events: none;background: #ccc;border-color:#ccc;" <?php } ?> href="#" class='btn btn-sm btn-warning open-AddBookDialog' data-id= "<?php echo $row->booking_id; ?>" data-toggle="modal" <?php if($row->actor != 'Partner'){ echo 'data-target="#myModal"';} else{ echo "onclick=show_msg('".$row->partner_internal_status."')";}?> title="Escalate"><i class="fa fa-circle" aria-hidden="true"></i></a>
                             </td>
                         </tr>
                             <?php $sn_no++;
@@ -362,6 +362,9 @@ $('#serachInput').select2();
                 alert("Subject Or Message should not be blank ");
                 return false;
             }
+        }
+        function show_msg(internal_status){
+            alert("Escalation can not be Processed, Because booking in '"+internal_status+"' state");
         }
     </script>
     <style>
