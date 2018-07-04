@@ -172,7 +172,7 @@
                                     <option>STS</option>
                                     <option>Snapdeal-delivered-excel</option>
                                     <option>Snapdeal-shipped-excel</option>
-                                    <option>Snapdeal</option
+                                    <option>Snapdeal</option>
                                     <option>Paytm-delivered-excel</option>
                                     <option>Paytm</option>
                                     <option>VibgyorNXT</option>
