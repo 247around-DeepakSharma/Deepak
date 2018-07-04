@@ -303,7 +303,7 @@ class Service_centers extends CI_Controller {
                     if(isset($model_number[$unit_id])){
                         $data['model_number'] = $model_number[$unit_id];
                     } 
-                    
+                    $data['service_charge'] = $value;
                     $data['additional_service_charge'] = $additional_charge[$unit_id];
                     $data['parts_cost'] = $parts_cost[$unit_id];
                     if ($booking_status[$unit_id] == _247AROUND_COMPLETED && $spare_parts_required == 1) {
