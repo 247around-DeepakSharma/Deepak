@@ -1736,7 +1736,7 @@ class invoices_model extends CI_Model {
     }
     
     function insert_inventory_invoice($data){
-        $this->db->insert('inventory_invoice_mapping', $data);
+        $this->db->insert_batch('inventory_invoice_mapping', $data);
         return $this->db->insert_id();
     }
     
