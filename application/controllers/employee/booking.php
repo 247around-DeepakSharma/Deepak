@@ -2095,17 +2095,19 @@ class Booking extends CI_Controller {
         $message = "";
         if (isset($_POST['pod'])) {
             foreach ($pod as $unit_id => $value) {
-                if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
-                   
-                   $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number[$unit_id]), $price_tags[$unit_id]);
-                    if(!empty($status)){
-                        if($status['code'] == DUPLICATE_SERIAL_NO_CODE){
-                            $return_status = false;
-                            $message = $status['message'];
-                            log_message('info', " Duplicate Serial No ".trim($serial_number[$unit_id]));
-                            break;
-                        } 
-                    } 
+                if ($value == '1') {
+                    if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
+
+                        $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number[$unit_id]), $price_tags[$unit_id]);
+                        if (!empty($status)) {
+                            if ($status['code'] == DUPLICATE_SERIAL_NO_CODE) {
+                                $return_status = false;
+                                $message = $status['message'];
+                                log_message('info', " Duplicate Serial No " . trim($serial_number[$unit_id]));
+                                break;
+                            }
+                        }
+                    }
                 }
             }
             if ($return_status == true) {
