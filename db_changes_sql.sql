@@ -7628,3 +7628,6 @@ INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `crea
 
 --Abhay 3 July
 ALTER TABLE `service_centres` ADD `cp_credit_limit` DECIMAL NULL DEFAULT '0' AFTER `on_off`;
+--Chhavi 06th July
+ALTER TABLE `courier_details` ADD `contact_person_id` INT(10) NOT NULL AFTER `partner_invoice_id`;
+ALTER TABLE `courier_details` ADD `document_type` VARCHAR(100) NOT NULL AFTER `receiver_entity_id`;
