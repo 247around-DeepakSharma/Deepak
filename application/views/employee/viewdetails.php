@@ -593,6 +593,7 @@
                                         <th >Remarks By Partner </th>
                                         <th>SF Challan Number</th>
                                         <th>SF Challan File</th>
+                                       <!-- <th>Edit</th> -->
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -612,6 +613,7 @@
                                             <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY?>/vendor-partner-docs/<?php echo $sp['sf_challan_file']; ?>" target="_blank">Click Here to view</a>
                                             <?php } ?>
                                         </td>
+                                       <!-- <td> <button id='update_button' class="btn btn-primary" onClick="window.location.href = '<?php echo base_url();?>employee/service_centers/update_spare_courier_details/<?php echo $sp['id'];?>';return false;" value="update">Update</button></td> -->
                                     </tr>
                                     <?php } } ?>
                                 </tbody>

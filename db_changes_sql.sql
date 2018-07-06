@@ -7628,6 +7628,11 @@ INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `crea
 
 --Abhay 3 July
 ALTER TABLE `service_centres` ADD `cp_credit_limit` DECIMAL NULL DEFAULT '0' AFTER `on_off`;
+--Chhavi 06th July
+ALTER TABLE `courier_details` ADD `contact_person_id` INT(10) NOT NULL AFTER `partner_invoice_id`;
+ALTER TABLE `courier_details` ADD `document_type` VARCHAR(100) NOT NULL AFTER `receiver_entity_id`;
 
---Abhay 6 July
 ALTER TABLE `booking_details` ADD `upcountry_update_date` DATETIME NULL DEFAULT NULL AFTER `service_center_closed_date`;
+--Chhavi 4 July
+ALTER TABLE `inventory_master_list` ADD `is_local_purchase` INT(1) NOT NULL DEFAULT '0' AFTER `create_date`;
+ALTER TABLE `service_centre_charges` ADD `is_local_purchase` INT(1) NOT NULL DEFAULT '0' AFTER `create_date`;

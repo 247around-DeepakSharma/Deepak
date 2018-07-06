@@ -542,4 +542,152 @@ class Accounting extends CI_Controller {
         }
     }
     
+    //Function to load add ducuments page
+   function shipped_documents(){
+        $partner_id = $this->reusable_model->get_search_result_data("partners","*",array("is_active"=>1),NULL,NULL,NULL,NULL,NULL,array());
+        $sf_id = $this->reusable_model->get_search_result_data("service_centres","*",array("active"=>1),NULL,NULL,NULL,NULL,NULL,array());
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/shipped_documents',array('partner_id'=>$partner_id,'sf_id'=>$sf_id));
+    }
+    
+    //for displaying contact in view->shipped_documents.php on the basis of partner id
+    
+    function get_contact(){
+        $data = $this->reusable_model->get_search_result_data("contact_person","*",array("entity_id"=>$this->input->post('id'),"entity_type"=>$this->input->post('entity')),NULL,NULL,NULL,NULL,NULL,array());
+        echo json_encode($data);
+    }
+    
+    //checks if the invoice ID entered by the user exists in the database
+    function check_invoice_id($id,$entityType){
+        $invoiceData = $this->reusable_model->get_search_result_data("vendor_partner_invoices","vendor_partner_id", array("invoice_id"=>$id,'vendor_partner'=>$entityType),NULL,
+                NULL, NULL, NULL, NULL,array());
+        if(!empty($invoiceData))
+            echo $invoiceData[0]['vendor_partner_id'];
+        else{
+            echo "false";
+        }
+    }
+    
+    //save all the added document
+    function save_documents(){
+        $this->checkUserSession();
+        $tmp_courier_name = $_FILES['courier']['tmp_name'];
+        $courier_name = implode("",explode(" ",$this->input->post('courier'))).'_courier_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['courier']['name'])[1];
+        move_uploaded_file($tmp_courier_name, TMP_FOLDER.$courier_name);
+        //Upload files to AWS
+        $bucket = BITBUCKET_DIRECTORY;
+        $directory_xls = "vendor-partner-docs/" . $courier_name;
+        $this->s3->putObjectFile(TMP_FOLDER . $courier_name, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+        $_POST['courier'] = $courier_name;
+        $attachment_courier = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $courier_name;
+
+        //Logging success for file uppload
+        log_message('info', __CLASS__ . ' Courier FILE is being uploaded sucessfully.');
+        
+        $shipped_documents['sender_entity_id'] = $this->session->userdata('id');
+        $shipped_documents['sender_entity_type'] = $this->session->userdata('userType');
+        if($this->session->userdata('userType') == 'employee'){
+            $shipped_documents['sender_entity_type'] = '247around';
+        }
+        $shipped_documents['courier_file'] = $this->input->post('courier');
+        $shipped_documents['courier_name'] = $this->input->post('courier_name');
+        $shipped_documents['receiver_entity_type'] = $this->input->post('entity_type');
+        $shipped_documents['document_type']= $this->input->post('doc_type');
+        if($this->input->post('contact')){
+            $shipped_documents['contact_person_id'] = $this->input->post('contact');
+        }
+        else if($this->input->post('contact_input')){
+            $shipped_documents['contact_person_id'] = $this->input->post('contact_input');
+        }
+        $shipped_documents['create_date'] = date('Y-m-d H:i:s');
+        $shipped_documents['AWB_no'] = $this->input->post('awb_no');
+        $shipped_documents['shipment_date'] = $this->input->post('shipment_date');
+        if($this->input->post('remarks')){
+            $shipped_documents['remarks'] = $this->input->post('remarks');
+        }
+        if($this->input->post('invoice_id')){
+            $shipped_documents['partner_invoice_id'] = $this->input->post('invoice_id');
+        }
+        $entity_type = $this->input->post('entity_type');
+        $doc_type= $this->input->post('doc_type');
+        switch($doc_type){
+            case "invoice":
+                $id = $this->input->post('vendor_partner_id');
+                break;
+            case "contract":
+                switch($entity_type){
+                    case "247around":
+                        $id = _247AROUND;
+                        break;
+                    case "vendor":
+                        $id = $this->input->post('sfid');
+                        break;
+                    case "partner":
+                        if($this->input->post('partnerid'))
+                            $id = $this->input->post('partnerid');
+                        else
+                            $id = $this->input->post('partnerbox');
+                        break;
+                }
+                break;
+        }
+        $shipped_documents['receiver_entity_id'] = $id;
+        if($this->input->post('add_edit') == 'add'){
+            $add_documents = $this->reusable_model->insert_into_table("courier_details",$shipped_documents);
+        }
+        else{
+            $add_documents = $this->reusable_model->update_table("courier_details",$shipped_documents,array('id'=>$this->input->post('add_edit')));
+        }
+        if(!($add_documents)){
+             echo '<script language="javascript">'; echo 'alert("Error in saving document!!")'; echo '</script>';
+            exit();
+        }
+         redirect(base_url() . "employee/accounting/view_shipped_documents");
+    }
+    
+    /**
+     * @desc: This funtion will check Session
+     * @param: void
+     * @return: true if details matches else session is distroyed.
+     */
+    function checkUserSession() {
+         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
+            return TRUE;
+        } else {
+            log_message('info', __FUNCTION__. " Session Expire for Service Center");
+            $this->session->sess_destroy();
+            redirect(base_url() . "employee/login");
+        }
+    }
+    //to view all the documents
+    function view_shipped_documents(){
+        $courier_details = $this->accounting_model->get_courier_documents();
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/view_shipped_documents',array('courier_details'=>$courier_details));
+    
+    }
+    
+    //to update a single doc
+    function update_shipped_document($id){
+        $courier_details = $this->accounting_model->get_courier_documents($id);
+        $partner_id = $this->reusable_model->get_search_result_data("partners","*",array("is_active"=>1),NULL,NULL,NULL,NULL,NULL,array());
+        $sf_id = $this->reusable_model->get_search_result_data("service_centres","*",array("active"=>1),NULL,NULL,NULL,NULL,NULL,array());        
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/shipped_documents',array('courier_details'=>$courier_details,'partner_id'=>$partner_id,'sf_id'=>$sf_id));   
+    }
+    //deletes doc and redirects to same page
+    function delete_shipped_document($id){
+        if(!($this->accounting_model->delete_shipped_documents($id))){
+            echo '<script language="javascript">'; 
+            echo 'alert("Record not deleted")'; 
+            echo '</script>';
+        }
+        else{
+            echo '<script language="javascript">'; 
+            echo 'alert("Record deleted")';
+            echo '</script>';
+            
+        } 
+        redirect(base_url() . "employee/accounting/view_shipped_documents");
+    }
 }
