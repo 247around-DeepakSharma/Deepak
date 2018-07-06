@@ -275,6 +275,7 @@ class Miscelleneous {
                 $booking['upcountry_distance'] = $data['upcountry_distance'];
                 $booking['sf_upcountry_rate'] = $data['sf_upcountry_rate'];
                 $booking['partner_upcountry_rate'] = $data['partner_upcountry_rate'];
+                $booking['upcountry_update_date'] = date('Y-m-d H:i:s');
 
                 $is_upcountry = $this->My_CI->upcountry_model->is_upcountry_booking($booking_id);
                 
@@ -336,6 +337,7 @@ class Miscelleneous {
                         $booking['upcountry_paid_by_customer'] = 0;
                         $booking['upcountry_remarks'] = UPCOUNTRY_BOOKING_NEED_TO_APPROVAL;
                         $booking['amount_due'] = $cus_net_payable;
+                        
                         $partner_status = $this->My_CI->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, UPCOUNTRY_BOOKING_NEED_TO_APPROVAL,
                                 $query1[0]['partner_id'], $booking_id);
                         $actor = $next_action = 'not_define';
