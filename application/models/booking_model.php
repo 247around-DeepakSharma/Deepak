@@ -2160,6 +2160,11 @@ class Booking_model extends CI_Model {
                 $this->db->where_in($key, $values);
             }
         }
+         if (!empty($post['where_not_in'])) {
+            foreach($post['where_not_in'] as $key=>$values){
+                $this->db->where_not_in($key, $values);
+            }
+        }
         
         if (!empty($post['search_value'])) {
             $like = "";
