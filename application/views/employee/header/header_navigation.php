@@ -496,7 +496,7 @@ function outbound_call(phone_number){
         if (confirm_call == true) {      
              $.ajax({
                 type: 'POST',
-                url: 'http://localhost/247around/employee/booking/call_customer/' + phone_number,
+                url: '<?php echo  base_url()?>/employee/booking/call_customer/' + phone_number,
                 success: function(response) {
                 }
             });
