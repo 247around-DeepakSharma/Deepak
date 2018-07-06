@@ -3170,8 +3170,6 @@ class Inventory extends CI_Controller {
     function send_defective_parts_to_partner_from_wh() {
         log_message("info", __METHOD__ . json_encode($this->input->post(), true));
         $this->check_WH_UserSession();
-        //$str = '{"data":"{\"0\":{\"inventory_id\":\"911\",\"booking_id\":\"PV-1926111804131\",\"partner_id\":\"10\",\"spare_id\":\"3007\",\"part_name\":\"Spin Timer\",\"model\":\"\",\"booking_partner_id\":\"247073\"},\"1\":{\"inventory_id\":\"912\",\"booking_id\":\"PV-1946511804201\",\"partner_id\":\"10\",\"spare_id\":\"3152\",\"part_name\":\"Main Board Defective\",\"model\":\"\",\"booking_partner_id\":\"247073\"},\"2\":{\"inventory_id\":\"952\",\"booking_id\":\"PV-1954781804231\",\"partner_id\":\"10\",\"spare_id\":\"3263\",\"part_name\":\"wash timer \",\"model\":\"\",\"booking_partner_id\":\"247073\"},\"3\":{\"inventory_id\":\"915\",\"booking_id\":\"PV-1926111804131\",\"partner_id\":\"10\",\"spare_id\":\"3316\",\"part_name\":\"Spin Moter & Water seel \/Demper seel \",\"model\":\"\",\"booking_partner_id\":\"247073\"},\"4\":{\"inventory_id\":\"642\",\"booking_id\":\"PV-1972221804301\",\"partner_id\":\"10\",\"spare_id\":\"3338\",\"part_name\":\"SWING LUWER\",\"model\":\"\",\"booking_partner_id\":\"247073\"},\"5\":{\"inventory_id\":\"1580\",\"booking_id\":\"PV-1973961805011\",\"partner_id\":\"10\",\"spare_id\":\"3344\",\"part_name\":\"table stand\",\"model\":\"\",\"booking_partner_id\":\"247073\"},\"6\":{\"inventory_id\":\"857\",\"booking_id\":\"PV-1972101804301\",\"partner_id\":\"10\",\"spare_id\":\"3353\",\"part_name\":\"spin lock\",\"model\":\"\",\"booking_partner_id\":\"247073\"},\"7\":{\"inventory_id\":\"619\",\"booking_id\":\"PV-1935931805033\",\"partner_id\":\"10\",\"spare_id\":\"3356\",\"part_name\":\"motor\",\"model\":\"\",\"booking_partner_id\":\"247073\"},\"8\":{\"inventory_id\":\"75\",\"booking_id\":\"PV-1978951805021\",\"partner_id\":\"10\",\"spare_id\":\"3365\",\"part_name\":\"combo\",\"model\":\"\",\"booking_partner_id\":\"247073\"},\"9\":{\"inventory_id\":\"619\",\"booking_id\":\"PV-1972131804301\",\"partner_id\":\"10\",\"spare_id\":\"3401\",\"part_name\":\"motor\",\"model\":\"\",\"booking_partner_id\":\"247073\"},\"10\":{\"inventory_id\":\"190\",\"booking_id\":\"PV-2003351805091\",\"partner_id\":\"10\",\"spare_id\":\"3577\",\"part_name\":\"TOUCH PANEL\",\"model\":\"LED TV TSA-2424BT\",\"booking_partner_id\":\"247073\"},\"11\":{\"inventory_id\":\"49\",\"booking_id\":\"PV-2005841805101\",\"partner_id\":\"10\",\"spare_id\":\"3582\",\"part_name\":\"tuner card req\",\"model\":\"LED TV TSA-40\",\"booking_partner_id\":\"247073\"},\"12\":{\"inventory_id\":\"914\",\"booking_id\":\"PV-1974041805011\",\"partner_id\":\"10\",\"spare_id\":\"3598\",\"part_name\":\"SPIN MOTOR,SPIN SEAL,COCK SPRING & DRAIN VALVE\",\"model\":\"TWM-8000\",\"booking_partner_id\":\"247073\"},\"13\":{\"inventory_id\":\"422\",\"booking_id\":\"PV-2003961805091\",\"partner_id\":\"10\",\"spare_id\":\"3786\",\"part_name\":\"SPEAKER\/IC2030\",\"model\":\"M-112\",\"booking_partner_id\":\"247073\"},\"14\":{\"inventory_id\":\"411\",\"booking_id\":\"PV-2004251805142\",\"partner_id\":\"10\",\"spare_id\":\"3820\",\"part_name\":\"FM PCB\",\"model\":\"MMS-112BT\",\"booking_partner_id\":\"247073\"},\"15\":{\"inventory_id\":\"\",\"booking_id\":\"PV-1816281805172\",\"partner_id\":\"10\",\"spare_id\":\"3912\",\"part_name\":\"\",\"model\":\"\",\"booking_partner_id\":\"247073\"},\"16\":{\"inventory_id\":\"\",\"booking_id\":\"PV-1990961805071\",\"partner_id\":\"10\",\"spare_id\":\"4017\",\"part_name\":\"\",\"model\":\"\",\"booking_partner_id\":\"247073\"},\"17\":{\"inventory_id\":\"1605\",\"booking_id\":\"PV-2065591805251\",\"partner_id\":\"10\",\"spare_id\":\"4096\",\"part_name\":\"Main Board Tsa-1610\/11\/16\/20 Vtx6V59-1yb\",\"model\":\"TSA-1620\",\"booking_partner_id\":\"247073\"},\"18\":{\"inventory_id\":\"\",\"booking_id\":\"PV-2003961805192\",\"partner_id\":\"10\",\"spare_id\":\"4150\",\"part_name\":\"SAT.SPK-4002\",\"model\":\"MMS-4002\",\"booking_partner_id\":\"247073\"},\"19\":{\"inventory_id\":\"689\",\"booking_id\":\"PV-2064481805241\",\"partner_id\":\"10\",\"spare_id\":\"4156\",\"part_name\":\"SUMB PUMP\",\"model\":\"AIR COOLER TST-550\",\"booking_partner_id\":\"247073\"},\"20\":{\"inventory_id\":\"553\",\"booking_id\":\"PV-2083071805291\",\"partner_id\":\"10\",\"spare_id\":\"4564\",\"part_name\":\"POWER AM-112BT\",\"model\":\"MMS-112BT\",\"booking_partner_id\":\"247073\"},\"21\":{\"inventory_id\":\"\",\"booking_id\":\"PV-2067151805241\",\"partner_id\":\"10\",\"spare_id\":\"4617\",\"part_name\":\"\",\"model\":\"\",\"booking_partner_id\":\"247073\"},\"22\":{\"inventory_id\":\"650\",\"booking_id\":\"PV-1972221804301\",\"partner_id\":\"10\",\"spare_id\":\"4648\",\"part_name\":\"SWING LUWER\",\"model\":\"\",\"booking_partner_id\":\"247073\"},\"23\":{\"inventory_id\":\"651\",\"booking_id\":\"PV-1972221804301\",\"partner_id\":\"10\",\"spare_id\":\"4649\",\"part_name\":\"SWING LUWER\",\"model\":\"\",\"booking_partner_id\":\"247073\"},\"24\":{\"inventory_id\":\"\",\"booking_id\":\"PV-2120111806081\",\"partner_id\":\"10\",\"spare_id\":\"5071\",\"part_name\":\"\",\"model\":\"\",\"booking_partner_id\":\"247073\"}}","sender_entity_id":"10","sender_entity_type":"vendor","wh_name":"247around West Delhi (DELHI)","awb_by_wh":"123456","courier_name_by_wh":"DTDC","courier_price_by_wh":"120","defective_parts_shippped_date_by_wh":"1250"}';
-        //$_POST = json_decode($str, true);
         $sender_entity_id = $this->input->post('sender_entity_id');
         $sender_entity_type = $this->input->post('sender_entity_type');
         $awb_by_wh = $this->input->post('awb_by_wh');
@@ -3183,7 +3181,6 @@ class Inventory extends CI_Controller {
         if (!empty($sender_entity_id) && !empty($sender_entity_type) && !empty($postData) && !empty($awb_by_wh) && !empty($courier_name_by_wh) && !empty($courier_price_by_wh) && !empty($defective_parts_shippped_date_by_wh)) {
 
             $courier_file = $this->upload_defective_parts_shipped_courier_file($_FILES);
-
             if ($courier_file['status']) {
                 $invoice = $this->inventory_invoice_settlement($sender_entity_id, $sender_entity_type);
                 if (!empty($invoice['processData'])) {
@@ -3467,7 +3464,8 @@ class Inventory extends CI_Controller {
                 );
 
                 $this->invoices_model->insert_new_invoice($invoice_details);
-
+                
+                $this->insert_def_invoice_breakup($response);
                 
                 log_message('info', __METHOD__ . "=> Insert Invoices in partner invoice table");
               
@@ -3514,6 +3512,42 @@ class Inventory extends CI_Controller {
 
             return false;
         }
+    }
+    /**
+     * @desc this is used to insert invoice break up in the new invoice table
+     * @param Array $response
+     * @return boolean
+     */
+    function insert_def_invoice_breakup($response){
+        log_message('info', __METHOD__. " Insert invoice breakup");
+        $a = array();
+        foreach ($response['booking'] as $value) {
+            $invoice = array();
+            $invoice['invoice_id'] = $value['invoice_id'];
+            $invoice['description'] = $value['description'];
+            $invoice['product_or_services'] = "Product";
+            $invoice['hsn_code'] = $value['hsn_code'];
+            $invoice['qty'] = $value['qty'];
+            $invoice['rate'] = $value['rate'];
+            $invoice['inventory_id'] = $value['inventory_id'];
+            $invoice['taxable_value'] = $value['taxable_value'];
+            
+            $invoice['cgst_tax_amount'] = $invoice['sgst_tax_amount'] = isset($value['sgst_tax_amount']) ?$value['sgst_tax_amount']:0;
+            $invoice['cgst_tax_rate'] = $invoice['sgst_tax_rate'] = isset($value['cgst_rate']) ?$value['cgst_rate']:0;
+            $invoice['igst_tax_amount'] = isset($value['igst_tax_amount']) ?$value['igst_tax_amount']:0;
+            $invoice['igst_tax_rate'] = isset($value['igst_rate']) ?$value['igst_rate']:0;
+            $invoice['is_settle'] = 1;
+            $invoice['settle_qty'] = $value['qty'];
+
+            $invoice['toal_amount'] = $value['toal_amount'];
+            $invoice['create_date'] = date('Y-m-d H:i:s');
+            
+            array_push($a, $invoice);
+
+        }
+        
+        return $this->invoices_model->insert_invoice_breakup($a);
+        
     }
 
     function get_ledger_data($value, $sender_entity_id, $sender_entity_type, $invoice_id){
