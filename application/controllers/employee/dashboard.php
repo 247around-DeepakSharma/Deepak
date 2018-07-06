@@ -1643,4 +1643,61 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $this->load->view('dashboard/tat_calculation_full_view',array('state' => $stateData,'sf'=>$sfData,'partners'=>$partners,'rmID'=>$rmID,'filters'=>$this->input->post(),'services'=>$services));
         $this->load->view('dashboard/dashboard_footer');        
     }
+    function download_tat_report(){
+        $data = json_decode($this->input->post('data'),true);
+        $csv ="";
+        foreach($data as $values){
+            $tempArray = array();
+            if(array_key_exists("SF", $values)){
+                $tempArray[] = $values['SF'];
+            }
+            $tempArray[] = $values['State'];
+            $tempArray[] = $values['TAT_0'];
+            $tempArray[] = $values['TAT_0_per'];
+            $tempArray[] = $values['TAT_1'];
+            $tempArray[] = $values['TAT_1_per'];
+            $tempArray[] = $values['TAT_2'];
+            $tempArray[] = $values['TAT_2_per'];
+            $tempArray[] = $values['TAT_3'];
+            $tempArray[] = $values['TAT_3_per'];
+            $tempArray[] = $values['TAT_4'];
+            $tempArray[] = $values['TAT_4_per'];
+            $tempArray[] = $values['TAT_5'];
+            $tempArray[] = $values['TAT_5_per'];
+            $tempArray[] = $values['TAT_8'];
+            $tempArray[] = $values['TAT_8_per'];
+            $tempArray[] = $values['TAT_16'];
+            $tempArray[] = $values['TAT_16_per'];
+            $csv.=implode(",",$tempArray)."\n"; //Append data to csv
+        }
+        if(array_key_exists("SF", $values)){
+                $headings[] = "SF";
+            }
+            $headings[] = "State";
+             $headings[] = "TAT_0";
+            $headings[] = "TAT_0_percentage";
+            $headings[] = "TAT_1";
+            $headings[] = "TAT_1_percentage";
+            $headings[] = "TAT_2";
+            $headings[] = "TAT_2_percentage";
+            $headings[] = "TAT_3";
+            $headings[] = "TAT_3_percentage";
+            $headings[] = "TAT_4";
+            $headings[] = "TAT_4_percentage";
+            $headings[] = "TAT_5";
+            $headings[] = "TAT_5_percentage";
+            $headings[] = "TAT_8";
+            $headings[] = "TAT_8_percentage";
+            $headings[] = "Total";
+            $headings[] = "Total_percentage";
+            $finalcsv = implode(",",$headings)." \n".$csv;//Column headers
+            header('Content-Description: File Transfer');
+            header('Content-Type: application/octet-stream');
+            header('Content-Disposition: attachment; filename=' . "Tat_Report.csv");
+            header('Content-Transfer-Encoding: binary');
+            header('Expires: 0');
+            header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+            echo $finalcsv;
+            exit;
+    }
 }

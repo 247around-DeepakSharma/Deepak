@@ -416,7 +416,7 @@ class Inventory_model extends CI_Model {
     }
     
     function insert_inventory_ledger($data){
-        $this->db->insert("inventory_ledger", $data);
+        $this->db->insert_batch("inventory_ledger", $data);
         return $this->db->insert_id();
     }
     

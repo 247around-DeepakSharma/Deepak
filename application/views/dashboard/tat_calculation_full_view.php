@@ -11,7 +11,7 @@
     <div class="row">
 
         <div class="clearfix"></div>
-        <form action="<?php echo base_url() ?>employee/dashboard/tat_calculation_full_view/<?php echo $rmID; ?>" method="post">
+            <form action="<?php echo base_url() ?>employee/dashboard/tat_calculation_full_view/<?php echo $rmID; ?>" method="post">
        <div class="table_filter" style="background: #5bc0de;padding: 10px;margin-bottom: 10px;border-radius: 5px;">
            <div class="row">
                <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 160px;">
@@ -127,6 +127,10 @@
 </div>
                     <div class="tab-content" style="margin-top: 10px;">
                             <div class="tab-pane fade in active" id="tab1">
+                                <form action="<?php echo base_url()?>employee/dashboard/download_tat_report" method="post">
+                                    <input type="hidden" value='<?php echo json_encode($state);?>' name="data">
+                                    <input type="submit" value="Download CSV" class="btn btn-primary" style="background: #405467;border: none;">
+                                    </form>
                                 <table class="table table-striped table-bordered jambo_table bulk_action" id="tat_state_table">
     <thead>
         <tr style="background: #405467;color: #fff;margin-top: 5px;">
@@ -165,6 +169,10 @@
     </table>
                                 </div>
                         <div class="tab-pane fade in" id="tab2">
+                             <form action="<?php echo base_url()?>employee/dashboard/download_tat_report" method="post">
+                                    <input type="hidden" value='<?php echo json_encode($sf);?>' name="data">
+                                    <input type="submit" value="Download CSV" class="btn btn-primary" style="background: #405467;border: none;">
+                                    </form>
                                <table class="table table-striped table-bordered jambo_table bulk_action" id="tat_sf_table">
     <thead>
         <tr style="background: #405467;color: #fff;margin-top: 5px;">
@@ -222,9 +230,9 @@
     $(document).ready(function(){
       var state_table = $('#tat_state_table').DataTable({
           "pageLength": 1000,
-          dom: 'Bfrtip',
+           dom: 'Bfrtip',
         buttons: ['csv'],
-         "ordering": false
+          "ordering": false
       });
      // state_table.Columns[""].DataType = typeof(int);
       var sf_table = $('#tat_sf_table').DataTable({
@@ -259,38 +267,23 @@
         allowClear: true
     });
 $(function() {
-//     var d = new Date();
-//        n = d.getMonth();
-//        y = d.getFullYear();
-//        date = d.getDate();
         $('input[name="daterange_completed_bookings"]').daterangepicker({
              timePicker: true,
         timePickerIncrement: 30,
         locale: {
             format: 'YYYY-MM-DD'
         },
-        //startDate: y+'-'+n+'-'+date
     });
 });
-if ($.fn.dataTableExt !== undefined){
-jQuery.extend( jQuery.fn.dataTableExt.oSort, {
-    "formatted-num-pre": function ( a ) {
-        a = (a === "-" || a === "") ? 0 : a.replace( /[^\d\-\.]/g, "" );
-        return parseFloat( a );
-    },
- 
-    "formatted-num-asc": function ( a, b ) {
-        return a - b;
-    },
- 
-    "formatted-num-desc": function ( a, b ) {
-        return b - a;
-    }
-} );
-}
     </script>
     <style>
         .dataTables_length{
             display: none;
+        }
+        .dt-buttons{
+            display: none;
+        }
+        .dataTables_filter{
+                margin-top: -38px;
         }
  </style>
