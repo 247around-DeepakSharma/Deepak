@@ -53,6 +53,7 @@
                                                 echo $booking_history[0]['booking_id'];
                                             }
                                             ?>" readonly="readonly">
+                                       
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -122,6 +123,7 @@
                     <input type="hidden" name="sp_required_id" value='<?php echo json_encode($required_sp_id,TRUE); ?>' />
                     <input type="hidden" name="can_sp_required_id" value='<?php echo json_encode($can_sp_id,TRUE); ?>' />
                     <input type="hidden" name="partner_id" value='<?php echo $booking_history[0]['partner_id']; ?>' />
+                    <input type="hidden" name="user_id" value='<?php echo $booking_history[0]['user_id']; ?>' />
                     <input type="hidden" name="approval" value='0' />
                     <input type="hidden" name="count_unit" id ="count_unit" value="<?php echo count($bookng_unit_details);?>" />
                     <input type="hidden" name="mismatch_pincode" id="mismatch_pincode" value="<?php if(isset($mismatch_pincode)) { echo $mismatch_pincode; }?>" />
@@ -475,8 +477,9 @@
                         var model_number = $("#model_number_" + div_no[2]).val();
                         if(model_number === ""){
                             alert("Please Select Model Number");
-                            document.getElementById('model_number_' + div_no[2]).style.borderColor = "red";
                             flag = 1;
+                            document.getElementById('model_number_' + div_no[2]).style.borderColor = "red";
+                            
                         }
                     }
                   
@@ -744,7 +747,8 @@
 
                     },
                 url: '<?php echo base_url() ?>employee/service_centers/validate_booking_serial_number',
-                data:{serial_number:serialNo,partner_id:'<?php echo $booking_history[0]['partner_id'];?>', price_tags:price_tags},
+                data:{serial_number:serialNo,partner_id:'<?php echo $booking_history[0]['partner_id'];?>', price_tags:price_tags,
+                user_id: '<?php echo $booking_history[0]['user_id'];?>', 'booking_id': '<?php echo $booking_history[0]['booking_id'];?>'},
                 success: function (response) {
                     console.log(response);
                     var data = jQuery.parseJSON(response);
