@@ -218,7 +218,8 @@ class Notify {
     function make_outbound_call_using_knowlarity($agent_phone, $customer_phone) {
 	//Callback fn called by Exotel
         switch (ENVIRONMENT) {
-            case 'testing_chhavi':
+            case 'production':
+            //case 'testing_chhavi':
                 $postData = array("k_number"=>KNOWLARITY_NUMBER, "agent_number"=>"+91".$agent_phone, "customer_number"=>"+91".$customer_phone, "caller_id"=> "+91".$customer_phone);
                 $postDataJSon =  json_encode($postData);
                 $ch = curl_init();
