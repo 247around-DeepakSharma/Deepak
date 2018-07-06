@@ -416,7 +416,7 @@ class Inventory_model extends CI_Model {
     }
     
     function insert_inventory_ledger($data){
-        $this->db->insert_batch("inventory_ledger", $data);
+        $this->db->insert("inventory_ledger", $data);
         return $this->db->insert_id();
     }
     
@@ -1105,4 +1105,28 @@ class Inventory_model extends CI_Model {
         $this->db->update('courier_details',$data);
     }
 
+     /**
+     * @desc: This function is used to update spare parts courier details in spare_parts_details table
+     * @params: Array $id
+     * @params: Array $data
+     * @return: true if updated
+     * 
+     */
+     function update_spare_courier_details($id, $data) {
+        $this->db->where('id', $id);
+        $this->db->update('spare_parts_details', $data);
+     
+        
+        if ($this->db->affected_rows() > 0) {
+                return true;
+            
+        } else {
+            return false;
+        }
+    }
+    
+    function insert_inventory_ledger_batch($data){
+        $this->db->insert_batch("inventory_ledger", $data);
+        return $this->db->insert_id();
+    }
 }
