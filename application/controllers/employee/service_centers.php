@@ -458,6 +458,7 @@ class Service_centers extends CI_Controller {
      * @return boolean
      */
     function validate_serial_no() {
+        //log_message('info', __METHOD__. " ". json_encode($this->input->post()));
         $serial_number = $this->input->post('serial_number');
         $upload_serial_number_pic = array();
         if(isset($_FILES['upload_serial_number_pic'])){
@@ -467,6 +468,8 @@ class Service_centers extends CI_Controller {
         $pod = $this->input->post('pod');
         $booking_status = $this->input->post('booking_status');
         $partner_id = $this->input->post('partner_id');
+        $user_id = $this->input->post('user_id');
+        $booking_id = $this->input->post('booking_id');
         $price_tags_array = $this->input->post('price_tags');
         $return_status = true;
         if (isset($_POST['pod'])) {
@@ -486,7 +489,8 @@ class Service_centers extends CI_Controller {
                                     break;
                                 }
                             }
-                            $status = $this->validate_serial_no->validateSerialNo($partner_id, $trimSno, $price_tag);
+                            $status = $this->validate_serial_no->validateSerialNo($partner_id, $trimSno, $price_tag, $user_id, $booking_id);
+                            print_r($status);
                             if (!empty($status)) {
                                 if ($status['code'] == SUCCESS_CODE) {
                                     log_message('info', " Serial No validation success  for serial no " . trim($serial_number[$unit_id]));
@@ -610,8 +614,10 @@ class Service_centers extends CI_Controller {
         log_message('info', __METHOD__. " Enterring .. POST DATA " .json_encode($this->input->post(), true). " SF ID ". $this->session->userdata('service_center_id'));
         $serial_number = $this->input->post('serial_number');
         $partner_id = $this->input->post('partner_id');
+        $user_id = $this->input->post('user_id');
         $price_tags = $this->input->post("price_tags");
-        $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number), trim($price_tags));
+        $booking_id = $this->input->post("price_tags");
+        $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number), trim($price_tags), $user_id, $booking_id);
         if (!empty($status)) {
             log_message('info', __METHOD__.'Status '. print_r($status, true));
             echo json_encode($status, true);
