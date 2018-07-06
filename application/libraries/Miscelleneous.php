@@ -2601,11 +2601,12 @@ function generate_image($base64, $image_name,$directory){
     }
     
 function convert_html_to_pdf($html,$booking_id,$filename,$s3_folder){
+    
     log_message('info', __FUNCTION__ . " => Entering, Booking ID: " . $booking_id);
         require_once __DIR__ . '/pdf/vendor/autoload.php';
         $mpdf = new \Mpdf\Mpdf();
-        $mpdf->WriteHTML($html);
-        $tempfilePath = TMP_FOLDER.$filename;
+       $t =  $mpdf->WriteHTML($html);
+       $tempfilePath = TMP_FOLDER.$filename;
         $mpdf->Output($tempfilePath,'F');
         if($mpdf){
         $is_file = $this->My_CI->s3->putObjectFile($tempfilePath, BITBUCKET_DIRECTORY, $s3_folder."/".$filename, S3::ACL_PUBLIC_READ);
@@ -2617,6 +2618,7 @@ function convert_html_to_pdf($html,$booking_id,$filename,$s3_folder){
                                                    'id' => $booking_id
                                                   );
                             //unlink($tempfilePath);
+        
                             return  json_encode($response_data);
         }
         else {
