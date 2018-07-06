@@ -4562,7 +4562,7 @@ class vendor extends CI_Controller {
                               }
                                         } 
                                         else{
-                                            $finalInsertArray[] = $insertArray;
+                                            //$finalInsertArray[] = $insertArray;
                                         }
                               }
                               if(!empty($finalInsertArray)){
