@@ -156,12 +156,14 @@ class Validate_serial_no {
         $data = $this->MY_CI->booking_model->get_unit_details(array('serial_number' => $serial_number, 'booking_status != "'._247AROUND_CANCELLED.'"' => NULL,
             "price_tags != '".REPEAT_BOOKING_TAG."'" => NULL));
         if(!empty($data)){
+            $booking_id = "";
             $isDuplicate = false;
             foreach ($data as $value) {
                if($value['booking_status'] == _247AROUND_COMPLETED){
                    
                     $d = date_diff(date_create($value['ud_closed_date']), date_create('today')); 
                     if($d->days < BOOKING_WARRANTY_DAYS){
+                        $booking_id = " You already used in this Booking ID - ".$value['booking_id'];
                         $isDuplicate = TRUE;
                         break;
                     }
@@ -172,7 +174,7 @@ class Validate_serial_no {
             }
             
             if($isDuplicate){
-               return array('code' => DUPLICATE_SERIAL_NO_CODE, "message" => DUPLICATE_SERIAL_NUMBER_USED);
+               return array('code' => DUPLICATE_SERIAL_NO_CODE, "message" => DUPLICATE_SERIAL_NUMBER_USED." ".$booking_id);
             } else {
                 return FALSE;
             }
