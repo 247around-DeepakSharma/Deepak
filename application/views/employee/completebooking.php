@@ -69,7 +69,9 @@
 				    <label for="booking_id" class="col-md-4">Booking ID</label>
 				    <div class="col-md-6">
                                         <input type="hidden" name ="partner_type" id="partner_type" />
+                                        <input type="hidden" name ="booking_id" id="booking_id" value="<?php echo $booking_history[0]['booking_id']; ?>" />
                                         <input type="hidden" id="change_appliance_details" name="change_appliance_details" value="0" />
+                                        <input type="hidden" id= "user_id" name="user_id" value='<?php echo $booking_history[0]['user_id']; ?>' />
 					<input type="text" class="form-control"  id="booking_id" name="booking_id" value = "<?php
 					       if (isset($booking_history[0]['booking_id'])) {
 						   echo $booking_history[0]['booking_id'];
