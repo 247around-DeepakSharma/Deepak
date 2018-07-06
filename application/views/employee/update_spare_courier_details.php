@@ -168,7 +168,7 @@
         if (c) {
            $.ajax({
                 type: 'POST',
-                url: '<?php echo base_url(); ?>employee/inventory/remove_uploaded_image',
+                url: '<?php echo base_url(); ?>employee/service_centers/remove_uploaded_image',
                 data: {id: id, file_name: file_name, type: type},
                 success: function (data) {
                     location.reload();
@@ -179,23 +179,5 @@
             return false;
         }
     }
-//     function generate_challan_file(booking_id, sf_challan_number) {
-//        
-//         if($("#regenerate_challan_file").prop('checked', true)){
-//            
-//           $.ajax({
-//                type: 'POST',
-//                url: '<?php echo base_url(); ?>employee/inventory/generate_challan_file',
-//                data: {booking_id: booking_id, sf_challan_number: sf_challan_number },
-//                success: function (data) {
-//                    location.reload();
-//                }
-//            });
-//            }
-//            else{
-//            return false;
-//            }
-//    }
-//    
  
 </script>

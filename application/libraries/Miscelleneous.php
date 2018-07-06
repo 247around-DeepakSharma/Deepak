@@ -275,6 +275,7 @@ class Miscelleneous {
                 $booking['upcountry_distance'] = $data['upcountry_distance'];
                 $booking['sf_upcountry_rate'] = $data['sf_upcountry_rate'];
                 $booking['partner_upcountry_rate'] = $data['partner_upcountry_rate'];
+                $booking['upcountry_update_date'] = date('Y-m-d H:i:s');
 
                 $is_upcountry = $this->My_CI->upcountry_model->is_upcountry_booking($booking_id);
                 
@@ -336,6 +337,7 @@ class Miscelleneous {
                         $booking['upcountry_paid_by_customer'] = 0;
                         $booking['upcountry_remarks'] = UPCOUNTRY_BOOKING_NEED_TO_APPROVAL;
                         $booking['amount_due'] = $cus_net_payable;
+                        
                         $partner_status = $this->My_CI->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, UPCOUNTRY_BOOKING_NEED_TO_APPROVAL,
                                 $query1[0]['partner_id'], $booking_id);
                         $actor = $next_action = 'not_define';
@@ -2599,11 +2601,12 @@ function generate_image($base64, $image_name,$directory){
     }
     
 function convert_html_to_pdf($html,$booking_id,$filename,$s3_folder){
+    
     log_message('info', __FUNCTION__ . " => Entering, Booking ID: " . $booking_id);
         require_once __DIR__ . '/pdf/vendor/autoload.php';
         $mpdf = new \Mpdf\Mpdf();
-        $mpdf->WriteHTML($html);
-        $tempfilePath = TMP_FOLDER.$filename;
+       $t =  $mpdf->WriteHTML($html);
+       $tempfilePath = TMP_FOLDER.$filename;
         $mpdf->Output($tempfilePath,'F');
         if($mpdf){
         $is_file = $this->My_CI->s3->putObjectFile($tempfilePath, BITBUCKET_DIRECTORY, $s3_folder."/".$filename, S3::ACL_PUBLIC_READ);
@@ -2615,6 +2618,7 @@ function convert_html_to_pdf($html,$booking_id,$filename,$s3_folder){
                                                    'id' => $booking_id
                                                   );
                             //unlink($tempfilePath);
+        
                             return  json_encode($response_data);
         }
         else {

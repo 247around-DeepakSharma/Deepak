@@ -1936,35 +1936,35 @@ class Service_centers extends CI_Controller {
                     $this->service_centers_model->update_spare_parts($where, $data);
                     $k++;
                 }
-                
-                $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_SHIPPED, $data['remarks_defective_part_by_sf'],"not_define","not_define");
-                $sc_data['current_status'] = "InProcess";
-                $sc_data['update_date'] = date('Y-m-d H:i:s');
-                $sc_data['internal_status'] = DEFECTIVE_PARTS_SHIPPED;
-                $this->vendor_model->update_service_center_action($booking_id, $sc_data);
-                
-                $this->update_booking_internal_status($booking_id,  DEFECTIVE_PARTS_SHIPPED, $partner_id);
-
-                $email_template = $this->booking_model->get_booking_email_template(COURIER_DETAILS);
-                if(!empty($email_template)){
-                    
-                    $rm_email = $this->get_rm_email($service_center_id);
-
-                    $attachment = S3_WEBSITE_URL."misc-images/".$defective_courier_receipt;
-
-                    $subject = vsprintf($email_template[4], array($this->session->userdata('service_center_name'), $booking_id));
-                    
-                    $message = vsprintf($email_template[0], array($data['awb_by_sf'], 
-                       $data['courier_name_by_sf'], $this->input->post('courier_charges_by_sf'), $data['defective_part_shipped_date']));
-                    
-                    $email_from = $email_template[2];
-
-                    $to = $email_template[1];
-                    $cc = $rm_email.",".$email_template[3];
-                    $bcc = $email_template[5];
-
-                    $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $attachment, COURIER_DETAILS);
-                }
+ 
+//                $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_SHIPPED, $data['remarks_defective_part_by_sf'],"not_define","not_define");
+//                $sc_data['current_status'] = "InProcess";
+//                $sc_data['update_date'] = date('Y-m-d H:i:s');
+//                $sc_data['internal_status'] = DEFECTIVE_PARTS_SHIPPED;
+//                $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+//                
+//                $this->update_booking_internal_status($booking_id,  DEFECTIVE_PARTS_SHIPPED, $partner_id);
+//
+//                $email_template = $this->booking_model->get_booking_email_template(COURIER_DETAILS);
+//                if(!empty($email_template)){
+//                    
+//                    $rm_email = $this->get_rm_email($service_center_id);
+//
+//                    $attachment = S3_WEBSITE_URL."misc-images/".$defective_courier_receipt;
+//
+//                    $subject = vsprintf($email_template[4], array($this->session->userdata('service_center_name'), $booking_id));
+//                    
+//                    $message = vsprintf($email_template[0], array($data['awb_by_sf'], 
+//                       $data['courier_name_by_sf'], $this->input->post('courier_charges_by_sf'), $data['defective_part_shipped_date']));
+//                    
+//                    $email_from = $email_template[2];
+//
+//                    $to = $email_template[1];
+//                    $cc = $rm_email.",".$email_template[3];
+//                    $bcc = $email_template[5];
+//
+//                    $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $attachment, COURIER_DETAILS);
+//                }
             
                 $userSession = array('success' => 'Parts Updated.');
 
@@ -2246,6 +2246,7 @@ class Service_centers extends CI_Controller {
      */
     private function get_rm_email($vendor_id) {
         $employee_rm_relation = $this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_id);
+      //  print_r($employee_rm_relation); exit();
         $rm_id = $employee_rm_relation[0]['agent_id'];
         $rm_details = $this->employee_model->getemployeefromid($rm_id);
         $rm_poc_email = $rm_details[0]['official_email'];
@@ -3465,6 +3466,7 @@ class Service_centers extends CI_Controller {
      * @return String $output_pdf_file_name
      */
     function create_sf_challan_file($sf_details, $partner_details, $sf_challan_number, $spare_id,$spare_details) {
+        
         $excel_data = array();
         $excel_data['excel_data']['sf_name'] = $sf_details[0]['name'];
         $excel_data['excel_data']['sf_address'] = $sf_details[0]['address'];
@@ -3486,8 +3488,8 @@ class Service_centers extends CI_Controller {
             }
         }
         
-        $excel_data['excel_data']['total_qty'] = 1;
-        $excel_data['excel_data']['total_value'] = $spare_details['challan_approx_value'];
+        //$excel_data['excel_data']['total_qty'] = 1;
+        //$excel_data['excel_data']['total_value'] = $spare_details['challan_approx_value'];
         if ($sf_details[0]['is_gst_doc'] == 1) {
             $excel_data['excel_data']['sf_gst'] = $sf_details[0]['gst_no'];
             $template = 'delivery_challan_with_gst.xlsx';
@@ -3510,29 +3512,60 @@ class Service_centers extends CI_Controller {
        if(!empty($template)){
             //generate pdf file 
             $output_file = "delivery_challan_" .$spare_details['booking_id']."_".$spare_id."_". date('d_M_Y_H_i_s');
-            $excel_file = $this->miscelleneous->generate_excel_data($template, $output_file, $excel_data, true,$cell,$signature_file);
-            $output_pdf_file_name = $excel_file;
-            if (file_exists($excel_file)) {
-                $json_result = $this->miscelleneous->convert_excel_to_pdf($excel_file, $spare_details['booking_id'], 'vendor-partner-docs');
+            //$excel_file = $this->miscelleneous->generate_excel_data($template, $output_file, $excel_data, true,$cell,$signature_file);
+            $excel_file = $this->load->view('templates/delivery_challan_template', $excel_data, true);
+            //$output_pdf_file_name = $excel_file; 
+            $output_pdf_file_name = $output_file . ".pdf";
+           
+          //  if (file_exists($excel_file)) {
+             
+                //$json_result = $this->miscelleneous->convert_excel_to_pdf($excel_file, $spare_details['booking_id'], 'vendor-partner-docs');
+                $json_result = $this->miscelleneous->convert_html_to_pdf($excel_file, $spare_details['booking_id'], $output_pdf_file_name, 'vendor-partner-docs');
                 log_message('info', __FUNCTION__ . ' PDF JSON RESPONSE' . print_r($json_result, TRUE));
                 $pdf_response = json_decode($json_result, TRUE);
                 if($signature_file && file_exists(TMP_FOLDER.$sf_details[0]['signature_file'])){
                     unlink(TMP_FOLDER.$sf_details[0]['signature_file']);
                 }
+                if(!$json_result){
+                   $excel_file = $this->miscelleneous->generate_excel_data($template, $output_file, $excel_data, true,$cell,$signature_file); 
+                   $output_pdf_file_name = $excel_file; 
+                   if (file_exists($excel_file)) {
+                       $json_result = $this->miscelleneous->convert_excel_to_pdf($excel_file, $spare_details['booking_id'], 'vendor-partner-docs');
+                       log_message('info', __FUNCTION__ . ' PDF JSON RESPONSE' . print_r($json_result, TRUE));
+                       $pdf_response = json_decode($json_result, TRUE);
+                       if($signature_file && file_exists(TMP_FOLDER.$sf_details[0]['signature_file'])){
+                       unlink(TMP_FOLDER.$sf_details[0]['signature_file']);
+                       }
+                       if(file_exists(TMP_FOLDER.$output_file.'.xlsx')){
+                           $res1 = 0;
+                           system(" chmod 777 " . TMP_FOLDER.$output_file.'.xlsx', $res1);
+                           unlink(TMP_FOLDER.$output_file.'.xlsx');
+                       }
+                       if ($pdf_response['response'] === 'Success') {
+                           $output_pdf_file_name = $pdf_response['output_pdf_file'];
+                           log_message('info', __FUNCTION__ . ' Generated PDF File Name' . $output_pdf_file_name);
+                        } else if ($pdf_response['response'] === 'Error') {
+                           $output_pdf_file_name = pathinfo($excel_file,PATHINFO_BASENAME);
+                           log_message('info', __FUNCTION__ . ' Error in Generating PDF File');
+                        }
+                       
+                   }
+                } 
+
                 
-                if(file_exists(TMP_FOLDER.$output_file.'.xlsx')){
-                    $res1 = 0;
-                    system(" chmod 777 " . TMP_FOLDER.$output_file.'.xlsx', $res1);
-                    unlink(TMP_FOLDER.$output_file.'.xlsx');
-                }
-                if ($pdf_response['response'] === 'Success') {
-                    $output_pdf_file_name = $pdf_response['output_pdf_file'];
-                    log_message('info', __FUNCTION__ . ' Generated PDF File Name' . $output_pdf_file_name);
-                } else if ($pdf_response['response'] === 'Error') {
-                    $output_pdf_file_name = pathinfo($excel_file,PATHINFO_BASENAME);
-                    log_message('info', __FUNCTION__ . ' Error in Generating PDF File');
-                }
-            }
+//                if(file_exists(TMP_FOLDER.$output_file.'.xlsx')){
+//                    $res1 = 0;
+//                    system(" chmod 777 " . TMP_FOLDER.$output_file.'.xlsx', $res1);
+//                    unlink(TMP_FOLDER.$output_file.'.xlsx');
+//               }
+//                if ($pdf_response['response'] === 'Success') {
+//                    $output_pdf_file_name = $pdf_response['output_pdf_file'];
+//                    log_message('info', __FUNCTION__ . ' Generated PDF File Name' . $output_pdf_file_name);
+//                } else if ($pdf_response['response'] === 'Error') {
+//                    $output_pdf_file_name = pathinfo($excel_file,PATHINFO_BASENAME);
+//                    log_message('info', __FUNCTION__ . ' Error in Generating PDF File');
+//                }
+       //}
        }else{
            $output_pdf_file_name = "";
        }
@@ -3810,6 +3843,8 @@ class Service_centers extends CI_Controller {
                         $spare_details['parts_requested'] = explode("_explode_", $data['parts_shipped'] . '_explode_');
                         $spare_details['part_price'][$data['parts_shipped']] = $spare_details['challan_approx_value'];
                         $data['partner_challan_file'] = $this->create_sf_challan_file($sf_details, $assigned_sf_details, $data['partner_challan_number'], $id, $spare_details);
+                        $allowedExts = array("PDF", "pdf");
+                       
                     }
 
 
@@ -4389,6 +4424,24 @@ class Service_centers extends CI_Controller {
             }
     }
   }
+  
+   /**
+     * @desc: This function is used to update spare courier details form
+     * @params: $id
+     * @return: view
+     * 
+     */
+    
+     function update_spare_courier_details($id){
+        $this->miscelleneous->load_nav_header();
+        $select = "id, partner_id, service_center_id, entity_type, booking_id, defective_part_shipped, courier_name_by_sf, awb_by_sf, courier_charges_by_sf, defective_courier_receipt, defective_part_shipped_date, remarks_defective_part_by_sf, sf_challan_number, sf_challan_file"; 
+        $where = array('spare_parts_details.id' => $id);
+        $data['data'] = $this->partner_model->get_spare_parts_by_any($select, $where);
+        //print_r($data); exit();
+        $this->load->view('employee/update_spare_courier_details', $data);
+         
+    }
+  
   /**
      * @desc: This function is used to update spare parts courier details along with generating sf challan file
      * @params: $id
@@ -4408,7 +4461,7 @@ class Service_centers extends CI_Controller {
         
         if ($this->form_validation->run() == TRUE) {
 
-           
+         
            $booking_id = $this->input->post('booking_id');
            $sf_challan_number = $this->input->post("sf_challan_number");
            $partner_id = $this->input->post("partner_id");
@@ -4439,7 +4492,7 @@ class Service_centers extends CI_Controller {
                 
                 //getting service center details
                 $sf_details = $this->vendor_model->getVendorDetails('name,address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,is_signature_doc',array('id'=>$service_center_id));
-                //chekc if entity type is partner then get partner details otherwise get vendor details
+                //check if entity type is partner then get partner details otherwise get vendor details
                 if($entity_type == _247AROUND_PARTNER_STRING){
                     $partner_details = $this->partner_model->getpartner_details('company_name,address,gst_number',array('partners.id'=> $partner_id));
                 }else if($entity_type === _247AROUND_SF_STRING){
@@ -4449,10 +4502,11 @@ class Service_centers extends CI_Controller {
                 if(empty($this->input->post('sf_challan_number'))){
                     $sf_challan_number = $this->miscelleneous->create_sf_challan_id($sf_details[0]['sc_code']);
                 }
+                                
                 $data['sf_challan_file'] =  $this->create_sf_challan_file($sf_details, $partner_details, $sf_challan_number, $booking_id,$spare_details);
-                print_r($data);
+               // print_r($data);
                 $status = $this->inventory_model->update_spare_courier_details($id,$data);
-                exit();
+                //exit();
             if (!empty($status)) {
                 
                         log_message("info", __METHOD__ . " Data Updated");
@@ -4474,6 +4528,24 @@ class Service_centers extends CI_Controller {
             }else {
            
             $this->update_spare_courier_details($id);
+        }
+    }
+    
+     /**
+     * @desc: This function is used to remove uploaded image
+     * @params: void
+     * @return: prints message if removed successfully
+     * 
+     */
+     function remove_uploaded_image() {
+        $courier[$this->input->post('type')] = '';
+        //Making Database Entry as Empty for selected file
+        $status = $this->inventory_model->update_spare_courier_details($this->input->post('id'), $courier);
+
+        //Logging 
+        if($status == true){
+        log_message('info', __FUNCTION__ . $this->input->post('type') . '  File has been removed sucessfully for id ' . $this->input->post('id'));
+        echo TRUE;
         }
     }
 }
