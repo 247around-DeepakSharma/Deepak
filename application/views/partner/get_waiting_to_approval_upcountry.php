@@ -42,6 +42,7 @@
                         <th class="text-center">Category</th>
                         <th class="text-center">Capacity</th>
                         <th class="text-center">Address</th>
+                        <th class="text-center">Age</th>
                         <th class="text-center">Upcountry Distance</th>
                         <th class="text-center">Upcountry Charges</th>
                         <th class="text-center">Action</th>
@@ -77,8 +78,11 @@
                             <td>
                                 <?php echo $row['appliance_capacity']; ?>
                             </td>
-                            <td>
+                            <td style="max-width: 200px;">
                                 <?php echo $row['booking_address'] . ", " . $row['city'] . ", Pincode - " . $row['booking_pincode'] . ", " . $row['state']; ?>
+                            </td>
+                            <td>
+                                <?php $age_requested = date_diff(date_create($row['upcountry_update_date']), date_create('today')); echo $age_requested->days. " Days";?>
                             </td>
                             <td>
                                 <?php echo $row['upcountry_distance'] . " KM"; ?>
