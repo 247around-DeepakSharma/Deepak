@@ -3470,7 +3470,7 @@ class Inventory extends CI_Controller {
                 log_message('info', __METHOD__ . "=> Insert Invoices in partner invoice table");
               
                 //Insert Leadger
-                $this->inventory_model->insert_inventory_ledger($ledger_data);
+                $this->inventory_model->insert_inventory_ledger_batch($ledger_data);
                 unset($ledger_data);
 
                 //Insert Invoice Mapping
