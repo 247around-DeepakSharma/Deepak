@@ -1253,6 +1253,7 @@ class vendor extends CI_Controller {
      * @return : void
      */
     function get_reassign_vendor_form($booking_id) {
+        $this->checkUserSession();
         if(!empty($booking_id)){
             $service_centers = $this->vendor_model->viewvendor("", 1, NULL);
             $this->miscelleneous->load_nav_header();
@@ -1270,6 +1271,7 @@ class vendor extends CI_Controller {
      */
     function process_reassign_vendor_form() {
         log_message('info',__FUNCTION__);
+        $this->checkUserSession();
         $this->form_validation->set_rules('booking_id', 'Booking ID', 'required|trim');
         $this->form_validation->set_rules('service', 'Vendor ID', 'required|trim');
         $this->form_validation->set_rules('remarks', 'Remarks', 'required|trim');
@@ -1406,6 +1408,7 @@ class vendor extends CI_Controller {
     }
 
     function mark_upcountry_booking($booking_id, $agent_id, $agent_name) {
+        $this->checkUserSession();
         if (!empty($booking_id)) {
             log_message('info', __METHOD__ . " Booking_id " . $booking_id . "  By agent id " .
                     $agent_id . $agent_name);
