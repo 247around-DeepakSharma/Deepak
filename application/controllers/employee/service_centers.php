@@ -160,7 +160,7 @@ class Service_centers extends CI_Controller {
         $data['engineer_action_not_exit'] = $engineer_action_not_exit;
         
         $data['unit_details'] = $booking_unit_details;
-        $data['penalty'] = $this->penalty_model->get_penalty_on_booking_by_booking_id($booking_id);
+        $data['penalty'] = $this->penalty_model->get_penalty_on_booking_by_booking_id($booking_id, $data['booking_history'][0]['assigned_vendor_id']);
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/booking_details', $data);
     }
