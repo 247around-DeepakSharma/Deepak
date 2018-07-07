@@ -93,9 +93,11 @@ class Partner extends CI_Controller {
         if ($this->session->flashdata('result') != '') {
             $data['success'] = $this->session->flashdata('result');
         }
-
+        $agent_id = $this->session->userdata('agent_id');
         log_message('info', 'Partner View: Pending booking: Partner id: ' . $partner_id . ", Partner name: " .$this->session->userdata('partner_name'));
-        $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
+        $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",array("agent_filters.agent_id"=>$agent_id),array("agent_filters"=>"agent_filters.state=state_code.state"),NULL,array('state'=>'ASC'),NULL,array("agent_filters"=>"left"),array());
+        if(empty($data['states']))
+            $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
         $data['is_ajax'] = $this->input->post('is_ajax');
         if(empty($this->input->post('is_ajax'))){
             //$this->load->view('partner/header');
@@ -874,12 +876,14 @@ class Partner extends CI_Controller {
                 NULL, NULL, NULL, array('services'=>'LEFT'));
         $results['collateral_type'] = $this->reusable_model->get_search_result_data("collateral_type", '*', array("collateral_tag" => "Contract"), NULL, NULL, array("collateral_type" => "ASC"), NULL, NULL);
         $employee_list = $this->employee_model->get_employee_by_group(array("groups NOT IN ('developer') AND active = '1'" => NULL));
-        $departmentArray = $this->reusable_model->get_search_result_data("entity_role", 'DISTINCT department',array("entity_type" => 'partner'),NULL, NULL, array('department'=>'ASC'), NULL, NULL,array());
-        $results['contact_persons'] = $this->reusable_model->get_search_result_data("entity_role", 'contact_person.*,entity_role.role,entity_role.department',
-                array("contact_person.entity_type" => 'partner','entity_id'=>$id),array("contact_person"=>"contact_person.role = entity_role.id"), NULL, array('name'=>'ASC'), NULL, NULL,array());
+        $departmentArray = $this->reusable_model->get_search_result_data("entity_role", 'DISTINCT department',array("entity_type" => 'partner'),NULL, NULL, array('department'=>'ASC'), NULL, NULL,array());  
+        $results['contact_persons'] =  $this->reusable_model->get_search_result_data("contact_person",  "contact_person.*,entity_role.role,entity_role.id as  role_id,entity_role.department,GROUP_CONCAT(agent_filters.state) as  state,agent_filters.agent_id as agentid",
+                array("contact_person.entity_type" =>  "partner","contact_person.entity_id"=>$id),
+                array("entity_role"=>"contact_person.role = entity_role.id","agent_filters"=>"contact_person.id=agent_filters.contact_person_id"), NULL, 
+                array("name"=>'ASC'), NULL,  array("agent_filters"=>"left","entity_role"=>"left"),array("contact_person.id"));
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/addpartner', array('query' => $query, 'results' => $results, 'employee_list' => $employee_list, 'form_type' => 'update','department'=>$departmentArray));
-    }
+        }
 
     /**
      * @desc: This is used to get find user form in Partner CRM
@@ -1625,7 +1629,10 @@ class Partner extends CI_Controller {
         $data['count'] = $config['total_rows'];
         $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true,$state);
         $data['is_ajax'] = $this->input->post('is_ajax');
-        $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
+        $agent_id = $this->session->userdata('agent_id');
+        $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",array("agent_filters.agent_id"=>$agent_id),array("agent_filters"=>"agent_filters.state=state_code.state"),NULL,array('state'=>'ASC'),NULL,array("agent_filters"=>"left"),array());
+        if(empty($data['states']))
+            $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
         if(empty($this->input->post('is_ajax'))){
             $this->miscelleneous->load_partner_nav_header();
             //$this->load->view('partner/header');
@@ -3905,7 +3912,7 @@ class Partner extends CI_Controller {
         $tArray = explode("_",$contract_typeTemp);
         $contract_type = $tArray[0];
         $partner = $this->input->post('partner_id');
-        $validation =  $this->brand_collaterals_file_validations($_FILES['l_c_file'],$tArray[2]);
+            $validation =  $this->brand_collaterals_file_validations($_FILES['l_c_file'],$tArray[2]);
         if($validation){
             if (($_FILES['l_c_file']['error'] != 4) && !empty($_FILES['l_c_file']['tmp_name'])) {
                     $tmpFile = $_FILES['l_c_file']['tmp_name'];
@@ -4642,15 +4649,90 @@ class Partner extends CI_Controller {
                 else{
                      echo "Please Try Again";
                 }
-            }
-            else{
-                echo "Please Try Again";
-            }
     }
      }   
     function get_partner_tollfree_numbers(){
         $data = $this->partner_model->get_tollfree_and_contact_persons();
         $this->miscelleneous->multi_array_sort_by_key($data,"name","ASC");
         echo json_encode($data);    
+        } 
+    }  
+    //update a single contact
+    function edit_partner_contacts(){
+       if($this->input->post('partner_id')){
+            $partnerID = $this->input->post('partner_id');
+            $pid = $this->input->post('contact_id');
+            $agent_id = $this->input->post('agentid');
+            $data['name'] = $loginData['agent_name']  =  $this->input->post('contact_person_name');
+            $data['official_email'] = $loginData['email'] =  $this->input->post('contact_person_email');
+            $data['alternate_email'] = $this->input->post('contact_person_alt_email');
+            $data['official_contact_number'] = $this->input->post('contact_person_contact');
+            $data['alternate_contact_number'] = $this->input->post('contact_person_alt_contact');
+            $data['permanent_address'] = $this->input->post('contact_person_address');
+            $data['correspondence_address'] = $this->input->post('contact_person_c_address');
+            $data['role'] = $this->input->post('contact_person_role');
+            $data['entity_id'] = $loginData['entity_id'] = $stateData['entity_id'] = $partnerID;
+            $data['entity_type'] = $loginData['entity'] = $stateData['entity_type'] = "partner";
+            $data['agent_id'] = $this->session->userdata('id');
+            $where = array('id' =>$pid);
+            $update_data1 = $this->reusable_model->update_table("contact_person",$data,$where);
+            $loginData['contact_person_id'] = $stateData['contact_person_id'] = $pid;
+            // Create Login If Checkbox Checked
+            if($this->input->post('checkbox_value_holder') == true && !$agent_id){
+                    $password = mt_rand(100000, 999999);
+                    $loginData['user_id'] = str_replace(" ","_",$data['name']."_".$partnerID."_".mt_rand(10, 99));
+                    $loginData['password'] = md5($password);
+                    $loginData['clear_password'] = $password;
+                    $loginData['active'] = 1;
+                    $agent_id = $this->miscelleneous->create_entity_login($loginData);
+             }
+                // If state is not selected then add all states
+                if($agent_id){
+                        $stateString =  $this->input->post('states_value_holder');
+                        if(!$stateString){
+                            $states = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
+                            $all =1;
+                        }
+                        else{
+                            $states = explode(",",$stateString);
+                             $all =0; 
+                        }
+                        foreach ($states as $state){
+                            $stateData['agent_id'] = $agent_id;
+                            if($all ==  1){
+                                $stateData['state'] = $state['state'];
+                            }
+                            else{
+                                $stateData['state'] = $state;
+                            }
+                            $stateData['is_active'] = 1;
+                            $finalStateData[]= $stateData; 
+                        }
+                        $where= array('contact_person_id' =>$pid);
+                        if($where)
+                            $this->reusable_model->delete_from_table('agent_filters',$where);
+                            $update_data2 = $this->reusable_model->insert_batch('agent_filters',$finalStateData);
+                         }
+            if($update_data1 || $update_data2){
+                $msg =  "Contact Persons has been Updated successfully ";
+            }
+            else{
+                $msg =  "No update done";
+            }
+        }
+        else{
+            $msg =  "Something went Wrong Please try again or contact to admin";
+        }
+       $this->session->set_userdata('success', $msg);
+       redirect(base_url() . 'employee/partner/editpartner/' . $partnerID);
+    }
+    
+    function delete_partner_contacts($contact_id,$partnerID){
+        $this->reusable_model->delete_from_table('entity_login_table',array('contact_person_id'=>$contact_id));
+        $this->reusable_model->delete_from_table('agent_filters',array('contact_person_id'=>$contact_id));
+        $this->reusable_model->delete_from_table('contact_person',array('id'=>$contact_id));
+        $msg = "Contact deleted successfully";
+        $this->session->set_userdata('success', $msg);
+       redirect(base_url() . 'employee/partner/editpartner/' . $partnerID);
     }
 }
