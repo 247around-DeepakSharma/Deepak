@@ -4987,4 +4987,26 @@ class vendor extends CI_Controller {
             echo "Failed";
        }
    }     
+   function download_upcountry_report(){
+        $this->checkUserSession();
+        $upcountryCsv= "Upcountry_Report" . date('j-M-Y-H-i-s') . ".csv";
+        $csv = TMP_FOLDER . $upcountryCsv;
+        $report = $this->upcountry_model->get_upcountry_non_upcountry_district();
+        $delimiter = ",";
+        $newline = "\r\n";
+        $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
+        log_message('info', __FUNCTION__ . ' => Rendered CSV');
+        write_file($csv, $new_report);
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename="' . basename($csv) . '"');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($csv));
+        readfile($csv);
+        exec("rm -rf " . escapeshellarg($csv));
+        log_message('info', __FUNCTION__ . ' Function End');
+        //unlink($csv);
+    }
 }
