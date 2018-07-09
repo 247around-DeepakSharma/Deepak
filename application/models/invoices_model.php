@@ -1047,7 +1047,7 @@ class invoices_model extends CI_Model {
         $result['booking'] = $query->result_array();
         if(!empty($result['booking'])){
             $result['upcountry'] =  $result['courier'] = $result['c_penalty'] = array();
-            $result['d_penalty'] = $result['c_penalty'] = array();
+            $result['d_penalty'] = $result['c_penalty'] = $result['misc'] = array();
             // Calculate Upcountry booking details
             $upcountry_data = $this->upcountry_model->upcountry_foc_invoice($vendor_id, $from_date, $to_date, $is_regenerate);
             $debit_penalty = $this->penalty_model->add_penalty_in_invoice($vendor_id, $from_date, $to_date, "", $is_regenerate);
