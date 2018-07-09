@@ -882,6 +882,8 @@ function validateSerialNo(count){
                         $("#admin_remarks").prop('required',true);
                         $('body').loadingModal('destroy');
                         
+                    } else {
+                        $('body').loadingModal('destroy');
                     } 
                     
                 }
