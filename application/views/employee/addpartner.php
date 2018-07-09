@@ -2570,6 +2570,10 @@ function sendAjaxRequest(postData, url,type) {
             }
             $("#contact_person_states").val(Values).trigger('change');
         }
+        if(value.login_agent_id){
+          $("#checkbox_value_holder").val(true);
+          $( "#login_checkbox" ).prop( "checked", true );
+        }
         $("#contact_id").val(value.id);
         $("#contact_person_name").val(value.name);
         $("#contact_person_email").val(value.official_email);
