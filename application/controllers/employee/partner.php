@@ -2793,7 +2793,7 @@ class Partner extends CI_Controller {
                     $type = " Panel";
                     $agent_type = _247AROUND_PARTNER_STRING;
                 }
-                $this->booking_model->update_booking($booking_id, array('initial_booking_date' => date('Y-m-d'), 'booking_date' => date('Y-m-d')));
+                $this->booking_model->update_booking($booking_id, array('initial_booking_date' => date('d-m-Y'), 'booking_date' => date('d-m-Y')));
                 
                 // Insert log into booking state change
                 $this->notify->insert_state_change($booking_id, UPCOUNTRY_CHARGES_APPROVED, _247AROUND_PENDING, "Upcountry Charges Approved From " . $type.". Booking date is reset as upcountry charges approved", $agent_id, $agent_name, 
