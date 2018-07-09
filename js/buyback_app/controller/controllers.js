@@ -755,6 +755,26 @@ admin_dashboard.controller('bracketsSnapshot_Controller', function ($scope, $htt
      });
 });
 
+
+//This Function is used to //get brackets snapshot
+inventory_dashboard.controller('bracketsSnapshot_Controller', function ($scope, $http) {
+    var url = baseUrl + "/employee/inventory/get_inventory_snapshot";
+    $http.get(url).then(function (response) {
+            if(response.data.length === 0){
+                $scope.brackets_div = false;
+                $scope.brackets_div_err_msg = true;
+                $scope.brackets_div_err_msg_text = "No Data Found";
+            }else{
+                $scope.brackets_div = true;
+                 $scope.brackets_div_err_msg = false;
+                $scope.bracketsSnapshot = response.data;
+                $scope.quantity = '5';
+            }
+            
+            $("#brackets_loader").css("display", "none");
+     });
+});
+
 //This Function is used to //get brackets snapshot
 rm_dashboard.controller('bracketsSnapshot_Controller', function ($scope, $http) {
     var url = baseUrl + "/employee/inventory/get_inventory_snapshot";

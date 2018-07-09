@@ -879,10 +879,11 @@ class Partner extends CI_Controller {
         $results['collateral_type'] = $this->reusable_model->get_search_result_data("collateral_type", '*', array("collateral_tag" => "Contract"), NULL, NULL, array("collateral_type" => "ASC"), NULL, NULL);
         $employee_list = $this->employee_model->get_employee_by_group(array("groups NOT IN ('developer') AND active = '1'" => NULL));
         $departmentArray = $this->reusable_model->get_search_result_data("entity_role", 'DISTINCT department',array("entity_type" => 'partner'),NULL, NULL, array('department'=>'ASC'), NULL, NULL,array());  
-        $results['contact_persons'] =  $this->reusable_model->get_search_result_data("contact_person",  "contact_person.*,entity_role.role,entity_role.id as  role_id,entity_role.department,GROUP_CONCAT(agent_filters.state) as  state,agent_filters.agent_id as agentid",
+        $results['contact_persons'] =  $this->reusable_model->get_search_result_data("contact_person",  "contact_person.*,entity_role.role,entity_role.id as  role_id,entity_role.department,"
+                . "GROUP_CONCAT(agent_filters.state) as  state,agent_filters.agent_id as agentid,entity_login_table.agent_id as login_agent_id",
                 array("contact_person.entity_type" =>  "partner","contact_person.entity_id"=>$id),
-                array("entity_role"=>"contact_person.role = entity_role.id","agent_filters"=>"contact_person.id=agent_filters.contact_person_id"), NULL, 
-                array("name"=>'ASC'), NULL,  array("agent_filters"=>"left","entity_role"=>"left"),array("contact_person.id"));
+                array("entity_role"=>"contact_person.role = entity_role.id","agent_filters"=>"contact_person.id=agent_filters.contact_person_id","entity_login_table"=>"entity_login_table.contact_person_id = contact_person.id"), NULL, 
+                array("name"=>'ASC'), NULL,  array("agent_filters"=>"left","entity_role"=>"left","entity_login_table"=>"left"),array("contact_person.id"));
        $results['contact_name'] = $this->partner_model->select_contact_person($id);
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/addpartner', array('query' => $query, 'results' => $results, 'employee_list' => $employee_list, 'form_type' => 'update','department'=>$departmentArray));
@@ -3377,10 +3378,11 @@ class Partner extends CI_Controller {
      * 
      */
     function download_sf_list_excel() {
-
-        $where = array('active' => '1', 'on_off' => '1');
-        $select = "id,district,state,pincode,appliances,non_working_days";
-        $vendor = $this->vendor_model->getVendorDetails($select, $where, 'state');
+        $where = array('service_centres.active' => '1', 'service_centres.on_off' => '1');
+        $select = "service_centres.id,service_centres.district,service_centres.state,service_centres.pincode,service_centres.appliances,service_centres.non_working_days,GROUP_CONCAT(sub_service_center_details.district) as upcountry_districts";
+        //$vendor = $this->vendor_model->getVendorDetails($select, $where, 'state');
+             $vendor =  $this->reusable_model->get_search_result_data("service_centres",$select,$where,array("sub_service_center_details"=>"sub_service_center_details.service_center_id = service_centres.id"),
+                NULL,array("service_centres.state"=>"ASC"),NULL,array("sub_service_center_details"=>"left"),array("service_centres.id"));
         foreach ($vendor as $key => $value){
             $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($value['id']);
             if(!empty($rm_details)){
