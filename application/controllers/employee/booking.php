@@ -2041,6 +2041,8 @@ class Booking extends CI_Controller {
             $actor = $booking['actor'] = $partner_status[2];
             $next_action = $booking['next_action'] = $partner_status[3];
         }
+        
+        $booking['cancellation_reason'] = NULL;
 
         if ($this->input->post('rating_stars') !== "") {
             $booking['rating_stars'] = $this->input->post('rating_stars');
