@@ -4644,29 +4644,29 @@ class Partner extends CI_Controller {
         $this->load->view('partner/partner_footer');
     }
      function process_booking_internal_conversation_email(){
-         log_message('info', __FUNCTION__ . " Booking ID: " . $this->input->post('booking_id'));
+        log_message('info', __FUNCTION__ . " Booking ID: " . $this->input->post('booking_id'));
         if($this->session->userdata('partner_id')){
-            if($this->input->post('booking_id')){
-                $to = explode(",",$this->input->post('to'));
-                $join['entity_login_table'] = "entity_login_table.contact_person_id = contact_person.id";
-                $from_email = $this->reusable_model->get_search_result_data("contact_person","official_email",array("entity_login_table.agent_id"=>$this->session->userdata('agent_id')),$join,
-                        NULL,NULL,NULL,NULL,array())[0]['official_email'];
-                $cc = $this->input->post('cc').",".$from_email;
-                $row_id = $this->miscelleneous->send_and_save_booking_internal_conversation_email("Partner",$this->input->post('booking_id'),implode(",",$to),$cc
-                        ,$from_email,$this->input->post('subject'),$this->input->post('msg'),$this->session->userdata('agent_id'),$this->session->userdata('partner_id'));    
-                if($row_id){
-                    echo "Successfully Sent";
-                }
-                else{
-                     echo "Please Try Again";
-                }
-    }
-     }   
+           if($this->input->post('booking_id')){
+               $to = explode(",",$this->input->post('to'));
+               $join['entity_login_table'] = "entity_login_table.contact_person_id = contact_person.id";
+               $from_email = $this->reusable_model->get_search_result_data("contact_person","official_email",array("entity_login_table.agent_id"=>$this->session->userdata('agent_id')),$join,
+                       NULL,NULL,NULL,NULL,array())[0]['official_email'];
+               $cc = $this->input->post('cc').",".$from_email;
+               $row_id = $this->miscelleneous->send_and_save_booking_internal_conversation_email("Partner",$this->input->post('booking_id'),implode(",",$to),$cc
+                       ,$from_email,$this->input->post('subject'),$this->input->post('msg'),$this->session->userdata('agent_id'),$this->session->userdata('partner_id'));    
+               if($row_id){
+                   echo "Successfully Sent";
+               }
+               else{
+                    echo "Please Try Again";
+               }
+        }
+    }   
+     }
     function get_partner_tollfree_numbers(){
         $data = $this->partner_model->get_tollfree_and_contact_persons();
         $this->miscelleneous->multi_array_sort_by_key($data,"name","ASC");
         echo json_encode($data);    
-        } 
     }  
     //update a single contact
     function edit_partner_contacts(){
