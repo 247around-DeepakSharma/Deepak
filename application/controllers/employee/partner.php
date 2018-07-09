@@ -3375,10 +3375,11 @@ class Partner extends CI_Controller {
      * 
      */
     function download_sf_list_excel() {
-
-        $where = array('active' => '1', 'on_off' => '1');
-        $select = "id,district,state,pincode,appliances,non_working_days";
-        $vendor = $this->vendor_model->getVendorDetails($select, $where, 'state');
+        $where = array('service_centres.active' => '1', 'service_centres.on_off' => '1');
+        $select = "service_centres.id,service_centres.district,service_centres.state,service_centres.pincode,service_centres.appliances,service_centres.non_working_days,GROUP_CONCAT(sub_service_center_details.district) as upcountry_districts";
+        //$vendor = $this->vendor_model->getVendorDetails($select, $where, 'state');
+             $vendor =  $this->reusable_model->get_search_result_data("service_centres",$select,$where,array("sub_service_center_details"=>"sub_service_center_details.service_center_id = service_centres.id"),
+                NULL,array("service_centres.state"=>"ASC"),NULL,array("sub_service_center_details"=>"left"),array("service_centres.id"));
         foreach ($vendor as $key => $value){
             $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($value['id']);
             if(!empty($rm_details)){
