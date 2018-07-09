@@ -604,5 +604,8 @@ define('KNOWLARITY_API_KEY', '925e6a88-be5e-408b-b211-58bd1a09a63c');
 define('KNOWLARITY_NUMBER', '+918971877477');
 define('KNOWLARITY_OUTGOING_CALL_URL', 'https://kpi.knowlarity.com/Basic/v1/account/call/makecall');
 
+
+//INventory 
+define('INVENTORY_HANDLER_ID', '10030');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
