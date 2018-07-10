@@ -2453,6 +2453,35 @@ class Booking extends CI_Controller {
 
         $this->load->view('employee/show_booking_life_cycle', $data);
     }
+    function get_comment_section($booking_id){
+       
+        $data['comments'] = $this->booking_model->get_remarks($booking_id);
+        $data['booking_id'] = $booking_id;
+        $this->load->view('employee/comment_section', $data);
+    }
+    function addComment(){
+        
+        $data['agent_id'] = $this->session->userdata('id');
+        $data['remarks'] = $this->input->post('comment');
+        $data['booking_id'] = $this->input->post('booking_id');
+        $data['entity_id'] = _247AROUND;
+        $data['entity_type'] = '247around';
+        $data['create_date'] = date("Y-m-d H:i:s");
+       print_r($data);
+         $status = $this->booking_model->add_comment($data);
+//            if (!empty($status)) {
+//
+//                log_message("info", __METHOD__ . " Comment Added");
+//                $this->session->set_userdata('success', 'Comment Added');
+//                redirect(base_url() . 'employee/booking/get_booking_life_cycle');
+//            } else {
+//
+//
+//                log_message("info", __METHOD__ . " Comment not added");
+//                $this->session->set_userdata('failed', 'Comment not added');
+//                redirect(base_url() . 'employee/booking/get_booking_life_cycle');
+//            }
+    }
 
     /**
      * @desc: This function is used to validate Bookings New/Update

@@ -7682,6 +7682,7 @@ ALTER TABLE `spare_parts_details` ADD `entity_type` VARCHAR(64) CHARACTER SET la
 ALTER TABLE `contact_person` ADD `department` VARCHAR(512) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL AFTER `role`;
 ALTER TABLE  `request_type` ADD  `create_date` TIMESTAMP NOT NULL;
 ALTER TABLE  `service_category_mapping` ADD  `create_date` TIMESTAMP NOT NULL;
+
 ALTER TABLE `booking_details` ADD `isActive` INT(1) NOT NULL DEFAULT '0' AFTER `remarks`;
 
 
@@ -7726,4 +7727,3 @@ INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `li
 
 --Abhay 12 July
 ALTER TABLE `spare_parts_details` ADD `wh_ack_received_part` INT(1) NOT NULL DEFAULT '1' AFTER `inventory_id`;
-

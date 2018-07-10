@@ -625,6 +625,12 @@
                 <?php } ?>
             </div>
             <div class="tab-pane fade in" id="tab4">
+                <div style="padding: 0 15px;">
+    <div class="row">
+                <div id="historyDetails"></div>
+                <div id="commentbox"> </div>
+    </div>
+                </div>
             </div>
             <div class="tab-pane fade in" id="tab5">
                 <div class="row">
@@ -1017,7 +1023,7 @@ function sf_tab_active(){
                     type: 'POST',
                     url: booking_id,
                     success: function (response) {
-                        $('#tab4').html(response);
+                        $('#historyDetails').html(response);
                     }
                 });
             });
@@ -1084,6 +1090,35 @@ function sf_tab_active(){
                 console.log("Contact Developers For This Issue");
             }
     }
+    
+    function addComment() {
+        
+        var comment = $("#comment").val();
+        var booking_id = '<?php echo $booking_history[0]['booking_id']?>';
+  
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/booking/addComment',
+            data: {comment: comment, booking_id: booking_id},
+            success: function () {
+                getcommentbox();
+            }
+            
+        });
+    }
+    
+    
+    function getcommentbox(){
+    $.ajax({
+                    method: 'POST',
+                    data: {},
+                    url: '<?php echo base_url(); ?>employee/booking/get_comment_section/<?php echo $booking_history[0]['booking_id']?>',
+                    success: function (response) {
+                        document.getElementById("commentbox").innerHTML = response;
+                    }
+                });
+    }
+    getcommentbox();
     function get_transaction_status(booking_id){
         $.ajax({
                     method: 'POST',
