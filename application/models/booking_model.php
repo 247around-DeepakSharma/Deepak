@@ -2497,4 +2497,40 @@ class Booking_model extends CI_Model {
         $this->db->where($where);
         $this->db->update('miscellaneous_charges', $data);
     }
+    
+     /**
+     * @Desc: This function is used to get remarks sent for particular booking id
+     * @params: booking_id
+     * @return: array
+     * 
+     */
+    function get_remarks($booking_id){
+       // $trimed_booking_id = preg_replace("/[^0-9]/","",$booking_id);
+        $this->db->select('agent_id, remarks, booking_comments.create_date, employee_id');
+        $this->db->from('booking_comments');
+        $this->db->join('employee','booking_comments.agent_id = employee.id');
+        $this->db->where('booking_comments.booking_id ' , $booking_id);
+        $this->db->order_by('booking_comments.create_date');
+        $query = $this->db->get();
+//        $query = $this->db->last_query('booking_comments');
+//        print_r($query);
+//        
+//        exit();
+        return $query->result_array();
+    } 
+    
+    function add_comment($data){
+        $this->db->select('*');
+        $this->db->from('booking_comments');
+        $this->db->where($data);
+        $query = $this->db->get();
+        if ($query->num_rows() == 0) {
+
+        $this->db->insert('booking_comments', $data);
+        return $this->db->insert_id();
+
+        }else {
+            return false;
+        }
+    }
 }

@@ -7636,3 +7636,26 @@ ALTER TABLE `booking_details` ADD `upcountry_update_date` DATETIME NULL DEFAULT 
 --Chhavi 4 July
 ALTER TABLE `inventory_master_list` ADD `is_local_purchase` INT(1) NOT NULL DEFAULT '0' AFTER `create_date`;
 ALTER TABLE `service_centre_charges` ADD `is_local_purchase` INT(1) NOT NULL DEFAULT '0' AFTER `create_date`;
+
+--Namrata 10th July
+--
+-- Table structure for table `booking_comments`
+--
+
+CREATE TABLE `booking_comments` (
+  `id` int(11) NOT NULL,
+  `entity_id` int(11) NOT NULL,
+  `entity_type` varchar(28) NOT NULL,
+  `booking_id` varchar(128) NOT NULL,
+  `agent_id` int(255) NOT NULL,
+  `remarks` text NOT NULL,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `create_date` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `spare_parts_details` ADD `entity_type` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL AFTER `booking_id`;
+ALTER TABLE `contact_person` ADD `department` VARCHAR(512) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL AFTER `role`;
+ALTER TABLE  `request_type` ADD  `create_date` TIMESTAMP NOT NULL;
+ALTER TABLE  `service_category_mapping` ADD  `create_date` TIMESTAMP NOT NULL;
+
+
