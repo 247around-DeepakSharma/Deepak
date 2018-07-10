@@ -120,4 +120,8 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE employee_r
          $query = $this->db->query($sql);
         return $query->result_array();
     }
+    function delete_from_table($table,$where){
+        $this->db->where($where);
+        $this->db->delete($table);
+    }
 }

@@ -395,9 +395,13 @@ class User extends CI_Controller {
      * @return: view
      * 
      */
-    function update_employee(){   
+    function update_employee($id = ""){   
         $data['id'] = $this->session->userdata('id');
+        $data['user_group'] = $this->session->userdata('user_group');
+        if(!$id)
         $data['query'] = $this->employee_model->getemployeefromid($data['id']);
+        else
+            $data['query'] = $this->employee_model->getemployeefromid($id);
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/employee_add_edit',$data);
     }

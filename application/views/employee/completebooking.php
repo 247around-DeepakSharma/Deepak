@@ -69,7 +69,9 @@
 				    <label for="booking_id" class="col-md-4">Booking ID</label>
 				    <div class="col-md-6">
                                         <input type="hidden" name ="partner_type" id="partner_type" />
+                                        <input type="hidden" name ="booking_id" id="booking_id" value="<?php echo $booking_history[0]['booking_id']; ?>" />
                                         <input type="hidden" id="change_appliance_details" name="change_appliance_details" value="0" />
+                                        <input type="hidden" id= "user_id" name="user_id" value='<?php echo $booking_history[0]['user_id']; ?>' />
 					<input type="text" class="form-control"  id="booking_id" name="booking_id" value = "<?php
 					       if (isset($booking_history[0]['booking_id'])) {
 						   echo $booking_history[0]['booking_id'];
@@ -264,15 +266,15 @@
 							    <?php if ($price['pod'] == "1") { ?>
 	    						    <div class="form-group">
 	    							<div class="col-md-12 ">
-	    							    <input type="text" class="form-control" id="<?php echo "serial_number" . $count; ?>" name="<?php echo "serial_number[" . $price['unit_id'] . "]" ?>"  value="<?php echo $price['serial_number']; ?>" placeholder = "Enter Serial Number" />
+	    							    <input type="text" onblur="validateSerialNo('<?php echo $count;?>')" class="form-control" id="<?php echo "serial_number" . $count; ?>" name="<?php echo "serial_number[" . $price['unit_id'] . "]" ?>"  value="<?php echo $price['serial_number']; ?>" placeholder = "Enter Serial Number" />
                                                                      <input type="hidden" class="form-control" id="<?php echo "serial_number_pic" . $count; ?>" name="<?php echo "serial_number_pic[" . $price['unit_id'] . "]" ?>"  value="<?php echo $price['serial_number_pic']; ?>"  />
                                                                     <input type="hidden" id="<?php echo "pod" . $count ?>" class="form-control" name="<?php echo "pod[" . $price['unit_id'] . "]" ?>" value="<?php echo $price['pod']; ?>"   />
 	    							</div>
 	    						    </div>
 							    <?php } ?>
 							</td>
-							<td><?php echo $price['price_tags'] ?>
-                                                        <input type="hidden" name="<?php echo "price_tags[" . $price['unit_id'] . "]" ?>" value="<?php echo $price['price_tags'];?>">
+                                                        <td id="<?php echo "price_tags".$count;?>"><?php echo $price['price_tags'] ?>
+                                                        
                                                         </td>
 							<td id="<?php echo "amount_due".$count; ?>"><?php echo $price['customer_net_payable']; ?></td>
 							<td>  
@@ -379,7 +381,7 @@
 							    <tr style="background-color:   #bce8f1; color: #222222;">
 
 									<td> <?php if ($value['pod'] == "1") { ?>
-	    							    <input type="text" class="form-control"  id="<?php echo "serial_number" . $count; ?>" name="<?php echo "serial_number[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value="" placeholder= "Enter Serial Number" />
+	    							    <input type="text" class="form-control" onblur="validateSerialNo('<?php echo $count;?>')"  id="<?php echo "serial_number" . $count; ?>" name="<?php echo "serial_number[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value="" placeholder= "Enter Serial Number" />
                                                                     <input type="hidden" class="form-control" id="<?php echo "serial_number_pic" . $count; ?>" name="<?php echo "serial_number_pic[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value="" />
                                                                     <input type="hidden" id="<?php echo "pod" . $count ?>" class="form-control" name="<?php echo "pod[" . $price['unit_id'] . "]" ?>" value="<?php echo $price['pod']; ?>"   />
 								    <?php } ?>
@@ -501,7 +503,7 @@
 				</div>
 				<label for="remark" class="col-md-2">Admin Remarks</label>
 				<div class="col-md-4" >
-				    <textarea class="form-control"  rows="5" name="admin_remarks"></textarea>
+				    <textarea class="form-control" id="admin_remarks" rows="5" name="admin_remarks"></textarea>
 				</div>
 			    </div>
                            <input type="hidden" class="form-control" id="partner_id" name="partner_id" value = "<?php if (isset($booking_history[0]['partner_id'])) {echo $booking_history[0]['partner_id']; } ?>" >
@@ -844,6 +846,52 @@ function sendAjaxRequest(postData, url) {
         url: url,
         type: 'post'
     });
+}
+
+function validateSerialNo(count){
+    var postData = {};
+    postData['serial_number'] = $("#serial_number"+count).val();
+    postData['price_tags'] = $("#price_tags"+count).text();
+    postData['user_id'] = $("#user_id").val();
+    postData['booking_id'] = $("#booking_id").val();
+    postData['partner_id'] = $("#partner_id").val();
+    
+    if(postData['serial_number'] !== ''){
+        $.ajax({
+                type: 'POST',
+                beforeSend: function(){
+
+                    $('body').loadingModal({
+                    position: 'auto',
+                    text: 'Loading Please Wait...',
+                    color: '#fff',
+                    opacity: '0.7',
+                    backgroundColor: 'rgb(0,0,0)',
+                    animation: 'wave'
+                });
+
+                    },
+                url: '<?php echo base_url() ?>employee/service_centers/validate_booking_serial_number',
+                data:postData,
+                success: function (response) {
+                    console.log(response);
+                    var data = jQuery.parseJSON(response);
+                    if(data.code === Number(<?php echo DUPLICATE_SERIAL_NO_CODE; ?>)){
+                        alert(data.message + "\n Please enter valid reason in the Admin Remarks Filed.");
+                        
+                        $("#admin_remarks").prop('required',true);
+                        $('body').loadingModal('destroy');
+                        
+                    } else {
+                        $('body').loadingModal('destroy');
+                    } 
+                    
+                }
+            });
+    }
+
+
+    
 }
 
 </script>
