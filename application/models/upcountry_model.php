@@ -654,6 +654,24 @@ class Upcountry_model extends CI_Model {
        
         return $query->result_array();
     }
+    
+    function is_customer_pay_upcountry($booking_id){
+        $this->db->_reserved_identifiers = array('*','CASE','WHEN');
+        $this->db->select('booking_id, sc.is_upcountry');
+        $this->db->from('booking_unit_details AS ud');
+        $this->db->join('service_centre_charges AS sc','ud.partner_id = sc.partner_id '
+                . ' AND ud.price_tags = sc.service_category '
+                . ' AND ud.`appliance_category` = sc.category '
+                . ' AND ud.`appliance_capacity` = sc.capacity');
+        $this->db->join('bookings_sources','CASE WHEN partner_type = "OEM" '
+                . 'THEN (bookings_sources.partner_id = ud.partner_id AND sc.brand = ud.appliance_brand) '
+                . 'ELSE (bookings_sources.partner_id = ud.partner_id) END ');
+        $this->db->where('booking_id', $booking_id);
+        $this->db->where_in('sc.is_upcountry', array('0'));
+        $query = $this->db->get();
+       
+        return $query->result_array();
+    }
     /**
      * @desc
      * @param String $booking_id

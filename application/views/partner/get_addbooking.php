@@ -899,7 +899,28 @@
         }
     });
     if (count > 0) {
-        if(non_upcountry === -1){
+        if(is_upcountry){
+            var data1 = jQuery.parseJSON(upcountry_data);
+            if (data1.message === "UPCOUNTRY BOOKING" || data1.message === "UPCOUNTRY LIMIT EXCEED") {
+
+
+                var upcountry_charges = (Number(3) * Number(data1.upcountry_distance)).toFixed(2);
+               
+                $("#upcountry_charges").text(upcountry_charges);
+                $("#checkbox_upcountry").val("upcountry_" + upcountry_charges + "_0");
+                document.getElementById("checkbox_upcountry").checked = true;
+                
+                final_price();
+
+            } else {
+                document.getElementById("checkbox_upcountry").checked = false;
+                $("#upcountry_charges").text("0.00");
+                $("#checkbox_upcountry").val("upcountry_0_0");
+                
+            }
+            $('#submitform').attr('disabled', false);
+        
+        } else if(non_upcountry === -1){
           
           $("#upcountry_charges").text("0.00");
           $("#checkbox_upcountry").val("upcountry_0_0");
@@ -944,28 +965,7 @@
             }
 
 
-        } else {
-            var data1 = jQuery.parseJSON(upcountry_data);
-            if (data1.message === "UPCOUNTRY BOOKING" || data1.message === "UPCOUNTRY LIMIT EXCEED") {
-
-
-                var upcountry_charges = (Number(3) * Number(data1.upcountry_distance)).toFixed(2);
-               
-                $("#upcountry_charges").text(upcountry_charges);
-                $("#checkbox_upcountry").val("upcountry_" + upcountry_charges + "_0");
-                document.getElementById("checkbox_upcountry").checked = true;
-                
-                final_price();
-
-            } else {
-                document.getElementById("checkbox_upcountry").checked = false;
-                $("#upcountry_charges").text("0.00");
-                $("#checkbox_upcountry").val("upcountry_0_0");
-                
-            }
-            $('#submitform').attr('disabled', false);
-            
-        }
+        } 
     } else {
         
         $("#upcountry_charges").text("0.00");

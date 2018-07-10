@@ -294,19 +294,31 @@ class Miscelleneous {
                     $return_status = TRUE;
                 } else if (in_array(-1, array_column($is_upcountry, 'is_upcountry')) !== FALSE 
                         && in_array(1, array_column($is_upcountry, 'is_upcountry')) == FALSE ) {
-                    log_message('info', __METHOD__ . " => Customer or Partner does not pay upcountry charges " . $booking_id);
-                    $booking['is_upcountry'] = 0;
-                    $booking['upcountry_pincode'] = NULL;
-                    $booking['sub_vendor_id'] = NULL;
-                    $booking['upcountry_distance'] = NULL;
-                    $booking['sf_upcountry_rate'] = NULL;
-                    $booking['partner_upcountry_rate'] = NULL;
-                    $booking['upcountry_paid_by_customer'] = '0';
-                    $booking['upcountry_partner_approved'] = '1';
-                    $booking['upcountry_remarks'] = CUSTOMER_AND_PARTNER_BOTH_NOT_PROVIDE_UPCOUNTRY_FOR_THIS_PRICE_TAG;
+                    
+                    $is_not_upcountry = $this->My_CI->upcountry_model->is_customer_pay_upcountry($booking_id);
+                    if(!empty($is_not_upcountry)){
+                        log_message('info', __METHOD__ . " => Customer will pay upcountry charges " . $booking_id);
+                        $booking['upcountry_paid_by_customer'] = 1;
+                        $booking['partner_upcountry_rate'] = DEFAULT_UPCOUNTRY_RATE;
+                        $booking['upcountry_remarks'] = CUSTOMER_PAID_UPCOUNTRY;
 
-                    log_message('info', __METHOD__ . " => Amount due added " . $booking_id);
-                    $booking['amount_due'] = $cus_net_payable;
+                        log_message('info', __METHOD__ . " => Amount due added " . $booking_id);
+                        $booking['amount_due'] = $cus_net_payable + ($booking['partner_upcountry_rate'] * $booking['upcountry_distance']);
+                    } else {
+                        log_message('info', __METHOD__ . " => Customer or Partner does not pay upcountry charges " . $booking_id);
+                        $booking['is_upcountry'] = 0;
+                        $booking['upcountry_pincode'] = NULL;
+                        $booking['sub_vendor_id'] = NULL;
+                        $booking['upcountry_distance'] = NULL;
+                        $booking['sf_upcountry_rate'] = NULL;
+                        $booking['partner_upcountry_rate'] = NULL;
+                        $booking['upcountry_paid_by_customer'] = '0';
+                        $booking['upcountry_partner_approved'] = '1';
+                        $booking['upcountry_remarks'] = CUSTOMER_AND_PARTNER_BOTH_NOT_PROVIDE_UPCOUNTRY_FOR_THIS_PRICE_TAG;
+
+                        log_message('info', __METHOD__ . " => Amount due added " . $booking_id);
+                        $booking['amount_due'] = $cus_net_payable;
+                    }
 
                     $this->My_CI->booking_model->update_booking($booking_id, $booking);
                     log_message('info', __METHOD__ . " => Not Upcountry Booking" . $booking_id);
