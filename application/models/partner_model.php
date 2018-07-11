@@ -798,7 +798,7 @@ function get_data_for_partner_callback($booking_id) {
      * @param String $is_reporting_mail (O or 1)
      * @return Array
      */
-    function getpartner_details($select, $where = "", $is_reporting_mail="") {
+    function getpartner_details($select, $where = "", $is_reporting_mail="",$is_am_details = null) {
 
 	$this->db->select($select);
         if(!empty($where)){
@@ -809,6 +809,9 @@ function get_data_for_partner_callback($booking_id) {
 	    $this->db->where_in('is_reporting_mail', $is_reporting_mail);
 	}
         $this->db->join('bookings_sources','bookings_sources.partner_id = partners.id','right');
+        if(!empty($is_am_details)){
+            $this->db->join('employee','partners.account_manager_id = employee.id','left');
+        }
         $this->db->order_by('partners.public_name', "ASC");
 	$query = $this->db->get();
 
