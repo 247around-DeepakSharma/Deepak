@@ -1090,15 +1090,28 @@ function sf_tab_active(){
                 console.log("Contact Developers For This Issue");
             }
     }
+    function load_comment_area(){
+    
+    document.getElementById("comment_section").style.display='block';
+    $('#commnet_btn').hide();
+    }
+    
+    function cancel(){
+        getcommentbox();
+    }   
     
     function addComment() {
-        
+        var prethis = $(this);
         var comment = $("#comment").val();
         var booking_id = '<?php echo $booking_history[0]['booking_id']?>';
   
         $.ajax({
             type: 'POST',
             url: '<?php echo base_url(); ?>employee/booking/addComment',
+             beforeSend: function(){
+                
+                 prethis.html('<i class="fa fa-circle-o-notch fa-lg" aria-hidden="true"></i>');
+             },
             data: {comment: comment, booking_id: booking_id},
             success: function () {
                 getcommentbox();
@@ -1106,6 +1119,26 @@ function sf_tab_active(){
             
         });
     }
+     function deleteComment(comment_id) {
+        
+        var comment_id = comment_id;
+        var check = confirm("Do you want to delete this comment?");
+        if(check == true){
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/booking/deleteComment',
+            data: {comment_id: comment_id},
+            success: function () {
+                getcommentbox();
+            }
+            
+        });
+    }
+    }
+    
+//    function editComment(){
+//    load_comment_area();
+//    }
     
     
     function getcommentbox(){
