@@ -7660,7 +7660,7 @@ ALTER TABLE  `service_category_mapping` ADD  `create_date` TIMESTAMP NOT NULL;
 ALTER TABLE `booking_details` ADD `isActive` INT(1) NOT NULL DEFAULT '0' AFTER `remarks`;
 
 
---sachin  July
+--sachin  11 July
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
 VALUES (NULL, 'escalation_on_booking_from_partner_panel', 
 'Booking ID : %s Escalated', '<br>Dear Account Manager,<br><br> Booking ID : 
@@ -7668,6 +7668,16 @@ VALUES (NULL, 'escalation_on_booking_from_partner_panel',
 <br><br> Regards,<br> 247around Team', '', '', '', '', '1', '2016-09-26 18:30:00');
 
 UPDATE `email_template` SET `cc` = '' WHERE `email_template`.`tag` = 'escalation_on_booking';
+
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) 
+VALUES (NULL, 'missed_call_confirmed_for_google', 'Thank you for demo confirmation, 
+%s Installation & Demo of your %s would be done %s.Installation Powered by 247around.com', 
+'SMS sent when customer gives a missed call to confirm demo og google home speaker', '1', '2016-09-22 15:35:25');
+
+
+UPDATE `sms_template` SET `template` = 'Kudos to you for placing Google Home demo request. 
+Check Super Answer Video from Google http://bit.ly/2up6Kwq | http://bit.ly/2s4PzAc | http://bit.ly/2INmjUE - 247around Flipkart Partner' 
+WHERE `sms_template`.`tag` = 'flipkart_google_scheduled_sms';
 
 
 

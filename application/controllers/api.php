@@ -1475,7 +1475,11 @@ class Api extends CI_Controller {
     function send_missed_call_confirmation_sms($booking) {
         //log_message ('info', __METHOD__);
 
-        $sms['tag'] = "missed_call_confirmed";
+        if($booking['partner_id'] === GOOGLE_FLIPKART_PARTNER_ID){
+            $sms['tag'] = "missed_call_confirmed_for_google";
+        }else{
+            $sms['tag'] = "missed_call_confirmed";
+        }
         $sms['phone_no'] = $booking['booking_primary_contact_no'];
         $sms['smsData']['message'] = '';
         $sms['smsData']['service'] = $booking['services'];
