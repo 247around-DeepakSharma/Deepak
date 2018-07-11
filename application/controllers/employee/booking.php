@@ -2072,9 +2072,8 @@ class Booking extends CI_Controller {
         }
         if(!empty($sp_required_id)){
             foreach ($sp_required_id as $sp_id) {
-
-                $sp['status'] = DEFECTIVE_PARTS_PENDING;
-                $this->service_centers_model->update_spare_parts(array('id' => $sp_id), $sp);
+                
+                $this->service_centers_model->update_spare_parts(array('id' => $sp_id), array('status' => DEFECTIVE_PARTS_PENDING));
             }
         }
         
