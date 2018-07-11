@@ -7659,3 +7659,10 @@ ALTER TABLE  `request_type` ADD  `create_date` TIMESTAMP NOT NULL;
 ALTER TABLE  `service_category_mapping` ADD  `create_date` TIMESTAMP NOT NULL;
 
 
+--Abhay 7 July
+ALTER TABLE `inventory_stocks` ADD `pending_request_count` INT NULL DEFAULT '0' AFTER `stock`;
+
+ALTER TABLE `spare_parts_details` ADD `invoice_gst_rate` INT(11) NULL DEFAULT '18' AFTER `sell_price`;
+
+--Abhay 11 July
+ALTER TABLE `bank_transactions` ADD `payment_txn_id` VARCHAR(1024) NULL DEFAULT NULL AFTER `transaction_id`;

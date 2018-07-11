@@ -31,6 +31,7 @@
                     
                     <input type="hidden" class="form-control"  name="booking_id" value = "<?php echo $booking_id;
                         ?>">
+                    <input type="hidden" class="form-control"  name="amount_due" value = "<?php if (isset($bookinghistory[0]['amount_due'])) {echo $bookinghistory[0]['amount_due']; }?>">
                     <input type="hidden" class="form-control"  name="partner_id" value = "<?php if (isset($bookinghistory[0]['partner_id'])) {echo $bookinghistory[0]['partner_id']; }?>">
                     <input type="hidden" class="form-control"  name="price_tags" value = "<?php if (isset($price_tags)) {echo $price_tags; }?>">
                     <input type="hidden" class="form-control" id="partner_flag" name="partner_flag" value="0" />
@@ -91,6 +92,7 @@
                     </div>
                    
                     <input type="hidden" name="days" value="<?php echo $days; ?>" /> 
+                    <input type="hidden" name="requested_inventory_id" value="<?php echo $days; ?>" /> 
                     <div class="panel panel-default col-md-offset-2" id="hide_spare" >
                         <div class="panel-body" >
                             <div class="row">

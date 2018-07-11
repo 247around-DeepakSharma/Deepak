@@ -56,7 +56,7 @@
 			$status = "0";
 		    }
 		} else {
-		    echo $status = "1";
+		    $status = "1";
 		}
 		?>
                 

@@ -1101,29 +1101,30 @@ class Inventory extends CI_Controller {
                 case 'CANCEL_PARTS':
                 case 'QUOTE_REQUEST_REJECTED';
                     $where = array('id' => $id );
-                    $data = array('status' => "Cancelled");
+                    $data = array('status' => _247AROUND_CANCELLED);
                     if($requestType == "CANCEL_PARTS"){
                         $new_state = SPARE_PARTS_CANCELLED;
                         $b['internal_status'] = SPARE_PARTS_CANCELLED;
+                        $data['old_status'] = SPARE_PARTS_REQUESTED;
                     } else {
                         $new_state = REQUESTED_QUOTE_REJECTED;
                         $b['internal_status'] = REQUESTED_QUOTE_REJECTED;
                     }
                     
-                    $old_state = "Spare Parts Requested";
-                    $sc_data['current_status'] = "Pending";
-                    $sc_data['internal_status'] = "Pending";
+                    $old_state = SPARE_PARTS_REQUESTED;
+                    $sc_data['current_status'] = _247AROUND_PENDING;
+                    $sc_data['internal_status'] = _247AROUND_PENDING;
                     $sc_data['update_date'] = date("Y-m-d H:i:s");
           
                     $this->vendor_model->update_service_center_action($booking_id,$sc_data);
                     break;
                 case 'CANCEL_COMPLETED_BOOKING_PARTS':
                     $where = array('id' => $id );
-                    $data = array('status' => "Cancelled");
+                    $data = array('status' => _247AROUND_CANCELLED);
                     $new_state = SPARE_PARTS_CANCELLED;
                     $old_state = "Spare Parts Requested";
                     $sc_data['current_status'] = "InProcess";
-                    $sc_data['internal_status'] = "Completed";
+                    $sc_data['internal_status'] = _247AROUND_COMPLETED;
                     $sc_data['update_date'] = date("Y-m-d H:i:s");
           
                     $this->vendor_model->update_service_center_action($booking_id,$sc_data);
@@ -1131,16 +1132,16 @@ class Inventory extends CI_Controller {
                 
                 case 'REJECT_COURIER_INVOICE':
                     $where = array('booking_id' => $booking_id );
-                    $data = array("approved_defective_parts_by_admin" => 0, 'status' => 'Defective Part Rejected By Partner', 'remarks_defective_part_by_sf' => $remarks);
+                    $data = array("approved_defective_parts_by_admin" => 0, 'status' => DEFECTIVE_PARTS_REJECTED, 'remarks_defective_part_by_sf' => $remarks);
                     $new_state = "Courier Invoice Rejected By Admin";
-                    $old_state = "Defective Part Shipped By SF";
+                    $old_state = DEFECTIVE_PARTS_SHIPPED;
                     
                     $b['internal_status'] = "Courier Invoice Rejected By Admin";
                     
                     break;
                 case 'APPROVE_COURIER_INVOICE':
                     $where_sp = "spare_parts_details.booking_id = '".$booking_id."' "
-                    . " AND spare_parts_details.status NOT IN ('Completed', 'Cancelled') ";
+                    . " AND spare_parts_details.status NOT IN ('"._247AROUND_COMPLETED."', '"._247AROUND_CANCELLED."') ";
                     $sp = $this->partner_model->get_spare_parts_booking($where_sp);
                     $data['status'] = "Defective Part Shipped By SF";
                     $data['approved_defective_parts_by_admin'] = 1;
@@ -1201,14 +1202,15 @@ class Inventory extends CI_Controller {
                     $data['defective_part_required'] = 1;
                     $where = array('id' => $id );
                     $new_state = "Spare Parts Required To Partner";
-                    $old_state = "Spare Parts Requested";
+                    $old_state = SPARE_PARTS_REQUESTED;
                     break;
             }
             if($flag){
                 $response = $this->service_centers_model->update_spare_parts($where, $data);
-                if($response && in_array($requestType,array('CANCEL_COMPLETED_BOOKING_PARTS','CANCEL_PARTS'))){
-                   $this->update_inventory_on_cancel_parts($id,$booking_id);
+                if($response && in_array($requestType,array('CANCEL_PARTS'))){
+                   $this->update_inventory_on_cancel_parts($id,$booking_id, $old_state);
                 }
+                
             }
             
             if($this->session->userdata('employee_id')){
@@ -2615,7 +2617,7 @@ class Inventory extends CI_Controller {
      * @param: $booking_id integer
      * @return: $response boolean
      */
-    function update_inventory_on_cancel_parts($spare_id, $booking_id){
+    function update_inventory_on_cancel_parts($spare_id, $booking_id, $old_status){
         log_message("info", __METHOD__. ' spare id '.  $spare_id. ' booking id'. $booking_id);
         $spare_details = $this->service_centers_model->get_spare_parts_booking(array('spare_parts_details.id' => $spare_id),'spare_parts_details.booking_unit_details_id,spare_parts_details.shipped_inventory_id,spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.requested_inventory_id');
         
@@ -2646,19 +2648,24 @@ class Inventory extends CI_Controller {
             log_message('info','details not found '.  print_r($spare_details,true));
         }
         
-        //if stock consumend them increase the inventory stock
-        if (!empty($spare_details) && !empty($spare_details[0]['shipped_inventory_id'])) {
-            log_message('info','Spare part cancelled. Update spare details. '.  print_r($spare_details,true));
-            $data['receiver_entity_id'] = $spare_details[0]['partner_id'];
-            $data['receiver_entity_type'] = $spare_details[0]['entity_type'];
-            $data['stock'] = 1;
-            $data['booking_id'] = $booking_id;
-            $data['agent_id'] = $this->session->userdata('id');
-            $data['agent_type'] = _247AROUND_EMPLOYEE_STRING;
-            $data['is_wh'] = TRUE;
-            $data['inventory_id'] = $spare_details[0]['shipped_inventory_id'];
-            $data['is_cancel_part'] = TRUE;
-            $this->miscelleneous->process_inventory_stocks($data);
+        //We do not open cancel spare
+//        //if stock consumend them increase the inventory stock
+//        if (!empty($spare_details) && !empty($spare_details[0]['shipped_inventory_id'])) {
+//            log_message('info','Spare part cancelled. Update spare details. '.  print_r($spare_details,true));
+//            $data['receiver_entity_id'] = $spare_details[0]['partner_id'];
+//            $data['receiver_entity_type'] = $spare_details[0]['entity_type'];
+//            $data['stock'] = 1;
+//            $data['booking_id'] = $booking_id;
+//            $data['agent_id'] = $this->session->userdata('id');
+//            $data['agent_type'] = _247AROUND_EMPLOYEE_STRING;
+//            $data['is_wh'] = TRUE;
+//            $data['inventory_id'] = $spare_details[0]['shipped_inventory_id'];
+//            $data['is_cancel_part'] = TRUE;
+//            $this->miscelleneous->process_inventory_stocks($data);
+//        }
+        
+        if(!empty($spare_details) && $old_status == SPARE_PARTS_REQUESTED && $spare_details[0]['entity_type'] == _247AROUND_SF_STRING && !empty($spare_details[0]['requested_inventory_id'])){
+            $this->inventory_model->update_pending_inventory_stock_request($spare_details[0]['entity_type'], $spare_details[0]['partner_id'], $spare_details[0]['requested_inventory_id'], -1);
         }
         
         //create job card
