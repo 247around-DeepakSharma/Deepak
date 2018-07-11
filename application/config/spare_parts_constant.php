@@ -53,3 +53,5 @@ define("UNABLE_COMPLETE_BOOKING_SPARE_MSG", "Please wait, your requested part is
 define("CANCEL_PAGE_SPARE_NOT_SHIPPED", "Please wait, partner will send Spare Part.");
 define("CANCEL_PAGE_SPARE_SHIPPED", "You are unable to cancel this booking because Spare Parts Shipped.");
 
+define('PARTNER_SPARE_OOT_DAYS','30');
+define('SF_SPARE_OOT_DAYS','7');

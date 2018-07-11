@@ -142,7 +142,7 @@
     </div>
     <!-- End Missing Pincode Section -->
     
-    <!-- SF Brackets snapshot Section -->
+<!--     SF Brackets snapshot Section 
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
@@ -152,7 +152,7 @@
                     </div>
                     <div class="col-md-6">
                         <div class="pull-right">
-                            <a class="btn btn-sm btn-success" href="<?php echo base_url();?>employee/dashboard/brackets_snapshot_full_view" target="_blank">Show All</a>
+                            <a class="btn btn-sm btn-success" href="<?php //echo base_url();?>employee/dashboard/brackets_snapshot_full_view" target="_blank">Show All</a>
                         </div>
                     </div>
                     <div class="clearfix"></div>
@@ -160,7 +160,7 @@
                 <div class="x_content">
                     <div class="table-responsive">
                         <div class="table-responsive" id="escalation_data" ng-controller="bracketsSnapshot_Controller" ng-cloak="">
-                            <center><img id="brackets_loader" src="<?php echo base_url(); ?>images/loadring.gif"></center>
+                            <center><img id="brackets_loader" src="<?php //echo base_url(); ?>images/loadring.gif"></center>
                             <div ng-if="brackets_div">
                                 <table class="table table-striped table-bordered jambo_table bulk_action">
                                     <thead>
@@ -187,7 +187,7 @@
                                            <td>{{x.l_32}}</td>
                                            <td>{{x.g_32}}</td>
                                            <td>{{x.brackets_exhausted_days}}</td>
-                                           <td><a class="btn btn-sm btn-success" href="<?php echo base_url();?>employee/inventory/get_bracket_add_form/{{x.sf_id}}/{{x.sf_name}}" target="_blank">Order brackets</a></td>
+                                           <td><a class="btn btn-sm btn-success" href="<?php //echo base_url();?>employee/inventory/get_bracket_add_form/{{x.sf_id}}/{{x.sf_name}}" target="_blank">Order brackets</a></td>
                                         </tr>
                                     </tbody>
                                 </table>                             
@@ -202,7 +202,26 @@
             </div>
         </div>
     </div>
-    <!-- SF Brackets Snapshot Section -->
+     SF Brackets Snapshot Section -->
+
+     <div class="row" style="margin-top:10px;">
+        <!-- Partner Spare Parts Details -->
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>Partner Spare Parts Details <span class="badge badge-info" data-toggle="popover" data-content="Below figures show data about pending defective spares on sf which is out of tat by partner wise( Out of tat days count start after 7 days of booking completion by sf). To view full spare details of partner click on respective partner graph."><i class="fa fa-info"></i></span></h2>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="col-md-12">
+                    <center><img id="loader_gif_spare_part_by_partner" src="<?php echo base_url(); ?>images/loadring.gif"></center>
+                </div>
+                <div class="x_content">
+                    <div id="spare_details_by_partner"></div>
+                </div>
+            </div>
+        </div>
+        <!-- End  Partner Spare Parts Details -->
+    </div>
     
     
     <!-- Escalation Start-->
@@ -541,6 +560,10 @@
     
     
     $(document).ready(function(){
+        $('[data-toggle="popover"]').popover({
+            placement : 'top',
+            trigger : 'hover'
+        });
         
         //top count data
         get_query_data();
@@ -554,6 +577,9 @@
         get_bookings_data_by_rm();
         //agent performance data
         agent_daily_report(start.format('MMMM D, YYYY'), end.format('MMMM D, YYYY'));
+        
+        //partner spare status
+        spare_details_by_partner();
         
     });
     
@@ -1062,6 +1088,65 @@
                         }]
                 });
               }
+        });
+    }
+    
+    //this function is used to get the spare details for partner
+    function spare_details_by_partner(){
+        url =  '<?php echo base_url(); ?>employee/dashboard/get_oot_spare_parts_count_by_partner';
+        data = {};
+        sendAjaxRequest(data,url,post_request).done(function(response){
+            create_spare_parts_by_partner_chart(response);
+        });
+    }
+    
+    //this function is used to create chart for partner spare details
+    function create_spare_parts_by_partner_chart(response){
+        var data = JSON.parse(response);
+        var partners_id = data.partner_id;
+        var partners = data.partner_name.split(',');
+        var spare_count = JSON.parse("[" + data.spare_count + "]");
+        $('#loader_gif_spare_part_by_partner').hide();
+        $('#spare_details_by_partner').fadeIn();
+        partner_booking_chart = new Highcharts.Chart({
+            chart: {
+                renderTo: 'spare_details_by_partner',
+            },
+            title: {
+                text: '',
+                x: -20 //center
+            },
+            xAxis: {
+                categories: partners,
+            },
+            plotOptions: {
+                bar: {
+                    dataLabels: {
+                        formatter: function() {return this.y + ' / (Rs. ' + data.spare_amount[this.x] + ')'; },
+                        enabled: true,
+                        crop: false,
+                        overflow: 'none'
+                        }
+                    }    
+            },
+            tooltip: {
+                formatter: function() {
+                    return this.x + '<br> Count: ' + this.y + '<br>' + ' Amount(Rs.): ' + data.spare_amount[this.x];
+                }
+            },
+            series: [{
+                type: 'bar',
+                name: 'Count',
+                data: spare_count,
+                cursor: 'pointer',
+                    point: {
+                        events: {
+                            click: function (event) {
+                                window.open(baseUrl + '/employee/dashboard/partner_specific_spare_parts_dashboard/' + this.category + '/' + partners_id[this.category], '_blank');
+                            }
+                        }
+                    }
+            }]
         });
     }
     
