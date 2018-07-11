@@ -1843,7 +1843,7 @@ class Booking_model extends CI_Model {
      * @param : booking_primary_contact_no
      * @return : array of booking details
      */
-    function get_spare_parts_booking($limit, $start, $vendor_id = array()){
+    function get_spare_parts_booking($limit, $start, $vendor_id = array() , $partner_id = NULL){
         if($limit == "All"){
             $select = "count(spare_parts_details.booking_id) as count";
         } else {
@@ -1857,6 +1857,10 @@ class Booking_model extends CI_Model {
         }
         if(!empty($vendor_id)){
             $this->db->where_in("assigned_vendor_id", $vendor_id);
+        }
+        
+        if(!empty($partner_id)){
+            $this->db->where('booking_details.partner_id' , $partner_id);
         }
         $this->db->select($select);
         $this->db->from('spare_parts_details'); 

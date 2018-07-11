@@ -1078,8 +1078,9 @@ class Inventory extends CI_Controller {
         if(!empty($sf)){
             $vendor_id = explode(",", $sf[0]["service_centres_id"]);
         }
-
-        $data['spare_parts'] = $this->booking_model->get_spare_parts_booking(-1, $offset, $vendor_id);
+        
+        $partner_id = $this->input->post('partner_id');
+        $data['spare_parts'] = $this->booking_model->get_spare_parts_booking(-1, $offset, $vendor_id,$partner_id);
         $this->load->view('employee/sparepart_on_tab' , $data);
     }
     /**
