@@ -275,6 +275,7 @@ class Miscelleneous {
                 $booking['upcountry_distance'] = $data['upcountry_distance'];
                 $booking['sf_upcountry_rate'] = $data['sf_upcountry_rate'];
                 $booking['partner_upcountry_rate'] = $data['partner_upcountry_rate'];
+                $booking['upcountry_update_date'] = date('Y-m-d H:i:s');
 
                 $is_upcountry = $this->My_CI->upcountry_model->is_upcountry_booking($booking_id);
                 
@@ -292,19 +293,31 @@ class Miscelleneous {
                     $return_status = TRUE;
                 } else if (in_array(-1, array_column($is_upcountry, 'is_upcountry')) !== FALSE 
                         && in_array(1, array_column($is_upcountry, 'is_upcountry')) == FALSE ) {
-                    log_message('info', __METHOD__ . " => Customer or Partner does not pay upcountry charges " . $booking_id);
-                    $booking['is_upcountry'] = 0;
-                    $booking['upcountry_pincode'] = NULL;
-                    $booking['sub_vendor_id'] = NULL;
-                    $booking['upcountry_distance'] = NULL;
-                    $booking['sf_upcountry_rate'] = NULL;
-                    $booking['partner_upcountry_rate'] = NULL;
-                    $booking['upcountry_paid_by_customer'] = '0';
-                    $booking['upcountry_partner_approved'] = '1';
-                    $booking['upcountry_remarks'] = CUSTOMER_AND_PARTNER_BOTH_NOT_PROVIDE_UPCOUNTRY_FOR_THIS_PRICE_TAG;
+                    
+                    $is_not_upcountry = $this->My_CI->upcountry_model->is_customer_pay_upcountry($booking_id);
+                    if(!empty($is_not_upcountry)){
+                        log_message('info', __METHOD__ . " => Customer will pay upcountry charges " . $booking_id);
+                        $booking['upcountry_paid_by_customer'] = 1;
+                        $booking['partner_upcountry_rate'] = DEFAULT_UPCOUNTRY_RATE;
+                        $booking['upcountry_remarks'] = CUSTOMER_PAID_UPCOUNTRY;
 
-                    log_message('info', __METHOD__ . " => Amount due added " . $booking_id);
-                    $booking['amount_due'] = $cus_net_payable;
+                        log_message('info', __METHOD__ . " => Amount due added " . $booking_id);
+                        $booking['amount_due'] = $cus_net_payable + ($booking['partner_upcountry_rate'] * $booking['upcountry_distance']);
+                    } else {
+                        log_message('info', __METHOD__ . " => Customer or Partner does not pay upcountry charges " . $booking_id);
+                        $booking['is_upcountry'] = 0;
+                        $booking['upcountry_pincode'] = NULL;
+                        $booking['sub_vendor_id'] = NULL;
+                        $booking['upcountry_distance'] = NULL;
+                        $booking['sf_upcountry_rate'] = NULL;
+                        $booking['partner_upcountry_rate'] = NULL;
+                        $booking['upcountry_paid_by_customer'] = '0';
+                        $booking['upcountry_partner_approved'] = '1';
+                        $booking['upcountry_remarks'] = CUSTOMER_AND_PARTNER_BOTH_NOT_PROVIDE_UPCOUNTRY_FOR_THIS_PRICE_TAG;
+
+                        log_message('info', __METHOD__ . " => Amount due added " . $booking_id);
+                        $booking['amount_due'] = $cus_net_payable;
+                    }
 
                     $this->My_CI->booking_model->update_booking($booking_id, $booking);
                     log_message('info', __METHOD__ . " => Not Upcountry Booking" . $booking_id);
@@ -336,6 +349,7 @@ class Miscelleneous {
                         $booking['upcountry_paid_by_customer'] = 0;
                         $booking['upcountry_remarks'] = UPCOUNTRY_BOOKING_NEED_TO_APPROVAL;
                         $booking['amount_due'] = $cus_net_payable;
+                        
                         $partner_status = $this->My_CI->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, UPCOUNTRY_BOOKING_NEED_TO_APPROVAL,
                                 $query1[0]['partner_id'], $booking_id);
                         $actor = $next_action = 'not_define';
@@ -2599,11 +2613,12 @@ function generate_image($base64, $image_name,$directory){
     }
     
 function convert_html_to_pdf($html,$booking_id,$filename,$s3_folder){
+    
     log_message('info', __FUNCTION__ . " => Entering, Booking ID: " . $booking_id);
         require_once __DIR__ . '/pdf/vendor/autoload.php';
         $mpdf = new \Mpdf\Mpdf();
-        $mpdf->WriteHTML($html);
-        $tempfilePath = TMP_FOLDER.$filename;
+       $t =  $mpdf->WriteHTML($html);
+       $tempfilePath = TMP_FOLDER.$filename;
         $mpdf->Output($tempfilePath,'F');
         if($mpdf){
         $is_file = $this->My_CI->s3->putObjectFile($tempfilePath, BITBUCKET_DIRECTORY, $s3_folder."/".$filename, S3::ACL_PUBLIC_READ);
@@ -2615,6 +2630,7 @@ function convert_html_to_pdf($html,$booking_id,$filename,$s3_folder){
                                                    'id' => $booking_id
                                                   );
                             //unlink($tempfilePath);
+        
                             return  json_encode($response_data);
         }
         else {

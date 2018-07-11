@@ -3259,7 +3259,12 @@ class Invoice extends CI_Controller {
             $tax_charge = $this->booking_model->get_calculated_tax_charge($amount, DEFAULT_TAX_RATE);
             $data[0]['taxable_value'] = ($amount - $tax_charge);
             $data[0]['product_or_services'] = "Product";
-            $data[0]['gst_number'] = $vendor_details[0]['gst_no'];
+            if(empty($vendor_details[0]['gst_no'])){
+                $data[0]['gst_number'] = $vendor_details[0]['gst_no'];
+            } else {
+                $data[0]['gst_number'] = 1;
+            }
+            
             $data[0]['company_name'] = $vendor_details[0]['company_name'];
             $data[0]['company_address'] = $vendor_details[0]['company_address'];
             $data[0]['district'] = $vendor_details[0]['district'];

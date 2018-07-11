@@ -1247,6 +1247,7 @@ class vendor extends CI_Controller {
      * @return : void
      */
     function get_reassign_vendor_form($booking_id) {
+        $this->checkUserSession();
         if(!empty($booking_id)){
             $service_centers = $this->vendor_model->viewvendor("", 1, NULL);
             $this->miscelleneous->load_nav_header();
@@ -1264,6 +1265,7 @@ class vendor extends CI_Controller {
      */
     function process_reassign_vendor_form() {
         log_message('info',__FUNCTION__);
+        $this->checkUserSession();
         $this->form_validation->set_rules('booking_id', 'Booking ID', 'required|trim');
         $this->form_validation->set_rules('service', 'Vendor ID', 'required|trim');
         $this->form_validation->set_rules('remarks', 'Remarks', 'required|trim');
@@ -1400,6 +1402,7 @@ class vendor extends CI_Controller {
     }
 
     function mark_upcountry_booking($booking_id, $agent_id, $agent_name) {
+        $this->checkUserSession();
         if (!empty($booking_id)) {
             log_message('info', __METHOD__ . " Booking_id " . $booking_id . "  By agent id " .
                     $agent_id . $agent_name);
@@ -4556,7 +4559,7 @@ class vendor extends CI_Controller {
                               }
                                         } 
                                         else{
-                                            $finalInsertArray[] = $insertArray;
+                                            //$finalInsertArray[] = $insertArray;
                                         }
                               }
                               if(!empty($finalInsertArray)){
@@ -4984,4 +4987,26 @@ class vendor extends CI_Controller {
             echo "Failed";
        }
    }     
+   function download_upcountry_report(){
+        $this->checkUserSession();
+        $upcountryCsv= "Upcountry_Report" . date('j-M-Y-H-i-s') . ".csv";
+        $csv = TMP_FOLDER . $upcountryCsv;
+        $report = $this->upcountry_model->get_upcountry_non_upcountry_district();
+        $delimiter = ",";
+        $newline = "\r\n";
+        $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
+        log_message('info', __FUNCTION__ . ' => Rendered CSV');
+        write_file($csv, $new_report);
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename="' . basename($csv) . '"');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($csv));
+        readfile($csv);
+        exec("rm -rf " . escapeshellarg($csv));
+        log_message('info', __FUNCTION__ . ' Function End');
+        //unlink($csv);
+    }
 }

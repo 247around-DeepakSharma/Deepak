@@ -548,4 +548,62 @@ class service_centre_charges_model extends CI_Model {
             return false;
         }
     }
+    
+    
+        /**
+     * @desc: This function is used to get entity role data from entity_role table
+     * @params: Array $where
+     * @return: string
+     * 
+     */
+         function get_entity_role_data($where = array()){  
+             $this->db->select('*');
+             if(!empty($where)){
+                 $this->db->where($where);
+             }
+             $query = $this->db->get('entity_role');
+            return $query->result();  
+        } 
+
+      /**
+     * @desc: This function is used to insert entity role data into entity_role table
+     * @params: Array $data
+     * @return: true if inserted
+     * 
+     */
+        function insert_entity_role_detail($data){
+        
+        $this->db->select('*');
+        $this->db->from('entity_role');
+        $this->db->where($data);
+        $query = $this->db->get();
+        if ($query->num_rows() == 0) {
+
+        $this->db->insert('entity_role', $data);
+        return $this->db->insert_id();
+
+        } else {
+            return false;
+        }
+        }
+      
+      /**
+     * @desc: This function is used to update data in entity_role table
+     * @params: Array $data
+     * @params: $id
+     * @return: true if updated
+     * 
+     */
+        function update_entity_role_detail($id, $data) {
+        $this->db->where('id', $id);
+        $this->db->update('entity_role', $data);
+     
+        
+        if ($this->db->affected_rows() > 0) {
+                return true;
+            
+        } else {
+            return false;
+        }
+    }
 }

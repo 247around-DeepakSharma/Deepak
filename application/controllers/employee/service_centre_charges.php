@@ -1912,4 +1912,116 @@ class service_centre_charges extends CI_Controller {
             $this->appliance_list();
         }
     }
+    
+     /**
+     * @desc: This function is used to get the tabular view for all entity roles
+     * @params: void
+     * @return: view
+     * 
+     */
+
+    public function entity_role_data() {
+        $this->miscelleneous->load_nav_header();
+        $data['entity_role_data'] = $this->service_centre_charges_model->get_entity_role_data();
+        $this->load->view('employee/entity_role_data_view', $data);
+    }
+    
+    /**
+     * @desc: This function is used to get the form to add new entity role
+     * @params: void
+     * @return: view
+     * 
+     */
+
+    public function add_new_entity_role() {
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/entity_role_form');
+    }
+    
+    /**
+     * @desc: This function is used to add data from entity role form to database table
+     * @params: void
+     * @return: prints message whether data added successfully or data exists already
+     * 
+     */
+
+    public function process_add_new_entity_role() {
+
+
+        $this->form_validation->set_rules('entity_type', 'entity_type', 'required');
+        $this->form_validation->set_rules('department', 'department', 'required');
+        $this->form_validation->set_rules('role', 'role', 'required');
+
+
+        if ($this->form_validation->run() == TRUE) {
+            $data = array(
+                'entity_type' => $this->input->post('entity_type'),
+                'department' => trim($this->input->post('department')),
+                'role' => trim($this->input->post('role')),
+                'is_filter_applicable' => trim($this->input->post('filter')),
+                'create_date' => date('Y-m-d H:i:s')
+            );
+
+            $status = $this->service_centre_charges_model->insert_entity_role_detail($data);
+            if (!empty($status)) {
+
+                log_message("info", __METHOD__ . " Data Entered Successfully");
+                $this->session->set_userdata('success', 'Data Entered Successfully');
+                redirect(base_url() . 'employee/service_centre_charges/process_add_new_entity_role');
+            } else {
+
+
+                log_message("info", __METHOD__ . " Data Already Exists");
+                $this->session->set_userdata('failed', 'Data Already Exists');
+                redirect(base_url() . 'employee/service_centre_charges/process_add_new_entity_role');
+            }
+        } else {
+            $this->add_new_entity_role();
+        }
+    }
+    
+    /**
+     * @desc: This function is used to update the already existing entity role from entity role tabular view
+     * @params: void
+     * @return: prints message whether data is updated or exists already
+     * 
+     */
+
+    public function update_entity_role() {
+
+
+        $this->form_validation->set_rules('entity_type', 'entity_type', 'required');
+        $this->form_validation->set_rules('department', 'department', 'required');
+        $this->form_validation->set_rules('role', 'role', 'required');
+        $this->form_validation->set_rules('rowid', 'rowid', 'required');
+
+
+        if ($this->form_validation->run() == TRUE) {
+            $id = $this->input->post('rowid');
+            $data = array(
+                'entity_type' => $this->input->post('entity_type'),
+                'department' => trim($this->input->post('department')),
+                'role' => trim($this->input->post('role')),
+                'is_filter_applicable' => ($this->input->post('filter')),
+                'create_date' => date('Y-m-d H:i:s')
+            );
+
+            $status = $this->service_centre_charges_model->update_entity_role_detail($id, $data);
+            if (!empty($status)) {
+
+                log_message("info", __METHOD__ . " Data Updated");
+                $this->session->set_userdata('success', 'Data Updated');
+                redirect(base_url() . 'employee/service_centre_charges/entity_role_data');
+            } else {
+
+
+                log_message("info", __METHOD__ . " Data Already Exists");
+                $this->session->set_userdata('failed', 'Data Already Exists');
+                redirect(base_url() . 'employee/service_centre_charges/entity_role_data');
+            }
+        } else {
+
+            $this->entity_role_data();
+        }
+    }
 }

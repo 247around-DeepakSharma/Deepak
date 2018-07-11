@@ -885,8 +885,9 @@ class Buyback_process extends CI_Controller {
         $subject = "";
         if($actionType == 'Approved'){
             $cpBasicChargesArray = $this->reusable_model->get_search_result_data("bb_unit_details","cp_basic_charge,cp_tax_charge",array("partner_order_id"=>$partner_order_id),NULL,NULL,NULL,NULL,NULL,array());
+            $finalAmount = $cpBasicChargesArray[0]['cp_basic_charge']+$cpBasicChargesArray[0]['cp_tax_charge'];
             $msg = $msg."Order ID : ".$partner_order_id;
-            $msg = $msg."<br>Basic Charge : " .$cpBasicChargesArray[0]['cp_basic_charge']+$cpBasicChargesArray[0]['cp_tax_charge'];
+            $msg = $msg."<br>Basic Charge : " .$finalAmount;
             $msg = $msg." <br>Claimed Price  : " .$update_bb_unit_data['cp_claimed_price'];
             $msg = $msg."<br>Remarks : ".$bb_cp_order_details_data['admin_remarks'];
             $subject  = $subject."Order Approved By 247Around";
