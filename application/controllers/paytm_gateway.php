@@ -161,7 +161,7 @@ class Paytm_gateway extends CI_Controller {
             log_message("info",__METHOD__." Payment has been completed successfully"); 
             $partner_id = $this->session->userdata('partner_id');
             if(!empty($partner_id) && $transaction_status['is_txn_successfull'] == 1){
-                $this->generate_partner_payment_invoice($partner_id,$param_list);
+                $this->generate_partner_payment_invoice($partner_id,$param_list, $insert_id);
             }
             $this->send_transaction_email($insert_data);
         }else{
@@ -417,7 +417,7 @@ class Paytm_gateway extends CI_Controller {
         }
     }
     
-    function generate_partner_payment_invoice($partner_id, $param_list){
+    function generate_partner_payment_invoice($partner_id, $param_list, $TXNID){
         log_message("info", __METHOD__. " Partner Id ". $partner_id, " Response ". json_encode($param_list, true));
         $postData = array(
             "partner_vendor" => "partner",
@@ -430,6 +430,8 @@ class Paytm_gateway extends CI_Controller {
             "transaction_mode" => isset($param_list['PAYMENTMODE'])?$param_list['PAYMENTMODE']:NULL,
             "description" => isset($param_list['ORDER_DETAILS'])?$param_list['ORDER_DETAILS']:'',
             'tdate' =>  isset($param_list['TXNDATE'])?$param_list['TXNDATE']:date('Y-m-d'),
+            'transaction_id' => $param_list['TXNID'],
+            'payment_txn_id' => $TXNID
         );
 
         
