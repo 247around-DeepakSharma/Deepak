@@ -401,4 +401,193 @@ class dashboard_model extends CI_Model {
           $this->db->join('employee', 'employee.id = sf.rm_id',"left");
           return $this->db->get('sf_not_exist_booking_details sf')->result_array();
      }
+     
+    /**
+     * @desc: This function is used to get inventory dashboard title data
+     * @param void
+     * @return array
+     */
+    function get_spare_parts_count_group_by_status($partner_id = ''){
+        $this->db->select('count(id) as count,status,group_concat(booking_id) as booking_id');
+        $this->db->from('spare_parts_details');
+        $this->db->group_by('status');
+        
+        if(!empty($partner_id)){
+            $this->db->where('partner_id',$partner_id);
+        }
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    
+     /**
+     * @desc: This function is used to get spare part details by sf wise (oot 7 days)
+     * @param void
+     * @return array
+     */
+    function get_spare_details_count_group_by_sf($is_show_all,$partner_id){
+        
+        $select = "SELECT "
+                . "SUM(IF(spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."') , 1, 0)) AS oot_defective_parts_count,"
+                . "spare_parts_details.service_center_id,"
+                . "service_centres.name";
+        
+        $where = "spare_parts_details.defective_part_required = 1 "
+                . "AND DATEDIFF(CURRENT_DATE,service_center_booking_action.closed_date) > ".SF_SPARE_OOT_DAYS. " AND "
+                . "service_center_booking_action.current_status =  'InProcess' "
+                . "AND service_center_booking_action.closed_date IS NOT NULL ";
+        
+        if(!empty($partner_id)){
+            $where .= " AND spare_parts_details.partner_id = $partner_id";
+        }
+        
+        $sql = $select . " FROM spare_parts_details"
+                . " JOIN service_centres ON spare_parts_details.service_center_id = service_centres.id "
+                . " JOIN service_center_booking_action ON spare_parts_details.booking_id = service_center_booking_action.booking_id "
+                . " WHERE $where "
+                . " GROUP BY spare_parts_details.service_center_id "
+                . " HAVING oot_defective_parts_count > 0 "
+                . " ORDER BY oot_defective_parts_count DESC";
+        
+        if(empty($is_show_all)){
+            $sql .= " LIMIT 0,5";
+        }
+        
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
+    /**
+     * @desc: This function is used to get spare part details by partner wise
+     * @param void
+     * @return array
+     */
+    function get_oot_spare_parts_count_by_partner(){
+        $sql = "SELECT COUNT(spare_parts_details.booking_id) AS 'spare_count', "
+                . "IFNULL(ROUND(SUM(spare_parts_details.challan_approx_value)),0) as 'spare_amount',"
+                . "spare_parts_details.partner_id,partners.public_name "
+                . "FROM spare_parts_details "
+                . "JOIN partners ON spare_parts_details.partner_id = partners.id "
+                . "JOIN service_center_booking_action ON spare_parts_details.booking_id = service_center_booking_action.booking_id "
+                . "WHERE service_center_booking_action.closed_date IS NOT NULL "
+                . "AND DATEDIFF(CURRENT_DATE,service_center_booking_action.closed_date) > '".SF_SPARE_OOT_DAYS."'"
+                . "AND spare_parts_details.defective_part_required = 1 "
+                . "AND spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."') "
+                . "AND service_center_booking_action.current_status =  'InProcess'"
+                . "GROUP BY spare_parts_details.partner_id "
+                . " ORDER BY spare_count DESC";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
+    /**
+     * @desc: This function is used to get spare part details by status wise
+     * @param void
+     * @return array
+     */
+    function get_inventory_header_count_data(){
+        $sql = "SELECT spare_parts_details.status,COUNT(spare_parts_details.id) AS spare_count,"
+                . "SUM(spare_parts_details.challan_approx_value) as spare_amount "
+                . "FROM spare_parts_details "
+                . "GROUP BY spare_parts_details.status";
+        $query1 = $this->db->query($sql);
+        return $query1->result_array();
+    }
+    
+    /**
+     * @desc: This function is used to get partner specific spare part snapshot
+     * @param void
+     * @return array
+     */
+    function get_partner_spare_snapshot($partner_id){
+        $data['total_spare_count'] = $this->get_partner_total_spare_details($partner_id);
+        
+        $data['oot_partner_spare_count'] = $this->get_partner_oot_spare_details_by_partner_id($partner_id);
+        
+        $data['oot_sf_spare_count'] = $this->get_sf_oot_spare_details_by_partner_id($partner_id);
+        
+        return $data;
+    }
+    
+    function get_partner_total_spare_details($partner_id) {
+        $select = "SELECT count(spare_parts_details.id) as spare_count,"
+                . "IFNULL(ROUND(SUM(spare_parts_details.challan_approx_value)),0) as spare_amount , 'Total' as spare_status";
+
+        $where = "spare_parts_details.status NOT IN ('" . SPARE_PARTS_REQUESTED . "','" . _247AROUND_CANCELLED . "','" . _247AROUND_COMPLETED . "')"
+                . " AND booking_details.current_status IN ('" . _247AROUND_PENDING . "','" . _247AROUND_RESCHEDULED . "')"
+                . " AND booking_details.partner_id = $partner_id";
+
+        $sql = $select . " FROM spare_parts_details"
+                . " JOIN booking_details ON spare_parts_details.booking_id = booking_details.booking_id"
+                . " WHERE $where";
+
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
+    /**
+     * @desc: This function is used to get spare part details by partner_id
+     * @param void
+     * @return array
+     */
+    function get_partner_oot_spare_details_by_partner_id($partner_id){
+        $select = "SELECT count(spare_parts_details.id) as spare_count,"
+                . "IFNULL(ROUND(SUM(spare_parts_details.challan_approx_value)),0) as spare_amount, 'Partner Out of Tat' as spare_status";
+
+        $where = "spare_parts_details.status NOT IN ('" . SPARE_PARTS_REQUESTED . "','" . _247AROUND_CANCELLED . "','" . _247AROUND_COMPLETED . "')"
+                . " AND booking_details.current_status IN ('" . _247AROUND_PENDING . "','" . _247AROUND_RESCHEDULED . "')"
+                . " AND DATEDIFF(CURRENT_DATE,spare_parts_details.shipped_date) > '".PARTNER_SPARE_OOT_DAYS."'"
+                . " AND booking_details.partner_id = $partner_id";
+
+        $sql = $select . " FROM spare_parts_details"
+                . " JOIN booking_details ON spare_parts_details.booking_id = booking_details.booking_id"
+                . " WHERE $where";
+
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
+    /**
+     * @desc: This function is used to get sf oot spare part details by partner_id
+     * @param void
+     * @return array
+     */
+    function get_sf_oot_spare_details_by_partner_id($partner_id){
+        
+        $select = " SELECT count(spare_parts_details.id) as spare_count,"
+                . "IFNULL(ROUND(SUM(spare_parts_details.challan_approx_value)),0) as spare_amount, 'SF Out of Tat' as spare_status";
+        
+        $where = "spare_parts_details.defective_part_required = 1 "
+                . "AND DATEDIFF(CURRENT_DATE,service_center_booking_action.closed_date) > ".SF_SPARE_OOT_DAYS. " "
+                . "AND spare_parts_details.status IN ('Defective Part Pending', 'Defective Part Rejected By Partner') "
+                . "AND service_center_booking_action.current_status =  'InProcess' "
+                . "AND service_center_booking_action.closed_date IS NOT NULL "
+                . "AND booking_details.partner_id = $partner_id";
+        
+        if(!empty($partner_id)){
+            $where .= " AND spare_parts_details.partner_id = $partner_id";
+        }
+        
+        $sql = $select . " FROM spare_parts_details"
+                . " JOIN service_center_booking_action ON spare_parts_details.booking_id = service_center_booking_action.booking_id "
+                . " JOIN booking_details ON spare_parts_details.booking_id = booking_details.booking_id "
+                . " WHERE $where ";
+        
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
+    /**
+     * @desc: This function is used to get count of those sf who don't have bracket inventory
+     * @param void
+     * @return array
+     */
+    function get_sf_has_zero_stock_data(){
+        $sql = "SELECT SUM(inventory_stocks.stock) AS stock,name,service_centres.id as sf_id
+                FROM inventory_stocks
+                JOIN service_centres ON inventory_stocks.entity_id = service_centres.id
+                GROUP BY inventory_stocks.entity_id
+                HAVING stock = 0";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
 }

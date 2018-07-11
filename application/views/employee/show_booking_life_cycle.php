@@ -2,7 +2,7 @@
 <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
 
         
-        <!--        <h1 style='font-size:24px;'>Booking History</h1>-->
+                <h1 style='font-size:24px;'>Booking History</h1>
         <table  class="table table-striped table-bordered">
             <tr>
                 <th class="jumbotron" style="text-align: center">S.N</th>
@@ -37,9 +37,12 @@
             </tr>
             <?php } ?>
 <!--    </div>-->
+   
     </table>
     <hr>
     <?php if (!empty($sms_sent_details)) { ?>
+    
+    <h1 style='font-size:24px;'>Booking SMS</h1>
     <table  class="table table-striped table-bordered table-hover">
         <tr>
             <th class="jumbotron" style="text-align: center;width: 1%">S.N</th>

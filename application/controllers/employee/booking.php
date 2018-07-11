@@ -2450,6 +2450,7 @@ class Booking extends CI_Controller {
        
         $data['comments'] = $this->booking_model->get_remarks($booking_id);
         $data['booking_id'] = $booking_id;
+        $data['user_id'] = $this->session->userdata('id');
         $this->load->view('employee/comment_section', $data);
     }
     function addComment(){
@@ -2461,6 +2462,7 @@ class Booking extends CI_Controller {
         $data['booking_id'] = $this->input->post('booking_id');
         $data['entity_id'] = _247AROUND;
         $data['entity_type'] = '247around';
+        $data['isActive'] = 1;
         $data['create_date'] = date("Y-m-d H:i:s");
          $status = $this->booking_model->add_comment($data);
            }
@@ -2468,6 +2470,12 @@ class Booking extends CI_Controller {
                $this->addComment();
            }           
     }
+    
+    function deleteComment(){
+        $comment_id = $this->input->post('comment_id');
+        $status=$this->booking_model->delete_comment($comment_id);
+    }
+
 
     /**
      * @desc: This function is used to validate Bookings New/Update

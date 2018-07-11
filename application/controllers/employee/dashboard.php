@@ -25,6 +25,7 @@ class Dashboard extends CI_Controller {
         $this->load->model('employee_model');
         $this->load->model('invoices_model');
         $this->load->model('dashboard_model');
+        $this->load->model('inventory_model');
         $this->load->model('bb_model');
         $this->load->model('cp_model');
         $this->load->library("miscelleneous");
@@ -1643,6 +1644,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $this->load->view('dashboard/tat_calculation_full_view',array('state' => $stateData,'sf'=>$sfData,'partners'=>$partners,'rmID'=>$rmID,'filters'=>$this->input->post(),'services'=>$services));
         $this->load->view('dashboard/dashboard_footer');        
     }
+    
     function download_tat_report(){
         $data = json_decode($this->input->post('data'),true);
         $csv ="";
@@ -1699,5 +1701,175 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
             echo $finalcsv;
             exit;
+    }
+    
+    /**
+     * @desc: This function is used to get inventory dashboard title data
+     * @param void
+     * @return void
+     */
+    function execute_inventory_title_query(){
+        $data['inventory_details'] = $this->dashboard_model->get_inventory_header_count_data();
+        $post['where'] = "spare_parts_details.partner_id = '" . 10 . "' AND  entity_type =  '"._247AROUND_SF_STRING."' AND status = '" . SPARE_PARTS_REQUESTED . "' "
+                . " AND booking_details.current_status IN ('Pending', 'Rescheduled') ";
+        
+        $data['shipped_spare_by_wh_to_sf'] = $this->inventory_model->count_spare_parts($post);
+        
+        $post['where'] =  "spare_parts_details.partner_id = '" . 10 . "' AND spare_parts_details.entity_type = '"._247AROUND_SF_STRING."'"
+                . " AND approved_defective_parts_by_partner = '1' AND status = '"._247AROUND_COMPLETED."'";
+        
+        $data['shipped_spare_by_wh_to_partner'] = $this->inventory_model->count_spare_parts($post);
+        
+        $brackets_details = $this->dashboard_model->get_sf_has_zero_stock_data();
+        $data['brackets_count'] = count($brackets_details);
+        $this->load->view('dashboard/inventory_dashboard_title', $data);
+    }
+    
+    /**
+     * @desc: This function is used to get partner total and oot of tat spare details
+     * @param void
+     * @return json
+     */
+    function get_oot_spare_parts_count_by_partner(){
+        $data = $this->dashboard_model->get_oot_spare_parts_count_by_partner();
+        $partners_id = [];
+        $partners_name = [];
+        $oot_count = [];
+        $oot_amount = [];
+        foreach( $data as $spare){
+            $partners_id[$spare['public_name']] = $spare['partner_id'];
+            array_push($partners_name, $spare['public_name']);
+            array_push($oot_count, $spare['spare_count']);
+            $oot_amount[$spare['public_name']] = intval($spare['spare_amount']);
+        }
+        $json_data['partner_id'] = $partners_id;
+        $json_data['partner_name'] = implode(",", $partners_name);
+        $json_data['spare_count'] = implode(",", $oot_count);
+        $json_data['spare_amount'] = $oot_amount;
+
+        echo json_encode($json_data);
+    }
+    
+    /**
+     * @desc: This function is used to show partner specific dashboard for spare parts
+     * @param string $partner_name
+     * @param string $partner_id
+     * @return view
+     */
+    function partner_specific_spare_parts_dashboard($partner_name = "", $partner_id = "") {
+
+        $data['partner_name'] = urldecode($partner_name);
+        $data['partner_id'] = urldecode($partner_id);
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $this->load->view('dashboard/partner_specific_spare_parts_dashboard', $data);
+        $this->load->view('dashboard/dashboard_footer');
+    }
+    
+    /**
+     * @desc: This function is used to get spare details as per partner
+     * @param void
+     * @return json
+     */
+    function get_partner_specific_count_by_status(){
+        $partner_id = $this->input->post('partner_id');
+        $spare_details = $this->dashboard_model->get_spare_parts_count_group_by_status($partner_id);
+        $json_data = array();
+        foreach ($spare_details as $value){
+            if($value['status'] === SPARE_PARTS_REQUESTED){
+                $tmp_arr = array('name' => $value['status'],
+                               'y' => intval($value['count']),
+                               'drilldown' => true
+                );
+                array_push($json_data, $tmp_arr);
+            }else if($value['status'] === DEFECTIVE_PARTS_SHIPPED){
+                $tmp_arr = array('name' => $value['status'],
+                               'y' => intval($value['count']),
+                               'drilldown' => true
+                );
+                array_push($json_data, $tmp_arr);
+            }else if($value['status'] === DEFECTIVE_PARTS_PENDING){
+                $tmp_arr = array('name' => $value['status'],
+                               'y' => intval($value['count']),
+                               'drilldown' => true
+                );
+                array_push($json_data, $tmp_arr);
+            }else if($value['status'] === SPARE_OOW_EST_REQUESTED){
+                $tmp_arr = array('name' => $value['status'],
+                               'y' => intval($value['count']),
+                               'drilldown' => true
+                );
+                array_push($json_data, $tmp_arr);
+            }else if($value['status'] === DEFECTIVE_PARTS_REJECTED){
+                $tmp_arr = array('name' => $value['status'],
+                               'y' => intval($value['count']),
+                               'drilldown' => true
+                );
+                array_push($json_data, $tmp_arr);
+            }
+            
+        }
+        echo json_encode($json_data);
+    }
+    
+    /**
+     * @desc: This function is used to get partner sf  spare parts details
+     * @param void
+     * @return json
+     */
+    function get_spare_details_by_sf(){
+        $is_show_all = $this->input->post('is_show_all');
+        $partner_id = $this->input->post('partner_id');
+        $data = $this->dashboard_model->get_spare_details_count_group_by_sf($is_show_all,$partner_id);
+        $json_data = array();
+        if(!empty($data)){
+            $json_data = $data;
+        }
+        echo json_encode($json_data);
+    }
+    
+    /**
+     * @desc: This function is used to get sf  spare parts details
+     * @param void
+     * @return void
+     */
+    function sf_oot_spare_full_view($partner_id = NULL,$partner_name = NULL){
+        
+        $data['partner_id'] = urldecode($partner_id);
+        $data['partner_name'] = urldecode($partner_name);
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $this->load->view('dashboard/sf_oot_spare_full_view', $data);
+        $this->load->view('dashboard/dashboard_footer');
+    }
+    
+    
+    /**
+     * @desc: This function is used to get spare details for specific partner
+     * (This function will return total spare (except requested,cancelled,completed), 
+     * partner out of tat(30 days after parts shipped by partner), 
+     * sf out of tat( 7 days after booking completion by sf))
+     * @param void
+     * @return json
+     */
+    function get_partner_spare_snapshot(){
+        $partner_id = $this->input->post('partner_id');
+        $data = $this->dashboard_model->get_partner_spare_snapshot($partner_id);
+        
+        $status = array();
+        $spare_count = array();
+        $spare_amount = array();
+        
+        foreach ($data as $key => $value){
+            array_push($status, $value[0]['spare_status']);
+            array_push($spare_count, intval($value[0]['spare_count']));
+            array_push($spare_amount, $value[0]['spare_amount']);
+            $spare_amount[$value[0]['spare_status']] = intval($value[0]['spare_amount']);
+        }
+        
+        $json_data['status'] = implode(',', $status);
+        $json_data['spare_count'] = implode(',', $spare_count);
+        $json_data['spare_amount'] = $spare_amount;
+        
+        echo json_encode($json_data);
+        
     }
 }

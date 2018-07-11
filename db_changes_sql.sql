@@ -7657,6 +7657,18 @@ ALTER TABLE `spare_parts_details` ADD `entity_type` VARCHAR(64) CHARACTER SET la
 ALTER TABLE `contact_person` ADD `department` VARCHAR(512) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL AFTER `role`;
 ALTER TABLE  `request_type` ADD  `create_date` TIMESTAMP NOT NULL;
 ALTER TABLE  `service_category_mapping` ADD  `create_date` TIMESTAMP NOT NULL;
+ALTER TABLE `booking_details` ADD `isActive` INT(1) NOT NULL DEFAULT '0' AFTER `remarks`;
+
+
+--sachin  July
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
+VALUES (NULL, 'escalation_on_booking_from_partner_panel', 
+'Booking ID : %s Escalated', '<br>Dear Account Manager,<br><br> Booking ID : 
+<strong>%s</strong> is escalated <br> Reason : %s <br> Attend this booking immediately. 
+<br><br> Regards,<br> 247around Team', '', '', '', '', '1', '2016-09-26 18:30:00');
+
+UPDATE `email_template` SET `cc` = '' WHERE `email_template`.`tag` = 'escalation_on_booking';
+
 
 
 --Abhay 7 July

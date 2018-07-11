@@ -1840,7 +1840,7 @@ class Booking_model extends CI_Model {
      * @param : booking_primary_contact_no
      * @return : array of booking details
      */
-    function get_spare_parts_booking($limit, $start, $vendor_id = array()){
+    function get_spare_parts_booking($limit, $start, $vendor_id = array() , $partner_id = NULL){
         if($limit == "All"){
             $select = "count(spare_parts_details.booking_id) as count";
         } else {
@@ -1854,6 +1854,10 @@ class Booking_model extends CI_Model {
         }
         if(!empty($vendor_id)){
             $this->db->where_in("assigned_vendor_id", $vendor_id);
+        }
+        
+        if(!empty($partner_id)){
+            $this->db->where('booking_details.partner_id' , $partner_id);
         }
         $this->db->select($select);
         $this->db->from('spare_parts_details'); 
@@ -2391,16 +2395,12 @@ class Booking_model extends CI_Model {
      */
     function get_remarks($booking_id){
        // $trimed_booking_id = preg_replace("/[^0-9]/","",$booking_id);
-        $this->db->select('agent_id, remarks, booking_comments.create_date, employee_id');
+        $this->db->select('booking_comments.id, agent_id, remarks, booking_comments.create_date, employee_id, booking_comments.isActive');
         $this->db->from('booking_comments');
         $this->db->join('employee','booking_comments.agent_id = employee.id');
         $this->db->where('booking_comments.booking_id ' , $booking_id);
         $this->db->order_by('booking_comments.create_date');
         $query = $this->db->get();
-//        $query = $this->db->last_query('booking_comments');
-//        print_r($query);
-//        
-//        exit();
         return $query->result_array();
     } 
     
@@ -2417,5 +2417,13 @@ class Booking_model extends CI_Model {
         }else {
             return false;
         }
+    }
+    
+     function delete_comment($comment_id) {
+    
+        
+         $query = "UPDATE booking_comments SET isActive = 0 WHERE id='".$comment_id."'";
+        $this->db->query($query);
+        return $this->db->affected_rows();
     }
 }
