@@ -2930,7 +2930,10 @@ class Invoice extends CI_Controller {
         $data['agent_id'] = $agent_id;
         $data['create_date'] = date("Y-m-d H:i:s");
         $data['transaction_id'] = $this->input->post('transaction_id');
-       
+        if($this->input->post('payment_txn_id')){
+            $data['payment_txn_id'] = $this->input->post('payment_txn_id');
+        }
+        
         return $this->invoices_model->bankAccountTransaction($data);
     }
     
