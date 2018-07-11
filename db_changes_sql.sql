@@ -7660,3 +7660,14 @@ ALTER TABLE  `service_category_mapping` ADD  `create_date` TIMESTAMP NOT NULL;
 ALTER TABLE `booking_details` ADD `isActive` INT(1) NOT NULL DEFAULT '0' AFTER `remarks`;
 
 
+--sachin  July
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
+VALUES (NULL, 'escalation_on_booking_from_partner_panel', 
+'Booking ID : %s Escalated', '<br>Dear Account Manager,<br><br> Booking ID : 
+<strong>%s</strong> is escalated <br> Reason : %s <br> Attend this booking immediately. 
+<br><br> Regards,<br> 247around Team', '', '', '', '', '1', '2016-09-26 18:30:00');
+
+UPDATE `email_template` SET `cc` = '' WHERE `email_template`.`tag` = 'escalation_on_booking';
+
+
+
