@@ -7692,6 +7692,15 @@ UPDATE `email_template` SET `cc` = '' WHERE `email_template`.`tag` = 'escalation
 
 --Abhay 7 July
 ALTER TABLE `inventory_stocks` ADD `pending_request_count` INT NULL DEFAULT '0' AFTER `stock`;
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) 
+VALUES (NULL, 'missed_call_confirmed_for_google', 'Thank you for demo confirmation, 
+%s Installation & Demo of your %s would be done %s.Installation Powered by 247around.com', 
+'SMS sent when customer gives a missed call to confirm demo og google home speaker', '1', '2016-09-22 15:35:25');
+
+
+UPDATE `sms_template` SET `template` = 'Kudos to you for placing Google Home demo request. 
+Check Super Answer Video from Google http://bit.ly/2up6Kwq | http://bit.ly/2s4PzAc | http://bit.ly/2INmjUE - 247around Flipkart Partner' 
+WHERE `sms_template`.`tag` = 'flipkart_google_scheduled_sms';
 
 ALTER TABLE `spare_parts_details` ADD `invoice_gst_rate` INT(11) NULL DEFAULT '18' AFTER `sell_price`;
 
