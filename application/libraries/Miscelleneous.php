@@ -503,8 +503,19 @@ class Miscelleneous {
         $en_where1 = array("engineer_booking_action.booking_id" => $booking_id);
         $this->My_CI->engineer_model->update_engineer_table(array("current_status" => _247AROUND_CANCELLED, "internal_status" =>_247AROUND_CANCELLED), $en_where1);
         
-        $spare = $this->My_CI->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status", array('booking_id' => $booking_id, 'status NOT IN ("Completed","Cancelled")' =>NULL ), false);
+        $spare = $this->My_CI->partner_model->get_spare_parts_by_any("spare_parts_details.id,spare_parts_details.partner_id, "
+                . "spare_parts_details.entity_type, spare_parts_details.status, "
+                . "requested_inventory_id, shipped_inventory_id", 
+                array('booking_id' => $booking_id, 'status NOT IN ("'._247AROUND_COMPLETED.'","'._247AROUND_CANCELLED.'")' =>NULL ), 
+                false);
         foreach($spare as $sp){
+            
+
+            if($sp['status'] == SPARE_PARTS_REQUESTED && $sp['entity_type'] == _247AROUND_SF_STRING){
+                $this->My_CI->inventory_model->update_pending_inventory_stock_request($sp['entity_type'], 
+                            $sp['partner_id'], $sp['requested_inventory_id'], -1);
+            }
+            
             //Update Spare parts details table
             $this->My_CI->service_centers_model->update_spare_parts(array('id'=> $sp['id']), array('old_status' => $sp['status'],'status' => _247AROUND_CANCELLED));
         }
@@ -2005,7 +2016,7 @@ class Miscelleneous {
      * @param array $data
      * @return bookean $flag
      */
-    function process_inventory_stocks($data) {
+    function process_inventory_stocks($data, $requested_inventory_id = false) {
         log_message("info", __FUNCTION__ . " process inventory update entering..." . print_r($data, true));
         $flag = FALSE;
         $is_process = FALSE;
@@ -2040,15 +2051,20 @@ class Miscelleneous {
                  * else insert into the table
                  */
                 if(isset($data['is_wh']) && !isset($data['is_cancel_part'])){
-                    $is_entity_exist = $this->My_CI->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id,inventory_stocks.stock', array('entity_id' => $data['sender_entity_id'], 'entity_type' => $data['sender_entity_type'], 'inventory_id' => $is_part_exist[0]['inventory_id']), NULL, NULL, NULL, NULL, NULL)->result_array();
+                    $is_entity_exist = $this->My_CI->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id,inventory_stocks.stock, pending_request_count', array('entity_id' => $data['sender_entity_id'], 'entity_type' => $data['sender_entity_type'], 'inventory_id' => $is_part_exist[0]['inventory_id']), NULL, NULL, NULL, NULL, NULL)->result_array();
                 }else{
-                    $is_entity_exist = $this->My_CI->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id,inventory_stocks.stock', array('entity_id' => $data['receiver_entity_id'], 'entity_type' => $data['receiver_entity_type'], 'inventory_id' => $is_part_exist[0]['inventory_id']), NULL, NULL, NULL, NULL, NULL)->result_array();
+                    $is_entity_exist = $this->My_CI->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id,inventory_stocks.stock, pending_request_count', array('entity_id' => $data['receiver_entity_id'], 'entity_type' => $data['receiver_entity_type'], 'inventory_id' => $is_part_exist[0]['inventory_id']), NULL, NULL, NULL, NULL, NULL)->result_array();
                 }
                 if (!empty($is_entity_exist)) {
                     //if stock goes negative then do not update stock
                     $updated_stock = $is_entity_exist[0]['stock'] + $data['stock'];
                     if($updated_stock >= 0){
                         $stock = "stock + '" . $data['stock'] . "'";
+                        if(isset($data['is_wh']) && !empty($requested_inventory_id)){
+                            if($is_entity_exist[0]['pending_request_count'] > 0){
+                                $this->My_CI->inventory_model->update_pending_inventory_stock_request($data['sender_entity_type'], $data['sender_entity_id'], $requested_inventory_id, -1);
+                            }
+                        }
                         $update_stocks = $this->My_CI->inventory_model->update_inventory_stock(array('id' => $is_entity_exist[0]['id']), $stock);
                         if ($update_stocks) {
                             log_message("info", __FUNCTION__ . " Stocks has been updated successfully");
@@ -3047,5 +3063,63 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
         $where['booking_details.booking_id'] = $bookingID;
         $data = $this->My_CI->reusable_model->get_search_result_data("booking_details",$select,$where,$join,NULL,NULL,NULL,NULL,array());
         return $data;
+    }
+    
+    function check_inventory_stock($inventory_id, $partner_id, $state){
+        $response = array();
+        $post['length'] = -1;
+    
+        $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number, '
+                . 'inventory_master_list.inventory_id, price, gst_rate',array('inventory_id' => $inventory_id));
+       
+        if(!empty($inventory_part_number)){
+            $post['where'] = array('inventory_stocks.inventory_id' => $inventory_id,'inventory_stocks.entity_type' => _247AROUND_SF_STRING,'(inventory_stocks.stock - inventory_stocks.pending_request_count) > 0'=>NULL);
+            $select = '(inventory_stocks.stock - pending_request_count) As stock,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id';
+            $inventory_stock_details = $this->My_CI->inventory_model->get_inventory_stock_list($post,$select,array(),FALSE);
+            
+            if(!empty($inventory_stock_details)){
+                foreach($inventory_stock_details as $value){
+                    $warehouse_details = $this->My_CI->inventory_model->get_warehouse_details('warehouse_state_relationship.state,contact_person.entity_id',
+                            array('warehouse_state_relationship.state' => $state,'contact_person.entity_type' => _247AROUND_SF_STRING,
+                                'contact_person.entity_id' => $value['entity_id']));
+                    
+                    if(!empty($warehouse_details)){
+                        $response = array();
+                        $response['stock'] = TRUE;
+                        $response['entity_id'] = $value['entity_id'];
+                        $response['entity_type'] = _247AROUND_SF_STRING;
+                        $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
+                        $response['estimate_cost'] =round($inventory_part_number[0]['price'] *( 1 + $inventory_part_number[0]['gst_rate']/100), 0);
+                        $response['inventory_id'] = $inventory_id;
+                        break;
+                    }
+                }
+     
+                if(empty($response)){
+                   
+                    $response['stock'] = false;
+                    $response['entity_id'] = $partner_id;
+                    $response['entity_type'] = _247AROUND_PARTNER_STRING;
+                    $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
+                    $response['estimate_cost'] = round($inventory_part_number[0]['price'] *( 1 + $inventory_part_number[0]['gst_rate']/100), 0);
+                    $response['inventory_id'] = $inventory_id;
+                }
+                
+            }else{
+                $response = array();
+                $response['stock'] = false;
+                $response['inventory_id'] = $inventory_part_number[0]['inventory_id'];
+                $response['entity_id'] = $partner_id;
+                $response['entity_type'] = _247AROUND_PARTNER_STRING;
+                $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
+                $response['estimate_cost'] = round($inventory_part_number[0]['price'] *( 1 + $inventory_part_number[0]['gst_rate']/100), 0);
+                $response['inventory_id'] = $inventory_id;
+            }
+         
+            return $response;
+            
+        } else {
+            return false;
+        }
     }
 }

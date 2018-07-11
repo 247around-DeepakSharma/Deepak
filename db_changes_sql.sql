@@ -7687,4 +7687,13 @@ VALUES (NULL, 'escalation_on_booking_from_partner_panel',
 <strong>%s</strong> is escalated <br> Reason : %s <br> Attend this booking immediately. 
 <br><br> Regards,<br> 247around Team', '', '', '', '', '1', '2016-09-26 18:30:00');
 
+
 UPDATE `email_template` SET `cc` = '' WHERE `email_template`.`tag` = 'escalation_on_booking';
+
+--Abhay 7 July
+ALTER TABLE `inventory_stocks` ADD `pending_request_count` INT NULL DEFAULT '0' AFTER `stock`;
+
+ALTER TABLE `spare_parts_details` ADD `invoice_gst_rate` INT(11) NULL DEFAULT '18' AFTER `sell_price`;
+
+--Abhay 11 July
+ALTER TABLE `bank_transactions` ADD `payment_txn_id` VARCHAR(1024) NULL DEFAULT NULL AFTER `transaction_id`;

@@ -199,7 +199,8 @@ class ApiDataRequest extends CI_Controller {
      * @param int $id - Spare Parts Id
      */
     function update_estimate_oow(){
-        log_message("info", __METHOD__ );
+        log_message("info", __METHOD__ . json_encode($this->input->post()));
+        
         $this->form_validation->set_rules('estimate_cost', 'Estimate cost', 'trim|numeric|greater_than[1]|required');
         $this->form_validation->set_rules('booking_id', 'Booking ID', 'trim|required');
         $this->form_validation->set_rules('partner_id', 'Partner ID', 'trim|required');
@@ -209,12 +210,15 @@ class ApiDataRequest extends CI_Controller {
         $this->form_validation->set_rules('amount_due', 'Amount Due', 'trim|required');
 
         if ($this->form_validation->run() == FALSE) {
+            
             log_message('info', __FUNCTION__ . '=> Form Validation is not updated by Partner '  .
-                     " Data" . print_r($this->input->post(), true));
+                     " Data" . print_r($this->input->post(), true). " Validators ".validation_errors() );
             echo "Error";
             
         } else {
+            
             $booking_id = $this->input->post("booking_id");
+            $gst_rate = $this->input->post('gst_rate');
             $vendor_id = $this->input->post("assigned_vendor_id");
             $amount_due = $this->input->post("amount_due");
             $id = $this->input->post("sp_id");
@@ -226,8 +230,10 @@ class ApiDataRequest extends CI_Controller {
             $data['purchase_price'] = $estimate_cost;
             $data['sell_price'] = ($estimate_cost + $estimate_cost *SPARE_OOW_EST_MARGIN );
             $data['estimate_cost_given_date'] = date('Y-m-d');
+            $data['invoice_gst_rate'] = $gst_rate;
             //Update Spare Parts Table
             $response = $this->service_centers_model->update_spare_parts($where, $data);
+            
             if ($response) {
                 //Update Unit Table
                 $unit = $this->booking_model->get_unit_details(array('booking_id' => $booking_id));
@@ -235,7 +241,7 @@ class ApiDataRequest extends CI_Controller {
                 $unit[0]['vendor_basic_percentage'] = ($estimate_cost * REPAIR_OOW_VENDOR_PERCENTAGE)/$data['sell_price'];
                 $unit[0]['customer_total'] = $data['sell_price'];
                 $unit[0]['product_or_services'] = "Product";
-                $unit[0]['tax_rate'] = DEFAULT_TAX_RATE;
+                $unit[0]['tax_rate'] = $gst_rate;
                 $unit[0]['create_date'] = date("Y-m-d H:i:s");
                 $unit[0]['ud_update_date'] = date("Y-m-d H:i:s");
                 $unit[0]['partner_net_payable'] = 0;
@@ -297,6 +303,8 @@ class ApiDataRequest extends CI_Controller {
                     $this->notify->insert_state_change($booking_id, SPARE_OOW_EST_GIVEN, SPARE_OOW_EST_REQUESTED, "", $agent_id, "", $actor,$next_action,$partner_id);
                 }else if($this->session->userdata('service_center_id')){
                     $this->notify->insert_state_change($booking_id, SPARE_OOW_EST_GIVEN, SPARE_OOW_EST_REQUESTED, "", $agent_id, "", $actor,$next_action,NULL,$this->session->userdata('service_center_id'));
+                } else {
+                    $this->notify->insert_state_change($booking_id, SPARE_OOW_EST_GIVEN, SPARE_OOW_EST_REQUESTED, "", _247AROUND_DEFAULT_AGENT, "", $actor,$next_action, _247AROUND);
                 }
                 $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
                 

@@ -146,17 +146,6 @@
                     </div>
                     <div class="x_content">
                         <div class="col-md-6">
-                            <?php if(!is_null($spare_parts[0]->estimate_cost_given_date) || $spare_parts[0]->request_type == REPAIR_OOW_TAG){ ?>
-                            <div class="form-group <?php
-                                    if (form_error('incoming_invoice')) { echo 'has-error';} ?>">
-                               <label for="incoming_invoice" class="col-md-4">Spare Invoice (PDF)*</label>
-                                <div class="col-md-6">
-                                    <input type="file" name="incoming_invoice" id="incoming_invoice" class="form-control" required />
-                                    <?php echo form_error('incoming_invoice'); ?>
-                                </div>   
-                                
-                            </div>
-                            <?php } ?>
                             <div class="form-group <?php
                                         if (form_error('shipped_model_number')) {
                                             echo 'has-error';
@@ -166,7 +155,7 @@
                                         <select class="form-control spare_parts" id="shipped_model_number_id" name="shipped_model_number_id">
                                             <option value="" disabled="" selected="">Select Model Number</option>
                                             <?php foreach ($inventory_details as $key => $value) { ?> 
-                                                <option value="<?php echo $value['id']; ?>"><?php echo $value['model_number']; ?></option>
+                                                <option value="<?php echo $value['id']; ?>" <?php if($value['model_number'] == $spare_parts[0]->model_number){ echo "selected";} ?>><?php echo $value['model_number']; ?></option>
                                             <?php } ?>
                                         </select>
                                         <input type="hidden" id="shipped_model_number" name="shipped_model_number">
@@ -216,17 +205,6 @@
                             
                         </div>
                         <div class="col-md-6">
-                            <?php if(!is_null($spare_parts[0]->estimate_cost_given_date) || $spare_parts[0]->request_type == REPAIR_OOW_TAG){ ?>
-                            <div class="form-group <?php
-                                    if (form_error('invoice_amount')) { echo 'has-error'; } ?>">
-                               <label for="invoice_amount" class="col-md-4">Invoice Amount (including tax)</label>
-                                <div class="col-md-6">
-                                    <input type="number" class="form-control" id="invoice_amount" name="invoice_amount" value = "" placeholder="Please Enter Invoice Amount"  required>
-                                    <?php echo form_error('invoice_amount'); ?>
-                                </div> 
-                              
-                            </div>
-                            <?php } ?>
                             <div class="form-group <?php
                                     if (form_error('awb')) { echo 'has-error'; } ?>">
                                <label for="awb" class="col-md-4">AWB *</label>
@@ -342,11 +320,11 @@
                             <input type="hidden" id="estimate_cost_given_date" name= "estimate_cost_given_date_h" value="<?php echo $spare_parts[0]->estimate_cost_given_date; ?>">
                             <input type="hidden" name="approx_value" id="approx_value" value="">
                             <input type="hidden" name="partner_id" id="partner_id" value="<?php echo $spare_parts[0]->partner_id ;?>">
+                            <input type="hidden" name="requested_inventory_id" id="requested_inventory_id" value="<?php echo $spare_parts[0]->requested_inventory_id; ;?>">
                             <input type="hidden" name="assigned_vendor_id" id="assigned_vendor_id" value="<?php echo $spare_parts[0]->assigned_vendor_id ;?>">
                             <input type="hidden" name="is_wh" id="is_wh" value="<?php echo $is_wh ;?>">
                             <input type="hidden" name="inventory_id" id="inventory_id">
-                            <input type="submit"  <?php if (!is_null($spare_parts[0]->estimate_cost_given_date) || $spare_parts[0]->request_type == REPAIR_OOW_TAG) { ?> 
-                                       onclick="return check_invoice_amount('<?php echo $spare_parts[0]->purchase_price; ?>')" <?php } ?> value="Update Booking" class="btn btn-md btn-success" id="submit_form"/>
+                            <input type="submit"  value="Update Booking" class="btn btn-md btn-success" id="submit_form"/>
                         </div>
                     </div>
                 </div>
@@ -436,8 +414,10 @@
         placeholder:'Select Part Type',
         allowClear:true
     });
-    $('#shipped_model_number_id').on('change', function() {
-        
+    
+    <?php if(!empty($spare_parts[0]->requested_inventory_id)) { ?> change_shipped_model(); <?php }?>
+    
+    function change_shipped_model(){
         var model_number_id = $('#shipped_model_number_id').val();
         var model_number = $("#shipped_model_number_id option:selected").text();
         $('#spinner').addClass('fa fa-spinner').show();
@@ -448,17 +428,27 @@
                 url:'<?php echo base_url(); ?>employee/inventory/get_parts_type',
                 data: { model_number_id:model_number_id},
                 success:function(data){
+                    
                     $('#shipped_part_type').val('val', "");
                     $('#shipped_part_type').val('Select Part Type').change();
                     $('#shipped_part_type').select2().html(data);
                     $('#shipped_parts_name').val('val', "");
                     $('#shipped_parts_name').val('Select Part Type').change();
                     $('#spinner').removeClass('fa fa-spinner').hide();
+                    
+                    <?php if(!empty($spare_parts[0]->requested_inventory_id) && !empty($spare_parts[0]->parts_requested_type)){ ?>
+                        $('#shipped_part_type').val("<?php echo $spare_parts[0]->parts_requested_type;?>").change(); 
+                        
+                    <?php }  ?>
                 }
             });
         }else{
             alert("Please Select Model Number");
         }
+    }
+    $('#shipped_model_number_id').on('change', function() {
+        
+        change_shipped_model();
     });
     
     $('#shipped_part_type').on('change', function() {
@@ -472,10 +462,15 @@
                 url:'<?php echo base_url(); ?>employee/inventory/get_parts_name',
                 data: { model_number_id:model_number_id, entity_id: '<?php echo $spare_parts[0]->partner_id ;?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo $spare_parts[0]->service_id; ?>',part_type:part_type,is_option_selected:true },
                 success:function(data){
+                    
                     $('#shipped_parts_name').val('val', "");
                     $('#shipped_parts_name').val('Select Part Name').change();
                     $('#shipped_parts_name').html(data);
                     $('#spinner').removeClass('fa fa-spinner').hide();
+                    
+                    <?php if(!empty($spare_parts[0]->requested_inventory_id) && !empty($spare_parts[0]->parts_requested_type)){ ?>
+                        $('#shipped_parts_name').val("<?php echo $spare_parts[0]->parts_requested;?>").change(); 
+                    <?php } ?>
                 }
             });
         }else{
@@ -483,11 +478,9 @@
         }
     });
     
-    $('#shipped_parts_name').on('change', function() {
-        
+    function change_parts_name(){
         var model_number_id = $('#shipped_model_number_id').val();
         var part_name = $('#shipped_parts_name').val();
-        
         if(model_number_id && part_name){
             $.ajax({
                 method:'POST',
@@ -508,6 +501,11 @@
                 }
             });
         }
+    }
+    
+    $('#shipped_parts_name').on('change', function() {
+        change_parts_name();
+        
     });
 
 </script>

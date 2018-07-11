@@ -31,7 +31,8 @@
                     if($diff->format("%R%a days") < 15){
                        $requestedParts = true;
                     } else{
-                        array_push($can_sp_id, array('part_name' => $value['parts_requested'], "part_id" => $value['id']));
+                        array_push($can_sp_id, array('part_name' => $value['parts_requested'], "part_id" => $value['id'], 
+                            'requested_inventory_id' => $value['requested_inventory_id'], 'entity_type' => $value['entity_type'], 'partner_id' => $value['partner_id']));
                     }
                 }
             }

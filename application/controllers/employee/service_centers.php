@@ -421,6 +421,9 @@ class Service_centers extends CI_Controller {
                 $this->service_centers_model->update_spare_parts(array('id' => $sp['part_id']), 
                         array('status' => _247AROUND_CANCELLED, "old_status" => SPARE_PARTS_REQUESTED));
                 array_push($part_name, $sp['part_name']);
+                if(!empty($sp['requested_inventory_id']) && $sp['entity_type'] == _247AROUND_SF_STRING){
+                    $this->inventory_model->update_pending_inventory_stock_request($sp['entity_type'], $sp['partner_id'], $sp['requested_inventory_id'], -1);
+                }
             }
             
             $get_partner_details = $this->partner_model->getpartner_details('account_manager_id, primary_contact_email, owner_email', array('partners.id' => $partner_id));
@@ -1313,7 +1316,8 @@ class Service_centers extends CI_Controller {
      * IF Booking date is not empty means its 247Around booking. We reschedule that booking.
      */
     function update_spare_parts() {
-        log_message('info', __FUNCTION__ . " Service_center ID: " . $this->session->userdata('service_center_id') . " Booking Id: " . $this->input->post('booking_id'));
+        log_message('info', __FUNCTION__ . " Service_center ID: " . $this->session->userdata('service_center_id') . " Booking Id: " . $this->input->post('booking_id')); 
+        log_message('info', __METHOD__. " POST DATA ". json_encode($this->input->post())); 
         $this->checkUserSession();
         $this->form_validation->set_rules('booking_id', 'Booking Id', 'trim|required');
         $this->form_validation->set_rules('model_number', 'Model Number', 'trim|required');
@@ -1358,7 +1362,7 @@ class Service_centers extends CI_Controller {
 
             $partner_id = $this->input->post('partner_id');
             $partner_details = $this->partner_model->getpartner_details("is_def_spare_required,is_wh", array('partners.id' => $partner_id));
-            
+
             if (stristr($price_tags, "Out Of Warranty")) {
 
                 $data['defective_part_required'] = 0;
@@ -1369,8 +1373,9 @@ class Service_centers extends CI_Controller {
 
                 $status = SPARE_PARTS_REQUESTED;
                 $sc_data['internal_status'] = $reason;
+                
             }
-            
+           
             $data['date_of_request'] = $data['create_date'] = date('Y-m-d H:i:s');
             $data['remarks_by_sc'] = $this->input->post('reason_text');
 
@@ -1381,8 +1386,9 @@ class Service_centers extends CI_Controller {
             $parts_requested = $this->input->post('parts_name');
             
             $parts_stock_not_found = array();
-            
-            foreach($parts_requested as $value){
+            //Do not take mutiple request from SF
+            //foreach($parts_requested as $value){
+                $value = $parts_requested[0];
                 $data['parts_requested'] = $value;
                 /** search if there is any warehouse for requested spare parts
                 * if any warehouse exist then assign this spare request to that service center otherwise assign
@@ -1391,13 +1397,17 @@ class Service_centers extends CI_Controller {
                 */
                if (!empty($partner_details[0]['is_wh'])) {
                    $sf_state = $this->vendor_model->getVendorDetails("service_centres.state", array('service_centres.id' => $this->session->userdata('service_center_id')));
-                   $warehouse_details = $this->get_warehouse_details(array('model_number_id' => $this->input->post('model_number_id'), 'part_name' => $value,'part_type' =>$data['parts_requested_type'], 'state' => $sf_state[0]['state']));
+                   $warehouse_details = $this->get_warehouse_details(array('model_number_id' => $this->input->post('model_number_id'), 'part_name' => $value,'part_type' =>$data['parts_requested_type'], 'state' => $sf_state[0]['state']), $partner_id);
                    if (!empty($warehouse_details)) {
                        $data['partner_id'] = $warehouse_details['entity_id'];
                        $data['entity_type'] = $warehouse_details['entity_type'];
                        
                        if(!empty($warehouse_details['inventory_id'])){
                            $data['requested_inventory_id'] = $warehouse_details['inventory_id'];
+                       }
+                       
+                       if($warehouse_details['entity_type'] == _247AROUND_PARTNER_STRING){
+                           array_push($parts_stock_not_found,array('model_number' => $data['model_number'],'part_type' => $data['parts_requested_type'] , 'part_name' => $value ));
                        }
                    } else {
                        $data['partner_id'] = $this->input->post('partner_id');
@@ -1408,9 +1418,12 @@ class Service_centers extends CI_Controller {
                    $data['partner_id'] = $this->input->post('partner_id');
                    $data['entity_type'] = _247AROUND_PARTNER_STRING;
                }
-               
+               //$entity_type, $entity_id, $inventory_id, $qty
+               if(isset($data['requested_inventory_id']) && !empty($data['requested_inventory_id']) && $data['entity_type'] == _247AROUND_SF_STRING ){
+                   $this->inventory_model->update_pending_inventory_stock_request($data['entity_type'], $data['partner_id'], $data['requested_inventory_id'], 1);
+               }
                array_push($data_to_insert, $data);
-            }
+            //}
 
             //send email to partner,sf and 247around that inventory out of stock for this inventory
             if(!empty($parts_stock_not_found)){
@@ -1418,9 +1431,9 @@ class Service_centers extends CI_Controller {
             }
             
             //$where = array('booking_id' => $booking_id, 'service_center_id' => $data['service_center_id']);
-            $status_spare = $this->service_centers_model->insert_data_into_spare_parts($data_to_insert,true);
+            $spare_id = $this->service_centers_model->insert_data_into_spare_parts($data_to_insert,true);
             
-            if ($status_spare) {
+            if ($spare_id) {
                 
                 //Send Push Notification 
                 //$receiverArray['partner'] = array($data['partner_id']);
@@ -1434,7 +1447,7 @@ class Service_centers extends CI_Controller {
                 $sc_data['current_status'] = "InProcess";
 
                 if (!empty($booking_date)) {
-                    $sc_data['current_status'] = "Pending";
+                    $sc_data['current_status'] = _247AROUND_PENDING;
                     $sc_data['booking_date'] = date('Y-m-d H:i:s', strtotime($booking_date));
                     $sc_data['reschedule_reason'] = $data['remarks_by_sc'];
                     // $sc_data['internal_status'] = 'Reschedule';
@@ -1448,6 +1461,21 @@ class Service_centers extends CI_Controller {
                 $this->vendor_model->update_service_center_action($booking_id, $sc_data);
 
                 $this->update_booking_internal_status($booking_id, $status, $this->input->post('partner_id'));
+
+                if($status == SPARE_OOW_EST_REQUESTED && isset($warehouse_details['inventory_id']) 
+                        && !empty($warehouse_details['inventory_id']) && isset($warehouse_details['estimate_cost'])){
+                    $cb_url = base_url() . "apiDataRequest/update_estimate_oow";
+                    $pcb['booking_id'] = $booking_id;
+                    $pcb['assigned_vendor_id'] = $this->session->userdata('service_center_id');
+                    $pcb['amount_due'] = $this->input->post('amount_due');
+                    $pcb['partner_id'] = $partner_id;
+                    $pcb['sp_id'] = $spare_id;
+                    $pcb['gst_rate'] = $warehouse_details['gst_rate'];;
+                    $pcb['estimate_cost'] = $warehouse_details['estimate_cost'];
+                    $pcb['agent_id'] = $this->session->userdata('service_center_agent_id');
+
+                    $this->asynchronous_lib->do_background_process($cb_url, $pcb);
+                }
 
                 $userSession = array('success' => 'Booking Updated');
                 $this->session->set_userdata($userSession);
@@ -3752,7 +3780,7 @@ function get_learning_collateral_for_bookings(){
         $where['length'] = -1;
         $where['where'] = array('spare_parts_details.id' => $id);
         $where['select'] = "booking_details.booking_id, users.name, booking_primary_contact_no,parts_requested, model_number,serial_number,date_of_purchase, invoice_pic,"
-                . "serial_number_pic,defective_parts_pic,spare_parts_details.id, booking_details.request_type, purchase_price, estimate_cost_given_date,booking_details.partner_id,booking_details.service_id,booking_details.assigned_vendor_id,parts_requested_type";
+                . "serial_number_pic,defective_parts_pic,spare_parts_details.id,requested_inventory_id,parts_requested_type, booking_details.request_type, purchase_price, estimate_cost_given_date,booking_details.partner_id,booking_details.service_id,booking_details.assigned_vendor_id,parts_requested_type";
         $data['spare_parts'] = $this->inventory_model->get_spare_parts_query($where);
         
         $where = array('entity_id' => $data['spare_parts'][0]->partner_id, 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['spare_parts'][0]->service_id,'active' => 1);
@@ -3779,7 +3807,7 @@ function get_learning_collateral_for_bookings(){
         $this->form_validation->set_rules('courier_name', 'Courier Name', 'trim|required');
         $this->form_validation->set_rules('awb', 'AWB', 'trim|required');
         $this->form_validation->set_rules('courier_price_by_partner', 'courier_price_by_partner', 'trim|required');
-        $this->form_validation->set_rules('incoming_invoice', 'Invoice', 'callback_spare_incoming_invoice');
+        //$this->form_validation->set_rules('incoming_invoice', 'Invoice', 'callback_spare_incoming_invoice');
         $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required');
 
         if ($this->form_validation->run() == FALSE) {
@@ -3792,6 +3820,8 @@ function get_learning_collateral_for_bookings(){
                 $sf_id = $this->session->userdata('service_center_id');
                 $partner_id = $this->input->post('partner_id');
                 $shipped_inventory_id = $this->input->post('inventory_id');
+                $requested_inventory_id = $this->input->post('requested_inventory_id');
+                
                 $is_shipped_stock_available = $this->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $sf_id, 'entity_type' => _247AROUND_SF_STRING, 'inventory_id' => $shipped_inventory_id,'inventory_stocks.stock <> 0' => NULL), NULL, NULL, NULL, NULL, NULL)->result_array();
                 if (!empty($is_shipped_stock_available) && !empty($is_shipped_stock_available[0]['id'])) {
                     $data['courier_pic_by_partner'] = $courier_image['message'];
@@ -3805,7 +3835,7 @@ function get_learning_collateral_for_bookings(){
                     $data['remarks_by_partner'] = $this->input->post('remarks_by_partner');
                     $data['shipped_date'] = $this->input->post('shipment_date');
                     $data['challan_approx_value'] = $this->input->post('approx_value');
-                    $data['status'] = "Shipped";
+                    $data['status'] = SPARE_SHIPPED_BY_PARTNER;
 
                     if (is_null($this->input->post('estimate_cost_given_date_h')) || $this->input->post('request_type') !== REPAIR_OOW_TAG) {
 
@@ -3819,12 +3849,7 @@ function get_learning_collateral_for_bookings(){
                         $spare_details['parts_requested'] = explode("_explode_", $data['parts_shipped'] . '_explode_');
                         $spare_details['part_price'][$data['parts_shipped']] = $spare_details['challan_approx_value'];
                         $data['partner_challan_file'] = $this->create_sf_challan_file($sf_details, $assigned_sf_details, $data['partner_challan_number'], $id, $spare_details);
-                    }
-
-
-                    $incoming_invoice_pdf = $this->input->post("incoming_invoice_pdf");
-                    if (!empty($incoming_invoice_pdf)) {
-                        $data['incoming_invoice_pdf'] = $incoming_invoice_pdf;
+                       
                     }
 
                     $where = array('id' => $id, 'partner_id' => $sf_id, 'entity_type' => _247AROUND_SF_STRING);
@@ -3848,7 +3873,7 @@ function get_learning_collateral_for_bookings(){
                         $this->insert_details_in_state_change($booking_id, SPARE_PARTS_SHIPPED, "Partner acknowledged to shipped spare parts", $actor, $next_action);
 
                         $this->booking_model->update_booking($booking_id, $booking);
-                        if (!empty($incoming_invoice_pdf)) {
+                        if(!is_null($this->input->post('estimate_cost_given_date_h')) || $this->input->post('request_type') == REPAIR_OOW_TAG){
                             // Send OOW invoice to aditya
                             $url = base_url() . "employee/invoice/generate_oow_parts_invoice/" . $id;
                             $async_data['booking_id'] = $booking_id;
@@ -3867,9 +3892,9 @@ function get_learning_collateral_for_bookings(){
                             $data['agent_type'] = _247AROUND_SF_STRING;
                             $data['is_wh'] = TRUE;
                             $data['inventory_id'] = $data['shipped_inventory_id'];
-                            $this->miscelleneous->process_inventory_stocks($data);
+                            $this->miscelleneous->process_inventory_stocks($data, $requested_inventory_id);
                         }
-
+                        
                         $userSession = array('success' => 'Parts Updated');
                         $this->session->set_userdata($userSession);
                         redirect(base_url() . "service_center/spare_parts");
@@ -4086,33 +4111,49 @@ function get_learning_collateral_for_bookings(){
      * @param array $data this array contains the data for which we want warehouse details;
      * @return array $response
      */
-    function get_warehouse_details($data){
+    function get_warehouse_details($data, $partner_id){
         $response = array();
         $post['length'] = -1;
-        
-        $inventory_part_number = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.part_number',array('model_number_id' => $data['model_number_id'],'part_name' => $data['part_name']));
-        
+    
+        $inventory_part_number = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.part_number, '
+                . 'inventory_master_list.inventory_id, price, gst_rate',array('model_number_id' => $data['model_number_id'],'part_name' => $data['part_name']));
+
         if(!empty($inventory_part_number)){
-            $post['where'] = array('part_number' => $inventory_part_number[0]['part_number'],'inventory_stocks.entity_type' => _247AROUND_SF_STRING,'inventory_stocks.stock != 0'=>NULL);
-            $select = 'inventory_stocks.stock,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id';
+            $post['where'] = array('part_number' => $inventory_part_number[0]['part_number'],'inventory_stocks.entity_type' => _247AROUND_SF_STRING,'(inventory_stocks.stock - inventory_stocks.pending_request_count) > 0'=>NULL);
+            $select = '(inventory_stocks.stock - pending_request_count) As stock,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id';
             $inventory_stock_details = $this->inventory_model->get_inventory_stock_list($post,$select,array(),FALSE);
+            
             if(!empty($inventory_stock_details)){
                 if(count($inventory_stock_details) > 1){
                     $warehouse_details = $this->inventory_model->get_warehouse_details('warehouse_state_relationship.state,contact_person.entity_id',array('warehouse_state_relationship.state' => $data['state'],'contact_person.entity_type' => _247AROUND_SF_STRING));
                     if(!empty($warehouse_details)){
                         $response['entity_id'] = $warehouse_details[0]['entity_id'];
                         $response['entity_type'] = _247AROUND_SF_STRING;
+                        $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
+                        $response['estimate_cost'] =round($inventory_part_number[0]['price'] *( 1 + $inventory_part_number[0]['gst_rate']/100), 0);
                         $response['inventory_id'] = $inventory_stock_details[array_search($warehouse_details[0]['entity_id'], array_column($inventory_stock_details, 'entity_id'))]['inventory_id'];
                     }else{
                         $response = array();
+                        $response['entity_id'] = $partner_id;
+                        $response['entity_type'] = _247AROUND_PARTNER_STRING;
+                        $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
+                        $response['estimate_cost'] = round($inventory_part_number[0]['price'] *( 1 + $inventory_part_number[0]['gst_rate']/100), 0);
+                        $response['inventory_id'] = $inventory_part_number[0]['inventory_id'];
                     }
                 }else{
                     $response['entity_id'] = $inventory_stock_details[0]['entity_id'];
                     $response['entity_type'] = $inventory_stock_details[0]['entity_type'];
+                    $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
+                    $response['estimate_cost'] = round($inventory_part_number[0]['price'] *( 1 + $inventory_part_number[0]['gst_rate']/100), 0);
                     $response['inventory_id'] = $inventory_stock_details[0]['inventory_id'];
                 }
             }else{
                 $response = array();
+                $response['inventory_id'] = $inventory_part_number[0]['inventory_id'];
+                $response['entity_id'] = $partner_id;
+                $response['entity_type'] = _247AROUND_PARTNER_STRING;
+                $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
+                $response['estimate_cost'] = round($inventory_part_number[0]['price'] *( 1 + $inventory_part_number[0]['gst_rate']/100), 0);
             }
         }else{
             $response = array();
