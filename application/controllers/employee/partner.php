@@ -1280,17 +1280,29 @@ class Partner extends CI_Controller {
                     $am_email = $accountManagerData[0]['official_email'];
                 }
                 
-                $bcc = "";
-                $attachment = "";
                 $partner_details = $this->dealer_model->entity_login(array('agent_id' => $this->session->userdata('agent_id')))[0];
-                $rm_mail = $this->vendor_model->get_rm_sf_relation_by_sf_id($bookinghistory[0]['assigned_vendor_id'])[0]['official_email'];
-                $partner_mail_to = $partner_details['email'];
-                $partner_mail_cc = "escalations@247around.com ," . $rm_mail;
-                $partner_subject = "Booking " . $booking_id . " Escalated ";
-                $partner_message = "<p>This booking is ESCALATED to 247around, we will look into this very soon.</p><br><b>Booking ID : </b>" . $booking_id . " Escalated <br><br><strong>Remarks : </strong>" . $remarks;
-                $this->notify->sendEmail($am_email, $partner_mail_to, $partner_mail_cc, $bcc, $partner_subject, $partner_message, $attachment,BOOKING_ESCALATION);
-
-                log_message('info', __FUNCTION__ . " Escalation Mail Sent ");
+                //Getting template from Database
+                $template = $this->booking_model->get_booking_email_template("escalation_on_booking_from_partner_panel");
+                if (!empty($template)) {  
+                    //From will be currently logged in user
+                    $from = $partner_details['email'];
+                    //getting rm email
+                    $rm_mail = $this->vendor_model->get_rm_sf_relation_by_sf_id($bookinghistory[0]['assigned_vendor_id'])[0]['official_email'];
+                    $to = $am_email;
+                    $cc = $rm_mail.','.$partner_details['email'];
+                    $email['booking_id'] = $booking_id;
+                    $email['remarks'] = $remarks;
+                    $emailBody = vsprintf($template[0], $email);
+                    $subject['booking_id'] = $booking_id;
+                    $subjectBody = vsprintf($template[4], $subject);
+                    //Sending Mail
+                    $this->notify->sendEmail($from, $to, $template[3] . "," . $cc, '', $subjectBody, $emailBody, "",'escalation_on_booking_from_partner_panel');
+                    //Logging
+                    log_message('info', " Escalation Mail Send successfully" . $emailBody);
+                } else {
+                    //Logging Error Message
+                    log_message('info', " Error in Getting Email Template for Escalation Mail");
+                }
 
                 $reason_flag['escalation_policy_flag'] = json_encode(array('mail_to_escalation_team' => 1), true);
 
