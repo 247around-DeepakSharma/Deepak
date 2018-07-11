@@ -576,10 +576,12 @@ class Inventory_model extends CI_Model {
         }
         $query = $this->db->get();
         if($is_object){
-            return $query->result();
+            $result =  $query->result();
         } else {
-            return $query->result_array();
+            $result = $query->result_array();
         }
+        
+        return $result;
         
     }
     
@@ -780,7 +782,7 @@ class Inventory_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
-    
+   
     /**
      * @desc This is used to insert details into inventory_master_list table in batch
      * @param Array $data
@@ -1128,5 +1130,11 @@ class Inventory_model extends CI_Model {
     function insert_inventory_ledger_batch($data){
         $this->db->insert_batch("inventory_ledger", $data);
         return $this->db->insert_id();
+    }
+    
+    function update_pending_inventory_stock_request($entity_type, $entity_id, $inventory_id, $qty){
+        $sql = "Update inventory_stocks set pending_request_count = pending_request_count+ $qty WHERE "
+                . "inventory_id = '".$inventory_id."' AND entity_type = '".$entity_type."' AND entity_id = '".$entity_id."' AND pending_request_count >= 0";
+        return $this->db->query($sql);
     }
 }

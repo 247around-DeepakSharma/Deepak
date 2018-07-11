@@ -2930,7 +2930,10 @@ class Invoice extends CI_Controller {
         $data['agent_id'] = $agent_id;
         $data['create_date'] = date("Y-m-d H:i:s");
         $data['transaction_id'] = $this->input->post('transaction_id');
-       
+        if($this->input->post('payment_txn_id')){
+            $data['payment_txn_id'] = $this->input->post('payment_txn_id');
+        }
+        
         return $this->invoices_model->bankAccountTransaction($data);
     }
     
@@ -3247,7 +3250,7 @@ class Invoice extends CI_Controller {
     function generate_oow_parts_invoice($spare_id) {
         $req['where'] = array("spare_parts_details.id" => $spare_id);
         $req['length'] = -1;
-        $req['select'] = "spare_parts_details.purchase_price, parts_requested, spare_parts_details.service_center_id, spare_parts_details.booking_id";
+        $req['select'] = "spare_parts_details.purchase_price, parts_requested,invoice_gst_rate, spare_parts_details.service_center_id, spare_parts_details.booking_id";
         $sp_data = $this->inventory_model->get_spare_parts_query($req);
         if (!empty($sp_data)) {
             $vendor_details = $this->vendor_model->getVendorDetails("gst_no, "
@@ -3256,7 +3259,7 @@ class Invoice extends CI_Controller {
             $data = array();
             $data[0]['description'] = ucwords($sp_data[0]->parts_requested) . " (" . $sp_data[0]->booking_id . ") ";
             $amount = $sp_data[0]->purchase_price + $sp_data[0]->purchase_price * REPAIR_OOW_AROUND_PERCENTAGE;
-            $tax_charge = $this->booking_model->get_calculated_tax_charge($amount, DEFAULT_TAX_RATE);
+            $tax_charge = $this->booking_model->get_calculated_tax_charge($amount, $sp_data[0]->invoice_gst_rate);
             $data[0]['taxable_value'] = ($amount - $tax_charge);
             $data[0]['product_or_services'] = "Product";
             if(empty($vendor_details[0]['gst_no'])){
@@ -3274,7 +3277,7 @@ class Invoice extends CI_Controller {
             $data[0]['qty'] = 1;
             $data[0]['hsn_code'] = SPARE_HSN_CODE;
             $sd = $ed = $invoice_date = date("Y-m-d");
-            $gst_rate = DEFAULT_TAX_RATE;
+            $gst_rate = $sp_data[0]->invoice_gst_rate;
             $data[0]['gst_rate'] = $gst_rate;
 
             $response = $this->invoices_model->_set_partner_excel_invoice_data($data, $sd, $ed, "Tax Invoice",$invoice_date);
@@ -3380,7 +3383,7 @@ class Invoice extends CI_Controller {
             $spare_id = $this->input->post("spare_id");
             $w['length'] = -1;
             $w['where_in'] = array("spare_parts_details.id" => $spare_id);
-            $w['select'] = "spare_parts_details.id, spare_parts_details.booking_id, purchase_price, public_name, spare_parts_details.partner_id, "
+            $w['select'] = "spare_parts_details.id, spare_parts_details.booking_id, purchase_price, public_name, booking_details.partner_id, "
                     . "purchase_invoice_id,sell_invoice_id, sell_price, incoming_invoice_pdf, partners.state";
             $data = $this->inventory_model->get_spare_parts_query($w);
 

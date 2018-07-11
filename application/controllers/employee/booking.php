@@ -2066,12 +2066,18 @@ class Booking extends CI_Controller {
             $booking['api_call_status_updated_on_completed'] = DEPENDENCY_ON_CUSTOMER;
         }
         $this->booking_model->update_booking($booking_id, $booking);
-        $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status", array('booking_id' => $booking_id, 'status NOT IN ("Completed","Cancelled")' =>NULL ), false);
+        $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status, entity_type, spare_parts_details.partner_id, requested_inventory_id", array('booking_id' => $booking_id, 'status NOT IN ("Completed","Cancelled")' =>NULL ), false);
         foreach($spare as $sp){
             //Update Spare parts details table
-            $this->service_centers_model->update_spare_parts(array('id'=> $sp['id']), array('old_status' => $sp['status'],'status' => $internal_status));
+            
+            if($sp['status'] == SPARE_PARTS_REQUESTED && !empty($sp['requested_inventory_id']) && $sp['entity'] == _247AROUND_SF_STRING){
+                $this->inventory_model->update_pending_inventory_stock_request($sp['entity_type'], $sp['partner_id'], $sp['requested_inventory_id'], -1);
+                $this->service_centers_model->update_spare_parts(array('id'=> $sp['id']), array('old_status' => $sp['status'],'status' => _247AROUND_CANCELLED));
+            } else {
+                $this->service_centers_model->update_spare_parts(array('id'=> $sp['id']), array('old_status' => $sp['status'],'status' => $internal_status));
+            }
         }
-        if(!empty($sp_required_id)){
+        if(!empty($sp_required_id)){ 
             foreach ($sp_required_id as $sp_id) {
                 
                 $this->service_centers_model->update_spare_parts(array('id' => $sp_id), array('status' => DEFECTIVE_PARTS_PENDING));
@@ -2214,7 +2220,7 @@ class Booking extends CI_Controller {
         } else {
             $data['booking_date'] = date('d-m-Y', strtotime($this->input->post('booking_date')));
             $data['booking_timeslot'] = $this->input->post('booking_timeslot');
-            $data['current_status'] = 'Pending';
+            $data['current_status'] = _247AROUND_PENDING;
             $data['internal_status'] = "Booking Opened From " . $status;
             $data['update_date'] = date("Y-m-d H:i:s");
             $data['cancellation_reason'] = NULL;
@@ -2248,8 +2254,8 @@ class Booking extends CI_Controller {
 
                 $assigned_vendor_id = $this->input->post("assigned_vendor_id");
                 if (!empty($assigned_vendor_id)) {
-                    $service_center_data['internal_status'] = "Pending";
-                    $service_center_data['current_status'] = "Pending";
+                    $service_center_data['internal_status'] = _247AROUND_PENDING;
+                    $service_center_data['current_status'] = _247AROUND_PENDING;
                     $service_center_data['update_date'] = date("Y-m-d H:i:s");
                     $service_center_data['serial_number'] = "";
                     $service_center_data['cancellation_reason'] = NULL;
@@ -2307,10 +2313,39 @@ class Booking extends CI_Controller {
 
                 $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
 
-                $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.old_status", array('booking_id' => $booking_id), false);
+                $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.old_status, requested_inventory_id, "
+                        . "shipped_inventory_id", array('booking_id' => $booking_id), false);
                 foreach ($spare as $sp) {
-                    //Update Spare parts details table
-                    $this->service_centers_model->update_spare_parts(array('id' => $sp['id']), array('status' => $sp['old_status']));
+                    if($sp['old_status'] == SPARE_PARTS_REQUESTED ){
+                        
+                        if(!empty($sp['requested_inventory_id'])){
+                            $sf_state = $this->vendor_model->getVendorDetails("service_centres.state", array('service_centres.id' => $assigned_vendor_id));
+                            $stock =$this->miscelleneous->check_inventory_stock($sp['requested_inventory_id'], $partner_id, $sf_state[0]['state']);
+                            if(!empty($stock)){
+
+                                $this->service_centers_model->update_spare_parts(array('id' => $sp['id']), 
+                                        array('status' => $sp['old_status'], 'entity_type' => $stock['entity_type'],
+                                            'partner_id' => $stock['entity_id']));
+                                if($stock['entity_type'] == _247AROUND_SF_STRING){
+                                    $this->inventory_model->update_pending_inventory_stock_request($stock['entity_type'], $stock['entity_id'], $sp['requested_inventory_id'], 1);
+
+                                }
+                                
+                                
+                            } else {
+                                //Update Spare parts details table
+                               $this->service_centers_model->update_spare_parts(array('id' => $sp['id']), array('status' => $sp['old_status'],
+                                   "entity_type" => _247AROUND_PARTNER_STRING, "partner_id" => $partner_id));
+                            }
+                        } else {
+                           //Update Spare parts details table
+                          $this->service_centers_model->update_spare_parts(array('id' => $sp['id']), array('status' => $sp['old_status'])); 
+                        }
+                        
+                        $this->vendor_model->update_service_center_action($booking_id, array('current_status' => 'InProcess', 'internal_status' => SPARE_PARTS_REQUIRED));
+                    } else if(empty($sp['requested_inventory_id'])){
+                        $this->service_centers_model->update_spare_parts(array('id' => $sp['id']), array('status' => $sp['old_status']));
+                    } 
                 }
                 // Update Engineer Action table Status When Booking Opened
                 $en_where = array("engineer_booking_action.booking_id" => $booking_id);
@@ -2440,6 +2475,7 @@ class Booking extends CI_Controller {
         $comment_id = $this->input->post('comment_id');
         $status=$this->booking_model->delete_comment($comment_id);
     }
+
 
     /**
      * @desc: This function is used to validate Bookings New/Update
