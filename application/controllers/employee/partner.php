@@ -4019,9 +4019,12 @@ class Partner extends CI_Controller {
      */
     function download_partner_summary_details(){
         $partner_details = array();
-        $select = "partners.id,public_name,company_type,primary_contact_name,primary_contact_email,primary_contact_phone_1,owner_name,owner_email,owner_phone_1,gst_number,pan";
+        $select = "partners.id,public_name,company_type,primary_contact_name,"
+                . "primary_contact_email,primary_contact_phone_1,"
+                . "owner_name,owner_email,owner_phone_1,gst_number,pan,"
+                . "customer_care_contact as customer_care_num,address,employee.full_name as am_name,employee.official_email as am_email";
         $where = array('is_active' => 1);
-        $partner_details['excel_data_line_item'] = $this->partner_model->getpartner_details($select,$where);
+        $partner_details['excel_data_line_item'] = $this->partner_model->getpartner_details($select,$where,"",TRUE);
         $template = 'partner_summary_details.xlsx';
         $output_file = "partner_summary_details". date('d_M_Y_H_i_s');
         $partner_details['excel_data'] = array();
