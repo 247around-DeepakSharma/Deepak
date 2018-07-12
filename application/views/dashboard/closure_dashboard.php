@@ -12,11 +12,11 @@
     </div>
     <!-- /top tiles -->
     <hr>
-    <?php
-    if($this->session->userdata('id') == INVENTORY_HANDLER_ID){
-    ?>
+    //<?php
+//    if($this->session->userdata('id') == INVENTORY_HANDLER_ID){
+//    ?>
         <!-- SF Brackets snapshot Section -->
-    <div class="row" ng-app="inventory_dashboard">
+<!--    <div class="row" ng-app="inventory_dashboard">
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
                 <div class="x_title">
@@ -25,7 +25,7 @@
                     </div>
                     <div class="col-md-6">
                         <div class="pull-right">
-                            <a class="btn btn-sm btn-success" href="<?php echo base_url();?>employee/dashboard/brackets_snapshot_full_view" target="_blank">Show All</a>
+                            <a class="btn btn-sm btn-success" href="//<?php //echo base_url();?>employee/dashboard/brackets_snapshot_full_view" target="_blank">Show All</a>
                         </div>
                     </div>
                     <div class="clearfix"></div>
@@ -33,7 +33,7 @@
                 <div class="x_content">
                     <div class="table-responsive">
                         <div class="table-responsive" id="escalation_data" ng-controller="bracketsSnapshot_Controller" ng-cloak="">
-                            <center><img id="brackets_loader" src="<?php echo base_url(); ?>images/loadring.gif"></center>
+                            <center><img id="brackets_loader" src="//<?php //echo base_url(); ?>images/loadring.gif"></center>
                             <div ng-if="brackets_div">
                                 <table class="table table-striped table-bordered jambo_table bulk_action">
                                     <thead>
@@ -60,7 +60,7 @@
                                            <td>{{x.l_32}}</td>
                                            <td>{{x.g_32}}</td>
                                            <td>{{x.brackets_exhausted_days}}</td>
-                                           <td><a class="btn btn-sm btn-success" href="<?php echo base_url();?>employee/inventory/get_bracket_add_form/{{x.sf_id}}/{{x.sf_name}}" target="_blank">Order brackets</a></td>
+                                           <td><a class="btn btn-sm btn-success" href="//<?php //echo base_url();?>employee/inventory/get_bracket_add_form/{{x.sf_id}}/{{x.sf_name}}" target="_blank">Order brackets</a></td>
                                         </tr>
                                     </tbody>
                                 </table>                             
@@ -74,11 +74,11 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div>-->
     <!-- SF Brackets Snapshot Section -->
-    <?php
-        }
-    ?>
+    //<?php
+//        }
+//    ?>
     
     <!-- Agent Graph -->
     <div class="row">
