@@ -1968,6 +1968,7 @@ class Booking extends CI_Controller {
                     $service_center['current_status'] = "InProcess";
                     $service_center['internal_status'] = DEFECTIVE_PARTS_PENDING;
                     $service_center['closed_date'] = $closed_date;
+                    $data['booking_status'] = _247AROUND_PENDING;
                     
                 } else {
                     
@@ -2471,9 +2472,27 @@ class Booking extends CI_Controller {
            }           
     }
     
+    function update_Comment(){
+       
+       $this->form_validation->set_rules('comment', 'comment', 'required');
+        if ($this->form_validation->run() == TRUE) {
+            
+        $data['remarks'] = $this->input->post('comment');
+        $id = $this->input->post('comment_id');
+        $data['update_date'] = date("Y-m-d H:i:s");
+        $where = array('id' => $id);
+        $status = $this->booking_model->update_comment($where, $data);
+           }
+           else{
+               $this->update_Comment();
+           }           
+    }
+    
     function deleteComment(){
         $comment_id = $this->input->post('comment_id');
-        $status=$this->booking_model->delete_comment($comment_id);
+        $data['isActive']=0;
+        $where = array('id' => $comment_id);
+        $status=$this->booking_model->update_comment($where, $data);
     }
 
 
