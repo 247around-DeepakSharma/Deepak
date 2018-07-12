@@ -1106,7 +1106,7 @@ class Inventory_model extends CI_Model {
         $this->db->where($where);
         $this->db->update('courier_details',$data);
     }
-
+    
      /**
      * @desc: This function is used to update spare parts courier details in spare_parts_details table
      * @params: Array $id
@@ -1136,5 +1136,33 @@ class Inventory_model extends CI_Model {
         $sql = "Update inventory_stocks set pending_request_count = pending_request_count+ $qty WHERE "
                 . "inventory_id = '".$inventory_id."' AND entity_type = '".$entity_type."' AND entity_id = '".$entity_id."' AND pending_request_count >= 0";
         return $this->db->query($sql);
+    }
+    
+    /**
+     * @Desc: This function is used to get data from the inventory ledger table
+     * @params: $limit string
+     * @params: $start string
+     * @params: $is_count boolean
+     * @return: $query array
+     * 
+     */
+    function get_tagged_spare_part_details($where = "") {
+        $sql = "SELECT CASE WHEN(sc.name IS NOT NULL) THEN (sc.name) 
+                WHEN(p.public_name IS NOT NULL) THEN (p.public_name) 
+                WHEN (e.full_name IS NOT NULL) THEN (e.full_name) END as receiver, 
+                CASE WHEN(sc1.name IS NOT NULL) THEN (sc1.name) 
+                WHEN(p1.public_name IS NOT NULL) THEN (p1.public_name) 
+                WHEN (e1.full_name IS NOT NULL) THEN (e1.full_name) END as sender,i.booking_id,i.invoice_id,invoice_details.description,
+                invoice_details.hsn_code,invoice_details.qty,invoice_details.rate as basic_price,invoice_details.toal_amount as total_amount,
+                invoice_details.igst_tax_rate as gst_rate,i.create_date
+                FROM `inventory_ledger` as i LEFT JOIN service_centres as sc on (sc.id = i.`receiver_entity_id` AND i.`receiver_entity_type` = 'vendor') Left JOIN partners as p on (p.id = i.`receiver_entity_id` AND i.`receiver_entity_type` = 'partner') LEFT JOIN employee as e ON (e.id = i.`receiver_entity_id` AND i.`receiver_entity_type` = 'employee')  
+                LEFT JOIN service_centres as sc1 on (sc1.id = i.`sender_entity_id` AND i.`sender_entity_type` = 'vendor') 
+                Left JOIN partners as p1 on (p1.id = i.`sender_entity_id` AND i.`sender_entity_type` = 'partner') 
+                LEFT JOIN employee as e1 ON (e1.id = i.`sender_entity_id` AND i.`sender_entity_type` = 'employee') 
+                JOIN invoice_details ON (i.invoice_id = invoice_details.invoice_id AND i.inventory_id = invoice_details.inventory_id)
+                $where";
+
+        $query = $this->db->query($sql)->result_array();
+        return $query;
     }
 }

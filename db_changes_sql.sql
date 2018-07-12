@@ -7642,12 +7642,17 @@ UPDATE `email_template` SET `subject` = '247around %s through CRM Payment Gatewa
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'cp_out_standing_email', '%s', 'Dear Partner,<br/><br/> outstanding Amount %s <br/><br/> %s<br/><br/> <br/>Thanks!!;', 'booking@247around.com', '', 'abhaya@247around.com', '', '1', '2018-06-29 00:00:00');
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'cp_outstanding_sms', '%s', '', '1', '2018-06-29 18:59:32');
 
+<<<<<<< HEAD
 
 --Abhay 3 July
 ALTER TABLE `service_centres` ADD `cp_credit_limit` DECIMAL NULL DEFAULT '0' AFTER `on_off`;
 
 --Abhay 6 July
 ALTER TABLE `booking_details` ADD `upcountry_update_date` DATETIME NULL DEFAULT NULL AFTER `service_center_closed_date`;
+=======
+--Abhay 3 July
+ALTER TABLE `service_centres` ADD `cp_credit_limit` DECIMAL NULL DEFAULT '0' AFTER `on_off`;
+>>>>>>> 321c540... #CRM-993  Create a view to search part corresponding to spare invoice
 --Chhavi 06th July
 ALTER TABLE `courier_details` ADD `contact_person_id` INT(10) NOT NULL AFTER `partner_invoice_id`;
 ALTER TABLE `courier_details` ADD `document_type` VARCHAR(100) NOT NULL AFTER `receiver_entity_id`;
@@ -7692,6 +7697,9 @@ UPDATE `email_template` SET `cc` = '' WHERE `email_template`.`tag` = 'escalation
 
 --Abhay 7 July
 ALTER TABLE `inventory_stocks` ADD `pending_request_count` INT NULL DEFAULT '0' AFTER `stock`;
+
+UPDATE `email_template` SET `cc` = '' WHERE `email_template`.`tag` = 'escalation_on_booking';
+
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) 
 VALUES (NULL, 'missed_call_confirmed_for_google', 'Thank you for demo confirmation, 
 %s Installation & Demo of your %s would be done %s.Installation Powered by 247around.com', 
@@ -7702,7 +7710,15 @@ UPDATE `sms_template` SET `template` = 'Kudos to you for placing Google Home dem
 Check Super Answer Video from Google http://bit.ly/2up6Kwq | http://bit.ly/2s4PzAc | http://bit.ly/2INmjUE - 247around Flipkart Partner' 
 WHERE `sms_template`.`tag` = 'flipkart_google_scheduled_sms';
 
+
+--Abhay 7 July
+ALTER TABLE `inventory_stocks` ADD `pending_request_count` INT NULL DEFAULT '0' AFTER `stock`;
+
 ALTER TABLE `spare_parts_details` ADD `invoice_gst_rate` INT(11) NULL DEFAULT '18' AFTER `sell_price`;
 
 --Abhay 11 July
 ALTER TABLE `bank_transactions` ADD `payment_txn_id` VARCHAR(1024) NULL DEFAULT NULL AFTER `transaction_id`;
+
+-- sachin 12 July
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+(null, '247Around', 'Search Spare Invoice', NULL, 'employee/inventory/show_spare_details_by_spare_invoice', 0, '89', 'admin,closure,inventory_manager', 'main_nav', 1, '2018-07-12 05:12:36');
