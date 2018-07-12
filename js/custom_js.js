@@ -601,6 +601,7 @@ function set_upcountry() {
     
     is_upcountry = 0;
     non_upcountry = 0;
+    n = 0;
     count = 0;
     $("input[type=checkbox]:checked").each(function (i) {
         count = count + 1;
@@ -608,56 +609,76 @@ function set_upcountry() {
         var id = this.id.split('checkbox_');
 
         var up_val = $("#is_up_val_" + id[1]).val();
+       
         if (Number(up_val) === 1) {
             is_upcountry = 1;
         } else  if (Number(up_val) === -1) {
             non_upcountry = -1;
+        } else {
+            n =1;
         }
     });
     if (count > 0) {
-        if(is_upcountry == 0){
-             var data1 = jQuery.parseJSON(upcountry_data);
-            if (data1.message === "UPCOUNTRY BOOKING" || data1.message === "UPCOUNTRY LIMIT EXCEED") {
+        var data1 = jQuery.parseJSON(upcountry_data);
+        switch(data1.message) {
+            case 'UPCOUNTRY BOOKING':
+            case 'UPCOUNTRY LIMIT EXCEED':
+                if(Number(is_upcountry) == 1){
+                    var total_price = $("#grand_total_price").val();
 
-                var upcountry_charges = (Number(DEFAULT_UPCOUNTRY_RATE) * Number(data1.upcountry_distance)).toFixed(2);
-                total_price = $("#grand_total_price").val();
-                $("#upcountry_charges").val(upcountry_charges);
-                $("#grand_total_price").val(Number(total_price) + Number(upcountry_charges));
+                    var partner_approval = Number(data1.partner_upcountry_approval);
 
-            } else {
-                $("#upcountry_charges").val("0");
-            }
-            $('#submitform').attr('disabled', false);
+                    if (data1.message === "UPCOUNTRY BOOKING") {
+                        $("#upcountry_charges").val("0");
+                        $('#submitform').attr('disabled', false);
+                        final_price();
+
+                    } else if (data1.message === "UPCOUNTRY LIMIT EXCEED" && partner_approval === 0) {
+                        
+                        $('#submitform').attr('disabled', true);
+                        alert("This is out station Booking, not allow to submit Booking/Query. Upcountry Distance " + data1.upcountry_distance + " KM");
+                    } else if (data1.message === "UPCOUNTRY LIMIT EXCEED" && partner_approval === 1) {
+                        $("#upcountry_charges").val("0");
+                        alert("This is out station boking, Waiting for Partner Approval. Upcountry Distance " + data1.upcountry_distance + " KM");
+                        $('#submitform').attr('disabled', false);
+                    } else {
+                        // $("#upcountry_charges").val("0");
+                        $('#submitform').attr('disabled', false);
+                    }
+                } else {
+                    if(Number(is_upcountry) == 0 && Number(non_upcountry) == 0){
+                        
+                        var upcountry_charges = (Number(DEFAULT_UPCOUNTRY_RATE) * Number(data1.upcountry_distance)).toFixed(2);
+                        total_price = $("#grand_total_price").val();
+                        $("#upcountry_charges").val(upcountry_charges);
+                        $("#grand_total_price").val(Number(total_price) + Number(upcountry_charges));
+                        
+                    } else if(Number(is_upcountry) == 0 && Number(non_upcountry) == -1 && n == 0){
+                        
+                        $("#upcountry_charges").val("0");
+                        $('#submitform').attr('disabled', false);
+                        final_price();
+                    } else if(Number(is_upcountry) == 0 && Number(non_upcountry) == -1 && n == 1){
+                        
+                        var upcountry_charges = (Number(DEFAULT_UPCOUNTRY_RATE) * Number(data1.upcountry_distance)).toFixed(2);
+                        total_price = $("#grand_total_price").val();
+                        $("#upcountry_charges").val(upcountry_charges);
+                        $("#grand_total_price").val(Number(total_price) + Number(upcountry_charges));
+                    }
+                    
+                    $('#submitform').attr('disabled', false);
+                }
+                break;
+                
+            default:
+                    $("#upcountry_charges").val("0");
+                    $('#submitform').attr('disabled', false);
+                    final_price();
+                    $('#submitform').attr('disabled', false);
+                    break;
             
-        } else if(non_upcountry === -1){
-            $("#upcountry_charges").val("0");
-            $('#submitform').attr('disabled', false);
-            final_price();
-             
-        } else if (is_upcountry === 1) {
-            var total_price = $("#grand_total_price").val();
-            var data1 = jQuery.parseJSON(upcountry_data);
-           
-            var partner_approval = Number(data1.partner_upcountry_approval);
+        }
 
-            if (data1.message === "UPCOUNTRY BOOKING") {
-                $("#upcountry_charges").val("0");
-                $('#submitform').attr('disabled', false);
-
-            } else if (data1.message === "UPCOUNTRY LIMIT EXCEED" && partner_approval === 0) {
-                $('#submitform').attr('disabled', true);
-                alert("This is out station Booking, not allow to submit Booking/Query. Upcountry Distance " + data1.upcountry_distance + " KM");
-            } else if (data1.message === "UPCOUNTRY LIMIT EXCEED" && partner_approval === 1) {
-                alert("This is out station boking, Waiting for Partner Approval. Upcountry Distance " + data1.upcountry_distance + " KM");
-                $('#submitform').attr('disabled', false);
-            } else {
-                // $("#upcountry_charges").val("0");
-                $('#submitform').attr('disabled', false);
-            }
-            
-
-        } 
-        
     } else {
         final_price();
         $("#upcountry_charges").val("0");
