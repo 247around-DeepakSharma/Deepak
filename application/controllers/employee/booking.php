@@ -3412,7 +3412,7 @@ class Booking extends CI_Controller {
                 ."(CASE WHEN current_status  IN('Completed','Cancelled') THEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) ELSE '' END) as TAT, "
                 . "booking_details.booking_timeslot,booking_details.booking_remarks,"
                 . "booking_details.query_remarks,booking_details.discount_coupon,booking_details.discount_amount,booking_details.total_price,booking_details.cancellation_reason,"
-                . "booking_details.reschedule_reason,service_centres.name,booking_details.vendor_rating_stars,booking_details.vendor_rating_comments,booking_details.amount_due,"
+                . "booking_details.reschedule_reason,service_centres.name,booking_details.rating_stars,booking_details.rating_comments,booking_details.amount_due,"
                 . "booking_details.service_charge,booking_details.additional_service_charge,booking_details.parts_cost,booking_details.amount_paid,booking_details.closing_remarks,"
                 . "booking_details.count_reschedule,booking_details.count_escalation,booking_details.is_upcountry,booking_details.upcountry_pincode,booking_details.sf_upcountry_rate,"
                 . "booking_details.partner_upcountry_rate,booking_details.upcountry_distance,booking_details.is_penalty,booking_details.create_date,booking_details.update_date,"
