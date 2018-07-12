@@ -7585,3 +7585,126 @@ ALTER TABLE `miscellaneous_charges`
 --
 ALTER TABLE `miscellaneous_charges`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--sachin 25 June
+ALTER TABLE `inventory_ledger` ADD `courier_id` INT NULL DEFAULT NULL AFTER `partner_ack_date`;
+
+
+--
+-- Table structure for table `vendor_partner_varialble_charges`
+--
+
+CREATE TABLE `vendor_partner_varialble_charges` (
+  `id` int(11) NOT NULL,
+  `entity_type` varchar(28) NOT NULL,
+  `entity_id` varchar(11) NOT NULL,
+  `charges_type` varchar(64) NOT NULL,
+  `description` varchar(128) NOT NULL,
+  `fixed_charges` decimal(10,0) DEFAULT '0',
+  `percentage_charge` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `hsn_code` varchar(64) DEFAULT NULL,
+  `gst_rate` decimal(10,0) DEFAULT '0',
+  `create_date` datetime NOT NULL,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `vendor_partner_varialble_charges`
+--
+ALTER TABLE `vendor_partner_varialble_charges`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `vendor_partner_varialble_charges`
+--
+ALTER TABLE `vendor_partner_varialble_charges`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+-- Released 28 June
+
+--Abhay 28 June
+ALTER TABLE `service_center_booking_action` ADD `model_number` VARCHAR(128) NULL DEFAULT NULL AFTER `serial_number`;
+ALTER TABLE `booking_unit_details` ADD `sf_model_number` VARCHAR(128) NULL DEFAULT NULL AFTER `model_number`;
+
+
+--sachin 28 june
+UPDATE `email_template` SET `subject` = '247around %s through CRM Payment Gateway' WHERE `email_template`.`tag` = 'payment_transaction_email';
+
+--Abhay 29 June
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'cp_out_standing_email', '%s', 'Dear Partner,<br/><br/> outstanding Amount %s <br/><br/> %s<br/><br/> <br/>Thanks!!;', 'booking@247around.com', '', 'abhaya@247around.com', '', '1', '2018-06-29 00:00:00');
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'cp_outstanding_sms', '%s', '', '1', '2018-06-29 18:59:32');
+
+--Abhay 3 July
+ALTER TABLE `service_centres` ADD `cp_credit_limit` DECIMAL NULL DEFAULT '0' AFTER `on_off`;
+--Chhavi 06th July
+ALTER TABLE `courier_details` ADD `contact_person_id` INT(10) NOT NULL AFTER `partner_invoice_id`;
+ALTER TABLE `courier_details` ADD `document_type` VARCHAR(100) NOT NULL AFTER `receiver_entity_id`;
+
+ALTER TABLE `booking_details` ADD `upcountry_update_date` DATETIME NULL DEFAULT NULL AFTER `service_center_closed_date`;
+--Chhavi 4 July
+ALTER TABLE `inventory_master_list` ADD `is_local_purchase` INT(1) NOT NULL DEFAULT '0' AFTER `create_date`;
+ALTER TABLE `service_centre_charges` ADD `is_local_purchase` INT(1) NOT NULL DEFAULT '0' AFTER `create_date`;
+
+--Namrata 10th July
+--
+-- Table structure for table `booking_comments`
+--
+
+CREATE TABLE `booking_comments` (
+  `id` int(11) NOT NULL,
+  `entity_id` int(11) NOT NULL,
+  `entity_type` varchar(28) NOT NULL,
+  `booking_id` varchar(128) NOT NULL,
+  `agent_id` int(255) NOT NULL,
+  `remarks` text NOT NULL,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `create_date` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `spare_parts_details` ADD `entity_type` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL AFTER `booking_id`;
+ALTER TABLE `contact_person` ADD `department` VARCHAR(512) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL AFTER `role`;
+ALTER TABLE  `request_type` ADD  `create_date` TIMESTAMP NOT NULL;
+ALTER TABLE  `service_category_mapping` ADD  `create_date` TIMESTAMP NOT NULL;
+ALTER TABLE `booking_details` ADD `isActive` INT(1) NOT NULL DEFAULT '0' AFTER `remarks`;
+
+
+--sachin  11 July
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
+VALUES (NULL, 'escalation_on_booking_from_partner_panel', 
+'Booking ID : %s Escalated', '<br>Dear Account Manager,<br><br> Booking ID : 
+<strong>%s</strong> is escalated <br> Reason : %s <br> Attend this booking immediately. 
+<br><br> Regards,<br> 247around Team', '', '', '', '', '1', '2016-09-26 18:30:00');
+
+UPDATE `email_template` SET `cc` = '' WHERE `email_template`.`tag` = 'escalation_on_booking';
+
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) 
+VALUES (NULL, 'missed_call_confirmed_for_google', 'Thank you for demo confirmation, 
+%s Installation & Demo of your %s would be done %s.Installation Powered by 247around.com', 
+'SMS sent when customer gives a missed call to confirm demo og google home speaker', '1', '2016-09-22 15:35:25');
+
+
+UPDATE `sms_template` SET `template` = 'Kudos to you for placing Google Home demo request. 
+Check Super Answer Video from Google http://bit.ly/2up6Kwq | http://bit.ly/2s4PzAc | http://bit.ly/2INmjUE - 247around Flipkart Partner' 
+WHERE `sms_template`.`tag` = 'flipkart_google_scheduled_sms';
+
+
+
+--Abhay 7 July
+ALTER TABLE `inventory_stocks` ADD `pending_request_count` INT NULL DEFAULT '0' AFTER `stock`;
+
+ALTER TABLE `spare_parts_details` ADD `invoice_gst_rate` INT(11) NULL DEFAULT '18' AFTER `sell_price`;
+
+--Abhay 11 July
+ALTER TABLE `bank_transactions` ADD `payment_txn_id` VARCHAR(1024) NULL DEFAULT NULL AFTER `transaction_id`;
+
+-- sachin 12 July
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+(null, '247Around', 'Search Spare Invoice', NULL, 'employee/inventory/show_spare_details_by_spare_invoice', 0, '89', 'admin,closure,inventory_manager', 'main_nav', 1, '2018-07-12 05:12:36');
