@@ -4363,6 +4363,41 @@ class Inventory extends CI_Controller {
         $this->load->view('employee/update_tagged_invoice', $data);
     }
     
+    /**
+     * @desc: This Function is used to show the spare part corresponding to enter invoice
+     * @param: void
+     * @return : void
+     */
+    function show_spare_details_by_spare_invoice() {
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/search_spare_invoice_id');
+    }
+    
+    /**
+     * @desc: This Function is used to show the spare part corresponding to enter invoice
+     * @param: void
+     * @return : json
+     */
+    function search_spare_tagged_by_invoice_id(){
+        $invoice_id = trim($this->input->post('invoice_id'));
+        if(!empty($invoice_id)){
+            $where = " where i.invoice_id = '$invoice_id' ";
+            $spare_details = $this->inventory_model->get_tagged_spare_part_details($where);
+            if(!empty($spare_details)){
+                $res['status'] = TRUE;
+                $res['msg'] = $spare_details;
+            }else{
+                $res['status'] = FALSE;
+                $res['msg'] = 'No data found for invoice '. $invoice_id;
+            }
+        }else{
+            $res['status'] = FALSE;
+            $res['msg'] = 'Invoice Id can not be empty';
+        }
+        
+        echo json_encode($res);
+    }
+    
 
    
     

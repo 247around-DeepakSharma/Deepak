@@ -7688,3 +7688,7 @@ ALTER TABLE `spare_parts_details` ADD `invoice_gst_rate` INT(11) NULL DEFAULT '1
 
 --Abhay 11 July
 ALTER TABLE `bank_transactions` ADD `payment_txn_id` VARCHAR(1024) NULL DEFAULT NULL AFTER `transaction_id`;
+
+-- sachin 12 July
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+(null, '247Around', 'Search Spare Invoice', NULL, 'employee/inventory/show_spare_details_by_spare_invoice', 0, '89', 'admin,closure,inventory_manager', 'main_nav', 1, '2018-07-12 05:12:36');
