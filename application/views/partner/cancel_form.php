@@ -1,3 +1,25 @@
+<?php $isdisable = false; if(isset($user_and_booking_details['spare_parts'])){ 
+                       foreach($user_and_booking_details['spare_parts'] as $sp){
+                           switch ($sp['status']){
+                               case SPARE_PARTS_REQUESTED: 
+                                    $status = CANCEL_PAGE_SPARE_NOT_SHIPPED_FOR_PARTNER;
+                                    $isdisable= true;
+                                   break;
+                               case SPARE_SHIPPED_BY_PARTNER:
+                               case SPARE_DELIVERED_TO_SF:
+                               case DEFECTIVE_PARTS_REJECTED:
+                               case DEFECTIVE_PARTS_RECEIVED:
+                               case DEFECTIVE_PARTS_SHIPPED:
+                               case DEFECTIVE_PARTS_PENDING:
+                               case _247AROUND_COMPLETED:
+                               case DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH:
+                                    $status = CANCEL_PAGE_SPARE_SHIPPED;
+                                    $isdisable= true;
+                                    break;
+                           }
+                          
+                       }
+                   } ?>
 <div class="right_col" role="main">
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
@@ -82,12 +104,15 @@
 
                             </div>
                         </div>
-
-                        <div class="col-md-6 col-md-offset-4">
-
-                            <input type="submit" value="Cancel Booking" class="btn btn-success">
+                        <?php if($isdisable) {?>
+                        <div class="col-md-6 col-md-offset-3">
+                            <p style="color:red"> <?php echo $status; ?></p>
                         </div>
-                        
+                        <?php } else { ?>
+                        <div class="col-md-6 col-md-offset-4">
+                            <input type="submit" value="Cancel Booking" class="btn btn-success">
+                            </div>
+                         <?php } ?>
                     </form>
                 </div>
             </div>
