@@ -2421,12 +2421,11 @@ class Booking_model extends CI_Model {
             return false;
         }
     }
-    
-     function delete_comment($comment_id) {
+    function update_comment($where, $data) {
     
         
-         $query = "UPDATE booking_comments SET isActive = 0 WHERE id='".$comment_id."'";
-        $this->db->query($query);
+         $this->db->where($where);
+        $this->db->update('booking_comments',$data);
         return $this->db->affected_rows();
     }
 }

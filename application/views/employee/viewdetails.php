@@ -1093,6 +1093,15 @@ function sf_tab_active(){
     function load_comment_area(){
     
     document.getElementById("comment_section").style.display='block';
+   // document.getElementById("comment").innerHTML=data;
+    $('#commnet_btn').hide();
+    }
+    
+     function load_update_area(data="", key){
+    
+    document.getElementById("update_section").style.display='block';
+    document.getElementById("comment2").innerHTML=data;
+    $('#comment_id').attr("value",key);
     $('#commnet_btn').hide();
     }
     
@@ -1119,6 +1128,33 @@ function sf_tab_active(){
             
         });
     }
+    
+    function editComment(key){
+    
+     var comment = $("#comment_text_"+key).text();
+    load_update_area(comment, key);
+    }
+    
+    function updateComment() {
+        var prethis = $(this);
+        var comment = $("#comment2").val();
+        var comment_id= $("#comment_id").val();
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/booking/update_Comment',
+             beforeSend: function(){
+                
+                 prethis.html('<i class="fa fa-circle-o-notch fa-lg" aria-hidden="true"></i>');
+             },
+            data: {comment: comment, comment_id: comment_id},
+            success: function () {
+                getcommentbox();
+            }
+            
+        });
+    }
+    
+    
      function deleteComment(comment_id) {
         
         var comment_id = comment_id;
@@ -1136,9 +1172,7 @@ function sf_tab_active(){
     }
     }
     
-//    function editComment(){
-//    load_comment_area();
-//    }
+    
     
     
     function getcommentbox(){
