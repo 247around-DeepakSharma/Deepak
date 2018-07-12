@@ -3867,7 +3867,7 @@ class Service_centers extends CI_Controller {
                     $data['challan_approx_value'] = $this->input->post('approx_value');
                     $data['status'] = SPARE_SHIPPED_BY_PARTNER;
 
-                    if (is_null($this->input->post('estimate_cost_given_date_h')) || $this->input->post('request_type') !== REPAIR_OOW_TAG) {
+                    if ($this->input->post('request_type') !== REPAIR_OOW_TAG) {
 
                         $sf_details = $this->vendor_model->getVendorDetails('name,address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,is_signature_doc', array('id' => $sf_id));
                         $assigned_sf_details = $this->vendor_model->getVendorDetails('name as company_name,address,owner_name,gst_no as gst_number', array('id' => $this->input->post('assigned_vendor_id')));
@@ -3903,7 +3903,7 @@ class Service_centers extends CI_Controller {
                         $this->insert_details_in_state_change($booking_id, SPARE_PARTS_SHIPPED, "Partner acknowledged to shipped spare parts", $actor, $next_action);
 
                         $this->booking_model->update_booking($booking_id, $booking);
-                        if(!is_null($this->input->post('estimate_cost_given_date_h')) || $this->input->post('request_type') == REPAIR_OOW_TAG){
+                        if($this->input->post('request_type') == REPAIR_OOW_TAG){
                             // Send OOW invoice to aditya
                             $url = base_url() . "employee/invoice/generate_oow_parts_invoice/" . $id;
                             $async_data['booking_id'] = $booking_id;
