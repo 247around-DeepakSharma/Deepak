@@ -847,7 +847,7 @@ class Buyback_process extends CI_Controller {
             $actionType = "Approved";
             $update_order_details = $this->bb_model->update_bb_order_details(array('partner_order_id' => $partner_order_id), $order_details_data);
             $new_state = $order_details_data['current_status'];
-            $remarks = '';
+            $remarks = $bb_cp_order_details_data['admin_remarks'];
             
         }else{
             $actionType = "Rejected";

@@ -13,4 +13,4 @@ var bracket_allocation = angular.module("bracket_allocation", []);
 var rm_escalation = angular.module("rm_escalation", []);
 var admin_dashboard = angular.module("admin_dashboard", []);
 var rm_Bookings = angular.module("rm_Bookings", []);
-var inventory_dashboard = angular.module("inventory_dashboard", []);
+//var inventory_dashboard = angular.module("inventory_dashboard", []);
