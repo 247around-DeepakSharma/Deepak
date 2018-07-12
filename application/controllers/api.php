@@ -1405,7 +1405,7 @@ class Api extends CI_Controller {
                             $u = array('booking_status' => 'FollowUp');
                             //Update unit details
                             $this->booking_model->update_booking_unit_details($b['booking_id'], $u);
-                             $this->notify->insert_state_change($b['booking_id'], $b['current_status'], _247AROUND_FOLLOWUP, 
+                             $this->notify->insert_state_change($b['booking_id'], _247AROUND_FOLLOWUP, $b['current_status'], 
                                      "Booking Open After Customer Missed Call",_247AROUND_DEFAULT_AGENT, 
                                      _247AROUND_DEFAULT_AGENT_NAME,ACTOR_FOLLOW_UP,NEXT_ACTION_FOLLOW_UP, _247AROUND);
                         }

@@ -3070,6 +3070,8 @@ class Inventory extends CI_Controller {
         
         $row[] = $no;
         $row[] = $inventory_list->services;
+        $row[] = $inventory_list->booking_id;
+        $row[] = $inventory_list->invoice_id;
         $row[] = $inventory_list->type;
         $row[] = $inventory_list->part_name;
         $row[] = $inventory_list->part_number;

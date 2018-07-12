@@ -1772,8 +1772,8 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                         $to = $value['primary_contact_email'] . "," . $value['owner_email'];
                         $bcc = $email_template[5];
                         $cc = $email_template[3]. $rm_email;
-                        $subject = vsprintf($email_template[4], array($value['company_name']));
-                        $message = vsprintf($email_template[0], array(round($amount_cr_deb['total_balance'], 0), $html));
+                        $subject = vsprintf($email_template[4], array($value['company_name'], abs(round($amount_cr_deb['total_balance'], 0))));
+                        $message = vsprintf($email_template[0], array(abs(round($amount_cr_deb['total_balance'], 0)), $html));
                         
                         
                         $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "",CP_OUTSTANDING_AMOUNT);

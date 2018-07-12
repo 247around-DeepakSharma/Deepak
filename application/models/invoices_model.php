@@ -1484,18 +1484,20 @@ class invoices_model extends CI_Model {
         if ($is_regenerate == 0) {
                 $is_foc_null = " AND cp_invoice_id IS NULL ";
         }
-        if($profitLoss == 1){
-            $profit_loss_where = ' AND CASE WHEN (cp_claimed_price > 0) THEN ((`partner_basic_charge` + `partner_tax_charge` + `partner_sweetner_charges`) <=  (cp_claimed_price)) ELSE ((`partner_basic_charge` + `partner_tax_charge` + `partner_sweetner_charges`) <=  (`cp_basic_charge` + cp_tax_charge)) END ';
-        } else {
-            $profit_loss_where = ' AND CASE WHEN (cp_claimed_price > 0) THEN ((`partner_basic_charge` + `partner_tax_charge` + `partner_sweetner_charges`) >  (cp_claimed_price)) ELSE ((`partner_basic_charge` + `partner_tax_charge` + `partner_sweetner_charges`) >  (`cp_basic_charge` + cp_tax_charge)) END ';
-        }
+//        if($profitLoss == 1){
+//            $profit_loss_where = ' AND CASE WHEN (cp_claimed_price > 0) THEN ((`partner_basic_charge` + `partner_tax_charge` + `partner_sweetner_charges`) <=  (cp_claimed_price)) ELSE ((`partner_basic_charge` + `partner_tax_charge` + `partner_sweetner_charges`) <=  (`cp_basic_charge` + cp_tax_charge)) END ';
+//        } else {
+//            $profit_loss_where = ' AND CASE WHEN (cp_claimed_price > 0) THEN ((`partner_basic_charge` + `partner_tax_charge` + `partner_sweetner_charges`) >  (cp_claimed_price)) ELSE ((`partner_basic_charge` + `partner_tax_charge` + `partner_sweetner_charges`) >  (`cp_basic_charge` + cp_tax_charge)) END ';
+//        }
+        
+        $profit_loss_where = ' AND CASE WHEN (cp_claimed_price > 0) THEN (cp_claimed_price) ELSE ((`cp_basic_charge` + cp_tax_charge)) END ';
         $select = " COUNT(bb_unit_details.id) as qty, SUM(CASE WHEN ( bb_unit_details.cp_claimed_price > 0) 
                 THEN (round(bb_unit_details.cp_claimed_price,0)) 
                 ELSE (round(bb_unit_details.cp_basic_charge + cp_tax_charge,0)) END ) AS taxable_value, concat('Used ',services) as description, 
-                CASE WHEN (bb_unit_details.service_id = 46) THEN (8528) 
-                WHEN (bb_unit_details.service_id = 50) THEN (8415)
-                WHEN (bb_unit_details.service_id = 28) THEN (8450)
-                WHEN (bb_unit_details.service_id = 37) THEN (8418) ELSE '' END As hsn_code, owner_phone_1, gst_no,
+                CASE WHEN (bb_unit_details.service_id = '"._247AROUND_TV_SERVICE_ID."') THEN (8528) 
+                WHEN (bb_unit_details.service_id = '"._247AROUND_AC_SERVICE_ID."') THEN (8415)
+                WHEN (bb_unit_details.service_id = '"._247AROUND_WASHING_MACHINE_SERVICE_ID."') THEN (8450)
+                WHEN (bb_unit_details.service_id = '"._247AROUND_REFRIGERATOR_SERVICE_ID."') THEN (8418) ELSE '' END As hsn_code, owner_phone_1, gst_no,
                 sc.company_name, sc.address as company_address, sc.state,
                 sc.owner_email, sc.primary_contact_email, sc.owner_phone_1";
         $group_by = " GROUP BY bb_unit_details.service_id ";
