@@ -1968,6 +1968,7 @@ class Booking extends CI_Controller {
                     $service_center['current_status'] = "InProcess";
                     $service_center['internal_status'] = DEFECTIVE_PARTS_PENDING;
                     $service_center['closed_date'] = $closed_date;
+                    $data['booking_status'] = _247AROUND_PENDING;
                     
                 } else {
                     
