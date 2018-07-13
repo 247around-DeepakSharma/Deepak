@@ -9,7 +9,7 @@
         </div>
         <?php }?>
                  <?php if ($this->session->userdata('failed')) { ?>
-             <div class="alert alert-success alert-dismissible" role="alert">
+             <div class="alert alert-danger alert-dismissible" role="alert">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -61,7 +61,7 @@
                             {  
                                ?>
                         <tr>
-                            <td><?php echo $row->service_id;?></td>
+                            <td><?php echo $row->services;?></td>
                             <td><?php echo $row->category;?></td>
                             <td><?php echo $row->capacity;?></td>
                             <td><?php echo date('jS M, Y', strtotime($row->create_date));?></td>
