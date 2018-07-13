@@ -3867,7 +3867,7 @@ class Partner extends CI_Controller {
      * @return: $res
      */
     function upload_challan_file($id) {
-        if (empty($_FILES['challan_file']['error']) && $_FILES['challan_file']['name'] && $_FILES['challan_file']['size'] >= 2 * $MB) {
+        if (empty($_FILES['challan_file']['error']) && $_FILES['challan_file']['name']) {
             $challan_file = "partner_challan_file_" . $this->input->post('booking_id'). "_".$id."_" . str_replace(" ", "_", $_FILES['challan_file']['name']);
             //Upload files to AWS
             $bucket = BITBUCKET_DIRECTORY;
