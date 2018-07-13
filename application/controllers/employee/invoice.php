@@ -2702,21 +2702,26 @@ class Invoice extends CI_Controller {
      * @param String $from_date
      * @param String $type_code
      */
-    function fetch_invoice_id($vendor_partner_id, $vendor_partner_type, $type_code) {
+    function fetch_invoice_id($vendor_partner_id, $vendor_partner_type, $type_code, $type) {
         $entity_details = array();
 
-        if (!empty($vendor_partner_id) && !empty($type_code)) {
+        if (!empty($vendor_partner_id) && !empty($type_code) && !empty($type)) {
             switch ($type_code) {
 
                 case 'A':
+                    if($type == "DebitNote"){
+                        echo $this->create_invoice_id_to_insert("ARD-DN");
+                    } else {
+                        echo $this->create_invoice_id_to_insert("Around");
+                    }
 
-                    echo $this->create_invoice_id_to_insert("Around");
-                   
                     break;
 
                 case 'B':
-                    
-                    if ($vendor_partner_type == "vendor") {
+                    if($type == "CreditNote"){
+                        echo $this->create_invoice_id_to_insert("ARD-CN");
+                    }
+                    else if ($vendor_partner_type == "vendor") {
                         $entity_details = $this->vendor_model->viewvendor($vendor_partner_id);
                         echo $this->create_invoice_id_to_insert($entity_details[0]['sc_code']);
                        
@@ -3833,7 +3838,7 @@ class Invoice extends CI_Controller {
      public function partners_annual_charges()  
       {  
          $this->miscelleneous->load_nav_header();
-         $where = array('type' => 'annual', 'vendor_partner' => 'partner');
+         $where = array('vendor_partner_invoices.type' => 'annual', 'vendor_partner' => 'partner');
          $data['annual_charges_data'] =$this->invoices_model->get_partners_annual_charges($where);  
          $this->load->view('employee/partners_annual_charges_view', $data);  
       } 

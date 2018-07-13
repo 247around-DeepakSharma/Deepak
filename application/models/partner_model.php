@@ -168,7 +168,7 @@ function get_data_for_partner_callback($booking_id) {
 
           $query = $this->db->query("Select Distinct services.services,
             users.name as customername, users.phone_number,
-            booking_details.*,appliance_brand,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y')) as aging, count_escalation 
+            booking_details.*,appliance_brand,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as aging, count_escalation 
 
             from booking_details
              JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
@@ -235,8 +235,8 @@ function get_data_for_partner_callback($booking_id) {
                 . ' booking_details.booking_date, booking_details.closing_remarks, '
                 . ' booking_details.booking_timeslot, booking_details.city, booking_details.state,'
                 . ' booking_details.cancellation_reason, booking_details.order_id,booking_details.is_upcountry,amount_due, upcountry_paid_by_customer'
-                . ',(CASE WHEN DATEDIFF(date(booking_details.closed_date),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y"))<0 THEN 0 ELSE '
-                . 'DATEDIFF(date(booking_details.closed_date),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) END )  as tat');
+                . ',(CASE WHEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,"%d-%m-%Y"))<0 THEN 0 ELSE '
+                . 'DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,"%d-%m-%Y")) END )  as tat');
         $this->db->from('booking_details');
         $this->db->join('services','services.id = booking_details.service_id');
         $this->db->join('users','users.user_id = booking_details.user_id');
@@ -376,36 +376,33 @@ function get_data_for_partner_callback($booking_id) {
         }
         $dependency = "";
         $closeDateSubQuery = "booking_details.service_center_closed_date AS 'Completion Date'";
-        $tatSubQuery  = '(CASE WHEN current_status  = "Completed" THEN (CASE WHEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) < 0 THEN 0 ELSE'
-                . ' DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) END) ELSE "" END) as TAT';
-        $agingSubQuery = '(CASE WHEN current_status  IN ("Pending","Rescheduled","FollowUp") THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) ELSE "" END) as Ageing';
+        $tatSubQuery  = '(CASE WHEN current_status  = "Completed" THEN (CASE WHEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,"%d-%m-%Y")) < 0 THEN 0 ELSE'
+                . ' DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,"%d-%m-%Y")) END) ELSE "" END) as TAT';
+        $agingSubQuery = '(CASE WHEN current_status  IN ("Pending","Rescheduled","FollowUp") THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,"%d-%m-%Y")) ELSE "" END) as Ageing';
         if($partner_id == AKAI_ID){
             
             $dependency = ', IF(dependency_on =1, "'.DEPENDENCY_ON_AROUND.'", "'.DEPENDENCY_ON_CUSTOMER.'") as Dependency ';
-            
-        } else if($partner_id == JEEVES_ID){
-            
+        } 
+        else if($partner_id == JEEVES_ID){ 
             $dependency = ', `api_call_status_updated_on_completed` AS Dependency ';
         }
         if ($percentageLogic == 1){
             $tatSubQuery  = '(CASE WHEN service_center_closed_date IS NOT NULL AND !(current_status = "Cancelled" OR internal_status ="InProcess_Cancelled") '
                     . 'THEN (CASE WHEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,"%d-%m-%Y")) < 0 THEN 0 ELSE'
                 . ' DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,"%d-%m-%Y")) END) ELSE "" END) as TAT';
-            
             $agingSubQuery = '(CASE WHEN booking_details.service_center_closed_date IS NULL THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,"%d-%m-%Y")) ELSE "" END) as Ageing';
             $closeDateSubQuery = "date(booking_details.service_center_closed_date) AS 'Completion Date'";
         }
-        
         return $query = $this->db->query("SELECT 
             order_id AS 'Sub Order ID',
             booking_details.booking_id AS '247BookingID',
             booking_details.create_date AS 'Referred Date and Time',
-            GROUP_CONCAT(ud.appliance_brand) AS 'Brand', 
-            GROUP_CONCAT(ud.purchase_date) AS 'Purchase Date', 
-            IFNULL(GROUP_CONCAT(ud.model_number),'') AS 'Model',
+            ud.appliance_brand AS 'Brand', 
+            ud.purchase_date AS 'Purchase Date', 
+            IFNULL(ud.model_number,'') AS 'Model',
             CASE WHEN(ud.serial_number IS NULL OR ud.serial_number = '') THEN '' ELSE (CONCAT('''', GROUP_CONCAT(ud.serial_number)))  END AS 'Serial Number',
             services AS 'Product', 
-            GROUP_CONCAT(ud.appliance_description) As 'Description',
+            ud.appliance_description As 'Description',
             name As 'Customer', 
             home_address AS 'Customer Address', 
             booking_pincode AS 'Pincode', 
@@ -413,7 +410,7 @@ function get_data_for_partner_callback($booking_id) {
             booking_details.state As 'State', 
             booking_primary_contact_no AS Phone, 
             user_email As 'Email ID', 
-            GROUP_CONCAT(ud.price_tags) AS 'Call Type (Installation /Table Top Installation/Demo/ Service)',
+            ud.price_tags AS 'Call Type (Installation /Table Top Installation/Demo/ Service)',
             CASE WHEN(current_status = 'Completed' || current_status = 'Cancelled') THEN (closing_remarks) ELSE (reschedule_reason) END AS 'Remarks',
             'Service sent to vendor' AS 'Status by Partner', 
             booking_date As 'Scheduled Appointment Date(DD/MM/YYYY)', 
@@ -526,11 +523,11 @@ function get_data_for_partner_callback($booking_id) {
                             break;
                         case _247AROUND_PENDING:
                         case _247AROUND_RESCHEDULED:
-                            if (date('Y-m-d', strtotime($value->booking_date)) <= date('Y-m-d') && (date('Y-m-d', strtotime($value->booking_date)) >= date("Y-m-d", strtotime("-2 days"))) || date('Y-m-d', strtotime($value->booking_date)) >= date('Y-m-d')) {
+                            if (date('Y-m-d', strtotime($value->initial_booking_date)) <= date('Y-m-d') && (date('Y-m-d', strtotime($value->initial_booking_date)) >= date("Y-m-d", strtotime("-2 days"))) || date('Y-m-d', strtotime($value->initial_booking_date)) >= date('Y-m-d')) {
                                 $result['zero_to_two_days_repair_booking_pending'] ++;
-                            } else if ((date("Y-m-d", strtotime($value->booking_date)) < date("Y-m-d", strtotime("-2 days"))) && (date("Y-m-d", strtotime($value->booking_date)) >= date("Y-m-d", strtotime("-5 days")))) {
+                            } else if ((date("Y-m-d", strtotime($value->initial_booking_date)) < date("Y-m-d", strtotime("-2 days"))) && (date("Y-m-d", strtotime($value->initial_booking_date)) >= date("Y-m-d", strtotime("-5 days")))) {
                                 $result['three_to_five_days_repair_booking_pending'] ++;
-                            } else if (date('Y-m-d', strtotime($value->booking_date)) < date('Y-m-d', strtotime("-5 days"))) {
+                            } else if (date('Y-m-d', strtotime($value->initial_booking_date)) < date('Y-m-d', strtotime("-5 days"))) {
                                 $result['greater_than_5_days_repair_booking_pending'] ++;
                             }
                             break;
@@ -549,11 +546,11 @@ function get_data_for_partner_callback($booking_id) {
                             break;
                         case _247AROUND_PENDING:
                         case _247AROUND_RESCHEDULED:
-                            if (date('Y-m-d', strtotime($value->booking_date)) <= date('Y-m-d') && (date('Y-m-d', strtotime($value->booking_date)) >= date("Y-m-d", strtotime("-2 days"))) || date('Y-m-d', strtotime($value->booking_date)) >= date('Y-m-d')) {
+                            if (date('Y-m-d', strtotime($value->initial_booking_date)) <= date('Y-m-d') && (date('Y-m-d', strtotime($value->initial_booking_date)) >= date("Y-m-d", strtotime("-2 days"))) || date('Y-m-d', strtotime($value->initial_booking_date)) >= date('Y-m-d')) {
                                 $result['zero_to_two_days_installation_booking_pending'] ++;
-                            } else if ((date("Y-m-d", strtotime($value->booking_date)) < date("Y-m-d", strtotime("-2 days"))) && (date("Y-m-d", strtotime($value->booking_date)) >= date("Y-m-d", strtotime("-5 days")))) {
+                            } else if ((date("Y-m-d", strtotime($value->initial_booking_date)) < date("Y-m-d", strtotime("-2 days"))) && (date("Y-m-d", strtotime($value->initial_booking_date)) >= date("Y-m-d", strtotime("-5 days")))) {
                                 $result['three_to_five_days_installation_booking_pending'] ++;
-                            } else if (date('Y-m-d', strtotime($value->booking_date)) < date('Y-m-d', strtotime("-5 days"))) {
+                            } else if (date('Y-m-d', strtotime($value->initial_booking_date)) < date('Y-m-d', strtotime("-5 days"))) {
                                 $result['greater_than_5_days_installation_booking_pending'] ++;
                             }
                             break;
@@ -1551,7 +1548,7 @@ function get_data_for_partner_callback($booking_id) {
         $agingSubQuery = "";
         if($status == 'Pending'){
             $where = "booking_details.current_status IN ('Pending','Rescheduled')";
-            $agingSubQuery = ', DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) as Aging';
+            $agingSubQuery = ', DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,"%d-%m-%Y")) as Aging';
         }
         else if($status == 'Completed'){
             $where = "booking_details.current_status IN ('Completed')";

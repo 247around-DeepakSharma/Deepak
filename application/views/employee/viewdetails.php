@@ -1094,9 +1094,9 @@ function sf_tab_active(){
     }
     function load_comment_area(){
     
-    document.getElementById("comment_section").style.display='block';
-   // document.getElementById("comment").innerHTML=data;
-    $('#commnet_btn').hide();
+        document.getElementById("comment_section").style.display='block';
+       // document.getElementById("comment").innerHTML=data;
+        $('#commnet_btn').hide();
     }
     
      function load_update_area(data="", key){
@@ -1124,23 +1124,31 @@ function sf_tab_active(){
                  prethis.html('<i class="fa fa-circle-o-notch fa-lg" aria-hidden="true"></i>');
              },
             data: {comment: comment, booking_id: booking_id},
-            success: function () {
-                getcommentbox();
+            success: function (response) {
+                if(response === "error"){
+                    alert('There is some issue. Please refresh and try again');
+                } else {
+                    document.getElementById("commentbox").innerHTML = response;
+                }   
             }
             
         });
     }
     
     function editComment(key){
-    
-     var comment = $("#comment_text_"+key).text();
-    load_update_area(comment, key);
+       document.getElementById("comment_section").style.display='none';
+       // document.getElementById("comment").innerHTML=data;
+        $('#commnet_btn').hide();
+        var comment = $("#comment_text_"+key).text();
+        
+        load_update_area(comment, key);
     }
     
     function updateComment() {
         var prethis = $(this);
         var comment = $("#comment2").val();
         var comment_id= $("#comment_id").val();
+        var booking_id= '<?php echo $booking_history[0]['booking_id']?>';
         $.ajax({
             type: 'POST',
             url: '<?php echo base_url(); ?>employee/booking/update_Comment',
@@ -1148,9 +1156,13 @@ function sf_tab_active(){
                 
                  prethis.html('<i class="fa fa-circle-o-notch fa-lg" aria-hidden="true"></i>');
              },
-            data: {comment: comment, comment_id: comment_id},
-            success: function () {
-                getcommentbox();
+            data: {comment: comment, comment_id: comment_id, booking_id: booking_id},
+            success: function (response) {
+                if(response === "error"){
+                    alert('There is some issue. Please refresh and try again');
+                } else {
+                    document.getElementById("commentbox").innerHTML = response;
+                } 
             }
             
         });
@@ -1158,34 +1170,40 @@ function sf_tab_active(){
     
     
      function deleteComment(comment_id) {
-        
-        var comment_id = comment_id;
-        var check = confirm("Do you want to delete this comment?");
-        if(check == true){
-        $.ajax({
-            type: 'POST',
-            url: '<?php echo base_url(); ?>employee/booking/deleteComment',
-            data: {comment_id: comment_id},
-            success: function () {
-                getcommentbox();
+                
+                
+            var check = confirm("Do you want to delete this comment?");
+            if(check == true){
+                var comment_id = comment_id;
+                var booking_id= '<?php echo $booking_history[0]['booking_id'] ?>';
+                $.ajax({
+                    type: 'POST',
+                    url: '<?php echo base_url(); ?>employee/booking/deleteComment',
+                    data: {comment_id: comment_id, booking_id:booking_id},
+                    success: function (response) {
+                        if(response === "error"){
+                            alert('There is some issue. Please refresh and try again');
+                        } else {
+                            document.getElementById("commentbox").innerHTML = response;
+                        } 
+                    }
+                    
+                });
             }
-            
-        });
-    }
-    }
+        }
     
     
     
     
     function getcommentbox(){
     $.ajax({
-                    method: 'POST',
-                    data: {},
-                    url: '<?php echo base_url(); ?>employee/booking/get_comment_section/<?php echo $booking_history[0]['booking_id']?>',
-                    success: function (response) {
-                        document.getElementById("commentbox").innerHTML = response;
-                    }
-                });
+        method: 'POST',
+        data: {},
+        url: '<?php echo base_url(); ?>employee/booking/get_comment_section/<?php echo $booking_history[0]['booking_id']?>',
+        success: function (response) {
+            document.getElementById("commentbox").innerHTML = response;
+        }
+    });
     }
     getcommentbox();
     function get_transaction_status(booking_id){
