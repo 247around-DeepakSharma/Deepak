@@ -386,7 +386,8 @@
             var vendor_partner_type = '<?php echo $vendor_partner; ?>';
             var vendor_partner_id =  $("#vendor_partner_id").val();
             var type_code = $("input[name='around_type']:checked").val();
-            
+            var type = $("#type_code").val();
+    
             if(vendor_partner_id === null){ 
                 alert("Please Select Entity");
                 return false;
@@ -394,11 +395,14 @@
             } else if(type_code === undefined){ 
                 alert("Please Select Buyer/Seller");
                 return false;
+            } else if(type ==null){
+                alert("Please Invoice Type");
+                return false;
             } else {
                 $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url(); ?>employee/invoice/fetch_invoice_id/' + vendor_partner_id 
-                        + '/' + vendor_partner_type + '/' + type_code,
+                        + '/' + vendor_partner_type + '/' + type_code+"/"+type,
                     success: function (data) {
                         alert(data);
                         $(".panel-title").html(data);
