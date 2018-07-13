@@ -1738,7 +1738,7 @@ class Partner extends CI_Controller {
         $this->form_validation->set_rules('incoming_invoice', 'Invoice', 'callback_spare_incoming_invoice');
         //$this->form_validation->set_rules('partner_challan_number', 'Partner Challan Number', 'trim|required');
         if(is_null($this->input->post('estimate_cost_given_date_h')) || $this->input->post('request_type') !== REPAIR_OOW_TAG){
-            $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required');
+            $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required|numeric|less_than[100000]');
         }
         
         
@@ -1749,7 +1749,7 @@ class Partner extends CI_Controller {
         } else {
             //check upload challan file
             $MB = 1048576;
-            if ($_FILES['challan_file']['size'] >= 2 * $MB) {
+            if (empty($_FILES['challan_file']['name']) || $_FILES['challan_file']['size'] >= 2 * $MB) {
                 log_message('info', __FUNCTION__ . '=> Uploaded File is greater than 2 Mb ' . $this->session->userdata('partner_id') .
                         " Spare id " . $id . " Data" . print_r($this->input->post(), true));
                 $this->form_validation->set_message('challan_file', "Uploaded File Must be Less Than 2Mb in size");
@@ -3868,7 +3868,7 @@ class Partner extends CI_Controller {
      * @return: $res
      */
     function upload_challan_file($id) {
-        if (empty($_FILES['challan_file']['error']) && $_FILES['challan_file']['name']) {
+        if (empty($_FILES['challan_file']['error']) && $_FILES['challan_file']['name'] && $_FILES['challan_file']['size'] >= 2 * $MB) {
             $challan_file = "partner_challan_file_" . $this->input->post('booking_id'). "_".$id."_" . str_replace(" ", "_", $_FILES['challan_file']['name']);
             //Upload files to AWS
             $bucket = BITBUCKET_DIRECTORY;
