@@ -395,13 +395,20 @@ class Booking extends CI_Controller {
                 $is_send_sms = 1;
                 $booking_id_with_flag['new_state'] = _247AROUND_PENDING;
                 $booking_id_with_flag['old_state'] = _247AROUND_NEW_BOOKING;
-                 $booking['initial_booking_date'] = $booking['booking_date'];
+                
+                if ($booking['type'] == "Booking") {
+                    $booking['initial_booking_date'] = $booking['booking_date'];
+                }
+
                 log_message('info', "New Booking ID created" . print_r($booking['booking_id'], true));
                 break;
             default :
                 if ($booking['type'] == "Booking") {
                     //Query remarks has either query or booking remarks
                     $booking_id_with_flag = $this->change_in_booking_id($booking['type'], $booking_id, $this->input->post('query_remarks'));
+                    if( $booking_id_with_flag['query_to_booking'] == "1"){
+                        $booking['initial_booking_date'] = $booking['booking_date'];
+                    }
                 } else {
                     //Internal status has query remarks only
                     $booking_id_with_flag = $this->change_in_booking_id($booking['type'], $booking_id, $this->input->post('internal_status'));
