@@ -3837,7 +3837,7 @@ class Invoice extends CI_Controller {
      public function partners_annual_charges()  
       {  
          $this->miscelleneous->load_nav_header();
-         $where = array('type' => 'annual', 'vendor_partner' => 'partner');
+         $where = array('vendor_partner_invoices.type' => 'annual', 'vendor_partner' => 'partner');
          $data['annual_charges_data'] =$this->invoices_model->get_partners_annual_charges($where);  
          $this->load->view('employee/partners_annual_charges_view', $data);  
       } 
