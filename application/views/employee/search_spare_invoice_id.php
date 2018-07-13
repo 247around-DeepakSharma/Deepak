@@ -15,23 +15,32 @@
             </section>
             <div class="text-center" id="loader" style="display: none;" ><img src= '<?php echo base_url(); ?>images/loadring.gif' /></div>
             <hr>
-            <section class="show_invoice_id_data" id="spare_data" style="display: none;">
-                <h3> Spare Part Tagged for Invoice: <span id="spare_invoice_id"></span> <span id="invoice_details_loader" style="display: none;"><i class='fa fa-spinner fa-spin'></i></span></h3>
-                <table  class="table table-response table-bordered" style="padding-top: 20px;">
-                    <thead>
-                        <th>Sr No</th>
-                        <th>Sender Name</th>
-                        <th>Receiver Name</th>
-                        <th>Part Number</th>
-                        <th>Basic Price</th>
-                        <th>GST Rate</th>
-                        <th>HSN Code</th>
-                        <th>Quantity</th>
-                        <th>Booking Id</th>
-                        <th>Create Date</th>
-                    </thead>
-                    <tbody id="spare_table_body"></tbody>
-                </table>
+            <section id="spare_data">
+                <div class="spare_details" style="display: none;">
+                    <h3> Spare Part Tagged for Invoice: <span id="spare_invoice_id"></span> <span id="invoice_details_loader" style="display: none;"><i class='fa fa-spinner fa-spin'></i></span></h3>
+                    <table  class="table table-response table-bordered" style="padding-top: 20px;">
+                        <thead>
+                            <th>Sr No</th>
+                            <th>Sender Name</th>
+                            <th>Receiver Name</th>
+                            <th>Part Number</th>
+                            <th>Basic Price</th>
+                            <th>GST Rate</th>
+                            <th>HSN Code</th>
+                            <th>Quantity</th>
+                            <th>Booking Id</th>
+                            <th>Create Date</th>
+                        </thead>
+                        <tbody id="spare_table_body"></tbody>
+                    </table>
+                </div>
+                <div class="spare_not_found_div" style="display: none;">
+                    <div class="text_center">
+                        <div class="alert alert-danger text-center">
+                            <span id="error_msg"></span>
+                        </div>
+                    </div>
+                </div>
             </section>
         </div>
         
@@ -69,12 +78,12 @@
                             $('#loader').hide();
                             invoice_link_html = "<a href = '#' onclick = get_invoice_data('"+invoice_id+"')>"+invoice_id+"</a>";
                             $('#spare_invoice_id').html(invoice_link_html);
-                            $('.show_invoice_id_data').show();
                             create_spare_table(obj.msg);
                         }else{
                             $('#loader').hide();
-                            $('.show_invoice_id_data').show();
-                            $('.show_invoice_id_data').html("<div class='text-center'> <div class='alert alert-danger'>"+obj.msg+"</div></div>");
+                            $('.spare_not_found_div').show();
+                            $('#error_msg').html(obj.msg);
+                            $('.spare_details').hide();
                         }
                         
 
@@ -103,8 +112,9 @@
             table_body += "</tr>";
         });
         
-        $('#spare_data').show();
+        $('.spare_details').show();
         $('#spare_table_body').html(table_body);
+        $('.spare_not_found_div').hide();
     }
     
     function get_invoice_data(invoice_id){

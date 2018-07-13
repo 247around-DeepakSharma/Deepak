@@ -277,7 +277,7 @@
                                 if (form_error('approx_value')) { echo 'has-error'; } ?>">
                                 <label for="approx_value" class="col-md-4">Spare Cost (Approximate)*</label>
                                 <div class="col-md-6">
-                                    <input type="number" class="form-control" id="approx_value" name="approx_value" value = "" placeholder="Please Enter Spare Cost (approx)"  required>
+                                    <input type="number" class="form-control" id="approx_value" name="approx_value" max="100000" value = "" placeholder="Please Enter approx value"  required>
                                      <?php echo form_error('approx_value'); ?>
                                 </div>  
                             </div>
@@ -287,7 +287,7 @@
                                 if (form_error('challan_file')) { echo 'has-error'; } ?>">
                                 <label for="challan_file" class="col-md-4">Delivery Challan File</label>
                                 <div class="col-md-6">
-                                    <input type="file" class="form-control" id="challan_file" name="challan_file">
+                                    <input type="file" class="form-control" id="challan_file" name="challan_file" required="">
                                      <?php echo form_error('challan_file'); ?>
                                 </div>  
                             </div>
@@ -348,14 +348,20 @@
                 remarks_by_partner: "required",
                 courier_name:"required",
                 awb: "required",
-                shipment_date:"required"
+                shipment_date:"required",
+                challan_file:"required",
+                approx_value:{
+                    required: true,
+                    maxlength: 100000
+                }
                 },
                 messages: {
                 shipped_parts_name: "Please Enter Shipped Parts",
                 remarks_by_partner: "Please Enter Remarks",
                 courier_name: "Please Courier Name",
                 awb: "Please Enter Valid AWB",
-                shipment_date:"Please Enter Shipped date"
+                shipment_date:"Please Enter Shipped date",
+                challan_file:"Please Select This Field"
               
                 },
                 submitHandler: function (form) {

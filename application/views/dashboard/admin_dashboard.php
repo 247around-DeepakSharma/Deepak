@@ -209,7 +209,7 @@
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
                 <div class="x_title">
-                    <h2>Partner Spare Parts Details <span class="badge badge-info" data-toggle="popover" data-content="Below figures show data about pending defective spares on sf which is out of tat by partner wise( Out of tat days count start after 7 days of booking completion by sf). To view full spare details of partner click on respective partner graph."><i class="fa fa-info"></i></span></h2>
+                    <h2>Partner Spare Parts Details <span class="badge badge-info" data-toggle="popover" data-content="Below table shows parts which are OOT with respect to sf (after 7 days from booking completion by sf)"><i class="fa fa-info"></i></span></h2>
                     <div class="clearfix"></div>
                 </div>
                 <div class="col-md-12">
@@ -1133,6 +1133,9 @@
                 formatter: function() {
                     return this.x + '<br> Count: ' + this.y + '<br>' + ' Amount(Rs.): ' + data.spare_amount[this.x];
                 }
+            },
+            legend: {
+                enabled: false
             },
             series: [{
                 type: 'bar',
