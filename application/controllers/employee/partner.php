@@ -4037,12 +4037,15 @@ class Partner extends CI_Controller {
      * @return: string
      */
     function download_partner_summary_details(){
+       
+       
         $partner_details = array();
         $select = "partners.id,public_name,company_type,primary_contact_name,"
                 . "primary_contact_email,primary_contact_phone_1,"
                 . "owner_name,owner_email,owner_phone_1,gst_number,pan,"
-                . "customer_care_contact as customer_care_num,address,employee.full_name as am_name,employee.official_email as am_email";
+                . "customer_care_contact as customer_care_num,address,employee.full_name as am_name,employee.official_email as am_email, agreement_start_date, agreement_end_date";
         $where = array('is_active' => 1);
+       
         $partner_details['excel_data_line_item'] = $this->partner_model->getpartner_details($select,$where,"",TRUE);
         $template = 'partner_summary_details.xlsx';
         $output_file = "partner_summary_details". date('d_M_Y_H_i_s');
@@ -4063,7 +4066,7 @@ class Partner extends CI_Controller {
             system(" chmod 777 " . $generated_file , $res1);
             unlink($generated_file);
         }else{
-            echo "Please Try Afain!!! Error in generating file";
+            echo "Please Try Again!!! Error in generating file";
         }
     }
     /**
