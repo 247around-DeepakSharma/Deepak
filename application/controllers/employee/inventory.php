@@ -2818,16 +2818,7 @@ class Inventory extends CI_Controller {
 
                                         if ($insert_id) {
                                             log_message("info", "Ledger details added successfully");
-                                            //map spare from partner to warehouse if initialy it is not mapped
-                                            if (!empty($value['booking_id'])) {
-                                                $data = array('entity_type' => _247AROUND_SF_STRING, 'partner_id' => $wh_id, 'purchase_invoice_id' => $invoice_id);
-                                                $update_spare_part = $this->service_centers_model->update_spare_parts(array('booking_id' => trim($value['booking_id'])), $data);
-                                                if ($update_spare_part) {
-                                                    log_message('info', ' Spare mapped to warehouse successfully');
-                                                } else {
-                                                    log_message('info', ' error in updating spare details');
-                                                }
-                                            }
+                                            $this->move_inventory_to_warehouse($ledger_data, $wh_id);
                                         } else {
                                             array_push($not_updated_data, $value['part_number']);
                                             log_message("info", "error in adding inventory ledger details data: " . print_r($ledger_data, TRUE));
@@ -2911,6 +2902,75 @@ class Inventory extends CI_Controller {
         }
 
         echo json_encode($res);
+    }
+    /**
+     * @desc
+     * @param Array $ledger
+     * @param int $wh_id
+     */
+    function move_inventory_to_warehouse($ledger, $wh_id){
+        log_message('info', __METHOD__. " warehouse id ". $wh_id. " ledger ". print_r($ledger, true));
+        if(!empty($ledger['booking_id'])){
+            $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, "
+                    . "spare_parts_details.status, entity_type, spare_parts_details.partner_id, "
+                    . "requested_inventory_id", array('booking_id' => $ledger['booking_id'], 
+                        'status' => SPARE_PARTS_REQUESTED,
+                        'entity_type' => _247AROUND_PARTNER_STRING), false);
+            if(!empty($spare)){
+                if(count($spare)){
+                    $requested_inventory_id = $spare[0]['requested_inventory_id'];
+                    if($ledger['inventory_id'] != $spare[0]['requested_inventory_id']){
+                        $requested_inventory_id = $ledger['inventory_id'];
+                    }
+                    $data = array('entity_type' => _247AROUND_SF_STRING, 'partner_id' => $wh_id, 
+                        'wh_ack_received_part' => 0,'purchase_invoice_id' => $ledger['invoice_id'],
+                        'requested_inventory_id' => $requested_inventory_id);
+                    $update_spare_part = $this->service_centers_model->update_spare_parts(array('id' => $spare[0]['id']), $data);
+                    if ($update_spare_part) {
+
+                        log_message('info', ' Spare mapped to warehouse successfully for booking id '. trim($ledger['booking_id']));
+                    } else {
+                        log_message('info', ' error in updating spare details');
+                    }
+                } else {
+                    $qty = 1;
+                    foreach ($spare as $value) {
+                        if($ledger['quantity'] >= $qty){
+                            if($value['requsted_inventory_id'] == $ledger['inventory_id']){
+                                $data = array('entity_type' => _247AROUND_SF_STRING, 'partner_id' => $wh_id, 
+                                'wh_ack_received_part' => 0,'purchase_invoice_id' => $ledger['invoice_id']);
+
+                                $update_spare_part = $this->service_centers_model->update_spare_parts(array('id' => $value['id']), $data);
+                                $qty = $qty+1;
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, "
+                    . "spare_parts_details.status, entity_type, spare_parts_details.partner_id, "
+                    . "requested_inventory_id", array('requested_inventory_id' => $ledger['inventory_id'], 
+                        'status' => SPARE_PARTS_REQUESTED,
+                        'entity_type' => _247AROUND_PARTNER_STRING,
+                        'wh_ack_received_part != "0"' => NULL), false);
+            
+            if(!empty($spare)){
+                $qty = 1;
+                foreach ($spare as $value) {
+                    if($ledger['quantity'] >= $qty){
+                        $data = array('entity_type' => _247AROUND_SF_STRING, 'partner_id' => $wh_id, 
+                            'wh_ack_received_part' => 0,'purchase_invoice_id' => $ledger['invoice_id']);
+                        
+                        $update_spare_part = $this->service_centers_model->update_spare_parts(array('id' => $value['id']), $data);
+                        $qty = $qty+1;
+                    }
+                }
+            }
+        }
+        
     }
 
     /**
@@ -3078,7 +3138,7 @@ class Inventory extends CI_Controller {
         $row[] = $inventory_list->quantity;
         $row[] = $inventory_list->courier_name;
         $row[] = $inventory_list->AWB_no;
-        $row[] = $row[] = "<input type='checkbox' class= 'check_single_row' id='ack_spare_$inventory_list->inventory_id' data-inventory_id='".$inventory_list->inventory_id."' data-quantity='".$inventory_list->quantity."' data-ledger_id = '".$inventory_list->id."' data-part_name = '".$inventory_list->part_name."' data-part_number = '".$inventory_list->part_number."'>";
+        $row[] = $row[] = "<input type='checkbox' class= 'check_single_row' id='ack_spare_$inventory_list->inventory_id' data-inventory_id='".$inventory_list->inventory_id."' data-quantity='".$inventory_list->quantity."' data-ledger_id = '".$inventory_list->id."' data-part_name = '".$inventory_list->part_name."' data-booking_id = '".$inventory_list->booking_id."' data-invoice_id = '".$inventory_list->invoice_id."' data-part_number = '".$inventory_list->part_number."'>";
         
         return $row;
     }
@@ -3089,7 +3149,9 @@ class Inventory extends CI_Controller {
      *  @return :$res JSON
      */
     function process_acknowledge_spare_send_by_partner_to_wh() {
-        log_message("info", __METHOD__);
+        log_message("info", __METHOD__ . json_encode($this->input->post()));
+        $str = '{"data":"{\"0\":{\"inventory_id\":\"1615\",\"quantity\":\"1\",\"ledger_id\":\"12088\",\"part_name\":\"ComBoard Dxn TP.VST59S.Led 8078\",\"part_number\":\"ComBoard Dxn TP.VST59S.Led 8078\",\"booking_id\":\"PV-607901807135\",\"invoice_id\":\"TXN-12547\"},\"1\":{\"inventory_id\":\"53\",\"quantity\":\"1\",\"ledger_id\":\"12089\",\"part_name\":\"Combo Board LED CV56BH-Q28 TX-80C SPPL\",\"part_number\":\"Combo Board LED CV56BH-Q28 TX-80C SPPL\",\"booking_id\":\"\",\"invoice_id\":\"TXN-12548\"},\"2\":{\"inventory_id\":\"53\",\"quantity\":\"1\",\"ledger_id\":\"12090\",\"part_name\":\"Combo Board LED CV56BH-Q28 TX-80C SPPL\",\"part_number\":\"Combo Board LED CV56BH-Q28 TX-80C SPPL\",\"booking_id\":\"\",\"invoice_id\":\"123547\"}}","sender_entity_id":"247073","sender_entity_type":"partner","receiver_entity_id":"10","receiver_entity_type":"vendor","sender_entity_name":" T-Series","receiver_entity_name":"247around West Delhi (DELHI)"}';
+        $_POST = json_decode($str, true);
         if ($this->session->userdata('employee_id')) {
             $this->checkUserSession();
         } else if ($this->session->userdata('service_center_id')) {
@@ -3112,9 +3174,11 @@ class Inventory extends CI_Controller {
             $this->table->set_heading(array('Part Name', 'Part Number', 'Quantity'));
 
             foreach ($postData as $value) {
+                
                 //acknowledge spare by setting is_wh_ack flag = 1 in inventory ledger table
                 $update = $this->inventory_model->update_ledger_details(array('is_wh_ack' => 1, 'wh_ack_date' => date('Y-m-d H:i:s')), array('id' => $value->ledger_id));
                 if ($update) {
+                    
                     $this->table->add_row($value->part_name, $value->part_number, $value->quantity);
                     //update inventory stocks
                     $is_entity_exist = $this->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $receiver_entity_id, 'entity_type' => $receiver_entity_type, 'inventory_id' => $value->inventory_id), NULL, NULL, NULL, NULL, NULL)->result_array();
@@ -3122,6 +3186,7 @@ class Inventory extends CI_Controller {
                         $stock = "stock + '" . $value->quantity . "'";
                         $update_stocks = $this->inventory_model->update_inventory_stock(array('id' => $is_entity_exist[0]['id']), $stock);
                         if ($update_stocks) {
+                            $this->map_in_tansit_inventory_data_to_warehouse($value, $receiver_entity_id, $sender_entity_id);
                             log_message("info", __FUNCTION__ . " Stocks has been updated successfully");
                             $flag = TRUE;
                         } else {
@@ -3136,6 +3201,8 @@ class Inventory extends CI_Controller {
 
                         $insert_id = $this->inventory_model->insert_inventory_stock($insert_data);
                         if (!empty($insert_id)) {
+                            $this->map_in_tansit_inventory_data_to_warehouse($value, $receiver_entity_id, $sender_entity_id);
+                            
                             log_message("info", __FUNCTION__ . " Stocks has been inserted successfully" . print_r($insert_data, true));
                             $flag = TRUE;
                         } else {
@@ -3177,6 +3244,66 @@ class Inventory extends CI_Controller {
         }
 
         echo json_encode($res);
+    }
+    /**
+     * @desc This is used to update inventory acknowledge and inventory map to warehouse
+     * @param Array $data
+     * @param Int $receiver_entity_id
+     * @param Int $sender_entity_id
+     */
+    function map_in_tansit_inventory_data_to_warehouse($data, $receiver_entity_id, $sender_entity_id) {
+        log_message('info', __METHOD__);
+        $where = array(
+            'status' => SPARE_PARTS_REQUESTED,
+            'entity_type' => _247AROUND_SF_STRING,
+            'partner_id' => $receiver_entity_id,
+            'purchase_invoice_id' => $data->invoice_id,
+            'wh_ack_received_part' => 0,
+            'requested_inventory_id' => $data->inventory_id
+        );
+        if (!empty($data->booking_id)) {
+           
+            $where['booking_id'] = $data->booking_id;
+
+            $update_spare_part = $this->service_centers_model->update_spare_parts($where, array('wh_ack_received_part' => 1));
+             log_message('info', __METHOD__ . " Booking ID updated ". $data->booking_id);
+        } else {
+            $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status, entity_type, spare_parts_details.partner_id, requested_inventory_id", $where, false);
+            $qty = 1;
+            if (!empty($spare)) {
+                foreach ($spare as $value) {
+                    if ($data->quantity >= $qty) {
+                        $update_spare_part = $this->service_centers_model->update_spare_parts(array('id' => $value['id']), array('wh_ack_received_part' => 1));
+                        $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $receiver_entity_id, $data->inventory_id, 1);
+                        log_message('info', __METHOD__ . "Multi Booking Booking ID updated ". $data->booking_id. " requested inventory id " . $data->inventory_id);
+                        $qty = $qty - 1;
+                    }
+                }
+            }
+
+            if ($data->quantity > $qty) {
+                log_message('info', __METHOD__ . " Rest qty ".$qty." requested inventory id " . $data->inventory_id);
+                $where1 = array(
+                    'status' => SPARE_PARTS_REQUESTED,
+                    'entity_type' => _247AROUND_PARTNER_STRING,
+                    'partner_id' => $sender_entity_id,
+                    'requested_inventory_id' => $data->inventory_id);
+                $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status, entity_type, spare_parts_details.partner_id, requested_inventory_id", $where1, false);
+                if (!empty($spare)) {
+                    foreach ($spare as $value) {
+                        if ($data->quantity >= $qty) {
+                            log_message('info', __METHOD__ . " Rest qty ".$qty." spare id " . $value['id']);
+                            $update_spare_part = $this->service_centers_model->update_spare_parts(array('id' => $value['id']), 
+                                    array('wh_ack_received_part' => 1,
+                                        'entity_type' => _247AROUND_SF_STRING, 
+                                        'partner_id' => $receiver_entity_id));
+                            $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $receiver_entity_id, $data->inventory_id, 1);
+                            $qty = $qty - 1;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**
