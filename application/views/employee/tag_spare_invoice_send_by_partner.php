@@ -52,21 +52,21 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="col-xs-4 col-sm-2 control-label">Invoice / DC Date *</label>
+                                    <label class="col-xs-4 col-sm-2 control-label">Invoice Date *</label>
                                     <div class="col-xs-8 col-sm-4">
-                                        <input type="text" class="form-control" name="dated" id="dated" required="" autocomplete="off"/>
+                                        <input placeholder="Select Date" type="text" class="form-control" name="dated" id="dated" required="" autocomplete="off"/>
                                     </div>
-                                    <label class="col-xs-2 control-label">Invoice / DC Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Please make sure invoice number does not contain '/'. You can replace '/' with '-' "><i class="fa fa-info"></i></span></label>
+                                    <label class="col-xs-2 control-label">Invoice Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Please make sure invoice number does not contain '/'. You can replace '/' with '-' "><i class="fa fa-info"></i></span></label>
                                     <div class="col-xs-8 col-sm-4">
-                                        <input type="text" class="form-control" name="invoice_id" id="invoice_id" required="" onblur="check_invoice_id(this.id)"/>
+                                        <input type="text" placeholder="Enter Invoice Number" class="form-control" name="invoice_id" id="invoice_id" required="" onblur="check_invoice_id(this.id)"/>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="col-xs-2 control-label">Invoice / DC Amount * </label>
+                                    <label class="col-xs-2 control-label">Invoice Amount * </label>
                                     <div class="col-xs-4">
-                                        <input type="text" class="form-control allowNumericWithDecimal" name="invoice_amount" id="invoice_amount" required=""/>
+                                        <input placeholder="Eneter Invoice Value" type="text" class="form-control allowNumericWithDecimal" name="invoice_amount" id="invoice_amount" required=""/>
                                     </div>
-                                    <label class="col-xs-4 col-sm-2 control-label">Invoice / DC File *  <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Only pdf files are allowed and file size should not be greater than 2 MB."><i class="fa fa-info"></i></span></label>
+                                    <label class="col-xs-4 col-sm-2 control-label">Invoice File *  <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Only pdf files are allowed and file size should not be greater than 2 MB."><i class="fa fa-info"></i></span></label>
                                     <div class="col-xs-8 col-sm-4">
                                         <input type="file" class="form-control" name="file" id="invoice_file" required="" accept="application/pdf"/>
                                     </div>
@@ -74,17 +74,17 @@
                                 <div class="form-group">
                                     <label class="col-xs-2 control-label">AWB Number *</label>
                                     <div class="col-xs-4">
-                                        <input type="text" class="form-control" name="awb_number" id="despatch_doc_no" required=""/>
+                                        <input placeholder="Enter AWB Number" type="text" class="form-control" name="awb_number" id="despatch_doc_no" required=""/>
                                     </div>
                                     <label class="col-xs-2 control-label">Courier Name *</label>
                                     <div class="col-xs-4">
-                                        <input type="text" class="form-control" name="courier_name" id="courier_name" required=""/>
+                                        <input placeholder="Enter Courier Name" type="text" class="form-control" name="courier_name" id="courier_name" required=""/>
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label class="col-xs-2 control-label">Courier Shipment Date</label>
                                     <div class="col-xs-4">
-                                        <input type="text" class="form-control" name="courier_shipment_date" id="courier_shipment_date" autocomplete="off"/>
+                                        <input placeholder="Select Courier Shipment Date" type="text" class="form-control" name="courier_shipment_date" id="courier_shipment_date" autocomplete="off"/>
                                     </div>
                                     <label class="col-xs-2 control-label">Courier File</label>
                                     <div class="col-xs-4">

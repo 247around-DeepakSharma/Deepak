@@ -2453,52 +2453,87 @@ class Booking extends CI_Controller {
 
         $this->load->view('employee/show_booking_life_cycle', $data);
     }
+    /**
+     * @desc this is used to load comment for requested booking id
+     * @param String $booking_id
+     */
     function get_comment_section($booking_id){
        
-        $data['comments'] = $this->booking_model->get_remarks($booking_id);
+        $data['comments'] = $this->booking_model->get_remarks(array('booking_id' => $booking_id, "isActive" => 1));
         $data['booking_id'] = $booking_id;
         $data['user_id'] = $this->session->userdata('id');
         $this->load->view('employee/comment_section', $data);
     }
-    function addComment(){
-        
+    /**
+     * @desc this is used to add new comment for the booking
+     */
+    function addComment() {
+        $this->form_validation->set_rules('booking_id', 'booking_id', 'required');
         $this->form_validation->set_rules('comment', 'comment', 'required');
-           if ($this->form_validation->run() == TRUE) {
-        $data['agent_id'] = $this->session->userdata('id');
-        $data['remarks'] = $this->input->post('comment');
-        $data['booking_id'] = $this->input->post('booking_id');
-        $data['entity_id'] = _247AROUND;
-        $data['entity_type'] = '247around';
-        $data['isActive'] = 1;
-        $data['create_date'] = date("Y-m-d H:i:s");
-         $status = $this->booking_model->add_comment($data);
-           }
-           else{
-               $this->addComment();
-           }           
-    }
-    
-    function update_Comment(){
-       
-       $this->form_validation->set_rules('comment', 'comment', 'required');
         if ($this->form_validation->run() == TRUE) {
-            
-        $data['remarks'] = $this->input->post('comment');
-        $id = $this->input->post('comment_id');
-        $data['update_date'] = date("Y-m-d H:i:s");
-        $where = array('id' => $id);
-        $status = $this->booking_model->update_comment($where, $data);
-           }
-           else{
-               $this->update_Comment();
-           }           
+            $data['agent_id'] = $this->session->userdata('id');
+            $data['remarks'] = trim($this->input->post('comment'));
+            $data['booking_id'] = $this->input->post('booking_id');
+            $data['entity_id'] = _247AROUND;
+            $data['entity_type'] = '247around';
+            $data['isActive'] = 1;
+            $data['create_date'] = date("Y-m-d H:i:s");
+            $status = $this->booking_model->add_comment($data);
+            if($status){
+                $this->get_comment_section($data['booking_id']);
+            } else {
+                echo "error";
+            }
+        } else {
+            echo "error";
+        }
+    }
+    /**
+     * @desc this is used to update comment
+     */      
+    function update_Comment() {
+
+        $this->form_validation->set_rules('comment', 'comment', 'required');
+        $this->form_validation->set_rules('comment_id', 'comment_id', 'required');
+        $this->form_validation->set_rules('booking_id', 'booking_id', 'required');
+        if ($this->form_validation->run() == TRUE) {
+
+            $data['remarks'] = trim($this->input->post('comment'));
+            $data['update_date'] = date("Y-m-d H:i:s");
+            $id = $this->input->post('comment_id');
+            $booking_id = $this->input->post('booking_id');
+
+            $status = $this->booking_model->update_comment(array('id' => $id), $data);
+            if($status){
+                $this->get_comment_section($booking_id);
+            } else {
+                echo "error";
+            }
+        } else {
+            echo "error";
+        }
     }
     
+    /**
+     * @desc this is used to delete comment 
+     */
     function deleteComment(){
-        $comment_id = $this->input->post('comment_id');
-        $data['isActive']=0;
-        $where = array('id' => $comment_id);
-        $status=$this->booking_model->update_comment($where, $data);
+        $this->form_validation->set_rules('comment_id', 'comment_id', 'required');
+        $this->form_validation->set_rules('booking_id', 'booking_id', 'required');
+        if ($this->form_validation->run() == TRUE) {
+            $comment_id = $this->input->post('comment_id');
+            $data['isActive']=0;
+            $where = array('id' => $comment_id);
+            $booking_id = $this->input->post('booking_id');
+            $status = $this->booking_model->update_comment($where, $data);
+            if($status){
+                $this->get_comment_section($booking_id);
+            } else {
+                echo "error";
+            }
+        } else {
+            echo "error";
+        }
     }
 
 

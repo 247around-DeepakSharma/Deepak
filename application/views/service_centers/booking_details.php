@@ -656,6 +656,9 @@
     }
 </style>
 <script>
+    <?php if($booking_history[0]['is_upcountry'] == 1){  ?>  
+             setTimeout(function(){ GetRoute(); }, 1000);
+    <?php } ?>
     $(document).ready(function () {
         $(".btn-pref .btn").click(function () {
             $(".btn-pref .btn").removeClass("btn-primary").addClass("btn-default");
