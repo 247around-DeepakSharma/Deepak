@@ -2396,12 +2396,11 @@ class Booking_model extends CI_Model {
      * @return: array
      * 
      */
-    function get_remarks($booking_id){
-       // $trimed_booking_id = preg_replace("/[^0-9]/","",$booking_id);
+    function get_remarks($where){
         $this->db->select('booking_comments.id, agent_id, remarks, booking_comments.create_date, employee_id, booking_comments.isActive');
         $this->db->from('booking_comments');
         $this->db->join('employee','booking_comments.agent_id = employee.id');
-        $this->db->where('booking_comments.booking_id ' , $booking_id);
+        $this->db->where($where);
         $this->db->order_by('booking_comments.create_date');
         $query = $this->db->get();
         return $query->result_array();
