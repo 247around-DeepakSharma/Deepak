@@ -37,7 +37,7 @@
 <div class="panel panel-info" >
     <div 
         class="panel-heading">
-        Appliance Table
+        Service Category List
         <button type="button" class="btn btn-primary" id="submit_btn" onClick="window.location.href = '<?php echo base_url();?>employee/service_centre_charges/add_service_category';return false;" style="float:right"   value="Add"  >Add</button><!--
         
 -->        </div>
@@ -49,7 +49,7 @@
                     <thead>
                         <tr>
                             <th>Appliance</th>
-                            <th>Category</th>
+                            <th>Service Category</th>
                             <th>Product</th>
                             <th>Date</th>
                             <th>Edit</th>
