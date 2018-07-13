@@ -395,6 +395,7 @@ class Booking extends CI_Controller {
                 $is_send_sms = 1;
                 $booking_id_with_flag['new_state'] = _247AROUND_PENDING;
                 $booking_id_with_flag['old_state'] = _247AROUND_NEW_BOOKING;
+                
                 if ($booking['type'] == "Booking") {
                     $booking['initial_booking_date'] = $booking['booking_date'];
                 }
