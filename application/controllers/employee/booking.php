@@ -405,6 +405,9 @@ class Booking extends CI_Controller {
                 if ($booking['type'] == "Booking") {
                     //Query remarks has either query or booking remarks
                     $booking_id_with_flag = $this->change_in_booking_id($booking['type'], $booking_id, $this->input->post('query_remarks'));
+                    if( $booking_id_with_flag['query_to_booking'] == "1"){
+                        $booking['initial_booking_date'] = $booking['booking_date'];
+                    }
                 } else {
                     //Internal status has query remarks only
                     $booking_id_with_flag = $this->change_in_booking_id($booking['type'], $booking_id, $this->input->post('internal_status'));
