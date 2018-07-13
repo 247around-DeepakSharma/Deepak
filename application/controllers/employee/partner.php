@@ -3641,7 +3641,7 @@ class Partner extends CI_Controller {
          //Processing GST Number File
         if (($_FILES['gst_number_file']['error'] != 4) && !empty($_FILES['gst_number_file']['tmp_name'])) {
             $tmpFile = $_FILES['gst_number_file']['tmp_name'];
-            $gst_number_file = "Partner-" . $this->input->post('public_name') . '-GST Number' . "." . explode(".", $_FILES['gst_number_file']['name'])[1];
+            $gst_number_file = "Partner-" . $this->input->post('public_name') . '-GST_Number' . "." . explode(".", $_FILES['gst_number_file']['name'])[1];
                    
             //Upload files to AWS
             $bucket = BITBUCKET_DIRECTORY;
