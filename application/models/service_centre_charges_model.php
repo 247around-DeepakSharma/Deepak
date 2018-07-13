@@ -468,21 +468,6 @@ class service_centre_charges_model extends CI_Model {
             return false;
         }
     }
-    /**
-     * @desc: This function is used to get distinct appliances from services table 
-     * @params: void
-     * @return: string
-     * 
-     */
-    
-     function get_appliance(){
-        $this->db->distinct();
-        $this->db->select('services');
-        $this->db->from('services');
-        $this->db->order_by('services');
-        $query = $this->db->get();
-        return $query->result_array();
-    }
  
 
       /**
