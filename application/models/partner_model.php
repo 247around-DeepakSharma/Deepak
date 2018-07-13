@@ -525,11 +525,11 @@ function get_data_for_partner_callback($booking_id) {
                             break;
                         case _247AROUND_PENDING:
                         case _247AROUND_RESCHEDULED:
-                            if (date('Y-m-d', strtotime($value->booking_date)) <= date('Y-m-d') && (date('Y-m-d', strtotime($value->booking_date)) >= date("Y-m-d", strtotime("-2 days"))) || date('Y-m-d', strtotime($value->booking_date)) >= date('Y-m-d')) {
+                            if (date('Y-m-d', strtotime($value->initial_booking_date)) <= date('Y-m-d') && (date('Y-m-d', strtotime($value->initial_booking_date)) >= date("Y-m-d", strtotime("-2 days"))) || date('Y-m-d', strtotime($value->initial_booking_date)) >= date('Y-m-d')) {
                                 $result['zero_to_two_days_repair_booking_pending'] ++;
-                            } else if ((date("Y-m-d", strtotime($value->booking_date)) < date("Y-m-d", strtotime("-2 days"))) && (date("Y-m-d", strtotime($value->booking_date)) >= date("Y-m-d", strtotime("-5 days")))) {
+                            } else if ((date("Y-m-d", strtotime($value->initial_booking_date)) < date("Y-m-d", strtotime("-2 days"))) && (date("Y-m-d", strtotime($value->initial_booking_date)) >= date("Y-m-d", strtotime("-5 days")))) {
                                 $result['three_to_five_days_repair_booking_pending'] ++;
-                            } else if (date('Y-m-d', strtotime($value->booking_date)) < date('Y-m-d', strtotime("-5 days"))) {
+                            } else if (date('Y-m-d', strtotime($value->initial_booking_date)) < date('Y-m-d', strtotime("-5 days"))) {
                                 $result['greater_than_5_days_repair_booking_pending'] ++;
                             }
                             break;
@@ -548,11 +548,11 @@ function get_data_for_partner_callback($booking_id) {
                             break;
                         case _247AROUND_PENDING:
                         case _247AROUND_RESCHEDULED:
-                            if (date('Y-m-d', strtotime($value->booking_date)) <= date('Y-m-d') && (date('Y-m-d', strtotime($value->booking_date)) >= date("Y-m-d", strtotime("-2 days"))) || date('Y-m-d', strtotime($value->booking_date)) >= date('Y-m-d')) {
+                            if (date('Y-m-d', strtotime($value->initial_booking_date)) <= date('Y-m-d') && (date('Y-m-d', strtotime($value->initial_booking_date)) >= date("Y-m-d", strtotime("-2 days"))) || date('Y-m-d', strtotime($value->initial_booking_date)) >= date('Y-m-d')) {
                                 $result['zero_to_two_days_installation_booking_pending'] ++;
-                            } else if ((date("Y-m-d", strtotime($value->booking_date)) < date("Y-m-d", strtotime("-2 days"))) && (date("Y-m-d", strtotime($value->booking_date)) >= date("Y-m-d", strtotime("-5 days")))) {
+                            } else if ((date("Y-m-d", strtotime($value->initial_booking_date)) < date("Y-m-d", strtotime("-2 days"))) && (date("Y-m-d", strtotime($value->initial_booking_date)) >= date("Y-m-d", strtotime("-5 days")))) {
                                 $result['three_to_five_days_installation_booking_pending'] ++;
-                            } else if (date('Y-m-d', strtotime($value->booking_date)) < date('Y-m-d', strtotime("-5 days"))) {
+                            } else if (date('Y-m-d', strtotime($value->initial_booking_date)) < date('Y-m-d', strtotime("-5 days"))) {
                                 $result['greater_than_5_days_installation_booking_pending'] ++;
                             }
                             break;
