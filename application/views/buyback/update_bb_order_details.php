@@ -92,18 +92,18 @@
                                         </div>
                                     </div>
                                 </div>
-                                <input class="col-md-4 form-control" type="hidden" id="claimed_price" name="claimed_price" >
-<!--                                <div class="row">
+                                
+                                <div class="row">
                                     <div class="claimed_price">
                                         <div class="form-group form-inline">
                                             <label for="claimed_price" class="col-md-4">Claimed Price:</label>
                                             <div class="col-md-6">
-                                                <input class="form-control"  id="claimed_price" name="claimed_price" onkeypress="return isNumberKey(event)" required>
+                                                <input class="form-control"  id="claimed_price" name="claimed_price" value="0" onkeypress="return isNumberKey(event)" required>
                                                 <span id="claimed_price_error" class="text-danger text-center" style="display:none;"></span>
                                             </div>
                                         </div>
                                     </div>
-                                </div>-->
+                                </div>
                                 <div class="row">
                                     <div class="remarks">
                                         <div class="form-group form-inline">
@@ -289,7 +289,7 @@
                             var response=jQuery.parseJSON(response);
                             if(typeof response ==='object') {
                                 $('#partner_order_key').val(response.order_key);
-                                $("#claimed_price").val(response.cp_charge);
+                                //$("#claimed_price").val(response.cp_charge);
 
                              }
                              else{
