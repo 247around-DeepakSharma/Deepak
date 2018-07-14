@@ -91,7 +91,7 @@
             <div class="col-md-4 col-md-offset-4" style="margin-bottom: 50px;">
                 <center>
             <input type="Submit" class="btn btn-primary" id="submit_btn" value="Submit" />
- 
+                </center>
             </div>
 
         </form>
