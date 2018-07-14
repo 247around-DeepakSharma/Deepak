@@ -19,7 +19,7 @@
                                 <thead>
                                 <th>S.No.</th>
                                 <th>Service Center</th>
-                                <th>Defective Spare Need to be Shipped (OOT)</th>
+                                <th>Spare Count</th>
                                 </thead>
                                 <tbody id="spare_details_by_sf_table_data"></tbody>
                             </table>
@@ -30,6 +30,21 @@
         </div>
     </div>
     <!-- SF Brackets Snapshot Section -->
+    
+    <!-- Modal -->
+    <div id="modalDiv" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div id="open_model"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Modal -->
 </div>
 
 <script>
@@ -74,7 +89,7 @@
             table_body_html += '<tr>';
             table_body_html += '<td>' + (Number(index)+1) +'</td>';
             table_body_html += '<td>' +val['name'] +'</td>';
-            table_body_html += '<td>' +val['oot_defective_parts_count'] +'</td>';
+            table_body_html += "<td><a href='#' onclick = show_dashboard_modal('"+val['booking_id']+"') >" +val['oot_defective_parts_count'] +"<a/></td>";
             table_body_html += '</tr>';
         });
         $('#spare_details_by_sf_table_data').html(table_body_html);
@@ -89,5 +104,18 @@
                 }
             ]
         });
+    }
+    
+    function show_dashboard_modal(modal_data){
+        var modal_body = modal_data.split(',');
+        var html = "<table class='table table-bordered table-hover table-responsive'><thead><th>Booking Id</th></thead><tbody>";
+        $(modal_body).each(function(index,value){
+            html += "<tr><td>";
+            html += "<a href='/employee/user/finduser?search_value="+value+"' target='_blank'>"+value+"</a>";
+            html += "</td></tr>";
+        });
+        html += "</tbody></table>";
+        $('#open_model').html(html);
+        $('#modalDiv').modal('show'); 
     }
 </script>

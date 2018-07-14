@@ -429,7 +429,8 @@ class dashboard_model extends CI_Model {
         $select = "SELECT "
                 . "SUM(IF(spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."') , 1, 0)) AS oot_defective_parts_count,"
                 . "spare_parts_details.service_center_id,"
-                . "service_centres.name";
+                . "service_centres.name,"
+                . "GROUP_CONCAT(DISTINCT spare_parts_details.booking_id) as booking_id";
         
         $where = "spare_parts_details.defective_part_required = 1 "
                 . "AND DATEDIFF(CURRENT_DATE,service_center_booking_action.closed_date) > ".SF_SPARE_OOT_DAYS. " AND "
@@ -521,6 +522,7 @@ class dashboard_model extends CI_Model {
                 . " WHERE $where";
 
         $query = $this->db->query($sql);
+        log_message('info',$this->db->last_query());
         return $query->result_array();
     }
     
