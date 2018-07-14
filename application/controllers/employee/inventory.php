@@ -1948,10 +1948,15 @@ class Inventory extends CI_Controller {
      */
     function get_stock(){
         $post = $this->get_post_data();
-        $post['column_order'] = array();
         $post['column_search'] = array('name');
-        
-        $select = "inventory_stocks.entity_id,inventory_stocks.entity_type, (SELECT SUM(stock) FROM inventory_stocks as s WHERE inventory_stocks.entity_id = s.entity_id ) as total_stocks,service_centres.name";
+        $post['order'] = array(array('column' => 0,'dir' => 'ASC'));
+        $post['column_order'] = array('name');
+        if(!$this->input->post('is_show_all')){
+            $post['having'] = 'total_stocks > 0';
+        }
+        $select = "inventory_stocks.entity_id,inventory_stocks.entity_type, (SELECT SUM(stock) "
+                . "FROM inventory_stocks as s "
+                . "WHERE inventory_stocks.entity_id = s.entity_id ) as total_stocks,service_centres.name";
         
         //RM Specific stocks
         $sfIDArray =array();
@@ -1965,6 +1970,7 @@ class Inventory extends CI_Controller {
         $list = $this->inventory_model->get_inventory_stock_list($post,$select,$sfIDArray);
         $data = array();
         $no = $post['start'];
+        unset($post['having']);
         foreach ($list as $stock_list) {
             $no++;
             $row = $this->get_inventory_stocks_table($stock_list, $no);

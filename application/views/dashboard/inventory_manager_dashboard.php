@@ -14,7 +14,7 @@
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
                 <div class="x_title">
-                    <h2>Partner Spare Parts Details <span class="badge badge-info" data-toggle="popover" data-content="Below figures show data about pending defective spares on sf which is out of tat by partner wise( Out of tat days count start after 7 days of booking completion by sf). To view full spare details of partner click on respective partner graph."><i class="fa fa-info"></i></span></h2>
+                    <h2>Partner Spare Parts Details <span class="badge badge-info" data-toggle="popover" data-content="Below graph shows parts which are OOT with respect to sf (after 7 days from booking completion by sf)"><i class="fa fa-info"></i></span></h2>
                     <div class="clearfix"></div>
                 </div>
                 <div class="col-md-12">
@@ -34,7 +34,7 @@
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
                 <div class="x_title">
-                    <h2>Service Center Spare Parts Details <span class="badge badge-info" data-toggle="popover" data-content="Below table show data about pending defective spares on sf which is out of tat by sf wise( Out of tat days count start after 7 days of booking completion by sf)"><i class="fa fa-info"></i></span> </h2>
+                    <h2>Defective Parts Pending On SF <b>(OOT)</b> <span class="badge badge-info" data-toggle="popover" data-content="Below table shows defective parts pending which are OOT with respect to sf (after 7 days from booking completion by sf)"><i class="fa fa-info"></i></span> </h2>
                     <div class="nav navbar-right panel_toolbox">
                         <div class="pull-right">
                             <a href="<?php echo base_url();?>employee/dashboard/sf_oot_spare_full_view" class="btn btn-sm btn-success" target="_blank">Show All</a>
@@ -51,7 +51,7 @@
                             <thead>
                                 <th>S.No.</th>
                                 <th>Service Center</th>
-                                <th>Defective Spare Need to be Shipped (OOT)</th>
+                                <th>Spare Count</th>
                             </thead>
                             <tbody id="spare_details_by_sf_table_data"></tbody>
                         </table>
@@ -236,6 +236,9 @@
                     return this.x + '<br> Count: ' + this.y + '<br>' + ' Amount(Rs.): ' + data.spare_amount[this.x];
                 }
             },
+            legend: {
+                enabled: false
+            },
             series: [{
                 type: 'bar',
                 name: 'Count',
@@ -261,7 +264,7 @@
             table_body_html += '<tr>';
             table_body_html += '<td>' + (Number(index)+1) +'</td>';
             table_body_html += '<td>' +val['name'] +'</td>';
-            table_body_html += '<td>' +val['oot_defective_parts_count'] +'</td>';
+            table_body_html += "<td><a href='#' onclick = show_dashboard_modal('"+val['booking_id']+"') >" +val['oot_defective_parts_count'] +"<a/></td>";
             table_body_html += '</tr>';
         });
         $('#spare_details_by_sf_table_data').html(table_body_html);
@@ -288,6 +291,19 @@
             
         });
         $('#sf_brackets_table_data').html(table_body_html);
+    }
+    
+    function show_dashboard_modal(modal_data){
+        var modal_body = modal_data.split(',');
+        var html = "<table class='table table-bordered table-hover table-responsive'><thead><th>Booking Id</th></thead><tbody>";
+        $(modal_body).each(function(index,value){
+            html += "<tr><td>";
+            html += "<a href='/employee/user/finduser?search_value="+value+"' target='_blank'>"+value+"</a>";
+            html += "</td></tr>";
+        });
+        html += "</tbody></table>";
+        $('#open_model').html(html);
+        $('#modalDiv').modal('show'); 
     }
     
     
