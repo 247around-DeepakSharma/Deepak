@@ -7703,3 +7703,7 @@ ALTER TABLE `trigger_partners` ADD `ALTER TABLE ``partners`` ADD ``gst_number_fi
 
 --Abhay July
 ALTER TABLE `spare_parts_details` ADD `date_of_request_from_warehouse` DATETIME NULL DEFAULT NULL AFTER `date_of_request`; 
+
+--Abhay 16 July
+ALTER TABLE `vendor_partner_invoices` ADD `invoice_tagged` VARCHAR(64) NULL DEFAULT NULL AFTER `type`;
+ALTER TABLE `trigger_vendor_partner_invoices` ADD `invoice_tagged` VARCHAR(64) NULL DEFAULT NULL AFTER `type`
