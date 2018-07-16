@@ -3150,8 +3150,6 @@ class Inventory extends CI_Controller {
      */
     function process_acknowledge_spare_send_by_partner_to_wh() {
         log_message("info", __METHOD__ . json_encode($this->input->post()));
-        $str = '{"data":"{\"0\":{\"inventory_id\":\"1615\",\"quantity\":\"1\",\"ledger_id\":\"12088\",\"part_name\":\"ComBoard Dxn TP.VST59S.Led 8078\",\"part_number\":\"ComBoard Dxn TP.VST59S.Led 8078\",\"booking_id\":\"PV-607901807135\",\"invoice_id\":\"TXN-12547\"},\"1\":{\"inventory_id\":\"53\",\"quantity\":\"1\",\"ledger_id\":\"12089\",\"part_name\":\"Combo Board LED CV56BH-Q28 TX-80C SPPL\",\"part_number\":\"Combo Board LED CV56BH-Q28 TX-80C SPPL\",\"booking_id\":\"\",\"invoice_id\":\"TXN-12548\"},\"2\":{\"inventory_id\":\"53\",\"quantity\":\"1\",\"ledger_id\":\"12090\",\"part_name\":\"Combo Board LED CV56BH-Q28 TX-80C SPPL\",\"part_number\":\"Combo Board LED CV56BH-Q28 TX-80C SPPL\",\"booking_id\":\"\",\"invoice_id\":\"123547\"}}","sender_entity_id":"247073","sender_entity_type":"partner","receiver_entity_id":"10","receiver_entity_type":"vendor","sender_entity_name":" T-Series","receiver_entity_name":"247around West Delhi (DELHI)"}';
-        $_POST = json_decode($str, true);
         if ($this->session->userdata('employee_id')) {
             $this->checkUserSession();
         } else if ($this->session->userdata('service_center_id')) {
