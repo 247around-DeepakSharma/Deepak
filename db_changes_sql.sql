@@ -7697,3 +7697,9 @@ INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `li
 --Abhay 12 July
 ALTER TABLE `spare_parts_details` ADD `wh_ack_received_part` INT(1) NOT NULL DEFAULT '1' AFTER `inventory_id`;
 
+--Abhay 13 July
+ALTER TABLE `partners` ADD `gst_number_file` VARCHAR(1024) NULL DEFAULT NULL AFTER `gst_number`;
+ALTER TABLE `trigger_partners` ADD `ALTER TABLE ``partners`` ADD ``gst_number_file`` VARCHAR(1024) NULL` VARCHAR(1024) NULL DEFAULT NULL AFTER `gst_number`;
+
+--Abhay July
+ALTER TABLE `spare_parts_details` ADD `date_of_request_from_warehouse` DATETIME NULL DEFAULT NULL AFTER `date_of_request`; 
