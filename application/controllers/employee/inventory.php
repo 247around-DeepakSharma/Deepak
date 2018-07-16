@@ -2528,7 +2528,7 @@ class Inventory extends CI_Controller {
         $response = array();
         if($this->session->userdata('service_center_id')){
             $post['where'] = "spare_parts_details.partner_id = '" . $this->session->userdata('service_center_id') . "' AND  entity_type =  '"._247AROUND_SF_STRING."' AND status = '" . SPARE_PARTS_REQUESTED . "' "
-                . " AND booking_details.current_status IN ('Pending', 'Rescheduled') ";
+                . " AND booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."') AND wh_ack_received_part != 0 ";
             $inventory_data = $this->inventory_model->count_spare_parts($post);
 
             $brackets_data = $this->inventory_model->get_filtered_brackets('count(id) as total_brackets',array('order_given_to' =>$this->session->userdata('service_center_id'),'is_shipped' => 0 ));
