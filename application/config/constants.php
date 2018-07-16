@@ -601,5 +601,10 @@ define('KNOWLARITY_OUTGOING_CALL_URL', 'https://kpi.knowlarity.com/Basic/v1/acco
 
 //INventory 
 define('INVENTORY_HANDLER_ID', '10030');
+
+//Annual Charge Invoice Tagging
+define("ANNUAL_CHARGE_INVOICE_TAGGING", "Annual Charge");
+//PARTNER_SWEETNER_CHARGE
+define("PARTNER_SWEETENER_CHARGE_INVOICE_TAGGING", "Partner Sweetener Charge");
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
