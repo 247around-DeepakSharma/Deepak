@@ -200,14 +200,12 @@
                         <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span style="font-weight: bold;" class="badge nt-badge" id="inventory_count" title="New Spare Request">0</span>Inventory <span class="caret"></span></a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="<?php echo base_url(); ?>service_center/inventory"><strong>Spare Details</strong></a></li>
-                                    <li role="separator" class="divider"></li>
                                     <li><a href="<?php echo base_url(); ?>service_center/inventory/inventory_list"><strong>Inventory List</strong></a></li>
                                     <li role="separator" class="divider"></li>
                                     <li class="dropdown dropdown-submenu">
                                         <a href="" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"> <strong>Outbound Processing</strong></a>     
                                         <ul class="dropdown-menu">
-                                            <li><a href="<?php echo base_url();?>service_center/spare_parts"><strong> Pending Spare </strong></a>
+                                            <li><a href="<?php echo base_url(); ?>service_center/inventory"><strong>Spare Details</strong></a></li>
                                             </li>
                                             <li class="divider"></li>
                                             <li><a href="<?php echo base_url();?>service_center/get_shipped_parts_list"><strong> Spare Shipped To SF</strong></a>
