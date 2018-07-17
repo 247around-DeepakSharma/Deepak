@@ -30,22 +30,21 @@
             //            
                          ?>
         <div class="panel panel-info" >
-            <div 
-                class="panel-heading">
+            <div class="panel-heading">
                 Annual Charges Table
             </div>
-        </div>
+        
         <div class="panel-body">
             <div class="row">
                 <div class="col-md-12">
                     <table class="table  table-striped table-bordered">
                         <thead>
                             <tr>
-                                <th>Partner Name</th>
-                                <th>Invoice ID</th>
-                                <th>From</th>
-                                <th>To</th>
-                                <th>Amount Paid</th>
+                                <th class="text-center">Partner Name</th>
+                                <th class="text-center">Invoice ID</th>
+                                <th class="text-center">From Date</th>
+                                <th class="text-center">To Date</th>
+                                <th class="text-center">Amount Paid</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -54,11 +53,11 @@
                                 {  //print_r($row);
                                    ?>
                             <tr>
-                                <td><?php echo $row->public_name;?></td>
-                                <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY?>/invoices-excel/<?php echo $row->invoice_file_excel;?>"><?php echo $row->invoice_id;?></a></td>
-                                <td><?php echo date('jS M, Y', strtotime($row->from_date));?></td>
-                                <td><?php echo date('jS M, Y', strtotime($row->to_date));?></td>
-                                <td><?php echo $row->amount_collected_paid;?></td>
+                                <td class="text-center"><a target="_blank" href="<?php echo base_url();?>employee/invoice/invoice_summary/partner/<?php echo $row->vendor_partner_id;?>"><?php echo $row->public_name;?></td>
+                                <td class="text-center"><a target="_blank" href="<?php echo S3_WEBSITE_URL;?>invoices-excel/<?php echo $row->invoice_file_main;?>"><?php echo $row->invoice_id;?></a></td>
+                                <td class="text-center"><?php echo date('jS M, Y', strtotime($row->from_date));?></td>
+                                <td class="text-center"><?php echo date('jS M, Y', strtotime($row->to_date));?></td>
+                                <td class="text-center"><?php echo "<i class='fa fa-inr'></i> ".$row->amount_collected_paid;?></td>
                             </tr>
                             <?php }  
                                 ?>  
@@ -67,5 +66,6 @@
                 </div>
             </div>
         </div>
+            </div>
     </div>
 </div>

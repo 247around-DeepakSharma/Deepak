@@ -2766,11 +2766,13 @@ class Invoice extends CI_Controller {
             $sd = date("Y-m-d", strtotime($from_date));
             $ed = date("Y-m-d", strtotime($to_date));
             $email_tag = CRM_SETUP_INVOICE_EMAIL_TAG;
+            $invoice_tag = ANNUAL_CHARGE_INVOICE_TAGGING;
            
             if($description == QC_INVOICE_DESCRIPTION){
                 $hsn_code = QC_HSN_CODE;
                 $type = "Buyback";
                 $email_tag = SWEETENER_INVOCIE_EMAIL_TAG;
+                $invoice_tag = PARTNER_SWEETENER_CHARGE_INVOICE_TAGGING;
   
             }
             $invoice_date = date("Y-m-d");
@@ -2784,6 +2786,7 @@ class Invoice extends CI_Controller {
                 'type_code' => 'A',
                 'type' => $type,
                 'vendor_partner' => 'partner',
+                'invoice_tagged' => $invoice_tag,
                 'vendor_partner_id' => $partner_id,
                 'invoice_file_main' => $response['meta']['invoice_file_main'],
                 'invoice_file_excel' => $response['meta']['invoice_id'] . ".xlsx",
@@ -3835,11 +3838,11 @@ class Invoice extends CI_Controller {
      * 
      */
     
-     public function partners_annual_charges()  
-      {  
+    public function partners_annual_charges() {  
          $this->miscelleneous->load_nav_header();
-         $where = array('vendor_partner_invoices.type' => 'annual', 'vendor_partner' => 'partner');
-         $data['annual_charges_data'] =$this->invoices_model->get_partners_annual_charges($where);  
+         $where = array('vendor_partner_invoices.invoice_tagged' => ANNUAL_CHARGE_INVOICE_TAGGING, 'vendor_partner' => 'partner');
+         $data['annual_charges_data'] =$this->invoices_model->get_partners_annual_charges("public_name, invoice_id, vendor_partner_id, "
+                 . "from_date, to_date,amount_collected_paid, invoice_file_main",$where);  
          $this->load->view('employee/partners_annual_charges_view', $data);  
-      } 
+    } 
 }

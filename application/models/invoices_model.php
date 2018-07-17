@@ -1921,12 +1921,13 @@ class invoices_model extends CI_Model {
      * 
      */
     
-     public function get_partners_annual_charges($where = array()) {
-        $this->db->select('*');
+     public function get_partners_annual_charges($select, $where = array()) {
+        $this->db->select($select);
         if (!empty($where)) {
             $this->db->where($where);
         }
         $this->db->join('partners', 'vendor_partner_id = partners.id');
+        $this->db->order_by('from_date',"desc");
         $query = $this->db->get('vendor_partner_invoices');
         return $query->result();
     }
