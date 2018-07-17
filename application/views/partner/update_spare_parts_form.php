@@ -287,7 +287,7 @@
                                 if (form_error('challan_file')) { echo 'has-error'; } ?>">
                                 <label for="challan_file" class="col-md-4">Challan File</label>
                                 <div class="col-md-6">
-                                    <input type="file" class="form-control" id="challan_file" name="challan_file" required="">
+                                    <input type="file" class="form-control" id="challan_file" name="challan_file">
                                      <?php echo form_error('challan_file'); ?>
                                 </div>  
                             </div>
@@ -349,7 +349,6 @@
                 courier_name:"required",
                 awb: "required",
                 shipment_date:"required",
-                challan_file:"required",
                 approx_value:{
                     required: true,
                     maxlength: 100000
@@ -360,9 +359,7 @@
                 remarks_by_partner: "Please Enter Remarks",
                 courier_name: "Please Courier Name",
                 awb: "Please Enter Valid AWB",
-                shipment_date:"Please Enter Shipped date",
-                challan_file:"Please Select This Field"
-              
+                shipment_date:"Please Enter Shipped date"
                 },
                 submitHandler: function (form) {
                 form.submit();
