@@ -1749,7 +1749,7 @@ class Partner extends CI_Controller {
         } else {
             //check upload challan file
             $MB = 1048576;
-            if (empty($_FILES['challan_file']['name']) || $_FILES['challan_file']['size'] >= 2 * $MB) {
+            if ($_FILES['challan_file']['size'] >= 2 * $MB) {
                 log_message('info', __FUNCTION__ . '=> Uploaded File is greater than 2 Mb ' . $this->session->userdata('partner_id') .
                         " Spare id " . $id . " Data" . print_r($this->input->post(), true));
                 $this->form_validation->set_message('challan_file', "Uploaded File Must be Less Than 2Mb in size");
