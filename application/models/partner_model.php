@@ -1387,14 +1387,18 @@ function get_data_for_partner_callback($booking_id) {
      * @return: array()
      * 
      */
-    function get_spare_parts_by_any($select,$where,$is_join=false){
+    function get_spare_parts_by_any($select,$where,$is_join=false,$sf_details = FALSE){
         $this->db->select($select,FALSE);
-        $this->db->where($where);
+        $this->db->where($where,false);
         $this->db->from('spare_parts_details');
         if($is_join){
             $this->db->join('booking_details','spare_parts_details.booking_id = booking_details.booking_id');
         }
+        if($sf_details){
+            $this->db->join('service_centres','spare_parts_details.service_center_id = service_centres.id');
+        }
         $query = $this->db->get();
+        log_message('info',$this->db->last_query());
         return $query->result_array();
         
     }

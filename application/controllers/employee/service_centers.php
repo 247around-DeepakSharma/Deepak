@@ -4585,4 +4585,15 @@ class Service_centers extends CI_Controller {
         echo TRUE;
         }
     }
+    
+    /**
+     * @desc: This Function is used to search the docket number
+     * @param: void
+     * @return : void
+     */
+    function search_docket_number() {
+        $this->checkUserSession();
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/search_docket_number');
+    }
 }

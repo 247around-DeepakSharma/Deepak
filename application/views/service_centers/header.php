@@ -143,6 +143,8 @@
                                 <li><a href="<?php echo base_url();?>service_center/get_defective_parts_booking">Defective Parts (<span class="defectivecount"></span>)</a></li>
                                 <li role="separator" class="divider"></li>
                                 <li><a href="<?php echo base_url();?>service_center/get_approved_defective_parts_booking">Approved Defective Parts</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li><a href="<?php echo base_url();?>service_center/search_docket_number">Search Docket Number</a></li>
                             </ul>
                         </li>
                         <li class="dropdown">

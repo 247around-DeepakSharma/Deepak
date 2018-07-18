@@ -76,6 +76,7 @@ $route['service_center/gst_details'] = 'employee/service_centers/gst_update_form
 $route['service_center/gst_update_form'] = 'employee/service_centers/gst_update_form/';
 $route['service_center/process_gst_update'] = 'employee/service_centers/process_gst_update/';
 $route['service_center/review'] = 'employee/engineer/review_engineer_action_form';
+$route['service_center/search_docket_number'] = 'employee/service_centers/search_docket_number';
 
 $route['service_center/customer_invoice_details'] = 'employee/service_centers/customer_invoice_details';
 
@@ -179,6 +180,7 @@ $route['partner/inventory/ack_spare_send_by_wh'] = 'employee/partner/ack_spare_s
 $route['partner/inventory/show_inventory_details'] = 'employee/partner/show_inventory_master_details';
 $route['partner/inventory/show_inventory_appliance_details'] = 'employee/partner/show_appliance_model_list';
 $route['partner/inventory/tag_spare_invoice'] = 'employee/partner/tag_spare_invoice';
+$route['partner/search_docket_number'] = 'employee/partner/search_docket_number';
 
 
 
