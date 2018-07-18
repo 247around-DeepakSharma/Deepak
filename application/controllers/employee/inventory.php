@@ -4276,4 +4276,107 @@ class Inventory extends CI_Controller {
         
         echo json_encode($res);
     }
+    
+    /**
+     * @desc: This Function is used to search the docket number
+     * @param: void
+     * @return : void
+     */
+    function search_docket_number() {
+        $this->checkUserSession();
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/search_docket_number');
+    }
+    
+    /**
+     * @desc: This Function is used to search the docket number
+     * @param: void
+     * @return : JSON
+     */
+    function process_search_docket_number() {
+        $docket_number = $this->input->post('docket_number');
+        $search_by = $this->input->post('search_by');
+        $from_date = $this->input->post('from_date');
+        $to_date = $this->input->post('to_date');
+
+        if (!empty($search_by)) {
+            if (empty($docket_number) && empty($from_date) && empty($to_date)) {
+                $res['status'] = false;
+                $res['msg'] = 'Please Enter Either Docket Number or Date Range';
+            } else {
+                $select = "spare_parts_details.booking_id,spare_parts_details.partner_challan_number,spare_parts_details.sf_challan_number,"
+                        . "spare_parts_details.partner_challan_file,spare_parts_details.sf_challan_file,spare_parts_details.awb_by_partner,spare_parts_details.awb_by_sf,"
+                        . "spare_parts_details.courier_pic_by_partner ";
+                $where = array();
+                
+                if($this->input->post('sf_id')){
+                    $where['service_center_id'] = $this->input->post('sf_id');
+                }
+                
+                if($this->input->post('partner_id')){
+                    $where['partner_id'] = $this->input->post('partner_id');
+                }
+                
+                //if warehouse is selected then get data from courier details table else get data from spare part table
+                if($search_by === 'wh'){
+                    if (!empty($docket_number)) {
+                        $docket_number_arr = explode(',', $docket_number);
+                        $docket_number_arr_str = implode(',', array_map(function($val) {
+                                    return "'" . trim($val) . "'";
+                                }, $docket_number_arr));
+                        
+                        $where["AWB_no IN ($docket_number_arr_str)"] = NULL;
+                    }
+
+                    if (!empty($from_date) && !empty($to_date)) {
+                        $where["courier_details.shipment_date >= '" . date('Y-m-d', strtotime($from_date)) . "'  AND courier_details.shipment_date < '" . date('Y-m-d', strtotime($to_date . "+1 days")) . "' "] = NULL;
+                    }
+                    
+                    $docket_details = $this->inventory_model->get_spare_courier_details($select, $where);
+                }else{
+                    $select .= ",service_centres.name as 'sf_name'";
+                    if (!empty($docket_number)) {
+                        $docket_number_arr = explode(',', $docket_number);
+                        $docket_number_arr_str = implode(',', array_map(function($val) {
+                                    return "'" . trim($val) . "'";
+                                }, $docket_number_arr));
+                        
+                        $where["$search_by IN ($docket_number_arr_str)"] = NULL;
+                    }
+
+                    if (!empty($from_date) && !empty($to_date)) {
+                        if ($search_by == 'awb_by_partner') {
+                            $where["spare_parts_details.shipped_date >= '" . date('Y-m-d', strtotime($from_date)) . "'  AND spare_parts_details.shipped_date < '" . date('Y-m-d', strtotime($to_date . "+1 days")) . "' "] = NULL;
+                        } else if ($search_by == 'awb_by_sf') {
+                            $where["spare_parts_details.defective_part_shipped_date >= '" . date('Y-m-d', strtotime($from_date)) . "'  AND spare_parts_details.defective_part_shipped_date < '" . date('Y-m-d', strtotime($to_date)) . "' "] = NULL;
+                        }
+                    }
+
+                    $docket_details = $this->partner_model->get_spare_parts_by_any($select, $where,FALSE,TRUE);
+                }
+                
+
+                if (!empty($docket_details)) {
+                    if($this->input->post('sf_id')){
+                        foreach($docket_details as $key => $value)
+                        {
+                          $docket_details[$key]['booking_id_url_value'] = urlencode(base64_encode($value['booking_id']));
+                        }
+                    }
+                    
+                    $res['status'] = true;
+                    $res['msg'] = $docket_details;
+                } else {
+                    $res['status'] = false;
+                    $res['msg'] = 'No Data Found';
+                }
+            }
+        } else {
+            $res['status'] = false;
+            $res['msg'] = 'Please Select Partner Or Service Center Or Warehouse';
+        }
+
+        echo json_encode($res);
+    }
+
 }
