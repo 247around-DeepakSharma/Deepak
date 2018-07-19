@@ -2591,10 +2591,10 @@ class Invoice extends CI_Controller {
      * @desc: This method is used to download payment summary invoice for selected service center
      */
     function download_invoice_summary() {
-        log_message('info', __FUNCTION__ . " Entering....");
+        //log_message('info', __FUNCTION__ . " Entering....". json_encode($_POST)); 
         $data = $this->input->post('amount_service_center');
-        $defective_parts = $this->input->post("defective_parts");
-        $defective_parts_max_age = $this->input->post('defective_parts_max_age');
+        //$defective_parts = $this->input->post("defective_parts");
+        //$defective_parts_max_age = $this->input->post('defective_parts_max_age');
         $payment_data = array();
                 
         if (!empty($data)) {
@@ -2631,7 +2631,11 @@ class Invoice extends CI_Controller {
             $sc_details['check_file'] = "Check File";
             
             array_push($payment_data, $sc_details);
-            foreach ($data as $service_center_id => $amount) {
+            foreach ($data as $key => $amount) {
+                $explode = explode("_", $key);
+                $service_center_id = $explode[0];
+                $defective_parts =$explode[1];
+                $defective_parts_max_age = $explode[2];
                 $sc = $this->vendor_model->viewvendor($service_center_id)[0];
                
                 $sc_details['debit_acc_no'] = '102405500277';
@@ -2667,8 +2671,8 @@ class Invoice extends CI_Controller {
                 } else {
                     $sc_details['is_signature'] = "NO";
                 }
-                $sc_details['defective_parts'] = $defective_parts[$service_center_id];
-                $sc_details['defective_parts_max_age'] = $defective_parts_max_age[$service_center_id];
+                $sc_details['defective_parts'] = $defective_parts;
+                $sc_details['defective_parts_max_age'] = $defective_parts_max_age;
                 $sc_details['is_verified'] = ($sc['is_verified'] ==0) ? "Not Verified" : "Verified";
                 if ($amount > 0) {
                     $sc_details['amount_type'] = "CR";
