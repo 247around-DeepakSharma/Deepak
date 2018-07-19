@@ -1629,12 +1629,7 @@ class Partner extends CI_Controller {
         $config['base_url'] = base_url() . 'partner/get_spare_parts_booking';
         $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false,$state);
         $config['total_rows'] = $total_rows[0]['total_rows'];
-
-        if ($all == 1) {
             $config['per_page'] = $total_rows[0]['total_rows'];
-        } else {
-            $config['per_page'] = 50;
-        }
         $config['uri_segment'] = 3;
         $config['first_link'] = 'First';
         $config['last_link'] = 'Last';
