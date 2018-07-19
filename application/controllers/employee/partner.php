@@ -1630,12 +1630,7 @@ class Partner extends CI_Controller {
         $config['base_url'] = base_url() . 'partner/get_spare_parts_booking';
         $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false,$state);
         $config['total_rows'] = $total_rows[0]['total_rows'];
-
-        if ($all == 1) {
             $config['per_page'] = $total_rows[0]['total_rows'];
-        } else {
-            $config['per_page'] = 50;
-        }
         $config['uri_segment'] = 3;
         $config['first_link'] = 'First';
         $config['last_link'] = 'Last';
@@ -1749,7 +1744,7 @@ class Partner extends CI_Controller {
         } else {
             //check upload challan file
             $MB = 1048576;
-            if (empty($_FILES['challan_file']['name']) || $_FILES['challan_file']['size'] >= 2 * $MB) {
+            if ($_FILES['challan_file']['size'] >= 2 * $MB) {
                 log_message('info', __FUNCTION__ . '=> Uploaded File is greater than 2 Mb ' . $this->session->userdata('partner_id') .
                         " Spare id " . $id . " Data" . print_r($this->input->post(), true));
                 $this->form_validation->set_message('challan_file', "Uploaded File Must be Less Than 2Mb in size");
@@ -4787,5 +4782,17 @@ class Partner extends CI_Controller {
         $msg = "Contact deleted successfully";
         $this->session->set_userdata('success', $msg);
        redirect(base_url() . 'employee/partner/editpartner/' . $partnerID);
+    }
+    
+    /**
+     * @desc: This Function is used to search the docket number
+     * @param: void
+     * @return : void
+     */
+    function search_docket_number() {
+        $this->checkUserSession();
+        $this->miscelleneous->load_partner_nav_header();
+        $this->load->view('partner/search_docket_number');
+        $this->load->view('partner/partner_footer');
     }
 }

@@ -1169,5 +1169,24 @@ class Inventory_model extends CI_Model {
 
         return $query;
     }
+    
+    /**
+     * @Desc: This function is used to get data from the courier_details table
+     * @params: $select string
+     * @params: $where array
+     * @return: $query array
+     * 
+     */
+    function get_spare_courier_details($select,$where){
+        $this->db->select($select);
+        if(!empty($where)){
+            $this->db->where($where,false);
+        }
+        $this->db->from('inventory_ledger');
+        $this->db->join('courier_details','inventory_ledger.courier_id = courier_details.id');
+        $this->db->join('spare_parts_details','inventory_ledger.booking_id = spare_parts_details.booking_id');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
 
 }
