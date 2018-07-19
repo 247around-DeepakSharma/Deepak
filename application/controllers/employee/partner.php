@@ -4783,4 +4783,16 @@ class Partner extends CI_Controller {
         $this->session->set_userdata('success', $msg);
        redirect(base_url() . 'employee/partner/editpartner/' . $partnerID);
     }
+    
+    /**
+     * @desc: This Function is used to search the docket number
+     * @param: void
+     * @return : void
+     */
+    function search_docket_number() {
+        $this->checkUserSession();
+        $this->miscelleneous->load_partner_nav_header();
+        $this->load->view('partner/search_docket_number');
+        $this->load->view('partner/partner_footer');
+    }
 }
