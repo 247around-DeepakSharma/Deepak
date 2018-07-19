@@ -1,3 +1,6 @@
+<?php ini_set('memory_limit', '-1');
+ini_set('max_execution_time', 36000000);
+?>
 <style>
     #overall_summary .col-md-3 {
         width: 25%;
@@ -207,8 +210,8 @@
                                 </td>
                                 <?php if (isset($service_center)) { ?>
                                 <td><?php echo $value['count_spare_part']; ?>
-                                    <input type="hidden" name="<?php echo "defective_parts[".$value['id']."]";?>" value="<?php echo $value["count_spare_part"];?>" />
-                                    <input type="hidden" name="<?php echo "defective_parts_max_age[".$value['id']."]";?>" value="<?php echo $value["max_sp_age"];?>" />
+<!--                                    <input type="hidden" name="<?php //echo "defective_parts[".$value['id']."]";?>" value="<?php //echo $value["count_spare_part"];?>" />
+                                    <input type="hidden" name="<?php //echo "defective_parts_max_age[".$value['id']."]";?>" value="<?php //echo $value["max_sp_age"];?>" />-->
                                 </td>
                                 
                                 <td ><input type="checkbox" class="form-control checkbox_amt <?php //if (isset($value['on_off'])) {
@@ -216,7 +219,7 @@
                                             //echo 'checkbox_amt';
                                        // }
                                     //}
-                                    ?>" name="<?php echo "amount_service_center[" . $value['id'] . "]"; ?>" value ="<?php echo $value['final_amount']; ?>" > </td>
+                                    ?>" name="<?php echo "amount_service_center[" . $value['id']."_".$value["count_spare_part"]."_".$value["max_sp_age"] . "]"; ?>" value ="<?php echo $value['final_amount']; ?>" > </td>
                                 
                                 <?php } else { if($value['id'] !== "247029") { $BUTTON_TEXT = PARTNER_INVOICE_BUTTON; $CRM_SETUP = CRM_SETUP_INVOICE_DESCRIPTION;} else { $BUTTON_TEXT = CT_INVOICE_BUTTON; $CRM_SETUP = QC_INVOICE_DESCRIPTION;}  ?>
                                 <td>
