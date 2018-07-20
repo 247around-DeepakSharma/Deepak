@@ -614,6 +614,7 @@ class invoices_model extends CI_Model {
         $upcountry_data = $this->upcountry_model->upcountry_partner_invoice($partner_id, $from_date, $to_date);
         $courier = $this->get_partner_courier_charges($partner_id, $from_date, $to_date);
         $warehouse_courier = $this->get_partner_invoice_warehouse_courier_data($partner_id, $from_date, $to_date);
+        $defective_return_to_partner = $this->get_defective_parts_courier_return_partner($partner_id, $from_date, $to_date);
         $misc_select = 'booking_details.order_id, miscellaneous_charges.booking_id, '
                 . 'miscellaneous_charges.product_or_services, miscellaneous_charges.description, vendor_basic_charges,'
                 . 'miscellaneous_charges.partner_charge, miscellaneous_charges.id,'
@@ -624,8 +625,13 @@ class invoices_model extends CI_Model {
         $result['courier'] = array();
         $result['misc'] = array();
         $result['warehouse_courier'] = array();
+        $result['defective_part_by_wh'] = array();
         $result['final_courier'] = array();
-        $final_courier = array_merge($courier, $warehouse_courier);
+        $result['packaging_rate'] = 0;
+        $result['packaging_quantity'] = 0;
+        $final_courier = array_merge($courier, $warehouse_courier, $defective_return_to_partner);
+        $f_warehouse_courier = array_merge($warehouse_courier, $defective_return_to_partner);
+        
         if (!empty($upcountry_data)) {
             $up_country = array();
             $up_country[0]['description'] = 'Upcountry Charges';
@@ -639,21 +645,25 @@ class invoices_model extends CI_Model {
             $result['upcountry'] = $upcountry_data;
         }
 
-        if (!empty($warehouse_courier)) {
+        if (!empty($f_warehouse_courier)) {
             $packaging = $this->get_fixed_warehouse_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
                 "entity_id" => $partner_id, "charges_type" => PACKAGING_RATE_TAG));
             if (!empty($packaging)) {
                 $c_data = array();
                 $c_data[0]['description'] = $packaging[0]['description'];
                 $c_data[0]['hsn_code'] = $packaging[0]['hsn_code'];
-                $c_data[0]['qty'] = count($warehouse_courier);
+                $c_data[0]['qty'] = count($f_warehouse_courier);
                 $c_data[0]['rate'] = $packaging[0]['fixed_charges'];
                 $c_data[0]['gst_rate'] = $packaging[0]['gst_rate'];
                 $c_data[0]['product_or_services'] = $packaging[0]['description'];
-                $c_data[0]['taxable_value'] = count($warehouse_courier) * $packaging[0]['fixed_charges'];
+                $c_data[0]['taxable_value'] = $c_data[0]['qty'] * $packaging[0]['fixed_charges'];
                 $result['result'] = array_merge($result['result'], $c_data);
-                $warehouse_courier[0]['packaging_rate'] = $packaging[0]['fixed_charges'];
+                
+                $result['packaging_rate'] = $packaging[0]['fixed_charges'];
+                $result['packaging_quantity'] = count($f_warehouse_courier);
+                
                 $result['warehouse_courier'] = $warehouse_courier;
+                $result['defective_part_by_wh'] = $defective_return_to_partner;
             }
         }
 
@@ -669,6 +679,7 @@ class invoices_model extends CI_Model {
             $result['result'] = array_merge($result['result'], $c_data);
             $result['courier'] = $courier;
             $result['final_courier'] = $final_courier;
+            
         }
 
         if (!empty($misc)) {
@@ -756,6 +767,9 @@ class invoices_model extends CI_Model {
             $data['warehouse_courier'] = $result_data['warehouse_courier'];
             $data['misc'] = $result_data['misc'];
             $data['final_courier'] = $result_data['final_courier'];
+            $data['defective_part_by_wh'] = $result_data['defective_part_by_wh'];
+            $data['packaging_rate'] = $result_data['packaging_rate'];
+            $data['packaging_quantity'] = $result_data['packaging_quantity'];
           
             return $data;
         } else {
@@ -2006,9 +2020,10 @@ class invoices_model extends CI_Model {
      */
     function get_partner_invoice_warehouse_courier_data($partner_id, $from_date, $to_date){
         log_message('info', __METHOD__. " Enterring..");
-        $sql = 'SELECT GROUP_CONCAT(DISTINCT bd.order_id) as order_id, GROUP_CONCAT(sp.id) as sp_id, GROUP_CONCAT(DISTINCT sp.booking_id) as booking_id, awb_by_partner,'
-                 .'services, awb_by_partner as awb, SUM(courier_price_by_partner) as courier_charges_by_sf,'
-                 .'bd.city, CASE WHEN (defective_courier_receipt IS NOT NULL) '
+        $sql = 'SELECT GROUP_CONCAT(DISTINCT bd.order_id) as order_id, GROUP_CONCAT(sp.id) as sp_id, GROUP_CONCAT(DISTINCT sp.booking_id) as booking_id, '
+                . ' awb_by_partner,'
+                 .' GROUP_CONCAT(DISTINCT services) AS services, awb_by_partner as awb, SUM(courier_price_by_partner) as courier_charges_by_sf,'
+                 .'bd.city, CASE WHEN (courier_pic_by_partner IS NOT NULL) '
                  .'THEN (concat("'.S3_WEBSITE_URL.'vendor-partner-docs/",courier_pic_by_partner)) ELSE "" END AS courier_receipt_link '
                 . ' FROM spare_parts_details as sp, booking_details as bd, services '
                 . ' WHERE bd.booking_id = sp.booking_id '
@@ -2019,7 +2034,26 @@ class invoices_model extends CI_Model {
                 . ' AND sp.shipped_date >= "'.$from_date.'" '
                 . ' AND sp.shipped_date < "'.$to_date.'" '
                 . ' AND  parts_shipped IS NOT NULL '
-                . 'GROUP BY awb_by_partner HAVING SUM(`courier_price_by_partner`) > 0';
+                . 'GROUP BY awb_by_partner ';
+        
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
+    function get_defective_parts_courier_return_partner($partner_id, $from_date, $to_date){
+        log_message('info', __METHOD__. " Enterring..");
+        $sql = 'SELECT "" as order_id, GROUP_CONCAT(courier_details.id) as c_id, '
+                . ' GROUP_CONCAT(DISTINCT booking_id) as booking_id, "" AS services, AWB_no as awb, '
+                . ' SUM(courier_charge) as courier_charges_by_sf, "" AS city, CASE WHEN (courier_file IS NOT NULL) '
+                .'  THEN (concat("'.S3_WEBSITE_URL.'vendor-partner-docs/",courier_file)) ELSE "" END AS courier_receipt_link '
+                . ' FROM `courier_details` '
+                . ' WHERE `sender_entity_type` = "'._247AROUND_SF_STRING.'"  '
+                . ' AND receiver_entity_type = "'._247AROUND_PARTNER_STRING.'" '
+                . ' AND `receiver_entity_id` = "'.$partner_id.'" '
+                . ' AND shipment_date >= "'.$from_date.'" '
+                . ' AND shipment_date < "'.$to_date.'" '
+                . ' AND partner_invoice_id IS NULL '
+                . ' GROUP BY `AWB_no` ';
         
         $query = $this->db->query($sql);
         return $query->result_array();
