@@ -7739,3 +7739,12 @@ ALTER TABLE `spare_parts_details` ADD `date_of_request_from_warehouse` DATETIME 
 --Abhay 16 July
 ALTER TABLE `vendor_partner_invoices` ADD `invoice_tagged` VARCHAR(64) NULL DEFAULT NULL AFTER `type`;
 ALTER TABLE `trigger_vendor_partner_invoices` ADD `invoice_tagged` VARCHAR(64) NULL DEFAULT NULL AFTER `type`
+
+
+ALTER TABLE `spare_parts_details` ADD `partner_warehouse_courier_invoice_id` VARCHAR(128) NULL DEFAULT NULL AFTER `warehouse_courier_invoice_id`;
+
+--Abhay 19 July
+ALTER TABLE `vendor_partner_invoices` ADD `packaging_rate` DECIMAL(10,2) NULL DEFAULT '0' AFTER `courier_charges`, ADD `packaging_quantity` INT(11) NULL DEFAULT '0' AFTER `packaging_rate`;
+
+--Abhay 20 July
+ALTER TABLE `spare_parts_details` ADD `partner_courier_invoice_id` VARCHAR(128) NULL DEFAULT NULL AFTER `partner_warehouse_courier_invoice_id`;
