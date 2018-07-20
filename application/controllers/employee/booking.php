@@ -1752,6 +1752,7 @@ class Booking extends CI_Controller {
         if (!empty($partner_status)) {
             $booking['partner_current_status'] = $partner_status[0];
             $booking['partner_internal_status'] = $partner_status[1];
+            $booking['internal_status'] = "Rejected From Review";
             $actor = $booking['actor'] = $partner_status[2];
             $next_action = $booking['next_action'] = $partner_status[3];
             $booking['service_center_closed_date'] = NULL;
