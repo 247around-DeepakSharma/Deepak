@@ -541,6 +541,9 @@ class Invoice extends CI_Controller {
 
         $courier = $misc_data['final_courier'];
         $def_couier = $misc_data['courier'];
+        $packaging_rate = $misc_data['packaging_rate'];
+        $packaging_quantity = $misc_data['packaging_quantity'];
+        $defective_part_by_wh = $misc_data['defective_part_by_wh'];
         $warehouse_courier = $misc_data['warehouse_courier'];
         $meta = $misc_data['meta'];
         $upcountry = $misc_data['upcountry'];
@@ -657,8 +660,8 @@ class Invoice extends CI_Controller {
                 "parts_count" =>$meta['parts_count'],
                 "invoice_file_pdf" => $convert['copy_file'], 
                 "hsn_code" => $hsn_code,
-                'packaging_quantity' => COUNT($warehouse_courier),
-                'packaging_rate' => !empty($warehouse_courier)? $warehouse_courier[0]['packaging_rate']:0 
+                'packaging_quantity' => $packaging_quantity,
+                'packaging_rate' => $packaging_rate 
             );
 
             $this->invoices_model->insert_new_invoice($invoice_details);
@@ -685,14 +688,23 @@ class Invoice extends CI_Controller {
                 foreach ($warehouse_courier as $spare_courier) {
                     $sp_id = explode(",", $spare_courier['sp_id']);
                     foreach($sp_id as $sid){
-                        $this->service_centers_model->update_spare_parts(array('id' => $sp_id), array('partner_warehouse_courier_invoice_id'));
+                        $this->service_centers_model->update_spare_parts(array('id' => $sid), array('partner_warehouse_courier_invoice_id' =>$meta['invoice_id']));
+                    }
+                }
+            }
+            
+            if(!empty($defective_part_by_wh)){
+                foreach ($defective_part_by_wh as $defective_id) {
+                    $c_id = explode(",", $defective_id['c_id']);
+                    foreach($c_id as $cid){
+                        $this->inventory_model->update_courier_detail(array('id' => $cid), array('partner_invoice_id' => $meta['invoice_id']));
                     }
                 }
             }
             
             if(!empty($def_couier)){
                 foreach ($def_couier as $spare_id) {
-                    $this->service_centers_model->update_spare_parts(array('id' => $spare_id['sp_id']), array('partner_courier_invoice_id'));
+                    $this->service_centers_model->update_spare_parts(array('id' => $spare_id['sp_id']), array('partner_courier_invoice_id' => $meta['invoice_id']));
                 }
             }
             
