@@ -92,29 +92,7 @@
             </div>
         </div>
     </div>
-                                    <div class="row">
-        <div class="col-md-6 col-sm-6 col-xs-12">
-            <div class="x_panel">
-                <div class="x_title">
-                    <h2>Technical – CRM Related</h2>
-                    <div class="clearfix"></div>
-                </div>
-                <div class="x_content">
-                    <div class="col-md-6 col-sm-6 col-xs-12 profile_details">
-                        <div class="well profile_view" style="width:100%!important;">
-                            <div class="left col-xs-12">
-                                <h2><b>Mr. Anuj Aggarwal</b></h2>
-                                <p><strong>About: </strong> Director & CTO </p>
-                                <ul class="list-unstyled">
-                                    <li><i class="fa fa-phone"></i> Phone: 8826423424</li>
-                                    <li><i class="fa fa-envelope"></i> Email: anuj@247around.com</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="row">
         
         <div class="col-md-6 col-sm-6 col-xs-12">
             <div class="x_panel">
@@ -131,6 +109,29 @@
                                 <ul class="list-unstyled">
                                     <li><i class="fa fa-phone"></i> Phone: 9555009004</li>
                                     <li><i class="fa fa-envelope"></i> Email: manojaj@247around.com </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 col-sm-6 col-xs-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>Technical – CRM Related</h2>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <div class="col-md-6 col-sm-6 col-xs-12 profile_details">
+                        <div class="well profile_view" style="width:100%!important; height: 120px;">
+                            <div class="left col-xs-12">
+                                <h2></h2>
+                                <p></p>
+                                <ul class="list-unstyled">
+                                    <li></li>
+                                    <li><i class="fa fa-envelope"></i> Email: support@247around.com</li>
                                 </ul>
                             </div>
                         </div>
