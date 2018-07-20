@@ -303,7 +303,7 @@
         var spare_count = JSON.parse("[" + data.spare_count + "]");
         $('#loader_gif2').hide();
         $('#spare_snapshot').fadeIn();
-        rm_based_chart = new Highcharts.Chart({
+        spare_snapshot_chart = new Highcharts.Chart({
             chart: {
                 renderTo: 'spare_snapshot',
             },
@@ -334,7 +334,15 @@
             series: [{
                 type: 'column',
                 name: 'Count',
-                data: spare_count
+                data: spare_count,
+                cursor: 'pointer',
+                    point: {
+                        events: {
+                            click: function (event) {
+                                get_excel_file(this.category);
+                            }
+                        }
+                    }
             }]
         });
     
@@ -351,5 +359,34 @@
         html += "</tbody></table>";
         $('#open_model').html(html);
         $('#modalDiv').modal('show'); 
+    }
+    
+    function get_excel_file(category){
+        if(category){
+            $('#loader_gif2').show();
+            $('#spare_snapshot').hide();
+            category = category.replace(/\s+/g, '_').toLowerCase();
+            $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>file_process/create_inventory_dashboard_file/'+ category + '/' + partner_id,
+                contentType: false,
+                cache: false,
+                processData: false,
+                success: function (data) {
+                    $('#loader_gif2').hide();
+                    $('#spare_snapshot').show();
+
+                    var obj = JSON.parse(data); 
+
+                    if(obj['status']){
+                        window.location.href = obj['msg'];
+                    }else{
+                        alert('File Download Failed. Please Refresh Page And Try Again...')
+                    }
+                }
+            });
+        }else{
+            alert('Please Refresh Page And Try Again...');
+        }
     }
 </script>

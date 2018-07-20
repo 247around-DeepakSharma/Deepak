@@ -509,9 +509,13 @@ class dashboard_model extends CI_Model {
         return $data;
     }
     
-    function get_partner_total_spare_details($partner_id) {
-        $select = "SELECT count(spare_parts_details.id) as spare_count,"
+    function get_partner_total_spare_details($partner_id,$select = NULL) {
+        if(!empty($select)){
+            $select = $select;
+        }else{
+            $select = "SELECT count(spare_parts_details.id) as spare_count,"
                 . "IFNULL(ROUND(SUM(spare_parts_details.challan_approx_value)),0) as spare_amount , 'Total' as spare_status";
+        }
 
         $where = "spare_parts_details.status NOT IN ('" . SPARE_PARTS_REQUESTED . "','" . _247AROUND_CANCELLED . "','" . _247AROUND_COMPLETED . "')"
                 . " AND booking_details.current_status IN ('" . _247AROUND_PENDING . "','" . _247AROUND_RESCHEDULED . "')"
@@ -522,7 +526,6 @@ class dashboard_model extends CI_Model {
                 . " WHERE $where";
 
         $query = $this->db->query($sql);
-        log_message('info',$this->db->last_query());
         return $query->result_array();
     }
     
@@ -531,9 +534,13 @@ class dashboard_model extends CI_Model {
      * @param void
      * @return array
      */
-    function get_partner_oot_spare_details_by_partner_id($partner_id){
-        $select = "SELECT count(spare_parts_details.id) as spare_count,"
+    function get_partner_oot_spare_details_by_partner_id($partner_id,$select = NULL){
+        if(!empty($select)){
+            $select = $select;
+        }else{
+            $select = "SELECT count(spare_parts_details.id) as spare_count,"
                 . "IFNULL(ROUND(SUM(spare_parts_details.challan_approx_value)),0) as spare_amount, 'Partner Out of Tat' as spare_status";
+        }
 
         $where = "spare_parts_details.status NOT IN ('" . SPARE_PARTS_REQUESTED . "','" . _247AROUND_CANCELLED . "','" . _247AROUND_COMPLETED . "')"
                 . " AND booking_details.current_status IN ('" . _247AROUND_PENDING . "','" . _247AROUND_RESCHEDULED . "')"
@@ -553,10 +560,14 @@ class dashboard_model extends CI_Model {
      * @param void
      * @return array
      */
-    function get_sf_oot_spare_details_by_partner_id($partner_id){
+    function get_sf_oot_spare_details_by_partner_id($partner_id,$select = NULL){
         
-        $select = " SELECT count(spare_parts_details.id) as spare_count,"
+        if(!empty($select)){
+            $select = $select;
+        }else{
+            $select = " SELECT count(spare_parts_details.id) as spare_count,"
                 . "IFNULL(ROUND(SUM(spare_parts_details.challan_approx_value)),0) as spare_amount, 'SF Out of Tat' as spare_status";
+        }
         
         $where = "spare_parts_details.defective_part_required = 1 "
                 . "AND DATEDIFF(CURRENT_DATE,service_center_booking_action.closed_date) > ".SF_SPARE_OOT_DAYS. " "

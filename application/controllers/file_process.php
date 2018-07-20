@@ -10,6 +10,7 @@ class File_process extends CI_Controller {
         parent::__Construct();
 
         $this->load->model('partner_model');
+        $this->load->model('dashboard_model');
         $this->load->library('PHPReport');
         $this->load->library("session");
         $this->load->library('form_validation');
@@ -83,6 +84,129 @@ class File_process extends CI_Controller {
             exec("rm -rf " . escapeshellarg($output_file_excel));
             exit;
         }
+    }
+    
+    function create_inventory_dashboard_file($category,$partner_id){
+        if(!empty($category) && !empty($partner_id)){
+            $file_response = "";
+            switch ($category){
+                case 'total':
+                    $file_response = $this->create_total_spare_count_file($partner_id,$category);
+                    break;
+                case 'partner_out_of_tat':
+                    $file_response = $this->create_partner_OOT_file($partner_id,$category);
+                    break;
+                case 'sf_out_of_tat':
+                    $file_response = $this->create_sf_OOT_file($partner_id,$category);
+                    break;
+                default :
+                    $file_response = FALSE;
+            }
+            
+            if(!empty($file_response)){
+                $res['status'] = TRUE;
+                $res['msg'] = base_url() . "file_process/downloadFile/".$file_response;
+            }else{
+                $res['status'] = false;
+                $res['msg'] = 'error in generating file';
+            }
+        }else{
+            $res['status'] = false;
+            $res['msg'] = 'required parameter missing';
+        }
+        
+        echo json_encode($res);
+    }
+    
+    function create_total_spare_count_file($partner_id,$category){
+        $select = "Select spare_parts_details.booking_id,parts_requested,spare_parts_details.model_number,spare_parts_details.serial_number,"
+                . "parts_shipped,spare_parts_details.model_number_shipped,spare_parts_details.shipped_date as 'partner_shipped_date',spare_parts_details.defective_part_shipped,"
+                . "remarks_by_partner,courier_name_by_partner,awb_by_partner,partner_challan_number";
+        $file_data = $this->dashboard_model->get_partner_total_spare_details($partner_id,$select);
+        
+        if(!empty($file_data)){
+            $template = "partner_total_spare_list.xlsx";
+            $output_file_excel = $category.'_'. date("Y_m_d_H_i_s") . ".xlsx";
+            //generate excel
+            $file_name = $this->generate_excel_file($template,$output_file_excel,$file_data);
+            
+        }else{
+            $file_name = "";
+        }
+        
+        return $file_name;
+    }
+    
+    function create_partner_OOT_file($partner_id,$category){
+        $select = "Select spare_parts_details.booking_id,parts_requested,spare_parts_details.model_number,spare_parts_details.serial_number,"
+                . "parts_shipped,spare_parts_details.model_number_shipped,spare_parts_details.shipped_date as 'partner_shipped_date',spare_parts_details.defective_part_shipped,"
+                . "remarks_by_partner,courier_name_by_partner,awb_by_partner,partner_challan_number";
+        $file_data = $this->dashboard_model->get_partner_oot_spare_details_by_partner_id($partner_id,$select);
+        
+        if(!empty($file_data)){
+            $template = "partner_total_spare_list.xlsx";
+            $output_file_excel = $category.'_'. date("Y_m_d_H_i_s") . ".xlsx";
+            //generate excel
+            $file_name = $this->generate_excel_file($template,$output_file_excel,$file_data);
+            
+        }else{
+            $file_name = "";
+        }
+        
+        return $file_name;
+    }
+    
+    function create_sf_OOT_file($partner_id,$category){
+        $select = "Select spare_parts_details.booking_id,parts_requested,spare_parts_details.model_number,spare_parts_details.serial_number,"
+                . "parts_shipped,spare_parts_details.model_number_shipped,spare_parts_details.shipped_date as 'partner_shipped_date',spare_parts_details.defective_part_shipped,"
+                . "remarks_by_partner,courier_name_by_partner,awb_by_partner,partner_challan_number";
+        $file_data = $this->dashboard_model->get_sf_oot_spare_details_by_partner_id($partner_id,$select);
+        
+        if(!empty($file_data)){
+            $template = "partner_total_spare_list.xlsx";
+            $output_file_excel = $category.'_'. date("Y_m_d_H_i_s") . ".xlsx";
+            //generate excel
+            $file_name = $this->generate_excel_file($template,$output_file_excel,$file_data);
+            
+        }else{
+            $file_name = "";
+        }
+        
+        return $file_name;
+    }
+    
+    function generate_excel_file($excel_template, $file_name, $excel_data) {
+        $templateDir = __DIR__ . "/excel-templates/";
+        $config = array(
+            'template' => $excel_template,
+            'templateDir' => $templateDir
+        );
+
+        //load template
+        $R = new PHPReport($config);
+        $R->load(array(
+            array(
+                'id' => 'spare_data',
+                'repeat' => true,
+                'data' => $excel_data
+            ),
+                )
+        );
+
+        $R->render('excel', TMP_FOLDER . $file_name);
+
+        if (file_exists(TMP_FOLDER . $file_name)) {
+            log_message('info', __FUNCTION__ . ' File created ' . $file_name);
+            $res1 = 0;
+            system(" chmod 777 " . TMP_FOLDER . $file_name, $res1);
+
+            $file_name = $file_name;
+        } else {
+            log_message('info', __FUNCTION__ . ' File not created ' . $file_name);
+            $file_name = "";
+        }
+        
+        return $file_name;
     }
 
 }
