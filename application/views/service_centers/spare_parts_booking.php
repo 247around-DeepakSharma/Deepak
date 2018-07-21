@@ -1,6 +1,6 @@
 <?php
-if ($this->uri->segment(4)) {
-    $sn_no = $this->uri->segment(4) + 1;
+if ($this->uri->segment(3)) {
+    $sn_no = $this->uri->segment(3) + 1;
 } else {
     $sn_no = 1;
 }
@@ -55,7 +55,6 @@ if ($this->uri->segment(4)) {
                             </thead>
                             <tbody>
                                 <?php
-                                $sn_no1 = 1;
                                 foreach ($spare_parts as $key => $row) {
                                     ?>
                                     <tr style="text-align: center;">
@@ -63,7 +62,7 @@ if ($this->uri->segment(4)) {
                                             <?php if ($row['is_upcountry'] == 1 && $row['upcountry_paid_by_customer'] == 0) { ?>
                                                 <i style="color:red; font-size:20px;" onclick="open_upcountry_model('<?php echo $row['booking_id']; ?>', '<?php echo $row['amount_due']; ?>')"
                                                    class="fa fa-road" aria-hidden="true"></i><?php } ?>
-                                            <?php echo $sn_no1; ?>
+                                            <?php echo $sn_no; ?>
                                         </td>
                                         <td>
                                             <a  style="color:blue;" href="<?php echo base_url(); ?>service_center/booking_details/<?php echo urlencode(base64_encode($row['booking_id']));?>"  title='View'><?php echo $row['booking_id']; ?></a>
@@ -115,7 +114,7 @@ if ($this->uri->segment(4)) {
 
                                     </tr>
                                     <?php
-                                    $sn_no1++;
+                                    $sn_no++;
                                 }
                                 ?>
                             </tbody>
