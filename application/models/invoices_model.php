@@ -630,7 +630,7 @@ class invoices_model extends CI_Model {
         $result['packaging_rate'] = 0;
         $result['packaging_quantity'] = 0;
         $final_courier = array_merge($courier, $warehouse_courier, $defective_return_to_partner);
-        $f_warehouse_courier = array_merge($warehouse_courier, $defective_return_to_partner);
+
         
         if (!empty($upcountry_data)) {
             $up_country = array();
@@ -645,14 +645,14 @@ class invoices_model extends CI_Model {
             $result['upcountry'] = $upcountry_data;
         }
 
-        if (!empty($f_warehouse_courier)) {
+        if (!empty($warehouse_courier)) {
             $packaging = $this->get_fixed_warehouse_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
                 "entity_id" => $partner_id, "charges_type" => PACKAGING_RATE_TAG));
             if (!empty($packaging)) {
                 $c_data = array();
                 $c_data[0]['description'] = $packaging[0]['description'];
                 $c_data[0]['hsn_code'] = $packaging[0]['hsn_code'];
-                $c_data[0]['qty'] = count($f_warehouse_courier);
+                $c_data[0]['qty'] = count($warehouse_courier);
                 $c_data[0]['rate'] = $packaging[0]['fixed_charges'];
                 $c_data[0]['gst_rate'] = $packaging[0]['gst_rate'];
                 $c_data[0]['product_or_services'] = $packaging[0]['description'];
@@ -660,10 +660,9 @@ class invoices_model extends CI_Model {
                 $result['result'] = array_merge($result['result'], $c_data);
                 
                 $result['packaging_rate'] = $packaging[0]['fixed_charges'];
-                $result['packaging_quantity'] = count($f_warehouse_courier);
+                $result['packaging_quantity'] = count($warehouse_courier);
                 
                 $result['warehouse_courier'] = $warehouse_courier;
-                $result['defective_part_by_wh'] = $defective_return_to_partner;
             }
         }
 
@@ -679,6 +678,7 @@ class invoices_model extends CI_Model {
             $result['result'] = array_merge($result['result'], $c_data);
             $result['courier'] = $courier;
             $result['final_courier'] = $final_courier;
+            $result['defective_part_by_wh'] = $defective_return_to_partner;
             
         }
 
@@ -1149,7 +1149,7 @@ class invoices_model extends CI_Model {
             $warehouse_courier = $this->get_sf_invoice_warehouse_courier_data($vendor_id, $from_date, $to_date, $is_regenerate);
             $defective_return_to_partner = $this->get_defective_parts_return_partner_sf_invoice($vendor_id, $from_date, $to_date, $is_regenerate);
             $final_courier_data = array_merge($courier, $warehouse_courier, $defective_return_to_partner);
-            $packaging_data = array_merge($warehouse_courier, $defective_return_to_partner);
+         
             if (!empty($upcountry_data)) {
                 $up_country = array();
                 $up_country[0]['description'] = 'Upcountry Charges';
@@ -1183,7 +1183,6 @@ class invoices_model extends CI_Model {
                 $c_data[0]['product_or_services'] = 'Courier';
                 $c_data[0]['taxable_value'] = (array_sum(array_column($final_courier_data, 'courier_charges_by_sf')));
                 $result['booking'] = array_merge($result['booking'], $c_data);
-                $result['warehouse_courier'] = $warehouse_courier;
                 $result['defective_return_to_partner'] = $defective_return_to_partner;
                 $result['courier'] = $courier;
                 $result['final_courier_data'] = $final_courier_data;
@@ -1213,22 +1212,22 @@ class invoices_model extends CI_Model {
                 $result['misc'] = $misc;
             }
             
-            if (!empty($packaging_data)) {
+            if (!empty($warehouse_courier)) {
                 $packaging = $this->get_fixed_warehouse_charge(array('entity_type' => _247AROUND_SF_STRING,
                     "entity_id" => $vendor_id, "charges_type" => PACKAGING_RATE_TAG));
                 if (!empty($packaging)) {
                     $c_data = array();
                     $c_data[0]['description'] = $packaging[0]['description'];
                     $c_data[0]['hsn_code'] = $packaging[0]['hsn_code'];
-                    $c_data[0]['qty'] = count($packaging_data);
+                    $c_data[0]['qty'] = count($warehouse_courier);
                     $c_data[0]['rate'] = $packaging[0]['fixed_charges'];
                     $c_data[0]['gst_rate'] = $packaging[0]['gst_rate'];
                     $c_data[0]['product_or_services'] = $packaging[0]['description'];
-                    $c_data[0]['taxable_value'] = $c_data[0]['qty'] * $packaging[0]['fixed_charges'];
+                    $c_data[0]['taxable_value'] = $c_data[0]['qty'] * $warehouse_courier[0]['fixed_charges'];
                     $result['booking'] = array_merge($result['booking'], $c_data);
-
+                    $result['warehouse_courier'] = $warehouse_courier;
                     $result['packaging_rate'] = $packaging[0]['fixed_charges'];
-                    $result['packaging_quantity'] = count($packaging_data);
+                    $result['packaging_quantity'] = count($warehouse_courier);
                 }
             }
 

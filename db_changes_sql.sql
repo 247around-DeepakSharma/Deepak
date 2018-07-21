@@ -7748,3 +7748,6 @@ ALTER TABLE `vendor_partner_invoices` ADD `packaging_rate` DECIMAL(10,2) NULL DE
 
 --Abhay 20 July
 ALTER TABLE `spare_parts_details` ADD `partner_courier_invoice_id` VARCHAR(128) NULL DEFAULT NULL AFTER `partner_warehouse_courier_invoice_id`;
+
+--Abhay 21 July
+ALTER TABLE `spare_parts_details` ADD `vendor_courier_invoice_id`  VARCHAR(28) NULL DEFAULT NULL AFTER `partner_courier_invoice_id`;
