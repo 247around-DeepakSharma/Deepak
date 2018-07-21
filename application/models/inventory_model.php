@@ -1168,4 +1168,90 @@ class Inventory_model extends CI_Model {
         $query = $this->db->query($sql)->result_array();
         return $query;
     }
+    
+    /**
+     * @Desc: This function is used to get data from the courier_details table
+     * @params: $select string
+     * @params: $where array
+     * @return: $query array
+     * 
+     */
+    function get_spare_courier_details($select,$where){
+        $this->db->select($select);
+        if(!empty($where)){
+            $this->db->where($where,false);
+        }
+        $this->db->from('inventory_ledger');
+        $this->db->join('courier_details','inventory_ledger.courier_id = courier_details.id');
+        $this->db->join('spare_parts_details','inventory_ledger.booking_id = spare_parts_details.booking_id');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    
+    /**
+     * @desc: This function is used to insert warehouse data into warehouse_details table , warehouse_person_relationship and warehouse_state_relationship
+     * using mysql transaction logic
+     * @params: Array $data
+     * @return: boolean
+     * 
+     */
+    function insert_warehouse_details($wh_data,$wh_contact_person_mapping_data,$wh_state_mapping_data){
+        //start mysql transaction
+        $this->db->trans_begin();
+        
+        //insert warehouse details
+        $this->db->insert('warehouse_details',$wh_data);
+        $wh_id = $this->db->insert_id();
+        
+        $wh_contact_person_mapping_data['warehouse_id'] = $wh_id;
+        //create warehouse and contact person mapping in contact person warehouse_person_relationship table
+        $this->db->insert('warehouse_person_relationship',$wh_contact_person_mapping_data);
+        
+        //create warehouse and state mapping
+        foreach($wh_state_mapping_data as $key => $value){
+            $wh_state_mapping_data[$key]['warehouse_id'] = $wh_id;
+        }
+        $this->db->insert_batch('warehouse_state_relationship',$wh_state_mapping_data);
+        
+        //complete mysql transaction
+        $this->db->trans_complete();
+
+        if ($this->db->trans_status() === FALSE){
+            return FALSE;
+        }else{
+            return TRUE;
+        }
+    }
+    
+    /**
+     * @desc: This function is used to edit the warehouse details
+     * @params: Array $where
+     * @params: Array $data
+     * @return: boolean
+     */
+    function edit_warehouse_details($where,$data){
+        $this->db->where($where);
+        $this->db->update('warehouse_details', $data);
+        if ($this->db->affected_rows() > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    /**
+     * @desc: This function is used to edit warehouse contatc person mapping
+     * @params: Array $where
+     * @params: Array $data
+     * @return: boolean
+     */
+    function update_warehouse_contact_person_mapping($where,$data){
+        $this->db->where($where);
+        $this->db->update('warehouse_person_relationship', $data);
+        if ($this->db->affected_rows() > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
