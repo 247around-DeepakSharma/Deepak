@@ -225,7 +225,7 @@ color: red;
                       <span class="col-md-2"><input type="radio"  id="myRadio3" name="vendor_invoice_type" value = "cash" >CASH</span>
                       <span class="col-md-4" id="brackets"><input type="radio"  id="myRadio4" name="vendor_invoice_type" value = "brackets" >BRACKETS</span>
                       <span class="col-md-2" ><input type="radio"  id="myRadio5" name="vendor_invoice_type" value = "buyback" >Buyback</span>
-                      <span class="col-md-2" ><input type="radio"  id="myRadio6" name="vendor_invoice_type" value = "warehouse" >Warehouse</span>
+                      
 
 
                 </div>
