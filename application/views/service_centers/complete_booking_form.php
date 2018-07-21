@@ -194,6 +194,7 @@
                                                         $serial_number = "";
                                                         $serial_number_pic = "";
                                                         foreach ($unit_details['quantity'] as $key => $price) {
+                                                            if($price['booking_status'] != _247AROUND_CANCELLED){ 
                                                             ?>
                                                     <tr>
                                                         <td>
@@ -304,8 +305,8 @@
                                                         }}
                                                          $count++;
                                                           
-                                                         }
-                                                         ?>
+                    } }
+                                                          ?>
                                                 </tbody>
                                             </table>
                                             <span class="error_msg" style="color: red"></span>
