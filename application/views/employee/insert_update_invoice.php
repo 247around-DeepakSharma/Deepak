@@ -138,6 +138,16 @@
                                         } else { echo "0";} ?>" placeholder="Upcountry Distance" >
                                 </div>
                             </div>
+                            <div class="form-group <?php if( form_error('packaging_rate') ) { echo 'has-error';} ?>">
+                                <label for="Parts Cost" class="col-md-4">Packaging Rate </label>
+                                <div class="col-md-6">
+                                    <input type="number" step=".02"  class="form-control"  name="packaging_rate" value = "<?php if (isset($invoice_details[0]['packaging_rate'])) {
+                                        echo $invoice_details[0]['packaging_rate'];
+                                        } else { echo "0";} ?>" placeholder="Packaging Rate" required >
+                                </div>
+                                 <?php echo form_error('packaging_rate'); ?>
+                            </div>
+                            
                             <div class="form-group <?php if( form_error('gst_rate') ) { echo 'has-error';} ?>">
                                 <label for="Parts Cost" class="col-md-4">GST Rate *</label>
                                 <div class="col-md-6">
@@ -147,6 +157,7 @@
                                 </div>
                                  <?php echo form_error('gst_rate'); ?>
                             </div>
+                            
                             <div class="form-group">
                                 <label for="invoice_file_main" class="col-md-4">Main Invoice</label>
                                 <div class="col-md-6">
@@ -287,6 +298,15 @@
                                     <input type="text" class="form-control"  name="hsn_code" value = "<?php if (isset($invoice_details[0]['hsn_code'])) { echo $invoice_details[0]['hsn_code']; } ?>" placeholder="HSN Code" >
                                 </div>
                                  <?php echo form_error('hsn_code'); ?>
+                            </div>
+                            <div class="form-group <?php if( form_error('packaging_quantity') ) { echo 'has-error';} ?>">
+                                <label for="Parts Cost" class="col-md-4">Packaging Quantity </label>
+                                <div class="col-md-6">
+                                    <input type="number" step=".02"  class="form-control"  name="packaging_quantity" value = "<?php if (isset($invoice_details[0]['packaging_quantity'])) {
+                                        echo $invoice_details[0]['packaging_quantity'];
+                                        } else { echo "0";} ?>" placeholder="GST Rate" required >
+                                </div>
+                                 <?php echo form_error('packaging_quantity'); ?>
                             </div>
                             <div class="form-group">
                                 <label for="invoice_file_excel" class="col-md-4">Main Invoice Excel</label>

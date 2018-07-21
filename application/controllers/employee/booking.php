@@ -1752,6 +1752,7 @@ class Booking extends CI_Controller {
         if (!empty($partner_status)) {
             $booking['partner_current_status'] = $partner_status[0];
             $booking['partner_internal_status'] = $partner_status[1];
+            $booking['internal_status'] = "Rejected From Review";
             $actor = $booking['actor'] = $partner_status[2];
             $next_action = $booking['next_action'] = $partner_status[3];
             $booking['service_center_closed_date'] = NULL;
@@ -3002,14 +3003,21 @@ class Booking extends CI_Controller {
      */
     public function view_bookings_by_status($status,$booking_id=""){
         $partnerWhere['is_active'] = 1;
+        $vendorJoin = NULL;
+        $vendorWhere['service_centres.active'] = 1;
         if($this->session->userdata('is_am') == '1'){
             $am_id = $this->session->userdata('id');
             $partnerWhere['account_manager_id'] = $am_id;
         }
+        if($this->session->userdata('user_group') == 'regionalmanager'){
+            $rm_id = $this->session->userdata('id');
+            $vendorWhere['employee_relation.agent_id'] = $rm_id;
+            $vendorJoin['employee_relation'] = "FIND_IN_SET(service_centres.id,employee_relation.service_centres_id)";
+        }
         $data['booking_status'] = trim($status);
         $data['booking_id'] = trim($booking_id);
         $data['partners'] = $this->partner_model->getpartner_details('partners.id,partners.public_name',$partnerWhere);
-        $data['sf'] = $this->vendor_model->getVendorDetails('id,name',array('active' => '1'));
+        $data['sf'] = $this->reusable_model->get_search_result_data("service_centres","service_centres.id,name",$vendorWhere,$vendorJoin,NULL,array("name"=>"ASC"),NULL,array());
         $data['services'] = $this->booking_model->selectservice();
         $data['cities'] = $this->booking_model->get_advance_search_result_data("booking_details","DISTINCT(city)",NULL,NULL,NULL,array('city'=>'ASC'));
        $this->miscelleneous->load_nav_header();
@@ -3119,7 +3127,7 @@ class Booking extends CI_Controller {
             if($booking_status == _247AROUND_COMPLETED || $booking_status == _247AROUND_CANCELLED){
                 $post['where']  = array('current_status' => $booking_status,'type' => 'Booking');
             }else if(strtolower($booking_status) == 'pending' && empty ($booking_id)){
-                if($this->session->userdata('is_am') == '1'){
+                if(($this->session->userdata('is_am') == '1') || $this->session->userdata('user_group') == 'regionalmanager'){
                     $post['where']  = array("(current_status = 'Rescheduled' OR (current_status = 'Pending' AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0))"=>NULL,
                         "service_center_closed_date IS NULL"=>NULL);
                     $post['where_not_in']['booking_details.partner_internal_status']  = array('Booking Completed - Defective Part To Be Shipped By SF','Booking Completed - Defective Part Shipped By SF',

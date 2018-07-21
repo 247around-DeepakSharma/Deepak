@@ -425,6 +425,7 @@ function get_data_for_partner_callback($booking_id) {
             GROUP_CONCAT(spare_parts_details.date_of_request) As 'Part Request Date', 
             GROUP_CONCAT(spare_parts_details.parts_shipped) As 'Shipped Part', 
             GROUP_CONCAT(spare_parts_details.shipped_date) As 'Part Shipped Date', 
+            GROUP_CONCAT(spare_parts_details.acknowledge_date) As 'SF Acknowledge Date',
             GROUP_CONCAT(spare_parts_details.defective_part_shipped) As 'Shipped Defective Part', 
             GROUP_CONCAT(spare_parts_details.defective_part_shipped_date) As 'Defective Part Shipped Date'
             $dependency

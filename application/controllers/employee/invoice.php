@@ -539,7 +539,12 @@ class Invoice extends CI_Controller {
         $files = array();
         $template = 'Partner_invoice_detail_template-v3.xlsx';
 
-        $courier = $misc_data['courier'];
+        $courier = $misc_data['final_courier'];
+        $def_couier = $misc_data['courier'];
+        $packaging_rate = $misc_data['packaging_rate'];
+        $packaging_quantity = $misc_data['packaging_quantity'];
+        $defective_part_by_wh = $misc_data['defective_part_by_wh'];
+        $warehouse_courier = $misc_data['warehouse_courier'];
         $meta = $misc_data['meta'];
         $upcountry = $misc_data['upcountry'];
         $miscellaneous_charge = $misc_data['misc'];
@@ -590,15 +595,24 @@ class Invoice extends CI_Controller {
 
         if ($invoice_type == "final") {
             log_message('info', __METHOD__ . "=> Final");
-
+            
+            if(isset($data[0]['invoice_email_to'])){
+               $invoice_email_to = $data[0]['invoice_email_to'];
+               $invoice_email_cc = $data[0]['invoice_email_cc'];
+            } else {
+                $partner_details = $this->partner_model->getpartner_details('partner_id,invoice_email_to,invoice_email_cc', array('partners.id' =>$partner_id) );
+                $invoice_email_to = $partner_details[0]['invoice_email_to'];
+                $invoice_email_cc = $partner_details[0]['invoice_email_cc'];
+            }
+            
             //get email template from database
             $email_template = $this->booking_model->get_booking_email_template(PARTNER_INVOICE_DETAILED_EMAIL_TAG);
             $subject = vsprintf($email_template[4], array($meta['company_name'], $f_date, $t_date));
             $message = $email_template[0];
             $email_from = $email_template[2];
 
-            $to = $data[0]['invoice_email_to'];
-            $cc = $data[0]['invoice_email_cc'];
+            $to = $invoice_email_to;
+            $cc = $invoice_email_cc;
             $this->upload_invoice_to_S3($meta['invoice_id']);
             $pdf_attachement_url = 'https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/invoices-excel/' . $output_pdf_file_name;
 
@@ -610,7 +624,7 @@ class Invoice extends CI_Controller {
                 'type_code' => 'A',
                 'type' => 'Cash',
                 'vendor_partner' => 'partner',
-                'vendor_partner_id' => $data[0]['partner_id'],
+                'vendor_partner_id' => $partner_id,
                 'invoice_file_main' => $output_pdf_file_name,
                 'invoice_file_excel' => $meta['invoice_id'] . ".xlsx",
                 'invoice_detailed_excel' => $meta['invoice_id'] . '-detailed.xlsx',
@@ -645,7 +659,9 @@ class Invoice extends CI_Controller {
                 "cgst_tax_amount" => $meta["cgst_total_tax_amount"],
                 "parts_count" =>$meta['parts_count'],
                 "invoice_file_pdf" => $convert['copy_file'], 
-                "hsn_code" => $hsn_code
+                "hsn_code" => $hsn_code,
+                'packaging_quantity' => $packaging_quantity,
+                'packaging_rate' => $packaging_rate 
             );
 
             $this->invoices_model->insert_new_invoice($invoice_details);
@@ -668,11 +684,35 @@ class Invoice extends CI_Controller {
                 }
             }
             
+            if(!empty($warehouse_courier)){
+                foreach ($warehouse_courier as $spare_courier) {
+                    $sp_id = explode(",", $spare_courier['sp_id']);
+                    foreach($sp_id as $sid){
+                        $this->service_centers_model->update_spare_parts(array('id' => $sid), array('partner_warehouse_courier_invoice_id' =>$meta['invoice_id']));
+                    }
+                }
+            }
+            
+            if(!empty($defective_part_by_wh)){
+                foreach ($defective_part_by_wh as $defective_id) {
+                    $c_id = explode(",", $defective_id['c_id']);
+                    foreach($c_id as $cid){
+                        $this->inventory_model->update_courier_detail(array('id' => $cid), array('partner_invoice_id' => $meta['invoice_id']));
+                    }
+                }
+            }
+            
+            if(!empty($def_couier)){
+                foreach ($def_couier as $spare_id) {
+                    $this->service_centers_model->update_spare_parts(array('id' => $spare_id['sp_id']), array('partner_courier_invoice_id' => $meta['invoice_id']));
+                }
+            }
+            
             if(!empty($miscellaneous_charge)){
                 foreach ($miscellaneous_charge as $value) {
                     $this->booking_model->update_misc_charges(array('id' => $value['id']), array('partner_invoice_id' => $meta['invoice_id']));
                 }
-                exec("rm -rf " . escapeshellarg(TMP_FOLDER . $meta['invoice_id'] . "-miscellaneous-detailed.xlsx.xlsx"));
+                exec("rm -rf " . escapeshellarg(TMP_FOLDER . $meta['invoice_id'] . "-miscellaneous-detailed.xlsx"));
             }
             exec("rm -rf " . escapeshellarg(TMP_FOLDER . "copy_" . $meta['invoice_id'] . ".xlsx"));
         } else {
@@ -2271,6 +2311,7 @@ class Invoice extends CI_Controller {
             if ($flag) {
                 $total_amount_collected = ($data['total_service_charge'] +
                         $data['total_additional_service_charge'] +
+                        ($data['packaging_rate']  * $data['packaging_quantity'])+
                         $data['parts_cost'] + $data['courier_charges'] + $data['upcountry_price'] + $data['credit_penalty_amount'] - $data['penalty_amount']);
 
 
@@ -2471,6 +2512,8 @@ class Invoice extends CI_Controller {
         $data['remarks'] = $this->input->post("remarks");
         $data['due_date'] = date('Y-m-d', strtotime($this->input->post('due_date')));
         $data['invoice_date'] = date('Y-m-d', strtotime($this->input->post('invoice_date')));
+        $data['packaging_quantity'] = $this->input->post('packaging_quantity');
+        $data['packaging_rate'] = $this->input->post('packaging_rate');
         $data['type_code'] = $this->input->post('around_type');
         
        
