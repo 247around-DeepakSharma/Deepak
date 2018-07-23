@@ -1744,22 +1744,22 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                     
                     //Send Email
 
-                    $html = '<html><head><title>Outstanding Amount</title><link href="' . base_url() . 
-                            'css/bootstrap.min.css" rel="stylesheet"></head><body>';
-
-                    $template = array(
-                        'table_open' => '<table  border="1" cellpadding="2" cellspacing="1"'
-                        . ' class="table table-striped table-bordered jambo_table bulk_action">'
-                    );
-                    $this->table->set_template($template);
-                    $this->table->set_heading(array('Name', 'Advance Paid', 'Un-Settle Invoice (Rs)', 'Un-billed Delivered (Rs)', 
-                        'Un-billed In-transit (Rs)', 'Balance (Rs)'));
-                    $this->table->add_row($value['company_name'], round(abs($amount_cr_deb['advance']), 0), 
-                            -round($amount_cr_deb['unbilled'], 0), -round($amount_cr_deb['cp_delivered'], 0), 
-                            -round($amount_cr_deb['cp_transit'], 0), round($amount_cr_deb['total_balance'], 0));
-
-                    $html .= $this->table->generate();
-                    $html .= '</body></html>';
+//                    $html = '<html><head><title>Outstanding Amount</title><link href="' . base_url() . 
+//                            'css/bootstrap.min.css" rel="stylesheet"></head><body>';
+//
+//                    $template = array(
+//                        'table_open' => '<table  border="1" cellpadding="2" cellspacing="1"'
+//                        . ' class="table table-striped table-bordered jambo_table bulk_action">'
+//                    );
+//                    $this->table->set_template($template);
+//                    $this->table->set_heading(array('Name', 'Advance Paid', 'Un-Settle Invoice (Rs)', 'Un-billed Delivered (Rs)', 
+//                        'Un-billed In-transit (Rs)', 'Balance (Rs)'));
+//                    $this->table->add_row($value['company_name'], round(abs($amount_cr_deb['advance']), 0), 
+//                            -round($amount_cr_deb['unbilled'], 0), -round($amount_cr_deb['cp_delivered'], 0), 
+//                            -round($amount_cr_deb['cp_transit'], 0), round($amount_cr_deb['total_balance'], 0));
+//
+//                    $html .= $this->table->generate();
+//                    $html .= '</body></html>';
                     $email_template = $this->booking_model->get_booking_email_template(CP_OUTSTANDING_AMOUNT);
                     if(!empty($email_template)){
                         $rm = $this->vendor_model->get_rm_sf_relation_by_sf_id($value['id']);
@@ -1773,7 +1773,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                         $bcc = $email_template[5];
                         $cc = $email_template[3]. $rm_email;
                         $subject = vsprintf($email_template[4], array($value['company_name'], abs(round($amount_cr_deb['total_balance'], 0))));
-                        $message = vsprintf($email_template[0], array(abs(round($amount_cr_deb['total_balance'], 0)), $html));
+                        $message = vsprintf($email_template[0], array(abs(round($amount_cr_deb['total_balance'], 0))));
                         
                         
                         $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "",CP_OUTSTANDING_AMOUNT);
