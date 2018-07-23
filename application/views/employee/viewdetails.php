@@ -509,7 +509,8 @@
                             <table class="table  table-striped table-bordered" >
                                 <thead>
                                     <tr>
-                                        <th >Estimate Given</th>
+                                        <th >Estimate Given By Partner/Warehouse</th>
+                                        <th >Estimate Cost</th>
                                         <th >Estimate Given Date </th>
                                         <th >Purchase Invoice</th>
                                         <th >Sell Invoice ID</th>
@@ -519,6 +520,7 @@
                                 <tbody>
                                     <?php foreach ($booking_history['spare_parts'] as $sp){ if($sp['purchase_price'] > 0) { ?>
                                     <tr>
+                                         <td><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING){ echo "Partner";} else { echo "Warehouse";} ?></td>
                                         <td><?php echo $sp['purchase_price']; ?></td>
                                         <td><?php if(!empty($sp['estimate_cost_given_date'])) { echo date("d-m-Y", strtotime($sp['estimate_cost_given_date'])); } ?></td>
                                         <td><?php if(!is_null($sp['incoming_invoice_pdf'])) { if( $sp['incoming_invoice_pdf'] !== '0'){ ?> <a href="https://s3.amazonaws.com/bookings-collateral/invoices-excel/<?php echo $sp['incoming_invoice_pdf'];  ?> " target="_blank">Click Here</a><?php } } ?></td>
@@ -541,6 +543,7 @@
                             <table class="table  table-striped table-bordered" >
                                 <thead>
                                     <tr>
+                                        <th >Part Shipped By Partner/Warehouse</th>
                                         <th >Shipped Parts </th>
                                         <th >Courier Name</th>
                                         <th >AWB </th>
@@ -555,6 +558,7 @@
                                 <tbody>
                                     <?php foreach ($booking_history['spare_parts'] as $sp) { if(!empty($sp['parts_shipped'])){ ?>
                                     <tr>
+                                        <td><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING) { echo "Partner";} else { echo "Warehouse";} ?></td>
                                         <td><?php echo $sp['parts_shipped']; ?></td>
                                         <td><?php echo $sp['courier_name_by_partner']; ?></td>
                                         <td><?php echo $sp['awb_by_partner']; ?></td>
