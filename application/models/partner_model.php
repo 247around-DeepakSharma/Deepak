@@ -405,6 +405,7 @@ function get_data_for_partner_callback($booking_id) {
             services AS 'Product', 
             ud.appliance_description As 'Description',
             name As 'Customer', 
+            home_address AS 'Customer Address', 
             booking_pincode AS 'Pincode', 
             booking_details.city As 'City', 
             booking_details.state As 'State', 
