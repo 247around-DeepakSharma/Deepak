@@ -46,7 +46,7 @@
 </style>
 <div class="container-fluid">
     <div class="row">
-        <form class="panel col-md-12 form-inline" action="<?php echo base_url().'employee/accounting/save_documents/';?>" id="myform" enctype='multipart/form-data' novalidate method="post">
+        <form class="panel col-md-12 form-inline" action="<?php echo base_url().'employee/accounting/save_documents/';?>" id="myform" enctype='multipart/form-data' method="post" novalidate>
             <div class="panel-info">
                 <div class="clear"></div>
                 <div class="panel-heading"style="padding-top:1px;padding-bottom:1px">
@@ -65,7 +65,7 @@
                 <div class="panel-body">
                     <div class="form-group col-md-6">
                         <input type="hidden" value="<?php if(isset($courier_details)){ echo $courier_details[0]->id; } else{ echo "add";}  ?>" name="add_edit">
-                        <label for="entity_type" class="col-md-5 vertical_align" id="label_entity_type">Entity Type</label>
+                        <label for="entity_type" class="col-md-5 vertical_align" id="label_entity_type">Receiver Type</label>
                         <select id="entity_type" class="form-control col-md-6" name="entity_type" style="width: 195px;">
                             <option disabled <?php if(!isset($courier_details)) echo "selected"?> value="" >Select</option>
                             <option value="247around" <?php if(isset($courier_details) && $courier_details[0]->receiver_entity_type=='247around') echo "selected"?>>247 Around</option>
@@ -182,15 +182,29 @@
                     </div>
                     
                     
-                    <!--Contact-->
+                <!--    Contact
                     <div class="form-group col-md-6">
                         <label for="contact" class="col-md-5 vertical_align" id="label_contact">Contact</label>
-                        <select  class="form-control hidden <?php if(!isset($courier_details)) echo 'disabledbutton'?>" id="contact" name="contact" style="width:195px">
-                                <option value="" <?php if (!isset($courier_details)) echo "selected";?> disabled> Select Contact Person</option>
+                        <select  class="form-control hidden <?php //if(!isset($courier_details)) echo 'disabledbutton'?>" id="contact" name="contact" style="width:195px">
+                                <option value="" <?php //if (!isset($courier_details)) echo "selected";?> disabled> Select Contact Person</option>
                          </select>
-                        <input type="text" id="contact_input" name="contact_input" class="form-control <?php if(!isset($courier_details)) echo 'disabledbutton'?>"
-                               value="<?php if(isset($courier_details)) {if($courier_details[0]->contact_person_name) echo $courier_details[0]->contact_person_name; else echo $courier_details[0]->contact_person_id;}?>"/>
-                    </div>  
+                        <input type="text" id="contact_input" name="contact_input" class="form-control <?php //if(!isset($courier_details)) echo 'disabledbutton'?>"
+                               value="<?php //if(isset($courier_details)) {if($courier_details[0]->contact_person_name) echo $courier_details[0]->contact_person_name; else echo $courier_details[0]->contact_person_id;}?>"/>
+                </div>  -->
+                    
+                    <!--Contact-->
+                    <!--    <div class="form-group col-md-6">
+                        <label for="contact" class="col-md-5 vertical_align" id="label_contact">Email</label>
+                        
+                        <input type="text" id="contact_input" name="contact_input" class="form-control <?php // if(!isset($courier_details)) echo 'disabledbutton'?>"
+                               value="<?php// if(isset($courier_details)) {if($courier_details[0]->contact_person_name) echo $courier_details[0]->contact_person_name; else echo $courier_details[0]->contact_person_id;}?>"/>
+                    </div> -->
+                    <div class="form-group col-md-6">
+                        <label for="contact" class="col-md-5 vertical_align" id="label_contact">Email</label>
+                        
+                        <input type="email" id="email_input" name="email_input" class="form-control <?php if(!isset($courier_details)) echo 'disabledbutton'?>"
+                               value="<?php if(isset($courier_details)) {if($courier_details[0]->contact_person_name) echo $courier_details[0]->contact_person_name; else echo $courier_details[0]->notification_email;}?>"/>
+                    </div>
                     
                     <div class="clear"></div>
                     <div class="form-group col-md-6">
@@ -208,7 +222,7 @@
                         <div class="col-md-12" align="center">
                             <input type="hidden" name="id" value=""/>
                             <div class="clear"></div>
-                            <button type="submit" class="btn btn-primary" id="submit" onclick="return validate()">
+                            <button type="submit" class="btn btn-primary" id="submit" onclick="return validate();">
                                 <?php
                                 if (isset($courier_details)) {
                                     echo "Update";                         
@@ -311,10 +325,12 @@ $(document).ready(function(){
 </script>
 
 <script>
-    function validate(){
+    function validate(){ 
+        var track_file;
         var is_file = <?php if(isset($courier_details[0]->courier_file) && !empty($courier_details[0]->courier_file)){ echo '1';}else{echo '0';}?>;
         var entity_type = $("#entity_type option:selected").val();
         var doc_type= $('#doc_type option:selected').val();
+        var email = $("#email_input").val();
         var id="";
         switch(doc_type){
             case "invoice":
@@ -334,15 +350,15 @@ $(document).ready(function(){
                 }
                 break; 
         }
-        track_file =<?php echo $courier_details[0]->courier_file; ?>
+       
         if(is_file == 0){
-            var track_file= $('#track_file').val();
+             track_file= $('#track_file').val();
         }
         var awb_no = $('#awb_no').val();
         var shipment_date = $('#shipment_date').val();
-        var contact = $('#contact').val();
-        var contact_input = $('#contact_input').val();
-        if(!(entity_type && doc_type && id && track_file && awb_no && shipment_date && (contact || contact_input))){
+        //var contact = $('#contact').val();
+        //var contact_input = $('#contact_input').val();
+        if(!(entity_type && doc_type && id && track_file && awb_no && email && shipment_date)){
             alert('Please fill all the fields');
             return false;
         }
