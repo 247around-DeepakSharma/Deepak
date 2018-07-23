@@ -396,7 +396,7 @@ function get_data_for_partner_callback($booking_id) {
         return $query = $this->db->query("SELECT 
             order_id AS 'Sub Order ID',
             booking_details.booking_id AS '247BookingID',
-            booking_details.create_date AS 'Referred Date and Time',
+            booking_details.create_date AS 'Referred Date',
             ud.appliance_brand AS 'Brand', 
             ud.purchase_date AS 'Purchase Date', 
             IFNULL(ud.model_number,'') AS 'Model',
@@ -404,7 +404,6 @@ function get_data_for_partner_callback($booking_id) {
             services AS 'Product', 
             ud.appliance_description As 'Description',
             name As 'Customer', 
-            home_address AS 'Customer Address', 
             booking_pincode AS 'Pincode', 
             booking_details.city As 'City', 
             booking_details.state As 'State', 
@@ -412,9 +411,9 @@ function get_data_for_partner_callback($booking_id) {
             user_email As 'Email ID', 
             ud.price_tags AS 'Call Type (Installation /Table Top Installation/Demo/ Service)',
             CASE WHEN(current_status = 'Completed' || current_status = 'Cancelled') THEN (closing_remarks) ELSE (reschedule_reason) END AS 'Remarks',
-            'Service sent to vendor' AS 'Status by Partner', 
             booking_date As 'Scheduled Appointment Date(DD/MM/YYYY)', 
             booking_timeslot AS 'Scheduled Appointment Time(HH:MM:SS)', 
+            initial_booking_date As 'First Booking Date',
             partner_internal_status AS 'Final Status',
             CASE WHEN (booking_details.is_upcountry = '0') THEN 'Local' ELSE 'Upcountry' END as 'Is Upcountry', 
             ".$closeDateSubQuery.",
@@ -426,6 +425,7 @@ function get_data_for_partner_callback($booking_id) {
             GROUP_CONCAT(spare_parts_details.date_of_request) As 'Part Request Date', 
             GROUP_CONCAT(spare_parts_details.parts_shipped) As 'Shipped Part', 
             GROUP_CONCAT(spare_parts_details.shipped_date) As 'Part Shipped Date', 
+            GROUP_CONCAT(spare_parts_details.acknowledge_date) As 'SF Acknowledge Date',
             GROUP_CONCAT(spare_parts_details.defective_part_shipped) As 'Shipped Defective Part', 
             GROUP_CONCAT(spare_parts_details.defective_part_shipped_date) As 'Defective Part Shipped Date'
             $dependency
@@ -1387,14 +1387,18 @@ function get_data_for_partner_callback($booking_id) {
      * @return: array()
      * 
      */
-    function get_spare_parts_by_any($select,$where,$is_join=false){
+    function get_spare_parts_by_any($select,$where,$is_join=false,$sf_details = FALSE){
         $this->db->select($select,FALSE);
-        $this->db->where($where);
+        $this->db->where($where,false);
         $this->db->from('spare_parts_details');
         if($is_join){
             $this->db->join('booking_details','spare_parts_details.booking_id = booking_details.booking_id');
         }
+        if($sf_details){
+            $this->db->join('service_centres','spare_parts_details.service_center_id = service_centres.id');
+        }
         $query = $this->db->get();
+        log_message('info',$this->db->last_query());
         return $query->result_array();
         
     }
@@ -1560,14 +1564,13 @@ function get_data_for_partner_callback($booking_id) {
         return $query = $this->db->query("SELECT 
             order_id AS 'Sub Order ID',
             booking_details.booking_id AS '247BookingID',
-            date(booking_details.create_date) AS 'Referred Date and Time',
+            date(booking_details.create_date) AS 'Referred Date',
             ud.appliance_brand AS 'Brand', 
             IFNULL(ud.model_number,'') AS 'Model',
             CASE WHEN(ud.serial_number IS NULL OR ud.serial_number = '') THEN '' ELSE (CONCAT('''', ud.serial_number))  END AS 'Serial Number',
             services AS 'Product', 
             ud.appliance_description As 'Description',
             name As 'Customer', 
-            home_address AS 'Customer Address', 
             booking_pincode AS 'Pincode', 
             booking_details.city As 'City', 
             booking_details.state As 'State', 
@@ -1575,9 +1578,9 @@ function get_data_for_partner_callback($booking_id) {
             user_email As 'Email ID', 
             ud.price_tags AS 'Call Type (Installation /Table Top Installation/Demo/ Service)',
             CASE WHEN(current_status = 'Completed' || current_status = 'Cancelled') THEN (closing_remarks) ELSE (reschedule_reason) END AS 'Remarks',
-            'Service sent to vendor' AS 'Status by Partner', 
             booking_date As 'Scheduled Appointment Date(DD/MM/YYYY)', 
             booking_timeslot AS 'Scheduled Appointment Time(HH:MM:SS)', 
+            initial_booking_date As 'First Booking Date', 
             partner_internal_status AS 'Final Status',
             GROUP_CONCAT(spare_parts_details.parts_requested) As 'Requested Part', 
             GROUP_CONCAT(spare_parts_details.date_of_request) As 'Part Request Date', 
@@ -1617,35 +1620,6 @@ function get_data_for_partner_callback($booking_id) {
         $this->db->insert_ignore_duplicate_batch('partner_serial_no', $data);
         return $this->db->insert_id();
     }
-    /**
-     * @desc: This function is used to insert warehouse data into warehouse_details table
-     * @params: Array $data
-     * @return: true if inserted
-     * 
-     */
-     function insert_warehouse_details($data){
-        
-         
-         
-        $condition = "warehouse_address_line1 =" . "'" . $data['warehouse_address_line1'] . "' AND " . "warehouse_address_line2 =" . "'" . $data['warehouse_address_line2'] . "' AND " . "warehouse_city =" . "'" . $data['warehouse_city'] . "' AND " . "warehouse_region =" . "'" . $data['warehouse_region'] . "' AND " . "warehouse_pincode =" . "'" . $data['warehouse_pincode'] . "' AND " . "warehouse_state =" . "'" . $data['warehouse_state'] . "'";
-        $this->db->select('*');
-        $this->db->from('warehouse_details');
-        $this->db->where($condition);
-        $this->db->limit(1);
-        $query = $this->db->get();
-        if ($query->num_rows() == 0) {
-
-        $this->db->insert('warehouse_details', $data);
-        return $this->db->insert_id();
-
-
-            if ($this->db->affected_rows() > 0) {
-                return true;
-            }
-        } else {
-            return false;
-        }
-        }
         
       /**
      * @desc: This function is used to get the contact persons of warehouse from contact_person table

@@ -1,5 +1,5 @@
-<?php if ($this->uri->segment(3)) {
-    $sn_no = $this->uri->segment(3) + 1;
+<?php if ($this->uri->segment(4)) {
+    $sn_no = $this->uri->segment(4) + 1;
 } else {
     $sn_no = 1;
 } ?>

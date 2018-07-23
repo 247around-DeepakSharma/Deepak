@@ -1,6 +1,6 @@
 <?php if($this->uri->segment(3)){ $sn_no =  $this->uri->segment(3) +1; } else{ $sn_no = 1;} ?>
 <div class="container-fluid">
-
+    <input type="hidden" value="<?php echo T_SERIES_PARTNER_ID;?>" name="receiver_partner_id" id="receiver_partner_id">
    <div class="row" style="margin-top: 40px;">
       <div class="col-md-12">
       
@@ -85,6 +85,7 @@
                                         <?php echo $row['remarks_defective_part_by_sf']; ?>
                                     </td>
                                     <td>
+                                        
                                         <input type="checkbox" class="check_single_row" data-part_name ="<?php echo $row['defective_part_shipped']; ?>" data-model="<?php echo $row['model_number_shipped']; ?>" data-shipped_inventory_id = "<?php echo $row['shipped_inventory_id']?>" data-booking_id ="<?php echo $row['booking_id']?>" data-partner_id = "<?php echo $row['partner_id']?>" data-spare_id = "<?php echo $row['id']?>" data-booking_partner_id = "<?php echo $row['booking_partner_id']?>">
                                     </td>
                                 </tr>
@@ -206,6 +207,7 @@
         postData['sender_entity_id'] =  '<?php echo $this->session->userdata('service_center_id')?>';
         postData['sender_entity_type'] = '<?php echo _247AROUND_SF_STRING; ?>';
         postData['wh_name'] = '<?php echo $this->session->userdata('wh_name')?>';
+        postData['receiver_partner_id'] = $("#receiver_partner_id").val();
         
         if(flag){
             $('#courier_model').modal('toggle');

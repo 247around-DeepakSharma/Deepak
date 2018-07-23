@@ -76,6 +76,7 @@ $route['service_center/gst_details'] = 'employee/service_centers/gst_update_form
 $route['service_center/gst_update_form'] = 'employee/service_centers/gst_update_form/';
 $route['service_center/process_gst_update'] = 'employee/service_centers/process_gst_update/';
 $route['service_center/review'] = 'employee/engineer/review_engineer_action_form';
+$route['service_center/search_docket_number'] = 'employee/service_centers/search_docket_number';
 
 $route['service_center/customer_invoice_details'] = 'employee/service_centers/customer_invoice_details';
 
@@ -93,9 +94,9 @@ $route['service_center/buyback/get_bb_order_appliance_details/(:any)'] = 'employ
 $route['service_center/inventory'] = 'employee/service_centers/warehouse_default_page';
 $route['service_center/inventory/inventory_list'] = 'employee/service_centers/inventory_stock_list';
 $route['service_center/spare_parts'] = 'employee/service_centers/get_spare_parts_booking';
-$route['service_center/spare_parts/(:any)/(:any)'] = 'employee/service_centers/get_spare_parts_booking/$1/$2';
+$route['service_center/spare_parts/(:any)'] = 'employee/service_centers/get_spare_parts_booking/$1';
 $route['service_center/defective_spare_parts'] = 'employee/service_centers/get_defective_parts_shipped_by_sf';
-$route['service_center/defective_spare_parts/(:any)/(:any)'] = 'employee/service_centers/get_defective_parts_shipped_by_sf/$1/$2';
+$route['service_center/defective_spare_parts/(:any)'] = 'employee/service_centers/get_defective_parts_shipped_by_sf/$1';
 $route['service_center/update_spare_parts_form/(:any)'] = 'employee/service_centers/update_spare_parts_form/$1';
 $route['service_center/process_update_spare_parts/(:any)/(:any)'] = 'employee/service_centers/process_update_spare_parts/$1/$2';
 $route['service_center/reject_defective_part/(:any)/(:any)'] = 'employee/service_centers/reject_defective_part/$1/$2';
@@ -179,6 +180,7 @@ $route['partner/inventory/ack_spare_send_by_wh'] = 'employee/partner/ack_spare_s
 $route['partner/inventory/show_inventory_details'] = 'employee/partner/show_inventory_master_details';
 $route['partner/inventory/show_inventory_appliance_details'] = 'employee/partner/show_appliance_model_list';
 $route['partner/inventory/tag_spare_invoice'] = 'employee/partner/tag_spare_invoice';
+$route['partner/search_docket_number'] = 'employee/partner/search_docket_number';
 
 
 

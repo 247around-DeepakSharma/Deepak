@@ -166,7 +166,7 @@
     
     function reload_data(){
         if($('#is_show_all').is(":checked")){
-            alert('s');
+            //alert('s');
             $('#is_show_all').val('1');
         }else if($('#is_show_all').is(":not(:checked)")){
             alert('ss');

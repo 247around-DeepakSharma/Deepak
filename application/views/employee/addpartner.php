@@ -40,6 +40,9 @@
          height:100%;
          padding-top: 1%
     }
+    #warehouse_datatable_filter{
+        text-align: right;
+    }
 </style>
 <div id="page-wrapper">
     <div class="row">
@@ -1629,27 +1632,19 @@
              </div>
               <div class="clear"></div>
              <div id="container_9"  style="display:none;margin: 30px 10px;" class="form_container">
-                            <button class="btn" onclick="show_add_warehouse_form()" style="background-color: #337ab7;color: #fff;margin-bottom: 10px;">Add Warehouse</button>
-                            <form name="warehouse_form" class="form-horizontal" id ="warehouse_form" action="<?php echo base_url() ?>employee/partner/process_add_warehouse_details" method="POST" enctype="multipart/form-data" >
-                    <?php
-                        if(isset($query[0]['id'])){
-                            if($query[0]['id']){
-                            ?>
-                    <input type="hidden" id="partner_id" name="partner_id" value=<?php echo  $query[0]['id']?>>
-                    <?php
-                        }
-                        }
-                        ?>
+                <button class="btn btn-primary" onclick="show_add_warehouse_form()" style="background-color: #337ab7;color: #fff;margin-bottom: 10px;">Add Warehouse</button>
+                    <form  class="form-horizontal" id ="warehouse_form" action="<?php echo base_url() ?>employee/partner/process_add_warehouse_details" method="POST" enctype="multipart/form-data" >
+                    <?php if(isset($query[0]['id'])){ ?>
+                        <input type="hidden" id="partner_id" name="partner_id" value=<?php echo  $query[0]['id']?>>
+                    <?php } ?>
                         <div class="clonedInput panel panel-info " id="clonedInput1">
-                        <!--  <i class="fa fa-plus addsection pull-right fa-3x" aria-hidden="true" style ="margin-top:15px; margin-bottom: 15px; margin-right:40px; "></i>
-                            <i class="fa fa-times pull-right deletesection  fa-3x"  style ="margin-top:15px; margin-bottom: 15px; margin-right:20px; " aria-hidden="true"></i>-->
                             <div class="panel-heading" style=" background-color: #f5f5f5;">
-                                <p style="color: #000;"><b>Contact Persons</b></p>  
+                                <p style="color: #000;"><b>Warehouse Details</b></p>  
                                 <div class="clone_button_holder" style="float:right;margin-top: -31px;">
                                     <button class="clone btn btn-sm btn-info">Add</button>
-                            <button class="remove btn btn-sm btn-info">Remove</button>
-                                    </div>
-                        </div> 
+                                    <button class="remove btn btn-sm btn-info">Remove</button>
+                                </div>
+                            </div> 
                         <div class="panel-body">
                             <div class="row">
                                 <div class="col-md-12">
@@ -1684,7 +1679,13 @@
                                         <div class="form-group <?php if( form_error('warehouse_region') ) { echo 'has-error';} ?>">
                                             <label for="warehouse_region" class="col-md-4">Warehouse Region *</label>
                                             <div class="col-md-6">
-                                                <input  type="text" class="form-control input-contact-name"  name="warehouse_region" id="warehouse_region" value = "" placeholder="Enter Warehouse Region" required="">
+                                                <select class="form-control" name="warehouse_region" id="warehouse_region" required="">
+                                                    <option selected="" value="" disabled="">Select Region</option>
+                                                    <option value="East">East</option>
+                                                    <option value="North">North</option>
+                                                    <option value="South">South</option>
+                                                    <option value="West">West</option>
+                                                </select>
                                                 <?php echo form_error('warehouse_region'); ?>
                                             </div>
                                         </div>
@@ -1693,7 +1694,7 @@
                                         <div class="form-group <?php if( form_error('warehouse_pincode') ) { echo 'has-error';} ?>">
                                             <label for="warehouse_pincode" class="col-md-4">Warehouse Pincode *</label>
                                             <div class="col-md-6">
-                                                <input  type="text" class="form-control input-contact-name"  name="warehouse_pincode" id="warehouse_pincode" value = "" placeholder="Enter Warehouse Pincode" required="">
+                                                <input  type="text" class="form-control input-contact-name allowNumericWithOutDecimal"  name="warehouse_pincode" id="warehouse_pincode" value = "" minlength="6" maxlength="6" title="Pincode can only be 6 number digit" placeholder="Enter Warehouse Pincode" required="">
                                                 <?php echo form_error('warehouse_pincode'); ?>
                                             </div>
                                         </div>
@@ -1702,25 +1703,28 @@
                                         <div class="form-group <?php if( form_error('warehouse_state') ) { echo 'has-error';} ?>">
                                             <label for="warehouse_state" class="col-md-4">Warehouse State *</label>
                                             <div class="col-md-6">
-                                                <input  type="text" class="form-control input-contact-name"  name="warehouse_state" id="warehouse_state" value = "" placeholder="Enter Warehouse State" required="">
+                                                <select class="form-control" name="warehouse_state" id="warehouse_state" required>
+                                                    <option selected="" value="" disabled="">Select State</option>
+                                                     <?php foreach ($results['select_state'] as $value) { ?>
+                                                        <option value = "<?php echo $value['state']?>" > <?php echo $value['state']; ?> </option>
+                                                    <?php } ?>
+                                                </select>
                                                 <?php echo form_error('warehouse_state'); ?>
                                             </div>
                                         </div>
                                     </div> 
-                                      
-                                       
                                     <div class="col-md-6">
-                                        <div class="form-group <?php if( form_error('contact_name') ) { echo 'has-error';} ?>">
-                                            <label for="contact_name" class="col-md-4">Contact Person *</label>
+                                        <div class="form-group <?php if( form_error('contact_person_id') ) { echo 'has-error';} ?>">
+                                            <label for="contact_person_id" class="col-md-4">Contact Person *</label>
                                             <div class="col-md-6">
-                                                 <select name="contact_name" class="form-control" id="contact_name"   required>
-                                            <option selected disabled="">Select Contact Person</option>
-                                           <?php foreach ($results['contact_name'] as $value) { ?>
-                                            <option value="<?php echo $value->id;?>"<?php if(set_value('contact_name') == $value->id) {echo 'selected';} ?> ><?php echo $value->name;?></option>
-        
-                                          <?php }?>
+                                                 <select name="contact_person_id" class="form-control" id="contact_person_id" required>
+                                            <option selected="" value="" disabled="">Select Contact Person</option>
+                                            <?php foreach ($results['contact_name'] as $value) { ?>
+                                                 <option value="<?php echo $value->id;?>"<?php if(set_value('contact_name') == $value->id) {echo 'selected';} ?> ><?php echo $value->name;?></option>
+
+                                           <?php }?>
                                         </select>
-                                             <?php echo form_error('contact_name'); ?>
+                                             <?php echo form_error('contact_person_id'); ?>
                                             </div>
                                         </div>
                                     </div> 
@@ -1731,12 +1735,12 @@
                         </div>
                     <div class="cloned"></div>
                     <div class="form-group " style="text-align:center">
-                    <input type="submit" class="btn btn-primary" value="Save Warehouse">
+                        <input type="submit" class="btn btn-primary" value="Save Warehouse">
                     </div>
                 </form>
                  
-                <div id="exist_documents">
-                    <table class="table" id="myTable">
+                <div id="warehouse_section">
+                    <table class="table" id="warehouse_datatable">
                         <thead>
                             <tr>
                                 <th>Contact Person</th>
@@ -1746,12 +1750,12 @@
                                 <th>Warehouse Region</th>
                                 <th>Warehouse Pincode</th>
                                 <th>Warehouse State</th>
+                                <th>Edit</th>
                             </tr>
                         </thead>
-                       
-                           
-                                </table>
-            </div>
+                        <tbody id="wh_table_body"></tbody>
+                    </table>
+                </div>
                                 
              </div>
         </div>
@@ -1841,7 +1845,7 @@
                                         <select type="text" class="form-control"  id="contact_person_role" name="contact_person_role" onChange="getFilter(this.value)" >
                                             
                                         </select>
-                                        <!--<input type="text"value="<?ph echo $value['role'] ?>" onclick="{$('#contact_person_role').removeClass('hidden');this.addClass('hidden');}"/>-->
+                                        <!--<input type="text"value="<?php// echo $value['role'] ?>" onclick="{$('#contact_person_role').removeClass('hidden');this.addClass('hidden');}"/>-->
                                     </div>                                                                <div class="clear"></div>
                                 </div> 
                                 <div class="form-group ">
@@ -1890,6 +1894,116 @@
 </div>
     </div>
 <!--Modal ends-->
+
+<!-- warehouse modal start-->
+    <div id="wh_edit_form_modal" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="modal_title_action">Edit Details </h4>
+                </div>
+                <div class="modal-body">
+
+                    <form class="form-horizontal" id="wh_details">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="wh_address_line1">Warehouse Address Line 1 *</label>
+                                    <div class="col-md-7 col-md-offset-1">
+                                        <textarea class="form-control" id="wh_address_line1" name="wh_address_line1" rows="6"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="wh_address_line2">Warehouse Address Line 2 *</label>
+                                    <div class="col-md-7 col-md-offset-1">
+                                        <textarea class="form-control" id="wh_address_line2" name="wh_address_line2" rows="6"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="wh_city">Warehouse City*</label>
+                                    <div class="col-md-7 col-md-offset-1">
+                                        <input type="text" class="form-control" id="wh_city" name="wh_city">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="wh_region">Warehouse Region*</label>
+                                    <div class="col-md-7 col-md-offset-1">
+                                        <select class="form-control" name="wh_region" id="wh_region" required="">
+                                            <option selected="" value="" disabled="">Select Region</option>
+                                            <option value="East">East</option>
+                                            <option value="North">North</option>
+                                            <option value="South">South</option>
+                                            <option value="West">West</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="wh_pincode">Pincode*</label>
+                                    <div class="col-md-7 col-md-offset-1">
+                                        <input class="form-control allowNumericWithOutDecimal" id="wh_pincode" name="wh_pincode" minlength="6" maxlength="6"></input>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="wh_state">State*</label>
+                                    <div class="col-md-7 col-md-offset-1">
+                                        <select class="form-control" name="wh_state" id="wh_state" required>
+                                            <option selected="" value="" disabled="">Select State</option>
+                                            <?php foreach ($results['select_state'] as $value) { ?>
+                                                <option value = "<?php echo $value['state'] ?>" > <?php echo $value['state']; ?> </option>
+                                            <?php } ?>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="wh_contact_person_id">Contact Person</label>
+                                    <div class="col-md-7 col-md-offset-1">
+                                        <select name="wh_contact_person_id" class="form-control" id="wh_contact_person_id" required>
+                                            <option selected="" value="" disabled="">Select Contact Person</option>
+                                            <?php foreach ($results['contact_name'] as $value) { ?>
+                                                 <option value="<?php echo $value->id;?>" ><?php echo $value->name;?></option>
+
+                                           <?php }?>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="modal-footer">
+                            <input type="hidden"  id="entity_type" name='entity_type' value="partner">
+                            <input type="hidden"  id="wh_id" name='wh_id' value="">
+                            <input type="hidden"  id="old_contact_person_id" name='old_contact_person_id' value="">
+                            <button type="submit" class="btn btn-success" id="wh_details_submit_btn" name='submit_type' value="Submit">Submit</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                            <p class="pull-left text-danger">* These fields are required</p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- warehouse modal end -->
 
 <script type="text/javascript">
     var regex = /^(.+?)(\d+)$/i;
@@ -2578,29 +2692,105 @@ function sendAjaxRequest(postData, url,type) {
     function get_warehouse_details(){
         var partner = $("#partner_id").val();
         $(document).ready(function() {
-        $('#myTable').DataTable({
-            processing : true,
-            ajax: {
-                    url: "<?php echo base_url(); ?>employee/partner/get_warehouse_details",
-                    "type" : "POST",
-                    data: {partner_id: partner},
-                    dataSrc: function (json) {
-                             return json;
-                             }
-                             },
-            columns : [
-                        { data : "name" },
-                        { data : "warehouse_address_line1" },
-                        { data : "warehouse_address_line2" },
-                        { data : "warehouse_city" },
-                        { data : "warehouse_region" },
-                        { data : "warehouse_pincode" },
-                        { data : "warehouse_state" }
-                      ]
-        });
-    }); 
+            
+            var data = {partner_id: partner};
+            url =  '<?php echo base_url(); ?>employee/partner/get_warehouse_details';
+            sendAjaxRequest(data,url,"POST").done(function(response){
+                //console.log(response);
+                create_wh_table_body(response);
+            });
+        }); 
     }
     
+    function create_wh_table_body(response){
+        var table_body = '';
+        var obj = JSON.parse(response);
+        //console.log(obj[0]);
+        $.each(obj,function(index,value){
+            table_body += '<tr>';
+            table_body += '<td>' +value['name'] +'</td>';
+            table_body += '<td>' +value['warehouse_address_line1'] +'</td>';
+            table_body += '<td>' +value['warehouse_address_line2'] +'</td>';
+            table_body += '<td>' +value['warehouse_city'] +'</td>';
+            table_body += '<td>' +value['warehouse_region'] +'</td>';
+            table_body += '<td>' +value['warehouse_pincode'] +'</td>';
+            table_body += '<td>' +value['warehouse_state'] +'</td>';
+            table_body += "<td><a class='btn btn-sm btn-success' href='#' onClick='show_wh_edit_form("+ response + ','+ index  +")'>Edit</a></td>";
+            table_body += '</tr>';
+        });
+        $('#wh_table_body').html(table_body);
+    }
+    
+    function show_wh_edit_form(obj,index){
+        var form_data = obj[index];
+        $('#wh_address_line1').val(form_data.warehouse_address_line1);
+        $('#wh_address_line2').val(form_data.warehouse_address_line2);
+        $('#wh_city').val(form_data.warehouse_city);
+        $('#wh_region').val(form_data.warehouse_region);
+        $('#wh_pincode').val(JSON.parse(form_data.warehouse_pincode));
+        $("#wh_state").val(form_data.warehouse_state.toUpperCase());
+        $("#wh_contact_person_id").val(form_data.contact_person_id);
+        $("#wh_id").val(form_data.wh_id);
+        $("#old_contact_person_id").val(form_data.contact_person_id);
+        $('#wh_edit_form_modal').modal('toggle');
+    }
+    
+    
+    $('#wh_details_submit_btn').click(function(){
+        event.preventDefault();
+        var arr = {};
+        var form_data = $("#wh_details").serializeArray();
+        if(!$('#wh_address_line1').val()){
+            alert('Please Enter Warehouse Address');
+        }else if($('#wh_city').val().trim() === "" || $('#wh_city').val().trim() === " "){
+            alert("Please Enter Warehouse City");
+        }else if($('#wh_region option:selected').val().trim() === "" || $('#wh_region option:selected').val().trim() === null){
+            alert("Please Select Warehouse Region");
+        }else if($('#wh_pincode').val().trim() === "" || $('#wh_pincode').val().trim() === null || $('#wh_pincode').val().trim().length !== 6){
+            alert("Please Select Enter Correct Pincode");
+        }else if($('#wh_state option:selected').val().trim() === "" || $('#wh_state').val().trim() === " "){
+            alert("Please Select Warehouse State");
+        }else if($('#wh_contact_person_id option:selected').val() === null || $('#wh_contact_person_id option:selected').val() === ""){
+            alert("Please Select Contact Person");
+        }else{
+            $('#wh_details_submit_btn').attr('disabled',true).html("<i class = 'fa fa-spinner fa-spin'></i> Processing...");
+            form_data.push(arr);
+            $.ajax({
+                type:'POST',
+                url:'<?php echo base_url(); ?>employee/partner/edit_warehouse_details',
+                data : form_data,
+                success:function(response){
+                    console.log(response);
+                    $('#inventory_master_list_data').modal('toggle');
+                    $('#wh_details_submit_btn').attr('disabled',false).html('Submit');
+                    var data = JSON.parse(response);
+                    if(data.status){
+                        alert(data.msg);
+                    }else{
+                        alert(data.msg);
+                        console.log(data.msg);
+                    }
+                    location.reload(true);
+                }
+            });
+        }
+    });
+    
+    $(".allowNumericWithOutDecimal").keydown(function (e) {
+        // Allow: backspace, delete, tab, escape, enter and .
+        if ($.inArray(e.keyCode, [46,8, 9, 27, 13, 190]) !== -1 ||
+            // Allow: Ctrl+A, Command+A
+            (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) || 
+            // Allow: home, end, left, right, down, up
+            (e.keyCode >= 35 && e.keyCode <= 40) || e.ctrlKey) {
+            // let it happen, don't do anything
+            return;
+        }
+        // Ensure that it is a number and stop the keypress
+        if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+            e.preventDefault();
+        }
+    });
 </script>
 <style>
     .progress{

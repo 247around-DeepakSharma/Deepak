@@ -1752,6 +1752,7 @@ class Booking extends CI_Controller {
         if (!empty($partner_status)) {
             $booking['partner_current_status'] = $partner_status[0];
             $booking['partner_internal_status'] = $partner_status[1];
+            $booking['internal_status'] = "Rejected From Review";
             $actor = $booking['actor'] = $partner_status[2];
             $next_action = $booking['next_action'] = $partner_status[3];
             $booking['service_center_closed_date'] = NULL;
@@ -3002,14 +3003,21 @@ class Booking extends CI_Controller {
      */
     public function view_bookings_by_status($status,$booking_id=""){
         $partnerWhere['is_active'] = 1;
+        $vendorJoin = NULL;
+        $vendorWhere['service_centres.active'] = 1;
         if($this->session->userdata('is_am') == '1'){
             $am_id = $this->session->userdata('id');
             $partnerWhere['account_manager_id'] = $am_id;
         }
+        if($this->session->userdata('user_group') == 'regionalmanager'){
+            $rm_id = $this->session->userdata('id');
+            $vendorWhere['employee_relation.agent_id'] = $rm_id;
+            $vendorJoin['employee_relation'] = "FIND_IN_SET(service_centres.id,employee_relation.service_centres_id)";
+        }
         $data['booking_status'] = trim($status);
         $data['booking_id'] = trim($booking_id);
         $data['partners'] = $this->partner_model->getpartner_details('partners.id,partners.public_name',$partnerWhere);
-        $data['sf'] = $this->vendor_model->getVendorDetails('id,name',array('active' => '1'));
+        $data['sf'] = $this->reusable_model->get_search_result_data("service_centres","service_centres.id,name",$vendorWhere,$vendorJoin,NULL,array("name"=>"ASC"),NULL,array());
         $data['services'] = $this->booking_model->selectservice();
         $data['cities'] = $this->booking_model->get_advance_search_result_data("booking_details","DISTINCT(city)",NULL,NULL,NULL,array('city'=>'ASC'));
        $this->miscelleneous->load_nav_header();
@@ -3119,7 +3127,7 @@ class Booking extends CI_Controller {
             if($booking_status == _247AROUND_COMPLETED || $booking_status == _247AROUND_CANCELLED){
                 $post['where']  = array('current_status' => $booking_status,'type' => 'Booking');
             }else if(strtolower($booking_status) == 'pending' && empty ($booking_id)){
-                if($this->session->userdata('is_am') == '1'){
+                if(($this->session->userdata('is_am') == '1') || $this->session->userdata('user_group') == 'regionalmanager'){
                     $post['where']  = array("(current_status = 'Rescheduled' OR (current_status = 'Pending' AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0))"=>NULL,
                         "service_center_closed_date IS NULL"=>NULL);
                     $post['where_not_in']['booking_details.partner_internal_status']  = array('Booking Completed - Defective Part To Be Shipped By SF','Booking Completed - Defective Part Shipped By SF',
@@ -3501,11 +3509,11 @@ class Booking extends CI_Controller {
                 ."(CASE WHEN current_status  IN ('Pending','Rescheduled','FollowUp') THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) ELSE '' END) as age_of_booking, "
                 ."(CASE WHEN current_status  IN('Completed','Cancelled') THEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) ELSE '' END) as TAT, "
                 . "booking_details.booking_timeslot,booking_details.booking_remarks,"
-                . "booking_details.query_remarks,booking_details.discount_coupon,booking_details.discount_amount,booking_details.total_price,booking_details.cancellation_reason,"
-                . "booking_details.reschedule_reason,service_centres.name,booking_details.rating_stars,booking_details.rating_comments,booking_details.amount_due,"
-                . "booking_details.service_charge,booking_details.additional_service_charge,booking_details.parts_cost,booking_details.amount_paid,booking_details.closing_remarks,"
-                . "booking_details.count_reschedule,booking_details.count_escalation,booking_details.is_upcountry,booking_details.upcountry_pincode,booking_details.sf_upcountry_rate,"
-                . "booking_details.partner_upcountry_rate,booking_details.upcountry_distance,booking_details.is_penalty,booking_details.create_date,booking_details.update_date,"
+                . "booking_details.query_remarks,booking_details.cancellation_reason,"
+                . "booking_details.reschedule_reason,service_centres.name,booking_details.rating_stars,booking_details.rating_comments,"
+                . "booking_details.closing_remarks,"
+                . "booking_details.count_reschedule,booking_details.count_escalation,booking_details.is_upcountry,booking_details.upcountry_pincode,"
+                . "booking_details.upcountry_distance,booking_details.is_penalty,booking_details.create_date,booking_details.update_date,"
                 . "booking_details.service_center_closed_date as closed_date";
        if($is_not_empty){
                 $receieved_Data['length'] = -1;
@@ -3515,9 +3523,9 @@ class Booking extends CI_Controller {
                
                 $headings = array("S.no","Customer Name ","Booking ID","Sub Order ID","Partner","City","Service Center","Service","Brand","Category","Capacity","Request Type","Product/Service","Current_status","Order_ID","Type",
                     "Partner Source","Partner Current Status","Partner Internal Status","Booking Address","Pincode","District","State","Primary Contact Number","Current Booking Date","First Booking Date","Age Of Booking",
-                    "TAT","Booking Timeslot","Booking Remarks","Query Remarks","Discount Coupon","Discount Amount","Total Price","Cancellation Reason","Reschedule_reason","Vendor(SF)",
-                    "Rating","Vendor Rating Comments","Amount Due","Service Charge","Additional Service Charge","Parts Cost","Amount Paid","Closing Remarks","Count Reschedule","Count Escalation",
-                    "Is Upcountry","Upcountry Pincode","SF Upcountry Rate","Partner Upcountry Rate","Upcountry Distance","IS Penalty","Create Date","Update Date","Closed Date");
+                    "TAT","Booking Timeslot","Booking Remarks","Query Remarks","Cancellation Reason","Reschedule_reason","Vendor(SF)",
+                    "Rating","Vendor Rating Comments","Closing Remarks","Count Reschedule","Count Escalation",
+                    "Is Upcountry","Upcountry Pincode","Upcountry Distance","IS Penalty","Create Date","Update Date","Closed Date");
                 $this->miscelleneous->downloadCSV($data['data'],$headings,"booking_search_summary");   
        }
        else{

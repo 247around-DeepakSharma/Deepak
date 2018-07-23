@@ -3656,7 +3656,7 @@ class Service_centers extends CI_Controller {
      * @param: void
      * @return void
      */
-    function get_spare_parts_booking($offset = 0, $all = 0){
+    function get_spare_parts_booking($offset = 0){
         log_message('info', __FUNCTION__ . " sf Id: " . $this->session->userdata('service_center_id'));
         $this->check_WH_UserSession();
         $sf_id = $this->session->userdata('service_center_id');
@@ -3669,11 +3669,7 @@ class Service_centers extends CI_Controller {
         $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false,0,true);
         $config['total_rows'] = $total_rows[0]['total_rows'];
 
-        if ($all == 1) {
-            $config['per_page'] = $total_rows[0]['total_rows'];
-        } else {
-            $config['per_page'] = 50;
-        }
+        $config['per_page'] = 50;
         $config['uri_segment'] = 3;
         $config['first_link'] = 'First';
         $config['last_link'] = 'Last';
@@ -3696,11 +3692,13 @@ class Service_centers extends CI_Controller {
      * @param: void
      * @return void
      */
-    function get_defective_parts_shipped_by_sf($offset = 0, $all = 0){
+    function get_defective_parts_shipped_by_sf($page = 0, $offset = 0){
         log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id'));
         $this->check_WH_UserSession();
         $sf_id = $this->session->userdata('service_center_id');
-
+        if ($page == 0) {
+            $page = 50;
+        }
         $where = array(
             "spare_parts_details.defective_part_required" => 1,
             "approved_defective_parts_by_admin" => 1,
@@ -3715,15 +3713,15 @@ class Service_centers extends CI_Controller {
         $group_by = "spare_parts_details.booking_id";
         $order_by = "spare_parts_details.defective_part_shipped_date DESC";
 
-        $config['base_url'] = base_url() . 'service_center/defective_spare_parts';
+        $config['base_url'] = base_url() . 'service_center/defective_spare_parts/' . $page;;
         $config['total_rows'] = $this->service_centers_model->count_spare_parts_booking($where, $select, $group_by);
 
-        if ($all == 1) {
-            $config['per_page'] = $config['total_rows'];
-        } else {
+        if ($offset !== 'All') {
             $config['per_page'] = 50;
+        } else {
+            $config['per_page'] = $config['total_rows'];
         }
-        $config['uri_segment'] = 3;
+        $config['uri_segment'] = 4;
         $config['first_link'] = 'First';
         $config['last_link'] = 'Last';
         $this->pagination->initialize($config);
@@ -4584,5 +4582,16 @@ class Service_centers extends CI_Controller {
         log_message('info', __FUNCTION__ . $this->input->post('type') . '  File has been removed sucessfully for id ' . $this->input->post('id'));
         echo TRUE;
         }
+    }
+    
+    /**
+     * @desc: This Function is used to search the docket number
+     * @param: void
+     * @return : void
+     */
+    function search_docket_number() {
+        $this->checkUserSession();
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/search_docket_number');
     }
 }
