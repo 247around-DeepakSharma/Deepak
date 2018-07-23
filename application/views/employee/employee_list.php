@@ -148,7 +148,18 @@
                             <td style="text-align: center;"><?php echo $value['personal_email']?></td>
                             <?php if($session_data['user_group'] == _247AROUND_ADMIN || $session_data['user_group'] == _247AROUND_DEVELOPER) {?>
                             <td  <?php echo $style?>><b><?php echo $value['groups']?></b></td>
-                            <td style="text-align: center;"><a href="javascript:void(0)" class="btn btn-md btn-success" onclick='return login_to_employee(<?php echo $value['id']?>)'  <?php echo ($value['active'] == 0)?'disabled=""':'' ?> title="<?php echo strtolower($value['id']) . " / " . strtolower($value['employee_id']);  ?>">Login</a></td>
+                            <?php 
+                                if($value['groups'] == 'admin'){
+                                    if($session_data['user_group'] == _247AROUND_ADMIN){
+                            ?>
+                                        <td style="text-align: center;"><a href="javascript:void(0)" class="btn btn-md btn-success" onclick='return login_to_employee(<?php echo $value['id']?>)'  <?php echo ($value['active'] == 0)?'disabled=""':'' ?> title="<?php echo strtolower($value['id']) . " / " . strtolower($value['employee_id']);  ?>">Login</a></td>
+                               <?php } else{ ?>
+                                        <td style="text-align: center;"><a href="javascript:void(0)" class="btn btn-md btn-success" disabled>Login</a></td>
+                                <?php } ?>
+                            <?php } else{ ?>
+                                <td style="text-align: center;"><a href="javascript:void(0)" class="btn btn-md btn-success" onclick='return login_to_employee(<?php echo $value['id']?>)'  <?php echo ($value['active'] == 0)?'disabled=""':'' ?> title="<?php echo strtolower($value['id']) . " / " . strtolower($value['employee_id']);  ?>">Login</a></td>  
+                            <?php } ?>
+                            <!--     <td style="text-align: center;"><a href="javascript:void(0)" class="btn btn-md btn-success" onclick='return login_to_employee(<?php echo $value['id']?>)'  <?php echo ($value['active'] == 0)?'disabled=""':'' ?> title="<?php echo strtolower($value['id']) . " / " . strtolower($value['employee_id']);  ?>">Login</a></td>-->
                             <td style="text-align: center">
                                 <a href="<?php base_url()?>update_employee/<?php echo $value['id']?>" class="btn btn-sm btn-primary" title="Update Employee" > <i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
                             </td>
