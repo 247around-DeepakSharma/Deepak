@@ -113,6 +113,7 @@ $route['call-customer-status-callback'] = 'employee/booking/call_customer_status
 
 $route['partner/login'] = 'employee/partner';
 $route['partner/home'] = 'employee/partner/partner_default_page';
+$route['partner/dashboard'] = 'employee/partner/partner_dashboard';
 $route['partner/search'] = 'employee/partner/search';
 $route['partner/pending_booking'] = 'employee/partner/pending_booking';
 $route['partner/pending_booking/(:any)'] = 'employee/partner/pending_booking/$1';

@@ -45,7 +45,7 @@
     <tbody>
      <tr ng-repeat="y in escalationData  |orderBy:!mytoggle?'-esclation_per':'-total_escalation' | limitTo:totalItems">
         <td>{{$index+1}}</td>
-         <td><a type="button" id="vendor_{{y.vendor_id}}" class="btn btn-info" target="_blank" href="<?php echo base_url(); ?>employee/vendor/show_escalation_graph_by_sf/{{y.vendor_id}}/{{y.startDate}}/{{y.endDate}}">{{y.vendor_name}}</a></td>
+         <td><a type="button" id="vendor_{{y.vendor_id}}" class="btn btn-info" target="_blank" href="<?php echo base_url(); ?>employee/vendor/show_escalation_graph_by_sf/{{y.vendor_id}}/{{y.startDate}}/{{y.endDate}}"><?php if($this->session->userdata('partner_id')){ ?> {{y.sf_name_for_partner}} <?php } else{ ?> {{y.vendor_name}} <?php } ?></a></td>
         <td>{{y.total_booking}}</td>
         <td>{{y.total_escalation}}</td>
          <td>{{y.esclation_per}}%</td>

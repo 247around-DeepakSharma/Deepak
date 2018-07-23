@@ -349,7 +349,7 @@ class dashboard_model extends CI_Model {
      /*
       * This function is used to get Escalation On the basis of vendor,RM,Dates
       */
-     function get_sf_escalation_by_rm_by_sf_by_date($startDate=NULL,$endDate=NULL,$sf_id=NULL,$rm_id=NULL,$groupBy){
+     function get_sf_escalation_by_rm_by_sf_by_date($startDate=NULL,$endDate=NULL,$sf_id=NULL,$rm_id=NULL,$groupBy,$partnerID){
          //Create Blank Where Array For escalation and Booking
     $booking_orderBy["YEAR(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y'))"] = "ASC";
     $booking_orderBy["month(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y'))"] = "ASC";
@@ -358,7 +358,8 @@ class dashboard_model extends CI_Model {
     $escalation_where=array();
     $booking_where=array();
     //Create Join  Array For escalation and Booking (JOIN With employee Relation to get RM)
-    $escalation_join = array("employee_relation"=>"FIND_IN_SET( vendor_escalation_log.vendor_id , employee_relation.service_centres_id )");
+    $escalation_join = array("employee_relation"=>"FIND_IN_SET( vendor_escalation_log.vendor_id , employee_relation.service_centres_id )",
+        "booking_details"=>"booking_details.booking_id = vendor_escalation_log.booking_id");
     $booking_join = array("employee_relation"=>"FIND_IN_SET( booking_details.assigned_vendor_id , employee_relation.service_centres_id )");
     //Create Select String for booking and escalation
     $booking_select = 'count(booking_id) AS total_booking,assigned_vendor_id,STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y") as booking_date,employee_relation.agent_id as rm_id,'
@@ -374,6 +375,10 @@ class dashboard_model extends CI_Model {
     if($sf_id){
        $escalation_where['vendor_escalation_log.vendor_id'] = $sf_id;
        $booking_where['booking_details.assigned_vendor_id'] = $sf_id;
+    }
+    if($partnerID){
+       $escalation_where['booking_details.partner_id'] = $partnerID;
+       $booking_where['booking_details.partner_id'] = $partnerID;
     }
     // If dates are Set Then add date in where array for booking and escalation
     if(!($startDate) && !($endDate)){
@@ -499,12 +504,14 @@ class dashboard_model extends CI_Model {
      * @param void
      * @return array
      */
-    function get_partner_spare_snapshot($partner_id){
+    function get_partner_spare_snapshot($partner_id,$is_sf_data = 1){
         $data['total_spare_count'] = $this->get_partner_total_spare_details($partner_id);
         
         $data['oot_partner_spare_count'] = $this->get_partner_oot_spare_details_by_partner_id($partner_id);
         
-        $data['oot_sf_spare_count'] = $this->get_sf_oot_spare_details_by_partner_id($partner_id);
+        if($is_sf_data){
+            $data['oot_sf_spare_count'] = $this->get_sf_oot_spare_details_by_partner_id($partner_id);
+        }
         
         return $data;
     }

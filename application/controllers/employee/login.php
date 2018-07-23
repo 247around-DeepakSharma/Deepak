@@ -419,7 +419,7 @@ class Login extends CI_Controller {
                 // Add Navigation Header In Cache
                 $this->miscelleneous->set_header_navigation_in_cache("Partner");
                 //Adding Log Details
-                 redirect(base_url() . "partner/home");
+                 redirect(base_url() . "partner/dashboard");
 
             }else{
                 $userSession = array('error' => 'Sorry, your Login has been De-Activated');

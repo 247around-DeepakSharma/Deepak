@@ -613,5 +613,12 @@ define('INVENTORY_HANDLER_ID', '10030');
 define("ANNUAL_CHARGE_INVOICE_TAGGING", "Annual Charge");
 //PARTNER_SWEETNER_CHARGE
 define("PARTNER_SWEETENER_CHARGE_INVOICE_TAGGING", "Partner Sweetener Charge");
+
+// Region Constatnts
+define('EAST_RM', 'Souvik Ganguly');
+define('SOUTH_RM', 'Suresh K');
+define('WEST_RM', 'Rajendra Oza');
+define('NORTH_RM', 'Arun Kaushik');
+define('TOTAL', 'Total');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
