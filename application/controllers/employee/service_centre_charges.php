@@ -1565,10 +1565,16 @@ class service_centre_charges extends CI_Controller {
         }
     }
     
-    function cancel_misc_charges($id){
+    function cancel_misc_charges($id, $booking_id){
         log_message('info', __METHOD__. "id " .$id);
         if(!empty($id)){
             $this->booking_model->update_misc_charges(array('id' => $id), array('active' => 0));
+            
+            $actor = $next_action = NULL;
+                        
+            $this->notify->insert_state_change($booking_id, MISC_CHARGES_REMOVED,  _247AROUND_PENDING, "", 
+                                $this->session->userdata('id'), $this->session->userdata('employee_id'),
+                    $actor, $next_action, _247AROUND);
             echo "success";
         } else {
             echo "Failed";
