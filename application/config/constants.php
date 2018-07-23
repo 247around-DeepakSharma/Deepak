@@ -596,6 +596,7 @@ define('PARTNER_SERIAL_NUMBER_FILE_TYPE','partner_serial_number');
 define('WAREHOUSE_INCHARCGE_CONSTANT','wh_incharge');
 
 define('NEW_CHARGES_ADDED','New Charges Added');
+define('MISC_CHARGES_REMOVED','Miscellaneous Charges Removed');
 //Partner Login
 define('PARTNER_POC_ROLE_ID','1');
 
