@@ -4659,7 +4659,7 @@ class Partner extends CI_Controller {
        function get_warehouse_details(){
         
         $id = $this->input->post('partner_id');
-        $select = "warehouse_address_line1, warehouse_address_line2, warehouse_city, warehouse_region, warehouse_pincode, warehouse_state, name";
+        $select = "warehouse_details.id as 'wh_id',warehouse_address_line1, warehouse_address_line2, warehouse_city, warehouse_region, warehouse_pincode, warehouse_state, name,contact_person.id as 'contact_person_id'";
         $where1 = array("warehouse_details.entity_id" => $id, "warehouse_details.entity_type" => "partner");
         $data= $this->inventory_model->get_warehouse_details($select, $where1,false);
         echo json_encode($data);
@@ -4672,39 +4672,44 @@ class Partner extends CI_Controller {
      * @return: prints message if data inserted correctly or not
      * 
      */
-    
     public function process_add_warehouse_details() {
-
-
-        $this->form_validation->set_rules('warehouse_address_line1', 'warehouse_address_line1', 'required');
-        $this->form_validation->set_rules('warehouse_city','warehouse_city', 'required');
-        $this->form_validation->set_rules('warehouse_region', 'warehouse_region','required');
-        $this->form_validation->set_rules('warehouse_pincode', 'warehouse_pincode','required');
-        $this->form_validation->set_rules('warehouse_state', 'warehouse_state','required');
-        $this->form_validation->set_rules('contact_name', 'contact_name','required');
+        log_message('info',__METHOD__.' add warehouse details');
+        $this->form_validation->set_rules('warehouse_address_line1', 'warehouse_address_line1', 'required|trim');
+        $this->form_validation->set_rules('warehouse_city','warehouse_city', 'required|trim');
+        $this->form_validation->set_rules('warehouse_region', 'warehouse_region','required|trim');
+        $this->form_validation->set_rules('warehouse_pincode', 'warehouse_pincode','required|trim');
+        $this->form_validation->set_rules('warehouse_state', 'warehouse_state','required|trim');
+        $this->form_validation->set_rules('contact_person_id', 'Contact Person','required|trim');
 
         if ($this->form_validation->run() == TRUE) {
-            $data = array(
+            $wh_data = array(
                 'warehouse_address_line1' => $this->input->post('warehouse_address_line1'),
                 'warehouse_address_line2' => $this->input->post('warehouse_address_line2'),
                 'warehouse_city' => $this->input->post('warehouse_city'),
                 'warehouse_region' => $this->input->post('warehouse_region'),
                 'warehouse_pincode' => $this->input->post('warehouse_pincode'),
                 'warehouse_state' => $this->input->post('warehouse_state'),
-                'entity_id' =>$this->input->post('partner_id'),
+                'entity_id' => $this->input->post('partner_id'),
+                'entity_type' => _247AROUND_PARTNER_STRING,
                 'create_date' => date('Y-m-d H:i:s')
                
             );
-            $status = $this->partner_model->insert_warehouse_details($data);
+            $state = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
+            $wh_contact_person_mapping_data['contact_person_id'] = $this->input->post('contact_person_id');
+            $wh_state_mapping_data = $state;
+            $status = $this->inventory_model->insert_warehouse_details($wh_data,$wh_contact_person_mapping_data,$wh_state_mapping_data);
             if (!empty($status)) {
                 log_message("info", __METHOD__ . " Data Entered Successfully");
                 $this->session->set_userdata('success', 'Data Entered Successfully');
                 redirect(base_url() . 'employee/partner/get_add_partner_form');
             } else {
-                log_message("info", __METHOD__ . " Data Already Exists");
-                $this->session->set_userdata('failed', 'Data Already Exists');
+                log_message("info", __METHOD__ . " Error in adding details");
+                $this->session->set_userdata('failed', 'Data can not be inserted. Please Try Again...');
                 redirect(base_url() . 'employee/partner/get_add_partner_form');
             }
+        }else{
+            $this->session->set_userdata('error', 'Please Select All Field');
+            redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
         } 
     }  
     //update a single contact
@@ -4812,5 +4817,58 @@ class Partner extends CI_Controller {
         if(!$this->session->userdata("login_by")){
             $this->load->view('employee/header/push_notification');
         }
+    }
+    
+    
+    /**
+     * @desc: This Function is used to edit warehouse deatails
+     * @param: void
+     * @return : JSON
+     */
+    function edit_warehouse_details(){
+        log_message('info','edit warehouse details updated data '. print_r($_POST,true));
+        $wh_id = $this->input->post('wh_id');
+        if(!empty($wh_id)){
+            $res = array();
+            $wh_data = array(
+                'warehouse_address_line1' => $this->input->post('wh_address_line1'),
+                'warehouse_address_line2' => $this->input->post('wh_address_line2'),
+                'warehouse_city' => $this->input->post('wh_city'),
+                'warehouse_region' => $this->input->post('wh_region'),
+                'warehouse_pincode' => $this->input->post('wh_pincode'),
+                'warehouse_state' => $this->input->post('wh_state')
+               
+            );
+            
+            $update_wh = $this->inventory_model->edit_warehouse_details(array('id' => $wh_id),$wh_data);
+            
+            $updated_contact_person_id = $this->input->post('wh_contact_person_id');
+            $old__contact_person_id = $this->input->post('old_contact_person_id');
+
+            //if contact person change then update the contact person mapping in the warehouse_contact_person_mapping table
+            //here we assume that every wh have only one contact person
+            //if there are more than two contact person for the same warehouse than please change this logic
+            if ($updated_contact_person_id !== $old__contact_person_id) {
+                $update_wh_contatc_pesron_mapping = $this->inventory_model->update_warehouse_contact_person_mapping(array('warehouse_id' => $wh_id), array('contact_person_id' => $updated_contact_person_id));
+                if ($update_wh_contatc_pesron_mapping) {
+                    $res['status'] = true;
+                    $res['msg'] = 'Details Updated Successfully';
+                }else {
+                    $res['status'] = false;
+                    $res['msg'] = 'Details can not be updated at this moment. Please Try Again...';
+                }
+            }else if($update_wh){
+                $res['status'] = true;
+                $res['msg'] = 'Details Updated Successfully';
+            }else{
+                $res['status'] = false;
+                $res['msg'] = 'Details did not updated. Please Try Again...';
+            }
+        }else{
+            $res['status'] = false;
+            $res['msg'] = 'Warehouse Id can not be empty';
+        }
+        
+        echo json_encode($res);
     }
 }

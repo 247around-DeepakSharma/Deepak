@@ -1211,13 +1211,39 @@ class Invoice extends CI_Controller {
                         $this->booking_model->update_misc_charges(array('id' => $misc['misc_id']), array('vendor_invoice_id' => $invoice_data['meta']['invoice_id']));
                     }
                 }
+                
+               if(!empty($invoice_data['warehouse_courier'])){
+                foreach ($invoice_data['warehouse_courier'] as $spare_courier) {
+                    $sp_id = explode(",", $spare_courier['sp_id']);
+                    foreach($sp_id as $sid){
+                        $this->service_centers_model->update_spare_parts(array('id' => $sid), array('warehouse_courier_invoice_id' =>$invoice_data['meta']['invoice_id']));
+                    }
+                }
+            }
+            
+            if(!empty($invoice_data['defective_return_to_partner'])){
+                foreach ($invoice_data['defective_return_to_partner'] as $defective_id) {
+                    $c_id = explode(",", $defective_id['c_id']);
+                    foreach($c_id as $cid){
+                        $this->inventory_model->update_courier_detail(array('id' => $cid), array('sender_invoice_id' => $invoice_data['meta']['invoice_id']));
+                    }
+                }
+            }
+            
+            if(!empty($invoice_data['courier'])){
+                foreach ($invoice_data['courier'] as $sc) {
+                        $this->inventory_model->update_courier_detail(array('id' => $sc['sp_id']), array('sender_invoice_id' => $invoice_data['meta']['invoice_id']));
+
+                }
+            }
 
                 /*
                  * Update booking-invoice table to capture this new invoice against these bookings.
                  * Since this is a type B invoice, it would be stored as a vendor-credit invoice.
                  */
-
-                $this->update_invoice_id_in_unit_details($invoice_details, $invoice_data['meta']['invoice_id'], $invoice_type, "vendor_foc_invoice_id");
+                if(!empty($invoice_details)){
+                    $this->update_invoice_id_in_unit_details($invoice_details, $invoice_data['meta']['invoice_id'], $invoice_type, "vendor_foc_invoice_id");
+                }
             } else {
                 
                  $this->download_invoice_files($invoice_data['meta']['invoice_id'], $output_file_excel, $output_file_main);
@@ -1280,7 +1306,7 @@ class Invoice extends CI_Controller {
                 array(
                     'id' => 'courier',
                     'repeat' => true,
-                    'data' =>  $invoice_data['courier']
+                    'data' =>  $invoice_data['final_courier_data']
                 ),
                     )
             );
@@ -1616,32 +1642,7 @@ class Invoice extends CI_Controller {
                     }
 
                     break;
-                case "warehouse":
-                if ($details['vendor_partner_id'] === 'All') {
-                    $select = "service_centres.name, service_centres.id, is_wh, company_name,"
-                            . "state, gst_no as gst_number, address as company_address, district, "
-                            . "pincode, sc_code, owner_email, primary_contact_email, owner_phone_1";
-                    $vendor = $this->vendor_model->getVendorDetails($select, array('is_wh' => 1));
-                    foreach ($vendor as $value) {
-                        log_message('info', __FUNCTION__ . " Warehouse Id: " . $value['id']);
-                        $details['vendor_partner_id'] = $value['id'];
-                        //Generating and sending invoice to vendors
-                        $this->generate_sf_warehouse_invoices($details, $value, $is_regenerate);
-                    }
-                } else {
-                    log_message('info', __FUNCTION__ . " Warehouse Vendor Id: " . $details['vendor_partner_id']);
-                    $is_wh = $this->vendor_model->getVendorDetails('is_wh, company_name, state, gst_no as gst_number'
-                            . ', address as company_address, district, pincode, sc_code, '
-                            . ' owner_email, primary_contact_email, owner_phone_1', array('id' => $details['vendor_partner_id']));
-                    if($is_wh[0]['is_wh'] == 1){
-                        //Generating and sending invoice to vendors
-                        return $this->generate_sf_warehouse_invoices($details, $is_wh[0], $is_regenerate);
-                    } else {
-                        return false;
-                    }
-                    
-                }
-                break;
+                
         }
     }
 
@@ -3698,187 +3699,6 @@ class Invoice extends CI_Controller {
     }
     
     /**
-     * @desc This is used to generate sf warehouse invoice
-     * @param Array $details
-     * @param Array $vendor_details
-     * @param int $is_regenerate
-     * @return boolean
-     */
-    function generate_sf_warehouse_invoices($details, $vendor_details, $is_regenerate) {
-        log_message('info', __FUNCTION__ . "Entering..." . print_r($details, true) . ' is_regenerate: ' . $is_regenerate);
-        $vendor_id = $details['vendor_partner_id'];
-        $custom_date = explode("-", $details['date_range']);
-        $from_date = $custom_date[0];
-        $to_date = $custom_date[1];
-        $invoice_date = date('Y-m-d');
-        $invoice_type = $details['invoice_type'];
-        $invoices = $this->invoices_model->get_warehouse_invoice_data($vendor_id, $from_date, $to_date, $is_regenerate);
-        if (!empty($invoices)) {
-            $invoices['booking'][0]['gst_number'] = $vendor_details['gst_number'];
-            $invoices['booking'][0]['company_name'] = $vendor_details['company_name'];
-            $invoices['booking'][0]['company_address'] = $vendor_details['company_address'];
-            $invoices['booking'][0]['district'] = $vendor_details['district'];
-            $invoices['booking'][0]['pincode'] = $vendor_details['pincode'];
-            $invoices['booking'][0]['state'] = $vendor_details['state'];
-           
-            $response = $this->invoices_model->_set_partner_excel_invoice_data($invoices['booking'], $from_date, $to_date, $invoice_type, $invoice_date);
-            if (isset($details['invoice_id'])) {
-                log_message('info', __METHOD__ . ": Invoice Id re- geneterated " . $details['invoice_id']);
-                $response['meta']['invoice_id'] = $details['invoice_id'];
-            } else {
-                $response['meta']['invoice_id'] = $this->create_invoice_id_to_insert($vendor_details['sc_code']);
-
-                log_message('info', __METHOD__ . ": Invoice Id geneterated "
-                        . $response['meta']['invoice_id']);
-            }
-          
-            if(!empty($invoices['booking'][0]['gst_number'])){
-                $response['meta']['invoice_template'] = "SF_FOC_Tax_Invoice-Intra_State-v1.xlsx";
-                $status = $this->invoice_lib->send_request_to_create_main_excel($response, "Tax Invoice");
-            } else {
-                $response['meta']['invoice_template'] = "SF_FOC_Bill_of_Supply-v1.xlsx";
-                $status = $this->invoice_lib->send_request_to_create_main_excel($response, "Bill of Supply");
-            }  
-
-            if (!empty($status)) {
-                log_message('info', __FUNCTION__ . ' Invoice File is created. invoice id' . $response['meta']['invoice_id']);
-                $convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($response['meta']['invoice_id'], $invoice_type);
-                $output_pdf_file_name = $convert['main_pdf_file_name'];
-                $response['meta']['invoice_file_main'] = $output_pdf_file_name;
-                $response['meta']['copy_file'] = $convert['copy_file'];
-
-                $template = 'sf_warehouse_courier_charge.xlsx';
-                $output_file_excel = TMP_FOLDER . $response['meta']['invoice_id'] . "-detailed.xlsx";
-
-                $this->invoice_lib->generate_invoice_excel($template, $response['meta'], $invoices['annexure'], $output_file_excel);
-
-                if ($invoice_type === "final") {
-                    log_message('info', __FUNCTION__ . " Final");
-
-                    $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_id);
-                    $rem_email_id = "";
-                    if (!empty($rm_details)) {
-                        $rem_email_id = ", " . $rm_details[0]['official_email'];
-                    }
-
-                    //get email template from database
-                    $email_template = $this->booking_model->get_booking_email_template(SF_WAREHOUSE_INVOICE_TAG);
-                    $subject = vsprintf($email_template[4], array($response['meta']['company_name'], $response['meta']['sd'], $response['meta']['ed']));
-                    $message = $email_template[0];
-                    $email_from = $email_template[2];
-                    $to = $vendor_details['owner_email'] . ", " . $vendor_details['primary_contact_email'];
-
-                    $cc = ANUJ_EMAIL_ID . ", " . ACCOUNTANT_EMAILID . $rem_email_id;
-                    $pdf_attachement = S3_WEBSITE_URL. "invoices-excel/" . $output_pdf_file_name;
-                    //Upload Excel files to AWS
-                    $this->upload_invoice_to_S3($response['meta']['invoice_id'], true);
-
-                    $mail_ret = $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, $output_file_excel, $pdf_attachement, SF_WAREHOUSE_INVOICE_TAG);
-
-                    //Send SMS to PoC/Owner
-                    $this->send_invoice_sms("FOC", $response['meta']['sd'], $response['meta']['sub_total_amount'], $vendor_details['owner_phone_1'], $vendor_id);
-
-                    //Save this invoice info in table
-                    $invoice_details_insert = array(
-                        'invoice_id' => $response['meta']['invoice_id'],
-                        'type' => 'FOC',
-                        'type_code' => 'B',
-                        'vendor_partner' => 'vendor',
-                        'vendor_partner_id' => $vendor_id,
-                        'invoice_file_main' => $output_pdf_file_name,
-                        'invoice_file_excel' => "copy_" . $response['meta']['invoice_id'] . '.xlsx',
-                        'invoice_detailed_excel' => $response['meta']['invoice_id'] . '-detailed.xlsx',
-                        'invoice_date' => date("Y-m-d"),
-                        'from_date' => date("Y-m-d", strtotime($from_date)),
-                        'to_date' => date("Y-m-d", strtotime($to_date)),
-                        'num_bookings' => $response['meta']['total_qty'],
-                        'total_service_charge' => $response['meta']['total_taxable_value'],
-                        'total_amount_collected' => ($response['meta']['sub_total_amount']),
-                        //Amount needs to be Paid to Vendor
-                        'amount_collected_paid' => (0 - $response['meta']['sub_total_amount']),
-                        //Mail has not sent
-                        'mail_sent' => $mail_ret,
-                        //SMS has been sent or not
-                        'sms_sent' => 1,
-                        'invoice_date' => date('Y-m-d'),
-                        //Add 1 month to end date to calculate due date
-                        'due_date' => date("Y-m-d", strtotime($to_date . "+1 month")),
-                        //add agent id
-                        'agent_id' => $this->session->userdata('id'),
-                        "cgst_tax_rate" => $response['meta']['cgst_tax_rate'],
-                        "sgst_tax_rate" => $response['meta']['sgst_tax_rate'],
-                        "igst_tax_rate" => $response['meta']['igst_tax_rate'],
-                        "igst_tax_amount" => $response['meta']["igst_total_tax_amount"],
-                        "sgst_tax_amount" => $response['meta']["sgst_total_tax_amount"],
-                        "cgst_tax_amount" => $response['meta']["cgst_total_tax_amount"],
-                        "parts_count" => $response['meta']["parts_count"],
-                        "invoice_file_pdf" => $convert['copy_file'],
-                        "hsn_code" => HSN_CODE
-                    );
-
-                    // insert invoice details into vendor partner invoices table
-                    $this->invoices_model->insert_new_invoice($invoice_details_insert);
-                    
-                    $invoice_breakup = array();
-                    foreach($response['booking'] as $value){
-                        $invoice_details = array(
-                            "invoice_id" => $response['meta']['invoice_id'],
-                            "description" => $value['description'],
-                            "qty" => $value['qty'],
-                            "product_or_services" => $value['product_or_services'],
-                            "rate" => $value['rate'],
-                            "taxable_value" => $value['taxable_value'],
-                            "cgst_tax_rate" => (isset($value['cgst_tax_rate']) ? $value['cgst_tax_rate'] : 0),
-                            "sgst_tax_rate" => (isset($value['sgst_tax_rate']) ? $value['sgst_tax_rate'] : 0),
-                            "igst_tax_rate" => (isset($value['igst_tax_rate']) ? $value['igst_tax_rate'] : 0),
-                            "cgst_tax_amount" => (isset($value['cgst_tax_amount']) ? $value['cgst_tax_amount'] : 0),
-                            "sgst_tax_amount" => (isset($value['sgst_tax_amount']) ? $value['sgst_tax_amount'] : 0),
-                            "igst_tax_amount" => (isset($value['igst_tax_amount']) ? $value['igst_tax_amount'] : 0),
-                            "hsn_code" => $value['hsn_code'],
-                            "toal_amount" => $value['toal_amount'],
-                            "create_date" => date('Y-m-d H:i:s')
-
-                        );
-
-                        array_push($invoice_breakup, $invoice_details);
-                    }
-                    
-                    $this->invoices_model->insert_invoice_breakup($invoice_breakup);
-        
-                    if(isset($invoices['inventory_ledger']) && !empty($invoices['inventory_ledger'])){
-                        foreach ($invoices['inventory_ledger'] as $value) {
-                            $this->inventory_model->update_ledger_details(array('id' => $value['id']), 
-                                    array('vendor_warehouse_invoice_id' => $response['meta']['invoice_id']));
-                        }
-                    }
-                    
-                    if(isset($invoices['courier_details']) && !empty($invoices['courier_details'])){
-                        foreach ($invoices['courier_details'] as $value) {
-                            $this->inventory_model->update_courier_detail(array('id' => $value['id']), array('sender_invoice_id' => 
-                                $response['meta']['invoice_id']));
-                        }
-                    }
-                    
-                    if(isset($invoices['spare_courier']) && !empty($invoices['spare_courier'])){
-                        foreach ($invoices['spare_courier'] as $value) {
-                            $this->service_centers_model->update_spare_parts(array('id' => $value['id']), array('warehouse_courier_invoice_id' => 
-                                $response['meta']['invoice_id']));
-                        }
-                    }
-
-                    log_message('info', __METHOD__ . ': Invoice ' . $response['meta']['invoice_id'] . ' details  entered into invoices table');
-                    unlink($output_file_excel);
-                    return true;
-                } else {
-
-                    $this->download_invoice_files($response['meta']['invoice_id'], $output_file_excel, $output_pdf_file_name);
-                }
-            } else {
-                return false;
-            }
-        }
-    }
-/**
      * @desc: This function is used to get partners annual charges consolidated table view
      * @params: void
      * @return: view

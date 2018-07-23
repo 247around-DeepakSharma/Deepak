@@ -25,12 +25,15 @@ class Accounting extends CI_Controller {
         $this->load->model("accounting_model");
         $this->load->model("vendor_model");
         $this->load->model("partner_model");
+        $this->load->model('booking_model');
         $this->load->library('miscelleneous');
         $this->load->library("notify");
         $this->load->library('PHPReport');
         $this->load->library('form_validation');
         $this->load->library("session");
         $this->load->library('s3');
+        //  $this->load->library('upload');
+        //  $this->load->library('email');
 
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
             return TRUE;
@@ -544,10 +547,11 @@ class Accounting extends CI_Controller {
     
     //Function to load add ducuments page
    function shipped_documents(){
+        //$courier_details = $this->accounting_model->get_courier_documents();
         $partner_id = $this->reusable_model->get_search_result_data("partners","*",array("is_active"=>1),NULL,NULL,NULL,NULL,NULL,array());
         $sf_id = $this->reusable_model->get_search_result_data("service_centres","*",array("active"=>1),NULL,NULL,NULL,NULL,NULL,array());
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/shipped_documents',array('partner_id'=>$partner_id,'sf_id'=>$sf_id));
+        $this->load->view('employee/shipped_documents',array('partner_id'=>$partner_id,'sf_id'=>$sf_id, 'courier_details'=>null));
     }
     
     //for displaying contact in view->shipped_documents.php on the basis of partner id
@@ -574,10 +578,9 @@ class Accounting extends CI_Controller {
         $tmp_courier_name = $_FILES['courier']['tmp_name'];
         $courier_name = implode("",explode(" ",$this->input->post('courier'))).'_courier_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['courier']['name'])[1];
         move_uploaded_file($tmp_courier_name, TMP_FOLDER.$courier_name);
-        //Upload files to AWS
         $bucket = BITBUCKET_DIRECTORY;
         $directory_xls = "vendor-partner-docs/" . $courier_name;
-        $this->s3->putObjectFile(TMP_FOLDER . $courier_name, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+        $this->s3->putObjectFile(TMP_FOLDER.$courier_name, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
         $_POST['courier'] = $courier_name;
         $attachment_courier = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $courier_name;
 
@@ -593,6 +596,7 @@ class Accounting extends CI_Controller {
         $shipped_documents['courier_name'] = $this->input->post('courier_name');
         $shipped_documents['receiver_entity_type'] = $this->input->post('entity_type');
         $shipped_documents['document_type']= $this->input->post('doc_type');
+        $shipped_documents['notification_email']= $this->input->post('email_input');
         if($this->input->post('contact')){
             $shipped_documents['contact_person_id'] = $this->input->post('contact');
         }
@@ -632,10 +636,19 @@ class Accounting extends CI_Controller {
                 break;
         }
         $shipped_documents['receiver_entity_id'] = $id;
-        if($this->input->post('add_edit') == 'add'){
+        if($this->input->post('add_edit') == 'add'){ 
             $add_documents = $this->reusable_model->insert_into_table("courier_details",$shipped_documents);
+            /*** Modified by kalyani - Send email for courier detail to given email id ****/
+            $email_template = $this->booking_model->get_booking_email_template(COURIER_DOCUMENT);
+            $from = $email_template[2];
+            $to = $this->input->post('email_input');
+            $subject = $email_template[4];
+            $message = vsprintf($email_template[0], array($this->input->post('doc_type'), $this->input->post('courier_name'), $this->input->post('awb_no'), $this->input->post('shipment_date'), $this->input->post('remarks')));
+            $attachment = TMP_FOLDER.$courier_name;
+            $this->notify->sendEmail($from, $to, "", "", $subject, $message, $attachment, "Courier Detail");
+            /**** End ****/
         }
-        else{
+        else{ 
             $add_documents = $this->reusable_model->update_table("courier_details",$shipped_documents,array('id'=>$this->input->post('add_edit')));
         }
         if(!($add_documents)){

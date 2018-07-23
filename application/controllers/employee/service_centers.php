@@ -4194,10 +4194,23 @@ class Service_centers extends CI_Controller {
     function get_approved_defective_parts_booking_by_warehouse($offset = 0) {
         $this->check_WH_UserSession();
         log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id'));
-
+        
+        //check if call from form submission or direct url
+        //used to filter the page by partner id
+        if($this->input->post('partner_id')){
+            $this->session->set_userdata(array("filtered_partner"=> $this->input->post('partner_id')));
+            $data['filtered_partner'] = $this->input->post('partner_id');
+        }
+        
         $sf_id = $this->session->userdata('service_center_id');
         $where = "spare_parts_details.partner_id = '" . $sf_id . "' AND spare_parts_details.entity_type = '"._247AROUND_SF_STRING."'"
                 . " AND approved_defective_parts_by_partner = '1' AND status = '"._247AROUND_COMPLETED."'";
+        
+        
+        if($this->session->userdata('filtered_partner')){
+            $where .= " AND booking_details.partner_id = " . $this->session->userdata('filtered_partner');
+            $data['filtered_partner'] = $this->session->userdata('filtered_partner');
+        }
 
         $config['base_url'] = base_url() . 'service_center/approved_defective_parts_booking_by_warehouse';
         $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
