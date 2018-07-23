@@ -69,7 +69,7 @@
                                 </div>
                                 <div class="col-md-1 text-center" style="margin-top:20px;">
                                     <div class="form-group col-md-12  ">
-                                        <button type="button" class="btn btn-default removeButton" onclick="removeitem('<?php echo $value['id'];?>')"><i class="fa fa-minus"></i></button>
+                                        <button type="button" class="btn btn-default removeButton" onclick="removeitem('<?php echo $value['id'];?>', '<?php echo $booking_id;?>')"><i class="fa fa-minus"></i></button>
                                     </div>
                                 </div>
                             </div>
@@ -131,13 +131,14 @@ if($this->session->userdata('error')){$this->session->unset_userdata('error');}
 ?>
 
 <script>
-function removeitem(id){
+function removeitem(id, booking_id){
     $.ajax({
        type: 'POST',
-       url: '<?php echo base_url(); ?>/employee/service_centre_charges/cancel_misc_charges/'+id,
+       url: '<?php echo base_url(); ?>/employee/service_centre_charges/cancel_misc_charges/'+id +"/"+booking_id,
        data: {},
        success: function (data) {
           if(data === "success"){
+              alert("Charges Removed");
               location.reload(true);
           } else {
               alert("Please refresh and tyy again");

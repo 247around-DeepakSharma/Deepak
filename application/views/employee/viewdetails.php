@@ -1439,3 +1439,22 @@ background-color: #f5f5f5;
         </div>
     </div>
  <?php } ?>
+
+    <script>
+    function removeMiscitem(id, booking_id){
+        $.ajax({
+           type: 'POST',
+           url: '<?php echo base_url(); ?>/employee/service_centre_charges/cancel_misc_charges/'+id +"/"+booking_id,
+           data: {},
+           success: function (data) {
+              if(data === "success"){
+                  alert("Charges Removed");
+                  location.reload(true);
+              } else {
+                  alert("Please refresh and tyy again");
+              }
+
+           }
+    });
+}
+    </script>
