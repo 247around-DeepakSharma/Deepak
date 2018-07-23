@@ -112,8 +112,7 @@ function send_remarks() {
     postData['admin_remarks'] = $('#textarea').val();
 
     sendAjaxRequest(postData, admin_remarksUrl).done(function (data) {
-	location.reload();
-
+        alert("Booking Has been Rejected Successfully");
     });
 
 }
