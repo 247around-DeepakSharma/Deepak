@@ -52,3 +52,6 @@ define('DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH','Defective parts send by warehous
 define('PARTNER_ACK_DEFECTIVE_PARTS_SEND_BY_WH','Partner acknowledge defective parts send by warehouse');
 define('PARTNER_SPARE_OOT_DAYS','30');
 define('SF_SPARE_OOT_DAYS','7');
+
+//for now default warehouse id is 10 (sf = manish ji)
+define('DEFAULT_WAREHOUSE_ID',10);
