@@ -32,10 +32,23 @@
                         <strong><span id="error_msg"></span></strong>
                     </div>
                 </div>
-               <div class="table-responsive">
-                  
+                <div class="search-form">
+                    <form class="form-inline" action="<?php echo base_url();?>service_center/approved_defective_parts_booking_by_warehouse" method="POST">
+                        <div class="form-group">
+                            <label for="partner_id">Select Partner</label>
+                            <select class="form-control" id="partner_id" name="partner_id" required="">
+                                <option value="" disabled="">Select Partner</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-sm btn-success">Submit</button>
+                    </form>
+                </div>
+                <hr>
+                
+                <?php if(!empty($spare_parts)) { ?>
+                <div class="table-responsive">
                    <table class="table table-bordered table-hover table-striped">
-                       <thead>
+                        <thead>
                            <tr>
                             <th class="text-center">No</th>
                             <th class="text-center">Booking Id</th>
@@ -51,11 +64,10 @@
                                 <input type="checkbox" id="send_all">
                             </th>
                            </tr>
-                       </thead>
-                       <tbody>
-                           <tbody>
-                                <?php  foreach($spare_parts as $key =>$row){?>
-                               <tr style="text-align: center;">
+                        </thead>
+                        <tbody>
+                            <?php  foreach($spare_parts as $key =>$row){?>
+                            <tr style="text-align: center;">
                                     <td>
                                         <?php echo $sn_no; ?>
                                     </td>
@@ -87,13 +99,17 @@
                                     <td>
                                         <input type="checkbox" class="check_single_row" data-part_name ="<?php echo $row['defective_part_shipped']; ?>" data-model="<?php echo $row['model_number_shipped']; ?>" data-shipped_inventory_id = "<?php echo $row['shipped_inventory_id']?>" data-booking_id ="<?php echo $row['booking_id']?>" data-partner_id = "<?php echo $row['partner_id']?>" data-spare_id = "<?php echo $row['id']?>" data-booking_partner_id = "<?php echo $row['booking_partner_id']?>">
                                     </td>
-                                </tr>
-                                <?php $sn_no++; } ?>
-                            </tbody>
+                            </tr>
+                            <?php $sn_no++; } ?>
+                        </tbody>
                         </table>
-                      
-                        </div>
-                   
+                    </div>
+                <?php }else { ?>
+                
+                <div class="alert alert-danger">
+                    <div class="text-center">No Data Found</div>
+                </div>
+                <?php } ?>
                </div>
             </div>
          </div>
@@ -173,6 +189,16 @@
 <div class="custom_pagination" style="margin-left: 16px;" > <?php if(isset($links)) echo $links; ?></div>
 
 <script>
+    
+    $('#partner_id').select2({
+        placeholder:'Select Partner',
+        allowClear:true
+    });
+    
+    $('document').ready(function(){
+        get_partner();
+    });
+    
     var postData = {};
     $("#defective_parts_shippped_date_by_wh").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true});
     $('#send_all').on('click', function () {
@@ -265,4 +291,19 @@
         }
         
     });
+    
+    function get_partner(){
+        $.ajax({
+            type:'POST',
+            url:'<?php echo base_url();?>employee/partner/get_partner_list',
+            data:{is_wh:true},
+            success:function(response){
+                $('#partner_id').html(response);
+                <?php if(isset($filtered_partner)) { ?> 
+                    $('#partner_id').val('<?php echo $filtered_partner?>'); 
+                    $('#partner_id').trigger('change');
+                <?php } ?>
+            }
+        });
+    }
 </script>
