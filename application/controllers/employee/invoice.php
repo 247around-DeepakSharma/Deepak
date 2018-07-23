@@ -169,7 +169,7 @@ class Invoice extends CI_Controller {
             $vendor_partner = $data[0]['vendor_partner'];
             $email = "";
             $detailed_invoice = "";
-            if(!empty($data[0]['invoice_file_main'])){
+            if(!empty($data[0]['invoice_detailed_excel'])){
                 $detailed_invoice = S3_WEBSITE_URL."invoices-excel/".$data[0]['invoice_detailed_excel'];
             }
             $main_invoice = S3_WEBSITE_URL."invoices-excel/".$data[0]['invoice_file_main'];
@@ -875,7 +875,7 @@ class Invoice extends CI_Controller {
                 'total_additional_service_charge' => $t_ad_charge,
                 'parts_cost' => $t_part_charge,
                 'vat' => 0, //No VAT here in Cash invoice
-                'total_amount_collected' => $meta['total_amount_paid'],
+                'total_amount_collected' => $meta['sub_total_amount'],
                 'rating' => $meta['t_rating'],
                 'around_royalty' => $meta['sub_total_amount'],
                 'upcountry_price' => $meta['upcountry_distance'],
