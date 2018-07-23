@@ -4858,7 +4858,12 @@ class vendor extends CI_Controller {
    echo $table .= '</tbody></table>';
     }
     function show_escalation_graph_by_sf($sfID,$startDate,$endDate){
+            if($this->session->userdata('userType') == 'employee'){
         $this->miscelleneous->load_nav_header();
+        }
+        else if($this->session->userdata('userType') == 'partner'){
+            $this->miscelleneous->load_partner_nav_header();
+        }
         $this->load->view('employee/sf_escalation_view', array('data' => array("vendor_id"=>$sfID,"startDate"=>$startDate,"endDate"=>$endDate)));
     }
     function getServicesForVendor($vendorID){

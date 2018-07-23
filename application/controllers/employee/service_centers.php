@@ -1987,6 +1987,21 @@ class Service_centers extends CI_Controller {
                 //send email
                 $email_template = $this->booking_model->get_booking_email_template(COURIER_DETAILS);
                 if(!empty($email_template)){
+                    $wh_email = '';
+                    //get warehouse incharge email
+                    //for now we add manish ji as a default warehouse
+                    //when in spare parts table we start inserting wh_id as a seperate column then we have to 
+                    //get the wh id from that table not by default
+                    $wh_incharge_id = $this->reusable_model->get_search_result_data("entity_role", "id", array("entity_type" => _247AROUND_SF_STRING, 'role' => WAREHOUSE_INCHARCGE_CONSTANT), NULL, NULL, NULL, NULL, NULL, array());
+                    if(!empty($wh_incharge_id)){
+                        //get 247around warehouse incharge email
+                        $wh_where = array('contact_person.role' => $wh_incharge_id[0]['id'],
+                            'contact_person.entity_id' => DEFAULT_WAREHOUSE_ID,
+                            'contact_person.entity_type' => _247AROUND_SF_STRING
+                        );
+                        $email_details = $this->inventory_model->get_warehouse_details('contact_person.official_email', $wh_where, FALSE, TRUE);
+                        $wh_email = !empty($email_details)?$email_details[0]['official_email']:'';
+                    }
                     
                     $rm_email = $this->get_rm_email($service_center_id);
 
@@ -2000,12 +2015,12 @@ class Service_centers extends CI_Controller {
                     $email_from = $email_template[2];
 
                     $to = $email_template[1];
-                    $cc = $rm_email.",".$email_template[3];
+                    $cc = $rm_email.",".$wh_email.','.$email_template[3];
                     $bcc = $email_template[5];
 
                     $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $attachment, COURIER_DETAILS);
                 }
-            
+                
                 $userSession = array('success' => 'Parts Updated.');
 
                 $this->session->set_userdata($userSession);
@@ -4194,10 +4209,23 @@ class Service_centers extends CI_Controller {
     function get_approved_defective_parts_booking_by_warehouse($offset = 0) {
         $this->check_WH_UserSession();
         log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id'));
-
+        
+        //check if call from form submission or direct url
+        //used to filter the page by partner id
+        if($this->input->post('partner_id')){
+            $this->session->set_userdata(array("filtered_partner"=> $this->input->post('partner_id')));
+            $data['filtered_partner'] = $this->input->post('partner_id');
+        }
+        
         $sf_id = $this->session->userdata('service_center_id');
         $where = "spare_parts_details.partner_id = '" . $sf_id . "' AND spare_parts_details.entity_type = '"._247AROUND_SF_STRING."'"
                 . " AND approved_defective_parts_by_partner = '1' AND status = '"._247AROUND_COMPLETED."'";
+        
+        
+        if($this->session->userdata('filtered_partner')){
+            $where .= " AND booking_details.partner_id = " . $this->session->userdata('filtered_partner');
+            $data['filtered_partner'] = $this->session->userdata('filtered_partner');
+        }
 
         $config['base_url'] = base_url() . 'service_center/approved_defective_parts_booking_by_warehouse';
         $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
