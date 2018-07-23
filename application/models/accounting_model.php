@@ -258,7 +258,7 @@ class accounting_model extends CI_Model {
         return $data;
     }
     function get_courier_documents($id=NULL){
-        $where ='';
+        $where = "WHERE courier_details.is_active = 1";
         if($id){
             $where = " WHERE courier_details.id = ".$id;
         }
@@ -278,10 +278,11 @@ class accounting_model extends CI_Model {
         LEFT JOIN `service_centres` ON `courier_details`.`sender_entity_id`= `service_centres`.`id` LEFT JOIN `partners` as p ON `courier_details`.`receiver_entity_id`= `p`.`id` 
         LEFT JOIN `service_centres` as s ON `courier_details`.`receiver_entity_id`= `s`.`id` LEFT JOIN `employee` as e ON `courier_details`.`sender_entity_id` = e.`id` 
         LEFT JOIN `contact_person` ON `courier_details`.`contact_person_id`= `contact_person`.`id` ".$where." ORDER BY `courier_details`.`id` asc ;");
-         return $query->result();
+        return $query->result();
     }
-        function delete_shipped_documents($id){
-        $this->db->where('id',$id);
-        return $this->db->delete('courier_details');
+    function delete_shipped_documents($id){
+        $this->db->set('is_active', 0); //value that used to update column  
+        $this->db->where('id', $id); //which row want to upgrade  
+        $this->db->update('courier_details');
     }
 }
