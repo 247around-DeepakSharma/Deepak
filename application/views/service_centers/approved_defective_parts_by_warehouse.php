@@ -233,10 +233,14 @@
         postData['sender_entity_id'] =  '<?php echo $this->session->userdata('service_center_id')?>';
         postData['sender_entity_type'] = '<?php echo _247AROUND_SF_STRING; ?>';
         postData['wh_name'] = '<?php echo $this->session->userdata('wh_name')?>';
-        postData['receiver_partner_id'] = $("#receiver_partner_id").val();
+        postData['receiver_partner_id'] = $("#partner_id").val();
         
         if(flag){
-            $('#courier_model').modal('toggle');
+            if(postData['receiver_partner_id']){
+                $('#courier_model').modal('toggle');
+            }else{
+                alert("Please Select Partner");
+            }
         }else{
             alert("Please Select At Least One Checkbox");
         }
