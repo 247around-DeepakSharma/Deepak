@@ -32,7 +32,7 @@ class Dashboard extends CI_Controller {
 
         $this->load->library('table');
 
-        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
+        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee' || $this->session->userdata('userType') == 'partner')) {
             return TRUE;
         } else {
             echo PHP_EOL . 'Terminal Access Not Allowed' . PHP_EOL;
@@ -46,16 +46,19 @@ class Dashboard extends CI_Controller {
      * @return void
      */
     function index() {
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
-        
-        if($this->session->userdata('user_group') == _247AROUND_ACCOUNTANT){
-            redirect(base_url().'employee/invoice/invoice_partner_view');
-        }else{
-            $this->load->view("dashboard/".$this->session->userdata('user_group')."_dashboard");
+        if($this->session->userdata('partner_id')){
+            redirect(base_url() . "employee/login");
         }
-        
-        $this->load->view('dashboard/dashboard_footer');
-        $this->load->view('employee/header/push_notification');
+        else{
+            $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+            if($this->session->userdata('user_group') == _247AROUND_ACCOUNTANT){
+                redirect(base_url().'employee/invoice/invoice_partner_view');
+            }else{
+                $this->load->view("dashboard/".$this->session->userdata('user_group')."_dashboard");
+            }
+            $this->load->view('dashboard/dashboard_footer');
+            $this->load->view('employee/header/push_notification');
+        }
     }
     
     function execute_title_query(){
@@ -296,13 +299,13 @@ class Dashboard extends CI_Controller {
      * @return json
      */
     function get_booking_data_by_region($is_repeat_ajax = "") {
+        $partner_id = "";
+        if ($this->input->post('partner_id')) {
+            $partner_id = $this->input->post('partner_id');
+        }
         if ($is_repeat_ajax) {
             $sDate = $this->input->post('sDate');
             $eDate = $this->input->post('eDate');
-            $partner_id = "";
-            if ($this->input->post('partner_id')) {
-                $partner_id = $this->input->post('partner_id');
-            }
             $startDate = date('Y-m-d 00:00:00', strtotime($sDate));
             $endDate = date('Y-m-d 23:59:59', strtotime($eDate));
             $this->make_rm_final_bookings_data($startDate, $endDate, $partner_id);
@@ -310,7 +313,7 @@ class Dashboard extends CI_Controller {
             $timestamp = strtotime(date("Y-m-d"));
             $startDate = date('Y-m-01 00:00:00', $timestamp);
             $endDate = date('Y-m-d 23:59:59', $timestamp);
-            $this->make_rm_final_bookings_data($startDate, $endDate);
+            $this->make_rm_final_bookings_data($startDate, $endDate,$partner_id);
         }
     }
     
@@ -321,6 +324,7 @@ class Dashboard extends CI_Controller {
      */
     private function make_rm_final_bookings_data($startDate, $endDate, $partnerid = "") {
         $rm_array = $this->employee_model->get_rm_details();
+        $region = array();
         $rm = [];
         $cancelled = [];
         $completed = [];
@@ -332,7 +336,20 @@ class Dashboard extends CI_Controller {
             $partner_id = "";
         }
         foreach ($rm_array as $value) {
-
+            switch ($value['full_name']) {
+                case EAST_RM:
+                    $region[] = "East";
+                break;
+                case SOUTH_RM:
+                    $region[] = "South";
+                break;
+                case WEST_RM:
+                    $region[] = "West";
+                break;
+                case NORTH_RM:
+                    $region[] = "North";
+                break;
+            }
             $sf_list = $this->vendor_model->get_employee_relation($value['id']);
             if (!empty($sf_list)) {
                 $sf_id = $sf_list[0]['service_centres_id'];
@@ -377,6 +394,7 @@ class Dashboard extends CI_Controller {
         $json_data['completed'] = implode(",", $completed);
         $json_data['pending'] = implode(",", $pending);
         $json_data['total'] = implode(",", $total);
+        $json_data['region'] = implode(",",$region);
         echo json_encode($json_data);
     }
 
@@ -794,14 +812,18 @@ function get_sf_escalation_by_rm($rm_id,$startDate,$endDate){
     $groupBy['booking'] = array("employee_relation.agent_id","booking_details.assigned_vendor_id");
     //create groupby array for escalation(group by rm and then vendor)
     $groupBy['escalation'] = array("employee_relation.agent_id","vendor_escalation_log.vendor_id");
+    if($this->session->userdata('partner_id')){
+        $partner_id = $this->session->userdata('partner_id');
+    }
     // get escalation data and booking data for all vendor related to rm
-    $escalationBookingData = $this->dashboard_model->get_sf_escalation_by_rm_by_sf_by_date($startDate,$endDate,NULL,$rm_id,$groupBy);
+    $escalationBookingData = $this->dashboard_model->get_sf_escalation_by_rm_by_sf_by_date($startDate,$endDate,NULL,$rm_id,$groupBy,$partner_id);
     // get Service center name and id
-    $sfArray = $this->reusable_model->get_search_result_data("service_centres","id,name",NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+    $sfArray = $this->reusable_model->get_search_result_data("service_centres","id,name,district",NULL,NULL,NULL,NULL,NULL,NULL,NULL);
     // Create an associative array for service Center and ID
     if($sfArray){
         foreach($sfArray as $sfData){
-            $sfIDNameArray["vendor_".$sfData['id']]= $sfData['name'];
+            $sfIDNameArray["vendor_".$sfData['id']]['name']= $sfData['name'];
+            $sfIDNameArray["vendor_".$sfData['id']]['city']= $sfData['district'];
         }
     }
     //Create Associative array for Vendor booking(Pass Vendor ID get vendor Booking)
@@ -822,11 +844,13 @@ function get_sf_escalation_by_rm($rm_id,$startDate,$endDate){
                $vendorBooking = $SfBookingArray["vendor_".$escalationData['vendor_id']];
            }
            if(array_key_exists("vendor_".$escalationData['vendor_id'], $sfIDNameArray)){
-               $vendorName = $sfIDNameArray["vendor_".$escalationData['vendor_id']];
+               $vendorName = $sfIDNameArray["vendor_".$escalationData['vendor_id']]['name'];
+               $sf_name_for_partner = $sfIDNameArray["vendor_".$escalationData['vendor_id']]['city']."_247Around_Service_center_".$escalationData['vendor_id'];
            }
            if($vendorBooking !=0){
            $tempArray= array("esclation_per"=>round((($escalationData['total_escalation']*100)/$vendorBooking),2),"vendor_id"=>$escalationData['vendor_id'],
-               "total_booking"=>$vendorBooking,"total_escalation"=>$escalationData['total_escalation'],"vendor_name"=>$vendorName,"startDate"=>$startDate,"endDate"=>$endDate);
+               "total_booking"=>$vendorBooking,"total_escalation"=>$escalationData['total_escalation'],"vendor_name"=>$vendorName,"startDate"=>$startDate,"endDate"=>$endDate,
+               "sf_name_for_partner"=>$sf_name_for_partner);
            $esclationPercentage[]=$tempArray;
            }
        }
@@ -1001,7 +1025,12 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $data['rm']=$RM;
         $data['startDate']=$startDate;
         $data['endDate']=$endDate;
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+         if($this->session->userdata('userType') == 'employee'){
+            $this->miscelleneous->load_nav_header();
+        }
+        else if($this->session->userdata('userType') == 'partner'){
+            $this->miscelleneous->load_partner_nav_header();
+        }
         $this->load->view('dashboard/escalation_full_view',$data);
         $this->load->view('dashboard/dashboard_footer');
     }
@@ -1148,6 +1177,10 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         return $serviceCentersData;
     }
     function get_escalation_by_all_rm($startDate,$endDate){
+    $partnerID = NULL;
+    if($this->session->userdata('partner_id')){
+        $partnerID = $this->session->userdata('partner_id');
+    }
     $rmIDNameArray = array();
     $rmBookingArray = array();
     $rmEscalationArray = array();
@@ -1157,7 +1190,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
     //create groupby array for escalation(group by rm and then vendor)
     $groupBy['escalation'] = array("employee_relation.agent_id","vendor_escalation_log.vendor_id");
     // get escalation data and booking data for all vendor related to rm
-    $escalationBookingData = $this->dashboard_model->get_sf_escalation_by_rm_by_sf_by_date($startDate,$endDate,NULL,NULL,$groupBy);
+    $escalationBookingData = $this->dashboard_model->get_sf_escalation_by_rm_by_sf_by_date($startDate,$endDate,NULL,NULL,$groupBy,$partnerID);
     // get Service center name and id
     $rmArray = $this->reusable_model->get_search_result_data("employee","id,full_name",NULL,NULL,NULL,NULL,NULL,NULL,NULL);
     // Create an associative array for service Center and ID
@@ -1193,14 +1226,31 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         if($escalation !=0 ){
            $RMBooking = 0;
            $RMName = "";
+           $zone = "";
            if(array_key_exists($RM, $rmBookingArray)){
                $RMBooking = $rmBookingArray[$RM];
            }
            if(array_key_exists("RM_".$escalationData['rm_id'], $rmBookingArray)){
                $RMName = $rmIDNameArray[$RM];
+                switch ($RMName) {
+                case EAST_RM:
+                    $zone =  "East";
+                break;
+                case SOUTH_RM:
+                    $zone = "South";
+                break;
+                case WEST_RM:
+                    $zone = "West";
+                break;
+                case NORTH_RM:
+                    $zone = "North";
+                break;
+                default:
+                    $zone = "Undefined";
+                }
            }
            $tempArray= array("esclation_per"=>round((($escalation*100)/$RMBooking),2),"rm_id"=>$RM,
-               "total_booking"=>$RMBooking,"total_escalation"=>$escalation,"rm_name"=>$RMName,"startDate"=>$startDate,"endDate"=>$endDate);
+               "total_booking"=>$RMBooking,"total_escalation"=>$escalation,"rm_name"=>$RMName,"startDate"=>$startDate,"endDate"=>$endDate,"zone"=>$zone);
            $esclationPercentage[]=$tempArray;
        }
     }
@@ -1450,6 +1500,27 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $totalTempArray['TAT_8_per'] = sprintf("%01.2f",(($totalTempArray['TAT_8']*100)/$totalTempArray['TAT_16']));
             $totalTempArray['TAT_16_per'] = sprintf("%01.2f",(($totalTempArray['TAT_16']*100)/$totalTempArray['TAT_16']));
             $totalTempArray[$key] =  $values[$key];
+            if($key == "RM"){
+                switch ($values[$key]) {
+                    case EAST_RM:
+                        $totalTempArray["Region"] = "East";
+                    break;
+                    case SOUTH_RM:
+                        $totalTempArray["Region"] = "South";
+                    break;
+                    case WEST_RM:
+                        $totalTempArray["Region"] = "West";
+                    break;
+                    case NORTH_RM:
+                        $totalTempArray["Region"] = "North";
+                    break;
+                    default:
+                        $totalTempArray["Region"] = "Unknown";
+                }
+            }
+            if($key == "SF"){
+                $totalTempArray["sf_district"] = $values['sf_district'];
+            }
             if($key2){
                 $totalTempArray[$key2] =  $values[$key2];
             }
@@ -1473,6 +1544,12 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $totalTempArray['TAT_8_per'] = sprintf("%01.2f",(($totalTempArray['TAT_8']*100)/$totalTempArray['TAT_16']));
         $totalTempArray['TAT_16_per'] = sprintf("%01.2f",(($totalTempArray['TAT_16']*100)/$totalTempArray['TAT_16']));
         $totalTempArray[$key] =  "Total";
+        if($key == "RM"){
+            $totalTempArray["Region"] =  "Total";
+        }
+        if($key == "SF"){
+            $totalTempArray["State"] =  "ALL";
+        }
         $totalTempArray['id'] =  "00";
         $totalArray[] = $totalTempArray;
         return $totalArray;
@@ -1481,6 +1558,9 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         foreach($data as $values){
             $finalData[$values[$key]]['id'] = $values['id']; 
             $finalData[$values[$key]][$key] = $values[$key];
+            if($key == "SF"){
+                $finalData[$values[$key]]['sf_district'] = $values['sf_district']; 
+            }
             if($key2){
                 $finalData[$values[$key]][$key2] = $values[$key2]; 
             }
@@ -1525,11 +1605,13 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         }
         return $this->get_TAT_days_total_completed_bookings($finalData,$key,$key2);
     }
-    function completed_booking_count_by_rm($startDate = NULL,$endDate = NULL,$status = NULL){
+    function completed_booking_count_by_rm($startDate=NULL,$endDate=NULL,$status="not_set",$service_id="not_set",$request_type="not_set",$free_paid="not_set",$upcountry ="not_set"){
         $finalData = array();
+        $whereIN = array();
+        $joinType = array();
         $where["(date(booking_details.service_center_closed_date) >= '".$startDate."' AND date(booking_details.service_center_closed_date) <= '".$endDate."') "] = NULL;
         $where['service_center_closed_date IS NOT NULL'] = NULL;
-        if($status){
+        if($status !="not_set"){
             if($status == 'Completed'){
                  $where['!(current_status = "Cancelled" OR internal_status ="InProcess_Cancelled")'] = NULL; 
             }
@@ -1537,11 +1619,58 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 $where['(current_status = "Cancelled" OR internal_status = "InProcess_Cancelled")'] = NULL; 
             }
         }
-        $select = "employee.full_name as RM,employee_relation.agent_id as id,COUNT(booking_id) as count,DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as TAT";
+        if($service_id !="not_set"){
+             $where['booking_details.service_id'] = $service_id;
+        }
+        if($request_type !="not_set"){
+                if(strpos($request_type,"Repair") !== false){
+                    $where['request_type LIKE "%Repair%"'] = NULL;
+                    if($request_type == 'Repair'){
+                    }
+                    else{
+                        $join['spare_parts_details'] = "spare_parts_details.booking_id = booking_details.booking_id";
+                        if($request_type != 'Repair_with_part'){
+                            $where['spare_parts_details.booking_id IS NULL'] = NULL;
+                            $joinType['spare_parts_details']  = "left";
+                        }
+                    }
+                     if($free_paid !="not_set"){
+                        if($free_paid == 'Yes'){
+                            $whereIN['request_type'] = array('Repair - In Warranty (Home Visit)','Repair - In Warranty (Service Center Visit)');
+                        }
+                        else{
+                            $whereIN['request_type'] = array('Repair - Out Of Warranty (Home Visit)','Repair - Out Of Warranty (Service Center Visit)','Repair - Out Of Warranty (Home Visit) (Paid)',
+                                'Repair - Out of Warranty');
+                        }
+                    }
+            }
+            else{
+                $where['request_type NOT LIKE "%Repair%"'] = NULL;
+                if($free_paid !="not_set"){ 
+                        if($free_paid == "Yes"){
+                            $whereIN['request_type'] =  array('Installation & Demo (Free)');
+                        }
+                        else{
+                            $whereIN['request_type'] =  array('Installation & Demo (Paid)');
+                        }
+                    }
+            }
+        }
+        if($upcountry !="not_set"){
+             $upcountryValue = 0;
+             if($upcountry == 'Yes'){
+                 $upcountryValue = 1;
+             }
+            $where['booking_details.is_upcountry'] = $upcountryValue;
+        }
+        if($this->session->userdata('partner_id')){
+            $where['booking_details.partner_id'] = $this->session->userdata('partner_id');
+        }
+        $select = "employee.full_name as RM,employee_relation.agent_id as id,COUNT(booking_details.booking_id) as count,DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as TAT";
         $groupBY=array("RM","TAT");
         $join['	employee_relation'] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.service_centres_id)";
         $join['	employee'] = "employee_relation.agent_id = employee.id";
-        $data = $this->reusable_model->get_search_result_data("booking_details",$select,$where,$join,NULL,NULL,NULL,NULL,$groupBY);
+        $data = $this->reusable_model->get_search_result_data("booking_details",$select,$where,$join,NULL,NULL,$whereIN,$joinType,$groupBY);
         if(!empty($data)){
             $finalData = $this->get_rm_completed_booking_TAT_IN_structured_format($data,"RM");  
         }
@@ -1569,6 +1698,9 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         }
         if($this->input->post('partner_id')){
             $where['booking_details.partner_id'] = $this->input->post('partner_id');
+        }
+        if($this->session->userdata('partner_id')){
+           $where['booking_details.partner_id'] = $this->session->userdata('partner_id');
         }
          if($this->input->post('upcountry')){
              $upcountry = 0;
@@ -1620,7 +1752,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
               $where["employee_relation.agent_id"] = $rmID;
         }
         //Get Data Group by State
-        $stateSelect = "employee_relation.agent_id as id,booking_details.State,COUNT(DISTINCT booking_details.booking_id) as count,DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as TAT";
+        $stateSelect = "employee_relation.agent_id as id,booking_details.State,COUNT(DISTINCT booking_details.booking_id) as count,DATEDIFF(date(booking_details.service_center_closed_date),"
+                . "STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as TAT";
         $stateJoin['employee_relation'] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.service_centres_id)";
         $stateJoin['employee'] = "employee_relation.agent_id = employee.id";
         $stateGroupBY = array("State","TAT");
@@ -1630,7 +1763,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $stateData = $this->miscelleneous->multi_array_sort_by_key($stateData, 'TAT_2', SORT_ASC);
         }
         //Get Data Group BY SF
-        $sfSelect = "booking_details.assigned_vendor_id as id,service_centres.name as SF,booking_details.state as State,COUNT(DISTINCT booking_details.booking_id) as count,DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as TAT";
+        $sfSelect = "booking_details.assigned_vendor_id as id,service_centres.name as SF,booking_details.state as State,COUNT(DISTINCT booking_details.booking_id) as count,"
+                . "DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as TAT,service_centres.district as sf_district";
         $sfJoin['service_centres'] = "service_centres.id = booking_details.assigned_vendor_id";
         $sfJoin['employee_relation'] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.service_centres_id)";
         $sfJoin['employee'] = "employee_relation.agent_id = employee.id";
@@ -1640,7 +1774,12 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $sfData= $this->get_rm_completed_booking_TAT_IN_structured_format($sfRawData,"SF","State");
             $sfData = $this->miscelleneous->multi_array_sort_by_key($sfData, 'TAT_2', SORT_ASC);
         }
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        if($this->session->userdata('userType') == 'employee'){
+            $this->miscelleneous->load_nav_header();
+        }
+        else if($this->session->userdata('userType') == 'partner'){
+            $this->miscelleneous->load_partner_nav_header();
+        }
         $this->load->view('dashboard/tat_calculation_full_view',array('state' => $stateData,'sf'=>$sfData,'partners'=>$partners,'rmID'=>$rmID,'filters'=>$this->input->post(),'services'=>$services));
         $this->load->view('dashboard/dashboard_footer');        
     }
@@ -1774,7 +1913,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $partner_id = $this->input->post('partner_id');
         $spare_details = $this->dashboard_model->get_spare_parts_count_group_by_status($partner_id);
         $json_data = array();
-        foreach ($spare_details as $value){
+        foreach ($spare_details as $value){ 
             if($value['status'] === SPARE_PARTS_REQUESTED){
                 $tmp_arr = array('name' => $value['status'],
                                'y' => intval($value['count']),
@@ -1851,8 +1990,14 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
      * @return json
      */
     function get_partner_spare_snapshot(){
-        $partner_id = $this->input->post('partner_id');
-        $data = $this->dashboard_model->get_partner_spare_snapshot($partner_id);
+        if($this->session->userdata('partner_id')){
+            $partner_id = $this->session->userdata('partner_id');
+             $data = $this->dashboard_model->get_partner_spare_snapshot($partner_id,0);
+        }
+        else{
+            $partner_id = $this->input->post('partner_id');
+             $data = $this->dashboard_model->get_partner_spare_snapshot($partner_id);
+        }
         
         $status = array();
         $spare_count = array();
@@ -1864,7 +2009,6 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             array_push($spare_amount, $value[0]['spare_amount']);
             $spare_amount[$value[0]['spare_status']] = intval($value[0]['spare_amount']);
         }
-        
         $json_data['status'] = implode(',', $status);
         $json_data['spare_count'] = implode(',', $spare_count);
         $json_data['spare_amount'] = $spare_amount;
