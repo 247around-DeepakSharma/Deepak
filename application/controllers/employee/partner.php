@@ -3370,6 +3370,8 @@ class Partner extends CI_Controller {
         //get escalation percentage
         $data['escalation_percentage'] = $this->partner_model->get_booking_escalation_percantage($partner_id);
         $data['pincode_covered'] = $this->reusable_model->get_search_query('vendor_pincode_mapping','count(distinct pincode) as pincode',NULL,NULL,NULL,NULL,NULL,NULL)->result_array()[0]['pincode'];
+        $data['avg_rating'] = $this->reusable_model->get_search_query('booking_details','ROUND( AVG( rating_stars ) , 2 ) AS rating_avg',
+                array("current_status"=>"Completed","rating_stars IS NOT NULL"=>NULL,'partner_id'=>$partner_id),NULL,NULL,NULL,NULL,NULL)->result_array()[0]['rating_avg'];
         if (!empty($this->session->userdata('is_prepaid'))) {
             $data['prepaid_amount'] = $this->get_prepaid_amount($partner_id);
         }
@@ -4794,5 +4796,21 @@ class Partner extends CI_Controller {
         $this->miscelleneous->load_partner_nav_header();
         $this->load->view('partner/search_docket_number');
         $this->load->view('partner/partner_footer');
+    }
+    function partner_dashboard() {
+        $this->checkUserSession();
+        $this->miscelleneous->load_partner_nav_header();
+        $serviceWhere['isBookingActive'] =1;
+        $services = $this->reusable_model->get_search_result_data("services","*",$serviceWhere,NULL,NULL,NULL,NULL,NULL,array());
+         if($this->session->userdata('user_group') == PARTNER_CALL_CENTER_USER_GROUP){
+            $this->load->view('partner/partner_default_page_cc', $data);
+        }
+        else{
+            $this->load->view('partner/partner_dashboard',array('services'=>$services));
+        }
+        $this->load->view('partner/partner_footer');
+        if(!$this->session->userdata("login_by")){
+            $this->load->view('employee/header/push_notification');
+        }
     }
 }
