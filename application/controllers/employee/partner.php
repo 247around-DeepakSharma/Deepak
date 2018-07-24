@@ -1280,6 +1280,7 @@ class Partner extends CI_Controller {
             $escalation['booking_id'] = $booking_id;
             $escalation['booking_date'] = date('Y-m-d', strtotime($bookinghistory[0]['booking_date']));
             $escalation['booking_time'] = $bookinghistory[0]['booking_timeslot'];
+            $escalation['vendor_id'] = $bookinghistory[0]['assigned_vendor_id'];
 
             log_message('info', __FUNCTION__ . " escalation_reason  " . print_r($escalation, true));
 

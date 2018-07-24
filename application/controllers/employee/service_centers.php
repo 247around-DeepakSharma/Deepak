@@ -4622,4 +4622,18 @@ class Service_centers extends CI_Controller {
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/search_docket_number');
     }
+    function sf_dashboard(){
+        $rating_data = $this->service_centers_model->get_vendor_rating_data($this->session->userdata('service_center_id'));
+        if(!empty($rating_data[0]['rating'])){
+            $data['rating'] =  $rating_data[0]['rating'];
+            $data['count'] =  $rating_data[0]['count'];
+        }else{
+            $data['rating'] = 0;
+            $data['count'] =  $rating_data[0]['count'];
+        }
+        $serviceWhere['isBookingActive'] =1;
+        $data['services'] = $this->reusable_model->get_search_result_data("services","*",$serviceWhere,NULL,NULL,NULL,NULL,NULL,array());
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/dashboard',$data);
+    }
 }
