@@ -289,7 +289,7 @@ class invoices_model extends CI_Model {
             $result = $data->result_array();
             
             $bank_transactions = $this->getbank_transaction_summary($vendor_partner, $vendor_partner_id);
-            $result[0]['final_amount'] = round($result[0]['amount_collected_paid'] - $bank_transactions[0]['credit_amount'] + $bank_transactions[0]['debit_amount'],0);
+            $result[0]['final_amount'] = sprintf("%.2f",($result[0]['amount_collected_paid'] - $bank_transactions[0]['credit_amount'] + $bank_transactions[0]['debit_amount']));
             return $result;
     }
     
@@ -849,11 +849,11 @@ class invoices_model extends CI_Model {
                 }
             }
             $meta['parts_count'] = $parts_count;
-            $meta['total_taxable_value'] = round($meta['total_taxable_value'], 0);
-            $meta['sub_total_amount'] = round($meta['sub_total_amount'], 0);
-            $meta['igst_total_tax_amount'] = round( $meta['igst_total_tax_amount'], 0);
-            $meta['cgst_total_tax_amount'] = round( $meta['cgst_total_tax_amount'], 0);
-            $meta['sgst_total_tax_amount'] = round( $meta['sgst_total_tax_amount'], 0);
+            $meta['total_taxable_value'] = sprintf("%.2f",$meta['total_taxable_value']);
+            $meta['sub_total_amount'] = sprintf("%.2f",$meta['sub_total_amount']);
+            $meta['igst_total_tax_amount'] = sprintf("%.2f",$meta['igst_total_tax_amount']);
+            $meta['cgst_total_tax_amount'] = sprintf("%.2f",$meta['cgst_total_tax_amount']);
+            $meta['sgst_total_tax_amount'] = sprintf("%.2f",$meta['sgst_total_tax_amount']);
             if($result[0]['gst_number'] == 1){
                 $result[0]['gst_number'] = "";
             }
@@ -973,7 +973,7 @@ class invoices_model extends CI_Model {
                     $meta['igst_total_tax_amount'] += $result[$key]['igst_tax_amount'];
                 }
 
-                $result[$key]['toal_amount'] = round($value['taxable_value'] + ($value['taxable_value'] * SERVICE_TAX_RATE), 2);
+                $result[$key]['toal_amount'] = sprintf("%.2f",$value['taxable_value'] + ($value['taxable_value'] * SERVICE_TAX_RATE));
                 $meta['total_qty'] += $value['qty'];
                 $meta['total_rate'] += $value['rate'];
                 $meta['total_taxable_value'] += $value['taxable_value'];
@@ -984,12 +984,12 @@ class invoices_model extends CI_Model {
             $meta['reverse_charge'] = 0;
             $meta['reverse_charge_type'] = 'N';
             $meta['state_code'] = $this->get_state_code(array('state'=> $meta['state']))[0]['state_code'];
-            $meta['sub_total_amount'] = round( $meta['sub_total_amount'], 0); 
-            $meta['total_taxable_value'] = round( $meta['total_taxable_value'], 0);
-            $meta['sgst_total_tax_amount'] = round($meta['sgst_total_tax_amount'], 0);
-            $meta['cgst_total_tax_amount'] = round($meta['cgst_total_tax_amount'], 0);
-            $meta['igst_total_tax_amount'] = round($meta['igst_total_tax_amount'], 0);
-            $meta['price_inword'] = convert_number_to_words(round($meta['sub_total_amount'], 0));
+            $meta['sub_total_amount'] = sprintf("%.2f",$meta['sub_total_amount']); 
+            $meta['total_taxable_value'] = sprintf("%.2f",$meta['total_taxable_value']);
+            $meta['sgst_total_tax_amount'] = sprintf("%.2f",$meta['sgst_total_tax_amount']);
+            $meta['cgst_total_tax_amount'] = sprintf("%.2f",$meta['cgst_total_tax_amount']);
+            $meta['igst_total_tax_amount'] = sprintf("%.2f",$meta['igst_total_tax_amount']);
+            $meta['price_inword'] = convert_number_to_words(round($meta['sub_total_amount'],0));
             $meta['sd'] = date("jS M, Y", strtotime($from_date));
             $meta['ed'] = date("jS M, Y", strtotime($to_date_temp));
             $meta['invoice_date'] = date("jS M, Y");
@@ -1010,7 +1010,7 @@ class invoices_model extends CI_Model {
         $data['description'] = "Iron Stand – Less Than 32 Inches";
         $data['rate'] = _247AROUND_BRACKETS_26_32_UNIT_PRICE;
         $data['qty'] = $meta['_26_32_total'];
-        $data['taxable_value'] = round($data['rate'] * $data['qty'],0);
+        $data['taxable_value'] = sprintf("%.2f",$data['rate'] * $data['qty']);
         $data['hsn_code'] = STAND_HSN_CODE;
         
         array_push($data1, $data);
@@ -1018,7 +1018,7 @@ class invoices_model extends CI_Model {
         $data2['description'] = "Iron Stand – Greater Than 32 Inches";
         $data2['rate'] = _247AROUND_BRACKETS_36_42_UNIT_PRICE;
         $data2['qty'] = $meta['_36_42_total'];
-        $data2['taxable_value'] = round($data2['rate'] * $data2['qty'],0);
+        $data2['taxable_value'] = sprintf("%.2f",$data2['rate'] * $data2['qty']);
         $data2['hsn_code'] = STAND_HSN_CODE;
         array_push($data1, $data2);
         
@@ -1367,7 +1367,7 @@ class invoices_model extends CI_Model {
             $meta['cgst_total_tax_amount'] = sprintf("%1\$.2f",$meta['cgst_total_tax_amount']);
             $meta['sgst_total_tax_amount'] = sprintf("%1\$.2f",$meta['sgst_total_tax_amount']);
             $meta['igst_total_tax_amount'] = sprintf("%1\$.2f",$meta['igst_total_tax_amount']);
-            $meta['sub_total_amount'] = round($meta['sub_total_amount'], 0);
+            $meta['sub_total_amount'] = sprintf("%.2f",$meta['sub_total_amount']);
             $meta['sd'] = date("jS M, Y", strtotime($from_date));
             $meta['ed'] = date("jS M, Y", strtotime($to_date_tmp));
             $meta['invoice_date'] = date("jS M, Y");
@@ -1543,16 +1543,16 @@ class invoices_model extends CI_Model {
                 }
 
                 $tax_charge = $this->booking_model->get_calculated_tax_charge($commission_charge[0]['toal_amount'], DEFAULT_TAX_RATE);
-                $commission_charge[0]['taxable_value'] = round($commission_charge[0]['toal_amount'] - $tax_charge, 0);
+                $commission_charge[0]['taxable_value'] = sprintf("%.2f",$commission_charge[0]['toal_amount'] - $tax_charge);
                 $c_s_gst = $this->check_gst_tax_type($meta['state']);
                 $meta['cgst_tax_rate'] = $meta['sgst_tax_rate'] = $meta['cgst_total_tax_amount'] = $meta['sgst_total_tax_amount'] = $meta['total_igst_tax_amount'] = $meta['igst_tax_rate'] = $meta['igst_total_tax_amount'] = 0;
                 if ($c_s_gst) {
                     $meta['invoice_template'] = "247around_Tax_Invoice_Intra_State.xlsx";
                     $commission_charge[0]['cgst_rate'] = $commission_charge[0]['sgst_rate'] = $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = 9;
-                    $commission_charge[0]['cgst_tax_amount'] = $commission_charge[0]['sgst_tax_amount'] = $meta['cgst_total_tax_amount'] = $meta['sgst_total_tax_amount'] = round($tax_charge / 2, 0);
+                    $commission_charge[0]['cgst_tax_amount'] = $commission_charge[0]['sgst_tax_amount'] = $meta['cgst_total_tax_amount'] = $meta['sgst_total_tax_amount'] = sprintf("%.2f",$tax_charge / 2);
                 } else {
                     $meta['invoice_template'] = "247around_Tax_Invoice_Inter_State.xlsx";
-                    $commission_charge[0]['igst_tax_amount'] = $meta['igst_total_tax_amount'] = round($tax_charge, 0);
+                    $commission_charge[0]['igst_tax_amount'] = $meta['igst_total_tax_amount'] = sprintf("%.2f",$tax_charge);
                     $commission_charge[0]['igst_rate'] = $meta['igst_tax_rate'] = DEFAULT_TAX_RATE;
                 }
 
@@ -1563,9 +1563,9 @@ class invoices_model extends CI_Model {
                 $meta['total_qty'] = $meta['total_rate'] = $commission_charge[0]['qty'] = $commission_charge[0]['rate'] = "";
                 $commission_charge[0]['hsn_code'] = COMMISION_CHARGE_HSN_CODE;
                 $meta['total_taxable_value'] = $commission_charge[0]['taxable_value'];
-                $meta['sub_total_amount'] = round($commission_charge[0]['toal_amount'], 0);
+                $meta['sub_total_amount'] = sprintf("%.2f",$commission_charge[0]['toal_amount']);
 
-                $meta['price_inword'] = convert_number_to_words($meta['sub_total_amount']);
+                $meta['price_inword'] = convert_number_to_words(round($meta['sub_total_amount'],0));
                 $meta['sd'] = date("jS M, Y", strtotime($from_date));
                 $meta['ed'] = date('jS M, Y', strtotime($to_date_tmp));
                 $meta['invoice_date'] = date("jS M, Y");
@@ -1604,12 +1604,12 @@ class invoices_model extends CI_Model {
         
         if(!empty($commission_charge)){
             foreach ($commission_charge as $key => $value) {
-                $commission_charge[$key]['rate'] = round($value['taxable_value']/$value['qty'], 0);
+                $commission_charge[$key]['rate'] = sprintf("%.2f",$value['taxable_value']/$value['qty']);
                 $meta['sub_total_amount'] += $value['taxable_value'];
                 $meta['total_qty'] += $value['qty'];
             }
             
-            $meta['sub_total_amount'] = round($meta['sub_total_amount'], 0);
+            $meta['sub_total_amount'] = sprintf("%.2f",$meta['sub_total_amount']);
             $meta['invoice_template'] = "Buyback-v1.xlsx"; 
             
             $meta['sd'] = date("jS M, Y", strtotime($from_date));
@@ -1650,8 +1650,8 @@ class invoices_model extends CI_Model {
         
         $profit_loss_where = ' AND CASE WHEN (cp_claimed_price > 0) THEN (cp_claimed_price) ELSE ((`cp_basic_charge` + cp_tax_charge)) END ';
         $select = " COUNT(bb_unit_details.id) as qty, SUM(CASE WHEN ( bb_unit_details.cp_claimed_price > 0) 
-                THEN (round(bb_unit_details.cp_claimed_price,0)) 
-                ELSE (round(bb_unit_details.cp_basic_charge + cp_tax_charge,0)) END ) AS taxable_value, concat('Used ',services) as description, 
+                THEN (round(bb_unit_details.cp_claimed_price,2)) 
+                ELSE (round(bb_unit_details.cp_basic_charge + cp_tax_charge,2)) END ) AS taxable_value, concat('Used ',services) as description, 
                 CASE WHEN (bb_unit_details.service_id = '"._247AROUND_TV_SERVICE_ID."') THEN (8528) 
                 WHEN (bb_unit_details.service_id = '"._247AROUND_AC_SERVICE_ID."') THEN (8415)
                 WHEN (bb_unit_details.service_id = '"._247AROUND_WASHING_MACHINE_SERVICE_ID."') THEN (8450)
@@ -1661,8 +1661,8 @@ class invoices_model extends CI_Model {
         $group_by = " GROUP BY bb_unit_details.service_id ";
         if($is_unit){
             $select = " bb_unit_details.id AS unit_id,bb_unit_details.gst_amount, CASE WHEN ( bb_unit_details.cp_claimed_price > 0) 
-                THEN (round(bb_unit_details.cp_claimed_price,0)) 
-                ELSE (round(bb_unit_details.cp_basic_charge + cp_tax_charge,0)) END AS cp_charge,partner_tracking_id, city,order_key,
+                THEN (round(bb_unit_details.cp_claimed_price,2)) 
+                ELSE (round(bb_unit_details.cp_basic_charge + cp_tax_charge,2)) END AS cp_charge,partner_tracking_id, city,order_key,
                 CASE WHEN(acknowledge_date IS NOT NULL) 
                 THEN (DATE_FORMAT( acknowledge_date,  '%d-%m-%Y' ) ) ELSE (DATE_FORMAT(delivery_date,  '%d-%m-%Y' )) END AS delivery_date, order_date,
                 order_date, services, bb_order_details.partner_order_id";
