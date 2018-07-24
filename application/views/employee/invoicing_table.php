@@ -65,18 +65,18 @@
          <td ><?php echo $invoice['num_bookings']."/".$invoice['parts_count']; ?></td>
          <td><?php echo date("jS M, Y", strtotime($invoice['invoice_date'])). " <br/><br/> ".date("jS M, Y", strtotime($invoice['from_date'])). " to ". date("jS M, Y", strtotime($invoice['to_date'])); ?></td>
          <td><?php echo $invoice['total_amount_collected'];?></td>
-         <td><?php echo (round(($invoice['total_service_charge'] + $invoice['service_tax']),0)); $sum_of_total_service_charges +=  $invoice['total_service_charge'] + $invoice['service_tax']; ?></td>
-         <td><?php echo round($invoice['total_additional_service_charge'],0); $sum_total_additional_service_charge += $invoice['total_additional_service_charge'];?></td>
-         <td><?php echo (round(($invoice['parts_cost'] + $invoice['vat']),0)); $sum_total_parts_cost +=($invoice['parts_cost'] + $invoice['vat']); ?></td>
-         <td id="<?php echo 'tds_'.$count; ?>"><?php echo round($invoice['tds_amount'],0); $sum_tds +=$invoice['tds_amount'];?></td>
-         <td style="display:none;" id="<?php echo 'upcountry_'.$count; ?>"><?php if($invoice['type'] == "Cash" && $invoice['vendor_partner'] == "vendor") { echo "-".round($invoice['upcountry_price'],0);} else { echo round($invoice['upcountry_price'],0); } ?></td>
-         <td style="display:none;" id="<?php echo 'courier_charges_'.$count; ?>"><?php echo round($invoice['courier_charges'],0); ?></td>
-         <td id="<?php echo 'penalty_'.$count; ?>"><?php echo "-".round($invoice['penalty_amount'],0); ?></td>
-         <td id="<?php echo 'gst_'.$count; ?>"><?php echo round($invoice['igst_tax_amount'] + $invoice['cgst_tax_amount'] + $invoice['sgst_tax_amount'],0); ?></td>
-         <td id="<?php echo 'pay_247'.$count; ?>" ><?php  if($invoice['amount_collected_paid'] < 0){ echo round($invoice['amount_collected_paid'],0); $pay_by_247 += ($invoice['amount_collected_paid'] );} else {echo "0.00"; } ?></td>
-         <td id="<?php echo 'pay_partner'.$count; ?>"><?php if($invoice['amount_collected_paid'] > 0){ echo round($invoice['amount_collected_paid'],0); $pay_by_partner += $invoice['amount_collected_paid'];} else {echo "0.00";} ?></td>
+         <td><?php echo (sprintf("%.2f",($invoice['total_service_charge'] + $invoice['service_tax']))); $sum_of_total_service_charges +=  $invoice['total_service_charge'] + $invoice['service_tax']; ?></td>
+         <td><?php echo sprintf("%.2f",$invoice['total_additional_service_charge']); $sum_total_additional_service_charge += $invoice['total_additional_service_charge'];?></td>
+         <td><?php echo (sprintf("%.2f",($invoice['parts_cost'] + $invoice['vat']))); $sum_total_parts_cost +=($invoice['parts_cost'] + $invoice['vat']); ?></td>
+         <td id="<?php echo 'tds_'.$count; ?>"><?php echo sprintf("%.2f",$invoice['tds_amount']); $sum_tds +=$invoice['tds_amount'];?></td>
+         <td style="display:none;" id="<?php echo 'upcountry_'.$count; ?>"><?php if($invoice['type'] == "Cash" && $invoice['vendor_partner'] == "vendor") { echo "-".sprintf("%.2f",$invoice['upcountry_price']);} else { echo sprintf("%.2f",$invoice['upcountry_price']); } ?></td>
+         <td style="display:none;" id="<?php echo 'courier_charges_'.$count; ?>"><?php echo sprintf("%.2f",$invoice['courier_charges']); ?></td>
+         <td id="<?php echo 'penalty_'.$count; ?>"><?php echo "-".sprintf("%.2f",$invoice['penalty_amount']); ?></td>
+         <td id="<?php echo 'gst_'.$count; ?>"><?php echo sprintf("%.2f",$invoice['igst_tax_amount'] + $invoice['cgst_tax_amount'] + $invoice['sgst_tax_amount']); ?></td>
+         <td id="<?php echo 'pay_247'.$count; ?>" ><?php  if($invoice['amount_collected_paid'] < 0){ echo sprintf("%.2f",$invoice['amount_collected_paid']); $pay_by_247 += ($invoice['amount_collected_paid'] );} else {echo "0.00"; } ?></td>
+         <td id="<?php echo 'pay_partner'.$count; ?>"><?php if($invoice['amount_collected_paid'] > 0){ echo sprintf("%.2f",$invoice['amount_collected_paid']); $pay_by_partner += $invoice['amount_collected_paid'];} else {echo "0.00";} ?></td>
         
-         <td id="<?php echo 'amount_paid_'.$count; ?>"><?php echo round($invoice['amount_paid'],0) ?></td>
+         <td id="<?php echo 'amount_paid_'.$count; ?>"><?php echo sprintf("%.2f",$invoice['amount_paid']) ?></td>
          <td><?php echo $invoice['remarks']; ?></td>
         
          <td ><?php if($invoice['settle_amount'] == 0){ ?><input type="checkbox" class="form-control" name ="invoice_id[]" value="<?php echo $invoice['invoice_id'] ?>" id="<?php echo 'checkbox_'.$count; ?>" onclick="sum_amount()" />
@@ -125,14 +125,14 @@
          <td></td>
          <td></td>
          <td></td>
-         <td><?php echo round($sum_of_total_service_charges,0); ?></td>
-         <td><?php echo round($sum_total_additional_service_charge,0); ?></td>
-         <td><?php echo round($sum_total_parts_cost,0); ?></td>
-         <td><?php echo round($sum_tds,0); ?></td>
+         <td><?php echo sprintf("%.2f",$sum_of_total_service_charges); ?></td>
+         <td><?php echo sprintf("%.2f",$sum_total_additional_service_charge); ?></td>
+         <td><?php echo sprintf("%.2f",$sum_total_parts_cost); ?></td>
+         <td><?php echo sprintf("%.2f",$sum_tds); ?></td>
          <td></td>
          <td></td>
-         <td><?php echo round($pay_by_247,0); ?></td>
-         <td><?php echo round($pay_by_partner,0); ?></td>
+         <td><?php echo sprintf("%.2f",$pay_by_247); ?></td>
+         <td><?php echo sprintf("%.2f",$pay_by_partner); ?></td>
          <td></td>
          <td id="final_amount_selected"></td>
          <td><input type="submit" class="form-control btn btn-sm btn-primary" value="Pay"></td>
@@ -311,9 +311,9 @@
                    <td><?php  echo $count;$count++; if($value['is_advance'] ==1){?> <p id="advance_text">Advance</p><?php }?></td>
                <td><?php echo $value['transaction_date']; ?></td>
                <td><?php echo $value['description']; ?></td>
-               <td><?php echo round($value['credit_amount'],0); if($value['is_advance'] ==0){ $credit_amount += intval($value['credit_amount']); } ?></td>       
-               <td><?php echo round($value['debit_amount'],0);  $debit_amount += intval($value['debit_amount']); ?></td>
-               <td><?php echo round($value['tds_amount'],0); $tds_amount += intval($value['tds_amount']); ?></td>
+               <td><?php echo sprintf("%.2f",$value['credit_amount']); if($value['is_advance'] ==0){ $credit_amount += intval($value['credit_amount']); } ?></td>       
+               <td><?php echo sprintf("%.2f",$value['debit_amount']);  $debit_amount += intval($value['debit_amount']); ?></td>
+               <td><?php echo sprintf("%.2f",$value['tds_amount']); $tds_amount += intval($value['tds_amount']); ?></td>
                <td><?php echo $value['invoice_id']; ?></td>
                <td><?php echo $value['bankname']; ?> / <?php echo $value['transaction_mode']; ?></td>
                <td><?php echo $value['transaction_id']; ?></td>
@@ -332,9 +332,9 @@
              <td><b>Total</b></td>
              <td></td>
              <td></td>
-             <td><?php echo round($credit_amount,0);?></td>
-             <td><?php echo round($debit_amount,0);?></td>
-             <td><?php echo round($tds_amount,0);?></td>
+             <td><?php echo sprintf("%.2f",$credit_amount);?></td>
+             <td><?php echo sprintf("%.2f",$debit_amount);?></td>
+             <td><?php echo sprintf("%.2f",$tds_amount);?></td>
              <td></td>
              <td></td>
              <td></td>
@@ -347,13 +347,13 @@
  
         $final_settlement = $invoicing_summary['final_amount'];
     ?>
-    <p><h4>Vendor has to pay to 247around = Rs. <?php if($final_settlement >= 0){ echo round($final_settlement,0);} else { echo 0;} ?></h4></p>
-    <p><h4>247around has to pay to vendor = Rs. <?php if($final_settlement < 0){ echo abs(round($final_settlement,0));} else {echo 0;} ?></h4></p>
+    <p><h4>Vendor has to pay to 247around = Rs. <?php if($final_settlement >= 0){ echo sprintf("%.2f",$final_settlement);} else { echo 0;} ?></h4></p>
+    <p><h4>247around has to pay to vendor = Rs. <?php if($final_settlement < 0){ echo abs(sprintf("%.2f",$final_settlement));} else {echo 0;} ?></h4></p>
     <hr/>
     <?php if(isset($unbilled_amount)){ ?> 
      <h2><u>Un-billed Amount (Invoice is not generated)</u></h2>
-     <p><h4>Vendor has to pay to 247around = Rs. <?php if($unbilled_amount[0]['unbilled_amount'] >= 0){ echo round($unbilled_amount[0]['unbilled_amount'],0);} else { echo 0;} ?></h4></p>
-    <p><h4>247around has to pay to vendor = Rs. <?php if($unbilled_amount[0]['unbilled_amount'] < 0){ echo abs(round($unbilled_amount[0]['unbilled_amount'],0));} else { echo 0;} ?></h4></p>
+     <p><h4>Vendor has to pay to 247around = Rs. <?php if($unbilled_amount[0]['unbilled_amount'] >= 0){ echo sprintf("%.2f",$unbilled_amount[0]['unbilled_amount']);} else { echo 0;} ?></h4></p>
+    <p><h4>247around has to pay to vendor = Rs. <?php if($unbilled_amount[0]['unbilled_amount'] < 0){ echo abs(sprintf("%.2f",$unbilled_amount[0]['unbilled_amount']));} else { echo 0;} ?></h4></p>
     
     <?php } } ?>
 
