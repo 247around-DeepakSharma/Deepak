@@ -14,6 +14,7 @@
             <form action="<?php echo base_url() ?>employee/dashboard/tat_calculation_full_view/<?php echo $rmID; ?>" method="post">
        <div class="table_filter" style="background: #5bc0de;padding: 10px;margin-bottom: 10px;border-radius: 5px;">
            <div class="row">
+               <?php  if(!$this->session->userdata('partner_id')){ ?>
                <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 160px;">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
@@ -26,6 +27,7 @@
                         </div>
                     </div>
                 </div>
+               <?php } ?>
                <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 160px;">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
@@ -191,11 +193,27 @@
     </thead>
     <tbody>
         <?php
+        $index = 0;
         foreach($sf as $key => $values){
+            $index++;
             ?>
         <tr>
-            <td><?php echo $key+1   ;?></td>
-            <td><button style="margin: 0px;padding: 3px 9px;font-size: 15px;text-align:left;" type="button" class="btn btn-info"><?php echo wordwrap($values['SF'], 30, "<br />\n")?></button></td>
+            <td><?php echo $index;   ;?></td>
+            <td><button style="margin: 0px;padding: 3px 9px;font-size: 15px;text-align:left;" type="button" class="btn btn-info">
+                <?php
+                if($this->session->userdata('partner_id')){
+                    if($values['id'] !="00"){
+                        echo $values['sf_district']."_247Around_Service_Center_".$values['id'];
+                    }
+                    else{
+                        echo wordwrap($values['SF'], 30, "<br />\n");
+                    }
+                }
+                else{
+                    echo wordwrap($values['SF'], 30, "<br />\n");
+                }
+                ?>
+           </button> </td>
             <td><button style="margin: 0px;padding: 3px 9px;font-size: 15px;background: #405467;border: 1px solid #405467;" type="button" class="btn btn-info"><?php echo $values['State']?></button></td>
             <td><?php echo $values['TAT_0'] ."<br>(". $values['TAT_0_per']."%)";?></td>
             <td><?php echo $values['TAT_1'] ."<br>(". $values['TAT_1_per']."%)";?></td>

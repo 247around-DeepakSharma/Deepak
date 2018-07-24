@@ -810,7 +810,26 @@ admin_dashboard.controller('completedBooking_Controller', function ($scope, $htt
                 startDate = dateArray[0];
                 endDate = dateArray[1];
                 status = $("#completed_status").val();
-              $scope.loadCompletedBookingView(baseUrl + "/employee/dashboard/completed_booking_count_by_rm/"+startDate+"/"+endDate+"/"+status);
+                service_id = $("#service_id").val();
+                request_type = $("#request_type").val();
+                free_paid = $("#free_paid").val();
+                upcountry = $("#upcountry").val();
+                if(!status){
+                    status = "not_set";
+                }
+                if(!service_id){
+                    service_id = "not_set";
+                }
+                if(!request_type){
+                    request_type = "not_set";
+                }
+                if(!free_paid){
+                    free_paid = "not_set";
+                }
+                 if(!upcountry){
+                    upcountry = "not_set";
+                }
+              $scope.loadCompletedBookingView(baseUrl + "/employee/dashboard/completed_booking_count_by_rm/"+startDate+"/"+endDate+"/"+status+"/"+service_id+"/"+request_type+"/"+free_paid+"/"+upcountry);
     }
 });
 rm_dashboard.controller('completedBooking_Controller', function ($scope, $http) {
