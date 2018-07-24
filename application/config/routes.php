@@ -107,6 +107,7 @@ $route['service_center/approved_defective_parts_booking_by_warehouse'] = 'employ
 $route['service_center/approved_defective_parts_booking_by_warehouse/(:any)'] = 'employee/service_centers/get_approved_defective_parts_booking_by_warehouse/$1';
 $route['service_center/download_sf_declaration/(:any)'] = 'employee/service_centers/download_sf_declaration/$1'; 
 $route['service_center/acknowledge_spares_send_by_partner'] = 'employee/service_centers/acknowledge_spares_send_by_partner';
+$route['service_center/dashboard'] = 'employee/service_centers/sf_dashboard';
 
 
 $route['call-customer-status-callback'] = 'employee/booking/call_customer_status_callback';

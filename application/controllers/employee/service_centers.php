@@ -4439,4 +4439,168 @@ function get_learning_collateral_for_bookings(){
             }
     }
   }
+  
+   /**
+     * @desc: This function is used to update spare courier details form
+     * @params: $id
+     * @return: view
+     * 
+     */
+    
+     function update_spare_courier_details($id){
+        if(!empty($id)){
+            $this->miscelleneous->load_nav_header();
+            $select = "id, partner_id, service_center_id, entity_type, booking_id, defective_part_shipped, courier_name_by_sf, awb_by_sf, courier_charges_by_sf, defective_courier_receipt, defective_part_shipped_date, remarks_defective_part_by_sf, sf_challan_number, sf_challan_file,partner_challan_number,challan_approx_value"; 
+            $where = array('spare_parts_details.id' => $id);
+            $data['data'] = $this->partner_model->get_spare_parts_by_any($select, $where);
+            $this->load->view('employee/update_spare_courier_details', $data);
+        }else{
+            $this->miscelleneous->load_nav_header();
+            echo 'Invalid Request';
+        }
+        
+         
+    }
+  
+    /**
+     * @desc: This function is used to update spare parts courier details along with generating sf challan file
+     * @params: $id
+     * @return: prints message whether data already exists or updated
+     * 
+     */
+    function process_update_spare_courier_details($id) {
+        log_message('info', __METHOD__.' update spare courier details of spare id ' . $id);
+        $this->form_validation->set_rules('shipped_parts', 'shipped_parts', 'trim|required');
+        $this->form_validation->set_rules('courier_name', 'courier_name', 'trim|required');
+        $this->form_validation->set_rules('awb', 'awb', 'required');
+        $this->form_validation->set_rules('courier_charge', 'courier_charge', 'trim|required');
+        $this->form_validation->set_rules('shipped_date', 'shipped_date', 'required');
+        $this->form_validation->set_rules('remarks_by_sf', 'remarks_by_sf', 'trim|required');
+        if ($this->form_validation->run() == TRUE) {
+            $booking_id = $this->input->post('booking_id');
+            $sf_challan_number = $this->input->post("sf_challan_number");
+            $partner_id = $this->input->post("partner_id");
+            $service_center_id = $this->input->post("service_center_id");
+            $entity_type = $this->input->post("entity_type");
+
+            $data = array();
+            
+            $data['courier_name_by_sf'] = trim($this->input->post('courier_name'));
+            $data['awb_by_sf'] = trim($this->input->post('awb'));
+            $data['courier_charges_by_sf'] = trim($this->input->post('courier_charge'));
+            $data['defective_part_shipped_date'] = ($this->input->post('shipped_date'));
+            $data['remarks_defective_part_by_sf'] = trim($this->input->post('remarks_by_sf'));
+            $challan_approx_value = $challan_approx_value = trim($this->input->post('challan_approx_value'));
+            $data['partner_challan_number'] = $partner_challan_number = trim($this->input->post('partner_challan_number'));
+            
+            $spare_details = array();
+            $new_spare_details = array();
+            if(!empty($sf_challan_number)){
+                //get all spare data with form challan number
+                $select = "id,defective_part_shipped,challan_approx_value,partner_challan_number"; 
+                $where = array('spare_parts_details.sf_challan_number' => $this->input->post('sf_challan_number'),"spare_parts_details.id NOT IN ($id)" => NULL,'spare_parts_details.booking_id' =>$booking_id);
+                $spare_details = $this->partner_model->get_spare_parts_by_any($select, $where);
+            }
+            $data['partner_challan_number'] = $partner_challan_number.','.implode(',', array_column($spare_details, 'partner_challan_number'));
+            //push updated part data to old spare data
+            $tmp_arr = array('id' => $id,
+                             'defective_part_shipped' => trim($this->input->post('shipped_parts')),
+                             'challan_approx_value' => $challan_approx_value
+                );
+            array_push($spare_details, $tmp_arr);
+            
+            //make new array to create new challan file
+            $new_spare_details['booking_id'] = $booking_id;
+            $new_spare_details['partner_challan_number'] = trim($partner_challan_number.','.  implode(',', array_column($spare_details, 'partner_challan_number')),',');
+            foreach($spare_details as $value){
+                $new_spare_details['parts_shipped'][$value['id']] = $value['defective_part_shipped'];
+                $new_spare_details['part_price'][$value['id']] = $value['challan_approx_value'];
+            }
+            
+            //getting service center details
+            $sf_details = $this->vendor_model->getVendorDetails('name,address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,is_signature_doc', array('id' => $service_center_id));
+            //check if entity type is partner then get partner details otherwise get vendor details
+            if ($entity_type == _247AROUND_PARTNER_STRING) {
+                $partner_details = $this->partner_model->getpartner_details('company_name,address,gst_number', array('partners.id' => $partner_id));
+            } else if ($entity_type === _247AROUND_SF_STRING) {
+                $partner_details = $this->vendor_model->getVendorDetails('name as company_name,address,owner_name,gst_no as gst_number', array('id' => $partner_id));
+            }
+
+            if (empty($this->input->post('sf_challan_number'))) {
+                $sf_challan_number = $this->miscelleneous->create_sf_challan_id($sf_details[0]['sc_code']);
+            }
+            
+            
+            $data['sf_challan_file'] = $this->create_sf_challan_file($sf_details, $partner_details, $sf_challan_number, $id, $new_spare_details);
+            
+            if(!empty($_FILES['defective_courier_receipt']['name'])){
+               $courier_image =  $this->upload_defective_spare_pic();
+               if(!empty($courier_image)){
+                   $data['defective_courier_receipt'] = $this->input->post('sp_parts');
+               }
+            }
+            
+            foreach($new_spare_details['parts_shipped'] as $key => $value){
+                
+                if($key == $id){
+                    $data['defective_part_shipped'] = trim($this->input->post('shipped_parts'));
+                }
+                
+                $update_id = $this->inventory_model->update_spare_courier_details($key, $data);
+                if($update_id){
+                    log_message('info',__METHOD__.' details updated successfully for spare id '. $key);
+                }else{
+                    log_message('info',__METHOD__.' details did not updated successfully for spare id '. $key);
+                }
+            }
+            
+            redirect(base_url() . DEFAULT_SEARCH_PAGE);
+        } else {
+            log_message('info',__METHOD__.' validation failed');
+            $this->update_spare_courier_details($id);
+        }
+    }
+
+    /**
+     * @desc: This function is used to remove uploaded image
+     * @params: void
+     * @return: prints message if removed successfully
+     * 
+     */
+     function remove_uploaded_image() {
+        $courier[$this->input->post('type')] = '';
+        //Making Database Entry as Empty for selected file
+        $status = $this->inventory_model->update_spare_courier_details($this->input->post('id'), $courier);
+
+        //Logging 
+        if($status == true){
+        log_message('info', __FUNCTION__ . $this->input->post('type') . '  File has been removed sucessfully for id ' . $this->input->post('id'));
+        echo TRUE;
+        }
+    }
+    
+    /**
+     * @desc: This Function is used to search the docket number
+     * @param: void
+     * @return : void
+     */
+    function search_docket_number() {
+        $this->checkUserSession();
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/search_docket_number');
+    }
+    function sf_dashboard(){
+        $rating_data = $this->service_centers_model->get_vendor_rating_data($this->session->userdata('service_center_id'));
+        if(!empty($rating_data[0]['rating'])){
+            $data['rating'] =  $rating_data[0]['rating'];
+            $data['count'] =  $rating_data[0]['count'];
+        }else{
+            $data['rating'] = 0;
+            $data['count'] =  $rating_data[0]['count'];
+        }
+        $serviceWhere['isBookingActive'] =1;
+        $data['services'] = $this->reusable_model->get_search_result_data("services","*",$serviceWhere,NULL,NULL,NULL,NULL,NULL,array());
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/dashboard',$data);
+    }
 }
