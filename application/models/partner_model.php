@@ -1631,5 +1631,20 @@ function get_data_for_partner_callback($booking_id) {
         $query = $this->db->query("Select id, name from contact_person where entity_id= '".$id."' AND is_active='1' AND entity_type = 'partner' AND name IS NOT NULL order by name");
         return $query->result();
     }
+    
+      /**
+     * @desc: This function is used to get the email of POC and AM from partner table
+     * @params: $id
+     * @return: string
+     * 
+     */
+    function select_POC_and_AM_email($id) {
+        $this->db->select('p.primary_contact_email, e.official_email');
+        $this->db->from('partners p');
+        $this->db->join('employee e', 'e.id = p.account_manager_id'); 
+        $this->db->where('p.id', $id);  
+        $query = $this->db->get();
+        return $query->result();
+    }
 }
 
