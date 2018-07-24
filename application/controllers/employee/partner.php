@@ -3809,14 +3809,13 @@ class Partner extends CI_Controller {
             if ($affacted_rows > 0) {
                 $msg = "Partner Contracts has been Updated Successfully";
                 $this->session->set_userdata('success', $msg);
-              //Send mail
                 //Send mail
                 $html = "<p>Following Partner has been Updated : </p>";
                 foreach ($emailArray as $key => $value) {
                     $html .= "<li><b>" . $key . '</b> =>';
                     $html .= " " . $value . '</li>';
                 }
-                $logged_user_name = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['full_name'];
+               $logged_user_name = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['full_name'];
                 $emails = $this->partner_model->select_POC_and_AM_email($partner_id);
                 if(!empty($emails)){
                     $to = $emails[0]->official_email;
