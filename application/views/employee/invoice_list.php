@@ -197,12 +197,12 @@ ini_set('max_execution_time', 36000000);
                                 <td><span style="<?php if($value['prepaid_data']['prepaid_amount']> 0){ echo "color:green";} else { echo "color:red";}?>"><?php echo $value['prepaid_data']['prepaid_amount']; ?></span> </td>
                                 <?php } ?>
                                 <td><?php if ($value['final_amount'] < 0) {
-                                    echo round($value['final_amount'], 0);
-                                    $foc +=abs(round($value['final_amount'], 0));
+                                    echo sprintf("%.2f",$value['final_amount']);
+                                    $foc +=abs(sprintf("%.2f",$value['final_amount']));
                                     } ?></td>
                                 <td><?php if ($value['final_amount'] > 0) {
-                                    echo round($value['final_amount'], 0);
-                                    $cash +=abs(round($value['final_amount'], 0));
+                                    echo sprintf("%.2f",$value['final_amount']);
+                                    $cash +=abs(sprintf("%.2f",$value['final_amount']));
                                     } ?></td>
                                 <td><?php if ($value['final_amount'] < 0) { ?> 
                                     <a href="<?php echo base_url() ?>employee/invoice/invoice_summary/<?php echo $value['vendor_partner'] ?>/<?php echo $value['id'] ?>" target='_blank' class="btn btn-sm btn-success">Pay</a>
