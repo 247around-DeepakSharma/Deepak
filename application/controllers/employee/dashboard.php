@@ -32,7 +32,7 @@ class Dashboard extends CI_Controller {
 
         $this->load->library('table');
 
-        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee' || $this->session->userdata('userType') == 'partner')) {
+        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee' || $this->session->userdata('userType') == 'partner' || $this->session->userdata('userType') == 'service_center')) {
             return TRUE;
         } else {
             echo PHP_EOL . 'Terminal Access Not Allowed' . PHP_EOL;
@@ -1676,7 +1676,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         }
         echo json_encode($finalData);
     }
-    function tat_calculation_full_view($rmID){
+    function tat_calculation_full_view($rmID,$is_ajax=0){
         $whereIN = $stateData = $sfData = $joinType = array();
         if($this->input->post('daterange_completed_bookings')){
             $dateArray = explode(" - ",$this->input->post('daterange_completed_bookings')); 
@@ -1763,6 +1763,9 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $stateData = $this->miscelleneous->multi_array_sort_by_key($stateData, 'TAT_2', SORT_ASC);
         }
         //Get Data Group BY SF
+        if($this->input->post('vendor_id')){
+            $where['assigned_vendor_id'] = $this->input->post('vendor_id');
+        }
         $sfSelect = "booking_details.assigned_vendor_id as id,service_centres.name as SF,booking_details.state as State,COUNT(DISTINCT booking_details.booking_id) as count,"
                 . "DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as TAT,service_centres.district as sf_district";
         $sfJoin['service_centres'] = "service_centres.id = booking_details.assigned_vendor_id";
@@ -1774,14 +1777,19 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $sfData= $this->get_rm_completed_booking_TAT_IN_structured_format($sfRawData,"SF","State");
             $sfData = $this->miscelleneous->multi_array_sort_by_key($sfData, 'TAT_2', SORT_ASC);
         }
-        if($this->session->userdata('userType') == 'employee'){
-            $this->miscelleneous->load_nav_header();
+        if(!$is_ajax){
+            if($this->session->userdata('userType') == 'employee'){
+                $this->miscelleneous->load_nav_header();
+            }
+            else if($this->session->userdata('userType') == 'partner'){
+                $this->miscelleneous->load_partner_nav_header();
+            }
+            $this->load->view('dashboard/tat_calculation_full_view',array('state' => $stateData,'sf'=>$sfData,'partners'=>$partners,'rmID'=>$rmID,'filters'=>$this->input->post(),'services'=>$services));
+            $this->load->view('dashboard/dashboard_footer');   
         }
-        else if($this->session->userdata('userType') == 'partner'){
-            $this->miscelleneous->load_partner_nav_header();
+        else{
+           echo  json_encode($sfData);
         }
-        $this->load->view('dashboard/tat_calculation_full_view',array('state' => $stateData,'sf'=>$sfData,'partners'=>$partners,'rmID'=>$rmID,'filters'=>$this->input->post(),'services'=>$services));
-        $this->load->view('dashboard/dashboard_footer');        
     }
     
     function download_tat_report(){
