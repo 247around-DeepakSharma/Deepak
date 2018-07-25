@@ -4782,6 +4782,7 @@ class vendor extends CI_Controller {
             redirect(base_url() . "employee/login");
         }
     }
+    
     function pending_bookings_on_vendor($vendorID){
          $count = $this->reusable_model->get_search_result_count("booking_details","booking_id",array('assigned_vendor_id'=>$vendorID),NULL,NULL,NULL,
                  array("current_status"=>array("Rescheduled","Pending")),NULL );
@@ -4794,6 +4795,9 @@ class vendor extends CI_Controller {
      * @return: void
      */
     function show_bank_details(){
+        $this->checkUserSession();
+        //check if request is from ajax call or direct url
+        // for ajax request echo reponse else echo data with header
         if($this->input->post()){
             if($this->input->post('sf_type') === '1'){
                 $where = array('entity_type' => 'SF','service_centres.active' => 1,'account_holders_bank_details.is_verified' => $this->input->post('is_bank_details_verified'));
@@ -4802,16 +4806,33 @@ class vendor extends CI_Controller {
             }else if($this->input->post('sf_type') === 'all'){
                 $where = array('entity_type' => 'SF','account_holders_bank_details.is_verified' => $this->input->post('is_bank_details_verified'));
             }
-            
-            $join = array('service_centres' => 'account_holders_bank_details.entity_id = service_centres.id AND account_holders_bank_details.is_active = 1');
-            $data['bank_details'] = $this->reusable_model->get_search_query('account_holders_bank_details','account_holders_bank_details.*,service_centres.name',$where,$join,NULL,NULL,NULL,NULL)->result_array();
             $data['is_ajax'] = TRUE;
-            echo $this->load->view('employee/show_bank_details', $data);
         }else{
             $where = array('entity_type' => 'SF','service_centres.active' => 1,'account_holders_bank_details.is_verified' => 0);
-            $join = array('service_centres' => 'account_holders_bank_details.entity_id = service_centres.id AND account_holders_bank_details.is_active = 1');
-            $data['bank_details'] = $this->reusable_model->get_search_query('account_holders_bank_details','account_holders_bank_details.*,service_centres.name',$where,$join,NULL,NULL,NULL,NULL)->result_array();
             $data['is_ajax'] = FALSE;
+            $data['rm_details'] = $this->employee_model->get_rm_details();
+            
+        }
+        
+        //get bank details
+        $join = array('service_centres' => 'account_holders_bank_details.entity_id = service_centres.id AND account_holders_bank_details.is_active = 1');
+        $data['bank_details'] = $this->reusable_model->get_search_query('account_holders_bank_details', 'account_holders_bank_details.*,service_centres.name,service_centres.primary_contact_email,service_centres.owner_email', $where, $join, NULL, NULL, NULL, NULL)->result_array();
+        
+        //get rm details
+        if (!empty($data['bank_details'])) {
+            foreach ($data['bank_details'] as $key => $value) {
+                $rm = $this->vendor_model->get_rm_sf_relation_by_sf_id($value['entity_id']);
+                $data['bank_details'][$key]['rm_name'] = !empty($rm) ? $rm[0]['full_name'] : '';
+                $data['bank_details'][$key]['rm_email'] = !empty($rm) ? $rm[0]['official_email'] : '';
+            }
+        }else{
+            $data['bank_details'] = arrya();
+        }
+        
+        //output data
+        if($data['is_ajax']){
+            echo $this->load->view('employee/show_bank_details', $data);
+        }else{
             $this->miscelleneous->load_nav_header();
             $this->load->view('employee/show_bank_details', $data);
         }
@@ -4834,7 +4855,25 @@ class vendor extends CI_Controller {
         }
         
         $update = $this->reusable_model->update_table('account_holders_bank_details',$update_data,array('entity_id' => $entity_id,'entity_type' => $entity_type,'is_active'=>1));
+        
         if(!empty($update)){
+            //send email to sf owner,poc and rm
+            if($action == 'reject'){
+                $rm_email = $this->input->post('rm_email');
+                $poc_email = $this->input->post('poc_email');
+                $owner_email = $this->input->post('owner_email');
+                //send email to sf and rm
+                $template = $this->booking_model->get_booking_email_template("bank_details_verification_email");
+                if (!empty($template) && (!empty($poc_email) || !empty($owner_email))) {
+                    $to = $poc_email.','.$owner_email;
+                    //From will be currently logged in user's official Email
+                    $from = $rm_email;
+                    $emailBody = $template[0];
+                    $subject['sf_name'] = $this->input->post('sf_name');
+                    $subjectBody = vsprintf($template[4], $subject);
+                    $this->notify->sendEmail($from, $to, $this->session->userdata('official_email') . ",".$template[3] , '', $subjectBody, $emailBody, "",'bank_details_verification_email');
+                }
+            }
             echo "success";
         }else{
             echo "fail";
