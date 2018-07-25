@@ -1631,9 +1631,12 @@ class Booking extends CI_Controller {
             'agent_id' => $agent_id, 'customer_id' => $cust_id,
             'customer_phone' => $cust_phone
         ));
-
-        //Make call to customer now
-        $this->notify->make_outbound_call($agent_phone, $cust_phone);
+        if(CURRENT_TELEPHONY_SOLUTION == KNOWLARITY_STRING){
+            $this->notify->make_outbound_call_using_knowlarity($agent_phone, $cust_phone);
+        }
+        else{
+            $this->notify->make_outbound_call($agent_phone, $cust_phone);
+        }
 
         //Redirect to the page from where you landed in this function, do not refresh
         redirect(base_url() . $redirect_url);

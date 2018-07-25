@@ -10,6 +10,7 @@ include('paytm_gateway_transaction.php');
 include('partners_id_constant.php');
 include('serial_number_failed_msg_constant.php');
 include('warehouse_constant.php');
+include('telephony_constant.php');
 /*
 |--------------------------------------------------------------------------
 | File and Directory Modes
@@ -599,5 +600,19 @@ define('NEW_CHARGES_ADDED','New Charges Added');
 //Partner Login
 define('PARTNER_POC_ROLE_ID','1');
 
+//INventory 
+define('INVENTORY_HANDLER_ID', '10030');
+
+//Annual Charge Invoice Tagging
+define("ANNUAL_CHARGE_INVOICE_TAGGING", "Annual Charge");
+//PARTNER_SWEETNER_CHARGE
+define("PARTNER_SWEETENER_CHARGE_INVOICE_TAGGING", "Partner Sweetener Charge");
+
+// Region Constatnts
+define('EAST_RM', 'Souvik Ganguly');
+define('SOUTH_RM', 'Suresh K');
+define('WEST_RM', 'Rajendra Oza');
+define('NORTH_RM', 'Arun Kaushik');
+define('TOTAL', 'Total');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

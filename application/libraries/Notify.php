@@ -215,6 +215,33 @@ class Notify {
      *
      *  @return :
      */
+    function make_outbound_call_using_knowlarity($agent_phone, $customer_phone) {
+        switch (ENVIRONMENT) {
+            case 'production':
+            //case 'testing_chhavi':
+            $agentNumber = substr($agent_phone, '-10');
+            $customerNumber = substr($customer_phone, '-10');
+            $postData = array("k_number"=>KNOWLARITY_NUMBER, "agent_number"=>"+91".$agentNumber, "customer_number"=>"+91".$customerNumber, "caller_id"=> "+91".$customerNumber);
+                $postDataJSon =  json_encode($postData);
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, KNOWLARITY_OUTGOING_CALL_URL);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                curl_setopt($ch, CURLOPT_POSTFIELDS,$postDataJSon);
+                curl_setopt($ch, CURLOPT_POST, 1);
+                $headers = array();
+                $headers[] = "Content-Type: application/json";
+                $headers[] = "Accept: application/json";
+                $headers[] = "Authorization: ". KNOWLARITY_API_KEY;
+                $headers[] = "X-Api-Key: ".KNOWLARITY_APPLICATION_KEY;
+                curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+                $result = curl_exec($ch);
+                if (curl_errno($ch)) {
+                    echo 'Error:' . curl_error($ch);
+                }
+                curl_close ($ch);
+                break;
+        }
+    }
     function make_outbound_call($agent_phone, $customer_phone) {
 	//Callback fn called by Exotel
 	switch (ENVIRONMENT) {
