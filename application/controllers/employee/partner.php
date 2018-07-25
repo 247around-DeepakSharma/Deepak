@@ -490,13 +490,13 @@ class Partner extends CI_Controller {
      * @param : void
      * @return : void
      */
-    function process_add_edit_partner_form() {
+    function process_add_edit_partner_form() { 
         //Check form validation
         $checkValidation = $this->check_partner_Validation();
         if ($checkValidation) {
             $bookings_sources['partner_type'] = $this->input->post('partner_type');
             // Used when we edit a particular Partner
-            if (!empty($this->input->post('id'))) {
+            if (!empty($this->input->post('id'))) { 
                 //if vendor exists, details are edited
                 $partner_id = $this->input->post('id');
                 $edit_partner_data['partner'] = $this->get_partner_form_data();
@@ -513,6 +513,15 @@ class Partner extends CI_Controller {
                 $edit_partner_data['partner']['upcountry_max_distance_threshold'] = $edit_partner_data['partner']['upcountry_max_distance_threshold'];
                 $edit_partner_data['partner']['update_date'] = date("Y-m-d h:i:s");
                 $edit_partner_data['partner']['agent_id'] = $this->session->userdata('id');
+                
+                /**** Get POC and AM email and send updated fields only ****/
+                $emails = $this->partner_model->select_POC_and_AM_email($this->input->post('id'));
+                $old_partner_array = $obj2 = array_map('strval', $this->partner_model->viewpartner($this->input->post('id'))[0]);
+                $new_partner_array = array_map('strval', $edit_partner_data['partner']);
+                $updated_fields=array_diff($new_partner_array, $old_partner_array);
+                //unset($updated_fields['update_date']);
+                /******* End ********/
+                
                 $this->partner_model->edit_partner($edit_partner_data['partner'], $partner_id);
                 //Getting Logged Employee Full Name
                 $logged_user_name = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['full_name'];
@@ -520,16 +529,24 @@ class Partner extends CI_Controller {
                 log_message('info', __FUNCTION__ . ' Partner has been Updated : ' . print_r($this->input->post(), TRUE));
                 $msg = "Partner Updated Successfully";
                 $this->session->set_userdata('success', $msg);
+                
+               
                 //Adding details in Booking State Change
                 //$this->notify->insert_state_change('', PARTNER_UPDATED, PARTNER_UPDATED, 'Partner ID : ' . $partner_id, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
                 //Sending Mail for Updated details
                 $html = "<p>Following Partner has been Updated :</p><ul>";
+                foreach ($updated_fields as $key => $value) {
+                    $html .= "<li><b>" . $key . '</b> =>';
+                    $html .= " " . $value . '</li>';
+                }
+                /*
                 foreach ($edit_partner_data['partner'] as $key => $value) {
                     $html .= "<li><b>" . $key . '</b> =>';
                     $html .= " " . $value . '</li>';
                 }
+                */
                 $html .= "</ul>";
-                $to = ANUJ_EMAIL_ID;
+                $to = $emails[0]->primary_contact_email.",".$emails[0]->official_email;
                 $subject = "Partner Updated :  " . $this->input->post('public_name') . ' - By ' . $logged_user_name;
                 //Cleaning Email Variables
                 $this->email->clear(TRUE);
@@ -545,7 +562,7 @@ class Partner extends CI_Controller {
                     log_message('info', __METHOD__ . ": Mail could not be sent to " . $to);
                 }
                 redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
-            } else {
+            } else { 
                 //If Partner not present, Partner is being added
                 $return_data['partner'] = $this->get_partner_form_data();
                 $return_data['partner']['is_active'] = '1';
@@ -1263,6 +1280,7 @@ class Partner extends CI_Controller {
             $escalation['booking_id'] = $booking_id;
             $escalation['booking_date'] = date('Y-m-d', strtotime($bookinghistory[0]['booking_date']));
             $escalation['booking_time'] = $bookinghistory[0]['booking_timeslot'];
+            $escalation['vendor_id'] = $bookinghistory[0]['assigned_vendor_id'];
 
             log_message('info', __FUNCTION__ . " escalation_reason  " . print_r($escalation, true));
 
@@ -3544,7 +3562,7 @@ class Partner extends CI_Controller {
         redirect(base_url() . "employee/partner/bracket_allocation");
     }
 
-    function process_partner_document_form() {
+    function process_partner_document_form() { 
         $return_data = array();
         $partner_id = $this->input->post("partner_id");
         //Processing Pan File
@@ -3739,6 +3757,8 @@ class Partner extends CI_Controller {
                 $insertArray = array("entity_id" => $partner_id, "entity_type" => "partner", "collateral_id" => $contract_type,
                     "document_description" => $contract_description_array[$index], 'file' => $contract_file, "start_date" => $start_date_array[$index], 'end_date' => $end_date_array[$index]);
                 $finalInsertArray[] = $insertArray;
+                $contract_type_tag = $this->reusable_model->execute_custom_select_query("SELECT `collateral_tag` FROM `collateral_type` WHERE `id`='".$contract_type[$index]."'");
+                $emailArray = array("Contract_Type"=>$contract_type_tag[0]['collateral_tag'], "Partnership_Start_Date"=>$start_date_array[$index], "Partnership_End_Date"=>$end_date_array[$index], "Contract_Description" => $contract_description_array[$index]);
             }
         }
         if ($finalInsertArray) {
@@ -3746,6 +3766,28 @@ class Partner extends CI_Controller {
             if ($affacted_rows > 0) {
                 $msg = "Partner Contracts has been Updated Successfully";
                 $this->session->set_userdata('success', $msg);
+                //Send mail
+                $html = "<p>Following Partner has been Updated : </p>";
+                foreach ($emailArray as $key => $value) {
+                    $html .= "<li><b>" . $key . '</b> =>';
+                    $html .= " " . $value . '</li>';
+                }
+                $emails = $this->partner_model->select_POC_and_AM_email($partner_id);
+                $logged_user_name = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['full_name'];
+                $to = $emails[0]->primary_contact_email.",".$emails[0]->official_email;
+                $subject = "Partner Updated By " . $logged_user_name;
+                $this->email->clear(TRUE);
+                $this->email->from(NOREPLY_EMAIL_ID, '247around Team');
+                $this->email->to($to);
+                $this->email->subject($subject);
+                $this->email->message($html);
+                $this->email->attach($attachment_contract, 'attachment');
+                if ($this->email->send()) {
+                    $this->notify->add_email_send_details(NOREPLY_EMAIL_ID, $to, "", "", $subject, $html, "",PARTNER_DETAILS_UPDATED);
+                    log_message('info', __METHOD__ . ": Mail sent successfully to " . $to);
+                } else {
+                    log_message('info', __METHOD__ . ": Mail could not be sent to " . $to);
+                }
             }
         }
         redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
@@ -4806,7 +4848,7 @@ class Partner extends CI_Controller {
         $this->checkUserSession();
         $this->miscelleneous->load_partner_nav_header();
         $serviceWhere['isBookingActive'] =1;
-        $services = $this->reusable_model->get_search_result_data("services","*",$serviceWhere,NULL,NULL,NULL,NULL,NULL,array());
+        $services = $this->reusable_model->get_search_result_data("services","*",$serviceWhere,NULL,NULL,array("services"=>"ASC"),NULL,NULL,array());
          if($this->session->userdata('user_group') == PARTNER_CALL_CENTER_USER_GROUP){
             $this->load->view('partner/partner_default_page_cc', $data);
         }

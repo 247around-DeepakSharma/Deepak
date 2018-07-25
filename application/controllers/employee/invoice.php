@@ -345,7 +345,7 @@ class Invoice extends CI_Controller {
                 $credit_debit = $credit_debit_array[$key];
                 $p_history['invoice_id'] = $invoice_id;
                 $p_history['credit_debit'] = $credit_debit;
-                $p_history['credit_debit_amount'] = round($credit_debit_amount[$key], 0);
+                $p_history['credit_debit_amount'] = sprintf("%.2f",$credit_debit_amount[$key]);
                 $p_history['agent_id'] = $this->session->userdata('id');
                 $p_history['tds_amount'] = $tds_amount_array[$key];
                 $p_history['create_date'] = date("Y-m-d H:i:s");
@@ -353,13 +353,13 @@ class Invoice extends CI_Controller {
 
                 if ($credit_debit == 'Credit') {
 
-                    $paid_amount += round($credit_debit_amount[$key], 0);
-                    $amount_collected = abs(round(($data[0]['amount_collected_paid'] - $data[0]['amount_paid']), 0));
+                    $paid_amount += sprintf("%.2f",$credit_debit_amount[$key]);
+                    $amount_collected = abs(sprintf("%.2f",($data[0]['amount_collected_paid'] - $data[0]['amount_paid'])));
                     
                 } else if ($credit_debit == 'Debit') {
 
-                    $paid_amount += (-round($credit_debit_amount[$key], 0));
-                    $amount_collected = abs(round(($data[0]['amount_collected_paid'] + $data[0]['amount_paid']), 0));
+                    $paid_amount += (-sprintf("%.2f",$credit_debit_amount[$key]));
+                    $amount_collected = abs(sprintf("%.2f",($data[0]['amount_collected_paid'] + $data[0]['amount_paid'])));
                 }
               
                 $tds += $tds_amount_array[$key];
@@ -811,8 +811,8 @@ class Invoice extends CI_Controller {
         //set message to be displayed in excel sheet
         $meta['msg'] = 'Thanks 247around Partner for your support, we completed ' .  $meta['booking_count'] .
                     ' bookings with you from ' .  $meta['sd'] . ' to ' .  $meta['ed'] .
-                    '. Total transaction value for the bookings was Rs. ' . round($meta['total_amount_paid'], 0) .
-                    '. Around royalty for this invoice is Rs. ' . round($meta['sub_total_amount'], 0) .
+                    '. Total transaction value for the bookings was Rs. ' . sprintf("%.2f",$meta['total_amount_paid']) .
+                    '. Around royalty for this invoice is Rs. ' . sprintf("%.2f",$meta['sub_total_amount']) .
                     '. Your rating for completed bookings is ' . $meta['t_rating'] .
                     '. We look forward to your continued support in future. As next step, please deposit ' .
                     '247around royalty per the below details.';
@@ -1040,8 +1040,8 @@ class Invoice extends CI_Controller {
                
                 $total_stand_charge += $invoice_details[$j]['vendor_stand'];
                
-                $invoice_details[$j]['amount_paid'] = round(($invoice_details[$j]['vendor_installation_charge'] + 
-                        $invoice_details[$j]['vendor_stand']), 0);
+                $invoice_details[$j]['amount_paid'] = sprintf("%.2f",($invoice_details[$j]['vendor_installation_charge'] + 
+                        $invoice_details[$j]['vendor_stand']));
                 
                 if(!empty($invoice_details[$j]['rating_stars'])){
                     $rating += $invoice_details[$j]['rating_stars'];
@@ -1068,23 +1068,23 @@ class Invoice extends CI_Controller {
             $invoice_data['meta']['tds'] = $tds['tds'];
             $invoice_data['meta']['tds_rate'] = $tds['tds_rate'];
             $invoice_data['meta']['tds_tax_rate'] = $tds['tds_per_rate'];
-            $invoice_data['meta']['t_ic'] =round($total_inst_charge,0);
-            $invoice_data['meta']['t_stand'] = round($total_stand_charge,0);
-            $invoice_data['meta']['t_total'] =  round($t_total,0);
-            $invoice_data['meta']['total_gst_amount'] =  round($invoice_data['meta']["cgst_total_tax_amount"] + $invoice_data['meta']["sgst_total_tax_amount"] +
-                    $invoice_data['meta']["igst_total_tax_amount"],0);
+            $invoice_data['meta']['t_ic'] = sprintf("%.2f",$total_inst_charge);
+            $invoice_data['meta']['t_stand'] = sprintf("%.2f",$total_stand_charge);
+            $invoice_data['meta']['t_total'] =  sprintf("%.2f",$t_total);
+            $invoice_data['meta']['total_gst_amount'] =  sprintf("%.2f",$invoice_data['meta']["cgst_total_tax_amount"] + $invoice_data['meta']["sgst_total_tax_amount"] +
+                    $invoice_data['meta']["igst_total_tax_amount"]);
             $invoice_data['meta']['t_rating'] = $rating/$rating_count;
-            $invoice_data['meta']['cr_total_penalty_amount'] = round((array_sum(array_column($invoice_data['c_penalty'], 'p_amount'))),0);
-            $invoice_data['meta']['total_penalty_amount'] = -round((array_sum(array_column($invoice_data['d_penalty'], 'p_amount'))), 0);
-            $invoice_data['meta']['total_upcountry_price'] = round($total_upcountry_price, 0);
-            $invoice_data['meta']['total_courier_charges'] = round((array_sum(array_column($invoice_data['courier'], 'courier_charges_by_sf'))), 0);
+            $invoice_data['meta']['cr_total_penalty_amount'] = sprintf("%.2f",(array_sum(array_column($invoice_data['c_penalty'], 'p_amount'))));
+            $invoice_data['meta']['total_penalty_amount'] = -sprintf("%.2f",(array_sum(array_column($invoice_data['d_penalty'], 'p_amount'))));
+            $invoice_data['meta']['total_upcountry_price'] = sprintf("%.2f",$total_upcountry_price);
+            $invoice_data['meta']['total_courier_charges'] = sprintf("%.2f",(array_sum(array_column($invoice_data['courier'], 'courier_charges_by_sf'))));
             
-            $invoice_data['meta']['t_vp_w_tds'] = round( ($invoice_data['meta']['sub_total_amount'] - $invoice_data['meta']['tds']), 0);
+            $invoice_data['meta']['t_vp_w_tds'] = sprintf("%.2f", ($invoice_data['meta']['sub_total_amount'] - $invoice_data['meta']['tds']));
             
             $invoice_data['meta']['msg'] = 'Thanks 247around Partner for your support, we completed ' .  $invoice_data['meta']['count'] .
                     ' bookings with you from ' .  $invoice_data['meta']['sd'] . ' to ' .  $invoice_data['meta']['ed'] .
                     '. Total transaction value for the bookings was Rs. ' .  $invoice_data['meta']['t_vp_w_tds'] .
-                    '. Your rating for completed bookings is ' . round( $invoice_data['meta']['t_rating'], 0) .
+                    '. Your rating for completed bookings is ' . sprintf("%.2f", $invoice_data['meta']['t_rating']) .
                     '. We look forward to your continued support in future. As next step, 247around will pay you remaining amount as per our agreement.';
 
            
@@ -1670,7 +1670,7 @@ class Invoice extends CI_Controller {
         $sms['tag'] = "vendor_invoice_mailed";
         $sms['smsData']['type'] = $type;
         $sms['smsData']['month'] = date('M Y', strtotime($from_date));
-        $sms['smsData']['amount'] = round($total,0);
+        $sms['smsData']['amount'] = sprintf("%.2f",$total);
         $sms['phone_no'] = $owner_phone_1;
         $sms['booking_id'] = "";
         $sms['type'] = "vendor";
@@ -1955,8 +1955,8 @@ class Invoice extends CI_Controller {
                     $i = 1;
                 }
                 $invoices['meta']['parts_count'] = $parts_count;
-                $invoices['meta']['total_amount_paid'] = round($total_amount_paid, 0);
-                $invoices['meta']['t_rating'] = round($rating / $i, 0);
+                $invoices['meta']['total_amount_paid'] = sprintf("%.2f",$total_amount_paid);
+                $invoices['meta']['t_rating'] = sprintf("%.2f",$rating / $i);
                 $this->generate_cash_details_invoices_for_vendors($vendor_id, $invoices_details_data, $invoices['meta'], $invoice_type, $agent_id, $from_date, $to_date);
                 unset($invoices_details_data);
                 unset($invoices['meta']);
@@ -2340,7 +2340,7 @@ class Invoice extends CI_Controller {
 
 
                 $gst_amount = $total_amount_collected * ($gst_rate / 100);
-                $data['total_amount_collected'] = round(($total_amount_collected + $gst_amount), 0);
+                $data['total_amount_collected'] = sprintf("%.2f",($total_amount_collected + $gst_amount));
 
                 $data['rcm'] = 0;
 
@@ -2359,8 +2359,8 @@ class Invoice extends CI_Controller {
                 switch ($data['type_code']) {
                     case 'A':
                         log_message('info', __FUNCTION__ . " .. type code:- " . $data['type']);
-                        $data['around_royalty'] = round($data['total_amount_collected'], 0);
-                        $data['amount_collected_paid'] = round($data['total_amount_collected'], 0);
+                        $data['around_royalty'] = sprintf("%.2f",$data['total_amount_collected']);
+                        $data['amount_collected_paid'] = sprintf("%.2f",$data['total_amount_collected']);
 
                         break;
                     case 'B':
@@ -2686,7 +2686,7 @@ class Invoice extends CI_Controller {
                 $sc_details['bank_account'] = trim($sc['bank_account']);
                 $sc_details['beneficiary_name'] = trim($sc['beneficiary_name']);
 
-                $sc_details['final_amount'] = abs(round($amount, 0));
+                $sc_details['final_amount'] = abs(sprintf("%.2f",$amount));
                 if (trim($sc['bank_name']) === ICICI_BANK_NAME) {
                     $sc_details['payment_mode'] = "I";
                 } else {
@@ -3476,7 +3476,7 @@ class Invoice extends CI_Controller {
                     $invoice['vendor_partner_id'] = $data[0]->partner_id;
                     $gst_rate = trim($this->input->post('gst_rate'));
                     $gst_amount =  $this->booking_model->get_calculated_tax_charge($invoice['total_amount_collected'], $gst_rate); 
-                    $amount_collected_paid = round(($invoice['total_amount_collected'] - $gst_amount), 2);
+                    $amount_collected_paid = sprintf("%.2f",($invoice['total_amount_collected'] - $gst_amount));
                     $invoice['parts_cost'] = $amount_collected_paid;
                     
                     $invoice['invoice_file_main'] = $invoice_pdf;
