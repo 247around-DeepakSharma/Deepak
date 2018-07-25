@@ -1234,21 +1234,21 @@ class Api extends CI_Controller {
             $callDetails = $this->input->post();
         }
         else{
-    $activity = array('activity' => 'process exotel request', 'data' => json_encode($_GET), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+            $activity = array('activity' => 'process exotel request', 'data' => json_encode($_GET), 'time' => $this->microtime_float());
+            $this->apis->logTable($activity);
 
-        //Refer: http://support.exotel.in/support/solutions/articles/48283-working-with-passthru-applet
-        $callDetails['callSid'] = (isset($_GET['CallSid'])) ? $_GET['CallSid'] : null;
-        $callDetails['from_number'] = (isset($_GET['From'])) ? $_GET['From'] : null;
-        $callDetails['To'] = (isset($_GET['To'])) ? $_GET['To'] : null;
-        $callDetails['Direction'] = (isset($_GET['Direction'])) ? $_GET['Direction'] : null;
-        $callDetails['DialCallDuration'] = (isset($_GET['DialCallDuration'])) ? $_GET['DialCallDuration'] : null;
-        $callDetails['StartTime'] = (isset($_GET['StartTime'])) ? $_GET['StartTime'] : null;
-        $callDetails['EndTime'] = (isset($_GET['EndTime'])) ? $_GET['EndTime'] : null;
-        $callDetails['CallType'] = (isset($_GET['CallType'])) ? $_GET['CallType'] : null;
-        $callDetails['DialWhomNumber'] = (isset($_GET['DialWhomNumber'])) ? $_GET['DialWhomNumber'] : null;
-        $callDetails['digits'] = (isset($_GET['digits'])) ? $_GET['digits'] : null;
-        $callDetails['create_date'] = null;
+            //Refer: http://support.exotel.in/support/solutions/articles/48283-working-with-passthru-applet
+            $callDetails['callSid'] = (isset($_GET['CallSid'])) ? $_GET['CallSid'] : null;
+            $callDetails['from_number'] = (isset($_GET['From'])) ? $_GET['From'] : null;
+            $callDetails['To'] = (isset($_GET['To'])) ? $_GET['To'] : null;
+            $callDetails['Direction'] = (isset($_GET['Direction'])) ? $_GET['Direction'] : null;
+            $callDetails['DialCallDuration'] = (isset($_GET['DialCallDuration'])) ? $_GET['DialCallDuration'] : null;
+            $callDetails['StartTime'] = (isset($_GET['StartTime'])) ? $_GET['StartTime'] : null;
+            $callDetails['EndTime'] = (isset($_GET['EndTime'])) ? $_GET['EndTime'] : null;
+            $callDetails['CallType'] = (isset($_GET['CallType'])) ? $_GET['CallType'] : null;
+            $callDetails['DialWhomNumber'] = (isset($_GET['DialWhomNumber'])) ? $_GET['DialWhomNumber'] : null;
+            $callDetails['digits'] = (isset($_GET['digits'])) ? $_GET['digits'] : null;
+            $callDetails['create_date'] = null;
         }
         log_message('info', "call_details_array: " . print_r($callDetails, TRUE));
 
@@ -1436,21 +1436,21 @@ class Api extends CI_Controller {
             $callDetails = $this->input->post();
         }
         else{
-    $activity = array('activity' => 'AC Service Request', 'data' => json_encode($_GET), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+            $activity = array('activity' => 'AC Service Request', 'data' => json_encode($_GET), 'time' => $this->microtime_float());
+            $this->apis->logTable($activity);
 
-        //Refer: http://support.exotel.in/support/solutions/articles/48283-working-with-passthru-applet
-        $callDetails['callSid'] = (isset($_GET['CallSid'])) ? $_GET['CallSid'] : null;
-        $callDetails['from_number'] = (isset($_GET['From'])) ? $_GET['From'] : null;
-        $callDetails['To'] = (isset($_GET['To'])) ? $_GET['To'] : null;
-        $callDetails['Direction'] = (isset($_GET['Direction'])) ? $_GET['Direction'] : null;
-        $callDetails['DialCallDuration'] = (isset($_GET['DialCallDuration'])) ? $_GET['DialCallDuration'] : null;
-        $callDetails['StartTime'] = (isset($_GET['StartTime'])) ? $_GET['StartTime'] : null;
-        $callDetails['EndTime'] = (isset($_GET['EndTime'])) ? $_GET['EndTime'] : null;
-        $callDetails['CallType'] = (isset($_GET['CallType'])) ? $_GET['CallType'] : null;
-        $callDetails['DialWhomNumber'] = (isset($_GET['DialWhomNumber'])) ? $_GET['DialWhomNumber'] : null;
-        $callDetails['digits'] = (isset($_GET['digits'])) ? $_GET['digits'] : null;
-        $callDetails['create_date'] = null;
+            //Refer: http://support.exotel.in/support/solutions/articles/48283-working-with-passthru-applet
+            $callDetails['callSid'] = (isset($_GET['CallSid'])) ? $_GET['CallSid'] : null;
+            $callDetails['from_number'] = (isset($_GET['From'])) ? $_GET['From'] : null;
+            $callDetails['To'] = (isset($_GET['To'])) ? $_GET['To'] : null;
+            $callDetails['Direction'] = (isset($_GET['Direction'])) ? $_GET['Direction'] : null;
+            $callDetails['DialCallDuration'] = (isset($_GET['DialCallDuration'])) ? $_GET['DialCallDuration'] : null;
+            $callDetails['StartTime'] = (isset($_GET['StartTime'])) ? $_GET['StartTime'] : null;
+            $callDetails['EndTime'] = (isset($_GET['EndTime'])) ? $_GET['EndTime'] : null;
+            $callDetails['CallType'] = (isset($_GET['CallType'])) ? $_GET['CallType'] : null;
+            $callDetails['DialWhomNumber'] = (isset($_GET['DialWhomNumber'])) ? $_GET['DialWhomNumber'] : null;
+            $callDetails['digits'] = (isset($_GET['digits'])) ? $_GET['digits'] : null;
+            $callDetails['create_date'] = null;
         }
 
         //var_dump($apiDetails);
@@ -4349,21 +4349,21 @@ class Api extends CI_Controller {
             $callDetails = $this->input->post();
         }
         else{
-    $activity = array('activity' => 'process exotel request', 'data' => json_encode($_GET), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+            $activity = array('activity' => 'process exotel request', 'data' => json_encode($_GET), 'time' => $this->microtime_float());
+            $this->apis->logTable($activity);
 
-        //Refer: http://support.exotel.in/support/solutions/articles/48283-working-with-passthru-applet
-        $callDetails['callSid'] = (isset($_GET['CallSid'])) ? $_GET['CallSid'] : null;
-        $callDetails['from_number'] = (isset($_GET['From'])) ? $_GET['From'] : null;
-        $callDetails['To'] = (isset($_GET['To'])) ? $_GET['To'] : null;
-        $callDetails['Direction'] = (isset($_GET['Direction'])) ? $_GET['Direction'] : null;
-        $callDetails['DialCallDuration'] = (isset($_GET['DialCallDuration'])) ? $_GET['DialCallDuration'] : null;
-        $callDetails['StartTime'] = (isset($_GET['StartTime'])) ? $_GET['StartTime'] : null;
-        $callDetails['EndTime'] = (isset($_GET['EndTime'])) ? $_GET['EndTime'] : null;
-        $callDetails['CallType'] = (isset($_GET['CallType'])) ? $_GET['CallType'] : null;
-        $callDetails['DialWhomNumber'] = (isset($_GET['DialWhomNumber'])) ? $_GET['DialWhomNumber'] : null;
-        $callDetails['digits'] = (isset($_GET['digits'])) ? $_GET['digits'] : null;
-        $callDetails['create_date'] = null;
+            //Refer: http://support.exotel.in/support/solutions/articles/48283-working-with-passthru-applet
+            $callDetails['callSid'] = (isset($_GET['CallSid'])) ? $_GET['CallSid'] : null;
+            $callDetails['from_number'] = (isset($_GET['From'])) ? $_GET['From'] : null;
+            $callDetails['To'] = (isset($_GET['To'])) ? $_GET['To'] : null;
+            $callDetails['Direction'] = (isset($_GET['Direction'])) ? $_GET['Direction'] : null;
+            $callDetails['DialCallDuration'] = (isset($_GET['DialCallDuration'])) ? $_GET['DialCallDuration'] : null;
+            $callDetails['StartTime'] = (isset($_GET['StartTime'])) ? $_GET['StartTime'] : null;
+            $callDetails['EndTime'] = (isset($_GET['EndTime'])) ? $_GET['EndTime'] : null;
+            $callDetails['CallType'] = (isset($_GET['CallType'])) ? $_GET['CallType'] : null;
+            $callDetails['DialWhomNumber'] = (isset($_GET['DialWhomNumber'])) ? $_GET['DialWhomNumber'] : null;
+            $callDetails['digits'] = (isset($_GET['digits'])) ? $_GET['digits'] : null;
+            $callDetails['create_date'] = null;
         }
 
         //var_dump($apiDetails);
@@ -4397,21 +4397,21 @@ class Api extends CI_Controller {
             $callDetails = $this->input->post();
         }
         else{
-        $activity = array('activity' => 'process exotel request', 'data' => json_encode($_GET), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+            $activity = array('activity' => 'process exotel request', 'data' => json_encode($_GET), 'time' => $this->microtime_float());
+            $this->apis->logTable($activity);
 
-        //Refer: http://support.exotel.in/support/solutions/articles/48283-working-with-passthru-applet
-        $callDetails['callSid'] = (isset($_GET['CallSid'])) ? $_GET['CallSid'] : null;
-        $callDetails['from_number'] = (isset($_GET['From'])) ? ltrim($_GET['From'],'0') : null;
-        $callDetails['To'] = (isset($_GET['To'])) ? $_GET['To'] : null;
-        $callDetails['Direction'] = (isset($_GET['Direction'])) ? $_GET['Direction'] : null;
-        $callDetails['DialCallDuration'] = (isset($_GET['DialCallDuration'])) ? $_GET['DialCallDuration'] : null;
-        $callDetails['StartTime'] = (isset($_GET['StartTime'])) ? $_GET['StartTime'] : null;
-        $callDetails['EndTime'] = (isset($_GET['EndTime'])) ? $_GET['EndTime'] : null;
-        $callDetails['CallType'] = (isset($_GET['CallType'])) ? $_GET['CallType'] : null;
-        $callDetails['DialWhomNumber'] = (isset($_GET['DialWhomNumber'])) ? $_GET['DialWhomNumber'] : null;
-        $callDetails['digits'] = (isset($_GET['digits'])) ? $_GET['digits'] : null;
-        $callDetails['create_date'] = null;
+            //Refer: http://support.exotel.in/support/solutions/articles/48283-working-with-passthru-applet
+            $callDetails['callSid'] = (isset($_GET['CallSid'])) ? $_GET['CallSid'] : null;
+            $callDetails['from_number'] = (isset($_GET['From'])) ? ltrim($_GET['From'],'0') : null;
+            $callDetails['To'] = (isset($_GET['To'])) ? $_GET['To'] : null;
+            $callDetails['Direction'] = (isset($_GET['Direction'])) ? $_GET['Direction'] : null;
+            $callDetails['DialCallDuration'] = (isset($_GET['DialCallDuration'])) ? $_GET['DialCallDuration'] : null;
+            $callDetails['StartTime'] = (isset($_GET['StartTime'])) ? $_GET['StartTime'] : null;
+            $callDetails['EndTime'] = (isset($_GET['EndTime'])) ? $_GET['EndTime'] : null;
+            $callDetails['CallType'] = (isset($_GET['CallType'])) ? $_GET['CallType'] : null;
+            $callDetails['DialWhomNumber'] = (isset($_GET['DialWhomNumber'])) ? $_GET['DialWhomNumber'] : null;
+            $callDetails['digits'] = (isset($_GET['digits'])) ? $_GET['digits'] : null;
+            $callDetails['create_date'] = null;
         }
         
         //insert in database
@@ -4486,11 +4486,11 @@ class Api extends CI_Controller {
             $responseData = $this->input->post();
         }
         else{
-        $responseData = $this->input->get();
+            $responseData = $this->input->get();
+            $activity = array('activity' => 'process exotel request', 'data' => json_encode($responseData), 'time' => $this->microtime_float());
+            $this->apis->logTable($activity);
         }
         //$responseData = json_decode('{"CallSid":"de642f94743e8bf2a65e280c848f25d0","CallFrom":"9058523795","CallTo":"01139595200","Direction":"incoming","Created":"Wed, 03 Jan 2018 11:31:33","DialCallDuration":"242","RecordingUrl":"https:\/\/s3-ap-southeast-1.amazonaws.com\/exotelrecordings\/aroundhomz\/de642f94743e8bf2a65e280c848f25d0.mp3","StartTime":"2018-01-03 11:31:33","EndTime":"1970-01-01 05:30:00","DialCallStatus":"completed","CallType":"completed","DialWhomNumber":"08010155247","flow_id":"45714","tenant_id":"20524","From":"9058523795","To":"01139595200","RecordingAvailableBy":"Wed, 03 Jan 2018 11:40:52","CurrentTime":"2018-01-03 11:35:52","Legs":[{"Number":"08010155247","Type":"single","OnCallDuration":"229","CauseCode":"NORMAL_CLEARING","Cause":"16"}]}',TRUE);
-        $activity = array('activity' => 'process exotel request', 'data' => json_encode($responseData), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
         //Define Blank DataArray
         $dataArray['callSid'] = $dataArray['from_number']= $responseData['to_number'] = $responseData['StartTime'] = $responseData['EndTime'] = NULL;
         //Insert Value in DataArray
