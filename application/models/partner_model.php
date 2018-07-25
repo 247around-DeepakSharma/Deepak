@@ -413,6 +413,7 @@ function get_data_for_partner_callback($booking_id) {
             user_email As 'Email', 
             ud.price_tags AS 'Service Type',
             CASE WHEN(current_status = 'Completed' || current_status = 'Cancelled') THEN (closing_remarks) ELSE (reschedule_reason) END AS 'Remarks',
+            CASE WHEN(current_status = 'Cancelled') THEN (cancellation_reason) ELSE '' END AS 'Cancellation Remarks',
             booking_date As 'Current Booking Date', 
             initial_booking_date As 'First Booking Date',
             booking_timeslot AS 'Timeslot', 
