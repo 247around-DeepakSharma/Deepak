@@ -9,7 +9,7 @@
                 <h2 style="margin: 0px;padding: 5px 0px 5px 16px;font-size: 24px;">Performance Summary</h2>
                     <div class="clearfix"></div>
                 </div>
-            <div style="margin-top: 0px;display: flex;font-size: 25px;border: 2px solid #2c9d9c;padding: 10px 254px;border-bottom: none;">
+            <div style="margin-top: 0px;display: flex;font-size: 25px;border: 2px solid #2c9d9c;padding: 10px 210px;border-bottom: none;">
                     <b>Rating:</b> &nbsp;
                     <b><span <?php if($rating > '3.5') { echo "class='text-success'";}else{echo "class='text-danger'";}?>><?php echo $rating; ?> /5</span></b> &nbsp;
                     <div class="sf-escalation">
@@ -84,7 +84,7 @@
                                             <option value="Cancelled">Cancelled</option>
                                         </select>
                     </div>
-                <button class="btn btn-primary" style="margin-top: 23px;background: #2c9d9c;border-color: #2c9d9c;" onclick="fetch_filtered_tat_report()">Apply Filters</button>
+                <button class="btn btn-primary" style="margin-top: 23px;background: #c1591c;border-color: #c1591c;" onclick="fetch_filtered_tat_report()">Apply Filters</button>
              </div>
             <hr style="border: 1px solid #2c9d9c;">  
             <div class="col-md-12" id="tat_holder">

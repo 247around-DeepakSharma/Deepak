@@ -127,6 +127,7 @@
                     </tbody>
                 </table>
                 <center><img id="loader_gif_pending" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
+                <p style="background: #f7a35c;color: #fff;padding: 2px 6px;width: 36%;font-size: 14px;font: 14px/16px Arial;"><span><b>Note*</b></span> TAT has been calculated using "First Booking Date" and "Completion Date"</p>
             </div>
             </div>
         </div>
