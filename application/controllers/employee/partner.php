@@ -4849,23 +4849,6 @@ class Partner extends CI_Controller {
         $this->load->view('partner/search_docket_number');
         $this->load->view('partner/partner_footer');
     }
-    function partner_dashboard() {
-        $this->checkUserSession();
-        $this->miscelleneous->load_partner_nav_header();
-        $serviceWhere['isBookingActive'] =1;
-        $services = $this->reusable_model->get_search_result_data("services","*",$serviceWhere,NULL,NULL,array("services"=>"ASC"),NULL,NULL,array());
-         if($this->session->userdata('user_group') == PARTNER_CALL_CENTER_USER_GROUP){
-            $this->load->view('partner/partner_default_page_cc', $data);
-        }
-        else{
-            $this->load->view('partner/partner_dashboard',array('services'=>$services));
-        }
-        $this->load->view('partner/partner_footer');
-        if(!$this->session->userdata("login_by")){
-            $this->load->view('employee/header/push_notification');
-        }
-    }
-    
     
     /**
      * @desc: This Function is used to edit warehouse deatails
