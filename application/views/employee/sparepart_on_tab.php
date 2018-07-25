@@ -232,6 +232,9 @@
                                         <th class="text-center" data-orderable="false">Requested Part</th>
                                         <th class="text-center" data-orderable="false">Booking Type</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
+                                        <th class="text-center" data-orderable="false">Partner Shipped Date</th>
+                                        <th class="text-center" data-orderable="false">SF Received Date</th>
+                                        <th class="text-center" data-orderable="false">Price</th>
                                         <th class="text-center" data-orderable="true">Age</th>
 
 <!--                                        <th class="text-center" data-orderable="false">Cancel Part</th>-->
@@ -255,7 +258,10 @@
                                         <td class="text-center"><?php echo $value['parts_requested'];?></td>
                                         <td class="text-center"><?php echo $value['request_type'];?></td>
                                         <td class="text-center"><?php echo $value['parts_shipped'];?></td>
-                                         <td class="text-center"><?php $age_requested = date_diff(date_create($value['service_center_closed_date']), date_create('today')); echo $age_requested->days. " Days";?></td> 
+                                        <td class="text-center"><?php echo date('Y-m-d',  strtotime($value['shipped_date']));?></td>
+                                        <td class="text-center"><?php echo date('Y-m-d',  strtotime($value['acknowledge_date']));?></td>
+                                        <td class="text-center"><?php echo $value['challan_approx_value'];?></td>
+                                        <td class="text-center"><?php $age_requested = date_diff(date_create($value['service_center_closed_date']), date_create('today')); echo $age_requested->days. " Days";?></td> 
                                       
 <!--                                        <td class="text-center"><button type="button" data-booking_id="<?php //echo $value['booking_id'];?>" data-url="<?php //echo base_url(); ?>employee/inventory/update_action_on_spare_parts/<?php //echo $value['id']."/".$value['booking_id'];?>/CANCEL_COMPLETED_BOOKING_PARTS" class="btn btn-primary btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2">Cancel</button></td>-->
                                        
@@ -431,6 +437,9 @@
                                         <th class="text-center" data-orderable="false">Requested Part</th>
                                         <th class="text-center" data-orderable="false">Booking Type</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
+                                        <th class="text-center" data-orderable="false">Partner Shipped Date</th>
+                                        <th class="text-center" data-orderable="false">SF Received Date</th>
+                                        <th class="text-center" data-orderable="false">Price</th>
            
                                         <th class="text-center" data-orderable="true">Age Of Delivered</th>
 <!--                                        <th class="text-center" data-orderable="false">Cancel Part</th>-->
@@ -454,6 +463,9 @@
                                         <td class="text-center"><?php echo $value['parts_requested'];?></td>
                                         <td class="text-center"><?php echo $value['request_type'];?></td>
                                         <td class="text-center"><?php echo $value['parts_shipped'];?></td>
+                                        <td class="text-center"><?php echo date('Y-m-d',  strtotime($value['shipped_date']));?></td>
+                                        <td class="text-center"><?php echo date('Y-m-d',  strtotime($value['acknowledge_date']));?></td>
+                                        <td class="text-center"><?php echo $value['challan_approx_value'];?></td>
 
                                         <td class="text-center"><?php $age_shipped = date_diff(date_create($value['acknowledge_date']), date_create('today')); echo $age_shipped->days. " Days";?></td> 
 <!--                                        <td class="text-center"><button type="button" data-booking_id="<?php echo $value['booking_id'];?>" data-url="<?php echo base_url(); ?>employee/inventory/update_action_on_spare_parts/<?php echo $value['id']."/".$value['booking_id'];?>/CANCEL_PARTS" class="btn btn-primary btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2">Cancel</button></td>-->
@@ -511,7 +523,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 1,2,3,4,5,6,7,8,9 ]
+                        columns: [ 1,2,3,4,5,6,7,8,9,10,11,12]
                     },
                     title: 'sf_received_part'
                 }
@@ -525,7 +537,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 1,2,3,4,5,6,7,8,9 ]
+                        columns: [ 1,2,3,4,5,6,7,8,9 ,10,11,12]
                     },
                     title: 'defective_part_pending'
                 }
