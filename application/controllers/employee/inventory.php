@@ -4378,5 +4378,48 @@ class Inventory extends CI_Controller {
 
         echo json_encode($res);
     }
+    
+    function download_spare_consolidated_data($partner_id = NULL){
+        log_message('info',__METHOD__.' Processing...');
+        
+        $select = "booking_details.booking_id as 'Booking ID',employee.full_name as 'Account Manager Name',partners.public_name as 'Partner Name',service_centres.name as 'SF Name',"
+                . "booking_details.current_status as 'Booking Status',spare_parts_details.status as 'Spare Status', "
+                . "spare_parts_details.parts_shipped as 'Part Shipped By Partner',spare_parts_details.shipped_parts_type as 'Part Type',"
+                . "spare_parts_details.shipped_date as 'Partner Part Shipped Date',spare_parts_details.awb_by_partner as 'Partner AWB Number',"
+                . "spare_parts_details.courier_name_by_partner as 'Partner Courier Name',spare_parts_details.courier_price_by_partner as 'Partner Courier Price',"
+                . "spare_parts_details.acknowledge_date as 'Spare Received Date',spare_parts_details.auto_acknowledeged as 'IS Spare Auto Acknowledge',"
+                . "spare_parts_details.defective_part_shipped as 'Part Shipped By SF',"
+                . "spare_parts_details.awb_by_sf as 'SF AWB Number',spare_parts_details.courier_name_by_sf as 'SF Courier Name',"
+                . "datediff(CURRENT_DATE,spare_parts_details.shipped_date) as 'Spare Shipped Age'";
+        $where = array("spare_parts_details.status NOT IN('Spare parts requested')" => NULL);
+        if(!empty($partner_id)){
+            $where['booking_details.partner_id'] = $partner_id;
+        }
+        
+        $spare_details = $this->inventory_model->get_spare_consolidated_data($select,$where);
+        
+        $this->load->dbutil();
+        $this->load->helper('file');
+        
+        $file_name = 'spare_consolidated_data_'. date('j-M-Y-H-i-s') . ".csv";
+        $delimiter = ",";
+        $newline = "\r\n";
+        $new_report = $this->dbutil->csv_from_result($spare_details, $delimiter, $newline);
+        write_file(TMP_FOLDER.$file_name, $new_report);
+        
+        if(file_exists(TMP_FOLDER.$file_name)){
+            log_message('info', __FUNCTION__ . ' File created ' . $file_name);
+            $res1 = 0;
+            system(" chmod 777 " . TMP_FOLDER . $file_name, $res1);
+            $res['status'] = true;
+            $res['msg'] = base_url() . "file_process/downloadFile/".$file_name;
+        }  else {
+            log_message('info', __FUNCTION__ . ' error in generating file ' . $file_name);
+            $res['status'] = FALSE;
+            $res['msg'] = 'error in generating file';
+        }
+        
+        echo json_encode($res);
+    }
 
 }
