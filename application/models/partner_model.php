@@ -365,72 +365,34 @@ function get_data_for_partner_callback($booking_id) {
         }
         return $finalArray;
     }
-    
+    function get_partner_summary_report_fields($partner_id){
+        $data = $this->reusable_model->get_search_result_data("partner_summary_report_mapping","*",array("is_default =1 OR partner_id LIKE '%".$partner_id."%'"=>NULL),NULL,NULL,
+                array("index_in_report"=>"ASC"),NULL,NULL,array());
+        return $data;
+    }
     //Return all leads shared by Partner in the last 30 days in CSV
     function get_partner_leads_csv_for_summary_email($partner_id,$percentageLogic,$whereConditions=NULL){
+        $mappingData = $this->get_partner_summary_report_fields($partner_id);
+        foreach($mappingData as $values){
+            $subQueryArray[$values['Title']] = $values['sub_query'];
+        }
         if(!$whereConditions){
             $where = "((booking_details.create_date > (CURDATE() - INTERVAL 1 MONTH)) OR (booking_details.current_status NOT IN ('Cancelled','Completed')))";
         }
         else{
             $where = $whereConditions;
         }
-        $dependency = "";
-        $closeDateSubQuery = "booking_details.service_center_closed_date AS 'Completion Date'";
-        $tatSubQuery  = '(CASE WHEN current_status  = "Completed" THEN (CASE WHEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,"%d-%m-%Y")) < 0 THEN 0 ELSE'
-                . ' DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,"%d-%m-%Y")) END) ELSE "" END) as TAT';
-        $agingSubQuery = '(CASE WHEN current_status  IN ("Pending","Rescheduled","FollowUp") THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,"%d-%m-%Y")) ELSE "" END) as Ageing';
         if($partner_id == AKAI_ID){
-            
-            $dependency = ', IF(dependency_on =1, "'.DEPENDENCY_ON_AROUND.'", "'.DEPENDENCY_ON_CUSTOMER.'") as Dependency ';
+            $subQueryArray['Dependency'] = 'IF(dependency_on =1, "'.DEPENDENCY_ON_AROUND.'", "'.DEPENDENCY_ON_CUSTOMER.'") as Dependency ';
         } 
-        else if($partner_id == JEEVES_ID){ 
-            $dependency = ', `api_call_status_updated_on_completed` AS Dependency ';
-        }
         if ($percentageLogic == 1){
-            $tatSubQuery  = '(CASE WHEN service_center_closed_date IS NOT NULL AND !(current_status = "Cancelled" OR internal_status ="InProcess_Cancelled") '
+            $subQueryArray['TAT']  = '(CASE WHEN service_center_closed_date IS NOT NULL AND !(current_status = "Cancelled" OR internal_status ="InProcess_Cancelled") '
                     . 'THEN (CASE WHEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,"%d-%m-%Y")) < 0 THEN 0 ELSE'
                 . ' DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,"%d-%m-%Y")) END) ELSE "" END) as TAT';
-            $agingSubQuery = '(CASE WHEN booking_details.service_center_closed_date IS NULL THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,"%d-%m-%Y")) ELSE "" END) as Ageing';
-            $closeDateSubQuery = "date(booking_details.service_center_closed_date) AS 'Completion Date'";
+             $subQueryArray['Ageing']  = '(CASE WHEN booking_details.service_center_closed_date IS NULL THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,"%d-%m-%Y")) ELSE "" END) as Ageing';
         }
-        return $query = $this->db->query("SELECT 
-            order_id AS 'Order ID',
-            booking_details.booking_id AS '247BookingID',
-            booking_details.create_date AS 'Referred Date',
-            ud.appliance_brand AS 'Brand', 
-            ud.purchase_date AS 'Purchase Date', 
-            IFNULL(ud.model_number,'') AS 'Model',
-            CASE WHEN(ud.serial_number IS NULL OR ud.serial_number = '') THEN '' ELSE (CONCAT('''', GROUP_CONCAT(ud.serial_number)))  END AS 'Serial Number',
-            services AS 'Product', 
-            ud.appliance_description As 'Description',
-            name As 'Customer', 
-            home_address AS 'Address', 
-            booking_pincode AS 'Pincode', 
-            booking_details.city As 'City', 
-            booking_details.state As 'State', 
-            booking_primary_contact_no AS Phone, 
-            user_email As 'Email', 
-            ud.price_tags AS 'Service Type',
-            CASE WHEN(current_status = 'Completed' || current_status = 'Cancelled') THEN (closing_remarks) ELSE (reschedule_reason) END AS 'Remarks',
-            CASE WHEN(current_status = 'Cancelled') THEN (cancellation_reason) ELSE '' END AS 'Cancellation Remarks',
-            booking_date As 'Current Booking Date', 
-            initial_booking_date As 'First Booking Date',
-            booking_timeslot AS 'Timeslot', 
-            partner_internal_status AS 'Final Status',
-            CASE WHEN (booking_details.is_upcountry = '0') THEN 'Local' ELSE 'Upcountry' END as 'Is Upcountry', 
-            ".$closeDateSubQuery.",
-            ".$tatSubQuery.",
-            ".$agingSubQuery.",
-            booking_details.rating_stars AS 'Rating',
-            booking_details.rating_comments AS 'Rating Comments',
-            GROUP_CONCAT(spare_parts_details.parts_requested) As 'Requested Part', 
-            GROUP_CONCAT(spare_parts_details.date_of_request) As 'Part Requested Date', 
-            GROUP_CONCAT(spare_parts_details.parts_shipped) As 'Shipped Part', 
-            GROUP_CONCAT(spare_parts_details.shipped_date) As 'Part Shipped Date', 
-            GROUP_CONCAT(spare_parts_details.acknowledge_date) As 'SF Acknowledged Date',
-            GROUP_CONCAT(spare_parts_details.defective_part_shipped) As 'Shipped Defective Part', 
-            GROUP_CONCAT(spare_parts_details.defective_part_shipped_date) As 'Defective Part Shipped Date'
-            $dependency
+        $subQueryString = implode(",", array_values($subQueryArray));
+        return $query = $this->db->query("SELECT $subQueryString
             FROM booking_details JOIN booking_unit_details ud  ON booking_details.booking_id = ud.booking_id 
             JOIN services ON booking_details.service_id = services.id 
             JOIN users ON booking_details.user_id = users.user_id

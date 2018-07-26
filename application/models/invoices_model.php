@@ -1972,7 +1972,7 @@ class invoices_model extends CI_Model {
                 . ' AND sp.shipped_date < "'.$to_date.'" '
                 . ' AND  parts_shipped IS NOT NULL '
                 . ' AND partner_warehouse_courier_invoice_id IS NULL'
-                . 'GROUP BY awb_by_partner ';
+                . ' GROUP BY awb_by_partner ';
         
         $query = $this->db->query($sql);
         return $query->result_array();
