@@ -4231,7 +4231,7 @@ class Service_centers extends CI_Controller {
         $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
         $config['total_rows'] = $total_rows[0]['total_rows'];
 
-        $config['per_page'] = 75;
+        $config['per_page'] = 100;
         $config['uri_segment'] = 3;
         $config['first_link'] = 'First';
         $config['last_link'] = 'Last';
@@ -4631,8 +4631,9 @@ class Service_centers extends CI_Controller {
             $data['rating'] = 0;
             $data['count'] =  $rating_data[0]['count'];
         }
-        $serviceWhere['isBookingActive'] =1;
-        $data['services'] = $this->reusable_model->get_search_result_data("services","*",$serviceWhere,NULL,NULL,NULL,NULL,NULL,array());
+        $join['services'] = "services.id = vendor_pincode_mapping.Appliance_ID";
+        $data['services'] = $this->reusable_model->get_search_result_data("vendor_pincode_mapping","DISTINCT vendor_pincode_mapping.Appliance_ID as id,services.services",
+                array("Vendor_ID"=>$this->session->userdata('service_center_id')),$join,NULL,array("services.services"=>"ASC"),NULL,NULL,array());
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/dashboard',$data);
     }
