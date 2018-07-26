@@ -30,7 +30,7 @@ class File_process extends CI_Controller {
 
         $spare_parts = $this->partner_model->get_spare_parts_booking_list($where, false, false, true);
         if (!empty($spare_parts)) {
-            $template = "Spare Requested Parts.xlsx";
+            $template = "Spare_Requested_Parts.xlsx";
             $templateDir = __DIR__ . "/excel-templates/";
             $config = array(
                 'template' => $template,
