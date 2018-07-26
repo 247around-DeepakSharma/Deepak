@@ -1342,8 +1342,16 @@ class Miscelleneous {
                 $upcountry_basic = $upcountry[0]['total_upcountry_price'];
             }
             
+            $misc_select = 'SUM(miscellaneous_charges.partner_charge) as misc_charge';
+
+            $misc = $this->My_CI->invoices_model->get_misc_charges_invoice_data($misc_select, "miscellaneous_charges.partner_invoice_id IS NULL", false, FALSE, "booking_details.partner_id", $partner_id, "partner_charge");
+            $msic_charge = 0;
+            if(!empty($misc)){
+                $msic_charge = $misc[0]['misc_charge'];
+            }
+            
             // calculate final amount of partner
-            $final_amount = -($invoice_amount[0]['amount'] + ($service_amount[0]['amount'] * (1 + SERVICE_TAX_RATE)) + ($upcountry_basic * (1 + SERVICE_TAX_RATE)));
+            $final_amount = -($invoice_amount[0]['amount'] + ($service_amount[0]['amount'] * (1 + SERVICE_TAX_RATE)) + ($upcountry_basic * (1 + SERVICE_TAX_RATE)) + $msic_charge * (1 + SERVICE_TAX_RATE));
 
             log_message("info", __METHOD__ . " Partner Id " . $partner_id . " Prepaid account" . $final_amount);
             $d['prepaid_amount'] = round($final_amount,0);

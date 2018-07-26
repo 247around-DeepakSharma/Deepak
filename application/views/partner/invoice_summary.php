@@ -109,10 +109,21 @@
                             <td><?php echo $value['partner_net_payable'] *(1 + SERVICE_TAX_RATE); ?></td>
                         </tr>
                         <?php }?>
+                        <?php if($misc) { foreach ($misc as $m) { ?>
+                             <tr>                               
+                                                           
+                                <td><?php echo $m['booking_id']." (".$m['description'].")"; ?></td>
+                                <td><?php echo round($m['partner_charge'] *(1 + SERVICE_TAX_RATE),0); ?></td>
+                             </tr>
+
+                        <?php } }?>
                         <?php if($upcountry > 0){ ?>
+                            <tr>
                             <td><?php echo "Upcountry Charges"; ?></td>
                             <td><?php echo round($upcountry *(1 + SERVICE_TAX_RATE),0); ?></td>
+                            </tr>
                         <?php }?>
+                        
                     </tbody>
                 </table>
             </div>
