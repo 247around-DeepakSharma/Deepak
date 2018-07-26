@@ -1032,6 +1032,13 @@ class Partner extends CI_Controller {
             $unbilled_amount = (array_sum(array_column($unbilled_data, 'partner_net_payable')));
         }
         
+        $misc_select = 'miscellaneous_charges.partner_charge, miscellaneous_charges.booking_id, miscellaneous_charges.description';
+
+        $misc = $this->invoices_model->get_misc_charges_invoice_data($misc_select, "miscellaneous_charges.partner_invoice_id IS NULL", false, FALSE, "booking_details.partner_id", $partner_id, "partner_charge");
+        if(!empty($misc)){
+            $msic_charge = (array_sum(array_column($unbilled_data, 'partner_charge')));
+        }
+        
         $upcountry = $this->upcountry_model->getupcountry_for_partner_prepaid($partner_id);
         $upcountry_basic = 0;
         if(!empty($upcountry)){
@@ -1039,7 +1046,8 @@ class Partner extends CI_Controller {
             
         }
         $invoice['upcountry'] = $upcountry_basic;
-        $invoice['unbilled_amount'] = ($unbilled_amount + $upcountry_basic)* (1 + SERVICE_TAX_RATE);
+        $invoice['misc'] = $misc;
+        $invoice['unbilled_amount'] = ($unbilled_amount + $upcountry_basic + $msic_charge)* (1 + SERVICE_TAX_RATE);
         $invoice['unbilled_data'] = $unbilled_data;
         $invoice['invoice_amount'] = $this->invoices_model->get_summary_invoice_amount("partner", $partner_id)[0];
         $this->miscelleneous->load_partner_nav_header();

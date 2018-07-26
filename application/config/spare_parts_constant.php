@@ -49,10 +49,10 @@ define('DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH','Defective parts send by warehous
 define('PARTNER_ACK_DEFECTIVE_PARTS_SEND_BY_WH','Partner acknowledge defective parts send by warehouse');
 
 //MSG- Sf can not complete a booking if spare part request is pending on partner
-define("UNABLE_COMPLETE_BOOKING_SPARE_MSG", "Please wait, your requested part is pending for shipment. Partner will send part to you");
-define("CANCEL_PAGE_SPARE_NOT_SHIPPED", "Please wait, partner will send Spare Part.");
+define("UNABLE_COMPLETE_BOOKING_SPARE_MSG", "Please wait, your requested part is pending for shipment.");
+define("CANCEL_PAGE_SPARE_NOT_SHIPPED", "Please wait, requested part is pending for shipment.");
 define("CANCEL_PAGE_SPARE_NOT_SHIPPED_FOR_PARTNER", "Spare Requested for this booking. Please Reject Spare First");
-define("CANCEL_PAGE_SPARE_SHIPPED", "You are unable to cancel this booking because Spare Parts Shipped.");
+define("CANCEL_PAGE_SPARE_SHIPPED", "This booking can not be cancelled since spare part has already been shipped to SF.");
 
 define('PARTNER_SPARE_OOT_DAYS','30');
 define('SF_SPARE_OOT_DAYS','7');
