@@ -1270,8 +1270,8 @@ class Around_scheduler extends CI_Controller {
             );
 
             $select = "CONCAT( '', GROUP_CONCAT((parts_shipped ) ) , '' ) as parts_shipped, "
-                    . " spare_parts_details.booking_id, name, spare_parts_details.update_date, "
-                    . " DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(spare_parts_details.update_date, '%Y-%m-%d')) AS age_of_part_pending ";
+                    . " spare_parts_details.booking_id, users.name, spare_parts_details.update_date, "
+                    . " DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(spare_parts_details.update_date, '%Y-%m-%d')) AS age_of_part_pending ";
 
             $group_by = "spare_parts_details.booking_id";
             $order_by = "status = '" . DEFECTIVE_PARTS_REJECTED . "', spare_parts_details.create_date ASC";

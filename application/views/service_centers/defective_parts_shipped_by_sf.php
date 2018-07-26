@@ -1,8 +1,3 @@
-<?php if ($this->uri->segment(3)) {
-    $sn_no = $this->uri->segment(3) + 1;
-} else {
-    $sn_no = 1;
-} ?>
 <?php if(empty($is_ajax)) { ?>
 <div class="right_col" role="main">
         <?php
@@ -17,30 +12,43 @@
         ?>
     <div class="row">
 <?php } ?>
+        <style>
+            .dataTables_length{
+                width: 250px;
+                float: left
+            }
+            .dataTables_filter{
+                float: right;
+            }
+        </style>
 <div class="col-md-12 col-sm-12 col-xs-12">
     <div class="x_panel">
         <div class="x_title">
             <h2>Defective Parts Shipped By SF</h2>
             <div class="clearfix"></div>
         </div>
+        <hr>
         <div class="x_content">
             <form target="_blank"  action="<?php echo base_url(); ?>partner/print_all" name="fileinfo1"  method="POST" enctype="multipart/form-data">
-                <table class="table table-bordered table-hover table-striped">
+                <table class="table table-bordered table-hover table-striped" id="defective_spare_shipped_by_sf">
                     <thead>
                         <tr>
                             <th class="text-center">No</th>
                             <th class="text-center">Booking Id</th>
                             <th class="text-center">User Name</th>
+                            <th class="text-center">SF Name</th>
+                            <th class="text-center">SF City</th>
                             <th class="text-center">Parts Shipped</th>
                             <th class="text-center">Courier Name</th>
                             <th class="text-center">AWB</th>
                             <th class="text-center">Shipped Date</th>
                             <th class="text-center">Remarks</th>
-                            <th colspan="2" class="text-center">Action</th>
+                            <th class="text-center">Received</th>
+                            <th class="text-center">Reject</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($spare_parts as $key => $row) { ?>
+                        <?php $sn_no=1;foreach ($spare_parts as $key => $row) { ?>
                             <tr style="text-align: center;">
                                 <td>
                                     <?php echo $sn_no; ?>
@@ -49,7 +57,13 @@
                                     <a  style="color:black" href="<?php echo base_url(); ?>service_center/booking_details/<?php echo urlencode(base64_encode($row['booking_id']));?>"  title='View'><?php echo $row['booking_id']; ?></a>
                                 </td>
                                 <td>
-                                    <?php echo $row['name']; ?>
+                                    <?php echo $row['user_name']; ?>
+                                </td>
+                                <td>
+                                    <?php echo $row['sf_name']; ?>
+                                </td>
+                                <td>
+                                    <?php echo $row['sf_city']; ?>
                                 </td>
     <!--                                    <td>
                                     <?php //echo $row['age_of_booking'];  ?>
@@ -73,10 +87,10 @@
                                 <?php echo $row['remarks_defective_part_by_sf']; ?>
                                 </td>
                                 <td>
-                                    <?php if (!empty($row['defective_part_shipped'])) { ?>
-                                        <div >
-                                            <a onclick="return confirm_received()" class="btn btn-sm btn-primary" id="defective_parts" href="<?php echo base_url(); ?>service_center/acknowledge_received_defective_parts/<?php echo $row['booking_id']; ?>/<?php echo $row['partner_id']; ?>" <?php echo empty($row['defective_part_shipped']) ? 'disabled="disabled"' : '' ?>>Received</a></td></div>
-                                            <?php } ?>
+                                <?php if (!empty($row['defective_part_shipped'])) { ?> 
+                                    <a onclick="return confirm_received()" class="btn btn-sm btn-primary" id="defective_parts" href="<?php echo base_url(); ?>service_center/acknowledge_received_defective_parts/<?php echo $row['booking_id']; ?>/<?php echo $row['partner_id']; ?>" <?php echo empty($row['defective_part_shipped']) ? 'disabled="disabled"' : '' ?>>Received</a>
+                                <?php } ?>
+                                </td>
                                 <td>
                                     <?php if (!empty($row['defective_part_shipped'])) { ?>
                                         <div class="dropdown" >
@@ -100,16 +114,25 @@
                     } ?>
                     </tbody>
                 </table>
-                <div class="custom_pagination" style="margin-left: 16px;" > 
-                    <?php
-                        if (isset($links)) {
-                            echo $links;
-                        }
-                    ?>
-                </div>
         </div>
     </div>
 </div>
+        <script>
+            $('#defective_spare_shipped_by_sf').DataTable({
+                pageLength:75,
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'excel',
+                        text: 'Export',
+                        exportOptions: {
+                            columns: [ 0, 1, 2,3,4, 5,6,7,8,9]
+                        },
+                        title: 'defective_spare_shipped_by_sf_to_wh'
+                    }
+                ]
+            });
+        </script>
 <?php if(empty($is_ajax)) { ?> 
     </div>
 </div>
