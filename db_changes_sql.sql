@@ -7732,3 +7732,78 @@ ALTER TABLE `spare_parts_details` ADD `vendor_courier_invoice_id`  VARCHAR(28) N
 --sachin 25 July
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
 VALUES (NULL, 'bank_details_verification_email', '%s | Please Verify Your Bank Details', 'Dear Partner<br><br> Your account details could not be verified so request you to send the bank passbook front page or cancelled cheque copy immediately.<br><br> Regards<br><br> Team 247around', '', '', '', '', '1', '2017-08-29 15:06:23');
+
+--Chhavi 26th July
+CREATE TABLE `partner_summary_report_mapping` (
+  `id` int(11) NOT NULL,
+  `Title` varchar(128) NOT NULL,
+  `sub_query` text,
+  `is_default` int(11) NOT NULL DEFAULT '0',
+  `partner_id` text NOT NULL,
+  `is_active` int(11) NOT NULL DEFAULT '1',
+  `index_in_report` int(10) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `partner_summary_report_mapping`
+--
+
+INSERT INTO `partner_summary_report_mapping` (`id`, `Title`, `sub_query`, `is_default`, `partner_id`, `is_active`, `index_in_report`) VALUES
+(1, 'Order ID', ' order_id AS \'Order ID\'', 1, '', 1, 1),
+(2, '247BookingID', 'booking_details.booking_id AS \'247BookingID\'', 1, '', 1, 2),
+(3, 'Referred Date', ' booking_details.create_date AS \'Referred Date\'', 1, '', 1, 3),
+(4, 'Brand', 'ud.appliance_brand AS \'Brand\'', 1, '', 1, 4),
+(5, 'Purchase Date', 'ud.purchase_date AS \'Purchase Date\'', 1, '', 1, 5),
+(6, 'Model', 'IFNULL(ud.model_number,\'\') AS \'Model\'', 1, '', 1, 6),
+(7, 'Serial Number', 'CASE WHEN(ud.serial_number IS NULL OR ud.serial_number = \'\') THEN \'\' ELSE (CONCAT(\'\'\'\', GROUP_CONCAT(ud.serial_number)))  END AS \'Serial Number\'', 1, '', 1, 7),
+(8, 'Product', 'services AS \'Product\'', 1, '', 1, 8),
+(9, 'Description', 'ud.appliance_description As \'Description\'', 1, '', 1, 9),
+(10, 'Customer', 'name As \'Customer\'', 1, '', 1, 10),
+(11, 'Address', 'home_address AS \'Address\'', 0, '', 247034, 11),
+(12, 'Pincode', 'booking_pincode AS \'Pincode\'', 1, '', 1, 12),
+(13, 'City', ' booking_details.city As \'City\'', 1, '', 1, 13),
+(14, 'State', 'booking_details.state As \'State\'', 1, '', 1, 14),
+(15, 'Phone', 'booking_primary_contact_no AS \'Phone\'', 1, '', 1, 15),
+(16, 'Email', 'user_email As \'Email\'', 1, '', 1, 16),
+(17, 'Service Type', 'ud.price_tags AS \'Service Type\'', 1, '', 1, 17),
+(18, 'Remarks', 'CASE WHEN(current_status = \'Completed\' || current_status = \'Cancelled\') THEN (closing_remarks) ELSE (reschedule_reason) END AS \'Remarks\'', 1, '', 1, 18),
+(19, 'Current Booking Date', 'booking_date As \'Current Booking Date\'', 1, '', 1, 19),
+(20, 'First Booking Date', 'initial_booking_date As \'First Booking Date\'', 1, '', 1, 20),
+(21, 'Timeslot', 'booking_timeslot AS \'Timeslot\'', 1, '', 1, 21),
+(22, 'Final Status', 'partner_internal_status AS \'Final Status\'', 1, '', 1, 22),
+(23, 'Is Upcountry', 'CASE WHEN (booking_details.is_upcountry = \'0\') THEN \'Local\' ELSE \'Upcountry\' END as \'Is Upcountry\'', 1, '', 1, 23),
+(24, 'Completion Date', 'date(booking_details.service_center_closed_date) AS \'Completion Date\'', 1, '', 1, 24),
+(25, 'TAT', '(CASE WHEN current_status  = \"Completed\" THEN (CASE WHEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,\"%d-%m-%Y\")) < 0 THEN 0 ELSE DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,\"%d-%m-%Y\")) END) ELSE \"\" END) as TAT', 1, '', 1, 25),
+(26, 'Ageing', '(CASE WHEN current_status  IN (\"Pending\",\"Rescheduled\",\"FollowUp\") THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,\"%d-%m-%Y\")) ELSE \"\" END) as Ageing', 1, '', 1, 26),
+(27, 'Rating', 'booking_details.rating_stars AS \'Rating\'', 1, '', 1, 27),
+(28, 'Rating Comments', 'booking_details.rating_comments AS \'Rating Comments\'', 1, '', 1, 28),
+(29, 'Requested Part', 'GROUP_CONCAT(spare_parts_details.parts_requested) As \'Requested Part\'', 1, '', 1, 29),
+(30, 'Part Requested Date', 'GROUP_CONCAT(spare_parts_details.date_of_request) As \'Part Requested Date\'', 1, '', 1, 30),
+(31, 'Shipped Part', 'GROUP_CONCAT(spare_parts_details.parts_shipped) As \'Shipped Part\'', 1, '', 1, 31),
+(32, 'Part Shipped Date', 'GROUP_CONCAT(spare_parts_details.shipped_date) As \'Part Shipped Date\'', 1, '', 1, 32),
+(33, 'SF Acknowledged Date', 'GROUP_CONCAT(spare_parts_details.acknowledge_date) As \'SF Acknowledged Date\'', 1, '', 1, 33),
+(34, 'Shipped Defective Part', 'GROUP_CONCAT(spare_parts_details.defective_part_shipped) As \'Shipped Defective Part\'', 1, '', 1, 34),
+(35, 'Defective Part Shipped Date', 'GROUP_CONCAT(spare_parts_details.defective_part_shipped_date) As \'Defective Part Shipped Date\'', 1, '', 1, 35),
+(36, 'Dependency', 'api_call_status_updated_on_completed AS Dependency', 0, '247034,247077,247030', 1, 36),
+(37, 'Cancellation Remarks', 'booking_details.cancellation_reason AS \'Cancellation Remarks\'', 0, '247077', 1, 37),
+(38, 'SF ID', 'booking_details.assigned_vendor_id AS \'SF ID\'', 0, '247064', 1, 38);
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `partner_summary_report_mapping`
+--
+ALTER TABLE `partner_summary_report_mapping`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `partner_summary_report_mapping`
+--
+ALTER TABLE `partner_summary_report_mapping`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;COMMIT;
