@@ -394,7 +394,7 @@ function get_data_for_partner_callback($booking_id) {
             $closeDateSubQuery = "date(booking_details.service_center_closed_date) AS 'Completion Date'";
         }
         return $query = $this->db->query("SELECT 
-            order_id AS 'Sub Order ID',
+            order_id AS 'Order ID',
             booking_details.booking_id AS '247BookingID',
             booking_details.create_date AS 'Referred Date',
             ud.appliance_brand AS 'Brand', 
@@ -404,17 +404,17 @@ function get_data_for_partner_callback($booking_id) {
             services AS 'Product', 
             ud.appliance_description As 'Description',
             name As 'Customer', 
-            home_address AS 'Customer Address', 
+            home_address AS 'Address', 
             booking_pincode AS 'Pincode', 
             booking_details.city As 'City', 
             booking_details.state As 'State', 
             booking_primary_contact_no AS Phone, 
-            user_email As 'Email ID', 
-            ud.price_tags AS 'Call Type (Installation /Table Top Installation/Demo/ Service)',
+            user_email As 'Email', 
+            ud.price_tags AS 'Service Type',
             CASE WHEN(current_status = 'Completed' || current_status = 'Cancelled') THEN (closing_remarks) ELSE (reschedule_reason) END AS 'Remarks',
-            booking_date As 'Scheduled Appointment Date(DD/MM/YYYY)', 
-            booking_timeslot AS 'Scheduled Appointment Time(HH:MM:SS)', 
+            booking_date As 'Current Booking Date', 
             initial_booking_date As 'First Booking Date',
+            booking_timeslot AS 'Timeslot', 
             partner_internal_status AS 'Final Status',
             CASE WHEN (booking_details.is_upcountry = '0') THEN 'Local' ELSE 'Upcountry' END as 'Is Upcountry', 
             ".$closeDateSubQuery.",
@@ -423,10 +423,10 @@ function get_data_for_partner_callback($booking_id) {
             booking_details.rating_stars AS 'Rating',
             booking_details.rating_comments AS 'Rating Comments',
             GROUP_CONCAT(spare_parts_details.parts_requested) As 'Requested Part', 
-            GROUP_CONCAT(spare_parts_details.date_of_request) As 'Part Request Date', 
+            GROUP_CONCAT(spare_parts_details.date_of_request) As 'Part Requested Date', 
             GROUP_CONCAT(spare_parts_details.parts_shipped) As 'Shipped Part', 
             GROUP_CONCAT(spare_parts_details.shipped_date) As 'Part Shipped Date', 
-            GROUP_CONCAT(spare_parts_details.acknowledge_date) As 'SF Acknowledge Date',
+            GROUP_CONCAT(spare_parts_details.acknowledge_date) As 'SF Acknowledged Date',
             GROUP_CONCAT(spare_parts_details.defective_part_shipped) As 'Shipped Defective Part', 
             GROUP_CONCAT(spare_parts_details.defective_part_shipped_date) As 'Defective Part Shipped Date'
             $dependency
@@ -1630,6 +1630,21 @@ function get_data_for_partner_callback($booking_id) {
      */
     function select_contact_person($id) {
         $query = $this->db->query("Select id, name from contact_person where entity_id= '".$id."' AND is_active='1' AND entity_type = 'partner' AND name IS NOT NULL order by name");
+        return $query->result();
+    }
+    
+      /**
+     * @desc: This function is used to get the email of POC and AM from partner table
+     * @params: $id
+     * @return: string
+     * 
+     */
+    function select_POC_and_AM_email($id) {
+        $this->db->select('p.primary_contact_email, e.official_email');
+        $this->db->from('partners p');
+        $this->db->join('employee e', 'e.id = p.account_manager_id'); 
+        $this->db->where('p.id', $id);  
+        $query = $this->db->get();
         return $query->result();
     }
 }

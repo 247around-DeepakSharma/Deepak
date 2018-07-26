@@ -462,7 +462,7 @@ class Login extends CI_Controller {
                     $sc_details[0]['min_upcountry_distance'], TRUE);
            
             if ($this->session->userdata('is_sf') === '1') {
-                echo "service_center/pending_booking";
+                echo "service_center/dashboard";
             } else if ($this->session->userdata('is_cp') === '1') {
                 echo "service_center/buyback/bb_order_details";
             }else if($this->session->userdata('is_wh') === '1'){
@@ -551,7 +551,7 @@ class Login extends CI_Controller {
                         $is_gst_exist,$sc_details[0]['isEngineerApp'], $sc_details[0]['min_upcountry_distance'],0);
                 
                 if($this->session->userdata('is_sf') === '1'){
-                    redirect(base_url() . "service_center/pending_booking");
+                    redirect(base_url() . "service_center/dashboard");
                 }else if($this->session->userdata('is_cp') === '1'){
                     redirect(base_url() . "service_center/buyback/bb_order_details");
                 }else if($this->session->userdata('is_wh') === '1'){

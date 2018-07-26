@@ -350,6 +350,12 @@ class dashboard_model extends CI_Model {
       * This function is used to get Escalation On the basis of vendor,RM,Dates
       */
      function get_sf_escalation_by_rm_by_sf_by_date($startDate=NULL,$endDate=NULL,$sf_id=NULL,$rm_id=NULL,$groupBy,$partnerID){
+        $escalation_select_sub = "count(vendor_escalation_log.booking_id) AS total_escalation ";
+        if($partnerID){
+            $escalation_where['booking_details.partner_id'] = $partnerID;
+            $booking_where['booking_details.partner_id'] = $partnerID;
+            $escalation_select_sub = "count(DISTINCT vendor_escalation_log.booking_id) AS total_escalation ";
+        }
          //Create Blank Where Array For escalation and Booking
     $booking_orderBy["YEAR(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y'))"] = "ASC";
     $booking_orderBy["month(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y'))"] = "ASC";
@@ -364,7 +370,7 @@ class dashboard_model extends CI_Model {
     //Create Select String for booking and escalation
     $booking_select = 'count(booking_id) AS total_booking,assigned_vendor_id,STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y") as booking_date,employee_relation.agent_id as rm_id,'
             . 'MONTH(STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) as booking_month,YEAR(STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) as booking_year';
-    $escalation_select = 'count(vendor_escalation_log.booking_id) AS total_escalation,vendor_escalation_log.vendor_id,vendor_escalation_log.create_date as escalation_date,'
+    $escalation_select = $escalation_select_sub.',vendor_escalation_log.vendor_id,vendor_escalation_log.create_date as escalation_date,'
             . 'employee_relation.agent_id as rm_id,MONTH(vendor_escalation_log.create_date) as escalation_month,YEAR(vendor_escalation_log.create_date) as escalation_year';
    // If rm id is set add rm id in where array for booking and escalation
     if($rm_id){
@@ -375,10 +381,6 @@ class dashboard_model extends CI_Model {
     if($sf_id){
        $escalation_where['vendor_escalation_log.vendor_id'] = $sf_id;
        $booking_where['booking_details.assigned_vendor_id'] = $sf_id;
-    }
-    if($partnerID){
-       $escalation_where['booking_details.partner_id'] = $partnerID;
-       $booking_where['booking_details.partner_id'] = $partnerID;
     }
     // If dates are Set Then add date in where array for booking and escalation
     if(!($startDate) && !($endDate)){

@@ -7727,3 +7727,8 @@ INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `li
 
 --Abhay 21 July
 ALTER TABLE `spare_parts_details` ADD `vendor_courier_invoice_id`  VARCHAR(28) NULL DEFAULT NULL AFTER `partner_courier_invoice_id`;
+
+
+--sachin 25 July
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
+VALUES (NULL, 'bank_details_verification_email', '%s | Please Verify Your Bank Details', 'Dear Partner<br><br> Your account details could not be verified so request you to send the bank passbook front page or cancelled cheque copy immediately.<br><br> Regards<br><br> Team 247around', '', '', '', '', '1', '2017-08-29 15:06:23');

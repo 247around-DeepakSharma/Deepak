@@ -44,6 +44,7 @@ if (!defined('BASEPATH'))
 $route['default_controller'] = "form";
 $route['404_override'] = '';
 $route['pass-through'] = 'api/pass_through';
+$route['incoming-pass-through'] = 'telephony/pass_through';
 $route['pass-through-android-app'] = 'api/pass_through_android_app';
 $route['pass-through-ac-service'] = 'api/pass_through_ac_service';
 $route['service_center'] = 'employee/service_centers';
@@ -108,6 +109,7 @@ $route['service_center/approved_defective_parts_booking_by_warehouse'] = 'employ
 $route['service_center/approved_defective_parts_booking_by_warehouse/(:any)'] = 'employee/service_centers/get_approved_defective_parts_booking_by_warehouse/$1';
 $route['service_center/download_sf_declaration/(:any)'] = 'employee/service_centers/download_sf_declaration/$1'; 
 $route['service_center/acknowledge_spares_send_by_partner'] = 'employee/service_centers/acknowledge_spares_send_by_partner';
+$route['service_center/dashboard'] = 'employee/service_centers/sf_dashboard';
 
 
 $route['call-customer-status-callback'] = 'employee/booking/call_customer_status_callback';
