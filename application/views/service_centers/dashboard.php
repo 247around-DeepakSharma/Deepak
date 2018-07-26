@@ -103,9 +103,9 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr style="background: #c1591c;color: #fff;">
+                        <tr>
                             <td><b>Installation</b></td>
-                            <td id="Installation_0"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
+                            <td id="Installation_0" style="background: #c1591c;color: #fff;" class="blinking"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
                             <td id="Installation_1"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
                             <td id="Installation_2"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
                             <td id="Installation_3"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
@@ -116,7 +116,7 @@
                         </tr>
                         <tr>
                             <td><b>Repair Without Spare</b></td>
-                            <td id="Repair_without_part_0"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
+                            <td id="Repair_without_part_0" style="background: #c1591c;color: #fff;" class="blinking"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
                             <td id="Repair_without_part_1"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
                             <td id="Repair_without_part_2"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
                             <td id="Repair_without_part_3"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
@@ -266,4 +266,16 @@ function get_header_summary(){
     
     }
     </script>
+    <style>
+        .blinking{
+    animation:blinkingText 0.5s infinite;
+}
+@keyframes blinkingText{
+    0%{     background-color: #008000;    }
+    49%{    background-color: #008000; }
+    50%{    background-color: #c1591c; }
+    99%{    background-color:#c1591c;  }
+    100%{   background-color: #008000;    }
+}
+        </style>
 
