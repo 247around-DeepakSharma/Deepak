@@ -1900,6 +1900,23 @@ class Booking_model extends CI_Model {
         return $query->result_array();
     } 
     
+     /**
+     * @Desc: This function is used to get email sent on escalation tag for particular booking id 
+     * @params: booking_id
+     * @return: array
+     * 
+     */
+    function get_email_sent_details($booking_id, $email_tag=""){
+        $trimed_booking_id = preg_replace("/[^0-9]/","",$booking_id);
+        $this->db->select('*');
+        if($email_tag){
+            $this->db->where('email_tag',$email_tag);
+        }
+        $this->db->like('subject',$trimed_booking_id);
+        $query = $this->db->get('email_sent');
+        return $query->result_array();
+    } 
+    
     
     /**
      *  @desc : This function is used to insert appliance details into appliance_product_description table

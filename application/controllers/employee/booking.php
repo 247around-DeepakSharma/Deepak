@@ -2468,7 +2468,7 @@ class Booking extends CI_Controller {
         $data['data'] = $this->booking_model->get_booking_state_change_by_id($booking_id);
         //Checking for 247Around user
         $data['sms_sent_details'] = $this->booking_model->get_sms_sent_details($booking_id);
-        
+        $data['email_sent_details'] = $this->booking_model->get_email_sent_details($booking_id);
         //$this->load->view('employee/header/'.$this->session->userdata('user_group'));
 
         $this->load->view('employee/show_booking_life_cycle', $data);
