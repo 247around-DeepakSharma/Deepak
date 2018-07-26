@@ -1262,7 +1262,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
             );
 
             $select = "CONCAT( '', GROUP_CONCAT((parts_shipped ) ) , '' ) as parts_shipped, "
-                    . " spare_parts_details.booking_id, name, spare_parts_details.update_date, "
+                    . " spare_parts_details.booking_id, users.name, spare_parts_details.update_date, "
                     . " DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(spare_parts_details.update_date, '%Y-%m-%d')) AS age_of_part_pending ";
 
             $group_by = "spare_parts_details.booking_id";
