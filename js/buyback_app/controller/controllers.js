@@ -848,3 +848,41 @@ rm_dashboard.controller('completedBooking_Controller', function ($scope, $http) 
               $scope.loadCompletedBookingView(baseUrl + "/employee/dashboard/completed_booking_count_by_rm/"+startDate+"/"+endDate+"/"+status);
     }
 });
+//This Function is used to call Completed Booking Days Reports
+admin_dashboard.controller('completedBooking_ControllerAM', function ($scope, $http) {
+    $scope.loadCompletedBookingViewAM = function(pending_url){
+        $("#loader_gif_pending_AM").css("display", "block");
+            $scope.completedBookingByAM = "";
+            $http.get(pending_url).then(function (response) {
+            $("#loader_gif_pending_AM").css("display", "none");
+            $scope.completedBookingByAM = response.data;
+         });
+     }
+     $scope.ShowAMCompletedBookingBYDateRange = function(){
+                dateRange = $("#completed_daterange_id_am").val();
+                dateArray = dateRange.split(" - ");
+                startDate = dateArray[0];
+                endDate = dateArray[1];
+                status = $("#completed_status_am").val();
+                service_id = $("#service_id_am").val();
+                request_type = $("#request_type_am").val();
+                free_paid = $("#free_paid_am").val();
+                upcountry = $("#upcountry_am").val();
+                if(!status){
+                    status = "not_set";
+                }
+                if(!service_id){
+                    service_id = "not_set";
+                }
+                if(!request_type){
+                    request_type = "not_set";
+                }
+                if(!free_paid){
+                    free_paid = "not_set";
+                }
+                 if(!upcountry){
+                    upcountry = "not_set";
+                }
+              $scope.loadCompletedBookingViewAM(baseUrl + "/employee/dashboard/completed_booking_count_by_rm/"+startDate+"/"+endDate+"/"+status+"/"+service_id+"/"+request_type+"/"+free_paid+"/"+upcountry+"/AM");
+    }
+});

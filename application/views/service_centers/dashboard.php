@@ -92,13 +92,13 @@
                     <thead>
                         <tr>
                         <th>Service</th>
-                        <th>D0</th>
-                        <th>D1</th>
-                        <th>D2</th>
-                        <th>D3</th>
-                        <th>D4</th>
-                        <th>D5-D7</th>
-                        <th>D8-D15</th>
+                        <th>Day 0</th>
+                        <th>Day 1</th>
+                        <th>Day 2</th>
+                        <th>Day 3</th>
+                        <th>Day 4</th>
+                        <th>Day 5-Day 7</th>
+                        <th>Day 8-Day 15</th>
                         <th>Total</th>
                         </tr>
                     </thead>
