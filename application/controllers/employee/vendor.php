@@ -5010,7 +5010,8 @@ class vendor extends CI_Controller {
                 $html  .= "<th>SF Earning</th>";
             }
             
-            $html .=  "<th>Approval File</th><th>Remarks</th><th>Action</th></tr></thead><tbody>";
+            $html .=  "<th>Approval File</th><th>Remarks</th>";
+            $html .= "</tr></thead><tbody>";
            foreach ($data as $value) {
                $html .= "<tr>";
                $html .= '<td>'.$value['description'].'</td>';
@@ -5026,9 +5027,12 @@ class vendor extends CI_Controller {
                    $html .= '<td></td>';
                }
                $html .= '<td>'.$value['remarks'].'</td>';
-               $b = "'$booking_id'";
+               if($this->session->userdata('userType') == 'employee'){
+                   $b = "'$booking_id'";
                $html .= '<td><a target="_blank" style="color:#000; margin-left:10px; margin-right:10px;" href="'.base_url().'employee/service_centre_charges/update_misc_charges/'.$booking_id.'" class="glyphicon glyphicon-pencil"></a>';
                $html .= '<span style="color:#000;margin-left:10px; cursor:pointer; margin-right:10px;" onclick="removeMiscitem('.$value['id'].', '.$b.')" class="glyphicon glyphicon-remove"></span></td>';
+               }
+               
                $html .= "</tr>";
            }
            $html .= "</tbody></table>";
