@@ -1256,7 +1256,7 @@ class Inventory_model extends CI_Model {
             return false;
         }
     }
-    function get_spare_consolidated_data($select,$where){
+   function get_spare_consolidated_data($select,$where){
         $this->db->select($select,false);
         $this->db->from('booking_details');
         $this->db->join('spare_parts_details','booking_details.booking_id = spare_parts_details.booking_id');
@@ -1298,7 +1298,35 @@ class Inventory_model extends CI_Model {
         $query = $this->db->get();
         
         return $query->result_array();
-        
+    }   
+    /**
+     * @desc: This function is used to get detail of given email id
+    **/
+    function search_email($email_id){
+       
+            $sql =  "SELECT 'employee' as entity_type, full_name as 'name', CASE 
+				WHEN `official_email` = '".$email_id."' THEN 'official_email'
+                                WHEN `personal_email` = '".$email_id."' THEN 'personal_email'
+                                END  AS 'email_type'
+                FROM employee WHERE official_email = '".$email_id."' OR personal_email = '".$email_id."'
+                UNION
+                SELECT 'partner' as entity_type, company_name as 'name', CASE 
+                                WHEN `primary_contact_email` = '".$email_id."' THEN 'primary_contact_email'
+                                WHEN `owner_email` = '".$email_id."' THEN 'owner_email'
+                                WHEN `owner_alternate_email` = '".$email_id."' THEN 'owner_alternate_email'
+                                WHEN `upcountry_approval_email` = '".$email_id."' THEN 'upcountry_approval_email'
+                                END AS 'email_type'
+                FROM partners WHERE primary_contact_email = '".$email_id."' OR owner_email = 'kalyanit@247around.com' OR owner_alternate_email = '".$email_id."' OR upcountry_approval_email = '".$email_id."'
+                UNION
+                SELECT 'vendor' as entity_type, company_name as 'name', CASE 
+                                WHEN `email` = '".$email_id."' THEN 'email'
+                                WHEN `primary_contact_email` = '".$email_id."' THEN 'primary_contact_email'
+                                WHEN `owner_email` = '".$email_id."' THEN 'owner_email'
+                                END AS 'email_type'
+                FROM service_centres WHERE email= '".$email_id."' OR primary_contact_email = '".$email_id."' OR owner_email = '".$email_id."'";
+            
+            $query = $this->db->query($sql);
+            return $query->result_array();
     }
 
      /**
