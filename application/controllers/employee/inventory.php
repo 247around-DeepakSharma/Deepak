@@ -4391,7 +4391,7 @@ class Inventory extends CI_Controller {
                 . "spare_parts_details.defective_part_shipped as 'Part Shipped By SF',"
                 . "spare_parts_details.awb_by_sf as 'SF AWB Number',spare_parts_details.courier_name_by_sf as 'SF Courier Name',"
                 . "datediff(CURRENT_DATE,spare_parts_details.shipped_date) as 'Spare Shipped Age'";
-        $where = array("spare_parts_details.status NOT IN('Spare parts requested')" => NULL);
+        $where = array("spare_parts_details.status NOT IN('".SPARE_PARTS_REQUESTED."')" => NULL);
         if(!empty($partner_id)){
             $where['booking_details.partner_id'] = $partner_id;
         }

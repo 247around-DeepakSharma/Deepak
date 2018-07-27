@@ -39,8 +39,8 @@ if ($this->uri->segment(4)) {
                                 <tr>
                                     <th class="text-center">No</th>
                                     <th class="text-center">Booking Id</th>
-				    <th class="text-center">Invoice Id</th>
-                                    <th class="text-center">User Name</th>
+                                    <th class="text-center">Invoice Id</th>
+                                    <th class="text-center">SF Name</th>
                                     <th class="text-center">Age of Requested</th>
                                     <th class="text-center">Parts Required</th>
                                     <th class="text-center">Model Number</th>
@@ -68,11 +68,11 @@ if ($this->uri->segment(4)) {
                                         <td>
                                             <a  style="color:blue;" href="<?php echo base_url(); ?>service_center/booking_details/<?php echo urlencode(base64_encode($row['booking_id']));?>"  title='View'><?php echo $row['booking_id']; ?></a>
                                         </td>
-					<td>
+                                        <td>
                                             <?php echo $row['purchase_invoice_id']; ?>
                                         </td>
                                         <td>
-                                            <?php echo $row['name']; ?>
+                                            <?php echo $row['vendor_name']; ?>
                                         </td>
                                         <td>
                                             <?php echo $row['age_of_request'] . " days"; ?>
