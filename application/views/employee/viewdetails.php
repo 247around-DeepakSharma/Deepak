@@ -105,7 +105,10 @@
                             <th >Booking ID </th>
                             <td><?php echo "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$booking_history[0]['booking_jobcard_filename']."'>".$booking_history[0]['booking_id']."</a>"; ?></td>
                             <th >Order ID </th>
-                            <td><?php if(!empty($booking_history)){  echo $booking_history[0]['order_id'];
+                            <td>
+                                <input type="file" id="supportfileLoader" name="files" onchange="uploadsupportingfile()" style="display:none" />
+                                <div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogress_supproting_file";?>"  role="progressbar" style="width:0%">0%</div>
+                                <?php if(!empty($booking_history)){  echo $booking_history[0]['order_id'];
                                 $src = base_url() . 'images/no_image.png';
                                 $image_src = $src;
                                 if (isset($booking_history[0]['support_file']) && !empty($booking_history[0]['support_file'])) {
@@ -114,8 +117,9 @@
                                     $image_src = base_url().'images/view_image.png';
                                 }
                                 ?>
-                                <a href="<?php  echo $src?>" target="_blank"><img src="<?php  echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:10px;" /></a>
+                                <a id="a_order_support_file" href="<?php  echo $src?>" target="_blank"><img id="m_order_support_file" src="<?php  echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:10px;" /></a>
                                 <?php } ?> 
+                                &nbsp;&nbsp;<i id="supporting_file" class="fa fa-pencil fa-lg" onclick="upload_supporting_file();"></i>
                             </td>
                         </tr>
                         <tr>
@@ -1304,6 +1308,55 @@ function openfileDialog(spare_id, column_name) {
     spareID = spare_id;
     spareFileColumn = column_name;
     $("#fileLoader").click();
+}
+
+function upload_supporting_file(){
+    $("#supportfileLoader").click();
+}
+
+function uploadsupportingfile(){
+     var file = $('#supportfileLoader').val();
+     if (file === '') {
+        alert('Please select file');
+        return;
+    } else {
+        var formData = new FormData();
+        formData.append('support_file', $('#supportfileLoader')[0].files[0]);
+        formData.append('booking_id', '<?php echo $booking_history[0]['booking_id'];?>');
+        
+        $.ajax({
+                url: '<?php echo base_url();?>employee/booking/upload_order_supporting_file',
+                data: formData,
+                processData: false,
+                contentType: false,
+                type: 'POST',
+                // this part is progress bar
+                xhr: function () {
+                    var xhr = new window.XMLHttpRequest();
+                    xhr.upload.addEventListener("progress", function (evt) {
+                        if (evt.lengthComputable) {
+                            var percentComplete = evt.loaded / evt.total;
+                            percentComplete = parseInt(percentComplete * 100);
+                            
+                            $('#myprogress_supproting_file').text(percentComplete + '%');
+                            $('#myprogress_supproting_file').css('width', percentComplete + '%');
+                        }
+                    }, false);
+                    return xhr;
+                },
+                success: function (response) {
+                    $('#myprogress_supproting_file').css('width', '0%');
+                    obj = JSON.parse(response);
+                    
+                    if(obj.code === "success"){
+                        $("#a_order_support_file").attr("href", "<?php echo S3_WEBSITE_URL;?>misc-images/" + obj.name);
+                        $("#m_order_support_file").attr("src", "<?php echo S3_WEBSITE_URL;?>misc-images/" + obj.name);
+                    } else {
+                        alert(obj.message);
+                    }
+                }
+            });
+    }
 }
 
 function uploadfile(){
