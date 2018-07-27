@@ -1875,4 +1875,28 @@ class vendor_model extends CI_Model {
         $query =  $this->db->get("vendor_escalation_log");
         return $query->result_array();
     }
+    
+     /**
+     * @desc: This function is used to get detail of given email id
+    **/
+    function search_email($email_id){
+       
+            $sql =  "SELECT 'partner' as entity_type, company_name as 'name', CASE 
+                                WHEN `primary_contact_email` = '".$email_id."' THEN 'primary_contact_email'
+                                WHEN `owner_email` = '".$email_id."' THEN 'owner_email'
+                                WHEN `owner_alternate_email` = '".$email_id."' THEN 'owner_alternate_email'
+                                WHEN `upcountry_approval_email` = '".$email_id."' THEN 'upcountry_approval_email'
+                                END AS 'email_type'
+                FROM partners WHERE primary_contact_email = '".$email_id."' OR owner_email = '".$email_id."' OR owner_alternate_email = '".$email_id."' OR upcountry_approval_email = '".$email_id."'
+                UNION
+                SELECT 'vendor' as entity_type, company_name as 'name', CASE 
+                                WHEN `email` = '".$email_id."' THEN 'email'
+                                WHEN `primary_contact_email` = '".$email_id."' THEN 'primary_contact_email'
+                                WHEN `owner_email` = '".$email_id."' THEN 'owner_email'
+                                END AS 'email_type'
+                FROM service_centres WHERE email= '".$email_id."' OR primary_contact_email = '".$email_id."' OR owner_email = '".$email_id."'";
+            
+            $query = $this->db->query($sql);
+            return $query->result_array();
+    }
 }

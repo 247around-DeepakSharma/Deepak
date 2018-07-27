@@ -1388,6 +1388,22 @@ class Inventory extends CI_Controller {
         }
     }
     
+     /**
+     * @desc This is used to load email search form.
+     * This form helps to search email in whole database
+     */
+    function seach_by_email(){
+        $email_id = trim($this->input->post("email_id"));
+        if(!empty($email_id)){ 
+            $data['data'] = $this->vendor_model->search_email($email_id);
+            $this->miscelleneous->load_nav_header();
+            $this->load->view("employee/search_email_form", $data);
+        } else {
+            $this->miscelleneous->load_nav_header();
+            $this->load->view("employee/search_email_form");
+        }
+    }
+    
     function process_update_parts_details() {
         $this->form_validation->set_rules('booking_id', 'Booking ID', 'required|trim');
         $this->form_validation->set_rules('service_charge', 'Service Charge', 'trim');
@@ -1805,6 +1821,9 @@ class Inventory extends CI_Controller {
         $data['entity_id'] = $entity_id;
         $data['entity_type'] = $entity_type;
         $data['inventory_id'] = $inventory_id;
+        if(!empty($inventory_id)){
+            $data['total_spare'] = $this->reusable_model->get_search_result_data("inventory_ledger","SUM(quantity) as 'total_spare_from_ledger'",array('inventory_id'=>$inventory_id,'is_defective' => 0),NULL,NULL,NULL,NULL,NULL);
+        }
         
         if($this->session->userdata('service_center_id')){
             $this->load->view('service_centers/header');
@@ -4651,7 +4670,7 @@ class Inventory extends CI_Controller {
                 . "spare_parts_details.defective_part_shipped as 'Part Shipped By SF',"
                 . "spare_parts_details.awb_by_sf as 'SF AWB Number',spare_parts_details.courier_name_by_sf as 'SF Courier Name',"
                 . "datediff(CURRENT_DATE,spare_parts_details.shipped_date) as 'Spare Shipped Age'";
-        $where = array("spare_parts_details.status NOT IN('Spare parts requested')" => NULL);
+        $where = array("spare_parts_details.status NOT IN('".SPARE_PARTS_REQUESTED."')" => NULL);
         if(!empty($partner_id)){
             $where['booking_details.partner_id'] = $partner_id;
         }
