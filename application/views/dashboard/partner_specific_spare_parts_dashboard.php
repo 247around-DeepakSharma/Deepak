@@ -80,6 +80,11 @@
                 <div class="x_panel">
                     <div class="x_title">
                         <h2>Spare Parts Booking</h2>
+                        <div class="nav navbar-right panel_toolbox">
+                            <div class="pull-right">
+                                <a class="btn btn-sm btn-success" id="download_spare_list">Download</a><span class="badge" title="download all spare data except requested spare"><i class="fa fa-info"></i></span>
+                            </div>
+                        </div>
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content">
@@ -389,4 +394,24 @@
             alert('Please Refresh Page And Try Again...');
         }
     }
+    
+    $('#download_spare_list').click(function(){
+        $('#download_spare_list').html("<i class = 'fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/inventory/download_spare_consolidated_data/'+'<?php echo $partner_id;?>',
+            contentType: false,
+            cache: false,
+            processData: false,
+            success: function (data) {
+                $('#download_spare_list').html("Download").attr('disabled',false);
+                var obj = JSON.parse(data); 
+                if(obj['status']){
+                    window.location.href = obj['msg'];
+                }else{
+                    alert('File Download Failed. Please Refresh Page And Try Again...')
+                }
+            }
+        });
+    });
 </script>
