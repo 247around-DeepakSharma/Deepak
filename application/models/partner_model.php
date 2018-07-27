@@ -833,7 +833,7 @@ function get_data_for_partner_callback($booking_id) {
                     . ' JOIN service_centres ON spare_parts_details.service_center_id = service_centres.id'
                     . ' JOIN users ON users.user_id = booking_details.user_id'
                     . ' LEFT JOIN inventory_stocks ON spare_parts_details.requested_inventory_id = inventory_stocks.inventory_id'
-                    . " WHERE $where ORDER BY status = '". DEFECTIVE_PARTS_REJECTED."', spare_parts_details.create_date ASC $limit";
+                    . " WHERE $where ORDER BY spare_parts_details.purchase_invoice_id DESC,spare_parts_details.create_date $limit";
         }else{
             $sql =   $select
                 ." FROM spare_parts_details,booking_details,users, "
