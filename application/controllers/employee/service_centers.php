@@ -344,9 +344,9 @@ class Service_centers extends CI_Controller {
                     $i++;
                     $this->vendor_model->update_service_center_action($booking_id, $data);
                 }
-                //Send Push Notification to clouser group
+                //Send Push Notification to account group
                 $clouserAccountArray = array();
-                $getClouserAccountHolderID = $this->reusable_model->get_search_result_data("employee", "id", array("groups" => "closure"), NULL, NULL, NULL, NULL, NULL, array());
+                $getClouserAccountHolderID = $this->reusable_model->get_search_result_data("employee", "id", array("groups" => "accountmanager"), NULL, NULL, NULL, NULL, NULL, array());
                 foreach ($getClouserAccountHolderID as $employeeID) {
                     $clouserAccountArray['employee'][] = $employeeID['id'];
                 }
@@ -4606,6 +4606,7 @@ class Service_centers extends CI_Controller {
         $this->load->view('service_centers/search_docket_number');
     }
     function sf_dashboard(){
+        $this->checkUserSession();
         $rating_data = $this->service_centers_model->get_vendor_rating_data($this->session->userdata('service_center_id'));
         if(!empty($rating_data[0]['rating'])){
             $data['rating'] =  $rating_data[0]['rating'];
