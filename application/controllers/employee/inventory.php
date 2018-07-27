@@ -1805,6 +1805,9 @@ class Inventory extends CI_Controller {
         $data['entity_id'] = $entity_id;
         $data['entity_type'] = $entity_type;
         $data['inventory_id'] = $inventory_id;
+        if(!empty($inventory_id)){
+            $data['total_spare'] = $this->reusable_model->get_search_result_data("inventory_ledger","SUM(quantity) as 'total_spare_from_ledger'",array('inventory_id'=>$inventory_id,'is_defective' => 0),NULL,NULL,NULL,NULL,NULL);
+        }
         
         if($this->session->userdata('service_center_id')){
             $this->load->view('service_centers/header');
