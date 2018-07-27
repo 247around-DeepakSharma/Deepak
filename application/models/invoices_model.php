@@ -1895,7 +1895,7 @@ class invoices_model extends CI_Model {
     }
     
     function insert_inventory_invoice($data){
-        $this->db->insert_batch('inventory_invoice_mapping', $data);
+        $this->db->insert('inventory_invoice_mapping', $data);
         return $this->db->insert_id();
     }
     
@@ -1924,8 +1924,13 @@ class invoices_model extends CI_Model {
         $this->db->where($vendor_partner_invoice, NULL);
         $this->db->where("active", 1);
         $this->db->where($sf_partner_charge. " > 0", NULL);
-        $this->db->where('booking_details.closed_date >= ', $from_date );
-        $this->db->where('booking_details.closed_date < ', $to_date );
+        if(!empty($from_date)){
+            $this->db->where('booking_details.closed_date >= ', $from_date );
+        }
+        if(!empty($to_date)){
+            $this->db->where('booking_details.closed_date < ', $to_date );
+        }
+        
         $this->db->where($vendor_partner, $vendor_partner_id );
         $query = $this->db->get();
         return $query->result_array();

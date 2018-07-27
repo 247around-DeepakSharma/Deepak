@@ -344,9 +344,9 @@ class Service_centers extends CI_Controller {
                     $i++;
                     $this->vendor_model->update_service_center_action($booking_id, $data);
                 }
-                //Send Push Notification to clouser group
+                //Send Push Notification to account group
                 $clouserAccountArray = array();
-                $getClouserAccountHolderID = $this->reusable_model->get_search_result_data("employee", "id", array("groups" => "closure"), NULL, NULL, NULL, NULL, NULL, array());
+                $getClouserAccountHolderID = $this->reusable_model->get_search_result_data("employee", "id", array("groups" => "accountmanager"), NULL, NULL, NULL, NULL, NULL, array());
                 foreach ($getClouserAccountHolderID as $employeeID) {
                     $clouserAccountArray['employee'][] = $employeeID['id'];
                 }
@@ -1833,7 +1833,7 @@ class Service_centers extends CI_Controller {
         );
         
         $select = "booking_details.service_center_closed_date, CONCAT( '', GROUP_CONCAT((parts_shipped ) SEPARATOR ' / <br/> ' ) , '' ) as parts_shipped, "
-                . " spare_parts_details.booking_id, name, "
+                . " spare_parts_details.booking_id, users.name, "
                 . "CONCAT( '', GROUP_CONCAT((remarks_defective_part_by_partner ) SEPARATOR ' / <br/> ' ) , '' ) as remarks_defective_part_by_partner, "
                 . "CONCAT( '', GROUP_CONCAT((remarks_by_partner ) SEPARATOR ' / <br/> ' ) , '' ) as remarks_by_partner, spare_parts_details.partner_id,spare_parts_details.entity_type";
         
@@ -3711,9 +3711,7 @@ class Service_centers extends CI_Controller {
         log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id'));
         $this->check_WH_UserSession();
         $sf_id = $this->session->userdata('service_center_id');
-        if ($page == 0) {
-            $page = 50;
-        }
+        
         $where = array(
             "spare_parts_details.defective_part_required" => 1,
             "approved_defective_parts_by_admin" => 1,
@@ -3723,27 +3721,12 @@ class Service_centers extends CI_Controller {
         );
 
         $select = "CONCAT( '', GROUP_CONCAT((defective_part_shipped ) ) , '' ) as defective_part_shipped, "
-                . " spare_parts_details.booking_id, name, courier_name_by_sf, awb_by_sf,defective_part_shipped_date,remarks_defective_part_by_sf,booking_details.partner_id";
+                . " spare_parts_details.booking_id, users.name as 'user_name', courier_name_by_sf, awb_by_sf,defective_part_shipped_date,"
+                . "remarks_defective_part_by_sf,booking_details.partner_id,service_centres.name as 'sf_name',service_centres.district as 'sf_city'";
 
         $group_by = "spare_parts_details.booking_id";
         $order_by = "spare_parts_details.defective_part_shipped_date DESC";
-
-        $config['base_url'] = base_url() . 'service_center/defective_spare_parts/' . $page;;
-        $config['total_rows'] = $this->service_centers_model->count_spare_parts_booking($where, $select, $group_by);
-
-        if ($offset !== 'All') {
-            $config['per_page'] = 50;
-        } else {
-            $config['per_page'] = $config['total_rows'];
-        }
-        $config['uri_segment'] = 4;
-        $config['first_link'] = 'First';
-        $config['last_link'] = 'Last';
-        $this->pagination->initialize($config);
-        $data['links'] = $this->pagination->create_links();
-
-        $data['count'] = $config['total_rows'];
-        $data['spare_parts'] = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $offset, $config['per_page']);
+        $data['spare_parts'] = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by);
         $where_internal_status = array("page" => "defective_parts", "active" => '1');
         $data['internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
         $data['is_ajax'] = $this->input->post('is_ajax');
@@ -4623,6 +4606,7 @@ class Service_centers extends CI_Controller {
         $this->load->view('service_centers/search_docket_number');
     }
     function sf_dashboard(){
+        $this->checkUserSession();
         $rating_data = $this->service_centers_model->get_vendor_rating_data($this->session->userdata('service_center_id'));
         if(!empty($rating_data[0]['rating'])){
             $data['rating'] =  $rating_data[0]['rating'];

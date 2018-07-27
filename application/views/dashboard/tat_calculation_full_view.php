@@ -11,7 +11,15 @@
     <div class="row">
 
         <div class="clearfix"></div>
-            <form action="<?php echo base_url() ?>employee/dashboard/tat_calculation_full_view/<?php echo $rmID; ?>" method="post">
+                <?php
+                if($is_am == 1){
+                     $url =  base_url()."employee/dashboard/tat_calculation_full_view/".$rmID."/0/1"; 
+                }
+                else{
+                    $url =  base_url()."employee/dashboard/tat_calculation_full_view/".$rmID; 
+                }
+                ?>
+        <form action="<?php echo $url?>" method="post">
        <div class="table_filter" style="background: #5bc0de;padding: 10px;margin-bottom: 10px;border-radius: 5px;">
            <div class="row">
                <?php  if(!$this->session->userdata('partner_id')){ ?>
