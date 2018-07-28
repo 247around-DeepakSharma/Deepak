@@ -99,6 +99,9 @@ class File_process extends CI_Controller {
                 case 'sf_out_of_tat':
                     $file_response = $this->create_sf_OOT_file($partner_id,$category);
                     break;
+                case 'sf_out_of_tat_by_partner_shipped_date':
+                    $file_response = $this->create_sf_OOT_from_partner_shipped_date_file($partner_id,$category);
+                    break;
                 default :
                     $file_response = FALSE;
             }
@@ -161,6 +164,25 @@ class File_process extends CI_Controller {
                 . "parts_shipped,spare_parts_details.model_number_shipped,spare_parts_details.shipped_date as 'partner_shipped_date',spare_parts_details.defective_part_shipped,"
                 . "remarks_by_partner,courier_name_by_partner,awb_by_partner,partner_challan_number";
         $file_data = $this->dashboard_model->get_sf_oot_spare_details_by_partner_id($partner_id,$select);
+        
+        if(!empty($file_data)){
+            $template = "partner_total_spare_list.xlsx";
+            $output_file_excel = $category.'_'. date("Y_m_d_H_i_s") . ".xlsx";
+            //generate excel
+            $file_name = $this->generate_excel_file($template,$output_file_excel,$file_data);
+            
+        }else{
+            $file_name = "";
+        }
+        
+        return $file_name;
+    }
+    
+    function create_sf_OOT_from_partner_shipped_date_file($partner_id,$category){
+        $select = "Select spare_parts_details.booking_id,parts_requested,spare_parts_details.model_number,spare_parts_details.serial_number,"
+                . "parts_shipped,spare_parts_details.model_number_shipped,spare_parts_details.shipped_date as 'partner_shipped_date',spare_parts_details.defective_part_shipped,"
+                . "remarks_by_partner,courier_name_by_partner,awb_by_partner,partner_challan_number";
+        $file_data = $this->dashboard_model->get_sf_oot_spare_from_partner_shipped_details_by_partner_id($partner_id,$select);
         
         if(!empty($file_data)){
             $template = "partner_total_spare_list.xlsx";
