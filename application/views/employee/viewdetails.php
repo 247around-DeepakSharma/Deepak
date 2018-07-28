@@ -1130,7 +1130,7 @@ function sf_tab_active(){
                  prethis.html('<i class="fa fa-circle-o-notch fa-lg" aria-hidden="true"></i>');
              },
             data: {comment: comment, booking_id: booking_id},
-            success: function (response) {
+            success: function (response) { 
                 if(response === "error"){
                     alert('There is some issue. Please refresh and try again');
                 } else {
