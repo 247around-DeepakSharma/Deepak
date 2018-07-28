@@ -2467,7 +2467,7 @@ class Booking extends CI_Controller {
     /**
      * @desc this is used to add new comment for the booking
      */
-    function addComment() {
+    function addComment() { 
         $this->form_validation->set_rules('booking_id', 'booking_id', 'required');
         $this->form_validation->set_rules('comment', 'comment', 'required');
         if ($this->form_validation->run() == TRUE) {
@@ -2479,7 +2479,7 @@ class Booking extends CI_Controller {
             $data['isActive'] = 1;
             $data['create_date'] = date("Y-m-d H:i:s");
             $status = $this->booking_model->add_comment($data);
-            if($status){
+            if($status){  
                 $this->get_comment_section($data['booking_id']);
             } else {
                 echo "error";

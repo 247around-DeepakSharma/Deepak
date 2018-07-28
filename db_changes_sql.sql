@@ -7816,3 +7816,5 @@ INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `li
 ALTER TABLE `trigger_service_centres` ADD `gst_status` VARCHAR(28) NULL DEFAULT NULL AFTER `gst_no`, ADD `gst_taxpayer_type` VARCHAR(28) NULL DEFAULT NULL AFTER `gst_status`
 ALTER TABLE `trigger_service_centres` ADD `gst_status` VARCHAR(28) NULL DEFAULT NULL AFTER `gst_no`, ADD `gst_taxpayer_type` VARCHAR(28) NULL DEFAULT NULL AFTER `gst_status`
 
+--Kalyani 28-07-2018
+ALTER TABLE `booking_comments` CHANGE `id` `id` INT(11) NOT NULL AUTO_INCREMENT;
