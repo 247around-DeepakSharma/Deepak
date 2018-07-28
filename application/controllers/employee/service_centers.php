@@ -1322,18 +1322,19 @@ class Service_centers extends CI_Controller {
         $this->form_validation->set_rules('booking_id', 'Booking Id', 'trim|required');
         $this->form_validation->set_rules('model_number', 'Model Number', 'trim|required');
         $this->form_validation->set_rules('model_number_id', 'Model Number', 'trim');
-        $this->form_validation->set_rules('parts_name', 'Part Name', 'required');
-        $this->form_validation->set_rules('parts_type', 'Part Type', 'trim|required');
         $this->form_validation->set_rules('serial_number', 'Serial Number', 'trim|required');
 
         $this->form_validation->set_rules('invoice_image', 'Invoice Image', 'callback_validate_invoice_image_upload_file');
         $this->form_validation->set_rules('serial_number_pic', 'Invoice Image', 'callback_validate_serial_number_pic_upload_file');
-        $this->form_validation->set_rules('defective_parts_pic', 'Defective Parts Pic', 'callback_validate_defective_parts_pic');
-        $this->form_validation->set_rules('defective_back_parts_pic', 'Defective Parts Pic', 'callback_validate_defective_parts_back_pic');
 
-        if ($this->form_validation->run()) {
+       
+        $is_file = $this->validate_part_data();
+       
+        if ($this->form_validation->run() && !empty($is_file['code'])) {
+            
             $booking_id = $this->input->post('booking_id');
             $data_to_insert = array(); 
+            
             if ($this->input->post('invoice_pic')) {
                 $data['invoice_pic'] = $this->input->post('invoice_pic');
             }
@@ -1342,18 +1343,9 @@ class Service_centers extends CI_Controller {
                 $data['serial_number_pic'] = $this->input->post('serial_number_pic');
             }
 
-            if ($this->input->post('defective_parts')) {
-                $data['defective_parts_pic'] = $this->input->post('defective_parts');
-            }
-            
-            if ($this->input->post('defective_back_parts_pic')) {
-                $data['defective_back_parts_pic'] = $this->input->post('defective_back_parts_pic');
-            }
-            
+
             $data['model_number'] = $this->input->post('model_number');
             $data['serial_number'] = $this->input->post('serial_number');
-            //$data['parts_requested'] = $this->input->post('parts_name');
-            $data['parts_requested_type'] = $this->input->post('parts_type');
             $data['date_of_purchase'] = $this->input->post('dop');
             
             $booking_date = $this->input->post('booking_date');
@@ -1383,13 +1375,24 @@ class Service_centers extends CI_Controller {
             $data['status'] = $status;
             $data['service_center_id'] = $this->session->userdata('service_center_id');
             
-            $parts_requested = $this->input->post('parts_name');
-            
+            $parts_requested = $this->input->post('part');
             $parts_stock_not_found = array();
+            $new_spare_id = array();
+            $requested_part_name = array();
+            
             //Do not take mutiple request from SF
-            //foreach($parts_requested as $value){
-                $value = $parts_requested[0];
-                $data['parts_requested'] = $value;
+            foreach($parts_requested as $value){
+              
+                $data['parts_requested'] = $value['parts_name'];
+                $data['parts_requested_type'] = $value['parts_type'];
+                array_push($requested_part_name, $value['parts_name']);
+                if ($this->input->post('defective_parts')) {
+                    $data['defective_parts_pic'] = $this->input->post('defective_parts');
+                }
+            
+                if ($this->input->post('defective_back_parts_pic')) {
+                    $data['defective_back_parts_pic'] = $this->input->post('defective_back_parts_pic');
+                }
                 /** search if there is any warehouse for requested spare parts
                 * if any warehouse exist then assign this spare request to that service center otherwise assign
                 * assign to respective partner. 
@@ -1397,7 +1400,7 @@ class Service_centers extends CI_Controller {
                 */
                if (!empty($partner_details[0]['is_wh'])) {
                    $sf_state = $this->vendor_model->getVendorDetails("service_centres.state", array('service_centres.id' => $this->session->userdata('service_center_id')));
-                   $warehouse_details = $this->get_warehouse_details(array('model_number_id' => $this->input->post('model_number_id'), 'part_name' => $value,'part_type' =>$data['parts_requested_type'], 'state' => $sf_state[0]['state']), $partner_id);
+                   $warehouse_details = $this->get_warehouse_details(array('model_number_id' => $this->input->post('model_number_id'), 'part_name' => $value['parts_name'],'part_type' =>$data['parts_requested_type'], 'state' => $sf_state[0]['state']), $partner_id);
                    if (!empty($warehouse_details)) {
                        $data['partner_id'] = $warehouse_details['entity_id'];
                        $data['entity_type'] = $warehouse_details['entity_type'];
@@ -1407,12 +1410,12 @@ class Service_centers extends CI_Controller {
                        }
                        
                        if($warehouse_details['entity_type'] == _247AROUND_PARTNER_STRING){
-                           array_push($parts_stock_not_found,array('model_number' => $data['model_number'],'part_type' => $data['parts_requested_type'] , 'part_name' => $value ));
+                           array_push($parts_stock_not_found,array('model_number' => $data['model_number'],'part_type' => $data['parts_requested_type'] , 'part_name' => $value['parts_name'] ));
                        }
                    } else {
                        $data['partner_id'] = $this->input->post('partner_id');
                        $data['entity_type'] = _247AROUND_PARTNER_STRING;
-                       array_push($parts_stock_not_found,array('model_number' => $data['model_number'],'part_type' => $data['parts_requested_type'] , 'part_name' => $value ));
+                       array_push($parts_stock_not_found,array('model_number' => $data['model_number'],'part_type' => $data['parts_requested_type'] , 'part_name' => $value['parts_name'] ));
                    }
                } else {
                    $data['partner_id'] = $this->input->post('partner_id');
@@ -1423,22 +1426,24 @@ class Service_centers extends CI_Controller {
                    $this->inventory_model->update_pending_inventory_stock_request($data['entity_type'], $data['partner_id'], $data['requested_inventory_id'], 1);
                }
                array_push($data_to_insert, $data);
-            //}
-
-            //send email to partner,sf and 247around that inventory out of stock for this inventory
-            if(!empty($parts_stock_not_found)){
-                $this->send_out_of_stock_mail($parts_stock_not_found, $value, $data);
+               
+               $spare_id = $this->service_centers_model->insert_data_into_spare_parts($data);
+               array_push($new_spare_id, $spare_id);
+               
+               //send email to partner,sf and 247around that inventory out of stock for this inventory
+                if(!empty($parts_stock_not_found)){
+                    $this->send_out_of_stock_mail($parts_stock_not_found, $value, $data);
+                }
             }
             
-            //$where = array('booking_id' => $booking_id, 'service_center_id' => $data['service_center_id']);
-            $spare_id = $this->service_centers_model->insert_data_into_spare_parts($data_to_insert,true);
-            
-            if ($spare_id) {
+
+            if (!empty($new_spare_id)) {
+
                 
                 //Send Push Notification 
                 //$receiverArray['partner'] = array($data['partner_id']);
                 $receiverArray[array_unique(array_column($data_to_insert, 'entity_type'))[0]] = array(array_unique(array_column($data_to_insert, 'partner_id'))[0]);
-                $notificationTextArray['msg'] = array(implode(",", $parts_requested), $booking_id);
+                $notificationTextArray['msg'] = array(implode(",", $requested_part_name), $booking_id);
                 $this->push_notification_lib->create_and_send_push_notiifcation(SPARE_PART_REQUEST_TO_PARTNER, $receiverArray, $notificationTextArray);
                 //End Push Notification
 
@@ -1464,17 +1469,20 @@ class Service_centers extends CI_Controller {
 
                 if($status == SPARE_OOW_EST_REQUESTED && isset($warehouse_details['inventory_id']) 
                         && !empty($warehouse_details['inventory_id']) && isset($warehouse_details['estimate_cost'])){
-                    $cb_url = base_url() . "apiDataRequest/update_estimate_oow";
-                    $pcb['booking_id'] = $booking_id;
-                    $pcb['assigned_vendor_id'] = $this->session->userdata('service_center_id');
-                    $pcb['amount_due'] = $this->input->post('amount_due');
-                    $pcb['partner_id'] = $partner_id;
-                    $pcb['sp_id'] = $spare_id;
-                    $pcb['gst_rate'] = $warehouse_details['gst_rate'];;
-                    $pcb['estimate_cost'] = $warehouse_details['estimate_cost'];
-                    $pcb['agent_id'] = $this->session->userdata('service_center_agent_id');
+                    foreach($new_spare_id as $sid){
+                        $cb_url = base_url() . "apiDataRequest/update_estimate_oow";
+                        $pcb['booking_id'] = $booking_id;
+                        $pcb['assigned_vendor_id'] = $this->session->userdata('service_center_id');
+                        $pcb['amount_due'] = $this->input->post('amount_due');
+                        $pcb['partner_id'] = $partner_id;
+                        $pcb['sp_id'] = $spare_id;
+                        $pcb['gst_rate'] = $warehouse_details['gst_rate'];;
+                        $pcb['estimate_cost'] = $warehouse_details['estimate_cost'];
+                        $pcb['agent_id'] = $this->session->userdata('service_center_agent_id');
 
-                    $this->asynchronous_lib->do_background_process($cb_url, $pcb);
+                        $this->asynchronous_lib->do_background_process($cb_url, $pcb);
+                    }
+                    
                 }
 
                 $userSession = array('success' => 'Booking Updated');
@@ -1488,14 +1496,19 @@ class Service_centers extends CI_Controller {
                 redirect(base_url() . "service_center/pending_booking");
             }
         } else {
+           
             $booking_id = urlencode(base64_encode($this->input->post('booking_id')));
+            if(!$is_file['code']){
+                $userSession = array('error' => $is_file['message']);
+                $this->session->set_userdata($userSession);
+            }
             $this->update_booking_status($booking_id);
         }
 
         log_message('info', __FUNCTION__ . " Exit Service_center ID: " . $this->session->userdata('service_center_id'));
     }
     
-    function send_out_of_stock_mail($parts_stock_not_found, $value, $data) {
+    function send_out_of_stock_mail($parts_stock_not_found, $value1, $data) {
         if (!empty($parts_stock_not_found)) {
             //Getting template from Database
             $email_template = $this->booking_model->get_booking_email_template("out_of_stock_inventory");
@@ -4314,6 +4327,74 @@ function get_learning_collateral_for_bookings(){
             $this->form_validation->set_message('validate_serial_number_pic_upload_file', 'Please Upload Serial Number Image');
                 return FALSE;
         }
+    }
+    
+    function validate_part_data(){
+        $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
+        $booking_id = $this->input->post("booking_id");
+        $defective_parts = array();
+        $defective_back_parts_pic = array();
+        if(!empty($_FILES['defective_parts_pic'])){
+            for($i =0; $i < count($_FILES['defective_parts_pic']['name']); $i++){
+                $a = array();
+                $a['name'] = $_FILES['defective_parts_pic']['name'][$i];
+                $a['type'] = $_FILES['defective_parts_pic']['type'][$i];
+                $a['tmp_name'] = $_FILES['defective_parts_pic']['tmp_name'][$i];
+                $a['error'] = $_FILES['defective_parts_pic']['error'][$i];
+                $a['size'] = $_FILES['defective_parts_pic']['size'][$i];
+                array_push($defective_parts, $a);
+            }
+            
+        }
+        
+        if(!empty($_FILES['defective_back_parts_pic'])){
+            for($i =0; $i <  count($_FILES['defective_back_parts_pic']['name']); $i++){
+                $a = array();
+                $a['name'] = $_FILES['defective_back_parts_pic']['name'][$i];
+                $a['type'] = $_FILES['defective_back_parts_pic']['type'][$i];
+                $a['tmp_name'] = $_FILES['defective_back_parts_pic']['tmp_name'][$i];
+                $a['error'] = $_FILES['defective_back_parts_pic']['error'][$i];
+                $a['size'] = $_FILES['defective_back_parts_pic']['size'][$i];
+                array_push($defective_back_parts_pic, $a);
+            }
+            
+        }
+        $message['code'] = true;
+        if(!empty($defective_parts)){
+            foreach($defective_parts as $key => $value){
+                $d = $this->miscelleneous->upload_file_to_s3($value, 
+                    "defective_parts", $allowedExts, $booking_id, "misc-images", "defective_parts");
+                if(!empty($d)){
+                    $_POST['part'][$key]['defective_parts'] = $d;
+                } else {
+                    $message['code'] = false;
+                    $message['message'] = "Defective Front Parts Image is not supported. Allow maximum file size is 2 MB. It supported only PNG/JPG";
+                    break;
+                }
+            }
+        } else {
+            $message['code'] = false;
+            $message['message'] = "Please upload Defective Front Parts Image";
+        }
+        
+        if(!empty($defective_back_parts_pic)){
+            foreach($defective_back_parts_pic as $key => $value){
+                $d = $this->miscelleneous->upload_file_to_s3($value, 
+                    "defective_parts", $allowedExts, $booking_id, "misc-images", "defective_back_parts_pic");
+                if(!empty($d)){
+                    $_POST['part'][$key]['defective_back_parts_pic'] = $d;
+                } else {
+                    $message['code'] = false;
+                    $message['message'] = "Defective Back Parts Image is not supported. Allow maximum file size is 2 MB. It supported only PNG/JPG";
+                    break;
+                }
+            }
+        } else {
+            $message['code'] = false;
+            $message['message'] = "Please upload Defective Back Parts Image";
+        }
+        
+        return $message;
     }
     
     /**
