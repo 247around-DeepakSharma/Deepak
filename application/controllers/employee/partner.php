@@ -1927,7 +1927,7 @@ class Partner extends CI_Controller {
      * params: String Booking_ID
      * return: Array of Data for View
      */
-    function get_booking_life_cycle($booking_id) {
+    function get_booking_life_cycle($booking_id) { 
         $this->checkUserSession();
         log_message('info', __FUNCTION__ . " Booking_id" . $booking_id);
         $data['data'] = $this->booking_model->get_booking_state_change_by_id($booking_id);
@@ -1937,6 +1937,20 @@ class Partner extends CI_Controller {
         //$this->load->view('partner/header');
 
         $this->load->view('employee/show_booking_life_cycle', $data);
+    }
+    
+    /**
+     * @desc: This is used to show Comment Section of particular Booking
+     * params: String Booking_ID
+     * return: Array of Data for View
+     */
+    function get_comment_section($booking_id){ 
+        $this->checkUserSession();
+        log_message('info', __FUNCTION__ . " Booking_id" . $booking_id);
+        $data['comments'] = $this->booking_model->get_remarks(array('booking_id' => $booking_id, "isActive" => 1));
+        $data['booking_id'] = $booking_id;
+        $data['user_id'] = $this->session->userdata('id');
+        $this->load->view('employee/comment_section', $data);
     }
 
     /**
