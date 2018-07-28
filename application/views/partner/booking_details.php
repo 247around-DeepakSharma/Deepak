@@ -1,4 +1,4 @@
- <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&key=AIzaSyB4pxS4j-_NBuxwcSwSFJ2ZFU-7uep1hKc"></script>
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&key=AIzaSyB4pxS4j-_NBuxwcSwSFJ2ZFU-7uep1hKc"></script>
 <script src="<?php echo base_url();?>js/googleScript.js"></script> 
 <div class="right_col" role="main">
     <div class="row">
@@ -449,6 +449,8 @@
                                 <?php } ?>
                             </div>
                             <div role="tabpanel" class="tab-pane fade" id="tab_content4">
+                                <div id="historyDetailsPartner"></div>
+                                <div id="commentboxPartner"> </div>
                             </div>
                             <div role="tabpanel" class="tab-pane fade" id="tab_content5">
 
@@ -535,9 +537,21 @@
             type: 'POST',
             url: booking_id,
             success: function (response) {
-                $('#tab_content4').html(response);
+                $('#historyDetailsPartner').html(response);
             }
         });
+        
+        $.ajax({
+        method: 'POST',
+        data: {},
+        url: '<?php echo base_url(); ?>partner/get_comment_section/<?php echo $booking_history[0]['booking_id']?>',
+        success: function (response) {
+            document.getElementById("commentboxPartner").innerHTML = response;
+            $("#commnet_btn").css("display", "none");
+            $("#commentboxPartner").find("table tr td button").css("display", "none");
+        }
+    });
+        
     });
     $.ajax({
         method:'GET',
