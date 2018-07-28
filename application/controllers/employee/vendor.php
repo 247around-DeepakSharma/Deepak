@@ -1402,7 +1402,8 @@ class vendor extends CI_Controller {
     }
 
     function mark_upcountry_booking($booking_id, $agent_id, $agent_name) {
-        $this->checkUserSession();
+        log_message("info", __METHOD__. " Booking ID ".$booking_id);
+        //$this->checkUserSession();
         if (!empty($booking_id)) {
             log_message('info', __METHOD__ . " Booking_id " . $booking_id . "  By agent id " .
                     $agent_id . $agent_name);
@@ -4866,7 +4867,7 @@ class vendor extends CI_Controller {
                     $emailBody = $template[0];
                     $subject['sf_name'] = $this->input->post('sf_name');
                     $subjectBody = vsprintf($template[4], $subject);
-                    $this->notify->sendEmail($from, $to, $this->session->userdata('official_email') . ",".$template[3] , '', $subjectBody, $emailBody, "",'bank_details_verification_email');
+                    $this->notify->sendEmail($from, $to, $this->session->userdata('official_email') . ",".$template[3].','.$rm_email , '', $subjectBody, $emailBody, "",'bank_details_verification_email');
                 }
             }
             echo "success";
