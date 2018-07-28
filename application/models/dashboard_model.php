@@ -498,12 +498,15 @@ class dashboard_model extends CI_Model {
      * @param void
      * @return array
      */
-    function get_partner_spare_snapshot($partner_id){
+    function get_partner_spare_snapshot($partner_id,$is_sf_data = 1){
         $data['total_spare_count'] = $this->get_partner_total_spare_details($partner_id);
         
         $data['oot_partner_spare_count'] = $this->get_partner_oot_spare_details_by_partner_id($partner_id);
         
-        $data['oot_sf_spare_count'] = $this->get_sf_oot_spare_details_by_partner_id($partner_id);
+        if($is_sf_data){
+            $data['oot_sf_spare_count'] = $this->get_sf_oot_spare_details_by_partner_id($partner_id);
+            $data['oot_sf_spare_count_by_partner_shipped_day'] = $this->get_sf_oot_spare_from_partner_shipped_details_by_partner_id($partner_id);
+        }
         
         return $data;
     }
@@ -558,13 +561,10 @@ class dashboard_model extends CI_Model {
         
         $where = "spare_parts_details.defective_part_required = 1 "
                 . "AND DATEDIFF(CURRENT_DATE,service_center_booking_action.closed_date) > ".SF_SPARE_OOT_DAYS. " "
-                . "AND spare_parts_details.status IN ('Defective Part Pending', 'Defective Part Rejected By Partner') "
-                . "AND service_center_booking_action.current_status =  'InProcess' "
-                . "AND service_center_booking_action.closed_date IS NOT NULL "
-                . "AND booking_details.partner_id = $partner_id";
+                . "AND spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."') ";
         
         if(!empty($partner_id)){
-            $where .= " AND spare_parts_details.partner_id = $partner_id";
+            $where .= " AND booking_details.partner_id = $partner_id";
         }
         
         $sql = $select . " FROM spare_parts_details"
@@ -587,6 +587,36 @@ class dashboard_model extends CI_Model {
                 JOIN service_centres ON inventory_stocks.entity_id = service_centres.id
                 GROUP BY inventory_stocks.entity_id
                 HAVING stock = 0";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
+    /**
+     * @desc: This function is used to get sf oot spare part details by partner_id
+     * @param void
+     * @return array
+     */
+    function get_sf_oot_spare_from_partner_shipped_details_by_partner_id($partner_id,$select = NULL){
+        
+        if(!empty($select)){
+            $select = $select;
+        }else{
+            $select = " SELECT count(spare_parts_details.id) as spare_count,"
+                . "IFNULL(ROUND(SUM(spare_parts_details.challan_approx_value)),0) as spare_amount, 'SF Out of Tat By Partner Shipped Date' as spare_status";
+        }
+        
+        $where = "spare_parts_details.defective_part_required = 1 "
+                . "AND DATEDIFF(CURRENT_DATE,spare_parts_details.shipped_date) > ".PARTNER_SPARE_OOT_DAYS. " "
+                . "AND spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."') ";
+        
+        if(!empty($partner_id)){
+            $where .= " AND booking_details.partner_id = $partner_id";
+        }
+        
+        $sql = $select . " FROM spare_parts_details"
+                . " JOIN booking_details ON spare_parts_details.booking_id = booking_details.booking_id "
+                . " WHERE $where ";
+        
         $query = $this->db->query($sql);
         return $query->result_array();
     }
