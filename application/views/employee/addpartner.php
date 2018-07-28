@@ -89,10 +89,8 @@
                         <li><a id="5" href="#tabs-5" onclick="load_form(this.id)"><span class="panel-title">Brand Mapping</span></a></li>
                         <li><a id="6" href="#tabs-6" onclick="load_form(this.id)"><span class="panel-title">Brand Collateral</span></a></li>
                         <li><a id="7" href="#tabs-7" onclick="load_form(this.id)"><span class="panel-title">Upload Serial No</span></a></li>
-                         <li><a id="8" href="#tabs-8" onclick="load_form(this.id)"><span class="panel-title">Add Contacts</span></a></li>
-                         <?php if($query[0]['is_wh']==1){?>
-                         <li><a id="9" href="#tabs-9" onclick="load_form(this.id)"><span class="panel-title">Warehouse Details</span></a></li>
-                         <?php }?>
+                        <li><a id="8" href="#tabs-8" onclick="load_form(this.id)"><span class="panel-title">Add Contacts</span></a></li>
+                        <li><a id="9" href="#tabs-9" onclick="load_form(this.id)"><span class="panel-title">Warehouse Details</span></a></li>
                         <?php
                             }
                             ?>
@@ -758,7 +756,7 @@
                                 <div class="panel-body">
                                     <div class="col-md-6">
                                         <div class="form-group ">
-                                            <label for="is_wh" class="col-md-4">Does Warehouse Exist</label>
+                                            <label for="is_wh" class="col-md-4">Is partner using 247around warehouse</label>
                                             <div class="col-md-1">
                                                 <input  type="checkbox" class="form-control"  name="is_wh" value = "1" <?php if (isset($query[0])) {
                                                     if($query[0]['is_wh'] == '1'){ echo "checked"; }
