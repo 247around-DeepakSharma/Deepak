@@ -349,7 +349,7 @@ class dashboard_model extends CI_Model {
      /*
       * This function is used to get Escalation On the basis of vendor,RM,Dates
       */
-     function get_sf_escalation_by_rm_by_sf_by_date($startDate=NULL,$endDate=NULL,$sf_id=NULL,$rm_id=NULL,$groupBy,$partnerID){
+        function get_sf_escalation_by_rm_by_sf_by_date($startDate=NULL,$endDate=NULL,$sf_id=NULL,$rm_id=NULL,$groupBy,$partnerID=NULL){
         $escalation_select_sub = "count(vendor_escalation_log.booking_id) AS total_escalation ";
         if($partnerID){
             $escalation_where['booking_details.partner_id'] = $partnerID;
