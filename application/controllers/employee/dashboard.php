@@ -998,7 +998,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
     $groupBy['booking'] = array("MONTHNAME(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y'))");
     $groupBy['escalation'] = array("MONTHNAME(vendor_escalation_log.create_date)");
     // Get escalation by vendor group by date
-    $data = $this->dashboard_model->get_sf_escalation_by_rm_by_sf_by_date($startDate,$endDate,$sf,NULL,$groupBy);
+    $data = $this->dashboard_model->get_sf_escalation_by_rm_by_sf_by_date($startDate,$endDate,$sf,NULL,$groupBy,NULL);
     // Create Associative array for escalation (Pass Vendor ID Return Escalation number)
     foreach($data['escalation'] as $escalationData){
         $escalationAssociativeArray[$escalationData['escalation_month']]= $escalationData['total_escalation'];
