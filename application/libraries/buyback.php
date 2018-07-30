@@ -192,7 +192,7 @@ class Buyback {
             if ($profit > 0) {
                 $s_id = (!empty($bb_charges) ? $bb_charges[0]['service_id'] : $service_id);
                 $gst_tax_rate = DEFAULT_TAX_RATE;
-                if(!empty($s_id) && $s_id == _247AROUND_AC_SERVICE_ID){
+                if(!empty($s_id) && ($s_id == _247AROUND_AC_SERVICE_ID || $s_id == _247AROUND_TV_SERVICE_ID)){
                     $gst_tax_rate = DEFAULT_PARTS_TAX_RATE;
                 }
                 $gst_amount = $this->My_CI->booking_model->get_calculated_tax_charge($profit, $gst_tax_rate);
@@ -423,10 +423,10 @@ class Buyback {
             $profit = $cp_amount - $partner_amount;
             if ($profit > 0) {
                 $gst_tax_rate = DEFAULT_TAX_RATE;
-                if($bb_unit[0]->service_id  == _247AROUND_AC_SERVICE_ID){
+                if($bb_unit[0]->service_id  == _247AROUND_AC_SERVICE_ID || $bb_unit[0]->service_id == _247AROUND_TV_SERVICE_ID){
                     $gst_tax_rate = DEFAULT_PARTS_TAX_RATE;
                 }
-                $gst_amount = $this->My_CI->booking_model->get_calculated_tax_charge($profit, DEFAULT_PARTS_TAX_RATE);
+                $gst_amount = $this->My_CI->booking_model->get_calculated_tax_charge($profit, $gst_tax_rate);
             }
         }
         return $gst_amount;

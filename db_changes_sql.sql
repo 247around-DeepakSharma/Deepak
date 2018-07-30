@@ -7807,3 +7807,14 @@ ALTER TABLE `partner_summary_report_mapping`
 --
 ALTER TABLE `partner_summary_report_mapping`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;COMMIT;
+
+--- Kalyani 27-07-2018
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+(NULL, '247Around', 'Email Search', 'NULL', 'employee/inventory/seach_by_email', 2, 80, 'admin,developer', 'main_nav', 1, '2018-07-26 15:50:15');
+
+--Abhay 25 July
+ALTER TABLE `trigger_service_centres` ADD `gst_status` VARCHAR(28) NULL DEFAULT NULL AFTER `gst_no`, ADD `gst_taxpayer_type` VARCHAR(28) NULL DEFAULT NULL AFTER `gst_status`
+ALTER TABLE `trigger_service_centres` ADD `gst_status` VARCHAR(28) NULL DEFAULT NULL AFTER `gst_no`, ADD `gst_taxpayer_type` VARCHAR(28) NULL DEFAULT NULL AFTER `gst_status`
+
+--Kalyani 28-07-2018
+ALTER TABLE `booking_comments` CHANGE `id` `id` INT(11) NOT NULL AUTO_INCREMENT;

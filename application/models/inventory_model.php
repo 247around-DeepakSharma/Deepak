@@ -1256,6 +1256,7 @@ class Inventory_model extends CI_Model {
         }
     }
     
+   
     function get_spare_consolidated_data($select,$where){
         $this->db->select($select,false);
         $this->db->from('booking_details');

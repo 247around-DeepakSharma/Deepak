@@ -2467,7 +2467,7 @@ class Booking extends CI_Controller {
     /**
      * @desc this is used to add new comment for the booking
      */
-    function addComment() {
+    function addComment() { 
         $this->form_validation->set_rules('booking_id', 'booking_id', 'required');
         $this->form_validation->set_rules('comment', 'comment', 'required');
         if ($this->form_validation->run() == TRUE) {
@@ -2479,7 +2479,7 @@ class Booking extends CI_Controller {
             $data['isActive'] = 1;
             $data['create_date'] = date("Y-m-d H:i:s");
             $status = $this->booking_model->add_comment($data);
-            if($status){
+            if($status){  
                 $this->get_comment_section($data['booking_id']);
             } else {
                 echo "error";
@@ -4609,6 +4609,22 @@ class Booking extends CI_Controller {
         readfile($csv);
         exec("rm -rf " . escapeshellarg($csv));
         exit;
+    }
+    /**
+     * @desc This is used to upload order support file from view details page.
+     */
+    function upload_order_supporting_file(){
+        $booking_id = $this->input->post('booking_id');
+        if(!empty($booking_id)){
+            $support_file = $this->upload_orderId_support_file($booking_id);
+            if(!empty($support_file)){
+                $this->booking_model->update_booking($booking_id, array('support_file' => $support_file));
+                echo json_encode(array('code' => "success", "name" => $support_file));
+            } else {
+                echo json_encode(array('code' => "error", "message" => "File size or file type is not supported"));
+            }
+        }
+        
     }
 }
 
