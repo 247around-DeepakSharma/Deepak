@@ -48,7 +48,6 @@ class vendor extends CI_Controller {
         $this->load->dbutil();
         $this->load->helper('file');
         $this->load->model('push_notification_model');
-
     }
 
     /**
@@ -63,7 +62,7 @@ class vendor extends CI_Controller {
      * @param : void
      * @return : void
      */
-    function index() {
+    function index() { 
         $this->checkUserSession();
         $vendor = [];
         //Getting rm id from post data
@@ -593,7 +592,6 @@ class vendor extends CI_Controller {
      */
     
     function get_vendor_form_data(){
-
                 $vendor_data['company_name'] = trim($this->input->post('company_name'));
                 $vendor_data['name'] = trim($this->input->post('name'));
                 $vendor_data['address'] = trim($this->input->post('address'));
@@ -622,6 +620,8 @@ class vendor extends CI_Controller {
                 $vendor_data['is_sf'] = $this->input->post('is_sf');
                 $vendor_data['is_cp'] = $this->input->post('is_cp');
                 $vendor_data['is_wh'] = $this->input->post('is_wh');
+                $vendor_data['gst_taxpayer_type'] = $this->input->post('gst_type');
+                $vendor_data['gst_status'] = $this->input->post('gst_status');
                 $vendor_data['min_upcountry_distance'] = $this->input->post('min_upcountry_distance');
                 if(empty( $vendor_data['is_cp'])){
                      $vendor_data['is_cp'] = 0;
@@ -5059,4 +5059,29 @@ class vendor extends CI_Controller {
         log_message('info', __FUNCTION__ . ' Function End');
         //unlink($csv);
     }
+    
+    function check_GST_number($gst){
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+          //CURLOPT_URL => "https://api.taxprogsp.co.in/commonapi/v1.1/search?aspid=1606680918&password=priya@b30&Action=TP&Gstin=07ALDPK4562B1ZG",
+          CURLOPT_URL => "http://testapi.taxprogsp.co.in/commonapi/v1.1/search?aspid=1606680918&password=priya@b30&Action=TP&Gstin=07ALDPK4562B1ZG",  
+          CURLOPT_RETURNTRANSFER => true,
+          CURLOPT_ENCODING => "",
+          CURLOPT_MAXREDIRS => 10,
+          CURLOPT_TIMEOUT => 30,
+          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+          CURLOPT_CUSTOMREQUEST => "GET",
+        ));
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
+        curl_close($curl);
+        if ($err) {
+          echo "cURL Error :" . $err;
+        } else {
+          echo $response;
+        }
+    }
+    
+    
+    
 }

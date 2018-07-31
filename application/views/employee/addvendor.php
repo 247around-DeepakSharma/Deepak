@@ -918,7 +918,7 @@
                                                 if (isset($query[0]['gst_no'])) {
                                                     echo $query[0]['gst_no'];
                                                 }
-                                                ?>">
+                                                ?>" onkeyup="validateGSTNo()">
                                             <span class="err1"> <?php echo form_error('gst_no'); ?></span>
                                         </div>
                                     </div>
@@ -981,7 +981,7 @@
                                                 ?>">
                                             <?php echo form_error('signature_file'); ?>
                                         </div>
-                                        <div class="col-md-1">
+                                        <div class="col-md-1" style="margin-left: -20px;">
                                             <?php
                                                 $src = base_url() . 'images/no_image.png';
                                                 $image_src = $src;
@@ -995,6 +995,22 @@
                                             <?php if(isset($query[0]['signature_file']) && !empty($query[0]['signature_file'])){?>
                                             <a href="javascript:void(0)" onclick="remove_image('signature_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['signature_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
                                             <?php }?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label  for="" class="col-md-4">GST Type</label>
+                                        <div class="col-md-7">
+                                            <input type="text" class="form-control"  id ="gst_type" name="gst_type" readonly="readonly">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label  for="" class="col-md-4">GST Status</label>
+                                        <div class="col-md-7">
+                                            <input type="text" class="form-control"  id ="gst_status" name="gst_status" readonly="readonly">
                                         </div>
                                     </div>
                                 </div>
@@ -1713,5 +1729,27 @@
 
         });
     }); 
+    
+    function validateGSTNo(){
+        var gstin = $("#gst_no").val();
+        gstin = gstin.trim();
+        if(gstin.length == '15'){
+            $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/vendor/check_GST_number/'+gstin,
+                success: function (response) {
+                    response = JSON.parse(response);
+                    if(response.status_cd != '0'){
+                        $("#gst_type").val(response.dty);
+                        $("#gst_status").val(response.sts);
+                    }
+                    else{
+                       alert("api unable to work"); 
+                    }
+                }
+            });
+        }
+        else{ }
+    }
     
 </script>
