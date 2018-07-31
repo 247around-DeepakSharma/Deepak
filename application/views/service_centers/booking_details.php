@@ -366,12 +366,15 @@
                     <table class="table  table-striped table-bordered" >
                         <thead>
                             <tr>
-                                <th >Shipped Parts </th>
-                                <th >Courier Name</th>
-                                <th >AWB </th>
-                                <th >Shipped date </th>
-                                <th >EDD </th>
-                                <th >Remarks By Partner</th>
+                                <th>Shipped Parts </th>
+                                <th>Courier Name</th>
+                                <th>AWB </th>
+                                <th>Shipped date </th>
+                                <th>EDD </th>
+                                <th>Remarks By Partner</th>
+                                <?php if($this->session->userdata('is_wh')) { ?> 
+                                <th>Courier File</th>
+                                <?php } ?>
                             </tr>
                         </thead>
                         <tbody>
@@ -383,6 +386,13 @@
                                 <td><?php echo $sp['shipped_date']; ?></td>
                                 <td><?php echo $sp['edd']; ?></td>
                                 <td><?php echo $sp['remarks_by_partner']; ?></td>
+                                <?php if($this->session->userdata('is_wh')) { ?> 
+                                    <td>
+                                    <?php if(!empty($sp['courier_pic_by_partner'])){ ?> 
+                                        <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY?>/vendor-partner-docs/<?php echo $sp['courier_pic_by_partner']; ?>" target="_blank">Click Here to view</a>
+                                    <?php } ?>
+                                    </td>
+                                <?php } ?>
                             </tr>
                             <?php }  } ?>
                         </tbody>

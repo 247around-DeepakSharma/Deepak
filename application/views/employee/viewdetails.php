@@ -548,6 +548,8 @@
                                         <th >Challan Number </th>
                                         <th >Challan approx Value </th>
                                         <th>Challan File</th>
+                                        <th>Courier File</th>
+                                        
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -564,6 +566,11 @@
                                         <td>
                                             <?php if(!empty($sp['partner_challan_file'])){ ?> 
                                             <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY?>/vendor-partner-docs/<?php echo $sp['partner_challan_file']; ?>" target="_blank">Click Here to view</a>
+                                            <?php } ?>
+                                        </td>
+                                        <td>
+                                            <?php if(!empty($sp['courier_pic_by_partner'])){ ?> 
+                                            <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY?>/vendor-partner-docs/<?php echo $sp['courier_pic_by_partner']; ?>" target="_blank">Click Here to view</a>
                                             <?php } ?>
                                         </td>
                                     </tr>
