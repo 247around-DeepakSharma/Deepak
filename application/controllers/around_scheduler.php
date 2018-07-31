@@ -1722,8 +1722,8 @@ class Around_scheduler extends CI_Controller {
             
             if(file_exists(TMP_FOLDER.'paytm_order_id_details.xlsx')){
                 $this->load->helper('download');
-                $data = file_get_contents(TMP_FOLDER.'Paytm_order_id_details.xlsx'); // Read the file's contents
-                $name = 'Paytm_order_id_details.xlsx';
+                $data = file_get_contents(TMP_FOLDER.'paytm_order_id_details.xlsx'); // Read the file's contents
+                $name = 'paytm_order_id_details.xlsx';
 
                 force_download($name, $data);
             }

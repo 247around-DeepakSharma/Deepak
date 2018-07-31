@@ -1464,7 +1464,7 @@ class Do_background_upload_excel extends CI_Controller {
             die('Error loading file "' . pathinfo($file['file_tmp_name'], PATHINFO_BASENAME) . '": ' . $e->getMessage());
         }
 
-        $file_name = $_FILES["file"]["name"];
+        $file_name = preg_replace('/\s+/', '-', trim($_FILES["file"]["name"]));
         move_uploaded_file($file['file_tmp_name'],TMP_FOLDER.$file_name);
         $res1 = 0;
         system("chmod 777" . TMP_FOLDER . $file_name, $res1);
