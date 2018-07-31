@@ -1731,5 +1731,139 @@ class Around_scheduler extends CI_Controller {
         }
     }
 
+    /**
+     * @desc This is used to send outstanding amount to CP through SMS/Email
+     */
+    function send_reminder_mail_for_cp_outstanding() {
+        log_message('info', __METHOD__ . " Enterring..");
+        $cp = $this->vendor_model->getVendorDetails('id, cp_credit_limit, company_name, primary_contact_email, owner_email, owner_phone_1', 
+                array('is_cp' => 1));
+        if (!empty($cp)) {
+            foreach ($cp as $value) {
+                $amount_cr_deb = $this->miscelleneous->get_cp_buyback_credit_debit($value['id']);
+                if ($amount_cr_deb['total_balance'] < $value['cp_credit_limit']) {
+                    log_message('info', __METHOD__ . " CP Id ". $value['id']. " Outstanding Amount ".$amount_cr_deb['total_balance']);
+                    
+                    //Send SMS
+                    $sms['phone_no'] = $value['owner_phone_1'];
+                    $sms['smsData']['amount'] = abs(round($amount_cr_deb['total_balance'],0));
+		    $sms['tag'] = "cp_outstanding_sms";
+		    $sms['booking_id'] = "";
+		    $sms['type'] = "vendor";
+		    $sms['type_id'] = $value['id'];
+
+		    $this->notify->send_sms_msg91($sms);
+                    
+                    //Send Email
+
+//                    $html = '<html><head><title>Outstanding Amount</title><link href="' . base_url() . 
+//                            'css/bootstrap.min.css" rel="stylesheet"></head><body>';
+//
+//                    $template = array(
+//                        'table_open' => '<table  border="1" cellpadding="2" cellspacing="1"'
+//                        . ' class="table table-striped table-bordered jambo_table bulk_action">'
+//                    );
+//                    $this->table->set_template($template);
+//                    $this->table->set_heading(array('Name', 'Advance Paid', 'Un-Settle Invoice (Rs)', 'Un-billed Delivered (Rs)', 
+//                        'Un-billed In-transit (Rs)', 'Balance (Rs)'));
+//                    $this->table->add_row($value['company_name'], round(abs($amount_cr_deb['advance']), 0), 
+//                            -round($amount_cr_deb['unbilled'], 0), -round($amount_cr_deb['cp_delivered'], 0), 
+//                            -round($amount_cr_deb['cp_transit'], 0), round($amount_cr_deb['total_balance'], 0));
+//
+//                    $html .= $this->table->generate();
+//                    $html .= '</body></html>';
+                    $email_template = $this->booking_model->get_booking_email_template(CP_OUTSTANDING_AMOUNT);
+                    if(!empty($email_template)){
+                        $rm = $this->vendor_model->get_rm_sf_relation_by_sf_id($value['id']);
+                        $rm_email = "";
+                        $from = $email_template[2];
+                        if(!empty($rm)){
+                            $rm_email = ", ".$rm[0]['official_email'];
+                            $from = $rm[0]['official_email'];
+                        }
+                        $to = $value['primary_contact_email'] . "," . $value['owner_email'];
+                        $bcc = $email_template[5];
+                        $cc = $email_template[3]. $rm_email;
+                        $subject = vsprintf($email_template[4], array($value['company_name'], abs(round($amount_cr_deb['total_balance'], 0))));
+                        $message = vsprintf($email_template[0], array(abs(round($amount_cr_deb['total_balance'], 0))));
+                        
+                        
+                        $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "",CP_OUTSTANDING_AMOUNT);
+                    }
+                } else {
+                    log_message('info', __METHOD__ . " CP outstanding Amount  ".$amount_cr_deb['total_balance']. " CP ID ". $value['id']);
+                }
+            }
+        } else {
+            log_message('info', __METHOD__ . " CP is not exist ");
+        }
+    }
+    
+    function all_vendor_gst_checking_by_api(){
+        $vendor = $this->vendor_model->getVendorDetails('id,gst_no', array(), 'id', array());
+        for($i=0; $i<count($vendor); $i++){
+            if($vendor[$i]['gst_no']){
+                $api_response = $this->check_GST_number($vendor[$i]['gst_no']);
+                //$api_response = '{"stjCd":"DL086","lgnm":"SUDESH KUMAR","stj":"Ward 86","dty":"Regular","adadr":[],"cxdt":"","gstin":"07ALDPK4562B1ZG","nba":["Recipient of Goods or Services","Service Provision","Retail Business","Wholesale Business","Works Contract"],"lstupdt":"17/04/2018","rgdt":"01/07/2017","ctb":"Proprietorship","pradr":{"addr":{"bnm":"BLOCK 4","st":"GALI NO. 5","loc":"HARI NAGAR ASHRAM","bno":"A-144/5","dst":"","stcd":"Delhi","city":"","flno":"G/F","lt":"","pncd":"110014","lg":""},"ntr":"Recipient of Goods or Services, Service Provision, Retail Business, Wholesale Business, Works Contract"},"tradeNam":"UNITED HOME CARE","sts":"Active","ctjCd":"ZK0601","ctj":"RANGE - 161"}';
+                $api_response = json_decode($api_response, TRUE);
+                
+                $data['registration_date'] = date("Y-m-d", strtotime($api_response['rgdt']));
+                $data['company_type'] = $api_response['ctb'];
+                $data['constitution_of_business'] = $api_response['sts'];
+                $data['legal_name'] = $api_response['lgnm'];
+                $data['state_jurisdiction'] = $api_response['stj'];
+                $data['nature_of_business'] = json_encode($api_response['nba']);
+                $data['state_jurisdiction_code'] = $api_response['stjCd'];
+                $data['dty'] = $api_response['dty'];
+                $data['address'] = json_encode($api_response['pradr']['addr']);
+                $data['trade_Nam'] = $api_response['tradeNam'];
+                $data['ctj_Cd'] = $api_response['ctjCd'];
+                $data['ctj'] = $api_response['ctj'];
+                $data['gst_no'] = $api_response['gstin'];
+                    
+                $data_exist = $this->reusable_model->get_search_query('vendor_gst_detail','1',array('vendor_id'=>$vendor[$i]['id']),NULL,NULL,NULL,NULL,NULL)->result_array();
+                if($data_exist){
+                    $data['modified_date'] = date("Y-m-d H:i:s");
+                    $where = array("vendor_id" => $vendor[$i]["id"]);
+                    $this->reusable_model->update_table("vendor_gst_detail", $data, $where);
+                }
+                else{ 
+                    $data['vendor_id'] = $vendor[$i]['id'];
+                    $data['created_date'] = date("Y-m-d H:i:s");
+                    $this->reusable_model->insert_into_table('vendor_gst_detail', $data);
+                }
+                $data['vendor_id'] = $vendor[$i]['id'];
+                $log_data = array(
+                    	'activity' => 'vendor_gstin_ckeking_by_api', 
+                        'data' => json_encode($data)
+                );
+                $this->reusable_model->update_table("service_centres", array('gst_taxpayer_type'=> $api_response['dty'], 'gst_status'=> $api_response['sts']), array('id'=>$vendor[$i]['id']));
+                $this->reusable_model->insert_into_table('log_table', $log_data);
+            }
+        }
+    }
+    
+    function check_GST_number($gst){
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+          CURLOPT_URL => "https://api.taxprogsp.co.in/commonapi/v1.1/search?aspid=1606680918&password=priya@b30&Action=TP&Gstin=07ALDPK4562B1ZG",  
+          CURLOPT_RETURNTRANSFER => true,
+          CURLOPT_ENCODING => "",
+          CURLOPT_MAXREDIRS => 10,
+          CURLOPT_TIMEOUT => 30,
+          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+          CURLOPT_CUSTOMREQUEST => "GET",
+        ));
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
+        curl_close($curl);
+        if ($err) {
+            //return "cURL Error :" . $err;
+        } else {
+          return $response;
+        }
+    }
+
+
 }
 

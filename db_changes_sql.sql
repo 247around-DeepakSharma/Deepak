@@ -7826,3 +7826,31 @@ INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `li
 --Abhay 25 July
 ALTER TABLE `trigger_service_centres` ADD `gst_status` VARCHAR(28) NULL DEFAULT NULL AFTER `gst_no`, ADD `gst_taxpayer_type` VARCHAR(28) NULL DEFAULT NULL AFTER `gst_status`
 ALTER TABLE `trigger_service_centres` ADD `gst_status` VARCHAR(28) NULL DEFAULT NULL AFTER `gst_no`, ADD `gst_taxpayer_type` VARCHAR(28) NULL DEFAULT NULL AFTER `gst_status`
+
+--Kalyani 31-07-2018
+CREATE TABLE `vendor_gst_detail` (
+  `id` int(11) NOT NULL,
+  `vendor_id` int(11) NOT NULL,
+  `gst_no` varchar(255) NOT NULL,
+  `registration_date` date NOT NULL,
+  `company_type` varchar(255) NOT NULL,
+  `constitution_of_business` varchar(255) NOT NULL COMMENT 'status of gstin',
+  `legal_name` varchar(255) NOT NULL,
+  `state_jurisdiction` varchar(255) NOT NULL,
+  `nature_of_business` varchar(255) NOT NULL,
+  `state_jurisdiction_code` varchar(245) NOT NULL,
+  `dty` varchar(245) NOT NULL,
+  `address` varchar(500) NOT NULL,
+  `trade_Nam` varchar(255) NOT NULL,
+  `ctj_Cd` varchar(255) NOT NULL,
+  `ctj` varchar(255) NOT NULL,
+  `status` tinyint(1) NOT NULL,
+  `modified_date` datetime DEFAULT NULL,
+  `created_date` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `vendor_gst_detail` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `vendor_gst_detail` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+
