@@ -1345,12 +1345,23 @@ class Do_background_upload_excel extends CI_Controller {
         if ($file_status['status']) {
             //get file header
             $header_data = $this->read_upload_file_header($file_status);
+            
             $this->ColumnFailed = "";
             //check all required header and file type 
             if ($header_data['status']) {
-                $header_data = array_merge($header_data,$file_status);
-                $header_data['file_type'] = $upload_file_type;
-                $response = $this->process_file_upload($header_data);
+                
+                //check if file contains duplicate header. terminate the process if file conatains duplicate 
+                //headers and send email to am
+                if(count(array_unique($header_data['header_data'])) === count($header_data['header_data'])){
+                    log_message('info','duplicate header not found. Processing file process...');
+                    $header_data = array_merge($header_data,$file_status);
+                    $header_data['file_type'] = $upload_file_type;
+                    $response = $this->process_file_upload($header_data);
+                }else{
+                    log_message('info','duplicate header found.');
+                    $response['status'] = false;
+                    $response['msg'] = 'File Contains Duplicate Header Column. Please Check and upload again';
+                }
                 
                 //if file uploaded successfully then log else send email 
                 if ($response['status']) {
@@ -1391,7 +1402,7 @@ class Do_background_upload_excel extends CI_Controller {
                     $body = $response['msg'];
                     $body .= "<br> <b>File Name</b> ". $header_data['file_name']; 
                     $attachment = TMP_FOLDER.$header_data['file_name'];
-                    $this->notify->sendEmail("noreply@247around.com", $to, $cc, "", $subject, $body, $attachment,FAILED_UPLOAD_FILE);
+                    $this->notify->sendEmail("noreply@247around.com", $to, $cc, "", $subject, $body, $attachment,FILE_UPLOAD_FAILED_STATUS);
 
                     log_message('info', __FUNCTION__ . " " . $this->ColumnFailed);
                     $this->session->set_flashdata('file_error', $this->ColumnFailed);
@@ -1456,7 +1467,7 @@ class Do_background_upload_excel extends CI_Controller {
             die('Error loading file "' . pathinfo($file['file_tmp_name'], PATHINFO_BASENAME) . '": ' . $e->getMessage());
         }
 
-        $file_name = $_FILES["file"]["name"];
+        $file_name = preg_replace('/\s+/', '-', trim($_FILES["file"]["name"]));
         move_uploaded_file($file['file_tmp_name'],TMP_FOLDER.$file_name);
         $res1 = 0;
         system("chmod 777" . TMP_FOLDER . $file_name, $res1);
@@ -1575,6 +1586,7 @@ class Do_background_upload_excel extends CI_Controller {
      * @param $return_response array
      */
     function check_column_exist($data){
+        $return_response = array();
         foreach($data['actual_header_data'] as $key => $value){
             //check all header in the file are as per our database
             $subArray = $this->get_sub_array($value,array('sub_order_id','product','product_type','customer_name','customer_address','pincode','phone'));
@@ -1662,14 +1674,24 @@ class Do_background_upload_excel extends CI_Controller {
             $objWriter->save($file_name);
 
             if (file_exists($file_name)) {
-                //send mail 
+                //get email template
                 $template = $this->booking_model->get_booking_email_template("revert_upload_file_to_partner");
+                
+                //get partner am email
+                $get_partner_am_id = $this->partner_model->getpartner_details('official_email', array('partners.id' => $this->input->post('partner_id')),"",TRUE);
+                if (!empty($get_partner_am_id)) {
+                    $from = $get_partner_am_id[0]['official_email'];
+                } else {
+                    $from = $template[2];
+                }
+                //make email body
                 $body = $template[0];
                 $to = $this->revert_file_email;
-                $from = $template[2];
-                $cc = $template[3] . "," . $this->email_send_to;
+                $cc = $template[3] . "," .$from.','. $this->email_send_to;
                 $subject = $template[4];
                 $attachment = $file_name;
+                
+                //send email
                 $sendmail = $this->notify->sendEmail($from, $to, $cc, "", $subject, $body, $attachment,'revert_upload_file_to_partner');
                 if ($sendmail) {
                     $response = TRUE;

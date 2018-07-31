@@ -34,7 +34,7 @@ if ($this->uri->segment(3)) {
                                         <?php echo $sn_no; ?>
                                     </td>
                                     <td>
-                                        <a  href="<?php echo base_url(); ?>service_center/booking_details/<?php echo $row['booking_id']; ?>"  title='View'><?php echo $row['booking_id']; ?></a>
+                                        <a  href="<?php echo base_url(); ?>service_center/booking_details/<?php echo urlencode(base64_encode($row['booking_id'])); ?>"  title='View'><?php echo $row['booking_id']; ?></a>
                                     </td>
                                     <td>
                                         <?php echo $row['name']; ?>
