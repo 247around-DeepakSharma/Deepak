@@ -12,7 +12,7 @@
                 <div class="x_content">
                     <div class="" role="tabpanel" data-example-id="togglable-tabs">
                         <ul id="myTabs" class="nav nav-tabs bar_tabs" role="tablist">
-                            <li role="presentation">
+                            <li role="presentation" class="active">
                                 <a href="#tabs-2" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>service_center/spare_parts/0/1">
                                     Pending Spares
                                 </a>
