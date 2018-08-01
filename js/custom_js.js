@@ -533,7 +533,7 @@ function sendAjaxRequest(postData, url) {
 function enable_discount(div_id) {
 
     var div_no = div_id.split('_');
-    ;
+
 
     if ($("#checkbox_" + div_no[1] + "_" + div_no[2]).is(':checked')) {
 

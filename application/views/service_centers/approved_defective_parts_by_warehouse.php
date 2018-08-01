@@ -1,4 +1,6 @@
 <?php if($this->uri->segment(3)){ $sn_no =  $this->uri->segment(3) +1; } else{ $sn_no = 1;} ?>
+<link rel="stylesheet" href="<?php echo base_url();?>css/jquery.loading.css">
+<script src="<?php echo base_url();?>js/jquery.loading.js"></script>
 <div class="container-fluid">
     <input type="hidden" value="<?php echo T_SERIES_PARTNER_ID;?>" name="receiver_partner_id" id="receiver_partner_id">
    <div class="row" style="margin-top: 40px;">
@@ -118,7 +120,7 @@
                                 <div class='form-group'>
                                     <label for="awb_by_wh" class="col-md-4">AWB *</label>
                                     <div class="col-md-8">
-                                        <input type="text" class="form-control"  id="awb_by_wh" name="awb_by_wh" placeholder="Please Enter AWB" required>
+                                        <input type="text" onblur="check_awb_exist()" class="form-control"  id="awb_by_wh" name="awb_by_wh" placeholder="Please Enter AWB" required>
                                     </div>
                                 </div>
                             </div>
@@ -126,7 +128,7 @@
                                 <div class='form-group'>
                                     <label for="courier_name_by_wh" class="col-md-4">Courier Name *</label>
                                     <div class="col-md-8">
-                                        <input type="text" class="form-control"  id="courier_name_by_wh" name="courier_name_by_wh" placeholder="Please Enter Courier Name" required>
+                                        <input type="text"  class="form-control"  id="courier_name_by_wh" name="courier_name_by_wh" placeholder="Please Enter Courier Name" required>
                                     </div>
                                 </div>
                             </div>
@@ -154,12 +156,16 @@
                                 <div class='form-group'>
                                     <label for="defective_parts_shippped_courier_pic_by_wh" class="col-md-4">Courier Pic *</label>
                                     <div class="col-md-8">
+                                        <input type="hidden" class="form-control"  id="exist_courier_image" name="exist_courier_image" >
                                         <input type="file" class="form-control"  id="defective_parts_shippped_courier_pic_by_wh" name="defective_parts_shippped_courier_pic_by_wh" required>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </form>
+                    <div class="text-center">
+                            <span id="same_awb" style="display:none">This AWB already used same price will be added</span>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-success" id="submit_courier_form">Submit</button>
@@ -222,6 +228,7 @@
         postData['courier_name_by_wh'] = $('#courier_name_by_wh').val();
         postData['courier_price_by_wh'] = $('#courier_price_by_wh').val();
         postData['defective_parts_shippped_date_by_wh'] = $('#defective_parts_shippped_date_by_wh').val();
+        var exist_courier_image = $("#exist_courier_image").val();
         
         //Declaring new Form Data Instance  
         var formData = new FormData();
@@ -233,13 +240,20 @@
         for (var i = 0; i < files.length; i++) {
             formData.append('file', files[i]);
         }
+        var is_exist_file = false;
+        if(exist_courier_image){
+            is_exist_file = true;
+        }
         
+        if(files.length >= 1){
+            is_exist_file = true;
+        }
         //Now Looping the parameters for all form input fields and assigning them as Name Value pairs. 
         $.each(postData, function(index, element) {
             formData.append(index, element);
         });
         
-        if(postData['awb_by_wh'] && postData['courier_name_by_wh'] && postData['courier_price_by_wh'] && postData['defective_parts_shippped_date_by_wh'] && files.length >= 1){
+        if(postData['awb_by_wh'] && postData['courier_name_by_wh'] && postData['courier_price_by_wh'] && postData['defective_parts_shippped_date_by_wh'] && is_exist_file){
             $.ajax({
                 method:'POST',
                 url:'<?php echo base_url(); ?>employee/inventory/send_defective_parts_to_partner_from_wh',
@@ -267,4 +281,73 @@
         }
         
     });
+
+    
+    function get_partner(){
+        $.ajax({
+            type:'POST',
+            url:'<?php echo base_url();?>employee/partner/get_partner_list',
+            data:{is_wh:true},
+            success:function(response){
+                $('#partner_id').html(response);
+                <?php if(isset($filtered_partner)) { ?> 
+                    $('#partner_id').val('<?php echo $filtered_partner?>'); 
+                    $('#partner_id').trigger('change');
+                <?php } ?>
+            }
+        });
+    }
+    
+    function check_awb_exist(){
+            var awb = $("#awb_by_wh").val();
+            if(awb){
+                    $.ajax({
+                    type: 'POST',
+                    beforeSend: function(){
+
+                        $('body').loadingModal({
+                        position: 'auto',
+                        text: 'Loading Please Wait...',
+                        color: '#fff',
+                        opacity: '0.7',
+                        backgroundColor: 'rgb(0,0,0)',
+                        animation: 'wave'
+                    });
+
+                        },
+                    url: '<?php echo base_url() ?>employee/service_centers/check_wh_shipped_defective_awb_exist',
+                    data:{awb:awb},
+                    success: function (response) {
+                        console.log(response);
+                        var data = jQuery.parseJSON(response);
+                        if(data.code === 247){
+                            alert("This AWB already used same price will be added");
+                            $("#same_awb").css("display","block");
+                            $('body').loadingModal('destroy');
+                           
+                            $("#defective_parts_shippped_date_by_wh").val(data.message[0].shipment_date);
+                            $("#courier_name_by_wh").val(data.message[0].courier_name);
+                            $("#courier_price_by_wh").val("0");
+                            $("#courier_price_by_wh").css("display","none");
+                            if(data.message[0].courier_file){
+                               
+                                $("#exist_courier_image").val(data.message[0].courier_file);
+                                $("#defective_parts_shippped_courier_pic_by_wh").css("display","none");
+                            }
+
+                        } else {
+
+                            $('body').loadingModal('destroy');
+                            $("#defective_parts_shippped_courier_pic_by_wh").css("display","block");
+                            $("#courier_price_by_wh").css("display","block");
+                            $("#same_awb").css("display","none");
+                            $("#exist_courier_image").val("");
+                        }
+
+                    }
+                });
+            }
+            
+        }
+
 </script>

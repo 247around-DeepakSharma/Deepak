@@ -1256,4 +1256,29 @@ class Inventory_model extends CI_Model {
             return false;
         }
     }
+
+    
+   
+    function get_spare_consolidated_data($select,$where){
+        $this->db->select($select,false);
+        $this->db->from('booking_details');
+        $this->db->join('spare_parts_details','booking_details.booking_id = spare_parts_details.booking_id');
+        $this->db->join('partners','booking_details.partner_id = partners.id');
+        $this->db->join('service_centres','booking_details.assigned_vendor_id = service_centres.id');
+        $this->db->join('employee','partners.account_manager_id = employee.id');
+        $this->db->where($where,false);
+        $query = $this->db->get();
+        
+        return $query;
+
+    }
+    
+    function get_courier_details($select, $where){
+        $this->db->select($select);
+        $this->db->where($where);
+        $query = $this->db->get("courier_details");
+        return $query->result_array();
+    }
+
+
 }
