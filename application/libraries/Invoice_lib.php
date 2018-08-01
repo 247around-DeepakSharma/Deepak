@@ -197,4 +197,42 @@ class Invoice_lib {
             $this->ci->s3->putObjectFile(TMP_FOLDER . $invoice_id . "-detailed.xlsx", $bucket, $directory_detailed, S3::ACL_PUBLIC_READ);
         }
     }
+    
+    function get_gstin_status_by_api($vendor_id){
+        $vendor = $this->ci->vendor_model->getVendorDetails('gst_no, gst_status, gst_taxpayer_type', array('id'=>$vendor_id), 'id', array());
+        $data = array();
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+          CURLOPT_URL => "https://api.taxprogsp.co.in/commonapi/v1.1/search?aspid=".ASP_ID."&password=".ASP_PASSWORD."&Action=TP&Gstin=".$vendor[0]['gst_no'],
+          CURLOPT_RETURNTRANSFER => true,
+          CURLOPT_ENCODING => "",
+          CURLOPT_MAXREDIRS => 10,
+          CURLOPT_TIMEOUT => 30,
+          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+          CURLOPT_CUSTOMREQUEST => "GET",
+        ));
+        $api_response = curl_exec($curl);
+        $err = curl_error($curl);
+        curl_close($curl);
+        if ($err) { 
+            return false;
+        } else { 
+                //$response = '{"stjCd":"DL086","lgnm":"SUDESH KUMAR","stj":"Ward 86","dty":"Regular","adadr":[],"cxdt":"","gstin":"07ALDPK4562B1ZG","nba":["Recipient of Goods or Services","Service Provision","Retail Business","Wholesale Business","Works Contract"],"lstupdt":"17/04/2018","rgdt":"01/07/2017","ctb":"Proprietorship","pradr":{"addr":{"bnm":"BLOCK 4","st":"GALI NO. 5","loc":"HARI NAGAR ASHRAM","bno":"A-144/5","dst":"","stcd":"Delhi","city":"","flno":"G/F","lt":"","pncd":"110014","lg":""},"ntr":"Recipient of Goods or Services, Service Provision, Retail Business, Wholesale Business, Works Contract"},"tradeNam":"UNITED HOME CARE","sts":"Active","ctjCd":"ZK0601","ctj":"RANGE - 161"}';
+                $response = json_decode($api_response, true);
+                if(isset($response['error'])){ 
+                    $emailBody = "<b>TAXPRO GSP API FAIL </b><br/>".$api_response;
+                    $this->ci->notify->sendEmail(NOREPLY_EMAIL_ID, DEVELOPER_EMAIL, '' , '', 'Taxpro GSP Api Failure', $emailBody, '', '');
+                    return false;
+                }
+            else{ 
+                $data['gst_taxpayer_type'] = $response['dty'];
+                $data['gst_status'] = $response['sts'];
+                if($vendor[0]['gst_taxpayer_type'] != $response['dty'] || $vendor[0]['gst_status'] != $response['sts']){
+                    $this->ci->vendor_model->edit_vendor($data, $vendor_id);
+                }
+                $data['gst_no'] = $response['gstin'];
+                return $data;
+            }
+        }
+    }
 }
