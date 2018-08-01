@@ -54,7 +54,9 @@ class Dashboard extends CI_Controller {
             if($this->session->userdata('user_group') == _247AROUND_ACCOUNTANT){
                 redirect(base_url().'employee/invoice/invoice_partner_view');
             }else{
-                $this->load->view("dashboard/".$this->session->userdata('user_group')."_dashboard");
+                $serviceWhere['isBookingActive'] =1;
+                $data['services'] = $this->reusable_model->get_search_result_data("services","*",$serviceWhere,NULL,NULL,array("services"=>"ASC"),NULL,NULL,array());
+                $this->load->view("dashboard/".$this->session->userdata('user_group')."_dashboard",$data);
             }
             $this->load->view('dashboard/dashboard_footer');
             $this->load->view('employee/header/push_notification');
@@ -998,7 +1000,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
     $groupBy['booking'] = array("MONTHNAME(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y'))");
     $groupBy['escalation'] = array("MONTHNAME(vendor_escalation_log.create_date)");
     // Get escalation by vendor group by date
-    $data = $this->dashboard_model->get_sf_escalation_by_rm_by_sf_by_date($startDate,$endDate,$sf,NULL,$groupBy);
+    $data = $this->dashboard_model->get_sf_escalation_by_rm_by_sf_by_date($startDate,$endDate,$sf,NULL,$groupBy,NULL);
     // Create Associative array for escalation (Pass Vendor ID Return Escalation number)
     foreach($data['escalation'] as $escalationData){
         $escalationAssociativeArray[$escalationData['escalation_month']]= $escalationData['total_escalation'];
