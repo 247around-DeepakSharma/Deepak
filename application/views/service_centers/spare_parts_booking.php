@@ -17,6 +17,27 @@ if ($this->uri->segment(3)) {
                         </div>';
         }
         ?>
+    <?php
+        if ($this->session->userdata('stock_not_exist')) {
+            echo '<div class="alert alert-danger alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <strong>' . $this->session->userdata('stock_not_exist') . '</strong>
+                        </div>';
+        }
+        ?>
+    
+    <?php
+        if ($this->session->userdata('error')) {
+            echo '<div class="alert alert-danger alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <strong>' . $this->session->userdata('error') . '</strong>
+                        </div>';
+        }
+        ?>
     <div class="row">
 <?php } ?>
         <div class="col-md-12 col-sm-12 col-xs-12">
@@ -95,10 +116,12 @@ if ($this->uri->segment(3)) {
                                         </td>
 
                                         <td>
-                                            <a href="<?php echo base_url() ?>service_center/update_spare_parts_form/<?php echo $row['id']; ?>" class="btn btn-sm btn-primary" title="Update" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>
+                                            <a href="<?php echo base_url() ?>service_center/update_spare_parts_form/<?php echo $row['booking_id']; ?>" class="btn btn-sm btn-primary" title="Update" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>
                                         </td>
                                         <td>
-                                            <a href="#" data-toggle="modal" id="<?php echo "spare_parts" . $row['id']; ?>" data-url="<?php echo base_url(); ?>employee/inventory/update_action_on_spare_parts/<?php echo $row['id'] . "/" . $row['booking_id']; ?>/CANCEL_PARTS" data-booking_id="<?php echo $row['booking_id']; ?>" data-partner_id="<?php echo $row['partner_id']; ?>" data-target="#myModal2" class="btn btn-sm btn-danger open-adminremarks" title="Reject" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class="fa fa-times" aria-hidden='true'></i></a>
+                                            <?php $spare_id = explode(",", $row['spare_id']);  if(count($spare_id) == 1) { ?>
+                                            <a href="#" data-toggle="modal" id="<?php echo "spare_parts" . $spare_id[0]; ?>" data-url="<?php echo base_url(); ?>employee/inventory/update_action_on_spare_parts/<?php echo $spare_id[0] . "/" . $row['booking_id']; ?>/CANCEL_PARTS" data-booking_id="<?php echo $row['booking_id']; ?>" data-partner_id="<?php echo $row['partner_id']; ?>" data-target="#myModal2" class="btn btn-sm btn-danger open-adminremarks" title="Reject" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class="fa fa-times" aria-hidden='true'></i></a>
+                                            <?php } ?>
                                         </td>
                                         <td>
                                             <?php if(!empty($row['is_gst_doc'])){ ?> 
@@ -293,3 +316,11 @@ if ($this->uri->segment(3)) {
 <?php if ($this->session->userdata('success')) {
     $this->session->unset_userdata('success');
 } ?>
+
+<?php if ($this->session->userdata('stock_not_exist')) {
+    $this->session->unset_userdata('stock_not_exist');
+} ?>
+<?php if ($this->session->userdata('error')) {
+    $this->session->unset_userdata('error');
+} ?>
+
