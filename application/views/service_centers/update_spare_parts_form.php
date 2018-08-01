@@ -593,7 +593,7 @@
                         var data = jQuery.parseJSON(response);
                         if(data.code === 247){
                             alert("This AWB already used same price will be added");
-                            $("#same_awb").css("display","none");
+                            $("#same_awb").css("display","block");
                             $('body').loadingModal('destroy');
                             $("#shipment_date").val(data.message[0].shipped_date);
                             $("#courier_name").val(data.message[0].courier_name_by_partner);
@@ -609,7 +609,8 @@
                             $('body').loadingModal('destroy');
                             $("#courier_image").css("display","block");
                             $("#courier_price_by_partner").css("display","block");
-                            $("#same_awb").css("display","block");
+                            $("#same_awb").css("display","none");
+                            $("#exist_courier_image").val("");
                         }
 
                     }

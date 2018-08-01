@@ -1272,5 +1272,12 @@ class Inventory_model extends CI_Model {
         return $query;
 
     }
+    
+    function get_courier_details($select, $where){
+        $this->db->select($select);
+        $this->db->where($where);
+        $query = $this->db->get("courier_details");
+        return $query->result_array();
+    }
 
 }

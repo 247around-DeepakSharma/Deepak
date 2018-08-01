@@ -1538,20 +1538,26 @@ class Service_centers extends CI_Controller {
         }
     }
 
-    function upload_defective_spare_pic(){
+    function upload_defective_spare_pic() {
         $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
         $booking_id = $this->input->post("booking_id");
-        $defective_courier_receipt = $this->miscelleneous->upload_file_to_s3($_FILES["defective_courier_receipt"], 
-                "defective_courier_receipt", $allowedExts, $booking_id, "misc-images", "sp_parts");
-        if($defective_courier_receipt){
-           return true;
+        $exist_courier_image = $this->input->post("exist_courier_image");
+
+        if (!empty($exist_courier_image)) {
+            $_POST['sp_parts'] = $exist_courier_image;
+            return true;
         } else {
-            $this->form_validation->set_message('upload_defective_spare_pic', 'File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
-		    . 'Maximum file size is 5 MB.');
-            return false;
+            $defective_courier_receipt = $this->miscelleneous->upload_file_to_s3($_FILES["defective_courier_receipt"], "defective_courier_receipt", $allowedExts, $booking_id, "misc-images", "sp_parts");
+            if ($defective_courier_receipt) {
+                return true;
+            } else {
+                $this->form_validation->set_message('upload_defective_spare_pic', 'File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
+                        . 'Maximum file size is 5 MB.');
+                return false;
+            }
         }
     }
-    
+
     /**
      * @desc: This is used to update acknowledge date by SF
      * @param String $booking_id
@@ -4793,6 +4799,35 @@ class Service_centers extends CI_Controller {
                 echo json_encode(array("code" => -247));
             }
             
+        }
+    }
+    /**
+     * @desc This is used to check awb exist or not when Sf will be updating Awb( defective Parts)
+     */
+    function check_sf_shipped_defective_awb_exist(){
+        $awb = $this->input->post('awb');
+        if(!empty($awb)){
+            $data = $this->partner_model->get_spare_parts_by_any("awb_by_sf, courier_charges_by_sf, "
+                    . "courier_name_by_sf, defective_courier_receipt, defective_part_shipped_date", array('awb_by_sf' => $awb));
+            if(!empty($data)){
+                echo json_encode(array('code' => 247, "message" => $data));
+            } else {
+                echo json_encode(array("code" => -247));
+            }
+        }
+    }
+    
+    function check_wh_shipped_defective_awb_exist(){
+        $awb = $this->input->post('awb');
+        if(!empty($awb)){
+            $data = $this->inventory_model->get_courier_details("AWB_no, courier_name, "
+                    . "courier_file, shipment_date, courier_charge", array('AWB_no' => $awb,'sender_entity_id' => 
+                        $this->session->userdata('service_center_id'), "sender_entity_type" => _247AROUND_SF_STRING));
+            if(!empty($data)){
+                echo json_encode(array('code' => 247, "message" => $data));
+            } else {
+                echo json_encode(array("code" => -247));
+            }
         }
     }
 }

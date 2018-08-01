@@ -3379,8 +3379,14 @@ class Inventory extends CI_Controller {
         $postData = json_decode($this->input->post('data'));
         $wh_name = $this->input->post('wh_name');
         if (!empty($sender_entity_id) && !empty($sender_entity_type) && !empty($postData) && !empty($awb_by_wh) && !empty($courier_name_by_wh) && !empty($courier_price_by_wh) && !empty($defective_parts_shippped_date_by_wh)) {
-
-            $courier_file = $this->upload_defective_parts_shipped_courier_file($_FILES);
+            $exist_courier_image = $this->input->post("exist_courier_image");
+            if(!empty($exist_courier_image)){
+                $courier_file['status'] = true;
+                $courier_file['message'] = $exist_courier_image;
+            } else {
+                $courier_file = $this->upload_defective_parts_shipped_courier_file($_FILES);
+            }
+            
             if ($courier_file['status']) {
                 $courier_details['sender_entity_id'] = $sender_entity_id;
                 $courier_details['sender_entity_type'] = $sender_entity_type;
