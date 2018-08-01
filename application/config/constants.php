@@ -610,5 +610,10 @@ define('SOUTH_RM', 'Suresh K');
 define('WEST_RM', 'Rajendra Oza');
 define('NORTH_RM', 'Arun Kaushik');
 define('TOTAL', 'Total');
+
+//taxpayer api credentials
+define('ASP_ID', '1606680918');
+define('ASP_PASSWORD', 'priya@b30');
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
