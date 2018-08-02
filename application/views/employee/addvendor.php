@@ -1003,7 +1003,7 @@
                                         <label  for="" class="col-md-4">GST Type</label>
                                         <div class="col-md-7">
                                             <input type="text" class="form-control"  id ="gst_type" name="gst_type" readonly="readonly">
-                                            <input type="text" class="form-control"  id ="gst_type" name="gst_type" value="<?php if (isset($query[0]['gst_taxpayer_type'])) {
+                                           <input type="text" class="form-control"  id ="gst_type" name="gst_type" value="<?php if (isset($query[0]['gst_taxpayer_type'])) {
                                                     echo $query[0]['gst_taxpayer_type'];
                                                 }  ?>">
                                         </div>
@@ -1015,7 +1015,8 @@
                                         <div class="col-md-7">
                                            <input type="text" class="form-control"  id ="gst_status" name="gst_status" readonly="readonly">
                                            <input type="text" class="form-control"  id ="gst_status" name="gst_status" value="<?php  if (isset($query[0]['gst_status'])) {
-                                                    echo $query[0]['gst_status'];
+                                           <input type="text" class="form-control"  id ="gst_status" name="gst_status" value="<?php  if (isset($query[0]['gst_status'])) {
+                                                   echo $query[0]['gst_status'];
                                                 } ?>">
                                             <input type="hidden" class="form-control"  id ="gst_cancelled_date" name="gst_cancelled_date" value="<?php if (isset($query[0]['gst_cancelled_date'])) {
                                                     echo $query[0]['gst_cancelled_date'];
