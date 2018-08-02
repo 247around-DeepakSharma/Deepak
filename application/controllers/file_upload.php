@@ -792,7 +792,7 @@ class File_upload extends CI_Controller {
                 $data = $this->read_upload_file_header($file_status);
                 if ($data['status']) {
                     log_message('info', __METHOD__. " ". print_r($data['header_data'], TRUE));
-                    $data['post_data']['file_type'] = PARTNER_SERIAL_NUMBER_FILE_TYPE;
+                    $data['post_data']['file_type'] = $partner_id."_".PARTNER_SERIAL_NUMBER_FILE_TYPE;
                     
                     //column which must be present in the  upload inventory file
                     $header_column_need_to_be_present = array('invoicedate','skuname','skucode','productcategoryname',
