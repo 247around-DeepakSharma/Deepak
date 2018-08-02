@@ -54,7 +54,9 @@ class User extends CI_Controller {
     function finduser(){
         $booking_id = preg_replace('/[^A-Za-z0-9\-]/', '',trim($this->input->get('booking_id')));
         $order_id = preg_replace('/[^A-Za-z0-9\-]/', '',trim($this->input->get('order_id')));
-        $userName = preg_replace('/[^A-Za-z0-9\-]/', '',trim($this->input->get('userName')));
+        //$userName = preg_replace('/[^A-Za-z0-9\-]/', '',trim($this->input->get('userName')));
+        $userName = ltrim($this->input->get('userName'));
+        $userName = rtrim($userName);
         $partner_id = $this->input->get('partner');
         $search = preg_replace('/[^A-Za-z0-9\-]/', '',trim($this->input->get('search_value')));
         $post['length'] = -1;

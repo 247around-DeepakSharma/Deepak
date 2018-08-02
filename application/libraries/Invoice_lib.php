@@ -214,19 +214,30 @@ class Invoice_lib {
         $api_response = curl_exec($curl);
         $err = curl_error($curl);
         curl_close($curl);
-        if ($err) { 
+        if ($err) {
+            $email_template = $this->ci->booking_model->get_booking_email_template(TAXPRO_API_FAIL);
+            if(!empty($email_template)){ 
+                $message = vsprintf($email_template[0], array($err));
+                $to = DEVELOPER_EMAIL.','.$email_template[1];
+                $this->ci->notify->sendEmail($email_template[2], $to, $email_template[3], $email_template[5], $email_template[4], $message, '', COURIER_DETAILS);
+            }
             return false;
         } else { 
                 //$response = '{"stjCd":"DL086","lgnm":"SUDESH KUMAR","stj":"Ward 86","dty":"Regular","adadr":[],"cxdt":"","gstin":"07ALDPK4562B1ZG","nba":["Recipient of Goods or Services","Service Provision","Retail Business","Wholesale Business","Works Contract"],"lstupdt":"17/04/2018","rgdt":"01/07/2017","ctb":"Proprietorship","pradr":{"addr":{"bnm":"BLOCK 4","st":"GALI NO. 5","loc":"HARI NAGAR ASHRAM","bno":"A-144/5","dst":"","stcd":"Delhi","city":"","flno":"G/F","lt":"","pncd":"110014","lg":""},"ntr":"Recipient of Goods or Services, Service Provision, Retail Business, Wholesale Business, Works Contract"},"tradeNam":"UNITED HOME CARE","sts":"Active","ctjCd":"ZK0601","ctj":"RANGE - 161"}';
+                $api_response = '{"status_cd":"0","error":{"error_cd":"GSP020A","message":"Error: Invalid ASP Password."}}';
                 $response = json_decode($api_response, true);
                 if(isset($response['error'])){ 
-                    $emailBody = "<b>TAXPRO GSP API FAIL </b><br/>".$api_response;
-                    $this->ci->notify->sendEmail(NOREPLY_EMAIL_ID, DEVELOPER_EMAIL, '' , '', 'Taxpro GSP Api Failure', $emailBody, '', '');
+                    $email_template = $this->ci->booking_model->get_booking_email_template(TAXPRO_API_FAIL);
+                    if(!empty($email_template)){ 
+                        $message = vsprintf($email_template[0], array($api_response));
+                        $to = DEVELOPER_EMAIL.','.$email_template[1];
+                        $this->ci->notify->sendEmail($email_template[2], $to, $email_template[3], $email_template[5], $email_template[4], $message, '', COURIER_DETAILS);
+                    }
                     return false;
                 }
             else{ 
-                $data['gst_taxpayer_type'] = $response['dty'];
-                $data['gst_status'] = $response['sts'];
+                $data['gst_taxpayer_type'] = $response['dty']; //Regular
+                $data['gst_status'] = $response['sts']; //Active
                 if($vendor[0]['gst_taxpayer_type'] != $response['dty'] || $vendor[0]['gst_status'] != $response['sts']){
                     $this->ci->vendor_model->edit_vendor($data, $vendor_id);
                 }
