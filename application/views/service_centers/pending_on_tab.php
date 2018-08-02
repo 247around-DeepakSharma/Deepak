@@ -528,7 +528,7 @@
                                     <th class="text-center" data-orderable="false">Parts</th>
                                     <th class="text-center" data-orderable="false">Shipped Date</th>
                                     <th class="text-center" data-orderable="false">View</th>
-                                    <th class="text-center" data-orderable="false">Received</th>
+                                    <th class="text-center" data-orderable="false">Receive</th>
                                     <th class="text-center" data-orderable="false">Send Email</th> 
                                     <th class="text-center" data-orderable="false">Contacts</th>
                                 </tr>
@@ -558,7 +558,7 @@
                                         <a class='btn btn-sm btn-primary' href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row['booking_id']));?>"  title='View'><i class='fa fa-eye' aria-hidden='true'></i></a>
                                     </td>
                                       <td>
-                                        <?php if(!is_null($row['parts_shipped'])){ ?>  <a class="btn btn-sm btn-success" href="<?php echo base_url(); ?>service_center/acknowledge_delivered_spare_parts/<?php echo $row['booking_id']; ?>/<?php echo $this->session->userdata('service_center_id') ?>/<?php echo $row['id']; ?>/<?php echo $row['partner_id']; ?>" style="<?php if(is_null($row['parts_shipped'])){ echo 'pointer-events:none;';}?>">Received</a> <?php } else { echo "Part Shipment Pending";} ?>
+                                        <?php if(!is_null($row['parts_shipped'])){ ?>  <a onclick="return confirm('Are you sure?')" class="btn btn-sm btn-success" href="<?php echo base_url(); ?>service_center/acknowledge_delivered_spare_parts/<?php echo $row['booking_id']; ?>/<?php echo $this->session->userdata('service_center_id') ?>/<?php echo $row['id']; ?>/<?php echo $row['partner_id']; ?>" style="<?php if(is_null($row['parts_shipped'])){ echo 'pointer-events:none;';}?>">Receive</a> <?php } else { echo "Part Shipment Pending";} ?>
                                         </td>
                                         <td style="vertical-align: middle;">
                                             <a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('<?php echo$row['booking_id'];?>',0)"><i class="fa fa-envelope" aria-hidden="true"></i></a>
