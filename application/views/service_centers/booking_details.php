@@ -158,6 +158,17 @@
                             </tr>
                             <?php } ?>
                         </table>
+                        <table class="table  table-striped table-bordered" >
+                            <tr>
+                                <th colspan="4" style="font-size: 16px; color: #2c9d9c;">Dealer Detail</th>
+                            </tr> 
+                            <tr>
+                                <th style="width: 25%;">Dealer Name </th>
+                                <td style="width: 23%;"><?php if(isset($booking_history[0]['dealer_id'])) echo $booking_history[0]['dealer_name']; ?></td>
+                                <th style="width: 21%;">Dealer Phone Number</th>
+                                <td><?php if(isset($booking_history[0]['dealer_id'])) echo $booking_history[0]['dealer_phone_number_1']; ?></td>
+                            </tr>
+                        </table>
                     </div>
                 </div>
             </div>
