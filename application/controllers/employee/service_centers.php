@@ -118,6 +118,11 @@ class Service_centers extends CI_Controller {
         $this->checkUserSession();
         $booking_id =base64_decode(urldecode($code));
         $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
+        if($data['booking_history'][0]['dealer_id']){ 
+            $dealer_detail = $this->dealer_model->get_dealer_details('dealer_name, dealer_phone_number_1', array('dealer_id'=>$data['booking_history'][0]['dealer_id']));
+            $data['booking_history'][0]['dealer_name'] = $dealer_detail[0]['dealer_name'];
+            $data['booking_history'][0]['dealer_phone_number_1'] = $dealer_detail[0]['dealer_phone_number_1'];
+        }
         $unit_where = array('booking_id'=>$booking_id, 'pay_to_sf' => '1');
         $booking_unit_details = $this->booking_model->get_unit_details($unit_where);
         $data['booking_state_change_data'] = $this->booking_model->get_booking_state_change_by_id($booking_id);
@@ -1081,6 +1086,7 @@ class Service_centers extends CI_Controller {
                         if($sp['auto_acknowledeged'] == 1 && $sp['status'] == SPARE_DELIVERED_TO_SF ){
                             $spare_shipped_flag = TRUE;
                         }
+                        
                         switch ($sp['status']){
                                case SPARE_SHIPPED_BY_PARTNER:
                                case DEFECTIVE_PARTS_PENDING:
@@ -1106,8 +1112,13 @@ class Service_centers extends CI_Controller {
                     $data['days'] = $date_diff->days;
                     array_push($data['internal_status'], array('status' => CUSTOMER_NOT_REACHABLE));
                 } else {
-
+                    
                     $data['days'] = 0;
+                    
+                    if($spareShipped){
+                        
+                        array_push($data['internal_status'], array('status' => CUSTOMER_NOT_REACHABLE));
+                    }
                 }
 
                 $data['spare_flag'] = SPARE_PART_RADIO_BUTTON_NOT_REQUIRED;

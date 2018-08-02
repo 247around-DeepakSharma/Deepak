@@ -176,14 +176,6 @@
                             <th>EDD / Delivery Date</th>
                             <td><?php echo $booking_history[0]['estimated_delivery_date']." / ".$booking_history[0]['delivery_date']; ?></td>
                         </tr>
-                        <?php if(!empty($booking_history[0]['dealer_id'])) { ?> 
-                        <tr id="dealer_details">
-                            <th>Dealer Name </th>
-                            <td id="dealer_name"></td>
-                            <th>Dealer Phone Number </th>
-                            <td id="dealer_phone_number"></td>
-                        </tr>
-                        <?php } ?>
                         <tr>
                             <th>Rating Stars </th>
                             <td><?php echo $booking_history[0]['rating_stars']; ?></td>
@@ -214,6 +206,17 @@
                             <th >Paid By Customer(STS)</th>
                             <td ><?php if(!is_null($booking_history[0]['paid_by_customer'])) { if($booking_history[0]['paid_by_customer'] == 1){ echo "Paid By Customer"; } 
                             else {echo "Free For Customer";}} ?></td>
+                        </tr>
+                    </table>
+                    <table class="table  table-striped table-bordered" >
+                        <tr>
+                            <th colspan="4" style="font-size: 16px; color: #2c9d9c;">Dealer Detail</th>
+                        </tr> 
+                        <tr>
+                            <th style="width: 25%;">Dealer Name </th>
+                            <td style="width: 23%;"><?php if(isset($booking_history[0]['dealer_id'])) echo $booking_history[0]['dealer_name']; ?></td>
+                            <th style="width: 21%;">Dealer Phone Number</th>
+                            <td><?php if(isset($booking_history[0]['dealer_id'])) echo $booking_history[0]['dealer_phone_number_1']; ?></td>
                         </tr>
                     </table>
                 </div>
@@ -448,6 +451,7 @@
                             <table class="table  table-striped table-bordered" >
                                 <thead>
                                     <tr>
+                                        <th >Partner/Warehouse </th>
                                         <th >Model Number </th>
                                         <th >Requested Parts </th>
                                         <th >Requested Date</th>
@@ -464,6 +468,7 @@
                                 <tbody>
                                     <?php foreach ($booking_history['spare_parts'] as $sp) { ?>
                                     <tr>
+                                        <td><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING){ echo "Partner";} else { echo "Warehouse";} ?></td>
                                         <td><?php echo $sp['model_number']; ?></td>
                                         <td><?php echo $sp['parts_requested']; ?></td>
                                         <td><?php echo $sp['create_date']; ?></td>
@@ -524,7 +529,7 @@
                                 <tbody>
                                     <?php foreach ($booking_history['spare_parts'] as $sp){ if($sp['purchase_price'] > 0) { ?>
                                     <tr>
-                                         <td><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING){ echo "Partner";} else { echo "Warehouse";} ?></td>
+                                        <td><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING){ echo "Partner";} else { echo "Warehouse";} ?></td>
                                         <td><?php echo $sp['purchase_price']; ?></td>
                                         <td><?php if(!empty($sp['estimate_cost_given_date'])) { echo date("d-m-Y", strtotime($sp['estimate_cost_given_date'])); } ?></td>
                                         <td><?php if(!is_null($sp['incoming_invoice_pdf'])) { if( $sp['incoming_invoice_pdf'] !== '0'){ ?> <a href="https://s3.amazonaws.com/bookings-collateral/invoices-excel/<?php echo $sp['incoming_invoice_pdf'];  ?> " target="_blank">Click Here</a><?php } } ?></td>
@@ -1237,20 +1242,21 @@ function sf_tab_active(){
     
     
     <?php if(!empty($booking_history[0]['dealer_id'])) { ?>
-         $.ajax({
-             method:'GET',
-             url:'<?php echo base_url(); ?>employee/dealers/get_dealer_data/<?php echo $booking_history[0]['dealer_id']?>',
-             success:function(response){
-                 obj = JSON.parse(response);
-                 if(obj.msg){
-                    $('#dealer_name').html(obj.data[0].dealer_name);
-                    $('#dealer_phone_number').html(obj.data[0].dealer_phone_number_1);
-                 }else{
-                     $('#dealer_details').hide();
-                 }
-                 
-             }
-         });
+//         $.ajax({
+//             method:'GET',
+//             url:'<?php echo base_url(); ?>employee/dealers/get_dealer_data/<?php echo $booking_history[0]['dealer_id']?>',
+//             success:function(response){
+//                 obj = JSON.parse(response);
+//                 console.log(obj);
+//                 if(obj.msg){
+//                    $('#dealer_name').html(obj.data[0].dealer_name);
+//                    $('#dealer_phone_number').html(obj.data[0].dealer_phone_number_1);
+//                 }else{
+//                     $('#dealer_details').hide();
+//                 }
+//                 
+//             }
+//         });
     <?php } ?>
     $.ajax({
         method:'GET',
