@@ -2506,6 +2506,7 @@ else{
     }
 
     }
+    <?php if(isset($query[0]['id'])) { ?>
      $(document).ready(function () {
         serialNo = $('#datatable1').DataTable({
             processing: true,
@@ -2517,7 +2518,7 @@ else{
                 url: "<?php echo base_url(); ?>employee/upload_booking_file/get_upload_file_history",
                 type: "POST",
                 data: function(d){
-                    d.file_type = '<?PHP echo PARTNER_SERIAL_NUMBER_FILE_TYPE ;?>';
+                    d.file_type = '<?PHP echo $query[0]['id']."_".PARTNER_SERIAL_NUMBER_FILE_TYPE ;?>';
                 }
             },
             columnDefs: [
@@ -2528,11 +2529,12 @@ else{
             ]
         });
     });
+
    
     function getserial_number_history(){
         serialNo.ajax.reload(null, false);
     }
-    <?php if(isset($query[0]['id'])) { ?>
+
     $(function () {
         $('#serialNobtn').click(function () {
             $('.myprogress').css('width', '0');
