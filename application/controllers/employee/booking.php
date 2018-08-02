@@ -1418,8 +1418,11 @@ class Booking extends CI_Controller {
                 $data['booking_history'][0]['channels'] = implode(", ", $isPaytmTxn['channels']);
             }
         }
-        
-            
+        if($data['booking_history'][0]['dealer_id']){ 
+            $dealer_detail = $this->dealer_model->get_dealer_details('dealer_name, dealer_phone_number_1', array('dealer_id'=>$data['booking_history'][0]['dealer_id']));
+            $data['booking_history'][0]['dealer_name'] = $dealer_detail[0]['dealer_name'];
+            $data['booking_history'][0]['dealer_phone_number_1'] = $dealer_detail[0]['dealer_phone_number_1'];
+        }
         }else{
             $data['booking_history'] = array();
         }
