@@ -1988,10 +1988,9 @@ class Invoice extends CI_Controller {
         $sd = $ed ="";
             
         $response = array();
-        //for ($a = 0; $a < 2; $a++) {
+        for ($a = 0; $a < 2; $a++) {
             //$a 1 means For profit
             //$a 0 means for Loss
-            $a = 1;
             $invoices = $this->invoices_model->get_buyback_invoice_data($vendor_id, $from_date, $to_date, $is_regenerate, $a);
             if ($invoices) {
                 if (isset($details['invoice_id'])) {
@@ -2046,7 +2045,7 @@ class Invoice extends CI_Controller {
 
                
             }
-       // }
+        }
         
         if(!empty($response)){
             if($invoice_type == "final"){

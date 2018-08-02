@@ -382,6 +382,10 @@ class dashboard_model extends CI_Model {
        $escalation_where['vendor_escalation_log.vendor_id'] = $sf_id;
        $booking_where['booking_details.assigned_vendor_id'] = $sf_id;
     }
+    if($partnerID){
+       $escalation_where['booking_details.partner_id'] = $partnerID;
+       $booking_where['booking_details.partner_id'] = $partnerID;
+    }
     // If dates are Set Then add date in where array for booking and escalation
     if(!($startDate) && !($endDate)){
             $booking_where["month(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y')) = month(now()) AND year(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y')) = year(now())"] = NULL;

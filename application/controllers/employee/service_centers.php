@@ -1086,6 +1086,7 @@ class Service_centers extends CI_Controller {
                         if($sp['auto_acknowledeged'] == 1 && $sp['status'] == SPARE_DELIVERED_TO_SF ){
                             $spare_shipped_flag = TRUE;
                         }
+                        
                         switch ($sp['status']){
                                case SPARE_SHIPPED_BY_PARTNER:
                                case DEFECTIVE_PARTS_PENDING:
@@ -1111,8 +1112,13 @@ class Service_centers extends CI_Controller {
                     $data['days'] = $date_diff->days;
                     array_push($data['internal_status'], array('status' => CUSTOMER_NOT_REACHABLE));
                 } else {
-
+                    
                     $data['days'] = 0;
+                    
+                    if($spareShipped){
+                        
+                        array_push($data['internal_status'], array('status' => CUSTOMER_NOT_REACHABLE));
+                    }
                 }
 
                 $data['spare_flag'] = SPARE_PART_RADIO_BUTTON_NOT_REQUIRED;
