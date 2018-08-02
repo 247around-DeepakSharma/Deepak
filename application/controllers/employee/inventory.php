@@ -1103,6 +1103,7 @@ class Inventory extends CI_Controller {
                 case 'QUOTE_REQUEST_REJECTED';
                     $where = array('id' => $id );
                     $data = array('status' => _247AROUND_CANCELLED);
+                    $data = array('spare_cancelled_date' => date("Y-m-d h:i:s"));
                     if($requestType == "CANCEL_PARTS"){
                         $new_state = SPARE_PARTS_CANCELLED;
                         $b['internal_status'] = SPARE_PARTS_CANCELLED;
