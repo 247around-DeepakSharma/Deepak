@@ -620,9 +620,6 @@ class vendor extends CI_Controller {
                 $vendor_data['is_sf'] = $this->input->post('is_sf');
                 $vendor_data['is_cp'] = $this->input->post('is_cp');
                 $vendor_data['is_wh'] = $this->input->post('is_wh');
-                $vendor_data['gst_taxpayer_type'] = $this->input->post('gst_type');
-                $vendor_data['gst_status'] = $this->input->post('gst_status');
-                $vendor_data['min_upcountry_distance'] = $this->input->post('min_upcountry_distance');
                 if(empty( $vendor_data['is_cp'])){
                      $vendor_data['is_cp'] = 0;
                 }
@@ -657,8 +654,13 @@ class vendor extends CI_Controller {
 //                }else{
 //                    $vendor_data['service_tax_no'] = "";
 //                }
-                if(!empty($vendor_data['is_gst_doc']) && !empty($this->input->post('gst_no'))){
+                if(!empty($vendor_data['is_gst_doc']) && !empty($this->input->post('gst_no'))){ 
                     $vendor_data['gst_no'] = $this->input->post('gst_no');
+                    $vendor_data['gst_taxpayer_type'] = $this->input->post('gst_type');
+                    $vendor_data['gst_status'] = $this->input->post('gst_status');
+                    $vendor_data['gst_cancelled_date'] = date("Y-m-d", strtotime($this->input->post('gst_cancelled_date')));
+                    $vendor_data['min_upcountry_distance'] = $this->input->post('min_upcountry_distance');
+                    //print_r($vendor_data); die;
                 }else{
                     $vendor_data['gst_no'] = NULL;
                 }
