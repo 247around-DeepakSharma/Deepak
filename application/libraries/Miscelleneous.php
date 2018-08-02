@@ -3130,4 +3130,162 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
             return false;
         }
     }
+    function is_booking_valid_for_partner_panelty($request_type){
+        $is_valid = 1;
+        if(strpos($request_type, 'Out of Warranty') !== false) {
+            $is_valid = 0;
+        }
+        if(strpos($request_type, 'Repeat') !== false) {
+            $is_valid = 0;
+        }
+        if(strpos($request_type, 'Service Center Visit') !== false) {
+            $is_valid = 0;
+        }
+        return $is_valid;
+    }
+    /*
+     * This function is used to calculate tat between 2 dates by considering non working days of SF
+     * if tat is 5 and there was an holiday in between then tat will be 4
+     * If start date is holiday means booking assigned  on holiday then calculate tat from next day
+     * If End date is holiday then don't consider it as holiday
+     * @input - 1) $non_working_day - string of non_working day of sf comma seprated
+     * 2) $startDate - Action start date
+     * 3) $endDate - Action End Date
+     *  @output -  final tat(Tat After all calculations)
+     * 
+     */
+    function get_tat_with_considration_of_non_working_day($non_working_day,$startDate,$endDate){
+         log_message('info', __FUNCTION__ . "Start non_working_day = ".$non_working_day.", startDate = ".$startDate."end date= ".$endDate);
+        //Create a week array to get week into days
+        $weekArray = array("Monday"=>1,"Tuesday"=>2,"Wednesday"=>3,"Thursday"=>4,"Friday"=>5,"Saturday"=>6,"Sunday"=>7);
+        // get day on start date
+        $dayOfStartDate = date('w', strtotime($startDate));
+        // get day on end date
+        $dayOfEndDate = date('w', strtotime($endDate));
+        // calculate normal  tat from start to end date without working days considration
+        $tatDays = floor((strtotime($endDate) - strtotime($startDate))/(60 * 60 * 24));
+        //Convert non working days string into array
+        $nonWorkingDaysArray = explode(",",$non_working_day);
+        //Process all holidays through array, because holiday may be more then 1
+        foreach($nonWorkingDaysArray as $nonWorkingDay){
+            // Calculate days upto 1st holiday from start date
+            $daysUptoHoliday =   $weekArray[$nonWorkingDay] - $dayOfStartDate;
+            // If there was a holiday on start day then calculate days upto  holiday from next day
+            if($dayOfStartDate ==  $weekArray[$nonWorkingDay]){
+                $daysUptoHoliday =   $daysUptoHoliday -1;
+            }
+            // If day upto holiday is in negative means monday is holiday and start date is wednesday then 1-3 will be -ve so (7+(-2)) =5 , after 5 days there will be next holiday  
+           if($daysUptoHoliday < 0){
+               $daysUptoHoliday = 7 + $daysUptoHoliday;
+           }
+           // If tat is less then number of days upto holiday then take holiday as 0
+           if($daysUptoHoliday > $tatDays){
+               $holidayInTatArray[] = 0;
+           }
+           // If not then calculate number of hoildays between tat days
+           else{     
+               $holidayTemp = floor(($tatDays - $daysUptoHoliday)/7)+1;
+               // If end date is a holiday then minus 1 day from holiday because don't considerd action day as holiday
+               if($dayOfEndDate == $weekArray[$nonWorkingDay]){
+                   $holidayTemp = $holidayTemp -1;
+               }
+               $holidayInTatArray[] = $holidayTemp;
+           }
+        }
+        $finalTat = $tatDays - array_sum($holidayInTatArray);
+        if($finalTat<0){
+            $finalTat = 0;
+        }
+        log_message('info', __FUNCTION__ . "End finalTat = ".$finalTat);
+        return $finalTat;
+    }
+    /*
+     * This function is used to calculate TAT between diffrent legs of booking processing
+     * leg_1:
+     * With Spare - spare_request_date - initial_booking_date
+     * Without Spare - service_center_closed_date - initial_booking_date
+     * leg_2:
+     * With Spare - 1) (spare cancelled) - spare_cancelled_date - service_center_closed date, 2) (spare completed) - spare receieved date - service_center_closed_date
+     * leg_3:
+     * With spare (spare completed)   - service_center_closed_date - defactive_part_shipped_date 
+     * leg_4:
+     * service_center_closed_date - around_completed_date
+     */
+    function process_booking_tat_on_completion($booking_id){
+         log_message('info', __FUNCTION__ . "Start booking_id = ".$booking_id);
+        //Get booking + spare data 
+        //if spare not requested then all spare related fields will be blank
+        $data = $this->My_CI->booking_model->get_booking_tat_required_data($booking_id);
+        //Set all variable as blank initiallly
+        $tatArray['leg_1'] = $tatArray['leg_2'] = $tatArray['leg_3'] = $tatArray['leg_4'] =NULL;
+        $tatArray['applicable_on_partner'] = $tatArray['applicable_on_sf'] = 1;
+        //Process data through loop
+        foreach($data as $values){
+            //If sf_closed_date blank then consider around_completion_date as sf_completion_date
+            if(!$values['sf_closed_date']){
+                log_message('info', __FUNCTION__ . "SF closed date was null so consider close date as sf date. sf_date= ".$values['around_closed_date']);
+                $values['sf_closed_date'] =  $values['around_closed_date'];
+             }
+            // Leg 4 will be TAT between around closed date and sf closed date
+            $tatArray['leg_4'] = $this->get_tat_with_considration_of_non_working_day($values['non_working_days'],$values['sf_closed_date'],$values['around_closed_date']);
+            // IF Booking is without Spare Part then calculate leg_1
+            //leg_2,leg_3 is not applicable for this case
+            if(!$values['spare_id']){
+                $tatArray['leg_1'] = $this->get_tat_with_considration_of_non_working_day($values['non_working_days'],$values['initial_booking_date'],$values['sf_closed_date']);
+            }
+            // Else Calculate leg_2,leg_3,leg_4 because leg_1 is already updated when spare part request was made
+            else{
+                // IF spare_receieved_date blank then consider spare_receieved_date as a day before service center closed date
+                if(!$values['spare_receieved_date']){
+                    $newdateb = strtotime ( '-1 day' , strtotime ( $values['sf_closed_date'] ) ) ;
+                    $values['spare_receieved_date'] = date ( 'Y-m-d' , $newdateb);
+                    log_message('info', __FUNCTION__ . "spare_receieved_date was null so minus a day from sf_closed_date and consider it as spare_receieved_date. spare_receieved_date= ".$values['spare_receieved_date']);
+                }
+                // IF spare_cancelled_date blank then consider spare_cancelled_date as a day before service center closed date
+                if(!$values['spare_cancelled_date']){
+                    $newdatec = strtotime ( '-1 day' , strtotime ( $values['sf_closed_date'] ) ) ;
+                    $values['spare_cancelled_date'] = date ( 'Y-m-d' , $newdatec);
+                     log_message('info', __FUNCTION__ . "spare_cancelled_date was null so minus a day from sf_closed_date and consider it as spare_cancelled_date. spare_cancelled_date= ".$values['spare_receieved_date']);
+                }
+                //If spare was cancelled then leg_2 will be between cancellation date and service center closed date
+                //leg_3 is not applicable for this case
+                if($values['spare_status'] == 'cancelled'){
+                     $tatArray['leg_2'] = $this->get_tat_with_considration_of_non_working_day($values['non_working_days'],$values['spare_cancelled_date'],$values['sf_closed_date']);
+                }
+                //IF Spare flow was completed then leg_2 will be between spare_receieved_date and service_center_closed_date
+                //leg_3 is TAT between  service center cloased date and defactive part shipped
+                else{
+                    $tatArray['leg_2'] = $this->get_tat_with_considration_of_non_working_day($values['non_working_days'],$values['spare_receieved_date'],$values['sf_closed_date']);
+                    $tatArray['leg_3'] = $this->get_tat_with_considration_of_non_working_day($values['non_working_days'],$values['sf_closed_date'],$values['defactive_part_shipped_date']);
+                }
+            }
+            $tatArray['booking_id'] = $booking_id;
+            $tatArray['applicable_on_partner'] = $this->is_booking_valid_for_partner_panelty($values['request_type']);
+            if($values['spare_id']){
+                $this->My_CI->reusable_model->update_table("booking_tat",$tatArray,array("booking_id"=>$booking_id,"spare_id"=>$values['spare_id']));
+            }
+            else{
+                $is_exists = $this->My_CI->reusable_model->get_search_result_data("booking_tat","1",array("booking_id"=>$booking_id),NULL,NULL,NULL,NULL,NULL,array());
+                if(!empty($is_exists)){
+                  $this->My_CI->reusable_model->update_table("booking_tat",$tatArray,array("booking_id"=>$booking_id,"spare_id"=>NULL));
+                }
+                else{
+                  $this->My_CI->reusable_model->insert_into_table("booking_tat",$tatArray);
+                }
+            }
+        }
+        log_message('info', __FUNCTION__ . "End booking_id = ".$booking_id);
+    }
+    function process_booking_tat_on_spare_request($booking_id,$spare_id){
+        log_message('info', __FUNCTION__ . "Start booking_id = ".$booking_id.", spare_id = ".$spare_id);
+        $data['booking_id'] = $booking_id;
+        $data['spare_id'] = $spare_id;
+        $bookingData = $this->My_CI->reusable_model->get_search_result_data("booking_details","booking_details.service_centres.non_working_days,STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date",
+                array("booking_id"=>$booking_id),array("service_centres"=>"service_centres.id = booking_details.assigned_vendor_id"),NULL,NULL,NULL,NULL,array());
+        $data['leg_1'] = $this->get_tat_with_considration_of_non_working_day($bookingData[0]['non_working_days'],$bookingData[0]['initial_booking_date'],date("Y-m-d"));
+        $data['applicable_on_partner'] = $this->is_booking_valid_for_partner_panelty($values['request_type']);
+        $data['applicable_on_sf'] = 1;
+        $this->My_CI->reusable_model->insert_into_table("booking_tat",$data);
+        log_message('info', __FUNCTION__ . "End booking_id = ".$booking_id.", spare_id = ".$spare_id);
+    }
 }

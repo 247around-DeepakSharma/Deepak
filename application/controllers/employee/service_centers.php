@@ -1428,6 +1428,7 @@ class Service_centers extends CI_Controller {
                array_push($data_to_insert, $data);
                
                $spare_id = $this->service_centers_model->insert_data_into_spare_parts($data);
+               $this->miscelleneous->process_booking_tat_on_spare_request($booking_id,$spare_id);
                array_push($new_spare_id, $spare_id);
                
                //send email to partner,sf and 247around that inventory out of stock for this inventory
