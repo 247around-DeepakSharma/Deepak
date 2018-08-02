@@ -17,6 +17,16 @@ if ($this->uri->segment(4)) {
                         </div>';
         }
         ?>
+    <?php
+        if ($this->session->userdata('error')) {
+            echo '<div class="alert alert-danger alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <strong>' . $this->session->userdata('error') . '</strong>
+                        </div>';
+        }
+        ?>
     <div class="row">
 <?php } ?>
         <div class="col-md-12 col-sm-12 col-xs-12">
@@ -346,6 +356,9 @@ if ($this->uri->segment(4)) {
 </script>
 <?php if ($this->session->userdata('success')) {
     $this->session->unset_userdata('success');
+} ?>
+<?php if ($this->session->userdata('error')) {
+    $this->session->unset_userdata('error');
 } ?>
 <script>
     var table = $('#spare_table').DataTable(

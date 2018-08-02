@@ -364,7 +364,7 @@ class Invoice extends CI_Controller {
               
                 $tds += $tds_amount_array[$key];
 
-                if ($amount_collected == round($credit_debit_amount[$key], 0)) {
+                if (round($amount_collected,0) == round($credit_debit_amount[$key], 0)) {
 
                     $vp_details['settle_amount'] = 1;
                     $vp_details['amount_paid'] = $credit_debit_amount[$key] + $data[0]['amount_paid'];

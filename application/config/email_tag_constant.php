@@ -98,3 +98,4 @@ define('INTERNAL_CONVERSATION_EMAIL', 'internal_conversation_email');
 define('MISC_CHARGES_DETAILS_ON_EMAIL', 'booking_misc_charges_details');
 define('CP_OUTSTANDING_AMOUNT', 'cp_out_standing_email');
 define('COURIER_DOCUMENT', 'courier_documents');
+define('TAXPRO_API_FAIL', 'taxpro_api_fail');

@@ -7818,3 +7818,7 @@ ALTER TABLE `trigger_service_centres` ADD `gst_status` VARCHAR(28) NULL DEFAULT 
 
 --Kalyani 28-07-2018
 ALTER TABLE `booking_comments` CHANGE `id` `id` INT(11) NOT NULL AUTO_INCREMENT;
+
+--- Kalyani 31-07-2018
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES ('70', 'taxpro_api_fail', 'Taxpro GSP Api Fail', '<b>TAXPRO GSP API FAIL </b>\r\n<br/>\r\n<p>%s</p>', 'noreply@247around.com', '', '', '', '1', '', CURRENT_TIMESTAMP);
+

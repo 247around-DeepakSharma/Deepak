@@ -906,24 +906,40 @@
                             </div>-->
                                     
                             <div class="col-md-12">
-                                <div class="col-md-4">
+                                         <div class="col-md-4">
                                     <div class="form-group <?php
-                                        if (form_error('gst_no')) {
+                                        if (form_error('signature_file')) {
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label  for="gst_no" class="col-md-4">GST No.</label>
+                                        <label for="signature_file" class="col-md-4">Signature File</label>
                                         <div class="col-md-7">
-                                            <input type="text" class="form-control blockspacialchar"  id ="gst_no" name="gst_no" value = "<?php
-                                                if (isset($query[0]['gst_no'])) {
-                                                    echo $query[0]['gst_no'];
+                                            <input type="file" class="form-control"  name="signature_file" id="signature_file" value = "<?php
+                                                if (isset($query[0]['signature_file'])) {
+                                                    echo $query[0]['signature_file'];
                                                 }
                                                 ?>">
-                                            <span class="err1"> <?php echo form_error('gst_no'); ?></span>
+                                            <?php echo form_error('signature_file'); ?>
+                                        </div>
+                                        <div class="col-md-1" style="margin-left: -20px;">
+                                            <?php
+                                                $src = base_url() . 'images/no_image.png';
+                                                $image_src = $src;
+                                                if (isset($query[0]['signature_file']) && !empty($query[0]['signature_file'])) {
+                                                    //Path to be changed
+                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['signature_file'];
+                                                    $image_src = base_url().'images/view_image.png';
+                                                }
+                                                ?>
+                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
+                                            <?php if(isset($query[0]['signature_file']) && !empty($query[0]['signature_file'])){?>
+                                            <a href="javascript:void(0)" onclick="remove_image('signature_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['signature_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                                            <?php }?>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
+                       
+                                <div class="col-md-4" style="margin-left:9%">
                                     <div class="form-group <?php
                                         if (form_error('gst_file')) {
                                             echo 'has-error';
@@ -965,36 +981,38 @@
                                 </div>
                             </div>
                                     
-                            <div class="col-md-12">
+                            <div class="col-md-12" style="margin-top: 20px;">
+                                         
                                 <div class="col-md-4">
                                     <div class="form-group <?php
-                                        if (form_error('signature_file')) {
+                                        if (form_error('gst_no')) {
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label for="signature_file" class="col-md-4">Signature File</label>
+                                        <label  for="gst_no" class="col-md-4">GST No.</label>
                                         <div class="col-md-7">
-                                            <input type="file" class="form-control"  name="signature_file" id="signature_file" value = "<?php
-                                                if (isset($query[0]['signature_file'])) {
-                                                    echo $query[0]['signature_file'];
+                                            <input type="text" class="form-control blockspacialchar"  id ="gst_no" name="gst_no" value = "<?php
+                                                if (isset($query[0]['gst_no'])) {
+                                                    echo $query[0]['gst_no'];
                                                 }
-                                                ?>">
-                                            <?php echo form_error('signature_file'); ?>
+                                                ?>" onkeyup="validateGSTNo()">
+                                            <span class="err1"> <?php echo form_error('gst_no'); ?></span>
                                         </div>
-                                        <div class="col-md-1">
-                                            <?php
-                                                $src = base_url() . 'images/no_image.png';
-                                                $image_src = $src;
-                                                if (isset($query[0]['signature_file']) && !empty($query[0]['signature_file'])) {
-                                                    //Path to be changed
-                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['signature_file'];
-                                                    $image_src = base_url().'images/view_image.png';
-                                                }
-                                                ?>
-                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
-                                            <?php if(isset($query[0]['signature_file']) && !empty($query[0]['signature_file'])){?>
-                                            <a href="javascript:void(0)" onclick="remove_image('signature_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['signature_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
-                                            <?php }?>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label  for="" class="col-md-4">GST Type</label>
+                                        <div class="col-md-7">
+                                            <input type="text" class="form-control"  id ="gst_type" name="gst_type">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label  for="" class="col-md-4">GST Status</label>
+                                        <div class="col-md-7">
+                                            <input type="text" class="form-control"  id ="gst_status" name="gst_status">
                                         </div>
                                     </div>
                                 </div>
@@ -1713,5 +1731,33 @@
 
         });
     }); 
+    
+    function validateGSTNo(){
+        var gstin = $("#gst_no").val();
+        gstin = gstin.trim();
+        if(gstin.length == '15'){
+            $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/vendor/check_GST_number/'+gstin,
+                success: function (response) {
+                    console.log(response);
+                    response = JSON.parse(response);
+                    if(response.status_cd != '0'){
+                        $("#gst_type").val(response.dty);
+                        $("#gst_status").val(response.sts);
+                    }
+                    else{
+                        if(response.errorMsg){
+                           alert(response.errorMsg);
+                        }
+                        else{
+                           alert("API unable to work"); 
+                        }
+                    }
+                }
+            });
+        }
+        else{ }
+    }
     
 </script>

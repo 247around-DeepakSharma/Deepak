@@ -1138,7 +1138,9 @@ class Inventory_model extends CI_Model {
     function update_pending_inventory_stock_request($entity_type, $entity_id, $inventory_id, $qty){
         $sql = "Update inventory_stocks set pending_request_count = pending_request_count+ $qty WHERE "
                 . "inventory_id = '".$inventory_id."' AND entity_type = '".$entity_type."' AND entity_id = '".$entity_id."' AND pending_request_count >= 0";
-        return $this->db->query($sql);
+        $result = $this->db->query($sql);
+        log_message('info', __METHOD__. " ".$this->db->last_query());
+        return $result;
     }
     
     /**
@@ -1269,6 +1271,13 @@ class Inventory_model extends CI_Model {
         
         return $query;
 
+    }
+    
+    function get_courier_details($select, $where){
+        $this->db->select($select);
+        $this->db->where($where);
+        $query = $this->db->get("courier_details");
+        return $query->result_array();
     }
 
 }
