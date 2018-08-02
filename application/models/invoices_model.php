@@ -1743,19 +1743,18 @@ class invoices_model extends CI_Model {
     function get_partner_courier_charges($partner_id, $from_date, $to_date){
       
         
-        $sql = " SELECT sp.id as sp_id, bd.order_id, bd.booking_id,services,
+        $sql = " SELECT sp.id as sp_id, bd.booking_id, awb_by_sf as awb,
                 courier_charges_by_sf, bd.city,
                 CASE WHEN (defective_courier_receipt IS NOT NULL) THEN 
                  (concat('".S3_WEBSITE_URL."misc-images/',defective_courier_receipt)) ELSE '' END AS courier_receipt_link
                 FROM  booking_details as bd, booking_unit_details as ud,
-                spare_parts_details as sp,services
+                spare_parts_details as sp
                 
                 WHERE 
                 ud.booking_status =  'Completed'
                 AND bd.partner_id = '$partner_id'
                 AND ud.partner_id = '$partner_id'
                 AND status = 'Completed'
-                AND services.id = ud.service_id
                 AND sp.booking_id = bd.booking_id
                 AND bd.booking_id = ud.booking_id
                 AND ud.ud_closed_date >=  '$from_date'
@@ -1962,14 +1961,13 @@ class invoices_model extends CI_Model {
      */
     function get_partner_invoice_warehouse_courier_data($partner_id, $from_date, $to_date){
         log_message('info', __METHOD__. " Enterring..");
-        $sql = 'SELECT GROUP_CONCAT(DISTINCT bd.order_id) as order_id, GROUP_CONCAT(sp.id) as sp_id, GROUP_CONCAT(DISTINCT sp.booking_id) as booking_id, '
+        $sql = 'SELECT GROUP_CONCAT(sp.id) as sp_id, GROUP_CONCAT(DISTINCT sp.booking_id) as booking_id, '
                 . ' awb_by_partner,'
-                 .' GROUP_CONCAT(DISTINCT services) AS services, awb_by_partner as awb, COALESCE(SUM(courier_price_by_partner),0) as courier_charges_by_sf,'
-                 .'bd.city, CASE WHEN (courier_pic_by_partner IS NOT NULL) '
-                 .'THEN (concat("'.S3_WEBSITE_URL.'vendor-partner-docs/",courier_pic_by_partner)) ELSE "" END AS courier_receipt_link '
-                . ' FROM spare_parts_details as sp, booking_details as bd, services '
+                .' awb_by_partner as awb, COALESCE(SUM(courier_price_by_partner),0) as courier_charges_by_sf,'
+                .' bd.city, CASE WHEN (courier_pic_by_partner IS NOT NULL) '
+                .'THEN (concat("'.S3_WEBSITE_URL.'vendor-partner-docs/",courier_pic_by_partner)) ELSE "" END AS courier_receipt_link '
+                . ' FROM spare_parts_details as sp, booking_details as bd '
                 . ' WHERE bd.booking_id = sp.booking_id '
-                . ' AND bd.service_id = services.id '
                 . ' AND entity_type = "'._247AROUND_SF_STRING.'" '
                 . ' AND bd.partner_id = "'.$partner_id.'" '
                 . ' AND awb_by_partner IS NOT NULL '
@@ -1985,8 +1983,8 @@ class invoices_model extends CI_Model {
     
     function get_defective_parts_courier_return_partner($partner_id, $from_date, $to_date){
         log_message('info', __METHOD__. " Enterring..");
-        $sql = 'SELECT "" as order_id, GROUP_CONCAT(courier_details.id) as c_id, '
-                . ' GROUP_CONCAT(DISTINCT booking_id) as booking_id, "" AS services, AWB_no as awb, '
+        $sql = 'SELECT GROUP_CONCAT(courier_details.id) as c_id, '
+                . ' GROUP_CONCAT(DISTINCT booking_id) as booking_id, AWB_no as awb, '
                 . ' COALESCE(SUM(courier_charge),0) as courier_charges_by_sf, "" AS city, CASE WHEN (courier_file IS NOT NULL) '
                 .'  THEN (concat("'.S3_WEBSITE_URL.'vendor-partner-docs/",courier_file)) ELSE "" END AS courier_receipt_link '
                 . ' FROM `courier_details` '
