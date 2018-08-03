@@ -7819,9 +7819,75 @@ ALTER TABLE `trigger_service_centres` ADD `gst_status` VARCHAR(28) NULL DEFAULT 
 --Kalyani 28-07-2018
 ALTER TABLE `booking_comments` CHANGE `id` `id` INT(11) NOT NULL AUTO_INCREMENT;
 
+--sachin 02-08-2018
+CREATE TABLE `courier_tracking_details` 
+( `id` INT(11) NOT NULL AUTO_INCREMENT , 
+ `spare_id` INT(11) NOT NULL , 
+ `awb_number` VARCHAR(256) NOT NULL ,
+ `carrier_code` VARCHAR(256) NOT NULL , 
+ `checkpoint_status` VARCHAR(256) NOT NULL , 
+ `checkpoint_status_details` VARCHAR(512) NOT NULL , 
+ `checkpoint_status_description` VARCHAR(512) NOT NULL , 
+ `checkpoint_status_date` DATETIME NOT NULL , 
+ `api_id` VARCHAR(512) NOT NULL ,
+ `final_status` VARCHAR(64) NOT NULL,
+ `checkpoint_item_node` VARCHAR(64) NULL, 
+ `remarks` VARCHAR(1024) NOT NULL , 
+ `create_date` DATETIME NOT NULL , 
+ `update_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+ PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+ALTER TABLE courier_tracking_details AUTO_INCREMENT=10000;
+
+ALTER TABLE `courier_tracking_details` ADD UNIQUE( `spare_id`, `awb_number`, `carrier_code`, `checkpoint_status`, `checkpoint_status_details`, `checkpoint_status_description`, `checkpoint_status_date`, `api_id`);
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
+VALUES (NULL, 'courier_api_failed_mail', 'TrackingMore Courier Api Failed', 
+'Dear Team,<br><br> TrackingMore Courier Api Failed.<br><br> <b>Response From API</b><br><br> %s',
+ 'noreply@247around.com', '', '', '', '1', '2016-06-17 00:00:00');
+
+CREATE TABLE `courier_services` (
+  `id` int(11) NOT NULL,
+  `courier_name` varchar(512) NOT NULL,
+  `courier_code` varchar(512) NOT NULL,
+  `create_date` datetime NOT NULL,
+  `update_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO `courier_services` (`id`, `courier_name`, `courier_code`, `create_date`, `update_date`) VALUES
+(10000, 'DHL Express', 'dhl', '2018-08-03 00:00:00', '2018-08-03 10:36:25'),
+(10001, 'DTDC', 'dtdc', '2018-08-03 00:00:00', '2018-08-03 10:38:29'),
+(10002, 'GATI Courier', 'gati-kwe', '2018-08-03 00:00:00', '2018-08-03 10:38:29'),
+(10003, ' Trackon Courier', 'trackon', '2018-08-03 00:00:00', '2018-08-03 10:39:32'),
+(10004, 'Fedex', 'fedex', '2018-08-03 00:00:00', '2018-08-03 10:39:32'),
+(10005, 'First Flight Couriers', 'firstflightme', '2018-08-03 00:00:00', '2018-08-03 10:40:15'),
+(10006, 'Bluedart', 'bluedart', '2018-08-03 00:00:00', '2018-08-03 10:40:15'),
+(10007, 'Maruti Courier', 'maruti_courier', '2018-08-03 00:00:00', '2018-08-03 10:40:57'),
+(10008, ' Delhivery', 'delhivery', '2018-08-03 00:00:00', '2018-08-03 10:40:57'),
+(10009, 'Safexpress', 'safexpress', '2018-08-03 00:00:00', '2018-08-03 10:41:50'),
+(10010, 'Elegant Express Cargo', 'elegant', '2018-08-03 00:00:00', '2018-08-03 10:41:50'),
+(10011, 'Rivigo', 'rivigo', '2018-08-03 00:00:00', '2018-08-03 10:42:20'),
+(10012, 'Aramex', 'aramex', '2018-08-03 00:00:00', '2018-08-03 10:42:20'),
+(10013, 'India Post', 'india-post', '2018-08-03 00:00:00', '2018-08-03 10:43:00'),
+(10014, 'The Professional Couriers (TPC)', 'professional-couriers', '2018-08-03 00:00:00', '2018-08-03 10:43:00'),
+(10015, 'Speed Post', 'speed-post', '2018-08-03 00:00:00', '2018-08-03 10:43:21'),
+(10017, 'Other', 'other', '2018-08-03 00:00:00', '2018-08-03 10:45:32');
+
+
+ALTER TABLE `courier_services`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `courier_name` (`courier_name`,`courier_code`);
+
+
+ALTER TABLE `courier_services`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10018;
+
 --- Kalyani 31-07-2018
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES ('70', 'taxpro_api_fail', 'Taxpro GSP Api Fail', '<b>TAXPRO GSP API FAIL </b>\r\n<br/>\r\n<p>%s</p>', 'noreply@247around.com', '', '', '', '1', '', CURRENT_TIMESTAMP);
 
+
+--Chhavi
+ALTER TABLE `spare_parts_details` ADD `spare_cancelled_date` DATETIME  NULL AFTER `challan_approx_value`;
 --- Kalyani 02-08-2018
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES ('71', 'gst_detail_change', '%s GST detail changed', '<b>GST Detail Changed</b>\r\n<br/>\r\n<p><b>Previous Detail</b></p>\r\n GST No => %s </br>\r\n GST Status => %s <br/>\r\n GST Type => %s </br>\r\n GST Cancelled Date => %s </br> \r\n<p>Updated Detail</p>\r\n GST No => %s </br>\r\n GST Status => %s </br>\r\n GST Type => %s </br>\r\n GST Cancelled Date => %s', '', '', '', '', '1', '', '0000-00-00') WHERE `email_template`.`id` = 71 AND `email_template`.`tag` = 'gst_detail_change' AND `email_template`.`subject` = '%s GST detail changed' AND `email_template`.`template` = '<b>GST Detail Changed</b>\r\n<br/>\r\n<p>Previous Detail</p>\r\n <b>GST No</b> => %s\r\n <b>GST Status</b> => %s\r\n <b>GST Type</b> => %s\r\n <b>GST Cancelled Date</b> => %s\r\n<p>Updated Detail</p>\r\n <b>GST No</b> => %s\r\n <b>GST Status</b> => %s\r\n <b>GST Type</b> => %s\r\n <b>GST Cancelled Date</b> => %s', 'noreply@247around.com', '', 'kalyanit@gmail.com', '', '1', '', CURRENT_TIMESTAMP);
 ALTER TABLE `service_centres` ADD `gst_cancelled_date` DATE NOT NULL AFTER `gst_status`;

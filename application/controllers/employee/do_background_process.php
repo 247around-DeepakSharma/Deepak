@@ -282,6 +282,7 @@ class Do_background_process extends CI_Controller {
             }
 
             $this->booking_model->update_booking($booking_id, $booking);
+            $this->miscelleneous->process_booking_tat_on_completion($booking_id);
             //Update Spare parts details table
             $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status", array('booking_id' => $booking_id, 'status NOT IN ("Completed","Cancelled")' => NULL), false);
             foreach ($spare as $sp) {

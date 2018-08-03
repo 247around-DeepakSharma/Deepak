@@ -2,12 +2,7 @@
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&key=AIzaSyB4pxS4j-_NBuxwcSwSFJ2ZFU-7uep1hKc"></script>
 <script src="<?php echo base_url();?>js/googleScript.js"></script> 
 <style type="text/css">
-    th,td{
-    border: 1px #f2f2f2 solid;
-    vertical-align: center;
-    padding: 1px;
-    }
-    tr:nth-child(even) {background-color: #f2f2f2}
+    
     .spare_image {
     width: 350px;
     height: 300px;
@@ -572,7 +567,7 @@
                                         <td><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING) { echo "Partner";} else { echo "Warehouse";} ?></td>
                                         <td><?php echo $sp['parts_shipped']; ?></td>
                                         <td><?php echo $sp['courier_name_by_partner']; ?></td>
-                                        <td><?php echo $sp['awb_by_partner']; ?></td>
+                                        <td><a href="#" onclick="get_awb_details('<?php echo $sp['courier_name_by_partner']; ?>','<?php echo $sp['awb_by_partner']; ?>','<?php echo $sp['status']; ?>')"><?php echo $sp['awb_by_partner']; ?></a> <span id="awb_loader" style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
                                         <td><?php echo $sp['shipped_date']; ?></td>
                                         <td><?php echo $sp['edd']; ?></td>
                                         <td><?php echo $sp['remarks_by_partner']; ?></td>
@@ -982,6 +977,26 @@
 
   </div>
 </div>
+
+
+
+    <!-- model -->
+    <div id="gen_model" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title" id="gen_model_title"></h4>
+                </div>
+                <div class="modal-body" id="gen_model_body"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
 <script>
 function sf_tab_active(){
   <?php if($booking_history[0]['is_upcountry'] == 1){  ?>  
@@ -1523,4 +1538,23 @@ background-color: #f5f5f5;
            }
     });
 }
+
+
+    function get_awb_details(courier_code,awb_number,status){
+        if(courier_code && awb_number && status){
+            $('#awb_loader').show();
+            $.ajax({
+                method:"POST",
+                url:'<?php echo base_url(); ?>courier_tracking/get_awb_real_time_tracking_details/' + courier_code + '/' + awb_number + '/' + status,
+                success: function(res){
+                    $('#awb_loader').hide();
+                    $('#gen_model_title').html('<h3> AWB Number : ' + awb_number + '</h3>');
+                    $('#gen_model_body').html(res);
+                    $('#gen_model').modal('toggle');
+                }
+            });
+        }else{
+            alert('Something Wrong. Please Refresh Page...');
+        }
+    }
     </script>
