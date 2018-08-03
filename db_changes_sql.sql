@@ -7862,7 +7862,7 @@ INSERT INTO `courier_services` (`id`, `courier_name`, `courier_code`, `create_da
 (10004, 'Fedex', 'fedex', '2018-08-03 00:00:00', '2018-08-03 10:39:32'),
 (10005, 'First Flight Couriers', 'firstflightme', '2018-08-03 00:00:00', '2018-08-03 10:40:15'),
 (10006, 'Bluedart', 'bluedart', '2018-08-03 00:00:00', '2018-08-03 10:40:15'),
-(10007, 'Maruti Courier', 'maruti_courier', '2018-08-03 00:00:00', '2018-08-03 10:40:57'),
+(10007, 'Maruti Courier', 'maruti-courier', '2018-08-03 00:00:00', '2018-08-03 10:40:57'),
 (10008, ' Delhivery', 'delhivery', '2018-08-03 00:00:00', '2018-08-03 10:40:57'),
 (10009, 'Safexpress', 'safexpress', '2018-08-03 00:00:00', '2018-08-03 10:41:50'),
 (10010, 'Elegant Express Cargo', 'elegant', '2018-08-03 00:00:00', '2018-08-03 10:41:50'),
@@ -7891,3 +7891,7 @@ ALTER TABLE `spare_parts_details` ADD `spare_cancelled_date` DATETIME  NULL AFTE
 --- Kalyani 02-08-2018
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES ('71', 'gst_detail_change', '%s GST detail changed', '<b>GST Detail Changed</b>\r\n<br/>\r\n<p><b>Previous Detail</b></p>\r\n GST No => %s </br>\r\n GST Status => %s <br/>\r\n GST Type => %s </br>\r\n GST Cancelled Date => %s </br> \r\n<p>Updated Detail</p>\r\n GST No => %s </br>\r\n GST Status => %s </br>\r\n GST Type => %s </br>\r\n GST Cancelled Date => %s', '', '', '', '', '1', '', '0000-00-00') WHERE `email_template`.`id` = 71 AND `email_template`.`tag` = 'gst_detail_change' AND `email_template`.`subject` = '%s GST detail changed' AND `email_template`.`template` = '<b>GST Detail Changed</b>\r\n<br/>\r\n<p>Previous Detail</p>\r\n <b>GST No</b> => %s\r\n <b>GST Status</b> => %s\r\n <b>GST Type</b> => %s\r\n <b>GST Cancelled Date</b> => %s\r\n<p>Updated Detail</p>\r\n <b>GST No</b> => %s\r\n <b>GST Status</b> => %s\r\n <b>GST Type</b> => %s\r\n <b>GST Cancelled Date</b> => %s', 'noreply@247around.com', '', 'kalyanit@gmail.com', '', '1', '', CURRENT_TIMESTAMP);
 ALTER TABLE `service_centres` ADD `gst_cancelled_date` DATE NOT NULL AFTER `gst_status`;
+
+--Abhay 02-08-2018
+ALTER TABLE `vendor_partner_invoices` ADD `miscellaneous_charges` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `warehouse_storage_charges`;
+ALTER TABLE `trigger_vendor_partner_invoices` ADD `miscellaneous_charges` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `warehouse_storage_charges`
