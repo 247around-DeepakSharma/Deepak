@@ -1103,6 +1103,7 @@ class Inventory extends CI_Controller {
                 case 'QUOTE_REQUEST_REJECTED';
                     $where = array('id' => $id );
                     $data = array('status' => _247AROUND_CANCELLED);
+                    $data = array('spare_cancelled_date' => date("Y-m-d h:i:s"));
                     if($requestType == "CANCEL_PARTS"){
                         $new_state = SPARE_PARTS_CANCELLED;
                         $b['internal_status'] = SPARE_PARTS_CANCELLED;
@@ -2546,13 +2547,16 @@ class Inventory extends CI_Controller {
         $this->checkSFSession();
         $response = array();
         if($this->session->userdata('service_center_id')){
-            $post['where'] = "spare_parts_details.partner_id = '" . $this->session->userdata('service_center_id') . "' AND  entity_type =  '"._247AROUND_SF_STRING."' AND status = '" . SPARE_PARTS_REQUESTED . "' "
-                . " AND booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."') AND wh_ack_received_part != 0 ";
-            $inventory_data = $this->inventory_model->count_spare_parts($post);
-
+            $sf_id = $this->session->userdata('service_center_id');
+            $where = "spare_parts_details.partner_id = '" . $sf_id . "' AND  spare_parts_details.entity_type =  '"._247AROUND_SF_STRING."' AND status = '" . SPARE_PARTS_REQUESTED . "' "
+                . " AND booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."') "
+                . " AND wh_ack_received_part != 0 ";
+        
+            $inventory_data = $this->service_centers_model->get_spare_parts_on_group($where, "spare_parts_details.booking_id", "spare_parts_details.booking_id", $this->session->userdata('service_center_id'));
+            
             $brackets_data = $this->inventory_model->get_filtered_brackets('count(id) as total_brackets',array('order_given_to' =>$this->session->userdata('service_center_id'),'is_shipped' => 0 ));
 
-            $response['inventory'] = $inventory_data;
+            $response['inventory'] = count($inventory_data);
             $response['brackets'] = $brackets_data[0]['total_brackets'];
         }
         
@@ -3376,8 +3380,14 @@ class Inventory extends CI_Controller {
         $postData = json_decode($this->input->post('data'));
         $wh_name = $this->input->post('wh_name');
         if (!empty($sender_entity_id) && !empty($sender_entity_type) && !empty($postData) && !empty($awb_by_wh) && !empty($courier_name_by_wh) && !empty($courier_price_by_wh) && !empty($defective_parts_shippped_date_by_wh)) {
-
-            $courier_file = $this->upload_defective_parts_shipped_courier_file($_FILES);
+            $exist_courier_image = $this->input->post("exist_courier_image");
+            if(!empty($exist_courier_image)){
+                $courier_file['status'] = true;
+                $courier_file['message'] = $exist_courier_image;
+            } else {
+                $courier_file = $this->upload_defective_parts_shipped_courier_file($_FILES);
+            }
+            
             if ($courier_file['status']) {
                 $courier_details['sender_entity_id'] = $sender_entity_id;
                 $courier_details['sender_entity_type'] = $sender_entity_type;
@@ -3628,7 +3638,7 @@ class Inventory extends CI_Controller {
                 $output_file = "";
                 $template = "partner_inventory_invoice_annexure-v1.xlsx";
                 $output_file = $response['meta']['invoice_id'] . "-detailed.xlsx";
-                $this->invoice_lib->generate_invoice_excel($template, $response['meta']['invoice_id'], $invoiceData['processData'], TMP_FOLDER . $output_file);
+                $this->invoice_lib->generate_invoice_excel($template, $response['meta'], $invoiceData['processData'], TMP_FOLDER . $output_file);
 
                 $this->invoice_lib->upload_invoice_to_S3($response['meta']['invoice_id'], true, false);
 

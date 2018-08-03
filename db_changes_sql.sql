@@ -7881,3 +7881,13 @@ ALTER TABLE `courier_services`
 
 ALTER TABLE `courier_services`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10018;
+
+--- Kalyani 31-07-2018
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES ('70', 'taxpro_api_fail', 'Taxpro GSP Api Fail', '<b>TAXPRO GSP API FAIL </b>\r\n<br/>\r\n<p>%s</p>', 'noreply@247around.com', '', '', '', '1', '', CURRENT_TIMESTAMP);
+
+
+--Chhavi
+ALTER TABLE `spare_parts_details` ADD `spare_cancelled_date` DATETIME  NULL AFTER `challan_approx_value`;
+--- Kalyani 02-08-2018
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES ('71', 'gst_detail_change', '%s GST detail changed', '<b>GST Detail Changed</b>\r\n<br/>\r\n<p><b>Previous Detail</b></p>\r\n GST No => %s </br>\r\n GST Status => %s <br/>\r\n GST Type => %s </br>\r\n GST Cancelled Date => %s </br> \r\n<p>Updated Detail</p>\r\n GST No => %s </br>\r\n GST Status => %s </br>\r\n GST Type => %s </br>\r\n GST Cancelled Date => %s', '', '', '', '', '1', '', '0000-00-00') WHERE `email_template`.`id` = 71 AND `email_template`.`tag` = 'gst_detail_change' AND `email_template`.`subject` = '%s GST detail changed' AND `email_template`.`template` = '<b>GST Detail Changed</b>\r\n<br/>\r\n<p>Previous Detail</p>\r\n <b>GST No</b> => %s\r\n <b>GST Status</b> => %s\r\n <b>GST Type</b> => %s\r\n <b>GST Cancelled Date</b> => %s\r\n<p>Updated Detail</p>\r\n <b>GST No</b> => %s\r\n <b>GST Status</b> => %s\r\n <b>GST Type</b> => %s\r\n <b>GST Cancelled Date</b> => %s', 'noreply@247around.com', '', 'kalyanit@gmail.com', '', '1', '', CURRENT_TIMESTAMP);
+ALTER TABLE `service_centres` ADD `gst_cancelled_date` DATE NOT NULL AFTER `gst_status`;
