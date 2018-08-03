@@ -3200,9 +3200,9 @@ class Inventory extends CI_Controller {
                 'table_open' => '<table border="1" cellpadding="2" cellspacing="0" class="mytable">'
             );
 
-            $this->table->set_template($template1);
-
-            $this->table->set_heading(array('Part Name', 'Part Number', 'Quantity'));
+//            $this->table->set_template($template1);
+//
+//            $this->table->set_heading(array('Part Name', 'Part Number', 'Quantity'));
 
             foreach ($postData as $value) {
                 
@@ -3210,7 +3210,7 @@ class Inventory extends CI_Controller {
                 $update = $this->inventory_model->update_ledger_details(array('is_wh_ack' => 1, 'wh_ack_date' => date('Y-m-d H:i:s')), array('id' => $value->ledger_id));
                 if ($update) {
                     
-                    $this->table->add_row($value->part_name, $value->part_number, $value->quantity);
+                    //$this->table->add_row($value->part_name, $value->part_number, $value->quantity);
                     //update inventory stocks
                     $is_entity_exist = $this->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $receiver_entity_id, 'entity_type' => $receiver_entity_type, 'inventory_id' => $value->inventory_id), NULL, NULL, NULL, NULL, NULL)->result_array();
                     if (!empty($is_entity_exist)) {
@@ -3242,30 +3242,30 @@ class Inventory extends CI_Controller {
                     }
                 }
             }
-
-            //send email to partner warehouse incharge that 247around warehouse received spare
-            $email_template = $this->booking_model->get_booking_email_template("spare_received_by_wh_from_partner");
-            $wh_incharge_id = $this->reusable_model->get_search_result_data("entity_role", "id", array("entity_type" => _247AROUND_PARTNER_STRING, 'role' => WAREHOUSE_INCHARCGE_CONSTANT), NULL, NULL, NULL, NULL, NULL, array());
-            if (!empty($wh_incharge_id)) {
-
-                //get 247around warehouse incharge email
-                $wh_where = array('contact_person.role' => $wh_incharge_id[0]['id'],
-                    'contact_person.entity_id' => $sender_entity_id,
-                    'contact_person.entity_type' => _247AROUND_PARTNER_STRING
-                );
-                $email_details = $this->inventory_model->get_warehouse_details('contact_person.official_email', $wh_where, FALSE, TRUE);
-                if (!empty($email_details) && !empty($email_template)) {
-                    //generate part details table                                        
-                    $parts_details_table = $this->table->generate();
-
-                    $to = $email_details[0]['official_email'];
-                    $cc = $email_template[3];
-                    $subject = vsprintf($email_template[4], array($this->input->post('receiver_entity_name'), $this->input->post('sender_entity_name')));
-                    $message = vsprintf($email_template[0], array($this->input->post('receiver_entity_name'), $parts_details_table));
-
-                    $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "", 'spare_received_by_wh_from_partner');
-                }
-            }
+            //for now comment this code as per discussion with anuj and abhay. No need to send email when wh/partner acknowledged that they received spare
+//            //send email to partner warehouse incharge that 247around warehouse received spare
+//            $email_template = $this->booking_model->get_booking_email_template("spare_received_by_wh_from_partner");
+//            $wh_incharge_id = $this->reusable_model->get_search_result_data("entity_role", "id", array("entity_type" => _247AROUND_PARTNER_STRING, 'role' => WAREHOUSE_INCHARCGE_CONSTANT), NULL, NULL, NULL, NULL, NULL, array());
+//            if (!empty($wh_incharge_id)) {
+//
+//                //get 247around warehouse incharge email
+//                $wh_where = array('contact_person.role' => $wh_incharge_id[0]['id'],
+//                    'contact_person.entity_id' => $sender_entity_id,
+//                    'contact_person.entity_type' => _247AROUND_PARTNER_STRING
+//                );
+//                $email_details = $this->inventory_model->get_warehouse_details('contact_person.official_email', $wh_where, FALSE, TRUE);
+//                if (!empty($email_details) && !empty($email_template)) {
+//                    //generate part details table                                        
+//                    $parts_details_table = $this->table->generate();
+//
+//                    $to = $email_details[0]['official_email'];
+//                    $cc = $email_template[3];
+//                    $subject = vsprintf($email_template[4], array($this->input->post('receiver_entity_name'), $this->input->post('sender_entity_name')));
+//                    $message = vsprintf($email_template[0], array($this->input->post('receiver_entity_name'), $parts_details_table));
+//
+//                    $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "", 'spare_received_by_wh_from_partner');
+//                }
+//            }
 
             $res['status'] = TRUE;
             $res['message'] = 'Details updated successfully';

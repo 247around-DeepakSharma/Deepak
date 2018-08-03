@@ -3812,7 +3812,7 @@ function get_learning_collateral_for_bookings(){
         
         $where = array('entity_id' => $data['spare_parts'][0]->partner_id, 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['spare_parts'][0]->service_id,'active' => 1);
         $data['inventory_details'] = $this->inventory_model->get_appliance_model_details('id,model_number',$where);
-        
+        $data['courier_details'] = $this->inventory_model->get_courier_services('*');
         $data['is_wh'] = $this->partner_model->getpartner_details('is_wh',array('partners.id' => $data['spare_parts'][0]->partner_id))[0]['is_wh'];
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/update_spare_parts_form', $data);
@@ -4645,6 +4645,7 @@ function get_learning_collateral_for_bookings(){
             $select = "id, partner_id, service_center_id, entity_type, booking_id, defective_part_shipped, courier_name_by_sf, awb_by_sf, courier_charges_by_sf, defective_courier_receipt, defective_part_shipped_date, remarks_defective_part_by_sf, sf_challan_number, sf_challan_file,partner_challan_number,challan_approx_value"; 
             $where = array('spare_parts_details.id' => $id);
             $data['data'] = $this->partner_model->get_spare_parts_by_any($select, $where);
+            $data['courier_details'] = $this->inventory_model->get_courier_services('*');
             $this->load->view('employee/update_spare_courier_details', $data);
         }else{
             $this->miscelleneous->load_nav_header();

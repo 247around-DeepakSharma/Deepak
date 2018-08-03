@@ -88,13 +88,11 @@ class Courier_tracking extends CI_Controller {
                         $update_status = $this->service_centers_model->update_spare_parts(array('awb_by_partner'=>$value->tracking_number),$tmp_arr);
                        
                         if($update_status){
-                            log_message('info','Spare Status Updated Successfully');
+                            log_message('info','Spare Status Updated Successfully for awb number '.$value->tracking_number);
                             $deleted_awb_number_tmp_arr = array();
                             $deleted_awb_number_tmp_arr['tracking_number'] = $value->tracking_number;
                             $deleted_awb_number_tmp_arr['carrier_code'] = $value->carrier_code;
                             $awb_number_to_be_deleted_from_api[] = $deleted_awb_number_tmp_arr;
-                        }else{
-                            log_message('info','error in updating spare status');
                         }
                     }
                 }
