@@ -1747,6 +1747,7 @@ class Partner extends CI_Controller {
         $data['spare_parts'] = $this->inventory_model->get_spare_parts_query($where);
         $where = array('entity_id' => $data['spare_parts'][0]->partner_id, 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['spare_parts'][0]->service_id,'active' => 1);
         $data['inventory_details'] = $this->inventory_model->get_appliance_model_details('id,model_number',$where);
+        $data['courier_details'] = $this->inventory_model->get_courier_services('*');
         $this->miscelleneous->load_partner_nav_header();
         $this->load->view('partner/update_spare_parts_form', $data);
         $this->load->view('partner/partner_footer');

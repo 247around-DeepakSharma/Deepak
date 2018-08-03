@@ -7862,7 +7862,7 @@ INSERT INTO `courier_services` (`id`, `courier_name`, `courier_code`, `create_da
 (10004, 'Fedex', 'fedex', '2018-08-03 00:00:00', '2018-08-03 10:39:32'),
 (10005, 'First Flight Couriers', 'firstflightme', '2018-08-03 00:00:00', '2018-08-03 10:40:15'),
 (10006, 'Bluedart', 'bluedart', '2018-08-03 00:00:00', '2018-08-03 10:40:15'),
-(10007, 'Maruti Courier', 'maruti_courier', '2018-08-03 00:00:00', '2018-08-03 10:40:57'),
+(10007, 'Maruti Courier', 'maruti-courier', '2018-08-03 00:00:00', '2018-08-03 10:40:57'),
 (10008, ' Delhivery', 'delhivery', '2018-08-03 00:00:00', '2018-08-03 10:40:57'),
 (10009, 'Safexpress', 'safexpress', '2018-08-03 00:00:00', '2018-08-03 10:41:50'),
 (10010, 'Elegant Express Cargo', 'elegant', '2018-08-03 00:00:00', '2018-08-03 10:41:50'),

@@ -226,7 +226,13 @@
                                 if (form_error('courier_name')) {echo 'has-error';} ?>">
                                 <label for="courier" class="col-md-4">Courier Name*</label>
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control" id="courier_name" name="courier_name" value = "" placeholder="Please Enter courier Name"  required>
+<!--                                    <input type="text" class="form-control" id="courier_name" name="courier_name" value = "" placeholder="Please Enter courier Name"  required>-->
+                                    <select class="form-control" id="courier_name" name="courier_name" required>
+                                        <option selected="" disabled="" value="">Select Courier Name</option>
+                                        <?php foreach ($courier_details as $value) { ?> 
+                                        <option value="<?php echo $value['courier_code']?>"><?php echo $value['courier_name']?></option>
+                                        <?php } ?>
+                                    </select>
                                     <?php echo form_error('courier_name'); ?>
                                 </div>
                             </div>
@@ -388,6 +394,8 @@
        
     }
     
+    <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
+    
     $('#shipped_model_number_id').select2();
     $('#shipped_parts_name').select2({
         placeholder:'Select Part Name',
@@ -468,5 +476,9 @@
             });
         }
     });
+    
+    <?php } ?>
+    
+    $('#courier_name').select2();
 
 </script>
