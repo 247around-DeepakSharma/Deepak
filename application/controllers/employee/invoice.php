@@ -2541,8 +2541,8 @@ class Invoice extends CI_Controller {
     /**
      * @desc: Calculate TDS Amount 
      * @param Array $sc_details
-     * @param String $total_sc_details
-     * @return String tds amount
+     * @param String $total_sc_charge
+     * @return Array
      */
     function check_tds_sc($sc_details, $total_sc_charge) {
         log_message('info', __FUNCTION__ . " Entering....". $total_sc_charge );

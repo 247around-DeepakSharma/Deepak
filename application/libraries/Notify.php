@@ -291,34 +291,36 @@ class Notify {
      * 
      * @return: void 
      */
-    function insert_state_change($booking_id, $new_state, $old_state, $remarks, $agent_id, $agent_name,$actor,$next_action, $partner_id = NULL, $service_center_id = NULL) {
-	//Log this state change as well for this booking
-	$state_change['booking_id'] = $booking_id;
-	//$state_change['old_state'] = $old_state;
-	$state_change['new_state'] = $new_state;
-                     $state_change['remarks'] = $remarks;
-	$state_change['agent_id'] = $agent_id;
-	$state_change['partner_id'] = $partner_id;
-                    $state_change['service_center_id'] = $service_center_id;
-                    $state_change['actor'] = $actor;
-                    $state_change['next_action'] = $next_action;
-            
+    function insert_state_change($booking_id, $new_state, $old_state, $remarks, $agent_id, $agent_name, $actor, $next_action, $partner_id = NULL, $service_center_id = NULL) {
+        //Log this state change as well for this booking
+        $state_change['booking_id'] = $booking_id;
+        //$state_change['old_state'] = $old_state;
+        $state_change['new_state'] = $new_state;
+        $state_change['remarks'] = $remarks;
+        $state_change['agent_id'] = $agent_id;
+        $state_change['partner_id'] = $partner_id;
+        $state_change['service_center_id'] = $service_center_id;
+        if(!empty($actor)){
+            $state_change['actor'] = $actor;
+            $state_change['next_action'] = $next_action;
+        }
+        
         /*
          * Send correct old_state from the calling function instead, do not change
          * the old state here
          * */
-                   $state_change['old_state'] = $old_state;
-                   if(!empty($booking_id)){
-                          $booking_state_change = $this->My_CI->booking_model->get_booking_state_change($state_change['booking_id']);  
-                          if ($booking_state_change > 0) {
-                              $state_change['old_state'] = $booking_state_change[count($booking_state_change) - 1]['new_state'];
-                          } 
-                    }
+        $state_change['old_state'] = $old_state;
+        if (!empty($booking_id)) {
+            $booking_state_change = $this->My_CI->booking_model->get_booking_state_change($state_change['booking_id']);
+            if ($booking_state_change > 0) {
+                $state_change['old_state'] = $booking_state_change[count($booking_state_change) - 1]['new_state'];
+            }
+        }
         $insert_id = $this->My_CI->booking_model->insert_booking_state_change($state_change);
-        
-        if($insert_id){
+
+        if ($insert_id) {
             log_message('info', 'Booking Status Change - Booking id: ' . $booking_id . $new_state . "  By " . $agent_name);
-        }else{
+        } else {
             log_message('info', 'Error in Booking Status Change - Booking id: ' . $booking_id . $new_state . "  By " . $agent_name);
         }
     }

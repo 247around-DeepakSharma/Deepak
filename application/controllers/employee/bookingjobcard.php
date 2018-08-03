@@ -78,7 +78,7 @@ class bookingjobcard extends CI_Controller {
      * @return: void
      */
 
-    function send_mail_to_vendor($booking_id, $additional_note) {
+    function send_mail_to_vendor($booking_id, $additional_note = "") {
         log_message('info', __FUNCTION__ . "=> Booking ID: " . $booking_id);
 
         $this->booking_utilities->lib_send_mail_to_vendor($booking_id, $additional_note);
