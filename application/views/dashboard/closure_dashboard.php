@@ -1,3 +1,7 @@
+<script src="<?php echo base_url(); ?>js/base_url.js"></script>
+<script src = "https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+<script src="<?php echo base_url(); ?>js/buyback_app/app.js"></script>
+<script src="<?php echo base_url(); ?>js/buyback_app/controller/controllers.js"></script>
 <!-- page content -->
 <div class="right_col" role="main">
     <!-- top tiles -->
@@ -75,6 +79,7 @@
     //<?php
 //        }
 //    ?>
+    
     <!-- Agent Graph -->
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">

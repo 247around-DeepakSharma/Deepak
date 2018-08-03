@@ -167,12 +167,13 @@
                                     <option>Offline</option>
                                     <option>Shopclues</option>
                                     <option>TataCliq</option>
+                                    <option>Techwider</option>
                                     <option>Jeeves-delivered-excel</option>
                                     <option>Pepperfry</option>
                                     <option>STS</option>
                                     <option>Snapdeal-delivered-excel</option>
                                     <option>Snapdeal-shipped-excel</option>
-                                    <option>Snapdeal</option
+                                    <option>Snapdeal</option>
                                     <option>Paytm-delivered-excel</option>
                                     <option>Paytm</option>
                                     <option>VibgyorNXT</option>

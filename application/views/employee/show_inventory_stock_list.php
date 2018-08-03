@@ -67,22 +67,40 @@
     #modal_data .modal-lg {
         width: 100%!important;
     }
+    hr{
+        margin-top: 0px;
+    }
 </style>
 <div id="page-wrapper" >
-    <div class="row">
-        <h1>Service Center Inventory Stock</h1>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <p style="font-size:32px;">
+                    <strong>
+                        Service Center Inventory Stock
+                    </strong>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <div class="pull-right" style="margin-top:10px;">
+                    <label class="checkbox-inline"><input type="checkbox" id="is_show_all" value="0" onclick="reload_data()">Show All</label>
+                </div>
+            </div>
+        </div>
         <hr>
-        <div class="inventory_stock_list">
-            <table id="inventory_stock_table" class="table table-bordered table-responsive">
-                <thead>
-                    <tr>
-                        <th>S.No.</th>
-                        <th>SF Name</th>
-                        <th>Total Stocks</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
+        <div class="row">
+            <div class="inventory_stock_list">
+                <table id="inventory_stock_table" class="table table-bordered table-responsive">
+                    <thead>
+                        <tr>
+                            <th>S.No.</th>
+                            <th>SF Name</th>
+                            <th>Total Stocks</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </div>
     </div>
     
@@ -120,11 +138,14 @@
                                 </div>"
             },
             "order": [], 
-            "pageLength": 25,
+            "pageLength": 50,
             "ordering": false,
             "ajax": {
                 "url": "<?php echo base_url(); ?>employee/inventory/get_inventory_stock_list/",
-                "type": "POST"
+                "type": "POST",
+                "data": function(d){
+                    d.is_show_all =  $('#is_show_all').val();
+                 }
             },
             "deferRender": true       
         });
@@ -141,6 +162,17 @@
                 $('#modal_data').modal('toggle');
             }
         });
+    }
+    
+    function reload_data(){
+        if($('#is_show_all').is(":checked")){
+            //alert('s');
+            $('#is_show_all').val('1');
+        }else if($('#is_show_all').is(":not(:checked)")){
+            alert('ss');
+            $('#is_show_all').val('0')
+        }
+        inventory_stock_table.ajax.reload();
     }
 
 </script>

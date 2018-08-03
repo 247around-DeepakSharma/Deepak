@@ -102,7 +102,7 @@
 
                                     <tr>
                                         <th>Booking closed date: </th>
-                                        <td><?php echo $booking_history[0]['closed_date']; ?></td>
+                                        <td><?php echo $booking_history[0]['service_center_closed_date']; ?></td>
                                         <th>Rating Star </th>
                                         <td><?php if (!empty($booking_history[0]['rating_stars'])) {
                                                 echo $booking_history[0]['rating_stars'] . '/5';
@@ -124,6 +124,7 @@
                                             <th>Category</th>
                                             <th>Capacity</th>
                                             <th>Model Number</th>
+                                            <th>SF Model Number</th>
                                             <th>SF Serial Number / <?php echo $booking_history[0]['public_name'] ?> Serial Number</th>
                                             <th>Description</th>
                                             <th>Purchase Date</th>
@@ -154,6 +155,7 @@
                                                     <td><?php echo $unit_detail['appliance_brand'] ?></td>
                                                     <td><?php echo $unit_detail['appliance_category'] ?></td>
                                                     <td><?php echo $unit_detail['appliance_capacity'] ?></td>
+                                                    <td><?php echo $unit_detail['sf_model_number'] ?></td>
                                                     <td><?php echo $unit_detail['model_number'] ?></td>
                                                     <td><?php if(!empty($unit_detail['serial_number_pic'])){?>
                                         <a target="_blank" href="<?php echo S3_WEBSITE_URL;?>engineer-uploads/<?php echo $unit_detail['serial_number_pic'];?>"><?php echo $unit_detail['serial_number'];?></a>

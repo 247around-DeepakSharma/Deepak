@@ -180,6 +180,7 @@
                                         <option <?php if(set_value('partner_source') == "Shopclues"){ echo "selected";} ?>>Shopclues</option>
                                         <option <?php if(set_value('partner_source') == "Snapdeal"){ echo "selected";} ?>>Snapdeal</option>
                                         <option <?php if(set_value('partner_source') == "TataCliq"){ echo "selected";} ?>>TataCliq</option>
+                                        <option <?php if(set_value('partner_source') == "Techwider"){ echo "selected";} ?>>Techwider</option>
                                         <option <?php if(set_value('partner_source') == "VibgyorNXT"){ echo "selected";} ?>>VibgyorNXT</option>
                                     </select>
                                     <?php echo form_error('partner_source'); ?>
@@ -190,7 +191,7 @@
                                     <label for="appliance_unit">Unit* <span id="error_seller" style="color: red;"></label>
                                     <select style="width:55%" class="form-control" onchange="final_price()"   id="appliance_unit" name="appliance_unit" >
                                       
-                                        <?php for($i =1; $i <26; $i++) { ?>
+                                        <?php for($i =1; $i <11; $i++) { ?>
                                         <option value="<?php echo $i;?>"><?php echo $i; ?></option>
                                         <?php }?>
                                     </select>
@@ -631,6 +632,8 @@
                 autoUpdateInput: false,
                 singleDatePicker: true,
                 showDropdowns: true,
+                minDate:"1998-01-01",
+                maxDate:today,
                 locale:{
                     format: 'YYYY-MM-DD'
                 }
@@ -885,6 +888,7 @@
     is_upcountry = 0;
     count = 0;
     non_upcountry = 0;
+    n = 0;
     $("input[type=checkbox]:checked").each(function (i) {
         count = count + 1;
 
@@ -896,75 +900,85 @@
             is_upcountry = 1;
         } else  if (Number(up_val) === -1) {
             non_upcountry = -1;
+        } else {
+            n = 1;
         }
     });
     if (count > 0) {
-        if(non_upcountry === -1){
-          
-          $("#upcountry_charges").text("0.00");
-          $("#checkbox_upcountry").val("upcountry_0_0");
-           document.getElementById("checkbox_upcountry").checked = false;
-           final_price();
-           $('#submitform').attr('disabled', false);
-             
-        } else if (is_upcountry === 1) {
-            
-            var data1 = jQuery.parseJSON(upcountry_data);
-            console.log(data1);
-            var partner_approval = Number(data1.partner_upcountry_approval);
+        var data1 = jQuery.parseJSON(upcountry_data);
+        switch(data1.message){
+            case 'UPCOUNTRY BOOKING':
+            case 'UPCOUNTRY LIMIT EXCEED':
+                if(Number(is_upcountry) == 1){
+                    var partner_approval = Number(data1.partner_upcountry_approval);
 
-            if (data1.message === "UPCOUNTRY BOOKING") {
-                $("#upcountry_charges").text("0.00");
-                $("#checkbox_upcountry").val("upcountry_0_0");
-                document.getElementById("checkbox_upcountry").checked = false;
-                final_price();
-                $('#submitform').attr('disabled', false); 
+                        if (data1.message === "UPCOUNTRY BOOKING") {
+                            $("#upcountry_charges").text("0.00");
+                            $("#checkbox_upcountry").val("upcountry_0_0");
+                            document.getElementById("checkbox_upcountry").checked = false;
+                            final_price();
+                            $('#submitform').attr('disabled', false); 
 
-            } else if (data1.message === "UPCOUNTRY LIMIT EXCEED" && partner_approval === 0) {
-                $('#submitform').attr('disabled', true);
-                 document.getElementById("checkbox_upcountry").checked = false;
-                 $("#upcountry_charges").text("0.00");
-                 $("#checkbox_upcountry").val("upcountry_0_0"); 
-                 document.getElementById("checkbox_upcountry").checked = false;
-                 final_price();
-                alert("This is out station Booking, not allow to submit Booking/Query. Upcountry Distance "+ data1.upcountry_distance.toFixed(2) + " KM");
-            } else if (data1.message === "UPCOUNTRY LIMIT EXCEED" && partner_approval === 1) {
-                alert("This is out station boking, Waiting for Partner Approval. Upcountry Distance " +data1.upcountry_distance.toFixed(2) + " KM");
-                
-                 $("#upcountry_charges").text("0.00");
-                 $("#checkbox_upcountry").val("upcountry_0_0"); 
-                 document.getElementById("checkbox_upcountry").checked = false;
-                 final_price();
-                 $('#submitform').attr('disabled', false);
-            } else {
-                $("#upcountry_charges").text("0.00");
-                $("#checkbox_upcountry").val("upcountry_0_0");
-                 document.getElementById("checkbox_upcountry").checked = false;
-                $('#submitform').attr('disabled', false); 
-            }
+                        } else if (data1.message === "UPCOUNTRY LIMIT EXCEED" && partner_approval === 0) {
+                            $('#submitform').attr('disabled', true);
+                             document.getElementById("checkbox_upcountry").checked = false;
+                             $("#upcountry_charges").text("0.00");
+                             $("#checkbox_upcountry").val("upcountry_0_0"); 
+                             document.getElementById("checkbox_upcountry").checked = false;
+                             final_price();
+                            alert("This is out station Booking, not allow to submit Booking/Query. Upcountry Distance "+ data1.upcountry_distance.toFixed(2) + " KM");
+                        } else if (data1.message === "UPCOUNTRY LIMIT EXCEED" && partner_approval === 1) {
+                            alert("This is out station boking, Waiting for Partner Approval. Upcountry Distance " +data1.upcountry_distance.toFixed(2) + " KM");
 
-
-        } else {
-            var data1 = jQuery.parseJSON(upcountry_data);
-            if (data1.message === "UPCOUNTRY BOOKING" || data1.message === "UPCOUNTRY LIMIT EXCEED") {
-
-
-                var upcountry_charges = (Number(3) * Number(data1.upcountry_distance)).toFixed(2);
+                             $("#upcountry_charges").text("0.00");
+                             $("#checkbox_upcountry").val("upcountry_0_0"); 
+                             document.getElementById("checkbox_upcountry").checked = false;
+                             final_price();
+                             $('#submitform').attr('disabled', false);
+                        } else {
+                            $("#upcountry_charges").text("0.00");
+                            $("#checkbox_upcountry").val("upcountry_0_0");
+                             document.getElementById("checkbox_upcountry").checked = false;
+                            $('#submitform').attr('disabled', false); 
+                        }
+                } else {
+                    if(Number(is_upcountry) == 0 && Number(non_upcountry) == 0){
+                        
+                        var upcountry_charges = (Number(3) * Number(data1.upcountry_distance)).toFixed(2);
                
-                $("#upcountry_charges").text(upcountry_charges);
-                $("#checkbox_upcountry").val("upcountry_" + upcountry_charges + "_0");
-                document.getElementById("checkbox_upcountry").checked = true;
+                        $("#upcountry_charges").text(upcountry_charges);
+                        $("#checkbox_upcountry").val("upcountry_" + upcountry_charges + "_0");
+                        document.getElementById("checkbox_upcountry").checked = true;
                 
-                final_price();
-
-            } else {
-                document.getElementById("checkbox_upcountry").checked = false;
+                        final_price();
+                        
+                    } else if(Number(is_upcountry) == 0 && Number(non_upcountry) == -1 && n == 0){
+                        
+                        $("#upcountry_charges").text("0.00");
+                        $("#checkbox_upcountry").val("upcountry_0_0");
+                        document.getElementById("checkbox_upcountry").checked = false;
+                        final_price();
+                        $('#submitform').attr('disabled', false);
+                    } else if(Number(is_upcountry) == 0 && Number(non_upcountry) == -1 && n == 1){
+                        
+                        var upcountry_charges = (Number(3) * Number(data1.upcountry_distance)).toFixed(2);
+               
+                        $("#upcountry_charges").text(upcountry_charges);
+                        $("#checkbox_upcountry").val("upcountry_" + upcountry_charges + "_0");
+                        document.getElementById("checkbox_upcountry").checked = true;
+                
+                        final_price();
+                    }
+                    $('#submitform').attr('disabled', false);
+                }
+                break;
+            default:
                 $("#upcountry_charges").text("0.00");
                 $("#checkbox_upcountry").val("upcountry_0_0");
-                
-            }
-            $('#submitform').attr('disabled', false);
-            
+                document.getElementById("checkbox_upcountry").checked = false;
+                final_price();
+                $('#submitform').attr('disabled', false);
+                break;
         }
     } else {
         

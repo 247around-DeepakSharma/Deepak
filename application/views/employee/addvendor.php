@@ -1163,7 +1163,7 @@
                             </div>
                         </div>
                     </div>
-                                        <div class="panel panel-info">
+                    <div class="panel panel-info">
                         <div class="panel-heading"><b>Vendor Type</b></div>
                         <div class="panel-body">
                             <div class="col-md-12">
@@ -1176,6 +1176,25 @@
                                 <label class="checkbox-inline">
                                     <input type="checkbox" id="is_wh" name="is_wh" <?php if(isset($query[0]['is_wh'])) { if($query[0]['is_wh'] == 1){ echo "checked";}}?> value="1"><b>Warehouse</b>
                                 </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-info">
+                        <div class="panel-heading"><b>Collection Partner</b></div>
+                        <div class="panel-body">
+                            <div class="col-md-12">
+                                <div class="col-md-4">
+                                <div class="form-group ">
+                                    <label for="collection_partner" class="col-md-4">CP Credit Limit</label>
+                                    <div class="col-md-8">
+                                        <input  type="text" id="cp_credit_limit" class="form-control"  name="cp_credit_limit" 
+                                                value = "<?php if (isset($query[0]['cp_credit_limit'])) {
+                                            echo $query[0]['cp_credit_limit'];
+                                        } ?>">
+                                    </div>
+                                    
+                                </div>
+                            </div>
                             </div>
                         </div>
                     </div>

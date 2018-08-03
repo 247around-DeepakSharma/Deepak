@@ -444,7 +444,7 @@
                     },
                     data:{'estimate_cost':estimate_cost, booking_id:booking_id,assigned_vendor_id:assigned_vendor_id,amount_due:amount_due, 
                         agent_id:'<?php echo $this->session->userdata('agent_id');?>', 
-                        partner_id: '<?php echo $this->session->userdata('partner_id');?>', 'sp_id':spare_id, requestType:'UPDATE_OOW_EST'},
+                        partner_id: '<?php echo $this->session->userdata('partner_id');?>', 'sp_id':spare_id, requestType:'UPDATE_OOW_EST', gst_rate: '<?php echo DEFAULT_TAX_RATE;?>'},
                     url: "<?php echo base_url() ?>apiDataRequest",
                     success: function (data) {
 

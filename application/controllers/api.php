@@ -1412,7 +1412,7 @@ class Api extends CI_Controller {
                             $u = array('booking_status' => 'FollowUp');
                             //Update unit details
                             $this->booking_model->update_booking_unit_details($b['booking_id'], $u);
-                             $this->notify->insert_state_change($b['booking_id'], $b['current_status'], _247AROUND_FOLLOWUP, 
+                             $this->notify->insert_state_change($b['booking_id'], _247AROUND_FOLLOWUP, $b['current_status'], 
                                      "Booking Open After Customer Missed Call",_247AROUND_DEFAULT_AGENT, 
                                      _247AROUND_DEFAULT_AGENT_NAME,ACTOR_FOLLOW_UP,NEXT_ACTION_FOLLOW_UP, _247AROUND);
                         }
@@ -1487,7 +1487,11 @@ class Api extends CI_Controller {
     function send_missed_call_confirmation_sms($booking) {
         //log_message ('info', __METHOD__);
 
-        $sms['tag'] = "missed_call_confirmed";
+        if($booking['partner_id'] === GOOGLE_FLIPKART_PARTNER_ID){
+            $sms['tag'] = "missed_call_confirmed_for_google";
+        }else{
+            $sms['tag'] = "missed_call_confirmed";
+        }
         $sms['phone_no'] = $booking['booking_primary_contact_no'];
         $sms['smsData']['message'] = '';
         $sms['smsData']['service'] = $booking['services'];

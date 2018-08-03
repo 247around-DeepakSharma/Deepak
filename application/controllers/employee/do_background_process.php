@@ -229,6 +229,7 @@ class Do_background_process extends CI_Controller {
                 $unit_details['customer_paid_parts'] = $value['parts_cost'];
                 $unit_details['is_broken'] = $value['is_broken'];
                 $unit_details['serial_number_pic'] = $value['serial_number_pic'];
+                $unit_details['sf_model_number'] = $value['model_number'];
                 
                 if(!empty($value['serial_number_pic'])){
                     
@@ -258,6 +259,7 @@ class Do_background_process extends CI_Controller {
             $booking['internal_status'] = $current_status;
             $booking['amount_paid'] = $data[0]['amount_paid'];
             $booking['closing_remarks'] = $service_center['closing_remarks'];
+            $booking['cancellation_reason'] = NULL;
             $booking['customer_paid_upcountry_charges'] = $upcountry_charges;
             $booking['update_date'] = date('Y-m-d H:i:s');
             //update booking_details table
@@ -266,6 +268,7 @@ class Do_background_process extends CI_Controller {
             if ($current_status == _247AROUND_CANCELLED) {
                 $booking['cancellation_reason'] = $data[0]['cancellation_reason'];
                 $booking['internal_status'] = $booking['cancellation_reason'];
+                $booking['api_call_status_updated_on_completed'] = DEPENDENCY_ON_CUSTOMER;
             }
 
             //check partner status from partner_booking_status_mapping table  
@@ -279,6 +282,7 @@ class Do_background_process extends CI_Controller {
             }
 
             $this->booking_model->update_booking($booking_id, $booking);
+            $this->miscelleneous->process_booking_tat_on_completion($booking_id);
             //Update Spare parts details table
             $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status", array('booking_id' => $booking_id, 'status NOT IN ("Completed","Cancelled")' => NULL), false);
             foreach ($spare as $sp) {

@@ -1,4 +1,6 @@
 <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
+<link rel="stylesheet" href="<?php echo base_url();?>css/jquery.loading.css">
+<script src="<?php echo base_url();?>js/jquery.loading.js"></script>
 <div class="container-fluid">
     <div class="row" style="margin-top: 40px;">
         <div class="col-md-12">
@@ -70,7 +72,7 @@
                                 <div class="form-group <?php if (form_error('awb_by_sf')) { echo 'has-error';} ?>">
                                     <label for="awb" class="col-md-4">AWB</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control" id="awb_by_sf" name="awb_by_sf" value = "<?php if((set_value("awb_by_sf"))){ echo set_value("awb_by_sf");} else{ echo $spare_parts[0]['awb_by_sf'];}?>" placeholder="Please Enter AWB"  required>
+                                        <input onblur="check_awb_exist()" type="text" class="form-control" id="awb_by_sf" name="awb_by_sf" value = "<?php if((set_value("awb_by_sf"))){ echo set_value("awb_by_sf");} else{ echo $spare_parts[0]['awb_by_sf'];}?>" placeholder="Please Enter AWB"  required>
                                     </div>
                                     <?php echo form_error('awb_by_sf'); ?>
 
@@ -87,6 +89,7 @@
                                     <div class="col-md-6">
                                         <input id="aws_receipt" class="form-control"  name="defective_courier_receipt" type="file" required  style="background-color:#fff;pointer-events:cursor">
                                         <?php if(!empty($value['defective_courier_receipt'])) {?><a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $value['defective_courier_receipt']; ?> " target="_blank">Click Here to download previous invoice</a><?php } ?>
+                                        <input type="hidden" class="form-control"  id="exist_courier_image" name="exist_courier_image" >
                                     </div>
                                      <?php echo form_error('defective_courier_receipt'); ?>
                                 </div>
@@ -103,7 +106,7 @@
                                     <label for="shipment_date" class="col-md-4">Shipment Date</label>
                                     <div class="col-md-6">
                                         <div class="input-group input-append date">
-                                            <input id="defective_part_shipped_date" class="form-control"  name="defective_part_shipped_date" type="date" value = "<?php if(!empty($spare_parts[0]['defective_part_shipped_date'])){ echo $spare_parts[0]['defective_part_shipped_date']; } else { echo  date("Y-m-d", strtotime("+0 day"));} ?>" required readonly='true' style="background-color:#fff;pointer-events:cursor">
+                                            <input id="defective_part_shipped_date" class="form-control"  name="defective_part_shipped_date" type="text" value = "<?php if(!empty($spare_parts[0]['defective_part_shipped_date'])){ echo $spare_parts[0]['defective_part_shipped_date']; } else { echo  date("Y-m-d", strtotime("+0 day"));} ?>" required readonly='true' style="background-color:#fff;pointer-events:cursor">
                                             <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                         </div>
                                     </div>
@@ -116,11 +119,16 @@
                                 </div>  
                                 <?php echo form_error('remarks_defective_part'); ?>
                             </div>
+                                 
                             </div>
+                        </div>
+                        <div class="text-center">
+                            <span id="same_awb" style="display:none">This AWB already used same price will be added</span>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-12 text-center" style="margin-bottom:30px;">
+                    
                     <input type="hidden" name="sf_id" value="<?php echo $spare_parts[0]['service_center_id']?>">
                     <input type="hidden" name="booking_partner_id" value="<?php echo $spare_parts[0]['booking_partner_id']?>">
                     <input type="submit" value="Update Booking" style="background-color:#2C9D9C; border-color: #2C9D9C; color:#fff;" class="btn btn-md btn-default" />
@@ -130,7 +138,25 @@
     </div>
 </div>
 <script type="text/javascript">
-    $("#defective_part_shipped_date").datepicker({dateFormat: 'yy-mm-dd'});
+//    $("#defective_part_shipped_date").datepicker({dateFormat: 'yy-mm-dd'});
+     $('#defective_part_shipped_date').daterangepicker({
+        autoUpdateInput: false,
+        singleDatePicker: true,
+        showDropdowns: true,
+        minDate:false,
+        locale:{
+            format: 'YYYY-MM-DD'
+        }
+    });
+            
+    $('#defective_part_shipped_date').on('apply.daterangepicker', function(ev, picker) {
+        $(this).val(picker.startDate.format('YYYY-MM-DD'));
+    });
+    
+    $('#defective_part_shipped_date').on('cancel.daterangepicker', function(ev, picker) {
+        $(this).val('');
+    });
+    
 </script>
 <style type="text/css">
     #update_form .form-group label.error {
@@ -186,6 +212,59 @@
     });
     
     })(jQuery, window, document);
+    
+    
+    function check_awb_exist(){
+            var awb = $("#awb_by_sf").val();
+            if(awb){
+                    $.ajax({
+                    type: 'POST',
+                    beforeSend: function(){
+
+                        $('body').loadingModal({
+                        position: 'auto',
+                        text: 'Loading Please Wait...',
+                        color: '#fff',
+                        opacity: '0.7',
+                        backgroundColor: 'rgb(0,0,0)',
+                        animation: 'wave'
+                    });
+
+                        },
+                    url: '<?php echo base_url() ?>employee/service_centers/check_sf_shipped_defective_awb_exist',
+                    data:{awb:awb},
+                    success: function (response) {
+                        console.log(response);
+                        var data = jQuery.parseJSON(response);
+                        if(data.code === 247){
+                            alert("This AWB already used same price will be added");
+                            $("#same_awb").css("display","block");
+                            $('body').loadingModal('destroy');
+                           
+                            $("#defective_part_shipped_date").val(data.message[0].defective_part_shipped_date);
+                            $("#courier_name_by_sf").val(data.message[0].courier_name_by_sf);
+                            $("#courier_charges_by_sf").val("0");
+                            $("#courier_charges_by_sf").css("display","none");
+                            if(data.message[0].defective_courier_receipt){
+                               
+                                $("#exist_courier_image").val(data.message[0].defective_courier_receipt);
+                                $("#aws_receipt").css("display","none");
+                            }
+
+                        } else {
+
+                            $('body').loadingModal('destroy');
+                            $("#aws_receipt").css("display","block");
+                            $("#courier_charges_by_sf").css("display","block");
+                            $("#same_awb").css("display","none");
+                            $("#exist_courier_image").val("");
+                        }
+
+                    }
+                });
+            }
+            
+        }
     
 </script>
 <?php if($this->session->userdata('success')) { $this->session->unset_userdata('success');  }?>

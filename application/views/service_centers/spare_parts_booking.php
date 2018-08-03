@@ -1,6 +1,6 @@
 <?php
-if ($this->uri->segment(4)) {
-    $sn_no = $this->uri->segment(4) + 1;
+if ($this->uri->segment(3)) {
+    $sn_no = $this->uri->segment(3) + 1;
 } else {
     $sn_no = 1;
 }
@@ -14,6 +14,27 @@ if ($this->uri->segment(4)) {
                                 <span aria-hidden="true">&times;</span>
                             </button>
                             <strong>' . $this->session->userdata('success') . '</strong>
+                        </div>';
+        }
+        ?>
+    <?php
+        if ($this->session->userdata('stock_not_exist')) {
+            echo '<div class="alert alert-danger alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <strong>' . $this->session->userdata('stock_not_exist') . '</strong>
+                        </div>';
+        }
+        ?>
+    
+    <?php
+        if ($this->session->userdata('error')) {
+            echo '<div class="alert alert-danger alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <strong>' . $this->session->userdata('error') . '</strong>
                         </div>';
         }
         ?>
@@ -46,6 +67,7 @@ if ($this->uri->segment(4)) {
                                     <th class="text-center">Model Number</th>
                                     <th class="text-center">Serial Number</th>
                                     <th class="text-center">Problem Description</th>
+                                    <th class="text-center">Inventory Stock</th>
                                     <th class="text-center">Update</th>
                                     <th class="text-center">Reject</th>
                                     <th class="text-center">SF GST Declaration</th>
@@ -55,7 +77,6 @@ if ($this->uri->segment(4)) {
                             </thead>
                             <tbody>
                                 <?php
-                                $sn_no1 = 1;
                                 foreach ($spare_parts as $key => $row) {
                                     ?>
                                     <tr style="text-align: center;">
@@ -63,7 +84,7 @@ if ($this->uri->segment(4)) {
                                             <?php if ($row['is_upcountry'] == 1 && $row['upcountry_paid_by_customer'] == 0) { ?>
                                                 <i style="color:red; font-size:20px;" onclick="open_upcountry_model('<?php echo $row['booking_id']; ?>', '<?php echo $row['amount_due']; ?>')"
                                                    class="fa fa-road" aria-hidden="true"></i><?php } ?>
-                                            <?php echo $sn_no1; ?>
+                                            <?php echo $sn_no; ?>
                                         </td>
                                         <td>
                                             <a  style="color:blue;" href="<?php echo base_url(); ?>service_center/booking_details/<?php echo urlencode(base64_encode($row['booking_id']));?>"  title='View'><?php echo $row['booking_id']; ?></a>
@@ -90,12 +111,17 @@ if ($this->uri->segment(4)) {
                                         <td>
                                             <?php echo $row['remarks_by_sc']; ?>
                                         </td>
+                                        <td>
+                                            <?php echo $row['stock']; ?>
+                                        </td>
 
                                         <td>
-                                            <a href="<?php echo base_url() ?>service_center/update_spare_parts_form/<?php echo $row['id']; ?>" class="btn btn-sm btn-primary" title="Update" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>
+                                            <a href="<?php echo base_url() ?>service_center/update_spare_parts_form/<?php echo $row['booking_id']; ?>" class="btn btn-sm btn-primary" title="Update" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>
                                         </td>
                                         <td>
-                                            <a href="#" data-toggle="modal" id="<?php echo "spare_parts" . $row['id']; ?>" data-url="<?php echo base_url(); ?>employee/inventory/update_action_on_spare_parts/<?php echo $row['id'] . "/" . $row['booking_id']; ?>/CANCEL_PARTS" data-booking_id="<?php echo $row['booking_id']; ?>" data-partner_id="<?php echo $row['partner_id']; ?>" data-target="#myModal2" class="btn btn-sm btn-danger open-adminremarks" title="Reject" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class="fa fa-times" aria-hidden='true'></i></a>
+                                            <?php $spare_id = explode(",", $row['spare_id']);  if(count($spare_id) == 1) { ?>
+                                            <a href="#" data-toggle="modal" id="<?php echo "spare_parts" . $spare_id[0]; ?>" data-url="<?php echo base_url(); ?>employee/inventory/update_action_on_spare_parts/<?php echo $spare_id[0] . "/" . $row['booking_id']; ?>/CANCEL_PARTS" data-booking_id="<?php echo $row['booking_id']; ?>" data-partner_id="<?php echo $row['partner_id']; ?>" data-target="#myModal2" class="btn btn-sm btn-danger open-adminremarks" title="Reject" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class="fa fa-times" aria-hidden='true'></i></a>
+                                            <?php } ?>
                                         </td>
                                         <td>
                                             <?php if(!empty($row['is_gst_doc'])){ ?> 
@@ -115,7 +141,7 @@ if ($this->uri->segment(4)) {
 
                                     </tr>
                                     <?php
-                                    $sn_no1++;
+                                    $sn_no++;
                                 }
                                 ?>
                             </tbody>
@@ -290,3 +316,11 @@ if ($this->uri->segment(4)) {
 <?php if ($this->session->userdata('success')) {
     $this->session->unset_userdata('success');
 } ?>
+
+<?php if ($this->session->userdata('stock_not_exist')) {
+    $this->session->unset_userdata('stock_not_exist');
+} ?>
+<?php if ($this->session->userdata('error')) {
+    $this->session->unset_userdata('error');
+} ?>
+

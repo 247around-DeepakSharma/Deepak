@@ -60,8 +60,7 @@ class Login extends CI_Controller {
             if ($login) {
                 $is_am = 0;
                 $this->session->sess_create();
-                $amArray = $this->reusable_model->get_search_result_data("partners",'1',array("partners.account_manager_id"=>$login[0]['id'],"employee.groups != 'admin'"=>NULL,'partners.is_active'=>1),
-                        array("employee"=>"employee.id = partners.account_manager_id"),NULL,NULL,NULL,NULL,array()); 
+                $amArray = $this->reusable_model->get_search_result_data("employee",'1',array("groups"=>"accountmanager"),NULL,NULL,NULL,NULL,NULL,array()); 
                 if(!empty($amArray)){
                     $is_am = 1;
                 }
@@ -419,7 +418,7 @@ class Login extends CI_Controller {
                 // Add Navigation Header In Cache
                 $this->miscelleneous->set_header_navigation_in_cache("Partner");
                 //Adding Log Details
-                 redirect(base_url() . "partner/home");
+                 redirect(base_url() . "partner/dashboard");
 
             }else{
                 $userSession = array('error' => 'Sorry, your Login has been De-Activated');
@@ -462,7 +461,7 @@ class Login extends CI_Controller {
                     $sc_details[0]['min_upcountry_distance'], TRUE);
            
             if ($this->session->userdata('is_sf') === '1') {
-                echo "service_center/pending_booking";
+                echo "service_center/dashboard";
             } else if ($this->session->userdata('is_cp') === '1') {
                 echo "service_center/buyback/bb_order_details";
             }else if($this->session->userdata('is_wh') === '1'){
@@ -551,7 +550,7 @@ class Login extends CI_Controller {
                         $is_gst_exist,$sc_details[0]['isEngineerApp'], $sc_details[0]['min_upcountry_distance'],0);
                 
                 if($this->session->userdata('is_sf') === '1'){
-                    redirect(base_url() . "service_center/pending_booking");
+                    redirect(base_url() . "service_center/dashboard");
                 }else if($this->session->userdata('is_cp') === '1'){
                     redirect(base_url() . "service_center/buyback/bb_order_details");
                 }else if($this->session->userdata('is_wh') === '1'){
@@ -815,6 +814,55 @@ function user_role_management(){
                     $select = $select.'<option value="'.$group["groups"].'">'.$group["groups"].'</option>';
                 }
            echo $select;
+    }
+    
+    /**
+     * @Desc: This function is used to login to particular employee
+     *          This function is being called using AJAX
+     * @params: employee id
+     * @return: void
+     * 
+     */
+    function allow_log_in_to_employee($employee_id) {
+        
+        $employee_details = $this->employee_model->getemployeefromid($employee_id);        
+
+        if (!empty($employee_details)) {
+            $employee_id = $employee_details[0]['employee_id'];
+            $employee_password = $employee_details[0]['clear_password'];
+            $login = $this->employeelogin->login($employee_id, md5($employee_password));
+            if ($login) {
+                $is_am = 0;
+                $this->session->sess_create();
+                 $this->session->set_userdata(array("login_by"=>_247AROUND_EMPLOYEE_STRING));
+                $amArray = $this->reusable_model->get_search_result_data("partners",'1',array("partners.account_manager_id"=>$login[0]['id'],"employee.groups != 'admin'"=>NULL,'partners.is_active'=>1),
+                        array("employee"=>"employee.id = partners.account_manager_id"),NULL,NULL,NULL,NULL,array()); 
+                if(!empty($amArray)){
+                    $is_am = 1;
+                }
+                $this->setSession($login[0]['employee_id'], $login[0]['id'], $login[0]['phone'],$login[0]['official_email'],$login[0]['full_name'],$is_am);
+               
+                $this->miscelleneous->set_header_navigation_in_cache("247Around");
+                $this->push_notification_lib->get_unsubscribers_by_cookies();
+                //Saving Login Details in Database
+                $data['browser'] = $this->agent->browser();
+                $data['agent_string'] = $this->agent->agent_string();
+                $data['ip'] = $this->session->all_userdata()['ip_address'];
+                $data['action'] = _247AROUND_LOGIN;
+                $data['entity_type'] = $this->session->all_userdata()['userType'];
+                $data['agent_id'] = $this->session->all_userdata()['id'];
+                $data['entity_id'] = _247AROUND;
+
+                $login_id = $this->employee_model->add_login_logout_details($data);
+                //Adding Log Details
+                if($login_id){
+                    log_message('info',__FUNCTION__.' Logging details have been captured for employee. Details are : '.print_r($data, TRUE));
+                }else{
+                    log_message('info',__FUNCTION__.' Err in capturing logging details for employee. Details are :  '. print_r($data, TRUE));
+                }
+               
+            } 
+        } 
     }
 }
 /* End of file welcome.php */

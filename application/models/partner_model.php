@@ -168,7 +168,7 @@ function get_data_for_partner_callback($booking_id) {
 
           $query = $this->db->query("Select Distinct services.services,
             users.name as customername, users.phone_number,
-            booking_details.*,appliance_brand,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y')) as aging, count_escalation 
+            booking_details.*,appliance_brand,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as aging, count_escalation 
 
             from booking_details
             JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
@@ -236,8 +236,8 @@ function get_data_for_partner_callback($booking_id) {
                 . ' booking_details.booking_date, booking_details.closing_remarks, '
                 . ' booking_details.booking_timeslot, booking_details.city, booking_details.state,'
                 . ' booking_details.cancellation_reason, booking_details.order_id,booking_details.is_upcountry,amount_due, upcountry_paid_by_customer'
-                . ',(CASE WHEN DATEDIFF(date(booking_details.closed_date),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y"))<0 THEN 0 ELSE '
-                . 'DATEDIFF(date(booking_details.closed_date),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) END )  as tat');
+                . ',(CASE WHEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,"%d-%m-%Y"))<0 THEN 0 ELSE '
+                . 'DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,"%d-%m-%Y")) END )  as tat');
         $this->db->from('booking_details');
         $this->db->join('services','services.id = booking_details.service_id');
         $this->db->join('users','users.user_id = booking_details.user_id');
@@ -366,73 +366,35 @@ function get_data_for_partner_callback($booking_id) {
         }
         return $finalArray;
     }
-    
+    function get_partner_summary_report_fields($partner_id){
+        $data = $this->reusable_model->get_search_result_data("partner_summary_report_mapping","*",array("is_default =1 OR partner_id LIKE '%".$partner_id."%'"=>NULL),NULL,NULL,
+                array("index_in_report"=>"ASC"),NULL,NULL,array());
+        return $data;
+    }
+
     //Return all leads shared by Partner in the last 30 days in CSV
     function get_partner_leads_csv_for_summary_email($partner_id,$percentageLogic,$whereConditions=NULL){
+        $mappingData = $this->get_partner_summary_report_fields($partner_id);
+        foreach($mappingData as $values){
+            $subQueryArray[$values['Title']] = $values['sub_query'];
+        }
         if(!$whereConditions){
             $where = "((booking_details.create_date > (CURDATE() - INTERVAL 1 MONTH)) OR (booking_details.current_status NOT IN ('Cancelled','Completed')))";
         }
         else{
             $where = $whereConditions;
         }
-        $dependency = "";
-        $closeDateSubQuery = "booking_details.service_center_closed_date AS 'Completion Date'";
-        $tatSubQuery  = '(CASE WHEN current_status  = "Completed" THEN (CASE WHEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) < 0 THEN 0 ELSE'
-                . ' DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) END) ELSE "" END) as TAT';
-        $agingSubQuery = '(CASE WHEN current_status  IN ("Pending","Rescheduled","FollowUp") THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) ELSE "" END) as Ageing';
         if($partner_id == AKAI_ID){
-            
-            $dependency = ', IF(dependency_on =1, "'.DEPENDENCY_ON_AROUND.'", "'.DEPENDENCY_ON_CUSTOMER.'") as Dependency ';
-            
-        } else if($partner_id == JEEVES_ID){
-            
-            $dependency = ', `api_call_status_updated_on_completed` AS Dependency ';
-        }
+            $subQueryArray['Dependency'] = 'IF(dependency_on =1, "'.DEPENDENCY_ON_AROUND.'", "'.DEPENDENCY_ON_CUSTOMER.'") as Dependency ';
+        } 
         if ($percentageLogic == 1){
-            $tatSubQuery  = '(CASE WHEN service_center_closed_date IS NOT NULL AND !(current_status = "Cancelled" OR internal_status ="InProcess_Cancelled") '
+            $subQueryArray['TAT']  = '(CASE WHEN service_center_closed_date IS NOT NULL AND !(current_status = "Cancelled" OR internal_status ="InProcess_Cancelled") '
                     . 'THEN (CASE WHEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,"%d-%m-%Y")) < 0 THEN 0 ELSE'
                 . ' DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,"%d-%m-%Y")) END) ELSE "" END) as TAT';
-            
-            $agingSubQuery = '(CASE WHEN booking_details.service_center_closed_date IS NULL THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,"%d-%m-%Y")) ELSE "" END) as Ageing';
-            $closeDateSubQuery = "date(booking_details.service_center_closed_date) AS 'Completion Date'";
+             $subQueryArray['Ageing']  = '(CASE WHEN booking_details.service_center_closed_date IS NULL THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,"%d-%m-%Y")) ELSE "" END) as Ageing';
         }
-        
-        return $query = $this->db->query("SELECT 
-            order_id AS 'Sub Order ID',
-            booking_details.booking_id AS '247BookingID',
-            booking_details.create_date AS 'Referred Date and Time',
-            GROUP_CONCAT(ud.appliance_brand) AS 'Brand', 
-            IFNULL(GROUP_CONCAT(ud.model_number),'') AS 'Model',
-            CASE WHEN(ud.serial_number IS NULL OR ud.serial_number = '') THEN '' ELSE (CONCAT('''', GROUP_CONCAT(ud.serial_number)))  END AS 'Serial Number',
-            services AS 'Product', 
-            GROUP_CONCAT(ud.appliance_description) As 'Description',
-            name As 'Customer', 
-            home_address AS 'Customer Address', 
-            booking_pincode AS 'Pincode', 
-            booking_details.city As 'City', 
-            booking_details.state As 'State', 
-            booking_primary_contact_no AS Phone, 
-            user_email As 'Email ID', 
-            GROUP_CONCAT(ud.price_tags) AS 'Call Type (Installation /Table Top Installation/Demo/ Service)',
-            CASE WHEN(current_status = 'Completed' || current_status = 'Cancelled') THEN (closing_remarks) ELSE (reschedule_reason) END AS 'Remarks',
-            'Service sent to vendor' AS 'Status by Partner', 
-            booking_date As 'Scheduled Appointment Date(DD/MM/YYYY)', 
-            booking_timeslot AS 'Scheduled Appointment Time(HH:MM:SS)', 
-            partner_internal_status AS 'Final Status',
-
-            CASE WHEN (booking_details.is_upcountry = '0') THEN 'Local' ELSE 'Upcountry' END as 'Is Upcountry', 
-            ".$closeDateSubQuery.",
-            ".$tatSubQuery.",
-            ".$agingSubQuery.",
-            booking_details.rating_stars AS 'Rating',
-            booking_details.rating_comments AS 'Rating Comments',
-            GROUP_CONCAT(spare_parts_details.parts_requested) As 'Requested Part', 
-            GROUP_CONCAT(spare_parts_details.date_of_request) As 'Part Request Date', 
-            GROUP_CONCAT(spare_parts_details.parts_shipped) As 'Shipped Part', 
-            GROUP_CONCAT(spare_parts_details.shipped_date) As 'Part Shipped Date', 
-            GROUP_CONCAT(spare_parts_details.defective_part_shipped) As 'Shipped Defective Part', 
-            GROUP_CONCAT(spare_parts_details.defective_part_shipped_date) As 'Defective Part Shipped Date'
-            $dependency
+        $subQueryString = implode(",", array_values($subQueryArray));
+        return $query = $this->db->query("SELECT $subQueryString
             FROM booking_details JOIN booking_unit_details ud  ON booking_details.booking_id = ud.booking_id 
             JOIN services ON booking_details.service_id = services.id 
             JOIN users ON booking_details.user_id = users.user_id
@@ -464,19 +426,18 @@ function get_data_for_partner_callback($booking_id) {
     function get_partner_summary_params($partner_id) {
         
         $where1 = array('booking_details.partner_id' => $partner_id, 'MONTH(booking_details.create_date) = MONTH(CURDATE())' => NULL, 'YEAR(booking_details.create_date) = YEAR(CURDATE())' => NULL);
-        $current_month_booking = $this->booking_model->get_bookings_count_by_any( 'DISTINCT current_status,booking_details.create_date,booking_details.closed_date,booking_details.request_type,booking_details.booking_date',$where1, "", "", true);
+        $current_month_booking = $this->booking_model->get_bookings_count_by_any( 'DISTINCT current_status,booking_details.initial_booking_date,booking_details.create_date,booking_details.service_center_closed_date as closed_date,booking_details.request_type,booking_details.booking_date',$where1, "", "", true);
 
         $where2 = array('booking_details.partner_id' => $partner_id, 'DATE(booking_details.create_date) = CURDATE()' => NULL);
-        $today_booking = $this->booking_model->get_bookings_count_by_any('DISTINCT current_status,booking_details.create_date,booking_details.closed_date,booking_details.request_type,booking_details.booking_date', $where2, "", "", true );
+        $today_booking = $this->booking_model->get_bookings_count_by_any('DISTINCT current_status,booking_details.initial_booking_date,booking_details.create_date,booking_details.service_center_closed_date as closed_date,booking_details.request_type,booking_details.booking_date', $where2, "", "", true );
 
         $where3 = array('booking_details.partner_id' => $partner_id, 'DATE(booking_details.create_date) = DATE(DATE_SUB(NOW(), INTERVAL 1 DAY))' => NULL);
-        $yesterday_booking = $this->booking_model->get_bookings_count_by_any('DISTINCT current_status,booking_details.create_date,booking_details.closed_date,booking_details.request_type,booking_details.booking_date', $where3, "", "", true );
+        $yesterday_booking = $this->booking_model->get_bookings_count_by_any('DISTINCT current_status,booking_details.initial_booking_date,booking_details.create_date,booking_details.service_center_closed_date as closed_date,booking_details.request_type,booking_details.booking_date', $where3, "", "", true );
         
         $where4 = array('booking_details.partner_id' => $partner_id, "booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."')" => NULL);
-       
-        $totalPending = $this->booking_model->get_bookings_count_by_any('DISTINCT current_status,booking_details.create_date,booking_details.closed_date,booking_details.request_type,booking_details.booking_date', $where4, "", "", true);
-
         
+        $totalPending = $this->booking_model->get_bookings_count_by_any('DISTINCT current_status,booking_details.initial_booking_date,booking_details.create_date,booking_details.service_center_closed_date as closed_date,booking_details.request_type,booking_details.booking_date', $where4, "", "", true);
+
         $current_month_status = array_count_values(array_column($current_month_booking, 'current_status'));
         if (count($today_booking) !== 0 || count($yesterday_booking) !== 0 || (isset($current_month_status['Pending']) && !empty($current_month_status['Pending'])) || (isset($current_month_status['Rescheduled']) && !empty($current_month_status['Rescheduled']))) {
             $result['current_month_installation_booking_requested'] = 0;
@@ -528,11 +489,11 @@ function get_data_for_partner_callback($booking_id) {
                             break;
                         case _247AROUND_PENDING:
                         case _247AROUND_RESCHEDULED:
-                            if (date('Y-m-d', strtotime($value->booking_date)) <= date('Y-m-d') && (date('Y-m-d', strtotime($value->booking_date)) >= date("Y-m-d", strtotime("-2 days"))) || date('Y-m-d', strtotime($value->booking_date)) >= date('Y-m-d')) {
+                            if (date('Y-m-d', strtotime($value->initial_booking_date)) <= date('Y-m-d') && (date('Y-m-d', strtotime($value->initial_booking_date)) >= date("Y-m-d", strtotime("-2 days"))) || date('Y-m-d', strtotime($value->initial_booking_date)) >= date('Y-m-d')) {
                                 $result['zero_to_two_days_repair_booking_pending'] ++;
-                            } else if ((date("Y-m-d", strtotime($value->booking_date)) < date("Y-m-d", strtotime("-2 days"))) && (date("Y-m-d", strtotime($value->booking_date)) >= date("Y-m-d", strtotime("-5 days")))) {
+                            } else if ((date("Y-m-d", strtotime($value->initial_booking_date)) < date("Y-m-d", strtotime("-2 days"))) && (date("Y-m-d", strtotime($value->initial_booking_date)) >= date("Y-m-d", strtotime("-5 days")))) {
                                 $result['three_to_five_days_repair_booking_pending'] ++;
-                            } else if (date('Y-m-d', strtotime($value->booking_date)) < date('Y-m-d', strtotime("-5 days"))) {
+                            } else if (date('Y-m-d', strtotime($value->initial_booking_date)) < date('Y-m-d', strtotime("-5 days"))) {
                                 $result['greater_than_5_days_repair_booking_pending'] ++;
                             }
                             break;
@@ -551,11 +512,11 @@ function get_data_for_partner_callback($booking_id) {
                             break;
                         case _247AROUND_PENDING:
                         case _247AROUND_RESCHEDULED:
-                            if (date('Y-m-d', strtotime($value->booking_date)) <= date('Y-m-d') && (date('Y-m-d', strtotime($value->booking_date)) >= date("Y-m-d", strtotime("-2 days"))) || date('Y-m-d', strtotime($value->booking_date)) >= date('Y-m-d')) {
+                            if (date('Y-m-d', strtotime($value->initial_booking_date)) <= date('Y-m-d') && (date('Y-m-d', strtotime($value->initial_booking_date)) >= date("Y-m-d", strtotime("-2 days"))) || date('Y-m-d', strtotime($value->initial_booking_date)) >= date('Y-m-d')) {
                                 $result['zero_to_two_days_installation_booking_pending'] ++;
-                            } else if ((date("Y-m-d", strtotime($value->booking_date)) < date("Y-m-d", strtotime("-2 days"))) && (date("Y-m-d", strtotime($value->booking_date)) >= date("Y-m-d", strtotime("-5 days")))) {
+                            } else if ((date("Y-m-d", strtotime($value->initial_booking_date)) < date("Y-m-d", strtotime("-2 days"))) && (date("Y-m-d", strtotime($value->initial_booking_date)) >= date("Y-m-d", strtotime("-5 days")))) {
                                 $result['three_to_five_days_installation_booking_pending'] ++;
-                            } else if (date('Y-m-d', strtotime($value->booking_date)) < date('Y-m-d', strtotime("-5 days"))) {
+                            } else if (date('Y-m-d', strtotime($value->initial_booking_date)) < date('Y-m-d', strtotime("-5 days"))) {
                                 $result['greater_than_5_days_installation_booking_pending'] ++;
                             }
                             break;
@@ -997,6 +958,11 @@ function get_data_for_partner_callback($booking_id) {
         }
     }
     
+    function get_tollfree_and_contact_persons(){
+        $sql = "SELECT official_contact_number as contact, name,partners.public_name as partner  FROM contact_person JOIN partners ON partners.id =  contact_person.entity_id UNION SELECT customer_care_contact as contact, 'Toll Free Number' as name , partners.public_name as partner FROM partners ";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
    
     /**
      * @Desc: This function is used to get Partner Services and Brands details
@@ -1551,7 +1517,7 @@ function get_data_for_partner_callback($booking_id) {
         $agingSubQuery = "";
         if($status == 'Pending'){
             $where = "booking_details.current_status IN ('Pending','Rescheduled')";
-            $agingSubQuery = ', DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) as Aging';
+            $agingSubQuery = ', DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,"%d-%m-%Y")) as Aging';
         }
         else if($status == 'Completed'){
             $where = "booking_details.current_status IN ('Completed')";
@@ -1563,14 +1529,13 @@ function get_data_for_partner_callback($booking_id) {
         return $query = $this->db->query("SELECT 
             order_id AS 'Sub Order ID',
             booking_details.booking_id AS '247BookingID',
-            date(booking_details.create_date) AS 'Referred Date and Time',
+            date(booking_details.create_date) AS 'Referred Date',
             ud.appliance_brand AS 'Brand', 
             IFNULL(ud.model_number,'') AS 'Model',
             CASE WHEN(ud.serial_number IS NULL OR ud.serial_number = '') THEN '' ELSE (CONCAT('''', ud.serial_number))  END AS 'Serial Number',
             services AS 'Product', 
             ud.appliance_description As 'Description',
             name As 'Customer', 
-            home_address AS 'Customer Address', 
             booking_pincode AS 'Pincode', 
             booking_details.city As 'City', 
             booking_details.state As 'State', 
@@ -1578,9 +1543,9 @@ function get_data_for_partner_callback($booking_id) {
             user_email As 'Email ID', 
             ud.price_tags AS 'Call Type (Installation /Table Top Installation/Demo/ Service)',
             CASE WHEN(current_status = 'Completed' || current_status = 'Cancelled') THEN (closing_remarks) ELSE (reschedule_reason) END AS 'Remarks',
-            'Service sent to vendor' AS 'Status by Partner', 
             booking_date As 'Scheduled Appointment Date(DD/MM/YYYY)', 
             booking_timeslot AS 'Scheduled Appointment Time(HH:MM:SS)', 
+            initial_booking_date As 'First Booking Date', 
             partner_internal_status AS 'Final Status',
             GROUP_CONCAT(spare_parts_details.parts_requested) As 'Requested Part', 
             GROUP_CONCAT(spare_parts_details.date_of_request) As 'Part Request Date', 
@@ -1619,6 +1584,31 @@ function get_data_for_partner_callback($booking_id) {
     function insert_partner_serial_number_in_batch($data){
         $this->db->insert_ignore_duplicate_batch('partner_serial_no', $data);
         return $this->db->insert_id();
+    }
+        
+      /**
+     * @desc: This function is used to get the contact persons of warehouse from contact_person table
+     * @params: $id
+     * @return: string
+     * 
+     */
+    function select_contact_person($id) {
+        $query = $this->db->query("Select id, name from contact_person where entity_id= '".$id."' AND is_active='1' AND entity_type = 'partner' AND name IS NOT NULL order by name");
+        return $query->result();
+    }
+        /**
+     * @desc: This function is used to get the email of POC and AM from partner table
+     * @params: $id
+     * @return: string
+     * 
+     */
+    function select_POC_and_AM_email($id) {
+        $this->db->select('p.primary_contact_email, e.official_email');
+        $this->db->from('partners p');
+        $this->db->join('employee e', 'e.id = p.account_manager_id'); 
+        $this->db->where('p.id', $id);  
+        $query = $this->db->get();
+        return $query->result();
     }
 }
 

@@ -119,5 +119,9 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
 FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE employee_relation.agent_id = '" . $rmID . "'";
          $query = $this->db->query($sql);
         return $query->result_array();
+}
+    function delete_from_table($table,$where){
+        $this->db->where($where);
+        $this->db->delete($table);
     }
 }

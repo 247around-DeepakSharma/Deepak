@@ -302,6 +302,7 @@ define('ERR_INVALID_AUTH_TOKEN_MSG', 'Invalid Auth Token');
 define('ERR_MOBILE_NUM_MISSING_MSG', 'Mobile Number Missing');
 define('ERR_ORDER_ID_EXISTS_MSG', 'Order ID Exists');
 define('ERR_MANDATORY_PARAMETER_MISSING_MSG', 'Mandatory Parameter is Missing');
+define('ERR_INVALID_PRODUCT_MSG', 'Invalid Product');
 define('ERR_INVALID_REQUEST_TYPE_MSG', 'Invalid Request Type');
 //define('ERR_ORDER_ID_NOT_FOUND_MSG', 'Order ID Not Found');
 define('ERR_INVALID_BOOKING_ID_MSG', 'Invalid Booking ID');
@@ -316,13 +317,9 @@ define('ERR_INVALID_JSON_INPUT_MSG', 'Invalid JSON Input');
 define('ERR_INVALID_PRODUCT_TYPE_MSG', 'DENIED BY VENDOR');
 define('ERR_INVALID_SERVICE_AREA_MSG', 'Non Serviceable Area');
 define('ERR_BOOKING_NOT_ASSIGNED_MSG', 'Engineer Not Assigned');
-
-define('ERR_INVALID_PRODUCT_MSG', 'Invalid Product');
-
 define('ERR_SPD_DATE_MANDATORY_MSG', 'Service Promise Date is Mandatory');
 define('ERR_INVALID_SPD_DATE_MSG', 'Invalid Service Promise Date');
 define('ERR_CALL_ALREADY_CANCELLED_MSG', 'Call is already cancelled');
-
 //ICICI Bank name constant
 define('ICICI_BANK_NAME', 'ICICI Bank Ltd');
 
@@ -508,7 +505,7 @@ define("QC_HSN_CODE", 998397);
 define("HSN_CODE", "998715");
 define("STAND_HSN_CODE", "8302");
 define("COMMISION_CHARGE_HSN_CODE", "996111");
-define('ACCOUNTANT_EMAILID',"manojaj@247around.com" );
+define('ACCOUNTANT_EMAILID',"accounts@247around.com" );
 
 
 //Booking Rescheduled Confirmation SMS Constant
@@ -575,12 +572,13 @@ define('JEEVES_PRODUCT_NOT_DELIVERED','Set Not Delivered above 2 Days');
 define('JEEVES_BOOKING_DELAY_BY_AROUND','Allotted/ Closed delay by SF / Jeeves');
 define('JEEVES_CALL_COMPLETED_WITH_IN_TAT', "call completed with in TAT");
 
-define('RESCHEDULE_FOR_UPCOUNTRY', "Upcountry Booking");
-define("ENGINEER_ON_ROUTE", "Engineer on route");
-
 //Define Constant for Partner Inventory File 
 define('PARTNER_INVENTORY_DETAILS_FILE','Inventory-file');
+
+define('RESCHEDULE_FOR_UPCOUNTRY', "Upcountry Booking");
+define("ENGINEER_ON_ROUTE", "Engineer on route");
 define("INVOCIE_TAG_FOR_INVENTORY", "inventory");
+
 
 //Define Constant for Partner Appliance model
 define('PARTNER_APPLIANCE_MODEL_FILe','Appliance-model');
@@ -595,10 +593,11 @@ define('PARTNER_SERIAL_NUMBER_FILE_TYPE','partner_serial_number');
 
 //warehouse incharge constant
 define('WAREHOUSE_INCHARCGE_CONSTANT','wh_incharge');
-
 define('NEW_CHARGES_ADDED','New Charges Added');
+define('MISC_CHARGES_REMOVED','Miscellaneous Charges Removed');
 //Partner Login
 define('PARTNER_POC_ROLE_ID','1');
+
 
 //INventory 
 define('INVENTORY_HANDLER_ID', '10030');

@@ -289,7 +289,7 @@ class invoices_model extends CI_Model {
             $result = $data->result_array();
             
             $bank_transactions = $this->getbank_transaction_summary($vendor_partner, $vendor_partner_id);
-            $result[0]['final_amount'] = round($result[0]['amount_collected_paid'] - $bank_transactions[0]['credit_amount'] + $bank_transactions[0]['debit_amount'],0);
+            $result[0]['final_amount'] = sprintf("%.2f",($result[0]['amount_collected_paid'] - $bank_transactions[0]['credit_amount'] + $bank_transactions[0]['debit_amount']));
             return $result;
     }
     
@@ -566,7 +566,7 @@ class invoices_model extends CI_Model {
     }
     
     function get_partner_invoice_data($partner_id, $from_date, $to_date) {
-        $sql = "SELECT DISTINCT (`partner_net_payable`) AS rate, ".HSN_CODE." AS hsn_code, 
+        $sql = "SELECT DISTINCT (`partner_net_payable`) AS rate, " . HSN_CODE . " AS hsn_code, 
                 CASE 
                    WHEN MIN( ud.`appliance_capacity` ) = '' AND MAX( ud.`appliance_capacity` ) = '' THEN
                    concat(services,' ', price_tags )
@@ -589,12 +589,12 @@ class invoices_model extends CI_Model {
                 
                 
                 END AS description, 
-                ".DEFAULT_TAX_RATE." as gst_rate,
+                " . DEFAULT_TAX_RATE . " as gst_rate,
                 COUNT( ud.`appliance_capacity` ) AS qty, 
                 (partner_net_payable * COUNT( ud.`appliance_capacity` )) AS taxable_value,
                 `partners`.company_name, product_or_services,
                 `partners`.address as company_address, partners.pincode, partners.district,
-                `partners`.state,
+                `partners`.state, partners.is_wh,
                 `partners`.gst_number
                 FROM  `booking_unit_details` AS ud, services, partners
                 WHERE `partner_net_payable` >0
@@ -609,63 +609,138 @@ class invoices_model extends CI_Model {
 
         $query = $this->db->query($sql);
         $result['result'] = $query->result_array();
-        
-        if (!empty($result['result'])) {
-            $upcountry_data = $this->upcountry_model->upcountry_partner_invoice($partner_id, $from_date, $to_date);
-            $courier = $this->get_partner_courier_charges($partner_id, $from_date, $to_date);
-            $misc_select = 'booking_details.order_id, miscellaneous_charges.booking_id, '
+
+        //if (!empty($result['result'])) {
+        $upcountry_data = $this->upcountry_model->upcountry_partner_invoice($partner_id, $from_date, $to_date);
+        $courier = $this->get_partner_courier_charges($partner_id, $from_date, $to_date);
+        $warehouse_courier = $this->get_partner_invoice_warehouse_courier_data($partner_id, $from_date, $to_date);
+        $defective_return_to_partner = $this->get_defective_parts_courier_return_partner($partner_id, $from_date, $to_date);
+        $misc_select = 'booking_details.order_id, miscellaneous_charges.booking_id, '
                 . 'miscellaneous_charges.product_or_services, miscellaneous_charges.description, vendor_basic_charges,'
                 . 'miscellaneous_charges.partner_charge, miscellaneous_charges.id,'
-                . 'CONCAT("'.S3_WEBSITE_URL.'misc-images/",approval_file) as file';
+                . 'CONCAT("' . S3_WEBSITE_URL . 'misc-images/",approval_file) as file';
+
+        $misc = $this->get_misc_charges_invoice_data($misc_select, "miscellaneous_charges.partner_invoice_id IS NULL", $from_date, $to_date, "booking_details.partner_id", $partner_id, "partner_charge");
+        $result['upcountry'] = array();
+        $result['courier'] = array();
+        $result['misc'] = array();
+        $result['warehouse_courier'] = array();
+        $result['defective_part_by_wh'] = array();
+        $result['final_courier'] = array();
+        $result['packaging_rate'] = 0;
+        $result['packaging_quantity'] = 0;
+        $final_courier = array_merge($courier, $warehouse_courier, $defective_return_to_partner);
+
+        
+        if (!empty($upcountry_data)) {
+            $up_country = array();
+            $up_country[0]['description'] = 'Upcountry Charges';
+            $up_country[0]['hsn_code'] = '';
+            $up_country[0]['qty'] = '';
+            $up_country[0]['rate'] = '';
+            $up_country[0]['gst_rate'] = DEFAULT_TAX_RATE;
+            $up_country[0]['product_or_services'] = 'Upcountry';
+            $up_country[0]['taxable_value'] = $upcountry_data[0]['total_upcountry_price'];
+            $result['result'] = array_merge($result['result'], $up_country);
+            $result['upcountry'] = $upcountry_data;
+        }
+
+        if (!empty($warehouse_courier)) {
+            $packaging = $this->get_fixed_warehouse_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
+                "entity_id" => $partner_id, "charges_type" => PACKAGING_RATE_TAG));
+            if (!empty($packaging)) {
+                $c_data = array();
+                $c_data[0]['description'] = $packaging[0]['description'];
+                $c_data[0]['hsn_code'] = $packaging[0]['hsn_code'];
+                $c_data[0]['qty'] = count($warehouse_courier);
+                $c_data[0]['rate'] = $packaging[0]['fixed_charges'];
+                $c_data[0]['gst_rate'] = $packaging[0]['gst_rate'];
+                $c_data[0]['product_or_services'] = $packaging[0]['description'];
+                $c_data[0]['taxable_value'] = $c_data[0]['qty'] * $packaging[0]['fixed_charges'];
+                $result['result'] = array_merge($result['result'], $c_data);
+                
+                $result['packaging_rate'] = $packaging[0]['fixed_charges'];
+                $result['packaging_quantity'] = count($warehouse_courier);
+                
+                $result['warehouse_courier'] = $warehouse_courier;
+            }
+        }
+
+        if (!empty($final_courier)) {
+            $c_data = array();
+            $c_data[0]['description'] = 'Courier Charges';
+            $c_data[0]['hsn_code'] = '';
+            $c_data[0]['qty'] = '';
+            $c_data[0]['rate'] = '';
+            $c_data[0]['gst_rate'] = DEFAULT_TAX_RATE;
+            $c_data[0]['product_or_services'] = 'Courier';
+            $c_data[0]['taxable_value'] = (array_sum(array_column($final_courier, 'courier_charges_by_sf')));
+            $result['result'] = array_merge($result['result'], $c_data);
+            $result['courier'] = $courier;
+            $result['final_courier'] = $final_courier;
+            $result['defective_part_by_wh'] = $defective_return_to_partner;
             
-            $misc = $this->get_misc_charges_invoice_data($misc_select, "miscellaneous_charges.partner_invoice_id IS NULL", $from_date, 
-                    $to_date, "booking_details.partner_id", $partner_id, "partner_charge");
-            $result['upcountry'] = array();
-            $result['courier'] = array();
-            $result['misc'] = array();
-            if (!empty($upcountry_data)) {
-                $up_country = array();
-                $up_country[0]['description'] = 'Upcountry Charges';
-                $up_country[0]['hsn_code'] = '';
-                $up_country[0]['qty'] = '';
-                $up_country[0]['rate'] = '';
-                $up_country[0]['gst_rate'] = DEFAULT_TAX_RATE;
-                $up_country[0]['product_or_services'] = 'Upcountry';
-                $up_country[0]['taxable_value'] = $upcountry_data[0]['total_upcountry_price'];
-                $result['result'] = array_merge($result['result'], $up_country);
-                $result['upcountry'] = $upcountry_data;
+        }
+
+        if (!empty($misc)) {
+            $m = array();
+            $m[0]['description'] = 'Miscellaneous Charge';
+            $m[0]['hsn_code'] = '';
+            $m[0]['qty'] = '';
+            $m[0]['rate'] = '';
+            $m[0]['gst_rate'] = DEFAULT_TAX_RATE;
+            $m[0]['product_or_services'] = 'Service';
+            $m[0]['taxable_value'] = (array_sum(array_column($misc, 'partner_charge')));
+            $result['result'] = array_merge($result['result'], $m);
+            $result['misc'] = $misc;
+        }
+
+        if (!empty($result['result'])) {
+
+
+            if (!isset($result['result'][0]['company_name'])) {
+                $partner_details = $this->partner_model->getpartner_details('partner_id,invoice_email_to,invoice_email_cc,'
+                        . '`partners`.company_name, `partners`.address as company_address, partners.pincode, partners.district,'
+                        . '`partners`.state, partners.is_wh,`partners`.gst_number'
+                        . '', array('partners.id' => $partner_id));
+
+                $result['result'][0]['company_name'] = $partner_details[0]['company_name'];
+                $result['result'][0]['invoice_email_to'] = $partner_details[0]['invoice_email_to'];
+                $result['result'][0]['invoice_email_cc'] = $partner_details[0]['invoice_email_cc'];
+                $result['result'][0]['company_address'] = $partner_details[0]['company_address'];
+                $result['result'][0]['pincode'] = $partner_details[0]['pincode'];
+                $result['result'][0]['district'] = $partner_details[0]['district'];
+                $result['result'][0]['state'] = $partner_details[0]['state'];
+                $result['result'][0]['is_wh'] = $partner_details[0]['is_wh'];
+                $result['result'][0]['gst_number'] = $partner_details[0]['gst_number'];
             }
 
-            if (!empty($courier)) {
-                $c_data = array();
-                $c_data[0]['description'] = 'Courier Charges';
-                $c_data[0]['hsn_code'] = '';
-                $c_data[0]['qty'] = '';
-                $c_data[0]['rate'] = '';
-                $c_data[0]['gst_rate'] = DEFAULT_TAX_RATE;
-                $c_data[0]['product_or_services'] = 'Courier';
-                $c_data[0]['taxable_value'] = (array_sum(array_column($courier, 'courier_charges_by_sf')));
-                $result['result'] = array_merge($result['result'], $c_data);
-                $result['courier'] = $courier;
+            if ($result['result'][0]['is_wh'] == 1) {
+                $packaging1 = $this->get_fixed_warehouse_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
+                    "entity_id" => $partner_id, "charges_type" => FIXED_MONTHLY_WAREHOUSE_CHARGES_TAG));
+                if (!empty($packaging1)) {
+                    $c_data = array();
+                    $c_data[0]['description'] = $packaging1[0]['description'];
+                    $c_data[0]['hsn_code'] = $packaging1[0]['hsn_code'];
+                    $c_data[0]['qty'] = 0;
+                    $c_data[0]['rate'] = $packaging1[0]['fixed_charges'];
+                    $c_data[0]['gst_rate'] = $packaging1[0]['gst_rate'];
+                    $c_data[0]['product_or_services'] = $packaging1[0]['description'];
+                    $c_data[0]['taxable_value'] = $packaging1[0]['fixed_charges'];
+                    $result['result'] = array_merge($result['result'], $c_data);
+                }
             }
-            
-            if(!empty($misc)){
-                $m = array();
-                $m[0]['description'] = 'Miscellaneous Charge';
-                $m[0]['hsn_code'] = '';
-                $m[0]['qty'] = '';
-                $m[0]['rate'] = '';
-                $m[0]['gst_rate'] = DEFAULT_TAX_RATE;
-                $m[0]['product_or_services'] = 'Service';
-                $m[0]['taxable_value'] = (array_sum(array_column($misc, 'partner_charge')));
-                $result['result'] = array_merge($result['result'], $m);
-                $result['misc'] = $misc;
-            }
-            
+
             return $result;
         } else {
             return false;
         }
+
+
+//        } else {
+//            
+//           return false;
+//        }
     }
 
     /**
@@ -689,7 +764,12 @@ class invoices_model extends CI_Model {
             $data['meta'] = $response['meta'];
             $data['courier'] = $result_data['courier'];
             $data['upcountry'] = $result_data['upcountry'];
+            $data['warehouse_courier'] = $result_data['warehouse_courier'];
             $data['misc'] = $result_data['misc'];
+            $data['final_courier'] = $result_data['final_courier'];
+            $data['defective_part_by_wh'] = $result_data['defective_part_by_wh'];
+            $data['packaging_rate'] = $result_data['packaging_rate'];
+            $data['packaging_quantity'] = $result_data['packaging_quantity'];
           
             return $data;
         } else {
@@ -769,11 +849,11 @@ class invoices_model extends CI_Model {
                 }
             }
             $meta['parts_count'] = $parts_count;
-            $meta['total_taxable_value'] = round($meta['total_taxable_value'], 0);
-            $meta['sub_total_amount'] = round($meta['sub_total_amount'], 0);
-            $meta['igst_total_tax_amount'] = round( $meta['igst_total_tax_amount'], 0);
-            $meta['cgst_total_tax_amount'] = round( $meta['cgst_total_tax_amount'], 0);
-            $meta['sgst_total_tax_amount'] = round( $meta['sgst_total_tax_amount'], 0);
+            $meta['total_taxable_value'] = sprintf("%.2f",$meta['total_taxable_value']);
+            $meta['sub_total_amount'] = sprintf("%.2f",$meta['sub_total_amount']);
+            $meta['igst_total_tax_amount'] = sprintf("%.2f",$meta['igst_total_tax_amount']);
+            $meta['cgst_total_tax_amount'] = sprintf("%.2f",$meta['cgst_total_tax_amount']);
+            $meta['sgst_total_tax_amount'] = sprintf("%.2f",$meta['sgst_total_tax_amount']);
             if($result[0]['gst_number'] == 1){
                 $result[0]['gst_number'] = "";
             }
@@ -893,7 +973,7 @@ class invoices_model extends CI_Model {
                     $meta['igst_total_tax_amount'] += $result[$key]['igst_tax_amount'];
                 }
 
-                $result[$key]['toal_amount'] = round($value['taxable_value'] + ($value['taxable_value'] * SERVICE_TAX_RATE), 2);
+                $result[$key]['toal_amount'] = sprintf("%.2f",$value['taxable_value'] + ($value['taxable_value'] * SERVICE_TAX_RATE));
                 $meta['total_qty'] += $value['qty'];
                 $meta['total_rate'] += $value['rate'];
                 $meta['total_taxable_value'] += $value['taxable_value'];
@@ -904,12 +984,12 @@ class invoices_model extends CI_Model {
             $meta['reverse_charge'] = 0;
             $meta['reverse_charge_type'] = 'N';
             $meta['state_code'] = $this->get_state_code(array('state'=> $meta['state']))[0]['state_code'];
-            $meta['sub_total_amount'] = round( $meta['sub_total_amount'], 0); 
-            $meta['total_taxable_value'] = round( $meta['total_taxable_value'], 0);
-            $meta['sgst_total_tax_amount'] = round($meta['sgst_total_tax_amount'], 0);
-            $meta['cgst_total_tax_amount'] = round($meta['cgst_total_tax_amount'], 0);
-            $meta['igst_total_tax_amount'] = round($meta['igst_total_tax_amount'], 0);
-            $meta['price_inword'] = convert_number_to_words(round($meta['sub_total_amount'], 0));
+            $meta['sub_total_amount'] = sprintf("%.2f",$meta['sub_total_amount']); 
+            $meta['total_taxable_value'] = sprintf("%.2f",$meta['total_taxable_value']);
+            $meta['sgst_total_tax_amount'] = sprintf("%.2f",$meta['sgst_total_tax_amount']);
+            $meta['cgst_total_tax_amount'] = sprintf("%.2f",$meta['cgst_total_tax_amount']);
+            $meta['igst_total_tax_amount'] = sprintf("%.2f",$meta['igst_total_tax_amount']);
+            $meta['price_inword'] = convert_number_to_words(round($meta['sub_total_amount'],0));
             $meta['sd'] = date("jS M, Y", strtotime($from_date));
             $meta['ed'] = date("jS M, Y", strtotime($to_date_temp));
             $meta['invoice_date'] = date("jS M, Y");
@@ -930,7 +1010,7 @@ class invoices_model extends CI_Model {
         $data['description'] = "Iron Stand – Less Than 32 Inches";
         $data['rate'] = _247AROUND_BRACKETS_26_32_UNIT_PRICE;
         $data['qty'] = $meta['_26_32_total'];
-        $data['taxable_value'] = round($data['rate'] * $data['qty'],0);
+        $data['taxable_value'] = sprintf("%.2f",$data['rate'] * $data['qty']);
         $data['hsn_code'] = STAND_HSN_CODE;
         
         array_push($data1, $data);
@@ -938,7 +1018,7 @@ class invoices_model extends CI_Model {
         $data2['description'] = "Iron Stand – Greater Than 32 Inches";
         $data2['rate'] = _247AROUND_BRACKETS_36_42_UNIT_PRICE;
         $data2['qty'] = $meta['_36_42_total'];
-        $data2['taxable_value'] = round($data2['rate'] * $data2['qty'],0);
+        $data2['taxable_value'] = sprintf("%.2f",$data2['rate'] * $data2['qty']);
         $data2['hsn_code'] = STAND_HSN_CODE;
         array_push($data1, $data2);
         
@@ -1025,7 +1105,7 @@ class invoices_model extends CI_Model {
                 round((vendor_basic_charges * COUNT( ud.`appliance_capacity` )),2) AS  taxable_value,
                 sc.state, sc.company_name,sc.address as company_address, sc_code,
                 sc.primary_contact_email, sc.owner_email, sc.pan_no, contract_file, company_type,
-                sc.pan_no, contract_file, company_type, signature_file, sc.owner_phone_1, sc.district, sc.pincode
+                sc.pan_no, contract_file, company_type, signature_file, sc.owner_phone_1, sc.district, sc.pincode, is_wh
 
                 FROM  `booking_unit_details` AS ud 
                 JOIN booking_details as bd on (bd.booking_id = ud.booking_id)
@@ -1045,9 +1125,11 @@ class invoices_model extends CI_Model {
 
         $query = $this->db->query($sql);
         $result['booking'] = $query->result_array();
-        if(!empty($result['booking'])){
+        //if(!empty($result['booking'])){
             $result['upcountry'] =  $result['courier'] = $result['c_penalty'] = array();
-            $result['d_penalty'] = $result['c_penalty'] = array();
+            $result['d_penalty'] = $result['c_penalty'] = $result['misc'] = array();
+            $result['warehouse_courier'] = $result['defective_return_to_partner'] = array();
+            $result['packaging_rate'] = 0; $result['packaging_quantity'] = 0;
             // Calculate Upcountry booking details
             $upcountry_data = $this->upcountry_model->upcountry_foc_invoice($vendor_id, $from_date, $to_date, $is_regenerate);
             $debit_penalty = $this->penalty_model->add_penalty_in_invoice($vendor_id, $from_date, $to_date, "", $is_regenerate);
@@ -1063,6 +1145,11 @@ class invoices_model extends CI_Model {
                 . 'vendor_basic_charges as total_booking_charge, product_or_services';
             $misc = $this->get_misc_charges_invoice_data($misc_select, "miscellaneous_charges.vendor_invoice_id IS NULL", $from_date, 
                     $to_date, "booking_details.assigned_vendor_id", $vendor_id, "vendor_basic_charges");
+            
+            $warehouse_courier = $this->get_sf_invoice_warehouse_courier_data($vendor_id, $from_date, $to_date, $is_regenerate);
+            $defective_return_to_partner = $this->get_defective_parts_return_partner_sf_invoice($vendor_id, $from_date, $to_date, $is_regenerate);
+            $final_courier_data = array_merge($courier, $warehouse_courier, $defective_return_to_partner);
+         
             if (!empty($upcountry_data)) {
                 $up_country = array();
                 $up_country[0]['description'] = 'Upcountry Charges';
@@ -1087,16 +1174,18 @@ class invoices_model extends CI_Model {
                 $result['d_penalty'] = $debit_penalty;
             }
 
-            if (!empty($courier)) {
+            if (!empty($final_courier_data)) {
                 $c_data = array();
                 $c_data[0]['description'] = 'Courier Charges';
                 $c_data[0]['hsn_code'] = '';
                 $c_data[0]['qty'] = '';
                 $c_data[0]['rate'] = '';
                 $c_data[0]['product_or_services'] = 'Courier';
-                $c_data[0]['taxable_value'] = (array_sum(array_column($courier, 'courier_charges_by_sf')));
+                $c_data[0]['taxable_value'] = (array_sum(array_column($final_courier_data, 'courier_charges_by_sf')));
                 $result['booking'] = array_merge($result['booking'], $c_data);
+                $result['defective_return_to_partner'] = $defective_return_to_partner;
                 $result['courier'] = $courier;
+                $result['final_courier_data'] = $final_courier_data;
             }
             
             if (!empty($credit_penalty)) {
@@ -1122,9 +1211,78 @@ class invoices_model extends CI_Model {
                 $result['booking'] = array_merge($result['booking'], $m);
                 $result['misc'] = $misc;
             }
-        }
+            
+            if (!empty($warehouse_courier)) {
+                $packaging = $this->get_fixed_warehouse_charge(array('entity_type' => _247AROUND_SF_STRING,
+                    "entity_id" => $vendor_id, "charges_type" => PACKAGING_RATE_TAG));
+                if (!empty($packaging)) {
+                    $c_data = array();
+                    $c_data[0]['description'] = $packaging[0]['description'];
+                    $c_data[0]['hsn_code'] = $packaging[0]['hsn_code'];
+                    $c_data[0]['qty'] = count($warehouse_courier);
+                    $c_data[0]['rate'] = $packaging[0]['fixed_charges'];
+                    $c_data[0]['gst_rate'] = $packaging[0]['gst_rate'];
+                    $c_data[0]['product_or_services'] = $packaging[0]['description'];
+                    $c_data[0]['taxable_value'] = $c_data[0]['qty'] * $warehouse_courier[0]['fixed_charges'];
+                    $result['booking'] = array_merge($result['booking'], $c_data);
+                    $result['warehouse_courier'] = $warehouse_courier;
+                    $result['packaging_rate'] = $packaging[0]['fixed_charges'];
+                    $result['packaging_quantity'] = count($warehouse_courier);
+                }
+            }
 
-        return $result;
+            
+            if(!empty($result['booking'])){
+                if(!isset($result['booking'][0]['company_name'])){
+                   $select = 'state,company_name,'
+                        . ' address as company_address, pincode, district,'
+                        . ' is_wh, owner_phone_1, sc_code, primary_contact_email,'
+                        . ' owner_email, pan_no, contract_file, company_type, signature_file, gst_no as gst_number ';
+                        
+                    $vendor_details = $this->vendor_model->getVendorDetails($select, array('id' => $vendor_id));
+
+                    $result['booking'][0]['company_name'] = $vendor_details[0]['company_name'];
+                    $result['booking'][0]['company_address'] = $vendor_details[0]['company_address'];
+                    $result['booking'][0]['pincode'] = $vendor_details[0]['pincode'];
+                    $result['booking'][0]['district'] = $vendor_details[0]['district'];
+                    $result['booking'][0]['is_wh'] = $vendor_details[0]['is_wh'];
+                    $result['booking'][0]['owner_phone_1'] = $vendor_details[0]['owner_phone_1'];
+                    $result['booking'][0]['sc_code'] = $vendor_details[0]['sc_code'];
+                    $result['booking'][0]['state'] = $vendor_details[0]['state'];
+                    $result['booking'][0]['primary_contact_email'] = $vendor_details[0]['primary_contact_email'];
+                    $result['booking'][0]['owner_email'] = $vendor_details[0]['owner_email'];
+                    $result['booking'][0]['pan_no'] = $vendor_details[0]['pan_no'];
+                    $result['booking'][0]['contract_file'] = $vendor_details[0]['contract_file'];
+                    $result['booking'][0]['company_type'] = $vendor_details[0]['signature_file'];
+                    $result['booking'][0]['signature_file'] = $vendor_details[0]['company_type'];
+                    $result['booking'][0]['gst_number'] = $vendor_details[0]['gst_number'];
+            }
+
+            if ($result['booking'][0]['is_wh'] == 1) {
+                $packaging1 = $this->get_fixed_warehouse_charge(array('entity_type' => _247AROUND_SF_STRING,
+                    "entity_id" => $vendor_id, "charges_type" => FIXED_MONTHLY_WAREHOUSE_CHARGES_TAG));
+                if (!empty($packaging1)) {
+                    $c_data = array();
+                    $c_data[0]['description'] = $packaging1[0]['description'];
+                    $c_data[0]['hsn_code'] = $packaging1[0]['hsn_code'];
+                    $c_data[0]['qty'] = 0;
+                    $c_data[0]['rate'] = $packaging1[0]['fixed_charges'];
+                    $c_data[0]['gst_rate'] = $packaging1[0]['gst_rate'];
+                    $c_data[0]['product_or_services'] = $packaging1[0]['description'];
+                    $c_data[0]['taxable_value'] = $packaging1[0]['fixed_charges'];
+                    $result['booking'] = array_merge($result['booking'], $c_data);
+                }
+            }
+            
+          
+                return $result;
+                
+            } else {
+                return FALSE;
+            }
+        //}
+
+        //return $result;
     }
 
     /**
@@ -1209,7 +1367,7 @@ class invoices_model extends CI_Model {
             $meta['cgst_total_tax_amount'] = sprintf("%1\$.2f",$meta['cgst_total_tax_amount']);
             $meta['sgst_total_tax_amount'] = sprintf("%1\$.2f",$meta['sgst_total_tax_amount']);
             $meta['igst_total_tax_amount'] = sprintf("%1\$.2f",$meta['igst_total_tax_amount']);
-            $meta['sub_total_amount'] = round($meta['sub_total_amount'], 0);
+            $meta['sub_total_amount'] = sprintf("%.2f",$meta['sub_total_amount']);
             $meta['sd'] = date("jS M, Y", strtotime($from_date));
             $meta['ed'] = date("jS M, Y", strtotime($to_date_tmp));
             $meta['invoice_date'] = date("jS M, Y");
@@ -1385,16 +1543,16 @@ class invoices_model extends CI_Model {
                 }
 
                 $tax_charge = $this->booking_model->get_calculated_tax_charge($commission_charge[0]['toal_amount'], DEFAULT_TAX_RATE);
-                $commission_charge[0]['taxable_value'] = round($commission_charge[0]['toal_amount'] - $tax_charge, 0);
+                $commission_charge[0]['taxable_value'] = sprintf("%.2f",$commission_charge[0]['toal_amount'] - $tax_charge);
                 $c_s_gst = $this->check_gst_tax_type($meta['state']);
                 $meta['cgst_tax_rate'] = $meta['sgst_tax_rate'] = $meta['cgst_total_tax_amount'] = $meta['sgst_total_tax_amount'] = $meta['total_igst_tax_amount'] = $meta['igst_tax_rate'] = $meta['igst_total_tax_amount'] = 0;
                 if ($c_s_gst) {
                     $meta['invoice_template'] = "247around_Tax_Invoice_Intra_State.xlsx";
                     $commission_charge[0]['cgst_rate'] = $commission_charge[0]['sgst_rate'] = $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = 9;
-                    $commission_charge[0]['cgst_tax_amount'] = $commission_charge[0]['sgst_tax_amount'] = $meta['cgst_total_tax_amount'] = $meta['sgst_total_tax_amount'] = round($tax_charge / 2, 0);
+                    $commission_charge[0]['cgst_tax_amount'] = $commission_charge[0]['sgst_tax_amount'] = $meta['cgst_total_tax_amount'] = $meta['sgst_total_tax_amount'] = sprintf("%.2f",$tax_charge / 2);
                 } else {
                     $meta['invoice_template'] = "247around_Tax_Invoice_Inter_State.xlsx";
-                    $commission_charge[0]['igst_tax_amount'] = $meta['igst_total_tax_amount'] = round($tax_charge, 0);
+                    $commission_charge[0]['igst_tax_amount'] = $meta['igst_total_tax_amount'] = sprintf("%.2f",$tax_charge);
                     $commission_charge[0]['igst_rate'] = $meta['igst_tax_rate'] = DEFAULT_TAX_RATE;
                 }
 
@@ -1405,9 +1563,9 @@ class invoices_model extends CI_Model {
                 $meta['total_qty'] = $meta['total_rate'] = $commission_charge[0]['qty'] = $commission_charge[0]['rate'] = "";
                 $commission_charge[0]['hsn_code'] = COMMISION_CHARGE_HSN_CODE;
                 $meta['total_taxable_value'] = $commission_charge[0]['taxable_value'];
-                $meta['sub_total_amount'] = round($commission_charge[0]['toal_amount'], 0);
+                $meta['sub_total_amount'] = sprintf("%.2f",$commission_charge[0]['toal_amount']);
 
-                $meta['price_inword'] = convert_number_to_words($meta['sub_total_amount']);
+                $meta['price_inword'] = convert_number_to_words(round($meta['sub_total_amount'],0));
                 $meta['sd'] = date("jS M, Y", strtotime($from_date));
                 $meta['ed'] = date('jS M, Y', strtotime($to_date_tmp));
                 $meta['invoice_date'] = date("jS M, Y");
@@ -1446,12 +1604,12 @@ class invoices_model extends CI_Model {
         
         if(!empty($commission_charge)){
             foreach ($commission_charge as $key => $value) {
-                $commission_charge[$key]['rate'] = round($value['taxable_value']/$value['qty'], 0);
+                $commission_charge[$key]['rate'] = sprintf("%.2f",$value['taxable_value']/$value['qty']);
                 $meta['sub_total_amount'] += $value['taxable_value'];
                 $meta['total_qty'] += $value['qty'];
             }
             
-            $meta['sub_total_amount'] = round($meta['sub_total_amount'], 0);
+            $meta['sub_total_amount'] = sprintf("%.2f",$meta['sub_total_amount']);
             $meta['invoice_template'] = "Buyback-v1.xlsx"; 
             
             $meta['sd'] = date("jS M, Y", strtotime($from_date));
@@ -1485,24 +1643,26 @@ class invoices_model extends CI_Model {
                 $is_foc_null = " AND cp_invoice_id IS NULL ";
         }
         if($profitLoss == 1){
-            $profit_loss_where = ' AND CASE WHEN (cp_claimed_price > 0) THEN ((`partner_basic_charge` + `partner_tax_charge` + `partner_sweetner_charges`) <=  (cp_claimed_price)) ELSE ((`partner_basic_charge` + `partner_tax_charge` + `partner_sweetner_charges`) <=  (`cp_basic_charge` + cp_tax_charge)) END ';
+            $profit_loss_where = ' AND CASE WHEN (cp_claimed_price > 0) THEN ((`partner_basic_charge` + `partner_tax_charge` ) <=  (cp_claimed_price)) ELSE ((`partner_basic_charge` + `partner_tax_charge`) <=  (`cp_basic_charge` + cp_tax_charge)) END ';
         } else {
-            $profit_loss_where = ' AND CASE WHEN (cp_claimed_price > 0) THEN ((`partner_basic_charge` + `partner_tax_charge` + `partner_sweetner_charges`) >  (cp_claimed_price)) ELSE ((`partner_basic_charge` + `partner_tax_charge` + `partner_sweetner_charges`) >  (`cp_basic_charge` + cp_tax_charge)) END ';
+            $profit_loss_where = ' AND CASE WHEN (cp_claimed_price > 0) THEN ((`partner_basic_charge` + `partner_tax_charge` ) >  (cp_claimed_price)) ELSE ((`partner_basic_charge` + `partner_tax_charge`) >  (`cp_basic_charge` + cp_tax_charge)) END ';
         }
+        
+        $profit_loss_where = ' AND CASE WHEN (cp_claimed_price > 0) THEN (cp_claimed_price) ELSE ((`cp_basic_charge` + cp_tax_charge)) END ';
         $select = " COUNT(bb_unit_details.id) as qty, SUM(CASE WHEN ( bb_unit_details.cp_claimed_price > 0) 
-                THEN (round(bb_unit_details.cp_claimed_price,0)) 
-                ELSE (round(bb_unit_details.cp_basic_charge + cp_tax_charge,0)) END ) AS taxable_value, concat('Used ',services) as description, 
-                CASE WHEN (bb_unit_details.service_id = 46) THEN (8528) 
-                WHEN (bb_unit_details.service_id = 50) THEN (8415)
-                WHEN (bb_unit_details.service_id = 28) THEN (8450)
-                WHEN (bb_unit_details.service_id = 37) THEN (8418) ELSE '' END As hsn_code, owner_phone_1, gst_no,
+                THEN (round(bb_unit_details.cp_claimed_price,2)) 
+                ELSE (round(bb_unit_details.cp_basic_charge + cp_tax_charge,2)) END ) AS taxable_value, concat('Used ',services) as description, 
+                CASE WHEN (bb_unit_details.service_id = '"._247AROUND_TV_SERVICE_ID."') THEN (8528) 
+                WHEN (bb_unit_details.service_id = '"._247AROUND_AC_SERVICE_ID."') THEN (8415)
+                WHEN (bb_unit_details.service_id = '"._247AROUND_WASHING_MACHINE_SERVICE_ID."') THEN (8450)
+                WHEN (bb_unit_details.service_id = '"._247AROUND_REFRIGERATOR_SERVICE_ID."') THEN (8418) ELSE '' END As hsn_code, owner_phone_1, gst_no,
                 sc.company_name, sc.address as company_address, sc.state,
                 sc.owner_email, sc.primary_contact_email, sc.owner_phone_1";
         $group_by = " GROUP BY bb_unit_details.service_id ";
         if($is_unit){
             $select = " bb_unit_details.id AS unit_id,bb_unit_details.gst_amount, CASE WHEN ( bb_unit_details.cp_claimed_price > 0) 
-                THEN (round(bb_unit_details.cp_claimed_price,0)) 
-                ELSE (round(bb_unit_details.cp_basic_charge + cp_tax_charge,0)) END AS cp_charge,partner_tracking_id, city,order_key,
+                THEN (round(bb_unit_details.cp_claimed_price,2)) 
+                ELSE (round(bb_unit_details.cp_basic_charge + cp_tax_charge,2)) END AS cp_charge,partner_tracking_id, city,order_key,
                 CASE WHEN(acknowledge_date IS NOT NULL) 
                 THEN (DATE_FORMAT( acknowledge_date,  '%d-%m-%Y' ) ) ELSE (DATE_FORMAT(delivery_date,  '%d-%m-%Y' )) END AS delivery_date, order_date,
                 order_date, services, bb_order_details.partner_order_id";
@@ -1560,7 +1720,7 @@ class invoices_model extends CI_Model {
         if($is_regenerate == 0){
             $invoice_check .= "AND vendor_foc_invoice_id IS NULL ";
         }
-        $sql = " SELECT bd.booking_id, courier_charges_by_sf 
+        $sql = " SELECT sp.id as sp_id, bd.booking_id, courier_charges_by_sf 
                 FROM  booking_details as bd, booking_unit_details as ud,
                 spare_parts_details as sp
                 WHERE 
@@ -1571,7 +1731,6 @@ class invoices_model extends CI_Model {
                 AND bd.booking_id = ud.booking_id
                 AND ud.ud_closed_date >=  '$from_date'
                 AND ud.ud_closed_date <  '$to_date'
-                AND vendor_foc_invoice_id IS NULL 
                 AND pay_to_sf = '1'
                 AND `approved_defective_parts_by_partner` = 1
                 $invoice_check
@@ -1584,16 +1743,18 @@ class invoices_model extends CI_Model {
     function get_partner_courier_charges($partner_id, $from_date, $to_date){
       
         
-        $sql = " SELECT bd.order_id, bd.booking_id,services,
-                courier_charges_by_sf, bd.city
+        $sql = " SELECT sp.id as sp_id, bd.booking_id, awb_by_sf as awb,
+                courier_charges_by_sf, bd.city,
+                CASE WHEN (defective_courier_receipt IS NOT NULL) THEN 
+                 (concat('".S3_WEBSITE_URL."misc-images/',defective_courier_receipt)) ELSE '' END AS courier_receipt_link
                 FROM  booking_details as bd, booking_unit_details as ud,
-                spare_parts_details as sp,services
+                spare_parts_details as sp
+                
                 WHERE 
                 ud.booking_status =  'Completed'
                 AND bd.partner_id = '$partner_id'
                 AND ud.partner_id = '$partner_id'
                 AND status = 'Completed'
-                AND services.id = ud.service_id
                 AND sp.booking_id = bd.booking_id
                 AND bd.booking_id = ud.booking_id
                 AND ud.ud_closed_date >=  '$from_date'
@@ -1738,146 +1899,6 @@ class invoices_model extends CI_Model {
         return $this->db->insert_id();
     }
     
-    function warehouse_inventory_ledger_invoice_details($warehouse_id, $from_date, $to_date, $is_regenerate){
-        $this->db->_reserved_identifiers = array('*','""');
-        $this->db->select('"" As awb_no, "" As courier_name, "" AS courier_receipt_link, l.inventory_id`,part_name, quantity, l.id, CAST(l.create_date AS DATE) as create_date, l.booking_id');
-        $this->db->from("inventory_ledger as l");
-        $this->db->join('inventory_master_list as m', 'm.inventory_id = l.inventory_id');
-        $this->db->where('sender_entity_id', $warehouse_id);
-        $this->db->where('sender_entity_type', "vendor");
-        $this->db->where('l.create_date >= ', $from_date);
-        $this->db->where('l.create_date < ', $to_date);
-        $this->db->where_not_in('l.inventory_id', array(1,2));
-        if(empty($is_regenerate)){
-            $this->db->where('vendor_warehouse_invoice_id IS NULL', NULL);
-        }
-
-        $query = $this->db->get();
-        return $query->result_array();
-    }
-    /**
-     * @desc This is used to get warehouse invoice data(both main and annexure)
-     * @param String $vendor_id
-     * @param String $from_date_tmp
-     * @param String $to_date
-     * @param int $is_regenerate
-     * @return boolean
-     */
-    function get_warehouse_invoice_data($vendor_id, $from_date_tmp, $to_date, $is_regenerate){
-        $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
-            
-        // For Monthly warehouse charges
-        $fm =$this->get_fixed_warehouse_charge(array('entity_type' => "vendor", "entity_id" => $vendor_id, "charges_type" => FIXED_MONTHLY_WAREHOUSE_CHARGES_TAG));
-        $result['booking'] = array();
-        $result['annexure'] = array();
-        
-        if(!empty($fm)){
-            $wfm = array();
-            $wfm[0]['description'] = $fm[0]['description'];
-            $wfm[0]['part_name'] = "";
-            $wfm[0]['booking_id'] = "";
-            $wfm[0]['hsn_code'] = $fm[0]['hsn_code'];
-            $wfm[0]['rate'] = 0;
-            $wfm[0]['qty'] = 1;
-            $wfm[0]['part_name'] = $fm[0]['description'];
-            $wfm[0]['gst_rate'] = $fm[0]['gst_rate'];
-            $wfm[0]['product_or_services'] = $fm[0]['description'];
-            $wfm[0]['taxable_value'] = $fm[0]['fixed_charges'];
-            $wfm[0]['courier_receipt_link'] = "";
-            $wfm[0]['courier_name'] = "";
-            $wfm[0]['awb_no'] = "";
-
-            $result['booking'] = array_merge($result['booking'], $wfm);
-            $result['annexure'] = array_merge($result['annexure'], $wfm);
-           
-        }
-        // For the packaging
-        $packaging =$this->get_fixed_warehouse_charge(array('entity_type' => "vendor", "entity_id" => $vendor_id, "charges_type" => PACKAGING_RATE_TAG));
-        $ledgerData = $this->warehouse_inventory_ledger_invoice_details($vendor_id, $from_date, $to_date, $is_regenerate);
-        if(!empty($ledgerData) && !empty($packaging)){
-            $wp = array();
-            $wp[0]['description'] = $packaging[0]['description'];
-            $wp[0]['hsn_code'] = $packaging[0]['hsn_code'];
-            $wp[0]['rate'] = $packaging[0]['fixed_charges'];
-            $wp[0]['qty'] = (array_sum(array_column($ledgerData, 'quantity')));
-            $wp[0]['gst_rate'] = $packaging[0]['gst_rate'];
-            $wp[0]['product_or_services'] = 'Packaging';
-            $wp[0]['taxable_value'] = $packaging[0]['fixed_charges'] * $wp[0]['qty'];
-            
-            $wp[0]['booking_id'] = "";
-            
-            foreach ($ledgerData as $key => $value) {
-                $ledgerData[$key]['taxable_value'] = $value['quantity'] * $packaging[0]['fixed_charges'];
-            }
-            
-            $result['booking'] = array_merge($result['booking'], $wp);
-            $result['annexure'] = array_merge($result['annexure'], $ledgerData);
-            $result['inventory_ledger'] = $ledgerData;
-        }
-        // Courier
-        $getcourier1 = $this->get_courier_details("*, courier_charge as taxable_value, 'Courier Charge' as part_name,"
-                . "AWB_no as awb_no, courier_name, concat('".S3_WEBSITE_URL."/vendor-partner-docs/',courier_file) as courier_receipt_link", 
-                array('sender_entity_type' => "vendor", 
-            "sender_entity_id" => $vendor_id, "courier_charge > 0" => NULL,
-            "create_date >= '".$from_date."' " => NULL, "create_date < '".$to_date."' " => NULL,
-            "sender_invoice_id IS NULL " => NULL));
-        $courier = array();
-        if(!empty($getcourier1)){
-            
-            $courier[0]['description'] = "Courier Charge";
-            $courier[0]['hsn_code'] = HSN_CODE;
-            $courier[0]['rate'] = 0;
-            $courier[0]['qty'] = (array_sum(array_column($getcourier1, 'quantity')));
-            $courier[0]['gst_rate'] = DEFAULT_TAX_RATE;
-            $courier[0]['product_or_services'] = "Courier Charge";
-            $courier[0]['taxable_value'] = (array_sum(array_column($getcourier1, 'courier_charge')));
-            $result['annexure'] = array_merge($result['annexure'], $getcourier1);
-            $result['courier_details'] = $getcourier1;
-
-        }
-
-        $sp_data = $this->partner_model->get_spare_parts_by_any('id,booking_id, spare_parts_details.partner_id as sender_entity_id, '
-                . 'courier_price_by_partner as taxable_value, '
-                . 'courier_name_by_partner as courier_name, awb_by_partner as awb_no,'
-                . '"" as courier_receipt_link,'
-                . '"Courier Charge" as part_name', 
-                array('partner_id' => $vendor_id, "entity_type" => "vendor", 
-                    "courier_price_by_partner > 0" => NULL, 
-                    "status != 'Cancelled'" => NULL,
-                    "warehouse_courier_invoice_id IS NULL" => NULL,
-                    "create_date >= '".$from_date."' " => NULL,
-                    "create_date < '".$to_date."' " => NULL));
-        
-        if(!empty($sp_data)){
-            $qty = count($sp_data);
-            if(!empty($courier)){
-                $courier[0]['qty'] = $courier[0]['qty'] + $qty;
-                $courier[0]['taxable_value'] = $courier[0]['taxable_value'] + (array_sum(array_column($sp_data, 'taxable_value')));
-            } else {
-                $courier[0]['description'] = "Courier Details";
-                $courier[0]['hsn_code'] = HSN_CODE;
-                $courier[0]['rate'] = 0;
-                $courier[0]['qty'] = $qty;
-                $courier[0]['gst_rate'] = DEFAULT_TAX_RATE;
-                $courier[0]['product_or_services'] = "Courier Charge";
-                $courier[0]['taxable_value'] = (array_sum(array_column($sp_data, 'taxable_value')));
-            }
-            $result['annexure'] = array_merge($result['annexure'], $sp_data);
-            $result['spare_courier'] = $sp_data;  
-        }
-        
-        if(!empty($courier)){
-
-            $result['booking'] = array_merge($result['booking'], $courier);
-        }
-        
-        if(!empty($result['booking'] )){
-            return $result;
-        } else {
-            return false;
-        }
-    }
-    
     function get_courier_details($select, $where){
         
         $this->db->select($select, FALSE);
@@ -1889,7 +1910,7 @@ class invoices_model extends CI_Model {
     function get_fixed_warehouse_charge($where){
         $this->db->select('*');
         $this->db->where($where);
-        $query = $this->db->get('vendor_partner_varialble_charges');
+        $query = $this->db->get('vendor_partner_variable_charges');
         return $query->result_array();
     }
     
@@ -1903,11 +1924,132 @@ class invoices_model extends CI_Model {
         $this->db->where($vendor_partner_invoice, NULL);
         $this->db->where("active", 1);
         $this->db->where($sf_partner_charge. " > 0", NULL);
-        $this->db->where('booking_details.closed_date >= ', $from_date );
-        $this->db->where('booking_details.closed_date < ', $to_date );
+        if(!empty($from_date)){
+            $this->db->where('booking_details.closed_date >= ', $from_date );
+        }
+        if(!empty($to_date)){
+            $this->db->where('booking_details.closed_date < ', $to_date );
+        }
+        
         $this->db->where($vendor_partner, $vendor_partner_id );
         $query = $this->db->get();
         return $query->result_array();
     }
 
+      /**
+     * @desc: This function is used to get partner annual charges data from partner table 
+     * @params: Array $where
+     * @return: string
+     * 
+     */
+    
+     public function get_partners_annual_charges($select, $where = array()) {
+        $this->db->select($select);
+        if (!empty($where)) {
+            $this->db->where($where);
+        }
+        $this->db->join('partners', 'vendor_partner_id = partners.id');
+        $this->db->order_by('from_date',"desc");
+        $query = $this->db->get('vendor_partner_invoices');
+        return $query->result();
+    }
+    /**
+     * @desc This is used to get partner warehouse courier data
+     * @param Int $partner_id
+     * @param String $from_date
+     * @param String $to_date
+     * @return Array
+     */
+    function get_partner_invoice_warehouse_courier_data($partner_id, $from_date, $to_date){
+        log_message('info', __METHOD__. " Enterring..");
+        $sql = 'SELECT GROUP_CONCAT(sp.id) as sp_id, GROUP_CONCAT(DISTINCT sp.booking_id) as booking_id, '
+                . ' awb_by_partner,'
+                .' awb_by_partner as awb, COALESCE(SUM(courier_price_by_partner),0) as courier_charges_by_sf,'
+                .' bd.city, CASE WHEN (courier_pic_by_partner IS NOT NULL) '
+                .'THEN (concat("'.S3_WEBSITE_URL.'vendor-partner-docs/",courier_pic_by_partner)) ELSE "" END AS courier_receipt_link '
+                . ' FROM spare_parts_details as sp, booking_details as bd '
+                . ' WHERE bd.booking_id = sp.booking_id '
+                . ' AND entity_type = "'._247AROUND_SF_STRING.'" '
+                . ' AND bd.partner_id = "'.$partner_id.'" '
+                . ' AND awb_by_partner IS NOT NULL '
+                . ' AND sp.shipped_date >= "'.$from_date.'" '
+                . ' AND sp.shipped_date < "'.$to_date.'" '
+                . ' AND  parts_shipped IS NOT NULL '
+                . ' AND partner_warehouse_courier_invoice_id IS NULL'
+                . ' GROUP BY awb_by_partner ';
+        
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
+    function get_defective_parts_courier_return_partner($partner_id, $from_date, $to_date){
+        log_message('info', __METHOD__. " Enterring..");
+        $sql = 'SELECT GROUP_CONCAT(courier_details.id) as c_id, '
+                . ' GROUP_CONCAT(DISTINCT booking_id) as booking_id, AWB_no as awb, '
+                . ' COALESCE(SUM(courier_charge),0) as courier_charges_by_sf, "" AS city, CASE WHEN (courier_file IS NOT NULL) '
+                .'  THEN (concat("'.S3_WEBSITE_URL.'vendor-partner-docs/",courier_file)) ELSE "" END AS courier_receipt_link '
+                . ' FROM `courier_details` '
+                . ' WHERE `sender_entity_type` = "'._247AROUND_SF_STRING.'"  '
+                . ' AND receiver_entity_type = "'._247AROUND_PARTNER_STRING.'" '
+                . ' AND `receiver_entity_id` = "'.$partner_id.'" '
+                . ' AND shipment_date >= "'.$from_date.'" '
+                . ' AND shipment_date < "'.$to_date.'" '
+                . ' AND partner_invoice_id IS NULL '
+                . ' GROUP BY `AWB_no` ';
+        
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    /**
+     * @desc  This is used to generate SF warehouse courier dispatched( to SF) DATA
+     * @param int $vendor_id
+     * @param String $from_date
+     * @param String $to_date
+     * @param int $is_regenerate
+     * @return Array
+     */
+    function get_sf_invoice_warehouse_courier_data($vendor_id, $from_date, $to_date, $is_regenerate){
+        log_message('info', __METHOD__. " Enterring..");
+        $invoice_check = "";
+        if($is_regenerate == 0){
+            $invoice_check = ' AND warehouse_courier_invoice_id IS NULL';
+        }
+        $sql = 'SELECT GROUP_CONCAT(sp.id) as sp_id, GROUP_CONCAT(DISTINCT sp.booking_id) as booking_id, '
+                . ' awb_by_partner,'
+                .' COALESCE(SUM(courier_price_by_partner),0) as courier_charges_by_sf '
+                . ' FROM spare_parts_details as sp '
+                . ' WHERE '
+                . ' entity_type = "'._247AROUND_SF_STRING.'" '
+                . ' AND sp.partner_id = "'.$vendor_id.'" '
+                . ' AND awb_by_partner IS NOT NULL '
+                . ' AND sp.shipped_date >= "'.$from_date.'" '
+                . ' AND sp.shipped_date < "'.$to_date.'" '
+                . ' AND  parts_shipped IS NOT NULL '
+                .  $invoice_check
+                . ' GROUP BY awb_by_partner ';
+        
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
+    function get_defective_parts_return_partner_sf_invoice($vendor_id, $from_date, $to_date, $is_regenerate){
+        log_message('info', __METHOD__);
+        if($is_regenerate == 0){
+            $invoice_check = ' AND sender_invoice_id IS NULL';
+        }
+        $sql = 'SELECT GROUP_CONCAT(courier_details.id) as c_id, '
+                . ' GROUP_CONCAT(DISTINCT booking_id) as booking_id, '
+                . ' COALESCE(SUM(courier_charge),0) as courier_charges_by_sf '
+                . ' FROM `courier_details` '
+                . ' WHERE `sender_entity_type` = "'._247AROUND_SF_STRING.'"  '
+                . ' AND receiver_entity_type = "'._247AROUND_PARTNER_STRING.'" '
+                . ' AND `sender_entity_id` = "'.$vendor_id.'" '
+                . ' AND shipment_date >= "'.$from_date.'" '
+                . ' AND shipment_date < "'.$to_date.'" '
+                .  $invoice_check
+                . ' GROUP BY `AWB_no` ';
+        
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
 }

@@ -25,3 +25,6 @@ define('QFX_ID',247066);
 //google flipkart partner id
 define('GOOGLE_FLIPKART_PARTNER_ID',247077);
 
+//T-series Partner ID
+define('T_SERIES_PARTNER_ID',247073);
+

@@ -67,11 +67,11 @@ class push_notification_lib {
                     }
                     else{
                         //Send Email
-                        $to = PUSH_NOTIFICATION_ERROR_NOTIFY_EMAIL; 
-                        $cc = PUSH_NOTIFICATION_ERROR_NOTIFY_EMAIL;
-                        $subject = "Error For Push Notification";
-                        $message = "Hi,<br/> We got following error :".$resultArray['message']."For $subscriberArray[0]";
-                        $this->Pu_N->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "",PUSH_NOTIFICATION_ERROR);
+//                        $to = PUSH_NOTIFICATION_ERROR_NOTIFY_EMAIL; 
+//                        $cc = PUSH_NOTIFICATION_ERROR_NOTIFY_EMAIL;
+//                        $subject = "Error For Push Notification";
+//                        $message = "Hi,<br/> We got following error :".$resultArray['message']."For $subscriberArray[0]";
+//                        $this->Pu_N->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "",PUSH_NOTIFICATION_ERROR);
                     }
                   log_message('info', __FUNCTION__ . " Function End Notification has Not been send, status is failure");
               }

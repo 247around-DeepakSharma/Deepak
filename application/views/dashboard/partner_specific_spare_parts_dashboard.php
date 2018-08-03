@@ -17,10 +17,10 @@
             <div class="col-md-6 col-sm-12 col-xs-12">
                 <div class="x_panel">
                     <div class="x_title">
-                        <h2>Spare Details by Status <span class="badge badge-info" data-toggle="popover" data-content="Below figures show data about <?php echo $partner_name; ?> spare according to their current status"><i class="fa fa-info"></i></span></h2>
+                        <h2>Spare Details by Status</h2>
                         <div class="clearfix"></div>
                     </div>
-                    <div class="col-md-12"><center><img id="loader_gif1" src="" style="display: none;"></center></div>
+                    <div class="col-md-12"><center><img id="loader_gif1" src="<?php echo base_url(); ?>images/loadring.gif"></center></div>
                     <div class="x_content">
                         <div id="spare_details_by_status" style="width:100%; height:400px;"></div>
                     </div>
@@ -30,7 +30,7 @@
             <div class="col-md-6 col-sm-12 col-xs-12">
                 <div class="x_panel">
                     <div class="x_title">
-                        <h2>Spare Snapshot <span class="badge badge-info" data-toggle="popover" data-content="Below figures show data about total spare parts, partner out of tat, sf out of tat count( partner out of tat count start after 30 days of parts shipped by partner. sf out of tat days count start after 7 days of booking completion by sf)"><i class="fa fa-info"></i></span></h2>
+                        <h2>Spare Snapshot <span class="badge badge-info" data-toggle="popover" data-content="Below graphs shows total parts pending shipped by partner,parts which are OOT with respect to partner(30 days from shipped date) and parts which are OOT with respect to sf (after 7 days from booking completion by sf)"><i class="fa fa-info"></i></span></h2>
                         <div class="clearfix"></div>
                     </div>
                     <div class="col-md-12"><center><img id="loader_gif2" src="<?php echo base_url(); ?>images/loadring.gif"></center></div>
@@ -46,7 +46,7 @@
             <div class="col-md-12 col-sm-12 col-xs-12">
                 <div class="x_panel">
                     <div class="x_title">
-                        <h2>Service Center Spare Parts Details <span class="badge badge-info" data-toggle="popover" data-content="Below table show data about pending defective spares on sf which is out of tat by sf wise for <?php echo $partner_name; ?>( Out of tat days count start after 7 days of booking completion by sf)"><i class="fa fa-info"></i></span></h2>
+                        <h2>Defective Parts Pending On SF <b>(OOT)</b> <span class="badge badge-info" data-toggle="popover" data-content="Below table shows parts which are OOT with respect to sf (after 7 days from booking completion by sf)"><i class="fa fa-info"></i></span></h2>
                         <div class="nav navbar-right panel_toolbox">
                             <div class="pull-right">
                                 <a href="<?php echo base_url();?>employee/dashboard/sf_oot_spare_full_view/<?php echo $partner_id; ?>/<?php echo $partner_name; ?>" class="btn btn-sm btn-success" target="_blank">Show All</a>
@@ -63,7 +63,7 @@
                                 <thead>
                                     <th>S.No.</th>
                                     <th>Service Center</th>
-                                    <th>Defective Spare Need to be Shipped (OOT)</th>
+                                    <th>Spare Count</th>
                                 </thead>
                                 <tbody id="spare_details_by_sf_table_data"></tbody>
                             </table>
@@ -111,6 +111,21 @@
             <!-- End SF Spare Parts Details-->
         </div>
     </div>
+    
+    <!-- Modal -->
+    <div id="modalDiv" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div id="open_model"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Modal -->
 </div>
 <!-- /page content -->
 
@@ -177,7 +192,11 @@
                             allowPointSelect: true,
                             cursor: 'pointer',
                             borderWidth: 0,
-                            showInLegend: true
+                            showInLegend: true,
+                            dataLabels: {
+                                enabled: true,
+                                format: '<b>{point.name}</b>: {point.y}'
+                            }
                         }
                     },
                     series: [{
@@ -211,7 +230,7 @@
             table_body_html += '<tr>';
             table_body_html += '<td>' + (Number(index)+1) +'</td>';
             table_body_html += '<td>' +val['name'] +'</td>';
-            table_body_html += '<td>' +val['oot_defective_parts_count'] +'</td>';
+            table_body_html += "<td><a href='#' onclick = show_dashboard_modal('"+val['booking_id']+"') >" +val['oot_defective_parts_count'] +"<a/></td>";
             table_body_html += '</tr>';
         });
         $('#spare_details_by_sf_table_data').html(table_body_html);
@@ -289,7 +308,7 @@
         var spare_count = JSON.parse("[" + data.spare_count + "]");
         $('#loader_gif2').hide();
         $('#spare_snapshot').fadeIn();
-        rm_based_chart = new Highcharts.Chart({
+        spare_snapshot_chart = new Highcharts.Chart({
             chart: {
                 renderTo: 'spare_snapshot',
             },
@@ -298,16 +317,6 @@
             },
             xAxis: {
                 categories: spare_status
-            },
-            labels: {
-                items: [{
-                    html: 'Amount',
-                    style: {
-                        left: '500px',
-                        top: '-6px',
-                        color: (Highcharts.theme && Highcharts.theme.textColor) || 'black'
-                    }
-                }]
             },
             tooltip: {
                 formatter: function() {
@@ -324,10 +333,21 @@
                         }
                     }
             },
+            legend: {
+                enabled: false
+            },
             series: [{
                 type: 'column',
                 name: 'Count',
-                data: spare_count
+                data: spare_count,
+                cursor: 'pointer',
+                    point: {
+                        events: {
+                            click: function (event) {
+                                get_excel_file(this.category);
+                            }
+                        }
+                    }
             }]
         });
     

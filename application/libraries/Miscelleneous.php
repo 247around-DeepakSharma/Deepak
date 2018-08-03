@@ -276,6 +276,7 @@ class Miscelleneous {
                 $booking['upcountry_distance'] = $data['upcountry_distance'];
                 $booking['sf_upcountry_rate'] = $data['sf_upcountry_rate'];
                 $booking['partner_upcountry_rate'] = $data['partner_upcountry_rate'];
+                $booking['upcountry_update_date'] = date('Y-m-d H:i:s');
 
                 $is_upcountry = $this->My_CI->upcountry_model->is_upcountry_booking($booking_id);
                 
@@ -293,19 +294,31 @@ class Miscelleneous {
                     $return_status = TRUE;
                 } else if (in_array(-1, array_column($is_upcountry, 'is_upcountry')) !== FALSE 
                         && in_array(1, array_column($is_upcountry, 'is_upcountry')) == FALSE ) {
-                    log_message('info', __METHOD__ . " => Customer or Partner does not pay upcountry charges " . $booking_id);
-                    $booking['is_upcountry'] = 0;
-                    $booking['upcountry_pincode'] = NULL;
-                    $booking['sub_vendor_id'] = NULL;
-                    $booking['upcountry_distance'] = NULL;
-                    $booking['sf_upcountry_rate'] = NULL;
-                    $booking['partner_upcountry_rate'] = NULL;
-                    $booking['upcountry_paid_by_customer'] = '0';
-                    $booking['upcountry_partner_approved'] = '1';
-                    $booking['upcountry_remarks'] = CUSTOMER_AND_PARTNER_BOTH_NOT_PROVIDE_UPCOUNTRY_FOR_THIS_PRICE_TAG;
+                    
+                    $is_not_upcountry = $this->My_CI->upcountry_model->is_customer_pay_upcountry($booking_id);
+                    if(!empty($is_not_upcountry)){
+                        log_message('info', __METHOD__ . " => Customer will pay upcountry charges " . $booking_id);
+                        $booking['upcountry_paid_by_customer'] = 1;
+                        $booking['partner_upcountry_rate'] = DEFAULT_UPCOUNTRY_RATE;
+                        $booking['upcountry_remarks'] = CUSTOMER_PAID_UPCOUNTRY;
 
-                    log_message('info', __METHOD__ . " => Amount due added " . $booking_id);
-                    $booking['amount_due'] = $cus_net_payable;
+                        log_message('info', __METHOD__ . " => Amount due added " . $booking_id);
+                        $booking['amount_due'] = $cus_net_payable + ($booking['partner_upcountry_rate'] * $booking['upcountry_distance']);
+                    } else {
+                        log_message('info', __METHOD__ . " => Customer or Partner does not pay upcountry charges " . $booking_id);
+                        $booking['is_upcountry'] = 0;
+                        $booking['upcountry_pincode'] = NULL;
+                        $booking['sub_vendor_id'] = NULL;
+                        $booking['upcountry_distance'] = NULL;
+                        $booking['sf_upcountry_rate'] = NULL;
+                        $booking['partner_upcountry_rate'] = NULL;
+                        $booking['upcountry_paid_by_customer'] = '0';
+                        $booking['upcountry_partner_approved'] = '1';
+                        $booking['upcountry_remarks'] = CUSTOMER_AND_PARTNER_BOTH_NOT_PROVIDE_UPCOUNTRY_FOR_THIS_PRICE_TAG;
+
+                        log_message('info', __METHOD__ . " => Amount due added " . $booking_id);
+                        $booking['amount_due'] = $cus_net_payable;
+                    }
 
                     $this->My_CI->booking_model->update_booking($booking_id, $booking);
                     log_message('info', __METHOD__ . " => Not Upcountry Booking" . $booking_id);
@@ -337,6 +350,7 @@ class Miscelleneous {
                         $booking['upcountry_paid_by_customer'] = 0;
                         $booking['upcountry_remarks'] = UPCOUNTRY_BOOKING_NEED_TO_APPROVAL;
                         $booking['amount_due'] = $cus_net_payable;
+                        
                         $partner_status = $this->My_CI->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, UPCOUNTRY_BOOKING_NEED_TO_APPROVAL,
                                 $query1[0]['partner_id'], $booking_id);
                         $actor = $next_action = 'not_define';
@@ -489,8 +503,19 @@ class Miscelleneous {
         $en_where1 = array("engineer_booking_action.booking_id" => $booking_id);
         $this->My_CI->engineer_model->update_engineer_table(array("current_status" => _247AROUND_CANCELLED, "internal_status" =>_247AROUND_CANCELLED), $en_where1);
         
-        $spare = $this->My_CI->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status", array('booking_id' => $booking_id, 'status NOT IN ("Completed","Cancelled")' =>NULL ), false);
+        $spare = $this->My_CI->partner_model->get_spare_parts_by_any("spare_parts_details.id,spare_parts_details.partner_id, "
+                . "spare_parts_details.entity_type, spare_parts_details.status, "
+                . "requested_inventory_id, shipped_inventory_id", 
+                array('booking_id' => $booking_id, 'status NOT IN ("'._247AROUND_COMPLETED.'","'._247AROUND_CANCELLED.'")' =>NULL ), 
+                false);
         foreach($spare as $sp){
+            
+
+            if($sp['status'] == SPARE_PARTS_REQUESTED && $sp['entity_type'] == _247AROUND_SF_STRING){
+                $this->My_CI->inventory_model->update_pending_inventory_stock_request($sp['entity_type'], 
+                            $sp['partner_id'], $sp['requested_inventory_id'], -1);
+            }
+            
             //Update Spare parts details table
             $this->My_CI->service_centers_model->update_spare_parts(array('id'=> $sp['id']), array('old_status' => $sp['status'],'status' => _247AROUND_CANCELLED));
         }
@@ -1184,52 +1209,65 @@ class Miscelleneous {
      *
      */
 
-    function _allot_source_partner_id_for_pincode($service_id, $state, $brand, $default_partner, $api =false) {
+    function _allot_source_partner_id_for_pincode($service_id, $state, $brand, $default_partner, $api = false) {
         log_message('info', __FUNCTION__ . ' ' . $service_id, $state, $brand);
-        $data = [];
+        $data = array();
         $flag = FALSE;
 
-        $partner_array = $this->My_CI->partner_model->get_active_partner_id_by_service_id_brand($brand, $service_id);
-
-        if (!empty($partner_array)) {
-
-            foreach ($partner_array as $value) {
-                //Now getting details for each Partner
-                $filtered_partner_state = $this->My_CI->partner_model->check_activated_partner_for_state_service($state, $value['partner_id'], $service_id);
-                if ($filtered_partner_state) {
-                    //Now assigning this case to Partner
-                    $data['partner_id'] = $value['partner_id'];
-                    $data['source'] = $partner_array[0]['code'];
-                    $flag = FALSE;
-                } else {
-                    if ($value['partner_id'] == VIDEOTEX && !$api) {
-                        return false;
-                    } else {
-                        $flag = TRUE;
-                    }
-                }
+        $blocked_brand = $this->My_CI->partner_model->get_partner_blocklist_brand(array("partner_id" => $default_partner, "brand" => $brand,
+            "service_id" => $service_id), "*");
+        if (!empty($blocked_brand)) {
+            if($blocked_brand[0]['whitelist'] == 1){
+               log_message('info', ' Whitelist Brand ' . $brand . ' and service_id ' . $service_id. " partner Id ".$default_partner);
+               $get_partner_source = $this->My_CI->partner_model->getpartner_details('bookings_sources.code', array('partners.id' => $default_partner));
+               $data['partner_id'] = $default_partner;
+               $data['source'] = $get_partner_source[0]['code'];
+               $data['brand'] = $brand;
+               $flag = FALSE;
+                
+            } else if($blocked_brand[0]['blacklist'] == 1){
+                log_message('info', ' Blacklist Brand ' . $brand . ' and service_id ' . $service_id. " partner Id ".$default_partner);
+                $data['partner_id'] = _247AROUND;
+                $data['source'] = 'SB';
+                $data['brand'] = "";
+                $flag = FALSE;
             }
         } else {
-            log_message('info', ' No Active Partner has been Found in for Brand ' . $brand . ' and service_id ' . $service_id);
-            $flag = TRUE;
+            log_message('info', ' Not found in the vlacklist table- Brand ' . $brand . ' and service_id ' . $service_id. " partner Id ".$default_partner);
+            $partner_array = $this->My_CI->partner_model->get_active_partner_id_by_service_id_brand($brand, $service_id);
+            if (!empty($partner_array)) {
+
+                foreach ($partner_array as $value) {
+                    //Now getting details for each Partner
+                    $filtered_partner_state = $this->My_CI->partner_model->check_activated_partner_for_state_service($state, $value['partner_id'], $service_id);
+                    if ($filtered_partner_state) {
+                        //Now assigning this case to Partner
+                        $data['partner_id'] = $value['partner_id'];
+                        $data['source'] = $partner_array[0]['code'];
+                        $data['brand'] = $brand;
+                        $flag = FALSE;
+                    } else {
+                        if ($value['partner_id'] == VIDEOTEX && !$api) {
+                            return false;
+                        } else {
+                            $flag = TRUE;
+                        }
+                    }
+                }
+            } else {
+                log_message('info', ' No Active Partner has been Found in for Brand ' . $brand . ' and service_id ' . $service_id);
+                $flag = TRUE;
+            }
         }
 
         if ($flag) {
             $get_partner_source = $this->My_CI->partner_model->getpartner_details('bookings_sources.code', array('partners.id' => $default_partner));
             $data['partner_id'] = $default_partner;
             $data['source'] = $get_partner_source[0]['code'];
+            $data['brand'] = "";
         }
-
-        $blocked_brand = $this->My_CI->partner_model->get_partner_blocklist_brand(array("partner_id" => $data['partner_id'], "brand" => $brand, 
-            "service_id" => $service_id), "*");
-
-        if(!empty($blocked_brand)){
-           $data['partner_id'] = _247AROUND;
-           $data['source'] = 'SB';
-        }
-
+        
         return $data;
-
     }
 
     /**
@@ -1304,8 +1342,16 @@ class Miscelleneous {
                 $upcountry_basic = $upcountry[0]['total_upcountry_price'];
             }
             
+            $misc_select = 'SUM(miscellaneous_charges.partner_charge) as misc_charge';
+
+            $misc = $this->My_CI->invoices_model->get_misc_charges_invoice_data($misc_select, "miscellaneous_charges.partner_invoice_id IS NULL", false, FALSE, "booking_details.partner_id", $partner_id, "partner_charge");
+            $msic_charge = 0;
+            if(!empty($misc)){
+                $msic_charge = $misc[0]['misc_charge'];
+            }
+            
             // calculate final amount of partner
-            $final_amount = -($invoice_amount[0]['amount'] + ($service_amount[0]['amount'] * (1 + SERVICE_TAX_RATE)) + ($upcountry_basic * (1 + SERVICE_TAX_RATE)));
+            $final_amount = -($invoice_amount[0]['amount'] + ($service_amount[0]['amount'] * (1 + SERVICE_TAX_RATE)) + ($upcountry_basic * (1 + SERVICE_TAX_RATE)) + $msic_charge * (1 + SERVICE_TAX_RATE));
 
             log_message("info", __METHOD__ . " Partner Id " . $partner_id . " Prepaid account" . $final_amount);
             $d['prepaid_amount'] = round($final_amount,0);
@@ -1359,7 +1405,7 @@ class Miscelleneous {
      */
 
     function send_sf_not_found_email_to_rm($booking, $rm_email,$subject, $isPartner) {
-        $cc = ANUJ_EMAIL_ID;
+        $cc = "";
         $booking['service'] = NULL;
         $tempPartner = $this->My_CI->reusable_model->get_search_result_data("partners", "public_name", array('id' => $booking['partner_id']), NULL, NULL, NULL, NULL, NULL);
         if(!empty($booking['service_id'])){
@@ -1978,8 +2024,8 @@ class Miscelleneous {
      * @param array $data
      * @return bookean $flag
      */
-    function process_inventory_stocks($data) {
-        log_message("info", __FUNCTION__ . " process inventory update" . print_r($data, true));
+    function process_inventory_stocks($data, $requested_inventory_id = false) {
+        log_message("info", __FUNCTION__ . " process inventory update entering..." . print_r($data, true));
         $flag = FALSE;
         $is_process = FALSE;
 
@@ -2013,18 +2059,29 @@ class Miscelleneous {
                  * else insert into the table
                  */
                 if(isset($data['is_wh']) && !isset($data['is_cancel_part'])){
-                    $is_entity_exist = $this->My_CI->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $data['sender_entity_id'], 'entity_type' => $data['sender_entity_type'], 'inventory_id' => $is_part_exist[0]['inventory_id']), NULL, NULL, NULL, NULL, NULL)->result_array();
+                    $is_entity_exist = $this->My_CI->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id,inventory_stocks.stock, pending_request_count', array('entity_id' => $data['sender_entity_id'], 'entity_type' => $data['sender_entity_type'], 'inventory_id' => $is_part_exist[0]['inventory_id']), NULL, NULL, NULL, NULL, NULL)->result_array();
                 }else{
-                    $is_entity_exist = $this->My_CI->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $data['receiver_entity_id'], 'entity_type' => $data['receiver_entity_type'], 'inventory_id' => $is_part_exist[0]['inventory_id']), NULL, NULL, NULL, NULL, NULL)->result_array();
+                    $is_entity_exist = $this->My_CI->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id,inventory_stocks.stock, pending_request_count', array('entity_id' => $data['receiver_entity_id'], 'entity_type' => $data['receiver_entity_type'], 'inventory_id' => $is_part_exist[0]['inventory_id']), NULL, NULL, NULL, NULL, NULL)->result_array();
                 }
                 if (!empty($is_entity_exist)) {
-                    $stock = "stock + '" . $data['stock'] . "'";
-                    $update_stocks = $this->My_CI->inventory_model->update_inventory_stock(array('id' => $is_entity_exist[0]['id']), $stock);
-                    if ($update_stocks) {
-                        log_message("info", __FUNCTION__ . " Stocks has been updated successfully". print_r($data,true). ' stock '.$stock);
-                        $flag = TRUE;
-                    } else {
-                        log_message("info", __FUNCTION__ . " Error in updating stocks".print_r($data,true). ' stock '.$stock);
+                    //if stock goes negative then do not update stock
+                    $updated_stock = $is_entity_exist[0]['stock'] + $data['stock'];
+                    if($updated_stock >= 0){
+                        $stock = "stock + '" . $data['stock'] . "'";
+                        if(isset($data['is_wh']) && !empty($requested_inventory_id)){
+                            if($is_entity_exist[0]['pending_request_count'] > 0){
+                                $this->My_CI->inventory_model->update_pending_inventory_stock_request($data['sender_entity_type'], $data['sender_entity_id'], $requested_inventory_id, -1);
+                            }
+                        }
+                        $update_stocks = $this->My_CI->inventory_model->update_inventory_stock(array('id' => $is_entity_exist[0]['id']), $stock);
+                        if ($update_stocks) {
+                            log_message("info", __FUNCTION__ . " Stocks has been updated successfully");
+                            $flag = TRUE;
+                        } else {
+                            log_message("info", __FUNCTION__ . " Error in updating stocks");
+                        }
+                    }else{
+                        log_message('info','inventory id '. $is_part_exist[0]['inventory_id'] . ' details for which stock not found ' .print_r($data,true) );
                     }
                 } else {
                     $insert_data['entity_id'] = isset($data['is_wh'])?$data['sender_entity_id']:$data['receiver_entity_id'];
@@ -2088,7 +2145,7 @@ class Miscelleneous {
                         $flag = FALSE;
                     }
                 } else {
-                    log_message("info", __FUNCTION__ . " Error in updating inventory" . print_r($data, true));
+                    log_message("info", __FUNCTION__ . " Error in updating inventory " . print_r($data, true));
                 }
             } else {
                 log_message("info", __FUNCTION__ . " Error in updating inventory. Part number does not exist in the inventory_master_list table" . print_r($data, true));
@@ -2487,6 +2544,11 @@ Your browser does not support the audio element.
         foreach($b_earned as $earn){
             $unit_amount += $earn['sf_earned'];
         }
+        $misc_charge = 0;
+        $misc_charge_data = $this->My_CI->booking_model->get_misc_charges_data('sum(vendor_basic_charges + vendor_tax) as misc_charge', array('booking_id' => $booking_id, 'active' => 1));
+        if(!empty($misc_charge_data)){
+            $misc_charge = $misc_charge_data[0]['misc_charge'];
+        }
         
         $penalty_select = "CASE WHEN ((count(booking_id) *  penalty_on_booking.penalty_amount) > cap_amount) THEN (cap_amount)
 
@@ -2506,7 +2568,7 @@ Your browser does not support the audio element.
             }
             $up_charges = $upcountry[0]['upcountry_price']/$upcountry[0]['count_booking'];
         }
-        $return['sf_earned'] = round($unit_amount -$p_amount[0]['p_amount'] + $up_charges, 0);
+        $return['sf_earned'] = round($unit_amount -$p_amount[0]['p_amount'] + $up_charges + $misc_charge, 0);
         if($p_amount[0]['p_amount'] > 0){
             $return['penalty'] = TRUE;
         } else{
@@ -3009,5 +3071,221 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
         $where['booking_details.booking_id'] = $bookingID;
         $data = $this->My_CI->reusable_model->get_search_result_data("booking_details",$select,$where,$join,NULL,NULL,NULL,NULL,array());
         return $data;
+    }
+    
+    function check_inventory_stock($inventory_id, $partner_id, $state){
+        $response = array();
+        $post['length'] = -1;
+    
+        $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number, '
+                . 'inventory_master_list.inventory_id, price, gst_rate',array('inventory_id' => $inventory_id));
+       
+        if(!empty($inventory_part_number)){
+            $post['where'] = array('inventory_stocks.inventory_id' => $inventory_id,'inventory_stocks.entity_type' => _247AROUND_SF_STRING,'(inventory_stocks.stock - inventory_stocks.pending_request_count) > 0'=>NULL);
+            $select = '(inventory_stocks.stock - pending_request_count) As stock,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id';
+            $inventory_stock_details = $this->My_CI->inventory_model->get_inventory_stock_list($post,$select,array(),FALSE);
+            
+            if(!empty($inventory_stock_details)){
+                foreach($inventory_stock_details as $value){
+                    $warehouse_details = $this->My_CI->inventory_model->get_warehouse_details('warehouse_state_relationship.state,contact_person.entity_id',
+                            array('warehouse_state_relationship.state' => $state,'contact_person.entity_type' => _247AROUND_SF_STRING,
+                                'contact_person.entity_id' => $value['entity_id']));
+                    
+                    if(!empty($warehouse_details)){
+                        $response = array();
+                        $response['stock'] = TRUE;
+                        $response['entity_id'] = $value['entity_id'];
+                        $response['entity_type'] = _247AROUND_SF_STRING;
+                        $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
+                        $response['estimate_cost'] =round($inventory_part_number[0]['price'] *( 1 + $inventory_part_number[0]['gst_rate']/100), 0);
+                        $response['inventory_id'] = $inventory_id;
+                        break;
+                    }
+                }
+     
+                if(empty($response)){
+                   
+                    $response['stock'] = false;
+                    $response['entity_id'] = $partner_id;
+                    $response['entity_type'] = _247AROUND_PARTNER_STRING;
+                    $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
+                    $response['estimate_cost'] = round($inventory_part_number[0]['price'] *( 1 + $inventory_part_number[0]['gst_rate']/100), 0);
+                    $response['inventory_id'] = $inventory_id;
+                }
+                
+            }else{
+                $response = array();
+                $response['stock'] = false;
+                $response['inventory_id'] = $inventory_part_number[0]['inventory_id'];
+                $response['entity_id'] = $partner_id;
+                $response['entity_type'] = _247AROUND_PARTNER_STRING;
+                $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
+                $response['estimate_cost'] = round($inventory_part_number[0]['price'] *( 1 + $inventory_part_number[0]['gst_rate']/100), 0);
+                $response['inventory_id'] = $inventory_id;
+            }
+         
+            return $response;
+            
+        } else {
+            return false;
+        }
+    }
+    function is_booking_valid_for_partner_panelty($request_type){
+        $is_valid = 1;
+        if(strpos($request_type, 'Out of Warranty') !== false) {
+            $is_valid = 0;
+        }
+        if(strpos($request_type, 'Repeat') !== false) {
+            $is_valid = 0;
+        }
+        if(strpos($request_type, 'Service Center Visit') !== false) {
+            $is_valid = 0;
+        }
+        return $is_valid;
+    }
+    /*
+     * This function is used to calculate tat between 2 dates by considering non working days of SF
+     * if tat is 5 and there was an holiday in between then tat will be 4
+     * If start date is holiday means booking assigned  on holiday then calculate tat from next day
+     * If End date is holiday then don't consider it as holiday
+     * @input - 1) $non_working_day - string of non_working day of sf comma seprated
+     * 2) $startDate - Action start date
+     * 3) $endDate - Action End Date
+     *  @output -  final tat(Tat After all calculations)
+     * 
+     */
+    function get_tat_with_considration_of_non_working_day($non_working_day,$startDate,$endDate){
+         log_message('info', __FUNCTION__ . "Start non_working_day = ".$non_working_day.", startDate = ".$startDate."end date= ".$endDate);
+        //Create a week array to get week into days
+        $weekArray = array("Monday"=>1,"Tuesday"=>2,"Wednesday"=>3,"Thursday"=>4,"Friday"=>5,"Saturday"=>6,"Sunday"=>7);
+        // get day on start date
+        $dayOfStartDate = date('w', strtotime($startDate));
+        // get day on end date
+        $dayOfEndDate = date('w', strtotime($endDate));
+        // calculate normal  tat from start to end date without working days considration
+        $tatDays = floor((strtotime($endDate) - strtotime($startDate))/(60 * 60 * 24));
+        //Convert non working days string into array
+        $nonWorkingDaysArray = explode(",",$non_working_day);
+        //Process all holidays through array, because holiday may be more then 1
+        foreach($nonWorkingDaysArray as $nonWorkingDay){
+            // Calculate days upto 1st holiday from start date
+            $daysUptoHoliday =   $weekArray[$nonWorkingDay] - $dayOfStartDate;
+            // If there was a holiday on start day then calculate days upto  holiday from next day
+            if($dayOfStartDate ==  $weekArray[$nonWorkingDay]){
+                $daysUptoHoliday =   $daysUptoHoliday -1;
+            }
+            // If day upto holiday is in negative means monday is holiday and start date is wednesday then 1-3 will be -ve so (7+(-2)) =5 , after 5 days there will be next holiday  
+           if($daysUptoHoliday < 0){
+               $daysUptoHoliday = 7 + $daysUptoHoliday;
+           }
+           // If tat is less then number of days upto holiday then take holiday as 0
+           if($daysUptoHoliday > $tatDays){
+               $holidayInTatArray[] = 0;
+           }
+           // If not then calculate number of hoildays between tat days
+           else{     
+               $holidayTemp = floor(($tatDays - $daysUptoHoliday)/7)+1;
+               // If end date is a holiday then minus 1 day from holiday because don't considerd action day as holiday
+               if($dayOfEndDate == $weekArray[$nonWorkingDay]){
+                   $holidayTemp = $holidayTemp -1;
+               }
+               $holidayInTatArray[] = $holidayTemp;
+           }
+        }
+        $finalTat = $tatDays - array_sum($holidayInTatArray);
+        if($finalTat<0){
+            $finalTat = 0;
+        }
+        log_message('info', __FUNCTION__ . "End finalTat = ".$finalTat);
+        return $finalTat;
+    }
+    /*
+     * This function is used to calculate TAT between diffrent legs of booking processing
+     * leg_1:
+     * With Spare - spare_request_date - initial_booking_date
+     * Without Spare - service_center_closed_date - initial_booking_date
+     * leg_2:
+     * With Spare - 1) (spare cancelled) - spare_cancelled_date - service_center_closed date, 2) (spare completed) - spare receieved date - service_center_closed_date
+     * leg_3:
+     * With spare (spare completed)   - service_center_closed_date - defactive_part_shipped_date 
+     * leg_4:
+     * service_center_closed_date - around_completed_date
+     */
+    function process_booking_tat_on_completion($booking_id){
+         log_message('info', __FUNCTION__ . "Start booking_id = ".$booking_id);
+        //Get booking + spare data 
+        //if spare not requested then all spare related fields will be blank
+        $data = $this->My_CI->booking_model->get_booking_tat_required_data($booking_id);
+        //Set all variable as blank initiallly
+        $tatArray['leg_1'] = $tatArray['leg_2'] = $tatArray['leg_3'] = $tatArray['leg_4'] =NULL;
+        $tatArray['applicable_on_partner'] = $tatArray['applicable_on_sf'] = 1;
+        //Process data through loop
+        foreach($data as $values){
+            //If sf_closed_date blank then consider around_completion_date as sf_completion_date
+            if(!$values['sf_closed_date']){
+                log_message('info', __FUNCTION__ . "SF closed date was null so consider close date as sf date. sf_date= ".$values['around_closed_date']);
+                $values['sf_closed_date'] =  $values['around_closed_date'];
+             }
+            // Leg 4 will be TAT between around closed date and sf closed date
+            $tatArray['leg_4'] = $this->get_tat_with_considration_of_non_working_day($values['non_working_days'],$values['sf_closed_date'],$values['around_closed_date']);
+            // IF Booking is without Spare Part then calculate leg_1
+            //leg_2,leg_3 is not applicable for this case
+            if(!$values['spare_id']){
+                $tatArray['leg_1'] = $this->get_tat_with_considration_of_non_working_day($values['non_working_days'],$values['initial_booking_date'],$values['sf_closed_date']);
+            }
+            // Else Calculate leg_2,leg_3,leg_4 because leg_1 is already updated when spare part request was made
+            else{
+                // IF spare_receieved_date blank then consider spare_receieved_date as a day before service center closed date
+                if(!$values['spare_receieved_date']){
+                    $newdateb = strtotime ( '-1 day' , strtotime ( $values['sf_closed_date'] ) ) ;
+                    $values['spare_receieved_date'] = date ( 'Y-m-d' , $newdateb);
+                    log_message('info', __FUNCTION__ . "spare_receieved_date was null so minus a day from sf_closed_date and consider it as spare_receieved_date. spare_receieved_date= ".$values['spare_receieved_date']);
+                }
+                // IF spare_cancelled_date blank then consider spare_cancelled_date as a day before service center closed date
+                if(!$values['spare_cancelled_date']){
+                    $newdatec = strtotime ( '-1 day' , strtotime ( $values['sf_closed_date'] ) ) ;
+                    $values['spare_cancelled_date'] = date ( 'Y-m-d' , $newdatec);
+                     log_message('info', __FUNCTION__ . "spare_cancelled_date was null so minus a day from sf_closed_date and consider it as spare_cancelled_date. spare_cancelled_date= ".$values['spare_receieved_date']);
+                }
+                //If spare was cancelled then leg_2 will be between cancellation date and service center closed date
+                //leg_3 is not applicable for this case
+                if($values['spare_status'] == 'cancelled'){
+                     $tatArray['leg_2'] = $this->get_tat_with_considration_of_non_working_day($values['non_working_days'],$values['spare_cancelled_date'],$values['sf_closed_date']);
+                }
+                //IF Spare flow was completed then leg_2 will be between spare_receieved_date and service_center_closed_date
+                //leg_3 is TAT between  service center cloased date and defactive part shipped
+                else{
+                    $tatArray['leg_2'] = $this->get_tat_with_considration_of_non_working_day($values['non_working_days'],$values['spare_receieved_date'],$values['sf_closed_date']);
+                    $tatArray['leg_3'] = $this->get_tat_with_considration_of_non_working_day($values['non_working_days'],$values['sf_closed_date'],$values['defactive_part_shipped_date']);
+                }
+            }
+            $tatArray['booking_id'] = $booking_id;
+            $tatArray['applicable_on_partner'] = $this->is_booking_valid_for_partner_panelty($values['request_type']);
+            if($values['spare_id']){
+                $this->My_CI->reusable_model->update_table("booking_tat",$tatArray,array("booking_id"=>$booking_id,"spare_id"=>$values['spare_id']));
+            }
+            else{
+                $is_exists = $this->My_CI->reusable_model->get_search_result_data("booking_tat","1",array("booking_id"=>$booking_id),NULL,NULL,NULL,NULL,NULL,array());
+                if(!empty($is_exists)){
+                  $this->My_CI->reusable_model->update_table("booking_tat",$tatArray,array("booking_id"=>$booking_id,"spare_id"=>NULL));
+                }
+                else{
+                  $this->My_CI->reusable_model->insert_into_table("booking_tat",$tatArray);
+                }
+            }
+        }
+        log_message('info', __FUNCTION__ . "End booking_id = ".$booking_id);
+    }
+    function process_booking_tat_on_spare_request($booking_id,$spare_id){
+        log_message('info', __FUNCTION__ . "Start booking_id = ".$booking_id.", spare_id = ".$spare_id);
+        $data['booking_id'] = $booking_id;
+        $data['spare_id'] = $spare_id;
+        $bookingData = $this->My_CI->reusable_model->get_search_result_data("booking_details","booking_details.service_centres.non_working_days,STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date",
+                array("booking_id"=>$booking_id),array("service_centres"=>"service_centres.id = booking_details.assigned_vendor_id"),NULL,NULL,NULL,NULL,array());
+        $data['leg_1'] = $this->get_tat_with_considration_of_non_working_day($bookingData[0]['non_working_days'],$bookingData[0]['initial_booking_date'],date("Y-m-d"));
+        $data['applicable_on_partner'] = $this->is_booking_valid_for_partner_panelty($values['request_type']);
+        $data['applicable_on_sf'] = 1;
+        $this->My_CI->reusable_model->insert_into_table("booking_tat",$data);
+        log_message('info', __FUNCTION__ . "End booking_id = ".$booking_id.", spare_id = ".$spare_id);
     }
 }

@@ -5,16 +5,29 @@ class Validate_serial_no {
     public function __construct() {
 	$this->MY_CI = & get_instance();
         $this->MY_CI->load->model('partner_model');
+        $this->MY_CI->load->model('booking_model');
     }
     
-    function validateSerialNo($partnerID, $serialNo){
+    function validateSerialNo($partnerID, $serialNo, $price_tags, $user_id, $booking_id){
         log_message('info', __METHOD__. " Enterring... Partner ID ". $partnerID. " Srial No ". $serialNo);
-        $method = $this->getLogicMethod($partnerID);
-        if(!empty($method)){
-            return $this->$method($partnerID, $serialNo);
-        } else{
-            return false;
+        $flag = true;
+        
+        if(!empty($price_tags) && $price_tags != REPEAT_BOOKING_TAG){
+            $v =$this->check_duplicate_serial_number($serialNo, $price_tags, $user_id, $booking_id);
+            if(!empty($v)){
+                $flag = false;
+                return $v;
+            }
         }
+        if($flag){
+            $method = $this->getLogicMethod($partnerID);
+            if(!empty($method)){
+                return $this->$method($partnerID, $serialNo);
+            } else{
+                return false;
+            }
+        }
+        
     }
     /**
      * @desc In this method, just pass partner id then it will return serial no validation method name.
@@ -130,10 +143,58 @@ class Validate_serial_no {
             return array('code' => SUCCESS_CODE);
         } else {
             
-            log_message('info', __METHOD__ . " Partner ID " . $partnerID . " Srial No " . $serialNo . " Retrun false");
+            log_message('info', __METHOD__ . " Partner ID " . $partnerID . " Srial No " . $serialNo . " Return false");
             return array('code' => FAILURE_CODE, "message" => QFX_SERIAL_NO_VALIDATION_FAILED_MSG);
         }
     }
+    /**
+     * @desc
+     * @param String $serial_number
+     * @return boolean
+     */
+    function check_duplicate_serial_number($serial_number, $price_tags, $user_id, $booking_id){
+        $data = $this->MY_CI->booking_model->get_unit_details(array('serial_number' => $serial_number, 'booking_status != "'._247AROUND_CANCELLED.'"' => NULL,
+            "price_tags != '".REPEAT_BOOKING_TAG."'" => NULL, "booking_id != '".$booking_id."'" => NULL));
+       
+        if(!empty($data)){
+            $msg = "";
+            $isDuplicate = false;
+            foreach ($data as $key =>$value) {
+               
+               if($value['booking_status'] == _247AROUND_COMPLETED){
 
+                    $d = date_diff(date_create($value['ud_closed_date']), date_create('today')); 
+                    if($d->days < BOOKING_WARRANTY_DAYS){
+                      
+                        $booking_details = $this->MY_CI->booking_model->get_bookings_count_by_any('user_id', array('booking_id' => $value['booking_id']));
+                      
+                        if($booking_details[0]['user_id'] == $user_id){
+                        
+                            if($price_tags == $value['price_tags']){
+                          
+                                $msg = " You already used in this Booking ID - ".$value['booking_id'];
+                                $isDuplicate = TRUE;
+                                break;
+                            }
+                        } else {
+                            $msg = " You already used in this Booking ID - ".$value['booking_id'];
+                            $isDuplicate = TRUE;
+                            break;
+                        }
+                    }
+               } else {
+                   $isDuplicate = TRUE;
+                   break;
+               }
+            }
+            if($isDuplicate){
+               return array('code' => DUPLICATE_SERIAL_NO_CODE, "message" => DUPLICATE_SERIAL_NUMBER_USED." ".$msg);
+            } else {
+                return FALSE;
+            }
+        } else {
+            return FALSE;
+        }
+    }
 }
 

@@ -1565,13 +1565,470 @@ class service_centre_charges extends CI_Controller {
         }
     }
     
-    function cancel_misc_charges($id){
+    function cancel_misc_charges($id, $booking_id){
         log_message('info', __METHOD__. "id " .$id);
         if(!empty($id)){
             $this->booking_model->update_misc_charges(array('id' => $id), array('active' => 0));
+            
+            $actor = $next_action = NULL;
+                        
+            $this->notify->insert_state_change($booking_id, MISC_CHARGES_REMOVED,  _247AROUND_PENDING, "", 
+                                $this->session->userdata('id'), $this->session->userdata('employee_id'),
+                    $actor, $next_action, _247AROUND);
             echo "success";
         } else {
             echo "Failed";
+        }
+    }
+
+    
+    /**
+     * @desc: This function is used to get the form to add new service category
+     * @params: void
+     * @return: view
+     * 
+     */
+     public function add_service_category() {
+        $services = $this->booking_model->selectservice();
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/add_new_booking_request_type', array('services' => $services));
+    }
+    
+    /**
+     * @desc: This function is used to add service category data from form to database table
+     * @params: void
+     * @return: prints message if data entered successfully or not 
+     * 
+     */
+
+    public function process_add_service_category() {
+
+
+        $this->form_validation->set_rules('category', 'category', 'required');
+        $this->form_validation->set_rules('service', 'service', 'required');
+        $this->form_validation->set_rules('product', 'product', 'required');
+
+        if ($this->form_validation->run() == TRUE) {
+            $data = array(
+                'product_or_services' => $this->input->post('product'),
+                'service_id' => $this->input->post('service'),
+                'service_category' => $this->input->post('category')
+            );
+            $status = $this->service_centre_charges_model->insert_service_category($data);
+            if (!empty($status)) {
+                log_message("info", __METHOD__ . " Data Entered Successfully");
+                $this->session->set_userdata('success', 'Data Entered Successfully');
+                redirect(base_url() . 'employee/service_centre_charges/process_add_service_category');
+            } else {
+                log_message("info", __METHOD__ . " Data Already Exists");
+                $this->session->set_userdata('failed', 'Data Already Exists');
+                redirect(base_url() . 'employee/service_centre_charges/process_add_service_category');
+            }
+        } else {
+            $this->add_service_category();
+        }
+    }
+
+    /**
+     * @desc: This function is used to get the form to add new category and capacity of a service
+     * @params: void
+     * @return: view
+     * 
+     */
+    public function add_new_category() {
+        $services = $this->booking_model->selectservice();
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/add_new_category_capacity', array('services' => $services));
+    }
+    
+    /**
+     * @desc: This function is used to add the data from category capacity form to database table
+     * @params: void
+     * @return: prints message if data successfully added or already exists
+     * 
+     */
+
+    public function process_add_new_category() {
+
+        $this->form_validation->set_rules('category', 'category', 'required');
+        $this->form_validation->set_rules('service', 'service', 'required');
+
+        if ($this->form_validation->run() == TRUE) {
+            $app_data = array(
+                'service_id' => $this->input->post('service'),
+                'category' => trim($this->input->post('category')),
+                'capacity' => trim($this->input->post('capacity'))
+            );
+
+            $status = $this->service_centre_charges_model->insert_appliance_detail($app_data);
+            if (!empty($status)) {
+
+                log_message("info", __METHOD__ . " Data Entered Successfully");
+                $this->session->set_userdata('success', 'Data Entered Successfully');
+                redirect(base_url() . 'employee/service_centre_charges/process_add_new_category');
+            } else {
+
+
+                log_message("info", __METHOD__ . " Data Already Exists");
+                $this->session->set_userdata('failed', 'Data Already Exists');
+                redirect(base_url() . 'employee/service_centre_charges/process_add_new_category');
+            }
+        } else {
+            $this->add_new_category();
+        }
+    }
+    
+    /**
+     * @desc: This function is used to get service category mapping view data in a tabular format
+     * @params: void
+     * @return: view
+     * 
+     */
+
+    public function appliance_data_view() {
+        $this->miscelleneous->load_nav_header();
+        $data['appliance_data'] = $this->service_centre_charges_model->get_appliance_data();
+        $this->load->view('employee/service_category_mapping_view', $data);
+    }
+    
+    /**
+     * @desc: This function is used to update service, category from service category mapping tabular view 
+     * @params: void
+     * @return: prints message if data is updated or already exists
+     * 
+     */
+
+    public function update_appliance() {
+
+
+        $this->form_validation->set_rules('service_id', 'service_id', 'required');
+        $this->form_validation->set_rules('category', 'category', 'required');
+        $this->form_validation->set_rules('rowid', 'rowid', 'required');
+
+
+        if ($this->form_validation->run() == TRUE) {
+
+            $id = $this->input->post('rowid');
+
+            $data = array(
+                'service_id' => $this->input->post('service_id'),
+                'capacity' => ($this->input->post('capacity')),
+                'category' => trim($this->input->post('category')),
+                'create_date' => date('Y-m-d H:i:s')
+            );
+
+            $status = $this->service_centre_charges_model->update_appliance_detail($id, $data);
+            if (!empty($status)) {
+
+                log_message("info", __METHOD__ . " Data Updated");
+                $this->session->set_userdata('success', 'Data Updated');
+                redirect(base_url() . 'employee/service_centre_charges/appliance_data_view');
+            } else {
+
+
+                log_message("info", __METHOD__ . " Data Already Exists");
+                $this->session->set_userdata('failed', 'Data Already Exists');
+                redirect(base_url() . 'employee/service_centre_charges/appliance_data_view');
+            }
+        } else {
+
+            $this->add_new_category();
+        }
+    }
+    
+    /**
+     * @desc: This function is used to get the service category data view in a tabular format 
+     * @params: void
+     * @return: view
+     * 
+     */
+
+    public function service_category_data_view() {
+        $this->miscelleneous->load_nav_header();
+        $data['service_category_data'] = $this->service_centre_charges_model->get_service_category_data();
+        $this->load->view('employee/service_category_data_view', $data);
+    }
+
+    /**
+     * @desc: This function is used to update service category from the service category tabular view
+     * @params: void
+     * @return: prints message if data is updated or already exists
+     * 
+     */
+    public function update_service_category() {
+
+
+        $this->form_validation->set_rules('service', 'service', 'required');
+        $this->form_validation->set_rules('category', 'category', 'required');
+        $this->form_validation->set_rules('product', 'product', 'required');
+        $this->form_validation->set_rules('rowid', 'rowid', 'required');
+
+
+        if ($this->form_validation->run() == TRUE) {
+
+            $id = $this->input->post('rowid');
+
+            $data = array(
+                'service_id' => $this->input->post('service'),
+                'service_category' => trim($this->input->post('category')),
+                'product_or_services' => ($this->input->post('product')),
+                'create_date' => date('Y-m-d H:i:s')
+            );
+
+            $status = $this->service_centre_charges_model->update_service_category_detail($id, $data);
+            if (!empty($status)) {
+
+                log_message("info", __METHOD__ . " Data Updated");
+                $this->session->set_userdata('success', 'Data Updated');
+                redirect(base_url() . 'employee/service_centre_charges/service_category_data_view');
+            } else {
+
+
+                log_message("info", __METHOD__ . " Data Already Exists");
+                $this->session->set_userdata('failed', 'Data Already Exists');
+                redirect(base_url() . 'employee/service_centre_charges/service_category_data_view');
+            }
+        } else {
+
+            $this->service_category_data_view();
+        }
+    }
+    
+    /**
+     * @desc: This function is used to get services for the drop box
+     * @params: void
+     * @return: services
+     * 
+     */
+
+    function get_services() {
+
+        $services = $this->booking_model->selectservice();
+        $service_id = $this->input->post('service_id');
+
+        $option = '<option selected disabled>Select Appliance</option>';
+
+        foreach ($services as $value) {
+            $option .= "<option value='" . $value->id . "'";
+            if ($service_id == $value->id) {
+                $option .= " selected ";
+            }
+            $option .= " > ";
+            $option .= $value->services . "</option>";
+        }
+
+        echo $option;
+    }
+    
+    /**
+     * @desc: This function is used to get the list of all appliances in a tabular format
+     * @params: void
+     * @return: view
+     * 
+     */
+
+    public function appliance_list() {
+        $this->miscelleneous->load_nav_header(); 
+        $data['appliance_name'] = $this->booking_model->selectservice();
+        $this->load->view('employee/add_appliance_view', $data);
+    }
+    
+    /**
+     * @desc: This function is used to get the form to add new appliance name
+     * @params: void
+     * @return: view
+     * 
+     */
+
+    public function add_new_appliance_name() {
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/add_appliance_name_form');
+    }
+    
+    /**
+     * @desc: This function is used to add the appliance name to the database table from the add new appliance form
+     * @params: void
+     * @return: prints message if the data is added or already exists
+     * 
+     */
+
+    public function process_add_new_appliance_name() {
+
+
+        $this->form_validation->set_rules('appliance', 'appliance', 'required');
+
+        if ($this->form_validation->run() == TRUE) {
+            $data = array(
+                'services' => trim($this->input->post('appliance')),
+                'isBookingActive' => 1
+            );
+
+            $status = $this->service_centre_charges_model->insert_appliance_name($data);
+            if (!empty($status)) {
+
+                log_message("info", __METHOD__ . " Data Entered Successfully");
+                $this->session->set_userdata('success', 'Data Entered Successfully');
+                redirect(base_url() . 'employee/service_centre_charges/appliance_list');
+            } else {
+
+
+                log_message("info", __METHOD__ . " Data Already Exists");
+                $this->session->set_userdata('failed', 'Data Already Exists');
+                redirect(base_url() . 'employee/service_centre_charges/add_new_appliance_name');
+            }
+        } else {
+            $this->add_new_appliance_name();
+        }
+    }
+    
+    /**
+     * @desc: This function is used to update appliance name in the appliance list tabular view
+     * @params: void
+     * @return: prints message if the data is updated or exists already
+     * 
+     */
+
+    public function update_appliance_name() {
+
+
+        $this->form_validation->set_rules('appliance', 'appliance', 'required');
+        $this->form_validation->set_rules('rowid', 'rowid', 'required');
+
+
+        if ($this->form_validation->run() == TRUE) {
+            $id = $this->input->post('rowid');
+            $data = array(
+                'services' => trim($this->input->post('appliance')),
+            );
+
+            $status = $this->service_centre_charges_model->update_appliance_name($id, $data);
+            if (!empty($status)) {
+
+                log_message("info", __METHOD__ . " Data Updated");
+                $this->session->set_userdata('success', 'Data Updated');
+                redirect(base_url() . 'employee/service_centre_charges/appliance_list');
+            } else {
+
+
+                log_message("info", __METHOD__ . " Data Already Exists");
+                $this->session->set_userdata('failed', 'Data Already Exists');
+                redirect(base_url() . 'employee/service_centre_charges/appliance_list');
+            }
+        } else {
+
+            $this->appliance_list();
+        }
+    }
+    
+     /**
+     * @desc: This function is used to get the tabular view for all entity roles
+     * @params: void
+     * @return: view
+     * 
+     */
+
+    public function entity_role_data() {
+        $this->miscelleneous->load_nav_header();
+        $data['entity_role_data'] = $this->service_centre_charges_model->get_entity_role_data();
+        $this->load->view('employee/entity_role_data_view', $data);
+    }
+    
+    /**
+     * @desc: This function is used to get the form to add new entity role
+     * @params: void
+     * @return: view
+     * 
+     */
+
+    public function add_new_entity_role() {
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/entity_role_form');
+    }
+    
+    /**
+     * @desc: This function is used to add data from entity role form to database table
+     * @params: void
+     * @return: prints message whether data added successfully or data exists already
+     * 
+     */
+
+    public function process_add_new_entity_role() {
+
+
+        $this->form_validation->set_rules('entity_type', 'entity_type', 'required');
+        $this->form_validation->set_rules('department', 'department', 'required');
+        $this->form_validation->set_rules('role', 'role', 'required');
+
+
+        if ($this->form_validation->run() == TRUE) {
+            $data = array(
+                'entity_type' => $this->input->post('entity_type'),
+                'department' => trim($this->input->post('department')),
+                'role' => trim($this->input->post('role')),
+                'is_filter_applicable' => trim($this->input->post('filter')),
+                'create_date' => date('Y-m-d H:i:s')
+            );
+
+            $status = $this->service_centre_charges_model->insert_entity_role_detail($data);
+            if (!empty($status)) {
+
+                log_message("info", __METHOD__ . " Data Entered Successfully");
+                $this->session->set_userdata('success', 'Data Entered Successfully');
+                redirect(base_url() . 'employee/service_centre_charges/process_add_new_entity_role');
+            } else {
+
+
+                log_message("info", __METHOD__ . " Data Already Exists");
+                $this->session->set_userdata('failed', 'Data Already Exists');
+                redirect(base_url() . 'employee/service_centre_charges/process_add_new_entity_role');
+            }
+        } else {
+            $this->add_new_entity_role();
+        }
+    }
+    
+    /**
+     * @desc: This function is used to update the already existing entity role from entity role tabular view
+     * @params: void
+     * @return: prints message whether data is updated or exists already
+     * 
+     */
+
+    public function update_entity_role() {
+
+
+        $this->form_validation->set_rules('entity_type', 'entity_type', 'required');
+        $this->form_validation->set_rules('department', 'department', 'required');
+        $this->form_validation->set_rules('role', 'role', 'required');
+        $this->form_validation->set_rules('rowid', 'rowid', 'required');
+
+
+        if ($this->form_validation->run() == TRUE) {
+            $id = $this->input->post('rowid');
+            $data = array(
+                'entity_type' => $this->input->post('entity_type'),
+                'department' => trim($this->input->post('department')),
+                'role' => trim($this->input->post('role')),
+                'is_filter_applicable' => ($this->input->post('filter')),
+                'create_date' => date('Y-m-d H:i:s')
+            );
+
+            $status = $this->service_centre_charges_model->update_entity_role_detail($id, $data);
+            if (!empty($status)) {
+
+                log_message("info", __METHOD__ . " Data Updated");
+                $this->session->set_userdata('success', 'Data Updated');
+                redirect(base_url() . 'employee/service_centre_charges/entity_role_data');
+            } else {
+
+
+                log_message("info", __METHOD__ . " Data Already Exists");
+                $this->session->set_userdata('failed', 'Data Already Exists');
+                redirect(base_url() . 'employee/service_centre_charges/entity_role_data');
+            }
+        } else {
+
+            $this->entity_role_data();
         }
     }
 }

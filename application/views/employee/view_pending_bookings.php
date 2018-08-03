@@ -108,13 +108,7 @@
 <div id="page-wrapper" >
     <div class="row">
         <h1 style="float:left;"> <?php echo ucfirst($booking_status);?> Bookings</h1>
-        <?php
-        if($this->session->userdata('is_am') == '1'){
-        ?>
           <a href="<?php echo  base_url()?>employee/booking/download_pending_bookings/<?php echo  $booking_status?>" id="download_btn"  name="download_btn" class="col-xs-1 btn btn-primary"  style="float:right;margin-top: 21px;">Download</a>
-         <?php
-        }
-          ?>
           <div class="clear"></div>
         <hr>
         <?php

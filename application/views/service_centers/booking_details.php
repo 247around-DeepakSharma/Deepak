@@ -170,6 +170,7 @@
                     <th>Category</th>
                     <th>Capacity</th>
                     <th>Model Number</th>
+                    <th>SF Model Number</th>
                     <th>Serial Number</th>
                     <th>Description</th>
                     <th>Call Type</th>
@@ -201,6 +202,7 @@
                         <td><?php echo $unit_detail['appliance_category'] ?></td>
                         <td><?php echo $unit_detail['appliance_capacity'] ?></td>
                         <td><?php echo $unit_detail['model_number'] ?></td>
+                        <td><?php echo $unit_detail['sf_model_number'] ?></td>
                         <td><?php if(!empty($unit_detail['serial_number_pic'])){?>
                              <a target="_blank" href="<?php echo S3_WEBSITE_URL;?>engineer-uploads/<?php echo $unit_detail['serial_number_pic'];?>"><?php echo $unit_detail['serial_number'];?></a>
                              <?php } else { echo $unit_detail['serial_number'];} ?> / <?php echo $unit_detail['partner_serial_number']?></td>
@@ -669,6 +671,9 @@
     }
 </style>
 <script>
+    <?php if($booking_history[0]['is_upcountry'] == 1){  ?>  
+             setTimeout(function(){ GetRoute(); }, 1000);
+    <?php } ?>
     $(document).ready(function () {
         $(".btn-pref .btn").click(function () {
             $(".btn-pref .btn").removeClass("btn-primary").addClass("btn-default");

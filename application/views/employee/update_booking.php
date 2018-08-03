@@ -129,7 +129,7 @@
                                 <div class="form-group ">
                                     <label for="service_name" class="col-md-4">Order ID </label>
                                     <div class="col-md-6">
-                                        <input class="form-control" name= "order_id" value="<?php if(isset($booking_history[0]['order_id'])){ echo $booking_history[0]['order_id']; } ?>" placeholder="Enter Order ID" id="order_id"></input>
+                                        <input class="form-control" name= "order_id" value="<?php if(isset($booking_history[0]['order_id'])){ echo $booking_history[0]['order_id']; } ?>" <?php if(!empty($booking_history[0]['order_id'])){?> readonly <?php }?> placeholder="Enter Order ID" id="order_id"></input>
                                     </div>
                                 </div>
                                 <div class="form-group ">
@@ -188,6 +188,7 @@
                                             <option <?php if($booking_history[0]['partner_source'] === "Snapdeal-delivered-excel" ){ echo "selected"; } ?> >Snapdeal-delivered-excel</option>
                                             <option <?php if($booking_history[0]['partner_source'] === "Snapdeal-shipped-excel" ){ echo "selected"; } ?> >Snapdeal-shipped-excel</option>
                                             <option <?php if($booking_history[0]['partner_source'] === "TataCliq" ){ echo "selected"; } ?> >TataCliq</option>
+                                            <option <?php if($booking_history[0]['partner_source'] === "Techwider" ){ echo "selected"; } ?> >Techwider</option>
                                             <option <?php if($booking_history[0]['partner_source'] === "VibgyorNXT" ){ echo "selected"; } ?> >VibgyorNXT</option>
                                             <option <?php if($booking_history[0]['partner_source'] === "Website" ){ echo "selected"; } ?> >Website</option>
                                         </select>

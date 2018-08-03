@@ -11,9 +11,18 @@
     <div class="row">
 
         <div class="clearfix"></div>
-        <form action="<?php echo base_url() ?>employee/dashboard/tat_calculation_full_view/<?php echo $rmID; ?>" method="post">
+                <?php
+                if($is_am == 1){
+                     $url =  base_url()."employee/dashboard/tat_calculation_full_view/".$rmID."/0/1"; 
+                }
+                else{
+                    $url =  base_url()."employee/dashboard/tat_calculation_full_view/".$rmID; 
+                }
+                ?>
+        <form action="<?php echo $url?>" method="post">
        <div class="table_filter" style="background: #5bc0de;padding: 10px;margin-bottom: 10px;border-radius: 5px;">
            <div class="row">
+               <?php  if(!$this->session->userdata('partner_id')){ ?>
                <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 160px;">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
@@ -26,6 +35,7 @@
                         </div>
                     </div>
                 </div>
+               <?php } ?>
                <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 160px;">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
@@ -127,6 +137,10 @@
 </div>
                     <div class="tab-content" style="margin-top: 10px;">
                             <div class="tab-pane fade in active" id="tab1">
+                                <form action="<?php echo base_url()?>employee/dashboard/download_tat_report" method="post">
+                                    <input type="hidden" value='<?php echo json_encode($state);?>' name="data">
+                                    <input type="submit" value="Download CSV" class="btn btn-primary" style="background: #405467;border: none;">
+                                    </form>
                                 <table class="table table-striped table-bordered jambo_table bulk_action" id="tat_state_table">
     <thead>
         <tr style="background: #405467;color: #fff;margin-top: 5px;">
@@ -165,6 +179,10 @@
     </table>
                                 </div>
                         <div class="tab-pane fade in" id="tab2">
+                             <form action="<?php echo base_url()?>employee/dashboard/download_tat_report" method="post">
+                                    <input type="hidden" value='<?php echo json_encode($sf);?>' name="data">
+                                    <input type="submit" value="Download CSV" class="btn btn-primary" style="background: #405467;border: none;">
+                                    </form>
                                <table class="table table-striped table-bordered jambo_table bulk_action" id="tat_sf_table">
     <thead>
         <tr style="background: #405467;color: #fff;margin-top: 5px;">
@@ -183,11 +201,27 @@
     </thead>
     <tbody>
         <?php
+        $index = 0;
         foreach($sf as $key => $values){
+            $index++;
             ?>
         <tr>
-            <td><?php echo $key+1   ;?></td>
-            <td><button style="margin: 0px;padding: 3px 9px;font-size: 15px;text-align:left;" type="button" class="btn btn-info"><?php echo wordwrap($values['SF'], 30, "<br />\n")?></button></td>
+            <td><?php echo $index;   ;?></td>
+            <td><button style="margin: 0px;padding: 3px 9px;font-size: 15px;text-align:left;" type="button" class="btn btn-info">
+                <?php
+                if($this->session->userdata('partner_id')){
+                    if($values['id'] !="00"){
+                        echo $values['sf_district']."_247Around_Service_Center_".$values['id'];
+                    }
+                    else{
+                        echo wordwrap($values['SF'], 30, "<br />\n");
+                    }
+                }
+                else{
+                    echo wordwrap($values['SF'], 30, "<br />\n");
+                }
+                ?>
+           </button> </td>
             <td><button style="margin: 0px;padding: 3px 9px;font-size: 15px;background: #405467;border: 1px solid #405467;" type="button" class="btn btn-info"><?php echo $values['State']?></button></td>
             <td><?php echo $values['TAT_0'] ."<br>(". $values['TAT_0_per']."%)";?></td>
             <td><?php echo $values['TAT_1'] ."<br>(". $values['TAT_1_per']."%)";?></td>
@@ -222,9 +256,9 @@
     $(document).ready(function(){
       var state_table = $('#tat_state_table').DataTable({
           "pageLength": 1000,
-          dom: 'Bfrtip',
+           dom: 'Bfrtip',
         buttons: ['csv'],
-         "ordering": false
+          "ordering": false
       });
      // state_table.Columns[""].DataType = typeof(int);
       var sf_table = $('#tat_sf_table').DataTable({
@@ -259,38 +293,23 @@
         allowClear: true
     });
 $(function() {
-//     var d = new Date();
-//        n = d.getMonth();
-//        y = d.getFullYear();
-//        date = d.getDate();
         $('input[name="daterange_completed_bookings"]').daterangepicker({
              timePicker: true,
         timePickerIncrement: 30,
         locale: {
             format: 'YYYY-MM-DD'
         },
-        //startDate: y+'-'+n+'-'+date
     });
 });
-if ($.fn.dataTableExt !== undefined){
-jQuery.extend( jQuery.fn.dataTableExt.oSort, {
-    "formatted-num-pre": function ( a ) {
-        a = (a === "-" || a === "") ? 0 : a.replace( /[^\d\-\.]/g, "" );
-        return parseFloat( a );
-    },
- 
-    "formatted-num-asc": function ( a, b ) {
-        return a - b;
-    },
- 
-    "formatted-num-desc": function ( a, b ) {
-        return b - a;
-    }
-} );
-}
     </script>
     <style>
         .dataTables_length{
             display: none;
+        }
+        .dt-buttons{
+            display: none;
+        }
+        .dataTables_filter{
+                margin-top: -38px;
         }
  </style>

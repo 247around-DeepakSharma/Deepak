@@ -349,7 +349,13 @@ class dashboard_model extends CI_Model {
      /*
       * This function is used to get Escalation On the basis of vendor,RM,Dates
       */
-     function get_sf_escalation_by_rm_by_sf_by_date($startDate=NULL,$endDate=NULL,$sf_id=NULL,$rm_id=NULL,$groupBy){
+        function get_sf_escalation_by_rm_by_sf_by_date($startDate=NULL,$endDate=NULL,$sf_id=NULL,$rm_id=NULL,$groupBy,$partnerID=NULL){
+        $escalation_select_sub = "count(vendor_escalation_log.booking_id) AS total_escalation ";
+        if($partnerID){
+            $escalation_where['booking_details.partner_id'] = $partnerID;
+            $booking_where['booking_details.partner_id'] = $partnerID;
+            $escalation_select_sub = "count(DISTINCT vendor_escalation_log.booking_id) AS total_escalation ";
+        }
          //Create Blank Where Array For escalation and Booking
     $booking_orderBy["YEAR(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y'))"] = "ASC";
     $booking_orderBy["month(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y'))"] = "ASC";
@@ -358,12 +364,13 @@ class dashboard_model extends CI_Model {
     $escalation_where=array();
     $booking_where=array();
     //Create Join  Array For escalation and Booking (JOIN With employee Relation to get RM)
-    $escalation_join = array("employee_relation"=>"FIND_IN_SET( vendor_escalation_log.vendor_id , employee_relation.service_centres_id )");
+    $escalation_join = array("employee_relation"=>"FIND_IN_SET( vendor_escalation_log.vendor_id , employee_relation.service_centres_id )",
+        "booking_details"=>"booking_details.booking_id = vendor_escalation_log.booking_id");
     $booking_join = array("employee_relation"=>"FIND_IN_SET( booking_details.assigned_vendor_id , employee_relation.service_centres_id )");
     //Create Select String for booking and escalation
     $booking_select = 'count(booking_id) AS total_booking,assigned_vendor_id,STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y") as booking_date,employee_relation.agent_id as rm_id,'
             . 'MONTH(STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) as booking_month,YEAR(STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) as booking_year';
-    $escalation_select = 'count(vendor_escalation_log.booking_id) AS total_escalation,vendor_escalation_log.vendor_id,vendor_escalation_log.create_date as escalation_date,'
+    $escalation_select = $escalation_select_sub.',vendor_escalation_log.vendor_id,vendor_escalation_log.create_date as escalation_date,'
             . 'employee_relation.agent_id as rm_id,MONTH(vendor_escalation_log.create_date) as escalation_month,YEAR(vendor_escalation_log.create_date) as escalation_year';
    // If rm id is set add rm id in where array for booking and escalation
     if($rm_id){
@@ -433,7 +440,8 @@ class dashboard_model extends CI_Model {
         $select = "SELECT "
                 . "SUM(IF(spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."') , 1, 0)) AS oot_defective_parts_count,"
                 . "spare_parts_details.service_center_id,"
-                . "service_centres.name";
+                . "service_centres.name,"
+                . "GROUP_CONCAT(DISTINCT spare_parts_details.booking_id) as booking_id";
         
         $where = "spare_parts_details.defective_part_required = 1 "
                 . "AND DATEDIFF(CURRENT_DATE,service_center_booking_action.closed_date) > ".SF_SPARE_OOT_DAYS. " AND "
@@ -515,9 +523,13 @@ class dashboard_model extends CI_Model {
         return $data;
     }
     
-    function get_partner_total_spare_details($partner_id) {
-        $select = "SELECT count(spare_parts_details.id) as spare_count,"
+    function get_partner_total_spare_details($partner_id,$select = NULL) {
+        if(!empty($select)){
+            $select = $select;
+        }else{
+            $select = "SELECT count(spare_parts_details.id) as spare_count,"
                 . "IFNULL(ROUND(SUM(spare_parts_details.challan_approx_value)),0) as spare_amount , 'Total' as spare_status";
+        }
 
         $where = "spare_parts_details.status NOT IN ('" . SPARE_PARTS_REQUESTED . "','" . _247AROUND_CANCELLED . "','" . _247AROUND_COMPLETED . "')"
                 . " AND booking_details.current_status IN ('" . _247AROUND_PENDING . "','" . _247AROUND_RESCHEDULED . "')"
@@ -536,9 +548,13 @@ class dashboard_model extends CI_Model {
      * @param void
      * @return array
      */
-    function get_partner_oot_spare_details_by_partner_id($partner_id){
-        $select = "SELECT count(spare_parts_details.id) as spare_count,"
+    function get_partner_oot_spare_details_by_partner_id($partner_id,$select = NULL){
+        if(!empty($select)){
+            $select = $select;
+        }else{
+            $select = "SELECT count(spare_parts_details.id) as spare_count,"
                 . "IFNULL(ROUND(SUM(spare_parts_details.challan_approx_value)),0) as spare_amount, 'Partner Out of Tat' as spare_status";
+        }
 
         $where = "spare_parts_details.status NOT IN ('" . SPARE_PARTS_REQUESTED . "','" . _247AROUND_CANCELLED . "','" . _247AROUND_COMPLETED . "')"
                 . " AND booking_details.current_status IN ('" . _247AROUND_PENDING . "','" . _247AROUND_RESCHEDULED . "')"
@@ -558,10 +574,14 @@ class dashboard_model extends CI_Model {
      * @param void
      * @return array
      */
-    function get_sf_oot_spare_details_by_partner_id($partner_id){
+    function get_sf_oot_spare_details_by_partner_id($partner_id,$select = NULL){
         
-        $select = " SELECT count(spare_parts_details.id) as spare_count,"
+        if(!empty($select)){
+            $select = $select;
+        }else{
+            $select = " SELECT count(spare_parts_details.id) as spare_count,"
                 . "IFNULL(ROUND(SUM(spare_parts_details.challan_approx_value)),0) as spare_amount, 'SF Out of Tat' as spare_status";
+        }
         
         $where = "spare_parts_details.defective_part_required = 1 "
                 . "AND DATEDIFF(CURRENT_DATE,service_center_booking_action.closed_date) > ".SF_SPARE_OOT_DAYS. " "

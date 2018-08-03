@@ -63,6 +63,8 @@
                                     <th>No</th>
 				    <th>Booking ID</th>
                                     <th>Appliance</th>
+                                    <th>Booking ID</th>
+                                    <th>Invoice ID</th>
                                     <th>Spare Type</th>
                                     <th>Spare Part Name</th>
                                     <th>Spare Part Number</th>
@@ -210,6 +212,8 @@
             tmp_arr[key]['ledger_id'] = $(this).attr('data-ledger_id');
             tmp_arr[key]['part_name'] = $(this).attr('data-part_name');
             tmp_arr[key]['part_number'] = $(this).attr('data-part_number');
+            tmp_arr[key]['booking_id'] = $(this).attr('data-booking_id');
+            tmp_arr[key]['invoice_id'] = $(this).attr('data-invoice_id');
             flag = true;
         });
         

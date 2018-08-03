@@ -189,7 +189,7 @@
                         ?>">
                             <label  for="groups" class="col-md-4">Groups</label>
                             <div class="col-md-7">
-                                <select id="groups" class="form-control" name ="groups" disabled="">
+                                <select id="groups" class="form-control" name ="groups" required="">
                                                 <option selected disabled>Select Groups</option>
                                                 <option value ="admin" <?php if(isset($query[0]['groups']) && $query[0]['groups'] == _247AROUND_ADMIN ){echo 'selected'; }?> >ADMIN</option>
                                                 <option value ="developer" <?php if(isset($query[0]['groups']) && $query[0]['groups'] == _247AROUND_DEVELOPER ){echo 'selected';}?> >Developer</option>

@@ -12,7 +12,7 @@
                 <div class="x_content">
                     <div class="" role="tabpanel" data-example-id="togglable-tabs">
                         <ul id="myTabs" class="nav nav-tabs bar_tabs" role="tablist">
-                            <li role="presentation">
+                            <li role="presentation" class="active">
                                 <a href="#tabs-2" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>service_center/spare_parts/0/1">
                                     Pending Spares
                                 </a>
@@ -397,7 +397,7 @@
                     },
                     data:{'estimate_cost':estimate_cost, booking_id:booking_id,assigned_vendor_id:assigned_vendor_id,amount_due:amount_due, 
                         agent_id:'<?php echo $this->session->userdata('service_center_agent_id');?>', 
-                        partner_id: partner_id, 'sp_id':spare_id, requestType:'UPDATE_OOW_EST'},
+                        partner_id: partner_id, 'sp_id':spare_id, requestType:'UPDATE_OOW_EST', gst_rate: '<?php echo DEFAULT_TAX_RATE;?>'},
                     url: "<?php echo base_url() ?>apiDataRequest",
                     success: function (data) {
 

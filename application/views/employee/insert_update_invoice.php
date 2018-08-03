@@ -17,6 +17,16 @@
     });
 </script>
 <div class='container' style="margin-top:20px;">
+    <?php
+                if ($this->session->userdata('error')) {
+                    echo '<div class="alert alert-danger alert-dismissible" role="alert" style="margin-top:10px;">
+                   <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                       <span aria-hidden="true">&times;</span>
+                   </button>
+                   <strong>' . $this->session->userdata('error') . '</strong>
+               </div>';
+                }
+                ?>
     <div class="panel panel-default">
         <div class="panel-heading">
             <h1 class="panel-title"><i class="fa fa-money fa-fw"></i> <?php if (isset($invoice_details[0]['invoice_id'])) { echo "Update Invoice"; } else { echo "Insert Invoice";}?>  </h1>
@@ -128,6 +138,16 @@
                                         } else { echo "0";} ?>" placeholder="Upcountry Distance" >
                                 </div>
                             </div>
+                            <div class="form-group <?php if( form_error('packaging_rate') ) { echo 'has-error';} ?>">
+                                <label for="Parts Cost" class="col-md-4">Packaging Rate </label>
+                                <div class="col-md-6">
+                                    <input type="number" step=".02"  class="form-control"  name="packaging_rate" value = "<?php if (isset($invoice_details[0]['packaging_rate'])) {
+                                        echo $invoice_details[0]['packaging_rate'];
+                                        } else { echo "0";} ?>" placeholder="Packaging Rate" required >
+                                </div>
+                                 <?php echo form_error('packaging_rate'); ?>
+                            </div>
+                            
                             <div class="form-group <?php if( form_error('gst_rate') ) { echo 'has-error';} ?>">
                                 <label for="Parts Cost" class="col-md-4">GST Rate *</label>
                                 <div class="col-md-6">
@@ -137,6 +157,7 @@
                                 </div>
                                  <?php echo form_error('gst_rate'); ?>
                             </div>
+                            
                             <div class="form-group">
                                 <label for="invoice_file_main" class="col-md-4">Main Invoice</label>
                                 <div class="col-md-6">
@@ -278,6 +299,15 @@
                                 </div>
                                  <?php echo form_error('hsn_code'); ?>
                             </div>
+                            <div class="form-group <?php if( form_error('packaging_quantity') ) { echo 'has-error';} ?>">
+                                <label for="Parts Cost" class="col-md-4">Packaging Quantity </label>
+                                <div class="col-md-6">
+                                    <input type="number" step=".02"  class="form-control"  name="packaging_quantity" value = "<?php if (isset($invoice_details[0]['packaging_quantity'])) {
+                                        echo $invoice_details[0]['packaging_quantity'];
+                                        } else { echo "0";} ?>" placeholder="GST Rate" required >
+                                </div>
+                                 <?php echo form_error('packaging_quantity'); ?>
+                            </div>
                             <div class="form-group">
                                 <label for="invoice_file_excel" class="col-md-4">Main Invoice Excel</label>
                                 <div class="col-md-6">
@@ -376,7 +406,8 @@
             var vendor_partner_type = '<?php echo $vendor_partner; ?>';
             var vendor_partner_id =  $("#vendor_partner_id").val();
             var type_code = $("input[name='around_type']:checked").val();
-            
+            var type = $("#type_code").val();
+    
             if(vendor_partner_id === null){ 
                 alert("Please Select Entity");
                 return false;
@@ -384,11 +415,14 @@
             } else if(type_code === undefined){ 
                 alert("Please Select Buyer/Seller");
                 return false;
+            } else if(type ==null){
+                alert("Please Invoice Type");
+                return false;
             } else {
                 $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url(); ?>employee/invoice/fetch_invoice_id/' + vendor_partner_id 
-                        + '/' + vendor_partner_type + '/' + type_code,
+                        + '/' + vendor_partner_type + '/' + type_code+"/"+type,
                     success: function (data) {
                         alert(data);
                         $(".panel-title").html(data);
@@ -434,3 +468,4 @@
       });
 
 </script>
+<?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>

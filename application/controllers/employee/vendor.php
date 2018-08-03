@@ -620,9 +620,6 @@ class vendor extends CI_Controller {
                 $vendor_data['is_sf'] = $this->input->post('is_sf');
                 $vendor_data['is_cp'] = $this->input->post('is_cp');
                 $vendor_data['is_wh'] = $this->input->post('is_wh');
-                $vendor_data['gst_taxpayer_type'] = $this->input->post('gst_type');
-                $vendor_data['gst_status'] = $this->input->post('gst_status');
-                $vendor_data['min_upcountry_distance'] = $this->input->post('min_upcountry_distance');
                 if(empty( $vendor_data['is_cp'])){
                      $vendor_data['is_cp'] = 0;
                 }
@@ -657,8 +654,13 @@ class vendor extends CI_Controller {
 //                }else{
 //                    $vendor_data['service_tax_no'] = "";
 //                }
-                if(!empty($vendor_data['is_gst_doc']) && !empty($this->input->post('gst_no'))){
+                if(!empty($vendor_data['is_gst_doc']) && !empty($this->input->post('gst_no'))){ 
                     $vendor_data['gst_no'] = $this->input->post('gst_no');
+                    $vendor_data['gst_taxpayer_type'] = $this->input->post('gst_type');
+                    $vendor_data['gst_status'] = $this->input->post('gst_status');
+                    $vendor_data['gst_cancelled_date'] = date("Y-m-d", strtotime($this->input->post('gst_cancelled_date')));
+                    $vendor_data['min_upcountry_distance'] = $this->input->post('min_upcountry_distance');
+                    //print_r($vendor_data); die;
                 }else{
                     $vendor_data['gst_no'] = NULL;
                 }
@@ -711,6 +713,7 @@ class vendor extends CI_Controller {
                 if(!empty($this->input->post('gst_file'))){
                      $vendor_data['gst_file'] = $this->input->post('gst_file');
                 }
+                $vendor_data['cp_credit_limit'] = $this->input->post('cp_credit_limit');
                    
             
             return $vendor_data;
@@ -1252,6 +1255,7 @@ class vendor extends CI_Controller {
      * @return : void
      */
     function get_reassign_vendor_form($booking_id) {
+        $this->checkUserSession();
         if(!empty($booking_id)){
             $service_centers = $this->vendor_model->viewvendor("", 1, NULL);
             $this->miscelleneous->load_nav_header();
@@ -1269,6 +1273,7 @@ class vendor extends CI_Controller {
      */
     function process_reassign_vendor_form() {
         log_message('info',__FUNCTION__);
+        $this->checkUserSession();
         $this->form_validation->set_rules('booking_id', 'Booking ID', 'required|trim');
         $this->form_validation->set_rules('service', 'Vendor ID', 'required|trim');
         $this->form_validation->set_rules('remarks', 'Remarks', 'required|trim');
@@ -1405,6 +1410,8 @@ class vendor extends CI_Controller {
     }
 
     function mark_upcountry_booking($booking_id, $agent_id, $agent_name) {
+        log_message("info", __METHOD__. " Booking ID ".$booking_id);
+        //$this->checkUserSession();
         if (!empty($booking_id)) {
             log_message('info', __METHOD__ . " Booking_id " . $booking_id . "  By agent id " .
                     $agent_id . $agent_name);
@@ -4561,7 +4568,7 @@ class vendor extends CI_Controller {
                               }
                                         } 
                                         else{
-                                            $finalInsertArray[] = $insertArray;
+                                            //$finalInsertArray[] = $insertArray;
                                         }
                               }
                               if(!empty($finalInsertArray)){
@@ -4778,6 +4785,7 @@ class vendor extends CI_Controller {
             redirect(base_url() . "employee/login");
         }
     }
+    
     function pending_bookings_on_vendor($vendorID){
          $count = $this->reusable_model->get_search_result_count("booking_details","booking_id",array('assigned_vendor_id'=>$vendorID),NULL,NULL,NULL,
                  array("current_status"=>array("Rescheduled","Pending")),NULL );
@@ -4790,6 +4798,9 @@ class vendor extends CI_Controller {
      * @return: void
      */
     function show_bank_details(){
+        $this->checkUserSession();
+        //check if request is from ajax call or direct url
+        // for ajax request echo reponse else echo data with header
         if($this->input->post()){
             if($this->input->post('sf_type') === '1'){
                 $where = array('entity_type' => 'SF','service_centres.active' => 1,'account_holders_bank_details.is_verified' => $this->input->post('is_bank_details_verified'));
@@ -4798,16 +4809,33 @@ class vendor extends CI_Controller {
             }else if($this->input->post('sf_type') === 'all'){
                 $where = array('entity_type' => 'SF','account_holders_bank_details.is_verified' => $this->input->post('is_bank_details_verified'));
             }
-            
-            $join = array('service_centres' => 'account_holders_bank_details.entity_id = service_centres.id AND account_holders_bank_details.is_active = 1');
-            $data['bank_details'] = $this->reusable_model->get_search_query('account_holders_bank_details','account_holders_bank_details.*,service_centres.name',$where,$join,NULL,NULL,NULL,NULL)->result_array();
             $data['is_ajax'] = TRUE;
-            echo $this->load->view('employee/show_bank_details', $data);
         }else{
             $where = array('entity_type' => 'SF','service_centres.active' => 1,'account_holders_bank_details.is_verified' => 0);
-            $join = array('service_centres' => 'account_holders_bank_details.entity_id = service_centres.id AND account_holders_bank_details.is_active = 1');
-            $data['bank_details'] = $this->reusable_model->get_search_query('account_holders_bank_details','account_holders_bank_details.*,service_centres.name',$where,$join,NULL,NULL,NULL,NULL)->result_array();
             $data['is_ajax'] = FALSE;
+            $data['rm_details'] = $this->employee_model->get_rm_details();
+            
+        }
+        
+        //get bank details
+        $join = array('service_centres' => 'account_holders_bank_details.entity_id = service_centres.id AND account_holders_bank_details.is_active = 1');
+        $data['bank_details'] = $this->reusable_model->get_search_query('account_holders_bank_details', 'account_holders_bank_details.*,service_centres.name,service_centres.primary_contact_email,service_centres.owner_email', $where, $join, NULL, NULL, NULL, NULL)->result_array();
+        
+        //get rm details
+        if (!empty($data['bank_details'])) {
+            foreach ($data['bank_details'] as $key => $value) {
+                $rm = $this->vendor_model->get_rm_sf_relation_by_sf_id($value['entity_id']);
+                $data['bank_details'][$key]['rm_name'] = !empty($rm) ? $rm[0]['full_name'] : '';
+                $data['bank_details'][$key]['rm_email'] = !empty($rm) ? $rm[0]['official_email'] : '';
+            }
+        }else{
+            $data['bank_details'] = arrya();
+        }
+        
+        //output data
+        if($data['is_ajax']){
+            echo $this->load->view('employee/show_bank_details', $data);
+        }else{
             $this->miscelleneous->load_nav_header();
             $this->load->view('employee/show_bank_details', $data);
         }
@@ -4830,7 +4858,25 @@ class vendor extends CI_Controller {
         }
         
         $update = $this->reusable_model->update_table('account_holders_bank_details',$update_data,array('entity_id' => $entity_id,'entity_type' => $entity_type,'is_active'=>1));
+        
         if(!empty($update)){
+            //send email to sf owner,poc and rm
+            if($action == 'reject'){
+                $rm_email = $this->input->post('rm_email');
+                $poc_email = $this->input->post('poc_email');
+                $owner_email = $this->input->post('owner_email');
+                //send email to sf and rm
+                $template = $this->booking_model->get_booking_email_template("bank_details_verification_email");
+                if (!empty($template) && (!empty($poc_email) || !empty($owner_email))) {
+                    $to = $poc_email.','.$owner_email;
+                    //From will be currently logged in user's official Email
+                    $from = $rm_email;
+                    $emailBody = $template[0];
+                    $subject['sf_name'] = $this->input->post('sf_name');
+                    $subjectBody = vsprintf($template[4], $subject);
+                    $this->notify->sendEmail($from, $to, $this->session->userdata('official_email') . ",".$template[3].','.$rm_email , '', $subjectBody, $emailBody, "",'bank_details_verification_email');
+                }
+            }
             echo "success";
         }else{
             echo "fail";
@@ -4857,7 +4903,12 @@ class vendor extends CI_Controller {
    echo $table .= '</tbody></table>';
     }
     function show_escalation_graph_by_sf($sfID,$startDate,$endDate){
+            if($this->session->userdata('userType') == 'employee'){
         $this->miscelleneous->load_nav_header();
+        }
+        else if($this->session->userdata('userType') == 'partner'){
+            $this->miscelleneous->load_partner_nav_header();
+        }
         $this->load->view('employee/sf_escalation_view', array('data' => array("vendor_id"=>$sfID,"startDate"=>$startDate,"endDate"=>$endDate)));
     }
     function getServicesForVendor($vendorID){
@@ -4962,7 +5013,8 @@ class vendor extends CI_Controller {
                 $html  .= "<th>SF Earning</th>";
             }
             
-            $html .=  "<th>Approval File</th><th>Remarks</th></tr></thead><tbody>";
+            $html .=  "<th>Approval File</th><th>Remarks</th>";
+            $html .= "</tr></thead><tbody>";
            foreach ($data as $value) {
                $html .= "<tr>";
                $html .= '<td>'.$value['description'].'</td>';
@@ -4978,6 +5030,12 @@ class vendor extends CI_Controller {
                    $html .= '<td></td>';
                }
                $html .= '<td>'.$value['remarks'].'</td>';
+               if($this->session->userdata('userType') == 'employee'){
+                   $b = "'$booking_id'";
+               $html .= '<td><a target="_blank" style="color:#000; margin-left:10px; margin-right:10px;" href="'.base_url().'employee/service_centre_charges/update_misc_charges/'.$booking_id.'" class="glyphicon glyphicon-pencil"></a>';
+               $html .= '<span style="color:#000;margin-left:10px; cursor:pointer; margin-right:10px;" onclick="removeMiscitem('.$value['id'].', '.$b.')" class="glyphicon glyphicon-remove"></span></td>';
+               }
+               
                $html .= "</tr>";
            }
            $html .= "</tbody></table>";
@@ -4986,7 +5044,6 @@ class vendor extends CI_Controller {
             echo "Failed";
        }
    }     
-
    function download_upcountry_report(){
         $this->checkUserSession();
         $upcountryCsv= "Upcountry_Report" . date('j-M-Y-H-i-s') . ".csv";
@@ -5013,8 +5070,7 @@ class vendor extends CI_Controller {
     function check_GST_number($gst){
         $curl = curl_init();
         curl_setopt_array($curl, array(
-          //CURLOPT_URL => "https://api.taxprogsp.co.in/commonapi/v1.1/search?aspid=1606680918&password=priya@b30&Action=TP&Gstin=07ALDPK4562B1ZG",
-          CURLOPT_URL => "http://testapi.taxprogsp.co.in/commonapi/v1.1/search?aspid=1606680918&password=priya@b30&Action=TP&Gstin=07ALDPK4562B1ZG",  
+          CURLOPT_URL => "https://api.taxprogsp.co.in/commonapi/v1.1/search?aspid=".ASP_ID."&password=".ASP_PASSWORD."&Action=TP&Gstin=".$gst,
           CURLOPT_RETURNTRANSFER => true,
           CURLOPT_ENCODING => "",
           CURLOPT_MAXREDIRS => 10,
@@ -5022,15 +5078,23 @@ class vendor extends CI_Controller {
           CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
           CURLOPT_CUSTOMREQUEST => "GET",
         ));
-        $response = curl_exec($curl);
+        $api_response = curl_exec($curl);
         $err = curl_error($curl);
         curl_close($curl);
         if ($err) {
-          echo "cURL Error :" . $err;
+          echo '{"status_cd":"0","errorMsg":"cURL Error -'.$err.'"}';
         } else {
-          echo $response;
+            //$api_response = '{"stjCd":"DL086","lgnm":"SUDESH KUMAR","stj":"Ward 86","dty":"Regular","adadr":[],"cxdt":"","gstin":"07ALDPK4562B1ZG","nba":["Recipient of Goods or Services","Service Provision","Retail Business","Wholesale Business","Works Contract"],"lstupdt":"17/04/2018","rgdt":"01/07/2017","ctb":"Proprietorship","pradr":{"addr":{"bnm":"BLOCK 4","st":"GALI NO. 5","loc":"HARI NAGAR ASHRAM","bno":"A-144/5","dst":"","stcd":"Delhi","city":"","flno":"G/F","lt":"","pncd":"110014","lg":""},"ntr":"Recipient of Goods or Services, Service Provision, Retail Business, Wholesale Business, Works Contract"},"tradeNam":"UNITED HOME CARE","sts":"Active","ctjCd":"ZK0601","ctj":"RANGE - 161"}';
+            $response = json_decode($api_response, true);
+            if(isset($response['error'])){ 
+                $emailBody = "<b>TAXPRO GSP API FAIL </b><br/>".$api_response;
+                $this->notify->sendEmail(NOREPLY_EMAIL_ID, DEVELOPER_EMAIL, '' , '', 'Taxpro GSP Api Failure', $emailBody, '', '');
+                echo $api_response;
+            }
+            else{ 
+               echo $api_response;
+            }
         }
     }
     
-
 }

@@ -17,22 +17,74 @@
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
                 <div class="x_title">
-                    <h2>RM Completed Booking Reports</h2>
+                    <h2>RM TAT Reporting</h2>
                     <div class="clearfix"></div>
                 </div>
                 <div class="table-responsive" id="escalation_data" ng-controller="completedBooking_Controller" ng-cloak="">
-                                    <div class="form-group" style="float:right;col-md-3">
-                                         <label for="">Booking Completed Date Range</label>
+                    <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 160px;">
+                    <div class="item form-group">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <label for="">Services</label>
+                            <select class="form-control filter_table" id="service_id" name="services">
+                                <option value="" selected="selected">Select Service</option>
+                                <?php foreach($services as $val){ ?>
+                                <option value="<?php echo $val['id']?>"><?php echo $val['services']?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                    <div class="form-group col-md-3">
+                    <div class="item form-group">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <label for="">Request Type</label>
+                            <select class="form-control filter_table" id="request_type" name="request_type">
+                                <option value="">Request Type</option>
+                                <option value="Installation" selected="selected">Installations</option>
+                                <option value="Repair">Repair</option>
+                                <option value="Repair_with_part">Repair With Spare</option>  
+                                <option value="Repair_without_part">Repair Without Spare</option>  
+                            </select>
+                        </div>
+                </div>
+                    </div>
+                    <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 170px;">
+                    <div class="item form-group">
+                        <div class="col-md-12 col-sm-12 col-xs-12">  
+                            <label for="">Is Free</label>
+                            <select class="form-control filter_table" id="free_paid" name="free_paid">
+                                <option value="" selected="selected">Is Free</option>
+                                <option value="Yes">Yes (In Warranty)</option>
+                                <option value="No">No (Out Of Warranty)</option>  
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                    <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 170px;">
+                    <div class="item form-group">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <label for="">Is Upcountry</label>
+                            <select class="form-control filter_table" id="upcountry" name="upcountry">
+                                <option value="">Is Upcountry</option>
+                                <option value="Yes">Yes</option>
+                                 <option value="No" selected="selected">No</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                    <div class="form-group col-md-3">
+                                         <label for="">Booking Completed Date</label>
                                          <input type="text" class="form-control" name="daterange_completed_bookings" id="completed_daterange_id" ng-change="ShowRMCompletedBookingBYDateRange()" ng-model="dates">
                             </div>
-                    <div class="form-group col-md-3" style="float:right;">
+                    <div class="form-group col-md-3">
                                          <label for="">Booking Status</label>
-                                        <select class="form-control" ng-change="ShowRMCompletedBookingBYDateRange()" ng-model="status" id="completed_status">
+                                        <select class="form-control"  ng-model="status" id="completed_status">
                                             <option value="">All</option>
                                             <option value="Completed" ng-selected="true">Completed</option>
                                             <option value="Cancelled">Cancelled</option>
                                         </select>
-                            </div>
+                    </div>
+                    <button class="btn btn-primary" ng-click="ShowRMCompletedBookingBYDateRange()" ng-model="partner_dashboard_filter" style="margin-top: 23px;background: #405467;border-color: #405467;">Apply Filters</button>
                 <br>
                 <div class="clear"></div>
                 <table class="table table-striped table-bordered jambo_table bulk_action">
@@ -66,6 +118,111 @@
                     </tbody>
                 </table>
                 <center><img id="loader_gif_pending" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
+            </div>
+<!--                AM reporting-->
+                <div class="x_panel">
+                <div class="x_title">
+                    <h2>AM TAT Reporting</h2>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="table-responsive" id="escalation_data" ng-controller="completedBooking_ControllerAM" ng-cloak="">
+                    <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 160px;">
+                    <div class="item form-group">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <label for="">Services</label>
+                            <select class="form-control filter_table" id="service_id_am" name="services">
+                                <option value="" selected="selected">Select Service</option>
+                                <?php foreach($services as $val){ ?>
+                                <option value="<?php echo $val['id']?>"><?php echo $val['services']?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                    <div class="form-group col-md-3">
+                    <div class="item form-group">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <label for="">Request Type</label>
+                            <select class="form-control filter_table" id="request_type_am" name="request_type_am">
+                                <option value="">Request Type</option>
+                                <option value="Installation" selected="selected">Installations</option>
+                                <option value="Repair">Repair</option>
+                                <option value="Repair_with_part">Repair With Spare</option>  
+                                <option value="Repair_without_part">Repair Without Spare</option>  
+                            </select>
+                        </div>
+                </div>
+                    </div>
+                    <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 170px;">
+                    <div class="item form-group">
+                        <div class="col-md-12 col-sm-12 col-xs-12">  
+                            <label for="">Is Free</label>
+                            <select class="form-control filter_table" id="free_paid_am" name="free_paid_am">
+                                <option value="" selected="selected">Is Free</option>
+                                <option value="Yes">Yes (In Warranty)</option>
+                                <option value="No">No (Out Of Warranty)</option>  
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                    <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 170px;">
+                    <div class="item form-group">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <label for="">Is Upcountry</label>
+                            <select class="form-control filter_table" id="upcountry_am" name="upcountry_am">
+                                <option value="">Is Upcountry</option>
+                                <option value="Yes">Yes</option>
+                                 <option value="No" selected="selected">No</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                    <div class="form-group col-md-3">
+                                         <label for="">Booking Completed Date</label>
+                                         <input type="text" class="form-control" name="daterange_completed_bookings" id="completed_daterange_id_am" ng-change="ShowAMCompletedBookingBYDateRange()" ng-model="dates">
+                            </div>
+                    <div class="form-group col-md-3">
+                                         <label for="">Booking Status</label>
+                                        <select class="form-control"  ng-model="status" id="completed_status_am">
+                                            <option value="">All</option>
+                                            <option value="Completed" ng-selected="true">Completed</option>
+                                            <option value="Cancelled">Cancelled</option>
+                                        </select>
+                    </div>
+                    <button class="btn btn-primary" ng-click="ShowAMCompletedBookingBYDateRange()" ng-model="partner_dashboard_filter" style="margin-top: 23px;background: #405467;border-color: #405467;">Apply Filters</button>
+                <br>
+                <div class="clear"></div>
+                <table class="table table-striped table-bordered jambo_table bulk_action">
+                    <thead>
+                        <tr>
+                            <th>S.no</th>
+                            <th>RM</th>
+                            <th>D0</th>
+                            <th>D1</th>
+                            <th>D2</th>
+                            <th>D3</th>
+                            <th>D4</th>
+                            <th>D5 - D7</th>
+                             <th>D8 - D15</th>
+                             <th>> D15</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="x in completedBookingByAM | orderBy:'TAT_16'">
+                           <td>{{$index+1}}</td>
+                           <td><a type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" href="<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/{{x.id}}/0/1">{{x.AM}}</a></td>
+                           <td>{{x.TAT_0}} <br> ({{x.TAT_0_per}}%) </td>
+                           <td>{{x.TAT_1}} <br> ({{x.TAT_1_per}}%) </td>
+                           <td>{{x.TAT_2}} <br> ({{x.TAT_2_per}}%)</td>
+                           <td>{{x.TAT_3}} <br> ({{x.TAT_3_per}}%)</td>
+                           <td>{{x.TAT_4}} <br> ({{x.TAT_4_per}}%)</td>
+                           <td>{{x.TAT_5}} <br> ({{x.TAT_5_per}}%) </td>
+                           <td>{{x.TAT_8}} <br> ({{x.TAT_8_per}}%)</td>
+                           <td>{{x.TAT_16}} <br> ({{x.TAT_16_per}}%)</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <center><img id="loader_gif_pending_AM" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
             </div>
                       <div class="x_title">
                     <h2>RM Pending Booking Report</h2>
@@ -209,7 +366,7 @@
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
                 <div class="x_title">
-                    <h2>Partner Spare Parts Details <span class="badge badge-info" data-toggle="popover" data-content="Below figures show data about pending defective spares on sf which is out of tat by partner wise( Out of tat days count start after 7 days of booking completion by sf). To view full spare details of partner click on respective partner graph."><i class="fa fa-info"></i></span></h2>
+                    <h2>Partner Spare Parts Details <span class="badge badge-info" data-toggle="popover" data-content="Below table shows parts which are OOT with respect to sf (after 7 days from booking completion by sf)"><i class="fa fa-info"></i></span></h2>
                     <div class="clearfix"></div>
                 </div>
                 <div class="col-md-12">
@@ -1133,6 +1290,9 @@
                 formatter: function() {
                     return this.x + '<br> Count: ' + this.y + '<br>' + ' Amount(Rs.): ' + data.spare_amount[this.x];
                 }
+            },
+            legend: {
+                enabled: false
             },
             series: [{
                 type: 'bar',

@@ -8,11 +8,47 @@
             </div>
         </div>
         <?php }?>
+        <?php $required_sp_id = array(); $can_sp_id = array(); ?>
+        <?php  $flag = 0; $requestedParts = false; if(isset($booking_history['spare_parts'])){ 
+                foreach ($booking_history['spare_parts'] as  $value) {
+                    if($value['status'] == "Completed" || $value['status'] == "Cancelled"){} else {
+                        if($value['defective_part_required'] == 1 && $value['status'] != SPARE_PARTS_REQUESTED){
+                            if(!empty($value['parts_shipped'])){
+                                switch ($value['status']){
+                                    case SPARE_SHIPPED_BY_PARTNER:
+                                    case SPARE_DELIVERED_TO_SF:
+                                    case DEFECTIVE_PARTS_REJECTED:
+                                    case DEFECTIVE_PARTS_PENDING:
+                                        $flag = 1; 
+                                        array_push($required_sp_id, $value['id']); 
+                                }
+                                  
+                            }
+                        }
+                    }
+
+                    if($value['status'] == SPARE_PARTS_REQUESTED){
+                        $date1=date_create($value['date_of_request']);
+                        $date2=date_create(date('Y-m-d'));
+                        $diff=date_diff($date1,$date2);
+                        $d = $diff->format("%R%a days");
+
+                        if($diff->format("%R%a days") < 15){
+                           $requestedParts = true;
+                        } else{
+                            array_push($can_sp_id, array('part_name' => $value['parts_requested'], "part_id" => $value['id']));
+                        }
+                    } 
+                }
+
+            }?>
+        <center><?php if($requestedParts) { ?><span style="color:red; font-weight: bold;" ><?php echo UNABLE_COMPLETE_BOOKING_SPARE_MSG;?></span><?php } ?></center>
 	<div class="panel panel-info" style="margin-top:20px;">
             <div class="panel-heading">Complete Booking <span class="pull-right"><input id="enable_change_unit" type="checkbox" onchange="update_brand_details()" name="enable_change_unit"> <span>Change Brand Details</span></span></div>
 	    <div class="panel-body">
-
+         
 		<?php
+                
 		if (isset($booking_history[0]['current_status'])) {
 		    if ($booking_history[0]['current_status'] == "Completed") {
 			$status = "1";
@@ -20,10 +56,12 @@
 			$status = "0";
 		    }
 		} else {
-		    echo $status = "1";
+		    $status = "1";
 		}
 		?>
+                
 		<form name="myForm" class="form-horizontal" id ="booking_form" action="<?php echo base_url() ?>employee/booking/process_complete_booking/<?php echo $booking_id; ?>/<?php echo $status; ?>"  method="POST" enctype="multipart/form-data">
+                    <input type="hidden" value="<?php echo $booking_history[0]['service_center_closed_date']; ?>" name="service_center_closed_date">
 		    <div class="row">
 			<div class="col-md-12">
 			    <div class="col-md-6">
@@ -31,12 +69,17 @@
 				    <label for="booking_id" class="col-md-4">Booking ID</label>
 				    <div class="col-md-6">
                                         <input type="hidden" name ="partner_type" id="partner_type" />
+                                        <input type="hidden" name ="booking_id" id="booking_id" value="<?php echo $booking_history[0]['booking_id']; ?>" />
                                         <input type="hidden" id="change_appliance_details" name="change_appliance_details" value="0" />
+                                        <input type="hidden" id= "user_id" name="user_id" value='<?php echo $booking_history[0]['user_id']; ?>' />
 					<input type="text" class="form-control"  id="booking_id" name="booking_id" value = "<?php
 					       if (isset($booking_history[0]['booking_id'])) {
 						   echo $booking_history[0]['booking_id'];
 					       }
 					       ?>" readonly="readonly">
+                                        <input type="hidden" id="spare_parts_required" name="spare_parts_required" value="<?php echo $flag;?>" />
+                                        <input type="hidden" name="sp_required_id" value='<?php echo json_encode($required_sp_id,TRUE); ?>' />
+                                        <input type="hidden" name="can_sp_required_id" value='<?php echo json_encode($can_sp_id,TRUE); ?>' />
 				    </div>
 				</div>
 
@@ -223,14 +266,16 @@
 							    <?php if ($price['pod'] == "1") { ?>
 	    						    <div class="form-group">
 	    							<div class="col-md-12 ">
-	    							    <input type="text" class="form-control" id="<?php echo "serial_number" . $count; ?>" name="<?php echo "serial_number[" . $price['unit_id'] . "]" ?>"  value="<?php echo $price['serial_number']; ?>" placeholder = "Enter Serial Number" />
+	    							    <input type="text" onblur="validateSerialNo('<?php echo $count;?>')" class="form-control" id="<?php echo "serial_number" . $count; ?>" name="<?php echo "serial_number[" . $price['unit_id'] . "]" ?>"  value="<?php echo $price['serial_number']; ?>" placeholder = "Enter Serial Number" />
                                                                      <input type="hidden" class="form-control" id="<?php echo "serial_number_pic" . $count; ?>" name="<?php echo "serial_number_pic[" . $price['unit_id'] . "]" ?>"  value="<?php echo $price['serial_number_pic']; ?>"  />
                                                                     <input type="hidden" id="<?php echo "pod" . $count ?>" class="form-control" name="<?php echo "pod[" . $price['unit_id'] . "]" ?>" value="<?php echo $price['pod']; ?>"   />
 	    							</div>
 	    						    </div>
 							    <?php } ?>
 							</td>
-							<td><?php echo $price['price_tags'] ?></td>
+                                                        <td id="<?php echo "price_tags".$count;?>"><?php echo $price['price_tags'] ?>
+                                                        
+                                                        </td>
 							<td id="<?php echo "amount_due".$count; ?>"><?php echo $price['customer_net_payable']; ?></td>
 							<td>  
                                                     <?php  if($price['product_or_services'] != "Product"){  ?>
@@ -336,7 +381,7 @@
 							    <tr style="background-color:   #bce8f1; color: #222222;">
 
 									<td> <?php if ($value['pod'] == "1") { ?>
-	    							    <input type="text" class="form-control"  id="<?php echo "serial_number" . $count; ?>" name="<?php echo "serial_number[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value="" placeholder= "Enter Serial Number" />
+	    							    <input type="text" class="form-control" onblur="validateSerialNo('<?php echo $count;?>')"  id="<?php echo "serial_number" . $count; ?>" name="<?php echo "serial_number[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value="" placeholder= "Enter Serial Number" />
                                                                     <input type="hidden" class="form-control" id="<?php echo "serial_number_pic" . $count; ?>" name="<?php echo "serial_number_pic[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value="" />
                                                                     <input type="hidden" id="<?php echo "pod" . $count ?>" class="form-control" name="<?php echo "pod[" . $price['unit_id'] . "]" ?>" value="<?php echo $price['pod']; ?>"   />
 								    <?php } ?>
@@ -344,6 +389,7 @@
 									</td>
 
 									<td> <?php echo $value['service_category']; ?> </td>
+                                                                        <input type="hidden" name="<?php echo "price_tags[" . $price['unit_id'] . "]" ?>" value="<?php echo $price['price_tags'];?>">
                                                                         <td><input  type="hidden" class="form-control"   name="<?php echo "customer_net_payable[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value = "<?php echo $value['customer_net_payable']; ?>"><?php echo $value['customer_net_payable']; ?>  </td>
 								<td>  <input  type="text" class="form-control cost"   name="<?php echo "customer_basic_charge[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value = "0.00">
 
@@ -457,7 +503,7 @@
 				</div>
 				<label for="remark" class="col-md-2">Admin Remarks</label>
 				<div class="col-md-4" >
-				    <textarea class="form-control"  rows="5" name="admin_remarks"></textarea>
+				    <textarea class="form-control" id="admin_remarks" rows="5" name="admin_remarks"></textarea>
 				</div>
 			    </div>
                            <input type="hidden" class="form-control" id="partner_id" name="partner_id" value = "<?php if (isset($booking_history[0]['partner_id'])) {echo $booking_history[0]['partner_id']; } ?>" >
@@ -465,11 +511,18 @@
 		    </div>
 		    <br>
 		    <div class="form-group  col-md-12" >
+                         <?php if($requestedParts) { ?>
+                         <center style="margin-top:60px; font-weight: bold;">
+                            <?php echo UNABLE_COMPLETE_BOOKING_SPARE_MSG;?>
+                         </center>
+                        <?php } else { ?>
 			<center>
                             <input type="hidden" id="customer_id" name="customer_id" value="<?php echo $booking_history[0]['user_id']; ?>">
 			    <input type="submit" id="submitform" onclick="return onsubmit_form('<?php echo $booking_history[0]['upcountry_paid_by_customer']; ?>', '<?php echo $k_count; ?>')" class="btn btn-info" value="Complete Booking">
-			    </div>
+			    
 			</center>
+                        <?php } ?>
+                    </div>
 		    </div>
 		</form>
 		
@@ -605,11 +658,11 @@
         }
     });
 
-//    var is_sp_required = $("#spare_parts_required").val();
-//
-//    if (Number(is_sp_required) === 1) {
-//        alert("Ship Defective Spare Parts");
-//    }
+    var is_sp_required = $("#spare_parts_required").val();
+
+    if (Number(is_sp_required) === 1) {
+        alert("Ship Defective Spare Parts");
+    }
 
     if (Number(upcountry_flag) === 1) {
         var upcountry_charges = $("#upcountry_charges").val();
@@ -793,6 +846,52 @@ function sendAjaxRequest(postData, url) {
         url: url,
         type: 'post'
     });
+}
+
+function validateSerialNo(count){
+    var postData = {};
+    postData['serial_number'] = $("#serial_number"+count).val();
+    postData['price_tags'] = $("#price_tags"+count).text();
+    postData['user_id'] = $("#user_id").val();
+    postData['booking_id'] = $("#booking_id").val();
+    postData['partner_id'] = $("#partner_id").val();
+    
+    if(postData['serial_number'] !== ''){
+        $.ajax({
+                type: 'POST',
+                beforeSend: function(){
+
+                    $('body').loadingModal({
+                    position: 'auto',
+                    text: 'Loading Please Wait...',
+                    color: '#fff',
+                    opacity: '0.7',
+                    backgroundColor: 'rgb(0,0,0)',
+                    animation: 'wave'
+                });
+
+                    },
+                url: '<?php echo base_url() ?>employee/service_centers/validate_booking_serial_number',
+                data:postData,
+                success: function (response) {
+                    console.log(response);
+                    var data = jQuery.parseJSON(response);
+                    if(data.code === Number(<?php echo DUPLICATE_SERIAL_NO_CODE; ?>)){
+                        alert(data.message + "\n Please enter valid reason in the Admin Remarks Filed.");
+                        
+                        $("#admin_remarks").prop('required',true);
+                        $('body').loadingModal('destroy');
+                        
+                    } else {
+                        $('body').loadingModal('destroy');
+                    } 
+                    
+                }
+            });
+    }
+
+
+    
 }
 
 </script>

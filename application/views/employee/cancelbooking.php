@@ -19,7 +19,28 @@ function check_text(){
 
 }
 </script>
-
+                   <?php $isdisable = false; if(isset($user_and_booking_details['spare_parts'])){ 
+                       foreach($user_and_booking_details['spare_parts'] as $sp){
+                           switch ($sp['status']){
+                               case SPARE_PARTS_REQUESTED: 
+                                    $status = CANCEL_PAGE_SPARE_NOT_SHIPPED;
+                                    $isdisable= true;
+                                   break;
+                               case SPARE_SHIPPED_BY_PARTNER:
+                               case SPARE_DELIVERED_TO_SF:
+                               case DEFECTIVE_PARTS_REJECTED:
+                               case DEFECTIVE_PARTS_RECEIVED:
+                               case DEFECTIVE_PARTS_SHIPPED:
+                               case DEFECTIVE_PARTS_PENDING:
+                               case _247AROUND_COMPLETED:
+                               case DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH:
+                                    $status = CANCEL_PAGE_SPARE_SHIPPED;
+                                    $isdisable= true;
+                                    break;
+                           }
+                          
+                       }
+                   } ?>
 <div id="page-wrapper"> 
    <div class="container-fluid">
         <div class="row">
@@ -85,7 +106,7 @@ function check_text(){
               <hr>
               <!-- </div> -->
 
-              <form class="form-horizontal" name="myForm" action="<?php echo base_url()?>employee/booking/process_cancel_form/<?php echo $user_and_booking_details[0]['booking_id']; ?>/<?php echo $user_and_booking_details[0]['current_status']; ?>" method="POST" >
+              <form style="padding-bottom: 100px;" class="form-horizontal" name="myForm" action="<?php echo base_url()?>employee/booking/process_cancel_form/<?php echo $user_and_booking_details[0]['booking_id']; ?>/<?php echo $user_and_booking_details[0]['current_status']; ?>" method="POST" >
                     <input type="hidden" class="form-control" id="partner_id" name="partner_id" value = "<?php if (isset($user_and_booking_details[0]['partner_id'])) {echo $user_and_booking_details[0]['partner_id']; } ?>" >
                     <input type="hidden" class="form-control"  name="name" value = "<?php if (isset($user_and_booking_details[0]['name'])) {echo $user_and_booking_details[0]['name']; }?>">
              
@@ -142,10 +163,12 @@ function check_text(){
                 </div>
                 <?php  //}?>
  
-                 <div class="col-md-6 col-md-offset-4">
-                  
-                     <input type="submit" value="<?php if(isset($internal_status)){ echo "Cancel Query "; } else { echo "Cancel Booking"; } ?>" style="background-color: #2C9D9C; border-color: #2C9D9C; " onclick="return(check_text())" class="btn btn-danger btn-large">
-                     <a href="<?php if(isset($internal_status)){ echo base_url()."employee/booking/view_queries/FollowUp/p_all"; } else { echo base_url()."employee/booking/view_bookings_by_status/Pending";} ?>"><input type="Button" value="Back" class="btn btn-primary"></a>
+                    <div class="col-md-6 col-md-offset-3">
+                    <?php if($isdisable) {?>
+                        <?php echo $status; ?>
+                    <?php } else { ?>
+                         <input type="submit" value="<?php if(isset($internal_status)){ echo "Cancel Query "; } else { echo "Cancel Booking"; } ?>" style="background-color: #2C9D9C; border-color: #2C9D9C; " onclick="return(check_text())" class="btn btn-danger btn-large">
+                    <?php } ?>
                   
                 </div>
               </form>

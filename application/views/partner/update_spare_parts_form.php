@@ -277,7 +277,7 @@
                                 if (form_error('approx_value')) { echo 'has-error'; } ?>">
                                 <label for="approx_value" class="col-md-4">Spare Cost (Approximate)*</label>
                                 <div class="col-md-6">
-                                    <input type="number" class="form-control" id="approx_value" name="approx_value" value = "" placeholder="Please Enter Spare Cost (approx)"  required>
+                                    <input type="number" class="form-control" id="approx_value" name="approx_value" max="100000" value = "" placeholder="Please Enter approx value"  required>
                                      <?php echo form_error('approx_value'); ?>
                                 </div>  
                             </div>
@@ -348,7 +348,11 @@
                 remarks_by_partner: "required",
                 courier_name:"required",
                 awb: "required",
-                shipment_date:"required"
+                shipment_date:"required",
+                approx_value:{
+                    required: true,
+                    maxlength: 100000
+                }
                 },
                 messages: {
                 shipped_parts_name: "Please Enter Shipped Parts",
@@ -356,7 +360,6 @@
                 courier_name: "Please Courier Name",
                 awb: "Please Enter Valid AWB",
                 shipment_date:"Please Enter Shipped date"
-              
                 },
                 submitHandler: function (form) {
                 form.submit();

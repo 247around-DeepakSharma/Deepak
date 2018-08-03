@@ -148,7 +148,7 @@ class Booking_model extends CI_Model {
      */
     function update_unit_details($data){
 
-        if($data['booking_status'] == "Completed"){
+        if($data['booking_status'] == _247AROUND_COMPLETED || $data['booking_status'] == _247AROUND_PENDING ){
             // get booking unit data on the basis of id
             $this->db->select('booking_id, around_net_payable,booking_status, '
                     . ' partner_net_payable as partner_paid_basic_charges, partner_net_payable, '
@@ -858,9 +858,9 @@ class Booking_model extends CI_Model {
         $this->db->where('active', 1);
         $this->db->where('check_box', 1);
         $this->db->where('partner_id', $partner_id);
-        if($brand !=""){
+        //if($brand !=""){
             $this->db->where('brand', $brand);
-        }
+        //}
 
     	if (!empty($capacity)) {
     		$this->db->where('capacity', $capacity);
@@ -1125,105 +1125,6 @@ class Booking_model extends CI_Model {
         $query = $this->db->query($sql);
         return $query->result_array();
     }
-
-    /** get_queries
-     *
-     *  @desc : Function to get pending queries according to pagination and vendor availability.
-     * It can work in different ways:
-     *
-     * 1. Return count of pending queries
-     * 2. Return data for pending queries
-     *
-     * Queries which have booking date of future are not shown. Queries with
-     * empty booking dates are shown.
-     *
-     * @param : start and limit for the query
-     * @param : $status - Completed or Cancelled
-     * @p_av : Type of queries: Vendor Available or Vendor Not Available
-     *
-     *  @return : Count of Queries or Data for Queries
-     */
-//    function get_queries($limit, $start, $status, $p_av, $booking_id = "") {
-//        $check_vendor_status = "";
-//        $where = "";
-//        $add_limit = "";
-//        $get_field = " services.services,
-//            users.name as customername, users.phone_number,
-//            bd.* ";
-//
-//        if ($booking_id != "") {
-//            $where = "AND `bd`.`booking_id` = '$booking_id' AND `bd`.current_status='$status'  ";
-//            if($start == 'All') {
-//                $get_field = " Count(bd.booking_id) as count ";
-//            }
-//
-//        } else {
-//            if ($start != 'All') {
-//
-//                $add_limit = " limit $start, $limit ";
-//
-//
-//            } else if($start == 'All') {
-//
-//                $get_field = " Count(bd.booking_id) as count ";
-//            }
-//
-//            $where = "AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) >= 0 OR
-//                bd.booking_date='') AND `bd`.current_status='$status' ";
-//        }
-//
-//        if($p_av == PINCODE_AVAILABLE ){
-//            $is_exist = ' EXISTS ';
-//
-//        } else if($p_av == PINCODE_NOT_AVAILABLE){
-//            $is_exist = ' NOT EXISTS ';
-//        } else if($p_av == PINCODE_ALL_AVAILABLE){
-//            $is_exist = '';
-//
-//        }
-//
-//        // If request for FollowUp then check Vendor Available or Not
-//        if($status != "Cancelled"){
-//            if($p_av != PINCODE_ALL_AVAILABLE){
-//            $check_vendor_status = " AND $is_exist
-//                (SELECT 1
-//                FROM (`vendor_pincode_mapping`)
-//                JOIN `service_centres` ON `service_centres`.`id` = `vendor_pincode_mapping`.`Vendor_ID`
-//                WHERE `vendor_pincode_mapping`.`Appliance_ID` = bd.service_id
-//                AND `vendor_pincode_mapping`.`Pincode` = bd.booking_pincode
-//                AND `service_centres`.`active` = '1' AND `service_centres`.on_off = '1')  ";
-//            }
-//        }
-//
-//        $sql = "SELECT $get_field
-//            from booking_details as bd
-//            JOIN  `users` ON  `users`.`user_id` =  `bd`.`user_id`
-//            JOIN  `services` ON  `services`.`id` =  `bd`.`service_id`
-//            WHERE `bd`.booking_id LIKE '%Q-%' $where
-//                $check_vendor_status
-//
-//            order by
-//                CASE
-//                WHEN `bd`.internal_status = 'Missed_call_confirmed' THEN 'a'
-//
-//                WHEN  `bd`.booking_date = '' THEN 'b'
-//                ELSE 'c'
-//            END, STR_TO_DATE(`bd`.booking_date,'%d-%m-%Y') desc $add_limit";
-//        
-//        $query = $this->db->query($sql);
-//        //log_message('info', __METHOD__ . "=> " . $this->db->last_query());
-//
-//        if($status == "FollowUp" && ($p_av == PINCODE_ALL_AVAILABLE) && !empty($booking_id) && $start !="All"){
-//            $temp = $query->result();
-//            $data = $this->searchPincodeAvailable($temp, $p_av);
-//            return $data;
-//
-//        }else {
-//            return $query->result();
-//        }
-//
-//
-//    }
 
     /**
      * @desc : In this function, we will pass Array and search active pincode and vendor.
@@ -1549,30 +1450,14 @@ class Booking_model extends CI_Model {
 
     function getpricesdetails_with_tax($service_centre_charges_id, $state){
 
-        $sql =" SELECT service_category as price_tags,tax_code, pod, product_type,vendor_basic_percentage, customer_total, partner_net_payable, product_or_services  from service_centre_charges where `service_centre_charges`.id = '$service_centre_charges_id' ";
+        $sql =" SELECT service_category as price_tags,pod,vendor_basic_percentage, customer_total, partner_net_payable, product_or_services  from service_centre_charges where `service_centre_charges`.id = '$service_centre_charges_id' ";
 
         $query = $this->db->query($sql);
         $result =  $query->result_array();
 
-        $sql1 = " SELECT rate as tax_rate from tax_rates where LOWER(`tax_rates`.state) LIKE LOWER('%$state%')
-                  AND `tax_rates`.tax_code = '".$result[0]['tax_code']."' AND  `tax_rates`.product_type = '".$result[0]['product_type']."' AND (to_date is NULL or to_date >= CURDATE() ) AND `tax_rates`.active = 1 ";
-
-        $query1 = $this->db->query($sql1);
-        $result1 =  $query1->result_array();
-
-        if(!empty($result1)){
-
-            $result[0]['tax_rate'] = $result1[0]['tax_rate'];
-            //Default tax rate is not used
-            $result['DEFAULT_TAX_RATE'] = 0;
-
-        } else {
-             //Default tax rate is used
-            $result[0]['tax_rate'] = DEFAULT_TAX_RATE;
-            $result['DEFAULT_TAX_RATE'] = 1;
-        }
-        unset($result[0]['tax_code']);
-        unset($result[0]['product_type']);
+        $result[0]['tax_rate'] = DEFAULT_TAX_RATE;
+        $result['DEFAULT_TAX_RATE'] = 0;
+        
 
         return $result;
 
@@ -2167,6 +2052,11 @@ class Booking_model extends CI_Model {
                 $this->db->where_in($key, $values);
             }
         }
+         if (!empty($post['where_not_in'])) {
+            foreach($post['where_not_in'] as $key=>$values){
+                $this->db->where_not_in($key, $values);
+            }
+        }
         
         if (!empty($post['search_value'])) {
             $like = "";
@@ -2498,5 +2388,43 @@ class Booking_model extends CI_Model {
     function update_misc_charges($where, $data){
         $this->db->where($where);
         $this->db->update('miscellaneous_charges', $data);
+    }
+    
+     /**
+     * @Desc: This function is used to get remarks sent for particular booking id
+     * @params: booking_id
+     * @return: array
+     * 
+     */
+    function get_remarks($where){
+        $this->db->select('booking_comments.id, agent_id, remarks, booking_comments.create_date, employee_id, booking_comments.isActive');
+        $this->db->from('booking_comments');
+        $this->db->join('employee','booking_comments.agent_id = employee.id');
+        $this->db->where($where);
+        $this->db->order_by('booking_comments.create_date');
+        $query = $this->db->get();
+        return $query->result_array();
+    } 
+    
+    function add_comment($data){
+        $this->db->select('*');
+        $this->db->from('booking_comments');
+        $this->db->where($data);
+        $query = $this->db->get();
+        if ($query->num_rows() == 0) {
+
+        $this->db->insert('booking_comments', $data);
+        return $this->db->insert_id();
+
+        }else {
+            return false;
+        }
+    }
+    function update_comment($where, $data) {
+    
+        
+         $this->db->where($where);
+        $this->db->update('booking_comments',$data);
+        return $this->db->affected_rows();
     }
 }

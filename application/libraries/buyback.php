@@ -186,10 +186,16 @@ class Buyback {
         log_message("info", __METHOD__."Order ID =>".$this->POST_DATA['partner_order_id']." BB Charge ". print_r($bb_charges, TRUE), " service_id ". $service_id);
         $gst_amount = 0;
         if(!empty($bb_charges)){
-            $partner_amount =  $this->POST_DATA['partner_basic_charge'] + $this->POST_DATA['partner_sweetner_charges'];
+            //$partner_amount =  $this->POST_DATA['partner_basic_charge'] + $this->POST_DATA['partner_sweetner_charges'];
+            $partner_amount =  $this->POST_DATA['partner_basic_charge'];
             $profit = ($bb_charges[0]['cp_basic'] + $bb_charges[0]['cp_tax']) - $partner_amount;
             if ($profit > 0) {
-                $gst_amount = $this->My_CI->booking_model->get_calculated_tax_charge($profit, DEFAULT_PARTS_TAX_RATE);
+                $s_id = (!empty($bb_charges) ? $bb_charges[0]['service_id'] : $service_id);
+                $gst_tax_rate = DEFAULT_TAX_RATE;
+                if(!empty($s_id) && ($s_id == _247AROUND_AC_SERVICE_ID || $s_id == _247AROUND_TV_SERVICE_ID)){
+                    $gst_tax_rate = DEFAULT_PARTS_TAX_RATE;
+                }
+                $gst_amount = $this->My_CI->booking_model->get_calculated_tax_charge($profit, $gst_tax_rate);
                
             } 
         }
@@ -407,9 +413,9 @@ class Buyback {
         $con['where'] = array("bb_order_details.partner_order_id" => $order_id);
         $con['length'] = -1;
 
-        $bb_unit = $this->My_CI->bb_model->get_bb_order_list($con, "bb_unit_details.partner_basic_charge, bb_unit_details.partner_sweetner_charges, cp_basic_charge, cp_tax_charge");
+        $bb_unit = $this->My_CI->bb_model->get_bb_order_list($con, "bb_unit_details.service_id, bb_unit_details.partner_basic_charge,partner_tax_charge, bb_unit_details.partner_sweetner_charges, cp_basic_charge, cp_tax_charge");
         if (!empty($bb_unit)) {
-            $partner_amount = $bb_unit[0]->partner_basic_charge + $bb_unit[0]->partner_sweetner_charges;
+            $partner_amount = $bb_unit[0]->partner_basic_charge + $bb_unit[0]->partner_tax_charge;
             if($claimed_price > 0){
                 $cp_amount = $claimed_price;
             } else {
@@ -418,7 +424,11 @@ class Buyback {
             
             $profit = $cp_amount - $partner_amount;
             if ($profit > 0) {
-                $gst_amount = $this->My_CI->booking_model->get_calculated_tax_charge($profit, DEFAULT_PARTS_TAX_RATE);
+                $gst_tax_rate = DEFAULT_TAX_RATE;
+                if($bb_unit[0]->service_id  == _247AROUND_AC_SERVICE_ID || $bb_unit[0]->service_id == _247AROUND_TV_SERVICE_ID){
+                    $gst_tax_rate = DEFAULT_PARTS_TAX_RATE;
+                }
+                $gst_amount = $this->My_CI->booking_model->get_calculated_tax_charge($profit, $gst_tax_rate);
             }
         }
         return $gst_amount;

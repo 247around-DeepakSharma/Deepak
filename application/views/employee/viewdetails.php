@@ -105,7 +105,10 @@
                             <th >Booking ID </th>
                             <td><?php echo "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$booking_history[0]['booking_jobcard_filename']."'>".$booking_history[0]['booking_id']."</a>"; ?></td>
                             <th >Order ID </th>
-                            <td><?php if(!empty($booking_history)){  echo $booking_history[0]['order_id'];
+                            <td>
+                                <input type="file" id="supportfileLoader" name="files" onchange="uploadsupportingfile()" style="display:none" />
+                                <div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogress_supproting_file";?>"  role="progressbar" style="width:0%">0%</div>
+                                <?php if(!empty($booking_history)){  echo $booking_history[0]['order_id'];
                                 $src = base_url() . 'images/no_image.png';
                                 $image_src = $src;
                                 if (isset($booking_history[0]['support_file']) && !empty($booking_history[0]['support_file'])) {
@@ -114,8 +117,9 @@
                                     $image_src = base_url().'images/view_image.png';
                                 }
                                 ?>
-                                <a href="<?php  echo $src?>" target="_blank"><img src="<?php  echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:10px;" /></a>
+                                <a id="a_order_support_file" href="<?php  echo $src?>" target="_blank"><img id="m_order_support_file" src="<?php  echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:10px;" /></a>
                                 <?php } ?> 
+                                &nbsp;&nbsp;<i id="supporting_file" class="fa fa-pencil fa-lg" onclick="upload_supporting_file();"></i>
                             </td>
                         </tr>
                         <tr>
@@ -167,7 +171,7 @@
                         <tr>
                             <th>Booking Create / Closed Dated </th>
                             <td><?php if(!empty($booking_history[0]['closed_date'])){ echo date("jS M, Y", strtotime($booking_history[0]['create_date'])).
-                                " / ".date("jS M, Y", strtotime($booking_history[0]['closed_date'])); } 
+                                " / ".date("jS M, Y", strtotime($booking_history[0]['service_center_closed_date'])); } 
                                 else  { echo date("jS M, Y", strtotime($booking_history[0]['create_date'])); } ?></td>
                             <th>EDD / Delivery Date</th>
                             <td><?php echo $booking_history[0]['estimated_delivery_date']." / ".$booking_history[0]['delivery_date']; ?></td>
@@ -299,7 +303,8 @@
                                 <th>Brand</th>
                                 <th>Category/<br/>Capacity</th>
                                 <th>Model Number</th>
-                                <th>SF Serial Number / Partner Serial Number</th>
+                                <th>SF Model Number</th>
+                                <th>SF / Partner Serial Number</th>
                                 <th>Purchase Date</th>
                                 <th>Description</th>
                                 <th>Service Category</th>
@@ -342,6 +347,7 @@
                                     <td><?php echo $unit_detail['appliance_brand']?></td>
                                     <td><?php echo $unit_detail['appliance_category']."/<br/>".$unit_detail['appliance_capacity']?></td>
                                     <td><?php echo $unit_detail['model_number']?></td>
+                                    <td><?php echo $unit_detail['sf_model_number']?></td>
                                     <td><?php if(!empty($unit_detail['serial_number_pic'])){?>
                                         <a target="_blank" href="<?php echo S3_WEBSITE_URL;?>engineer-uploads/<?php echo $unit_detail['serial_number_pic'];?>"><?php echo $unit_detail['serial_number'];?></a>
                                              <?php } else { echo $unit_detail['serial_number'];} ?> / <?php echo $unit_detail['partner_serial_number']?>
@@ -509,7 +515,8 @@
                             <table class="table  table-striped table-bordered" >
                                 <thead>
                                     <tr>
-                                        <th >Estimate Given</th>
+                                        <th >Estimate Given By Partner/Warehouse</th>
+                                        <th >Estimate Cost</th>
                                         <th >Estimate Given Date </th>
                                         <th >Purchase Invoice</th>
                                         <th >Sale Invoice ID</th>
@@ -519,9 +526,7 @@
                                 <tbody>
                                     <?php foreach ($booking_history['spare_parts'] as $sp){ if($sp['purchase_price'] > 0) { ?>
                                     <tr>
-
                                         <td><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING){ echo "Partner";} else { echo "Warehouse";} ?></td>
-
                                         <td><?php echo $sp['purchase_price']; ?></td>
                                         <td><?php if(!empty($sp['estimate_cost_given_date'])) { echo date("d-m-Y", strtotime($sp['estimate_cost_given_date'])); } ?></td>
                                         <td><?php if(!is_null($sp['incoming_invoice_pdf'])) { if( $sp['incoming_invoice_pdf'] !== '0'){ ?> <a href="https://s3.amazonaws.com/bookings-collateral/invoices-excel/<?php echo $sp['incoming_invoice_pdf'];  ?> " target="_blank">Click Here</a><?php } } ?></td>
@@ -544,6 +549,7 @@
                             <table class="table  table-striped table-bordered" >
                                 <thead>
                                     <tr>
+                                        <th >Part Shipped By Partner/Warehouse</th>
                                         <th >Shipped Parts </th>
                                         <th >Courier Name</th>
                                         <th >AWB </th>
@@ -560,6 +566,7 @@
                                 <tbody>
                                     <?php foreach ($booking_history['spare_parts'] as $sp) { if(!empty($sp['parts_shipped'])){ ?>
                                     <tr>
+                                        <td><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING) { echo "Partner";} else { echo "Warehouse";} ?></td>
                                         <td><?php echo $sp['parts_shipped']; ?></td>
                                         <td><?php echo $sp['courier_name_by_partner']; ?></td>
                                         <td><?php echo $sp['awb_by_partner']; ?></td>
@@ -639,6 +646,12 @@
                 <?php } ?>
             </div>
             <div class="tab-pane fade in" id="tab4">
+                <div style="padding: 0 15px;">
+    <div class="row">
+                <div id="historyDetails"></div>
+                <div id="commentbox"> </div>
+    </div>
+                </div>
             </div>
             <div class="tab-pane fade in" id="tab5">
                 <div class="row">
@@ -1031,7 +1044,7 @@ function sf_tab_active(){
                     type: 'POST',
                     url: booking_id,
                     success: function (response) {
-                        $('#tab4').html(response);
+                        $('#historyDetails').html(response);
                     }
                 });
             });
@@ -1098,6 +1111,120 @@ function sf_tab_active(){
                 console.log("Contact Developers For This Issue");
             }
     }
+    function load_comment_area(){
+    
+        document.getElementById("comment_section").style.display='block';
+       // document.getElementById("comment").innerHTML=data;
+        $('#commnet_btn').hide();
+    }
+    
+     function load_update_area(data="", key){
+    
+    document.getElementById("update_section").style.display='block';
+    document.getElementById("comment2").innerHTML=data;
+    $('#comment_id').attr("value",key);
+    $('#commnet_btn').hide();
+    }
+    
+    function cancel(){
+        getcommentbox();
+    }   
+    
+    function addComment() {
+        var prethis = $(this);
+        var comment = $("#comment").val();
+        var booking_id = '<?php echo $booking_history[0]['booking_id']?>';
+  
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/booking/addComment',
+             beforeSend: function(){
+                
+                 prethis.html('<i class="fa fa-circle-o-notch fa-lg" aria-hidden="true"></i>');
+             },
+            data: {comment: comment, booking_id: booking_id},
+            success: function (response) {
+                if(response === "error"){
+                    alert('There is some issue. Please refresh and try again');
+                } else {
+                    document.getElementById("commentbox").innerHTML = response;
+                }   
+            }
+            
+        });
+    }
+    
+    function editComment(key){
+       document.getElementById("comment_section").style.display='none';
+       // document.getElementById("comment").innerHTML=data;
+        $('#commnet_btn').hide();
+        var comment = $("#comment_text_"+key).text();
+        
+        load_update_area(comment, key);
+    }
+    
+    function updateComment() {
+        var prethis = $(this);
+        var comment = $("#comment2").val();
+        var comment_id= $("#comment_id").val();
+        var booking_id= '<?php echo $booking_history[0]['booking_id']?>';
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/booking/update_Comment',
+             beforeSend: function(){
+                
+                 prethis.html('<i class="fa fa-circle-o-notch fa-lg" aria-hidden="true"></i>');
+             },
+            data: {comment: comment, comment_id: comment_id, booking_id: booking_id},
+            success: function (response) {
+                if(response === "error"){
+                    alert('There is some issue. Please refresh and try again');
+                } else {
+                    document.getElementById("commentbox").innerHTML = response;
+                } 
+            }
+            
+        });
+    }
+    
+    
+     function deleteComment(comment_id) {
+                
+                
+            var check = confirm("Do you want to delete this comment?");
+            if(check == true){
+                var comment_id = comment_id;
+                var booking_id= '<?php echo $booking_history[0]['booking_id'] ?>';
+                $.ajax({
+                    type: 'POST',
+                    url: '<?php echo base_url(); ?>employee/booking/deleteComment',
+                    data: {comment_id: comment_id, booking_id:booking_id},
+                    success: function (response) {
+                        if(response === "error"){
+                            alert('There is some issue. Please refresh and try again');
+                        } else {
+                            document.getElementById("commentbox").innerHTML = response;
+                        } 
+                    }
+                    
+                });
+            }
+        }
+    
+    
+    
+    
+    function getcommentbox(){
+    $.ajax({
+        method: 'POST',
+        data: {},
+        url: '<?php echo base_url(); ?>employee/booking/get_comment_section/<?php echo $booking_history[0]['booking_id']?>',
+        success: function (response) {
+            document.getElementById("commentbox").innerHTML = response;
+        }
+    });
+    }
+    getcommentbox();
     function get_transaction_status(booking_id){
         $.ajax({
                     method: 'POST',
@@ -1194,6 +1321,55 @@ function openfileDialog(spare_id, column_name) {
     spareID = spare_id;
     spareFileColumn = column_name;
     $("#fileLoader").click();
+}
+
+function upload_supporting_file(){
+    $("#supportfileLoader").click();
+}
+
+function uploadsupportingfile(){
+     var file = $('#supportfileLoader').val();
+     if (file === '') {
+        alert('Please select file');
+        return;
+    } else {
+        var formData = new FormData();
+        formData.append('support_file', $('#supportfileLoader')[0].files[0]);
+        formData.append('booking_id', '<?php echo $booking_history[0]['booking_id'];?>');
+        
+        $.ajax({
+                url: '<?php echo base_url();?>employee/booking/upload_order_supporting_file',
+                data: formData,
+                processData: false,
+                contentType: false,
+                type: 'POST',
+                // this part is progress bar
+                xhr: function () {
+                    var xhr = new window.XMLHttpRequest();
+                    xhr.upload.addEventListener("progress", function (evt) {
+                        if (evt.lengthComputable) {
+                            var percentComplete = evt.loaded / evt.total;
+                            percentComplete = parseInt(percentComplete * 100);
+                            
+                            $('#myprogress_supproting_file').text(percentComplete + '%');
+                            $('#myprogress_supproting_file').css('width', percentComplete + '%');
+                        }
+                    }, false);
+                    return xhr;
+                },
+                success: function (response) {
+                    $('#myprogress_supproting_file').css('width', '0%');
+                    obj = JSON.parse(response);
+                    
+                    if(obj.code === "success"){
+                        $("#a_order_support_file").attr("href", "<?php echo S3_WEBSITE_URL;?>misc-images/" + obj.name);
+                        $("#m_order_support_file").attr("src", "<?php echo S3_WEBSITE_URL;?>misc-images/" + obj.name);
+                    } else {
+                        alert(obj.message);
+                    }
+                }
+            });
+    }
 }
 
 function uploadfile(){
@@ -1325,3 +1501,22 @@ background-color: #f5f5f5;
         </div>
     </div>
  <?php } ?>
+
+    <script>
+    function removeMiscitem(id, booking_id){
+        $.ajax({
+           type: 'POST',
+           url: '<?php echo base_url(); ?>/employee/service_centre_charges/cancel_misc_charges/'+id +"/"+booking_id,
+           data: {},
+           success: function (data) {
+              if(data === "success"){
+                  alert("Charges Removed");
+                  location.reload(true);
+              } else {
+                  alert("Please refresh and tyy again");
+              }
+
+           }
+    });
+}
+    </script>

@@ -95,11 +95,11 @@ $route['service_center/buyback/get_bb_order_appliance_details/(:any)'] = 'employ
 $route['service_center/inventory'] = 'employee/service_centers/warehouse_default_page';
 $route['service_center/inventory/inventory_list'] = 'employee/service_centers/inventory_stock_list';
 $route['service_center/spare_parts'] = 'employee/service_centers/get_spare_parts_booking';
-$route['service_center/spare_parts/(:any)/(:any)'] = 'employee/service_centers/get_spare_parts_booking/$1/$2';
+$route['service_center/spare_parts/(:any)'] = 'employee/service_centers/get_spare_parts_booking/$1';
 $route['service_center/defective_spare_parts'] = 'employee/service_centers/get_defective_parts_shipped_by_sf';
-$route['service_center/defective_spare_parts/(:any)/(:any)'] = 'employee/service_centers/get_defective_parts_shipped_by_sf/$1/$2';
+$route['service_center/defective_spare_parts/(:any)'] = 'employee/service_centers/get_defective_parts_shipped_by_sf/$1';
 $route['service_center/update_spare_parts_form/(:any)'] = 'employee/service_centers/update_spare_parts_form/$1';
-$route['service_center/process_update_spare_parts/(:any)/(:any)'] = 'employee/service_centers/process_update_spare_parts/$1/$2';
+$route['service_center/process_update_spare_parts/(:any)'] = 'employee/service_centers/process_update_spare_parts/$1';
 $route['service_center/reject_defective_part/(:any)/(:any)'] = 'employee/service_centers/reject_defective_part/$1/$2';
 $route['service_center/get_shipped_parts_list'] = 'employee/service_centers/get_shipped_parts_list_by_warehouse';
 $route['service_center/get_shipped_parts_list/(:any)'] = 'employee/service_centers/get_shipped_parts_list_by_warehouse/$1';
@@ -109,12 +109,14 @@ $route['service_center/approved_defective_parts_booking_by_warehouse'] = 'employ
 $route['service_center/approved_defective_parts_booking_by_warehouse/(:any)'] = 'employee/service_centers/get_approved_defective_parts_booking_by_warehouse/$1';
 $route['service_center/download_sf_declaration/(:any)'] = 'employee/service_centers/download_sf_declaration/$1'; 
 $route['service_center/acknowledge_spares_send_by_partner'] = 'employee/service_centers/acknowledge_spares_send_by_partner';
+$route['service_center/dashboard'] = 'employee/service_centers/sf_dashboard';
 
 
 $route['call-customer-status-callback'] = 'employee/booking/call_customer_status_callback';
 
 $route['partner/login'] = 'employee/partner';
 $route['partner/home'] = 'employee/partner/partner_default_page';
+$route['partner/dashboard'] = 'employee/partner/partner_dashboard';
 $route['partner/search'] = 'employee/partner/search';
 $route['partner/pending_booking'] = 'employee/partner/pending_booking';
 $route['partner/pending_booking/(:any)'] = 'employee/partner/pending_booking/$1';

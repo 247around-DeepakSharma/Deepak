@@ -7483,7 +7483,7 @@ VALUES (NULL, 'defective_spare_send_by_wh_to_partner', 'Defective Spare shipped 
 'noreply@247around.com', '', 'sachins@247around.com', '', '1', '2016-06-17 00:00:00');
 
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
- (NULL, 'defective_spare_received_by_partner_from_wh', 'Defective Spare received by %s', 
+ VALUES (NULL, 'defective_spare_received_by_partner_from_wh', 'Defective Spare received by %s', 
 'Dear Partner,<br><br> <b>%s</b> received below defective spare <br><br> %s <br> Regards,<br> 247around', 
 'noreply@247around.com', '', 'sachinj@247around.com', '', '1', '2016-06-17 00:00:00');
 
@@ -7540,7 +7540,7 @@ ALTER TABLE `vendor_partner_invoices` ADD `reference_invoice_id` VARCHAR(64) NUL
 --Abhay 22 June
 
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES
-(NULL, 'booking_misc_charges_details', 'New Miscellaneous Charges Added For Booking ID \n %s', 'Hi,<br/><br/>\nNew Miscellaneous Charges added By %s. Please find the details below: <br/><br/>\n%s<br/><br/>\n\nPlease %s to check these details.\n<br/>Thanks!!;', 'booking@247around.com', 'abhaya@247around.com', 'sachinj@247around.com', '', '1', '2018-06-21 18:30:00');
+(NULL, 'booking_misc_charges_details', 'New Miscellaneous Charges Added For Booking ID \n %s', 'Hi,<br/><br/>\nNew Miscellaneous Charges added By %s. Please find the details below: <br/><br/>\n%s<br/><br/>\n\nPlease %s to check these details.\n<br/>Thanks!!;', 'booking@247around.com', 'anuj@247around.com, nits@247around.com', 'abhaya@247around.com', '', '1', '2018-06-21 18:30:00');
 
 
 --
@@ -7642,6 +7642,12 @@ UPDATE `email_template` SET `subject` = '247around %s through CRM Payment Gatewa
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'cp_out_standing_email', '%s', 'Dear Partner,<br/><br/> outstanding Amount %s <br/><br/> %s<br/><br/> <br/>Thanks!!;', 'booking@247around.com', '', 'abhaya@247around.com', '', '1', '2018-06-29 00:00:00');
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'cp_outstanding_sms', '%s', '', '1', '2018-06-29 18:59:32');
 
+
+--Abhay 3 July
+ALTER TABLE `service_centres` ADD `cp_credit_limit` DECIMAL NULL DEFAULT '0' AFTER `on_off`;
+
+--Abhay 6 July
+ALTER TABLE `booking_details` ADD `upcountry_update_date` DATETIME NULL DEFAULT NULL AFTER `service_center_closed_date`;
 --Abhay 3 July
 ALTER TABLE `service_centres` ADD `cp_credit_limit` DECIMAL NULL DEFAULT '0' AFTER `on_off`;
 --Chhavi 06th July
@@ -7675,6 +7681,7 @@ ALTER TABLE  `request_type` ADD  `create_date` TIMESTAMP NOT NULL;
 ALTER TABLE  `service_category_mapping` ADD  `create_date` TIMESTAMP NOT NULL;
 ALTER TABLE `booking_details` ADD `isActive` INT(1) NOT NULL DEFAULT '0' AFTER `remarks`;
 
+ALTER TABLE `booking_details` ADD `isActive` INT(1) NOT NULL DEFAULT '0' AFTER `remarks`;
 
 --sachin  11 July
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
@@ -7683,6 +7690,10 @@ VALUES (NULL, 'escalation_on_booking_from_partner_panel',
 <strong>%s</strong> is escalated <br> Reason : %s <br> Attend this booking immediately. 
 <br><br> Regards,<br> 247around Team', '', '', '', '', '1', '2016-09-26 18:30:00');
 
+UPDATE `email_template` SET `cc` = '' WHERE `email_template`.`tag` = 'escalation_on_booking';
+
+--Abhay 7 July
+ALTER TABLE `inventory_stocks` ADD `pending_request_count` INT NULL DEFAULT '0' AFTER `stock`;
 UPDATE `email_template` SET `cc` = '' WHERE `email_template`.`tag` = 'escalation_on_booking';
 
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) 
@@ -7695,8 +7706,6 @@ UPDATE `sms_template` SET `template` = 'Kudos to you for placing Google Home dem
 Check Super Answer Video from Google http://bit.ly/2up6Kwq | http://bit.ly/2s4PzAc | http://bit.ly/2INmjUE - 247around Flipkart Partner' 
 WHERE `sms_template`.`tag` = 'flipkart_google_scheduled_sms';
 
-
-
 --Abhay 7 July
 ALTER TABLE `inventory_stocks` ADD `pending_request_count` INT NULL DEFAULT '0' AFTER `stock`;
 
@@ -7708,7 +7717,6 @@ ALTER TABLE `bank_transactions` ADD `payment_txn_id` VARCHAR(1024) NULL DEFAULT 
 -- sachin 12 July
 INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
 (null, '247Around', 'Search Spare Invoice', NULL, 'employee/inventory/show_spare_details_by_spare_invoice', 0, '89', 'admin,closure,inventory_manager', 'main_nav', 1, '2018-07-12 05:12:36');
-
 
 --Abhay 12 July
 ALTER TABLE `spare_parts_details` ADD `wh_ack_received_part` INT(1) NOT NULL DEFAULT '1' AFTER `inventory_id`;
@@ -7744,6 +7752,9 @@ ALTER TABLE `spare_parts_details` ADD `vendor_courier_invoice_id`  VARCHAR(28) N
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
 VALUES (NULL, 'bank_details_verification_email', '%s | Please Verify Your Bank Details', 'Dear Partner<br><br> Your account details could not be verified so request you to send the bank passbook front page or cancelled cheque copy immediately.<br><br> Regards<br><br> Team 247around', '', '', '', '', '1', '2017-08-29 15:06:23');
 
+--Chhavi 23rd July
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+(NULL, 'Partner', 'Dashboard', 'fa fa-dashboard', 'partner/dashboard', 1, NULL, 'area_sales_manager,poc', 'main_nav', 1, '2018-07-23 10:01:02');
 --Chhavi 26th July
 CREATE TABLE `partner_summary_report_mapping` (
   `id` int(11) NOT NULL,
@@ -7854,3 +7865,12 @@ ALTER TABLE `vendor_gst_detail` ADD PRIMARY KEY (`id`);
 ALTER TABLE `vendor_gst_detail` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 
+
+--Kalyani 28-07-2018
+ALTER TABLE `booking_comments` CHANGE `id` `id` INT(11) NOT NULL AUTO_INCREMENT;
+
+--- Kalyani 31-07-2018
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES ('70', 'taxpro_api_fail', 'Taxpro GSP Api Fail', '<b>TAXPRO GSP API FAIL </b>\r\n<br/>\r\n<p>%s</p>', 'noreply@247around.com', '', '', '', '1', '', CURRENT_TIMESTAMP);
+
+--Chhavi
+ALTER TABLE `spare_parts_details` ADD `spare_cancelled_date` DATETIME  NULL AFTER `challan_approx_value`;

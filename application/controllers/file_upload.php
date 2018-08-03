@@ -35,8 +35,7 @@ class File_upload extends CI_Controller {
      * @return JSON
      */
     public function process_upload_file(){
-        log_message('info', __FUNCTION__ . "=> File Upload Process Begin");
-        
+        log_message('info', __FUNCTION__ . "=> File Upload Process Begin ". print_r($_POST,true));
         //get file extension and file tmp name
         $file_status = $this->get_upload_file_type();
         $redirect_to = $this->input->post('redirect_url');
@@ -483,12 +482,12 @@ class File_upload extends CI_Controller {
                     $rowData = array_combine($data['header_data'], $rowData_array[0]);
                     $subArray = $this->get_sub_array($rowData, array('brand', 'category', 'capacity', 'model'));
                     array_push($sheetUniqueRowData, implode('_join_', $subArray));
-                    $rowData['partner_id'] = $this->input->post('partner_id');
-                    $rowData['service_id'] = $this->input->post('service_id');
+                    $rowData['partnerid'] = $this->input->post('partner_id');
+                    $rowData['serviceid'] = $this->input->post('service_id');
                     $this->sanitize_partner_appliance_data_to_insert($rowData);
                 }
             }
-
+            
             //check file contains unique data
             $is_file_contains_unique_data = $this->check_unique_in_array_data($sheetUniqueRowData);
             if ($is_file_contains_unique_data['status']) {
