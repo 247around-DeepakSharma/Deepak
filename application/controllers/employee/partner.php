@@ -1152,20 +1152,20 @@ class Partner extends CI_Controller {
             $booking_date = $this->input->post('booking_date');
 
             $data['booking_date'] = date('d-m-Y', strtotime($booking_date));
-            $data['current_status'] = 'Rescheduled';
-            $data['internal_status'] = 'Rescheduled';
+//            $data['current_status'] = 'Rescheduled';
+//            $data['internal_status'] = 'Rescheduled';
             $data['update_date'] = date("Y-m-d H:i:s");
 
             //check partner status from partner_booking_status_mapping table  
-            $partner_id = $this->input->post('partner_id');
+//            $partner_id = $this->input->post('partner_id');
             $actor = $next_action = 'not_define';
-            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($data['current_status'], $data['internal_status'], $partner_id, $booking_id);
-            if (!empty($partner_status)) {
-                $data['partner_current_status'] = $partner_status[0];
-                $data['partner_internal_status'] = $partner_status[1];
-                $actor = $data['actor'] = $partner_status[2];
-                $next_action = $data['next_action'] = $partner_status[3];
-            }
+//            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($data['current_status'], $data['internal_status'], $partner_id, $booking_id);
+//            if (!empty($partner_status)) {
+//                $data['partner_current_status'] = $partner_status[0];
+//                $data['partner_internal_status'] = $partner_status[1];
+//                $actor = $data['actor'] = $partner_status[2];
+//                $next_action = $data['next_action'] = $partner_status[3];
+//            }
 
             $update_status = $this->booking_model->update_booking($booking_id, $data);
             if ($update_status) {
@@ -1173,8 +1173,8 @@ class Partner extends CI_Controller {
                         $this->session->userdata('partner_name'), $actor,$next_action,$this->session->userdata('partner_id'));
 
 
-                $service_center_data['internal_status'] = "Pending";
-                $service_center_data['current_status'] = "Pending";
+//                $service_center_data['internal_status'] = "Pending";
+//                $service_center_data['current_status'] = "Pending";
                 $service_center_data['update_date'] = date("Y-m-d H:i:s");
 
                 log_message('info', __FUNCTION__ . " Update Service center action table  " . print_r($service_center_data, true));
@@ -1189,8 +1189,15 @@ class Partner extends CI_Controller {
                 log_message('info', __FUNCTION__ . " Request to prepare Job Card  " . print_r($booking_id, true));
 
                 //Prepare job card
-                $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
-                $this->booking_utilities->lib_send_mail_to_vendor($booking_id, "");
+                $job_card = array();
+                $job_card_url = base_url() . "employee/bookingjobcard/prepare_job_card_using_booking_id/" . $booking_id;
+                $this->asynchronous_lib->do_background_process($job_card_url, $job_card);
+                
+                
+                $email = array();
+                $email_url = base_url() . "employee/bookingjobcard/send_mail_to_vendor/" . $booking_id;
+                $this->asynchronous_lib->do_background_process($email_url, $email);
+                
                 $msg = $booking_id . " Booking Rescheduled.";
                 $this->session->set_userdata('success', $msg);
 
@@ -1473,8 +1480,8 @@ class Partner extends CI_Controller {
             $unit_details['partner_id'] = $post['partner_id'];
             $unit_details['booking_id'] = $booking_details['booking_id'] = $booking_id;
             if ($post['product_type'] == "Delivered") {
-                $booking_details['current_status'] = _247AROUND_PENDING;
-                $booking_details['internal_status'] = _247AROUND_PENDING;
+//                $booking_details['current_status'] = _247AROUND_PENDING;
+//                $booking_details['internal_status'] = _247AROUND_PENDING;
                 $unit_details['booking_id'] = $booking_id;
                 $unit_details['booking_status'] = _247AROUND_PENDING;
                 $booking_details['type'] = "Booking";
@@ -1483,8 +1490,8 @@ class Partner extends CI_Controller {
                     $unit_details['booking_id'] = $booking_details['booking_id'] = $booking_id_array[1];
                 }
             } else {
-                $booking_details['current_status'] = _247AROUND_FOLLOWUP;
-                $booking_details['internal_status'] = _247AROUND_FOLLOWUP;
+//                $booking_details['current_status'] = _247AROUND_FOLLOWUP;
+//                $booking_details['internal_status'] = _247AROUND_FOLLOWUP;
                 if (strpos($booking_id, "Q-", 0) === FALSE) {
                     $unit_details['booking_id'] = "Q-" . $booking_id;
                     $booking_details['booking_id'] = "Q-" . $booking_id;
@@ -1579,14 +1586,14 @@ class Partner extends CI_Controller {
             }
             if ($post['product_type'] == "Delivered") {
                 $tempStatus = _247AROUND_PENDING;
-                    $sc_data['current_status'] = _247AROUND_PENDING;
-                    $sc_data['internal_status'] = _247AROUND_PENDING;
-                    $booking_details['cancellation_reason'] = NULL;
-                    $booking_details['closed_date'] = NULL;
-                    
-                    $booking_details['internal_status'] = "Booking Opened From Cancelled";
+//                    $sc_data['current_status'] = _247AROUND_PENDING;
+//                    $sc_data['internal_status'] = _247AROUND_PENDING;
+//                    $booking_details['cancellation_reason'] = NULL;
+//                    $booking_details['closed_date'] = NULL;
+//                    
+//                    $booking_details['internal_status'] = "Booking Opened From Cancelled";
 
-                    $this->service_centers_model->update_service_centers_action_table($booking_id, $sc_data);
+                    //$this->service_centers_model->update_service_centers_action_table($booking_id, $sc_data);
             } else {
                 // IN the Shipped Case
                 $price_array['is_upcountry'] = $booking_details['is_upcountry'];
@@ -1597,14 +1604,14 @@ class Partner extends CI_Controller {
                 $tempStatus = _247AROUND_FOLLOWUP;
                 $booking_details['assigned_vendor_id'] = NULL;
             }
-            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking_details['current_status'], $booking_details['internal_status'], $this->session->userdata('partner_id'), $booking_id);
+            //$partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking_details['current_status'], $booking_details['internal_status'], $this->session->userdata('partner_id'), $booking_id);
            $actor = $next_action = 'not_define';
-            if (!empty($partner_status)) {
-                $booking_details['partner_current_status'] = $partner_status[0];
-                $booking_details['partner_internal_status'] = $partner_status[1];
-                $actor = $booking_details['actor'] = $partner_status[2];
-                $next_action = $booking_details['next_action'] = $partner_status[3];
-            }
+//            if (!empty($partner_status)) {
+//                $booking_details['partner_current_status'] = $partner_status[0];
+//                $booking_details['partner_internal_status'] = $partner_status[1];
+//                $actor = $booking_details['actor'] = $partner_status[2];
+//                $next_action = $booking_details['next_action'] = $partner_status[3];
+//            }
             $this->insert_details_in_state_change($booking_id, $tempStatus, $booking_details['booking_remarks'],$actor,$next_action);
             $this->booking_model->update_booking($booking_id, $booking_details);
             $up_flag = 1;

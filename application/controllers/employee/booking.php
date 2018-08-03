@@ -269,8 +269,10 @@ class Booking extends CI_Controller {
                     $services_details['partner_paid_basic_charges'] = $partner_net_payable[$brand_id][$key + 1][$services_details['id']][0];
                     $services_details['partner_net_payable'] = $services_details['partner_paid_basic_charges'];
                     $services_details['around_net_payable'] = $services_details['around_paid_basic_charges'];
-                   
-                    $services_details['booking_status'] = $booking['current_status'];
+                    if(isset($booking['current_status'])){
+                        $services_details['booking_status'] = $booking['current_status'];
+                    }
+                    
                     log_message('info', __METHOD__ . " Before booking is insert/update: " . $booking_id);
                     
                     switch ($booking_id) {
@@ -387,7 +389,7 @@ class Booking extends CI_Controller {
         $booking['quantity'] = $quantity;
         $booking['service_center_closed_date'] = NULL;
         $booking['cancellation_reason'] = NULL;
-       
+        $actor = $next_action = NULL;
         switch ($booking_id) {
             case INSERT_NEW_BOOKING:
                 $booking['booking_id'] = $this->create_booking_id($booking['user_id'], $booking['source'], $booking['type'], $booking['booking_date']);
@@ -397,6 +399,17 @@ class Booking extends CI_Controller {
 
                 if ($booking['type'] == "Booking") {
                     $booking['initial_booking_date'] = $booking['booking_date'];
+                    $booking['current_status'] =  _247AROUND_PENDING;
+                    $booking['internal_status'] = 'Scheduled';
+                    
+                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $booking['partner_id'], $booking_id);
+                    if (!empty($partner_status)) {               
+                        $booking['partner_current_status'] = $partner_status[0];
+                        $booking['partner_internal_status'] = $partner_status[1];
+                        $actor = $booking['actor'] = $partner_status[2];
+                        $next_action = $booking['next_action'] = $partner_status[3];
+                    }
+                    
                 }
 
                 log_message('info', "New Booking ID created" . print_r($booking['booking_id'], true));
@@ -426,7 +439,7 @@ class Booking extends CI_Controller {
             $booking['support_file'] = $support_file;
         }
         
-
+        
         $validate_order_id = $this->validate_order_id($booking['partner_id'], $booking['booking_id'], $booking['order_id'], $booking['amount_due']);
       
         if ($validate_order_id) {
@@ -437,8 +450,7 @@ class Booking extends CI_Controller {
             }
 
             if ($booking['type'] == 'Booking') {
-                $booking['current_status'] = 'Pending';
-                $booking['internal_status'] = 'Scheduled';
+                
                 $booking['booking_remarks'] = $remarks;
                 $new_state = $booking_id_with_flag['new_state'];
                 $old_state = $booking_id_with_flag['old_state'];
@@ -468,18 +480,20 @@ class Booking extends CI_Controller {
 
                 $new_state = $booking_id_with_flag['new_state'];
                 $old_state = $booking_id_with_flag['old_state'];
+                
+                $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $booking['partner_id'], $booking_id);
+                if (!empty($partner_status)) {               
+                    $booking['partner_current_status'] = $partner_status[0];
+                    $booking['partner_internal_status'] = $partner_status[1];
+                    $actor = $booking['actor'] = $partner_status[2];
+                    $next_action = $booking['next_action'] = $partner_status[3];
+                }
+                    
             }
 
             // check partner status
-            $actor = $next_action = 'NULL';
-            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $booking['partner_id'], $booking_id);
-            if (!empty($partner_status)) {               
-                $booking['partner_current_status'] = $partner_status[0];
-                $booking['partner_internal_status'] = $partner_status[1];
-                $actor = $booking['actor'] = $partner_status[2];
-                $next_action = $booking['next_action'] = $partner_status[3];
-            }
-
+            
+            
             switch ($booking_id) {
 
                 case INSERT_NEW_BOOKING:
@@ -972,24 +986,23 @@ class Booking extends CI_Controller {
 
         $data['booking_date'] = date('d-m-Y', strtotime($this->input->post('booking_date')));
         $data['booking_timeslot'] = $this->input->post('booking_timeslot');
-        $data['service_center_closed_date'] = NULL;
-        $data['cancellation_reason'] = NULL;
+        //$data['service_center_closed_date'] = NULL;
+        //$data['cancellation_reason'] = NULL;
         //$data['booking_remarks'] = $this->input->post('reason');
-        $data['current_status'] = 'Rescheduled';
-        $data['internal_status'] = 'Rescheduled';
+//        $data['current_status'] = 'Rescheduled';
+//        $data['internal_status'] = 'Rescheduled';
         $data['update_date'] = date("Y-m-d H:i:s");
-        $data['mail_to_vendor'] = 0;
 
         //check partner status
-        $partner_id = $this->input->post('partner_id');
-        $actor = $next_action = 'NULL';
-        $partner_status = $this->booking_utilities->get_partner_status_mapping_data($data['current_status'], $data['internal_status'], $partner_id, $booking_id);
-        if (!empty($partner_status)) {
-            $data['partner_current_status'] = $partner_status[0];
-            $data['partner_internal_status'] = $partner_status[1];
-            $actor = $data['actor'] = $partner_status[2];
-            $next_action =$data['next_action'] = $partner_status[3];
-        }
+        //$partner_id = $this->input->post('partner_id');
+        $actor = $next_action = NULL;
+//        $partner_status = $this->booking_utilities->get_partner_status_mapping_data($data['current_status'], $data['internal_status'], $partner_id, $booking_id);
+//        if (!empty($partner_status)) {
+//            $data['partner_current_status'] = $partner_status[0];
+//            $data['partner_internal_status'] = $partner_status[1];
+//            $actor = $data['actor'] = $partner_status[2];
+//            $next_action =$data['next_action'] = $partner_status[3];
+//        }
 
         if ($data['booking_timeslot'] == "Select") {
             echo "Please Select Booking Timeslot.";
@@ -1003,14 +1016,14 @@ class Booking extends CI_Controller {
             $this->notify->insert_state_change($booking_id, _247AROUND_RESCHEDULED, _247AROUND_PENDING, _247AROUND_RESCHEDULED, $this->session->userdata('id'), 
                     $this->session->userdata('employee_id'),$actor,$next_action, _247AROUND);
 
-            $service_center_data['internal_status'] = "Pending";
-            $service_center_data['current_status'] = "Pending";
-            $service_center_data['update_date'] = date("Y-m-d H:i:s");
+//            $service_center_data['internal_status'] = "Pending";
+//            $service_center_data['current_status'] = "Pending";
+            //$service_center_data['update_date'] = date("Y-m-d H:i:s");
 
 
-            log_message('info', __FUNCTION__ . " Booking Id " . $booking_id . " Update Service center action table  " . print_r($service_center_data, true));
+//            log_message('info', __FUNCTION__ . " Booking Id " . $booking_id . " Update Service center action table  " . print_r($service_center_data, true));
 
-            $this->vendor_model->update_service_center_action($booking_id, $service_center_data);
+            //$this->vendor_model->update_service_center_action($booking_id, $service_center_data);
 
             $send_data['booking_id'] = $booking_id;
             $send_data['state'] = "Rescheduled";
@@ -1022,6 +1035,10 @@ class Booking extends CI_Controller {
             $job_card = array();
             $job_card_url = base_url() . "employee/bookingjobcard/prepare_job_card_using_booking_id/" . $booking_id;
             $this->asynchronous_lib->do_background_process($job_card_url, $job_card);
+            
+            $email = array();
+            $email_url = base_url() . "employee/bookingjobcard/send_mail_to_vendor/" . $booking_id;
+            $this->asynchronous_lib->do_background_process($email_url, $email);
 
             log_message('info', __FUNCTION__ . " Partner Callback  " . print_r($booking_id, true));
 

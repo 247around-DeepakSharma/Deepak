@@ -148,6 +148,16 @@
                                  <?php echo form_error('packaging_rate'); ?>
                             </div>
                             
+                            <div class="form-group <?php if( form_error('warehouse_storage_charges') ) { echo 'has-error';} ?>">
+                                <label for="Warehouse Storage Charge" class="col-md-4">Warehouse Storage Charge </label>
+                                <div class="col-md-6">
+                                    <input type="number" step=".02"  class="form-control"  name="warehouse_storage_charges" value = "<?php if (isset($invoice_details[0]['warehouse_storage_charges'])) {
+                                        echo $invoice_details[0]['warehouse_storage_charges'];
+                                        } else { echo "0";} ?>" placeholder="Warehouse Storage Charge" required >
+                                </div>
+                                 <?php echo form_error('packaging_rate'); ?>
+                            </div>
+                            
                             <div class="form-group <?php if( form_error('gst_rate') ) { echo 'has-error';} ?>">
                                 <label for="Parts Cost" class="col-md-4">GST Rate *</label>
                                 <div class="col-md-6">
@@ -307,6 +317,15 @@
                                         } else { echo "0";} ?>" placeholder="GST Rate" required >
                                 </div>
                                  <?php echo form_error('packaging_quantity'); ?>
+                            </div>
+                            <div class="form-group <?php if( form_error('miscellaneous_charges') ) { echo 'has-error';} ?>">
+                                <label for="miscellaneous Charge" class="col-md-4">Miscellaneous Charge </label>
+                                <div class="col-md-6">
+                                    <input type="number" step=".02"  class="form-control"  name="miscellaneous_charges" value = "<?php if (isset($invoice_details[0]['miscellaneous_charges'])) {
+                                        echo $invoice_details[0]['miscellaneous_charges'];
+                                        } else { echo "0";} ?>" placeholder="Miscellaneous Charge" required >
+                                </div>
+                                 <?php echo form_error('miscellaneous_charges'); ?>
                             </div>
                             <div class="form-group">
                                 <label for="invoice_file_excel" class="col-md-4">Main Invoice Excel</label>
