@@ -548,13 +548,17 @@ class Invoice extends CI_Controller {
         $meta = $misc_data['meta'];
         $upcountry = $misc_data['upcountry'];
         $miscellaneous_charge = $misc_data['misc'];
+        $total_misc_charge = 0;
+        $warehouse_fixed_charge = $misc_data['warehouse_storage_charge'];
+        if(!empty($misc_data['misc'])){
+            $total_misc_charge = (array_sum(array_column($misc_data['misc'], 'partner_charge')));
+        }
         unset($misc_data);
         $meta['total_courier_charge'] = (array_sum(array_column($courier, 'courier_charges_by_sf')));
         $meta['total_upcountry_price'] = 0;
         $total_upcountry_distance = $total_upcountry_booking = 0;
-        $num_booking = count(array_unique(array_map(function ($k) {
-                            return $k['booking_id'];
-                        }, $data)));
+        
+        $num_booking = $meta['service_count'];
 
         $output_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-detailed.xlsx";
 
@@ -630,7 +634,7 @@ class Invoice extends CI_Controller {
                 'invoice_detailed_excel' => $meta['invoice_id'] . '-detailed.xlsx',
                 'from_date' => date("Y-m-d", strtotime($f_date)), //??? Check this next time, format should be YYYY-MM-DD
                 'to_date' => date("Y-m-d", strtotime($t_date)),
-                'num_bookings' => $num_booking,
+                'num_bookings' => $meta['service_count'],
                 'total_service_charge' => ($meta['total_ins_charge']),
                 'total_additional_service_charge' => 0.00,
                 'service_tax' => 0.00,
@@ -661,7 +665,9 @@ class Invoice extends CI_Controller {
                 "invoice_file_pdf" => $convert['copy_file'], 
                 "hsn_code" => $hsn_code,
                 'packaging_quantity' => $packaging_quantity,
-                'packaging_rate' => $packaging_rate 
+                'packaging_rate' => $packaging_rate,
+                'miscellaneous_charges' => $total_misc_charge,
+                'warehouse_storage_charges' => $warehouse_fixed_charge
             );
 
             $this->invoices_model->insert_new_invoice($invoice_details);
@@ -1054,21 +1060,24 @@ class Invoice extends CI_Controller {
                 $rating_count = 1;
             }
             
-            $t_total = $total_inst_charge + $total_stand_charge;
+            $total_misc_charges = 0;
+            if($invoice_data['misc']){
+                $total_misc_charges = (array_sum(array_column($invoice_data['misc'], 'total_booking_charge')));
+                
+                $invoice_details = array_merge($invoice_details, $invoice_data['misc']);
+            }
+            $t_total = $total_inst_charge + $total_stand_charge + $total_misc_charges + $invoice_data['warehouse_storage_charge'];
             
-            $tds = $this->check_tds_sc($invoice_data['booking'][0], $invoice_data['meta']['total_sc_charge']);
-
-            //this array stores unique booking id
-            $unique_booking = array_unique(array_map(function ($k) {
-                        return $k['booking_id'];
-                    }, $invoice_details));
+            $tds = $this->check_tds_sc($invoice_data['booking'][0], ($invoice_data['meta']['total_sc_charge'] + 
+                    $invoice_data['warehouse_storage_charge'] + $total_misc_charges));
 
             // count unique booking id
-            $invoice_data['meta']['count'] = count($unique_booking);
+            $invoice_data['meta']['count'] = $invoice_data['meta']['service_count'];
             $invoice_data['meta']['tds'] = $tds['tds'];
             $invoice_data['meta']['tds_rate'] = $tds['tds_rate'];
+            $invoice_data['meta']['warehouse_storage_charge'] = $invoice_data['warehouse_storage_charge'];
             $invoice_data['meta']['tds_tax_rate'] = $tds['tds_per_rate'];
-            $invoice_data['meta']['t_ic'] = sprintf("%.2f",$total_inst_charge);
+            $invoice_data['meta']['t_ic'] = sprintf("%.2f",($total_inst_charge + $total_misc_charges));
             $invoice_data['meta']['t_stand'] = sprintf("%.2f",$total_stand_charge);
             $invoice_data['meta']['t_total'] =  sprintf("%.2f",$t_total);
             $invoice_data['meta']['total_gst_amount'] =  sprintf("%.2f",$invoice_data['meta']["cgst_total_tax_amount"] + $invoice_data['meta']["sgst_total_tax_amount"] +
@@ -1182,7 +1191,9 @@ class Invoice extends CI_Controller {
                     "parts_count" => $invoice_data['meta']["parts_count"],
                     "rcm" => $invoice_data['meta']['rcm'],
                     "invoice_file_pdf" => $convert['copy_file'],
-                    "hsn_code" => $invoice_data['booking'][0]['hsn_code']
+                    "hsn_code" => $invoice_data['booking'][0]['hsn_code'],
+                    "miscellaneous_charges" => $total_misc_charges,
+                    "warehouse_storage_charges" => $invoice_data['warehouse_storage_charge']
                    
                 );
 
@@ -2230,8 +2241,7 @@ class Invoice extends CI_Controller {
 
                     $in_detailed = $this->invoices_model->generate_vendor_foc_detailed_invoices($vendor_id, $from_date, $to_date, $is_regenerate);
                   
-                   $in_detailed1 = array_merge($in_detailed, $invoices['misc']);
-                    return $this->generate_foc_details_invoices_for_vendors($in_detailed1, $invoices, $vendor_id, $invoice_type, $details['agent_id'], $from_date,$to_date );
+                    return $this->generate_foc_details_invoices_for_vendors($in_detailed, $invoices, $vendor_id, $invoice_type, $details['agent_id'], $from_date,$to_date );
                 } else {
                     log_message('info', __FUNCTION__ . ' Invoice File did not create. invoice id' . $invoices['meta']['invoice_id']);
                     return FALSE;
@@ -2312,7 +2322,11 @@ class Invoice extends CI_Controller {
                 $total_amount_collected = ($data['total_service_charge'] +
                         $data['total_additional_service_charge'] +
                         ($data['packaging_rate']  * $data['packaging_quantity'])+
-                        $data['parts_cost'] + $data['courier_charges'] + $data['upcountry_price'] + $data['credit_penalty_amount'] - $data['penalty_amount']);
+                        $data['parts_cost'] + $data['courier_charges'] + 
+                        $data['miscellaneous_charges'] + $data['warehouse_storage_charges'] + 
+                        $data['upcountry_price'] + $data['credit_penalty_amount'] - $data['penalty_amount']);
+                
+                $tds_sc_charge = $data['total_service_charge'] + $data['total_additional_service_charge'] + $data['miscellaneous_charges'] + $data['warehouse_storage_charges'];
 
 
                 $entity_details = array();
@@ -2370,7 +2384,7 @@ class Invoice extends CI_Controller {
                         if ($data['type'] == 'FOC') {
 
                             if ($vendor_partner == "vendor") {
-                                $tds = $this->check_tds_sc($entity_details[0], ($total_amount_collected - $data['parts_cost']));
+                                $tds = $this->check_tds_sc($entity_details[0], ($tds_sc_charge));
                                 if (empty($gst_number)) {
 
                                     $data['cgst_tax_amount'] = $data['sgst_tax_amount'] = $data['sgst_tax_rate'] = $data['cgst_tax_rate'] = 0;
@@ -2514,6 +2528,8 @@ class Invoice extends CI_Controller {
         $data['invoice_date'] = date('Y-m-d', strtotime($this->input->post('invoice_date')));
         $data['packaging_quantity'] = $this->input->post('packaging_quantity');
         $data['packaging_rate'] = $this->input->post('packaging_rate');
+        $data['miscellaneous_charges'] = $this->input->post('miscellaneous_charges');
+        $data['warehouse_storage_charges'] = $this->input->post('warehouse_storage_charges');
         $data['type_code'] = $this->input->post('around_type');
         
        
@@ -2526,12 +2542,12 @@ class Invoice extends CI_Controller {
      * @param String $total_sc_details
      * @return String tds amount
      */
-    function check_tds_sc($sc_details, $total_sc_details) {
-        log_message('info', __FUNCTION__ . " Entering....");
+    function check_tds_sc($sc_details, $total_sc_charge) {
+        log_message('info', __FUNCTION__ . " Entering....". $total_sc_charge );
         $tds = 0;
         $tds_per_rate = 0;
         if (empty($sc_details['pan_no'])) {
-            $tds = ($total_sc_details) * .20;
+            $tds = ($total_sc_charge) * .20;
             $tds_tax_rate = 20;
             $tds_per_rate = "20%";
         } else {
@@ -2539,18 +2555,18 @@ class Invoice extends CI_Controller {
                 case 'Proprietorship Firm':
                         $_4th_char = substr($sc_details['pan_no'], 3, 1);
                         if (strcasecmp($_4th_char, "F") == 0) {
-                            $tds = ($total_sc_details) * .02;
+                            $tds = ($total_sc_charge) * .02;
                             $tds_tax_rate = 2;
                             $tds_per_rate = "2%";
                         } else {
-                            $tds = ($total_sc_details) * .01;
+                            $tds = ($total_sc_charge) * .01;
                             $tds_tax_rate = 1;
                             $tds_per_rate = "1%";
                         }
                     
                     break;
                 case "Individual":
-                    $tds = ($total_sc_details) * .01;
+                    $tds = ($total_sc_charge) * .01;
                     $tds_tax_rate = 1;
                     $tds_per_rate = "1%";
                     break;
@@ -2558,12 +2574,12 @@ class Invoice extends CI_Controller {
                 case "Partnership Firm":
                 case "Company (Pvt Ltd)":
                 case "Private Ltd Company":
-                    $tds = ($total_sc_details) * .02;
+                    $tds = ($total_sc_charge) * .02;
                     $tds_tax_rate = 2;
                     $tds_per_rate = "2%";
                     break;
                 default :
-                    $tds = ($total_sc_details) * .02;
+                    $tds = ($total_sc_charge) * .02;
                     $tds_tax_rate = 2;
                     $tds_per_rate = "2%";
                     break;

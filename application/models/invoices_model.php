@@ -629,6 +629,7 @@ class invoices_model extends CI_Model {
         $result['final_courier'] = array();
         $result['packaging_rate'] = 0;
         $result['packaging_quantity'] = 0;
+        $result['warehouse_storage_charge'] = 0;
         $final_courier = array_merge($courier, $warehouse_courier, $defective_return_to_partner);
 
         
@@ -689,7 +690,7 @@ class invoices_model extends CI_Model {
             $m[0]['qty'] = '';
             $m[0]['rate'] = '';
             $m[0]['gst_rate'] = DEFAULT_TAX_RATE;
-            $m[0]['product_or_services'] = 'Service';
+            $m[0]['product_or_services'] = 'Misc';
             $m[0]['taxable_value'] = (array_sum(array_column($misc, 'partner_charge')));
             $result['result'] = array_merge($result['result'], $m);
             $result['misc'] = $misc;
@@ -728,6 +729,7 @@ class invoices_model extends CI_Model {
                     $c_data[0]['product_or_services'] = $packaging1[0]['description'];
                     $c_data[0]['taxable_value'] = $packaging1[0]['fixed_charges'];
                     $result['result'] = array_merge($result['result'], $c_data);
+                    $result['warehouse_storage_charge'] = $packaging1[0]['fixed_charges'];
                 }
             }
 
@@ -766,6 +768,7 @@ class invoices_model extends CI_Model {
             $data['upcountry'] = $result_data['upcountry'];
             $data['warehouse_courier'] = $result_data['warehouse_courier'];
             $data['misc'] = $result_data['misc'];
+            $data['warehouse_storage_charge'] = $result_data['warehouse_storage_charge'];
             $data['final_courier'] = $result_data['final_courier'];
             $data['defective_part_by_wh'] = $result_data['defective_part_by_wh'];
             $data['packaging_rate'] = $result_data['packaging_rate'];
@@ -786,6 +789,7 @@ class invoices_model extends CI_Model {
             $meta['total_ins_charge'] = $meta['total_parts_charge'] =  $meta['total_parts_tax'] =  $meta['total_inst_tax'] = 0;
             $meta['igst_tax_rate'] =$meta['cgst_tax_rate'] = $meta['sgst_tax_rate'] = 0;
             $parts_count = 0;
+            $service_count = 0;
             $meta["invoice_template"] = $this->get_invoice_tempate($result[0]['gst_number'], $is_customer, $c_s_gst);
             foreach ($result as $key => $value) {
                 if($is_customer && empty($result[0]['gst_number'])){
@@ -841,6 +845,7 @@ class invoices_model extends CI_Model {
                 if($value['product_or_services'] == "Service"){
                     
                     $meta['total_ins_charge'] += $value['taxable_value'];
+                    $service_count += $value['qty'];
                     
                 } else if($value['product_or_services'] == "Product"){
                     
@@ -849,6 +854,7 @@ class invoices_model extends CI_Model {
                 }
             }
             $meta['parts_count'] = $parts_count;
+            $meta['service_count'] = $service_count;
             $meta['total_taxable_value'] = sprintf("%.2f",$meta['total_taxable_value']);
             $meta['sub_total_amount'] = sprintf("%.2f",$meta['sub_total_amount']);
             $meta['igst_total_tax_amount'] = sprintf("%.2f",$meta['igst_total_tax_amount']);
@@ -1129,7 +1135,9 @@ class invoices_model extends CI_Model {
             $result['upcountry'] =  $result['courier'] = $result['c_penalty'] = array();
             $result['d_penalty'] = $result['c_penalty'] = $result['misc'] = array();
             $result['warehouse_courier'] = $result['defective_return_to_partner'] = array();
+            $result['final_courier_data'] = array();
             $result['packaging_rate'] = 0; $result['packaging_quantity'] = 0;
+            $result['warehouse_storage_charge'] = 0;
             // Calculate Upcountry booking details
             $upcountry_data = $this->upcountry_model->upcountry_foc_invoice($vendor_id, $from_date, $to_date, $is_regenerate);
             $debit_penalty = $this->penalty_model->add_penalty_in_invoice($vendor_id, $from_date, $to_date, "", $is_regenerate);
@@ -1137,12 +1145,12 @@ class invoices_model extends CI_Model {
             $credit_penalty = $this->penalty_model->get_removed_penalty($vendor_id, $from_date_tmp, "distinct" );
             $closed_date = "date_format(closed_date,'%d/%m/%Y') as closed_date";
             $misc_select = '"Misc" AS unit_id, "Completed" As internal_status,closed_date as closed_booking_date,"" As rating_stars,'
-                    . '"0" AS customer_net_payable, partner_charge AS partner_net_payable, "" AS around_net_payable, "" AS owner_phone_1, "" AS primary_contact_phone_1, '
+                    . '"0" AS customer_net_payable, partner_charge AS partner_net_payable,"" AS around_net_payable, "" AS owner_phone_1, "" AS primary_contact_phone_1, '
                     . 'booking_details.booking_id, booking_details.city, services, "" As appliance_category,'
                 . '"" AS appliance_capacity, '.$closed_date.', description as price_tags, miscellaneous_charges.id AS misc_id, '
                 . '(case when (product_or_services = "Service" )  THEN (round(vendor_basic_charges,2)) ELSE 0 END) as vendor_installation_charge, '
                 . '(case when (product_or_services = "Product" )  THEN (round(vendor_basic_charges,2)) ELSE 0 END) as vendor_stand,'
-                . 'vendor_basic_charges as total_booking_charge, product_or_services';
+                . 'vendor_basic_charges as total_booking_charge, vendor_basic_charges as amount_paid, product_or_services';
             $misc = $this->get_misc_charges_invoice_data($misc_select, "miscellaneous_charges.vendor_invoice_id IS NULL", $from_date, 
                     $to_date, "booking_details.assigned_vendor_id", $vendor_id, "vendor_basic_charges");
             
@@ -1223,7 +1231,7 @@ class invoices_model extends CI_Model {
                     $c_data[0]['rate'] = $packaging[0]['fixed_charges'];
                     $c_data[0]['gst_rate'] = $packaging[0]['gst_rate'];
                     $c_data[0]['product_or_services'] = $packaging[0]['description'];
-                    $c_data[0]['taxable_value'] = $c_data[0]['qty'] * $warehouse_courier[0]['fixed_charges'];
+                    $c_data[0]['taxable_value'] = $c_data[0]['qty'] * $packaging[0]['fixed_charges'];
                     $result['booking'] = array_merge($result['booking'], $c_data);
                     $result['warehouse_courier'] = $warehouse_courier;
                     $result['packaging_rate'] = $packaging[0]['fixed_charges'];
@@ -1271,6 +1279,7 @@ class invoices_model extends CI_Model {
                     $c_data[0]['product_or_services'] = $packaging1[0]['description'];
                     $c_data[0]['taxable_value'] = $packaging1[0]['fixed_charges'];
                     $result['booking'] = array_merge($result['booking'], $c_data);
+                    $result['warehouse_storage_charge'] = $packaging1[0]['fixed_charges'];
                 }
             }
             
@@ -1306,6 +1315,7 @@ class invoices_model extends CI_Model {
             
             $c_s_gst =$this->check_gst_tax_type($data['booking'][0]['state']);
             $parts_count = 0;
+            $service_count = 0;
              foreach ($data['booking'] as $key => $value) {
                 if(empty($data['booking'][0]['gst_number'])){
                     
@@ -1352,8 +1362,9 @@ class invoices_model extends CI_Model {
                     $meta['total_parts_charge'] += $value['taxable_value'];
                     $parts_count += $value['qty'];
                     
-                } else {
+                } else if($value['product_or_services'] == "Service"){
                     $meta['total_sc_charge'] += $value['taxable_value'];
+                    $service_count += $value['qty'];
                 }
              }
             $meta['rcm'] = 0;
@@ -1361,6 +1372,7 @@ class invoices_model extends CI_Model {
                 $meta['rcm'] = sprintf("%1\$.2f",( $meta['sub_total_amount'] * 0.18));
             }
             $meta['parts_count'] = $parts_count;
+            $meta['service_count'] = $service_count;
             $meta['reverse_charge'] = 0;
             $meta['reverse_charge_type'] = 'N';
             $meta['total_taxable_value'] = sprintf("%1\$.2f",$meta['total_taxable_value']);
