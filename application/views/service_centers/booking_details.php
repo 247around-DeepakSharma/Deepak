@@ -394,7 +394,7 @@
                             <?php foreach ($booking_history['spare_parts'] as $sp) { if(!empty($sp['parts_shipped'])) { ?>
                             <tr>
                                 <td><?php echo $sp['parts_shipped']; ?></td>
-                                <td><?php echo $sp['courier_name_by_partner']; ?></td>
+                                <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['courier_name_by_partner'])); ?></td>
                                 <td><?php echo $sp['awb_by_partner']; ?></td>
                                 <td><?php echo $sp['shipped_date']; ?></td>
                                 <td><?php echo $sp['edd']; ?></td>
@@ -434,7 +434,7 @@
                             <?php foreach ($booking_history['spare_parts'] as $sp) { if(!empty($sp['defective_part_shipped'])){ ?>
                             <tr>
                                 <td><?php echo $sp['defective_part_shipped']; ?></td>
-                                <td><?php echo $sp['courier_name_by_sf']; ?></td>
+                                <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['courier_name_by_sf'])); ?></td>
                                 <td><?php echo $sp['awb_by_sf']; ?></td>
                                 <td><?php echo $sp['courier_charges_by_sf']; ?></td>
                                 <td><?php echo date('Y-m-d', strtotime($sp['defective_part_shipped_date'])); ?></td>
