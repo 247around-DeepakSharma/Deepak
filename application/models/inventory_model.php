@@ -1268,6 +1268,7 @@ class Inventory_model extends CI_Model {
         
         return $query;
     }
+    
     /**
      * @desc: This function is used to insert the courier api data into database
      * @params: Array $data
@@ -1283,6 +1284,23 @@ class Inventory_model extends CI_Model {
         
         return $res;
     }
+    
+    /**
+     * @desc: This function is used to get awb number details from database
+     * @params: string $select
+     * @params: Array $where
+     * @return: Array $query
+     */
+    function get_awb_shippment_details($select, $where){
+        $this->db->select($select,FALSE);
+        $this->db->where($where,FALSE);
+        $this->db->from('courier_tracking_details');
+        $query = $this->db->get();
+        
+        return $query->result_array();
+        
+    }
+
      /**
      * @desc: This function is used to get courier services details like courier name, courier code
      * @params: string $select
@@ -1307,19 +1325,4 @@ class Inventory_model extends CI_Model {
         return $query->result_array();
     }
     
-        /**
-     * @desc: This function is used to get awb number details from database
-     * @params: string $select
-     * @params: Array $where
-     * @return: Array $query
-     */
-    function get_awb_shippment_details($select, $where){
-        $this->db->select($select,FALSE);
-        $this->db->where($where,FALSE);
-        $this->db->from('courier_tracking_details');
-        $query = $this->db->get();
-        
-        return $query->result_array();
-        
-    }
 }
