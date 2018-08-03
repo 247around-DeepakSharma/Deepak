@@ -474,8 +474,7 @@ define("NO_OF_DAYS_NOT_SHOW_NOT_RECEIVED_BUTTON", -3);
 define("AUTO_ACK_ADMIN_REMARKS", "Auto Acknowledge");
 
 //missing_pincode_email
-define("MISSING_PINCODE_EMAIL_TO", "ayush.bafna@paytmmall.com, sales@247around.com, rohit1.verma@paytm.com, simranpreet.sawhney@paytm.com, ankur.sethi@paytm.com, shivam.awasthi@paytm.com, nits@247around.com, ashish.singh@paytm.com, simranpreet.sawhney@paytmmall.com, aditya1.agrawal@paytmmall.com");
-
+define("MISSING_PINCODE_EMAIL_TO",NITS_ANUJ_EMAIL_ID);
 
 //sales email_id
 define('_247AROUND_SALES_EMAIL','sales@247around.com');
