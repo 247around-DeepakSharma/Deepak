@@ -1316,6 +1316,8 @@ class Inventory_model extends CI_Model {
         $this->db->order_by('courier_code','ASC');
         $query = $this->db->get();
         
+        return $query->result_array();
+        
     }
         
     function get_courier_details($select, $where){

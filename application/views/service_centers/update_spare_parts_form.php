@@ -336,7 +336,13 @@
                                 if (form_error('courier_name')) {echo 'has-error';} ?>">
                                 <label for="courier" class="col-md-4">Courier Name *</label>
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control" id="courier_name" name="courier_name" value = "" placeholder="Please Enter courier Name"  required>
+<!--                                    <input type="text" class="form-control" id="courier_name" name="courier_name" value = "" placeholder="Please Enter courier Name"  required>-->
+                                    <select class="form-control" id="courier_name" name="courier_name" required>
+                                        <option selected="" disabled="" value="">Select Courier Name</option>
+                                        <?php foreach ($courier_details as $value) { ?> 
+                                        <option value="<?php echo $value['courier_code']?>"><?php echo $value['courier_name']?></option>
+                                        <?php } ?>
+                                    </select>
                                     <?php echo form_error('courier_name'); ?>
                                 </div>
                             </div>
@@ -596,7 +602,7 @@
                             $("#same_awb").css("display","block");
                             $('body').loadingModal('destroy');
                             $("#shipment_date").val(data.message[0].shipped_date);
-                            $("#courier_name").val(data.message[0].courier_name_by_partner);
+                            $("#courier_name").val(data.message[0].courier_name_by_partner).trigger('change');
                             $("#courier_price_by_partner").val("0");
                             $("#courier_price_by_partner").css("display","none");
                             if(data.message[0].courier_pic_by_partner){
@@ -618,6 +624,10 @@
             }
             
         }
+        
+        $('#courier_name').select2();
+        
+        
     
 </script>
 

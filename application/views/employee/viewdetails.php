@@ -563,7 +563,7 @@
                                     <tr>
                                         <td><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING) { echo "Partner";} else { echo "Warehouse";} ?></td>
                                         <td><?php echo $sp['parts_shipped']; ?></td>
-                                        <td><?php echo $sp['courier_name_by_partner']; ?></td>
+                                        <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['courier_name_by_partner'])); ?></td>
                                         <td><a href="#" onclick="get_awb_details('<?php echo $sp['courier_name_by_partner']; ?>','<?php echo $sp['awb_by_partner']; ?>','<?php echo $sp['status']; ?>')"><?php echo $sp['awb_by_partner']; ?></a> <span id="awb_loader" style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
                                         <td><?php echo $sp['shipped_date']; ?></td>
                                         <td><?php echo $sp['edd']; ?></td>
@@ -612,7 +612,7 @@
                                     <?php foreach ($booking_history['spare_parts'] as $sp) { if(!empty($sp['defective_part_shipped'])){ ?>
                                     <tr>
                                         <td><?php echo $sp['defective_part_shipped']; ?></td>
-                                        <td><?php echo $sp['courier_name_by_sf']; ?></td>
+                                        <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['courier_name_by_sf'])); ?></td>
                                         <td><?php echo $sp['awb_by_sf']; ?></td>
                                         <td><?php echo $sp['courier_charges_by_sf']; ?></td>
                                         <td><a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['defective_courier_receipt']; ?> " target="_blank">Click Here to view</a></td>
