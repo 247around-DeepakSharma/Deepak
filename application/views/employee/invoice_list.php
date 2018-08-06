@@ -219,9 +219,9 @@ ini_set('max_execution_time', 36000000);
                                             //echo 'checkbox_amt';
                                        // }
                                     //}
-                                    ?>" name="<?php echo "amount_service_center[" . $value['id']."_".$value["count_spare_part"]."_".$value["max_sp_age"] . "]"; ?>" value ="<?php echo $value['final_amount']; ?>" > </td>
+                                    ?>" name="<?php echo "amount_service_center[" . $value['id']."_".$value["count_spare_part"]."_".$value["max_sp_age"] . "]"; ?>" value ='<?php echo json_encode(array("amount" => $value['final_amount'], "parts_name" => $value['shipped_parts'])); ?>' > </td>
                                 
-                                <?php } else { if($value['id'] !== "247029") { $BUTTON_TEXT = PARTNER_INVOICE_BUTTON; $CRM_SETUP = CRM_SETUP_INVOICE_DESCRIPTION;} else { $BUTTON_TEXT = CT_INVOICE_BUTTON; $CRM_SETUP = QC_INVOICE_DESCRIPTION;}  ?>
+                                <?php } else { if($value['id'] !== CLOUDTAIL_LA) { $BUTTON_TEXT = PARTNER_INVOICE_BUTTON; $CRM_SETUP = CRM_SETUP_INVOICE_DESCRIPTION;} else { $BUTTON_TEXT = CT_INVOICE_BUTTON; $CRM_SETUP = QC_INVOICE_DESCRIPTION;}  ?>
                                 <td>
                                     <a href="#myModel" id="<?php echo "invoice_setup_" . $value['id']; ?>" onclick="invoice_setup_model('<?php echo $value['id']; ?>','<?php echo $value["name"]; ?>','<?php echo $CRM_SETUP; ?>' )" class="btn btn-sm btn-primary text-center"
                                     data-toggle="modal" data-target="#myModal"  ><?php echo $BUTTON_TEXT;?></a></td>

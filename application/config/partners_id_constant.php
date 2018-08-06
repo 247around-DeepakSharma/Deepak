@@ -28,3 +28,5 @@ define('GOOGLE_FLIPKART_PARTNER_ID',247077);
 //T-series Partner ID
 define('T_SERIES_PARTNER_ID',247073);
 
+define("CLOUDTAIL_LA", 247029 );
+
