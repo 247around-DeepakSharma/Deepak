@@ -259,9 +259,11 @@ class invoices_model extends CI_Model {
                 if(!empty($sp_d)){
                     $data[$key]['count_spare_part'] = $sp_d[0]['count'];
                     $data[$key]['max_sp_age'] = $sp_d[0]['max_sp_age'];
+                    $data[$key]['shipped_parts'] = $sp_d[0]['parts'];
                 } else {
                     $data[$key]['count_spare_part'] = 0;
                     $data[$key]['max_sp_age'] = 0;
+                    $data[$key]['shipped_parts'] = "";
                 }
                 
             } else if (isset($value['public_name'])) {
@@ -294,11 +296,12 @@ class invoices_model extends CI_Model {
     }
     
     function get_pending_defective_parts($service_center_id){
-        $select = "count(spare_parts_details.booking_id) as count, DATEDIFF(CURRENT_TIMESTAMP, MIN(service_center_closed_date)) as max_sp_age";
+        $select = "count(spare_parts_details.booking_id) as count, GROUP_CONCAT( DISTINCT shipped_parts_type) as parts, DATEDIFF(CURRENT_TIMESTAMP, MIN(service_center_closed_date)) as max_sp_age";
         $where = array(
             "spare_parts_details.defective_part_required"=>1,
             "spare_parts_details.service_center_id" => $service_center_id,
-            "status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."')  " => NULL
+            "status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."')  " => NULL,
+            "DATEDIFF(CURRENT_TIMESTAMP, service_center_closed_date) > 15 " => NULL
             
         );
         $group_by = "spare_parts_details.service_center_id";
@@ -1362,9 +1365,11 @@ class invoices_model extends CI_Model {
                     $meta['total_parts_charge'] += $value['taxable_value'];
                     $parts_count += $value['qty'];
                     
-                } else if($value['product_or_services'] == "Service"){
+                } else {
                     $meta['total_sc_charge'] += $value['taxable_value'];
-                    $service_count += $value['qty'];
+                    if($value['product_or_services'] == "Service"){
+                        $service_count += $value['qty'];
+                    }
                 }
              }
             $meta['rcm'] = 0;
