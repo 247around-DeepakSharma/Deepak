@@ -1068,10 +1068,10 @@ class Invoice extends CI_Controller {
                 
                 $invoice_details = array_merge($invoice_details, $invoice_data['misc']);
             }
-            $t_total = $total_inst_charge + $total_stand_charge + $total_misc_charges + $invoice_data['warehouse_storage_charge'];
+
+            $t_total = $invoice_data['meta']['total_sc_charge'] + $total_stand_charge;
             
-            $tds = $this->check_tds_sc($invoice_data['booking'][0], ($invoice_data['meta']['total_sc_charge'] + 
-                    $invoice_data['warehouse_storage_charge'] + $total_misc_charges));
+            $tds = $this->check_tds_sc($invoice_data['booking'][0], $invoice_data['meta']['total_sc_charge']);
 
             // count unique booking id
             $invoice_data['meta']['count'] = $invoice_data['meta']['service_count'];
@@ -1079,7 +1079,7 @@ class Invoice extends CI_Controller {
             $invoice_data['meta']['tds_rate'] = $tds['tds_rate'];
             $invoice_data['meta']['warehouse_storage_charge'] = $invoice_data['warehouse_storage_charge'];
             $invoice_data['meta']['tds_tax_rate'] = $tds['tds_per_rate'];
-            $invoice_data['meta']['t_ic'] = sprintf("%.2f",($total_inst_charge + $total_misc_charges));
+            $invoice_data['meta']['t_ic'] = sprintf("%.2f",($total_inst_charge));
             $invoice_data['meta']['t_stand'] = sprintf("%.2f",$total_stand_charge);
             $invoice_data['meta']['t_total'] =  sprintf("%.2f",$t_total);
             $invoice_data['meta']['total_gst_amount'] =  sprintf("%.2f",$invoice_data['meta']["cgst_total_tax_amount"] + $invoice_data['meta']["sgst_total_tax_amount"] +
@@ -1088,7 +1088,7 @@ class Invoice extends CI_Controller {
             $invoice_data['meta']['cr_total_penalty_amount'] = sprintf("%.2f",(array_sum(array_column($invoice_data['c_penalty'], 'p_amount'))));
             $invoice_data['meta']['total_penalty_amount'] = -sprintf("%.2f",(array_sum(array_column($invoice_data['d_penalty'], 'p_amount'))));
             $invoice_data['meta']['total_upcountry_price'] = sprintf("%.2f",$total_upcountry_price);
-            $invoice_data['meta']['total_courier_charges'] = sprintf("%.2f",(array_sum(array_column($invoice_data['courier'], 'courier_charges_by_sf'))));
+            $invoice_data['meta']['total_courier_charges'] = sprintf("%.2f",(array_sum(array_column($invoice_data['courier'], 'courier_charges_by_sf'))));;
             
             $invoice_data['meta']['t_vp_w_tds'] = sprintf("%.2f", ($invoice_data['meta']['sub_total_amount'] - $invoice_data['meta']['tds']));
             
@@ -1195,12 +1195,42 @@ class Invoice extends CI_Controller {
                     "invoice_file_pdf" => $convert['copy_file'],
                     "hsn_code" => $invoice_data['booking'][0]['hsn_code'],
                     "miscellaneous_charges" => $total_misc_charges,
-                    "warehouse_storage_charges" => $invoice_data['warehouse_storage_charge']
+                    "warehouse_storage_charges" => $invoice_data['warehouse_storage_charge'],
+                    "packaging_rate" => $invoice_data['packaging_rate'],
+                    "packaging_quantity" => $invoice_data['packaging_quantity']
                    
                 );
-
+                
                 // insert invoice details into vendor partner invoices table
                 $this->invoices_model->action_partner_invoice($invoice_details_insert);
+                log_message("info", __METHOD__. " Main Invoice inserted ". $invoice_data['meta']['invoice_id']);
+                $gst_amount =  ($invoice_data['meta']['igst_total_tax_amount'] +  $invoice_data['meta']["cgst_total_tax_amount"] +  $invoice_data['meta']["sgst_total_tax_amount"]);
+                if($gst_amount > 0){
+                  
+                    $debit_invoice_details = array(
+                        'invoice_id' => "Around-GST-CN-".$invoice_data['meta']['invoice_id'],
+                        "reference_invoice_id" => $invoice_data['meta']['invoice_id'],
+                        'type' => 'CreditNote',
+                        'vendor_partner_id' => $vendor_id,
+                        'type_code' => 'B',
+                        'vendor_partner' => 'vendor',
+                        'invoice_date' => date("Y-m-d"),
+                        'from_date' => date("Y-m-d", strtotime($from_date)),
+                        'to_date' => date("Y-m-d", strtotime($to_date)),
+                        'total_service_charge' => ( $invoice_data['meta']["cgst_total_tax_amount"] +  $invoice_data['meta']["sgst_total_tax_amount"] +  $invoice_data['meta']["igst_total_tax_amount"]),
+                        'total_amount_collected' => ( $invoice_data['meta']["cgst_total_tax_amount"] +  $invoice_data['meta']["sgst_total_tax_amount"] +  $invoice_data['meta']["igst_total_tax_amount"]),
+                        //Amount needs to be Paid to Vendor
+                        'amount_collected_paid' => (0 - ( $invoice_data['meta']["cgst_total_tax_amount"] +  $invoice_data['meta']["sgst_total_tax_amount"] +  $invoice_data['meta']["igst_total_tax_amount"])),
+                        //Add 1 month to end date to calculate due date
+                        'due_date' => date("Y-m-d", strtotime($to_date . "+1 month")),
+                        //add agent id
+                        'agent_id' => $agent_id
+                    );
+            
+                    $this->invoices_model->action_partner_invoice($debit_invoice_details);
+                    log_message("info", __METHOD__. " GST Invoice inserted Around-GST-CN-".$invoice_data['meta']['invoice_id']);
+                }
+                
                 //Update Penalty Amount
                 foreach ($invoice_data['d_penalty'] as $value) {
                     $this->penalty_model->update_penalty_any(array('booking_id' => $value['booking_id']), array('foc_invoice_id' => $invoice_data['meta']['invoice_id']));
@@ -2328,8 +2358,7 @@ class Invoice extends CI_Controller {
                         $data['miscellaneous_charges'] + $data['warehouse_storage_charges'] + 
                         $data['upcountry_price'] + $data['credit_penalty_amount'] - $data['penalty_amount']);
                 
-                $tds_sc_charge = $data['total_service_charge'] + $data['total_additional_service_charge'] + $data['miscellaneous_charges'] + $data['warehouse_storage_charges'];
-
+                $tds_sc_charge = $total_amount_collected - $data['parts_cost'];
 
                 $entity_details = array();
                 $gst_number = "";
@@ -2654,8 +2683,6 @@ class Invoice extends CI_Controller {
     function download_invoice_summary() {
         //log_message('info', __FUNCTION__ . " Entering....". json_encode($_POST)); 
         $data = $this->input->post('amount_service_center');
-        //$defective_parts = $this->input->post("defective_parts");
-        //$defective_parts_max_age = $this->input->post('defective_parts_max_age');
         $payment_data = array();
                 
         if (!empty($data)) {
@@ -2684,6 +2711,7 @@ class Invoice extends CI_Controller {
             $sc_details['is_signature'] = "Signature Exist";
             $sc_details['defective_parts'] = "No Of Defective Parts";
             $sc_details['defective_parts_max_age'] = "Max Age of Spare Pending";
+            $sc_details['shipped_parts_name'] = "Shipped Parts Name";
             $sc_details['is_verified'] = "Bank Account Verified";
             $sc_details['amount_type'] = "Type";
             $sc_details['sf_id'] = "SF/CP Id";
@@ -2692,59 +2720,66 @@ class Invoice extends CI_Controller {
             $sc_details['check_file'] = "Check File";
             
             array_push($payment_data, $sc_details);
-            foreach ($data as $key => $amount) {
-                $explode = explode("_", $key);
-                $service_center_id = $explode[0];
-                $defective_parts =$explode[1];
-                $defective_parts_max_age = $explode[2];
-                $sc = $this->vendor_model->viewvendor($service_center_id)[0];
+            foreach ($data as $key => $jdata) {
                
-                $sc_details['debit_acc_no'] = '102405500277';
-                $sc_details['bank_account'] = trim($sc['bank_account']);
-                $sc_details['beneficiary_name'] = trim($sc['beneficiary_name']);
+                $d = json_decode($jdata, true);
+                $amount = $d['amount'];
+                if(abs($amount) > 100){
+                                    $parts_name = $d['parts_name'];
+                    $explode = explode("_", $key);
+                    $service_center_id = $explode[0];
+                    $defective_parts =$explode[1];
+                    $defective_parts_max_age = $explode[2];
+                    $sc = $this->vendor_model->viewvendor($service_center_id)[0];
 
-                $sc_details['final_amount'] = abs(sprintf("%.2f",$amount));
-                if (trim($sc['bank_name']) === ICICI_BANK_NAME) {
-                    $sc_details['payment_mode'] = "I";
-                } else {
-                    $sc_details['payment_mode'] = "N";
-                }
+                    $sc_details['debit_acc_no'] = '102405500277';
+                    $sc_details['bank_account'] = trim($sc['bank_account']);
+                    $sc_details['beneficiary_name'] = trim($sc['beneficiary_name']);
 
-                $sc_details['payment_date'] = date("d-M-Y");
-                $sc_details['ifsc_code'] = trim($sc['ifsc_code']);
-                $sc_details['payable_location_name'] = "";
-                $sc_details['print_location'] = "";
-                $sc_details['bene_mobile_no'] = "";
-                $sc_details['bene_email_id'] = "";
-                $sc_details['ben_add_1'] = "";
-                $sc_details['ben_add_2'] = "";
-                $sc_details['ben_add_3'] = "";
-                $sc_details['ben_add_4'] = "";
-                $sc_details['add_details_1'] = "";
-                $sc_details['add_details_2'] = "";
-                $sc_details['add_details_3'] = "";
-                $sc_details['add_details_4'] = "";
-                $sc_details['add_details_5'] = "";
-                $sc_details['remarks'] = preg_replace("/[^A-Za-z0-9]/", "", $sc['name']);
-                $sc_details['gst_no'] = $sc['gst_no'];
-                if(!empty($sc['signature_file'])){
-                    $sc_details['is_signature'] = "Yes";
-                } else {
-                    $sc_details['is_signature'] = "NO";
+                    $sc_details['final_amount'] = abs(sprintf("%.2f",$amount));
+                    if (trim($sc['bank_name']) === ICICI_BANK_NAME) {
+                        $sc_details['payment_mode'] = "I";
+                    } else {
+                        $sc_details['payment_mode'] = "N";
+                    }
+
+                    $sc_details['payment_date'] = date("d-M-Y");
+                    $sc_details['ifsc_code'] = trim($sc['ifsc_code']);
+                    $sc_details['payable_location_name'] = "";
+                    $sc_details['print_location'] = "";
+                    $sc_details['bene_mobile_no'] = "";
+                    $sc_details['bene_email_id'] = "";
+                    $sc_details['ben_add_1'] = "";
+                    $sc_details['ben_add_2'] = "";
+                    $sc_details['ben_add_3'] = "";
+                    $sc_details['ben_add_4'] = "";
+                    $sc_details['add_details_1'] = "";
+                    $sc_details['add_details_2'] = "";
+                    $sc_details['add_details_3'] = "";
+                    $sc_details['add_details_4'] = "";
+                    $sc_details['add_details_5'] = "";
+                    $sc_details['remarks'] = preg_replace("/[^A-Za-z0-9]/", "", $sc['name']);
+                    $sc_details['gst_no'] = $sc['gst_no'];
+                    if(!empty($sc['signature_file'])){
+                        $sc_details['is_signature'] = "Yes";
+                    } else {
+                        $sc_details['is_signature'] = "NO";
+                    }
+                    $sc_details['defective_parts'] = $defective_parts;
+                    $sc_details['defective_parts_max_age'] = $defective_parts_max_age;
+                    $sc_details['shipped_parts_name'] = $parts_name;
+                    $sc_details['is_verified'] = ($sc['is_verified'] ==0) ? "Not Verified" : "Verified";
+                    if ($amount > 0) {
+                        $sc_details['amount_type'] = "CR";
+                    } else {
+                        $sc_details['amount_type'] = "DR";
+                    }
+                    $sc_details['sf_id'] = $service_center_id;
+                    $sc_details['is_sf'] = $sc['is_sf'];
+                    $sc_details['is_cp'] = $sc['is_cp'];
+                    $sc_details['check_file'] = !empty($sc['cancelled_cheque_file']) ? "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/".$sc['cancelled_cheque_file'] : "";
+                    array_push($payment_data, $sc_details);
                 }
-                $sc_details['defective_parts'] = $defective_parts;
-                $sc_details['defective_parts_max_age'] = $defective_parts_max_age;
-                $sc_details['is_verified'] = ($sc['is_verified'] ==0) ? "Not Verified" : "Verified";
-                if ($amount > 0) {
-                    $sc_details['amount_type'] = "CR";
-                } else {
-                    $sc_details['amount_type'] = "DR";
-                }
-                $sc_details['sf_id'] = $service_center_id;
-                $sc_details['is_sf'] = $sc['is_sf'];
-                $sc_details['is_cp'] = $sc['is_cp'];
-                $sc_details['check_file'] = !empty($sc['cancelled_cheque_file']) ? "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/".$sc['cancelled_cheque_file'] : "";
-                array_push($payment_data, $sc_details);
             }
 
             header('Content-Type: text/csv; charset=utf-8');
