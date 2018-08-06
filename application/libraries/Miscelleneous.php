@@ -1,6 +1,7 @@
 <?php
 
 class Miscelleneous {
+    public $tatFaultyBookingCriteria = array();
 
     public function __construct() {
         $this->My_CI = & get_instance();
@@ -3191,6 +3192,28 @@ function convert_html_to_pdf($html,$booking_id,$filename,$s3_folder){
         log_message('info', __FUNCTION__ . "End finalTat = ".$finalTat);
         return $finalTat;
     }
+    function get_faulty_booking_criteria($partner_id){
+         //Where condition to get faulty booking criteria for partner
+        $whereFaulty["(entity_type = 'Partner' AND entity_id ='".$partner_id."') OR entity_type = 'Vendor' OR (entity_type = 'Partner' AND entity_id IS NULL)"] = NULL;
+        //Get Partner Data to calculate "is legs faulty"
+        $tatFaultyBookingCriteriaTemp = $this->My_CI->reusable_model->get_search_result_data("tat_defactive_booking_criteria","*",$whereFaulty,NULL,NULL,NULL,NULL,NULL,array());
+        $count = count($tatFaultyBookingCriteriaTemp);
+        foreach ($tatFaultyBookingCriteriaTemp as $values){
+            if($values['entity_type'] == 'Vendor'){
+                $this->tatFaultyBookingCriteria['Vendor'] = $values;
+            }
+            else{
+                if($count == 2){
+                    $this->tatFaultyBookingCriteria['Partner'] = $values;
+                }
+                else{
+                     if($values['entity_type'] == 'Partner' && $values['entity_id']){
+                         $this->tatFaultyBookingCriteria['Partner'] = $values;
+                     }
+                }
+            }
+        }
+    }
     /*
      * This function is used to calculate TAT between diffrent legs of booking processing
      * leg_1:
@@ -3208,6 +3231,7 @@ function convert_html_to_pdf($html,$booking_id,$filename,$s3_folder){
         //Get booking + spare data 
         //if spare not requested then all spare related fields will be blank
         $data = $this->My_CI->booking_model->get_booking_tat_required_data($booking_id);
+        $this->get_faulty_booking_criteria($data[0]['partner_id']);
         //Set all variable as blank initiallly
         $tatArray['leg_1'] = $tatArray['leg_2'] = $tatArray['leg_3'] = $tatArray['leg_4'] =NULL;
         $tatArray['applicable_on_partner'] = $tatArray['applicable_on_sf'] = 1;
@@ -3251,7 +3275,21 @@ function convert_html_to_pdf($html,$booking_id,$filename,$s3_folder){
                     $tatArray['leg_3'] = $this->get_tat_with_considration_of_non_working_day($values['non_working_days'],$values['sf_closed_date'],$values['defactive_part_shipped_date']);
                 }
             }
+            $tatArray['is_upcountry'] =  $values['is_upcountry'];
+            if($values['spare_id']){
+                $tatArray['is_leg_2_faulty_for_partner'] = $this->is_booking_faulty(TRUE,$values['is_upcountry'],"leg_2",$tatArray['leg_2'],"Partner");
+                $tatArray['is_leg_3_faulty_for_partner'] = $this->is_booking_faulty(TRUE,$values['is_upcountry'],"leg_3",$tatArray['leg_3'],"Partner");
+                $tatArray['is_leg_4_faulty_for_partner'] = $this->is_booking_faulty(TRUE,$values['is_upcountry'],"leg_4",$tatArray['leg_4'],"Partner");  
+                $tatArray['is_leg_2_faulty_for_vendor'] = $this->is_booking_faulty(TRUE,$values['is_upcountry'],"leg_2",$tatArray['leg_2'],"Vendor");
+                $tatArray['is_leg_3_faulty_for_vendor'] = $this->is_booking_faulty(TRUE,$values['is_upcountry'],"leg_3",$tatArray['leg_2'],"Vendor");
+                $tatArray['is_leg_4_faulty_for_vendor'] = $this->is_booking_faulty(TRUE,$values['is_upcountry'],"leg_4",$tatArray['leg_2'],"Vendor");
+            }
+            else{
+                $tatArray['is_leg_1_faulty_for_partner'] = $this->is_booking_faulty($values['spare_id'],$values['is_upcountry'],"leg_1",$tatArray['leg_1'],"Partner");
+                $tatArray['is_leg_1_faulty_for_vendor'] = $this->is_booking_faulty($values['spare_id'],$values['is_upcountry'],"leg_1",$tatArray['leg_1'],"Vendor");
+            }
             $tatArray['booking_id'] = $booking_id;
+            $tatArray['partner_id'] = $values['partner_id'];
             $tatArray['applicable_on_partner'] = $this->is_booking_valid_for_partner_panelty($values['request_type']);
             if($values['spare_id']){
                 $this->My_CI->reusable_model->update_table("booking_tat",$tatArray,array("booking_id"=>$booking_id,"spare_id"=>$values['spare_id']));
@@ -3272,12 +3310,37 @@ function convert_html_to_pdf($html,$booking_id,$filename,$s3_folder){
         log_message('info', __FUNCTION__ . "Start booking_id = ".$booking_id.", spare_id = ".$spare_id);
         $data['booking_id'] = $booking_id;
         $data['spare_id'] = $spare_id;
-        $bookingData = $this->My_CI->reusable_model->get_search_result_data("booking_details","booking_details.service_centres.non_working_days,STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date",
+        $bookingData = $this->My_CI->reusable_model->get_search_result_data("booking_details","booking_details.is_upcountry,booking_details.partner_id,service_centres.non_working_days,"
+                . "STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date,booking_details.request_type,booking_details.partner_id",
                 array("booking_id"=>$booking_id),array("service_centres"=>"service_centres.id = booking_details.assigned_vendor_id"),NULL,NULL,NULL,NULL,array());
+        $this->get_faulty_booking_criteria($bookingData[0]['partner_id']);
         $data['leg_1'] = $this->get_tat_with_considration_of_non_working_day($bookingData[0]['non_working_days'],$bookingData[0]['initial_booking_date'],date("Y-m-d"));
-        $data['applicable_on_partner'] = $this->is_booking_valid_for_partner_panelty($values['request_type']);
+        $data['applicable_on_partner'] = $this->is_booking_valid_for_partner_panelty($bookingData[0]['request_type']);
         $data['applicable_on_sf'] = 1;
+        $data['is_leg_1_faulty_for_partner'] = $this->is_booking_faulty($spare_id,$bookingData[0]['is_upcountry'],"leg_1",$data['leg_1'],"Partner");
+        $data['is_leg_1_faulty_for_vendor'] = $this->is_booking_faulty($spare_id,$bookingData[0]['is_upcountry'],"leg_1",$data['leg_1'],"Vendor");
+        $data['partner_id'] = $bookingData[0]['partner_id'];
         $this->My_CI->reusable_model->insert_into_table("booking_tat",$data);
         log_message('info', __FUNCTION__ . "End booking_id = ".$booking_id.", spare_id = ".$spare_id);
+    }
+   function is_booking_faulty($spare_id,$isUpcountry,$leg,$tat,$entity_type) {
+       if($spare_id && $isUpcountry){
+           $tatLimit = $this->tatFaultyBookingCriteria[$entity_type]['with_repair_upcountry_'.$leg];
+       }
+       else if($spare_id && !($isUpcountry)){
+           $tatLimit = $this->tatFaultyBookingCriteria[$entity_type]['with_repair_non_upcountry_'.$leg];
+       }
+       else if(!($spare_id) && !($isUpcountry)){
+           $tatLimit = $this->tatFaultyBookingCriteria[$entity_type]['without_repair_non_upcountry'];
+       }
+       else if(!($spare_id) && $isUpcountry){
+           $tatLimit = $this->tatFaultyBookingCriteria[$entity_type]['without_repair_upcountry'];
+       }
+       if($tat>$tatLimit){
+           return 1;
+       }
+       else{
+           return 0;
+       }
     }
 }
