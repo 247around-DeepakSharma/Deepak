@@ -612,5 +612,14 @@ define('SOUTH_RM', 'Suresh K');
 define('WEST_RM', 'Rajendra Oza');
 define('NORTH_RM', 'Arun Kaushik');
 define('TOTAL', 'Total');
+
+//taxpayer api credentials
+define('ASP_ID', '1606680918');
+define('ASP_PASSWORD', 'priya@b30');
+
+//do not allow cancel from partner panel after this time interval
+define('BOOKING_CAN_NOT_BE_CANCEL_AFTER_THIS_TIME_INTERVAL',10);
+//show this text when partner cancel booking before time interval
+define('TEXT_FOR_BOOKING_CAN_NOT_BE_CANCEL_AFTER_THIS_TIME_INTERVAL','This booking can not be cancelled');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
