@@ -7945,3 +7945,108 @@ ALTER TABLE `courier_services`
 
 ALTER TABLE `courier_services`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10018;
+
+
+--- Kalyani 31-07-2018
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES ('70', 'taxpro_api_fail', 'Taxpro GSP Api Fail', '<b>TAXPRO GSP API FAIL </b>\r\n<br/>\r\n<p>%s</p>', 'noreply@247around.com', '', '', '', '1', '', CURRENT_TIMESTAMP);
+
+
+--Chhavi
+ALTER TABLE `spare_parts_details` ADD `spare_cancelled_date` DATETIME  NULL AFTER `challan_approx_value`;
+--- Kalyani 02-08-2018
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES ('71', 'gst_detail_change', '%s GST detail changed', '<b>GST Detail Changed</b>\r\n<br/>\r\n<p><b>Previous Detail</b></p>\r\n GST No => %s </br>\r\n GST Status => %s <br/>\r\n GST Type => %s </br>\r\n GST Cancelled Date => %s </br> \r\n<p>Updated Detail</p>\r\n GST No => %s </br>\r\n GST Status => %s </br>\r\n GST Type => %s </br>\r\n GST Cancelled Date => %s', '', '', '', '', '1', '', '0000-00-00') WHERE `email_template`.`id` = 71 AND `email_template`.`tag` = 'gst_detail_change' AND `email_template`.`subject` = '%s GST detail changed' AND `email_template`.`template` = '<b>GST Detail Changed</b>\r\n<br/>\r\n<p>Previous Detail</p>\r\n <b>GST No</b> => %s\r\n <b>GST Status</b> => %s\r\n <b>GST Type</b> => %s\r\n <b>GST Cancelled Date</b> => %s\r\n<p>Updated Detail</p>\r\n <b>GST No</b> => %s\r\n <b>GST Status</b> => %s\r\n <b>GST Type</b> => %s\r\n <b>GST Cancelled Date</b> => %s', 'noreply@247around.com', '', 'kalyanit@gmail.com', '', '1', '', CURRENT_TIMESTAMP);
+ALTER TABLE `service_centres` ADD `gst_cancelled_date` DATE NOT NULL AFTER `gst_status`;
+
+--Abhay 02-08-2018
+ALTER TABLE `vendor_partner_invoices` ADD `miscellaneous_charges` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `warehouse_storage_charges`;
+ALTER TABLE `trigger_vendor_partner_invoices` ADD `miscellaneous_charges` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `warehouse_storage_charges`
+
+--Chhavi
+CREATE TABLE `booking_tat` (
+  `id` int(11) NOT NULL,
+  `partner_id` int(11) NOT NULL,
+  `booking_id` varchar(128) NOT NULL,
+  `spare_id` int(11) DEFAULT NULL,
+  `is_upcountry` int(1) DEFAULT NULL,
+  `leg_1` int(11) DEFAULT NULL,
+  `leg_2` int(11) DEFAULT NULL,
+  `leg_3` int(11) DEFAULT NULL,
+  `leg_4` int(11) DEFAULT NULL,
+  `is_leg_1_faulty_for_partner` int(1) DEFAULT NULL,
+  `is_leg_2_faulty_for_partner` int(1) DEFAULT NULL,
+  `is_leg_3_faulty_for_partner` int(1) DEFAULT NULL,
+  `is_leg_4_faulty_for_partner` int(1) DEFAULT NULL,
+  `is_leg_1_faulty_for_vendor` int(1) DEFAULT NULL,
+  `is_leg_2_faulty_for_vendor` int(1) DEFAULT NULL,
+  `is_leg_3_faulty_for_vendor` int(1) DEFAULT NULL,
+  `is_leg_4_faulty_for_vendor` int(1) DEFAULT NULL,
+  `applicable_on_partner` int(1) NOT NULL,
+  `applicable_on_sf` int(1) NOT NULL,
+  `create_date` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `booking_tat`
+--
+ALTER TABLE `booking_tat`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `booking_tat`
+--
+ALTER TABLE `booking_tat`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;COMMIT;
+
+
+CREATE TABLE `tat_defactive_booking_criteria` (
+  `id` int(11) NOT NULL,
+  `entity_type` varchar(11) NOT NULL,
+  `entity_id` int(11) DEFAULT NULL,
+  `without_repair_upcountry` int(11) DEFAULT NULL,
+  `without_repair_non_upcountry` int(11) DEFAULT NULL,
+  `with_repair_upcountry_leg_1` int(11) DEFAULT NULL,
+  `with_repair_upcountry_leg_2` int(11) DEFAULT NULL,
+  `with_repair_upcountry_leg_3` int(11) DEFAULT NULL,
+  `with_repair_non_upcountry_leg_1` int(11) DEFAULT NULL,
+  `with_repair_non_upcountry_leg_2` int(11) DEFAULT NULL,
+  `with_repair_non_upcountry_leg_3` int(11) DEFAULT NULL,
+  `is_active` int(1) DEFAULT '1',
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `tat_defactive_booking_criteria`
+--
+
+INSERT INTO `tat_defactive_booking_criteria` (`id`, `entity_type`, `entity_id`, `without_repair_upcountry`, `without_repair_non_upcountry`, `with_repair_upcountry_leg_1`, `with_repair_upcountry_leg_2`, `with_repair_upcountry_leg_3`, `with_repair_non_upcountry_leg_1`, `with_repair_non_upcountry_leg_2`, `with_repair_non_upcountry_leg_3`, `is_active`, `create_date`) VALUES
+(2, 'Vendor', NULL, 3, 2, 3, 3, 2, 2, 2, 2, 1, '2018-08-04 05:36:39'),
+(4, 'Partner', NULL, 3, 2, 3, 3, 2, 2, 2, 2, 1, '2018-08-06 05:50:13');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `tat_defactive_booking_criteria`
+--
+ALTER TABLE `tat_defactive_booking_criteria`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `tat_defactive_booking_criteria`
+--
+ALTER TABLE `tat_defactive_booking_criteria`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;COMMIT;
+
