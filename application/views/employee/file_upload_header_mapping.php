@@ -252,18 +252,12 @@
         table = $('#header_mapping_table_data').DataTable({
             processing: true,
             serverSide: true,
-            order: [],
+            ordering: false,
             pageLength: 25,
             ajax: {
                 url: "<?php echo base_url(); ?>employee/bookings_excel/get_file_upload_header_mapping_data",
                 type: "POST",
-            },
-            columnDefs: [
-                {
-                    "targets": [0, 1, 2, 3,4,5,6,7,8,9,10,11,12,13,14,15],
-                    "orderable": false
-                }
-            ]
+            }
         });
       
     });
