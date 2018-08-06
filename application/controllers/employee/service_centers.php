@@ -4451,26 +4451,27 @@ function get_learning_collateral_for_bookings(){
         $defective_parts = array();
         $defective_back_parts_pic = array();
         if(!empty($_FILES['defective_parts_pic'])){
-            for($i =0; $i < count($_FILES['defective_parts_pic']['name']); $i++){
+            foreach($_FILES['defective_parts_pic']['name'] as $key1 => $val){
                 $a = array();
-                $a['name'] = $_FILES['defective_parts_pic']['name'][$i];
-                $a['type'] = $_FILES['defective_parts_pic']['type'][$i];
-                $a['tmp_name'] = $_FILES['defective_parts_pic']['tmp_name'][$i];
-                $a['error'] = $_FILES['defective_parts_pic']['error'][$i];
-                $a['size'] = $_FILES['defective_parts_pic']['size'][$i];
+                $a['name'] = $_FILES['defective_parts_pic']['name'][$key1];
+                $a['type'] = $_FILES['defective_parts_pic']['type'][$key1];
+                $a['tmp_name'] = $_FILES['defective_parts_pic']['tmp_name'][$key1];
+                $a['error'] = $_FILES['defective_parts_pic']['error'][$key1];
+                $a['size'] = $_FILES['defective_parts_pic']['size'][$key1];
+
                 array_push($defective_parts, $a);
             }
             
         }
         
         if(!empty($_FILES['defective_back_parts_pic'])){
-            for($i =0; $i <  count($_FILES['defective_back_parts_pic']['name']); $i++){
+            foreach($_FILES['defective_back_parts_pic']['name'] as $key => $val){
                 $a = array();
-                $a['name'] = $_FILES['defective_back_parts_pic']['name'][$i];
-                $a['type'] = $_FILES['defective_back_parts_pic']['type'][$i];
-                $a['tmp_name'] = $_FILES['defective_back_parts_pic']['tmp_name'][$i];
-                $a['error'] = $_FILES['defective_back_parts_pic']['error'][$i];
-                $a['size'] = $_FILES['defective_back_parts_pic']['size'][$i];
+                $a['name'] = $_FILES['defective_back_parts_pic']['name'][$key];
+                $a['type'] = $_FILES['defective_back_parts_pic']['type'][$key];
+                $a['tmp_name'] = $_FILES['defective_back_parts_pic']['tmp_name'][$key];
+                $a['error'] = $_FILES['defective_back_parts_pic']['error'][$key];
+                $a['size'] = $_FILES['defective_back_parts_pic']['size'][$key];
                 array_push($defective_back_parts_pic, $a);
             }
             
