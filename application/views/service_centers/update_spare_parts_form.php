@@ -433,19 +433,7 @@
     
     })(jQuery, window, document);
     
-    function check_invoice_amount(estimate_given){
-       
-        var invoice_amount = Number($("#invoice_amount").val()); 
-        if(invoice_amount > Number(estimate_given)){
-            swal("OOPS!", "Invoice amount exceeding the quote provided earlier.", "error");
-            return false;
-        } else if(Number(invoice_amount) === 0){
-            swal("OOPS!", "Please Enter Invoice amount.", "error");
-            return false;
-        }
-       
-    }
-    
+
     $('.shipped_model_number_id').select2();
     $('.shipped_parts_name').select2({
         placeholder:'Select Part Name',
@@ -572,6 +560,7 @@
         .on('click', '.removeButton', function () {
             var $row = $(this).parents('.spare_clone'),
                 index = $row.attr('data-part-index');
+                partIndex = partIndex -1;
             $row.remove();
         });
         
