@@ -1396,12 +1396,12 @@ class Service_centers extends CI_Controller {
                 $data['parts_requested'] = $value['parts_name'];
                 $data['parts_requested_type'] = $value['parts_type'];
                 array_push($requested_part_name, $value['parts_name']);
-                if ($this->input->post('defective_parts')) {
-                    $data['defective_parts_pic'] = $this->input->post('defective_parts');
+                if ($value['defective_parts']) {
+                    $data['defective_parts_pic'] = $value['defective_parts'];
                 }
             
-                if ($this->input->post('defective_back_parts_pic')) {
-                    $data['defective_back_parts_pic'] = $this->input->post('defective_back_parts_pic');
+                if ($value['defective_back_parts_pic']) {
+                    $data['defective_back_parts_pic'] = $value['defective_back_parts_pic'];
                 }
                 /** search if there is any warehouse for requested spare parts
                 * if any warehouse exist then assign this spare request to that service center otherwise assign
@@ -4494,7 +4494,7 @@ class Service_centers extends CI_Controller {
         if(!empty($defective_back_parts_pic)){
             foreach($defective_back_parts_pic as $key => $value){
                 $d = $this->miscelleneous->upload_file_to_s3($value, 
-                    "defective_parts", $allowedExts, $booking_id, "misc-images", "defective_back_parts_pic");
+                    "defective_back_parts_pic", $allowedExts, $booking_id, "misc-images", "defective_back_parts_pic");
                 if(!empty($d)){
                     $_POST['part'][$key]['defective_back_parts_pic'] = $d;
                 } else {
