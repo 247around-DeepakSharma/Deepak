@@ -514,12 +514,13 @@ class Partner extends CI_Controller {
                 $edit_partner_data['partner']['agent_id'] = $this->session->userdata('id');
                 
                 /**** Get POC and AM email and send updated fields only ****/
-                $emails = $this->partner_model->select_POC_and_AM_email($this->input->post('id'));
+               
                 $old_partner_array = $obj2 = array_map('strval', $this->partner_model->viewpartner($this->input->post('id'))[0]);
                 $new_partner_array = array_map('strval', $edit_partner_data['partner']);
                 $updated_fields=array_diff($new_partner_array, $old_partner_array);
                 //unset($updated_fields['update_date']);
                 /******* End ********/
+                
                 $this->partner_model->edit_partner($edit_partner_data['partner'], $partner_id);
                 //Getting Logged Employee Full Name
                 $logged_user_name = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['full_name'];
@@ -531,35 +532,9 @@ class Partner extends CI_Controller {
                
                 //Adding details in Booking State Change
                 //$this->notify->insert_state_change('', PARTNER_UPDATED, PARTNER_UPDATED, 'Partner ID : ' . $partner_id, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
-                //Sending Mail for Updated details
-                $html = "<p>Following Partner has been Updated :</p><ul>";
-                foreach ($updated_fields as $key => $value) {
-                    $html .= "<li><b>" . $key . '</b> =>';
-                    $html .= " " . $value . '</li>';
-                }
-                /*
-                foreach ($edit_partner_data['partner'] as $key => $value) {
-                    $html .= "<li><b>" . $key . '</b> =>';
-                    $html .= " " . $value . '</li>';
-                }
-                */
-                $html .= "</ul>";
-                $to = $emails[0]->primary_contact_email.",".$emails[0]->official_email;
-                $subject = "Partner Updated :  " . $this->input->post('public_name') . ' - By ' . $logged_user_name;
-                //Cleaning Email Variables
-                $this->email->clear(TRUE);
-                //Send report via email
-                $this->email->from(NOREPLY_EMAIL_ID, '247around Team');
-                $this->email->to($to);
-                $this->email->subject($subject);
-                $this->email->message($html);
-                if ($this->email->send()) {
-                    $this->notify->add_email_send_details(NOREPLY_EMAIL_ID, $to, "", "", $subject, $html, "",PARTNER_DETAILS_UPDATED);
-                    log_message('info', __METHOD__ . ": Mail sent successfully to " . $to);
-                } else {
-                    log_message('info', __METHOD__ . ": Mail could not be sent to " . $to);
-                $emails = $this->partner_model->select_POC_and_AM_email($this->input->post('id'));    
-                if(!empty($emails)){
+               
+                $am_email = $this->employee_model->getemployeefromid($edit_partner_data['partner']['account_manager_id'])[0]['official_email'];
+                if(!empty($am_email)){
                     //Sending Mail for Updated details
                     $html = "<p>Following Partner has been Updated :</p><ul>";
                     foreach ($updated_fields as $key => $value) {
@@ -573,22 +548,12 @@ class Partner extends CI_Controller {
                     }
                     */
                     $html .= "</ul>";
-                    $to = $emails[0]->official_email;
+                    $to = $am_email. ",". $this->session->userdata("official_email");
+                    $cc = ANUJ_EMAIL_ID;
                     $subject = "Partner Updated :  " . $this->input->post('public_name') . ' - By ' . $logged_user_name;
-                    //Cleaning Email Variables
-                    $this->email->clear(TRUE);
-                    //Send report via email
-                    $this->email->from(NOREPLY_EMAIL_ID, '247around Team');
-                    $this->email->to($to);
-                    $this->email->subject($subject);
-                    $this->email->message($html);
-                    if ($this->email->send()) {
-                        $this->notify->add_email_send_details(NOREPLY_EMAIL_ID, $to, "", "", $subject, $html, "",PARTNER_DETAILS_UPDATED);
-                        log_message('info', __METHOD__ . ": Mail sent successfully to " . $to);
-                    } else {
-                        log_message('info', __METHOD__ . ": Mail could not be sent to " . $to);
-                    }
-               }
+                    
+                    $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $html, "",PARTNER_DETAILS_UPDATED);
+                }
                 redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
             } else { 
                 //If Partner not present, Partner is being added
@@ -598,7 +563,7 @@ class Partner extends CI_Controller {
                 //Temporary value
                 $return_data['partner']['auth_token'] = substr(md5($return_data['partner']['public_name'] . rand(1, 100)), 0, 16);
                 //Getting partner operation regions details from POST
-                $partner_operation_state = $this->input->post('select_state');
+                //$partner_operation_state = $this->input->post('select_state');
                 //Getting Partner code
                 $code = $this->input->post('partner_code');
                 //Add Customer Care Number
@@ -633,21 +598,16 @@ class Partner extends CI_Controller {
                         $html .= " " . $value . '</li>';
                     }
                     $html .= "</ul>";
-                    $to = ANUJ_EMAIL_ID;
-                    $subject = "New Partner Added " . $this->input->post('public_name') . ' - By ' . $logged_user_name;
-                    //Cleaning Email Variables
-                    $this->email->clear(TRUE);
-                    //Send report via email
-                    $this->email->from(NOREPLY_EMAIL_ID, '247around Team');
-                    $this->email->to($to);
-                    $this->email->subject($subject);
-                    $this->email->message($html);
-                    if ($this->email->send()) {
-                        $this->notify->add_email_send_details(NOREPLY_EMAIL_ID, $to, "", "", $subject, $html, "",NEW_PARTNER_ADDED_EMAIL_TAG);
-                        log_message('info', __METHOD__ . ": Mail sent successfully to " . $to);
+                    if( $this->session->userdata("official_email") == ANUJ_EMAIL_ID){
+                        $to = ANUJ_EMAIL_ID;
                     } else {
-                        log_message('info', __METHOD__ . ": Mail could not be sent to " . $to);
+                        $to = ANUJ_EMAIL_ID. ",". $this->session->userdata("official_email");
                     }
+                    
+                    $subject = "New Partner Added " . $this->input->post('public_name') . ' - By ' . $logged_user_name;
+                    
+                    $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $html, "",NEW_PARTNER_ADDED_EMAIL_TAG);
+                   
                     //Adding Partner code in Bookings_sources table
                     $bookings_sources['source'] = $this->input->post('public_name');
                     $bookings_sources['code'] = $code;
