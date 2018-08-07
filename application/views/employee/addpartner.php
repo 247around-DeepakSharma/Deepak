@@ -43,6 +43,9 @@
     #warehouse_datatable_filter{
         text-align: right;
     }
+    .form-horizontal .control-label{
+        text-align: left;
+    }
 </style>
 <div id="page-wrapper">
     <div class="row">
@@ -1721,7 +1724,21 @@
                                              <?php echo form_error('contact_person_id'); ?>
                                             </div>
                                         </div>
-                                    </div> 
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group <?php if( form_error('warehouse_state_mapping') ) { echo 'has-error';} ?>">
+                                            <label for="warehouse_state_mapping" class="col-md-4">Warehouse State Mapping*</label>
+                                            <div class="col-md-6">
+                                                <select class="form-control" name="warehouse_state_mapping[]" id="warehouse_state_mapping" required multiple="">
+                                                     <?php foreach ($results['select_state'] as $value) { ?>
+                                                        <option value = "<?php echo $value['state']?>" > <?php echo $value['state']; ?> </option>
+                                                    <?php } ?>
+                                                    <option value = "All">All</option>
+                                                </select>
+                                                <?php echo form_error('warehouse_state'); ?>
+                                            </div>
+                                        </div>
+                                    </div>
                                         
                                     </div>
                                 </div>
@@ -1985,10 +2002,27 @@
                             </div>
                         </div>
                         
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group <?php if (form_error('wh_state_mapping')) { echo 'has-error'; } ?>">
+                                    <label for="wh_state_mapping" class="control-label col-md-3">Warehouse State Mapping*</label>
+                                    <div class="col-md-8 col-md-offset-1" style="margin-left: 5.333333%;">
+                                        <select class="form-control" name="wh_state_mapping[]" id="wh_state_mapping" required multiple="">
+                                            <?php foreach ($results['select_state'] as $value) { ?>
+                                                <option value = "<?php echo $value['state'] ?>" > <?php echo $value['state']; ?> </option>
+                                        <?php } ?>
+                                        </select>
+                                        <?php echo form_error('warehouse_state'); ?>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <div class="modal-footer">
                             <input type="hidden"  id="entity_type" name='entity_type' value="partner">
                             <input type="hidden"  id="wh_id" name='wh_id' value="">
                             <input type="hidden"  id="old_contact_person_id" name='old_contact_person_id' value="">
+                            <input type="hidden"  id="old_mapped_state_data" name='old_mapped_state_data' value="">
                             <button type="submit" class="btn btn-success" id="wh_details_submit_btn" name='submit_type' value="Submit">Submit</button>
                             <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                             <p class="pull-left text-danger">* These fields are required</p>
@@ -2123,6 +2157,18 @@ function up_message(){
     });
      $('#l_c_request_type').select2({
         placeholder: "Select Request Type",
+        allowClear: true,
+        tags: true
+    });
+    
+    $('#warehouse_state_mapping').select2({
+        placeholder: "Select State",
+        allowClear: true,
+        tags: true
+    });
+    
+    $('#wh_state_mapping').select2({
+        placeholder: "Select State",
         allowClear: true,
         tags: true
     });
@@ -2720,16 +2766,27 @@ function sendAjaxRequest(postData, url,type) {
     
     function show_wh_edit_form(obj,index){
         var form_data = obj[index];
-        $('#wh_address_line1').val(form_data.warehouse_address_line1);
-        $('#wh_address_line2').val(form_data.warehouse_address_line2);
-        $('#wh_city').val(form_data.warehouse_city);
-        $('#wh_region').val(form_data.warehouse_region);
-        $('#wh_pincode').val(JSON.parse(form_data.warehouse_pincode));
-        $("#wh_state").val(form_data.warehouse_state.toUpperCase());
-        $("#wh_contact_person_id").val(form_data.contact_person_id);
-        $("#wh_id").val(form_data.wh_id);
-        $("#old_contact_person_id").val(form_data.contact_person_id);
-        $('#wh_edit_form_modal').modal('toggle');
+        url =  '<?php echo base_url(); ?>employee/partner/get_warehouse_state_mapping';
+        var data = {wh_id: form_data.wh_id};
+        sendAjaxRequest(data,url,"POST").done(function(response){
+            var mapped_state_obj = JSON.parse(response);
+            if(mapped_state_obj.status){
+                $('#wh_state_mapping').select2().val(mapped_state_obj.msg).trigger("change");
+            }else{
+                console.log(mapped_state_obj.msg);
+            }
+            $('#wh_address_line1').val(form_data.warehouse_address_line1);
+            $('#wh_address_line2').val(form_data.warehouse_address_line2);
+            $('#wh_city').val(form_data.warehouse_city);
+            $('#wh_region').val(form_data.warehouse_region);
+            $('#wh_pincode').val(JSON.parse(form_data.warehouse_pincode));
+            $("#wh_state").val(form_data.warehouse_state.toUpperCase());
+            $("#wh_contact_person_id").val(form_data.contact_person_id);
+            $("#wh_id").val(form_data.wh_id);
+            $("#old_contact_person_id").val(form_data.contact_person_id);
+            $('#old_mapped_state_data').val(mapped_state_obj.msg);
+            $('#wh_edit_form_modal').modal('toggle');
+        });
     }
     
     
@@ -2749,6 +2806,8 @@ function sendAjaxRequest(postData, url,type) {
             alert("Please Select Warehouse State");
         }else if($('#wh_contact_person_id option:selected').val() === null || $('#wh_contact_person_id option:selected').val() === ""){
             alert("Please Select Contact Person");
+        }else if($('#wh_state_mapping option:selected').val() === undefined || $('#wh_state_mapping option:selected').val() === null){
+            alert("Please Select State Mapping");
         }else{
             $('#wh_details_submit_btn').attr('disabled',true).html("<i class = 'fa fa-spinner fa-spin'></i> Processing...");
             form_data.push(arr);
@@ -2757,7 +2816,7 @@ function sendAjaxRequest(postData, url,type) {
                 url:'<?php echo base_url(); ?>employee/partner/edit_warehouse_details',
                 data : form_data,
                 success:function(response){
-                    console.log(response);
+                    //console.log(response);
                     $('#inventory_master_list_data').modal('toggle');
                     $('#wh_details_submit_btn').attr('disabled',false).html('Submit');
                     var data = JSON.parse(response);

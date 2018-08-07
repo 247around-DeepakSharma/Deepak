@@ -4786,6 +4786,7 @@ class Partner extends CI_Controller {
         $this->form_validation->set_rules('warehouse_pincode', 'warehouse_pincode','required|trim');
         $this->form_validation->set_rules('warehouse_state', 'warehouse_state','required|trim');
         $this->form_validation->set_rules('contact_person_id', 'Contact Person','required|trim');
+        $this->form_validation->set_rules('warehouse_state_mapping', 'Wareshoue State','required');
 
         if ($this->form_validation->run() == TRUE) {
             $wh_data = array(
@@ -4800,7 +4801,13 @@ class Partner extends CI_Controller {
                 'create_date' => date('Y-m-d H:i:s')
                
             );
-            $state = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
+            
+            if(in_array('All', $this->input->post('warehouse_state_mapping'))){
+                $state = array_column($this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array()), 'state');
+            }else{
+                $state = $this->input->post('warehouse_state_mapping');
+            }
+            
             $wh_contact_person_mapping_data['contact_person_id'] = $this->input->post('contact_person_id');
             $wh_state_mapping_data = $state;
             $status = $this->inventory_model->insert_warehouse_details($wh_data,$wh_contact_person_mapping_data,$wh_state_mapping_data);
@@ -4931,10 +4938,10 @@ class Partner extends CI_Controller {
      * @param: void
      * @return : JSON
      */
-    function edit_warehouse_details(){
-        log_message('info','edit warehouse details updated data '. print_r($_POST,true));
+    function edit_warehouse_details() {
+        log_message('info', 'edit warehouse details updated data ' . print_r($_POST, true));
         $wh_id = $this->input->post('wh_id');
-        if(!empty($wh_id)){
+        if (!empty($wh_id)) {
             $res = array();
             $wh_data = array(
                 'warehouse_address_line1' => $this->input->post('wh_address_line1'),
@@ -4943,11 +4950,10 @@ class Partner extends CI_Controller {
                 'warehouse_region' => $this->input->post('wh_region'),
                 'warehouse_pincode' => $this->input->post('wh_pincode'),
                 'warehouse_state' => $this->input->post('wh_state')
-               
             );
-            
-            $update_wh = $this->inventory_model->edit_warehouse_details(array('id' => $wh_id),$wh_data);
-            
+
+            $update_wh = $this->inventory_model->edit_warehouse_details(array('id' => $wh_id), $wh_data);
+
             $updated_contact_person_id = $this->input->post('wh_contact_person_id');
             $old__contact_person_id = $this->input->post('old_contact_person_id');
 
@@ -4955,24 +4961,63 @@ class Partner extends CI_Controller {
             //here we assume that every wh have only one contact person
             //if there are more than two contact person for the same warehouse than please change this logic
             if ($updated_contact_person_id !== $old__contact_person_id) {
-                $update_wh_contatc_pesron_mapping = $this->inventory_model->update_warehouse_contact_person_mapping(array('warehouse_id' => $wh_id), array('contact_person_id' => $updated_contact_person_id));
-                if ($update_wh_contatc_pesron_mapping) {
+                $update_wh_contact_pesron_mapping = $this->inventory_model->update_warehouse_contact_person_mapping(array('warehouse_id' => $wh_id), array('contact_person_id' => $updated_contact_person_id));
+                if ($update_wh_contact_pesron_mapping) {
                     $res['status'] = true;
                     $res['msg'] = 'Details Updated Successfully';
-                }else {
+                } else {
                     $res['status'] = false;
-                    $res['msg'] = 'Details can not be updated at this moment. Please Try Again...';
+                    $res['msg'] = 'Details not updated. Please Try Again...';
                 }
-            }else if($update_wh){
+            }
+
+
+            if (!empty(array_diff($this->input->post('wh_state_mapping'), explode(',', $this->input->post('old_mapped_state_data'))))) {
+                $data['wh_id'] = $wh_id;
+                $data['new_wh_state_mapping'] = $this->input->post('wh_state_mapping');
+                $update_state_mapping = $this->inventory_model->update_wh_state_mapping_data($data);
+
+                if ($update_state_mapping) {
+                    $res['status'] = true;
+                    $res['msg'] = 'Details Updated Successfully';
+                } else {
+                    $res['status'] = true;
+                    $res['msg'] = 'State Mapping Not Updated . Please try again...';
+                }
+            }
+            
+            if(!empty($res)){
+                $res = $res;
+            }else if ($update_wh) {
                 $res['status'] = true;
                 $res['msg'] = 'Details Updated Successfully';
-            }else{
+            } else {
                 $res['status'] = false;
-                $res['msg'] = 'Details did not updated. Please Try Again...';
+                $res['msg'] = 'Details not updated. Please Try Again...';
             }
-        }else{
+        } else {
             $res['status'] = false;
             $res['msg'] = 'Warehouse Id can not be empty';
+        }
+
+        echo json_encode($res);
+    }
+
+    function get_warehouse_state_mapping(){
+        $wh_id = $this->input->post('wh_id');
+        if(!empty(trim($wh_id))){
+            $wh_state_mapping_datails = $this->reusable_model->get_search_query('warehouse_state_relationship','state',array('warehouse_state_relationship.warehouse_id' => $wh_id),NULL,NULL,array('state'=>'ASC'),NULL,NULL)->result_array();
+            if(!empty($wh_state_mapping_datails)){
+                $res['status'] = TRUE;
+                $res['msg'] = array_map(function($val){ return strtoupper($val);}, array_column($wh_state_mapping_datails, 'state'));
+            }else{
+                $res['status'] = FALSE;
+                $res['msg'] = 'No Data Found';
+            }
+            
+        }else{
+            $res['status'] = FALSE;
+            $res['msg'] = 'Warehouse ID can not be empty';
         }
         
         echo json_encode($res);
