@@ -539,6 +539,7 @@
         .on('click', '.removeButton', function () {
             var $row = $(this).parents('.form-group'),
                 index = $row.attr('data-part-index');
+                partIndex = partIndex -1;
             $row.remove();
         });
     });

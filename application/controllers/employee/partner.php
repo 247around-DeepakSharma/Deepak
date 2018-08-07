@@ -514,12 +514,13 @@ class Partner extends CI_Controller {
                 $edit_partner_data['partner']['agent_id'] = $this->session->userdata('id');
                 
                 /**** Get POC and AM email and send updated fields only ****/
-                $emails = $this->partner_model->select_POC_and_AM_email($this->input->post('id'));
+               
                 $old_partner_array = $obj2 = array_map('strval', $this->partner_model->viewpartner($this->input->post('id'))[0]);
                 $new_partner_array = array_map('strval', $edit_partner_data['partner']);
                 $updated_fields=array_diff($new_partner_array, $old_partner_array);
                 //unset($updated_fields['update_date']);
                 /******* End ********/
+                
                 $this->partner_model->edit_partner($edit_partner_data['partner'], $partner_id);
                 //Getting Logged Employee Full Name
                 $logged_user_name = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['full_name'];
@@ -531,35 +532,9 @@ class Partner extends CI_Controller {
                
                 //Adding details in Booking State Change
                 //$this->notify->insert_state_change('', PARTNER_UPDATED, PARTNER_UPDATED, 'Partner ID : ' . $partner_id, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
-                //Sending Mail for Updated details
-                $html = "<p>Following Partner has been Updated :</p><ul>";
-                foreach ($updated_fields as $key => $value) {
-                    $html .= "<li><b>" . $key . '</b> =>';
-                    $html .= " " . $value . '</li>';
-                }
-                /*
-                foreach ($edit_partner_data['partner'] as $key => $value) {
-                    $html .= "<li><b>" . $key . '</b> =>';
-                    $html .= " " . $value . '</li>';
-                }
-                */
-                $html .= "</ul>";
-                $to = $emails[0]->primary_contact_email.",".$emails[0]->official_email;
-                $subject = "Partner Updated :  " . $this->input->post('public_name') . ' - By ' . $logged_user_name;
-                //Cleaning Email Variables
-                $this->email->clear(TRUE);
-                //Send report via email
-                $this->email->from(NOREPLY_EMAIL_ID, '247around Team');
-                $this->email->to($to);
-                $this->email->subject($subject);
-                $this->email->message($html);
-                if ($this->email->send()) {
-                    $this->notify->add_email_send_details(NOREPLY_EMAIL_ID, $to, "", "", $subject, $html, "",PARTNER_DETAILS_UPDATED);
-                    log_message('info', __METHOD__ . ": Mail sent successfully to " . $to);
-                } else {
-                    log_message('info', __METHOD__ . ": Mail could not be sent to " . $to);
-                $emails = $this->partner_model->select_POC_and_AM_email($this->input->post('id'));    
-                if(!empty($emails)){
+               
+                $am_email = $this->employee_model->getemployeefromid($edit_partner_data['partner']['account_manager_id'])[0]['official_email'];
+                if(!empty($am_email)){
                     //Sending Mail for Updated details
                     $html = "<p>Following Partner has been Updated :</p><ul>";
                     foreach ($updated_fields as $key => $value) {
@@ -573,22 +548,12 @@ class Partner extends CI_Controller {
                     }
                     */
                     $html .= "</ul>";
-                    $to = $emails[0]->official_email;
+                    $to = $am_email. ",". $this->session->userdata("official_email");
+                    $cc = ANUJ_EMAIL_ID;
                     $subject = "Partner Updated :  " . $this->input->post('public_name') . ' - By ' . $logged_user_name;
-                    //Cleaning Email Variables
-                    $this->email->clear(TRUE);
-                    //Send report via email
-                    $this->email->from(NOREPLY_EMAIL_ID, '247around Team');
-                    $this->email->to($to);
-                    $this->email->subject($subject);
-                    $this->email->message($html);
-                    if ($this->email->send()) {
-                        $this->notify->add_email_send_details(NOREPLY_EMAIL_ID, $to, "", "", $subject, $html, "",PARTNER_DETAILS_UPDATED);
-                        log_message('info', __METHOD__ . ": Mail sent successfully to " . $to);
-                    } else {
-                        log_message('info', __METHOD__ . ": Mail could not be sent to " . $to);
-                    }
-               }
+                    
+                    $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $html, "",PARTNER_DETAILS_UPDATED);
+                }
                 redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
             } else { 
                 //If Partner not present, Partner is being added
@@ -598,7 +563,7 @@ class Partner extends CI_Controller {
                 //Temporary value
                 $return_data['partner']['auth_token'] = substr(md5($return_data['partner']['public_name'] . rand(1, 100)), 0, 16);
                 //Getting partner operation regions details from POST
-                $partner_operation_state = $this->input->post('select_state');
+                //$partner_operation_state = $this->input->post('select_state');
                 //Getting Partner code
                 $code = $this->input->post('partner_code');
                 //Add Customer Care Number
@@ -633,21 +598,16 @@ class Partner extends CI_Controller {
                         $html .= " " . $value . '</li>';
                     }
                     $html .= "</ul>";
-                    $to = ANUJ_EMAIL_ID;
-                    $subject = "New Partner Added " . $this->input->post('public_name') . ' - By ' . $logged_user_name;
-                    //Cleaning Email Variables
-                    $this->email->clear(TRUE);
-                    //Send report via email
-                    $this->email->from(NOREPLY_EMAIL_ID, '247around Team');
-                    $this->email->to($to);
-                    $this->email->subject($subject);
-                    $this->email->message($html);
-                    if ($this->email->send()) {
-                        $this->notify->add_email_send_details(NOREPLY_EMAIL_ID, $to, "", "", $subject, $html, "",NEW_PARTNER_ADDED_EMAIL_TAG);
-                        log_message('info', __METHOD__ . ": Mail sent successfully to " . $to);
+                    if( $this->session->userdata("official_email") == ANUJ_EMAIL_ID){
+                        $to = ANUJ_EMAIL_ID;
                     } else {
-                        log_message('info', __METHOD__ . ": Mail could not be sent to " . $to);
+                        $to = ANUJ_EMAIL_ID. ",". $this->session->userdata("official_email");
                     }
+                    
+                    $subject = "New Partner Added " . $this->input->post('public_name') . ' - By ' . $logged_user_name;
+                    
+                    $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $html, "",NEW_PARTNER_ADDED_EMAIL_TAG);
+                   
                     //Adding Partner code in Bookings_sources table
                     $bookings_sources['source'] = $this->input->post('public_name');
                     $bookings_sources['code'] = $code;
@@ -3792,7 +3752,8 @@ class Partner extends CI_Controller {
 
     function process_partner_contracts() {
         $partner_id = $this->input->post('partner_id');
-        $partnerName = $this->reusable_model->get_search_result_data("partners", "public_name", array('id' => $partner_id), NULL, NULL, NULL, NULL, NULL)[0]['public_name'];
+        $p = $this->reusable_model->get_search_result_data("partners", "public_name, account_manager", array('id' => $partner_id), NULL, NULL, NULL, NULL, NULL);
+        $partnerName = $p[0]['public_name'];
         $start_date_array = $this->input->post('agreement_start_date');
         $end_date_array = $this->input->post('agreement_end_date');
         $contract_type_array = $this->input->post('contract_type');
@@ -3829,38 +3790,14 @@ class Partner extends CI_Controller {
                     $html .= "<li><b>" . $key . '</b> =>';
                     $html .= " " . $value . '</li>';
                 }
-               $logged_user_name = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['full_name'];
-                $emails = $this->partner_model->select_POC_and_AM_email($partner_id);
-                if(!empty($emails)){
-                    $to = $emails[0]->official_email;
-                    $subject = "Partner Updated By " . $logged_user_name;
-                    $this->email->clear(TRUE);
-                    $this->email->from(NOREPLY_EMAIL_ID, '247around Team');
-                    $this->email->to($to);
-                    $this->email->subject($subject);
-                    $this->email->message($html);
-                    $this->email->attach($attachment_contract, 'attachment');
-                    if ($this->email->send()) {
-                        $this->notify->add_email_send_details(NOREPLY_EMAIL_ID, $to, "", "", $subject, $html, "",PARTNER_DETAILS_UPDATED);
-                        log_message('info', __METHOD__ . ": Mail sent successfully to " . $to);
-                    } else {
-                        log_message('info', __METHOD__ . ": Mail could not be sent to " . $to);
-                    }
-                $emails = $this->partner_model->select_POC_and_AM_email($partner_id);
-                $logged_user_name = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['full_name'];
-                $to = $emails[0]->primary_contact_email.",".$emails[0]->official_email;
-                $subject = "Partner Updated By " . $logged_user_name;
-                $this->email->clear(TRUE);
-                $this->email->from(NOREPLY_EMAIL_ID, '247around Team');
-                $this->email->to($to);
-                $this->email->subject($subject);
-                $this->email->message($html);
-                $this->email->attach($attachment_contract, 'attachment');
-                if ($this->email->send()) {
-                    $this->notify->add_email_send_details(NOREPLY_EMAIL_ID, $to, "", "", $subject, $html, "",PARTNER_DETAILS_UPDATED);
-                    log_message('info', __METHOD__ . ": Mail sent successfully to " . $to);
-                } else {
-                    log_message('info', __METHOD__ . ": Mail could not be sent to " . $to);
+                $logged_user_name = $this->employee_model->getemployeefromid($p[0]['account_manager']);
+                
+                if(!empty($logged_user_name)){
+                    $to = $logged_user_name[0]['official_email']. ",". $this->session->userdata('official_email');
+                    $subject = "Partner Updated By " . $this->session->userdata('emp_name');
+                    $cc = ANUJ_EMAIL_ID;
+                    $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $html, "",PARTNER_DETAILS_UPDATED);
+                    
                 }
             }
         }
@@ -4786,6 +4723,7 @@ class Partner extends CI_Controller {
         $this->form_validation->set_rules('warehouse_pincode', 'warehouse_pincode','required|trim');
         $this->form_validation->set_rules('warehouse_state', 'warehouse_state','required|trim');
         $this->form_validation->set_rules('contact_person_id', 'Contact Person','required|trim');
+        $this->form_validation->set_rules('warehouse_state_mapping', 'Wareshoue State','required');
 
         if ($this->form_validation->run() == TRUE) {
             $wh_data = array(
@@ -4800,7 +4738,13 @@ class Partner extends CI_Controller {
                 'create_date' => date('Y-m-d H:i:s')
                
             );
-            $state = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
+            
+            if(in_array('All', $this->input->post('warehouse_state_mapping'))){
+                $state = array_column($this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array()), 'state');
+            }else{
+                $state = $this->input->post('warehouse_state_mapping');
+            }
+            
             $wh_contact_person_mapping_data['contact_person_id'] = $this->input->post('contact_person_id');
             $wh_state_mapping_data = $state;
             $status = $this->inventory_model->insert_warehouse_details($wh_data,$wh_contact_person_mapping_data,$wh_state_mapping_data);
@@ -4931,10 +4875,10 @@ class Partner extends CI_Controller {
      * @param: void
      * @return : JSON
      */
-    function edit_warehouse_details(){
-        log_message('info','edit warehouse details updated data '. print_r($_POST,true));
+    function edit_warehouse_details() {
+        log_message('info', 'edit warehouse details updated data ' . print_r($_POST, true));
         $wh_id = $this->input->post('wh_id');
-        if(!empty($wh_id)){
+        if (!empty($wh_id)) {
             $res = array();
             $wh_data = array(
                 'warehouse_address_line1' => $this->input->post('wh_address_line1'),
@@ -4943,11 +4887,10 @@ class Partner extends CI_Controller {
                 'warehouse_region' => $this->input->post('wh_region'),
                 'warehouse_pincode' => $this->input->post('wh_pincode'),
                 'warehouse_state' => $this->input->post('wh_state')
-               
             );
-            
-            $update_wh = $this->inventory_model->edit_warehouse_details(array('id' => $wh_id),$wh_data);
-            
+
+            $update_wh = $this->inventory_model->edit_warehouse_details(array('id' => $wh_id), $wh_data);
+
             $updated_contact_person_id = $this->input->post('wh_contact_person_id');
             $old__contact_person_id = $this->input->post('old_contact_person_id');
 
@@ -4955,24 +4898,63 @@ class Partner extends CI_Controller {
             //here we assume that every wh have only one contact person
             //if there are more than two contact person for the same warehouse than please change this logic
             if ($updated_contact_person_id !== $old__contact_person_id) {
-                $update_wh_contatc_pesron_mapping = $this->inventory_model->update_warehouse_contact_person_mapping(array('warehouse_id' => $wh_id), array('contact_person_id' => $updated_contact_person_id));
-                if ($update_wh_contatc_pesron_mapping) {
+                $update_wh_contact_pesron_mapping = $this->inventory_model->update_warehouse_contact_person_mapping(array('warehouse_id' => $wh_id), array('contact_person_id' => $updated_contact_person_id));
+                if ($update_wh_contact_pesron_mapping) {
                     $res['status'] = true;
                     $res['msg'] = 'Details Updated Successfully';
-                }else {
+                } else {
                     $res['status'] = false;
-                    $res['msg'] = 'Details can not be updated at this moment. Please Try Again...';
+                    $res['msg'] = 'Details not updated. Please Try Again...';
                 }
-            }else if($update_wh){
+            }
+
+
+            if (!empty(array_diff($this->input->post('wh_state_mapping'), explode(',', $this->input->post('old_mapped_state_data'))))) {
+                $data['wh_id'] = $wh_id;
+                $data['new_wh_state_mapping'] = $this->input->post('wh_state_mapping');
+                $update_state_mapping = $this->inventory_model->update_wh_state_mapping_data($data);
+
+                if ($update_state_mapping) {
+                    $res['status'] = true;
+                    $res['msg'] = 'Details Updated Successfully';
+                } else {
+                    $res['status'] = true;
+                    $res['msg'] = 'State Mapping Not Updated . Please try again...';
+                }
+            }
+            
+            if(!empty($res)){
+                $res = $res;
+            }else if ($update_wh) {
                 $res['status'] = true;
                 $res['msg'] = 'Details Updated Successfully';
-            }else{
+            } else {
                 $res['status'] = false;
-                $res['msg'] = 'Details did not updated. Please Try Again...';
+                $res['msg'] = 'Details not updated. Please Try Again...';
             }
-        }else{
+        } else {
             $res['status'] = false;
             $res['msg'] = 'Warehouse Id can not be empty';
+        }
+
+        echo json_encode($res);
+    }
+
+    function get_warehouse_state_mapping(){
+        $wh_id = $this->input->post('wh_id');
+        if(!empty(trim($wh_id))){
+            $wh_state_mapping_datails = $this->reusable_model->get_search_query('warehouse_state_relationship','state',array('warehouse_state_relationship.warehouse_id' => $wh_id),NULL,NULL,array('state'=>'ASC'),NULL,NULL)->result_array();
+            if(!empty($wh_state_mapping_datails)){
+                $res['status'] = TRUE;
+                $res['msg'] = array_map(function($val){ return strtoupper($val);}, array_column($wh_state_mapping_datails, 'state'));
+            }else{
+                $res['status'] = FALSE;
+                $res['msg'] = 'No Data Found';
+            }
+            
+        }else{
+            $res['status'] = FALSE;
+            $res['msg'] = 'Warehouse ID can not be empty';
         }
         
         echo json_encode($res);
