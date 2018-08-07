@@ -161,6 +161,7 @@
        .on('click', '.removeButton', function () {
            var $row = $(this).parents('.clone'),
                index = $row.attr('data-part-index');
+               partIndex = partIndex -1;
            $row.remove();
        });
        
