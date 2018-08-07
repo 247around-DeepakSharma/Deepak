@@ -1210,11 +1210,16 @@ class Inventory_model extends CI_Model {
         //create warehouse and contact person mapping in contact person warehouse_person_relationship table
         $this->db->insert('warehouse_person_relationship',$wh_contact_person_mapping_data);
         
-        //create warehouse and state mapping
-        foreach($wh_state_mapping_data as $key => $value){
-            $wh_state_mapping_data[$key]['warehouse_id'] = $wh_id;
+        //create new warehouse and state mapping
+        $new_wh_state_mapping_data = array();
+        foreach ($wh_state_mapping_data as $value) {
+            $tmp_arr['warehouse_id'] = $wh_id;
+            $tmp_arr['state'] = $value;
+            $tmp_arr['create_date'] = date('Y-m-d H:i:s');
+            $new_wh_state_mapping_data[] = $tmp_arr;
         }
-        $this->db->insert_batch('warehouse_state_relationship',$wh_state_mapping_data);
+
+        $this->db->insert_batch('warehouse_state_relationship', $new_wh_state_mapping_data);
         
         //complete mysql transaction
         $this->db->trans_complete();
@@ -1330,6 +1335,43 @@ class Inventory_model extends CI_Model {
         $this->db->where($where);
         $query = $this->db->get("courier_details");
         return $query->result_array();
+    }
+    
+    
+    /**
+     * @desc: This function is used to first delete old state mapping and then insert new state mapping for the warehouse
+     * using mysql transaction logic
+     * @params: Array $data
+     * @return: boolean
+     * 
+     */
+    function update_wh_state_mapping_data($data){
+        //start mysql transaction
+        $this->db->trans_begin();
+        
+        //delete old wh state mapping
+        $this->db->where('warehouse_id', $data['wh_id']);
+        $this->db->delete('warehouse_state_relationship');
+        
+        //create new warehouse and state mapping
+        $wh_state_mapping_data = array();
+        foreach ($data['new_wh_state_mapping'] as $value) {
+            $tmp_arr['warehouse_id'] = $data['wh_id'];
+            $tmp_arr['state'] = $value;
+            $tmp_arr['create_date'] = date('Y-m-d H:i:s');
+            $wh_state_mapping_data[] = $tmp_arr;
+        }
+
+        $this->db->insert_batch('warehouse_state_relationship', $wh_state_mapping_data);
+
+        //complete mysql transaction
+        $this->db->trans_complete();
+
+        if ($this->db->trans_status() === FALSE){
+            return FALSE;
+        }else{
+            return TRUE;
+        }
     }
 
 }
