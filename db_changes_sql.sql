@@ -7985,3 +7985,7 @@ ALTER TABLE `tat_defactive_booking_criteria`
 ALTER TABLE `tat_defactive_booking_criteria`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;COMMIT;
 
+
+--Abhay 07 Aug
+ALTER TABLE `spare_parts_details` ADD `inventory_invoice_on_booking` INT(1) NOT NULL DEFAULT '0' AFTER `shipped_inventory_id`;
+
