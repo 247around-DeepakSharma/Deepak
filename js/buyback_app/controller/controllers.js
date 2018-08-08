@@ -834,20 +834,39 @@ admin_dashboard.controller('completedBooking_Controller', function ($scope, $htt
 });
 rm_dashboard.controller('completedBooking_Controller', function ($scope, $http) {
     $scope.loadCompletedBookingView = function(pending_url){
-        $("#loader_gif_pending").css("display", "block");
+        $("#loader_gif_completed_rm").css("display", "block");
             $scope.completedBookingByRM = "";
             $http.get(pending_url).then(function (response) {
-            $("#loader_gif_pending").css("display", "none");
+            $("#loader_gif_completed_rm").css("display", "none");
             $scope.completedBookingByRM = response.data;
          });
      }
      $scope.ShowRMCompletedBookingBYDateRange = function(){
-                dateRange = $("#completed_daterange_id").val();
+         dateRange = $("#completed_daterange_id").val();
                 dateArray = dateRange.split(" - ");
                 startDate = dateArray[0];
                 endDate = dateArray[1];
                 status = $("#completed_status").val();
-              $scope.loadCompletedBookingView(baseUrl + "/employee/dashboard/completed_booking_count_by_rm/"+startDate+"/"+endDate+"/"+status);
+                service_id = $("#service_id").val();
+                request_type = $("#request_type").val();
+                free_paid = $("#free_paid").val();
+                upcountry = $("#upcountry").val();
+                if(!status){
+                    status = "not_set";
+                }
+                if(!service_id){
+                    service_id = "not_set";
+                }
+                if(!request_type){
+                    request_type = "not_set";
+                }
+                if(!free_paid){
+                    free_paid = "not_set";
+                }
+                 if(!upcountry){
+                    upcountry = "not_set";
+                }
+              $scope.loadCompletedBookingView(baseUrl + "/employee/dashboard/completed_booking_count_by_rm/"+startDate+"/"+endDate+"/"+status+"/"+service_id+"/"+request_type+"/"+free_paid+"/"+upcountry);
     }
 });
 //This Function is used to call Completed Booking Days Reports

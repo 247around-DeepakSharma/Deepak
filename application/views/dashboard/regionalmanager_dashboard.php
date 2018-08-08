@@ -25,22 +25,74 @@
     <!-- /top tiles -->
                 <div class="x_panel">
                 <div class="x_title">
-                    <h2>RM Completed Booking Reports</h2>
+                    <h2>TAT Reporting</h2>
                     <div class="clearfix"></div>
                 </div>
                 <div class="table-responsive" id="escalation_data" ng-controller="completedBooking_Controller" ng-cloak="">
-                                    <div class="form-group" style="float:right;col-md-3">
-                                         <label for="">Booking Completed Date Range</label>
+ <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 160px;">
+                    <div class="item form-group">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <label for="">Services</label>
+                            <select class="form-control filter_table" id="service_id" name="services">
+                                <option value="" selected="selected">All</option>
+                                <?php foreach($services as $val){ ?>
+                                <option value="<?php echo $val['id']?>"><?php echo $val['services']?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                    <div class="form-group col-md-3">
+                    <div class="item form-group">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <label for="">Request Type</label>
+                            <select class="form-control filter_table" id="request_type" name="request_type">
+                                <option value="">All</option>
+                                <option value="Installation" selected="selected">Installations</option>
+                                <option value="Repair">Repair</option>
+                                <option value="Repair_with_part">Repair With Spare</option>  
+                                <option value="Repair_without_part">Repair Without Spare</option>  
+                            </select>
+                        </div>
+                </div>
+                    </div>
+                    <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 170px;">
+                    <div class="item form-group">
+                        <div class="col-md-12 col-sm-12 col-xs-12">  
+                            <label for="">Is Free</label>
+                            <select class="form-control filter_table" id="free_paid" name="free_paid">
+                                <option value="" selected="selected">All</option>
+                                <option value="Yes">Yes (In Warranty)</option>
+                                <option value="No">No (Out Of Warranty)</option>  
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                    <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 170px;">
+                    <div class="item form-group">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <label for="">Is Upcountry</label>
+                            <select class="form-control filter_table" id="upcountry" name="upcountry">
+                                <option value="">All</option>
+                                <option value="Yes">Yes</option>
+                                 <option value="No" selected="selected">No</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                    <div class="form-group col-md-3">
+                                         <label for="">Booking Completed Date</label>
                                          <input type="text" class="form-control" name="daterange_completed_bookings" id="completed_daterange_id" ng-change="ShowRMCompletedBookingBYDateRange()" ng-model="dates">
                             </div>
-                    <div class="form-group col-md-3" style="float:right;">
+                    <div class="form-group col-md-3">
                                          <label for="">Booking Status</label>
-                                        <select class="form-control" ng-change="ShowRMCompletedBookingBYDateRange()" ng-model="status" id="completed_status">
+                                        <select class="form-control"  ng-model="status" id="completed_status">
                                             <option value="">All</option>
                                             <option value="Completed" ng-selected="true">Completed</option>
                                             <option value="Cancelled">Cancelled</option>
                                         </select>
-                            </div>
+                    </div>
+                    <button class="btn btn-primary" ng-click="ShowRMCompletedBookingBYDateRange()" ng-model="partner_dashboard_filter" style="margin-top: 23px;background: #405467;border-color: #405467;">Apply Filters</button>
                 <br>
                 <div class="clear"></div>
                 <table class="table table-striped table-bordered jambo_table bulk_action">
@@ -73,14 +125,14 @@
                         </tr>
                     </tbody>
                 </table>
-                <center><img id="loader_gif_pending" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
+                <center><img id="loader_gif_completed_rm" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
             </div>
     <!-- Booking Report Start-->
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
                 <div class="x_title">
-                    <h2>RM Booking Report</h2>
+                    <h2>Pending Bookings Reporting</h2>
                     <div class="clearfix"></div>
                 </div>
                 <div class="table-responsive" id="escalation_data" ng-controller="pendngBooking_Controller" ng-cloak="">
