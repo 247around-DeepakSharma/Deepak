@@ -4871,7 +4871,7 @@ class Partner extends CI_Controller {
         $serviceWhere['isBookingActive'] =1;
         $services = $this->reusable_model->get_search_result_data("services","*",$serviceWhere,NULL,NULL,array("services"=>"ASC"),NULL,NULL,array());
          if($this->session->userdata('user_group') == PARTNER_CALL_CENTER_USER_GROUP){
-            $this->load->view('partner/partner_default_page_cc', $data);
+            $this->load->view('partner/partner_default_page_cc');
         }
         else{
             $this->load->view('partner/partner_dashboard',array('services'=>$services));
