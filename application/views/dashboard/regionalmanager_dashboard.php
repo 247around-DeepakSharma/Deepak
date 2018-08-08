@@ -143,8 +143,8 @@
     </div>            
     </div>   
 </div>
-   <!-- Booking Report Start-->
-    <div class="row">
+    <!-- Booking Report Start-->
+   <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel" ng-controller="pendngBooking_Controller" ng-cloak="">
                 <div class="x_title">
@@ -433,10 +433,8 @@ if($this->session->userdata("wrong_pincode_msg")){
                             <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
                             <span></span> <b class="caret"></b>
                         </div></small>
-                        
                     </div>
                     
-                    </div>
                     <div class="col-md-1" style="padding-right:0px"><span class="collape_icon" href="#state_type_booking_chart_div" data-toggle="collapse" onclick="get_bookings_data_by_rm(this)"><i class="fa fa-plus-square" aria-hidden="true"></i></span></div>
                     <div class="clearfix"></div>
                 </div>

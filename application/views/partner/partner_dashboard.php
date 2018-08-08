@@ -27,8 +27,7 @@
         </div>
     </div>
 <div class="row">
-<<<<<<< HEAD
-    <div class="col-md-12 col-sm-12 col-xs-12">
+   <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
                 <div class="x_title">
                     <h2>TAT Reporting<button type="button"class="btn btn-default" style="float: right;margin-bottom: 10px;padding: 1px 4px;margin-top: 0px;font-size: 8px;margin-left: 5px;background: #f7a35c;
@@ -38,18 +37,7 @@
                 </div>
                 <div class="x_content collapse in" id="TAT_reporting_div">
                 <div class="table-responsive" id="escalation_data" ng-controller="completedBooking_Controller" ng-cloak="">
-=======
-        <div class="col-md-12 col-sm-12 col-xs-12">
-            <div class="x_panel" ng-controller="completedBooking_Controller" ng-cloak="">
-                <div class="x_title">
-                    <h2>TAT Reporting<button type="button"class="btn btn-default" style="float: right;margin-bottom: 10px;padding: 1px 4px;margin-top: 0px;font-size: 8px;margin-left: 5px;background: #f7a35c;
-    color: #fff;border: none;" data-toggle="tooltip"data-placement="right"title="(Booking Completed on x Day / Total Completed Bookings (Within Selected Range))*100">?</button></h2>
-                    <span class="collape_icon" href="#TAT_reporting_div" data-toggle="collapse" onclick="initialise_TAT_data(this)"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
-                    <div class="clearfix"></div>
-                </div>
-                <div class="x_content collapse" id="TAT_reporting_div">
-                <div class="table-responsive" id="escalation_data">
->>>>>>> e541fd9cb... #CRM-1202 Show/Hide all graphs on Admin Dashboard and Partner Dashboard
+
                     <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 160px;">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
@@ -345,22 +333,18 @@
     var partner_name = '<?php echo $this->session->userdata('partner_name')?>';
     var partner_id = '<?php echo $this->session->userdata('partner_id')?>'; 
     $(function() {
-<<<<<<< HEAD
-        var d = new Date();
+       var d = new Date();
         n = d.getMonth();
         y = d.getFullYear();
         date = d.getDate();
         $('input[name="daterange_completed_bookings"]').daterangepicker({
              timePicker: true,
-        timePickerIncrement: 30,
-        locale: {
-            format: 'YYYY-MM-DD'
-        },
-        startDate: y+'-'+n+'-'+date
-
-=======
-       
->>>>>>> e541fd9cb... #CRM-1202 Show/Hide all graphs on Admin Dashboard and Partner Dashboard
+            timePickerIncrement: 30,
+            locale: {
+                format: 'YYYY-MM-DD'
+            },
+            startDate: y+'-'+n+'-'+date
+        });
     });
  //this function is used to call ajax request
     function sendAjaxRequest(postData, url,type) {
@@ -370,17 +354,37 @@
             type: type
         });
     }
-<<<<<<< HEAD
-<<<<<<< HEAD
 
-  $(document).ready(function () {
+    $(document).ready(function () {
      //get_partner_spare_snapshot();
      //get_partner_spare_data_by_status();
        around_monthly_data();
        get_bookings_data_by_rm();
-=======
-    
-  function initialise_TAT_data(span){
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/partner/get_partner_booking_summary_data/'+<?php echo $this->session->userdata('partner_id')?>,
+            success: function (data) {
+                $("#booking_summary").html(data);   
+            }
+        });
+    }
+
+    function initialise_TAT_data(span){
+        collapse_icon_change(span);
+         var d = new Date();
+           n = d.getMonth();
+           y = d.getFullYear();
+           date = d.getDate();
+           $('input[name="daterange_completed_bookings"]').daterangepicker({
+                timePicker: true,
+           timePickerIncrement: 30,
+           locale: {
+               format: 'YYYY-MM-DD'
+           },
+           startDate: y+'-'+n+'-'+date
+       });
+    }
+    function initialise_TAT_data(span){
         collapse_icon_change(span);
          var d = new Date();
            n = d.getMonth();
@@ -395,20 +399,7 @@
            startDate: y+'-'+n+'-'+date
        });
   }
-  $(document).ready(function () {
-     //get_partner_spare_snapshot();
-     //get_partner_spare_data_by_status();
-     //around_monthly_data();
-     //get_bookings_data_by_rm();
->>>>>>> e541fd9cb... #CRM-1202 Show/Hide all graphs on Admin Dashboard and Partner Dashboard
-        $.ajax({
-            type: 'POST',
-            url: '<?php echo base_url(); ?>employee/partner/get_partner_booking_summary_data/'+<?php echo $this->session->userdata('partner_id')?>,
-            success: function (data) {
-                $("#booking_summary").html(data);   
-            }
-        });
-      });
+  
     function get_partner_spare_snapshot(span){
         collapse_icon_change(span);
         url =  '<?php echo base_url(); ?>employee/dashboard/get_partner_spare_snapshot';
@@ -506,7 +497,7 @@
             }
         });
     }
-         function change_toggal_text(){
+    function change_toggal_text(){
         var currentValue = document.getElementById("order_by_toggal").innerHTML;
         if(currentValue =="Sort By Number Of Escalation"){
             document.getElementById("order_by_toggal").innerHTML="Sort BY perentage";
@@ -515,10 +506,6 @@
              document.getElementById("order_by_toggal").innerHTML="Sort By Number Of Escalation";
         }
     }
-<<<<<<< HEAD
-
-function around_monthly_data(){
-=======
     
 function initiate_escalation_data(span){
     collapse_icon_change(span);
@@ -537,17 +524,16 @@ function initiate_escalation_data(span){
 }
 
 function around_monthly_data(span){
-        collapse_icon_change(span);
->>>>>>> e541fd9cb... #CRM-1202 Show/Hide all graphs on Admin Dashboard and Partner Dashboard
-        $('#loader_gif2').fadeIn();
-        $('#monthly_booking_chart').fadeOut();
-        var data = {partner_id:'<?php echo $this->session->userdata('partner_id') ?>'};
-        url =  '<?php echo base_url(); ?>employee/dashboard/get_bookings_data_by_month';
-        
-        sendAjaxRequest(data,url,post_request).done(function(response){
-            get_mothly_booking_status(response,'1');
-        });
-    }
+    collapse_icon_change(span);
+    $('#loader_gif2').fadeIn();
+    $('#monthly_booking_chart').fadeOut();
+    var data = {partner_id:'<?php echo $this->session->userdata('partner_id') ?>'};
+    url =  '<?php echo base_url(); ?>employee/dashboard/get_bookings_data_by_month';
+    
+    sendAjaxRequest(data,url,post_request).done(function(response){
+        get_mothly_booking_status(response,'1');
+    });
+}
         function get_mothly_booking_status(response,chart_render_to){
         
         if(chart_render_to === '1'){
@@ -599,16 +585,11 @@ function around_monthly_data(span){
                 }]
         });
     }
-<<<<<<< HEAD
-   function get_bookings_data_by_rm(){
-        partner_id = '<?php echo $this->session->userdata('partner_id'); ?>';
-       $('#loader_gif3').fadeIn();
-=======
+    
     function get_bookings_data_by_rm(span){
         collapse_icon_change(span); 
         partner_id = '<?php echo $this->session->userdata('partner_id'); ?>';
         $('#loader_gif3').fadeIn();
->>>>>>> e541fd9cb... #CRM-1202 Show/Hide all graphs on Admin Dashboard and Partner Dashboard
         $('#state_type_booking_chart').fadeOut();
         var data = {'partner_id':partner_id};
         url =  '<?php echo base_url(); ?>employee/dashboard/get_booking_data_by_region';
@@ -617,6 +598,7 @@ function around_monthly_data(span){
             create_chart_based_on_bookings_state(response);
         });
     }
+    
     function create_chart_based_on_bookings_state(response) {
         var data = JSON.parse(response);
         var rm = data.rm.split(',');

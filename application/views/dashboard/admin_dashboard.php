@@ -28,8 +28,7 @@
                     <span class="collape_icon" href="#RM_TAT_Reporting" data-toggle="collapse" onclick="initiate_completed_bookings_data(this)"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
-
-                <div id="RM_TAT_Reporting" class="collapse">
+               <div id="RM_TAT_Reporting" class="collapse">
                 <div class="table-responsive" id="escalation_data" ng-controller="completedBooking_Controller" ng-cloak="">
                     <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 160px;">
                         <div class="item form-group">
@@ -833,13 +832,13 @@
         collapse_icon_change(span);
         partner_booking_status(start.format('MMMM D, YYYY'), end.format('MMMM D, YYYY'));
     }
-   function agent_daily_report_call(span){ 
+
+    function agent_daily_report_call(span){ 
         collapse_icon_change(span);
         agent_daily_report(start.format('MMMM D, YYYY'), end.format('MMMM D, YYYY'));
     }
     
-   
-    //show next grapgh when show more button clicked
+   //show next grapgh when show more button clicked
     $("#show_more_btn").click(function(){
        $('#show_more').fadeIn();
        //partner wise monthly booking unit data
@@ -1448,7 +1447,6 @@ function initiate_pending_booking_controller(span){
     collapse_icon_change(span);
     $("#pending_booking_btn").click();
 }
-
 
 function initiate_completed_bookings_data(span){
     collapse_icon_change(span);
