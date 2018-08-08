@@ -594,7 +594,7 @@ class Inventory_model extends CI_Model {
      *  @return: Array()
      */
     public function count_all_inventory_stocks($post) {
-        $this->_get_inventory_stocks($post, 'count( DISTINCT inventory_stocks.entity_id) as numrows');
+        $this->_get_inventory_stocks($post, 'count( DISTINCT inventory_stocks.id) as numrows');
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];
     }
@@ -612,7 +612,7 @@ class Inventory_model extends CI_Model {
             $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
             $sfIDArray = explode(",",$sfIDList);
         }
-        $this->_get_inventory_stocks($post, 'count( DISTINCT inventory_stocks.entity_id) as numrows');
+        $this->_get_inventory_stocks($post, 'count( DISTINCT inventory_stocks.id) as numrows');
         if($sfIDArray){
             $this->db->where_in('inventory_stocks.entity_id', $sfIDArray);
         }
