@@ -26,7 +26,7 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Services</label>
                             <select class="form-control filter_table" id="service_id" name="services">
-                                <option value="" selected="selected">Select Service</option>
+                                <option value="" selected="selected">All</option>
                                 <?php foreach($services as $val){ ?>
                                 <option value="<?php echo $val['id']?>"><?php echo $val['services']?></option>
                                 <?php } ?>
@@ -39,7 +39,7 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Request Type</label>
                             <select class="form-control filter_table" id="request_type" name="request_type">
-                                <option value="">Request Type</option>
+                                <option value="">All</option>
                                 <option value="Installation" selected="selected">Installations</option>
                                 <option value="Repair">Repair</option>
                                 <option value="Repair_with_part">Repair With Spare</option>  
@@ -53,7 +53,7 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">  
                             <label for="">Is Free</label>
                             <select class="form-control filter_table" id="free_paid" name="free_paid">
-                                <option value="" selected="selected">Is Free</option>
+                                <option value="" selected="selected">All</option>
                                 <option value="Yes">Yes (In Warranty)</option>
                                 <option value="No">No (Out Of Warranty)</option>  
                             </select>
@@ -65,7 +65,7 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Is Upcountry</label>
                             <select class="form-control filter_table" id="upcountry" name="upcountry">
-                                <option value="">Is Upcountry</option>
+                                <option value="">All</option>
                                 <option value="Yes">Yes</option>
                                  <option value="No" selected="selected">No</option>
                             </select>
@@ -117,7 +117,7 @@
                         </tr>
                     </tbody>
                 </table>
-                <center><img id="loader_gif_pending" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
+                <center><img id="loader_gif_completed_rm" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
             </div>
 <!--                AM reporting-->
                 <div class="x_panel">
@@ -131,7 +131,7 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Services</label>
                             <select class="form-control filter_table" id="service_id_am" name="services">
-                                <option value="" selected="selected">Select Service</option>
+                                <option value="" selected="selected">All</option>
                                 <?php foreach($services as $val){ ?>
                                 <option value="<?php echo $val['id']?>"><?php echo $val['services']?></option>
                                 <?php } ?>
@@ -144,7 +144,7 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Request Type</label>
                             <select class="form-control filter_table" id="request_type_am" name="request_type_am">
-                                <option value="">Request Type</option>
+                                <option value="">All</option>
                                 <option value="Installation" selected="selected">Installations</option>
                                 <option value="Repair">Repair</option>
                                 <option value="Repair_with_part">Repair With Spare</option>  
@@ -158,7 +158,7 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">  
                             <label for="">Is Free</label>
                             <select class="form-control filter_table" id="free_paid_am" name="free_paid_am">
-                                <option value="" selected="selected">Is Free</option>
+                                <option value="" selected="selected">All</option>
                                 <option value="Yes">Yes (In Warranty)</option>
                                 <option value="No">No (Out Of Warranty)</option>  
                             </select>
@@ -170,7 +170,7 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Is Upcountry</label>
                             <select class="form-control filter_table" id="upcountry_am" name="upcountry_am">
-                                <option value="">Is Upcountry</option>
+                                <option value="">All</option>
                                 <option value="Yes">Yes</option>
                                  <option value="No" selected="selected">No</option>
                             </select>
