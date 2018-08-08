@@ -25,10 +25,10 @@
             <div class="x_panel">
                 <div class="x_title">
                     <h2>RM TAT Reporting</h2>
-                    <span class="collape_icon" href="#RM_TAT_Reporting" data-toggle="collapse" onclick="initiate_completed_bookings_data(this)"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                    <span class="collape_icon" href="#RM_TAT_Reporting" data-toggle="collapse" onclick="collapse_icon_change(this)"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
-               <div id="RM_TAT_Reporting" class="collapse">
+                <div id="RM_TAT_Reporting" class="collapse in">
                 <div class="table-responsive" id="escalation_data" ng-controller="completedBooking_Controller" ng-cloak="">
                     <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 160px;">
                         <div class="item form-group">
@@ -326,8 +326,9 @@
                 <center><img id="loader_gif_pending" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
             </div>
             </div>
-          </div>
-        </div>
+            </div>
+<!--          </div>-->
+       </div>
     </div>
     <!-- Booking Report End-->
     <!-- Missing Pincode Section -->
@@ -490,36 +491,8 @@
         </div>
     </div>
     <!-- Escalation End-->
-    <!-- Partner Booking Status -->
-    <div class="row">
-        <div class="col-md-12 col-sm-12 col-xs-12">
-            <div class="dashboard_graph">
-                <div class="row x_title">
-                    <div class="col-md-6">
-                        <h3>Partner Booking Status &nbsp;&nbsp;&nbsp;</h3>
-                    </div>
-                    <div class="col-md-5">
-                        <div id="reportrange" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; margin-right: -12%;">
-                            <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
-                            <span></span> <b class="caret"></b>
-                        </div>
-                    </div>
-                    <div class="col-md-1">
-                        <span class="collape_icon" href="#chart_container_div" data-toggle="collapse" onclick="partner_booking_status_call(this)" style="margin-right: 8px;"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
-                    </div>
-                </div>
-                <div class="x_content collapse" id="chart_container_div">
-                <div class="col-md-12">
-                    <center><img id="loader_gif1" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
-                </div>
-                
-                    <div id="chart_container" class="chart_container"></div>
-                </div>
-                <div class="clearfix"></div>
-            </div>
-        </div>
-    </div>
-    <!-- End Partner Booking Status -->
+ 
+    
     <div class="row" style="margin-top:10px;">
         <!-- Company Monthly Status -->
         <div class="col-md-6 col-sm-12 col-xs-12" style="padding : 0px !important;">
@@ -828,17 +801,14 @@
         
     });
     
-   function partner_booking_status_call(span){ 
-        collapse_icon_change(span);
-        partner_booking_status(start.format('MMMM D, YYYY'), end.format('MMMM D, YYYY'));
-    }
-
+   
     function agent_daily_report_call(span){ 
         collapse_icon_change(span);
         agent_daily_report(start.format('MMMM D, YYYY'), end.format('MMMM D, YYYY'));
     }
     
-   //show next grapgh when show more button clicked
+    
+    //show next grapgh when show more button clicked
     $("#show_more_btn").click(function(){
        $('#show_more').fadeIn();
        //partner wise monthly booking unit data
@@ -1440,30 +1410,13 @@ function initiate_escalation_data(span){
         },
         startDate: y+'-'+n+'-01'
     });
-});
-   
+}
 
 function initiate_pending_booking_controller(span){
     collapse_icon_change(span);
     $("#pending_booking_btn").click();
 }
-
-function initiate_completed_bookings_data(span){
-    collapse_icon_change(span);
-     var d = new Date();
-        n = d.getMonth();
-        y = d.getFullYear();
-        date = d.getDate();
-        $('input[name="daterange_completed_bookings"]').daterangepicker({
-             timePicker: true,
-        timePickerIncrement: 30,
-        locale: {
-            format: 'YYYY-MM-DD'
-        },
-        startDate: y+'-'+n+'-'+date
-    });
-}
-    </script>
+</script>
 <style>
 .text_warning{
         color:red;

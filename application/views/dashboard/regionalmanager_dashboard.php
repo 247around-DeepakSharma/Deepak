@@ -23,7 +23,6 @@
 </style>
 <div class="right_col ngCloak" role="main" ng-app="rm_dashboard" ng-cloak="">
 
-
     <!-- top tiles -->
     <div class="row tile_count" id="title_count">
         <div class="col-md-12">
@@ -35,8 +34,8 @@
         <div class="col-md-12 col-sm-12 col-xs-12">
                 <div class="x_panel">
                 <div class="x_title">
-                    <h2>TAT Reporting</h2>
                     <span class="collape_icon" href="#RM_completed_booking_reports_div" data-toggle="collapse" onclick="collapse_icon_change(this)"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
+                    <h2>TAT Reporting</h2>
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content collapse in" id="RM_completed_booking_reports_div">
@@ -142,14 +141,14 @@
         </div>
     </div>            
     </div>   
-</div>
+    </div>
     <!-- Booking Report Start-->
-   <div class="row">
+    <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel" ng-controller="pendngBooking_Controller" ng-cloak="">
                 <div class="x_title">
-                    <h2>Pending Bookings Reporting</h2>
                     <span class="collape_icon" href="#RM_booking_reports_div" data-toggle="collapse" data-ng-click="pendingBookingByRMCall()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                    <h2>Pending Bookings Reporting</h2>
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content collapse" id="RM_booking_reports_div">
@@ -433,8 +432,10 @@ if($this->session->userdata("wrong_pincode_msg")){
                             <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
                             <span></span> <b class="caret"></b>
                         </div></small>
+                        
                     </div>
                     
+                    </div>
                     <div class="col-md-1" style="padding-right:0px"><span class="collape_icon" href="#state_type_booking_chart_div" data-toggle="collapse" onclick="get_bookings_data_by_rm(this)"><i class="fa fa-plus-square" aria-hidden="true"></i></span></div>
                     <div class="clearfix"></div>
                 </div>
@@ -448,8 +449,6 @@ if($this->session->userdata("wrong_pincode_msg")){
         </div>
         <!-- RM wise booking status -->
     </div>
-    </div>
-</div>
 </div>   
 <!-- END -->
 <style>
@@ -741,4 +740,11 @@ if($this->session->userdata("wrong_pincode_msg")){
     });
 });
 </script>
-
+<style>
+    .text_warning{
+        color:red;
+    }
+    [ng\:cloak], [ng-cloak], .ng-cloak {
+  display: none !important;
+}
+    </style>
