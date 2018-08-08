@@ -236,7 +236,6 @@ class Invoice_lib {
                         $message = vsprintf($email_template[0], array($api_response));
                         $to = DEVELOPER_EMAIL.','.$email_template[1];
                         $this->ci->notify->sendEmail($email_template[2], $to, $email_template[3], $email_template[5], $email_template[4], $message, '', TAXPRO_API_FAIL);
-                       $this->ci->notify->sendEmail($email_template[2], $to, $email_template[3], $email_template[5], $email_template[4], $message, '', COURIER_DETAILS);
                     }
                     return false;
                 }
@@ -250,7 +249,7 @@ class Invoice_lib {
                     if(!empty($email_template)){ 
                         $subject = vsprintf($email_template[4], array($vendor[0]['company_name']));
                         $message = vsprintf($email_template[0], array($vendor[0]['gst_no'], $vendor[0]['gst_status'], $vendor[0]['gst_taxpayer_type'], $vendor[0]['gst_cancelled_date'], $response['gstin'], $response['sts'], $response['dty'], $response['cxdt']));
-                        $to = DEVELOPER_EMAIL.','.$email_template[1];
+                        $to = $email_template[1];
                         $this->ci->notify->sendEmail($email_template[2], $to, $email_template[3], $email_template[5], $subject, $message, '', GST_DETAIL_UPDATED);
                     }
                     $this->ci->vendor_model->edit_vendor($data, $vendor_id);
