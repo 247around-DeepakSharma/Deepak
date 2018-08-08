@@ -115,7 +115,7 @@
                                 <th>Cancellation Reason </th>
                                 <td><?php echo $booking_history[0]['cancellation_reason']; ?></td>
                                   <th>Closed date </th>
-                                <td><?php echo $booking_history[0]['closed_date']; ?></td>
+                                <td><?php echo $booking_history[0]['service_center_closed_date']; ?></td>
                             </tr>
                            
                             <tr>
