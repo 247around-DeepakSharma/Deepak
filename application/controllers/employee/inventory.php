@@ -2999,6 +2999,12 @@ class Inventory extends CI_Controller {
             $newdata['entity_type'] =_247AROUND_SF_STRING;
             $newdata['partner_id'] = $wh_id;
             $newdata['service_center_id'] = $spare[0]['service_center_id'];
+            $newdata['date_of_purchase'] = $spare[0]['date_of_purchase'];
+            $newdata['purchase_invoice_id'] = $ledger['purchase_invoice_id'];
+            $newdata['invoice_pic'] = $spare[0]['invoice_pic'];
+            $newdata['defective_parts_pic'] = $spare[0]['defective_parts_pic'];
+            $newdata['defective_back_parts_pic'] = $spare[0]['defective_back_parts_pic'];
+            $newdata['serial_number_pic'] = $spare[0]['serial_number_pic'];
             $newdata['model_number'] = $spare[0]['model_number'];
             $newdata['serial_number'] = $spare[0]['serial_number'];
             $newdata['date_of_request'] =  date('Y-m-d');
