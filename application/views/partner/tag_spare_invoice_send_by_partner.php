@@ -970,8 +970,19 @@
                     var entered_invoice_amt = Number($('#on_invoice_amount').val());
                     var our_invoice_amt = 0;
                     $(".total_spare_amount").each(function (i) {
+                        if(Number($(this).val()) > 0){
+                            var sh_id = this.id;
+                            var split_id = sh_id.split('_');
+                            var c = split_id[2];
 
-                        our_invoice_amt += Number($(this).val());
+                            if ($("#s_shippingStatus_" + c+":checked").val()) {
+                                var checked_shipped = $("#s_shippingStatus_" + c).val();
+                                 if(Number(checked_shipped) === 1 ){
+                                    our_invoice_amt += Number($(this).val());
+                                 }
+                             }
+                            
+                        }
 
                     });
                     if((our_invoice_amt >= entered_invoice_amt - 10) && (our_invoice_amt <= entered_invoice_amt + 10) ){
@@ -1080,9 +1091,9 @@
     
            // Update the name attributes
            $clone
-               .find('[id="shipping_status_1"]').attr('name', 'part[' + onBookingIndex + '][shippingStatus]').attr('id','shippingStatus_'+onBookingIndex).attr("required", true).end()
-               .find('[id="shipping_status_2"]').attr('name', 'part[' + onBookingIndex + '][shippingStatus]').attr('id','shippingStatus_'+onBookingIndex).attr("required", true).end()
-               .find('[id="shipping_status_3"]').attr('name', 'part[' + onBookingIndex + '][shippingStatus]').attr('id','shippingStatus_'+onBookingIndex).attr("required", true).end()
+               .find('[id="shipping_status_1"]').attr('name', 'part[' + onBookingIndex + '][shippingStatus]').attr('id','s_shippingStatus_'+onBookingIndex).attr("required", true).end()
+               .find('[id="shipping_status_2"]').attr('name', 'part[' + onBookingIndex + '][shippingStatus]').attr('id','n_shippingStatus_'+onBookingIndex).attr("required", true).end()
+               .find('[id="shipping_status_3"]').attr('name', 'part[' + onBookingIndex + '][shippingStatus]').attr('id','l_shippingStatus_'+onBookingIndex).attr("required", true).end()
                .find('[id="onpartName"]').attr('name', 'part[' + onBookingIndex + '][part_name]').attr('id','onpartName_'+onBookingIndex).attr('onchange','get_part_number_on_booking("'+ onBookingIndex+'")').addClass('part_name').attr("required", true).end()
                .find('[id="onpartBasicPrice"]').attr('name', 'part[' + onBookingIndex + '][part_total_price]').attr('id','onpartBasicPrice_'+onBookingIndex).end()
                .find('[id="onquantity"]').attr('name', 'part[' + onBookingIndex + '][quantity]').attr('id','onquantity_'+onBookingIndex).end()

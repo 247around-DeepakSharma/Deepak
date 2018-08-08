@@ -2954,7 +2954,8 @@ class Inventory extends CI_Controller {
 
                 $a = array('entity_type' => _247AROUND_SF_STRING, 'partner_id' => $wh_id,
                     'wh_ack_received_part' => 0, 'purchase_invoice_id' => $ledger['invoice_id'],
-                    'requested_inventory_id' => $ledger['inventory_id']);
+                    'requested_inventory_id' => $ledger['inventory_id'],
+                    'inventory_invoice_on_booking' => 1);
                 $update_spare_part = $this->service_centers_model->update_spare_parts(array('id' => $fomData['spare_id']), $a);
                 if ($update_spare_part) {
 
@@ -3007,6 +3008,7 @@ class Inventory extends CI_Controller {
             $newdata['status'] = SPARE_PARTS_REQUESTED;
             $newdata['wh_ack_received_part'] = 0;
             $newdata['requested_inventory_id'] = $ledger['inventory_id'];
+            $newdata['inventory_invoice_on_booking'] = 1;
             
             $spare_id = $this->service_centers_model->insert_data_into_spare_parts($newdata);
             if($spare_id){
