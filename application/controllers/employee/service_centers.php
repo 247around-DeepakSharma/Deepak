@@ -3713,11 +3713,11 @@ class Service_centers extends CI_Controller {
                 . "booking_details.upcountry_paid_by_customer,booking_details.amount_due,booking_details.state, service_centres.name as vendor_name, "
                 . "service_centres.address, service_centres.state, service_centres.gst_no, service_centres.pincode, "
                 . "service_centres.district,service_centres.id as sf_id,service_centres.is_gst_doc,service_centres.signature_file, "
-                . " inventory_stocks.stock, DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request,"
+                . " GROUP_CONCAT(DISTINCT inventory_stocks.stock) as stock, DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request,"
                 . " GROUP_CONCAT(DISTINCT spare_parts_details.model_number) as model_number, "
                 . " GROUP_CONCAT(DISTINCT spare_parts_details.serial_number) as serial_number,"
                 . " GROUP_CONCAT(DISTINCT spare_parts_details.remarks_by_sc) as remarks_by_sc, spare_parts_details.partner_id, "
-                . " GROUP_CONCAT(DISTINCT spare_parts_details.id) as spare_id, serial_number_pic ";
+                . " GROUP_CONCAT(DISTINCT spare_parts_details.id) as spare_id, serial_number_pic, GROUP_CONCAT(DISTINCT spare_parts_details.inventory_invoice_on_booking) as inventory_invoice_on_booking ";
 
         $data['spare_parts'] = $this->service_centers_model->get_spare_parts_on_group($where, $select, "spare_parts_details.booking_id", $sf_id);
 
@@ -3807,9 +3807,9 @@ class Service_centers extends CI_Controller {
         log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id') . " Spare Parts ID: " . $booking_id);
         $this->check_WH_UserSession();
         $where['length'] = -1;
-        $where['where'] = array('spare_parts_details.booking_id' => $booking_id);
+        $where['where'] = array('spare_parts_details.booking_id' => $booking_id, "status" => SPARE_PARTS_REQUESTED, "entity_type" => _247AROUND_SF_STRING);
         $where['select'] = "booking_details.booking_id, users.name, defective_back_parts_pic,booking_primary_contact_no,parts_requested, model_number,serial_number,date_of_purchase, invoice_pic,"
-                . "serial_number_pic,defective_parts_pic,spare_parts_details.id,requested_inventory_id,parts_requested_type, booking_details.request_type, purchase_price, estimate_cost_given_date,booking_details.partner_id,booking_details.service_id,booking_details.assigned_vendor_id,parts_requested_type";
+                . "serial_number_pic,defective_parts_pic,spare_parts_details.id,requested_inventory_id,parts_requested_type, booking_details.request_type, purchase_price, estimate_cost_given_date,booking_details.partner_id,booking_details.service_id,booking_details.assigned_vendor_id,parts_requested_type, inventory_invoice_on_booking";
         $data['spare_parts'] = $this->inventory_model->get_spare_parts_query($where);
         
         $where = array('entity_id' => $data['spare_parts'][0]->partner_id, 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['spare_parts'][0]->service_id,'active' => 1);
@@ -3914,6 +3914,13 @@ class Service_centers extends CI_Controller {
                                 $data['date_of_purchase'] = $sp_details[0]['date_of_purchase'];
                                 $data['date_of_request'] = date("Y-m-d");
                                 $data['create_date'] = date('Y-m-d H:i:s');
+                                $data['invoice_pic'] = $sp_details[0]['invoice_pic'];
+                                $data['defective_parts_pic'] = $sp_details[0]['defective_parts_pic'];
+                                $data['defective_back_parts_pic'] = $sp_details[0]['defective_back_parts_pic'];
+                                $data['serial_number_pic'] = $sp_details[0]['serial_number_pic'];
+                                $data['parts_requested_type'] = $part_details['parts_type'];
+                                $data['parts_requested'] = $part_details['parts_name'];
+            
                                 
                                 $response = $this->service_centers_model->insert_data_into_spare_parts($data);
                                 $spare_id = $response;
