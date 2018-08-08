@@ -19,11 +19,11 @@ class Trackingmore_api {
     const ROUTE_TRACKINGS_COSTTIME = 'trackings/costtime';
     const ROUTE_TRACKINGS_UPDATEMORE = 'trackings/updatemore';
     
-    //development api key comment this in case of production
-    protected $apiKey = '8d1bf17a-8f7a-4e99-9279-542b16014c90';
+    //development api key comment this in case of development. valid only for first one month
+    //protected $apiKey = '8d1bf17a-8f7a-4e99-9279-542b16014c90';
     
     //production api key uncomment this in case of production
-    //protected $apiKey = 'YOUR API KEY';
+    protected $apiKey = TRACKINGMORE_PROD_API_KEY;
 
     protected function _getApiData($route, $method = 'GET', $sendData = array()) {
         $method = strtoupper($method);
