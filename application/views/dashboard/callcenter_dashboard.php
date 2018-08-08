@@ -1,3 +1,10 @@
+<style>
+    .collape_icon {
+        font-size: 18px;
+        color: #4b5561 !important;
+        float:right;
+    }
+</style>
 <!-- page content -->
 <div class="right_col" role="main">
     <!-- top tiles -->
@@ -19,20 +26,26 @@
                             </small>
                         </h3>
                     </div>
-                    <div class="col-md-6">
-                        <div id="reportrange" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc">
+                    <div class="col-md-5">
+                        <div id="reportrange" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; margin-right: -15%;">
                             <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
                             <span></span> <b class="caret"></b>
                         </div>
                     </div>
+                    <div class="col-md-1">
+                        <span class="collape_icon" href="#chart_container2_div" data-toggle="collapse" onclick="agent_daily_report_call(this)"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                    </div>
                 </div>
+                <div class="x_content collapse" id="chart_container2_div">
                 <div class="col-md-12">
                     <center><img id="loader_gif" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
                 </div>
                 <div id="chart_container2" class="chart_containe2"></div>
+                 </div>
                 <div class="clearfix"></div>
-            </div>
+           
         </div>
+    </div>
     </div>
     <!-- End Agent Graph -->
     
@@ -42,13 +55,16 @@
             <div class="x_panel">
                 <div class="x_title">
                     <h2>Monthly Booking Status <small>Completed</small></h2>
+                        <span class="collape_icon" href="#monthly_booking_chart_div" data-toggle="collapse" onclick="around_monthly_data(this)"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
+                <div class="collapse" id="monthly_booking_chart_div">
                 <div class="col-md-12">
                     <center><img id="loader_gif2" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
                 </div>
                 <div class="x_content">
                     <div id="monthly_booking_chart" style="width:100%; height:400px;" ></div>
+                </div>
                 </div>
             </div>
         </div>
@@ -145,11 +161,16 @@
         //top count data
         get_query_data();
         //company monthly data
-        around_monthly_data();
+        //around_monthly_data();
         //agent performance data
-        agent_daily_report(start.format('MMMM D, YYYY'), end.format('MMMM D, YYYY'));
+        //agent_daily_report(start.format('MMMM D, YYYY'), end.format('MMMM D, YYYY'));
         
     });
+    
+    function agent_daily_report_call(span){
+        collapse_icon_change(span);
+        agent_daily_report(start.format('MMMM D, YYYY'), end.format('MMMM D, YYYY'));
+    }
     
     function sendAjaxRequest(postData, url,type) {
         return $.ajax({
@@ -172,7 +193,8 @@
         });
     }
     
-    function around_monthly_data(){
+    function around_monthly_data(span){
+        collapse_icon_change(span);
         $('#loader_gif2').fadeIn();
         $('#monthly_booking_chart').fadeOut();
         var data = {partner_id:''};
