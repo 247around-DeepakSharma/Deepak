@@ -2874,7 +2874,9 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
         log_message('info', __FUNCTION__ . " Start For  ".$bookingID.$number);
         if(!$bookingID){
             $bookingDetails = $this->My_CI->booking_model->get_missed_call_rating_booking_count($number);
-            $bookingID = $bookingDetails[0]['booking_id'];
+            if($bookingDetails){
+                $bookingID = $bookingDetails[0]['booking_id'];
+            }
         }
         if($bookingID){
             $select = "booking_details.*,employee.official_email,service_centres.name,services.services";
@@ -2887,6 +2889,7 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
             $partnerJoin["employee"] = "employee.id=partners.account_manager_id";
             $bookingData = $this->My_CI->reusable_model->get_search_result_data("booking_details",$select,$where,$join,NULL,NULL,NULL,NULL,array());
             $amEmail = $this->My_CI->reusable_model->get_search_result_data("booking_details","employee.official_email",$where,$partnerJoin,NULL,NULL,NULL,NULL,array());
+            if(!isset($bookingData[0]['rating_comments']))
             $subject = 'Bad Feedback From Customer, Rating ('.$rating.') For '.$bookingID;
             $message = "Please take action as Customer is Not Satisfied with our Service.<br>"
                     . "SF : ".$bookingData[0]['name']."<br>"
@@ -3133,13 +3136,13 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
     }
     function is_booking_valid_for_partner_panelty($request_type){
         $is_valid = 1;
-        if(strpos($request_type, 'Out of Warranty') !== false) {
+        if(stripos($request_type, 'Out of Warranty') !== false) {
             $is_valid = 0;
         }
-        if(strpos($request_type, 'Repeat') !== false) {
+        if(stripos($request_type, 'Repeat') !== false) {
             $is_valid = 0;
         }
-        if(strpos($request_type, 'Service Center Visit') !== false) {
+        if(stripos($request_type, 'Service Center Visit') !== false) {
             $is_valid = 0;
         }
         return $is_valid;

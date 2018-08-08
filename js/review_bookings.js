@@ -107,12 +107,13 @@ $(document).on("click", ".open-adminremarks", function () {
 });
 
 function send_remarks() {
+    var bookingID = $('#modal-title').text();
     var postData = {};
     postData['booking_id'] = $('#modal-title').text();
     postData['admin_remarks'] = $('#textarea').val();
-
     sendAjaxRequest(postData, admin_remarksUrl).done(function (data) {
         alert("Booking Has been Rejected Successfully");
+        document.getElementById("row_"+bookingID).style.background = "#89d4a7";
     });
 
 }

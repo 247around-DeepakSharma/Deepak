@@ -115,7 +115,7 @@
                         </thead>
                         <tbody>
                            <?php $count =1; foreach ($charges as $key => $value) { ?>
-                           <tr>
+                            <tr id="<?php echo  "row_".$value['booking_id'] ?>">
                               
                               <td style="text-align: left;white-space: inherit;font-size:80%"><?php echo $count; ?></td>
                               <td  style="text-align: left;white-space: inherit;"><?php echo $value['booking_id']." <br/><br/>".$value['booking'][0]['vendor_name']; ?>
