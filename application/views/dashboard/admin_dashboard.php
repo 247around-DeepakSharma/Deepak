@@ -2,6 +2,13 @@
 <script src = "https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
 <script src="<?php echo base_url(); ?>js/buyback_app/app.js"></script>
 <script src="<?php echo base_url(); ?>js/buyback_app/controller/controllers.js"></script>
+<style>
+    .collape_icon {
+        font-size: 18px;
+        color: #4b5561 !important;
+        float:right;
+    }
+</style>
 <!-- page content -->
 <div class="right_col ngCloak" role="main" ng-app="admin_dashboard">
     <!-- top tiles -->
@@ -14,19 +21,21 @@
     <hr>
     <!-- Booking Report Start-->
     <div class="row">
-        <div class="col-md-12 col-sm-12 col-xs-12">
+        <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
             <div class="x_panel">
                 <div class="x_title">
                     <h2>RM TAT Reporting</h2>
+                    <span class="collape_icon" href="#RM_TAT_Reporting" data-toggle="collapse" onclick="initiate_completed_bookings_data(this)"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
+                <div id="RM_TAT_Reporting" class="collapse">
                 <div class="table-responsive" id="escalation_data" ng-controller="completedBooking_Controller" ng-cloak="">
                     <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 160px;">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Services</label>
                             <select class="form-control filter_table" id="service_id" name="services">
-                                <option value="" selected="selected">Select Service</option>
+                                <option value="" selected="selected">All</option>
                                 <?php foreach($services as $val){ ?>
                                 <option value="<?php echo $val['id']?>"><?php echo $val['services']?></option>
                                 <?php } ?>
@@ -39,7 +48,7 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Request Type</label>
                             <select class="form-control filter_table" id="request_type" name="request_type">
-                                <option value="">Request Type</option>
+                                <option value="">All</option>
                                 <option value="Installation" selected="selected">Installations</option>
                                 <option value="Repair">Repair</option>
                                 <option value="Repair_with_part">Repair With Spare</option>  
@@ -53,7 +62,7 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">  
                             <label for="">Is Free</label>
                             <select class="form-control filter_table" id="free_paid" name="free_paid">
-                                <option value="" selected="selected">Is Free</option>
+                                <option value="" selected="selected">All</option>
                                 <option value="Yes">Yes (In Warranty)</option>
                                 <option value="No">No (Out Of Warranty)</option>  
                             </select>
@@ -65,7 +74,7 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Is Upcountry</label>
                             <select class="form-control filter_table" id="upcountry" name="upcountry">
-                                <option value="">Is Upcountry</option>
+                                <option value="">All</option>
                                 <option value="Yes">Yes</option>
                                  <option value="No" selected="selected">No</option>
                             </select>
@@ -117,7 +126,7 @@
                         </tr>
                     </tbody>
                 </table>
-                <center><img id="loader_gif_pending" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
+                <center><img id="loader_gif_completed_rm" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
             </div>
 <!--                AM reporting-->
                 <div class="x_panel">
@@ -131,7 +140,7 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Services</label>
                             <select class="form-control filter_table" id="service_id_am" name="services">
-                                <option value="" selected="selected">Select Service</option>
+                                <option value="" selected="selected">All</option>
                                 <?php foreach($services as $val){ ?>
                                 <option value="<?php echo $val['id']?>"><?php echo $val['services']?></option>
                                 <?php } ?>
@@ -144,7 +153,7 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Request Type</label>
                             <select class="form-control filter_table" id="request_type_am" name="request_type_am">
-                                <option value="">Request Type</option>
+                                <option value="">All</option>
                                 <option value="Installation" selected="selected">Installations</option>
                                 <option value="Repair">Repair</option>
                                 <option value="Repair_with_part">Repair With Spare</option>  
@@ -158,7 +167,7 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">  
                             <label for="">Is Free</label>
                             <select class="form-control filter_table" id="free_paid_am" name="free_paid_am">
-                                <option value="" selected="selected">Is Free</option>
+                                <option value="" selected="selected">All</option>
                                 <option value="Yes">Yes (In Warranty)</option>
                                 <option value="No">No (Out Of Warranty)</option>  
                             </select>
@@ -170,7 +179,7 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Is Upcountry</label>
                             <select class="form-control filter_table" id="upcountry_am" name="upcountry_am">
-                                <option value="">Is Upcountry</option>
+                                <option value="">All</option>
                                 <option value="Yes">Yes</option>
                                  <option value="No" selected="selected">No</option>
                             </select>
@@ -271,6 +280,7 @@
                 <center><img id="loader_gif_pending" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
             </div>
             </div>
+          </div>
         </div>
     </div>
     <!-- Booking Report End-->
@@ -286,10 +296,11 @@
             <div class="x_panel">
                 <div class="x_title">
                     <h2>Missing Pincodes</h2>
-                    <a id="download_pin_code" class="btn btn-success" href="<?php echo base_url(); ?>employee/vendor/insert_pincode_form" style="float:right">Add New Pincode</a>
+                    <span class="collape_icon" href="#pincode_table_data_div" data-toggle="collapse" onclick="get_missing_pincodes(this)"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                    <a id="download_pin_code" class="btn btn-success btn-xs" href="<?php echo base_url(); ?>employee/vendor/insert_pincode_form" style="float:right">Add New Pincode</a>
                     <div class="clearfix"></div>
                 </div>
-                <div class="x_content">
+                <div class="x_content collapse" id="pincode_table_data_div">
                     <div class="table-responsive" id="pincode_table_data">
                         <center><img id="pincode_loader" src="<?php echo base_url(); ?>images/loadring.gif"></center>
                     </div>
@@ -367,12 +378,13 @@
             <div class="x_panel">
                 <div class="x_title">
                     <h2>Partner Spare Parts Details <span class="badge badge-info" data-toggle="popover" data-content="Below table shows parts which are OOT with respect to sf (after 7 days from booking completion by sf)"><i class="fa fa-info"></i></span></h2>
+                    <span class="collape_icon" href="#spare_details_by_partner_div" data-toggle="collapse" onclick="spare_details_by_partner(this);"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
                 <div class="col-md-12">
-                    <center><img id="loader_gif_spare_part_by_partner" src="<?php echo base_url(); ?>images/loadring.gif"></center>
+                    <center><img id="loader_gif_spare_part_by_partner" src="<?php echo base_url(); ?>images/loadring.gif" style="display:none"></center>
                 </div>
-                <div class="x_content">
+                <div class="x_content collapse" id="spare_details_by_partner_div">
                     <div id="spare_details_by_partner"></div>
                 </div>
             </div>
@@ -387,10 +399,11 @@
             <div class="x_panel">
                 <div class="x_title">
                     <h2>Escalation</h2>
+                    <span class="collape_icon" href="#escalation_data_div" data-toggle="collapse" onclick="initiate_escalation_data(this)"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
 
-                <div class="x_content">
+                <div class="x_content collapse" id="escalation_data_div">
 
                     <div class="table-responsive" id="escalation_data" ng-controller="admin_escalationController" ng-cloak="">
                         <input type="text" id="session_id_holder" style="display:none;" value="<?php if ($this->session->userdata('user_group') == 'regionalmanager') {
@@ -439,17 +452,21 @@
                     <div class="col-md-6">
                         <h3>Partner Booking Status &nbsp;&nbsp;&nbsp;</h3>
                     </div>
-                    <div class="col-md-6">
-                        <div id="reportrange" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc">
+                    <div class="col-md-5">
+                        <div id="reportrange" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; margin-right: -12%;">
                             <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
                             <span></span> <b class="caret"></b>
                         </div>
                     </div>
+                    <div class="col-md-1">
+                        <span class="collape_icon" href="#chart_container_div" data-toggle="collapse" onclick="partner_booking_status_call(this)" style="margin-right: 8px;"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                    </div>
                 </div>
+                <div class="x_content collapse" id="chart_container_div">
                 <div class="col-md-12">
                     <center><img id="loader_gif1" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
                 </div>
-                <div class="col-md-12 col-sm-12 col-xs-12">
+                
                     <div id="chart_container" class="chart_container"></div>
                 </div>
                 <div class="clearfix"></div>
@@ -463,12 +480,13 @@
             <div class="x_panel">
                 <div class="x_title">
                     <h2>Monthly Booking Status <small>Completed</small></h2>
+                    <span class="collape_icon" href="#monthly_booking_chart_div" data-toggle="collapse" onclick="around_monthly_data(this);"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
                 <div class="col-md-12">
                     <center><img id="loader_gif2" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
                 </div>
-                <div class="x_content">
+                <div class="x_content collapse" id="monthly_booking_chart_div">
                     <div id="monthly_booking_chart" style="width:100%; height:400px;" ></div>
                 </div>
             </div>
@@ -478,19 +496,24 @@
         <div class="col-md-6 col-sm-12 col-xs-12" id="based_on_Region">
             <div class="x_panel">
                 <div class="x_title">
-                    <h2>Booking based on Region <small></small></h2>
-                    <div class="nav navbar-right panel_toolbox">
-                        <div id="reportrange2" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc">
-                            <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
-                            <span></span> <b class="caret"></b>
+                    <div class="col-md-5"><h2>Booking based on Region <small></small></h2></div>
+                    <div class="col-md-6">
+                        <small>
+                        <div class="nav navbar-right panel_toolbox">
+                            <div id="reportrange2" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; margin-right: -10%;">
+                                <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                                <span></span> <b class="caret"></b>
+                            </div>
                         </div>
+                        </small>
                     </div>
+                    <div class="col-md-1" style="padding-right: 0px;"><span class="collape_icon" href="#state_type_booking_chart_div" data-toggle="collapse" onclick="get_bookings_data_by_rm(this)"><i class="fa fa-plus-square" aria-hidden="true"></i></span></div>
                     <div class="clearfix"></div>
                 </div>
                 <div class="col-md-12">
                     <center><img id="loader_gif3" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
                 </div>
-                <div class="x_content">
+                <div class="x_content collapse" id="state_type_booking_chart_div">
                     <div id="state_type_booking_chart"></div>
                 </div>
             </div>
@@ -508,17 +531,22 @@
                             </small>
                         </h3>
                     </div>
-                    <div class="col-md-6">
-                        <div id="reportrange3" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc">
+                    <div class="col-md-5">
+                        <div id="reportrange3" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; margin-right: -12%;">
                             <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
                             <span></span> <b class="caret"></b>
                         </div>
                     </div>
+                    <div class="col-md-1">
+                        <span class="collape_icon" href="#chart_container2_div" data-toggle="collapse" onclick="agent_daily_report_call(this)" style="margin-right: 8px;"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                    </div>
                 </div>
-                <div class="col-md-12">
-                    <center><img id="loader_gif4" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
+                <div class="x_content collapse" id="chart_container2_div">
+                    <div class="col-md-12">
+                        <center><img id="loader_gif4" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
+                    </div>
+                    <div id="chart_container2" class="chart_containe2"></div>
                 </div>
-                <div id="chart_container2" class="chart_containe2"></div>
                 <div class="clearfix"></div>
             </div>
         </div>
@@ -725,20 +753,30 @@
         //top count data
         get_query_data();
         //missing pincode data
-        get_missing_pincodes();
+        //get_missing_pincodes();
         //partner booking data
-        partner_booking_status(start.format('MMMM D, YYYY'), end.format('MMMM D, YYYY'));
+        
         //company monthly data
-        around_monthly_data();
+        // around_monthly_data();
         //Rm wise bookings data
-        get_bookings_data_by_rm();
+        //get_bookings_data_by_rm();
         //agent performance data
-        agent_daily_report(start.format('MMMM D, YYYY'), end.format('MMMM D, YYYY'));
+        //agent_daily_report(start.format('MMMM D, YYYY'), end.format('MMMM D, YYYY'));
         
         //partner spare status
-        spare_details_by_partner();
+        //spare_details_by_partner();
         
     });
+    
+    function partner_booking_status_call(span){ 
+        collapse_icon_change(span);
+        partner_booking_status(start.format('MMMM D, YYYY'), end.format('MMMM D, YYYY'));
+    }
+    function agent_daily_report_call(span){ 
+        collapse_icon_change(span);
+        agent_daily_report(start.format('MMMM D, YYYY'), end.format('MMMM D, YYYY'));
+    }
+    
     
     //show next grapgh when show more button clicked
     $("#show_more_btn").click(function(){
@@ -770,7 +808,8 @@
         });
     }
     
-    function get_missing_pincodes(){
+    function get_missing_pincodes(span){
+        collapse_icon_change(span);
         var data = {};
         url = '<?php echo base_url(); ?>employee/dashboard/get_pincode_not_found_sf_details_admin';
         data['partner_id'] = '';
@@ -780,7 +819,7 @@
         });
     }
     
-    function partner_booking_status(startDate,endDate){
+    function partner_booking_status(startDate,endDate){ 
         $('#loader_gif1').fadeIn();
         $('#chart_container').fadeOut();
         var data = {sDate: startDate, eDate: endDate};
@@ -791,7 +830,8 @@
         });
     }
     
-    function around_monthly_data(){
+    function around_monthly_data(span){
+        collapse_icon_change(span);
         $('#loader_gif2').fadeIn();
         $('#monthly_booking_chart').fadeOut();
         var data = {partner_id:''};
@@ -814,7 +854,8 @@
         });
     }
     
-    function get_bookings_data_by_rm(){
+    function get_bookings_data_by_rm(span){
+        collapse_icon_change(span);
         $('#loader_gif3').fadeIn();
         $('#state_type_booking_chart').fadeOut();
         var data = {};
@@ -1249,7 +1290,9 @@
     }
     
     //this function is used to get the spare details for partner
-    function spare_details_by_partner(){
+    function spare_details_by_partner(span){
+        collapse_icon_change(span);
+        $('#loader_gif_spare_part_by_partner').show();
         url =  '<?php echo base_url(); ?>employee/dashboard/get_oot_spare_parts_count_by_partner';
         data = {};
         sendAjaxRequest(data,url,post_request).done(function(response){
@@ -1258,7 +1301,7 @@
     }
     
     //this function is used to create chart for partner spare details
-    function create_spare_parts_by_partner_chart(response){
+    function create_spare_parts_by_partner_chart(response){ 
         var data = JSON.parse(response);
         var partners_id = data.partner_id;
         var partners = data.partner_name.split(',');
@@ -1322,11 +1365,13 @@
              document.getElementById("order_by_toggal").innerHTML="Sort By Number Of Escalation";
         }
     }
-$(function() {
-        var d = new Date();
-        n = d.getMonth()+1;
-        y = d.getFullYear();
-        date = d.getDate();
+
+function initiate_escalation_data(span){
+    collapse_icon_change(span);
+    var d = new Date();
+    n = d.getMonth()+1;
+    y = d.getFullYear();
+    date = d.getDate();
     $('input[name="daterange"]').daterangepicker({
         timePicker: true,
         timePickerIncrement: 30,
@@ -1335,8 +1380,10 @@ $(function() {
         },
         startDate: y+'-'+n+'-01'
     });
-});
-$(function() {
+}
+
+function initiate_completed_bookings_data(span){
+    collapse_icon_change(span);
      var d = new Date();
         n = d.getMonth();
         y = d.getFullYear();
@@ -1349,7 +1396,7 @@ $(function() {
         },
         startDate: y+'-'+n+'-'+date
     });
-});
+}
     </script>
 <style>
     .text_warning{
@@ -1359,4 +1406,4 @@ $(function() {
   display: none !important;
 }
 select option:empty { display:none }
-    </style>
+</style>
