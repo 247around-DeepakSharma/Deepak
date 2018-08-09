@@ -80,7 +80,7 @@ if ($this->uri->segment(3)) {
                                 foreach ($spare_parts as $key => $row) {
                                     ?>
                                     <tr style="text-align: center;" >
-                                        <td <?php if($row['inventory_invoice_on_booking'] == 1){ echo 'background: green;color: #FFFfff;';} ?>>
+                                        <td style="<?php if($row['inventory_invoice_on_booking'] == 1){ echo 'background: green;color: #FFFfff;';} ?>">
                                             <?php if ($row['is_upcountry'] == 1 && $row['upcountry_paid_by_customer'] == 0) { ?>
                                                 <i style="color:red; font-size:20px;" onclick="open_upcountry_model('<?php echo $row['booking_id']; ?>', '<?php echo $row['amount_due']; ?>')"
                                                    class="fa fa-road" aria-hidden="true"></i><?php } ?>
