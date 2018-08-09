@@ -638,7 +638,7 @@ class Accounting extends CI_Controller {
         $shipped_documents['receiver_entity_id'] = $id;
         if($this->input->post('add_edit') == 'add'){ 
             $add_documents = $this->reusable_model->insert_into_table("courier_details",$shipped_documents);
-            /*** Modified by kalyani - Send email for courier detail to given email id ****/
+            /***  Send email for courier detail to given email id ****/
             $email_template = $this->booking_model->get_booking_email_template(COURIER_DOCUMENT);
             $from = $email_template[2];
             $to = $this->input->post('email_input');

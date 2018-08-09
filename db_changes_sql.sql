@@ -8041,5 +8041,5 @@ ALTER TABLE `spare_parts_details` ADD `inventory_invoice_on_booking` INT(1) NOT 
 
 -- Kalyani 23-07-2018
 
-ALTER TABLE `courier_details` ADD COLUMN `notification_email1`  VARCHAR(255) AFTER `contact_person_id`;
+ALTER TABLE `courier_details` ADD COLUMN `notification_email`  VARCHAR(255) AFTER `contact_person_id`;
 ALTER TABLE `courier_details` ADD COLUMN `is_active` tinyint(1) NOT NULL DEFAULT 1 AFTER `partner_invoice_id`;
