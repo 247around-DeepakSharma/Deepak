@@ -112,7 +112,7 @@
                     <input type="hidden" name="request_type" value="<?php echo $spare_parts[0]->request_type?>"/>
                     <input type="hidden" class="form-control" name="booking_id" value = "<?php echo $spare_parts[0]->booking_id; ?>">
                     <?php foreach ($spare_parts as $skey => $sp) { ?>
-                    <p style="font-weight:bold; margin-bottom: 15px;"><?php if($sp->inventory_invoice_on_booking == 1){ echo 'Inventory on Booking';} else { echo "Inventory on MSL";} ?></p>
+                    <p style="font-weight:bold; margin-bottom: 15px;"><?php if($sp->inventory_invoice_on_booking == 1){ echo 'Invoice on Booking';} else { echo "Invoice on MSL";} ?></p>
                     <div class="panel panel-default" style="<?php if($sp->inventory_invoice_on_booking == 1){ echo 'border-color: green;';} ?>">
                         <div class="panel-body" >
                             <div class="x_content">
