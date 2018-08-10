@@ -163,9 +163,6 @@
                                     {
                                         extend: 'excel',
                                         text: 'Export',
-                                        exportOptions: {
-                                            columns: [ 0, 1, 2,3,4, 5,6,7,8,9,10]
-                                        },
                                         title: $('#partner_vendor option:selected').text().trim() +'_' + $('#type option:selected').text().trim()+'_report_'+time
                                     }
                                 ]
