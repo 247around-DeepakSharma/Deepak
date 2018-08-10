@@ -5116,6 +5116,7 @@ function collapse_icon_change(span){
         else{ 
             $(span).find("i").removeClass("fa fa-minus-square"); 
             $(span).find("i").addClass("fa fa-plus-square");
+            return false;
         }
 }
 
