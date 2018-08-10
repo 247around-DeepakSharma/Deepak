@@ -2868,8 +2868,8 @@ function convert_html_to_pdf($html,$booking_id,$filename,$s3_folder){
         if(!$bookingID){
             $bookingDetails = $this->My_CI->booking_model->get_missed_call_rating_booking_count($number);
             if($bookingDetails){
-            $bookingID = $bookingDetails[0]['booking_id'];
-        }
+                $bookingID = $bookingDetails[0]['booking_id'];
+            }
         }
         if($bookingID){
             $select = "booking_details.*,employee.official_email,service_centres.name,services.services";
@@ -3128,13 +3128,13 @@ function convert_html_to_pdf($html,$booking_id,$filename,$s3_folder){
     }
     function is_booking_valid_for_partner_panelty($request_type){
         $is_valid = 1;
-        if(strpos($request_type, 'Out of Warranty') !== false) {
+        if(stripos($request_type, 'Out of Warranty') !== false) {
             $is_valid = 0;
         }
-        if(strpos($request_type, 'Repeat') !== false) {
+        if(stripos($request_type, 'Repeat') !== false) {
             $is_valid = 0;
         }
-        if(strpos($request_type, 'Service Center Visit') !== false) {
+        if(stripos($request_type, 'Service Center Visit') !== false) {
             $is_valid = 0;
         }
         return $is_valid;
