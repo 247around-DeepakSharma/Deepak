@@ -450,6 +450,7 @@ class Booking extends CI_Controller {
             }
 
             if ($booking['type'] == 'Booking') {
+                $booking['current_status'] =  _247AROUND_PENDING;
                 
                 $booking['booking_remarks'] = $remarks;
                 $new_state = $booking_id_with_flag['new_state'];
