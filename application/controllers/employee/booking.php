@@ -720,7 +720,7 @@ class Booking extends CI_Controller {
      * @param: String(Phone Number)
      * @return : void
      */
-    function addbooking($phone_number) {
+    function addbooking($phone_number) { 
         $data = $this->booking_model->get_city_source();
         $data['user'] = $this->user_model->get_users_by_any(array("users.phone_number" => $phone_number));
         $data['phone_number'] = $phone_number;
