@@ -60,7 +60,7 @@
                             
                             <div class="col-md-4" >
                                 <div class="form-group col-md-12 <?php if( form_error('user_name') ) { echo 'has-error';} ?>">
-                                    <label for="name">Name *</label>
+                                    <label for="name">Name * <span id="error_username" style="color: red;"></span></label>
                                     <input type="hidden" name="assigned_vendor_id" id="assigned_vendor_id" value="" />
                                     <input type="hidden" name="upcountry_data" id="upcountry_data" value="" />
                                     <input type="hidden" name="partner_type" id="partner_type" value="<?php echo $partner_type;?>" />
@@ -418,8 +418,9 @@
 <?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
 <?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>
 <script type="text/javascript">
-    function check_validation(){
+    function check_validation(){ 
         var exp1 = /^[6-9]{1}[0-9]{9}$/;
+        var user_name  = $("#name").val();
         var order_id =  $('#order_id').val();
         var booking_address = $('#booking_address').val();
         var mobile_number = $('#booking_primary_contact_no').val();
@@ -448,6 +449,13 @@
         } else {
             display_message("booking_primary_contact_no","error_mobile_number","green","");
              
+        }
+        if(user_name === "" || user_name.trim().length == '0'){
+            display_message("name","error_username","red","Please Enter User Name");
+            return false;
+        }else {
+           display_message("name","error_username","green","");
+            
         }
         if(pincode === ""){
               display_message("booking_pincode","error_pincode","red","Please Enter Pincode");

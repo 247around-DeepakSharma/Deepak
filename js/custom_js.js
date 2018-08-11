@@ -235,7 +235,7 @@ function addBookingDialog() {
     count_number++;
     var exp1 = /^[6-9]{1}[0-9]{9}$/;
 
-
+    var user_name = $('#name').val();
     var p_contact_no = $('#booking_primary_contact_no').val();
     var alternate_contact_no = $('#booking_alternate_contact_no').val();
     var address = $('#booking_address').val();
@@ -252,7 +252,12 @@ function addBookingDialog() {
     var is_active = $("#is_active").val();
     var div_count = $('.purchase_date').length;
    // var customer_paid = $("#grand_total_price").val();
-    
+    if (user_name == "" || user_name.trim().length ==0 || user_name == null) {
+
+        alert("Please Enter User Name");
+
+        return false;
+    }
     if (pincode.length !== 6) {
 
         alert("Please Select 6 Digit Valid Pincode Number");

@@ -47,7 +47,7 @@
                         <div class="col-md-12">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="name" class="col-md-4">Name</label>
+                                    <label for="name" class="col-md-4">Name *</label>
                                     <div class="col-md-6">
                                         <input type="hidden" name="upcountry_data" value="" id="upcountry_data" /> 
                                          <input type="hidden" name="user_id" value="<?php if(!empty($user)){ echo $user[0]['user_id'];} ?>" id="user_id" /> 
