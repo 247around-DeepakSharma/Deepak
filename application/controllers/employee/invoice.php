@@ -1208,11 +1208,11 @@ class Invoice extends CI_Controller {
                 if($gst_amount > 0){
                   
                     $debit_invoice_details = array(
-                        'invoice_id' => "Around-GST-CN-".$invoice_data['meta']['invoice_id'],
+                        'invoice_id' => "Around-GST-DN-".$invoice_data['meta']['invoice_id'],
                         "reference_invoice_id" => $invoice_data['meta']['invoice_id'],
-                        'type' => 'CreditNote',
+                        'type' => 'DebitNote',
                         'vendor_partner_id' => $vendor_id,
-                        'type_code' => 'B',
+                        'type_code' => 'A',
                         'vendor_partner' => 'vendor',
                         'invoice_date' => date("Y-m-d"),
                         'from_date' => date("Y-m-d", strtotime($from_date)),
@@ -1220,7 +1220,7 @@ class Invoice extends CI_Controller {
                         'total_service_charge' => ( $invoice_data['meta']["cgst_total_tax_amount"] +  $invoice_data['meta']["sgst_total_tax_amount"] +  $invoice_data['meta']["igst_total_tax_amount"]),
                         'total_amount_collected' => ( $invoice_data['meta']["cgst_total_tax_amount"] +  $invoice_data['meta']["sgst_total_tax_amount"] +  $invoice_data['meta']["igst_total_tax_amount"]),
                         //Amount needs to be Paid to Vendor
-                        'amount_collected_paid' => (0 - ( $invoice_data['meta']["cgst_total_tax_amount"] +  $invoice_data['meta']["sgst_total_tax_amount"] +  $invoice_data['meta']["igst_total_tax_amount"])),
+                        'amount_collected_paid' => $invoice_data['meta']["cgst_total_tax_amount"] +  $invoice_data['meta']["sgst_total_tax_amount"] +  $invoice_data['meta']["igst_total_tax_amount"],
                         //Add 1 month to end date to calculate due date
                         'due_date' => date("Y-m-d", strtotime($to_date . "+1 month")),
                         //add agent id
