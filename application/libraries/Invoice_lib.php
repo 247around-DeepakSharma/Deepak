@@ -242,8 +242,15 @@ class Invoice_lib {
             else{ 
                 $data['gst_taxpayer_type'] = $response['dty']; //Regular
                 $data['gst_status'] = $response['sts']; //Active
-                $data['gst_cancelled_date'] = date("Y-m-d", strtotime($response['cxdt']));
-               if($vendor[0]['gst_taxpayer_type'] != $response['dty'] || $vendor[0]['gst_status'] != $response['sts']){
+
+                if(isset($response['cxdt']) && !empty($response['cxdt'])){
+                    $data['gst_cancelled_date'] = date("Y-m-d", strtotime($response['cxdt']));
+                } else {
+                    $data['gst_cancelled_date'] = NULL;
+                }
+                
+                if(($vendor[0]['gst_taxpayer_type'] != $response['dty']) || ($vendor[0]['gst_status'] != $response['sts'])){
+
                     
                     $email_template = $this->ci->booking_model->get_booking_email_template(GST_DETAIL_UPDATED);
                     if(!empty($email_template)){ 
@@ -257,6 +264,23 @@ class Invoice_lib {
                 $data['gst_no'] = $response['gstin'];
                 return $data;
             }
+        }
+    }
+    
+    function check_gst_number_valid($vendor_id, $gst_number){
+        if(!empty($gst_number)){
+            $gstin = $this->get_gstin_status_by_api($vendor_id);
+            if(!empty($gstin)){
+                if($gstin['gst_taxpayer_type'] == "Regular" && $gstin['gst_status'] == "Active"){
+                    return $gst_number;
+                } else {
+                    return "";
+                }
+            } else {
+                return "";
+            }
+        } else {
+            return "";
         }
     }
 }

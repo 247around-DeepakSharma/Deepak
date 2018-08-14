@@ -2365,7 +2365,9 @@ class Invoice extends CI_Controller {
 
                 if ($data['vendor_partner'] == "vendor") {
                     $entity_details = $this->vendor_model->viewvendor($data['vendor_partner_id']);
-                    $gst_number = $entity_details[0]['gst_no'];
+                    
+                    $gst_number = $this->invoice_lib->check_gst_number_valid($data['vendor_partner_id'], $entity_details[0]['gst_no']);;
+                    
                 } else {
 
                     $entity_details = $this->partner_model->getpartner_details("gst_number, state", array('partners.id' => $data['vendor_partner_id']));
@@ -3623,6 +3625,8 @@ class Invoice extends CI_Controller {
 
                 $entity_details = $this->vendor_model->getVendorDetails("gst_no as gst_number, sc_code,"
                         . "state,address as company_address,company_name,district, pincode", array("id" => $data['vendor_partner_id']));
+                
+                $entity_details[0]['gst_number'] = $this->invoice_lib->check_gst_number_valid($data['vendor_partner_id'], $entity_details[0]['gst_number']);
             } else {
 
                 $entity_details = $this->partner_model->getpartner_details("gst_number,"
@@ -3765,5 +3769,5 @@ class Invoice extends CI_Controller {
          $data['annual_charges_data'] =$this->invoices_model->get_partners_annual_charges("public_name, invoice_id, vendor_partner_id, "
                  . "from_date, to_date,amount_collected_paid, invoice_file_main",$where);  
          $this->load->view('employee/partners_annual_charges_view', $data);  
-    } 
+    }
 }
