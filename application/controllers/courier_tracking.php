@@ -394,6 +394,8 @@ class Courier_tracking extends CI_Controller {
                         $this->service_centers_model->update_spare_parts(array('id' => $parts_details[0]), $tmp_arr);
                     }
                 }
+            } else {
+                echo " STATUS CHANGED "; print_r($parts_details);
             }
         }
 
