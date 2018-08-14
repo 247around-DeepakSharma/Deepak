@@ -2469,12 +2469,26 @@ class Booking extends CI_Controller {
     function get_booking_life_cycle($booking_id) { 
         $data['data'] = $this->booking_model->get_booking_state_change_by_id($booking_id);
         //Checking for 247Around user
-        $data['sms_sent_details'] = $this->booking_model->get_sms_sent_details($booking_id);
-        $data['email_sent_details'] = $this->booking_model->get_email_sent_details($booking_id);
+        // $data['sms_sent_details'] = $this->booking_model->get_sms_sent_details($booking_id);
+        // $data['email_sent_details'] = $this->booking_model->get_email_sent_details($booking_id);
         //$this->load->view('employee/header/'.$this->session->userdata('user_group'));
 
         $this->load->view('employee/show_booking_life_cycle', $data);
     }
+    
+     /**
+     * @desc: This is used to show Email and Sms of particular Booking
+     * params: String Booking_ID
+     * return: Array of Data for View
+     */
+    function get_booking_email_sms($booking_id) { 
+        $data['data'] = array();
+        $data['sms_sent_details'] = $this->booking_model->get_sms_sent_details($booking_id);
+        $data['email_sent_details'] = $this->booking_model->get_email_sent_details($booking_id);
+        //$this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/show_booking_life_cycle', $data);
+    }
+    
     /**
      * @desc this is used to load comment for requested booking id
      * @param String $booking_id
