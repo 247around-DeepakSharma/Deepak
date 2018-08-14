@@ -20,6 +20,7 @@ class Courier_tracking extends CI_Controller {
         //load model
         $this->load->model('inventory_model');
         $this->load->model('service_centers_model');
+        $this->load->model("partner_model");
     }
     
     /**
@@ -70,6 +71,7 @@ class Courier_tracking extends CI_Controller {
         $this->create_awb_number_data();
         //getting awb list from the api and process on delivered status
         $awb_number_list = $this->trackingmore_api->getTrackingsList();
+        echo $awb_number_list->meta->code;
         if(!empty($awb_number_list) && $awb_number_list->meta->code == 200 ){
             //check if data is empty
             if(!empty($awb_number_list->data)){
@@ -80,7 +82,7 @@ class Courier_tracking extends CI_Controller {
                 //make array of all delivered data so that we can update status of that spare
                 foreach ( $awb_number_list->data->items as $key => $value){
                     if($value->status == 'delivered'){
-                        
+                        echo " FOr each update ". $key.PHP_EOL;
                         $update_status = $this->process_partner_shipped_auto_acknowledge_data($value);
                        
                         if($update_status){
@@ -96,6 +98,7 @@ class Courier_tracking extends CI_Controller {
                 if(!empty($awb_number_to_be_deleted_from_api)){
                     //delete all the delivered data from the trackingmore api
                     $delete_status = $this->delete_awb_data_from_api($awb_number_to_be_deleted_from_api);
+                    print_r($delete_status);
                     if($delete_status['status']){
                         log_message('info','Spare details updated and awb deleted from tracking more api Delete API Response: '. print_r($delete_status,true));
                     }else{
@@ -158,7 +161,7 @@ class Courier_tracking extends CI_Controller {
      * @return void 
      */
     function create_awb_number_data(){
-        $post['length'] = 150;
+        $post['length'] = 200;
         $post['start'] = 0;
         $post['select'] = "spare_parts_details.id as 'spare_id',"
                 . "spare_parts_details.awb_by_partner,spare_parts_details.courier_name_by_partner,"
@@ -166,9 +169,9 @@ class Courier_tracking extends CI_Controller {
         $post['where'] = array('spare_parts_details.status' => SPARE_SHIPPED_BY_PARTNER);
         $spare_data = $this->inventory_model->get_spare_parts_query($post);
         if(!empty($spare_data)){
-            foreach ($spare_data as $val) {
+            foreach ($spare_data as $key => $val) {
                 $extra_info = array();
-                
+                echo $key.PHP_EOL;
                 //here we create temp order id by using spareid,partnerid,booking_id
                 //when we get the list of tracking while auto acknowledging parts then
                 //at that time we don't need to go to database to get the details of the parts
@@ -330,9 +333,10 @@ class Courier_tracking extends CI_Controller {
             $tmp_arr['acknowledge_date'] = date('Y-m-d');
             $tmp_arr['auto_acknowledeged'] = 2;
 
-            $getsparedata = $this->partner_model->get_spare_parts_by_any(array("id" => $parts_details[0], "status" => SPARE_SHIPPED_BY_PARTNER));
+            $getsparedata = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, booking_id, status",array("spare_parts_details.id" => $parts_details[0], "status" => SPARE_SHIPPED_BY_PARTNER));
+             print_r($getsparedata);
             if (!empty($getsparedata)) {
-
+                echo "update Data";
                 //auto acknowledge spare by updating status in spare parts table and setting auto_acknowledge flag 2 for the api
                 $update_status = $this->service_centers_model->update_spare_parts(array('id' => $parts_details[0]), $tmp_arr);
 
