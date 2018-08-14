@@ -20,6 +20,7 @@ class Courier_tracking extends CI_Controller {
         //load model
         $this->load->model('inventory_model');
         $this->load->model('service_centers_model');
+        $this->load->model("partner_model");
     }
     
     /**
@@ -70,6 +71,7 @@ class Courier_tracking extends CI_Controller {
         $this->create_awb_number_data();
         //getting awb list from the api and process on delivered status
         $awb_number_list = $this->trackingmore_api->getTrackingsList();
+        echo $awb_number_list->meta->code;
         if(!empty($awb_number_list) && $awb_number_list->meta->code == 200 ){
             //check if data is empty
             if(!empty($awb_number_list->data)){
@@ -80,7 +82,7 @@ class Courier_tracking extends CI_Controller {
                 //make array of all delivered data so that we can update status of that spare
                 foreach ( $awb_number_list->data->items as $key => $value){
                     if($value->status == 'delivered'){
-                        
+                        echo " FOr each update ". $key.PHP_EOL;
                         $update_status = $this->process_partner_shipped_auto_acknowledge_data($value);
                        
                         if($update_status){
@@ -96,6 +98,7 @@ class Courier_tracking extends CI_Controller {
                 if(!empty($awb_number_to_be_deleted_from_api)){
                     //delete all the delivered data from the trackingmore api
                     $delete_status = $this->delete_awb_data_from_api($awb_number_to_be_deleted_from_api);
+                    print_r($delete_status);
                     if($delete_status['status']){
                         log_message('info','Spare details updated and awb deleted from tracking more api Delete API Response: '. print_r($delete_status,true));
                     }else{
@@ -158,16 +161,17 @@ class Courier_tracking extends CI_Controller {
      * @return void 
      */
     function create_awb_number_data(){
-        $post['length'] = -1;
+        $post['length'] = 200;
+        $post['start'] = 0;
         $post['select'] = "spare_parts_details.id as 'spare_id',"
                 . "spare_parts_details.awb_by_partner,spare_parts_details.courier_name_by_partner,"
                 . "spare_parts_details.shipped_date,spare_parts_details.booking_id,booking_details.partner_id";
         $post['where'] = array('spare_parts_details.status' => SPARE_SHIPPED_BY_PARTNER);
         $spare_data = $this->inventory_model->get_spare_parts_query($post);
         if(!empty($spare_data)){
-            foreach ($spare_data as $val) {
+            foreach ($spare_data as $key => $val) {
                 $extra_info = array();
-                
+                echo $key.PHP_EOL;
                 //here we create temp order id by using spareid,partnerid,booking_id
                 //when we get the list of tracking while auto acknowledging parts then
                 //at that time we don't need to go to database to get the details of the parts
@@ -320,75 +324,79 @@ class Courier_tracking extends CI_Controller {
      */
     function process_partner_shipped_auto_acknowledge_data($data) {
         $res = FALSE;
-        
+
         $parts_details = explode('/', $data->order_id);
-        if(!empty($parts_details)){
-            
+        if (!empty($parts_details)) {
+
             $tmp_arr = array();
             $tmp_arr['status'] = SPARE_DELIVERED_TO_SF;
             $tmp_arr['acknowledge_date'] = date('Y-m-d');
             $tmp_arr['auto_acknowledeged'] = 2;
 
-            //auto acknowledge spare by updating status in spare parts table and setting auto_acknowledge flag 2 for the api
-            $update_status = $this->service_centers_model->update_spare_parts(array('id' => $parts_details[0]), $tmp_arr);
+            $getsparedata = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, booking_id, status",array("spare_parts_details.id" => $parts_details[0], "status" => SPARE_SHIPPED_BY_PARTNER));
+             print_r($getsparedata);
+            if (!empty($getsparedata)) {
+                echo "update Data";
+                //auto acknowledge spare by updating status in spare parts table and setting auto_acknowledge flag 2 for the api
+                $update_status = $this->service_centers_model->update_spare_parts(array('id' => $parts_details[0]), $tmp_arr);
 
-            if($update_status){
-                log_message('info',' Spare Details updated for spare id '. $parts_details[0] );
-                $booking['booking_date'] = date('d-m-Y', strtotime('+1 days'));
-                $booking['update_date'] =  date("Y-m-d H:i:s");
-                $booking['internal_status'] = SPARE_PARTS_DELIVERED;
-        
-                $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, SPARE_PARTS_DELIVERED, $parts_details[1], $parts_details[2]);
-                $actor = $next_action ='not_define';
-                if (!empty($partner_status)) {
-                    $booking['partner_current_status'] = $partner_status[0];
-                    $booking['partner_internal_status'] = $partner_status[1];
-                    $actor = $booking['actor'] = $partner_status[2];
-                    $next_action = $booking['next_action'] = $partner_status[3];
-                }
-                $b_status = $this->booking_model->update_booking($parts_details[2], $booking);
-                $state_change['actor'] = $actor;
-                $state_change['next_action'] = $next_action;
-                if ($b_status) {
-                    $state_change['booking_id'] = $parts_details[2];
-                    $state_change['new_state'] =  SPARE_PARTS_DELIVERED;
-           
-                    $booking_state_change = $this->booking_model->get_booking_state_change($state_change['booking_id']);
-            
-                    if ($booking_state_change > 0) {
-                        $state_change['old_state'] = $booking_state_change[count($booking_state_change) - 1]['new_state'];
-                    } else { //count($booking_state_change)
-                        $state_change['old_state'] = "Pending";
+                if ($update_status) {
+                    log_message('info', ' Spare Details updated for spare id ' . $parts_details[0]);
+                    $booking['booking_date'] = date('d-m-Y', strtotime('+1 days'));
+                    $booking['update_date'] = date("Y-m-d H:i:s");
+                    $booking['internal_status'] = SPARE_PARTS_DELIVERED;
+
+                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, SPARE_PARTS_DELIVERED, $parts_details[1], $parts_details[2]);
+                    $actor = $next_action = 'not_define';
+                    if (!empty($partner_status)) {
+                        $booking['partner_current_status'] = $partner_status[0];
+                        $booking['partner_internal_status'] = $partner_status[1];
+                        $actor = $booking['actor'] = $partner_status[2];
+                        $next_action = $booking['next_action'] = $partner_status[3];
                     }
-                    
-                    $state_change['agent_id'] = _247AROUND_DEFAULT_AGENT;
-                    $state_change['partner_id'] = _247AROUND;
-                    $state_change['remarks'] = DELIVERY_CONFIRMED_WITH_COURIER;
+                    $b_status = $this->booking_model->update_booking($parts_details[2], $booking);
+                    $state_change['actor'] = $actor;
+                    $state_change['next_action'] = $next_action;
+                    if ($b_status) {
+                        $state_change['booking_id'] = $parts_details[2];
+                        $state_change['new_state'] = SPARE_PARTS_DELIVERED;
 
-                    // Insert data into booking state change
-                    $this->booking_model->insert_booking_state_change($state_change);
+                        $booking_state_change = $this->booking_model->get_booking_state_change($state_change['booking_id']);
 
-                    $sc_data['current_status'] = "Pending";
-                    $sc_data['internal_status'] = SPARE_PARTS_DELIVERED;
-                    $sc_data['update_date'] = date("Y-m-d H:i:s");
-                    $this->vendor_model->update_service_center_action($parts_details[2], $sc_data);
-                    $cb_url = base_url() . "employee/do_background_process/send_request_for_partner_cb/".$parts_details[2];
-                    $pcb = array();
-                    $this->asynchronous_lib->do_background_process($cb_url, $pcb);
+                        if ($booking_state_change > 0) {
+                            $state_change['old_state'] = $booking_state_change[count($booking_state_change) - 1]['new_state'];
+                        } else { //count($booking_state_change)
+                            $state_change['old_state'] = "Pending";
+                        }
 
-                }else{
-                    
-                    //reverse the change in the spare part table
-                    $tmp_arr = array();
-                    $tmp_arr['status'] = SPARE_SHIPPED_BY_PARTNER;
-                    $tmp_arr['acknowledge_date'] = NULL;
-                    $tmp_arr['auto_acknowledeged'] = NULL;
+                        $state_change['agent_id'] = _247AROUND_DEFAULT_AGENT;
+                        $state_change['partner_id'] = _247AROUND;
+                        $state_change['remarks'] = DELIVERY_CONFIRMED_WITH_COURIER;
 
-                    $this->service_centers_model->update_spare_parts(array('id' => $parts_details[0]), $tmp_arr);
+                        // Insert data into booking state change
+                        $this->booking_model->insert_booking_state_change($state_change);
+
+                        $sc_data['current_status'] = "Pending";
+                        $sc_data['internal_status'] = SPARE_PARTS_DELIVERED;
+                        $sc_data['update_date'] = date("Y-m-d H:i:s");
+                        $this->vendor_model->update_service_center_action($parts_details[2], $sc_data);
+                        $cb_url = base_url() . "employee/do_background_process/send_request_for_partner_cb/" . $parts_details[2];
+                        $pcb = array();
+                        $this->asynchronous_lib->do_background_process($cb_url, $pcb);
+                    } else {
+
+                        //reverse the change in the spare part table
+                        $tmp_arr = array();
+                        $tmp_arr['status'] = SPARE_SHIPPED_BY_PARTNER;
+                        $tmp_arr['acknowledge_date'] = NULL;
+                        $tmp_arr['auto_acknowledeged'] = NULL;
+
+                        $this->service_centers_model->update_spare_parts(array('id' => $parts_details[0]), $tmp_arr);
+                    }
                 }
             }
         }
-        
+
         return $res;
     }
 
