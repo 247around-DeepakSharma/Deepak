@@ -419,6 +419,8 @@ class Booking extends CI_Controller {
                     $booking_id_with_flag = $this->change_in_booking_id($booking['type'], $booking_id, $this->input->post('query_remarks'));
                     if( $booking_id_with_flag['query_to_booking'] == "1"){
                         $booking['initial_booking_date'] = $booking['booking_date'];
+                        $booking['current_status'] =  _247AROUND_PENDING;
+                        $booking['internal_status'] = 'Scheduled';
                     }
                 } else {
                     //Internal status has query remarks only
@@ -449,8 +451,6 @@ class Booking extends CI_Controller {
             }
 
             if ($booking['type'] == 'Booking') {
-                $booking['current_status'] =  _247AROUND_PENDING;
-                $booking['internal_status'] = 'Scheduled';
                 
                 $booking['booking_remarks'] = $remarks;
                 $new_state = $booking_id_with_flag['new_state'];
@@ -1638,6 +1638,10 @@ class Booking extends CI_Controller {
                     $status = $this->getAllBookingInput($user_id, $booking_id);
                     if ($status) {
                         log_message('info', __FUNCTION__ . " Update Booking ID" . $status['booking_id']);
+                        
+                        if ($status['type'] == "FollowUp") {
+                            $this->partner_cb->partner_callback($booking_id);
+                        }
 
                         //Redirect to Default Search Page
                         redirect(base_url() . DEFAULT_SEARCH_PAGE);
