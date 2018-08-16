@@ -57,7 +57,12 @@
 </div>
 <div class="btn-group" role="group">
     <button type="button" class="btn btn-default" href="#tab4" data-toggle="tab">
-        <div class="hidden-xs">History / Sms</div>
+        <div class="hidden-xs">History</div>
+    </button>
+</div>
+<div class="btn-group" role="group">
+    <button type="button" class="btn btn-default" href="#tab8" data-toggle="tab">
+        <div class="hidden-xs">Sms / Email</div>
     </button>
 </div>
 <div class="btn-group" role="group">
@@ -649,6 +654,13 @@
     </div>
                 </div>
             </div>
+            <div class="tab-pane fade in" id="tab8">
+                <div style="padding: 0 15px;">
+                    <div class="row">
+                        <div id="email_and_sms_box"></div>
+                    </div>
+                </div>
+            </div>
             <div class="tab-pane fade in" id="tab5">
                 <div class="row">
                     <div class="col-md-12">
@@ -1056,6 +1068,7 @@ function sf_tab_active(){
 }
     $('document').ready(function () {
         var booking_id = '<?php echo base_url() ?>employee/booking/get_booking_life_cycle/<?php echo $booking_history[0]['booking_id'] ?>';
+        var emailsms_url = '<?php echo base_url() ?>employee/booking/get_booking_email_sms/<?php echo $booking_history[0]['booking_id'] ?>';
                 $.ajax({
                     type: 'POST',
                     url: booking_id,
@@ -1063,7 +1076,16 @@ function sf_tab_active(){
                         $('#historyDetails').html(response);
                     }
                 });
-            });
+                
+                $.ajax({
+                    type: 'POST',
+                    url: emailsms_url,
+                    success: function (response) {
+                        $('#email_and_sms_box').html(response);
+                        $('#email_and_sms_box').find('.booking_history_div').css("display", "none");
+                    }
+                });
+    });
     
             $(document).ready(function () {
                 $(".btn-pref .btn").click(function () {
