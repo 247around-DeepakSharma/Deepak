@@ -381,7 +381,7 @@
                                                                 <tr>
                                                                     <td><?php echo $sp['parts_shipped']; ?></td>
                                                                     <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['courier_name_by_partner'])); ?></td>
-                                                                    <td><?php echo $sp['awb_by_partner']; ?></td>
+                                                                    <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['courier_name_by_partner']; ?>','<?php echo $sp['awb_by_partner']; ?>','<?php echo $sp['status']; ?>')"><?php echo $sp['awb_by_partner']; ?></a> <span id="awb_loader" style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
                                                                     <td><?php echo $sp['shipped_date']; ?></td>
                                                                     <td><?php echo $sp['edd']; ?></td>
                                                                     <td><?php echo $sp['remarks_by_partner']; ?></td>
@@ -525,6 +525,23 @@
     </div>
 </div>
 <div class="clearfix"></div>
+<!-- model -->
+    <div id="gen_model" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title" id="gen_model_title"></h4>
+                </div>
+                <div class="modal-body" id="gen_model_body"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
 <script>
     function sf_tab_active(){
         <?php if($booking_history[0]['is_upcountry'] == 1){  ?>  
@@ -569,4 +586,23 @@
 
         }
     });
+    
+    function get_awb_details(courier_code,awb_number,status){
+        if(courier_code && awb_number && status){
+            $('#awb_loader').show();
+            $.ajax({
+                method:"POST",
+                url:'<?php echo base_url(); ?>courier_tracking/get_awb_real_time_tracking_details/' + courier_code + '/' + awb_number + '/' + status,
+                success: function(res){
+                    console.log(res);
+                    $('#awb_loader').hide();
+                    $('#gen_model_title').html('<h3> AWB Number : ' + awb_number + '</h3>');
+                    $('#gen_model_body').html(res);
+                    $('#gen_model').modal('toggle');
+                }
+            });
+        }else{
+            alert('Something Wrong. Please Refresh Page...');
+        }
+    }
 </script>
