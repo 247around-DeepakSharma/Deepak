@@ -122,7 +122,7 @@ class Courier_tracking extends CI_Controller {
      * @return array 
      */
     function get_awb_real_time_tracking_details($carrier_code,$awb_number,$spare_status){
-        $this->checkUserSession();
+        //$this->checkUserSession();
         if(!empty($carrier_code) && !empty($awb_number) && !empty($spare_status)){
             
             if($spare_status === SPARE_SHIPPED_BY_PARTNER){
