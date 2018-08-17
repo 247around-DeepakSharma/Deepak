@@ -232,7 +232,8 @@ class Invoice_lib {
             }
             $activity['json_response_string'] = $err;
             $this->ci->partner_model->log_partner_activity($activity);
-            return false;
+            $data['status'] = 'error'; 
+            return $data;
         } else { 
                 //$response = '{"stjCd":"DL086","lgnm":"SUDESH KUMAR","stj":"Ward 86","dty":"Regular","adadr":[],"cxdt":"","gstin":"07ALDPK4562B1ZG","nba":["Recipient of Goods or Services","Service Provision","Retail Business","Wholesale Business","Works Contract"],"lstupdt":"17/04/2018","rgdt":"01/07/2017","ctb":"Proprietorship","pradr":{"addr":{"bnm":"BLOCK 4","st":"GALI NO. 5","loc":"HARI NAGAR ASHRAM","bno":"A-144/5","dst":"","stcd":"Delhi","city":"","flno":"G/F","lt":"","pncd":"110014","lg":""},"ntr":"Recipient of Goods or Services, Service Provision, Retail Business, Wholesale Business, Works Contract"},"tradeNam":"UNITED HOME CARE","sts":"Active","ctjCd":"ZK0601","ctj":"RANGE - 161"}';
                 //$api_response = '{"status_cd":"0","error":{"error_cd":"GSP020A","message":"Error: Invalid ASP Password."}}';
@@ -270,6 +271,7 @@ class Invoice_lib {
                     $this->ci->vendor_model->edit_vendor($data, $vendor_id);
                 }
                 $data['gst_no'] = $response['gstin'];
+                $data['status'] = 'success'; 
                 return $data;
             }
         }
@@ -279,10 +281,10 @@ class Invoice_lib {
         if(!empty($gst_number)){
             $gstin = $this->get_gstin_status_by_api($vendor_id);
             if(!empty($gstin)){
-                if($gstin['gst_taxpayer_type'] == "Regular" && $gstin['gst_status'] == "Active"){
+                if($gstin['gst_taxpayer_type'] == "Regular" && $gstin['status'] = "success" && $gstin['gst_status'] == "Active"){
                     return $gst_number;
                 } else {
-                    return "";
+                    return $gst_number;
                 }
             } else {
                 return "";
