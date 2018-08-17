@@ -1,4 +1,4 @@
-<!-- Kalyani 23-07-2018  --->
+﻿<!-- Kalyani 23-07-2018  --->
 
 ALTER TABLE `courier_details` ADD COLUMN `notification_email1`  VARCHAR(255) AFTER `contact_person_id`;
 ALTER TABLE `courier_details` ADD COLUMN `is_active` tinyint(1) NOT NULL DEFAULT 1 AFTER `partner_invoice_id`;
@@ -7991,3 +7991,6 @@ ALTER TABLE `spare_parts_details` ADD `inventory_invoice_on_booking` INT(1) NOT 
 
 --Kalyani
 INSERT INTO `partner_summary_report_mapping` (`id`, `Title`, `sub_query`, `is_default`, `partner_id`, `is_active`, `index_in_report`) VALUES (NULL, 'Comment', 'GROUP_CONCAT(booking_comments.remarks) AS \'Comments\'', '1', '', '1', '39');
+
+--Kalyani 17-08-2018
+ALTER TABLE `log_partner_table` ADD `entity_type` VARCHAR(65) NOT NULL DEFAULT 'partner' AFTER `id`;
