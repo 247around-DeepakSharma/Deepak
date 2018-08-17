@@ -1286,8 +1286,9 @@ class invoices_model extends CI_Model {
                 }
             }
             
-          
-                return $result;
+            $result['booking'][0]['gst_number'] = $this->invoice_lib->check_gst_number_valid($vendor_id, $result['booking'][0]['gst_number']);
+            
+            return $result;
                 
             } else {
                 return FALSE;

@@ -1103,7 +1103,7 @@ class Inventory extends CI_Controller {
                 case 'QUOTE_REQUEST_REJECTED';
                     $where = array('id' => $id );
                     $data = array('status' => _247AROUND_CANCELLED);
-                    $data = array('spare_cancelled_date' => date("Y-m-d h:i:s"));
+                    $data['spare_cancelled_date'] = date("Y-m-d h:i:s");
                     if($requestType == "CANCEL_PARTS"){
                         $new_state = SPARE_PARTS_CANCELLED;
                         $b['internal_status'] = SPARE_PARTS_CANCELLED;
@@ -1122,7 +1122,7 @@ class Inventory extends CI_Controller {
                     break;
                 case 'CANCEL_COMPLETED_BOOKING_PARTS':
                     $where = array('id' => $id );
-                    $data = array('status' => _247AROUND_CANCELLED);
+                    $data = array('status' => _247AROUND_CANCELLED, "spare_cancelled_date" => date("Y-m-d h:i:s"));
                     $new_state = SPARE_PARTS_CANCELLED;
                     $old_state = "Spare Parts Requested";
                     $sc_data['current_status'] = "InProcess";
@@ -4716,8 +4716,9 @@ class Inventory extends CI_Controller {
                 . "spare_parts_details.parts_shipped as 'Part Shipped By Partner',spare_parts_details.shipped_parts_type as 'Part Type',"
                 . "spare_parts_details.shipped_date as 'Partner Part Shipped Date',spare_parts_details.awb_by_partner as 'Partner AWB Number',"
                 . "spare_parts_details.courier_name_by_partner as 'Partner Courier Name',spare_parts_details.courier_price_by_partner as 'Partner Courier Price',"
+                . "partner_challan_number AS 'Partner Challan Number', sf_challan_number as 'SF Challan Number', "
                 . "spare_parts_details.acknowledge_date as 'Spare Received Date',spare_parts_details.auto_acknowledeged as 'IS Spare Auto Acknowledge',"
-                . "spare_parts_details.defective_part_shipped as 'Part Shipped By SF',"
+                . "spare_parts_details.defective_part_shipped as 'Part Shipped By SF',challan_approx_value As 'Parts Charge', "
                 . "spare_parts_details.awb_by_sf as 'SF AWB Number',spare_parts_details.courier_name_by_sf as 'SF Courier Name',"
                 . "datediff(CURRENT_DATE,spare_parts_details.shipped_date) as 'Spare Shipped Age'";
         $where = array("spare_parts_details.status NOT IN('".SPARE_PARTS_REQUESTED."')" => NULL);

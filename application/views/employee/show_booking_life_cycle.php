@@ -1,8 +1,8 @@
 <!--<script type="text/javascript" src="<?php echo base_url(); ?>js/jquery-1.3.2.min.js"></script>-->
 <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
 
-        
-                <h1 style='font-size:24px;'>Booking History</h1>
+    <div class="booking_history_div">   
+        <h1 style='font-size:24px;'>Booking History</h1>
         <table  class="table table-striped table-bordered">
             <tr>
                 <th class="jumbotron" style="text-align: center">S.N</th>
@@ -36,13 +36,12 @@
                 </td>
             </tr>
             <?php } ?>
-<!--    </div>-->
-   
-    </table>
+        </table>
+   </div>
     <hr>
     <?php if (!empty($sms_sent_details)) { ?>
     
-<!--    <h1 style='font-size:24px;'>Booking SMS</h1>
+   <h1 style='font-size:24px;'>Booking SMS</h1>
     <table  class="table table-striped table-bordered table-hover">
         <tr>
             <th class="jumbotron" style="text-align: center;width: 1%">S.N</th>
@@ -50,22 +49,22 @@
             <th class="jumbotron" style="text-align: center;width:45%;">Content</th>
             <th class="jumbotron" style="text-align: center">Sent on Date</th>
         </tr>
-        <?php //foreach ($sms_sent_details as $key => $row) { ?>
+        <?php foreach ($sms_sent_details as $key => $row) { ?>
         <tr>
-            <td><?php //echo ($key + 1) . '.'; ?></td>
-            <td><?php //echo $row['phone']; ?></td>
-            <td style="font-size: 90%;"><?php //echo $row['content']; ?></td>
+            <td><?php echo ($key + 1) . '.'; ?></td>
+            <td><?php echo $row['phone']; ?></td>
+            <td style="font-size: 90%;"><?php echo $row['content']; ?></td>
             <td><?php
-                //$old_date = $row['created_on'];
-                //$old_date_timestamp = strtotime($old_date);
-                //$new_date = date('j F, Y g:i A', $old_date_timestamp);
-                //echo $new_date;
+                $old_date = $row['created_on'];
+                $old_date_timestamp = strtotime($old_date);
+                $new_date = date('j F, Y g:i A', $old_date_timestamp);
+                echo $new_date;
                 ?>
             </td>
         </tr>
-        <?php //} ?>
+        <?php } ?>
 
-</table>-->
+</table>
 <?php } ?>
 
     
@@ -97,9 +96,7 @@
         <?php } ?>
 <!--</div>-->
 </table>
-<?php } ?>
-
-<div id="email_message" class="modal fade" role="dialog">
+    <div id="email_message" class="modal fade" role="dialog">
   <div class="modal-dialog">
 
     <!-- Modal content-->
@@ -117,6 +114,8 @@
 
   </div>
 </div>
+<?php } ?>
+
 <script>
 
 function viewEmailMessage(button){

@@ -1787,4 +1787,42 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         }
     }
     
+    /** This function is used to get gst detail of all vendor from the taxPro API **/
+    function all_vendor_gst_checking_by_api(){
+        $vendor = $this->vendor_model->getVendorDetails('id,gst_no', array(), 'id', array());
+        foreach ($vendor as $vendor){            
+            if($vendor['gst_no']){
+                $curl = curl_init();
+                curl_setopt_array($curl, array(
+                    CURLOPT_URL => "https://api.taxprogsp.co.in/commonapi/v1.1/search?aspid=1606680918&password=priya@b30&Action=TP&Gstin=".$vendor['gst_no'],  
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_ENCODING => "",
+                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                    CURLOPT_CUSTOMREQUEST => "GET",
+                ));
+                $api_response = curl_exec($curl);
+                $err = curl_error($curl);
+                curl_close($curl);
+                if ($err) {
+                    echo "cURL Error :" . $err ."</br>"; 
+                } else {
+                    $api_response = json_decode($api_response, TRUE);
+                    if(isset($api_response['status_cd'])){  }
+                    else{
+                        if(isset($api_response['dty'])){
+                            $data['gst_taxpayer_type'] = $api_response['dty'];
+                        }
+                        if(isset($api_response['sts'])){
+                            $data['gst_status'] = $api_response['sts'];
+                            if($api_response['sts'] == 'Cancelled'){
+                                $data['gst_cancelled_date'] = date("Y-m-d", strtotime($api_response['cxdt']));
+                            }
+                        }
+                        $this->vendor_model->edit_vendor($data, $vendor['id']);
+                    }
+                }
+            }
+        }
+    } 
+    
 }

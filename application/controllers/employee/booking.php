@@ -419,6 +419,8 @@ class Booking extends CI_Controller {
                     $booking_id_with_flag = $this->change_in_booking_id($booking['type'], $booking_id, $this->input->post('query_remarks'));
                     if( $booking_id_with_flag['query_to_booking'] == "1"){
                         $booking['initial_booking_date'] = $booking['booking_date'];
+                        $booking['current_status'] =  _247AROUND_PENDING;
+                        $booking['internal_status'] = 'Scheduled';
                     }
                 } else {
                     //Internal status has query remarks only
@@ -720,7 +722,7 @@ class Booking extends CI_Controller {
      * @param: String(Phone Number)
      * @return : void
      */
-    function addbooking($phone_number) {
+    function addbooking($phone_number) { 
         $data = $this->booking_model->get_city_source();
         $data['user'] = $this->user_model->get_users_by_any(array("users.phone_number" => $phone_number));
         $data['phone_number'] = $phone_number;
@@ -1636,6 +1638,10 @@ class Booking extends CI_Controller {
                     $status = $this->getAllBookingInput($user_id, $booking_id);
                     if ($status) {
                         log_message('info', __FUNCTION__ . " Update Booking ID" . $status['booking_id']);
+                        
+                        if ($status['type'] == "FollowUp") {
+                            $this->partner_cb->partner_callback($booking_id);
+                        }
 
                         //Redirect to Default Search Page
                         redirect(base_url() . DEFAULT_SEARCH_PAGE);
@@ -2466,12 +2472,26 @@ class Booking extends CI_Controller {
     function get_booking_life_cycle($booking_id) { 
         $data['data'] = $this->booking_model->get_booking_state_change_by_id($booking_id);
         //Checking for 247Around user
-        $data['sms_sent_details'] = $this->booking_model->get_sms_sent_details($booking_id);
-        $data['email_sent_details'] = $this->booking_model->get_email_sent_details($booking_id);
+        // $data['sms_sent_details'] = $this->booking_model->get_sms_sent_details($booking_id);
+        // $data['email_sent_details'] = $this->booking_model->get_email_sent_details($booking_id);
         //$this->load->view('employee/header/'.$this->session->userdata('user_group'));
 
         $this->load->view('employee/show_booking_life_cycle', $data);
     }
+    
+     /**
+     * @desc: This is used to show Email and Sms of particular Booking
+     * params: String Booking_ID
+     * return: Array of Data for View
+     */
+    function get_booking_email_sms($booking_id) { 
+        $data['data'] = array();
+        $data['sms_sent_details'] = $this->booking_model->get_sms_sent_details($booking_id);
+        $data['email_sent_details'] = $this->booking_model->get_email_sent_details($booking_id);
+        //$this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/show_booking_life_cycle', $data);
+    }
+    
     /**
      * @desc this is used to load comment for requested booking id
      * @param String $booking_id

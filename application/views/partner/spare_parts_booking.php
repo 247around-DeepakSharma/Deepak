@@ -116,11 +116,9 @@ if ($this->uri->segment(4)) {
                                                 <span class="caret"></span></button>
                                                 <ul class="dropdown-menu" style="border: none;background: none;z-index: 100;position: inherit;min-width: 70px;">
                                                     <div class="action_holder" style="background: #fff;border: 1px solid #2c9d9c;padding: 1px;">
-                                                    <li style="color: #fff;"><a href="<?php echo base_url() ?>partner/update_spare_parts_form/<?php echo $row['booking_id']; ?>" class="btn btn-sm btn-success" title="Update" style="color:#fff;margin: 0px;padding: 5px 12px;" ></i>Update</a></li>
-                                                    <?php $spare_id = explode(",", $row['spare_id']);  if(count($spare_id) == 1) { ?>
-                                                    <li style="color: #fff;margin-top:5px;"><a href="#" data-toggle="modal" id="<?php echo "spare_parts" . $spare_id[0]; ?>" data-url="<?php echo base_url(); ?>employee/inventory/update_action_on_spare_parts/<?php echo $spare_id[0] . "/" . $row['booking_id']; ?>/CANCEL_PARTS" data-booking_id="<?php echo $row['booking_id']; ?>" data-target="#myModal2" class="btn btn-sm btn-danger open-adminremarks" title="Reject" style="color:#fff;margin: 0px;padding: 5px 14.4px;" >Reject</a>
-                                                    </li>
-                                                    <?php } ?>
+                                                    <li style="color: #fff;"><a href="<?php echo base_url() ?>partner/update_spare_parts_form/<?php echo $row['id']; ?>" class="btn btn-sm btn-success" title="Update" style="color:#fff;margin: 0px;padding: 5px 12px;" ></i>Update</a></li>
+                                                    <li style="color: #fff;margin-top:5px;"><a href="#" data-toggle="modal" id="<?php echo "spare_parts" . $row['id']; ?>" data-url="<?php echo base_url(); ?>employee/inventory/update_action_on_spare_parts/<?php echo $row['id'] . "/" . $row['booking_id']; ?>/CANCEL_PARTS" data-booking_id="<?php echo $row['booking_id']; ?>" data-target="#myModal2" class="btn btn-sm btn-danger open-adminremarks" title="Reject" style="color:#fff;margin: 0px;padding: 5px 14.4px;" >Reject</a>
+                                           </li>
                                            </div>
                                                 </ul>
                                             </div>
@@ -130,7 +128,7 @@ if ($this->uri->segment(4)) {
                                             <a href="<?php echo base_url() ?>partner/update_spare_parts_form/<?php echo $row['id']; ?>" class="btn btn-sm btn-primary" title="Update" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>
                                         </td>
                                         <td>
-                                            <a href="#" data-toggle="modal" id="<?php //echo "spare_parts" . $row['id']; ?>" data-url="<?php //echo base_url(); ?>employee/inventory/update_action_on_spare_parts/<?php //echo $row['id'] . "/" . $row['booking_id']; ?>/CANCEL_PARTS" data-booking_id="<?php //echo $row['booking_id']; ?>" data-target="#myModal2" class="btn btn-sm btn-danger open-adminremarks" title="Reject" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class="fa fa-times" aria-hidden='true'></i></a>
+                                            <a href="#" data-toggle="modal" id="<?php echo "spare_parts" . $row['id']; ?>" data-url="<?php echo base_url(); ?>employee/inventory/update_action_on_spare_parts/<?php echo $row['id'] . "/" . $row['booking_id']; ?>/CANCEL_PARTS" data-booking_id="<?php echo $row['booking_id']; ?>" data-target="#myModal2" class="btn btn-sm btn-danger open-adminremarks" title="Reject" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class="fa fa-times" aria-hidden='true'></i></a>
                                         </td>-->
                                         <td>
                                             <?php if(!empty($row['is_gst_doc'])){ ?> 
@@ -247,7 +245,9 @@ if ($this->uri->segment(4)) {
         $("#messageSpare").text("Download In Progress");
          $.ajax({
             type: 'POST',
+
             url: '<?php echo base_url(); ?>file_process/downloadSpareRequestedParts/' + <?php echo $this->session->userdata("partner_id");?> + '/' + '<?php echo _247AROUND_PARTNER_STRING ; ?>',
+
             contentType: false,
             cache: false,
             processData: false,

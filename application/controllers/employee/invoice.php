@@ -1206,11 +1206,11 @@ class Invoice extends CI_Controller {
                 if($gst_amount > 0){
                   
                     $debit_invoice_details = array(
-                        'invoice_id' => "Around-GST-CN-".$invoice_data['meta']['invoice_id'],
+                        'invoice_id' => "Around-GST-DN-".$invoice_data['meta']['invoice_id'],
                         "reference_invoice_id" => $invoice_data['meta']['invoice_id'],
-                        'type' => 'CreditNote',
+                        'type' => 'DebitNote',
                         'vendor_partner_id' => $vendor_id,
-                        'type_code' => 'B',
+                        'type_code' => 'A',
                         'vendor_partner' => 'vendor',
                         'invoice_date' => date("Y-m-d"),
                         'from_date' => date("Y-m-d", strtotime($from_date)),
@@ -1218,7 +1218,7 @@ class Invoice extends CI_Controller {
                         'total_service_charge' => ( $invoice_data['meta']["cgst_total_tax_amount"] +  $invoice_data['meta']["sgst_total_tax_amount"] +  $invoice_data['meta']["igst_total_tax_amount"]),
                         'total_amount_collected' => ( $invoice_data['meta']["cgst_total_tax_amount"] +  $invoice_data['meta']["sgst_total_tax_amount"] +  $invoice_data['meta']["igst_total_tax_amount"]),
                         //Amount needs to be Paid to Vendor
-                        'amount_collected_paid' => (0 - ( $invoice_data['meta']["cgst_total_tax_amount"] +  $invoice_data['meta']["sgst_total_tax_amount"] +  $invoice_data['meta']["igst_total_tax_amount"])),
+                        'amount_collected_paid' => $invoice_data['meta']["cgst_total_tax_amount"] +  $invoice_data['meta']["sgst_total_tax_amount"] +  $invoice_data['meta']["igst_total_tax_amount"],
                         //Add 1 month to end date to calculate due date
                         'due_date' => date("Y-m-d", strtotime($to_date . "+1 month")),
                         //add agent id
@@ -2363,7 +2363,9 @@ class Invoice extends CI_Controller {
 
                 if ($data['vendor_partner'] == "vendor") {
                     $entity_details = $this->vendor_model->viewvendor($data['vendor_partner_id']);
-                    $gst_number = $entity_details[0]['gst_no'];
+                    
+                    $gst_number = $this->invoice_lib->check_gst_number_valid($data['vendor_partner_id'], $entity_details[0]['gst_no']);;
+                    
                 } else {
 
                     $entity_details = $this->partner_model->getpartner_details("gst_number, state", array('partners.id' => $data['vendor_partner_id']));
@@ -3619,6 +3621,8 @@ class Invoice extends CI_Controller {
 
                 $entity_details = $this->vendor_model->getVendorDetails("gst_no as gst_number, sc_code,"
                         . "state,address as company_address,company_name,district, pincode", array("id" => $data['vendor_partner_id']));
+                
+                $entity_details[0]['gst_number'] = $this->invoice_lib->check_gst_number_valid($data['vendor_partner_id'], $entity_details[0]['gst_number']);
             } else {
 
                 $entity_details = $this->partner_model->getpartner_details("gst_number,"
@@ -3761,5 +3765,5 @@ class Invoice extends CI_Controller {
          $data['annual_charges_data'] =$this->invoices_model->get_partners_annual_charges("public_name, invoice_id, vendor_partner_id, "
                  . "from_date, to_date,amount_collected_paid, invoice_file_main",$where);  
          $this->load->view('employee/partners_annual_charges_view', $data);  
-    } 
+    }
 }

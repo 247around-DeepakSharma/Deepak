@@ -57,7 +57,12 @@
 </div>
 <div class="btn-group" role="group">
     <button type="button" class="btn btn-default" href="#tab4" data-toggle="tab">
-        <div class="hidden-xs">History / Sms</div>
+        <div class="hidden-xs">History</div>
+    </button>
+</div>
+<div class="btn-group" role="group">
+    <button type="button" class="btn btn-default" href="#tab8" data-toggle="tab">
+        <div class="hidden-xs">Sms / Email</div>
     </button>
 </div>
 <div class="btn-group" role="group">
@@ -469,9 +474,7 @@
                                         <td><?php echo $sp['create_date']; ?></td>
                                         <td><div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogressinvoice_pic".$sp['id'] ?>" role="progressbar" style="width:0%">0%</div><?php if (!is_null($sp['invoice_pic'])) {
                                             if ($sp['invoice_pic'] != '0') {
-                                                ?> <a href="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $sp['invoice_pic']; ?> " target="_blank" id="<?php echo "a_invoice_pic_".$sp['id']; ?>">Click Here</a> &nbsp;&nbsp;<i id="<?php echo "invoice_pic_".$sp['id']; ?>" class="fa fa-pencil fa-lg" onclick="openfileDialog('<?php echo $sp["id"];?>','invoice_pic');"></i><?php }
-                                            }
-                                            ?>
+                                        ?> <a href="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $sp['invoice_pic']; ?> " target="_blank" id="<?php echo "a_invoice_pic_".$sp['id']; ?>">Click Here</a> <?php } } ?> &nbsp;&nbsp;<i id="<?php echo "invoice_pic_".$sp['id']; ?>" class="fa fa-pencil fa-lg" onclick="openfileDialog('<?php echo $sp["id"];?>','invoice_pic');"></i>
                                         </td>
                                         <td><div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogressserial_number_pic".$sp['id'] ?>"  role="progressbar" style="width:0%">0%</div><?php if (!is_null($sp['serial_number_pic'])) {
                                             if ($sp['serial_number_pic'] !== '0') {
@@ -649,6 +652,13 @@
                 <div id="historyDetails"></div>
                 <div id="commentbox"> </div>
     </div>
+                </div>
+            </div>
+            <div class="tab-pane fade in" id="tab8">
+                <div style="padding: 0 15px;">
+                    <div class="row">
+                        <div id="email_and_sms_box"></div>
+                    </div>
                 </div>
             </div>
             <div class="tab-pane fade in" id="tab5">
@@ -1058,6 +1068,7 @@ function sf_tab_active(){
 }
     $('document').ready(function () {
         var booking_id = '<?php echo base_url() ?>employee/booking/get_booking_life_cycle/<?php echo $booking_history[0]['booking_id'] ?>';
+        var emailsms_url = '<?php echo base_url() ?>employee/booking/get_booking_email_sms/<?php echo $booking_history[0]['booking_id'] ?>';
                 $.ajax({
                     type: 'POST',
                     url: booking_id,
@@ -1065,7 +1076,16 @@ function sf_tab_active(){
                         $('#historyDetails').html(response);
                     }
                 });
-            });
+                
+                $.ajax({
+                    type: 'POST',
+                    url: emailsms_url,
+                    success: function (response) {
+                        $('#email_and_sms_box').html(response);
+                        $('#email_and_sms_box').find('.booking_history_div').css("display", "none");
+                    }
+                });
+    });
     
             $(document).ready(function () {
                 $(".btn-pref .btn").click(function () {
