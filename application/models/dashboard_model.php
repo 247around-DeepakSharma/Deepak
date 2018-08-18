@@ -192,9 +192,9 @@ class dashboard_model extends CI_Model {
         }
         $sql = "SELECT SUM(Completed)+SUM(Cancelled) + SUM(Pending) as Total , Completed as Completed,Cancelled as Cancelled , Pending as Pending FROM 
                         (SELECT 
-                            SUM(IF(current_status ='Completed' && closed_date >= '$startDate' && closed_date <= '$endDate' , 1, 0)) AS Completed,
-                            SUM(IF(current_status ='Cancelled' && closed_date >= '$startDate' && closed_date <= '$endDate' , 1, 0)) AS Cancelled,
-                            SUM(IF(current_status IN ('Pending','Rescheduled') && create_date >= '$startDate' && create_date <= '$endDate', 1, 0)) AS Pending
+                            SUM(IF(!(current_status = 'Cancelled' OR internal_status ='InProcess_Cancelled') && service_center_closed_date >= '$startDate' && service_center_closed_date <= '$endDate' , 1, 0)) AS Completed,
+                            SUM(IF((current_status = 'Cancelled' OR internal_status = 'InProcess_Cancelled') && service_center_closed_date >= '$startDate' && service_center_closed_date <= '$endDate' , 1, 0)) AS Cancelled,
+                            SUM(IF(current_status IN ('Pending','Rescheduled') && (create_date >= '$startDate' && create_date <= '$endDate') && (service_center_closed_date IS NULL), 1, 0)) AS Pending
                             FROM booking_details as bd1 $where) as bd2";
         $query = $this->db->query($sql);
         return $query->result_array();
@@ -252,16 +252,16 @@ class dashboard_model extends CI_Model {
     function get_bookings_data_by_month($partner_id = ""){
         
         if(!empty($partner_id)){
-            $where = "current_status = 'Completed' AND partner_id = '$partner_id'";
+            $where = "!(current_status = 'Cancelled' OR internal_status ='InProcess_Cancelled') AND partner_id = '$partner_id'";
         }else{
-            $where = "current_status = 'Completed'";
+            $where = "!(current_status = 'Cancelled' OR internal_status ='InProcess_Cancelled')";
         }
-        $sql = "SELECT DATE_FORMAT(closed_date, '%b') AS month,DATE_FORMAT(closed_date, '%Y') AS year, COUNT(*) as completed_booking
+        $sql = "SELECT DATE_FORMAT(service_center_closed_date, '%b') AS month,DATE_FORMAT(service_center_closed_date, '%Y') AS year, COUNT(*) as completed_booking
                 FROM booking_details
                 WHERE $where
-                AND closed_date >= (NOW() - INTERVAL 13 MONTH)
-                GROUP BY DATE_FORMAT(closed_date, '%m-%Y') 
-                ORDER BY YEAR(closed_date),MONTH(closed_date)";
+                AND service_center_closed_date >= (NOW() - INTERVAL 13 MONTH)
+                GROUP BY DATE_FORMAT(service_center_closed_date, '%m-%Y') 
+                ORDER BY YEAR(service_center_closed_date),MONTH(service_center_closed_date)";
         $query = $this->db->query($sql);
         $completed_booking = $query->result_array();
         return $completed_booking;

@@ -3370,13 +3370,13 @@ class Partner extends CI_Controller {
     function get_partner_booking_summary_data($partner_id) {
 
         //get bookings count by month 
-        $select = "DATE_FORMAT(closed_date, '%b') AS month, "
-                . "SUM(IF(booking_details.current_status ='Completed' , 1, 0)) AS completed,"
-                . "SUM(IF(booking_details.current_status ='Cancelled', 1, 0)) AS cancelled, "
-                . "SUM(IF(booking_details.current_status ='Completed' AND booking_details.is_upcountry = '1' AND booking_details.upcountry_partner_approved = '1' AND booking_details.upcountry_paid_by_customer = '0' , 1, 0)) AS upcountry_completed ,"
-                . "SUM(IF(booking_details.current_status ='Cancelled' AND booking_details.is_upcountry = '1' AND booking_details.upcountry_partner_approved = '1' AND booking_details.upcountry_paid_by_customer = '0', 1, 0)) AS upcountry_cancelled";
-        $where = array('partner_id' => $partner_id, "booking_details.closed_date >= (DATE_FORMAT(CURDATE(), '%Y-%m-01') - INTERVAL 1 MONTH)" => NULL);
-        $order_by = "YEAR(booking_details.closed_date),MONTH(booking_details.closed_date)";
+        $select = "DATE_FORMAT(service_center_closed_date, '%b') AS month, "
+                . "SUM(IF(!(current_status = 'Cancelled' OR internal_status ='InProcess_Cancelled') , 1, 0)) AS completed, "
+                . "SUM(IF((current_status = 'Cancelled' OR internal_status = 'InProcess_Cancelled'), 1, 0)) AS cancelled, "
+                . "SUM(IF(!(current_status = 'Cancelled' OR internal_status ='InProcess_Cancelled') AND booking_details.is_upcountry = '1' AND booking_details.upcountry_partner_approved = '1' AND booking_details.upcountry_paid_by_customer = '0' , 1, 0)) AS upcountry_completed ,"
+                . "SUM(IF((current_status = 'Cancelled' OR internal_status = 'InProcess_Cancelled') AND booking_details.is_upcountry = '1' AND booking_details.upcountry_partner_approved = '1' AND booking_details.upcountry_paid_by_customer = '0', 1, 0)) AS upcountry_cancelled";
+        $where = array('partner_id' => $partner_id, "booking_details.service_center_closed_date >= (DATE_FORMAT(CURDATE(), '%Y-%m-01') - INTERVAL 1 MONTH)" => NULL);
+        $order_by = "YEAR(booking_details.service_center_closed_date),MONTH(booking_details.service_center_closed_date)";
         $group_by = "month";
         $data['bookings_count'] = $this->booking_model->get_bookings_count_by_any($select, $where, $order_by, $group_by);
         if(!empty($data['bookings_count']) && count($data['bookings_count']) == 2){
