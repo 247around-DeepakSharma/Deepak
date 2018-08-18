@@ -263,59 +263,65 @@ class Invoice_lib {
     }
     
     function get_gstin_status_by_api($vendor_id){
-        $vendor = $this->ci->vendor_model->getVendorDetails('gst_no, gst_status, gst_taxpayer_type, company_name, gst_cancelled_date', array('id'=>$vendor_id), 'id', array());
         $data = array();
-        $activity = array(
-            'entity_type' => 'vendor',
-            'partner_id' => $vendor_id,
-            'activity' => __METHOD__,
-            'header' => "",
-            'json_request_data' => "https://api.taxprogsp.co.in/commonapi/v1.1/search?aspid=".ASP_ID."&password=".ASP_PASSWORD."&Action=TP&Gstin=".$vendor[0]['gst_no'],
-        );
-        $api_response = $this->gst_curl_call($vendor[0]['gst_no']);
-        if (!$api_response) {
-            $data['status'] = 'error'; 
-            return $data;
-        } else { 
-            //$response = '{"stjCd":"DL086","lgnm":"SUDESH KUMAR","stj":"Ward 86","dty":"Regular","adadr":[],"cxdt":"","gstin":"07ALDPK4562B1ZG","nba":["Recipient of Goods or Services","Service Provision","Retail Business","Wholesale Business","Works Contract"],"lstupdt":"17/04/2018","rgdt":"01/07/2017","ctb":"Proprietorship","pradr":{"addr":{"bnm":"BLOCK 4","st":"GALI NO. 5","loc":"HARI NAGAR ASHRAM","bno":"A-144/5","dst":"","stcd":"Delhi","city":"","flno":"G/F","lt":"","pncd":"110014","lg":""},"ntr":"Recipient of Goods or Services, Service Provision, Retail Business, Wholesale Business, Works Contract"},"tradeNam":"UNITED HOME CARE","sts":"Active","ctjCd":"ZK0601","ctj":"RANGE - 161"}';
-            //$api_response = '{"status_cd":"0","error":{"error_cd":"GSP020A","message":"Error: Invalid ASP Password."}}';
-            $activity['json_response_string'] = $api_response;
-            $this->ci->partner_model->log_partner_activity($activity);
-            $response = json_decode($api_response, true);
-            if(isset($response['error'])){ 
-                $email_template = $this->ci->booking_model->get_booking_email_template(TAXPRO_API_FAIL);
-                if(!empty($email_template)){ 
-                    $message = vsprintf($email_template[0], array($api_response));
-                    $to = DEVELOPER_EMAIL.','.$email_template[1];
-                    $this->ci->notify->sendEmail($email_template[2], $to, $email_template[3], $email_template[5], $email_template[4], $message, '', TAXPRO_API_FAIL);
-                }
+        $vendor = $this->ci->vendor_model->getVendorDetails('gst_no, gst_status, gst_taxpayer_type, company_name, gst_cancelled_date', array('id'=>$vendor_id), 'id', array());
+        if(isset($vendor[0]['gst_no'])){
+            $activity = array(
+                'entity_type' => 'vendor',
+                'partner_id' => $vendor_id,
+                'activity' => __METHOD__,
+                'header' => "",
+                'json_request_data' => "https://api.taxprogsp.co.in/commonapi/v1.1/search?aspid=".ASP_ID."&password=".ASP_PASSWORD."&Action=TP&Gstin=".$vendor[0]['gst_no'],
+            );
+            $api_response = $this->gst_curl_call($vendor[0]['gst_no']);
+            if (!$api_response) {
                 $data['status'] = 'error'; 
                 return $data;
-            }
-            else{ 
-                $data['gst_taxpayer_type'] = $response['dty']; //Regular
-                $data['gst_status'] = $response['sts']; //Active
-                if(isset($response['cxdt']) && !empty($response['cxdt'])){
-                    $data['gst_cancelled_date'] = date("Y-m-d", strtotime($response['cxdt']));
-                } else {
-                    $data['gst_cancelled_date'] = NULL;
-                }
-                
-                if($vendor[0]['gst_taxpayer_type'] != $response['dty'] || $vendor[0]['gst_status'] != $response['sts']){
-                    
-                    $email_template = $this->ci->booking_model->get_booking_email_template(GST_DETAIL_UPDATED);
+            } else { 
+                //$response = '{"stjCd":"DL086","lgnm":"SUDESH KUMAR","stj":"Ward 86","dty":"Regular","adadr":[],"cxdt":"","gstin":"07ALDPK4562B1ZG","nba":["Recipient of Goods or Services","Service Provision","Retail Business","Wholesale Business","Works Contract"],"lstupdt":"17/04/2018","rgdt":"01/07/2017","ctb":"Proprietorship","pradr":{"addr":{"bnm":"BLOCK 4","st":"GALI NO. 5","loc":"HARI NAGAR ASHRAM","bno":"A-144/5","dst":"","stcd":"Delhi","city":"","flno":"G/F","lt":"","pncd":"110014","lg":""},"ntr":"Recipient of Goods or Services, Service Provision, Retail Business, Wholesale Business, Works Contract"},"tradeNam":"UNITED HOME CARE","sts":"Active","ctjCd":"ZK0601","ctj":"RANGE - 161"}';
+                //$api_response = '{"status_cd":"0","error":{"error_cd":"GSP020A","message":"Error: Invalid ASP Password."}}';
+                $activity['json_response_string'] = $api_response;
+                $this->ci->partner_model->log_partner_activity($activity);
+                $response = json_decode($api_response, true);
+                if(isset($response['error'])){ 
+                    $email_template = $this->ci->booking_model->get_booking_email_template(TAXPRO_API_FAIL);
                     if(!empty($email_template)){ 
-                        $subject = vsprintf($email_template[4], array($vendor[0]['company_name']));
-                        $message = vsprintf($email_template[0], array($vendor[0]['gst_no'], $vendor[0]['gst_status'], $vendor[0]['gst_taxpayer_type'], $vendor[0]['gst_cancelled_date'], $response['gstin'], $response['sts'], $response['dty'], $response['cxdt']));
+                        $message = vsprintf($email_template[0], array($api_response));
                         $to = DEVELOPER_EMAIL.','.$email_template[1];
-                        $this->ci->notify->sendEmail($email_template[2], $to, $email_template[3], $email_template[5], $subject, $message, '', GST_DETAIL_UPDATED);
+                        $this->ci->notify->sendEmail($email_template[2], $to, $email_template[3], $email_template[5], $email_template[4], $message, '', TAXPRO_API_FAIL);
                     }
-                    $this->ci->vendor_model->edit_vendor($data, $vendor_id);
+                    $data['status'] = 'error'; 
+                    return $data;
                 }
-                $data['gst_no'] = $response['gstin'];
-                $data['status'] = 'success'; 
-                return $data;
+                else{ 
+                    $data['gst_taxpayer_type'] = $response['dty']; //Regular
+                    $data['gst_status'] = $response['sts']; //Active
+                    if(isset($response['cxdt']) && !empty($response['cxdt'])){
+                        $data['gst_cancelled_date'] = date("Y-m-d", strtotime($response['cxdt']));
+                    } else {
+                        $data['gst_cancelled_date'] = NULL;
+                    }
+
+                    if($vendor[0]['gst_taxpayer_type'] != $response['dty'] || $vendor[0]['gst_status'] != $response['sts']){
+
+                        $email_template = $this->ci->booking_model->get_booking_email_template(GST_DETAIL_UPDATED);
+                        if(!empty($email_template)){ 
+                            $subject = vsprintf($email_template[4], array($vendor[0]['company_name']));
+                            $message = vsprintf($email_template[0], array($vendor[0]['gst_no'], $vendor[0]['gst_status'], $vendor[0]['gst_taxpayer_type'], $vendor[0]['gst_cancelled_date'], $response['gstin'], $response['sts'], $response['dty'], $response['cxdt']));
+                            $to = DEVELOPER_EMAIL.','.$email_template[1];
+                            $this->ci->notify->sendEmail($email_template[2], $to, $email_template[3], $email_template[5], $subject, $message, '', GST_DETAIL_UPDATED);
+                        }
+                        $this->ci->vendor_model->edit_vendor($data, $vendor_id);
+                    }
+                    $data['gst_no'] = $response['gstin'];
+                    $data['status'] = 'success'; 
+                    return $data;
+                }
             }
+        }
+        else{
+            $data['status'] = 'error'; 
+            return $data;
         }
     }
     

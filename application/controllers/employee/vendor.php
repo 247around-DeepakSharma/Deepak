@@ -5064,7 +5064,7 @@ class vendor extends CI_Controller {
     }
     
     function check_GST_number($gst){
-        $api_response = $this->invoice_lib->gst_curl_call($gst);           
+        $api_response = $this->invoice_lib->gst_curl_call($gst);
         if (!$api_response) {
           echo '{"status_cd":"0","errorMsg":"cURL Error -'.$err.'"}';
         } else {
@@ -5072,10 +5072,11 @@ class vendor extends CI_Controller {
             if(isset($response['error'])){
                 $email_template = $this->booking_model->get_booking_email_template(TAXPRO_API_FAIL);
                 if($response['error']['error_cd'] =='GSP050D'){
-                    $message = "Invalid GST No. filled by - <br/><br/>".$this->session->userdata('emp_name');
+                   
+                    $message = vsprintf($email_template[0], array("Wrong GST No Used: ".$gst,$this->session->userdata('emp_name') ));  
                 }
                 else{
-                    $message = vsprintf($email_template[0], array($api_response));  
+                    $message = vsprintf($email_template[0], array("Used GST NO ".$gst,$this->session->userdata('emp_name'), $api_response));  
                 }
                 $to = $this->session->userdata('official_email').$email_template[1];
                 $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $email_template[3] , $email_template[5], $email_template[4], $message, '', TAXPRO_API_FAIL);
