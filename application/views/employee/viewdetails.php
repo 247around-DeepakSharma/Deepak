@@ -262,7 +262,7 @@
                         <tbody>
                            
                             <tr>
-                                <td> <?php if($booking_history[0]['is_upcountry'] == 1){ ?>
+                                <td> <?php if($booking_history[0]['is_upcountry'] == 1 && isset($booking_history[0]["municipal_limit"])){ ?>
                                     <?php echo round(($booking_history[0]["upcountry_distance"] + ($booking_history[0]["municipal_limit"] * 2))/2,2) . " KM"; ?>
                                 <?php } ?>
                                 </td>
@@ -570,7 +570,7 @@
                                         <td><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING) { echo "Partner";} else { echo "Warehouse";} ?></td>
                                         <td><?php echo $sp['parts_shipped']; ?></td>
                                         <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['courier_name_by_partner'])); ?></td>
-                                        <td><a href="#" onclick="get_awb_details('<?php echo $sp['courier_name_by_partner']; ?>','<?php echo $sp['awb_by_partner']; ?>','<?php echo $sp['status']; ?>')"><?php echo $sp['awb_by_partner']; ?></a> <span id="awb_loader" style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
+                                        <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['courier_name_by_partner']; ?>','<?php echo $sp['awb_by_partner']; ?>','<?php echo $sp['status']; ?>')"><?php echo $sp['awb_by_partner']; ?></a> <span id="awb_loader" style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
                                         <td><?php echo $sp['shipped_date']; ?></td>
                                         <td><?php echo $sp['edd']; ?></td>
                                         <td><?php echo $sp['remarks_by_partner']; ?></td>
