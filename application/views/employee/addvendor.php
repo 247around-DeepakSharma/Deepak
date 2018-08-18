@@ -1515,6 +1515,11 @@
                else if($('#gst_no').val().length === '15'){
                    alert('Please Enter Valid GST Number');
                    return false;
+                }
+                else if($('#gst_type').val() == '' || $('#gst_status').val() == ''){
+                   alert('Please Enter Valid GST Number or Tick "Not Available" checkbox');
+                   return false;
+                }
                }else if($('#gst_no').val() != '' && $('#gst_file').get(0).files.length === 0 && is_gst_file === 0){
                    alert("Please Upload GST File");
                    return false;
@@ -1747,6 +1752,7 @@
                 type: 'POST',
                 url: '<?php echo base_url(); ?>employee/vendor/check_GST_number/'+gstin,
                 success: function (response) {
+                    console.log(response);
                     response = JSON.parse(response);
                     if(response.status_cd != '0'){
                         $("#gst_type").val(response.dty);
@@ -1756,7 +1762,21 @@
                         $("#gst_status").attr("readonly", "readonly");
                     }
                     else{
-                       alert("api unable to work"); 
+                        if(response.errorMsg){
+                           alert(response.errorMsg);
+                           $("#gst_type, #gst_status").val("");
+                        }
+                        else if(response.error.message){
+                            if(response.error.error_cd == 'GSP050D'){
+                                alert("Please enter valid email");
+                            }else{
+                                alert(response.error.message);
+                            }
+                            $("#gst_type, #gst_status").val("");
+                        }
+                        else{
+                           alert("API unable to work"); 
+                        }
                     }
                 }
             });
