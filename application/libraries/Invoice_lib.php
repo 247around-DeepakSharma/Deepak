@@ -247,7 +247,6 @@ class Invoice_lib {
         $curl = curl_init();
          curl_setopt_array($curl, array(
           CURLOPT_URL => "https://api.taxprogsp.co.in/commonapi/v1.1/search?aspid=".ASP_ID."&password=".ASP_PASSWORD."&Action=TP&Gstin=".$gst_no,
-          CURLOPT_URL => $curlURL,
           CURLOPT_RETURNTRANSFER => true,
           CURLOPT_ENCODING => "",
           CURLOPT_MAXREDIRS => 10,
