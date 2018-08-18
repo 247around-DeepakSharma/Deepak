@@ -30,6 +30,7 @@ class InvoiceDashboard extends CI_Controller {
         $this->load->model("penalty_model");
         $this->load->library('table');
         $this->load->library("miscelleneous");
+        $this->load->library("invoice_lib");
 
 
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
