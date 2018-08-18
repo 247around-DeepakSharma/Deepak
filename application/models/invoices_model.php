@@ -556,7 +556,10 @@ class invoices_model extends CI_Model {
     function get_invoices_details($where, $select = "*", $group_by = false) {
 
         $this->db->select($select, false);
-        $this->db->where($where);
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        
         if($group_by){
             $this->db->group_by($group_by);
         }
@@ -2070,4 +2073,99 @@ class invoices_model extends CI_Model {
         $query = $this->db->query($sql);
         return $query->result_array();
     }
+    /**
+     * @desc This function is used to get invoice Data
+     * @param String $select
+     * @param Array $post
+     * @return Array
+     */
+    function searchInvoicesdata($select, $post){
+        $this->_querySearchInvoicesdata($select, $post);
+        if ($post['length'] != -1) {
+            $this->db->limit($post['length'], $post['start']);
+        }
+        $query = $this->db->get();
+        return $query->result();
+    }
+    
+    function _querySearchInvoicesdata($select, $post){
+        $this->db->from('vendor_partner_invoices');
+        $this->db->select($select, FALSE);
+
+        $this->db->join('service_centres', 'service_centres.id = vendor_partner_invoices.vendor_partner_id AND vendor_partner_invoices.vendor_partner = "vendor" ', "LEFT");
+        $this->db->join('partners', 'partners.id = vendor_partner_invoices.vendor_partner_id AND vendor_partner_invoices.vendor_partner = "partner" ', "LEFT");
+        if (!empty($post['where'])) {
+            $this->db->where($post['where'], FALSE);
+        }
+        if (isset($post['where_in'])) {
+            foreach ($post['where_in'] as $index => $value) {
+
+                $this->db->where_in($index, $value);
+            }
+        }
+
+        if (!empty($post['search_value'])) {
+            $like = "";
+            foreach ($post['column_search'] as $key => $item) { // loop column 
+                // if datatable send POST for search
+                if ($key === 0) { // first loop
+                    $like .= "( " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+
+        if (!empty($post['order'])) { // here order processing
+            $this->db->order_by($post['column_order'][$post['order'][0]['column']], $post['order'][0]['dir']);
+        } else if (isset($this->order)) {
+            $order = $this->order;
+            $this->db->order_by(key($order), $order[key($order)]);
+        }
+    }
+    /**
+     * @desc This function is used to  get count of all invoice
+     * @param Array $post
+     */
+    public function count_all_invoices($post) {
+        $this->_count_all_invoices($post);
+        $query = $this->db->count_all_results();
+
+        return $query;
+    }
+    /**
+     * @desc This function is used to  get count of all invoice
+     * @param Array $post
+     */
+    public function _count_all_invoices($post) {
+        $this->db->from('vendor_partner_invoices');
+        $this->db->join('service_centres', 'service_centres.id = vendor_partner_invoices.vendor_partner_id AND vendor_partner_invoices.vendor_partner = "vendor" ', "LEFT");
+        $this->db->join('partners', 'partners.id = vendor_partner_invoices.vendor_partner_id AND vendor_partner_invoices.vendor_partner = "partner" ', "LEFT");
+        if(isset($post['where'])){
+            $this->db->where($post['where']);
+        }
+        
+        if(isset($post['where_in'])){
+            foreach ($post['where_in'] as $index => $value) {
+                $this->db->where_in($index, $value);
+            }
+        }
+        
+    }
+    /**
+     * @desc This function is used to get count of filtered invoice Data
+     * @param String $select
+     * @param Array $post
+     * @return Int
+     */
+    function count_filtered_invoice($select, $post) {
+        $this->_querySearchInvoicesdata($select, $post);
+
+        $query = $this->db->get();
+        return $query->num_rows();
+    }
+
 }

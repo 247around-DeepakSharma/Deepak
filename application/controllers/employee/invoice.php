@@ -1211,6 +1211,7 @@ class Invoice extends CI_Controller {
                         'invoice_id' => "Around-GST-DN-".$invoice_data['meta']['invoice_id'],
                         "reference_invoice_id" => $invoice_data['meta']['invoice_id'],
                         'type' => 'DebitNote',
+                        'credit_generated' => 0,
                         'vendor_partner_id' => $vendor_id,
                         'type_code' => 'A',
                         'vendor_partner' => 'vendor',
@@ -3770,4 +3771,50 @@ class Invoice extends CI_Controller {
                  . "from_date, to_date,amount_collected_paid, invoice_file_main",$where);  
          $this->load->view('employee/partners_annual_charges_view', $data);  
     }
+    
+    /**
+     * @desc This function is used to generate GST Credit note 
+     * @param String $invoice_id
+     */
+    function generate_gst_creditnote($invoice_id) {
+        log_message("info", __METHOD__ . " Invoice ID " . $invoice_id);
+        $invoice_details = $this->invoices_model->get_invoices_details(array("invoice_id" => $invoice_id));
+        if (!empty($invoice_details)) {
+            if ($invoice_details[0]['credit_generated'] == 0) {
+                $invoice_id = $invoice_details[0]['reference_invoice_id'];
+                if (empty($invoice_id)) {
+                    $tmp_invoice_id = explode("Around-GST-DN-", $invoice_details[0]['invoice_id']);
+                    $invoice_id = $tmp_invoice_id[1];
+                }
+                $credit_invoice_details = array(
+                    'invoice_id' => "Around-GST-CN-" . $invoice_id,
+                    "reference_invoice_id" => $invoice_details[0]['reference_invoice_id'],
+                    'type' => 'CreditNote',
+                    'vendor_partner_id' => $invoice_details[0]['vendor_partner_id'],
+                    'type_code' => 'B',
+                    'vendor_partner' => $invoice_details[0]['vendor_partner'],
+                    'invoice_date' => date("Y-m-d"),
+                    'from_date' => date("Y-m-d", strtotime($invoice_details[0]['from_date'])),
+                    'to_date' => date("Y-m-d", strtotime($invoice_details[0]['to_date'])),
+                    'total_service_charge' => $invoice_details[0]['total_service_charge'],
+                    'total_amount_collected' => $invoice_details[0]['total_amount_collected'],
+                    //Amount needs to be Paid to Vendor
+                    'amount_collected_paid' => -$invoice_details[0]['amount_collected_paid'],
+                    //Add 1 month to end date to calculate due date
+                    'due_date' => date("Y-m-d"),
+                    //add agent id
+                    'agent_id' => $this->session->userdata('id')
+                );
+
+                $this->invoices_model->action_partner_invoice($credit_invoice_details);
+                redirect(base_url() . 'employee/invoice/invoice_summary/' . $credit_invoice_details[0]['vendor_partner'] . "/" . $credit_invoice_details[0]['vendor_partner_id']);
+                
+            } else {
+                echo "Already CreditNote Generated";
+            }
+        } else {
+            echo "Invoice Not Found";
+        }
+    }
+
 }

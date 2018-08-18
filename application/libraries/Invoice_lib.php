@@ -328,21 +328,32 @@ class Invoice_lib {
             return $data;
         }
     }
-    
+    /**
+     * @desc This function is used to check GST number is valid or not
+     * Currently it triggered from Invoice Model
+     * @param String $vendor_id
+     * @param String $gst_number
+     * @return string
+     */
     function check_gst_number_valid($vendor_id, $gst_number){
         if(!empty($gst_number)){
             $gstin = $this->get_gstin_status_by_api($vendor_id);
             if(!empty($gstin)){
-                if($gstin['gst_taxpayer_type'] == "Regular" && $gstin['status'] = "success" && $gstin['gst_status'] == "Active"){
-                    return $gst_number;
+                if($gstin['status'] == "success"){
+                    if($gstin['gst_taxpayer_type'] == "Regular" && $gstin['gst_status'] == "Active"){
+                        return $gst_number;
+                    } else {
+                        return "";
+                    }
                 } else {
                     return $gst_number;
                 }
+                
             } else {
-                return "";
+                return $gst_number;
             }
         } else {
-            return "";
+            return $gst_number;
         }
     }
 }
