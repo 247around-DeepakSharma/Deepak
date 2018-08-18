@@ -137,6 +137,48 @@ class Invoice_lib {
         }
     }
     
+    function convert_invoice_file_into_pdf($template, $invoice_id, $meta, $invoice_data, $invoice_type, $copy = false, $triplicate = FALSE){
+        $output_file_name = $invoice_id.'-draft';
+        if ($invoice_type == "final") {
+            //generate main invoice pdf
+            $output_file_name = $invoice_id;
+            
+        }
+        $main_template = explode(".xlsx", $template);
+        $meta['recipient_type'] = "Original Copy";
+        $html = $this->ci->load->view('templates/'.$main_template[0], array("booking"=>$invoice_data,'meta'=>$meta), true);     
+        
+        //convert html into pdf
+        $json_result = $this->ci->miscelleneous->convert_html_to_pdf($html,$invoice_id,$output_file_name.".pdf","invoices-excel");
+        $pdf_response = json_decode($json_result,TRUE);
+        
+        if(!empty($pdf_response) && $pdf_response['response'] == "Success"){
+            $copy_invoice = "copy_".$output_file_name.".pdf";
+            $meta['recipient_type'] = "Duplicate Copy";
+            
+            $this->ci->miscelleneous->convert_html_to_pdf($html,$invoice_id,$copy_invoice,"invoices-excel");
+            if($triplicate){
+                $triplicate_invoice = "triplicate_".$output_file_name.".pdf";
+                $meta['recipient_type'] = "Triplicate Copy";
+
+                $this->ci->miscelleneous->convert_html_to_pdf($html,$invoice_id,$copy_invoice,"invoices-excel");
+                
+                $array = array("main_pdf_file_name" =>$copy_invoice, "copy_file" =>$output_file_name.".pdf",
+                    'triplicate_file' => $triplicate_invoice, "excel_file" => $output_file_name.".xlsx");
+            }
+            
+            if($copy){
+                $array = array("main_pdf_file_name" =>$copy_invoice, "copy_file" =>$output_file_name.".pdf", "excel_file" => $output_file_name.".xlsx" );
+             } else {
+                $array = array("main_pdf_file_name" =>$output_file_name.".pdf",  "copy_file" => $copy_invoice, "excel_file" => $output_file_name.".xlsx" );
+             }
+             
+             return $array;
+        } else {
+            return $this->send_request_to_convert_excel_to_pdf($invoice_id, $invoice_type, $copy, $triplicate);
+        }
+    }
+    
     function send_request_to_convert_excel_to_pdf($invoice_id, $invoice_type, $copy = false, $triplicate = FALSE){
         $excel_file_to_convert_in_pdf = $invoice_id.'-draft.xlsx';
         
@@ -201,12 +243,10 @@ class Invoice_lib {
         }
     }
     
-    function get_gstin_status_by_api($vendor_id){
-        $vendor = $this->ci->vendor_model->getVendorDetails('gst_no, gst_status, gst_taxpayer_type, company_name, gst_cancelled_date', array('id'=>$vendor_id), 'id', array());
-        $data = array();
+    function gst_curl_call($gst_no){
         $curl = curl_init();
         curl_setopt_array($curl, array(
-          CURLOPT_URL => "https://api.taxprogsp.co.in/commonapi/v1.1/search?aspid=".ASP_ID."&password=".ASP_PASSWORD."&Action=TP&Gstin=".$vendor[0]['gst_no'],
+          CURLOPT_URL => "https://api.taxprogsp.co.in/commonapi/v1.1/search?aspid=".ASP_ID."&password=".ASP_PASSWORD."&Action=TP&Gstin=".$gst_no,
           CURLOPT_RETURNTRANSFER => true,
           CURLOPT_ENCODING => "",
           CURLOPT_MAXREDIRS => 10,
@@ -217,18 +257,34 @@ class Invoice_lib {
         $api_response = curl_exec($curl);
         $err = curl_error($curl);
         curl_close($curl);
-        if ($err) {
-            $email_template = $this->ci->booking_model->get_booking_email_template(TAXPRO_API_FAIL);
-            if(!empty($email_template)){ 
-                $message = vsprintf($email_template[0], array($err));
-                $to = DEVELOPER_EMAIL.','.$email_template[1];
-                $this->ci->notify->sendEmail($email_template[2], $to, $email_template[3], $email_template[5], $email_template[4], $message, '', COURIER_DETAILS);
-            }
+        if($err){
             return false;
-        } else { 
+        }
+        else{
+            return $api_response;
+        }
+    }
+    
+    function get_gstin_status_by_api($vendor_id){
+        $data = array();
+        $vendor = $this->ci->vendor_model->getVendorDetails('gst_no, gst_status, gst_taxpayer_type, company_name, gst_cancelled_date', array('id'=>$vendor_id), 'id', array());
+        if(isset($vendor[0]['gst_no'])){
+            $activity = array(
+                'entity_type' => 'vendor',
+                'partner_id' => $vendor_id,
+                'activity' => __METHOD__,
+                'header' => "",
+                'json_request_data' => "https://api.taxprogsp.co.in/commonapi/v1.1/search?aspid=".ASP_ID."&password=".ASP_PASSWORD."&Action=TP&Gstin=".$vendor[0]['gst_no'],
+            );
+            $api_response = $this->gst_curl_call($vendor[0]['gst_no']);
+            if (!$api_response) {
+                $data['status'] = 'error'; 
+                return $data;
+            } else { 
                 //$response = '{"stjCd":"DL086","lgnm":"SUDESH KUMAR","stj":"Ward 86","dty":"Regular","adadr":[],"cxdt":"","gstin":"07ALDPK4562B1ZG","nba":["Recipient of Goods or Services","Service Provision","Retail Business","Wholesale Business","Works Contract"],"lstupdt":"17/04/2018","rgdt":"01/07/2017","ctb":"Proprietorship","pradr":{"addr":{"bnm":"BLOCK 4","st":"GALI NO. 5","loc":"HARI NAGAR ASHRAM","bno":"A-144/5","dst":"","stcd":"Delhi","city":"","flno":"G/F","lt":"","pncd":"110014","lg":""},"ntr":"Recipient of Goods or Services, Service Provision, Retail Business, Wholesale Business, Works Contract"},"tradeNam":"UNITED HOME CARE","sts":"Active","ctjCd":"ZK0601","ctj":"RANGE - 161"}';
                 //$api_response = '{"status_cd":"0","error":{"error_cd":"GSP020A","message":"Error: Invalid ASP Password."}}';
-                $api_response = '{"status_cd":"0","error":{"error_cd":"GSP020A","message":"Error: Invalid ASP Password."}}';
+                $activity['json_response_string'] = $api_response;
+                $this->ci->partner_model->log_partner_activity($activity);
                 $response = json_decode($api_response, true);
                 if(isset($response['error'])){ 
                     $email_template = $this->ci->booking_model->get_booking_email_template(TAXPRO_API_FAIL);
@@ -237,33 +293,38 @@ class Invoice_lib {
                         $to = DEVELOPER_EMAIL.','.$email_template[1];
                         $this->ci->notify->sendEmail($email_template[2], $to, $email_template[3], $email_template[5], $email_template[4], $message, '', TAXPRO_API_FAIL);
                     }
-                    return false;
+                    $data['status'] = 'error'; 
+                    return $data;
                 }
-            else{ 
-                $data['gst_taxpayer_type'] = $response['dty']; //Regular
-                $data['gst_status'] = $response['sts']; //Active
-
-                if(isset($response['cxdt']) && !empty($response['cxdt'])){
-                    $data['gst_cancelled_date'] = date("Y-m-d", strtotime($response['cxdt']));
-                } else {
-                    $data['gst_cancelled_date'] = NULL;
-                }
-                
-                if(($vendor[0]['gst_taxpayer_type'] != $response['dty']) || ($vendor[0]['gst_status'] != $response['sts'])){
-
-                    
-                    $email_template = $this->ci->booking_model->get_booking_email_template(GST_DETAIL_UPDATED);
-                    if(!empty($email_template)){ 
-                        $subject = vsprintf($email_template[4], array($vendor[0]['company_name']));
-                        $message = vsprintf($email_template[0], array($vendor[0]['gst_no'], $vendor[0]['gst_status'], $vendor[0]['gst_taxpayer_type'], $vendor[0]['gst_cancelled_date'], $response['gstin'], $response['sts'], $response['dty'], $response['cxdt']));
-                        $to = $email_template[1];
-                        $this->ci->notify->sendEmail($email_template[2], $to, $email_template[3], $email_template[5], $subject, $message, '', GST_DETAIL_UPDATED);
+                else{ 
+                    $data['gst_taxpayer_type'] = $response['dty']; //Regular
+                    $data['gst_status'] = $response['sts']; //Active
+                    if(isset($response['cxdt']) && !empty($response['cxdt'])){
+                        $data['gst_cancelled_date'] = date("Y-m-d", strtotime($response['cxdt']));
+                    } else {
+                        $data['gst_cancelled_date'] = NULL;
                     }
-                    $this->ci->vendor_model->edit_vendor($data, $vendor_id);
+
+                    if($vendor[0]['gst_taxpayer_type'] != $response['dty'] || $vendor[0]['gst_status'] != $response['sts']){
+
+                        $email_template = $this->ci->booking_model->get_booking_email_template(GST_DETAIL_UPDATED);
+                        if(!empty($email_template)){ 
+                            $subject = vsprintf($email_template[4], array($vendor[0]['company_name']));
+                            $message = vsprintf($email_template[0], array($vendor[0]['gst_no'], $vendor[0]['gst_status'], $vendor[0]['gst_taxpayer_type'], $vendor[0]['gst_cancelled_date'], $response['gstin'], $response['sts'], $response['dty'], $response['cxdt']));
+                            $to = DEVELOPER_EMAIL.','.$email_template[1];
+                            $this->ci->notify->sendEmail($email_template[2], $to, $email_template[3], $email_template[5], $subject, $message, '', GST_DETAIL_UPDATED);
+                        }
+                        $this->ci->vendor_model->edit_vendor($data, $vendor_id);
+                    }
+                    $data['gst_no'] = $response['gstin'];
+                    $data['status'] = 'success'; 
+                    return $data;
                 }
-                $data['gst_no'] = $response['gstin'];
-                return $data;
             }
+        }
+        else{
+            $data['status'] = 'error'; 
+            return $data;
         }
     }
     

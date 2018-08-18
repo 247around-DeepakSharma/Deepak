@@ -45,6 +45,7 @@ class vendor extends CI_Controller {
         $this->load->library('push_notification_lib');
         $this->load->helper('download');
         $this->load->library('user_agent');
+        $this->load->library('invoice_lib');
         $this->load->dbutil();
         $this->load->helper('file');
         $this->load->model('push_notification_model');
@@ -5068,27 +5069,22 @@ class vendor extends CI_Controller {
     }
     
     function check_GST_number($gst){
-        $curl = curl_init();
-        curl_setopt_array($curl, array(
-          CURLOPT_URL => "https://api.taxprogsp.co.in/commonapi/v1.1/search?aspid=".ASP_ID."&password=".ASP_PASSWORD."&Action=TP&Gstin=".$gst,
-          CURLOPT_RETURNTRANSFER => true,
-          CURLOPT_ENCODING => "",
-          CURLOPT_MAXREDIRS => 10,
-          CURLOPT_TIMEOUT => 30,
-          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-          CURLOPT_CUSTOMREQUEST => "GET",
-        ));
-        $api_response = curl_exec($curl);
-        $err = curl_error($curl);
-        curl_close($curl);
-        if ($err) {
+        $api_response = $this->invoice_lib->gst_curl_call($gst);
+        if (!$api_response) {
           echo '{"status_cd":"0","errorMsg":"cURL Error -'.$err.'"}';
         } else {
-            //$api_response = '{"stjCd":"DL086","lgnm":"SUDESH KUMAR","stj":"Ward 86","dty":"Regular","adadr":[],"cxdt":"","gstin":"07ALDPK4562B1ZG","nba":["Recipient of Goods or Services","Service Provision","Retail Business","Wholesale Business","Works Contract"],"lstupdt":"17/04/2018","rgdt":"01/07/2017","ctb":"Proprietorship","pradr":{"addr":{"bnm":"BLOCK 4","st":"GALI NO. 5","loc":"HARI NAGAR ASHRAM","bno":"A-144/5","dst":"","stcd":"Delhi","city":"","flno":"G/F","lt":"","pncd":"110014","lg":""},"ntr":"Recipient of Goods or Services, Service Provision, Retail Business, Wholesale Business, Works Contract"},"tradeNam":"UNITED HOME CARE","sts":"Active","ctjCd":"ZK0601","ctj":"RANGE - 161"}';
             $response = json_decode($api_response, true);
-            if(isset($response['error'])){ 
-                $emailBody = "<b>TAXPRO GSP API FAIL </b><br/>".$api_response;
-                $this->notify->sendEmail(NOREPLY_EMAIL_ID, DEVELOPER_EMAIL, '' , '', 'Taxpro GSP Api Failure', $emailBody, '', '');
+            if(isset($response['error'])){
+                $email_template = $this->booking_model->get_booking_email_template(TAXPRO_API_FAIL);
+                if($response['error']['error_cd'] =='GSP050D'){
+                   
+                    $message = vsprintf($email_template[0], array("Wrong GST No Used: ".$gst,$this->session->userdata('emp_name') ));  
+                }
+                else{
+                    $message = vsprintf($email_template[0], array("Used GST NO ".$gst,$this->session->userdata('emp_name'), $api_response));  
+                }
+                $to = $this->session->userdata('official_email').$email_template[1];
+                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $email_template[3] , $email_template[5], $email_template[4], $message, '', TAXPRO_API_FAIL);
                 echo $api_response;
             }
             else{ 
