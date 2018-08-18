@@ -421,24 +421,45 @@ function get_data_for_partner_callback($booking_id) {
 
 	return $query->result_array();
     }
+    function bookings_by_status($bookingTempArray){
+        foreach($bookingTempArray as $values){
+            if($values->closed_date != "" && ($values->current_status == 'Pending' || $values->current_status == 'Rescheduled' )){
+                if($values->internal_status == 'InProcess_Cancelled'){
+                    $status = 'Cancelled';
+                }
+                else{
+                    $status = 'Completed';
+                }
+            }
+            else{
+                $status = $values->current_status;
+            }
+           $values->current_status = $status;
+        }
+        return $bookingTempArray;
+    }
 
     //Get partner summary parameters for daily report
     function get_partner_summary_params($partner_id) {
         
         $where1 = array('booking_details.partner_id' => $partner_id, 'MONTH(booking_details.create_date) = MONTH(CURDATE())' => NULL, 'YEAR(booking_details.create_date) = YEAR(CURDATE())' => NULL);
-        $current_month_booking = $this->booking_model->get_bookings_count_by_any( 'DISTINCT current_status,booking_details.initial_booking_date,booking_details.create_date,booking_details.service_center_closed_date as closed_date,booking_details.request_type,booking_details.booking_date',$where1, "", "", true);
-
-        $where2 = array('booking_details.partner_id' => $partner_id, 'DATE(booking_details.create_date) = CURDATE()' => NULL);
-        $today_booking = $this->booking_model->get_bookings_count_by_any('DISTINCT current_status,booking_details.initial_booking_date,booking_details.create_date,booking_details.service_center_closed_date as closed_date,booking_details.request_type,booking_details.booking_date', $where2, "", "", true );
-
-        $where3 = array('booking_details.partner_id' => $partner_id, 'DATE(booking_details.create_date) = DATE(DATE_SUB(NOW(), INTERVAL 1 DAY))' => NULL);
-        $yesterday_booking = $this->booking_model->get_bookings_count_by_any('DISTINCT current_status,booking_details.initial_booking_date,booking_details.create_date,booking_details.service_center_closed_date as closed_date,booking_details.request_type,booking_details.booking_date', $where3, "", "", true );
+        $current_month_booking_temp = $this->booking_model->get_bookings_count_by_any( 'DISTINCT current_status,booking_details.initial_booking_date,booking_details.internal_status,booking_details.create_date,booking_details.service_center_closed_date as closed_date,booking_details.request_type,booking_details.booking_date',$where1, "", "", true);
+        $current_month_booking = $this->bookings_by_status($current_month_booking_temp);
         
-        $where4 = array('booking_details.partner_id' => $partner_id, "booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."')" => NULL);
+        $where2 = array('booking_details.partner_id' => $partner_id, 'DATE(booking_details.create_date) = CURDATE()' => NULL);
+        $today_booking_temp = $this->booking_model->get_bookings_count_by_any('DISTINCT current_status,booking_details.initial_booking_date,booking_details.internal_status,booking_details.create_date,booking_details.service_center_closed_date as closed_date,booking_details.request_type,booking_details.booking_date', $where2, "", "", true );
+        $today_booking = $this->bookings_by_status($today_booking_temp);
+        
+        $where3 = array('booking_details.partner_id' => $partner_id, 'DATE(booking_details.create_date) = DATE(DATE_SUB(NOW(), INTERVAL 1 DAY))' => NULL);
+        $yesterday_booking_temp = $this->booking_model->get_bookings_count_by_any('DISTINCT current_status,booking_details.initial_booking_date,booking_details.internal_status,booking_details.create_date,booking_details.service_center_closed_date as closed_date,booking_details.request_type,booking_details.booking_date', $where3, "", "", true );
+        $yesterday_booking = $this->bookings_by_status($yesterday_booking_temp);
+        
+        $where4 = array('booking_details.partner_id' => $partner_id, "booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."')" => NULL,"booking_details.service_center_closed_date IS NULL"=>NULL);
         
         $totalPending = $this->booking_model->get_bookings_count_by_any('DISTINCT current_status,booking_details.initial_booking_date,booking_details.create_date,booking_details.service_center_closed_date as closed_date,booking_details.request_type,booking_details.booking_date', $where4, "", "", true);
 
         $current_month_status = array_count_values(array_column($current_month_booking, 'current_status'));
+
         if (count($today_booking) !== 0 || count($yesterday_booking) !== 0 || (isset($current_month_status['Pending']) && !empty($current_month_status['Pending'])) || (isset($current_month_status['Rescheduled']) && !empty($current_month_status['Rescheduled']))) {
             $result['current_month_installation_booking_requested'] = 0;
             $result['current_month_installation_booking_completed'] = 0;
@@ -539,7 +560,7 @@ function get_data_for_partner_callback($booking_id) {
                             break;
                         case _247AROUND_PENDING:
                         case _247AROUND_RESCHEDULED:
-                            if (date('Y-m-d', strtotime($value->booking_date)) >= date('Y-m-d')){
+                            if (date('Y-m-d', strtotime($value->initial_booking_date)) >= date('Y-m-d')){
                                 $result['today_repair_booking_pending'] ++;
                             }
                             break;
@@ -558,7 +579,7 @@ function get_data_for_partner_callback($booking_id) {
                             break;
                         case _247AROUND_PENDING:
                         case _247AROUND_RESCHEDULED:
-                            if (date('Y-m-d', strtotime($value->booking_date)) >= date('Y-m-d')){
+                            if (date('Y-m-d', strtotime($value->initial_booking_date)) >= date('Y-m-d')){
                                 $result['today_installation_booking_pending'] ++;
                             }
                             break;
@@ -568,7 +589,6 @@ function get_data_for_partner_callback($booking_id) {
                     }
                 }
             }
-
             foreach ($yesterday_booking as $value) {
                 if (strpos($value->request_type, 'Repair') !== false || strpos($value->request_type, 'Repeat') !== false) {
                     $result['yesterday_repair_booking_requested'] ++;
@@ -581,7 +601,7 @@ function get_data_for_partner_callback($booking_id) {
                             break;
                         case _247AROUND_PENDING:
                         case _247AROUND_RESCHEDULED:
-                            if (date('Y-m-d', strtotime($value->booking_date)) == date("Y-m-d", strtotime("-1 days"))){
+                            if (date('Y-m-d', strtotime($value->initial_booking_date)) == date("Y-m-d", strtotime("-1 days"))){
                                 $result['yesterday_repair_booking_pending'] ++;
                             }
                             break;
@@ -600,7 +620,7 @@ function get_data_for_partner_callback($booking_id) {
                             break;
                         case _247AROUND_PENDING:
                         case _247AROUND_RESCHEDULED:
-                            if (date('Y-m-d', strtotime($value->booking_date)) == date("Y-m-d", strtotime("-1 days"))){
+                            if (date('Y-m-d', strtotime($value->initial_booking_date)) == date("Y-m-d", strtotime("-1 days"))){
                                 $result['yesterday_installation_booking_pending'] ++;
                             }
                             break;
@@ -618,19 +638,19 @@ function get_data_for_partner_callback($booking_id) {
             $result['total_greater_than_5_days_installation_booking_pending'] = 0;
             foreach ($totalPending as $key => $value) {
                 if (strpos($value->request_type, 'Repair') !== false || strpos($value->request_type, 'Repeat') !== false) {
-                    if (date('Y-m-d', strtotime($value->booking_date)) <= date('Y-m-d') && (date('Y-m-d', strtotime($value->booking_date)) >= date("Y-m-d", strtotime("-2 days"))) || date('Y-m-d', strtotime($value->booking_date)) >= date('Y-m-d')) {
+                    if (date('Y-m-d', strtotime($value->initial_booking_date)) <= date('Y-m-d') && (date('Y-m-d', strtotime($value->initial_booking_date)) >= date("Y-m-d", strtotime("-2 days"))) || date('Y-m-d', strtotime($value->initial_booking_date)) >= date('Y-m-d')) {
                         $result['total_zero_to_two_days_repair_booking_pending'] ++;
-                    } else if ((date("Y-m-d", strtotime($value->booking_date)) < date("Y-m-d", strtotime("-2 days"))) && (date("Y-m-d", strtotime($value->booking_date)) >= date("Y-m-d", strtotime("-5 days")))) {
+                    } else if ((date("Y-m-d", strtotime($value->initial_booking_date)) < date("Y-m-d", strtotime("-2 days"))) && (date("Y-m-d", strtotime($value->initial_booking_date)) >= date("Y-m-d", strtotime("-5 days")))) {
                         $result['total_three_to_five_days_repair_booking_pending'] ++;
-                    } else if (date('Y-m-d', strtotime($value->booking_date)) < date('Y-m-d', strtotime("-5 days"))) {
+                    } else if (date('Y-m-d', strtotime($value->initial_booking_date)) < date('Y-m-d', strtotime("-5 days"))) {
                         $result['total_greater_than_5_days_repair_booking_pending'] ++;
                     }
                 } else {
-                    if (date('Y-m-d', strtotime($value->booking_date)) <= date('Y-m-d') && (date('Y-m-d', strtotime($value->booking_date)) >= date("Y-m-d", strtotime("-2 days"))) || date('Y-m-d', strtotime($value->booking_date)) >= date('Y-m-d')) {
+                    if (date('Y-m-d', strtotime($value->initial_booking_date)) <= date('Y-m-d') && (date('Y-m-d', strtotime($value->initial_booking_date)) >= date("Y-m-d", strtotime("-2 days"))) || date('Y-m-d', strtotime($value->initial_booking_date)) >= date('Y-m-d')) {
                         $result['total_zero_to_two_days_installation_booking_pending'] ++;
-                    } else if ((date("Y-m-d", strtotime($value->booking_date)) < date("Y-m-d", strtotime("-2 days"))) && (date("Y-m-d", strtotime($value->booking_date)) >= date("Y-m-d", strtotime("-5 days")))) {
+                    } else if ((date("Y-m-d", strtotime($value->initial_booking_date)) < date("Y-m-d", strtotime("-2 days"))) && (date("Y-m-d", strtotime($value->initial_booking_date)) >= date("Y-m-d", strtotime("-5 days")))) {
                         $result['total_three_to_five_days_installation_booking_pending'] ++;
-                    } else if (date('Y-m-d', strtotime($value->booking_date)) < date('Y-m-d', strtotime("-5 days"))) {
+                    } else if (date('Y-m-d', strtotime($value->initial_booking_date)) < date('Y-m-d', strtotime("-5 days"))) {
                         $result['total_greater_than_5_days_installation_booking_pending'] ++;
                     }
                 }
