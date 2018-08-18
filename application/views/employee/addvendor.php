@@ -1511,14 +1511,19 @@
                 if($('#gst_no').val() == ''){
                    alert('Please Enter GST Number or Tick "Not Available" checkbox');
                    return false;
-               }
-               else if($('#gst_no').val().length === '15'){
+                }
+                else if($('#gst_no').val().length === '15'){
                    alert('Please Enter Valid GST Number');
                    return false;
-               }else if($('#gst_no').val() != '' && $('#gst_file').get(0).files.length === 0 && is_gst_file === 0){
-                   alert("Please Upload GST File");
+                }
+                else if($('#gst_type').val() == '' || $('#gst_status').val() == ''){
+                   alert('Please Enter Valid GST Number or Tick "Not Available" checkbox');
                    return false;
-               }
+                }
+//                else if($('#gst_no').val() != '' && $('#gst_file').get(0).files.length === 0 && is_gst_file === 0){
+//                   alert("Please Upload GST File");
+//                   return false;
+//                }
             }
             
              if( ($('#is_cp').is(":checked") === false) && ($('#is_sf').is(":checked") === false) && ($('#is_wh').is(":checked") === false)){
@@ -1759,6 +1764,15 @@
                     else{
                         if(response.errorMsg){
                            alert(response.errorMsg);
+                           $("#gst_type, #gst_status").val("");
+                        }
+                        else if(response.error.message){
+                            if(response.error.error_cd == 'GSP050D'){
+                                alert("Please enter valid email");
+                            }else{
+                                alert(response.error.message);
+                            }
+                            $("#gst_type, #gst_status").val("");
                         }
                         else{
                            alert("API unable to work"); 
