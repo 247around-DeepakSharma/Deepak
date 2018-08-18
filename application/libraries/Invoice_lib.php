@@ -270,8 +270,7 @@ class Invoice_lib {
             'partner_id' => $vendor_id,
             'activity' => __METHOD__,
             'header' => "",
-            'json_request_data' => $curlURL,
-            'json_response_string' => json_encode($responseData, JSON_UNESCAPED_SLASHES)
+            'json_request_data' => "https://api.taxprogsp.co.in/commonapi/v1.1/search?aspid=".ASP_ID."&password=".ASP_PASSWORD."&Action=TP&Gstin=".$vendor[0]['gst_no'],
         );
         $api_response = $this->gst_curl_call($vendor[0]['gst_no']);
         if (!$api_response) {
