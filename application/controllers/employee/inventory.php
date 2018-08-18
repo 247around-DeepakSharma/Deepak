@@ -1245,6 +1245,8 @@ class Inventory extends CI_Controller {
                 if (!empty($partner_status)) {
                     $b['partner_current_status'] = $partner_status[0];
                     $b['partner_internal_status'] = $partner_status[1];
+                    $b['actor'] = $partner_status[2];
+                    $b['next_action'] = $partner_status[3];
                 }
 
                 $this->booking_model->update_booking($booking_id, $b);

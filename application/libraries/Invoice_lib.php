@@ -245,8 +245,18 @@ class Invoice_lib {
     
     function gst_curl_call($gst_no){
         $curl = curl_init();
+        $curlURL = "https://api.taxprogsp.co.in/commonapi/v1.1/search?aspid=".ASP_ID."&password=".ASP_PASSWORD."&Action=TP&Gstin=".$vendor[0]['gst_no'];
+        $activity = array(
+            'entity_type' => 'vendor',
+            'partner_id' => $vendor_id,
+            'activity' => __METHOD__,
+            'header' => "",
+            'json_request_data' => $curlURL,
+            'json_response_string' => json_encode($responseData, JSON_UNESCAPED_SLASHES)
+        );
         curl_setopt_array($curl, array(
           CURLOPT_URL => "https://api.taxprogsp.co.in/commonapi/v1.1/search?aspid=".ASP_ID."&password=".ASP_PASSWORD."&Action=TP&Gstin=".$gst_no,
+          CURLOPT_URL => $curlURL,
           CURLOPT_RETURNTRANSFER => true,
           CURLOPT_ENCODING => "",
           CURLOPT_MAXREDIRS => 10,
@@ -320,6 +330,7 @@ class Invoice_lib {
                     $data['status'] = 'success'; 
                     return $data;
                 }
+
             }
         }
         else{
@@ -332,10 +343,10 @@ class Invoice_lib {
         if(!empty($gst_number)){
             $gstin = $this->get_gstin_status_by_api($vendor_id);
             if(!empty($gstin)){
-                if($gstin['gst_taxpayer_type'] == "Regular" && $gstin['gst_status'] == "Active"){
+                if($gstin['gst_taxpayer_type'] == "Regular" && $gstin['status'] = "success" && $gstin['gst_status'] == "Active"){
                     return $gst_number;
                 } else {
-                    return "";
+                    return $gst_number;
                 }
             } else {
                 return "";
