@@ -52,7 +52,7 @@
                         <div class="panel-heading"><b>Company Information</b></div>
                         <div class="panel-body">
                             <div>
-                                <input style="width:200px;" type="hidden" class="form-control"  name="id" value = "<?php
+                                <input style="width:200px;" type="hidden" class="form-control" id="vendor_id"  name="id" value = "<?php
                                     if (isset($query[0]['id'])) {
                                         echo $query[0]['id'];
                                     }
@@ -1747,10 +1747,14 @@
     function validateGSTNo(){
         var gstin = $("#gst_no").val();
         gstin = gstin.trim();
+        var vendor_id="";
+        if($("#vendor_id").val()){
+            vendor_id = "/"+$("#vendor_id").val();
+        }
         if(gstin.length == '15'){
             $.ajax({
                 type: 'POST',
-                url: '<?php echo base_url(); ?>employee/vendor/check_GST_number/'+gstin,
+                url: '<?php echo base_url(); ?>employee/vendor/check_GST_number/'+gstin+vendor_id,
                 success: function (response) {
                     console.log(response);
                     response = JSON.parse(response);
