@@ -342,7 +342,14 @@ class Courier_tracking extends CI_Controller {
 
                 if ($update_status) {
                     log_message('info', ' Spare Details updated for spare id ' . $parts_details[0]);
-                    $booking['booking_date'] = date('d-m-Y', strtotime('+1 days'));
+                    
+                    if(date('l' == 'Sunday')){
+                        $booking['booking_date'] = date('d-m-Y', strtotime("+1 days"));
+                    } else if(date('H') > 12){
+                        $booking['booking_date'] = date('d-m-Y', strtotime("+1 days"));
+                    } else {
+                        $booking['booking_date'] = date('d-m-Y');
+                    }
                     $booking['update_date'] = date("Y-m-d H:i:s");
                     $booking['internal_status'] = SPARE_PARTS_DELIVERED;
 
