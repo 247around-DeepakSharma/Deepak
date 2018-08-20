@@ -7994,3 +7994,8 @@ INSERT INTO `partner_summary_report_mapping` (`id`, `Title`, `sub_query`, `is_de
 
 --Kalyani 17-08-2018
 ALTER TABLE `log_partner_table` ADD `entity_type` VARCHAR(65) NOT NULL DEFAULT 'partner' AFTER `id`;
+
+--Abhay 14 Aug 2018
+ALTER TABLE `vendor_partner_invoices` ADD `credit_debit_generated` INT(1) NOT NULL DEFAULT '0' AFTER `create_date`;
+
+ALTER TABLE `vendor_partner_invoices` CHANGE `credit_debit_generated` `credit_generated` INT(1) NOT NULL DEFAULT '1';
