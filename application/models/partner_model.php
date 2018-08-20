@@ -825,12 +825,14 @@ function get_data_for_partner_callback($booking_id) {
      * @param boolean $flag_select
      * @return Array
      */
-    function get_spare_parts_booking_list($where, $start, $end,$flag_select,$state=0,$is_stock_needed = null){
+    function get_spare_parts_booking_list($where, $start, $end,$flag_select,$state=0,$is_stock_needed = null,$is_unit_details = false){
         if($state ==1){
             $where = $where." AND booking_details.state IN (SELECT state FROM agent_filters WHERE agent_id = ".$this->session->userdata('agent_id')." AND agent_filters.is_active=1)";
         }
         $limit = "";
         $select = " ";
+        $join = "";
+        $group_by = "";
         if($flag_select){
             $select = "SELECT spare_parts_details.*, users.name, booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id,"
                 . " booking_details.booking_address,booking_details.initial_booking_date, booking_details.is_upcountry, booking_details.upcountry_paid_by_customer,"
@@ -841,7 +843,11 @@ function get_data_for_partner_callback($booking_id) {
             if($end){
                 $limit = "LIMIT $start, $end";
             }
-            
+            if($is_unit_details){
+                $select = $select.", GROUP_CONCAT(DISTINCT booking_unit_details.appliance_brand) as brands";
+                $join = "JOIN booking_unit_details ON booking_unit_details.booking_id =  spare_parts_details.booking_id";
+                $group_by = " GROUP BY spare_parts_details.id";
+            }
         } else {
             $select = "SELECT count(spare_parts_details.id) as total_rows ";
         }
@@ -852,16 +858,25 @@ function get_data_for_partner_callback($booking_id) {
                     . ' FROM spare_parts_details'
                     . ' JOIN booking_details ON spare_parts_details.booking_id = booking_details.booking_id'
                     . ' JOIN service_centres ON spare_parts_details.service_center_id = service_centres.id'
-                    . ' JOIN users ON users.user_id = booking_details.user_id'
+                    . ' JOIN users ON users.user_id = booking_details.user_id '.$join
                     . ' LEFT JOIN inventory_stocks ON spare_parts_details.requested_inventory_id = inventory_stocks.inventory_id'
-                    . " WHERE $where ORDER BY spare_parts_details.purchase_invoice_id DESC,spare_parts_details.create_date $limit";
+                    . " WHERE $where $group_by ORDER BY spare_parts_details.purchase_invoice_id DESC,spare_parts_details.create_date $limit";
         }else{
-            $sql =   $select
-                ." FROM spare_parts_details,booking_details,users, "
-                . " service_centres WHERE booking_details.booking_id = spare_parts_details.booking_id"
+                        if($is_unit_details){
+                $sql =   $select
+                ." FROM spare_parts_details,booking_details,users,booking_unit_details, "
+                . " service_centres WHERE booking_details.booking_id = spare_parts_details.booking_id AND booking_unit_details.booking_id = spare_parts_details.booking_id"
                 . " AND users.user_id = booking_details.user_id AND service_centres.id = spare_parts_details.service_center_id "
-                . " AND ".$where . "  ORDER BY status = '". DEFECTIVE_PARTS_REJECTED."', spare_parts_details.create_date ASC $limit";
-        }
+                . " AND ".$where . $group_by."  ORDER BY status = '". DEFECTIVE_PARTS_REJECTED."', spare_parts_details.create_date ASC $limit";
+            }
+            else{
+                $sql =   $select
+                    ." FROM spare_parts_details,booking_details,users, "
+                    . " service_centres WHERE booking_details.booking_id = spare_parts_details.booking_id"
+                    . " AND users.user_id = booking_details.user_id AND service_centres.id = spare_parts_details.service_center_id "
+                    . " AND ".$where . "  ORDER BY status = '". DEFECTIVE_PARTS_REJECTED."', spare_parts_details.create_date ASC $limit";
+            }
+            }
         
         $query = $this->db->query($sql);
        
