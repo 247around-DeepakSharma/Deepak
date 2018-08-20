@@ -1234,7 +1234,23 @@ class Invoice extends CI_Controller {
                 
                 //Update Penalty Amount
                 foreach ($invoice_data['d_penalty'] as $value) {
-                    $this->penalty_model->update_penalty_any(array('booking_id' => $value['booking_id']), array('foc_invoice_id' => $invoice_data['meta']['invoice_id']));
+                    $explode = explode(",", $value['p_id']);
+                    if(!empty($explode)){
+                        foreach ($explode as $p_id) {
+                            $this->penalty_model->update_penalty_any(array('id' => $p_id), array('foc_invoice_id' => $invoice_data['meta']['invoice_id']));
+                        }
+                    }
+                    
+                }
+                
+                foreach ($invoice_data['c_penalty'] as $value) {
+                    $explode = explode(",", $value['c_id']);
+                    if(!empty($explode)){
+                        foreach ($explode as $p_id) {
+                            $this->penalty_model->update_penalty_any(array('id' => $p_id), array('removed_penalty_invoice_id' => $invoice_data['meta']['invoice_id']));
+                        }
+                    }
+                    
                 }
                 
                 if (!empty($invoice_data['upcountry'])) {
@@ -3807,7 +3823,7 @@ class Invoice extends CI_Controller {
                 );
 
                 $this->invoices_model->action_partner_invoice($credit_invoice_details);
-                redirect(base_url() . 'employee/invoice/invoice_summary/' . $credit_invoice_details[0]['vendor_partner'] . "/" . $credit_invoice_details[0]['vendor_partner_id']);
+                redirect(base_url() . 'employee/invoice/invoice_summary/' . $invoice_details[0]['vendor_partner'] . "/" . $invoice_details[0]['vendor_partner_id']);
                 
             } else {
                 echo "Already CreditNote Generated";

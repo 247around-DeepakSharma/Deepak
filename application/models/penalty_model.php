@@ -363,7 +363,7 @@ class Penalty_model extends CI_Model {
         }
         if (PENALTY_ON_COMPLETED_BOOKING != FALSE && PENALTY_ON_CANCELLED_BOOKING != FALSE) {
             
-            $sql = " SELECT COUNT( $distinct p.booking_id) as penalty_times, p.booking_id,criteria_id,criteria,
+            $sql = " SELECT COUNT( $distinct p.booking_id) as penalty_times, GROUP_CONCAT(p.id) as p_id, p.booking_id,criteria_id,criteria,
 
                 CASE WHEN ((count(p.booking_id) *  p.penalty_amount) > cap_amount) THEN (cap_amount)
 
@@ -389,8 +389,8 @@ class Penalty_model extends CI_Model {
         }
     }
     
-    function get_removed_penalty($vendor_id, $to_date, $distinct) {
-        $from_date = date('Y-m-d', strtotime('-1 months', strtotime($to_date)));
+    function get_removed_penalty($vendor_id, $from_date, $to_date, $distinct) {
+        
         $where = "";
         if (PENALTY_ON_COMPLETED_BOOKING == TRUE && PENALTY_ON_CANCELLED_BOOKING == TRUE) {
             $where = " AND booking_details.current_status IN ('Completed', 'Cancelled') ";
@@ -402,21 +402,20 @@ class Penalty_model extends CI_Model {
 
         if (PENALTY_ON_COMPLETED_BOOKING != FALSE && PENALTY_ON_CANCELLED_BOOKING != FALSE) {
             
-            $sql = " SELECT COUNT( $distinct p.booking_id) as penalty_times, p.booking_id,criteria_id,criteria,
+            $sql = " SELECT COUNT( $distinct p.booking_id) as penalty_times, GROUP_CONCAT(p.id) as c_id, p.booking_id,criteria_id,criteria,
 
                 CASE WHEN ((count(p.booking_id) *  p.penalty_amount) > cap_amount) THEN (cap_amount)
 
                 ELSE (COUNT(p.booking_id) * p.penalty_amount) END  AS p_amount, p.penalty_amount
 
-                FROM `penalty_on_booking` AS p, penalty_details, booking_details, booking_unit_details 
+                FROM `penalty_on_booking` AS p, penalty_details, booking_details
                 WHERE criteria_id = penalty_details.id 
                 AND  p.active = 0  
                 AND foc_invoice_id IS NOT NULL
-                AND  closed_date >= '".$from_date."'
-                AND closed_date < '".$to_date."'
+                AND penalty_remove_date >= '".$from_date."'
+                AND penalty_remove_date < '".$to_date."'
                 AND service_center_id = '".$vendor_id."'
-                AND booking_unit_details.booking_id = booking_details.booking_id
-                AND vendor_foc_invoice_id IS NOT NULL
+                AND removed_penalty_invoice_id IS NULL
                 AND booking_details.booking_id = p.booking_id $where
                 GROUP BY p.booking_id, criteria_id";           
             
