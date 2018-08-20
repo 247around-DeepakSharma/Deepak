@@ -558,7 +558,6 @@ class Booking extends CI_Controller {
         
         return $dealer_id;
     }
-
     /**
      * @desc: This method is used to send sms while Customer not reachable in Pending Queries.
      * This is Asynchronous Process
@@ -570,56 +569,6 @@ class Booking extends CI_Controller {
         $send['booking_id'] = $booking_id;
         $send['state'] = $state;
         $this->asynchronous_lib->do_background_process($url, $send);
-    }
-
-    /**
-     * @desc: this method returns Booking data in array
-     * @return Array
-     */
-    function get_booking_input($user_id) {
-        log_message('info', __FUNCTION__);
-        $booking['service_id'] = $this->input->post('service_id');
-        $booking['source'] = $this->input->post('source_code');
-        $booking['type'] = $this->input->post('type');
-        $booking['amount_due'] = $this->input->post('grand_total_price');
-        $booking['booking_address'] = trim($this->input->post('home_address'));
-        $booking['city'] = trim($this->input->post('city'));
-        $booking_date = $this->input->post('booking_date');
-        $booking['partner_source'] = $this->input->post('partner_source');
-        $booking['booking_date'] = date('d-m-Y', strtotime($booking_date));
-        $booking['booking_pincode'] = trim($this->input->post('booking_pincode'));
-        // select state, taluk, district by pincode
-        $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($booking['booking_pincode']));
-        $booking['state'] = $distict_details['state'];
-        $booking['district'] = $distict_details['district'];
-        $booking['taluk'] = $distict_details['taluk'];
-        $booking['booking_primary_contact_no'] = trim($this->input->post('booking_primary_contact_no'));
-        $booking['order_id'] = $this->input->post('order_id');
-        $booking['booking_alternate_contact_no'] = trim($this->input->post('booking_alternate_contact_no'));
-        $booking['booking_timeslot'] = $this->input->post('booking_timeslot');
-        $booking['update_date'] = date("Y-m-d H:i:s");
-        $booking['partner_id'] = $this->input->post('partner_id');
-        
-        if(empty($user_id)){
-            $user['phone_number'] = trim($booking['booking_primary_contact_no']);
-            $user['name'] = trim($this->input->post('user_name'));
-            $user['user_email'] = trim($this->input->post('user_email'));
-            $user['home_address'] = trim($booking['booking_address']);
-            $user['city'] = trim($booking['city']);
-            $user['state'] =  trim($booking['state']);
-            $user['pincode'] = trim($booking['booking_pincode']) ;
-            $user['alternate_phone_number'] = trim($booking['booking_alternate_contact_no']);
-            $user['create_date'] = date("Y-m-d H:i:s");
-        
-            $user_id = $this->user_model->add_user($user);
-            
-
-            $this->booking_model->addSampleAppliances($user_id, 5);
-        }
-        
-        $booking['user_id'] = $user_id;
-
-        return $booking;
     }
 
     /**
@@ -2576,6 +2525,7 @@ class Booking extends CI_Controller {
         }
     }
 
+
     /**
      * @desc: This function is used to validate Bookings New/Update
      * 
@@ -3058,6 +3008,7 @@ class Booking extends CI_Controller {
         $data['sf'] = $this->reusable_model->get_search_result_data("service_centres","service_centres.id,name",$vendorWhere,$vendorJoin,NULL,array("name"=>"ASC"),NULL,array());
         $data['services'] = $this->booking_model->selectservice();
         $data['cities'] = $this->booking_model->get_advance_search_result_data("booking_details","DISTINCT(city)",NULL,NULL,NULL,array('city'=>'ASC'));
+        $data['rm'] = $this->reusable_model->get_search_result_data("employee","employee.id,employee.full_name",array("groups"=>"regionalmanager"),NULL,NULL,array("full_name"=>"ASC"),NULL,array());
        $this->miscelleneous->load_nav_header();
         if(strtolower($data['booking_status']) == 'pending'){
             $this->load->view('employee/view_pending_bookings', $data);
@@ -3161,6 +3112,7 @@ class Booking extends CI_Controller {
         $request_type = $this->input->post('request_type');
         $current_status = $this->input->post('current_status');
         $actor = $this->input->post('actor');
+        $rm_id = $this->input->post('rm_id');
         if($type == 'booking'){
             if($booking_status == _247AROUND_COMPLETED || $booking_status == _247AROUND_CANCELLED){
                 $post['where']  = array('current_status' => $booking_status,'type' => 'Booking');
@@ -3191,6 +3143,10 @@ class Booking extends CI_Controller {
         }
         if(!empty($actor)){
              $post['where']['booking_details.actor'] =  $actor;
+        }
+        if(!empty($rm_id)){
+             $post['where']['employee_relation.agent_id'] =  $rm_id;
+             $post['join']['employee_relation'] =  "FIND_IN_SET( booking_details.assigned_vendor_id , employee_relation.service_centres_id )";
         }
         if(!empty($request_type)){
             $post['where_in']['booking_details.request_type'] =  explode(",",$request_type);
@@ -3552,7 +3508,8 @@ class Booking extends CI_Controller {
                 . "booking_details.closing_remarks,"
                 . "booking_details.count_reschedule,booking_details.count_escalation,booking_details.is_upcountry,booking_details.upcountry_pincode,"
                 . "booking_details.upcountry_distance,booking_details.is_penalty,booking_details.create_date,booking_details.update_date,"
-                . "booking_details.service_center_closed_date as closed_date";
+                . "booking_details.service_center_closed_date as service_center_closed_date, "
+                 . "booking_details.closed_date as 247around_closed_date";
        if($is_not_empty){
                 $receieved_Data['length'] = -1;
                 $receieved_Data['start'] = 0;
@@ -3563,7 +3520,7 @@ class Booking extends CI_Controller {
                     "Partner Source","Partner Current Status","Partner Internal Status","Booking Address","Pincode","District","State","Primary Contact Number","Current Booking Date","First Booking Date","Age Of Booking",
                     "TAT","Booking Timeslot","Booking Remarks","Query Remarks","Cancellation Reason","Reschedule_reason","Vendor(SF)",
                     "Rating","Vendor Rating Comments","Closing Remarks","Count Reschedule","Count Escalation",
-                    "Is Upcountry","Upcountry Pincode","Upcountry Distance","IS Penalty","Create Date","Update Date","Closed Date");
+                    "Is Upcountry","Upcountry Pincode","Upcountry Distance","IS Penalty","Create Date","Update Date","Service Center Closed Date","247Around Closed");
                 $this->miscelleneous->downloadCSV($data['data'],$headings,"booking_search_summary");   
        }
        else{
@@ -4128,7 +4085,8 @@ class Booking extends CI_Controller {
                 . "booking_details.closing_remarks,"
                 . "booking_details.count_reschedule,booking_details.count_escalation,booking_details.is_upcountry,booking_details.upcountry_pincode,"
                 . "booking_details.upcountry_distance,booking_details.is_penalty,booking_details.create_date,booking_details.update_date,"
-                . "booking_details.service_center_closed_date as closed_date";
+                . "booking_details.service_center_closed_date as service_center_closed_date, "
+                . "booking_details.closed_date as 247around_closed_date";
         $unitDetailsSelect =",'Not_found' as appliance_brand,'Not_found' as appliance_category,'Not_found' as appliance_capacity,'Not_found' as price_tags,'Not_found' as product_or_services";
        if($this->input->post("is_unit_details")){
            $unitDetailsSelect = ",booking_unit_details.appliance_brand,booking_unit_details.appliance_category,booking_unit_details.appliance_capacity,booking_unit_details.price_tags,"
@@ -4140,7 +4098,7 @@ class Booking extends CI_Controller {
                     "Partner Source","Partner Current Status","Partner Internal Status","Booking Address","Pincode","District","State","Primary Contact Number","Current Booking Date","First Booking Date",
                     "Age Of Booking","TAT","Booking Timeslot","Booking Remarks","Query Remarks","Cancellation Reason","Reschedule_reason","Vendor(SF)",
                     "Rating","Vendor Rating Comments","Closing Remarks","Count Reschedule","Count Escalation",
-                    "Is Upcountry","Upcountry Pincode","Upcountry Distance","IS Penalty","Create Date","Update Date","Closed Date","Brand","Category","Capacity","Request Type","Product/Service");
+                    "Is Upcountry","Upcountry Pincode","Upcountry Distance","IS Penalty","Create Date","Update Date","Service Center Closed Date","Closed Date","Brand","Category","Capacity","Request Type","Product/Service");
        $this->miscelleneous->downloadCSV($data['data'],$headings,"booking_bulk_search_summary");   
        ob_end_clean();
     }
