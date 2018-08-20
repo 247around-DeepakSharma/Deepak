@@ -2726,28 +2726,40 @@ class Partner extends CI_Controller {
                 $explode = explode(",", $service_category);
             }
             foreach ($result as $prices) {
-
+                
+                $customer_total = $prices['customer_total'];
+                $partner_net_payable = $prices['partner_net_payable'];
+                $customer_net_payable = $prices['customer_net_payable'];
+                
+                if($prices['service_category'] == REPAIR_OOW_PARTS_PRICE_TAGS){
+                     
+                     if(!empty($booking_id)){
+                         $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $booking_id, "price_tags" =>REPAIR_OOW_PARTS_PRICE_TAGS), 
+                                 false, "customer_total, partner_net_payable, customer_net_payable");
+                         if(!empty($unit_details)){
+                            $customer_total = $unit_details[0]['customer_total'];
+                            $partner_net_payable = $unit_details[0]['partner_net_payable'];
+                            $customer_net_payable = $unit_details[0]['customer_net_payable'];
+                         }
+                     }
+                     
+                }
+                
                 $html .= "<tr class='text-center'><td>" . $prices['service_category'] . "</td>";
-                $html .= "<td>" . $prices['customer_net_payable'] . "</td>";
+                $html .= "<td>" . $customer_net_payable . "</td>";
                 $html .= "<td><input type='hidden'name ='is_up_val' id='is_up_val_" . $i . "' value ='" . $prices['is_upcountry'] . "' /><input class='price_checkbox'";
                 $html .= " type='checkbox' id='checkbox_" . $i . "'";
                 $html .= "name='prices[]'";
                 if (in_array($prices['service_category'], $explode)) {
                     $html .= " checked ";
                 }
-                $customer_total = $prices['customer_total'];
-                $partner_net_payable = $prices['partner_net_payable'];
-                if($prices['service_category'] == REPAIR_OOW_PARTS_PRICE_TAGS){
-                     $html .= " readonly ";
-                     if(!empty($booking_id)){
-                         $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $booking_id, "price_tags" =>REPAIR_OOW_PARTS_PRICE_TAGS), 
-                                 false, "customer_total, partner_net_payable");
-                         if(!empty($unit_details)){
-                            $customer_total = $unit_details[0]['customer_total'];
-                             $partner_net_payable = $unit_details[0]['partner_net_payable'];
-                         }
-                     }
-                     
+                
+                if($prices['service_category'] == REPAIR_OOW_PARTS_PRICE_TAGS ){
+                    if($customer_net_payable == 0 ){
+                        $html .= " disabled onclick='return false;' ";
+                    } else {
+                        $html .= " onclick='return false;' ";
+                    }   
                 }
                 $html .= "  onclick='final_price(),set_upcountry()'" .
                         "value=" . $prices['id'] . "_" . intval($customer_total) . "_" . intval($partner_net_payable) . "_" . $i . " ></td><tr>";
