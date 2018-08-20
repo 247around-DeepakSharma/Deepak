@@ -351,7 +351,7 @@ class Accounting extends CI_Controller {
      */
     function show_search_invoice_view() {
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/search_invoice_id');
+        $this->load->view('employee/search_invoice_data');
     }
 
     /**
@@ -753,11 +753,11 @@ class Accounting extends CI_Controller {
     function invoice_datatable($invoice_list, $no){
         $row = array();
         $row[] = $no;
-        $row[] = $invoice_list->party_name;
+        $row[] = "<a href='". base_url()."employee/invoice/invoice_summary/".$invoice_list->vendor_partner."/".$invoice_list->vendor_partner_id."' target='_blank'>".$invoice_list->party_name."</a>";
         $row[] = $invoice_list->invoice_id;
         $row[] = $invoice_list->type;
         $row[] = $invoice_list->num_bookings."/".$invoice_list->parts_count;
-        $row[] = date("jS M, Y", strtotime($invoice_list->num_bookings))." <br/><br/> ".date("jS M, Y", strtotime($invoice_list->from_date)). " to ". date("jS M, Y", strtotime($invoice_list->to_date));
+        $row[] = date("jS M, Y", strtotime($invoice_list->invoice_date))." <br/><br/> ".date("jS M, Y", strtotime($invoice_list->from_date)). " to ". date("jS M, Y", strtotime($invoice_list->to_date));
         $row[] = $invoice_list->total_amount_collected;
         $row[] = sprintf("%.2f",($invoice_list->total_service_charge + $invoice_list->service_tax));
         $row[] = sprintf("%.2f", $invoice_list->total_additional_service_charge );
