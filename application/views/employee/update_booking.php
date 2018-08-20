@@ -415,7 +415,7 @@
                                                             </td>
                                                             <td>
                                                                 <?php  if(isset($unit_details[0]['quantity'])){
-                                                                    $customer_net_payable = NUll;
+                                                                    $customer_net_payable = 0;
                                                                        foreach ($unit_details[0]['quantity'] as  $tags) {
                                                                            if($tags['price_tags'] == $price['service_category'] ){
                                                                               $customer_net_payable = $tags['customer_net_payable'];
@@ -423,11 +423,8 @@
                                                                         }
                                                                     }
                                                                     
-                                                                    if(is_null($customer_net_payable)){
-                                                                        echo intval($price['customer_net_payable']);
-                                                                    } else {
-                                                                        echo $customer_net_payable;
-                                                                    }?>
+                                                                    echo $customer_net_payable;
+                                                                    ?>
                                                             </td>
                                                             <td><input type="text" class="form-control discount" name="<?php echo "discount[".$unit_details[0]['brand_id']."][".$clone_number."][". $price['id']."][]"; ?>" id="<?php echo "discount_".$div . "_1"; ?>"
                                                                 value = "<?php  if(isset($unit_details[0]['quantity'])){
@@ -457,7 +454,7 @@
                                                                     }
                                                                     
                                                                     ?>
-                                                                    type='checkbox' id="<?php echo "checkbox_" . $div . "_1" ; ?>" name='prices[<?php echo $unit_details[0]['brand_id']; ?>][<?php echo $clone_number; ?>][]'  onclick='final_price(), enable_discount(this.id), set_upcountry()' value = "<?php echo $price['id']. "_" .intval($ct)."_".$div."_1" ?>">
+                                                                    type='checkbox' id="<?php echo "checkbox_" . $div . "_1" ; ?>" name='prices[<?php echo $unit_details[0]['brand_id']; ?>][<?php echo $clone_number; ?>][]' <?php if( $price['service_category'] ==REPAIR_OOW_PARTS_PRICE_TAGS){ if($customer_net_payable == 0){ echo "onclick='return false;' ";}}?>  onclick='final_price(), enable_discount(this.id), set_upcountry()' value = "<?php echo $price['id']. "_" .intval($ct)."_".$div."_1" ?>">
                                                             </td>
                                                         </tr>
                                                         <?php  $i++; $div++; if(count($unit_details[0]['quantity']) > $k){  $k++;} }} ?>

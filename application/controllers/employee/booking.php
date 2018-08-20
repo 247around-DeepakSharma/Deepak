@@ -1244,6 +1244,9 @@ class Booking extends CI_Controller {
                 $html .= "<td><input type='hidden'name ='is_up_val' id='is_up_val_" . $i . "_" . $clone_number . "' value ='" . $prices['is_upcountry'] . "' /><input class='price_checkbox'";
 
                 $html .=" type='checkbox' id='checkbox_" . $i . "_" . $clone_number . "'";
+                if($prices['service_category'] == REPAIR_OOW_PARTS_PRICE_TAGS ){
+                    $html .= " onclick='return false;' ";
+                }
                 $html .= "name='prices[$brand_id][$clone_number][]'";
                 $html .= "  onclick='final_price(), enable_discount(this.id), set_upcountry()'" .
                         "value=" . $prices['id'] . "_" . intval($prices['customer_total']) . "_" . $i . "_" . $clone_number . " ></td><tr>";
