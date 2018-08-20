@@ -240,7 +240,17 @@ class Invoice_lib {
         }
     }
     
-    function gst_curl_call($gst_no){
+    function gst_curl_call($gst_no, $vendor_id=""){
+        if(!$vendor_id){
+          $vendor_id = _247AROUND;
+        }
+        $activity = array(
+            'entity_type' => 'vendor',
+            'partner_id' => $vendor_id,
+            'activity' => __METHOD__,
+            'header' => "",
+            'json_request_data' => "https://api.taxprogsp.co.in/commonapi/v1.1/search?aspid=".ASP_ID."&password=".ASP_PASSWORD."&Action=TP&Gstin=".$gst_no,
+        );
         $curl = curl_init();
         curl_setopt_array($curl, array(
           CURLOPT_URL => "https://api.taxprogsp.co.in/commonapi/v1.1/search?aspid=".ASP_ID."&password=".ASP_PASSWORD."&Action=TP&Gstin=".$gst_no,
@@ -255,41 +265,46 @@ class Invoice_lib {
         $err = curl_error($curl);
         curl_close($curl);
         if($err){
+            $activity['json_response_string'] = $err;
             return false;
         }
         else{
-            return $api_response;
+            $activity['json_response_string'] = $api_response;
+            $response = json_decode($api_response, true);
+            if(isset($response['error'])){
+                $email_template = $this->ci->booking_model->get_booking_email_template(TAXPRO_API_FAIL);
+                if($response['error']['error_cd'] =='GSP050D'){
+                   $message = vsprintf($email_template[0], array("Wrong GST No Used: ".$gst_no,$this->ci->session->userdata('emp_name') ));  
+                   $to = $this->ci->session->userdata('official_email').$email_template[1];
+                }
+                else{
+                    $message = vsprintf($email_template[0], array("Used GST NO ".$gst_no,$this->ci->session->userdata('emp_name'), $api_response));  
+                    $to = DEVELOPER_EMAIL.$email_template[1];
+                }
+                $this->ci->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $email_template[3] , $email_template[5], $email_template[4], $message, '', TAXPRO_API_FAIL);
+                return $api_response;
+            }
+            else{ 
+               return $api_response;
+            }
         }
+        $this->ci->partner_model->log_partner_activity($activity);
     }
     
     function get_gstin_status_by_api($vendor_id){
         $data = array();
         $vendor = $this->ci->vendor_model->getVendorDetails('gst_no, gst_status, gst_taxpayer_type, company_name, gst_cancelled_date', array('id'=>$vendor_id), 'id', array());
         if(isset($vendor[0]['gst_no'])){
-            $activity = array(
-                'entity_type' => 'vendor',
-                'partner_id' => $vendor_id,
-                'activity' => __METHOD__,
-                'header' => "",
-                'json_request_data' => "https://api.taxprogsp.co.in/commonapi/v1.1/search?aspid=".ASP_ID."&password=".ASP_PASSWORD."&Action=TP&Gstin=".$vendor[0]['gst_no'],
-            );
-            $api_response = $this->gst_curl_call($vendor[0]['gst_no']);
+            
+            $api_response = $this->gst_curl_call($vendor[0]['gst_no'], $vendor_id);
             if (!$api_response) {
                 $data['status'] = 'error'; 
                 return $data;
             } else { 
                 //$response = '{"stjCd":"DL086","lgnm":"SUDESH KUMAR","stj":"Ward 86","dty":"Regular","adadr":[],"cxdt":"","gstin":"07ALDPK4562B1ZG","nba":["Recipient of Goods or Services","Service Provision","Retail Business","Wholesale Business","Works Contract"],"lstupdt":"17/04/2018","rgdt":"01/07/2017","ctb":"Proprietorship","pradr":{"addr":{"bnm":"BLOCK 4","st":"GALI NO. 5","loc":"HARI NAGAR ASHRAM","bno":"A-144/5","dst":"","stcd":"Delhi","city":"","flno":"G/F","lt":"","pncd":"110014","lg":""},"ntr":"Recipient of Goods or Services, Service Provision, Retail Business, Wholesale Business, Works Contract"},"tradeNam":"UNITED HOME CARE","sts":"Active","ctjCd":"ZK0601","ctj":"RANGE - 161"}';
                 //$api_response = '{"status_cd":"0","error":{"error_cd":"GSP020A","message":"Error: Invalid ASP Password."}}';
-                $activity['json_response_string'] = $api_response;
-                $this->ci->partner_model->log_partner_activity($activity);
                 $response = json_decode($api_response, true);
                 if(isset($response['error'])){ 
-                    $email_template = $this->ci->booking_model->get_booking_email_template(TAXPRO_API_FAIL);
-                    if(!empty($email_template)){ 
-                        $message = vsprintf($email_template[0], array($api_response));
-                        $to = DEVELOPER_EMAIL.','.$email_template[1];
-                        $this->ci->notify->sendEmail($email_template[2], $to, $email_template[3], $email_template[5], $email_template[4], $message, '', TAXPRO_API_FAIL);
-                    }
                     $data['status'] = 'error'; 
                     return $data;
                 }
@@ -297,7 +312,8 @@ class Invoice_lib {
                     $data['gst_taxpayer_type'] = $response['dty']; //Regular
                     $data['gst_status'] = $response['sts']; //Active
                     if(isset($response['cxdt']) && !empty($response['cxdt'])){
-                        $data['gst_cancelled_date'] = date("Y-m-d", strtotime($response['cxdt']));
+                       
+                        $data['gst_cancelled_date'] = date("Y-m-d", strtotime(str_replace('/','-',$response['cxdt'])));
                     } else {
                         $data['gst_cancelled_date'] = NULL;
                     }
@@ -324,32 +340,21 @@ class Invoice_lib {
             return $data;
         }
     }
-    /**
-     * @desc This function is used to check GST number is valid or not
-     * Currently it triggered from Invoice Model
-     * @param String $vendor_id
-     * @param String $gst_number
-     * @return string
-     */
+    
     function check_gst_number_valid($vendor_id, $gst_number){
         if(!empty($gst_number)){
             $gstin = $this->get_gstin_status_by_api($vendor_id);
             if(!empty($gstin)){
-                if($gstin['status'] == "success"){
-                    if($gstin['gst_taxpayer_type'] == "Regular" && $gstin['gst_status'] == "Active"){
-                        return $gst_number;
-                    } else {
-                        return "";
-                    }
-                } else {
+                if($gstin['gst_taxpayer_type'] == "Regular" && $gstin['gst_status'] == "Active"){
                     return $gst_number;
+                } else {
+                    return "";
                 }
-                
             } else {
-                return $gst_number;
+                return "";
             }
         } else {
-            return $gst_number;
+            return "";
         }
     }
 }
