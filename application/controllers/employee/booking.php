@@ -3058,6 +3058,7 @@ class Booking extends CI_Controller {
         $data['sf'] = $this->reusable_model->get_search_result_data("service_centres","service_centres.id,name",$vendorWhere,$vendorJoin,NULL,array("name"=>"ASC"),NULL,array());
         $data['services'] = $this->booking_model->selectservice();
         $data['cities'] = $this->booking_model->get_advance_search_result_data("booking_details","DISTINCT(city)",NULL,NULL,NULL,array('city'=>'ASC'));
+        $data['rm'] = $this->reusable_model->get_search_result_data("employee","employee.id,employee.full_name",array("groups"=>"regionalmanager"),NULL,NULL,array("full_name"=>"ASC"),NULL,array());
        $this->miscelleneous->load_nav_header();
         if(strtolower($data['booking_status']) == 'pending'){
             $this->load->view('employee/view_pending_bookings', $data);
@@ -3161,6 +3162,7 @@ class Booking extends CI_Controller {
         $request_type = $this->input->post('request_type');
         $current_status = $this->input->post('current_status');
         $actor = $this->input->post('actor');
+        $rm_id = $this->input->post('rm_id');
         if($type == 'booking'){
             if($booking_status == _247AROUND_COMPLETED || $booking_status == _247AROUND_CANCELLED){
                 $post['where']  = array('current_status' => $booking_status,'type' => 'Booking');
@@ -3191,6 +3193,10 @@ class Booking extends CI_Controller {
         }
         if(!empty($actor)){
              $post['where']['booking_details.actor'] =  $actor;
+        }
+        if(!empty($rm_id)){
+             $post['where']['employee_relation.agent_id'] =  $rm_id;
+             $post['join']['employee_relation'] =  "FIND_IN_SET( booking_details.assigned_vendor_id , employee_relation.service_centres_id )";
         }
         if(!empty($request_type)){
             $post['where_in']['booking_details.request_type'] =  explode(",",$request_type);

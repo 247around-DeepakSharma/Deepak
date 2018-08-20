@@ -243,6 +243,20 @@
                     </div>
                 </div>
             </div>
+            <div class="row" style="margin-top: 12px;">
+                <div class="col-md-4">
+                    <div class="item form-group">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <select class="form-control filter_table" id="rm_id" style="padding-left: 3px;">
+                                <option value="" selected="selected" disabled="">Select Regional Manager</option>
+                                <?php foreach($rm as $val){ ?>
+                                <option value="<?php echo $val['id']?>"><?php echo $val['full_name']?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <hr>
         <div class="bookings_table">
@@ -333,6 +347,10 @@
         placeholder: "Select Service Center",
         allowClear: true
     });
+    $('#rm_id').select2({
+        placeholder: "Select Regional Manager",
+        allowClear: true
+    });
     $('#appliance').select2({
         placeholder: "Select Appliance",
         allowClear: true
@@ -388,6 +406,7 @@
                     d.request_type = getMultipleSelectedValues('request_type');
                     d.current_status = $('#current_status').val();
                     d.actor = $('#actor').val();
+                    d.rm_id = $('#rm_id').val();
                  }
             },
             "columnDefs": [
