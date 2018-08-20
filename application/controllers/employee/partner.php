@@ -4439,7 +4439,7 @@ class Partner extends CI_Controller {
         $this->checkUserSession();
         $CSVData = array();
         $partner_id = $this->session->userdata('partner_id');
-        $where = "spare_parts_details.partner_id = '" . $partner_id . "' "
+        $where = "booking_dettails.partner_id = '" . $partner_id . "' "
                 . " AND status IN ('Delivered', 'Shipped', '" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_SHIPPED . "')  ";
         $data= $this->partner_model->get_spare_parts_booking_list($where, NULL, NULL, true);
         $headings = array("Customer Name","Booking ID","Shipped Parts","Courier Name","AWB","Challan","Partner Shipped Date","SF Received Date","Price","Remarks");
