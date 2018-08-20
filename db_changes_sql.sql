@@ -7994,3 +7994,17 @@ INSERT INTO `partner_summary_report_mapping` (`id`, `Title`, `sub_query`, `is_de
 
 --Kalyani 17-08-2018
 ALTER TABLE `log_partner_table` ADD `entity_type` VARCHAR(65) NOT NULL DEFAULT 'partner' AFTER `id`;
+
+
+---Chhavi
+ALTER TABLE `tat_defactive_booking_criteria` ADD `with_repair_upcountry_leg_4` INT(11) NULL DEFAULT NULL AFTER `with_repair_upcountry_leg_3`;
+ALTER TABLE `tat_defactive_booking_criteria` ADD `with_repair_non_upcountry_leg_4` INT(11) NULL DEFAULT NULL AFTER `with_repair_non_upcountry_leg_3`;
+UPDATE `tat_defactive_booking_criteria` SET `with_repair_upcountry_leg_4` = '2' WHERE `tat_defactive_booking_criteria`.`id` = 2;
+UPDATE `tat_defactive_booking_criteria` SET `with_repair_upcountry_leg_4` = '2' WHERE `tat_defactive_booking_criteria`.`id` = 4;
+UPDATE `tat_defactive_booking_criteria` SET `with_repair_non_upcountry_leg_4` = '2' WHERE `tat_defactive_booking_criteria`.`id` = 2;
+UPDATE `tat_defactive_booking_criteria` SET `with_repair_non_upcountry_leg_4` = '2' WHERE `tat_defactive_booking_criteria`.`id` = 4;
+
+
+--Chhavi
+INSERT INTO `partner_summary_report_mapping` (`id`, `Title`, `sub_query`, `is_default`, `partner_id`, `is_active`, `index_in_report`) VALUES (NULL, 'Dealer Name', 'dealer_details.dealer_name AS \'Dealer Name\'', '0', '247034', '1', '38');
+INSERT INTO `partner_summary_report_mapping` (`id`, `Title`, `sub_query`, `is_default`, `partner_id`, `is_active`, `index_in_report`) VALUES (NULL, 'Dealer Phone', 'dealer_details.dealer_phone_number_1 AS \'Dealer Name\'', '0', '247034', '1','39');

@@ -397,6 +397,7 @@ function get_data_for_partner_callback($booking_id) {
             JOIN services ON booking_details.service_id = services.id 
             JOIN users ON booking_details.user_id = users.user_id
             LEFT JOIN booking_comments on booking_comments.booking_id = booking_details.booking_id
+            LEFT JOIN dealer_details on dealer_details.dealer_id = booking_details.dealer_id
             LEFT JOIN spare_parts_details ON spare_parts_details.booking_id = booking_details.booking_id
             WHERE product_or_services != 'Product' AND booking_details.partner_id = $partner_id AND $where GROUP BY ud.booking_id");
     } 
