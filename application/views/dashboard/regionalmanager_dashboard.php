@@ -30,6 +30,8 @@
         </div>
     </div>
     <!-- /top tiles -->
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
                 <div class="x_panel">
                 <div class="x_title">
                    <h2>RM Completed Booking Reports</h2>
@@ -137,7 +139,10 @@
                 </table>
                 <center><img id="loader_gif_completed_rm" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
             </div>
-           
+        </div>
+    </div>            
+    </div>   
+    </div>
     <!-- Booking Report Start-->
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
@@ -446,8 +451,7 @@ if($this->session->userdata("wrong_pincode_msg")){
         </div>
         <!-- RM wise booking status -->
     </div>
-    </div>
-</div>
+</div>   
 <!-- END -->
 <style>
     .dropdown:hover .dropdown-menu {
