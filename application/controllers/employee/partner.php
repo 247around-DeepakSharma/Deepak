@@ -1972,6 +1972,27 @@ class Partner extends CI_Controller {
             $partner_details = $this->partner_model->getpartner($this->session->userdata('partner_id'))[0];
             
             $booking_history['details'][$key] = $this->booking_model->getbooking_history($value, "join")[0];
+            $b_spare = $this->partner_model->get_spare_parts_by_any("Distinct parts_requested", array("booking_id" => $value, "entity_type" => "partner", "partner_id" => $this->session->userdata('partner_id')));
+            if(!empty($b_spare)){
+                $part_name = implode(", ",array_unique(array_map(function ($k) {
+                        return $k['parts_requested'];
+                    }, $b_spare)));
+                    
+                $booking_history['details'][$key]['part_name'] = $part_name;
+            } else {
+                $booking_history['details'][$key]['part_name'] = "";
+            }
+            
+            $b_unit = $this->booking_model->get_unit_details(array('booking_id' => $value), false, "appliance_brand");
+            if(!empty($b_unit)){
+                $brand_name = implode(", ",array_unique(array_map(function ($k) {
+                        return $k['appliance_brand'];
+                    }, $b_unit)));
+                $booking_history['details'][$key]['brand_name'] = $brand_name;
+            } else {
+                $booking_history['details'][$key]['brand_name'] = "";
+            }
+            
             if (!empty($wh_address_details)) {
                 $wh_address_details[0]['company_name'] = $partner_details['company_name'];
                 $booking_history['details'][$key]['partner'] = $wh_address_details[0];
