@@ -59,17 +59,24 @@ class Buyback {
             
             $s_order_key = str_replace(":","",$file_order_key);
             $s_order_key1 = str_replace("_","",$s_order_key);
+            $b_charges = array();
             
-            $bb_charges = $this->My_CI->service_centre_charges_model->get_bb_charges(array(
-                'partner_id' => $this->POST_DATA['partner_id'],
-                'city' => $cp_data['shop_address_city'],
-                'order_key' => $s_order_key1,
-                'cp_id' => $cp_data['cp_id'],
-                    ), '*');
-            
-            if (!empty($bb_charges)) {
-                $cp_id = $bb_charges[0]['cp_id'];
-                $service_id = $bb_charges[0]['service_id'];
+            foreach($cp_data as $cp_unique_data){
+                $bb_charges = $this->My_CI->service_centre_charges_model->get_bb_charges(array(
+                    'partner_id' => $this->POST_DATA['partner_id'],
+                    'city' => $cp_unique_data['shop_address_city'],
+                    'order_key' => $s_order_key1,
+                    'cp_id' => $cp_unique_data['cp_id'],
+                        ), '*');
+                
+                if(!empty($bb_charges)){
+                    array_push($b_charges, $bb_charges[0]);
+                }
+            }
+
+            if (count($b_charges) == 1) {
+                $cp_id = $b_charges[0]['cp_id'];
+                $service_id = $b_charges[0]['service_id'];
             } else {
                 $this->My_CI->initialized_variable->not_assigned_order();
                 $this->My_CI->table->add_row($this->POST_DATA['partner_order_id']);
@@ -88,7 +95,12 @@ class Buyback {
         $is_insert = $this->insert_bb_order_details($cp_id);
         if ($is_insert) {
             // Insert bb unit details
-            $is_unit = $this->insert_bb_unit_details($bb_charges, $service_id);
+            if (count($b_charges) == 1) {
+                $is_unit = $this->insert_bb_unit_details($b_charges, $service_id);
+            } else {
+                $is_unit = $this->insert_bb_unit_details(array(), $service_id);
+            }
+            
             if ($is_unit) {
                 if (!empty($cp_id)) {
                     $this->My_CI->cp_model->insert_bb_cp_order_action(array(
@@ -521,7 +533,7 @@ class Buyback {
         $cp_shop_ddress = $this->My_CI->bb_model->get_cp_shop_address_details(array("find_in_set('$region',shop_address_region) != " => 0), 'cp_id, shop_address_city,bb_shop_address.active');
         if(count($cp_shop_ddress) ==1){
             
-            return $cp_shop_ddress[0];
+            return $cp_shop_ddress;
             
         } else if(count($cp_shop_ddress) > 1){
             
@@ -533,8 +545,9 @@ class Buyback {
                 } 
             }
             
-            if(count($ac_cp) == 1){
-                return $ac_cp[0]; 
+            if(count($ac_cp) > 0){
+                return $ac_cp; 
+
             } 
         }
         
@@ -546,53 +559,63 @@ class Buyback {
      * @return Array
      */
     function update_assign_cp_process($where_bb_charges, $order_id, $agent, $internal_status) {
-        $bb_charges = $this->My_CI->service_centre_charges_model->get_bb_charges($where_bb_charges, '*');
-        
+        $bb_charges = array();
+        foreach ($where_bb_charges as $value) {
+            $b_charges = $this->My_CI->service_centre_charges_model->get_bb_charges($value, '*');
+            if (!empty($b_charges)) {
+                array_push($bb_charges, $b_charges[0]);
+            }
+        }
+
+
         if (!empty($bb_charges)) {
-            $cp_amount = $bb_charges[0]['cp_basic'] + $bb_charges[0]['cp_tax'];
-            $gst_amount = $this->gst_amount_on_profit($order_id, $cp_amount);
-            $unit_data = array('category' => $bb_charges[0]['category'],
-                'brand' => $bb_charges[0]['brand'],
-                'physical_condition' => $bb_charges[0]['physical_condition'],
-                'working_condition' => $bb_charges[0]['working_condition'],
-                'cp_basic_charge' => $bb_charges[0]['cp_basic'],
-                'cp_tax_charge' => $bb_charges[0]['cp_tax'],
-                'gst_amount' => $gst_amount,
-                'around_commision_basic_charge' => $bb_charges[0]['around_basic'],
-                'around_commision_tax' => $bb_charges[0]['around_tax']
-            );
+            if (count($bb_charges) == 1) {
+                $cp_amount = $bb_charges[0]['cp_basic'] + $bb_charges[0]['cp_tax'];
+                $gst_amount = $this->gst_amount_on_profit($order_id, $cp_amount);
+                $unit_data = array('category' => $bb_charges[0]['category'],
+                    'brand' => $bb_charges[0]['brand'],
+                    'physical_condition' => $bb_charges[0]['physical_condition'],
+                    'working_condition' => $bb_charges[0]['working_condition'],
+                    'cp_basic_charge' => $bb_charges[0]['cp_basic'],
+                    'cp_tax_charge' => $bb_charges[0]['cp_tax'],
+                    'gst_amount' => $gst_amount,
+                    'around_commision_basic_charge' => $bb_charges[0]['around_basic'],
+                    'around_commision_tax' => $bb_charges[0]['around_tax']
+                );
 
-            $where_bb_order = array('partner_order_id' => $order_id, 'partner_id' => $where_bb_charges['partner_id']);
-            $update_unit_details = $this->My_CI->bb_model->update_bb_unit_details($where_bb_order, $unit_data);
+                $where_bb_order = array('partner_order_id' => $order_id, 'partner_id' => $bb_charges[0]['partner_id']);
+                $update_unit_details = $this->My_CI->bb_model->update_bb_unit_details($where_bb_order, $unit_data);
 
 
-            if ($update_unit_details) {
-                $bb_order_details['assigned_cp_id'] = $where_bb_charges['cp_id'];
-                $is_status = $this->My_CI->bb_model->update_bb_order_details($where_bb_order, $bb_order_details);
-                if ($is_status) {
-                    $this->My_CI->cp_model->action_bb_cp_order_action(array('partner_order_id' => $order_id), 
-                            array('cp_id' => $where_bb_charges['cp_id'], "partner_order_id" => $order_id,
-                                "create_date" => date('Y-m-d H:i:s'), "current_status" => 'Pending', 
-                                "internal_status" => $internal_status));
-                   
-                    $this->insert_bb_state_change($order_id, ASSIGNED_VENDOR, 'Assigned CP ID: '.$where_bb_charges['cp_id'], $agent, _247AROUND, NULL);
+                if ($update_unit_details) {
+                    $bb_order_details['assigned_cp_id'] = $bb_charges[0]['cp_id'];
+                    $is_status = $this->My_CI->bb_model->update_bb_order_details($where_bb_order, $bb_order_details);
+                    if ($is_status) {
+                        $this->My_CI->cp_model->action_bb_cp_order_action(array('partner_order_id' => $order_id), array('cp_id' => $bb_charges[0]['cp_id'], "partner_order_id" => $order_id,
+                            "create_date" => date('Y-m-d H:i:s'), "current_status" => 'Pending',
+                            "internal_status" => $internal_status));
+
+                        $this->insert_bb_state_change($order_id, ASSIGNED_VENDOR, 'Assigned CP ID: ' . $bb_charges[0]['cp_id'], $agent, _247AROUND, NULL);
+                    } else {
+                        log_message('info', __METHOD__ . " Error In log for this partner_order_id: " . $order_id);
+                        return array('status' => false, "msg" => " Error In assigning cp");
+                    }
                 } else {
-                    log_message('info', __METHOD__ . " Error In log for this partner_order_id: " . $order_id);
-                    return array('status' => false, "msg" => " Error In assigning cp_id for this partner_order_id: " . $order_id);
+
+                    log_message('info', __METHOD__ . " Error In assigning cp_id for this partner_order_id: " . $order_id);
+                    return array('status' => false, "msg" => "Charges Not Updated ");
                 }
             } else {
-               
-                log_message('info', __METHOD__ . " Error In assigning cp_id for this partner_order_id: " . $order_id);
-                 return array('status' => false, "msg" => " Error In assigning cp_id for this partner_order_id: " .$order_id);
+                log_message('info', __METHOD__ . " Multiple CP Found Error In assigning cp_id for this partner_order_id: " . $order_id);
+                 return array('status' => false, "msg" => " Multiple City Found" );
             }
         } else {
             return array('status' => false, "msg" => 'Charges Not Found');
-            
         }
-        
-         return array('status' => TRUE);
+
+        return array('status' => TRUE);
     }
-    
+
     /**
      * @desc This function is used to the filtered charges data from bb_charges table
      * @param void()
