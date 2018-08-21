@@ -1173,18 +1173,25 @@ class Buyback_process extends CI_Controller {
                     
                     $s_order_key = str_replace(":","",$order_key);
                     $s_order_key1 = str_replace("_","",$s_order_key);
-                    //Get Charges list
-                    $where_bb_charges = array('partner_id' => $value->partner_id,
-                                              'city' => $cp_data['shop_address_city'],
-                                              'order_key' => $s_order_key1,
-                                              'cp_id' => $cp_data['cp_id']
-                                    );
                     
-                   $status = $this->buyback->update_assign_cp_process($where_bb_charges, $value->partner_order_id, 1, $value->internal_status);
-                   if(!$status['status']){
-                      array_push($not_assigned, array('order_id' =>$value->partner_order_id,"message" => "Charges Not Found"));
-                   }
-                 
+                    $b_charges = array();
+                    //Get Charges list
+                    foreach($cp_data as $cp_unique_data){
+                        $is_exist = array('partner_id' => $value->partner_id,
+                                              'city' => $cp_unique_data['shop_address_city'],
+                                              'order_key' => $s_order_key1,
+                                              'cp_id' => $cp_unique_data['cp_id']
+                                    );
+                        if(!empty($is_exist)){
+                            array_push($b_charges, $is_exist);
+                        }
+                    }
+                    
+                    $status = $this->buyback->update_assign_cp_process($b_charges, $value->partner_order_id, 1, $value->internal_status);
+                    if(!$status['status']){
+                       array_push($not_assigned, array('order_id' =>$value->partner_order_id,"message" => $status['msg']));
+                    }
+                    
                 }else{
                     array_push($not_assigned, array("order_id" => 
                             $value->partner_order_id, "message" => "City Not Found"));
