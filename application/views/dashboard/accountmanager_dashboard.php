@@ -2,15 +2,31 @@
 <script src = "https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
 <script src="<?php echo base_url(); ?>js/buyback_app/app.js"></script>
 <script src="<?php echo base_url(); ?>js/buyback_app/controller/controllers.js"></script>
+<style>
+    .collape_icon {
+        font-size: 18px;
+        color: #4b5561 !important;
+        float:right;
+    }
+</style>
 <!-- page content -->
 <div class="right_col" role="main">
     <div class="row" role="main" ng-app="admin_dashboard">
+         <!-- top tiles -->
+    <div class="row tile_count" id="title_count">
+        <div class="col-md-12">
+            <center><img id="loader_gif_title" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
+        </div>
+    </div>
+    <!-- /top tiles -->
+    <hr>
           <div class="x_panel">
                 <div class="x_title">
                     <h2>AM TAT Reporting</h2>
+                     <span class="collape_icon" href="#escalation_data" data-toggle="collapse" onclick="collapse_icon_change(this)" style="margin-right: 8px;"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
-                <div class="table-responsive" id="escalation_data" ng-controller="completedBooking_ControllerAM" ng-cloak="">
+                <div class="table-responsive collapse in" id="escalation_data" ng-controller="completedBooking_ControllerAM" ng-cloak="">
                     <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 160px;">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
@@ -111,14 +127,7 @@
             </div>
         </div>
         </div>
-    <!-- top tiles -->
-    <div class="row tile_count" id="title_count">
-        <div class="col-md-12">
-            <center><img id="loader_gif_title" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
-        </div>
-    </div>
-    <!-- /top tiles -->
-    <hr>
+   
     <?php
 //    if($this->session->userdata('id') == INVENTORY_HANDLER_ID){
 //    ?>
@@ -198,17 +207,22 @@
                             </small>
                         </h3>
                     </div>
-                    <div class="col-md-6">
-                        <div id="reportrange" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc">
+                    <div class="col-md-5">
+                        <div id="reportrange" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc;margin-right: -12%;">
                             <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
                             <span></span> <b class="caret"></b>
                         </div>
                     </div>
+                     <div class="col-md-1">
+                        <span class="collape_icon" href="#agent_booking_status_div" data-toggle="collapse" onclick="agent_daily_report_call(this)" style="margin-right: 8px;"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                    </div>
                 </div>
+                <div class="collapse" id="agent_booking_status_div">
                 <div class="col-md-12">
                     <center><img id="loader_gif" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
                 </div>
                 <div id="chart_container2" class="chart_containe2"></div>
+                </div>
                 <div class="clearfix"></div>
             </div>
         </div>
@@ -221,14 +235,16 @@
             <div class="x_panel">
                 <div class="x_title">
                     <h2>Monthly Booking Status <small>Completed</small></h2>
+                    <span class="collape_icon" href="#monthly_booking_status_div" data-toggle="collapse" onclick="around_monthly_data(this)"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
+                <div class="collapse" id="monthly_booking_status_div">
                 <div class="col-md-12">
                     <center><img id="loader_gif2" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
                 </div>
-                <div class="x_content">
                     <div id="monthly_booking_chart" style="width:100%; height:400px;" ></div>
                 </div>
+              </div>
             </div>
         </div>
         <!-- End Company Monthly Status -->
@@ -324,11 +340,16 @@
         //top count data
         get_query_data();
         //company monthly data
-        around_monthly_data();
+        //around_monthly_data();
         //agent performance data
-        agent_daily_report(start.format('MMMM D, YYYY'), end.format('MMMM D, YYYY'));
+        //agent_daily_report(start.format('MMMM D, YYYY'), end.format('MMMM D, YYYY'));
         
     });
+    
+    function agent_daily_report_call(span){
+       collapse_icon_change(span);
+       agent_daily_report(start.format('MMMM D, YYYY'), end.format('MMMM D, YYYY')); 
+    }
     
     function sendAjaxRequest(postData, url,type) {
         return $.ajax({
@@ -351,7 +372,8 @@
         });
     }
     
-    function around_monthly_data(){
+    function around_monthly_data(span){
+        collapse_icon_change(span);
         $('#loader_gif2').fadeIn();
         $('#monthly_booking_chart').fadeOut();
         var data = {partner_id:''};
