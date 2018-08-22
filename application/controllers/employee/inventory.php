@@ -1209,7 +1209,7 @@ class Inventory extends CI_Controller {
             }
             if($flag){
                 $response = $this->service_centers_model->update_spare_parts($where, $data);
-                if($response && in_array($requestType,array('CANCEL_PARTS'))){
+                if($response && $requestType == "CANCEL_PARTS"){
                    $this->update_inventory_on_cancel_parts($id,$booking_id, $old_state);
                 }
                 
@@ -2808,7 +2808,7 @@ class Inventory extends CI_Controller {
                                 $courier_data['AWB_no'] = $awb_number;
                                 $courier_data['courier_name'] = $courier_name;
                                 $courier_data['create_date'] = date('Y-m-d H:i:s');
-                                $courier_data['quantity'] = $tqty;
+                                $courier_data['quantity'] = count($booking_id_array);
                                 $courier_data['bill_to_partner'] = $partner_id;
                                 if (!empty($booking_id_array)) {
                                     $courier_data['booking_id'] = implode(",", $booking_id_array);

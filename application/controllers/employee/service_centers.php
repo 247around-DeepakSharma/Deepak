@@ -3776,7 +3776,7 @@ class Service_centers extends CI_Controller {
         $this->check_WH_UserSession();
         $sf_id = $this->session->userdata('service_center_id');
         $where = "spare_parts_details.partner_id = '" . $sf_id . "' AND spare_parts_details.entity_type = '" . _247AROUND_SF_STRING . "'"
-                . " AND status IN ('Delivered', 'Shipped', '" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_SHIPPED . "')  ";
+                . " AND status IN ('".SPARE_DELIVERED_TO_SF."', '".SPARE_SHIPPED_BY_PARTNER."', '" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_SHIPPED . "')  ";
 
         $config['base_url'] = base_url() . 'service_center/get_shipped_parts_list';
         $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);

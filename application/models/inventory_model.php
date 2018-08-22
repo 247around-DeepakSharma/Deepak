@@ -330,9 +330,9 @@ class Inventory_model extends CI_Model {
         $this->db->select($post['select'].", DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request,"
                 . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(estimate_cost_given_date, '%Y-%m-%d')) AS age_of_est_given", FALSE);
 
-        $this->db->join('booking_details','spare_parts_details.booking_id = booking_details.booking_id');
+        $this->db->join('booking_details','spare_parts_details.booking_id = booking_details.booking_id', "left");
         $this->db->join('partners','partners.id = spare_parts_details.partner_id', "left");
-        $this->db->join('users','users.user_id = booking_details.user_id');
+        $this->db->join('users','users.user_id = booking_details.user_id', "left");
         if (!empty($post['where'])) {
             $this->db->where($post['where'], FALSE);
         }
