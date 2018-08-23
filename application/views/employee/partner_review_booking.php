@@ -1,13 +1,7 @@
+<link rel="stylesheet" href="http://localhost/247around/css/jquery.loading.css">
+<script src="http://localhost/247around/js/jquery.loading.js"></script>
 <script type="text/javascript" src="<?php echo base_url();?>js/base_url.js"></script>
 <script type="text/javascript" src="<?php echo base_url();?>js/review_bookings.js"></script>
-<script type="text/javascript">
-   $(document).ready(function(){
-     $("#selecctall_reschedule").change(function(){
-       $(".checkbox_reschedule").prop('checked', $(this).prop("checked"));
-       });
-   });
-
-</script>
 <style type="text/css">
     .btn-group-sm>.btn, .btn-sm {
     padding: 1px 5px;
@@ -16,83 +10,12 @@
     border-radius: 3px;
 }
     </style>
-<div id="page-wrapper">
-   <div class="row">
-      <div style="width:100%;margin-left:10px;margin-right:5px;">
-	  <h2 align="left">
-	      Review Bookings - Reschedule
-         </h2>
-         <div class="col-md-12">
-	     <form action="<?php echo base_url(); ?>employee/booking/process_review_reschedule_bookings" method="post">
-		 <table class="table table-bordered table-hover table-striped">
-                  <thead>
-                     <tr>
-                        <th>S.No.</th>
-                        <th>Booking Id</th>
-                        <th>Service Center </th>
-                        <th>User Name</th>
-                        <th>Original Booking Date</th>
-                        <th>Booking Date</th>
-                        <th>Reschedule Booking Date</th>
-                        <th>Reschedule Reason</th>
-                        <th  ><input type="checkbox" id="selecctall_reschedule" />  Reschedule</th>
-                     </tr>
-                  </thead>
-                  <tbody>
-                     <?php $sno = 1; foreach ($data as $key => $value) { ?>
-                     <tr>
-                        <td><?php echo $sno; if($value['is_upcountry'] == 1) { ?>.<i style="color:red; font-size:20px;" onclick="open_upcountry_model('<?php echo $value['assigned_vendor_id'];?>','<?php echo $value['booking_id'];?>', '<?php echo $value['amount_due'];?>')" class="fa fa-road" aria-hidden="true"></i><?php } ?></td>
-                        <td>
-                            <a href="<?php echo base_url();?>employee/booking/viewdetails/<?php echo $value['booking_id'];  ?>" target="_blank"><?php echo $value['booking_id'];  ?></a>
-                        </td>
-                        <td><?php echo $value['service_center_name'];  ?></td>
-                        <td>
-                            <?php echo $value['customername'];  ?>
-                            <br/>
-                            <a href="javascipt:void(0);" onclick="outbound_call(<?php echo $value['booking_primary_contact_no'] ?>)"><?php echo $value['booking_primary_contact_no'];  ?></a>
-                        </td>
-                       
-                        <td><?php echo $value['initial_booking_date'];  ?></td>
-                        <td><?php echo $value['booking_date']." / ".$value['booking_timeslot'] ;  ?></td>
-                        <td><?php echo  date('d-m-Y',strtotime($value['reschedule_date_request'])) ; ?>
-                        <div class="blink">
-                           <div class="esclate"><?php echo '<b>' . $value['count_reschedule'] . " times</b><br>";?></div>
-                                
-                            </div>
-                           
-                            
-                        
-                           <input type="hidden" name="reschedule_booking_date[<?php echo $value['booking_id']; ?>]" value="<?php echo $value['reschedule_date_request'] ?>" ></input>
-<!--                           <input type="hidden" name="reschedule_booking_timeslot[<?php //echo $value['booking_id']; ?>]" value="<?php //echo $value['reschedule_timeslot_request'] ?>" ></input>-->
-                           <input type="hidden" name="reschedule_reason[<?php echo $value['booking_id']; ?>]" value="<?php echo $value['reschedule_reason'] ?>" ></input>
-                        </td>
-                        <td><?php echo $value['reschedule_reason'];  ?></td>
-                        <td><input id="reschedule_checkbox" type="checkbox"  class="checkbox_reschedule" name="reschedule[]" value="<?php echo $value['booking_id']; ?>"></input>
-                            <a href="#"><span style="float: right;" class="glyphicon glyphicon-remove" data-toggle="modal" data-target="#review_reject_form" onclick="create_reject_form(<?php echo "'".$value['booking_primary_contact_no']."'";  ?>,<?php echo "'".$value['booking_id']."'";  ?>)"></span> </a>
-                        </td>
-                        
-                        <input type="hidden" class="form-control" id="partner_id" name="partner_id[<?php echo $value['booking_id']; ?>]" value = "<?php echo $value['partner_id']; ?>" >
-                     </tr>
-                     <?php $sno++;  } ?>
-                  </tbody>
-               </table>
-               <?php if(!empty($data)){?>
-               <div class"col-md-12">
-                  <center><input onclick="check_limit_reschedule()" type="submit" value="Approve Bookings"  style=" background-color: #2C9D9C;
-                     border-color: #2C9D9C;" class="btn btn-md btn-success"></input></center>
-               </div>
-               <?php } ?>
-            </form>
-         </div>
-      </div>
-   </div>
-   <div >
-      <div class="" style="margin-top: 30px;">
-         <div class="row">
+    <div class="right_col" role="main">
+    <div class="row">
             <div class="col-md-3 pull-right" style="margin-top:20px;">
                <input type="search" class="form-control pull-right"  id="search" placeholder="search">
             </div>
-              <?php
+        <?php
         if($this->session->flashdata('inProcessBookings')){
             ?>
         <h2 style="line-height: 31px;color: #ff6c95;font-size: 16px;text-align: center;">
@@ -103,30 +26,30 @@
         }
         ?>
                <h2 >
-                   <b>Review Bookings - Complete / Cancel </b>
+                  <b>Review Bookings - <?php echo $review_for ?></b>
                </h2>
-             <p><span style="background: #cada71;color:#cada71;">Color</span> Partner Will Review These Bookings <span style="background: #89d4a7;color:#89d4a7;">Color</span> Booking Cancelled by you</p>
-             <form action="<?php echo base_url();?>employee/booking/checked_complete_review_booking" method="post" onsubmit="return check_limit_booking()">
-                  <div class="col-md-12" style="font-size:82%;margin-left:-23px;">
+             <form action="<?php echo base_url();?>employee/partner/checked_complete_review_booking" method="post" onsubmit="return check_limit_booking()">
+                 <input type="hidden" value="<?php echo $this->session->userdata('partner_id') ?>" name="approved_by">
+                  <div class="col-md-12" style="font-size:82%;">
                       <table class="table table-bordered table-hover table-striped">
                         <thead>
                            <tr>
-                              <th class="jumbotron" >S.N.</th>
-                              <th class="jumbotron" >Booking Id</th>
+                              <th >S.N.</th>
+                              <th>Booking Id</th>
 <!--                              <th class="jumbotron" >Service Center </th>-->
-                              <th class="jumbotron" style="text-align: center;">Price Details</th>
-                              <th class="jumbotron" >Amount Due</th>
-                              <th class="jumbotron" >Amount Paid</th>
-                              <th class="jumbotron" >Admin Remarks</th>
-                              <th class="jumbotron" >Vendor Remarks</th>
-                              <th class="jumbotron" >Vendor Cancellation Reason</th>
-                              <th class="jumbotron" ><input type="checkbox" id="selecctall" /></th>
-                              <th class="jumbotron" >Action</th>
+                              <th style="text-align: center;">Price Details</th>
+                              <th>Amount Due</th>
+                              <th>Amount Paid</th>
+                              <th>Admin Remarks</th>
+                              <th>Vendor Remarks</th>
+                              <th>Vendor Cancellation Reason</th>
+                              <th><input type="checkbox" id="selecctall" /></th>
+                              <th>Action</th>
                            </tr>
                         </thead>
                         <tbody>
                            <?php $count =1; foreach ($charges as $key => $value) { ?>
-                            <tr id="<?php echo  "row_".$value['booking_id'] ?>" <?php if(in_array($value['booking_id'], $partner_review_bookings)){ echo 'class = "partner_review"'; } ?>>
+                            <tr id="<?php echo  "row_".$value['booking_id'] ?>">
                               
                               <td style="text-align: left;white-space: inherit;font-size:80%"><?php echo $count; ?></td>
                               <td  style="text-align: left;white-space: inherit;"><?php echo $value['booking_id']." <br/><br/>".$value['booking'][0]['vendor_name']; ?>
@@ -134,24 +57,22 @@
                                   <input type="hidden" name="booking_id[]" value="<?php echo $value['booking_id']; ?>" id="<?php echo "booking_id".$count; ?>">
                               </td>
 
-                            <input type="hidden" class="form-control" id="partner_id" name="partner_id[<?php echo $value['booking_id']; ?>]" value = "<?php echo $value['booking'][0]['partner_id'];?>" >
-                                             <input type="hidden" value="247001" name="approved_by">
-                            
+                            <input type="hidden" class="form-control" id="partner_id" name="partner_id[<?php echo $value['booking_id']; ?>]" value = "<?php echo  $value['booking'][0]['partner_id'];?>" >
 
                               <td style="text-align: left;white-space: inherit; <?php if($value['unit_details'][0]['mismatch_pincode'] == 1){ echo "background-color:red;";}?>">
                                  <table  class="table table-condensed">
                                     <thead>
-                                        <th class="jumbotron" >Brand</th>
-                                       <th class="jumbotron" >Category/Capacity</th>
-                                       <th class="jumbotron" >Model No</th>
-                                       <th class="jumbotron" >Serial Number</th>
-                                       <th class="jumbotron" >Tags</th>
-                                       <th class="jumbotron" >Service Charge</th>
-                                       <th class="jumbotron" >Additional Service Charge</th>
-                                       <th class="jumbotron" >Parts Cost</th>
-                                       <th class="jumbotron" >Upcountry Charges</th>
-                                       <th class="jumbotron" >IS Broken</th>
-                                       <th class="jumbotron" >Vendor Status</th>
+                                        <th >Brand</th>
+                                       <th>Category/Capacity</th>
+                                       <th>Model No</th>
+                                       <th>Serial Number</th>
+                                       <th>Tags</th>
+                                       <th>Service Charge</th>
+                                       <th>Additional Service Charge</th>
+                                       <th>Parts Cost</th>
+                                       <th>Upcountry Charges</th>
+                                       <th>IS Broken</th>
+                                       <th>Vendor Status</th>
                                     </thead>
                                     <tbody>
                                        <?php foreach ($value['unit_details'] as $key1 => $value1) {
@@ -216,12 +137,12 @@
                                  <p id="<?php echo "cancellation_reason".$count; ?>"><?php echo $value['cancellation_reason']; ?></p>
                               </td>
                               <td><input id="approved_close" type="checkbox"  class="checkbox1" name="approved_booking[]" value="<?php echo $value['booking_id']; ?>"></input></td>
-                              <td>
+                              <td style="background: #26b99a;border-color: #26b99a;">
                                  <?php echo "<a class='btn btn-sm btn-primary' "
-                                    . "href=" . base_url() . "employee/booking/viewdetails/$value[booking_id] target='_blank' title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";
+                                    . "href=" . base_url() . "partner/booking_details/$value[booking_id] target='_blank' title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";
                                     ?>
                               <a style="margin-top:5px;" target='_blank'  href="<?php echo base_url(); ?>employee/booking/get_complete_booking_form/<?php echo $value['booking_id']; ?>" class="btn btn-info btn-sm"><i class="fa fa-pencil" aria-hidden="true" title="Edit"></i></a>
-                              <button style="margin-top:5px;" type="button" id="<?php echo "remarks_".$count;?>" class="btn btn-primary btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2"><i class="fa fa-times" aria-hidden="true" title="Reject"></i></button></td>
+                              <button style="margin-top:5px;background-color: #2a3f54;border-color: #2a3f54;" type="button" id="<?php echo "remarks_".$count;?>" class="btn btn-primary btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2"><i class="fa fa-times" aria-hidden="true" title="Reject"></i></button></td>
                            
                             </tr>
                            <?php $count++; } ?>
@@ -229,16 +150,14 @@
                      </table>
                      <?php if(!empty($charges)){?>
                      <div class="col-md-12">
-                        <center><input type="submit" value="Approve Bookings"  style=" background-color: #2C9D9C;
-                           border-color: #2C9D9C;"  class="btn btn-md btn-success" onclick="check_limit_booking()"/></center>
+                        <center><input type="submit" value="Approve Bookings"  style=" background-color: #2a3f54;
+                           border-color: #2a3f54;"  class="btn btn-md btn-success" /></center>
                      </div>
                      <?php } ?>
-                       </div>
+                                     </div>
                </form>
          </div>
-      </div>
-   </div>
-
+</div>
    <!-- Modal -->
    <div id="myModal2" class="modal fade" role="dialog">
       <div class="modal-dialog">
@@ -251,10 +170,10 @@
             <div class="modal-body">
                <textarea rows="8" class="form-control" id="textarea"></textarea>
             </div>
-            <input type="hidden" id="id_no">
-            <input type="hidden" value="<?php echo $this->session->userdata('partner_id'); ?>" id="admin_id">
+            <input type="hidden" id="id_no">    
+            <input type="hidden" value="<?php echo $this->session->userdata('partner_id'); ?>" id="partner_id_cancel">
             <div class="modal-footer">
-               <button type="button" class="btn btn-success" onclick="send_remarks()">Send</button>
+               <button type="button" class="btn btn-success" onclick="send_remarks_by_partner()">Send</button>
                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="close_model()">Close</button>
             </div>
          </div>
@@ -276,35 +195,6 @@
             </div>
         </div>
     </div>
-</div>
-    <div id="review_reject_form" class="modal fade" role="dialog">
-  <div class="modal-dialog">
-
-    <!-- Modal content-->
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title" align="center">Fake Reschedule</h4>
-      </div>
-      <div class="modal-body">
-          <form>
- <div class="form-group">
-     <input type="hidden" value="" name="p_number" id="p_number">
-     <input type="hidden" value="" name="b_id" id="b_id">
-     <input type="hidden" value="<?php echo $this->session->userdata('employee_id'); ?>" name="employee_id" id="employee_id">
-     <input type="hidden" value="<?php echo $this->session->userdata('id'); ?>"  name="id" id="id">
-  <label for="comment">Remarks:</label>
-  <textarea class="form-control" rows="5" id="remarks"></textarea>
-</div>
-              <button type="submit" align="center" class="btn btn-success" onclick="return cancel_reschedule_request()">Cancel Reschedule</button>
-  </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-      </div>
-    </div>
-
-  </div>
 </div>
 <script type="text/javascript">
    $(document).ready(function(){
@@ -355,7 +245,7 @@
    }
 </style>
 <script type="text/javascript">
-   $('body').popover({ selector: '[data-popover]', trigger: 'click hover', placement: 'auto', delay: {show: 50, hide: 100}});
+//   $('body').popover({ selector: '[data-popover]', trigger: 'click hover', placement: 'auto', delay: {show: 50, hide: 100}});
 
    function check_limit_booking(){
       
@@ -363,7 +253,8 @@
       $("#approved_close:checked").each(function(i) {
          count = count+1;
       });
-      if(count >40){
+      
+      if(Number(count) > 40){
          alert("Maximum 40 bookings can be completed/cancelled in one time.");
          return false;
       } else if(count ===0){
@@ -479,8 +370,3 @@
     
     }
   </script>
-  <style>
-      .partner_review{
-             background: #cada71 !important;
-      }
-      </style>
