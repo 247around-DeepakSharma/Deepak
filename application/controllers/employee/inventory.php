@@ -1209,7 +1209,7 @@ class Inventory extends CI_Controller {
             }
             if($flag){
                 $response = $this->service_centers_model->update_spare_parts($where, $data);
-                if($response && in_array($requestType,array('CANCEL_PARTS'))){
+                if($response && $requestType == "CANCEL_PARTS"){
                    $this->update_inventory_on_cancel_parts($id,$booking_id, $old_state);
                 }
                 
@@ -2793,7 +2793,7 @@ class Inventory extends CI_Controller {
                                 $courier_data['AWB_no'] = $awb_number;
                                 $courier_data['courier_name'] = $courier_name;
                                 $courier_data['create_date'] = date('Y-m-d H:i:s');
-                                $courier_data['quantity'] = $tqty;
+                                $courier_data['quantity'] = count($booking_id_array);
                                 $courier_data['bill_to_partner'] = $partner_id;
                                 if (!empty($booking_id_array)) {
                                     $courier_data['booking_id'] = implode(",", $booking_id_array);
@@ -2951,6 +2951,11 @@ class Inventory extends CI_Controller {
      */
     function move_inventory_to_warehouse($ledger, $fomData, $wh_id) {
         log_message('info', __METHOD__ . " warehouse id " . $wh_id . " ledger " . json_encode($ledger, true). " Form data " . json_encode($fomData). " WH id ". $wh_id);
+        if(isset($this->session->userdata("partner_id"))){
+            $s_partner_id = $this->session->userdata("partner_id");
+        } else {
+            $s_partner_id = _247AROUND;
+        }
         if (!empty($ledger['booking_id'])) {
             if (isset($fomData['spare_id']) && $fomData['spare_id'] != 'new_spare_id') {
 
@@ -2960,17 +2965,17 @@ class Inventory extends CI_Controller {
                     'inventory_invoice_on_booking' => 1);
                 $update_spare_part = $this->service_centers_model->update_spare_parts(array('id' => $fomData['spare_id']), $a);
                 if ($update_spare_part) {
-
+                    $this->notify->insert_state_change($ledger['booking_id'], SPARE_SHIPPED_TO_WAREHOUSE, "", SPARE_SHIPPED_TO_WAREHOUSE, $ledger['agent_id'], $ledger['agent_id'], NULL, NULL, $s_partner_id, NULL);
                     log_message('info', ' Spare mapped to warehouse successfully for booking id ' . trim($fomData['booking_id']) . " Spare ID " . $fomData['spare_id']);
                 } else {
                     log_message('info', ' error in updating spare details');
                 }
             } else if(isset($fomData['spare_id']) && $fomData['spare_id'] == 'new_spare_id'){
-                $this->insert_new_spare_item($ledger, $fomData, $wh_id);
+                $this->insert_new_spare_item($ledger, $fomData, $wh_id, $s_partner_id);
             }
             
         } else {
-            $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, "
+            $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.booking_id, "
                     . "spare_parts_details.status, entity_type, spare_parts_details.partner_id, "
                     . "requested_inventory_id", array('requested_inventory_id' => $ledger['inventory_id'],
                 'status' => SPARE_PARTS_REQUESTED,
@@ -2985,6 +2990,7 @@ class Inventory extends CI_Controller {
                             'wh_ack_received_part' => 0, 'purchase_invoice_id' => $ledger['invoice_id']);
 
                         $update_spare_part = $this->service_centers_model->update_spare_parts(array('id' => $value['id']), $data);
+                        $this->notify->insert_state_change($value['booking_id'], SPARE_SHIPPED_TO_WAREHOUSE, "", SPARE_SHIPPED_TO_WAREHOUSE, $ledger['agent_id'], $ledger['agent_id'], NULL, NULL, $s_partner_id, NULL);
                         $qty = $qty + 1;
                     }
                 }
@@ -2992,7 +2998,7 @@ class Inventory extends CI_Controller {
         }
     }
     
-    function insert_new_spare_item($ledger, $fomData, $wh_id){
+    function insert_new_spare_item($ledger, $fomData, $wh_id, $s_partner_id){
         log_message('info',__METHOD__. " ledger ". print_r($ledger, true). " Form data ". json_encode($fomData, true). " wh id ". $wh_id);
         $spare = $this->partner_model->get_spare_parts_by_any("*", array('booking_id' => $ledger['booking_id']), false);
         
@@ -3020,6 +3026,7 @@ class Inventory extends CI_Controller {
             
             $spare_id = $this->service_centers_model->insert_data_into_spare_parts($newdata);
             if($spare_id){
+                $this->notify->insert_state_change($ledger['booking_id'], SPARE_SHIPPED_TO_WAREHOUSE, "", SPARE_SHIPPED_TO_WAREHOUSE, $ledger['agent_id'], $ledger['agent_id'], NULL, NULL, $s_partner_id, NULL);
                 log_message('info', __METHOD__. " New Spare Inserted for booking id ". $ledger['booking_id']. " Spare Line item ". $spare_id);
             } else {
                 log_message('info', __METHOD__. " failed new spare insert for booking id ". $ledger['booking_id']);
