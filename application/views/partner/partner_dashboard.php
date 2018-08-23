@@ -27,16 +27,16 @@
         </div>
     </div>
 <div class="row">
-        <div class="col-md-12 col-sm-12 col-xs-12">
-            <div class="x_panel" ng-controller="completedBooking_Controller" ng-cloak="">
+    <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel">
                 <div class="x_title">
                     <h2>TAT Reporting<button type="button"class="btn btn-default" style="float: right;margin-bottom: 10px;padding: 1px 4px;margin-top: 0px;font-size: 8px;margin-left: 5px;background: #f7a35c;
     color: #fff;border: none;" data-toggle="tooltip"data-placement="right"title="(Booking Completed on x Day / Total Completed Bookings (Within Selected Range))*100">?</button></h2>
-                    <span class="collape_icon" href="#TAT_reporting_div" data-toggle="collapse" onclick="initialise_TAT_data(this)"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                    <span class="collape_icon" href="#TAT_reporting_div" data-toggle="collapse" onclick="collapse_icon_change(this)"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
-                <div class="x_content collapse" id="TAT_reporting_div">
-                <div class="table-responsive" id="escalation_data">
+                <div class="x_content collapse in" id="TAT_reporting_div">
+                <div class="table-responsive" id="escalation_data" ng-controller="completedBooking_Controller" ng-cloak="">
                     <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 160px;">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
@@ -141,6 +141,57 @@
             </div>
         </div>
     </div>
+    </div>
+       <div class="row" style="margin-top:10px;">
+        <!-- Company Monthly Status -->
+        <div class="col-md-6 col-sm-12 col-xs-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>Monthly Booking Status <small>Completed</small></h2>
+                    <span class="collape_icon" href="#monthly_booking_chart_div" data-toggle="collapse" onclick="collapse_icon_change(this);"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content collapse in" id="monthly_booking_chart_div">
+                <div class="col-md-12">
+                    <center><img id="loader_gif2" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
+                </div>
+               
+                    <div id="monthly_booking_chart" style="width:100%; height:400px;" ></div>
+                </div>
+            </div>
+        </div>
+        <!-- End Company Monthly Status -->
+        <!-- RM wise booking status -->
+        <div class="col-md-6 col-sm-12 col-xs-12" id="based_on_Region">
+            <div class="x_panel">
+                <div class="x_title">
+                    <div class="col-md-10">
+                    <h2>Booking based on Region <small>Current Month</small></h2>
+                    </div>
+                    <div class="col-md-1">
+                    <div class="nav navbar-right panel_toolbox">
+                        <div id="reportrange2" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; margin-right: -30%;">
+                            <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                            <span></span> <b class="caret"></b>
+                        </div>
+                    </div>
+                    </div>
+                    <div class="col-md-1">
+                        <span class="collape_icon" href="#state_type_booking_chart_div" data-toggle="collapse" onclick="collapse_icon_change(this);"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content collapse in" id="state_type_booking_chart_div">
+                <div class="col-md-12">
+                    <center><img id="loader_gif3" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
+                </div>
+                
+                    <div id="state_type_booking_chart"></div>
+                </div>
+            </div>
+        </div>
+        <!-- RM wise booking status -->
+    </div>
     <div class="row">
             <div class="col-md-6 col-sm-12 col-xs-12">
                 <div class="x_panel">
@@ -222,57 +273,8 @@
         </div>
     </div>
     <!-- Escalation End-->
-    <div class="row" style="margin-top:10px;">
-        <!-- Company Monthly Status -->
-        <div class="col-md-6 col-sm-12 col-xs-12">
-            <div class="x_panel">
-                <div class="x_title">
-                    <h2>Monthly Booking Status <small>Completed</small></h2>
-                    <span class="collape_icon" href="#monthly_booking_chart_div" data-toggle="collapse" onclick="around_monthly_data(this)"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
-                    <div class="clearfix"></div>
-                </div>
-                <div class="x_content collapse" id="monthly_booking_chart_div">
-                <div class="col-md-12">
-                    <center><img id="loader_gif2" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
-                </div>
-               
-                    <div id="monthly_booking_chart" style="width:100%; height:400px;" ></div>
-                </div>
-            </div>
-        </div>
-        <!-- End Company Monthly Status -->
-        <!-- RM wise booking status -->
-        <div class="col-md-6 col-sm-12 col-xs-12" id="based_on_Region">
-            <div class="x_panel">
-                <div class="x_title">
-                    <div class="col-md-10">
-                    <h2>Booking based on Region <small>Current Month</small></h2>
-                    </div>
-                    <div class="col-md-1">
-                    <div class="nav navbar-right panel_toolbox">
-                        <div id="reportrange2" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; margin-right: -30%;">
-                            <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
-                            <span></span> <b class="caret"></b>
-                        </div>
-                    </div>
-                    </div>
-                    <div class="col-md-1">
-                        <span class="collape_icon" href="#state_type_booking_chart_div" data-toggle="collapse" onclick="get_bookings_data_by_rm(this)"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
-                    </div>
-                    <div class="clearfix"></div>
-                </div>
-                <div class="x_content collapse" id="state_type_booking_chart_div">
-                <div class="col-md-12">
-                    <center><img id="loader_gif3" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
-                </div>
-                
-                    <div id="state_type_booking_chart"></div>
-                </div>
-            </div>
-        </div>
-        <!-- RM wise booking status -->
-    </div>
-    </div>
+ 
+  </div>
 <script>
     var post_request = 'POST';
     var get_request = 'GET';
@@ -280,7 +282,18 @@
     var partner_name = '<?php echo $this->session->userdata('partner_name')?>';
     var partner_id = '<?php echo $this->session->userdata('partner_id')?>'; 
     $(function() {
-       
+        var d = new Date();
+        n = d.getMonth();
+        y = d.getFullYear();
+        date = d.getDate();
+        $('input[name="daterange_completed_bookings"]').daterangepicker({
+                timePicker: true,
+           timePickerIncrement: 30,
+           locale: {
+               format: 'YYYY-MM-DD'
+           },
+           startDate: y+'-'+n+'-'+date
+        });
     });
  //this function is used to call ajax request
     function sendAjaxRequest(postData, url,type) {
@@ -291,26 +304,12 @@
         });
     }
     
-  function initialise_TAT_data(span){
-        collapse_icon_change(span);
-         var d = new Date();
-           n = d.getMonth();
-           y = d.getFullYear();
-           date = d.getDate();
-           $('input[name="daterange_completed_bookings"]').daterangepicker({
-                timePicker: true,
-           timePickerIncrement: 30,
-           locale: {
-               format: 'YYYY-MM-DD'
-           },
-           startDate: y+'-'+n+'-'+date
-       });
-  }
+
   $(document).ready(function () {
      //get_partner_spare_snapshot();
      //get_partner_spare_data_by_status();
-     //around_monthly_data();
-     //get_bookings_data_by_rm();
+       around_monthly_data();
+       get_bookings_data_by_rm();
         $.ajax({
             type: 'POST',
             url: '<?php echo base_url(); ?>employee/partner/get_partner_booking_summary_data/'+<?php echo $this->session->userdata('partner_id')?>,
@@ -442,8 +441,7 @@ function initiate_escalation_data(span){
     });
 }
 
-function around_monthly_data(span){
-        collapse_icon_change(span);
+function around_monthly_data(){
         $('#loader_gif2').fadeIn();
         $('#monthly_booking_chart').fadeOut();
         var data = {partner_id:'<?php echo $this->session->userdata('partner_id') ?>'};
@@ -504,8 +502,7 @@ function around_monthly_data(span){
                 }]
         });
     }
-    function get_bookings_data_by_rm(span){
-        collapse_icon_change(span); 
+    function get_bookings_data_by_rm(){
         partner_id = '<?php echo $this->session->userdata('partner_id'); ?>';
         $('#loader_gif3').fadeIn();
         $('#state_type_booking_chart').fadeOut();

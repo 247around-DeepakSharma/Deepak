@@ -3776,7 +3776,7 @@ class Service_centers extends CI_Controller {
         $this->check_WH_UserSession();
         $sf_id = $this->session->userdata('service_center_id');
         $where = "spare_parts_details.partner_id = '" . $sf_id . "' AND spare_parts_details.entity_type = '" . _247AROUND_SF_STRING . "'"
-                . " AND status IN ('Delivered', 'Shipped', '" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_SHIPPED . "')  ";
+                . " AND status IN ('".SPARE_DELIVERED_TO_SF."', '".SPARE_SHIPPED_BY_PARTNER."', '" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_SHIPPED . "')  ";
 
         $config['base_url'] = base_url() . 'service_center/get_shipped_parts_list';
         $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
@@ -4195,6 +4195,25 @@ class Service_centers extends CI_Controller {
             $wh_sf_details = $this->vendor_model->getVendorDetails('name as company_name,address,district,state,pincode,primary_contact_phone_1',array('id' =>$this->session->userdata('service_center_id')))[0];
             
             $booking_history['details'][$key] = $this->booking_model->getbooking_history($value, "join")[0];
+            $b_spare = $this->partner_model->get_spare_parts_by_any("Distinct parts_requested", array("booking_id" => $value, "entity_type" => "vendor", "partner_id" => $this->session->userdata('service_center_id')));
+            if(!empty($b_spare)){
+                $part_name = implode(", ",array_unique(array_map(function ($k) {
+                        return $k['parts_requested'];
+                    }, $b_spare)));
+                    
+                $booking_history['details'][$key]['part_name'] = $part_name;
+            } else {
+                $booking_history['details'][$key]['part_name'] = "";
+            }
+            $b_unit = $this->booking_model->get_unit_details(array('booking_id' => $value), false, "appliance_brand");
+            if(!empty($b_unit)){
+                $brand_name = implode(", ",array_unique(array_map(function ($k) {
+                        return $k['appliance_brand'];
+                    }, $b_unit)));
+                $booking_history['details'][$key]['brand_name'] = $brand_name;
+            } else {
+                $booking_history['details'][$key]['brand_name'] = "";
+            }
             if (!empty($wh_address_details)) {
                 $wh_address_details[0]['company_name'] = $wh_sf_details['company_name'];
                 $booking_history['details'][$key]['partner'] = $wh_address_details[0];
@@ -4331,7 +4350,7 @@ class Service_centers extends CI_Controller {
         $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
         $config['total_rows'] = $total_rows[0]['total_rows'];
 
-        $config['per_page'] = 100;
+        $config['per_page'] = 200;
         $config['uri_segment'] = 3;
         $config['first_link'] = 'First';
         $config['last_link'] = 'Last';

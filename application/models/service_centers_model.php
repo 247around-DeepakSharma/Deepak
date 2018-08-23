@@ -750,14 +750,20 @@ FROM booking_unit_details WHERE booking_id='".$booking_id."' GROUP BY request_ty
         return $insert_id;
     }
     
-    function get_spare_parts_on_group($where, $select, $group_by, $sf_id){
+    function get_spare_parts_on_group($where, $select, $group_by, $sf_id = false, $start = -1, $end = -1){
         $this->db->select($select, false);
         $this->db->from("spare_parts_details");
         $this->db->join('booking_details', " booking_details.booking_id = spare_parts_details.booking_id");
-        $this->db->join("inventory_stocks", "inventory_stocks.inventory_id = requested_inventory_id AND inventory_stocks.entity_id = '".$sf_id."' and inventory_stocks.entity_type = '"._247AROUND_SF_STRING."'", "left");
+        if($sf_id){
+            $this->db->join("inventory_stocks", "inventory_stocks.inventory_id = requested_inventory_id AND inventory_stocks.entity_id = '".$sf_id."' and inventory_stocks.entity_type = '"._247AROUND_SF_STRING."'", "left");
+        }
+        
         $this->db->join("users", "users.user_id = booking_details.user_id");
         $this->db->join("service_centres", "service_centres.id = booking_details.assigned_vendor_id");
         $this->db->where($where);
+        if($start > -1){
+            $this->db->limit($start, $end);
+        }
         $this->db->group_by($group_by);
         $query = $this->db->get();
         log_message('info', __METHOD__. "  ".$this->db->last_query());

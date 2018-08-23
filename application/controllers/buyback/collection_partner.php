@@ -299,8 +299,9 @@ class Collection_partner extends CI_Controller {
             $where = array('cp_id' => $cp_shop[0]['cp_id'], 
                 'partner_id'=> $bb_details->partner_id, 
                 'order_key' => $s_order_key1 );
+            $b[0] = $where;
             
-            $status = $this->buyback->update_assign_cp_process($where, $order_id, $agent, $bb_details->internal_status);
+            $status = $this->buyback->update_assign_cp_process($b, $order_id, $agent, $bb_details->internal_status);
             if(!$status['status']){
                 array_push($error, array('order_id' =>$order_id,"msg" => $status['msg']));
             }
