@@ -8018,3 +8018,12 @@ INSERT INTO `partner_summary_report_mapping` (`id`, `Title`, `sub_query`, `is_de
 
 -- Abhay 22 Aug
 ALTER TABLE `invoice_details` CHANGE `toal_amount` `total_amount` DECIMAL(10,2) NOT NULL DEFAULT '0.00';
+
+
+--Chhavi
+UPDATE `entity_role` SET `department` = 'Warehouse' WHERE `entity_role`.`id` = 3;
+ALTER TABLE `partners` ADD `booking_review_for` VARCHAR(264) NULL DEFAULT NULL AFTER `grace_period_date`, ADD `review_time_limit` INT(11) NULL DEFAULT NULL AFTER `booking_review_for`;
+ALTER TABLE `booking_details` ADD `approved_by` INT(11) NULL AFTER `api_call_status_updated_on_completed`;
+ALTER TABLE `booking_details` ADD `rejected_by` INT(11) NULL AFTER `approved_by`;
+ALTER TABLE `booking_details` ADD `is_in_process` INT(1) NOT NULL DEFAULT '0' AFTER `rejected_by`
+
