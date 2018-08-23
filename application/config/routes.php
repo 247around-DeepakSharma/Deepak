@@ -185,6 +185,8 @@ $route['partner/inventory/show_inventory_details'] = 'employee/partner/show_inve
 $route['partner/inventory/show_inventory_appliance_details'] = 'employee/partner/show_appliance_model_list';
 $route['partner/inventory/tag_spare_invoice'] = 'employee/partner/tag_spare_invoice';
 $route['partner/search_docket_number'] = 'employee/partner/search_docket_number';
+$route['partner/review_bookings'] = 'employee/partner/review_bookings';
+
 
 
 

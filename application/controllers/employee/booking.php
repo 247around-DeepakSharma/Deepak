@@ -1743,51 +1743,18 @@ class Booking extends CI_Controller {
      * @return: void
      */
     function reject_booking_from_review() {
-        log_message('info', __FUNCTION__. " POST ". json_encode($this->input->post(), true));
-        
-        $booking_id = $this->input->post('booking_id');
-        $admin_remarks = $this->input->post('admin_remarks');
-        $data['internal_status'] = _247Around_Rejected_SF_Update;
-        $data['current_status'] = _247AROUND_PENDING;
-        $data['update_date'] = date("Y-m-d H:i:s");
-        $data['serial_number'] = "";
-        $data['service_center_remarks'] = NULL; 
-        $data['booking_date'] = $data['booking_timeslot'] = NUll;
-        $data['closed_date'] = NULL;
-        $data['service_charge'] = $data['additional_service_charge'] = $data['parts_cost'] = "0.00";
-        $data['admin_remarks'] = date("F j") . "  :-" . $admin_remarks;
-        log_message('info', __FUNCTION__ . " Booking_id " . $booking_id . " Update service center action table: " . print_r($data, true));
-        $this->vendor_model->update_service_center_action($booking_id, $data);
-        //Send Push Notification
-        $b = $this->booking_model->get_bookings_count_by_any("booking_details.partner_id, assigned_vendor_id",array('booking_details.booking_id' => $booking_id));
-        //Get RM For Assigned Vendor
-        $rmArray = $this->vendor_model->get_rm_sf_relation_by_sf_id($b[0]['assigned_vendor_id']);
-        if(!empty($rmArray)){
-            $receiverArray['employee']= array($rmArray[0]['agent_id']);
-            $receiverArray['vendor']= array($b[0]['assigned_vendor_id']);
-            $notificationTextArray['msg'] = array($booking_id,"Rejected");
-            $notificationTextArray['title'] = array("Rejected");
-            $this->push_notification_lib->create_and_send_push_notiifcation(BOOKING_UPDATED_BY_247AROUND,$receiverArray,$notificationTextArray);
+        $postArray = $this->input->post();
+        $where['is_in_process'] = 0;
+        $whereIN['booking_id'] = $postArray['booking_id']; 
+        $tempArray = $this->reusable_model->get_search_result_data("booking_details","booking_id",$where,NULL,NULL,NULL,$whereIN,NULL,array());
+        if(!empty($tempArray)){
+            echo "Booking Updated Successfully";
+            $postArray = $this->input->post();
+            $this->miscelleneous->reject_booking_from_review($postArray);
         }
-       
-        //End Push Notification
-        
-        $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, _247Around_Rejected_SF_Update , $b[0]['partner_id'], $booking_id);
-        $actor = ACTOR_REJECT_FROM_REVIEW;
-        $next_action = REJECT_FROM_REVIEW_NEXT_ACTION;
-        if (!empty($partner_status)) {
-            $booking['partner_current_status'] = $partner_status[0];
-            $booking['partner_internal_status'] = $partner_status[1];
-            $booking['internal_status'] = "Rejected From Review";
-            $actor = $booking['actor'] = $partner_status[2];
-            $next_action = $booking['next_action'] = $partner_status[3];
-            $booking['service_center_closed_date'] = NULL;
-            $data['cancellation_reason'] = NULL;
-            $this->booking_model->update_booking($booking_id, $booking);
+        else{
+            echo "Booking updated by someone else , Please check updated booking and try again";
         }
-        
-        $this->notify->insert_state_change($booking_id, "Rejected", "InProcess_Completed", $admin_remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), 
-                $actor,$next_action,_247AROUND);
     }
 
     /**
@@ -1798,23 +1765,29 @@ class Booking extends CI_Controller {
      * @return : void
      */
     function checked_complete_review_booking() {
-        log_message('info', __FUNCTION__);
-        $approved_booking = $this->input->post('approved_booking');
+        $requested_bookings = $this->input->post('approved_booking');
+        $where['is_in_process'] = 0;
+        $whereIN['booking_id'] = $requested_bookings; 
+        $tempArray = $this->reusable_model->get_search_result_data("booking_details","booking_id",$where,NULL,NULL,NULL,$whereIN,NULL,array());
+        foreach($tempArray as $values){
+            $approved_booking[] = $values['booking_id'];
+        }
+        $inProcessBookings = array_diff($requested_bookings,$approved_booking);
+        $this->session->set_flashdata('inProcessBookings', $inProcessBookings);
+        $this->booking_model->mark_booking_in_process($approved_booking);
         $url = base_url() . "employee/do_background_process/complete_booking";
         if (!empty($approved_booking)) {
-            
             $data['booking_id'] = $approved_booking;
             $data['agent_id'] = $this->session->userdata('id');
             $data['agent_name'] = $this->session->userdata('employee_id');
             $data['partner_id'] = $this->input->post('partner_id');
+            $data['approved_by'] = $this->input->post('approved_by'); 
             $this->asynchronous_lib->do_background_process($url, $data);
             $this->push_notification_lib->send_booking_completion_notification_to_partner($approved_booking);
         } else {
             //Logging
             log_message('info', __FUNCTION__ . ' Approved Booking Empty from Post');
         }
-
-
         redirect(base_url() . 'employee/booking/review_bookings');
     }
 
@@ -1832,12 +1805,27 @@ class Booking extends CI_Controller {
             $serviceCenters = $sf_list[0]['service_centres_id'];
             $whereIN =array("service_center_id"=>explode(",",$serviceCenters));
         }
+         $data['partner_review_bookings'] = $this->get_booking_partner_will_review($booking_id);
         log_message('info', __FUNCTION__ . " Booking ID: " . print_r($booking_id, true));
         $data['charges'] = $this->booking_model->get_booking_for_review($booking_id,$whereIN);
         $data['data'] = $this->booking_model->review_reschedule_bookings_request($whereIN);
-        
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/review_booking', $data);
+    }
+    function get_booking_partner_will_review($bookingID = NULL){
+        $bookingArray = array();
+        $statusData = $this->reusable_model->get_search_result_data("partners","id,booking_review_for,review_time_limit",NULL,NULL,NULL,NULL,NULL,NULL,array());
+        foreach($statusData as $values){
+            if($values['booking_review_for']){
+                $statusString = implode("','",explode(",",$values['booking_review_for']));
+                $where[] = "(service_center_booking_action.internal_status IN ('".$statusString."') AND DATEDIFF(CURRENT_TIMESTAMP, service_center_booking_action.closed_date)<".$values['review_time_limit']." AND booking_details.partner_id ='".$values['id']."')";
+            }
+        }
+        $tempArray = $this->booking_model->get_partner_review_booking($where,$bookingID);
+        foreach ($tempArray as $bookings){
+            $bookingArray[] = $bookings['booking_id'];
+        }
+        return $bookingArray;
     }
 
     /**
@@ -4675,6 +4663,18 @@ class Booking extends CI_Controller {
             }
         }
         
+    }
+    function update_old_spare_booking_tat(){
+      $spareData =   $this->reusable_model->get_search_result_data("spare_parts_details","id,booking_id",array("date(date_of_request)>'2018-03-31'"=>NULL),NULL,NULL,array("spare_parts_details.date_of_request"=>"ASC"),NULL,NULL,array());
+        foreach($spareData as $values){
+            $this->miscelleneous->process_booking_tat_on_spare_request($values['booking_id'],$values['id']);
+        }
+    }
+    function update_old_completed_booking_tat(){
+        $bookingData =   $this->reusable_model->get_search_result_data("booking_details","booking_id",array("date(closed_date)>'2018-03-31'"=>NULL),NULL,NULL,array("booking_details.closed_date"=>"ASC"),NULL,NULL,array());
+        foreach($bookingData as $values){
+            $this->miscelleneous->process_booking_tat_on_completion($values['booking_id']);
+        }
     }
 }
 
