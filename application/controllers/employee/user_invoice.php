@@ -98,7 +98,8 @@ class User_invoice extends CI_Controller {
                 $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final", true);
                 if ($status) {
                     log_message('info', __FUNCTION__ . ' Invoice File is created. invoice id' . $response['meta']['invoice_id']);
-                    $convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($response['meta']['invoice_id'], "final", true, true);
+                    //$convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($response['meta']['invoice_id'], "final", true, true);
+                    $convert = $this->invoice_lib->convert_invoice_file_into_pdf($response, "final", true, true);
                     $this->invoice_lib->upload_invoice_to_S3($response['meta']['invoice_id'], false, true);
 
                     $output_pdf_file_name = $convert['main_pdf_file_name'];
@@ -179,13 +180,13 @@ class User_invoice extends CI_Controller {
                             $data[0]->closed_date, $agent_id, $convert, $data[0]->user_id,$preinvoice_id);
                     
                     if(file_exists(TMP_FOLDER.$response['meta']['invoice_id'] . '.xlsx')){
-                        unlink($invoice['meta']['invoice_id'] . '.xlsx');
+                        unlink(TMP_FOLDER.$response['meta']['invoice_id']. '.xlsx');
                     }
                     if(file_exists(TMP_FOLDER.$convert['triplicate_file'])){
-                        unlink($convert['triplicate_file']);
+                        unlink(TMP_FOLDER.$convert['triplicate_file']);
                     }
                     if(file_exists(TMP_FOLDER.$convert['copy_file'])){
-                        unlink($convert['copy_file']);
+                        unlink(TMP_FOLDER.$convert['copy_file']);
                     }
                     echo json_encode(array(
                         'status' => true,
@@ -259,7 +260,7 @@ class User_invoice extends CI_Controller {
                 "sgst_tax_amount" => (isset($value['sgst_tax_amount']) ? $value['sgst_tax_amount'] : 0),
                 "igst_tax_amount" => (isset($value['igst_tax_amount']) ? $value['igst_tax_amount'] : 0),
                 "hsn_code" => $value['hsn_code'],
-                "toal_amount" => $value['toal_amount'],
+                "total_amount" => $value['total_amount'],
                 "create_date" => date('Y-m-d H:i:s')
                 
             );
@@ -341,7 +342,8 @@ class User_invoice extends CI_Controller {
 
                 if ($status) {
                     log_message('info', __FUNCTION__ . ' Invoice File is created. invoice id' . $response['meta']['invoice_id']);
-                    $convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($response['meta']['invoice_id'], "final", TRUE, FALSE);
+                    //$convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($response['meta']['invoice_id'], "final", TRUE, FALSE);
+                    $convert = $this->invoice_lib->convert_invoice_file_into_pdf($response, "final", true, FALSE);
                     $this->invoice_lib->upload_invoice_to_S3($response['meta']['invoice_id'], false, false);
                     log_message("info", __METHOD__ . " SF Credit note uploaded to s3 for booking ID " . $booking_id . " Invoice ID " . $response['meta']['invoice_id']);
                     //$output_pdf_file_name = $convert['main_pdf_file_name'];

@@ -8062,3 +8062,6 @@ INSERT INTO `partner_summary_report_mapping` (`id`, `Title`, `sub_query`, `is_de
 INSERT INTO `partner_summary_report_mapping` (`id`, `Title`, `sub_query`, `is_default`, `partner_id`, `is_active`, `index_in_report`) VALUES (NULL, 'Dealer Phone', 'dealer_details.dealer_phone_number_1 AS \'Dealer Name\'', '0', '247034', '1','39');
 INSERT INTO `partner_summary_report_mapping` (`id`, `Title`, `sub_query`, `is_default`, `partner_id`, `is_active`, `index_in_report`) VALUES (NULL, 'Dealer Phone', 'dealer_details.dealer_phone_number_1 AS \'Dealer Name\'', '0', '247034', '1','39');INSERT INTO `partner_summary_report_mapping` (`id`, `Title`, `sub_query`, `is_default`, `partner_id`, `is_active`, `index_in_report`) VALUES (NULL, 'Category', 'ud.appliance_category AS \'Appliance Category\'', '1', '', '1', '8');
 INSERT INTO `partner_summary_report_mapping` (`id`, `Title`, `sub_query`, `is_default`, `partner_id`, `is_active`, `index_in_report`) VALUES (NULL, 'Capacity', 'ud.appliance_capacity AS \'Appliance Capacity\'', '1', '', '1', '8');
+
+-- Abhay 22 Aug
+ALTER TABLE `invoice_details` CHANGE `toal_amount` `total_amount` DECIMAL(10,2) NOT NULL DEFAULT '0.00';
