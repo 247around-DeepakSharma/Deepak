@@ -4,11 +4,10 @@
 class Invoice_lib {
     
    public function __construct() {
-	$this->ci = & get_instance();
+    $this->ci = & get_instance();
         $this->ci->load->library('PHPReport');
         $this->ci->load->library("miscelleneous");
         $this->ci->load->library('s3');
-
     }
     
     function create_invoice_id($start_name){
@@ -136,6 +135,57 @@ class Invoice_lib {
             return false;
         }
     }
+    /**
+     * @desc This function is used to generate invoice from html to pdf 
+     * @param Array $invoices
+     * @param String $invoice_type
+     * @param boolean $copy
+     * @param boolean $triplicate
+     * @return Array
+     */
+    function convert_invoice_file_into_pdf($invoices, $invoice_type, $copy = false, $triplicate = FALSE){
+       
+        $output_file_name = $invoices['meta']['invoice_id'].'-draft';
+        if ($invoice_type == "final") {
+            //generate main invoice pdf
+            $output_file_name = $invoices['meta']['invoice_id'];
+            
+        }
+        $main_template = explode(".xlsx", $invoices['meta']['invoice_template']);
+        $invoices['meta']['recipient_type'] = "Original Copy";
+         $html = $this->ci->load->view('templates/'.$main_template[0], $invoices, true); 
+        //convert html into pdf
+        $json_result = $this->ci->miscelleneous->convert_html_to_pdf($html,$invoices['meta']['invoice_id'],$output_file_name.".pdf","invoices-excel");
+        $pdf_response = json_decode($json_result,TRUE);
+        
+        if(!empty($pdf_response) && $pdf_response['response'] == "Success"){
+            $copy_invoice = "copy_".$output_file_name.".pdf";
+            $invoices['meta']['recipient_type'] = "Duplicate Copy";
+            
+            $html1 = $this->ci->load->view('templates/'.$main_template[0], $invoices, true); 
+            $this->ci->miscelleneous->convert_html_to_pdf($html1,$invoices['meta']['invoice_id'],$copy_invoice,"invoices-excel");
+          
+            if($triplicate){
+             
+                $triplicate_invoice = "triplicate_".$output_file_name.".pdf";
+                $invoices['meta']['recipient_type'] = "Triplicate Copy";
+                $html2 = $this->ci->load->view('templates/'.$main_template[0], $invoices, true); 
+                $this->ci->miscelleneous->convert_html_to_pdf($html2,$invoices['meta']['invoice_id'],$triplicate_invoice,"invoices-excel");
+               
+                
+                $array = array("main_pdf_file_name" =>$copy_invoice, "copy_file" =>$output_file_name.".pdf",
+                    'triplicate_file' => $triplicate_invoice, "excel_file" => $output_file_name.".xlsx");
+            } else if($copy){
+                $array = array("main_pdf_file_name" =>$copy_invoice, "copy_file" =>$output_file_name.".pdf", "excel_file" => $output_file_name.".xlsx" );
+             } else {
+                $array = array("main_pdf_file_name" =>$output_file_name.".pdf",  "copy_file" => $copy_invoice, "excel_file" => $output_file_name.".xlsx" );
+             }
+             
+             return $array;
+        } else {
+            return $this->send_request_to_convert_excel_to_pdf($invoices['meta']['invoice_id'], $invoice_type, $copy, $triplicate);
+        }
+    }
     
     function send_request_to_convert_excel_to_pdf($invoice_id, $invoice_type, $copy = false, $triplicate = FALSE){
         $excel_file_to_convert_in_pdf = $invoice_id.'-draft.xlsx';
@@ -181,9 +231,7 @@ class Invoice_lib {
        return $output_pdf_file_name;
     }
     
-
     function upload_invoice_to_S3($invoice_id, $detailed, $triplicate = false){
-
         $bucket = BITBUCKET_DIRECTORY;
 
         $directory_xls = "invoices-excel/" . $invoice_id . ".xlsx";
@@ -201,21 +249,20 @@ class Invoice_lib {
         }
     }
     
-    function get_gstin_status_by_api($vendor_id){
-        $vendor = $this->ci->vendor_model->getVendorDetails('gst_no, gst_status, gst_taxpayer_type, company_name, gst_cancelled_date', array('id'=>$vendor_id), 'id', array());
-        $data = array();
-        $curl = curl_init();
-        $curlURL = "https://api.taxprogsp.co.in/commonapi/v1.1/search?aspid=".ASP_ID."&password=".ASP_PASSWORD."&Action=TP&Gstin=".$vendor[0]['gst_no'];
+    function gst_curl_call($gst_no, $vendor_id=""){
+        if(!$vendor_id){
+          $vendor_id = _247AROUND;
+        }
         $activity = array(
             'entity_type' => 'vendor',
             'partner_id' => $vendor_id,
             'activity' => __METHOD__,
             'header' => "",
-            'json_request_data' => $curlURL,
-            'json_response_string' => json_encode($responseData, JSON_UNESCAPED_SLASHES)
+            'json_request_data' => "https://api.taxprogsp.co.in/commonapi/v1.1/search?aspid=".ASP_ID."&password=".ASP_PASSWORD."&Action=TP&Gstin=".$gst_no,
         );
+        $curl = curl_init();
         curl_setopt_array($curl, array(
-          CURLOPT_URL => $curlURL,
+          CURLOPT_URL => "https://api.taxprogsp.co.in/commonapi/v1.1/search?aspid=".ASP_ID."&password=".ASP_PASSWORD."&Action=TP&Gstin=".$gst_no,
           CURLOPT_RETURNTRANSFER => true,
           CURLOPT_ENCODING => "",
           CURLOPT_MAXREDIRS => 10,
@@ -226,80 +273,104 @@ class Invoice_lib {
         $api_response = curl_exec($curl);
         $err = curl_error($curl);
         curl_close($curl);
-        if ($err) {
-            $email_template = $this->ci->booking_model->get_booking_email_template(TAXPRO_API_FAIL);
-            if(!empty($email_template)){ 
-                $message = vsprintf($email_template[0], array($err));
-                $to = DEVELOPER_EMAIL.','.$email_template[1];
-                $this->ci->notify->sendEmail($email_template[2], $to, $email_template[3], $email_template[5], $email_template[4], $message, '', COURIER_DETAILS);
-            }
+        if($err){
             $activity['json_response_string'] = $err;
-            $this->ci->partner_model->log_partner_activity($activity);
-            $data['status'] = 'error'; 
-            return $data;
-        } else { 
+            return false;
+        }
+        else{
+            $activity['json_response_string'] = $api_response;
+            $response = json_decode($api_response, true);
+            if(isset($response['error'])){
+                $email_template = $this->ci->booking_model->get_booking_email_template(TAXPRO_API_FAIL);
+                if($response['error']['error_cd'] =='GSP050D'){
+                   $message = vsprintf($email_template[0], array("Wrong GST No Used: ".$gst_no,$this->ci->session->userdata('emp_name') ));  
+                   $to = $this->ci->session->userdata('official_email').$email_template[1];
+                }
+                else{
+                    $message = vsprintf($email_template[0], array("Used GST NO ".$gst_no,$this->ci->session->userdata('emp_name'), $api_response));  
+                    $to = DEVELOPER_EMAIL.$email_template[1];
+                }
+                $this->ci->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $email_template[3] , $email_template[5], $email_template[4], $message, '', TAXPRO_API_FAIL);
+                return $api_response;
+            }
+            else{ 
+               return $api_response;
+            }
+        }
+        $this->ci->partner_model->log_partner_activity($activity);
+    }
+    
+    function get_gstin_status_by_api($vendor_id){
+        $data = array();
+        $vendor = $this->ci->vendor_model->getVendorDetails('gst_no, gst_status, gst_taxpayer_type, company_name, gst_cancelled_date', array('id'=>$vendor_id), 'id', array());
+        if(isset($vendor[0]['gst_no'])){
+            
+            $api_response = $this->gst_curl_call($vendor[0]['gst_no'], $vendor_id);
+            if (!$api_response) {
+                $data['status'] = 'error'; 
+                return $data;
+            } else { 
                 //$response = '{"stjCd":"DL086","lgnm":"SUDESH KUMAR","stj":"Ward 86","dty":"Regular","adadr":[],"cxdt":"","gstin":"07ALDPK4562B1ZG","nba":["Recipient of Goods or Services","Service Provision","Retail Business","Wholesale Business","Works Contract"],"lstupdt":"17/04/2018","rgdt":"01/07/2017","ctb":"Proprietorship","pradr":{"addr":{"bnm":"BLOCK 4","st":"GALI NO. 5","loc":"HARI NAGAR ASHRAM","bno":"A-144/5","dst":"","stcd":"Delhi","city":"","flno":"G/F","lt":"","pncd":"110014","lg":""},"ntr":"Recipient of Goods or Services, Service Provision, Retail Business, Wholesale Business, Works Contract"},"tradeNam":"UNITED HOME CARE","sts":"Active","ctjCd":"ZK0601","ctj":"RANGE - 161"}';
                 //$api_response = '{"status_cd":"0","error":{"error_cd":"GSP020A","message":"Error: Invalid ASP Password."}}';
-
-                //$api_response = '{"status_cd":"0","error":{"error_cd":"GSP020A","message":"Error: Invalid ASP Password."}}';
-
-                $activity['json_response_string'] = $api_response;
-                $this->ci->partner_model->log_partner_activity($activity);
-
                 $response = json_decode($api_response, true);
                 if(isset($response['error'])){ 
-                    $email_template = $this->ci->booking_model->get_booking_email_template(TAXPRO_API_FAIL);
-                    if(!empty($email_template)){ 
-                        $message = vsprintf($email_template[0], array($api_response));
-                        $to = DEVELOPER_EMAIL.','.$email_template[1];
-                        $this->ci->notify->sendEmail($email_template[2], $to, $email_template[3], $email_template[5], $email_template[4], $message, '', TAXPRO_API_FAIL);
-                    }
                     $data['status'] = 'error'; 
                     return $data;
                 }
-            else{ 
-                $data['gst_taxpayer_type'] = $response['dty']; //Regular
-                $data['gst_status'] = $response['sts']; //Active
-
-                if(isset($response['cxdt']) && !empty($response['cxdt'])){
-                    $data['gst_cancelled_date'] = date("Y-m-d", strtotime($response['cxdt']));
-                } else {
-                    $data['gst_cancelled_date'] = NULL;
-                }
-                
-                if(($vendor[0]['gst_taxpayer_type'] != $response['dty']) || ($vendor[0]['gst_status'] != $response['sts'])){
-
-                    
-                    $email_template = $this->ci->booking_model->get_booking_email_template(GST_DETAIL_UPDATED);
-                    if(!empty($email_template)){ 
-                        $subject = vsprintf($email_template[4], array($vendor[0]['company_name']));
-                        $message = vsprintf($email_template[0], array($vendor[0]['gst_no'], $vendor[0]['gst_status'], $vendor[0]['gst_taxpayer_type'], $vendor[0]['gst_cancelled_date'], $response['gstin'], $response['sts'], $response['dty'], $response['cxdt']));
-                        $to = $email_template[1];
-                        $this->ci->notify->sendEmail($email_template[2], $to, $email_template[3], $email_template[5], $subject, $message, '', GST_DETAIL_UPDATED);
+                else{ 
+                    $data['gst_taxpayer_type'] = $response['dty']; //Regular
+                    $data['gst_status'] = $response['sts']; //Active
+                    if(isset($response['cxdt']) && !empty($response['cxdt'])){
+                       
+                        $data['gst_cancelled_date'] = date("Y-m-d", strtotime(str_replace('/','-',$response['cxdt'])));
+                    } else {
+                        $data['gst_cancelled_date'] = NULL;
                     }
-                    $this->ci->vendor_model->edit_vendor($data, $vendor_id);
+
+                    if($vendor[0]['gst_taxpayer_type'] != $response['dty'] || $vendor[0]['gst_status'] != $response['sts']){
+
+                        $email_template = $this->ci->booking_model->get_booking_email_template(GST_DETAIL_UPDATED);
+                        if(!empty($email_template)){ 
+                            $subject = vsprintf($email_template[4], array($vendor[0]['company_name']));
+                            $message = vsprintf($email_template[0], array($vendor[0]['gst_no'], $vendor[0]['gst_status'], $vendor[0]['gst_taxpayer_type'], $vendor[0]['gst_cancelled_date'], $response['gstin'], $response['sts'], $response['dty'], $response['cxdt']));
+                            $to = DEVELOPER_EMAIL.','.$email_template[1];
+                            $this->ci->notify->sendEmail($email_template[2], $to, $email_template[3], $email_template[5], $subject, $message, '', GST_DETAIL_UPDATED);
+                        }
+                        $this->ci->vendor_model->edit_vendor($data, $vendor_id);
+                    }
+                    $data['gst_no'] = $response['gstin'];
+                    $data['status'] = 'success'; 
+                    return $data;
                 }
-                $data['gst_no'] = $response['gstin'];
-                $data['status'] = 'success'; 
-                return $data;
             }
         }
     }
-    
-    function check_gst_number_valid($vendor_id, $gst_number){
-        if(!empty($gst_number)){
+    /**
+     * @desc This function is used to check gst number is valid or not
+     * Currently it triggered from Invoice Model
+     * @param String $vendor_id
+     * @param String $gst_number
+     * @return string
+     */
+    function check_gst_number_valid($vendor_id, $gst_number) {
+        if (!empty($gst_number)) {
             $gstin = $this->get_gstin_status_by_api($vendor_id);
-            if(!empty($gstin)){
-                if($gstin['gst_taxpayer_type'] == "Regular" && $gstin['status'] = "success" && $gstin['gst_status'] == "Active"){
-                    return $gst_number;
+            if (!empty($gstin)) {
+                if ($gstin['status'] == "success") {
+                    if ($gstin['gst_taxpayer_type'] == "Regular" && $gstin['gst_status'] == "Active") {
+                        return $gst_number;
+                    } else {
+                        return "";
+                    }
                 } else {
                     return $gst_number;
                 }
             } else {
-                return "";
+                return $gst_number;
             }
         } else {
-            return "";
+            return $gst_number;
         }
     }
+
 }

@@ -553,7 +553,7 @@ class Invoice extends CI_Controller {
         if(!empty($misc_data['misc'])){
             $total_misc_charge = (array_sum(array_column($misc_data['misc'], 'partner_charge')));
         }
-        unset($misc_data);
+        
         $meta['total_courier_charge'] = (array_sum(array_column($courier, 'courier_charges_by_sf')));
         $meta['total_upcountry_price'] = 0;
         $total_upcountry_distance = $total_upcountry_booking = 0;
@@ -590,9 +590,10 @@ class Invoice extends CI_Controller {
 
         $this->combined_partner_invoice_sheet($output_file_excel, $files);
         array_push($files, $output_file_excel);
-
-        $convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($meta['invoice_id'], $invoice_type);
-
+        //$convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($meta['invoice_id'], $invoice_type);
+        $convert = $this->invoice_lib->convert_invoice_file_into_pdf($misc_data, $invoice_type);
+        unset($misc_data);
+        
         $output_pdf_file_name = $convert['main_pdf_file_name'];
 
         array_push($files, TMP_FOLDER . $convert['excel_file']);
@@ -803,8 +804,9 @@ class Invoice extends CI_Controller {
      * @param Array $details
      * @return type
      */
-    function generate_cash_details_invoices_for_vendors($vendor_id, $data, $meta,$invoice_type, $agent_id, $from_date, $to_date) {
-        log_message('info', __FUNCTION__ . '=> Entering... for invoices:'. $meta['invoice_id']);
+    function generate_cash_details_invoices_for_vendors($vendor_id, $data, $invoices_d,$invoice_type, $agent_id, $from_date, $to_date) {
+        log_message('info', __FUNCTION__ . '=> Entering... for invoices:'. $invoices_d['meta']['invoice_id']);
+        $meta  = $invoices_d['meta'];
         $files = array();
         // it stores all unique booking id which is completed by particular vendor id
         $unique_booking = array_unique(array_map(function ($k) {
@@ -829,7 +831,8 @@ class Invoice extends CI_Controller {
         $this->invoice_lib->generate_invoice_excel($template, $meta, $data, $output_file_excel);
         array_push($files, $output_file_excel);
         
-        $convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($meta['invoice_id'], $invoice_type); 
+//      $convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($meta['invoice_id'], $invoice_type); 
+        $convert = $this->invoice_lib->convert_invoice_file_into_pdf($invoices_d, $invoice_type);
         $output_file_main = $convert['main_pdf_file_name'];
         array_push($files, TMP_FOLDER.$convert['excel_file']);
 
@@ -1109,8 +1112,8 @@ class Invoice extends CI_Controller {
             log_message('info', __FUNCTION__ . " Excel File Created " . $output_file_excel);
             
             array_push($files, $output_file_excel);
-        
-            $convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($invoice_data['meta']['invoice_id'], $invoice_type,true); 
+            $convert = $this->invoice_lib->convert_invoice_file_into_pdf($invoice_data, $invoice_type, true, FALSE);
+            //$convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($invoice_data['meta']['invoice_id'], $invoice_type,true); 
             $output_file_main = $convert['main_pdf_file_name'];
             array_push($files, TMP_FOLDER.$convert['excel_file']);
 
@@ -1761,8 +1764,10 @@ class Invoice extends CI_Controller {
                 
                 log_message('info', __FUNCTION__ . ' Invoice File is created. invoice id' . $invoice['meta']['invoice_id']);
                
+                
+                //$convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($invoice['meta']['invoice_id'], $invoice_type);
+                $convert = $this->invoice_lib->convert_invoice_file_into_pdf($invoice, $invoice_type);
                 unset($invoice['booking']);
-                $convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($invoice['meta']['invoice_id'], $invoice_type);
                 $output_pdf_file_name = $convert['main_pdf_file_name'];
                 array_push($files, TMP_FOLDER . $convert['excel_file']);
                 
@@ -1916,7 +1921,7 @@ class Invoice extends CI_Controller {
                 
                 log_message('info', __FUNCTION__ . ' Invoice File is created. invoice id' . $invoices['meta']['invoice_id']);
                
-                unset($invoices['booking']);
+                //unset($invoices['booking']);
                 $this->create_partner_invoices_detailed($partner_id, $from_date, $to_date, $invoice_type, $invoices,$agent_id, $hsn_code);
                 return true;
                 
@@ -1970,7 +1975,6 @@ class Invoice extends CI_Controller {
 
                 log_message('info', __FUNCTION__ . ' Invoice File is created. invoice id' . $invoices['meta']['invoice_id']);
 
-                unset($invoices['booking']);
                 $data = $this->invoices_model->get_vendor_cash_detailed($vendor_id, $from_date, $to_date, $is_regenerate);
                 $invoices_details_data = array_merge($data, $invoices['upcountry']);
                 $invoices['meta']['r_sc'] = $invoices['meta']['r_asc'] = $invoices['meta']['r_pc'] = $rating = $total_amount_paid = 0;
@@ -2000,9 +2004,10 @@ class Invoice extends CI_Controller {
                 $invoices['meta']['parts_count'] = $parts_count;
                 $invoices['meta']['total_amount_paid'] = sprintf("%.2f",$total_amount_paid);
                 $invoices['meta']['t_rating'] = sprintf("%.2f",$rating / $i);
-                $this->generate_cash_details_invoices_for_vendors($vendor_id, $invoices_details_data, $invoices['meta'], $invoice_type, $agent_id, $from_date, $to_date);
+                $this->generate_cash_details_invoices_for_vendors($vendor_id, $invoices_details_data, $invoices, $invoice_type, $agent_id, $from_date, $to_date);
                 unset($invoices_details_data);
-                unset($invoices['meta']);
+                unset($invoices);
+
                 return true;
             } else {
                 log_message('info', __FUNCTION__ . ' Invoice File is not created. invoice id' . $invoices['meta']['invoice_id']);
@@ -2064,7 +2069,7 @@ class Invoice extends CI_Controller {
                 if ($status) {
 
                     log_message('info', __FUNCTION__ . ' Invoice File is created. invoice id' . $invoices['meta']['invoice_id']);
-                    $res = $this->generate_buyback_detailed_invoices($vendor_id, $invoices['annexure_data'], $invoices['meta'], $invoice_type, $details['agent_id'], $from_date, $to_date);
+                    $res = $this->generate_buyback_detailed_invoices($vendor_id, $invoices, $invoice_type, $details['agent_id'], $from_date, $to_date);
                     if(!empty($res)){
                         $owner_email = $invoices['meta']['owner_email'];
                         $primary_contact_email = $invoices['meta']['primary_contact_email'];
@@ -2158,16 +2163,18 @@ class Invoice extends CI_Controller {
         }
     }
 
-    function generate_buyback_detailed_invoices($vendor_id, $data, $meta, $invoice_type, $agent_id,$from_date, $to_date){
+    function generate_buyback_detailed_invoices($vendor_id, $invoices, $invoice_type, $agent_id,$from_date, $to_date){
         log_message('info', __FUNCTION__ . " Entering...." );
         $files = array();
-
+        $data = $invoices['annexure_data'];
+        $meta =  $invoices['meta'];
         $template = 'Buyback-Annexure-v1.xlsx';
         $output_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-detailed.xlsx";
         $this->invoice_lib->generate_invoice_excel($template, $meta, $data, $output_file_excel);
         array_push($files, $output_file_excel);
         
-        $convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($meta['invoice_id'], $invoice_type); 
+        //$convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($meta['invoice_id'], $invoice_type); 
+        $convert = $this->invoice_lib->convert_invoice_file_into_pdf($invoices, $invoice_type);
         $output_file_main = $convert['main_pdf_file_name'];
         array_push($files, TMP_FOLDER.$convert['excel_file']);
 
@@ -3178,7 +3185,8 @@ class Invoice extends CI_Controller {
         if($status){
             log_message("info", __METHOD__." Partner Advance Excel generated ".$invoice_id);
             
-            $convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($invoice_id, "final");
+            //$convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($invoice_id, "final");
+            $convert = $this->invoice_lib->convert_invoice_file_into_pdf($response, "final");
             $output_pdf_file_name = $convert['main_pdf_file_name'];
             $response['meta']['invoice_file_main'] = $output_pdf_file_name;
             $response['meta']['copy_file'] = $convert['copy_file'];
@@ -3399,7 +3407,8 @@ class Invoice extends CI_Controller {
             if ($status) {
                 log_message("info", __METHOD__ . " Vendor Spare Invoice SF ID" . $sp_data[0]->service_center_id . " Spare Id " . $spare_id);
 
-                $convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($response['meta']['invoice_id'], "final");
+                //$convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($response['meta']['invoice_id'], "final");
+                $convert = $this->invoice_lib->convert_invoice_file_into_pdf($response, "final");
                 $output_pdf_file_name = $convert['main_pdf_file_name'];
                 $response['meta']['invoice_file_main'] = $output_pdf_file_name;
                 $response['meta']['copy_file'] = $convert['copy_file'];
@@ -3665,7 +3674,8 @@ class Invoice extends CI_Controller {
                 $response['meta']['reference_invoice_id'] = $reference_number;
                 $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
                 if (!empty($status)) {
-                    $convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($invoice_id, "final");
+//                    $convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($invoice_id, "final");
+                    $convert = $this->invoice_lib->convert_invoice_file_into_pdf($response, "final");
                     $output_pdf_file_name = $convert['main_pdf_file_name'];
                     $response['meta']['invoice_file_main'] = $output_pdf_file_name;
                     $response['meta']['copy_file'] = $convert['copy_file'];
