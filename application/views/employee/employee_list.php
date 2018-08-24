@@ -173,6 +173,7 @@
                             <!--     <td style="text-align: center;"><a href="javascript:void(0)" class="btn btn-md btn-success" onclick='return login_to_employee(<?php echo $value['id']?>)'  <?php echo ($value['active'] == 0)?'disabled=""':'' ?> title="<?php echo strtolower($value['id']) . " / " . strtolower($value['employee_id']);  ?>">Login</a></td>-->
                             <td style="text-align: center">
                                 <a href="<?php base_url()?>update_employee/<?php echo $value['id']?>" class="btn btn-sm btn-primary" title="Update Employee" > <i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
+                                <a href="<?php base_url()?>deactive_employee/<?php echo $value['id']; ?>" class="btn btn-sm btn-warning" title="Deactive Employee" > <i class="fa fa-check-square" aria-hidden="true"></i></a>
                             </td>
                             <?php }?>
                                 

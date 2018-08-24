@@ -135,7 +135,14 @@ class Invoice_lib {
             return false;
         }
     }
-    
+    /**
+     * @desc This function is used to generate invoice from html to pdf 
+     * @param Array $invoices
+     * @param String $invoice_type
+     * @param boolean $copy
+     * @param boolean $triplicate
+     * @return Array
+     */
     function convert_invoice_file_into_pdf($invoices, $invoice_type, $copy = false, $triplicate = FALSE){
        
         $output_file_name = $invoices['meta']['invoice_id'].'-draft';
