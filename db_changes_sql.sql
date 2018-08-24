@@ -8016,6 +8016,9 @@ INSERT INTO `partner_summary_report_mapping` (`id`, `Title`, `sub_query`, `is_de
 INSERT INTO `partner_summary_report_mapping` (`id`, `Title`, `sub_query`, `is_default`, `partner_id`, `is_active`, `index_in_report`) VALUES (NULL, 'Category', 'ud.appliance_category AS \'Appliance Category\'', '1', '', '1', '8');
 INSERT INTO `partner_summary_report_mapping` (`id`, `Title`, `sub_query`, `is_default`, `partner_id`, `is_active`, `index_in_report`) VALUES (NULL, 'Capacity', 'ud.appliance_capacity AS \'Appliance Capacity\'', '1', '', '1', '8');
 
+-- Abhay 22 Aug
+ALTER TABLE `invoice_details` CHANGE `toal_amount` `total_amount` DECIMAL(10,2) NOT NULL DEFAULT '0.00';
+
 
 --Chhavi
 UPDATE `entity_role` SET `department` = 'Warehouse' WHERE `entity_role`.`id` = 3;
@@ -8023,3 +8026,4 @@ ALTER TABLE `partners` ADD `booking_review_for` VARCHAR(264) NULL DEFAULT NULL A
 ALTER TABLE `booking_details` ADD `approved_by` INT(11) NULL AFTER `api_call_status_updated_on_completed`;
 ALTER TABLE `booking_details` ADD `rejected_by` INT(11) NULL AFTER `approved_by`;
 ALTER TABLE `booking_details` ADD `is_in_process` INT(1) NOT NULL DEFAULT '0' AFTER `rejected_by`
+

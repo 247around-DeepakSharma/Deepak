@@ -3147,7 +3147,7 @@ class Inventory extends CI_Controller {
         }
 
 
-        $invoice['toal_amount'] = $invoice['taxable_value'] + $gst_amount;
+        $invoice['total_amount'] = $invoice['taxable_value'] + $gst_amount;
         $invoice['create_date'] = date('Y-m-d H:i:s');
 
         return $invoice;
@@ -3650,8 +3650,8 @@ class Inventory extends CI_Controller {
             if ($status) {
 
                 log_message('info', __FUNCTION__ . ' Invoice File is created. invoice id' . $response['meta']['invoice_id']);
-                $convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($response['meta']['invoice_id'], "final");
-
+                //$convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($response['meta']['invoice_id'], "final");
+                $convert = $this->invoice_lib->convert_invoice_file_into_pdf($response, "final");
                 $output_file = "";
                 $template = "partner_inventory_invoice_annexure-v1.xlsx";
                 $output_file = $response['meta']['invoice_id'] . "-detailed.xlsx";
@@ -3755,7 +3755,7 @@ class Inventory extends CI_Controller {
             $invoice['is_settle'] = 1;
             $invoice['settle_qty'] = $value['qty'];
 
-            $invoice['toal_amount'] = $value['toal_amount'];
+            $invoice['total_amount'] = $value['total_amount'];
             $invoice['create_date'] = date('Y-m-d H:i:s');
             
             array_push($a, $invoice);
