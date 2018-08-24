@@ -157,6 +157,7 @@ define('_247AROUND_CLOSURE','closure');
 define('_247AROUND_RM','regionalmanager');
 define('_247AROUND_DEVELOPER','developer');
 define('_247AROUND_ACCOUNTANT','accountant');
+define('_247AROUND_AM','accountmanager');
 
 //
 define('Max_TIME_TO_BE_ASSIGNED_ENGINEER', 12);
