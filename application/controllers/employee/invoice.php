@@ -3838,5 +3838,35 @@ class Invoice extends CI_Controller {
             echo "Invoice Not Found";
         }
     }
+    
+    function get_pending_defective_parts_list($vendor_id){
+        $select = "spare_parts_details.booking_id, shipped_parts_type, DATEDIFF(CURRENT_TIMESTAMP, service_center_closed_date) as pending_age";
+        $where = array(
+            "spare_parts_details.defective_part_required"=>1,
+            "spare_parts_details.service_center_id" => $vendor_id,
+            "status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."')  " => NULL,
+            "DATEDIFF(CURRENT_TIMESTAMP, service_center_closed_date) > 15 " => NULL
+            
+        );
+       
+        $data = $this->service_centers_model->get_spare_parts_booking($where, $select);
+        if(!empty($data)){
+            $html = "";
+            foreach ($data as $key => $value) {
+                $html .= "<tr>";
+                $html .= "<td>".($key +1)."</td>";
+                $html .= "<td>".$value['booking_id']."</td>";
+                $html .= "<td>".$value['shipped_parts_type']."</td>";
+                $html .= "<td>".$value['pending_age']." Days </td>";
+                $html .= "</tr>";
+                
+            }
+            
+            echo $html;
+        } else {
+            echo "DATA NOT FOUND";
+        }
+        
+    }
 
 }
