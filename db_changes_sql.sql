@@ -8027,3 +8027,6 @@ ALTER TABLE `booking_details` ADD `approved_by` INT(11) NULL AFTER `api_call_sta
 ALTER TABLE `booking_details` ADD `rejected_by` INT(11) NULL AFTER `approved_by`;
 ALTER TABLE `booking_details` ADD `is_in_process` INT(1) NOT NULL DEFAULT '0' AFTER `rejected_by`
 
+--Chhavi
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'we_get_bad_rating', 'Bad Feedback From Customer, Rating ( %s ) For %s', 'Please take action as Customer is Not Satisfied with our Service.<br>\r\nSF: %s <br>\r\nCustomer remarks : %s <br>\r\nRequest Type : %s <br>\r\nAppliance : %s <br>', 'noreply@247around.com', 'anuj@247around.com', '', '', '1', '2018-08-24 15:30:00');
+
