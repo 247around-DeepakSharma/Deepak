@@ -2888,19 +2888,13 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
             $partnerJoin["employee"] = "employee.id=partners.account_manager_id";
             $bookingData = $this->My_CI->reusable_model->get_search_result_data("booking_details",$select,$where,$join,NULL,NULL,NULL,NULL,array());
             $amEmail = $this->My_CI->reusable_model->get_search_result_data("booking_details","employee.official_email",$where,$partnerJoin,NULL,NULL,NULL,NULL,array());
-            if(!isset($bookingData[0]['rating_comments'])){
-                $subject = 'Bad Feedback From Customer, Rating ('.$rating.') For '.$bookingID;
-                $message = "Please take action as Customer is Not Satisfied with our Service.<br>"
-                        . "SF : ".$bookingData[0]['name']."<br>"
-                        . "Customer remarks : ".$bookingData[0]['rating_comments']."<br> "
-                        . "Request Type : ".$bookingData[0]['request_type']."<br> "
-                        . "Appliance : ".$bookingData[0]['services']."<br> ";
-                $to = ANUJ_EMAIL_ID;  
+            $template = $this->My_CI->booking_model->get_booking_email_template("we_get_bad_rating");
+            $subject = vsprintf($template[4], array($rating,$bookingID));
+            $message = vsprintf($template[0], array($bookingData[0]['name'],$bookingData[0]['rating_comments'],$bookingData[0]['request_type'],$bookingData[0]['services']));
+            $to = $template[1];  
                 $cc = $bookingData[0]['official_email'].",".$amEmail[0]['official_email'].",".$this->My_CI->session->userdata("official_email");
-                $bcc = "chhavid@247around.com";
-                $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "","we_get_bad_rating");
-            }
-            
+            $from = $template[2];
+            $this->My_CI->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "","we_get_bad_rating");
             log_message('info', __FUNCTION__ . " END  ".$bookingID.$number);
         }
     }
