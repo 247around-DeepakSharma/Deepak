@@ -89,6 +89,14 @@
                     <span >DEVELOPER</span>
                 </div>
             </div>
+             <div class="col-md-3">
+                <div class="col-md-4">
+                    <div style="background-color: #f0ad4e;margin-top:10px;margin-bottom: 10px;border-radius: 10px;">&nbsp;&nbsp;&nbsp;</div>
+                </div>
+                <div class="col-md-8" style="margin-top:10px;margin-bottom: 10px;">
+                    <span >A M</span>
+                </div>
+            </div>
         </div>
         <?php }?>
         
@@ -127,6 +135,8 @@
                             $style='style="background-color:#FF8080;text-align:center"';
                         }else if($value['groups'] == _247AROUND_DEVELOPER){
                             $style='style="background-color:#286090;text-align:center"';
+                        }else if($value['groups'] == _247AROUND_AM){
+                            $style='style="background-color:#f0ad4e;text-align:center"';
                         }
                         ?>      
                     <tr>

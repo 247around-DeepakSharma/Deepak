@@ -196,7 +196,7 @@
                                                 <option value ="regionalmanager" <?php if(isset($query[0]['groups']) && $query[0]['groups'] == _247AROUND_RM ){echo 'selected';}?> >Regional Managers</option>
                                                 <option value ="closure" <?php if(isset($query[0]['groups']) && $query[0]['groups'] == _247AROUND_CLOSURE ){echo 'selected';}?> >Closure</option>
                                                 <option value ="callcenter" <?php if(isset($query[0]['groups']) && $query[0]['groups'] == _247AROUND_CALLCENTER ){echo 'selected';}?> >Call-Center</option>
-                                             
+                                                <option value ="accountmanager" <?php if(isset($query[0]['groups']) && $query[0]['groups'] == _247AROUND_AM ){echo 'selected';}?> >Account Managers</option>
                                 </select>
                                         <?php echo form_error('groups'); ?>
                             </div>

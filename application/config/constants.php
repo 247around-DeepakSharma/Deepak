@@ -157,6 +157,7 @@ define('_247AROUND_CLOSURE','closure');
 define('_247AROUND_RM','regionalmanager');
 define('_247AROUND_DEVELOPER','developer');
 define('_247AROUND_ACCOUNTANT','accountant');
+define('_247AROUND_AM','accountmanager');
 
 //
 define('Max_TIME_TO_BE_ASSIGNED_ENGINEER', 12);
@@ -589,7 +590,7 @@ define('PARTNER_BOM_FILE','Partner-BOM');
 define('PARTNER_SERIAL_NUMBER_FILE_TYPE','partner_serial_number');
 
 //warehouse incharge constant
-define('WAREHOUSE_INCHARCGE_CONSTANT','Warehouse Incharge');
+define('WAREHOUSE_INCHARCGE_CONSTANT','wh_incharge');
 define('NEW_CHARGES_ADDED','New Charges Added');
 define('MISC_CHARGES_REMOVED','Miscellaneous Charges Removed');
 //Partner Login

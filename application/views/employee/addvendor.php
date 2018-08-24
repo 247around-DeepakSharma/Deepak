@@ -939,7 +939,7 @@
                                     </div>
                                 </div>
                        
-                                <div class="col-md-4" style="margin-left:9%">
+                                <div class="col-md-4" style="text-align: left; margin-top: 3px;">
                                     <div class="form-group <?php
                                         if (form_error('gst_file')) {
                                             echo 'has-error';
@@ -981,7 +981,7 @@
                                 </div>
                             </div>
                                     
-                            <div class="col-md-12" style="margin-top: 20px;">
+                            <div class="col-md-12" style="padding-top: 5px;">
                                          
                                 <div class="col-md-4">
                                     <div class="form-group <?php

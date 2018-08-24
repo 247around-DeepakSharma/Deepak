@@ -697,8 +697,7 @@ class Notify {
         $data = array();
         log_message("info",__METHOD__);
         switch (ENVIRONMENT) {
-                //case 'production':
-                case 'testing_chhavi';
+                case 'production':
                 switch (CURRENT_SMS_SOLUTION) {
                     case KNOWLARITY_STRING :
                         $data = $this->send_sms_using_knowlarity($phone_number, $body);
