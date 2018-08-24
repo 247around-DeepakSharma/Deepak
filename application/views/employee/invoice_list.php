@@ -209,9 +209,9 @@ ini_set('max_execution_time', 36000000);
                                     <?php } ?>
                                 </td>
                                 <?php if (isset($service_center)) { ?>
-                                <td><?php echo $value['count_spare_part']; ?>
-<!--                                    <input type="hidden" name="<?php //echo "defective_parts[".$value['id']."]";?>" value="<?php //echo $value["count_spare_part"];?>" />
-                                    <input type="hidden" name="<?php //echo "defective_parts_max_age[".$value['id']."]";?>" value="<?php //echo $value["max_sp_age"];?>" />-->
+                                <td><?php if($value['count_spare_part'] > 0){ ?>
+                                    <a href="javascript:void(0)" onclick="get_defective_spare_count(<?php echo $value['id']; ?>)">  <?php print_r($value['count_spare_part']);?> </a>
+                                <?php } else { echo "0"; } ?>
                                 </td>
                                 
                                 <td ><input type="checkbox" class="form-control checkbox_amt <?php //if (isset($value['on_off'])) {
@@ -295,6 +295,33 @@ ini_set('max_execution_time', 36000000);
         </div>
     </div>
 </div>
+
+<!--Invoice Defective Part Pending Booking with Age Modal-->
+    <div id="defective_part_pending_booking_age" class="modal fade" role="dialog">
+      <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-body">
+                  <table class="table table-bordered  table-hover table-striped data">
+                      <thead>
+                        <th>SN</th>
+                        <th>Booking ID</th>
+                        <th>Shipped Part Type</th>
+                        <th>Pending Age</th>
+                      </thead>
+                      <tbody id="defective-model">
+                          
+                      </tbody>
+                  </table>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              </div>
+            </div>
+      </div>
+        
+    </div>
+<!-- end Invoice Defective Part Pending Booking with Age Moda -->
+
 <?php
 if(isset($_SESSION['file_error'])){
     unset($_SESSION['file_error']);
@@ -399,5 +426,39 @@ if(isset($_SESSION['file_error'])){
 //        });
 
         });
+</script>
+<script>
+function get_defective_spare_count(vendor_id){
+    
+    $.ajax({
+        type:"POST",
+        beforeSend: function(){
+
+                    $('body').loadingModal({
+                    position: 'auto',
+                    text: 'Loading Please Wait...',
+                    color: '#fff',
+                    opacity: '0.7',
+                    backgroundColor: 'rgb(0,0,0)',
+                    animation: 'wave'
+                });
+
+        },
+        url: "<?php echo base_url(); ?>employee/invoice/get_pending_defective_parts_list/" + vendor_id,
+        success:function(response){
+            console.log(response);
+            if(response === "DATA NOT FOUND"){
+                $('body').loadingModal('destroy');
+                alert("DATA NOT FOUND");
+            } else {
+               $("#defective-model").html(response);   
+               $('#defective_part_pending_booking_age').modal('toggle'); 
+               $('body').loadingModal('destroy');
+            }
+            
+        }
+    });
+    
+}
 </script>
 
