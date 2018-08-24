@@ -330,9 +330,9 @@ class Inventory_model extends CI_Model {
         $this->db->select($post['select'].", DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request,"
                 . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(estimate_cost_given_date, '%Y-%m-%d')) AS age_of_est_given", FALSE);
 
-        $this->db->join('booking_details','spare_parts_details.booking_id = booking_details.booking_id');
+        $this->db->join('booking_details','spare_parts_details.booking_id = booking_details.booking_id', "left");
         $this->db->join('partners','partners.id = spare_parts_details.partner_id', "left");
-        $this->db->join('users','users.user_id = booking_details.user_id');
+        $this->db->join('users','users.user_id = booking_details.user_id', "left");
         if (!empty($post['where'])) {
             $this->db->where($post['where'], FALSE);
         }
@@ -1158,7 +1158,7 @@ class Inventory_model extends CI_Model {
                 CASE WHEN(sc1.name IS NOT NULL) THEN (sc1.name) 
                 WHEN(p1.public_name IS NOT NULL) THEN (p1.public_name) 
                 WHEN (e1.full_name IS NOT NULL) THEN (e1.full_name) END as sender,i.booking_id,i.invoice_id,invoice_details.description,
-                invoice_details.hsn_code,invoice_details.qty,invoice_details.rate as basic_price,invoice_details.toal_amount as total_amount,
+                invoice_details.hsn_code,invoice_details.qty,invoice_details.rate as basic_price,invoice_details.total_amount as total_amount,
                 invoice_details.igst_tax_rate as gst_rate,i.create_date
                 FROM `inventory_ledger` as i LEFT JOIN service_centres as sc on (sc.id = i.`receiver_entity_id` AND i.`receiver_entity_type` = 'vendor') Left JOIN partners as p on (p.id = i.`receiver_entity_id` AND i.`receiver_entity_type` = 'partner') LEFT JOIN employee as e ON (e.id = i.`receiver_entity_id` AND i.`receiver_entity_type` = 'employee')  
                 LEFT JOIN service_centres as sc1 on (sc1.id = i.`sender_entity_id` AND i.`sender_entity_type` = 'vendor') 

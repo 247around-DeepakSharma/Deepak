@@ -675,14 +675,18 @@ class invoices_model extends CI_Model {
 
         if (!empty($final_courier)) {
             $c_data = array();
-            $c_data[0]['description'] = 'Courier Charges';
-            $c_data[0]['hsn_code'] = '';
-            $c_data[0]['qty'] = '';
-            $c_data[0]['rate'] = '';
-            $c_data[0]['gst_rate'] = DEFAULT_TAX_RATE;
-            $c_data[0]['product_or_services'] = 'Courier';
-            $c_data[0]['taxable_value'] = (array_sum(array_column($final_courier, 'courier_charges_by_sf')));
-            $result['result'] = array_merge($result['result'], $c_data);
+            $courier_price = (array_sum(array_column($final_courier, 'courier_charges_by_sf')));
+            if($courier_price > 0){
+                $c_data[0]['description'] = 'Courier Charges';
+                $c_data[0]['hsn_code'] = '';
+                $c_data[0]['qty'] = '';
+                $c_data[0]['rate'] = '';
+                $c_data[0]['gst_rate'] = DEFAULT_TAX_RATE;
+                $c_data[0]['product_or_services'] = 'Courier';
+                $c_data[0]['taxable_value'] = $courier_price;
+                $result['result'] = array_merge($result['result'], $c_data);
+                
+            }
             $result['courier'] = $courier;
             $result['final_courier'] = $final_courier;
             $result['defective_part_by_wh'] = $defective_return_to_partner;
@@ -801,13 +805,13 @@ class invoices_model extends CI_Model {
                 if($is_customer && empty($result[0]['gst_number'])){
                   
                     $meta['total_taxable_value'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * ($value['gst_rate']/100))));
-                    $result[$key]['toal_amount'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * ($value['gst_rate']/100))));
+                    $result[$key]['total_amount'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * ($value['gst_rate']/100))));
                     
                     
                 } else if((empty($is_customer)) && empty($result[0]['gst_number'])){
                    
                     $meta['total_taxable_value'] = sprintf("%1\$.2f",($value['taxable_value']));
-                    $result[$key]['toal_amount'] = sprintf("%1\$.2f",($value['taxable_value']));
+                    $result[$key]['total_amount'] = sprintf("%1\$.2f",($value['taxable_value']));
                     $result[$key]['igst_rate'] =  $result[$key]['cgst_rate'] =  $result[$key]['sgst_rate'] = 0;
                     $result[$key]['cgst_tax_amount'] =   $result[$key]['sgst_tax_amount'] = $result[$key]['igst_tax_amount'] = 0;
                     
@@ -821,7 +825,7 @@ class invoices_model extends CI_Model {
                     $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = $value['gst_rate'];
                     $meta['total_taxable_value'] += $value['taxable_value'];
                     
-                    $result[$key]['toal_amount'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * ($value['gst_rate']/100))));
+                    $result[$key]['total_amount'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * ($value['gst_rate']/100))));
                    
                 } else {
                    
@@ -830,7 +834,7 @@ class invoices_model extends CI_Model {
                     $meta['igst_total_tax_amount'] +=  $result[$key]['igst_tax_amount'];
                     $meta['total_taxable_value'] += $value['taxable_value'];
                     
-                    $result[$key]['toal_amount'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * ($value['gst_rate']/100))));
+                    $result[$key]['total_amount'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * ($value['gst_rate']/100))));
                 }
                 
                 if(empty($value['qty'])){
@@ -847,7 +851,7 @@ class invoices_model extends CI_Model {
                 $meta['total_rate'] += $value['rate'];
                
                
-                $meta['sub_total_amount'] += $result[$key]['toal_amount'];
+                $meta['sub_total_amount'] += $result[$key]['total_amount'];
                 if($value['product_or_services'] == "Service"){
                     
                     $meta['total_ins_charge'] += $value['taxable_value'];
@@ -985,11 +989,11 @@ class invoices_model extends CI_Model {
                     $meta['igst_total_tax_amount'] += $result[$key]['igst_tax_amount'];
                 }
 
-                $result[$key]['toal_amount'] = sprintf("%.2f",$value['taxable_value'] + ($value['taxable_value'] * SERVICE_TAX_RATE));
+                $result[$key]['total_amount'] = sprintf("%.2f",$value['taxable_value'] + ($value['taxable_value'] * SERVICE_TAX_RATE));
                 $meta['total_qty'] += $value['qty'];
                 $meta['total_rate'] += $value['rate'];
                 $meta['total_taxable_value'] += $value['taxable_value'];
-                $meta['sub_total_amount'] += $result[$key]['toal_amount'];
+                $meta['sub_total_amount'] += $result[$key]['total_amount'];
             }
 
 
@@ -1327,7 +1331,7 @@ class invoices_model extends CI_Model {
                 if(empty($data['booking'][0]['gst_number'])){
                     
                     $meta['invoice_template'] = "SF_FOC_Bill_of_Supply-v1.xlsx";
-                    $data['booking'][$key]['toal_amount'] =sprintf("%1\$.2f",($value['taxable_value']));
+                    $data['booking'][$key]['total_amount'] =sprintf("%1\$.2f",($value['taxable_value']));
                     
                 } else if($c_s_gst){
                     $meta['invoice_template'] = "SF_FOC_Tax_Invoice-Intra_State-v1.xlsx";
@@ -1338,7 +1342,7 @@ class invoices_model extends CI_Model {
                     $meta['cgst_total_tax_amount'] +=  $data['booking'][$key]['cgst_tax_amount'];
                     $meta['sgst_total_tax_amount'] += $data['booking'][$key]['sgst_tax_amount'];
                     $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = 9;
-                    $data['booking'][$key]['toal_amount'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * 0.18)));
+                    $data['booking'][$key]['total_amount'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * 0.18)));
                     
                 } else {
                     $meta['invoice_template'] = "SF_FOC_Tax_Invoice_Inter_State_v1.xlsx";
@@ -1346,7 +1350,7 @@ class invoices_model extends CI_Model {
                     $data['booking'][$key]['igst_rate'] =  $meta['igst_tax_rate'] = DEFAULT_TAX_RATE;
                     $data['booking'][$key]['igst_tax_amount'] = sprintf("%1\$.2f",($value['taxable_value'] * 0.18));
                     $meta['igst_total_tax_amount'] +=  $data['booking'][$key]['igst_tax_amount'];
-                    $data['booking'][$key]['toal_amount'] = sprintf("%1\$.2f",( $value['taxable_value'] + ($value['taxable_value'] * 0.18)));
+                    $data['booking'][$key]['total_amount'] = sprintf("%1\$.2f",( $value['taxable_value'] + ($value['taxable_value'] * 0.18)));
                 }
                 if(empty($value['qty'])){
                     $value['qty'] = 0;
@@ -1362,7 +1366,7 @@ class invoices_model extends CI_Model {
                 
                 $meta['total_rate'] += $value['rate'];
                 $meta['total_taxable_value'] += $value['taxable_value'];
-                $meta['sub_total_amount'] +=  $data['booking'][$key]['toal_amount'];
+                $meta['sub_total_amount'] +=  $data['booking'][$key]['total_amount'];
                 
                 if($value['product_or_services'] == "Product"){
                     
@@ -1490,10 +1494,10 @@ class invoices_model extends CI_Model {
         for ($i = 0; $i < 2; $i++) {
             if ($i == 0) {
                 $select = "SUM(`around_comm_basic_charges` + `around_st_or_vat_basic_charges` "
-                        . "+ `around_comm_extra_charges` + `around_st_extra_charges` + `around_comm_parts`  + `around_st_parts`)  AS toal_amount, ";
+                        . "+ `around_comm_extra_charges` + `around_st_extra_charges` + `around_comm_parts`  + `around_st_parts`)  AS total_amount, ";
                 $where = " AND ( ( ud.vendor_to_around > 0 AND ud.around_to_vendor =0 ) OR (ud.vendor_to_around = 0 AND ud.around_to_vendor =0 ) )  ";
             } else {
-                $select = "SUM(`around_comm_extra_charges` + `around_st_extra_charges` + `around_comm_parts`  + `around_st_parts`) As toal_amount,";
+                $select = "SUM(`around_comm_extra_charges` + `around_st_extra_charges` + `around_comm_parts`  + `around_st_parts`) As total_amount,";
                 $where = " AND  around_to_vendor > 0  AND vendor_to_around = 0 AND (ud.customer_paid_extra_charges > 0 OR ud.customer_paid_parts > 0) ";
             }
             $is_foc_null = "";
@@ -1523,11 +1527,11 @@ class invoices_model extends CI_Model {
         }
         $data = array();
         
-        if (!empty($result[0][0]['toal_amount']) && !empty($result[1][0]['toal_amount'])) {
+        if (!empty($result[0][0]['total_amount']) && !empty($result[1][0]['total_amount'])) {
             $data = array_merge($result[0], $result[1]);
-        } else if (!empty($result[0][0]['toal_amount']) && empty($result[1][0]['toal_amount'])) {
+        } else if (!empty($result[0][0]['total_amount']) && empty($result[1][0]['total_amount'])) {
             $data = $result[0];
-        } else if (empty($result[0][0]['toal_amount']) && !empty($result[1][0]['toal_amount'])) {
+        } else if (empty($result[0][0]['total_amount']) && !empty($result[1][0]['total_amount'])) {
             $data = $result[1];
         }
 
@@ -1549,22 +1553,22 @@ class invoices_model extends CI_Model {
             $commission_charge = array();
             $meta = $data[0];
             $commission_charge[0]['description'] = "Commission Charge";
-            $total_amount_invoice = (array_sum(array_column($data, 'toal_amount')));
+            $total_amount_invoice = (array_sum(array_column($data, 'total_amount')));
             if ($total_amount_invoice > 0) {
-                $commission_charge[0]['toal_amount'] = $total_amount_invoice;
+                $commission_charge[0]['total_amount'] = $total_amount_invoice;
 
                 $meta['upcountry_charge'] = $meta['upcountry_booking'] = $meta['upcountry_distance'] = $meta['total_sgst_tax_amount'] = $meta['total_cgst_tax_amount'] = $meta['total_igst_tax_amount'] = $meta['igst_tax_rate'] = $meta['sgst_tax_rate'] = $meta['sgst_tax_rate'] = 0;
                 $from_date_tmp = date('Y-m-d', strtotime('-1 months', strtotime($from_date)));
                 $upcountry_data = $this->upcountry_model->upcountry_cash_invoice($vendor_id, $from_date_tmp, $to_date, $is_regenerate);
                 if (!empty($upcountry_data)) {
-                    $commission_charge[0]['toal_amount'] += $upcountry_data[0]['total_upcountry_price'];
+                    $commission_charge[0]['total_amount'] += $upcountry_data[0]['total_upcountry_price'];
                     $meta['upcountry_charge'] = $upcountry_data[0]['total_upcountry_price'];
                     $meta['upcountry_booking'] = $upcountry_data[0]['total_booking'];
                     $meta['upcountry_distance'] = $upcountry_data[0]['total_distance'];
                 }
 
-                $tax_charge = $this->booking_model->get_calculated_tax_charge($commission_charge[0]['toal_amount'], DEFAULT_TAX_RATE);
-                $commission_charge[0]['taxable_value'] = sprintf("%.2f",$commission_charge[0]['toal_amount'] - $tax_charge);
+                $tax_charge = $this->booking_model->get_calculated_tax_charge($commission_charge[0]['total_amount'], DEFAULT_TAX_RATE);
+                $commission_charge[0]['taxable_value'] = sprintf("%.2f",$commission_charge[0]['total_amount'] - $tax_charge);
                 $c_s_gst = $this->check_gst_tax_type($meta['state']);
                 $meta['cgst_tax_rate'] = $meta['sgst_tax_rate'] = $meta['cgst_total_tax_amount'] = $meta['sgst_total_tax_amount'] = $meta['total_igst_tax_amount'] = $meta['igst_tax_rate'] = $meta['igst_total_tax_amount'] = 0;
                 if ($c_s_gst) {
@@ -1584,7 +1588,7 @@ class invoices_model extends CI_Model {
                 $meta['total_qty'] = $meta['total_rate'] = $commission_charge[0]['qty'] = $commission_charge[0]['rate'] = "";
                 $commission_charge[0]['hsn_code'] = COMMISION_CHARGE_HSN_CODE;
                 $meta['total_taxable_value'] = $commission_charge[0]['taxable_value'];
-                $meta['sub_total_amount'] = sprintf("%.2f",$commission_charge[0]['toal_amount']);
+                $meta['sub_total_amount'] = sprintf("%.2f",$commission_charge[0]['total_amount']);
 
                 $meta['price_inword'] = convert_number_to_words(round($meta['sub_total_amount'],0));
                 $meta['sd'] = date("jS M, Y", strtotime($from_date));

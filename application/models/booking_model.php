@@ -701,7 +701,7 @@ class Booking_model extends CI_Model {
         $service_centre = "";
         $condition ="";
         $service_center_name ="";
-        $partner = "";
+        $partner = "";  
         $partner_name = "";
         if($join !=""){
             $service_center_name = ",service_centres.name as vendor_name, service_centres.min_upcountry_distance, service_centres.district as sc_district,service_centres.address, service_centres.state as sf_state, service_centres.pincode, service_centres.district as sf_district,"
@@ -1313,14 +1313,29 @@ class Booking_model extends CI_Model {
      * @param: void
      * @return: Array of charges
      */
-    function get_booking_for_review($booking_id,$whereIN=array()) {
-        $charges = $this->service_centers_model->getcharges_filled_by_service_center($booking_id,$whereIN);
+    function get_booking_for_review($booking_id,$whereIN=array(),$where = NULL) {
+        $charges = $this->service_centers_model->getcharges_filled_by_service_center($booking_id,$whereIN,$where);
         foreach ($charges as $key => $value) {
            // $charges[$key]['service_centres'] = $this->vendor_model->getVendor($value['booking_id']);
             $charges[$key]['booking'] = $this->getbooking_history($value['booking_id'], "join");
-            
         }
         return $charges;
+    }
+    
+    
+    function get_partner_review_booking($where,$booking_id = NULL){
+         $bookingSubQuery = "";
+        if ($booking_id != "") {
+            $bookingSubQuery = " AND service_center_booking_action.booking_id ='".$booking_id."'";
+        }
+        if($where){
+            $whereString = implode(' OR ',$where);
+        }
+        $sql = "SELECT DISTINCT service_center_booking_action.booking_id "
+                . "FROM service_center_booking_action JOIN booking_details ON booking_details.booking_id = service_center_booking_action.booking_id "
+                . "WHERE (".$whereString.")".$bookingSubQuery. " AND service_center_booking_action.current_status = 'InProcess'";
+        $query = $this->db->query($sql);
+        return $query->result_array();
     }
 
     /**
@@ -2456,5 +2471,10 @@ class Booking_model extends CI_Model {
                 . "WHERE booking_details.booking_id = '".$booking_id."' order by booking_details.booking_id";
         $query = $this->db->query($sql);
         return $query->result_array();
+    }
+    function mark_booking_in_process($bookingArray){
+       $this->db->where_in("booking_id",$bookingArray);
+       $this->db->update("booking_details",array("is_in_process"=>1));
+       return $this->db->affected_rows();
     }
 }

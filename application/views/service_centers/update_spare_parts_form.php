@@ -104,12 +104,10 @@
                 <div class="x_panel">
                     <div class="x_title">
                         <h3>Spare Part Details <button type="button" class="btn btn-primary pull-right addButton">Ship More Parts</button></h3>
-                        
                         <hr>
-                        
                         <div class="clearfix"></div>
                     </div>
-                    <input type="hidden" name="request_type" value="<?php echo $spare_parts[0]->request_type?>"/>
+                    <input type="hidden" name="request_type" value="<?php echo $spare_parts[0]->request_type;?>"/>
                     <input type="hidden" class="form-control" name="booking_id" value = "<?php echo $spare_parts[0]->booking_id; ?>">
                     <?php foreach ($spare_parts as $skey => $sp) { ?>
                     <p style="font-weight:bold; margin-bottom: 15px;"><?php if($sp->inventory_invoice_on_booking == 1){ echo 'Invoice on Booking';} else { echo "Invoice on MSL";} ?></p>
@@ -152,7 +150,6 @@
                                                 <option value="<?php echo $value['id']; ?>" <?php if($value['model_number'] == $sp->model_number){ echo "selected";} ?>><?php echo $value['model_number']; ?></option>
                                                 <?php } ?>
                                             </select>
-                                           
                                             <input type="hidden" id="<?php echo "shippedmodelnumber_".$skey; ?>" name="part[<?php echo $skey;?>][shipped_model_number]">
                                             <input type="hidden" name="part[<?php echo $skey;?>][requested_inventory_id]" id="<?php echo "requested_inventory_id_".$skey; ?>" value="<?php echo $sp->requested_inventory_id; ;?>">
                                             <?php echo form_error('shipped_model_number'); ?>
@@ -165,7 +162,6 @@
                                         <label for="shipped_parts_name" class="col-md-4">Shipped Parts *</label>
                                         <div class="col-md-6">
                                             <select class="form-control spare_parts shipped_parts_name" onchange="change_parts_name('<?php echo $skey;?>')" id="<?php echo "shippedpartsname_".$skey;?>" name="part[<?php echo $skey; ?>][shipped_parts_name]">
-                                                
                                                 <!--                                        <option selected disabled >Select Parts Name</option>-->
                                             </select>
                                             <span id="<?php echo "spinner_". $skey;?>" style="display:none"></span>
@@ -213,88 +209,74 @@
                                 </div>
                             </div>
                         </div>
-                         <input type="hidden" name="part[<?php echo $skey;?>][approx_value]" id="<?php echo "approx_value_".$skey;?>" value="">
-                         <input type="hidden" name="part[<?php echo $skey; ?>][inventory_id]" id="<?php echo "inventory_id_".$skey; ?>">
-                         <input type="hidden" name="part[<?php echo $skey; ?>][spare_id]" value="<?php echo $sp->id;?>" id="<?php echo "spare_id_".$skey; ?>">
+                        <input type="hidden" name="part[<?php echo $skey;?>][approx_value]" id="<?php echo "approx_value_".$skey;?>" value="">
+                        <input type="hidden" name="part[<?php echo $skey; ?>][inventory_id]" id="<?php echo "inventory_id_".$skey; ?>">
+                        <input type="hidden" name="part[<?php echo $skey; ?>][spare_id]" value="<?php echo $sp->id;?>" id="<?php echo "spare_id_".$skey; ?>">
                     </div>
-                   
                     <?php } ?>
                     <div id="template" class="hide">
-                    <div class="panel panel-default spare_clone" >
-                        <div class="panel-body" >
-                            <div class="x_content">
-                                <div class="col-md-3">
-                                    <div class="form-group">
-                                        <label class="radio-inline col-md-6" style="font-weight:bold">
+                        <div class="panel panel-default spare_clone" >
+                            <div class="panel-body" >
+                                <div class="x_content">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="radio-inline col-md-6" style="font-weight:bold">
                                             <input type="radio" id='shipping_status_1'  value="1" checked>Shipping
-                                        </label>
+                                            </label>
+                                        </div>
+                                        
                                     </div>
-                                    <div class="form-group">
-                                        <label class="radio-inline col-md-6" style="font-weight:bold">
-                                        <input type="radio" id='shipping_status_2'  value="0">Not Shipping
-                                        </label>
-                                    </div>
-                                    
-                                </div>
-                                <div class="col-md-5">
-                                    
-                                    <div class="form-group ">
-                                        <label for="shipped_model_number" class="col-md-4">Shipped Model Number *</label>
-                                        <div class="col-md-6">
-                                            <select class="form-control spare_parts"  id="shippedmodelnumberid" >
-                                                <option value="" disabled="" selected="">Select Model Number</option>
-                                                <?php foreach ($inventory_details as $key => $value) { ?> 
-                                                <option value="<?php echo $value['id']; ?>" ><?php echo $value['model_number']; ?></option>
-                                                <?php } ?>
-                                            </select>
-                                            <input type="hidden" id="requestedParts" >
-                                            <input type="hidden" id="requestedPartsType" >
-                                            <input type="hidden" id="shippedmodelnumber" >
-                                            <input type="hidden" id="requested_inventory_id" >
-                                            
+                                    <div class="col-md-5">
+                                        <div class="form-group ">
+                                            <label for="shipped_model_number" class="col-md-4">Shipped Model Number *</label>
+                                            <div class="col-md-6">
+                                                <select class="form-control spare_parts"  id="shippedmodelnumberid" >
+                                                    <option value="" disabled="" selected="">Select Model Number</option>
+                                                    <?php foreach ($inventory_details as $key => $value) { ?> 
+                                                    <option value="<?php echo $value['id']; ?>" ><?php echo $value['model_number']; ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                                <input type="hidden" id="requestedParts" >
+                                                <input type="hidden" id="requestedPartsType" >
+                                                <input type="hidden" id="shippedmodelnumber" >
+                                                <input type="hidden" id="requested_inventory_id" >
+                                            </div>
+                                        </div>
+                                        <div class="form-group ">
+                                            <label for="shipped_parts_name" class="col-md-4">Shipped Parts *</label>
+                                            <div class="col-md-6">
+                                                <select class="form-control spare_parts "  id="shippedpartsname" >
+                                                </select>
+                                                <span id="spinner" style="display:none"></span>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="form-group ">
-                                        <label for="shipped_parts_name" class="col-md-4">Shipped Parts *</label>
-                                        <div class="col-md-6">
-                                            <select class="form-control spare_parts "  id="shippedpartsname" >
-
-                                               
-                                            </select>
-                                            <span id="spinner" style="display:none"></span>
-                             
+                                    <div class="col-md-5">
+                                        <div class="form-group ">
+                                            <label for="shipped_part_type" class="col-md-4">Shipped Part Type *</label>
+                                            <div class="col-md-6">
+                                                <select  class="form-control spare_parts" id="shippedparttype" >
+                                                    <option selected disabled>Select Part Type</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <button type="button" class="btn btn-default pull-right removeButton"><i class="fa fa-minus"></i></button>
+                                            </div>
                                         </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-5">
-                                    
-                                    <div class="form-group ">
-                                        <label for="shipped_part_type" class="col-md-4">Shipped Part Type *</label>
-                                        <div class="col-md-6">
-                                            <select  class="form-control spare_parts" id="shippedparttype" >
-                                                <option selected disabled>Select Part Type</option>
-                                            </select>
-                                           
-                                        </div>
-                                        <div class="col-md-2">
-                                            <button type="button" class="btn btn-default pull-right removeButton"><i class="fa fa-minus"></i></button>
-                                        </div>
-                                    </div>
-                                    <div class="form-group ">
-                                        <label for="remarks_by_partner" class="col-md-4">Remarks *</label>
-                                        <div class="col-md-6">
-                                            <textarea class="form-control" id="remarks"  placeholder="Please Enter Remarks"  required></textarea>
-                                
+                                        <div class="form-group ">
+                                            <label for="remarks_by_partner" class="col-md-4">Remarks *</label>
+                                            <div class="col-md-6">
+                                                <textarea class="form-control" id="remarks"  placeholder="Please Enter Remarks"  required></textarea>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                            <input type="hidden" id="approx_value" value="">
+                            <input type="hidden" id="inventory_id">
+                            <input type="hidden"  value="new" id="spare_id">
                         </div>
-                         <input type="hidden" id="approx_value" value="">
-                        <input type="hidden" id="inventory_id">
-                        <input type="hidden"  value="new" id="spare_id">
                     </div>
-                </div>
                 </div>
             </div>
             <div class="col-md-12 col-sm12 col-xs-12">
@@ -337,7 +319,7 @@
                                 if (form_error('courier_name')) {echo 'has-error';} ?>">
                                 <label for="courier" class="col-md-4">Courier Name *</label>
                                 <div class="col-md-6">
-<!--                                    <input type="text" class="form-control" id="courier_name" name="courier_name" value = "" placeholder="Please Enter courier Name"  required>-->
+                                    <!--                                    <input type="text" class="form-control" id="courier_name" name="courier_name" value = "" placeholder="Please Enter courier Name"  required>-->
                                     <select class="form-control" id="courier_name" name="courier_name" required>
                                         <option selected="" disabled="" value="">Select Courier Name</option>
                                         <?php foreach ($courier_details as $value) { ?> 
@@ -434,7 +416,7 @@
     
     })(jQuery, window, document);
     
-
+    
     $('.shipped_model_number_id').select2();
     $('.shipped_parts_name').select2({
         placeholder:'Select Part Name',
@@ -450,7 +432,7 @@
         var model_number_id = $('#shippedmodelnumberid_' + sp_id).val();
         var model_number = $("#shippedmodelnumberid_" + sp_id+" option:selected").text();
         $('#spinner_'+sp_id).addClass('fa fa-spinner').show();
-
+    
         if(model_number){
             $('#shippedmodelnumber_' + sp_id).val(model_number);
             $.ajax({
@@ -470,7 +452,7 @@
                     if(request_part_type){
                         $('#shippedparttype_' +sp_id).val(request_part_type).change(); 
                     }
-
+    
                 }
             });
         }else{
@@ -544,12 +526,11 @@
             // Update the name attributes 
             $clone
                 .find('[id="shipping_status_1"]').attr('name', 'part[' + partIndex + '][shippingStatus]').attr('id','shippingStatus_'+partIndex).attr("required", true).end()
-                .find('[id="shipping_status_2"]').attr('name', 'part[' + partIndex + '][shippingStatus]').attr('id','shippingStatus_'+partIndex).attr("required", true).end()
                 .find('[id="shippedmodelnumberid"]').attr('name', 'part[' + partIndex + '][shipped_model_number_id]').attr("onchange", "change_shipped_model('"+partIndex+"')").attr('id','shippedmodelnumberid_'+partIndex).select2({placeholder:'Select Model Number'}).end()
                 .find('[id="requested_inventory_id"]').attr('name', 'part[' + partIndex + '][requested_inventory_id]').attr('id','requested_inventory_id_'+partIndex).end()
                 .find('[id="shippedmodelnumber"]').attr('name', 'part[' + partIndex + '][shipped_model_number]').attr('id','shippedmodelnumber_'+partIndex).end()
-                .find('[id="shippedpartsname"]').attr('name', 'part[' + partIndex + '][parts_name]').attr("onchange", "change_parts_name('"+partIndex+"')").attr('id','shippedpartsname_'+partIndex).attr("required", true).select2({placeholder:'Select Part Name'}).end()
-                .find('[id="shippedparttype"]').attr('name', 'part[' + partIndex + '][parts_type]').attr("onchange", "change_shipped_part_type('"+partIndex+"')").attr('id','shippedparttype_'+partIndex).attr("required", true).select2({placeholder:'Select Part Type'}).end()
+                .find('[id="shippedpartsname"]').attr('name', 'part[' + partIndex + '][shipped_parts_name]').attr("onchange", "change_parts_name('"+partIndex+"')").attr('id','shippedpartsname_'+partIndex).attr("required", true).select2({placeholder:'Select Part Name'}).end()
+                .find('[id="shippedparttype"]').attr('name', 'part[' + partIndex + '][shipped_part_type]').attr("onchange", "change_shipped_part_type('"+partIndex+"')").attr('id','shippedparttype_'+partIndex).attr("required", true).select2({placeholder:'Select Part Type'}).end()
                 .find('[id="remarks"]').attr('name', 'part[' + partIndex + '][remarks_by_partner]').attr('id','remarks_'+partIndex).end()
                 .find('[id="approx_value"]').attr('name', 'part[' + partIndex + '][approx_value]').attr('id','approx_value_'+partIndex).end()
                 .find('[id="inventory_id"]').attr('name', 'part[' + partIndex + '][inventory_id]').attr('id','inventory_id_'+partIndex).end()
@@ -571,7 +552,7 @@
                     $.ajax({
                     type: 'POST',
                     beforeSend: function(){
-
+    
                         $('body').loadingModal({
                         position: 'auto',
                         text: 'Loading Please Wait...',
@@ -580,7 +561,7 @@
                         backgroundColor: 'rgb(0,0,0)',
                         animation: 'wave'
                     });
-
+    
                         },
                     url: '<?php echo base_url() ?>employee/service_centers/check_warehouse_shipped_awb_exist',
                     data:{awb:awb},
@@ -599,16 +580,16 @@
                                 $("#exist_courier_image").val(data.message[0].courier_pic_by_partner);
                                 $("#courier_image").css("display","none");
                             }
-
+    
                         } else {
-
+    
                             $('body').loadingModal('destroy');
                             $("#courier_image").css("display","block");
                             $("#courier_price_by_partner").css("display","block");
                             $("#same_awb").css("display","none");
                             $("#exist_courier_image").val("");
                         }
-
+    
                     }
                 });
             }
@@ -620,7 +601,6 @@
         
     
 </script>
-
 <?php foreach($spare_parts as $ssKey => $sp) { if(!empty($sp->requested_inventory_id)) { ?><script> change_shipped_model('<?php echo $ssKey; ?>'); </script> <?php } } ?>
 <?php if ($this->session->userdata('success')) {$this->session->unset_userdata('success');} ?>
 <?php if ($this->session->userdata('error')) {$this->session->unset_userdata('error');} ?>
