@@ -1847,6 +1847,9 @@ class Miscelleneous {
      */
 
     function update_insert_bank_account_details($bankDetailsArray) {
+        if(!$bankDetailsArray['cancelled_cheque_file']){
+            unset($bankDetailsArray['cancelled_cheque_file']);
+        }
         if($bankDetailsArray['entity_id']){
             $where['entity_id'] = $bankDetailsArray['entity_id'];
             $where['entity_type'] = $bankDetailsArray['entity_type'];
