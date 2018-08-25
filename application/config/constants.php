@@ -583,7 +583,7 @@ define("INVOCIE_TAG_FOR_INVENTORY", "inventory");
 //Define Constant for Partner Appliance model
 define('PARTNER_APPLIANCE_MODEL_FILe','Appliance-model');
 
-define("PARTNER_CALL_CENTER_USER_GROUP", "callcenter");
+define("PARTNER_CALL_CENTER_USER_GROUP", "Call Center");
 
 //Define Constant for Partner BOM file upload
 define('PARTNER_BOM_FILE','Partner-BOM');
@@ -592,7 +592,7 @@ define('PARTNER_BOM_FILE','Partner-BOM');
 define('PARTNER_SERIAL_NUMBER_FILE_TYPE','partner_serial_number');
 
 //warehouse incharge constant
-define('WAREHOUSE_INCHARCGE_CONSTANT','wh_incharge');
+define('WAREHOUSE_INCHARCGE_CONSTANT','Warehouse Incharge');    
 define('NEW_CHARGES_ADDED','New Charges Added');
 define('MISC_CHARGES_REMOVED','Miscellaneous Charges Removed');
 //Partner Login
