@@ -227,14 +227,15 @@
                            <?php $count++; } ?>
                         </tbody>
                      </table>
-                     <?php if(!empty($charges)){?>
+                    <?php if(!empty($charges)){?>
                      <div class="col-md-12">
                         <center><input type="submit" value="Approve Bookings"  style=" background-color: #2C9D9C;
-                           border-color: #2C9D9C;"  class="btn btn-md btn-success" onclick="check_limit_booking()"/></center>
+                           border-color: #2C9D9C;"  class="btn btn-md btn-success" /></center>
                      </div>
+                                     </div>
                      <?php } ?>
-                       </div>
                </form>
+               
          </div>
       </div>
    </div>
