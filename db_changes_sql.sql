@@ -8030,3 +8030,40 @@ ALTER TABLE `booking_details` ADD `is_in_process` INT(1) NOT NULL DEFAULT '0' AF
 --Chhavi
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'we_get_bad_rating', 'Bad Feedback From Customer, Rating ( %s ) For %s', 'Please take action as Customer is Not Satisfied with our Service.<br>\r\nSF: %s <br>\r\nCustomer remarks : %s <br>\r\nRequest Type : %s <br>\r\nAppliance : %s <br>', 'noreply@247around.com', 'anuj@247around.com', '', '', '1', '2018-08-24 15:30:00');
 
+UPDATE `entity_role` SET `role` = 'primary Contact' WHERE `entity_role`.`id` = 1;
+UPDATE `entity_role` SET `role` = 'Area Sales Manager' WHERE `entity_role`.`id` = 2;
+UPDATE `entity_role` SET `role` = 'Warehouse Incharge' WHERE `entity_role`.`id` = 3;
+UPDATE `entity_role` SET `role` = 'Warehouse Incharge' WHERE `entity_role`.`id` = 4;
+UPDATE `entity_role` SET `role` = 'Call Center' WHERE `entity_role`.`id` = 5;
+UPDATE `entity_role` SET `role` = 'Booking Manager' WHERE `entity_role`.`id` = 6;
+UPDATE `entity_role` SET `department` = 'Warehouse' WHERE `entity_role`.`id` = 3;
+UPDATE `entity_role` SET `department` = 'Warehouse' WHERE `entity_role`.`id` = 4;
+
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Owner' WHERE id =  '127';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Owner' WHERE id =  '128';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Owner' WHERE id =  '129';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Owner' WHERE id =  '130';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Owner' WHERE id =  '131';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Owner' WHERE id =  '132';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Owner' WHERE id =  '133';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Owner' WHERE id =  '134';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Owner' WHERE id =  '135';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Owner' WHERE id =  '136';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Owner' WHERE id =  '137';
+UPDATE header_navigation SET groups = 'Primary Contact,Owner' WHERE id =  '138';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Owner' WHERE id =  '139';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Owner' WHERE id =  '140';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Owner' WHERE id =  '141';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Owner' WHERE id =  '142';
+UPDATE header_navigation SET groups = 'Primary Contact,Owner' WHERE id =  '143';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Owner' WHERE id =  '144';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Call Center,Warehouse Incharge,Owner' WHERE id =  '145';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Call Center,Warehouse Incharge,Owner' WHERE id =  '146';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Call Center,Owner' WHERE id =  '147';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Owner' WHERE id =  '148';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Owner' WHERE id =  '149';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Owner' WHERE id =  '150';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Owner' WHERE id =  '151';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Owner' WHERE id =  '152';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Owner' WHERE id =  '153';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Owner' WHERE id =  '161';

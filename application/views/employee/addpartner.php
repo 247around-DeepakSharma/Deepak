@@ -1542,7 +1542,8 @@
                                         </div> 
                                         <div class="form-group ">
                                             <input type="hidden" value="" id="states_value_holder_1" name="states_value_holder[]">
-                                            <label for="service_name" class="col-md-4">States </label>
+                                            <label for="service_name" class="col-md-4">States <button type="button"class="btn btn-default" style="margin-bottom: 10px;padding: 1px 4px;margin-top: 0px;font-size: 8px;margin-left: 5px;background: #f7a35c;
+    color: #fff;border: none;" data-toggle="tooltip"data-placement="right"title="Applicable only for roles, where state filter is required eg - Area Sales Manager">?</button> </label>
                                             <div class="col-md-6">
                                                 <div class="filter_holder" id="filter_holder_1">
                                                     <select multiple="" class=" form-control contact_person_states" name ="contact_person_states[0][]" id="contact_person_states_1" disabled="">

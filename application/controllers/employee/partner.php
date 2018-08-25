@@ -4714,7 +4714,7 @@ class Partner extends CI_Controller {
     }
     
     function get_partner_roles($department){
-       $data =  $this->reusable_model->get_search_result_data("entity_role","role,id",array('department'=>$department),NULL,NULL,array('role'=>"ASC"),NULL,NULL,array());
+       $data =  $this->reusable_model->get_search_result_data("entity_role","role,id",array('department'=>$department,"entity_type"=>"partner"),NULL,NULL,array('role'=>"ASC"),NULL,NULL,array());
        $option = "<option value='' disabled selected>Select Role</option>";
        foreach($data as $roles){
            $option = $option."<option value = '".$roles['id']."'>".$roles['role']."</option>";
