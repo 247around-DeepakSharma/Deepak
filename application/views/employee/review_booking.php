@@ -232,10 +232,10 @@
                         <center><input type="submit" value="Approve Bookings"  style=" background-color: #2C9D9C;
                            border-color: #2C9D9C;"  class="btn btn-md btn-success" /></center>
                      </div>
+                                     </div>
                      <?php } ?>
                </form>
                
-               </div>
          </div>
       </div>
    </div>

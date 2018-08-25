@@ -2886,7 +2886,7 @@ function generate_image($base64, $image_name,$directory){
             $subject = vsprintf($template[4], array($rating,$bookingID));
             $message = vsprintf($template[0], array($bookingData[0]['name'],$bookingData[0]['rating_comments'],$bookingData[0]['request_type'],$bookingData[0]['services']));
             $to = $template[1];  
-                $cc = $bookingData[0]['official_email'].",".$amEmail[0]['official_email'].",".$this->My_CI->session->userdata("official_email");
+            $cc = $bookingData[0]['official_email'].",".$amEmail[0]['official_email'].",".$this->My_CI->session->userdata("official_email");
             $from = $template[2];
             $this->My_CI->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "","we_get_bad_rating");
             log_message('info', __FUNCTION__ . " END  ".$bookingID.$number);
@@ -3316,6 +3316,7 @@ function generate_image($base64, $image_name,$directory){
         $data['leg_1'] = $this->get_tat_with_considration_of_non_working_day($bookingData[0]['non_working_days'],$bookingData[0]['initial_booking_date'],date("Y-m-d"));
         $data['applicable_on_partner'] = $this->is_booking_valid_for_partner_panelty($bookingData[0]['request_type']);
         $data['applicable_on_sf'] = 1;
+        $tatArray['is_upcountry'] =  $bookingData[0]['is_upcountry'];
         $data['is_leg_1_faulty_for_partner'] = $this->is_booking_faulty($spare_id,$bookingData[0]['is_upcountry'],"leg_1",$data['leg_1'],"Partner");
         $data['is_leg_1_faulty_for_vendor'] = $this->is_booking_faulty($spare_id,$bookingData[0]['is_upcountry'],"leg_1",$data['leg_1'],"Vendor");
         $data['partner_id'] = $bookingData[0]['partner_id'];
