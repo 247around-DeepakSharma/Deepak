@@ -212,6 +212,10 @@ define('INTERNALTYPE', "INTERNAL");
 define('ECOMMERCETYPE', "ECOMMERCE");
 //Define New SF Creation
 define('NEW_SF_ADDED','New SF Added');
+define('NEW_SF_DOCUMENTS','New SF Documents Added');
+define('NEW_SF_BRANDS','New SF Brands Added');
+define('NEW_SF_CONTACTS','New SF Contacts Added');
+define('NEW_SF_BANK_DETAILS','New SF Bank Details Added');
 //Define Edit SF State
 define('SF_UPDATED','SF Updated');
 //Define New Partner Creation
