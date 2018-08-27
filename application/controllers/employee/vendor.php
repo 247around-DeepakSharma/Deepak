@@ -70,342 +70,23 @@ class vendor extends CI_Controller {
         $rm = $this->input->post('rm');
         //Now unset value of rm from POST data
         unset($_POST['rm']);
-        
         $data = $this->input->post();
-        if(!empty($data['id'])){
-            $vendor = $this->vendor_model->getVendorContact($data['id']);
-        }
         $checkValidation = $this->checkValidation();
+                                             
         if ($checkValidation) {
-            //Start  Processing PAN File Upload
-            if (($_FILES['pan_file']['error'] != 4) && !empty($_FILES['pan_file']['tmp_name'])) {
-                //Adding file validation
-                $checkfilevalidation = $this->file_input_validation('pan_file');
-                if ($checkfilevalidation) {
-                    //Cross-check if Non Availiable is checked along with file upload
-                    if (isset($data['is_pan_doc'])) {
-                        unset($_POST['is_pan_doc']);
-                    }
-                    //Making process for file upload
-                    $tmpFile = $_FILES['pan_file']['tmp_name'];
-                    $pan_file = preg_replace('/\s+/', '', $this->input->post('name')) . '_panfile_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['pan_file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER.$pan_file);
-
-                    //Upload files to AWS
-                    $bucket = BITBUCKET_DIRECTORY;
-                    $directory_xls = "vendor-partner-docs/" . $pan_file;
-                    $this->s3->putObjectFile(TMP_FOLDER.$pan_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                    $_POST['pan_file'] = $pan_file;
-                    
-                    $attachment_pan = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$pan_file;
-                    
-                    //Logging success for file uppload
-                    //log_message('info',__CLASS__.' PAN FILE is being uploaded sucessfully.');
-                } else {
-                    //Redirect back to Form
-
-                    if (!empty($_POST['id'])) {
-                        $this->editvendor($data['id']);
-                    } else {
-                        $this->add_vendor();
-                    }
-                    return FALSE;
-                }
-            }
-            if (($_FILES['gst_file']['error'] != 4) && !empty($_FILES['gst_file']['tmp_name'])) {
-                $attachment_gst = $this->upload_gst_file($data);
-                if($attachment_gst){} else {
-                    return FALSE;
-                }
-            }
-            
-            if (($_FILES['signature_file']['error'] != 4) && !empty($_FILES['signature_file']['tmp_name'])) {
-                $attachment_signature = $this->upload_signature_file($data);
-                if($attachment_signature){} else {
-                    return FALSE;
-                }
-            }
-           
-            //Start Processing CST File Upload
-//            if (($_FILES['cst_file']['error'] != 4) && !empty($_FILES['cst_file']['tmp_name'])) {
-//                //Adding file validation
-//                $checkfilevalidation = $this->file_input_validation('cst_file');
-//                if ($checkfilevalidation) {
-//                    //Cross-check if Non Availiable is checked along with file upload
-//                    if (isset($data['is_cst_doc'])) {
-//                        unset($_POST['is_cst_doc']);
-//                    }
-//                    //Making process for file upload
-//                    $tmpFile = $_FILES['cst_file']['tmp_name'];
-//                    $cst_file = implode("", explode(" ", $this->input->post('name'))) . '_cstfile_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['cst_file']['name'])[1];
-//                    move_uploaded_file($tmpFile, TMP_FOLDER.$cst_file);
-//
-//                    //Upload files to AWS
-//                    $bucket = BITBUCKET_DIRECTORY;
-//                    $directory_xls = "vendor-partner-docs/" . $cst_file;
-//                    $this->s3->putObjectFile(TMP_FOLDER.$cst_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-//                    $_POST['cst_file'] = $cst_file;
-//                    
-//                    $attachment_cst = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$cst_file;
-//                    
-//                    //Logging success for file uppload
-//                    log_message('info',__CLASS__.' CST FILE is being uploaded sucessfully.');
-//                } else {
-//                    //Redirect back to Form
-//                    $data = $this->input->post();
-//                    //Checking if form is for add or edit
-//                    if (!empty($_POST['id'])) {
-//                        //Redirect to edit form for particular id
-//                        $this->editvendor($data['id']);
-//                    } else {
-//                        //Redirect to add vendor form
-//                        $this->add_vendor();
-//                    }
-//                    return FALSE;
-//                }
-//            }
-            
-            //Start Processing TIN File Upload
-//            if (($_FILES['tin_file']['error'] != 4) && !empty($_FILES['tin_file']['tmp_name'])) {
-//                //Adding file validation
-//                $checkfilevalidation = $this->file_input_validation('tin_file');
-//                if ($checkfilevalidation) {
-//                    //Cross-check if Non Availiable is checked along with file upload
-//                    if (isset($data['is_tin_doc'])) {
-//                        unset($_POST['is_tin_doc']);
-//                    }
-//                    $tmpFile = $_FILES['tin_file']['tmp_name'];
-//                    $tin_file = implode("", explode(" ", $this->input->post('name'))) . '_tinfile_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['tin_file']['name'])[1];
-//                    move_uploaded_file($tmpFile, TMP_FOLDER.$tin_file);
-//
-//                    //Upload files to AWS
-//                    $bucket = BITBUCKET_DIRECTORY;
-//                    $directory_xls = "vendor-partner-docs/" . $tin_file;
-//                    $this->s3->putObjectFile(TMP_FOLDER.$tin_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-//                    $_POST['tin_file'] = $tin_file;
-//                    
-//                    $attachment_tin = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$tin_file;
-//                    
-//                    //Logging success for file uppload
-//                    log_message('info',__CLASS__.' TIN FILE is being uploaded sucessfully.');
-//                } else {
-//                    //Redirect back to Form
-//                    $data = $this->input->post();
-//                    if (!empty($_POST['id'])) {
-//                        $this->editvendor($data['id']);
-//                    } else {
-//                        $this->add_vendor();
-//                    }
-//                    return FALSE;
-//                }
-//            }
-
-            //Start Processing Service Tax File Upload
-//            if (($_FILES['service_tax_file']['error'] != 4) && !empty($_FILES['service_tax_file']['tmp_name'])) {
-//                //Adding file validation
-//                $checkfilevalidation = $this->file_input_validation('service_tax_file');
-//                if ($checkfilevalidation) {
-//                    //Cross-check if Non Availiable is checked along with file upload
-//                    if (isset($data['is_st_doc'])) {
-//                        unset($_POST['is_st_doc']);
-//                    }
-//                    $tmpFile = $_FILES['service_tax_file']['tmp_name'];
-//                    $service_tax_file = implode("", explode(" ", $this->input->post('name'))) . '_servicetaxfile_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['service_tax_file']['name'])[1];
-//                    move_uploaded_file($tmpFile, TMP_FOLDER.$service_tax_file);
-//
-//                    //Upload files to AWS
-//                    $bucket = BITBUCKET_DIRECTORY;
-//                    $directory_xls = "vendor-partner-docs/" . $service_tax_file;
-//                    $this->s3->putObjectFile(TMP_FOLDER.$service_tax_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-//                    $_POST['service_tax_file'] = $service_tax_file;
-//                    
-//                    $attachment_service_tax = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$service_tax_file;
-//                    
-//                    //Logging success for file uppload
-//                    log_message('info',__CLASS__.' Serivce Tax FILE is being uploaded sucessfully.');
-//                } else {
-//                    //Redirect back to Form
-//                    $data = $this->input->post();
-//                    if (!empty($_POST['id'])) {
-//                        $this->editvendor($data['id']);
-//                    } else {
-//                        $this->add_vendor();
-//                    }
-//                    return FALSE;
-//                }
-//            }
-            
-            //Processing Address Proof File Upload
-                if(($_FILES['address_proof_file']['error'] != 4) && !empty($_FILES['address_proof_file']['tmp_name'])){
-                    $tmpFile = $_FILES['address_proof_file']['tmp_name'];
-                    $address_proof_file = str_replace(' ', '', $this->input->post('name')).'_addressprooffile_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['address_proof_file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER.$address_proof_file);
-                    
-                    //Upload files to AWS
-                    $bucket = BITBUCKET_DIRECTORY;
-                    $directory_xls = "vendor-partner-docs/".$address_proof_file;
-                    $this->s3->putObjectFile(TMP_FOLDER.$address_proof_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                    $_POST['address_proof_file'] = $address_proof_file;
-                    
-                    $attachment_address_proof = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$address_proof_file;
-                     unlink(TMP_FOLDER.$address_proof_file);
-                    
-                    //Logging success for file uppload
-                    log_message('info',__CLASS__.' ADDRESS PROOF FILE is being uploaded sucessfully.');
-                }
-                
-                //Processing Cancelled Cheque File Upload
-                if(($_FILES['cancelled_cheque_file']['error'] != 4) && !empty($_FILES['cancelled_cheque_file']['tmp_name'])){
-                    $tmpFile = $_FILES['cancelled_cheque_file']['tmp_name'];
-                    $cancelled_cheque_file = preg_replace('/\s+/', '', $this->input->post('name')).'_cancelledchequefile_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['cancelled_cheque_file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER.$cancelled_cheque_file);
-                    
-                    //Upload files to AWS
-                    $bucket = BITBUCKET_DIRECTORY;
-                    $directory_xls = "vendor-partner-docs/".$cancelled_cheque_file;
-                    $this->s3->putObjectFile(TMP_FOLDER.$cancelled_cheque_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                    $_POST['cancelled_cheque_file'] = $cancelled_cheque_file;
-                    
-                    $attachment_cancelled_cheque = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$cancelled_cheque_file;
-                    //Unlink Attachment File
-                    unlink(TMP_FOLDER.$cancelled_cheque_file);
-                    
-                    //Logging success for file uppload
-                    log_message('info',__CLASS__.' CANCELLED CHEQUE FILE is being uploaded sucessfully.');
-                }
-                
-                //Processing ID Proof 1 File Upload
-                if(($_FILES['id_proof_1_file']['error'] != 4) && !empty($_FILES['id_proof_1_file']['tmp_name'])){
-                    $tmpFile = $_FILES['id_proof_1_file']['tmp_name'];
-                    $id_proof_1_file = preg_replace('/\s+/', '', $this->input->post('name')).'_idproof1file_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['id_proof_1_file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER.$id_proof_1_file);
-                    
-                    //Upload files to AWS
-                    $bucket = BITBUCKET_DIRECTORY;
-                    $directory_xls = "vendor-partner-docs/".$id_proof_1_file;
-                    $this->s3->putObjectFile(TMP_FOLDER.$id_proof_1_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                    $_POST['id_proof_1_file'] = $id_proof_1_file;
-                    
-                    $attachment_id_proof_1 = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$id_proof_1_file;
-                     //Unlink Attachment File
-                    unlink(TMP_FOLDER.$id_proof_1_file);
-                    
-                    //Logging success for file uppload
-                    log_message('info',__CLASS__.' ID PROOF 1 FILE is being uploaded sucessfully.');
-                }
-                
-                //Processing ID Proof 1 File Upload
-                if(($_FILES['id_proof_2_file']['error'] != 4) && !empty($_FILES['id_proof_2_file']['tmp_name'])){
-                    $tmpFile = $_FILES['id_proof_2_file']['tmp_name'];
-                    $id_proof_2_file = preg_replace('/\s+/', '', $this->input->post('name')).'_idproof2file_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['id_proof_2_file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER.$id_proof_2_file);
-                    
-                    //Upload files to AWS
-                    $bucket = BITBUCKET_DIRECTORY;
-                    $directory_xls = "vendor-partner-docs/".$id_proof_2_file;
-                    $this->s3->putObjectFile(TMP_FOLDER.$id_proof_2_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                    $_POST['id_proof_2_file'] = $id_proof_2_file;
-                    
-                    $attachment_id_proof_2 = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$id_proof_2_file;
-                    unlink(TMP_FOLDER.$id_proof_2_file);
-                    
-                    //Logging success for file uppload
-                    log_message('info',__CLASS__.' ID PROOF 2 FILE is being uploaded sucessfully.');
-                }
-                
-                //Processing Contract File Upload
-                if(($_FILES['contract_file']['error'] != 4) && !empty($_FILES['contract_file']['tmp_name'])){
-                    $tmpFile = $_FILES['contract_file']['tmp_name'];
-                    $contract_file = preg_replace('/\s+/', '', $this->input->post('name')).'_contractfile_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['contract_file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER.$contract_file);
-                    
-                    //Upload files to AWS
-                    $bucket = BITBUCKET_DIRECTORY;
-                    $directory_xls = "vendor-partner-docs/".$contract_file;
-                    $this->s3->putObjectFile(TMP_FOLDER.$contract_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                    $_POST['contract_file'] = $contract_file;
-                    
-                    $attachment_contract = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$contract_file;
-                    unlink(TMP_FOLDER.$contract_file);
-                    
-                    //Logging success for file uppload
-                    log_message('info',__CLASS__.' CONTRACT FILE is being uploaded sucessfully.');
-                }
-       
-
-            $non_working_days = $this->input->post('day');
-            $appliances = $this->input->post('appliances');
-            $brands = $this->input->post('brands');
-
-            if (!empty($non_working_days)) {
-                $_POST['non_working_days'] = implode(",", $non_working_days);
-            }
-
-            if (!empty($appliances)) {
-                $_POST['appliances'] = implode(",", $appliances);
-            }
-
-            if (!empty($brands)) {
-                $_POST['brands'] = implode(",", $brands);
-            }
-//            if(!isset($_POST['is_st_doc'])){
-//                $_POST['is_st_doc'] = 1;
-//            }
-//            if(!isset($_POST['is_tin_doc'])){
-//                $_POST['is_tin_doc'] = 1;
-//            }
-            if(!isset($_POST['is_pan_doc'])){
-                $_POST['is_pan_doc'] = 1;
-            }
-//            if(!isset($_POST['is_cst_doc'])){
-//                $_POST['is_cst_doc'] = 1;
-//            }
-            if(!isset($_POST['is_gst_doc'])){
-                $_POST['is_gst_doc'] = 1;
-            }
-            
-            
-            if(isset($_POST['is_verified']) && !empty($_POST['is_verified'])){
-               $_POST['is_verified'] = '1';
-            }else if(!isset($_POST['is_verified']) && $this->session->userdata('user_group') == 'admin')
-            {
-                $_POST['is_verified'] = '0';
-            }
-         
-            
-            
             //Getting RM Official Email details to send Welcome Mails to them as well
             $rm_official_email = $this->employee_model->getemployeefromid($rm)[0]['official_email'];
             $agentID = $this->session->userdata('id');
-                
+            $vendor_data = $this->get_vendor_basic_form_data();
+            //If vendor exists, details are edited
             if (!empty($this->input->post('id'))) {
-                
-                //if vendor exists, details are edited
-                $vendor_data = $this->get_vendor_form_data();
                 $vendor_data['agent_id'] = $agentID;
-                // Seprate Bank data from vendor data
-                $bankDetailsArray = elements(array('bank_name', 'account_type', 'bank_account','ifsc_code','cancelled_cheque_file','beneficiary_name','is_verified'), $vendor_data);
-                foreach($bankDetailsArray as $key=>$value){
-                    if(array_key_exists($key, $vendor_data)){
-                        unset($vendor_data[$key]);
-                    }
-                }
-                $bankDetailsArray['entity_id'] = $this->input->post('id');
-                $bankDetailsArray['agent_id'] = $agentID;
-                $bankDetailsArray['entity_type'] = "SF";
                 $this->vendor_model->edit_vendor($vendor_data, $this->input->post('id'));
-                $this->miscelleneous->update_insert_bank_account_details($bankDetailsArray);
-               
-      
                 //Log Message
                 log_message('info', __FUNCTION__.' SF has been updated :'.print_r($vendor_data,TRUE));
-                
                 //Adding details in Booking State Change
                 $this->notify->insert_state_change('', SF_UPDATED, SF_UPDATED, 'Vendor ID : '.$_POST['id'], $this->session->userdata('id'), $this->session->userdata('employee_id'),
                         ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
-                
-                $send_email = $this->send_update_sf_mail($_POST['id'],$rm_official_email);
-
                 //Updating details of SF in employee_relation table
                 $check_update_sf_rm_relation = $this->vendor_model->update_rm_to_sf_relation($rm, $_POST['id']);
                 if($check_update_sf_rm_relation){
@@ -422,34 +103,16 @@ class vendor extends CI_Controller {
                     "action" =>  SF_UPDATED
                 );
                 $this->vendor_model->insert_log_action_on_entity($log);
-
+                //Send SF Update email
+                $send_email = $this->send_update_or_add_sf_basic_details_email($_POST['id'],$rm_official_email,$vendor_data);
                 redirect(base_url() . 'employee/vendor/viewvendor');
             } else {
-                // get service center code by calling generate_service_center_code() method
-                $owner_email = $this->input->post('owner_email');
-                $primary_contact_email = $this->input->post('primary_contact_email');
-                $new_vendor_mail = $owner_email.','.$primary_contact_email;
-                //Making Array to add Vendor
-                $vendor_data = $this->get_vendor_form_data();
                 $vendor_data['create_date'] = date('Y-m-d H:i:s');
-                
                 $vendor_data['sc_code'] = $this->generate_service_center_code($_POST['name'], $_POST['district']);
                 $vendor_data['agent_id'] = $agentID;
 
                 //if vendor do not exists, vendor is added
-                // Seprate Bank data from vendor data
-                $bankDetailsArray = elements(array('bank_name', 'account_type', 'bank_account','ifsc_code','cancelled_cheque_file','beneficiary_name','is_verified'), $vendor_data);
-                foreach($bankDetailsArray as $key=>$value){
-                    if(array_key_exists($key, $vendor_data)){
-                        unset($vendor_data[$key]);
-                    }
-                }
-              $sc_id = $this->vendor_model->add_vendor($vendor_data);
-               // Update Bank Details
-                $bankDetailsArray['entity_id'] = $sc_id;
-                $bankDetailsArray['entity_type'] = 'SF';
-                $bankDetailsArray['agent_id'] = $agentID;
-                $this->miscelleneous->update_insert_bank_account_details($bankDetailsArray);
+                $sc_id = $this->vendor_model->add_vendor($vendor_data);
                 //Logging
                 log_message('info', __FUNCTION__.' SF has been Added :'.print_r($vendor_data,TRUE));
                 $log = array(
@@ -462,9 +125,6 @@ class vendor extends CI_Controller {
                 //Adding details in Booking State Change
                 $this->notify->insert_state_change('', NEW_SF_ADDED, NEW_SF_ADDED, 'Vendor ID : '.$sc_id, $this->session->userdata('id'), $this->session->userdata('employee_id'),
                         ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
-                
-                //Sending Mail for Added details
-                $send_email = $this->send_update_sf_mail($sc_id,$rm_official_email);
 
                 //Adding values in admin groups present in employee_relation table
                 $check_admin_sf_relation = $this->vendor_model->add_sf_to_admin_relation($sc_id);
@@ -475,8 +135,7 @@ class vendor extends CI_Controller {
                     //Logging Error 
                     log_message('info', __FUNCTION__.' Error in adding New SF and Admin Group Relation.');
                 }
-                    
-                
+
                 //Updating details of SF in employee_relation table
                 $check_update_sf_rm_relation = $this->vendor_model->add_rm_to_sf_relation($rm, $sc_id);
                 if($check_update_sf_rm_relation){
@@ -486,60 +145,14 @@ class vendor extends CI_Controller {
                     //Loggin Error 
                     log_message('info', __FUNCTION__.' Error in mapping SF to RM relation RM = '.print_r($rm,TRUE).' SF = '.print_r($sc_id,TRUE));
                 }
-                $this->sendWelcomeSms($_POST['primary_contact_phone_1'], $_POST['name'],$sc_id);
-                $this->sendWelcomeSms($_POST['owner_phone_1'], $_POST['owner_name'],$sc_id);
-                
-                //Sending Welcome Vendor Mail
-                //Getting template from Database
-                $template = $this->booking_model->get_booking_email_template("new_vendor_creation");
-                if (!empty($template)) {
-                    $subject = "Welcome to 247around ".$this->input->post('company_name')." (".$this->input->post('district').")";
-                    $emailBody = $template[0];
-                    $this->notify->sendEmail($template[2], $new_vendor_mail, $template[3].",".$rm_official_email, '', $subject, $emailBody, "",'new_vendor_creation');
-                    
-                    //Logging
-                    log_message('info', " Welcome Email Send successfully" . $emailBody);
-                }else{
-                    //Logging Error Message
-                    log_message('info', " Error in Getting Email Template for New Vendor Welcome Mail");
-                }
-
-		  //create vendor login details as well
-		   $sc_login_uname = strtolower($vendor_data['sc_code']);
-		   $login['service_center_id'] = $sc_id;
-		   $login['user_name'] = $sc_login_uname;
-		   $login['password'] = md5($sc_login_uname);
-		   $login['active'] = 1;
-                   $login['full_name'] = $this->input->post('primary_contact_name');
-
-		   $this->vendor_model->add_vendor_login($login);
-                   
                    $engineer['service_center_id'] =  $sc_id;
                    $engineer['name'] = "Default Engineer";
                    $this->vendor_model->insert_engineer($engineer);
-                   
-                // Sending Login details mail to Vendor using Template
-                   
-                   $login_email = array();
-                   //Getting template from Database
-                   $login_template = $this->booking_model->get_booking_email_template("vendor_login_details");
-                   if(!empty($login_template)){
-                   $login_email['username'] = $sc_login_uname;
-                   $login_email['password'] = $sc_login_uname;
-                   $login_subject = "Partner ERP URL and Login - 247around";
-                   
-                   $login_emailBody = vsprintf($login_template[0], $login_email);
-                   
-                   $this->notify->sendEmail($login_template[2], $new_vendor_mail ,  $login_template[3].",".$rm_official_email, '', $login_subject , $login_emailBody, "",'vendor_login_details');
-                   
-                   //Logging
-                   log_message('info', $login_subject." Email Send successfully" . $login_emailBody);
-                    
-                   }else{
-                       //Logging Error
-                       log_message('info', " Error in Getting Email Template for New Vendor Login credentials Mail");
-                   }
-		   redirect(base_url() . 'employee/vendor/viewvendor');
+                   //Send SF Update email
+                   $send_email = $this->send_update_or_add_sf_basic_details_email($_POST['id'],$rm_official_email,$vendor_data);
+                    // Sending Login details mail to Vendor using Template
+                   $this->session->set_flashdata('vendor_added', "Vendor Basic Details has been added Successfully , Please Fill other details");
+	redirect(base_url() . 'employee/vendor/editvendor/'.$sc_id);
             }
         } else {
             $this->add_vendor();
@@ -584,6 +197,28 @@ class vendor extends CI_Controller {
             }
         }
     }
+    
+    function get_vendor_basic_form_data(){
+        $vendor_data['company_name'] = trim($this->input->post('company_name'));
+        $vendor_data['name'] = trim($this->input->post('name'));
+        $vendor_data['address'] = trim($this->input->post('address'));
+        $vendor_data['landmark'] = trim($this->input->post('landmark'));
+        $vendor_data['district'] = trim($this->input->post('district'));
+        $vendor_data['state'] = trim($this->input->post('state'));
+        $vendor_data['pincode'] = trim($this->input->post('pincode'));
+        $vendor_data['phone_1'] = trim($this->input->post('phone_1'));
+        $vendor_data['phone_2'] = trim($this->input->post('phone_2'));
+        $vendor_data['email'] = trim($this->input->post('email'));
+        $vendor_data['company_type'] = $this->input->post('company_type');
+        if(!empty($this->input->post('day'))){
+            $vendor_data['non_working_days'] = implode(",",$this->input->post('day'));
+         } 
+        $vendor_data['is_sf'] = $this->input->post('is_sf');
+        $vendor_data['is_cp'] = $this->input->post('is_cp');
+        $vendor_data['is_wh'] = $this->input->post('is_wh');
+        $vendor_data['min_upcountry_distance'] = $this->input->post('min_upcountry_distance');
+        return $vendor_data;
+    }
 
     /**
      * @desc : This function is used to get the form data of vendor
@@ -618,9 +253,6 @@ class vendor extends CI_Controller {
 //                $vendor_data['is_tin_doc'] = $this->input->post('is_tin_doc');
 //                $vendor_data['is_st_doc'] = $this->input->post('is_st_doc');
                 $vendor_data['is_gst_doc'] = $this->input->post('is_gst_doc');
-                $vendor_data['is_sf'] = $this->input->post('is_sf');
-                $vendor_data['is_cp'] = $this->input->post('is_cp');
-                $vendor_data['is_wh'] = $this->input->post('is_wh');
                 if(empty( $vendor_data['is_cp'])){
                      $vendor_data['is_cp'] = 0;
                 }
@@ -714,12 +346,71 @@ class vendor extends CI_Controller {
                 if(!empty($this->input->post('gst_file'))){
                      $vendor_data['gst_file'] = $this->input->post('gst_file');
                 }
+                                $vendor_data['is_sf'] = $this->input->post('is_sf');
+                $vendor_data['is_cp'] = $this->input->post('is_cp');
+                $vendor_data['is_wh'] = $this->input->post('is_wh');
                 $vendor_data['cp_credit_limit'] = $this->input->post('cp_credit_limit');
                    
             
             return $vendor_data;
     }
-    
+    function send_update_or_add_sf_basic_details_email($sf_id,$rm_email,$updated_vendor_details){
+        $logged_user_name = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['full_name'];
+        if($this->input->post('id') !== null && !empty($this->input->post('id'))){
+            $html = "<p>Following SF has been Updated :</p><ul>";
+        }else{
+            $html = "<p>New Sf Added :</p><ul>";
+        }
+        $html .= "<li><b>" . 'SF Name' . '</b> =>';
+        $html .= " " . $updated_vendor_details['name'] . '</li>';
+        $html .= "<li><b>" . 'Company Name' . '</b> =>';
+        $html .= " " . $updated_vendor_details['company_name'] . '</li>';
+        $html .= "<li><b>" . 'Address' . '</b> =>';
+        $html .= " " . $updated_vendor_details['address'] . '</li>';
+        $html .= "<li><b>" . 'Pincode' . '</b> =>';
+        $html .= " " . $updated_vendor_details['pincode'] . '</li>';
+        $html .= "<li><b>" . 'State' . '</b> =>';
+        $html .= " " . $updated_vendor_details['state'] . '</li>';
+        $html .= "<li><b>" . 'District' . '</b> =>';
+        $html .= " " . $updated_vendor_details['district'] . '</li>';
+        $html .= "<li><b>" . 'Landmark' . '</b> =>';
+        $html .= " " . $updated_vendor_details['landmark'] . '</li>';
+        $html .= "<li><b>" . 'Phone 1' . '</b> =>';
+        $html .= " " . $updated_vendor_details['phone_1'] . '</li>';
+        $html .= "<li><b>" . 'Phone 2' . '</b> =>';
+        $html .= " " . $updated_vendor_details['phone_2'] . '</li>';
+        $html .= "<li><b>" . 'Email' . '</b> =>';
+        $html .= " " . $updated_vendor_details['email'] . '</li>';
+        $html .= "<li><b>" . 'IS SF' . '</b> =>';
+        $html .= " " . $updated_vendor_details['is_sf'] . '</li>';
+        $html .= "<li><b>" . 'IS CP' . '</b> =>';
+        $html .= " " . $updated_vendor_details['is_cp'] . '</li>';
+        $html .= "<li><b>" . 'IS WH' . '</b> =>';
+        $html .= " " . $updated_vendor_details['is_wh'] . '</li>';
+        $html .= "</ul>";
+        $to = ANUJ_EMAIL_ID . ',' . $rm_email;
+        //Cleaning Email Variables
+        $this->email->clear(TRUE);
+        //Send report via email
+        $this->email->from(NOREPLY_EMAIL_ID, '247around Team');
+        $this->email->to($to);
+        if($this->input->post('id') !== null && !empty($this->input->post('id'))){
+           $subject = "Vendor Updated : " . $_POST['name'] . ' - By ' . $logged_user_name;
+        }else{
+            $subject = "New Vendor Added : " . $_POST['name'] . ' - By ' . $logged_user_name;
+        }
+        $this->email->subject($subject);
+        $this->email->message($html);
+        if ($this->email->send()) {
+            $this->notify->add_email_send_details(NOREPLY_EMAIL_ID,$to,"","",$subject,$html,"",VENDOR_UPDATED);
+            log_message('info', __METHOD__ . ": Mail sent successfully to " . $to);
+            $flag = TRUE;
+        } else {
+            log_message('info', __METHOD__ . ": Mail could not be sent to " . $to);
+            $flag = FALSE;
+        }
+        return $flag;
+    }
     function send_update_sf_mail($sf_id,$rm_email) {
         $this->checkUserSession();
         $s3_url = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/";
@@ -964,7 +655,6 @@ class vendor extends CI_Controller {
         $this->form_validation->set_rules('address', 'Vendor Address', 'trim|required');
         $this->form_validation->set_rules('state', 'State', 'trim|required');
         $this->form_validation->set_rules('district', 'District', 'trim|required');
-        $this->form_validation->set_rules('gst_no', 'GST Number', 'trim|min_length[15]|max_length[15]');
         if ($this->form_validation->run() == FALSE) {
             return FALSE;
         } else {
@@ -1298,7 +988,8 @@ class vendor extends CI_Controller {
                 'upcountry_paid_by_customer' => 0,
                 'service_center_closed_date' => NULL,
                 'cancellation_reason' => NULL,
-                'upcountry_distance' => NULL);
+                'upcountry_distance' => NULL,
+                'internal_status' => _247AROUND_PENDING);
             
             $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, ASSIGNED_VENDOR, $previous_sf_id[0]['partner_id'], $booking_id);
             $actor = $next_action = 'not_define';
@@ -1308,7 +999,6 @@ class vendor extends CI_Controller {
                 $actor = $assigned_data['actor'] = $partner_status[2];
                 $next_action = $assigned_data['next_action'] = $partner_status[3];
             }
-
             $this->booking_model->update_booking($booking_id, $assigned_data);
 
             $this->vendor_model->delete_previous_service_center_action($booking_id);
@@ -5071,5 +4761,337 @@ class vendor extends CI_Controller {
           echo $api_response;
         }
     }
-    
+        function save_vendor_documents(){
+            $this->checkUserSession();
+            $vendor = [];
+            $data = $this->input->post();
+            $vendorArray = $this->reusable_model->get_search_result_data("service_centres", "name", array("id"=>$data['id']), NULL, NULL, NULL, NULL, NULL, array());
+            $_POST['name'] = $vendorArray[0]['name'];
+            //Start  Processing PAN File Upload
+            if (($_FILES['pan_file']['error'] != 4) && !empty($_FILES['pan_file']['tmp_name'])) {
+                //Adding file validation
+                $checkfilevalidation = $this->file_input_validation('pan_file');
+                if ($checkfilevalidation) {
+                    //Cross-check if Non Availiable is checked along with file upload
+                    if (isset($data['is_pan_doc'])) {
+                        unset($_POST['is_pan_doc']);
+                    }
+                    //Making process for file upload
+                    $tmpFile = $_FILES['pan_file']['tmp_name'];
+                    $pan_file = implode("", explode(" ", $this->input->post('name'))) . '_panfile_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['pan_file']['name'])[1];
+                    move_uploaded_file($tmpFile, TMP_FOLDER.$pan_file);
+
+                    //Upload files to AWS   
+                     $bucket = BITBUCKET_DIRECTORY;
+                    $directory_xls = "vendor-partner-docs/" . $pan_file;
+                    $this->s3->putObjectFile(TMP_FOLDER.$pan_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $_POST['pan_file'] = $pan_file;
+                    
+                    $attachment_pan = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$pan_file;
+                    
+                    //Logging success for file uppload
+                    //log_message('info',__CLASS__.' PAN FILE is being uploaded sucessfully.');
+                } else {
+                    //Redirect back to Form
+
+                    if (!empty($_POST['id'])) {
+                        $this->editvendor($data['id']);
+                    } else {
+                        
+                        $this->add_vendor();
+                    }
+                    return FALSE;
+                }
+            }
+            if (($_FILES['address_proof_file']['error'] != 4) && !empty($_FILES['address_proof_file']['tmp_name'])) {
+                //Adding file validation
+                $checkfilevalidation = 1;
+                if ($checkfilevalidation) {
+                    //Making process for file upload
+                    $tmpFile = $_FILES['address_proof_file']['tmp_name'];
+                    $address_proof_file = implode("", explode(" ", $this->input->post('name'))) . '_address_proof_file_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['address_proof_file']['name'])[1];
+                    move_uploaded_file($tmpFile, TMP_FOLDER.$address_proof_file);
+
+                    //Upload files to AWS
+                     $bucket = BITBUCKET_DIRECTORY;
+                    $directory_xls = "vendor-partner-docs/" . $address_proof_file;
+                    $this->s3->putObjectFile(TMP_FOLDER.$address_proof_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $_POST['address_proof_file'] = $address_proof_file;
+                    
+                    $attachment_address_proof = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$address_proof_file;
+                    
+                    //Logging success for file uppload
+                    //log_message('info',__CLASS__.' PAN FILE is being uploaded sucessfully.');
+                } else {
+                    //Redirect back to Form
+
+                    if (!empty($_POST['id'])) {
+                        $this->editvendor($data['id']);
+                    } else {
+                        
+                        $this->add_vendor();
+                    }
+                    return FALSE;
+                }
+            }
+            if (($_FILES['contract_file']['error'] != 4) && !empty($_FILES['contract_file']['tmp_name'])) {
+                //Adding file validation
+                $checkfilevalidation = 1;
+                if ($checkfilevalidation) {
+                    //Making process for file upload
+                    $tmpFile = $_FILES['contract_file']['tmp_name'];
+                    $contract_file = implode("", explode(" ", $this->input->post('name'))) . '_contract_file_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['contract_file']['name'])[1];
+                    move_uploaded_file($tmpFile, TMP_FOLDER.$contract_file);
+
+                    //Upload files to AWS
+                     $bucket = BITBUCKET_DIRECTORY;
+                    $directory_xls = "vendor-partner-docs/" . $contract_file;
+                    $this->s3->putObjectFile(TMP_FOLDER.$address_proof_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $_POST['contract_file'] = $contract_file;
+                    
+                    $attachment_contract_file = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$contract_file;
+                    
+                    //Logging success for file uppload
+                    //log_message('info',__CLASS__.' PAN FILE is being uploaded sucessfully.');
+                } else {
+                    //Redirect back to Form
+
+                    if (!empty($_POST['id'])) {
+                        $this->editvendor($data['id']);
+                    } else {
+                        
+                        $this->add_vendor();
+                    }
+                    return FALSE;
+                }
+            }
+            if (($_FILES['gst_file']['error'] != 4) && !empty($_FILES['gst_file']['tmp_name'])) {
+                $attachment_gst = $this->upload_gst_file($data);
+                if($attachment_gst){} else {
+                    return FALSE;
+                }
+            }        
+            if (($_FILES['signature_file']['error'] != 4) && !empty($_FILES['signature_file']['tmp_name'])) {
+                $attachment_signature = $this->upload_signature_file($data);
+               // print_r($attachment_signature);
+                if($attachment_signature){} else {
+                    //return FALSE;
+                }
+            }
+            if(!isset($_POST['is_pan_doc'])){
+                $_POST['is_pan_doc'] = 1;
+            }
+            if(!isset($_POST['is_gst_doc'])){
+                $_POST['is_gst_doc'] = 1;
+            }
+            $agentID = $this->session->userdata('id');
+            if (!empty($this->input->post('id'))) {
+                //if vendor exists, details are edited
+                $vendor_data['is_pan_doc'] = $this->input->post('is_pan_doc');
+                $vendor_data['is_gst_doc'] = $this->input->post('is_gst_doc');
+                if(!empty($vendor_data['is_pan_doc']) && !empty($this->input->post('pan_no')) ){
+                   $vendor_data['pan_no'] = $this->input->post('pan_no');
+                   $vendor_data['name_on_pan'] = $this->input->post('name_on_pan');
+                }else{
+                    $vendor_data['pan_no'] = "";
+                    $vendor_data['name_on_pan']= "";
+                }
+                 if(!empty($vendor_data['is_gst_doc']) && !empty($this->input->post('gst_no'))){
+                    $vendor_data['gst_no'] = $this->input->post('gst_no');
+                }else{
+                    $vendor_data['gst_no'] = NULL;
+                }
+                if(!empty($this->input->post('pan_file'))){
+                    $vendor_data['pan_file'] = $this->input->post('pan_file');
+                }  
+                if(!empty($this->input->post('signature_file'))){
+                    $vendor_data['signature_file'] = $this->input->post('signature_file');
+                }  
+                if(!empty($this->input->post('gst_file'))){
+                     $vendor_data['gst_file'] = $this->input->post('gst_file');
+                }
+                if(!empty($this->input->post('address_proof_file'))){
+                     $vendor_data['address_proof_file'] = $this->input->post('address_proof_file');
+                }
+                 if(!empty($this->input->post('contract_file'))){
+                     $vendor_data['contract_file'] = $this->input->post('contract_file');
+                }
+                $vendor_data['agent_id'] = $agentID;
+                $this->vendor_model->edit_vendor($vendor_data, $this->input->post('id'));
+                $this->notify->insert_state_change('', NEW_SF_DOCUMENTS, NEW_SF_DOCUMENTS, 'Vendor ID : '.$this->input->post('id'), $this->session->userdata('id'), $this->session->userdata('employee_id'),
+                        ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
+                $this->session->set_flashdata('vendor_added', "Vendor Documents Has been updated Successfully , Please Fill other details");
+                redirect(base_url() . 'employee/vendor/editvendor/'.$data['id']);
+            } 
+    }
+       //save brand details 
+    function save_vendor_brand_mapping(){
+        $this->checkUserSession();
+        $vendor = [];
+        $agentID = $this->session->userdata('id');
+        if (!empty($this->input->post('id'))) {
+            if(!empty($this->input->post('appliances'))){
+                $vendor_data['appliances'] = implode(",",$this->input->post('appliances'));
+                }
+            if(!empty($this->input->post('brands'))){
+                $vendor_data['brands'] = implode(",",$this->input->post('brands'));  
+            } 
+            $vendor_data['agent_id'] = $agentID;
+            $this->vendor_model->edit_vendor($vendor_data, $this->input->post('id'));
+            $this->notify->insert_state_change('', NEW_SF_BRANDS, NEW_SF_BRANDS, 'Vendor ID : '.$this->input->post('id'), $this->session->userdata('id'), $this->session->userdata('employee_id'),
+                        ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
+            $this->session->set_flashdata('vendor_added', "Vendor Brands Has been updated Successfully , Please Fill other details");
+            redirect(base_url() . 'employee/vendor/editvendor/'.$this->input->post('id'));
+        }
+    }
+    function save_vendor_contact_person(){
+        $this->checkUserSession();
+        $data = $this->input->post();
+        //Processing ID Proof 1 File Upload
+        if(($_FILES['id_proof_1_file']['error'] != 4) && !empty($_FILES['id_proof_1_file']['tmp_name'])){
+            $tmpFile = $_FILES['id_proof_1_file']['tmp_name'];
+            $id_proof_1_file = implode("",explode(" ",$this->input->post('name'))).'_idproof1file_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['id_proof_1_file']['name'])[1];
+            move_uploaded_file($tmpFile, TMP_FOLDER.$id_proof_1_file);
+
+            //Upload files to AWS
+            $bucket = BITBUCKET_DIRECTORY;
+            $directory_xls = "vendor-partner-docs/".$id_proof_1_file;
+            $this->s3->putObjectFile(TMP_FOLDER.$id_proof_1_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+            $_POST['id_proof_1_file'] = $id_proof_1_file;
+
+            $attachment_id_proof_1 = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$id_proof_1_file;
+
+            //Logging success for file uppload
+            log_message('info',__CLASS__.' ID PROOF 1 FILE is being uploaded sucessfully.');
+        }
+        //Processing ID Proof 1 File Upload
+        if(($_FILES['id_proof_2_file']['error'] != 4) && !empty($_FILES['id_proof_2_file']['tmp_name'])){
+            $tmpFile = $_FILES['id_proof_2_file']['tmp_name'];
+            $id_proof_2_file = implode("",explode(" ",$this->input->post('name'))).'_idproof2file_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['id_proof_2_file']['name'])[1];
+            move_uploaded_file($tmpFile, TMP_FOLDER.$id_proof_2_file);
+
+            //Upload files to AWS
+            $bucket = BITBUCKET_DIRECTORY;
+            $directory_xls = "vendor-partner-docs/".$id_proof_2_file;
+            $this->s3->putObjectFile(TMP_FOLDER.$id_proof_2_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+            $_POST['id_proof_2_file'] = $id_proof_2_file;
+
+            $attachment_id_proof_2 = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$id_proof_2_file;
+
+            //Logging success for file uppload
+            log_message('info',__CLASS__.' ID PROOF 2 FILE is being uploaded sucessfully.');
+        }               
+        $agentID = $this->session->userdata('id');
+        $vendor_data['agent_id'] = $agentID;
+        $vendor_data['primary_contact_name'] = trim($this->input->post('primary_contact_name'));
+        $vendor_data['primary_contact_email'] = trim($this->input->post('primary_contact_email'));
+        $vendor_data['primary_contact_phone_1'] = trim($this->input->post('primary_contact_phone_1'));
+        $vendor_data['primary_contact_phone_2'] = trim($this->input->post('primary_contact_phone_2'));
+        $vendor_data['owner_name'] = trim($this->input->post('owner_name'));
+        $vendor_data['owner_email'] = trim($this->input->post('owner_email'));
+        $vendor_data['owner_phone_1'] = trim($this->input->post('owner_phone_1'));
+        $vendor_data['owner_phone_2'] = trim($this->input->post('owner_phone_2'));
+        //Get Rm Email
+        $rm_id = $this->vendor_model->get_rm_sf_relation_by_sf_id($this->input->post('id'))[0]['agent_id'];
+        $rm_email = $this->employee_model->getemployeefromid($rm_id)[0]['official_email'];
+        //create vendor login details as well
+        $new_vendor_mail = $this->input->post('owner_email').','.$this->input->post('primary_contact_email');
+        $this->create_vendor_login($new_vendor_mail,$rm_email);
+        //Send Vendor creation notification to internals and vendor officials
+        $this->send_vendor_creation_notification($new_vendor_mail,$rm_email);
+        if(!empty($this->input->post('id_proof_2_file'))){
+            $vendor_data['id_proof_2_file'] = $this->input->post('id_proof_2_file');
+        }  
+        if(!empty($this->input->post('id_proof_1_file'))){
+            $vendor_data['id_proof_1_file'] = $this->input->post('id_proof_1_file');
+        }
+        $this->notify->insert_state_change('', NEW_SF_CONTACTS, NEW_SF_CONTACTS, 'Vendor ID : '.$this->input->post('id'), $this->session->userdata('id'), $this->session->userdata('employee_id'),
+                        ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
+        $this->session->set_flashdata('vendor_added', "Vendor Contacts Has been updated Successfully , Please Fill other details");
+        $this->vendor_model->edit_vendor($vendor_data, $this->input->post('id'));
+        redirect(base_url() . 'employee/vendor/editvendor/'.$data['id']);
+    }
+    function save_vendor_bank_details(){
+         //Processing Cancelled Cheque File Upload
+                if(($_FILES['cancelled_cheque_file']['error'] != 4) && !empty($_FILES['cancelled_cheque_file']['tmp_name'])){
+                    $tmpFile = $_FILES['cancelled_cheque_file']['tmp_name'];
+                    $cancelled_cheque_file = implode("",explode(" ",$this->input->post('name'))).'_cancelledchequefile_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['cancelled_cheque_file']['name'])[1];
+                    move_uploaded_file($tmpFile, TMP_FOLDER.$cancelled_cheque_file);
+                    
+                    //Upload files to AWS
+                    $bucket = BITBUCKET_DIRECTORY;
+                    $directory_xls = "vendor-partner-docs/".$cancelled_cheque_file;
+                    $this->s3->putObjectFile(TMP_FOLDER.$cancelled_cheque_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $_POST['cancelled_cheque_file'] = $cancelled_cheque_file;
+                    
+                    echo $attachment_cancelled_cheque = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$cancelled_cheque_file;
+                    
+                    //Logging success for file uppload
+                    log_message('info',__CLASS__.' CANCELLED CHEQUE FILE is being uploaded sucessfully.');
+                }
+                if (isset($_POST['is_verified']) && !empty($_POST['is_verified'])) {
+                    $_POST['is_verified'] = '1';
+                } else if (!isset($_POST['is_verified']) && $this->session->userdata('user_group') == 'admin') {
+                    $_POST['is_verified'] = '0';
+                }
+                $bank_data['bank_name'] = trim($this->input->post('bank_name'));
+                $bank_data['account_type'] = trim($this->input->post('account_type'));
+                $bank_data['bank_account'] = trim($this->input->post('bank_account'));
+                $bank_data['ifsc_code'] = trim($this->input->post('ifsc_code'));
+                $bank_data['beneficiary_name'] = trim($this->input->post('beneficiary_name'));
+                $bank_data['is_verified'] = $this->input->post('is_verified');
+                $bank_data['entity_id']= $this->input->post('id');
+                $bank_data['entity_type'] = 'SF';
+                $bank_data['agent_id'] = $this->session->userdata('id');
+                $bank_data['cancelled_cheque_file']= $this->input->post('cancelled_cheque_file');
+                $this->notify->insert_state_change('', NEW_SF_BANK_DETAILS, NEW_SF_BANK_DETAILS, 'Vendor ID : '.$this->input->post('id'), $this->session->userdata('id'), $this->session->userdata('employee_id'),
+                        ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
+                $this->session->set_flashdata('vendor_added', "Vendor Bank Details Has been updated Successfully");
+                $this->miscelleneous->update_insert_bank_account_details($bank_data,'update');
+                redirect(base_url() . 'employee/vendor/editvendor/'.$this->input->post('id'));
+    }
+    function create_vendor_login($new_vendor_mail,$rm_email){
+        $sc_login_uname = strtolower($this->input->post('sc_code'));
+        $login['service_center_id'] = $this->input->post('id');
+        $login['user_name'] = trim($sc_login_uname);
+        $login['password'] = trim(md5($sc_login_uname));
+        $login['active'] = 1;
+        $login['full_name'] = $this->input->post('primary_contact_name');
+        $this->vendor_model->add_vendor_login($login);
+        // Sending Login details mail to Vendor using Template
+        $login_email = array();
+        //Getting template from Database
+        $login_template = $this->booking_model->get_booking_email_template("vendor_login_details");
+        if(!empty($login_template)){
+        $login_email['username'] = $sc_login_uname;
+        $login_email['password'] = $sc_login_uname;
+        $login_subject = "Partner ERP URL and Login - 247around";
+        $login_emailBody = vsprintf($login_template[0], $login_email);
+        $this->notify->sendEmail($login_template[2], $new_vendor_mail ,  $login_template[3].",".$rm_email, '', $login_subject , $login_emailBody, "",'vendor_login_details');
+        //Logging
+        log_message('info', $login_subject." Email Send successfully" . $login_emailBody);
+        }else{
+            //Logging Error
+            log_message('info', " Error in Getting Email Template for New Vendor Login credentials Mail");
+            redirect(base_url() . 'employee/vendor/viewvendor');
+        }
+    }
+    function send_vendor_creation_notification($new_vendor_mail,$rm_official_email){
+        $this->sendWelcomeSms($this->input->post('primary_contact_phone_1'), $this->input->post('name'),$this->input->post('id'));
+        $this->sendWelcomeSms($this->input->post('owner_phone_1'), $this->input->post('owner_name'),$this->input->post('id'));
+        //Sending Welcome Vendor Mail
+        //Getting template from Database
+        $template = $this->booking_model->get_booking_email_template("new_vendor_creation");
+        if (!empty($template)) {
+            $subject = "Welcome to 247around ".$this->input->post('company_name')." (".$this->input->post('district').")";
+            $emailBody = $template[0];
+            $this->notify->sendEmail($template[2], $new_vendor_mail, $template[3].",".$rm_official_email, '', $subject, $emailBody, "",'new_vendor_creation');
+
+            //Logging
+            log_message('info', " Welcome Email Send successfully" . $emailBody);
+        }else{
+            //Logging Error Message
+            log_message('info', " Error in Getting Email Template for New Vendor Welcome Mail");
+        }
+    }
 }

@@ -2,6 +2,64 @@
 <!--<script src="<?php echo base_url() ?>js/custom_js.js"></script>-->
 <style type="text/css">
     .btn-group-sm>.btn, .btn-sm {padding:1px 5px !important}
+    #tabs ul{
+    margin:0px;
+    padding:0px;
+    
+    }
+    #tabs li{
+    list-style: none;
+    float: left;
+    position: relative;
+    top: 0;
+    margin: 1px .2em 0 0;
+    border-bottom-width: 0;
+    padding: 0;
+    white-space: nowrap;
+    border: 1px solid #2c9d9c;
+    background: #d9edf7 url(images/ui-bg_glass_75_e6e6e6_1x400.png) 50% 50% repeat-x;
+    font-weight: normal;
+    color: #555555;
+    border-top-right-radius: 4px;
+    border-top-left-radius: 4px;
+    border-bottom: 0px;
+    background-color: white;
+    }
+    #tabs button{
+        
+        align:center;
+        font-weight: bold
+    }
+    #tabs a{
+    float: left;
+    padding: .5em 1em;
+    text-decoration: none;
+    }
+    .col-md-12 {
+    padding: 10px;
+    }
+    
+    /* example styles for validation form demo */
+    #booking_form .form-group label.error {
+    color: #FB3A3A;
+    display: inline-block;;
+    padding: 0;
+    text-align: left;
+    width: 250px;
+    margin: 0px;
+    }
+    .err1{
+    color: #FB3A3A;
+    display: inline-block;;
+    padding: 0;
+    text-align: left;
+    width: 250px;
+    margin: 0px;
+    }
+    .vertical-align{
+        vertical-align: middle;
+        padding-top: 1%;
+    }
 </style>
 <div id="page-wrapper">
     <div class="row">
@@ -28,7 +86,7 @@
                
                <?php }?>
             </div>
-            <div class="panel-body">
+            <div class="panel-body" style="padding: 0px 23px;">
                 <?php if($this->session->userdata('checkbox')) {
                     echo '<div class="alert alert-danger alert-dismissible" role="alert">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -47,16 +105,61 @@
                     </div>';
                     }
                     ?>
-                <form name="myForm" class="form-horizontal" id ="booking_form" novalidate="novalidate" action="<?php echo base_url() ?>employee/vendor" method="POST" enctype="multipart/form-data">
-                    <div  class = "panel panel-info">
-                        <div class="panel-heading"><b>Company Information</b></div>
+<!--                Tabs below-->
+            <div id="tabs" style="border:0px solid #fff;float:left;" class="panel-info">
+                <div class="row">
+                    <?php
+                        if (!isset($selected_brands_list)) {            
+                    ?>
+
+                    <div id="tabs" style=""  class="col-md-12 panel-title"style="padding: 10px 8px 0px;">
+                        <ul>
+                            <li><a href="#" id="1" class="btn nav nav-pills panel-title" style="background-color:#fff">Basic Details</a></li>
+                            <li><a href="#tab-2"  id="2" onclick="alert('Please Add Basic Details FIrst')" class="btn nav nav-pills panel-title" style="background-color:#d9edf7">Documents</a</li>
+                            <li><a href="#tab-3"  id="3" onclick="alert('Please Add Basic Details FIrst')" class="btn nav nav-pills panel-title"  style="background-color:#d9edf7">Brand Mapping</a></li>
+                            <li><a href="#tab-4"  id="4" onclick="alert('Please Add Basic Details FIrst')" class="btn nav nav-pills panel-title"  style="background-color:#d9edf7">Contact Person</a></li>
+                             <li><a href="#tab-5"  id="4" onclick="alert('Please Add Basic Details FIrst')" class="btn nav nav-pills panel-title"  style="background-color:#d9edf7">Bank Details</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+<!--First condition tab ends here-->
+                    <?php
+                         }
+                        else{
+                    ?>
+<!--Case 2 tab starts here-->
+                    <div id="tabs" style=""  class="col-md-12 panel-title" style="padding: 10px 8px 0px;">
+                        <ul>
+                            <li><a href="#" id="1" onclick="load_form(this.id)"  class="nav nav-pills panel-title">Basic Details</a></li>
+                            <li><a href="#tab-2"  id="2" onclick="load_form(this.id)"  class="nav nav-pills panel-title" style="background-color:#d9edf7">Documents</a></li>
+                            <li><a href="#tab-3"  id="3" onclick="load_form(this.id)"  class="nav nav-pills panel-title" style="background-color:#d9edf7">Brand Mapping</a></li>
+                            <li><a href="#tab-4"  id="4" onclick="load_form(this.id)"  class="nav nav-pills panel-title" style="background-color:#d9edf7">Contact Person</a></li>
+                            <li><a href="#tab-4"  id="5" onclick="load_form(this.id)"  class="nav nav-pills panel-title" style="background-color:#d9edf7">Bank Details</a></li>
+                        </ul>
+                    </div>
+                    <?php
+                         }    
+                    ?>
+                </div>
+            </div>
+        </div>
+        <?php
+        if($this->session->flashdata('vendor_added')){
+            echo "<p style ='text-align: center;line-height: 22px;background: #70e2b3;'>".$this->session->flashdata('vendor_added')."</p>";
+        }
+        ?>
+        <div id="container-1" class="panel-body form_container" style="display:block;padding-top: 0px;">
+            <form name="myForm" class="form-horizontal" id ="booking_form" novalidate="novalidate" action="<?php echo base_url() ?>employee/vendor" method="POST" enctype="multipart/form-data">
+                <div  class = "panel panel-info">
+                    <div class="panel-heading" style="background-color:#ECF0F1"><b>Company Information</b></div>
                         <div class="panel-body">
                             <div>
                                 <input style="width:200px;" type="hidden" class="form-control" id="vendor_id"  name="id" value = "<?php
                                     if (isset($query[0]['id'])) {
                                         echo $query[0]['id'];
                                     }
-                                    ?>">
+                                      ?>">
                                 <?php echo form_error('id'); ?>
                             </div>
                             <div class="col-md-12">
@@ -102,7 +205,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label for="rm" class="col-md-3">RM</label>
+                                        <label for="rm" class="col-md-3 vertical-align">RM</label>
                                         <div class="col-md-8">
                                             <select id="rm" class="form-control" name ="rm">
                                                 <option selected disabled>Select Regional Manager</option>
@@ -128,7 +231,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label  for="address" class="col-md-3 ">Address</label>
+                                        <label  for="address" class="col-md-3 vertical-align">Address</label>
                                         <div class="col-md-8">
                                             <input  type="text" class="form-control"  name="address" value = "<?php
                                                 if (isset($query[0]['address'])) {
@@ -143,7 +246,7 @@
                             <div class="col-md-12">
                                 <div class="col-md-6">
                                     <div  class="form-group">
-                                        <label  for="address" class="col-md-3">Landmark</label>
+                                        <label  for="address" class="col-md-3 vertical-align">Landmark</label>
                                         <div class="col-md-8">
                                             <input  type="text" class="form-control" value = "<?php
                                                 if (isset($query[0]['landmark'])) {
@@ -159,7 +262,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label for="state" class="col-md-3">District</label>
+                                        <label for="state" class="col-md-3 vertical-align">District</label>
                                         <div class="col-md-8">
                                             <select id="district_option" class="district form-control" name ="district" onChange="getPincode()">
                                                 <option selected disabled>Select District</option>
@@ -185,7 +288,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label for="state" class="col-md-3">State</label>
+                                        <label for="state" class="col-md-3 vertical-align">State</label>
                                         <div class="col-md-8">
                                             <select class=" form-control" name ="state" id="state" onChange="getDistrict()" placeholder="Select State">
                                                 <option disabled="disabled" selected="selected"> Select State</option>
@@ -211,7 +314,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group ">
-                                        <label for="state" class="col-md-3">Pincode</label>
+                                        <label for="state" class="col-md-3 vertical-align">Pincode</label>
                                         <div class="col-md-8">
                                             <select class="pincode form-control" id="pincode" name ="pincode"  >
                                                 <option selected disabled>Select Pincode</option>
@@ -236,7 +339,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label for="phone_1" class="col-md-3">Phone 1</label>
+                                        <label for="phone_1" class="col-md-3 vertical-align">Phone 1</label>
                                         <div class="col-md-8">
                                             <input type="text" class="form-control" id="phone_1" name="phone_1" value = "<?php
                                                 if (isset($query[0]['phone_1'])) {
@@ -253,7 +356,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label  for="phone_2" class="col-md-3">Phone 2</label>
+                                        <label  for="phone_2" class="col-md-3 vertical-align">Phone 2</label>
                                         <div class="col-md-8">
                                             <input type="text" class="form-control" id="phone_2" name="phone_2" value = "<?php
                                                 if (isset($query[0]['phone_2'])) {
@@ -272,7 +375,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label for="email" class="col-md-3">Email</label>
+                                        <label for="email" class="col-md-3 vertical-align">Email</label>
                                         <div class="col-md-8">
                                             <input type="text" class="form-control"  name="email" value = "<?php
                                                 if (isset($query[0]['email'])) {
@@ -283,36 +386,6 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="form-group <?php
-                                        if (form_error('address_proof_file')) {
-                                            echo 'has-error';
-                                        }
-                                        ?>">
-                                        <label for="address_proof_file" class="col-md-4">Address Proof File</label>
-                                        <div class="col-md-6">
-                                            <input type="file" class="form-control"  name="address_proof_file" >
-                                            <?php echo form_error('address_proof_file'); ?>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <?php
-                                                $src = base_url() . 'images/no_image.png';
-                                                $image_src = $src;
-                                                if (isset($query[0]['address_proof_file']) && !empty($query[0]['address_proof_file'])) {
-                                                    //Path to be changed
-                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['address_proof_file'];
-                                                    $image_src = base_url().'images/view_image.png';
-                                                }
-                                                ?>
-                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-5px;" /></a>
-                                            <?php if(isset($query[0]['address_proof_file']) && !empty($query[0]['address_proof_file'])){?>
-                                            <a href="javascript:void(0)" onclick="remove_image('address_proof_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['address_proof_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
-                                            <?php }?>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
                                 <div class="col-md-6">
                                     <div class="form-group <?php
                                         if (form_error('company_type')) {
@@ -348,14 +421,333 @@
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                </div>
+
+                <div class="panel panel-info">
+                        <div class="panel-heading"  style="background-color:#ECF0F1"><b>Vendor Type</b></div>
+                        <div class="panel-body">
+                            <div class="col-md-12">
+                                <label class="checkbox-inline col-md-3">
+                                    <input type="checkbox" id="is_sf" <?php if(isset($query[0]['is_sf'])) { if($query[0]['is_sf'] == 1){ echo "checked";}}?> name="is_sf" value="1"><b>Service Center</b>
+                                </label>
+                                <label class="checkbox-inline col-md-3">
+                                    <input type="checkbox" id="is_cp" name="is_cp" <?php if(isset($query[0]['is_cp'])) { if($query[0]['is_cp'] == 1){ echo "checked";}}?> value="1"><b>Collection Partner</b>
+                                </label>
+                                <label class="checkbox-inline col-md-3">
+                                    <input type="checkbox" id="is_wh" name="is_wh" <?php if(isset($query[0]['is_wh'])) { if($query[0]['is_wh'] == 1){ echo "checked";}}?> value="1"><b>Warehouse</b>
+                                </label>
+                            </div>
+                        </div>
+                </div>
+                
+                <div  class = "panel panel-info">
+                        <div class="panel-heading"  style="background-color:#ECF0F1"><b>Non Working Days</b></div>
+                        <div class="panel-body">
+                            <div class="col-md-12">
+                                <?php foreach ($days as $key => $day) { ?>
+                                    <label id="non_working_days">
+                                    <input type="checkbox" name="day[]" value ="<?php echo $day; ?>"
+                                    <?php
+                                        if (isset($selected_non_working_days)) {
+                                            if (in_array($day, $selected_non_working_days)){
+                                                echo "checked";
+                                            }
+                                        }
+                                        ?> >
+                                <?php echo $day; ?> &nbsp;&nbsp;&nbsp;
+                                </label>
+                                <?php } ?>
+                            </div>
+                        </div>
+                    </div>
+                
+                    <div class="panel panel-info">
+                        <div class="panel-heading" style="background-color:#ECF0F1"><b>Upcountry</b></div>
+                        <div class="panel-body">
+                            <div class="col-md-12">
+                                <div class="col-md-4">
+                                <div class="form-group ">
+                                    <label for="upcountry_min_distance_threshold" class="col-md-4 vertical-align">Municipal Limit</label>
+                                    <div class="col-md-8">
+                                        <input  type="text" id="municipal_limit" class="form-control"  name="min_upcountry_distance" value = "<?php if (isset($query[0]['min_upcountry_distance'])) {
+                                            echo $query[0]['min_upcountry_distance'];
+                                        } ?>">
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                   
+                        
+                    </div>        
+                    <div class="clear clear_bottom">
+                        <br>
+                        <center><input type="Submit" value="<?php
+                        if (isset($selected_brands_list)) {
+                            echo "Update Basic Details";
+                        } else {
+                            echo "Save Basic Details";
+                        }
+                        ?>" class="btn btn-primary" id="submit_btn">
+                        <?php echo "<a class='btn btn-small btn-primary' href=" . base_url() . "employee/vendor/viewvendor>Cancel</a>"; ?>
+                        </center>
+<!--                    </div>-->
+                </div>
+            
+        </form>
+     </div>    
+<!--page2starts here-->
+<div class="clear" style="margin-top: 0px;"></div>
+ <div id="container-2" style="display:none;padding-top: 0px;" class="form_container panel-body">
+        <form name="myForm" class="form-horizontal" id ="booking_form2" novalidate="novalidate" action="<?php echo base_url() ?>employee/vendor/save_vendor_documents" method="POST" enctype="multipart/form-data">
+            <div  class = "panel panel-info">
+                <div>
+                                <input style="width:200px;" type="hidden" class="form-control"  name="id" value = "<?php
+                                    if (isset($query[0]['id'])) {
+                                        echo $query[0]['id'];
+                                    }
+                                      ?>">
+                                <?php echo form_error('id'); ?>
+                            </div>
+                    <div class="panel-heading" style="background-color:#ECF0F1"><b>Registration Details</b></div>
+                        <div class="panel-body">
+                            <div class="col-md-12">
+                                <div class="col-md-12" style="height: 59px;">
+                                <div class="col-md-4" style="margin-right:21px;margin-left: 10px">
+                                    <div class="form-group <?php
+                                        if (form_error('name_on_pan')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label  for="name_on_pan"  class="col-md-4 vertical-align">PAN </label>
+                                        <div class="col-md-7">
+                                            <input placeholder="Name on PAN CARD" type="text" class="form-control blockspacialchar"  id="name_on_pan" name="name_on_pan" value = "<?php
+                                                if (isset($query[0]['name_on_pan'])) {
+                                                    echo $query[0]['name_on_pan'];
+                                                }
+                                                ?>">
+                                            
+                                            <span class="err1"><?php echo form_error('name_on_pan'); ?></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3" style="margin-right:14px;">
+                                    <div class="form-group  <?php
+                                        if (form_error('pan_no')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+<!--                                        <label  for="pan_no" class="col-md-4">PAN No.</label>-->
+                                        <input type="text" class="form-control blockspacialchar"  id="pan_no" name="pan_no" placeholder="PAN Number" value = "<?php
+                                            if (isset($query[0]['pan_no'])) {
+                                                echo $query[0]['pan_no'];
+                                            }
+                                            ?>" style="width:117%">
+                                        <span class="err1"><?php echo form_error('pan_no'); ?></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-3" style="margin-left:40px;">
+                                    <div class="form-group">
+                                        <!--                                        <label  for="pan_file" class="col-md-4">PAN File :</label>-->
+                                        <input type="file" class="form-control"  id="pan_file" name="pan_file" value = "<?php
+                                            if (isset($query[0]['pan_file'])) {
+                                                echo $query[0]['pan_file'];
+                                            }
+                                            ?>">
+                                        <?php echo form_error('pan_file'); ?>
+                                    </div>
+                                </div>
+                                <div class="col-md-1" style="margin-left: 20px;">
+                                    <?php
+                                        $src = base_url() . 'images/no_image.png';
+                                        $image_src = $src;
+                                        if (isset($query[0]['pan_file']) && !empty($query[0]['pan_file'])) {
+                                            //Path to be changed
+                                            $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['pan_file'];
+                                            $image_src = base_url().'images/view_image.png';
+                                        }
+                                        ?>
+                                    <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
+                                    <?php if(isset($query[0]['pan_file']) && !empty($query[0]['pan_file'])){?>
+                                    <a href="javascript:void(0)" onclick="remove_image('pan_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['pan_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                                    <?php }?>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="checkbox">
+                                        <label>
+                                        <b style="font-size: 18px;">Not Available</b> 
+                                        </label>
+                                        <input type="checkbox"  value="0" id="is_pan_doc" name ="is_pan_doc" <?php if(isset($query[0]['is_pan_doc'])){ if($query[0]['is_pan_doc'] == 0){ echo "checked" ;}}?> style="margin-left:16px;zoom:1.5"> 
+                                    </div>
+                                </div>
+                                    </div>
+                                <hr style="border: 1px solid;padding: 0px;margin: 10px;border-color: #9e9da7;">
+                                <div class="col-md-12">
+                                    <div class="gst_1">
+                                        <div class="col-md-4" style="height: 39px;">
+                                    <div class="form-group <?php
+                                        if (form_error('gst_no')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label  for="gst_no" class="col-md-4">GST No.</label>
+                                        <div class="col-md-7">
+                                            <input type="text" class="form-control blockspacialchar"  id ="gst_no" name="gst_no" value = "<?php
+                                                if (isset($query[0]['gst_no'])) {
+                                                    echo $query[0]['gst_no'];
+                                                }
+                                                ?>" onkeyup="validateGSTNo()">
+                                            <span class="err1"> <?php echo form_error('gst_no'); ?></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                    <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label  for="" class="col-md-4">GST Type</label>
+                                        <div class="col-md-7">
+                                            <input type="text" class="form-control"  id ="gst_type" name="gst_type" value="<?php if (isset($query[0]['gst_taxpayer_type'])) {
+                                                    echo $query[0]['gst_taxpayer_type'];
+                                                    }  ?>" readonly="readonly">
+                                        </div>
+                                    </div>
+                                </div>
+                                    <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label  for="" class="col-md-4">GST Status</label>
+                                        <div class="col-md-7">
+                                            <input type="text" class="form-control"  id ="gst_status" name="gst_status" value="<?php  if (isset($query[0]['gst_status'])) {
+                                                    echo $query[0]['gst_status'];
+                                                } ?>" readonly="readonly">
+                                            <input type="hidden" class="form-control"  id ="gst_cancelled_date" name="gst_cancelled_date" value="<?php if (isset($query[0]['gst_cancelled_date'])) {
+                                                    echo $query[0]['gst_cancelled_date'];
+                                                }  ?>">
+                                        </div>
+                                    </div>
+                                </div>
+                                        </div>
+                                    <div class="gst_2">
+                                <div class="col-md-6">
+                                    <div class="form-group <?php
+                                        if (form_error('gst_file')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label for="gst_file" class="col-md-2 vertical-align" style="margin-right: 5%;">GST File</label>
+                                        <div class="col-md-6">
+                                            <input type="file" class="form-control"  id="gst_file" name="gst_file" value = "<?php
+                                                if (isset($query[0]['gst_file'])) {
+                                                    echo $query[0]['gst_file'];
+                                                }
+                                                ?>">
+                                            <?php echo form_error('gst_file'); ?>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <?php
+                                                $src = base_url() . 'images/no_image.png';
+                                                $image_src = $src;
+                                                if (isset($query[0]['gst_file']) && !empty($query[0]['gst_file'])) {
+                                                    //Path to be changed
+                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['gst_file'];
+                                                    $image_src = base_url().'images/view_image.png';
+                                                }
+                                                ?>
+                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
+                                            <?php if(isset($query[0]['gst_file']) && !empty($query[0]['gst_file'])){?>
+                                            <a href="javascript:void(0)" onclick="remove_image('gst_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['gst_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                                            <?php }?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4" style="margin-left:0px;padding-left: 1%">
+                                    <div class="checkbox">
+                                        <label>
+                                        <b style="font-size: 18px;">Not Available</b>   
+                                        </label>
+                                        <input type="checkbox"  value="0" id="is_gst_doc" name ="is_gst_doc" <?php if(isset($query[0]['is_gst_doc'])){ if($query[0]['is_gst_doc'] == 0){ echo "checked" ;}}?> style="    margin-left: 17px;margin-top: 5px;zoom:1.5;">
+                                    </div>
+                                </div>
+                                        </div>
+                            </div>
+                                    <hr style="border: 1px solid;padding: 0px;margin: 10px;border-color: #9e9da7;">
+                            <div class="col-md-12">
+                                <div class="col-md-6">
+                                    <div class="form-group <?php
+                                        if (form_error('signature_file')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label for="signature_file" class="col-md-4 vertical-align" style="width: 22%;">Signature File</label>
+                                        <div class="col-md-7">
+                                            <input type="file" class="form-control"  name="signature_file" id="signature_file" value = "<?php
+                                                if (isset($query[0]['signature_file'])) {
+                                                    echo $query[0]['signature_file'];
+                                                }
+                                                ?>">
+                                            <?php echo form_error('signature_file'); ?>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <?php
+                                                $src = base_url() . 'images/no_image.png';                                                $image_src = $src;
+                                                if (isset($query[0]['signature_file']) && !empty($query[0]['signature_file'])) {
+                                                    //Path to be changed
+                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['signature_file'];
+                                                    $image_src = base_url().'images/view_image.png';
+                                                }
+                                                ?>
+                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
+                                            <?php if(isset($query[0]['signature_file']) && !empty($query[0]['signature_file'])){?>
+                                            <a href="javascript:void(0)" onclick="remove_image('signature_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['signature_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                                            <?php }?>
+                                          
+                                        </div>  
+                                    </div>   
+                           
+                                </div>
+                                 <div class="col-md-6">
+                                    <div class="form-group <?php
+                                        if (form_error('address_proof_file')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label for="address_proof_file" class="col-md-3 vertical-align" style="width: 25%;">Address Proof File</label>
+                                        <div class="col-md-8" style="    width: 65%;">
+                                            <input type="file" class="form-control"  name="address_proof_file" >
+                                            <?php echo form_error('address_proof_file'); ?>
+                                        </div>
+                                        <div class="col-md-2" style="width: 9%;">
+                                            <?php
+                                                $src = base_url() . 'images/no_image.png';
+                                                $image_src = $src;
+                                                if (isset($query[0]['address_proof_file']) && !empty($query[0]['address_proof_file'])) {
+                                                    //Path to be changed
+                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['address_proof_file'];
+                                                    $image_src = base_url().'images/view_image.png';
+                                                }
+                                                ?>
+                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-5px;" /></a>
+                                            <?php if(isset($query[0]['address_proof_file']) && !empty($query[0]['address_proof_file'])){?>
+                                            <a href="javascript:void(0)" onclick="remove_image('address_proof_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['address_proof_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                                            <?php }?>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            </div>
+                                    <hr style="border: 1px solid;padding: 0px;margin: 10px;border-color: #9e9da7;">
+                                 <div class="col-md-12">
+
                                 <div class="col-md-6">
                                     <div class="form-group <?php
                                         if (form_error('contract_file')) {
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label  for="contract_file" class="col-md-4">Contract File</label>
-                                        <div class="col-md-6">
+                                        <label  for="contract_file" class="col-md-3 vertical-align" style="width: 22%;">Contract File</label>
+                                        <div class="col-md-8" style="width: 59%;">
                                             <input type="file" class="form-control"  name="contract_file" value = "<?php
                                                 if (isset($query[0]['contract_file'])) {
                                                     echo $query[0]['contract_file'];
@@ -382,9 +774,135 @@
                                 </div>
                             </div>
                         </div>
+                        </div>
+            </div>
+            <center><input type="Submit" onclick="return validate_documents()" value="<?php
+                                    if (isset($selected_brands_list)) {
+                                        echo "Update Documents";
+                                    } else {
+                                        echo "Save Documents";
+                                    }
+                                    ?>" class="btn btn-primary" id="submit_btn">
+                            <?php echo "<a class='btn btn-small btn-primary' href=" . base_url() . "employee/vendor/viewvendor>Cancel</a>"; ?>
+                                </center>
+   </form>
+ </div>   
+<div class="clear" style="margin-top:0px;"></div>
+<div id="container-3" style="display:none;padding-top: 0px;" class="form_container panel-body">
+    <form name="myForm" class="form-horizontal" id ="booking_form3" novalidate="novalidate" action="<?php echo base_url() ?>employee/vendor/save_vendor_brand_mapping" method="POST" enctype="multipart/form-data">            
+         <div>
+                                <input style="width:200px;" type="hidden" class="form-control"  name="id" value = "<?php
+                                    if (isset($query[0]['id'])) {
+                                        echo $query[0]['id'];
+                                    }
+                                      ?>">
+                                <?php echo form_error('id'); ?>
+                            </div>
+        <div  class = "panel panel-info">
+                        <div class="panel-heading" style="background-color:#ECF0F1"><b>Appliance</b></div>
+                        <div class="panel-body">
+                            <div class="col-md-12">
+                                <div  class="form-group <?php
+                                    if (form_error('appliance')) {
+                                        echo 'has-error';
+                                    }
+                                    ?>">
+                                    <?php foreach ($results['services'] as $key => $appliance) { ?>
+                                    <label for="Appliance" class="col-md-3">
+                                    <input type="checkbox" name="appliances[]" value ="<?php echo $appliance->services; ?>"
+                                        <?php
+                                            if (isset($selected_appliance_list)) {
+                                                if (in_array($appliance->services, $selected_appliance_list))
+                                                    echo "checked";
+                                            }
+                                            ?> >
+                                    <?php echo $appliance->services; ?> &nbsp;&nbsp;&nbsp;
+                                    </label>
+                                    <?php } ?>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div  class = "panel panel-info">
-                        <div class="panel-heading"><b>POC Details</b></div>
+                        <div class="panel-heading" style="background-color:#ECF0F1"><b>Brands</b></div>
+                        <div class="panel-body">
+                            <div class="col-md-12">
+                                <?php foreach ($results['brands'] as $key => $brands) {
+                                    ?>
+                                <label for="Brand" class="col-md-3">
+                                    <input type="checkbox" name="brands[]" value ="<?php echo $brands->brand_name; ?>"
+                                    <?php
+                                        if (isset($selected_brands_list)) {
+                                            if (in_array($brands->brand_name, $selected_brands_list))
+                                                echo "checked";
+                                        }
+                                        ?>>
+                                <?php echo $brands->brand_name; ?> &nbsp;&nbsp;&nbsp;
+                                </label>
+                                <?php } ?>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clear clear_bottom">
+                                <br>
+                                <input style="width:200px;" type="hidden" class="form-control"  name="id" value = "<?php
+                                    if (isset($query[0]['id'])) {
+                                        echo $query[0]['id'];
+                                    }
+                                    ?>">
+                                <center><input type="Submit" value="<?php
+                                    if (isset($selected_brands_list)) {
+                                        echo "Update Brand Mapping";
+                                    } else {
+                                        echo "Save Brand Mapping";
+                                    }
+                                    ?>" class="btn btn-primary" id="submit_btn">
+                                                                <?php echo "<a class='btn btn-small btn-primary' href=" . base_url() . "employee/vendor/viewvendor>Cancel</a>"; ?>
+                                </center>
+                            </div>
+                                                            </form>
+                        </div>
+<div class="clear" style="margin-top:0px;"></div>
+    <div id="container-4" style="display:none;padding-top: 0px;" class="form_container panel-body">
+        <form name="myForm" class="form-horizontal" id ="booking_form4" novalidate="novalidate" action="<?php echo base_url() ?>employee/vendor/save_vendor_contact_person" method="POST" enctype="multipart/form-data">            
+           <div>
+                                <input style="width:200px;" type="hidden" class="form-control"  name="id" value = "<?php
+                                    if (isset($query[0]['id'])) {
+                                        echo $query[0]['id'];
+                                    }
+                                      ?>">
+                                <?php echo form_error('id'); ?>
+                            </div>
+            <div>
+                                <input style="width:200px;" type="hidden" class="form-control"  name="sc_code" value = "<?php
+                                    if (isset($query[0]['sc_code'])) {
+                                        echo $query[0]['sc_code'];
+                                    }
+                                      ?>">
+                            </div>
+               <div>
+                                <input style="width:200px;" type="hidden" class="form-control"  name="name" value = "<?php
+                                    if (isset($query[0]['name'])) {
+                                        echo $query[0]['name'];
+                                    }
+                                      ?>">
+                            </div>
+            <div>
+                                <input style="width:200px;" type="hidden" class="form-control"  name="company_name" value = "<?php
+                                    if (isset($query[0]['company_name'])) {
+                                        echo $query[0]['company_name'];
+                                    }
+                                      ?>">
+                            </div>
+             <div>
+                                <input style="width:200px;" type="hidden" class="form-control"  name="district" value = "<?php
+                                    if (isset($query[0]['district'])) {
+                                        echo $query[0]['district'];
+                                    }
+                                      ?>">
+                            </div>
+            <div  class = "panel panel-info">
+                        <div class="panel-heading" style="background-color:#ECF0F1"><b>POC Details</b></div>
                         <div class="panel-body">
                             <div class="col-md-12">
                                 <div class="col-md-6">
@@ -393,7 +911,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label  for="primary_contact_name" class="col-md-3">Name</label>
+                                        <label  for="primary_contact_name" class="col-md-3 vertical-align">Name</label>
                                         <div class="col-md-8">
                                             <input  type="text" class="form-control blockspacialchar"  name="primary_contact_name" value = "<?php
                                                 if (isset($query[0]['primary_contact_name'])) {
@@ -410,7 +928,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label for="primary_contact_email" class="col-md-2">Email</label>
+                                        <label for="primary_contact_email" class="col-md-2 vertical-align">Email</label>
                                         <div class="col-md-8">
                                             <input  type="text" class="form-control"  name="primary_contact_email" value = "<?php
                                                 if (isset($query[0]['primary_contact_email'])) {
@@ -429,7 +947,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label for="primary_contact_phone_1" class="col-md-3">Phone 1</label>
+                                        <label for="primary_contact_phone_1" class="col-md-3 vertical-align">Phone 1</label>
                                         <div class="col-md-8">
                                             <input type="text" class="form-control" id="primary_contact_phone_1" name="primary_contact_phone_1" value = "<?php
                                                 if (isset($query[0]['primary_contact_phone_1'])) {
@@ -446,7 +964,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label for="primary_contact_phone_2" class="col-md-3">Phone 2</label>
+                                        <label for="primary_contact_phone_2" class="col-md-3 vertical-align">Phone 2</label>
                                         <div class="col-md-8">
                                             <input type="text" class="form-control" id="primary_contact_phone_2" name="primary_contact_phone_2" value = "<?php
                                                 if (isset($query[0]['primary_contact_phone_2'])) {
@@ -459,9 +977,9 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div  class = "panel panel-info">
-                        <div class="panel-heading"><b>Owner Details</b></div>
+            </div>
+            <div  class = "panel panel-info">
+                        <div class="panel-heading" style="background-color:#ECF0F1"><b>Owner Details</b></div>
                         <div class="panel-body">
                             <div class="col-md-12">
                                 <div class="col-md-6">
@@ -470,7 +988,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label for="owner_name" class="col-md-3">Name</label>
+                                        <label for="owner_name" class="col-md-3 vertical-align">Name</label>
                                         <div class="col-md-8">
                                             <input type="text" class="form-control blockspacialchar"  name="owner_name" value = "<?php
                                                 if (isset($query[0]['owner_name'])) {
@@ -487,7 +1005,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label for="owner_email" class="col-md-3">Email</label>
+                                        <label for="owner_email" class="col-md-3 vertical-align">Email</label>
                                         <div class="col-md-8">
                                             <input type="text" class="form-control"  name="owner_email" value = "<?php
                                                 if (isset($query[0]['owner_email'])) {
@@ -506,7 +1024,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label  for="owner_phone_1" class="col-md-3">Phone 1</label>
+                                        <label  for="owner_phone_1" class="col-md-3 vertical-align">Phone 1</label>
                                         <div class="col-md-8">
                                             <input type="text" class="form-control" id="owner_phone_1" name="owner_phone_1" value = "<?php
                                                 if (isset($query[0]['owner_phone_1'])) {
@@ -523,7 +1041,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label for="owner_phone_2" class="col-md-3">Phone 2</label>
+                                        <label for="owner_phone_2" class="col-md-3 vertical-align">Phone 2</label>
                                         <div class="col-md-8">
                                             <input type="text" class="form-control" id="owner_phone_2" name="owner_phone_2" value = "<?php
                                                 if (isset($query[0]['owner_phone_2'])) {
@@ -602,433 +1120,37 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div  class = "panel panel-info">
-                        <div class="panel-heading"><b>Registration Details</b></div>
-                        <div class="panel-body">
-                            <div class="col-md-12">
-                                <div class="col-md-4" style="margin-right:21px;">
-                                    <div class="form-group <?php
-                                        if (form_error('name_on_pan')) {
-                                            echo 'has-error';
-                                        }
-                                        ?>">
-                                        <label  for="name_on_pan" class="col-md-4">PAN </label>
-                                        <div class="col-md-7">
-                                            <input placeholder="Name on PAN CARD" type="text" class="form-control blockspacialchar"  id="name_on_pan" name="name_on_pan" value = "<?php
-                                                if (isset($query[0]['name_on_pan'])) {
-                                                    echo $query[0]['name_on_pan'];
-                                                }
-                                                ?>">
-                                            <span class="err1"><?php echo form_error('name_on_pan'); ?></span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-3" style="margin-right:14px;">
-                                    <div class="form-group  <?php
-                                        if (form_error('pan_no')) {
-                                            echo 'has-error';
-                                        }
-                                        ?>">
-                                        <!--                                        <label  for="pan_no" class="col-md-4">PAN No.</label>-->
-                                        <input type="text" class="form-control blockspacialchar"  id="pan_no" name="pan_no" placeholder="PAN Number" value = "<?php
-                                            if (isset($query[0]['pan_no'])) {
-                                                echo $query[0]['pan_no'];
-                                            }
-                                            ?>" style="width:117%">
-                                        <span class="err1"><?php echo form_error('pan_no'); ?></span>
-                                    </div>
-                                </div>
-                                <div class="col-md-3" style="margin-left:40px;">
-                                    <div class="form-group">
-                                        <!--                                        <label  for="pan_file" class="col-md-4">PAN File :</label>-->
-                                        <input type="file" class="form-control"  id="pan_file" name="pan_file" value = "<?php
-                                            if (isset($query[0]['pan_file'])) {
-                                                echo $query[0]['pan_file'];
-                                            }
-                                            ?>">
-                                        <?php echo form_error('pan_file'); ?>
-                                    </div>
-                                </div>
-                                <div class="col-md-1" style="margin-left: 20px;">
-                                    <?php
-                                        $src = base_url() . 'images/no_image.png';
-                                        $image_src = $src;
-                                        if (isset($query[0]['pan_file']) && !empty($query[0]['pan_file'])) {
-                                            //Path to be changed
-                                            $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['pan_file'];
-                                            $image_src = base_url().'images/view_image.png';
-                                        }
-                                        ?>
-                                    <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
-                                    <?php if(isset($query[0]['pan_file']) && !empty($query[0]['pan_file'])){?>
-                                    <a href="javascript:void(0)" onclick="remove_image('pan_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['pan_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
-                                    <?php }?>
-                                </div>
-                                <div class="col-md-2">
-                                    <div class="checkbox">
-                                        <label>
-                                        <b style="font-size: 18px;">Not Available</b> 
-                                        </label>
-                                        <input type="checkbox"  value="0" id="is_pan_doc" name ="is_pan_doc" <?php if(isset($query[0]['is_pan_doc'])){ if($query[0]['is_pan_doc'] == 0){ echo "checked" ;}}?> style="margin-left:16px;zoom:1.5"> 
-                                    </div>
-                                </div>
-                                <!--                                <div class="col-md-2" style="margin-left:6px;">
-                                    </div>-->
-                            </div>
-                            <!--                            <div class="col-md-12">
-                                <div class="col-md-6">
-                                    <div class="form-group <?php
-//                                    if (form_error('vat_no')) {
-//                                        echo 'has-error';
-//                                    }
+            </div>
+            <div class="clear clear_bottom">
+                                <br>
+                                <input style="width:200px;" type="hidden" class="form-control"  name="id" value = "<?php
+                                    if (isset($query[0]['id'])) {
+                                        echo $query[0]['id'];
+                                    }
                                     ?>">
-                                        <label  for="vat_no" class="col-md-3">VAT No.:</label>
-                                        <div class="col-md-8">
-                                            <input type="text" class="form-control"  name="vat_no" value = "<?php
-//                                    if (isset($query[0]['vat_no'])) {
-//                                        echo $query[0]['vat_no'];
-//                                    }
-                                    ?>">
-                                                   <?php //echo form_error('vat_no'); ?>
-                                </div>
-                                </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group <?php
-//                                    if (form_error('vat_file')) {
-//                                        echo 'has-error';
-//                                    }
-                                    ?>">
-                                        <label  for="vat_file" class="col-md-3">VAT File:</label>
-                                        <div class="col-md-8">
-                                            <input type="file" class="form-control"  name="vat_file" value = "<?php
-//                                    if (isset($query[0]['vat_file'])) {
-//                                        echo $query[0]['vat_file'];
-//                                    }
-                                    ?>">
-                                                   <?php //echo form_error('vat_file'); ?>
-                                        </div>
-                                        <div class="col-md-1">
-                                            <?php
-//                                    $src = base_url() . 'images/no_image.png';
-//                                    if (isset($query[0]['vat_file']) && !empty($query[0]['vat_file'])) {
-//                                        //Path to be changed
-//                                        $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['vat_file'];
-//                                    }
-                                    ?>
-                                            <a href="<?php //echo $src?>" target="_blank"><img src="<?php //echo $src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
-                                            <?php //if(isset($query[0]['vat_file']) && !empty($query[0]['vat_file'])){?>
-                                            <a href="javascript:void(0)" onclick="remove_image('vat_file',<?php //echo $query[0]['id']?>,'<?php //echo $query[0]['vat_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
-                                            <?php //}?>
-                                        </div>
-                                    </div>
-                                
-                                </div>
-                                
-                                </div>-->
-<!--                            <div class="col-md-12">
-                                <div class="col-md-4">
-                                    <div class="form-group <?php
-//                                        if (form_error('cst_no')) {
-//                                            echo 'has-error';
-//                                        }
-                                        ?>">
-                                        <label  for="cst_no" class="col-md-4">CST No.</label>
-                                        <div class="col-md-7">
-                                            <input type="text" class="form-control blockspacialchar"  name="cst_no" id="cst_no" value = "<?php
-//                                                if (isset($query[0]['cst_no'])) {
-//                                                    echo $query[0]['cst_no'];
-//                                                }
-                                                ?>">
-                                            <span class="err1"><?php //echo form_error('cst_no'); ?></span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group <?php
-//                                        if (form_error('cst_file')) {
-//                                            echo 'has-error';
-//                                        }
-                                        ?>">
-                                        <label  for="cst_file" class="col-md-4">CST File</label>
-                                        <div class="col-md-7">
-                                            <input type="file" class="form-control"  name="cst_file" value = "<?php
-//                                                if (isset($query[0]['cst_file'])) {
-//                                                    echo $query[0]['cst_file'];
-//                                                }
-                                                ?>">
-                                            <?php //echo form_error('cst_file'); ?>
-                                        </div>
-                                        <div class="col-md-1">
-                                            <?php
-//                                                $src = base_url() . 'images/no_image.png';
-//                                                $image_src = $src;
-//                                                if (isset($query[0]['cst_file']) && !empty($query[0]['cst_file'])) {
-//                                                    //Path to be changed
-//                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['cst_file'];
-//                                                    $image_src = base_url().'images/view_image.png';
-//                                                }
-                                                ?>
-                                            <a href="<?php //echo $src?>" target="_blank"><img src="<?php //echo $image_src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
-                                            <?php //if(isset($query[0]['cst_file']) && !empty($query[0]['cst_file'])){?>
-                                            <a href="javascript:void(0)" onclick="remove_image('cst_file',<?php //echo $query[0]['id']?>,'<?php //echo $query[0]['cst_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
-                                            <?php //}?>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-3" style="margin-left:60px;">
-                                    <div class="checkbox">
-                                        <label>
-                                        <b style="font-size: 18px;">Not Available</b> 
-                                        </label>
-                                        <input type="checkbox"  value="0" id="is_cst_doc" name ="is_cst_doc" <?php //if(isset($query[0]['is_cst_doc'])){ if($query[0]['is_cst_doc'] == 0){ echo "checked" ;}}?> style="margin-top:5px; margin-left:24px;zoom:1.5;"> 
-                                    </div>
-                                </div>
-                            </div>-->
-<!--                            <div class="col-md-12">
-                                <div class="col-md-4">
-                                    <div class="form-group <?php
-//                                        if (form_error('tin_no')) {
-//                                            echo 'has-error';
-//                                        }
-                                        ?>">
-                                        <label  for="tin_no" class="col-md-4">TIN/VAT No.</label>
-                                        <div class="col-md-7">
-                                            <input type="text" class="form-control blockspacialchar"  id="tin_no" name="tin_no" value = "<?php
-//                                                if (isset($query[0]['tin_no'])) {
-//                                                    echo $query[0]['tin_no'];
-//                                                }
-                                                ?>">
-                                            <span class="err1"><?php //echo form_error('tin_no'); ?></span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group <?php
-//                                        if (form_error('tin_file')) {
-//                                            echo 'has-error';
-//                                        }
-                                        ?>">
-                                        <label  for="tin_file" class="col-md-4">TIN/VAT File</label>
-                                        <div class="col-md-7">
-                                            <input type="file" class="form-control"  name="tin_file" value = "<?php
-//                                                if (isset($query[0]['tin_file'])) {
-//                                                    echo $query[0]['tin_file'];
-//                                                }
-                                                ?>">
-                                            <?php //echo form_error('tin_file'); ?>
-                                        </div>
-                                        <div class="col-md-1">
-                                            <?php
-//                                                $src = base_url() . 'images/no_image.png';
-//                                                $image_src = $src;
-//                                                if (isset($query[0]['tin_file']) && !empty($query[0]['tin_file'])) {
-//                                                    //Path to be changed
-//                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['tin_file'];
-//                                                    $image_src = base_url().'images/view_image.png';
-//                                                }
-                                                ?>
-                                            <a href="<?php //echo $src?>" target="_blank"><img src="<?php //echo $image_src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
-                                            <?php //if(isset($query[0]['tin_file']) && !empty($query[0]['tin_file'])){?>
-                                            <a href="javascript:void(0)" onclick="remove_image('tin_file',<?php //echo $query[0]['id']?>,'<?php //echo $query[0]['tin_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
-                                            <?php //}?>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-3" style="margin-left:60px;">
-                                    <div class="checkbox">
-                                        <label>
-                                        <b style="font-size: 18px;">Not Available</b>  
-                                        </label>
-                                        <input type="checkbox"  value="0" id ="is_tin_doc" name ="is_tin_doc" <?php //if(isset($query[0]['is_tin_doc'])){ if($query[0]['is_tin_doc'] == 0){ echo "checked" ;}}?> style="margin-top:5px; margin-left:24px;zoom:1.5;"> 
-                                    </div>
-                                </div>
-                            </div>-->
-<!--                            <div class="col-md-12">
-                                <div class="col-md-4">
-                                    <div class="form-group <?php
-//                                        if (form_error('service_tax_no')) {
-//                                            echo 'has-error';
-//                                        }
-                                        ?>">
-                                        <label  for="service_tax_no" class="col-md-4">Service Tax No.</label>
-                                        <div class="col-md-7">
-                                            <input type="text" class="form-control blockspacialchar"  id ="service_tax_no" name="service_tax_no" value = "<?php
-//                                                if (isset($query[0]['service_tax_no'])) {
-//                                                    echo $query[0]['service_tax_no'];
-//                                                }
-                                                ?>">
-                                            <span class="err1"> <?php //echo form_error('service_tax_no'); ?></span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group <?php
-//                                        if (form_error('service_tax_file')) {
-//                                            echo 'has-error';
-//                                        }
-                                        ?>">
-                                        <label for="service_tax_no" class="col-md-4">Tax File</label>
-                                        <div class="col-md-7">
-                                            <input type="file" class="form-control"  name="service_tax_file" value = "<?php
-//                                                if (isset($query[0]['service_tax_file'])) {
-//                                                    echo $query[0]['service_tax_file'];
-//                                                }
-                                                ?>">
-                                            <?php //echo form_error('service_tax_file'); ?>
-                                        </div>
-                                        <div class="col-md-1">
-                                            <?php
-//                                                $src = base_url() . 'images/no_image.png';
-//                                                $image_src = $src;
-//                                                if (isset($query[0]['service_tax_file']) && !empty($query[0]['service_tax_file'])) {
-//                                                    //Path to be changed
-//                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['service_tax_file'];
-//                                                    $image_src = base_url().'images/view_image.png';
-//                                                }
-                                                ?>
-                                            <a href="<?php //echo $src?>" target="_blank"><img src="<?php //echo $image_src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
-                                            <?php //if(isset($query[0]['service_tax_file']) && !empty($query[0]['service_tax_file'])){?>
-                                            <a href="javascript:void(0)" onclick="remove_image('service_tax_file',<?php //echo $query[0]['id']?>,'<?php //echo $query[0]['service_tax_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
-                                            <?php //}?>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-3" style="margin-left:60px;">
-                                    <div class="checkbox">
-                                        <label>
-                                        <b style="font-size: 18px;">Not Available</b>   
-                                        </label>
-                                        <input type="checkbox"  value="0" id="is_st_doc" name ="is_st_doc" <?php //if(isset($query[0]['is_st_doc'])){ if($query[0]['is_st_doc'] == 0){ echo "checked" ;}}?> style="    margin-left: 24px;margin-top: 5px;zoom:1.5;">
-                                    </div>
-                                </div>
-                            </div>-->
-                                    
-                            <div class="col-md-12">
-                                         <div class="col-md-4">
-                                    <div class="form-group <?php
-                                        if (form_error('signature_file')) {
-                                            echo 'has-error';
-                                        }
-                                        ?>">
-                                        <label for="signature_file" class="col-md-4">Signature File</label>
-                                        <div class="col-md-7">
-                                            <input type="file" class="form-control"  name="signature_file" id="signature_file" value = "<?php
-                                                if (isset($query[0]['signature_file'])) {
-                                                    echo $query[0]['signature_file'];
-                                                }
-                                                ?>">
-                                            <?php echo form_error('signature_file'); ?>
-                                        </div>
-                                        <div class="col-md-1" style="margin-left: -20px;">
-                                            <?php
-                                                $src = base_url() . 'images/no_image.png';
-                                                $image_src = $src;
-                                                if (isset($query[0]['signature_file']) && !empty($query[0]['signature_file'])) {
-                                                    //Path to be changed
-                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['signature_file'];
-                                                    $image_src = base_url().'images/view_image.png';
-                                                }
-                                                ?>
-                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
-                                            <?php if(isset($query[0]['signature_file']) && !empty($query[0]['signature_file'])){?>
-                                            <a href="javascript:void(0)" onclick="remove_image('signature_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['signature_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
-                                            <?php }?>
-                                        </div>
-                                    </div>
-                                </div>
-                       
-                                <div class="col-md-4" style="text-align: left; margin-top: 3px;">
-                                    <div class="form-group <?php
-                                        if (form_error('gst_file')) {
-                                            echo 'has-error';
-                                        }
-                                        ?>">
-                                        <label for="gst_file" class="col-md-4">GST File</label>
-                                        <div class="col-md-7">
-                                            <input type="file" class="form-control"  id="gst_file" name="gst_file" value = "<?php
-                                                if (isset($query[0]['gst_file'])) {
-                                                    echo $query[0]['gst_file'];
-                                                }
-                                                ?>">
-                                            <?php echo form_error('gst_file'); ?>
-                                        </div>
-                                        <div class="col-md-1">
-                                            <?php
-                                                $src = base_url() . 'images/no_image.png';
-                                                $image_src = $src;
-                                                if (isset($query[0]['gst_file']) && !empty($query[0]['gst_file'])) {
-                                                    //Path to be changed
-                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['gst_file'];
-                                                    $image_src = base_url().'images/view_image.png';
-                                                }
-                                                ?>
-                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
-                                            <?php if(isset($query[0]['gst_file']) && !empty($query[0]['gst_file'])){?>
-                                            <a href="javascript:void(0)" onclick="remove_image('gst_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['gst_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
-                                            <?php }?>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-3" style="margin-left:60px;">
-                                    <div class="checkbox">
-                                        <label>
-                                        <b style="font-size: 18px;">Not Available</b>   
-                                        </label>
-                                        <input type="checkbox"  value="0" id="is_gst_doc" name ="is_gst_doc" <?php if(isset($query[0]['is_gst_doc'])){ if($query[0]['is_gst_doc'] == 0){ echo "checked" ;}}?> style="    margin-left: 24px;margin-top: 5px;zoom:1.5;">
-                                    </div>
-                                </div>
-                            </div>
-                                    
-                            <div class="col-md-12" style="padding-top: 5px;">
-                                         
-                                <div class="col-md-4">
-                                    <div class="form-group <?php
-                                        if (form_error('gst_no')) {
-                                            echo 'has-error';
-                                        }
-                                        ?>">
-                                        <label  for="gst_no" class="col-md-4">GST No.</label>
-                                        <div class="col-md-7">
-                                            <input type="text" class="form-control blockspacialchar"  id ="gst_no" name="gst_no" value = "<?php
-                                                if (isset($query[0]['gst_no'])) {
-                                                    echo $query[0]['gst_no'];
-                                                }
-                                                ?>" onkeyup="validateGSTNo()">
-                                            <span class="err1"> <?php echo form_error('gst_no'); ?></span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label  for="" class="col-md-4">GST Type</label>
-                                        <div class="col-md-7">
-                                            <input type="text" class="form-control"  id ="gst_type" name="gst_type" value="<?php if (isset($query[0]['gst_taxpayer_type'])) {
-                                                    echo $query[0]['gst_taxpayer_type'];
-                                                    }  ?>" readonly="readonly">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label  for="" class="col-md-4">GST Status</label>
-                                        <div class="col-md-7">
-                                            <input type="text" class="form-control"  id ="gst_status" name="gst_status" value="<?php  if (isset($query[0]['gst_status'])) {
-                                                    echo $query[0]['gst_status'];
-                                                } ?>" readonly="readonly">
-                                            <input type="hidden" class="form-control"  id ="gst_cancelled_date" name="gst_cancelled_date" value="<?php if (isset($query[0]['gst_cancelled_date'])) {
-                                                    echo $query[0]['gst_cancelled_date'];
-                                                }  ?>">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>        
-                                    
-                        </div>
-                    </div>
-                    <div  class = "panel panel-info">
-                        <div class="panel-heading"><b>Bank Details</b></div>
+                                <center><input type="Submit" value="<?php
+                                    if (isset($selected_brands_list)) {
+                                        echo "Update Contact Person";
+                                    } else {
+                                        echo "Save Contact Person";
+                                    }
+                                    ?>" class="btn btn-primary" id="submit_btn">
+                            <?php echo "<a class='btn btn-small btn-primary' href=" . base_url() . "employee/vendor/viewvendor>Cancel</a>"; ?>
+                                </center>
+            </div>    
+        </form>
+    </div>
+<div class="clear" style="margin-top:0px;"></div>
+    <div id="container-5" style="display:none;padding-top: 0px;" class="form_container panel-body">
+        <form name="myForm" class="form-horizontal" id ="booking_form5" novalidate="novalidate" action="<?php echo base_url() ?>employee/vendor/save_vendor_bank_details" method="POST" enctype="multipart/form-data">            
+                                <input style="width:200px;" type="hidden" class="form-control"  name="id" value = "<?php
+                                    if (isset($query[0]['id'])) {
+                                        echo $query[0]['id'];
+                                    }
+                                      ?>">
+                                <?php echo form_error('id'); ?>
+                                <div  class = "panel panel-info">
+                        <div class="panel-heading" style="background-color:#ECF0F1"><b>Bank Details</b></div>
                         <div class="panel-body" id="bank_details">
                             <div class="col-md-12">
                                 <div class="col-md-4">
@@ -1037,10 +1159,10 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label  for="bank_name" class="col-md-4">Bank Name</label>
+                                        <label  for="bank_name" class="col-md-4 vertical-align">Bank Name</label>
                                         <div class="col-md-6">
-                                            <select class="form-control" id="bank_name" name="bank_name" onchange="manageAccountNameField(this.value)" >
-                                                <option selected disabled>Select Bank</option>
+                                            <select  style="width:170px;" class="form-control" id="bank_name" name="bank_name" onchange="manageAccountNameField(this.value)">
+                                                <option selected disabled  >Select Bank</option>
                                                 <?php foreach($results['bank_name'] as $key => $value) { ?> 
                                                 <option value="<?php echo $value['bank_name']; ?>" 
                                                         <?php if(isset($query[0]['bank_name']) && $query[0]['bank_name'] === $value['bank_name']){ echo 'selected';}?>> <?php echo $value['bank_name'] ;?></option>
@@ -1055,14 +1177,8 @@
                                             echo 'account_type';
                                         }
                                         ?>">
-                                        <label for="account_type" class="col-md-4">Account Type</label>
+                                        <label for="account_type" class="col-md-4 vertical-align">Account Type</label>
                                         <div class="col-md-6">
-                                           <!-- <input type="text" class="form-control blockspacialchar"  name="account_type" value = "<?php
-                                                //if (isset($query[0]['account_type'])) {
-                                                  //  echo $query[0]['account_type'];
-                                                //}
-                                                ?>">
-                                            <?php //echo form_error('account_type'); ?> -->
                                             <select class="form-control" id="account_type" name="account_type">
                                                 <option selected disabled>Account Type</option>
                                                 <option value="Saving" <?php if(isset($query[0]['account_type']) && $query[0]['account_type'] === 'Saving'){echo 'selected';}?>>Saving</option>
@@ -1077,7 +1193,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label for="bank_account" class="col-md-4">Bank Account</label>
+                                        <label for="bank_account" class="col-md-4 vertical-align">Bank Account</label>
                                         <div class="col-md-6">
                                             <input type="text" class="form-control allowNumericWithDecimal" <?php if (!isset($query[0]['bank_name'])) {echo "disabled";}?>  id = "bank_account" name="bank_account"  value = "<?php
                                                 if (isset($query[0]['bank_account'])) {
@@ -1096,7 +1212,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label for="ifsc_code" class="col-md-4">IFSC Code</label>
+                                        <label for="ifsc_code" class="col-md-4" >IFSC Code</label>
                                         <div class="col-md-6">
                                             <input type="text" class="form-control blockspacialchar"  name="ifsc_code" id="ifsc_code" value = "<?php
                                                 if (isset($query[0]['ifsc_code'])) {
@@ -1130,8 +1246,8 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label  for="cancelled_cheque_file" class="col-md-4">Cancelled Cheque File</label>
-                                        <div class="col-md-5">
+                                        <label  for="cancelled_cheque_file" class="col-md-4" style="vertical-align:middle">Cancelled Cheque File</label>
+                                        <div class="col-md-6">
                                             <input type="file" class="form-control"  name="cancelled_cheque_file" id = "cancelled_cheque_file" value = "<?php
                                                 if (isset($query[0]['cancelled_cheque_file'])) {
                                                     echo $query[0]['cancelled_cheque_file'];
@@ -1160,186 +1276,42 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                         <?php if($this->session->userdata('user_group')=== 'admin'){ ?>
-                                        <label for="is_bank_details_verified" class="col-md-3">Verified/Not Verified </label>
+                                    <label for="is_bank_details_verified" class="col-md-3" style="padding-left:2.5%">Verified/Not Verified </label>
                                         <div class="col-md-3">
                                         <input type="checkbox" value="1" name="is_verified" id="is_bank_details_verified" <?php if(isset($query[0]['is_verified']) && $query[0]['is_verified'] == '1') { ?>checked<?php } ?> style="zoom:1.5;">
                                         <?php }else { ?>
                                         <input type="hidden" name="is_verified" id="is_bank_details_verified" value="<?php if(isset($query[0]['is_verified'])) { echo $query[0]['is_verified']; }?>">
                                         <?php } ?>
                                         
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="panel panel-info">
-                        <div class="panel-heading"><b>Vendor Type</b></div>
-                        <div class="panel-body">
-                            <div class="col-md-12">
-                                <label class="checkbox-inline">
-                                    <input type="checkbox" id="is_sf" <?php if(isset($query[0]['is_sf'])) { if($query[0]['is_sf'] == 1){ echo "checked";}}?> name="is_sf" value="1"><b>Service Center</b>
-                                </label>
-                                <label class="checkbox-inline">
-                                    <input type="checkbox" id="is_cp" name="is_cp" <?php if(isset($query[0]['is_cp'])) { if($query[0]['is_cp'] == 1){ echo "checked";}}?> value="1"><b>Collection Partner</b>
-                                </label>
-                                <label class="checkbox-inline">
-                                    <input type="checkbox" id="is_wh" name="is_wh" <?php if(isset($query[0]['is_wh'])) { if($query[0]['is_wh'] == 1){ echo "checked";}}?> value="1"><b>Warehouse</b>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="panel panel-info">
-                        <div class="panel-heading"><b>Collection Partner</b></div>
-                        <div class="panel-body">
-                            <div class="col-md-12">
-                                <div class="col-md-4">
-                                <div class="form-group ">
-                                    <label for="collection_partner" class="col-md-4">CP Credit Limit</label>
-                                    <div class="col-md-8">
-                                        <input  type="text" id="cp_credit_limit" class="form-control"  name="cp_credit_limit" 
-                                                value = "<?php if (isset($query[0]['cp_credit_limit'])) {
-                                            echo $query[0]['cp_credit_limit'];
-                                        } ?>">
-                                    </div>
                                     
+                            </div>
+                            </div>
                                 </div>
-                            </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="panel panel-info">
-                        <div class="panel-heading"><b>Upcountry</b></div>
-                        <div class="panel-body">
-                            <div class="col-md-12">
-                                <div class="col-md-4">
-                                <div class="form-group ">
-                                    <label for="upcountry_min_distance_threshold" class="col-md-4">Municipal Limit</label>
-                                    <div class="col-md-8">
-                                        <input  type="text" id="municipal_limit" class="form-control"  name="min_upcountry_distance" value = "<?php if (isset($query[0]['min_upcountry_distance'])) {
-                                            echo $query[0]['min_upcountry_distance'];
-                                        } ?>">
-                                    </div>
-                                    
-                                </div>
-                            </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div  class = "panel panel-info">
-                        <div class="panel-heading"><b>Appliance</b></div>
-                        <div class="panel-body">
-                            <div class="col-md-12">
-                                <div  class="form-group <?php
-                                    if (form_error('appliance')) {
-                                        echo 'has-error';
-                                    }
-                                    ?>">
-                                    <?php foreach ($results['services'] as $key => $appliance) { ?>
-                                    <label for="Appliance" >
-                                    <input type="checkbox" name="appliances[]" value ="<?php echo $appliance->services; ?>"
-                                        <?php
-                                            if (isset($selected_appliance_list)) {
-                                                if (in_array($appliance->services, $selected_appliance_list))
-                                                    echo "checked";
-                                            }
-                                            ?> >
-                                    <?php echo $appliance->services; ?> &nbsp;&nbsp;&nbsp;
-                                    </label>
-                                    <?php } ?>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div  class = "panel panel-info">
-                        <div class="panel-heading"><b>Brands</b></div>
-                        <div class="panel-body">
-                            <div class="col-md-12">
-                                <?php foreach ($results['brands'] as $key => $brands) {
-                                    ?>
-                                <label for="Brand" >
-                                <input type="checkbox" name="brands[]" value ="<?php echo $brands->brand_name; ?>"
-                                    <?php
-                                        if (isset($selected_brands_list)) {
-                                            if (in_array($brands->brand_name, $selected_brands_list))
-                                                echo "checked";
-                                        }
-                                        ?>>
-                                <?php echo $brands->brand_name; ?> &nbsp;&nbsp;&nbsp;
-                                </label>
-                                <?php } ?>
-                            </div>
-                        </div>
-                    </div>
-                    <div  class = "panel panel-info">
-                        <div class="panel-heading"><b>Non Working Days</b></div>
-                        <div class="panel-body">
-                            <div class="col-md-12">
-                                <?php foreach ($days as $key => $day) { ?>
-                                <label for="non_working_days" >
-                                <input type="checkbox" name="day[]" value ="<?php echo $day; ?>"
-                                    <?php
-                                        if (isset($selected_non_working_days)) {
-                                            if (in_array($day, $selected_non_working_days)){
-                                                echo "checked";
-                                            }
-                                        }
-                                        ?> >
-                                <?php echo $day; ?> &nbsp;&nbsp;&nbsp;
-                                </label>
-                                <?php } ?>
-                            </div>
-                        </div>
-                    </div>
-                   
-
-                    <div style="float:left;width:90%;" class="form-group <?php
-                        if (form_error('non_working_days')) {
-                            echo 'has-error';
-                        }
-                        ?>">
-                    </div>
-                    <div class="col-md-12">
-                        <div class="col-md-6">
-                            <div class="col-md-9"></div>
-                            <div class="col-md-2">
-                                <input id="submit_btn" type="Submit" value="<?php
-                                    if (isset($query[0]['id'])) {
-                                        echo "Update Vendor";
-                                    } else {
-                                        echo "Save Vendor";
-                                    }
-                                    ?>" class="btn btn-primary" >
-                            </div>
-                        </div>
-                        <div class="col-md-6"><?php echo "<a class='btn btn-small btn-primary' href=" . base_url() . "employee/vendor/viewvendor>Cancel</a>"; ?></div>
-                    </div>
-                </form>
-            </div>
         </div>
-    </div>
+                        </div>
+                                <center><input type="submit" onclick="return validate_bank_details()" value="Update Bank Details" class="btn btn-primary" id="submit_btn">
+                            <?php echo "<a class='btn btn-small btn-primary' href=" . base_url() . "employee/vendor/viewvendor>Cancel</a>"; ?>
+                                </center>
+                                    </form>
 </div>
+
+<!--Validations here-->
 <?php if($this->session->userdata('checkbox')){$this->session->unset_userdata('checkbox');}?>
+<!--Validation for page1-->
 <script type="text/javascript">
-    function manageAccountNameField(value){
+function manageAccountNameField(value){
         document.getElementById("bank_account").disabled = false;
     }
-    /*$(".js-example-placeholder-single").select2({
-      placeholder: "Select a state",
-      allowClear: true
-    }); */
-    
     //Adding select 2 in Dropdowns
     $("#district_option").select2();
     $("#state").select2();
     $("#pincode").select2();
     $("#rm").select2();
     $("#bank_name").select2();
-    
-    
+
     function getDistrict() {
      var state = $("#state").val();
      var district = $(".district").val();
-    // alert(district);
      $.ajax({
        type: 'POST',
        url: '<?php echo base_url(); ?>employee/vendor/getDistrict/1',
@@ -1347,7 +1319,7 @@
        success: function (data) {
         // console.log(data);
          $(".district").html(data);
-                            if (district != "") {
+         if (district != "") {
            getPincode();
          }
        }
@@ -1361,7 +1333,6 @@
         url: '<?php echo base_url(); ?>employee/vendor/getPincode/1',
         data: {pincode: pincode, district: district},
         success: function (data) {
-          //console.log(data);
           $(".pincode").html(data);
        }
      });
@@ -1373,199 +1344,11 @@
         getDistrict();
     }
     });
-                
-        function remove_image(type,vendor_id,file_name){
-            var c  = confirm('Do you want to permanently remove photo?');
-            if(c){
-             $.ajax({
-                        type: 'POST',
-                        url: '<?php echo base_url(); ?>employee/vendor/remove_image',
-                        data: {type: type, id: vendor_id,file_name:file_name},
-                        success: function (data) {
-                             location.reload();
-    //                             console.log(data);
-                            }
-                    });
-                 }else{
-                    return false;
-                 }
-        }
-        function  bank_details_validation(){
-          var cheque = $('#cancelled_cheque_file').val();
-        <?php
-            if (isset($query[0]['cancelled_cheque_file'])) { ?>
-                cheque = 1;
-           <?php }
-            ?>
-             
-                var bank_name = $('#bank_name').val();
-                var account_type = $('#account_type').val();
-                var bank_account = $('#bank_account').val();
-                var ifsc_code = $('#ifsc_code').val();
-                var beneficiary = $('#beneficiary_name').val();
-                if((cheque == null || cheque == '') && (bank_name == null || bank_name == '') && (account_type == null || account_type == '') && (bank_account == null || bank_account == '') && 
-                        (ifsc_code == null || ifsc_code == '') && (beneficiary == null || beneficiary == '')){
-                    return true;
-                }
-                else{
-                    
-                    if(!(cheque == null || cheque == '') && !(bank_name == null || bank_name == '') && !(account_type == null || account_type == '') && !(bank_account == null || bank_account == '') && 
-                        !(ifsc_code == null || ifsc_code == '') && !(beneficiary == null || beneficiary == '')){
-                        return true;
-                    }
-                    else{
-                        alert("Please Fill all banks related fields, either all bank related fields should be blank");
-                        return false;
-                    }
-                }
-        }
-        //Function to vlaidate registration numbers entered
-        function validate_registration_no(){
-            //Check for PAN
-            if($('#is_pan_doc').is(":checked")){
-               if($('#pan_no').val() != '' && $('#name_on_pan').val() != ''){
-                   alert('Please Enter PAN Details or Tick "Not Available" checkbox');
-                   return false;
-               }
-            }else{
-                if($('#pan_no').val() == '' && $('#name_on_pan').val() == ''){
-                   alert('Please Enter PAN Details or Tick "Not Available" checkbox');
-                   return false;
-               }
-                //checking case when pan number is empty and pan name is enterd
-                else if($('#pan_no').val() == '' && $('#name_on_pan').val() != ''){
-                   alert('Please add Pan No along with Pan Name');
-                   return false;
-               }
-               //checking case when pan number is less than 6 and greater than 10 and pan name is enterd
-               else if($('#pan_no').val().length != '10' && $('#name_on_pan').val() != ''){
-                   alert('Please add valid 10 digit pan number');
-                   return false;
-               }
-               //checking case when pan number 10 and pan name is enterd but panfile is not uploaded
-               <?php if(empty($query[0]['pan_file'])){ ?>
-                           else if($('#pan_no').val().length == '10' && $('#name_on_pan').val() != '' && !$('#pan_file').val()!= ''){
-                   alert('Please upload pan file also');
-                   return false;
-               } <?php }?>
-            }
-            //Check for CST
-//            if($('#is_cst_doc').is(":checked")){
-//               if($('#cst_no').val() != ''){
-//                   alert('Please Enter CST Number or Tick "Not Available" checkbox');
-//                   return false;
-//               }
-//            }else{
-//                if($('#cst_no').val() == ''){
-//                   alert('Please Enter CST Number or Tick "Not Available" checkbox');
-//                   return false;
-//               }
-//               else if($('#cst_no').val().length < '6'){
-//                   alert('Please Enter Valid CST Number');
-//                   return false;
-//               }
-//            }
-            
-            //Check for TIN
-//            if($('#is_tin_doc').is(":checked")){
-//               if($('#tin_no').val() != ''){
-//                   alert('Please Enter TIN Number or Tick "Not Available" checkbox');
-//                   return false;
-//               }
-//            }else{
-//                if($('#tin_no').val() == ''){
-//                   alert('Please Enter TIN Number or Tick "Not Available" checkbox');
-//                   return false;
-//               }
-//               else if($('#tin_no').val().length < '6'){
-//                   alert('Please Enter Valid TIN Number');
-//                   return false;
-//               }
-//            }
-            
-            //Check for Service Tax no.
-//            if($('#is_st_doc').is(":checked")){
-//               if($('#service_tax_no').val() != ''){
-//                   alert('Please Enter Service Tax Number or Tick "Not Available" checkbox');
-//                   return false;
-//               }
-//            }else{
-//                if($('#service_tax_no').val() == ''){
-//                   alert('Please Enter Service Tax Number or Tick "Not Available" checkbox');
-//                   return false;
-//               }
-//               else if($('#service_tax_no').val().length < '6'){
-//                   alert('Please Enter Valid Service Tax Number');
-//                   return false;
-//               }
-//            }
-             
-            //Check for GST  no.
-            if($('#is_gst_doc').is(":checked")){
-               if($('#gst_no').val() != ''){
-                   alert('Please Enter GST Number or Tick "Not Available" checkbox');
-                   return false;
-               }
-            }else{
-                var is_gst_file = <?php if(isset($query[0]['gst_file']) && !empty($query[0]['gst_file'])){ echo '1';}else{echo '0';}?>;
-                if($('#gst_no').val() == ''){
-                   alert('Please Enter GST Number or Tick "Not Available" checkbox');
-                   return false;
-                }
-                else if($('#gst_no').val().length === '15'){
-                   alert('Please Enter Valid GST Number');
-                   return false;
-                }
-                else if($('#gst_type').val() == '' || $('#gst_status').val() == ''){
-                   alert('Please Enter Valid GST Number or Tick "Not Available" checkbox');
-                   return false;
-                }
-//                else if($('#gst_no').val() != '' && $('#gst_file').get(0).files.length === 0 && is_gst_file === 0){
-//                   alert("Please Upload GST File");
-//                   return false;
-//                }
-            }
-            
-             if( ($('#is_cp').is(":checked") === false) && ($('#is_sf').is(":checked") === false) && ($('#is_wh').is(":checked") === false)){
-                 alert("Please Select Atleast One Checkbox of Service Center OR Collection Partner OR Warehouse");
-                 return false;
-             } 
-             var  gst_n = $('#gst_no').val();
-             var is_signature_file = <?php if(isset($query[0]['signature_file']) && !empty($query[0]['signature_file'])){ echo '1';}else{echo '0';}?>;
-             if(is_signature_file ==0){
-                var is_signature_file = $('#signature_file').get(0).files.length;
-             }
-             if(!(gst_n || is_signature_file)){
-                   alert('Please Update GST details or Signature ');
-                   return false;
-               }
-              return  bank_validation_check =  bank_details_validation();
-        }
+
 </script>
-<style type="text/css">
-    /* example styles for validation form demo */
-    #booking_form .form-group label.error {
-    color: #FB3A3A;
-    display: inline-block;;
-    padding: 0;
-    text-align: left;
-    width: 250px;
-    margin: 0px;
-    }
-    .err1{
-    color: #FB3A3A;
-    display: inline-block;;
-    padding: 0;
-    text-align: left;
-    width: 250px;
-    margin: 0px;
-    }
-</style>
+<!--page 1 validations begin here-->
+    
 <script type="text/javascript">
-    var gstRegExp = /^[0-9]{2}[a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[0-9]{1}[a-zA-Z]{1}[a-zA-Z0-9]{1}/;
-    $.validator.addMethod('gstregex', function (value, element, param) {
-                return this.optional(element) || gstRegExp.test( value);
-            }, 'Please enter Valid GST Number'); 
     (function ($, W, D)
     {
     var JQUERY4U = {};
@@ -1592,42 +1375,14 @@
             minlength: 10,
             number: true
         },
-        primary_contact_phone_1: {
-            required: true,
-            minlength: 10,
-            number: true
-        },
-        primary_contact_phone_2: {
-            number: true
-        },
-        owner_phone_1: {
-            required: true,
-            minlength: 10,
-            number: true
-        },
-        owner_phone_2: {
-            number: true
-        },
         state: "required",
-        primary_contact_name: "required",
-        owner_name: "required",
+        
         email: {
             email: true
         },
-        primary_contact_email: {
-            required: true
-        },
-        owner_email: {
-            required: true
-        },
-        bank_account:{
+        municipal_limit: {
             number: true
         },
-        gst_no:{
-            gstregex:true,
-            minlength:15,
-            maxlength:15
-        }
     },
     messages: {
         company_name: "Please enter Company Name",
@@ -1638,26 +1393,19 @@
         state: "Please Select State",
         phone_1: "Please enter Phone Number",
         phone_2: "Please fill correct phone number",
-        primary_contact_phone_1: "Please fill correct phone number",
-        primary_contact_phone_2: "Please fill correct phone number",
-        owner_phone_1: "Please fill correct phone number",
-        owner_phone_2: "Please fill correct phone number",
-        primary_contact_name: "Please fill Name",
-        owner_name: "Please fill Name",
+        
         email: "Please fill correct email",
-        primary_contact_email: "Please fill correct email",
-        owner_email: "Please fill correct email",
-        bank_account: "Please fill correct Bank Account Number"
+        
+        
     },
         submitHandler: function (form) {
-            //Checking registration number validation
-        var check = validate_registration_no();
-        if(check === false){
-            return false;
-        }
+            
         var municipal_limit = $("#municipal_limit").val();
-        if(Number(municipal_limit) < 1){
-            alert("Please Add Municipla Limit");
+            if(Number(municipal_limit) < 1){
+            alert("Please Add Municipal Limit");
+            return false;}
+        if($('#is_sf').is(':checked')==0 && $('#is_cp').is(':checked')==0 && $('#is_wh').is(':checked')==0){
+            alert("Please Select Atleast One Checkbox of Service Center OR Collection Partner OR Warehouse");
             return false;
         }
         form.submit();
@@ -1674,24 +1422,171 @@
     })(jQuery, window, document);
     
     
-    
+           
+</script> 
+<!--page 1 validations end here-->
+<!--page 2 validations begin-->
+<script type="text/javascript">
+    var gstRegExp = /^[0-9]{2}[a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[0-9]{1}[a-zA-Z]{1}[a-zA-Z0-9]{1}/;
+    $.validator.addMethod('gstregex', function (value, element, param) {
+                return this.optional(element) || gstRegExp.test( value);
+            }, 'Please enter Valid GST Number'); 
+     function validate_documents(){
+            if($('#is_pan_doc').is(":checked")){
+               if($('#pan_no').val()!== '' && $('#name_on_pan').val() != ''){
+                   alert('Please Enter PAN Details or Tick "Not Available" checkbox');
+                   return false;
+               }
+            }else{
+                if($('#pan_no').val() == '' && $('#name_on_pan').val() == ''){
+                   alert('Please Enter PAN Details or Tick "Not Available" checkbox');
+                   return false;
+               }
+                //checking case when pan number is empty and pan name is enterd
+                else if($('#pan_no').val() == '' && $('#name_on_pan').val() != ''){
+                   alert('Please add Pan No along with Pan Name');
+                   return false;
+               }
+               //checking case when pan number is less than 6 and greater than 10 and pan name is enterd
+               else if($('#pan_no').val().length !== 10 && $('#name_on_pan').val() != ''){
+                   alert('Please add valid 10 digit pan number');
+                   return false;
+               }
+               //checking case when pan number 10 and pan name is enterd but panfile is not uploaded
+               <?php if(empty($query[0]['pan_file'])){ ?>
+                           else if($('#pan_no').val().length === 10 && $('#name_on_pan').val() != '' && $('#pan_file').val()== 0){
+                           alert('Please upload pan file also');
+                   return false;
+               } <?php }?>
+            }
+            //Check for GST  no.
+            if($('#is_gst_doc').is(":checked")){
+               if($('#gst_no').val() != ''){
+                   alert('Please Enter GST Number or Tick "Not Available" checkbox');
+                   return false;
+               }
+            }else{
+                var is_gst_file = <?php if(isset($query[0]['gst_file']) && !empty($query[0]['gst_file'])){ echo '1';}else{echo '0';}?>;
+                if($('#gst_no').val() == ''){
+                   alert('Please Enter GST Number or Tick "Not Available" checkbox');
+                   return false;
+                }
+                else if($('#gst_no').val().length === '15'){
+                   alert('Please Enter Valid GST Number');
+                   return false;
+                }
+                else if($('#gst_type').val() == '' || $('#gst_status').val() == ''){
+                   alert('Please Enter Valid GST Number or Tick "Not Available" checkbox');
+                   return false;
+                }
+//                else if($('#gst_no').val() != '' && $('#gst_file').get(0).files.length === 0 && is_gst_file === 0){
+//                   alert("Please Upload GST File");
+//                   return false;
+//                }
+            }
+             var  gst_n = $('#gst_no').val();
+             var is_signature_file = <?php if(isset($query[0]['signature_file']) && !empty($query[0]['signature_file'])){ echo '1';}else{echo '0';}?>;
+             if(is_signature_file == 0){
+                var is_signature_file = $('#signature_file').get(0).files.length;
+             }
+             if(!(gst_n || is_signature_file)){
+                   alert('Please Update GST details or Signature ');
+                   return false;
+    }
+    }
 </script>
-<script>
+
+<!--page 2 validations end-->
+
+<!--page 3 validations - none-->
+
+<!--page 4 validations begin here-->
+<script type="text/javascript">
+    (function ($, W, D)
+    {
+    var JQUERY4U = {};
+    
+    JQUERY4U.UTIL =
+    {
+                    setupFormValidation: function ()
+    {
+    //form validation rules
+    $("#booking_form4").validate({
+    rules: {
+        primary_contact_phone_1: {
+            required: true,
+            minlength: 10,
+            number: true
+        },
+        primary_contact_phone_2: {
+            number: true
+        },
+        owner_phone_1: {
+            required: true,
+            minlength: 10,
+            number: true
+        },
+        owner_phone_2: {
+            number: true
+        },
+        primary_contact_name: "required",
+        owner_name: "required",
+        primary_contact_email: {
+            required: true
+        },
+        owner_email: {
+            required: true
+        },
+    },
+    messages: {
+        primary_contact_phone_1: "Please fill correct phone number",
+        primary_contact_phone_2: "Please fill correct phone number",
+        owner_phone_1: "Please fill correct phone number",
+        owner_phone_2: "Please fill correct phone number",
+        primary_contact_name: "Please fill Name",
+        owner_name: "Please fill Name",
+        primary_contact_email: "Please fill correct email",
+        owner_email: "Please fill correct email",
+        
+    },
+        submitHandler: function (form) {
+        form.submit();
+        }
+    });
+    }
+    };
+    
+    //when the dom has loaded setup form validation rules
+        $(D).ready(function ($) {
+    JQUERY4U.UTIL.setupFormValidation();
+    });
+    
+    })(jQuery, window, document);
+    
+    
+</script>    
+<!--page 4 validations end here-->
+
+<script type="text/javascript">
+    function load_form(tab_id){
+       total_div  = document.getElementsByClassName('form_container').length;
+       for(var i =1;i<=total_div;i++){
+           if(i != tab_id){
+             document.getElementById("container-"+i).style.display='none';
+             document.getElementById(i).style.background='#d9edf7';
+            }
+            else{
+                document.getElementById("container-"+i).style.display='block';
+                document.getElementById(i).style.background='#fff';
+            }
+       }
+       
+    }
+</script>
+<script type="text/javascript">
     <?php if((isset($query[0]['is_verified']) && !empty($query[0]['is_verified'])) && $this->session->userdata('user_group') !='admin'){?>
         $('#bank_details').find('input').attr('readonly', true);
     <?php } ?>
-        
-   $('#pan_no').keypress(function (e) {
-        var regex = new RegExp("^[a-zA-Z0-9]+$");
-        var str = String.fromCharCode(!e.charCode ? e.which : e.charCode);
-        if (regex.test(str)) {
-            return true;
-        }
-
-        e.preventDefault();
-        return false;
-    });  
-    
     $(".allowNumericWithDecimal").keydown(function (e) {
         // Allow: backspace, delete, tab, escape, enter and .
         if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
@@ -1744,7 +1639,50 @@
         });
     }); 
     
-    function validateGSTNo(){
+  
+</script>
+<!--function to remove image-->
+<script>
+    function remove_image(type,vendor_id,file_name){
+            var c  = confirm('Do you want to permanently remove photo?');
+            if(c){
+             $.ajax({
+                        type: 'POST',
+                        url: '<?php echo base_url(); ?>employee/vendor/remove_image',
+                        data: {type: type, id: vendor_id,file_name:file_name},
+                        success: function (data) {
+                             location.reload();
+    //                             console.log(data);
+                            }
+                    });
+                 }else{
+                    return false;
+                 }
+        }
+        function validate_bank_details(){
+                cheque_final = 1
+                    var cheque_already = <?php if(isset($query[0]['cancelled_cheque_file']) && !empty($query[0]['cancelled_cheque_file'])){ echo '1';}else{echo '0';}?>;
+                    var cheque = $('#cancelled_cheque_file').val();      
+                    if(cheque == null || cheque == ''){
+                        if(cheque_already == 0){
+                            cheque_final = 0;
+                        }
+                }
+            var bank_name = $('#bank_name').val();
+            var account_type = $('#account_type').val();
+            var bank_account = $('#bank_account').val();
+            var ifsc_code = $('#ifsc_code').val();
+            var beneficiary = $('#beneficiary_name').val();
+            if((cheque_final) && !(bank_name == null || bank_name == '') && !(account_type == null || account_type == '') && !(bank_account == null || bank_account == '') && 
+                    !(ifsc_code == null || ifsc_code == '') && !(beneficiary == null || beneficiary == '')){
+               return true;
+                }
+                else{
+                    alert("Please Fill all banks related fields");
+                    return false;
+                }
+        }
+            function validateGSTNo(){
         var gstin = $("#gst_no").val();
         gstin = gstin.trim();
         var vendor_id="";
@@ -1787,5 +1725,7 @@
         }
         else{ }
     }
-    
 </script>
+
+
+	
