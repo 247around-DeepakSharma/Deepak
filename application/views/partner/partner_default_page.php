@@ -14,6 +14,10 @@
     </div>
     <?php
     }
+    if($this->session->flashdata('inProcessBookings')){
+        echo "Following Bookings has been updated by someone else, Please Check the update and try again";
+        echo implode(",",$this->session->flashdata('inProcessBookings'));
+    }
     ?>
 
     <div class="row">
@@ -48,6 +52,11 @@
                             <li role="presentation">
                                 <a href="#tabs-5" role="tab" data-toggle="tab" aria-expanded="true">
                                     Pending Spare Quotes
+                                </a>
+                            </li>
+                            <li role="presentation">
+                                <a href="#tabs-6" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>employee/partner/partner_review_bookings/0/1">
+                                    Waiting For Review
                                 </a>
                             </li>
                             <?php }
@@ -91,6 +100,7 @@
                                     </div>
                                 </div>
                             </div>
+                             <div class="tab-pane" id="tabs-6"></div>
                          <?php    } ?>
                         </div>
                     </div>

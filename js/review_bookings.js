@@ -120,17 +120,4 @@ function send_remarks() {
 
 }
 
-function send_remarks_by_partner() {
-    var bookingID = $('#modal-title').text();
-    var postData = {};
-    postData['booking_id'] = $('#modal-title').text();
-    postData['admin_remarks'] = $('#textarea').val();
-    postData['rejected_by'] = $('#partner_id_cancel').val();
-    sendAjaxRequest(postData, partner_remarksUrl).done(function (data) {
-        alert("Booking Has been Rejected Successfully");
-        document.getElementById("row_"+bookingID).style.background = "#89d4a7";
-    });
-
-}
-
 

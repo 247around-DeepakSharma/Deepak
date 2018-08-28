@@ -5088,32 +5088,6 @@ class Partner extends CI_Controller {
         exec("rm -rf " . escapeshellarg($csv));
          unlink($csv);
     }
-    function review_bookings($booking_id = NULL){
-        $this->checkUserSession();
-        $whereIN = array();
-        $partnerID = $this->session->userdata('partner_id');
-        $statusData = $this->reusable_model->get_search_result_data("partners","partners.booking_review_for,partners.review_time_limit",array("booking_review_for IS NOT NULL"=>NULL,"id"=>$partnerID),NULL,NULL,NULL,NULL,NULL,array());
-        if(!empty($statusData)){
-            $where['booking_details.partner_id'] = array($partnerID);
-            $whereIN['service_center_booking_action.internal_status'] = explode(",",$statusData[0]['booking_review_for']);
-            $where['DATEDIFF(CURRENT_TIMESTAMP,  service_center_booking_action.closed_date)<'.$statusData[0]['review_time_limit']] = NULL;
-            $tempData = $this->booking_model->get_booking_for_review($booking_id,$whereIN,$where);
-            if(!empty($tempData)){
-                foreach($tempData as $values){
-                    if(!empty($values['unit_details'])){
-                        $data['charges'][] = $values;
-                    }
-                }
-            }
-            else{
-                 $data['charges'] = array();
-            }
-            $data['review_for'] = $statusData[0]['booking_review_for'];
-            $this->miscelleneous->load_partner_nav_header();
-            $this->load->view('employee/partner_review_booking', $data);
-            $this->load->view('partner/partner_footer');
-        }
-    }
       function checked_complete_review_booking() {
         $requested_bookings = $this->input->post('approved_booking');
         $where['is_in_process'] = 0;
@@ -5138,20 +5112,103 @@ class Partner extends CI_Controller {
             //Logging
             log_message('info', __FUNCTION__ . ' Approved Booking Empty from Post');
         }
-            redirect(base_url() . 'partner/review_bookings');
+            redirect(base_url() . 'employee/partner/partner_review_bookings');
     }
     function reject_booking_from_review(){
         $postArray = $this->input->post();
         $where['is_in_process'] = 0;
         $whereIN['booking_id'] = $postArray['booking_id']; 
         $tempArray = $this->reusable_model->get_search_result_data("booking_details","booking_id",$where,NULL,NULL,NULL,$whereIN,NULL,array());
+        $this->booking_model->mark_booking_in_process(array($postArray['booking_id']));
         if(!empty($tempArray)){
             echo "Booking Updated Successfully";
             $postArray = $this->input->post();
             $this->miscelleneous->reject_booking_from_review($postArray);
         }
         else{
-            echo "Booking updated by someone else , Please check updated booking and try again";
+            echo "Someone Else is Updating the booking , Please check updated booking and try again";
         }
+    }
+    function partner_review_bookings($offset = 0, $all = 0) {
+        $this->checkUserSession();
+        $partner_id = $this->session->userdata('partner_id');
+        $config['base_url'] = base_url() . 'partner/partner_review_bookings';
+        $total_rows = $this->get_review_bookings($partner_id);
+        $config['total_rows'] = count($total_rows);
+        if ($all == 1) {
+            $config['per_page'] = count($total_rows);
+        } else {
+            $config['per_page'] = 50;
+        }
+        $config['uri_segment'] = 3;
+        $config['first_link'] = 'First';
+        $config['last_link'] = 'Last';
+        $this->pagination->initialize($config);
+        $data['links'] = $this->pagination->create_links();
+        $data['count'] = $config['total_rows'];
+        $data['booking_details'] = array_slice($total_rows, $offset, $config['per_page']);
+        $data['is_ajax'] = $this->input->post('is_ajax');
+        if(empty($this->input->post('is_ajax'))){
+            $this->miscelleneous->load_partner_nav_header();
+            //$this->load->view('partner/header');
+            $this->load->view('partner/get_waiting_to_review', $data);
+            $this->load->view('partner/partner_footer');
+        }else{
+            $this->load->view('partner/get_waiting_to_review', $data);
+        }
+    }
+    function get_review_bookings($partnerID,$booking_id = NULL,$structuredData = 1){
+         $finalArray = array();
+        $statusData = $this->reusable_model->get_search_result_data("partners","partners.booking_review_for,partners.review_time_limit",array("booking_review_for IS NOT NULL"=>NULL,"id"=>$partnerID),NULL,NULL,NULL,NULL,NULL,array());
+        if(!empty($statusData)){
+            $where['booking_details.partner_id'] = $partnerID;
+            $statusArray = explode(",",$statusData[0]['booking_review_for']);
+            $where['booking_unit_details.product_or_services'] = "Service";
+            $whereIN['service_center_booking_action.internal_status'] = $statusArray;
+            $where['DATEDIFF(CURRENT_TIMESTAMP,  service_center_booking_action.closed_date)<'.$statusData[0]['review_time_limit']] = NULL;
+            $where['booking_details.request_type NOT LIKE "%paid%"'] = NULL;
+            $where['service_center_booking_action.current_status'] = 'InProcess';
+            $where['booking_details.is_in_process'] = 0;
+            $tempData = $this->partner_model->get_booking_review_data($where,$whereIN,$booking_id);
+            if(!empty($tempData)){
+                foreach($tempData as $values){
+                    if(array_key_exists($values['booking_id'], $finalArray)){
+                        $finalArray[$values['booking_id']]['appliance_brand'][] = $values['appliance_brand'];
+                    }
+                    else{
+                        $finalArray[$values['booking_id']]['appliance_brand'][] = $values['appliance_brand'];
+                        $finalArray[$values['booking_id']]['services'] = $values['services'];
+                        $finalArray[$values['booking_id']]['request_type']= $values['request_type'];
+                        $finalArray[$values['booking_id']]['internal_status'] = $values['internal_status'];
+                        $finalArray[$values['booking_id']]['name'] = $values['name'];
+                        $finalArray[$values['booking_id']]['booking_primary_contact_no'] = $values['booking_primary_contact_no'];
+                        $finalArray[$values['booking_id']]['city'] = $values['city'];
+                        $finalArray[$values['booking_id']]['state'] = $values['state'];
+                        $finalArray[$values['booking_id']]['initial_booking_date'] = $values['initial_booking_date'];
+                        $finalArray[$values['booking_id']]['age'] = $values['age'];
+                        $finalArray[$values['booking_id']]['is_upcountry'] = $values['is_upcountry'];
+                        $finalArray[$values['booking_id']]['booking_jobcard_filename'] = $values['booking_jobcard_filename'];
+                        $finalArray[$values['booking_id']]['internal_status'] = $values['internal_status'];
+                        $finalArray[$values['booking_id']]['amount_due'] = $values['amount_due'];
+                        $finalArray[$values['booking_id']]['partner_id'] = $values['partner_id'];
+                    }
+                }
+            }
+            else{
+                 $data= array();
+            }
+            if($structuredData == 0){
+                return $tempData;
+            }
+            else{
+                return $finalArray;
+            }
+        }
+    }
+    function download_partner_review_bookings($partnerID){
+        ob_start();
+        $data = $this->get_review_bookings($partnerID,NULL,'0');
+        $headings = array_keys($data[0]);
+        $this->miscelleneous->downloadCSV($data, $headings, "Review_bookings");
     }
 }
