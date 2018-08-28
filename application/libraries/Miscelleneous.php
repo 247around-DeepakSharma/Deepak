@@ -3389,7 +3389,7 @@ function generate_image($base64, $image_name,$directory){
         }
         else{
             $this->My_CI->notify->insert_state_change($booking_id, "Rejected", "InProcess_Completed", $admin_remarks, $this->My_CI->session->userdata('agent_id'), $this->My_CI->session->userdata('partner_name'), 
-                $actor,$next_action,_247AROUND);
+                $actor,$next_action,$postData['rejected_by']);
         }
     }
 }

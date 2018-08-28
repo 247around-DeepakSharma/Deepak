@@ -1647,5 +1647,26 @@ function get_data_for_partner_callback($booking_id) {
         $query = $this->db->get();
         return $query->result();
     }
+    function get_booking_review_data($where = array(), $whereIN = array(),$booking_id = NULL){
+        $this->db->select("service_center_booking_action.booking_id,services.services,booking_details.request_type,booking_details.partner_id,booking_details.is_upcountry,booking_details.amount_due, "
+                . "booking_unit_details.appliance_brand,booking_details.booking_jobcard_filename,"
+                . "service_center_booking_action.internal_status,users.name,booking_details.booking_primary_contact_no,booking_details.city,booking_details.state,"
+                . "STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date,"
+                . "DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as age");
+        $this->db->join("booking_details","booking_details.booking_id = service_center_booking_action.booking_id");
+        $this->db->join("services","booking_details.service_id = services.id");
+        $this->db->join("booking_unit_details","booking_unit_details.id = service_center_booking_action.unit_details_id");
+        $this->db->join("users","users.user_id = booking_details.user_id");
+        if(!empty($whereIN)){
+            foreach ($whereIN as $fieldName=>$conditionArray){
+                    $this->db->where_in($fieldName, $conditionArray);
+            }
+        }
+         if(!empty($where)){
+            $this->db->where($where);
+        }
+        $query = $this->db->get("service_center_booking_action");
+        return $query->result_array();
+    }
 }
 
