@@ -3392,4 +3392,57 @@ function generate_image($base64, $image_name,$directory){
                 $actor,$next_action,$postData['rejected_by']);
         }
     }
+    function get_review_bookings_for_partner($partnerID,$booking_id = NULL,$structuredData = 1,$afterLimit = 0){
+         $finalArray = array();
+        $statusData = $this->My_CI->reusable_model->get_search_result_data("partners","partners.booking_review_for,partners.review_time_limit",array("booking_review_for IS NOT NULL"=>NULL,"id"=>$partnerID),NULL,NULL,NULL,NULL,NULL,array());
+        if(!empty($statusData)){
+            $where['booking_details.partner_id'] = $partnerID;
+            $statusArray = explode(",",$statusData[0]['booking_review_for']);
+            $where['booking_unit_details.product_or_services'] = "Service";
+            $whereIN['service_center_booking_action.internal_status'] = $statusArray;
+            if($afterLimit == 1){
+              $where['DATEDIFF(CURRENT_TIMESTAMP,  service_center_booking_action.closed_date)>'.$statusData[0]['review_time_limit']] = NULL;
+            }
+            else{
+                $where['DATEDIFF(CURRENT_TIMESTAMP,  service_center_booking_action.closed_date)<='.$statusData[0]['review_time_limit']] = NULL;
+            }
+            $where['booking_details.request_type NOT LIKE "%paid%"'] = NULL;
+            $where['service_center_booking_action.current_status'] = 'InProcess';
+            $where['booking_details.is_in_process'] = 0;
+            $tempData = $this->My_CI->partner_model->get_booking_review_data($where,$whereIN,$booking_id);
+            if(!empty($tempData)){
+                foreach($tempData as $values){
+                    if(array_key_exists($values['booking_id'], $finalArray)){
+                        $finalArray[$values['booking_id']]['appliance_brand'][] = $values['appliance_brand'];
+                    }
+                    else{
+                        $finalArray[$values['booking_id']]['appliance_brand'][] = $values['appliance_brand'];
+                        $finalArray[$values['booking_id']]['services'] = $values['services'];
+                        $finalArray[$values['booking_id']]['request_type']= $values['request_type'];
+                        $finalArray[$values['booking_id']]['internal_status'] = $values['internal_status'];
+                        $finalArray[$values['booking_id']]['name'] = $values['name'];
+                        $finalArray[$values['booking_id']]['booking_primary_contact_no'] = $values['booking_primary_contact_no'];
+                        $finalArray[$values['booking_id']]['city'] = $values['city'];
+                        $finalArray[$values['booking_id']]['state'] = $values['state'];
+                        $finalArray[$values['booking_id']]['initial_booking_date'] = $values['initial_booking_date'];
+                        $finalArray[$values['booking_id']]['age'] = $values['age'];
+                        $finalArray[$values['booking_id']]['is_upcountry'] = $values['is_upcountry'];
+                        $finalArray[$values['booking_id']]['booking_jobcard_filename'] = $values['booking_jobcard_filename'];
+                        $finalArray[$values['booking_id']]['internal_status'] = $values['internal_status'];
+                        $finalArray[$values['booking_id']]['amount_due'] = $values['amount_due'];
+                        $finalArray[$values['booking_id']]['partner_id'] = $values['partner_id'];
+                    }
+                }
+            }
+            else{
+                 $data= array();
+            }
+            if($structuredData == 0){
+                return $tempData;
+            }
+            else{
+                return $finalArray;
+            }
+        }
+    }
 }
