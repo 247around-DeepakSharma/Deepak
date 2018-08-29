@@ -1865,73 +1865,7 @@ class Around_scheduler extends CI_Controller {
             log_message('info', __METHOD__ . " CP is not exist ");
         }
     }
-
-    function all_vendor_gst_checking_by_api(){
-        $vendor = $this->vendor_model->getVendorDetails('id,gst_no', array(), 'id', array());
-        for($i=0; $i<count($vendor); $i++){
-            if($vendor[$i]['gst_no']){
-                $api_response = $this->check_GST_number($vendor[$i]['gst_no']);
-                //$api_response = '{"stjCd":"DL086","lgnm":"SUDESH KUMAR","stj":"Ward 86","dty":"Regular","adadr":[],"cxdt":"","gstin":"07ALDPK4562B1ZG","nba":["Recipient of Goods or Services","Service Provision","Retail Business","Wholesale Business","Works Contract"],"lstupdt":"17/04/2018","rgdt":"01/07/2017","ctb":"Proprietorship","pradr":{"addr":{"bnm":"BLOCK 4","st":"GALI NO. 5","loc":"HARI NAGAR ASHRAM","bno":"A-144/5","dst":"","stcd":"Delhi","city":"","flno":"G/F","lt":"","pncd":"110014","lg":""},"ntr":"Recipient of Goods or Services, Service Provision, Retail Business, Wholesale Business, Works Contract"},"tradeNam":"UNITED HOME CARE","sts":"Active","ctjCd":"ZK0601","ctj":"RANGE - 161"}';
-                $api_response = json_decode($api_response, TRUE);
-                
-                $data['registration_date'] = date("Y-m-d", strtotime($api_response['rgdt']));
-                $data['company_type'] = $api_response['ctb'];
-                $data['constitution_of_business'] = $api_response['sts'];
-                $data['legal_name'] = $api_response['lgnm'];
-                $data['state_jurisdiction'] = $api_response['stj'];
-                $data['nature_of_business'] = json_encode($api_response['nba']);
-                $data['state_jurisdiction_code'] = $api_response['stjCd'];
-                $data['dty'] = $api_response['dty'];
-                $data['address'] = json_encode($api_response['pradr']['addr']);
-                $data['trade_Nam'] = $api_response['tradeNam'];
-                $data['ctj_Cd'] = $api_response['ctjCd'];
-                $data['ctj'] = $api_response['ctj'];
-                $data['gst_no'] = $api_response['gstin'];
-                    
-                $data_exist = $this->reusable_model->get_search_query('vendor_gst_detail','1',array('vendor_id'=>$vendor[$i]['id']),NULL,NULL,NULL,NULL,NULL)->result_array();
-                if($data_exist){
-                    $data['modified_date'] = date("Y-m-d H:i:s");
-                    $where = array("vendor_id" => $vendor[$i]["id"]);
-                    $this->reusable_model->update_table("vendor_gst_detail", $data, $where);
-                }
-                else{ 
-                    $data['vendor_id'] = $vendor[$i]['id'];
-                    $data['created_date'] = date("Y-m-d H:i:s");
-                    $this->reusable_model->insert_into_table('vendor_gst_detail', $data);
-                }
-                $data['vendor_id'] = $vendor[$i]['id'];
-                $log_data = array(
-                    	'activity' => 'vendor_gstin_ckeking_by_api', 
-                        'data' => json_encode($data)
-                );
-                $this->reusable_model->update_table("service_centres", array('gst_taxpayer_type'=> $api_response['dty'], 'gst_status'=> $api_response['sts']), array('id'=>$vendor[$i]['id']));
-                $this->reusable_model->insert_into_table('log_table', $log_data);
-            }
-        }
-    }
-    
-    function check_GST_number($gst){
-        $curl = curl_init();
-        curl_setopt_array($curl, array(
-          CURLOPT_URL => "https://api.taxprogsp.co.in/commonapi/v1.1/search?aspid=1606680918&password=priya@b30&Action=TP&Gstin=07ALDPK4562B1ZG",  
-          CURLOPT_RETURNTRANSFER => true,
-          CURLOPT_ENCODING => "",
-          CURLOPT_MAXREDIRS => 10,
-          CURLOPT_TIMEOUT => 30,
-          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-          CURLOPT_CUSTOMREQUEST => "GET",
-        ));
-        $response = curl_exec($curl);
-        $err = curl_error($curl);
-        curl_close($curl);
-        if ($err) {
-            //return "cURL Error :" . $err;
-        } else {
-          return $response;
-        }
-    }
-   
-    /** This function is used to get gst detail of all vendor from the taxPro API **/
+ /** This function is used to get gst detail of all vendor from the taxPro API **/
     function all_vendor_gst_checking_by_api(){
         $vendor = $this->vendor_model->getVendorDetails('id,gst_no', array(), 'id', array());
         foreach ($vendor as $vendor){            
@@ -1968,5 +1902,93 @@ class Around_scheduler extends CI_Controller {
             }
         }
     } 
+    
+    function check_GST_number($gst){
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+          CURLOPT_URL => "https://api.taxprogsp.co.in/commonapi/v1.1/search?aspid=1606680918&password=priya@b30&Action=TP&Gstin=07ALDPK4562B1ZG",  
+          CURLOPT_RETURNTRANSFER => true,
+          CURLOPT_ENCODING => "",
+          CURLOPT_MAXREDIRS => 10,
+          CURLOPT_TIMEOUT => 30,
+          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+          CURLOPT_CUSTOMREQUEST => "GET",
+        ));
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
+        curl_close($curl);
+        if ($err) {
+            //return "cURL Error :" . $err;
+        } else {
+          return $response;
+        }
+    }
+   
+
+    /*
+     * This function will be used to auto approve all those booking where partner was responsible to approve theses booking but partner did not review these booking within time
+     * So for this case we automatically approved these bookings
+     * In this function first we get all those partner , who review there booking by themselves
+     */
+    function auto_approve_all_partner_review_bookings_after_threshold(){
+        log_message('info', __FUNCTION__ . ' Start');
+        $partnerArray = $this->reusable_model->get_search_result_data("partners","id",array("booking_review_for IS NOT NULL"=>NULL),NULL,NULL,NULL,NULL,NULL,array());
+        foreach($partnerArray  as $partner){
+            $this->auto_approve_partner_review_bookings_after_threshold($partner['id']);
+        }
+         log_message('info', __FUNCTION__ . ' End');
+    }
+    /*
+     * Note - Partner Specific  - pass partner ID
+     * This function will be used to auto approve all those booking where partner was responsible to approve theses booking but partner did not review these booking within time
+     * So for this case we automatically approved these bookings
+     */
+    function auto_approve_partner_review_bookings_after_threshold($partnerID){
+        log_message('info', __FUNCTION__ . ' Start for partner '.$partnerID);
+        //Get All booking where review time limit is crossed by partner 
+        $tempData = $this->miscelleneous->get_review_bookings_for_partner($partnerID,NULL,1,1);
+        //Convert booking into structured format requiredd by checked_complete_review_booking function
+        if($tempData){
+            foreach($tempData as $booking_id=>$values){
+                $data['partner_id'][$booking_id] = $values['partner_id'];
+                $data['approved_booking'][] = $booking_id;
+            }
+            $data['approved_by'] = "247001";
+            //Call function to review the bookings
+            $this->checked_complete_review_booking($data);
+            log_message('info', __FUNCTION__ . ' End');
+        }
+        else{
+           log_message('info', __FUNCTION__ . ' Function End With No Booking Found');
+        }
+    }
+    /*
+     * This Function is used to complete review bookings
+     * Input  - $bookingData this array will contain 3 keys
+     */
+    function checked_complete_review_booking($bookingData) {
+        log_message('info', __FUNCTION__ . ' Function Start '.print_r($bookingData,TRUE));
+        $requested_bookings = $bookingData['approved_booking'];
+        $where['is_in_process'] = 0;
+        $whereIN['booking_id'] = $requested_bookings; 
+        $tempArray = $this->reusable_model->get_search_result_data("booking_details","booking_id",$where,NULL,NULL,NULL,$whereIN,NULL,array());
+        foreach($tempArray as $values){
+            $approved_booking[] = $values['booking_id'];
+        }
+        $this->booking_model->mark_booking_in_process($approved_booking);
+        $url = base_url() . "employee/do_background_process/complete_booking";
+        if (!empty($approved_booking)) {
+            $data['booking_id'] = $approved_booking;
+            $data['agent_id'] = _247AROUND_DEFAULT_AGENT;
+            $data['agent_name'] = _247AROUND_DEFAULT_AGENT_NAME;
+            $data['partner_id'] = $bookingData['partner_id'];
+            $data['approved_by'] = $bookingData['approved_by']; 
+            $this->asynchronous_lib->do_background_process($url, $data);
+        } else {
+            //Logging
+            log_message('info', __FUNCTION__ . ' Approved Booking Empty from Post');
+        }
+         log_message('info', __FUNCTION__ . ' End');
+    }
 }
 
