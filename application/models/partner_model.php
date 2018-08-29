@@ -388,7 +388,7 @@ function get_data_for_partner_callback($booking_id) {
             $subQueryArray['Dependency'] = 'IF(dependency_on =1, "'.DEPENDENCY_ON_AROUND.'", "'.DEPENDENCY_ON_CUSTOMER.'") as Dependency ';
         } 
         if ($percentageLogic == 1){
-            $subQueryArray['TAT']  = '(CASE WHEN service_center_closed_date IS NOT NULL AND !(booking_details.current_status = "Cancelled" OR internal_status ="InProcess_Cancelled") '
+            $subQueryArray['TAT']  = '(CASE WHEN service_center_closed_date IS NOT NULL AND !(booking_details.current_status = "Cancelled" OR booking_details.internal_status ="InProcess_Cancelled") '
                     . 'THEN (CASE WHEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,"%d-%m-%Y")) < 0 THEN 0 ELSE'
                 . ' DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,"%d-%m-%Y")) END) ELSE "" END) as TAT';
              $subQueryArray['Ageing']  = '(CASE WHEN booking_details.service_center_closed_date IS NULL THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,"%d-%m-%Y")) ELSE "" END) as Ageing';
