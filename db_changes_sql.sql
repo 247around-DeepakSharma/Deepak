@@ -8041,5 +8041,88 @@ ALTER TABLE `spare_parts_details` ADD `inventory_invoice_on_booking` INT(1) NOT 
 
 -- Kalyani 23-07-2018
 
+
 ALTER TABLE `courier_details` ADD COLUMN `notification_email`  VARCHAR(255) AFTER `contact_person_id`;
 ALTER TABLE `courier_details` ADD COLUMN `is_active` tinyint(1) NOT NULL DEFAULT 1 AFTER `partner_invoice_id`;
+
+--Abhay 14 Aug 2018
+ALTER TABLE `vendor_partner_invoices` ADD `credit_debit_generated` INT(1) NOT NULL DEFAULT '0' AFTER `create_date`;
+
+ALTER TABLE `vendor_partner_invoices` CHANGE `credit_debit_generated` `credit_generated` INT(1) NOT NULL DEFAULT '1';
+
+
+---Chhavi
+ALTER TABLE `tat_defactive_booking_criteria` ADD `with_repair_upcountry_leg_4` INT(11) NULL DEFAULT NULL AFTER `with_repair_upcountry_leg_3`;
+ALTER TABLE `tat_defactive_booking_criteria` ADD `with_repair_non_upcountry_leg_4` INT(11) NULL DEFAULT NULL AFTER `with_repair_non_upcountry_leg_3`;
+UPDATE `tat_defactive_booking_criteria` SET `with_repair_upcountry_leg_4` = '2' WHERE `tat_defactive_booking_criteria`.`id` = 2;
+UPDATE `tat_defactive_booking_criteria` SET `with_repair_upcountry_leg_4` = '2' WHERE `tat_defactive_booking_criteria`.`id` = 4;
+UPDATE `tat_defactive_booking_criteria` SET `with_repair_non_upcountry_leg_4` = '2' WHERE `tat_defactive_booking_criteria`.`id` = 2;
+UPDATE `tat_defactive_booking_criteria` SET `with_repair_non_upcountry_leg_4` = '2' WHERE `tat_defactive_booking_criteria`.`id` = 4;
+
+
+--Chhavi
+INSERT INTO `partner_summary_report_mapping` (`id`, `Title`, `sub_query`, `is_default`, `partner_id`, `is_active`, `index_in_report`) VALUES (NULL, 'Dealer Name', 'dealer_details.dealer_name AS \'Dealer Name\'', '0', '247034', '1', '38');
+INSERT INTO `partner_summary_report_mapping` (`id`, `Title`, `sub_query`, `is_default`, `partner_id`, `is_active`, `index_in_report`) VALUES (NULL, 'Dealer Phone', 'dealer_details.dealer_phone_number_1 AS \'Dealer Name\'', '0', '247034', '1','39');
+INSERT INTO `partner_summary_report_mapping` (`id`, `Title`, `sub_query`, `is_default`, `partner_id`, `is_active`, `index_in_report`) VALUES (NULL, 'Category', 'ud.appliance_category AS \'Appliance Category\'', '1', '', '1', '8');
+INSERT INTO `partner_summary_report_mapping` (`id`, `Title`, `sub_query`, `is_default`, `partner_id`, `is_active`, `index_in_report`) VALUES (NULL, 'Capacity', 'ud.appliance_capacity AS \'Appliance Capacity\'', '1', '', '1', '8');
+
+-- Abhay 22 Aug
+ALTER TABLE `invoice_details` CHANGE `toal_amount` `total_amount` DECIMAL(10,2) NOT NULL DEFAULT '0.00';
+
+
+--Chhavi
+UPDATE `entity_role` SET `department` = 'Warehouse' WHERE `entity_role`.`id` = 3;
+ALTER TABLE `partners` ADD `booking_review_for` VARCHAR(264) NULL DEFAULT NULL AFTER `grace_period_date`, ADD `review_time_limit` INT(11) NULL DEFAULT NULL AFTER `booking_review_for`;
+ALTER TABLE `booking_details` ADD `approved_by` INT(11) NULL AFTER `api_call_status_updated_on_completed`;
+ALTER TABLE `booking_details` ADD `rejected_by` INT(11) NULL AFTER `approved_by`;
+ALTER TABLE `booking_details` ADD `is_in_process` INT(1) NOT NULL DEFAULT '0' AFTER `rejected_by`
+
+--Chhavi
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'we_get_bad_rating', 'Bad Feedback From Customer, Rating ( %s ) For %s', 'Please take action as Customer is Not Satisfied with our Service.<br>\r\nSF: %s <br>\r\nCustomer remarks : %s <br>\r\nRequest Type : %s <br>\r\nAppliance : %s <br>', 'noreply@247around.com', 'anuj@247around.com', '', '', '1', '2018-08-24 15:30:00');
+
+UPDATE `entity_role` SET `role` = 'primary Contact' WHERE `entity_role`.`id` = 1;
+UPDATE `entity_role` SET `role` = 'Area Sales Manager' WHERE `entity_role`.`id` = 2;
+UPDATE `entity_role` SET `role` = 'Warehouse Incharge' WHERE `entity_role`.`id` = 3;
+UPDATE `entity_role` SET `role` = 'Warehouse Incharge' WHERE `entity_role`.`id` = 4;
+UPDATE `entity_role` SET `role` = 'Call Center' WHERE `entity_role`.`id` = 5;
+UPDATE `entity_role` SET `role` = 'Booking Manager' WHERE `entity_role`.`id` = 6;
+UPDATE `entity_role` SET `department` = 'Warehouse' WHERE `entity_role`.`id` = 3;
+UPDATE `entity_role` SET `department` = 'Warehouse' WHERE `entity_role`.`id` = 4;
+
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Owner' WHERE id =  '127';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Owner' WHERE id =  '128';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Owner' WHERE id =  '129';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Owner' WHERE id =  '130';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Owner' WHERE id =  '131';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Owner' WHERE id =  '132';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Owner' WHERE id =  '133';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Owner' WHERE id =  '134';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Owner' WHERE id =  '135';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Owner' WHERE id =  '136';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Owner' WHERE id =  '137';
+UPDATE header_navigation SET groups = 'Primary Contact,Owner' WHERE id =  '138';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Owner' WHERE id =  '139';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Owner' WHERE id =  '140';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Owner' WHERE id =  '141';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Owner' WHERE id =  '142';
+UPDATE header_navigation SET groups = 'Primary Contact,Owner' WHERE id =  '143';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Owner' WHERE id =  '144';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Call Center,Warehouse Incharge,Owner' WHERE id =  '145';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Call Center,Warehouse Incharge,Owner' WHERE id =  '146';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Call Center,Owner' WHERE id =  '147';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Owner' WHERE id =  '148';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Owner' WHERE id =  '149';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Owner' WHERE id =  '150';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Owner' WHERE id =  '151';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Owner' WHERE id =  '152';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Booking Manager,Owner' WHERE id =  '153';
+UPDATE header_navigation SET groups = 'Primary Contact,Area Sales Manager,Owner' WHERE id =  '161';
+
+--29th Aug Chhavi
+UPDATE `partner_summary_report_mapping` SET `sub_query` = 'CASE WHEN(booking_details.current_status = \'Completed\' || booking_details.current_status = \'Cancelled\') THEN (closing_remarks) ELSE (reschedule_reason) END AS \'Remarks\'' WHERE `partner_summary_report_mapping`.`id` = 18;
+UPDATE `partner_summary_report_mapping` SET `sub_query` = '(CASE WHEN booking_details.current_status = \"Completed\" THEN (CASE WHEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,\"%d-%m-%Y\")) < 0 THEN 0 ELSE DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,\"%d-%m-%Y\")) END) ELSE \"\" END) as TAT' WHERE `partner_summary_report_mapping`.`id` = 25;
+UPDATE `partner_summary_report_mapping` SET `sub_query` = '(CASE WHEN booking_details.current_status IN (\"Pending\",\"Rescheduled\",\"FollowUp\") THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,\"%d-%m-%Y\")) ELSE \"\" END) as Ageing' WHERE `partner_summary_report_mapping`.`id` = 26;
+UPDATE `partner_summary_report_mapping` SET `sub_query` = 'CASE WHEN(booking_details.current_status = \'Completed\' || booking_details.current_status = \'Cancelled\') THEN (closing_remarks) ELSE (booking_details.reschedule_reason) END AS \'Remarks\'' WHERE `partner_summary_report_mapping`.`id` = 18;
+UPDATE `partner_summary_report_mapping` SET `sub_query` = 'booking_details.booking_date As \'Current Booking Date\'' WHERE `partner_summary_report_mapping`.`id` = 19;
+UPDATE `partner_summary_report_mapping` SET `sub_query` = 'booking_details.booking_timeslot AS \'Timeslot\'' WHERE `partner_summary_report_mapping`.`id` = 21;
+UPDATE `partner_summary_report_mapping` SET `sub_query` = '(CASE WHEN (booking_details.current_status = \'Completed\' || booking_details.current_status = \'Cancelled\') THEN booking_details.cancellation_reason ELSE GROUP_CONCAT(service_center_booking_action.cancellation_reason) END) AS \'Cancellation Remarks\'' WHERE `partner_summary_report_mapping`.`id` = 37;
