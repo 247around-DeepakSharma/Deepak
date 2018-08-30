@@ -3392,7 +3392,7 @@ function generate_image($base64, $image_name,$directory){
                 $actor,$next_action,$postData['rejected_by']);
         }
     }
-    function get_review_bookings_for_partner($partnerID,$booking_id = NULL,$structuredData = 1,$afterLimit = 0){
+    function get_review_bookings_for_partner($partnerID,$booking_id = NULL,$structuredData = 1,$afterLimit = 0,$before_days = NULL){
          $finalArray = array();
         $statusData = $this->My_CI->reusable_model->get_search_result_data("partners","partners.booking_review_for,partners.review_time_limit",array("booking_review_for IS NOT NULL"=>NULL,"id"=>$partnerID),NULL,NULL,NULL,NULL,NULL,array());
         if(!empty($statusData)){
@@ -3404,7 +3404,11 @@ function generate_image($base64, $image_name,$directory){
               $where['DATEDIFF(CURRENT_TIMESTAMP,  service_center_booking_action.closed_date)>'.$statusData[0]['review_time_limit']] = NULL;
             }
             else{
-                $where['DATEDIFF(CURRENT_TIMESTAMP,  service_center_booking_action.closed_date)<='.$statusData[0]['review_time_limit']] = NULL;
+                $days = $statusData[0]['review_time_limit'];
+                if($before_days){
+                    $days = $statusData[0]['review_time_limit'] - $before_days;
+                }
+                $where['DATEDIFF(CURRENT_TIMESTAMP,  service_center_booking_action.closed_date)<='.$days] = NULL;
             }
             $where['booking_details.request_type NOT LIKE "%paid%"'] = NULL;
             $where['service_center_booking_action.current_status'] = 'InProcess';
