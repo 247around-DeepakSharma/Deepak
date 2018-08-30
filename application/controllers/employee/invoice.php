@@ -3798,14 +3798,14 @@ class Invoice extends CI_Controller {
      * @desc This function is used to generate GST Credit note 
      * @param String $invoice_id
      */
-    function generate_gst_creditnote($invoice_id) {
-        log_message("info", __METHOD__ . " Invoice ID " . $invoice_id);
-        $invoice_details = $this->invoices_model->get_invoices_details(array("invoice_id" => $invoice_id));
+    function generate_gst_creditnote($dn_invoice_id) {
+        log_message("info", __METHOD__ . " Invoice ID " . $dn_invoice_id);
+        $invoice_details = $this->invoices_model->get_invoices_details(array("invoice_id" => $dn_invoice_id));
         if (!empty($invoice_details)) {
             if ($invoice_details[0]['credit_generated'] == 0) {
                 $invoice_id = $invoice_details[0]['reference_invoice_id'];
                 if (empty($invoice_id)) {
-                    $tmp_invoice_id = explode("Around-GST-DN-", $invoice_details[0]['invoice_id']);
+                    $tmp_invoice_id = explode("Around-GST-DN-", $dn_invoice_id);
                     $invoice_id = $tmp_invoice_id[1];
                 }
                 $credit_invoice_details = array(
@@ -3829,6 +3829,7 @@ class Invoice extends CI_Controller {
                 );
 
                 $this->invoices_model->action_partner_invoice($credit_invoice_details);
+                $this->invoices_model->update_partner_invoices(array('invoice_id' => $dn_invoice_id), array('credit_generated' => 1));
                 redirect(base_url() . 'employee/invoice/invoice_summary/' . $invoice_details[0]['vendor_partner'] . "/" . $invoice_details[0]['vendor_partner_id']);
                 
             } else {
