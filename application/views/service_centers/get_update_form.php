@@ -121,7 +121,7 @@
                                         <label for="dop" class="col-md-4">Date of Purchase *</label>
                                         <div class="col-md-6">
                                             <div class="input-group input-append date">
-                                                <input id="dop" class="form-control" placeholder="Select Date" name="dop" type="text" >
+                                                <input id="dop" class="form-control" placeholder="Select Date" name="dop" type="text" required>
                                                 <span class="input-group-addon add-on" onclick="dop_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
                                             </div>
                                         </div>
@@ -133,7 +133,7 @@
                                     <div class="form-group">
                                         <label for="serial_number" class="col-md-4">Serial Number *</label>
                                         <div class="col-md-6">
-                                            <input type="text" class="form-control spare_parts" id="serial_number" name="serial_number" value="<?php echo set_value('serial_number'); ?>" placeholder="Serial Number">
+                                            <input type="text" class="form-control spare_parts" id="serial_number" name="serial_number" required value="<?php echo set_value('serial_number'); ?>" placeholder="Serial Number">
                                         </div>
                                     </div>
                                 </div>
@@ -141,7 +141,7 @@
                                     <div class="form-group">
                                         <label for="serial_number_pic" class="col-md-4">Serial Number Picture *</label>
                                         <div class="col-md-6">
-                                            <input type="file" class="form-control spare_parts" id="serial_number_pic" name="serial_number_pic">
+                                            <input type="file" class="form-control spare_parts" id="serial_number_pic" name="serial_number_pic" required>
                                         </div>
                                     </div>
                                 </div>
@@ -165,14 +165,14 @@
                                             <label for="parts_type" class="col-md-4">Parts Type *</label>
                                             <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                             <div class="col-md-6">
-                                                <select class="form-control parts_type spare_parts" onchange="part_type_changes('0')" id="parts_type_0" name="part[0][parts_type]">
+                                                <select class="form-control parts_type spare_parts" onchange="part_type_changes('0')" id="parts_type_0" name="part[0][parts_type]" required>
                                                     <option selected disabled>Select Part Type</option>
                                                 </select>
                                                 <span id="spinner" style="display:none"></span>
                                             </div>
                                             <?php } else { ?> 
                                             <div class="col-md-6">
-                                                <input type="text" class="form-control spare_parts" id="parts_type_0" name="part[0][parts_type]" value = "<?php echo set_value('parts_type'); ?>" placeholder="Parts Type" >
+                                                <input type="text" class="form-control spare_parts" id="parts_type_0" name="part[0][parts_type]" value = "<?php echo set_value('parts_type'); ?>" placeholder="Parts Type" required>
                                             </div>
                                             <?php } ?>
                                             
@@ -183,14 +183,14 @@
                                             <label for="parts_name" class="col-md-4">Parts Name *</label>
                                             <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                             <div class="col-md-6">
-                                                <select class="form-control spare_parts" id="parts_name_0" name="part[0][parts_name]">
+                                                <select class="form-control spare_parts" id="parts_name_0" name="part[0][parts_name]" required>
                                                     <option selected disabled>Select Part Name</option>
                                                 </select>
                                                 <span id="spinner" style="display:none"></span>
                                             </div>
                                             <?php } else { ?> 
                                             <div class="col-md-6">
-                                                <input type="text" class="form-control spare_parts" id="parts_name_0" name="part[0][parts_name]" value = "" placeholder="Parts Name" >
+                                                <input type="text" class="form-control spare_parts" id="parts_name_0" name="part[0][parts_name]" value = "" placeholder="Parts Name" required>
                                             </div>
                                             <?php } ?>
                                             <button type="button" class="btn btn-primary addButton">Request More <br/>Parts</button>
@@ -200,7 +200,7 @@
                                         <div class="form-group">
                                             <label for="defective_parts_pic" class="col-md-4">Defective Front Part Pic *</label>
                                             <div class="col-md-6">
-                                                <input type="file" class="form-control defective_parts_pic spare_parts" id="defective_parts_pic_0" name="defective_parts_pic[0]" >
+                                                <input type="file" class="form-control defective_parts_pic spare_parts" id="defective_parts_pic_0" name="defective_parts_pic[0]" required>
                                             </div>
                                         </div>
                                     </div>
@@ -208,7 +208,7 @@
                                         <div class="form-group">
                                             <label for="defective_parts_pic" class="col-md-4">Defective Back Part Pic *</label>
                                             <div class="col-md-6">
-                                                <input type="file" class="form-control defective_back_parts_pic spare_parts" id="defective_back_parts_pic_0" name="defective_back_parts_pic[0]" >
+                                                <input type="file" class="form-control defective_back_parts_pic spare_parts" id="defective_back_parts_pic_0" name="defective_back_parts_pic[0]" required>
                                             </div>
                                         </div>
                                     </div>
@@ -427,6 +427,13 @@
                   return false;
               }
               
+              if(dop === ""){
+                alert("Please Select Date of Purchase");
+                checkbox_value = 0; 
+                return false;
+                
+              }
+              
               if(serial_number === "" || serial_number === null){
                 alert("Please Enter serial number");
                 checkbox_value = 0;
@@ -439,12 +446,7 @@
                 return false;
             } 
               
-              if(dop === ""){
-                alert("Please Select Date of Purchase");
-                checkbox_value = 0; 
-                return false;
-                
-              }
+              
               
               $('.parts_name').each(function() {
                 var id = $(this).attr('id');
@@ -603,16 +605,16 @@
             // Update the name attributes
             <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                     $clone
-                        .find('[id="parts_name"]').attr('name', 'part[' + partIndex + '][parts_name]').attr('id','parts_name_'+partIndex).select2({placeholder:'Select Part Type'}).end()
-                        .find('[id="parts_type"]').attr('name', 'part[' + partIndex + '][parts_type]').attr('id','parts_type_'+partIndex).attr("onchange", "part_type_changes('"+partIndex+"')").select2({placeholder:'Select Part Type'}).end()
-                        .find('[id="defective_parts_pic"]').attr('name', 'defective_parts_pic[' + partIndex + ']').attr('id','defective_parts_pic_'+partIndex).end()
-                        .find('[id="defective_back_parts_pic"]').attr('name', 'defective_back_parts_pic[' + partIndex + ']').attr('id','defective_back_parts_pic_'+partIndex).end()
+                        .find('[id="parts_name"]').attr('name', 'part[' + partIndex + '][parts_name]').addClass('parts_name').attr('id','parts_name_'+partIndex).select2({placeholder:'Select Part Type'}).attr("required", true).end()
+                        .find('[id="parts_type"]').attr('name', 'part[' + partIndex + '][parts_type]').addClass('parts_type').attr('id','parts_type_'+partIndex).attr("onchange", "part_type_changes('"+partIndex+"')").attr("required", true).select2({placeholder:'Select Part Type'}).end()
+                        .find('[id="defective_parts_pic"]').attr('name', 'defective_parts_pic[' + partIndex + ']').addClass('defective_parts_pic').attr('id','defective_parts_pic_'+partIndex).attr("required", true).end()
+                        .find('[id="defective_back_parts_pic"]').attr('name', 'defective_back_parts_pic[' + partIndex + ']').addClass('defective_back_parts_pic').attr('id','defective_back_parts_pic_'+partIndex).attr("required", true).end()
             <?php } else { ?>
                 $clone
-                   .find('[id="parts_type"]').attr('name', 'part[' + partIndex + '][parts_type]').attr('id','parts_type_'+partIndex).end()
-                   .find('[id="parts_name"]').attr('name', 'part[' + partIndex + '][parts_name]').attr('id','parts_name_'+partIndex).end()
-                   .find('[id="defective_parts_pic"]').attr('name', 'defective_parts_pic[' + partIndex + ']').attr('id','defective_parts_pic_'+partIndex).end()
-                   .find('[id="defective_back_parts_pic"]').attr('name', 'defective_back_parts_pic[' + partIndex + ']').attr('id','defective_back_parts_pic_'+partIndex).end()
+                   .find('[id="parts_type"]').attr('name', 'part[' + partIndex + '][parts_type]').addClass('parts_type').attr('id','parts_type_'+partIndex).attr("required", true).end()
+                   .find('[id="parts_name"]').attr('name', 'part[' + partIndex + '][parts_name]').addClass('parts_name').attr('id','parts_name_'+partIndex).attr("required", true).end()
+                   .find('[id="defective_parts_pic"]').attr('name', 'defective_parts_pic[' + partIndex + ']').addClass('defective_parts_pic').attr('id','defective_parts_pic_'+partIndex).attr("required", true).end()
+                   .find('[id="defective_back_parts_pic"]').attr('name', 'defective_back_parts_pic[' + partIndex + ']').addClass('defective_back_parts_pic').attr('id','defective_back_parts_pic_'+partIndex).attr("required", true).end()
             <?php } ?>
 
         })
