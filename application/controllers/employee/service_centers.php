@@ -1395,7 +1395,12 @@ class Service_centers extends CI_Controller {
             foreach($parts_requested as $value){
               
                 $data['parts_requested'] = $value['parts_name'];
-                $data['parts_requested_type'] = $value['parts_type'];
+                if(!empty($value['parts_type'])){
+                    $data['parts_requested_type'] = $value['parts_type'];
+                } else {
+                    $data['parts_requested_type'] = $value['parts_name'];
+                }
+                
                 array_push($requested_part_name, $value['parts_name']);
                 if ($value['defective_parts']) {
                     $data['defective_parts_pic'] = $value['defective_parts'];
