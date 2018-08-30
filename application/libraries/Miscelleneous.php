@@ -3394,12 +3394,13 @@ function generate_image($base64, $image_name,$directory){
     }
     function get_review_bookings_for_partner($partnerID,$booking_id = NULL,$structuredData = 1,$afterLimit = 0,$before_days = NULL){
          $finalArray = array();
+        $whereIN = array();
         $statusData = $this->My_CI->reusable_model->get_search_result_data("partners","partners.booking_review_for,partners.review_time_limit",array("booking_review_for IS NOT NULL"=>NULL,"id"=>$partnerID),NULL,NULL,NULL,NULL,NULL,array());
         if(!empty($statusData)){
             $where['booking_details.partner_id'] = $partnerID;
             $statusArray = explode(",",$statusData[0]['booking_review_for']);
             $where['booking_unit_details.product_or_services'] = "Service";
-            $whereIN['service_center_booking_action.internal_status'] = $statusArray;
+            $whereIN['service_center_booking_action.internal_status'] = array("Completed","Cancelled");
             if($afterLimit == 1){
               $where['DATEDIFF(CURRENT_TIMESTAMP,  service_center_booking_action.closed_date)>'.$statusData[0]['review_time_limit']] = NULL;
             }
@@ -3410,12 +3411,19 @@ function generate_image($base64, $image_name,$directory){
                 }
                 $where['DATEDIFF(CURRENT_TIMESTAMP,  service_center_booking_action.closed_date)<='.$days] = NULL;
             }
-            $where['booking_details.request_type NOT LIKE "%paid%"'] = NULL;
+            $where['booking_details.amount_due'] = 0;
             $where['service_center_booking_action.current_status'] = 'InProcess';
             $where['booking_details.is_in_process'] = 0;
             $tempData = $this->My_CI->partner_model->get_booking_review_data($where,$whereIN,$booking_id);
             if(!empty($tempData)){
                 foreach($tempData as $values){
+                    $is_considrable = TRUE;
+                    if(count($statusArray) == 1 && $statusArray[0] == 'Cancelled'){
+                        if (strpos($values['combined_status'], 'Completed') !== false) {
+                            $is_considrable = FALSE;
+                        }
+                    }
+                    if($is_considrable){
                     if(array_key_exists($values['booking_id'], $finalArray)){
                         $finalArray[$values['booking_id']]['appliance_brand'][] = $values['appliance_brand'];
                     }
@@ -3437,6 +3445,7 @@ function generate_image($base64, $image_name,$directory){
                         $finalArray[$values['booking_id']]['partner_id'] = $values['partner_id'];
                     }
                 }
+            }
             }
             else{
                  $data= array();
