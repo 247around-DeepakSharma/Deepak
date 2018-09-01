@@ -1141,7 +1141,6 @@ class Service_centers extends CI_Controller {
                 $where = array('entity_id' => $data['bookinghistory'][0]['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['bookinghistory'][0]['service_id'],'active' => 1);
                 $data['inventory_details'] = $this->inventory_model->get_appliance_model_details('id,model_number',$where);
 
-
                 $data['spare_shipped_flag'] = $spare_shipped_flag;
                 $this->load->view('service_centers/header');
                 $this->load->view('service_centers/get_update_form', $data);
@@ -1395,7 +1394,12 @@ class Service_centers extends CI_Controller {
             foreach($parts_requested as $value){
               
                 $data['parts_requested'] = $value['parts_name'];
-                $data['parts_requested_type'] = $value['parts_type'];
+                if(!empty($value['parts_type'])){
+                    $data['parts_requested_type'] = $value['parts_type'];
+                } else {
+                    $data['parts_requested_type'] = $value['parts_name'];
+                }
+                
                 array_push($requested_part_name, $value['parts_name']);
                 if ($value['defective_parts']) {
                     $data['defective_parts_pic'] = $value['defective_parts'];
@@ -1448,9 +1452,7 @@ class Service_centers extends CI_Controller {
                 }
             }
             
-
             if (!empty($new_spare_id)) {
-
                 
                 //Send Push Notification 
                 //$receiverArray['partner'] = array($data['partner_id']);

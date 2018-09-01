@@ -34,6 +34,7 @@
         <div class="col-md-12 col-sm-12 col-xs-12">
                 <div class="x_panel">
                 <div class="x_title">
+                   <h2>RM Completed Booking Reports</h2>
                     <span class="collape_icon" href="#RM_completed_booking_reports_div" data-toggle="collapse" onclick="collapse_icon_change(this)"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
                     <h2>TAT Reporting</h2>
                     <div class="clearfix"></div>
@@ -147,6 +148,7 @@
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel" ng-controller="pendngBooking_Controller" ng-cloak="">
                 <div class="x_title">
+                    <h2>RM Booking Report</h2>
                     <span class="collape_icon" href="#RM_booking_reports_div" data-toggle="collapse" data-ng-click="pendingBookingByRMCall()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     <h2>Pending Bookings Reporting</h2>
                     <div class="clearfix"></div>

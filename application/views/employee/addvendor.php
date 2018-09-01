@@ -1726,6 +1726,3 @@ function manageAccountNameField(value){
         else{ }
     }
 </script>
-
-
-	

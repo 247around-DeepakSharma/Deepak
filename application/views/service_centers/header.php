@@ -294,7 +294,8 @@
                         </li>
 <!--                        <li><div class="dropdown" style="float:right;margin: 15px 14px 0px 0px;">
                                     <a class=" dropdown-toggle fa fa-bell" id="notification_holder"  data-toggle="dropdown" onclick="get_notifications(<?php echo $this->session->userdata('service_center_id'); ?>,'vendor')"></a>
-                                    <ul class="dropdown-menu" role="menu" aria-labelledby="notification_holder" id="notification_container" style="padding-top: 0px;margin-top: 32px;border: 1px solid #2c9d9c;"> 
+                                    <ul class="dropdown-menu" role="menu" aria-labelledby="notification_holder" id="notification_container" style="padding-top: 0px;margin-top: 34px;border: 1px solid #2c9d9c;
+                                            height: auto;max-height: 650px;overflow-x: hidden;"> 
                                     <center><img id="loader_gif_escalation" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
                                     </ul>
   </div></li>-->

@@ -1,3 +1,5 @@
+<link rel="stylesheet" href="<?php echo base_url();?>css/jquery.loading.css">
+<script src="<?php echo base_url();?>js/jquery.loading.js"></script>
 <style>
     .select2-container{
     width: 100%!important;
@@ -841,11 +843,24 @@
         if(booking_id !== ""){
             $.ajax({
                 method:'POST',
+                beforeSend: function(){
+
+                    $('body').loadingModal({
+                    position: 'auto',
+                    text: 'Loading Please Wait...',
+                    color: '#fff',
+                    opacity: '0.7',
+                    backgroundColor: 'rgb(0,0,0)',
+                    animation: 'wave'
+                });
+
+                    },
                 url:'<?php echo base_url(); ?>employee/inventory/get_spare_line_item_for_tag_spare/'+booking_id +"/" + count,
                 data:{is_ajax:true},
                 success:function(res){
                   // console.log(res);
                     var obj = JSON.parse(res);
+                    $('body').loadingModal('destroy');
                     if(obj.code === 247){
                         //onBookingIndex = (count + Number(obj.count) - 1);
 

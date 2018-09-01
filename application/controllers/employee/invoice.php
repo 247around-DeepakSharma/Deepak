@@ -765,9 +765,7 @@ class Invoice extends CI_Controller {
     }
 
     function upload_invoice_to_S3($invoice_id, $detailed = true){
-
         $this->invoice_lib->upload_invoice_to_S3($invoice_id, $detailed);
-
     }
     
     function generate_partner_upcountry_excel($partner_id, $data, $meta) {
@@ -1214,6 +1212,7 @@ class Invoice extends CI_Controller {
                         'invoice_id' => "Around-GST-DN-".$invoice_data['meta']['invoice_id'],
                         "reference_invoice_id" => $invoice_data['meta']['invoice_id'],
                         'type' => 'DebitNote',
+                        'credit_generated' => 0,
                         'vendor_partner_id' => $vendor_id,
                         'type_code' => 'A',
                         'vendor_partner' => 'vendor',
@@ -1236,7 +1235,23 @@ class Invoice extends CI_Controller {
                 
                 //Update Penalty Amount
                 foreach ($invoice_data['d_penalty'] as $value) {
-                    $this->penalty_model->update_penalty_any(array('booking_id' => $value['booking_id']), array('foc_invoice_id' => $invoice_data['meta']['invoice_id']));
+                    $explode = explode(",", $value['p_id']);
+                    if(!empty($explode)){
+                        foreach ($explode as $p_id) {
+                            $this->penalty_model->update_penalty_any(array('id' => $p_id), array('foc_invoice_id' => $invoice_data['meta']['invoice_id']));
+                        }
+                    }
+                    
+                }
+                
+                foreach ($invoice_data['c_penalty'] as $value) {
+                    $explode = explode(",", $value['c_id']);
+                    if(!empty($explode)){
+                        foreach ($explode as $p_id) {
+                            $this->penalty_model->update_penalty_any(array('id' => $p_id), array('removed_penalty_invoice_id' => $invoice_data['meta']['invoice_id']));
+                        }
+                    }
+                    
                 }
                 
                 if (!empty($invoice_data['upcountry'])) {
@@ -3167,9 +3182,7 @@ class Invoice extends CI_Controller {
         $data[0]['pincode'] = $partner_data['pincode'];
         $data[0]['state'] = $partner_data['state'];
         $data[0]['rate'] = 0;
-
         $data[0]['qty'] = $qty;
-
         $data[0]['hsn_code'] = $hsn_code;
         $data[0]['gst_rate'] = $gst_rate;
         
@@ -3780,10 +3793,53 @@ class Invoice extends CI_Controller {
                  . "from_date, to_date,amount_collected_paid, invoice_file_main",$where);  
          $this->load->view('employee/partners_annual_charges_view', $data);  
     }
+    
     /**
-     * @desc This function is used to load defective part pending list whose age is greater than 15 Days
-     * @param String $vendor_id
+     * @desc This function is used to generate GST Credit note 
+     * @param String $invoice_id
      */
+    function generate_gst_creditnote($dn_invoice_id) {
+        log_message("info", __METHOD__ . " Invoice ID " . $dn_invoice_id);
+        $invoice_details = $this->invoices_model->get_invoices_details(array("invoice_id" => $dn_invoice_id));
+        if (!empty($invoice_details)) {
+            if ($invoice_details[0]['credit_generated'] == 0) {
+                $invoice_id = $invoice_details[0]['reference_invoice_id'];
+                if (empty($invoice_id)) {
+                    $tmp_invoice_id = explode("Around-GST-DN-", $dn_invoice_id);
+                    $invoice_id = $tmp_invoice_id[1];
+                }
+                $credit_invoice_details = array(
+                    'invoice_id' => "Around-GST-CN-" . $invoice_id,
+                    "reference_invoice_id" => $invoice_details[0]['reference_invoice_id'],
+                    'type' => 'CreditNote',
+                    'vendor_partner_id' => $invoice_details[0]['vendor_partner_id'],
+                    'type_code' => 'B',
+                    'vendor_partner' => $invoice_details[0]['vendor_partner'],
+                    'invoice_date' => date("Y-m-d"),
+                    'from_date' => date("Y-m-d", strtotime($invoice_details[0]['from_date'])),
+                    'to_date' => date("Y-m-d", strtotime($invoice_details[0]['to_date'])),
+                    'total_service_charge' => $invoice_details[0]['total_service_charge'],
+                    'total_amount_collected' => $invoice_details[0]['total_amount_collected'],
+                    //Amount needs to be Paid to Vendor
+                    'amount_collected_paid' => -$invoice_details[0]['amount_collected_paid'],
+                    //Add 1 month to end date to calculate due date
+                    'due_date' => date("Y-m-d"),
+                    //add agent id
+                    'agent_id' => $this->session->userdata('id')
+                );
+
+                $this->invoices_model->action_partner_invoice($credit_invoice_details);
+                $this->invoices_model->update_partner_invoices(array('invoice_id' => $dn_invoice_id), array('credit_generated' => 1));
+                redirect(base_url() . 'employee/invoice/invoice_summary/' . $invoice_details[0]['vendor_partner'] . "/" . $invoice_details[0]['vendor_partner_id']);
+                
+            } else {
+                echo "Already CreditNote Generated";
+            }
+        } else {
+            echo "Invoice Not Found";
+        }
+    }
+    
     function get_pending_defective_parts_list($vendor_id){
         $select = "spare_parts_details.booking_id, shipped_parts_type, DATEDIFF(CURRENT_TIMESTAMP, service_center_closed_date) as pending_age";
         $where = array(

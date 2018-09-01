@@ -284,10 +284,17 @@ class Service_centers_model extends CI_Model {
      * @param Array $data
      * @return boolean
      */
-    function update_spare_parts($where, $data){
-        $this->db->where($where); 
-        $result = $this->db->update('spare_parts_details', $data);
-        log_message('info', __FUNCTION__ . '=> Update Spare Parts: ' .$this->db->last_query());
+    function update_spare_parts($where, $data) {
+        $this->db->where($where);
+        $this->db->update('spare_parts_details', $data);
+        log_message('info', __FUNCTION__ . '=> Update Spare Parts: ' . $this->db->last_query());
+
+        if ($this->db->affected_rows() > 0) {
+            $result = true;
+        } else {
+            $result = false;
+        }
+        
         return $result;
     }
     /**

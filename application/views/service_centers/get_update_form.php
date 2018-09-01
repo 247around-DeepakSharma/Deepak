@@ -133,7 +133,7 @@
                                     <div class="form-group">
                                         <label for="serial_number" class="col-md-4">Serial Number *</label>
                                         <div class="col-md-6">
-                                            <input type="text" class="form-control spare_parts" id="serial_number" name="serial_number" value="<?php echo set_value('serial_number'); ?>" placeholder="Serial Number">
+                                            <input type="text" class="form-control spare_parts" id="serial_number" name="serial_number"  value="<?php echo set_value('serial_number'); ?>" placeholder="Serial Number">
                                         </div>
                                     </div>
                                 </div>
@@ -141,7 +141,7 @@
                                     <div class="form-group">
                                         <label for="serial_number_pic" class="col-md-4">Serial Number Picture *</label>
                                         <div class="col-md-6">
-                                            <input type="file" class="form-control spare_parts" id="serial_number_pic" name="serial_number_pic">
+                                            <input type="file" class="form-control spare_parts" id="serial_number_pic" name="serial_number_pic" >
                                         </div>
                                     </div>
                                 </div>
@@ -165,7 +165,7 @@
                                             <label for="parts_type" class="col-md-4">Parts Type *</label>
                                             <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                             <div class="col-md-6">
-                                                <select class="form-control parts_type spare_parts" onchange="part_type_changes('0')" id="parts_type_0" name="part[0][parts_type]">
+                                                <select class="form-control parts_type spare_parts" onchange="part_type_changes('0')" id="parts_type_0" name="part[0][parts_type]" >
                                                     <option selected disabled>Select Part Type</option>
                                                 </select>
                                                 <span id="spinner" style="display:none"></span>
@@ -183,7 +183,7 @@
                                             <label for="parts_name" class="col-md-4">Parts Name *</label>
                                             <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                             <div class="col-md-6">
-                                                <select class="form-control spare_parts" id="parts_name_0" name="part[0][parts_name]">
+                                                <select class="form-control spare_parts" id="parts_name_0" name="part[0][parts_name]" >
                                                     <option selected disabled>Select Part Name</option>
                                                 </select>
                                                 <span id="spinner" style="display:none"></span>
@@ -427,6 +427,13 @@
                   return false;
               }
               
+              if(dop === ""){
+                alert("Please Select Date of Purchase");
+                checkbox_value = 0; 
+                return false;
+                
+              }
+              
               if(serial_number === "" || serial_number === null){
                 alert("Please Enter serial number");
                 checkbox_value = 0;
@@ -439,12 +446,7 @@
                 return false;
             } 
               
-              if(dop === ""){
-                alert("Please Select Date of Purchase");
-                checkbox_value = 0; 
-                return false;
-                
-              }
+              
               
               $('.parts_name').each(function() {
                 var id = $(this).attr('id');
@@ -603,16 +605,16 @@
             // Update the name attributes
             <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                     $clone
-                        .find('[id="parts_name"]').attr('name', 'part[' + partIndex + '][parts_name]').attr('id','parts_name_'+partIndex).select2({placeholder:'Select Part Type'}).end()
-                        .find('[id="parts_type"]').attr('name', 'part[' + partIndex + '][parts_type]').attr('id','parts_type_'+partIndex).attr("onchange", "part_type_changes('"+partIndex+"')").select2({placeholder:'Select Part Type'}).end()
-                        .find('[id="defective_parts_pic"]').attr('name', 'defective_parts_pic[' + partIndex + ']').attr('id','defective_parts_pic_'+partIndex).end()
-                        .find('[id="defective_back_parts_pic"]').attr('name', 'defective_back_parts_pic[' + partIndex + ']').attr('id','defective_back_parts_pic_'+partIndex).end()
+                        .find('[id="parts_name"]').attr('name', 'part[' + partIndex + '][parts_name]').addClass('parts_name').attr('id','parts_name_'+partIndex).select2({placeholder:'Select Part Type'}).attr("required", true).end()
+                        .find('[id="parts_type"]').attr('name', 'part[' + partIndex + '][parts_type]').addClass('parts_type').attr('id','parts_type_'+partIndex).attr("onchange", "part_type_changes('"+partIndex+"')").attr("required", true).select2({placeholder:'Select Part Type'}).end()
+                        .find('[id="defective_parts_pic"]').attr('name', 'defective_parts_pic[' + partIndex + ']').addClass('defective_parts_pic').attr('id','defective_parts_pic_'+partIndex).attr("required", true).end()
+                        .find('[id="defective_back_parts_pic"]').attr('name', 'defective_back_parts_pic[' + partIndex + ']').addClass('defective_back_parts_pic').attr('id','defective_back_parts_pic_'+partIndex).attr("required", true).end()
             <?php } else { ?>
                 $clone
-                   .find('[id="parts_type"]').attr('name', 'part[' + partIndex + '][parts_type]').attr('id','parts_type_'+partIndex).end()
-                   .find('[id="parts_name"]').attr('name', 'part[' + partIndex + '][parts_name]').attr('id','parts_name_'+partIndex).end()
-                   .find('[id="defective_parts_pic"]').attr('name', 'defective_parts_pic[' + partIndex + ']').attr('id','defective_parts_pic_'+partIndex).end()
-                   .find('[id="defective_back_parts_pic"]').attr('name', 'defective_back_parts_pic[' + partIndex + ']').attr('id','defective_back_parts_pic_'+partIndex).end()
+                   .find('[id="parts_type"]').attr('name', 'part[' + partIndex + '][parts_type]').addClass('parts_type').attr('id','parts_type_'+partIndex).attr("required", true).end()
+                   .find('[id="parts_name"]').attr('name', 'part[' + partIndex + '][parts_name]').addClass('parts_name').attr('id','parts_name_'+partIndex).attr("required", true).end()
+                   .find('[id="defective_parts_pic"]').attr('name', 'defective_parts_pic[' + partIndex + ']').addClass('defective_parts_pic').attr('id','defective_parts_pic_'+partIndex).attr("required", true).end()
+                   .find('[id="defective_back_parts_pic"]').attr('name', 'defective_back_parts_pic[' + partIndex + ']').addClass('defective_back_parts_pic').attr('id','defective_back_parts_pic_'+partIndex).attr("required", true).end()
             <?php } ?>
 
         })

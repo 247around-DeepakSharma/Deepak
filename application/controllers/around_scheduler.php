@@ -1,4 +1,5 @@
 <?php
+
 if (!defined('BASEPATH'))
     exit('No direct script access allowed');
 
@@ -63,7 +64,7 @@ class Around_scheduler extends CI_Controller {
                 $this->notify->add_sms_sent_details($value->type_id, $value->type, $value->booking_primary_contact_no, $value->content, $value->booking_id, $status['content']);
 
                 log_message('info', "Message Not Sent - Booking id: " . $value->booking_id . ",
-        		please recheck tag: '" . $tag . "' & Phone Number - " . $value->booking_primary_contact_no);
+                please recheck tag: '" . $tag . "' & Phone Number - " . $value->booking_primary_contact_no);
 
                 $subject = 'SMS Sending Failed';
                 $message = "Please check SMS tag and phone number. Booking id is : " .
@@ -81,7 +82,7 @@ class Around_scheduler extends CI_Controller {
     }
 
     /**
-     * @desc: This is used to send SMS to customers for whom delivery is scheduled for tomorrow 
+     * @desc: This is used to send SMS to customers for whom delivery is scheduled for tomorrow
      * or later to inform them about free installation when they give a missed call.
      */
     function send_reminder_installation_sms_future() {
@@ -126,7 +127,7 @@ class Around_scheduler extends CI_Controller {
     }
 
     /**
-     * @desc: This is used to send SMS to customers for whom delivery was scheduled for past 
+     * @desc: This is used to send SMS to customers for whom delivery was scheduled for past
      * or earlier to inform them about free installation when they give a missed call.
      */
     function send_reminder_installation_sms_past() {
@@ -169,7 +170,7 @@ class Around_scheduler extends CI_Controller {
     }
 
     /**
-     * @desc: This is used to send SMS to customers for whom Geyser delivery was scheduled for today 
+     * @desc: This is used to send SMS to customers for whom Geyser delivery was scheduled for today
      * and yesterday to inform them about free installation when they give a missed call.
      */
     function send_reminder_installation_sms_geyser_in_delhi() {
@@ -200,9 +201,9 @@ class Around_scheduler extends CI_Controller {
     }
 
     /**
-     * @desc: Cancel bookings, When booking date is empty, then getting those bookings which has 
+     * @desc: Cancel bookings, When booking date is empty, then getting those bookings which has
      * difference between delivery date and current date are greater than 2.
-     * AND When booking date is not empty, then getting those bookings which has difference between 
+     * AND When booking date is not empty, then getting those bookings which has difference between
      *  delivery date and current date are greater than 5.
      */
     function cancel_old_pending_query() {
@@ -272,7 +273,7 @@ class Around_scheduler extends CI_Controller {
      *  @desc : This function is to cancels wrong orders inserted by incorrect snapdeal file
      *
      *  @param : order id
-     *  @return : 
+     *  @return :
      */
     function cancel_wrong_orders($order_id) {
         log_message('info', __METHOD__ . " => Order ID: " . $order_id);
@@ -311,7 +312,7 @@ class Around_scheduler extends CI_Controller {
     }
 
     /**
-     * @desc: This function is used to send SMS for all Snapdeal pending queries 
+     * @desc: This function is used to send SMS for all Snapdeal pending queries
      */
     function send_sms_to_query() {
         log_message('info', __METHOD__ . "Entering");
@@ -361,7 +362,7 @@ class Around_scheduler extends CI_Controller {
      * @Desc: This function is used to check all the Tasks that has been executed in CRON
      * @params: void
      * @return: void
-     * 
+     *
      */
     function check_cron_tasks() {
         //Defining array for Cron Jobs
@@ -484,7 +485,7 @@ class Around_scheduler extends CI_Controller {
     }
 
     /**
-     * @desc: This function is used to send promotional sms to users on daily basis 
+     * @desc: This function is used to send promotional sms to users on daily basis
      * @param:void()
      * @retun:void()
      */
@@ -499,7 +500,7 @@ class Around_scheduler extends CI_Controller {
     }
 
     /**
-     * @desc: This function is used to prepare the sms data to send promotional sms to users on daily basis 
+     * @desc: This function is used to prepare the sms data to send promotional sms to users on daily basis
      * @param:$filtered_phn_number_data array()
      * @retun:void()
      */
@@ -520,7 +521,7 @@ class Around_scheduler extends CI_Controller {
     }
 
     /**
-     * @desc: This function is used to get the corresponding SMS TAG for booking_status and phone_number 
+     * @desc: This function is used to get the corresponding SMS TAG for booking_status and phone_number
      * @param:$filtered_phn_number_data array()
      * @retun:void()
      */
@@ -563,7 +564,7 @@ class Around_scheduler extends CI_Controller {
     }
 
     /**
-     * @desc: This is general function to sent the sms's 
+     * @desc: This is general function to sent the sms's
      * @param:$smsTag String
      * @param:$smsPhnNumber String
      * @param:$smsData Array()
@@ -676,11 +677,11 @@ class Around_scheduler extends CI_Controller {
 
             $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $body, "",'gst_notification');
         }
-        if(!empty($data['id'])){
-            $idArray = explode(",",$data['id']);
-             //Send Push Notification
+        if (!empty($data['id'])) {
+            $idArray = explode(",", $data['id']);
+            //Send Push Notification
             $receiverArray['vendor'] = $idArray;
-            $this->push_notification_lib->create_and_send_push_notiifcation(GST_DETAILS_REQUEST,$receiverArray,array());
+            $this->push_notification_lib->create_and_send_push_notiifcation(GST_DETAILS_REQUEST, $receiverArray, array());
             //End Push Notification
         }
         log_message('info', __METHOD__ . '=> EXIT...');
@@ -694,7 +695,7 @@ class Around_scheduler extends CI_Controller {
         $data = $this->vendor_model->getVendorDetails($select, $where);
         if (!empty($data)) {
             foreach ($data as $val) {
-                $idArray[] = $val['id']; 
+                $idArray[] = $val['id'];
                 $rm_mail = $this->vendor_model->get_rm_sf_relation_by_sf_id($val['id'])[0]['official_email'];
                 $template = $this->booking_model->get_booking_email_template("pan_notification");
                 $body = $template[0];
@@ -705,10 +706,10 @@ class Around_scheduler extends CI_Controller {
                 $this->notify->sendEmail($from, $to, $cc, '', $subject, $body, "",'pan_notification');
             }
         }
-        if(!empty($idArray)){
-             //Send Push Notification
+        if (!empty($idArray)) {
+            //Send Push Notification
             $receiverArray['vendor'] = $idArray;
-            $this->push_notification_lib->create_and_send_push_notiifcation(PAN_DETAILS_REQUEST,$receiverArray,array());
+            $this->push_notification_lib->create_and_send_push_notiifcation(PAN_DETAILS_REQUEST, $receiverArray, array());
             //End Push Notification
         }
     }
@@ -716,22 +717,22 @@ class Around_scheduler extends CI_Controller {
     function send_mail_for_bank_details_notification() {
         $idArray = array();
         log_message('info', __METHOD__ . '=> Entering...');
-        $where = array("(account_holders_bank_details.bank_name IS NULL   
-                         OR account_holders_bank_details.bank_account IS NULL 
+        $where = array("(account_holders_bank_details.bank_name IS NULL
+                         OR account_holders_bank_details.bank_account IS NULL
                          OR account_holders_bank_details.ifsc_code IS NULL
-                         OR account_holders_bank_details.cancelled_cheque_file IS NULL 
-                         OR account_holders_bank_details.beneficiary_name IS NULL 
-                         OR account_holders_bank_details.account_type IS NULL 
-                         OR (account_holders_bank_details.entity_id IS NULL))" => NULL, 'service_centres.active' => 1,'account_holders_bank_details.entity_type'=>'SF','account_holders_bank_details.is_active'=>1);
-        $join = array("service_centres"=>"account_holders_bank_details.entity_id=service_centres.id");
-        $JoinTypeTableArray = array("service_centres"=>'right');
-         $data_1 = $this->reusable_model->get_search_result_data("account_holders_bank_details","service_centres.id,service_centres.name,CONCAT(service_centres.primary_contact_email,',',service_centres.owner_email) as email",$where,$join,NULL,NULL,NULL,$JoinTypeTableArray);
-         $sql = "SELECT service_centres.id,service_centres.name,CONCAT(service_centres.primary_contact_email,',',service_centres.owner_email) as email FROM service_centres WHERE "
-                 . "service_centres.id NOT IN (SELECT account_holders_bank_details.entity_id FROM account_holders_bank_details WHERE account_holders_bank_details.entity_type='SF' "
-                 . "AND account_holders_bank_details.is_active=1) AND service_centres.active=1";
+                         OR account_holders_bank_details.cancelled_cheque_file IS NULL
+                         OR account_holders_bank_details.beneficiary_name IS NULL
+                         OR account_holders_bank_details.account_type IS NULL
+                         OR (account_holders_bank_details.entity_id IS NULL))" => NULL, 'service_centres.active' => 1, 'account_holders_bank_details.entity_type' => 'SF', 'account_holders_bank_details.is_active' => 1);
+        $join = array("service_centres" => "account_holders_bank_details.entity_id=service_centres.id");
+        $JoinTypeTableArray = array("service_centres" => 'right');
+        $data_1 = $this->reusable_model->get_search_result_data("account_holders_bank_details", "service_centres.id,service_centres.name,CONCAT(service_centres.primary_contact_email,',',service_centres.owner_email) as email", $where, $join, NULL, NULL, NULL, $JoinTypeTableArray);
+        $sql = "SELECT service_centres.id,service_centres.name,CONCAT(service_centres.primary_contact_email,',',service_centres.owner_email) as email FROM service_centres WHERE "
+                . "service_centres.id NOT IN (SELECT account_holders_bank_details.entity_id FROM account_holders_bank_details WHERE account_holders_bank_details.entity_type='SF' "
+                . "AND account_holders_bank_details.is_active=1) AND service_centres.active=1";
         $data_2 = $this->reusable_model->execute_custom_select_query($sql);
-        $data = array_merge($data_1,$data_2);
-         if (!empty($data)) {
+        $data = array_merge($data_1, $data_2);
+        if (!empty($data)) {
             foreach ($data as $val) {
                 $idArray[] = $val['id'];
                 $rm_mail = $this->vendor_model->get_rm_sf_relation_by_sf_id($val['id'])[0]['official_email'];
@@ -744,10 +745,10 @@ class Around_scheduler extends CI_Controller {
                 $this->notify->sendEmail($from, $to, $cc, '', $subject, $body, "",'bank_details_notification');
             }
         }
-        if(!empty($idArray)){
-             //Send Push Notification
+        if (!empty($idArray)) {
+            //Send Push Notification
             $receiverArray['vendor'] = $idArray;
-            $this->push_notification_lib->create_and_send_push_notiifcation(BANK_DETAILS_REQUEST,$receiverArray,array());
+            $this->push_notification_lib->create_and_send_push_notiifcation(BANK_DETAILS_REQUEST, $receiverArray, array());
             //End Push Notification
         }
     }
@@ -756,14 +757,14 @@ class Around_scheduler extends CI_Controller {
         log_message('info', __METHOD__ . '=> Entering...');
         $select = "service_centres.id,service_centres.name";
         $where = array("(account_holders_bank_details.bank_name IS NOT NULL
-                         AND account_holders_bank_details.bank_account IS NOT NULL 
+                         AND account_holders_bank_details.bank_account IS NOT NULL
                          AND account_holders_bank_details.ifsc_code IS NOT NULL
                           AND account_holders_bank_details.account_type IS NOT NULL
                          AND account_holders_bank_details.cancelled_cheque_file IS NOT NULL
-                         AND account_holders_bank_details.is_verified = 0 )" => null, 'service_centres.active' => 1,'account_holders_bank_details.entity_type' => 'SF','account_holders_bank_details.is_active' => 1);
-        $join = array("service_centres"=>"account_holders_bank_details.entity_id=service_centres.id");
-        $orderBYArray = array('service_centres.name'=>'ASC');
-        $data = $this->reusable_model->get_search_result_data("account_holders_bank_details",$select,$where,$join,NULL,$orderBYArray,NULL,NULL);
+                         AND account_holders_bank_details.is_verified = 0 )" => null, 'service_centres.active' => 1, 'account_holders_bank_details.entity_type' => 'SF', 'account_holders_bank_details.is_active' => 1);
+        $join = array("service_centres" => "account_holders_bank_details.entity_id=service_centres.id");
+        $orderBYArray = array('service_centres.name' => 'ASC');
+        $data = $this->reusable_model->get_search_result_data("account_holders_bank_details", $select, $where, $join, NULL, $orderBYArray, NULL, NULL);
         if (!empty($data)) {
 
             $table_template = array(
@@ -788,9 +789,9 @@ class Around_scheduler extends CI_Controller {
      */
     function assign_tat_breach_order() {
         $post['length'] = -1;
-        $post['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Lost'),
-            'internal_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Lost'));
-        $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
+        $post['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted', 'Lost'),
+            'internal_status' => array('In-Transit', 'New Item In-transit', 'Attempted', 'Lost'));
+        $post['column_order'] = array(NULL, NULL, 'services', 'city', 'order_date', 'current_status');
         $post['where'] = array('order_date <= ' => date('Y-m-d', strtotime(TAT_BREACH_DAYS)));
         $post['column_search'] = array();
         $select = "bb_order_details.id, bb_order_details.partner_order_id";
@@ -806,53 +807,51 @@ class Around_scheduler extends CI_Controller {
             $this->cp_model->update_bb_cp_order_action($where, array('current_status' => _247AROUND_BB_NOT_DELIVERED, 'internal_status' => _247AROUND_BB_247APPROVED_STATUS));
         }
     }
-    
-     /*
-      *@desc: This function is use to process sms deactivation request from user 
-      *This Function fetch deactivation request from email, and update user table for requested numbers
-      *This Function calls by cron
+
+    /*
+     * @desc: This function is use to process sms deactivation request from user
+     * This Function fetch deactivation request from email, and update user table for requested numbers
+     * This Function calls by cron
      */
-    function process_sms_deactivation_request(){
+
+    function process_sms_deactivation_request() {
         $to_date = date('Y-m-d');
-        $from_date = date('Y-m-d',(strtotime (SMS_DEACTIVATION_SCRIPT_RUNNING_DAYS , strtotime($to_date))));
+        $from_date = date('Y-m-d', (strtotime(SMS_DEACTIVATION_SCRIPT_RUNNING_DAYS, strtotime($to_date))));
         //create connection for email
-        $conn = $this->email_data_reader->create_email_connection(SMS_DEACTIVATION_MAIL_SERVER,SMS_DEACTIVATION_EMAIL,SMS_DEACTIVATION_PASSWORD);
-        if($conn != 'FALSE'){
+        $conn = $this->email_data_reader->create_email_connection(SMS_DEACTIVATION_MAIL_SERVER, SMS_DEACTIVATION_EMAIL, SMS_DEACTIVATION_PASSWORD);
+        if ($conn != 'FALSE') {
             //get emails for previous day
-            $email_data = $this->email_data_reader->fetch_emails_between_two_dates($to_date,$from_date);
+            $email_data = $this->email_data_reader->fetch_emails_between_two_dates($to_date, $from_date);
             //get numbers array, from which we get deactivation request before 1 day
             $count = count($email_data);
             $numbers = array();
-            for($i=0;$i<$count;$i++){
+            for ($i = 0; $i < $count; $i++) {
                 if (strpos($email_data[$i][0]->subject, SMS_DEACTIVATION_EMAIL_SUBJECT) !== false) {
                     //get numbers
-                    $numbers[] = substr(trim(explode(SMS_DEACTIVATION_EMAIL_SUBJECT,$email_data[$i][0]->subject)[0]),-10);
+                    $numbers[] = substr(trim(explode(SMS_DEACTIVATION_EMAIL_SUBJECT, $email_data[$i][0]->subject)[0]), -10);
                 }
             }
             //update sms_activation status for requested numbers
-            if(!empty($numbers)){
+            if (!empty($numbers)) {
                 $updated_rows = $this->user_model->update_sms_deactivation_status($numbers);
-                if($updated_rows>0){
+                if ($updated_rows > 0) {
                     $length = count($numbers);
-                    for($j=0;$j<$length;$j++){
-                        log_message('info', 'NDNC has been activated for '.$numbers[$j]);
+                    for ($j = 0; $j < $length; $j++) {
+                        log_message('info', 'NDNC has been activated for ' . $numbers[$j]);
                     }
-                }
-                else{
+                } else {
                     log_message('info', 'NDNC already activated');
                 }
-            }
-            else{
+            } else {
                 log_message('info', 'There is not any new request for NDNC');
             }
             //close email connection
             $this->email_data_reader->close_email_connection();
-        }
-        else{
+        } else {
             log_message('info', 'Connection is not created');
         }
     }
-    
+
     /**
      * @desc: This function is used to send those appliance data which are not verified yet
      * @param:void()
@@ -887,14 +886,14 @@ class Around_scheduler extends CI_Controller {
             }
         }
     }
-    
+
     /**
      * @desc: This function is used to send reminder mail when partner contract expired
      * @param: void()
      * @return: void()
      */
     function send_partner_contract_expiry_notification() {
-        $data = $this->partner_model->getpartner_details('public_name,agreement_end_date', array('datediff(curdate(),agreement_end_date)  >= -30' => null,'is_active' => 1));
+        $data = $this->partner_model->getpartner_details('public_name,agreement_end_date', array('datediff(curdate(),agreement_end_date)  >= -30' => null, 'is_active' => 1));
         if (!empty($data)) {
 
             $template = array(
@@ -920,66 +919,65 @@ class Around_scheduler extends CI_Controller {
             }
         }
     }
+
     /**
      * @desc This method is used to send notification email to partner whose account type is prepaid and have low balance.
      */
     function send_notification_for_low_balance() {
-        log_message("info",__METHOD__." Entering...");
+        log_message("info", __METHOD__ . " Entering...");
         $partner_details = $this->partner_model->getpartner_details("partners.id, public_name, "
-                . "is_active,invoice_email_to, invoice_email_cc, owner_phone_1 ,account_manager_id",
-                array('is_prepaid' => 1,'is_active' => 1));
-        
-        log_message("info",__METHOD__." All Active Prepaid Partner ". print_r($partner_details, true));
-        
+                . "is_active,invoice_email_to, invoice_email_cc, owner_phone_1 ,account_manager_id", array('is_prepaid' => 1, 'is_active' => 1));
+        log_message("info", __METHOD__ . " All Active Prepaid Partner " . print_r($partner_details, true));
+
         foreach ($partner_details as $value) {
-            log_message("info",__METHOD__." Active Prepaid Partner ID". $value['id']);
+            log_message("info", __METHOD__ . " Active Prepaid Partner ID" . $value['id']);
             $am_email = "";
             if (!empty($value['account_manager_id'])) {
                 $am_email = $this->employee_model->getemployeefromid($value['account_manager_id'])[0]['official_email'];
             }
             $final_amount = $this->miscelleneous->get_partner_prepaid_amount($value['id']);
             if ($final_amount['is_notification']) {
-                if($final_amount['active'] > 0 ){
+
+                if ($final_amount['active'] > 0) {
+
                     $sms['tag'] = "prepaid_low_balance";
                     $email_template = $this->booking_model->get_booking_email_template("low_prepaid_amount");
                 } else {
+
                     $sms['tag'] = "prepaid_negative_balance";
                     $email_template = $this->booking_model->get_booking_email_template("negative_prepaid_balance");
                 }
-                
-                //Send Push Notification
+
                 $receiverArray['partner'] = array($value['id']);
                 $notificationTextArray['msg'] = array($final_amount['prepaid_amount']);
-                $this->push_notification_lib->create_and_send_push_notiifcation(LOW_PREPAID_AMOUNT,$receiverArray,$notificationTextArray);
-                //End Push Notification
+                $this->push_notification_lib->create_and_send_push_notiifcation(LOW_PREPAID_AMOUNT, $receiverArray, $notificationTextArray);
 
-                $message = vsprintf($email_template[0], array("Rs. ".$final_amount["prepaid_amount"]));
+                $message = vsprintf($email_template[0], array("Rs. " . $final_amount["prepaid_amount"]));
                 $to = $value['invoice_email_to'];
-                $cc = $value['invoice_email_cc']. ", ".$email_template[3].",".$am_email;
-                $subject = vsprintf($email_template[4], array($value["public_name"], "Rs. ".$final_amount["prepaid_amount"]));
-                    
-                $sms['smsData']['prepaid_amount'] = "Rs. ".$final_amount["prepaid_amount"];
+                $cc = $value['invoice_email_cc'] . ", " . $email_template[3] . "," . $am_email;
+                $subject = vsprintf($email_template[4], array($value["public_name"], "Rs. " . $final_amount["prepaid_amount"]));
+
+                $sms['smsData']['prepaid_amount'] = "Rs. " . $final_amount["prepaid_amount"];
                 $sms['booking_id'] = "";
                 $sms['type'] = "partner";
                 $sms['type_id'] = $value["id"];
-                
+
                 $sms['phone_no'] = $value['owner_phone_1'];
                 //Send SMS
                 $this->notify->send_sms_msg91($sms);
-                log_message("info",__METHOD__." SMS Sent Active Prepaid Partner ID". $value['id']);
+                log_message("info", __METHOD__ . " SMS Sent Active Prepaid Partner ID" . $value['id']);
                 //Send tempalte
                 $sendmail = $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "",'negative_prepaid_balance');
                 if ($sendmail) {
-                    log_message('info', __METHOD__ . 'Mail has been send successfully. Partner id => '. $value['id']);
+                    log_message('info', __METHOD__ . 'Mail has been send successfully. Partner id => ' . $value['id']);
                 } else {
-                    log_message('info', __METHOD__ . 'Error in Sending Mail to partner Partner Id => '. $value['id']);
+                    log_message('info', __METHOD__ . 'Error in Sending Mail to partner Partner Id => ' . $value['id']);
                 }
-              
-            } 
+            }
         }
-        log_message("info",__METHOD__." EXit...");   
-        
+        log_message("info", __METHOD__ . " EXit...");
     }
+
     /**
      * @desc This function is used to calculate upcountry from India Pincode File
      */
@@ -1077,87 +1075,86 @@ class Around_scheduler extends CI_Controller {
         $this->reusable_model->insert_into_table("file_uploads",$fileData);
             
     }
-    
+
     /**
-    * @desc     Get Buyback QC Balance From Email
-    * @param    void()
-    * @return   void() 
-    */
-    function get_bb_balance_from_email(){
-        log_message('info',__METHOD__);
+     * @desc     Get Buyback QC Balance From Email
+     * @param    void()
+     * @return   void()
+     */
+    function get_bb_balance_from_email() {
+        log_message('info', __METHOD__);
         $data = array();
         $mail_server = SMS_DEACTIVATION_MAIL_SERVER;
         $email = QC_BALANCE_READ_EMAIL;
         $password = QC_BALANCE_READ_EMAIL_PASSWORD;
         //create connection for email
-        $conn = $this->email_data_reader->create_email_connection($mail_server,$email,$password);
-        if($conn != 'FALSE'){
+        $conn = $this->email_data_reader->create_email_connection($mail_server, $email, $password);
+        if ($conn != 'FALSE') {
             //get emails for TV Balance
-            $tv_condition = 'SINCE "'.date("d M Y",strtotime(date("Y-m-d"))).'" SUBJECT "'.TV_BALANCE_EMAIL_SUBJECT.'"';
+            $tv_condition = 'SINCE "' . date("d M Y", strtotime(date("Y-m-d"))) . '" SUBJECT "' . TV_BALANCE_EMAIL_SUBJECT . '"';
             $tv_email_data = $this->email_data_reader->get_emails($tv_condition);
-            if(!empty($tv_email_data)){
+            if (!empty($tv_email_data)) {
                 $email_body = $tv_email_data[0]['body'];
                 $match = array();
                 $pattern_new = '/\bRs. (\d*\.?\d+)/';
                 preg_match_all($pattern_new, $email_body, $match);
-                if(!empty($match) && isset($match[1][0])){
-                   $data['tv_balance'] = $match[1][0];
+                if (!empty($match) && isset($match[1][0])) {
+                    $data['tv_balance'] = $match[1][0];
                 }
             }
-            
+
             //get emails for LA Balance
-            $la_condition = 'SINCE "'.date("d M Y",strtotime(date("Y-m-d"))).'" SUBJECT "'.LA_BALANCE_EMAIL_SUBJECT.'"';
+            $la_condition = 'SINCE "' . date("d M Y", strtotime(date("Y-m-d"))) . '" SUBJECT "' . LA_BALANCE_EMAIL_SUBJECT . '"';
             $la_email_data = $this->email_data_reader->get_emails($la_condition);
-            if(!empty($la_email_data)){
+            if (!empty($la_email_data)) {
                 $email_body = $la_email_data[0]['body'];
                 $match = array();
                 $pattern_new = '/\bRs. (\d*\.?\d+)/';
                 preg_match_all($pattern_new, $email_body, $match);
-                if(!empty($match) && isset($match[1][0])){
-                   $data['la_balance'] = $match[1][0];
+                if (!empty($match) && isset($match[1][0])) {
+                    $data['la_balance'] = $match[1][0];
                 }
             }
-            
+
             //get emails for Mobile Balance
-            $mobile_condition = 'SINCE "'.date("d M Y",strtotime(date("Y-m-d"))).'" SUBJECT "'.MOBILE_BALANCE_EMAIL_SUBJECT.'"';
+            $mobile_condition = 'SINCE "' . date("d M Y", strtotime(date("Y-m-d"))) . '" SUBJECT "' . MOBILE_BALANCE_EMAIL_SUBJECT . '"';
             $mobile_email_data = $this->email_data_reader->get_emails($mobile_condition);
-            if(!empty($mobile_email_data)){
+            if (!empty($mobile_email_data)) {
                 $email_body = $mobile_email_data[0]['body'];
                 $match = array();
                 $pattern_new = '/\bRs. (\d*\.?\d+)/';
                 preg_match_all($pattern_new, $email_body, $match);
-                if(!empty($match) && isset($match[1][0])){
-                   $data['mobile_balance'] = $match[1][0];
+                if (!empty($match) && isset($match[1][0])) {
+                    $data['mobile_balance'] = $match[1][0];
                 }
             }
-            
+
             //if balance is not empty then insert it into datatbase
-            if(!empty($data)){
+            if (!empty($data)) {
                 $insert_id = $this->around_scheduler_model->add_bb_svc_balance($data);
-                if($insert_id){
-                    log_message('info',"Amazon SVC balance has been inserted successfully. New Balance = ".print_r($data,true));
-                }else{
-                    log_message('info',"Error in inserting Amazon SVC balance.".print_r($data,true));
+                if ($insert_id) {
+                    log_message('info', "Amazon SVC balance has been inserted successfully. New Balance = " . print_r($data, true));
+                } else {
+                    log_message('info', "Error in inserting Amazon SVC balance." . print_r($data, true));
                 }
-            }else{
-                log_message('info',"Mails Not Found For Today ");
+            } else {
+                log_message('info', "Mails Not Found For Today ");
             }
             //close email connection
             $this->email_data_reader->close_email_connection();
-        }
-        else{
+        } else {
             log_message('info', 'Connection is not created');
         }
     }
-    
+
     function update_india_pincode_table() {
         $sql = "INSERT INTO india_pincode(area,pincode,division,region,taluk,district,state) SELECT booking_details.city as area,sf.pincode,booking_details.city as division,booking_details.taluk as region,"
                 . "booking_details.taluk,booking_details.district,booking_details.state FROM "
                 . "sf_not_exist_booking_details sf INNER JOIN booking_details  ON sf.booking_id=booking_details.booking_id WHERE sf.rm_id IS NULL  GROUP BY sf.pincode";
         $affectedRows = $this->reusable_model->execute_custom_insert_update_delete_query($sql);
         if ($affectedRows > 0) {
-            $getRmSql = "SELECT india_pincode.pincode,employee_relation.agent_id as rm_id,india_pincode.state FROM india_pincode INNER JOIN state_code ON state_code.state=india_pincode.state LEFT JOIN employee_relation ON 
-      FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pincode.pincode IN (SELECT sf.pincode FROM sf_not_exist_booking_details sf WHERE sf.rm_id IS NULL GROUP BY sf.pincode)
+            $getRmSql = "SELECT india_pincode.pincode,employee_relation.agent_id as rm_id,india_pincode.state FROM india_pincode INNER JOIN state_code ON state_code.state=india_pincode.state LEFT JOIN employee_relation ON
+FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pincode.pincode IN (SELECT sf.pincode FROM sf_not_exist_booking_details sf WHERE sf.rm_id IS NULL GROUP BY sf.pincode)
       GROUP BY india_pincode.pincode";
             $result = $this->reusable_model->execute_custom_select_query($getRmSql);
             if ($result) {
@@ -1167,54 +1164,53 @@ class Around_scheduler extends CI_Controller {
             }
         }
     }
+
     /**
      * @desc: It called from Ajax
      * This is used to to auto acknowledge those booking whose deliver date less than 10 days(Compare current date)
      */
-    function auto_acknowledge_buyback_order(){
+    function auto_acknowledge_buyback_order() {
         log_message("info", __METHOD__);
         $where['where'] = array("DATEDIFF( CURRENT_TIMESTAMP , delivery_date ) > 10 " => NULL, 'bb_order_details.current_status' => "Delivered",
-            'bb_order_details.internal_status' =>"Delivered", "bb_cp_order_action.current_status" => 'Pending');
+            'bb_order_details.internal_status' => "Delivered", "bb_cp_order_action.current_status" => 'Pending');
         $where['select'] = "bb_order_details.partner_order_id";
         $where['length'] = -1;
         $data = $this->cp_model->get_bb_cp_order_list($where);
-        if(!empty($data)){
+        if (!empty($data)) {
             foreach ($data as $value) {
-               // Update bb order details 
-                $this->bb_model->update_bb_order_details(array('partner_order_id' => $value->partner_order_id), 
-                       array("acknowledge_date"=> date("Y-m-d H:i:s"), "current_status" => "Completed", "internal_status" => "Completed"));
+                // Update bb order details
+                $this->bb_model->update_bb_order_details(array('partner_order_id' => $value->partner_order_id), array("acknowledge_date" => date("Y-m-d H:i:s"), "current_status" => "Completed", "internal_status" => "Completed"));
                 // Update Unit Details
-                $this->bb_model->update_bb_unit_details(array('partner_order_id' => $value->partner_order_id), 
-                       array("order_status"=> "Delivered"));
-               
-               $cp['current_status'] = "Delivered";
-               $cp['internal_status'] = 'Delivered';
-               $cp['admin_remarks'] =  AUTO_ACK_ADMIN_REMARKS;
-               // Update Cp Action Table
-               $this->cp_model->update_bb_cp_order_action(array('partner_order_id' => $value->partner_order_id), $cp );
-               // Insert State Change
-               $this->buyback->insert_bb_state_change($value->partner_order_id, "Auto Acknowledge", AUTO_ACK_ADMIN_REMARKS, _247AROUND_DEFAULT_AGENT, _247AROUND, NULL);
+                $this->bb_model->update_bb_unit_details(array('partner_order_id' => $value->partner_order_id), array("order_status" => "Delivered"));
+
+                $cp['current_status'] = "Delivered";
+                $cp['internal_status'] = 'Delivered';
+                $cp['admin_remarks'] = AUTO_ACK_ADMIN_REMARKS;
+                // Update Cp Action Table
+                $this->cp_model->update_bb_cp_order_action(array('partner_order_id' => $value->partner_order_id), $cp);
+                // Insert State Change
+                $this->buyback->insert_bb_state_change($value->partner_order_id, "Auto Acknowledge", AUTO_ACK_ADMIN_REMARKS, _247AROUND_DEFAULT_AGENT, _247AROUND, NULL);
             }
         }
     }
-    
+
     /**
      * @desc: This is used to call from cron to detect issues in booking for invoice purpose.
      */
-    function developer_invoice_check(){
+    function developer_invoice_check() {
         log_message("info", "Enterring...");
         echo "Enterring..";
         $pendingData = $this->booking_model->get_unit_details(array("booking_status" => _247AROUND_PENDING, 'create_date >= ' => date('Y-m-01', strtotime("-2 months"))));
-        echo "Peinding..".count($pendingData);
-        $partnerData = $this->booking_model->get_unit_details(array('booking_status' => _247AROUND_COMPLETED, "partner_invoice_id IS NULL" => NULL, 
+        echo "Peinding.." . count($pendingData);
+        $partnerData = $this->booking_model->get_unit_details(array('booking_status' => _247AROUND_COMPLETED, "partner_invoice_id IS NULL" => NULL,
             "ud_closed_date >=" => date('Y-m-01', strtotime("-2 months"))));
-         echo "Partner..".count($partnerData);
-        $focData = $this->booking_model->get_unit_details(array('booking_status' => _247AROUND_COMPLETED, "vendor_foc_invoice_id IS NULL" => NULL, 
-           "ud_closed_date >=" => date('Y-m-01', strtotime("-2 months")), 'around_to_vendor >'=> 0 ));
-        echo "FOC..".count($partnerData);
-        $data  = array_merge($pendingData,$partnerData, $focData);
+        echo "Partner.." . count($partnerData);
+        $focData = $this->booking_model->get_unit_details(array('booking_status' => _247AROUND_COMPLETED, "vendor_foc_invoice_id IS NULL" => NULL,
+            "ud_closed_date >=" => date('Y-m-01', strtotime("-2 months")), 'around_to_vendor >' => 0));
+        echo "FOC.." . count($partnerData);
+        $data = array_merge($pendingData, $partnerData, $focData);
         $data1 = array_map("unserialize", array_unique(array_map("serialize", $data)));
-        echo "DATA ".count($data1);
+        echo "DATA " . count($data1);
         $partner = $this->partner_model->get_all_partner_source();
         $partners = array();
         foreach ($partner as $value) {
@@ -1226,33 +1222,29 @@ class Around_scheduler extends CI_Controller {
             echo ".";
             if ($partners[$value['partner_id']] == OEM) {
                 $prices = $this->partner_model->getPrices($value['service_id'], $value['appliance_category'], $value['appliance_capacity'], $value['partner_id'], $value['price_tags'], $value['appliance_brand']);
-               
             } else {
-               $prices = $this->partner_model->getPrices($value['service_id'], $value['appliance_category'], $value['appliance_capacity'], $value['partner_id'], $value['price_tags'], "");
+                $prices = $this->partner_model->getPrices($value['service_id'], $value['appliance_category'], $value['appliance_capacity'], $value['partner_id'], $value['price_tags'], "");
             }
 
-            if(!empty($prices)){
-                if($value['customer_total'] != $prices[0]['customer_total']){
+            if (!empty($prices)) {
+                if ($value['customer_total'] != $prices[0]['customer_total']) {
                     array_push($incorrectData, array('booking_id' => $value['booking_id'], "status" => 'Customer Total Not Match'));
                 }
-                if($value['vendor_basic_percentage'] != $prices[0]['vendor_basic_percentage']){
+                if ($value['vendor_basic_percentage'] != $prices[0]['vendor_basic_percentage']) {
                     array_push($incorrectData, array('booking_id' => $value['booking_id'], "status" => 'SF % Not Match'));
                 }
-                if($value['partner_net_payable'] != $prices[0]['partner_net_payable']){
+                if ($value['partner_net_payable'] != $prices[0]['partner_net_payable']) {
                     array_push($incorrectData, array('booking_id' => $value['booking_id'], "status" => 'Partner Payable Not Match'));
                 }
             } else {
                 array_push($incorrectData, array('booking_id' => $value['booking_id'], "status" => 'Price Does Not Exist'));
             }
-            
         }
-      
-        $this->dashboard_model->update_query_report(array('role' => 'developer', 'type' => 'invoice_check'),
-                array('result' => json_encode($incorrectData, true)));
-        log_message("info", "EXIT...");
 
+        $this->dashboard_model->update_query_report(array('role' => 'developer', 'type' => 'invoice_check'), array('result' => json_encode($incorrectData, true)));
+        log_message("info", "EXIT...");
     }
-    
+
     /**
      * @desc This is used to send email with those booking who has pending to send defective parts
      */
@@ -1266,7 +1258,7 @@ class Around_scheduler extends CI_Controller {
                 "spare_parts_details.defective_part_required" => 1,
                 "spare_parts_details.service_center_id" => $value['id'],
                 "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_REJECTED . "')  " => NULL,
-                "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(spare_parts_details.update_date, '%Y-%m-%d')) > '".SEND_DEFECTIVE_SPARE_PARTS_NOTIFICATION."'" => NULL
+                "DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(spare_parts_details.update_date, '%Y-%m-%d')) > '" . SEND_DEFECTIVE_SPARE_PARTS_NOTIFICATION . "'" => NULL
             );
 
             $select = "CONCAT( '', GROUP_CONCAT((parts_shipped ) ) , '' ) as parts_shipped, "
@@ -1286,7 +1278,7 @@ class Around_scheduler extends CI_Controller {
 
                 $this->table->set_heading(array('Booking ID', 'Customer Name', 'Parts Name', 'Age of Part Pending'));
                 foreach ($spare_parts as $sp) {
-                   
+
                     $this->table->add_row($sp['booking_id'], $sp['name'], $sp['parts_shipped'], $sp['age_of_part_pending'] . " Days");
                 }
 
@@ -1294,37 +1286,38 @@ class Around_scheduler extends CI_Controller {
                 $html_table = $this->table->generate();
 
                 $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($value['id']);
-                $to =  $value['sf_email'];
+                $to = $value['sf_email'];
                 $bcc = "";
 
                 $template = $this->booking_model->get_booking_email_template("notification_to_send_defective_parts");
                 $body = vsprintf($template[0], $html_table);
 
                 $from = $template[2];
-                $cc = $template[3].", ".$rm_details[0]['official_email'];
+                $cc = $template[3] . ", " . $rm_details[0]['official_email'];
                 $subject = vsprintf($template[4], $value['name']);
 
                 $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $body, "",'notification_to_send_defective_parts');
                 log_message("info", __METHOD__ . " " . $value['name'] . " Email Sent");
                 //Send Push Notification
                 $receiverArray['vendor'] = array($value['id']);
-                $notificationTextArray['msg'] = array($sp['booking_id'],$sp['age_of_part_pending']);
-                $this->push_notification_lib->create_and_send_push_notiifcation(PENDING_SPARE_VENDOR,$receiverArray,$notificationTextArray);
+                $notificationTextArray['msg'] = array($sp['booking_id'], $sp['age_of_part_pending']);
+                $this->push_notification_lib->create_and_send_push_notiifcation(PENDING_SPARE_VENDOR, $receiverArray, $notificationTextArray);
                 //End Push Notification
             }
         }
     }
+
     /*
      * This function is used to Approve rescheduled requests Automatically
      * If we did'nt get any miss call for fake reschedule within 4 hours of reschedule request then we will automatically approve that rescheduled request
      */
-    function auto_approval_for_booking_rescheduled_request(){
+
+    function auto_approval_for_booking_rescheduled_request() {
         date_default_timezone_set('Asia/Calcutta');
         //Get Current Rescheduled request Bookings
         $reviewBookingsArray = $this->booking_model->review_reschedule_bookings_request();
         $id = _247AROUND_DEFAULT_AGENT;
         $employeeID = _247AROUND_DEFAULT_AGENT_NAME;
-
         $partner_id_array = array();
         if (!empty($reviewBookingsArray)) {
             foreach ($reviewBookingsArray as $bookingData) {
@@ -1343,22 +1336,21 @@ class Around_scheduler extends CI_Controller {
                 
             }
             $this->miscelleneous->approved_rescheduled_bookings($reschedule_booking_id, $reschedule_booking_date, $reschedule_reason, $partner_id_array, $id, $employeeID);
-
         }
     }
-    
+
     /**
-    * @desc     used to get all the unread email's from installations@247around.com
-    * @param    void()
-    * @return   void() 
-    */
+     * @desc     used to get all the unread email's from installations@247around.com
+     * @param    void()
+     * @return   void()
+     */
     function get_unread_email_details() {
         log_message('info', __METHOD__ . " Entering...");
-        
+
         $mail_server = SMS_DEACTIVATION_MAIL_SERVER;
         $email = EMAIL_ATTACHMENT_READER_EMAIL;
         $password = EMAIL_ATTACHMENT_READER_PASSWORD;
-        
+
         //create email connection
         $conn = $this->email_data_reader->create_email_connection($mail_server, $email, $password);
         if ($conn != 'FALSE') {
@@ -1368,8 +1360,8 @@ class Around_scheduler extends CI_Controller {
             $email_list = $this->email_data_reader->get_emails($email_search_condition);
 
             if (!empty($email_list)) {
-                log_message("info",__METHOD__." Emails Found");
-                
+                log_message("info", __METHOD__ . " Emails Found");
+
                 $template1 = array(
                     'table_open' => '<table border="1" cellpadding="2" cellspacing="0" class="mytable">'
                 );
@@ -1386,10 +1378,10 @@ class Around_scheduler extends CI_Controller {
                             }
                         }
                     }
-                    
+
                     $this->table->add_row($email['from'], $email['subject'], implode(',', $attachments));
                 }
-                
+
                 $html_table = $this->table->generate();
 
                 //get template from database
@@ -1411,27 +1403,27 @@ class Around_scheduler extends CI_Controller {
             $msg .= "<br><b>Function Name: </b> " . __METHOD__;
             $this->notify->sendEmail(NOREPLY_EMAIL_ID, DEVELOPER_EMAIL, '', "", $subject, $msg, "",ERROR_IN_CREATING_EMAIL_CONNECTION);
         }
-        
+
         //close email connection
         $this->email_data_reader->close_email_connection();
         log_message('info', __METHOD__ . " Existing...");
     }
-    
+
     /**
-    * @desc     used to send the reminder to sf and rm to update signature file
-    * @param    void()
-    * @return   void() 
-    */
-    function notification_for_sf_signature(){
+     * @desc     used to send the reminder to sf and rm to update signature file
+     * @param    void()
+     * @return   void()
+     */
+    function notification_for_sf_signature() {
         log_message('info', __METHOD__ . '=> Entering...');
         $rm_details = $this->employee_model->get_rm_details();
-        foreach ($rm_details as $rm){
+        foreach ($rm_details as $rm) {
             $sf_list = $this->vendor_model->get_employee_relation($rm['id']);
             $select = "group_concat(name) as name,group_concat(primary_contact_email,',',owner_email) as email";
-            $where = array('is_gst_doc' => 0, 'active' => 1,'(is_signature_doc IS null OR is_signature_doc = 0)' => NULL,'(signature_file IS Null OR signature_file = "")' => NULL,"id IN(".$sf_list[0]['service_centres_id'].")" => NULL);
+            $where = array('is_gst_doc' => 0, 'active' => 1, '(is_signature_doc IS null OR is_signature_doc = 0)' => NULL, '(signature_file IS Null OR signature_file = "")' => NULL, "id IN(" . $sf_list[0]['service_centres_id'] . ")" => NULL);
             $data = $this->vendor_model->getVendorDetails($select, $where);
-            if(!empty($data[0]['email'])){
-                log_message("info",__METHOD__." Data Found ".print_r($data,true));
+            if (!empty($data[0]['email'])) {
+                log_message("info", __METHOD__ . " Data Found " . print_r($data, true));
                 //send mail to sf
                 $sf_template = $this->booking_model->get_booking_email_template("sf_signature_notification");
                 $sf_body = $sf_template[0];
@@ -1441,7 +1433,6 @@ class Around_scheduler extends CI_Controller {
                 $sf_bcc = $data[0]['name'];
                 $sf_subject = $sf_template[4];
                 $this->notify->sendEmail($sf_from, $sf_to, $sf_cc, $sf_bcc, $sf_subject, $sf_body, "",'sf_signature_notification');
-                
                 //send sf_list to rm
                 $template1 = array(
                     'table_open' => '<table border="1" cellpadding="2" cellspacing="0" class="mytable">'
@@ -1457,33 +1448,32 @@ class Around_scheduler extends CI_Controller {
                 $html_table = $this->table->generate();
                 $rm_template = $this->booking_model->get_booking_email_template("sf_signature_notification_for_rm");
                 $rm_body = vsprintf($rm_template[0], $html_table);
-                $rm_to = $rm['official_email'].",".$rm_template[1];
+                $rm_to = $rm['official_email'] . "," . $rm_template[1];
                 $rm_from = $rm_template[2];
                 $rm_cc = $rm_template[3];
                 $rm_subject = $rm_template[4];
                 $this->notify->sendEmail($rm_from, $rm_to, $rm_cc, '', $rm_subject, $rm_body, "",'sf_signature_notification_for_rm');
             }else{
                 log_message("info",__METHOD__." No Data Found For RM ".$rm['full_name']);
-            }
+            } 
         }
     }
-    
-    
+
     /**
-    * @desc     used to send the reminder to sf and rm to update GST file
-    * @param    void()
-    * @return   void() 
-    */
-    function notification_for_sf_gst(){
+     * @desc     used to send the reminder to sf and rm to update GST file
+     * @param    void()
+     * @return   void()
+     */
+    function notification_for_sf_gst() {
         log_message('info', __METHOD__ . '=> Entering...');
         $rm_details = $this->employee_model->get_rm_details();
-        foreach ($rm_details as $rm){
+        foreach ($rm_details as $rm) {
             $sf_list = $this->vendor_model->get_employee_relation($rm['id']);
             $select = "group_concat(name) as name,group_concat(primary_contact_email,',',owner_email) as email";
-            $where = array('is_gst_doc IS NULL' => NULL, 'active' => 1,"id IN(".$sf_list[0]['service_centres_id'].")" => NULL);
+            $where = array('is_gst_doc IS NULL' => NULL, 'active' => 1, "id IN(" . $sf_list[0]['service_centres_id'] . ")" => NULL);
             $data = $this->vendor_model->getVendorDetails($select, $where);
-            if(!empty($data[0]['email'])){
-                log_message("info",__METHOD__." Data Found ".print_r($data,true));
+            if (!empty($data[0]['email'])) {
+                log_message("info", __METHOD__ . " Data Found " . print_r($data, true));
                 //send mail to sf
                 $sf_template = $this->booking_model->get_booking_email_template("gst_notification");
                 $sf_body = $sf_template[0];
@@ -1493,7 +1483,6 @@ class Around_scheduler extends CI_Controller {
                 $sf_bcc = $data[0]['name'];
                 $sf_subject = $sf_template[4];
                 $this->notify->sendEmail($sf_from, $sf_to, $sf_cc, $sf_bcc, $sf_subject, $sf_body, "",'gst_notification');
-                
                 //send sf_list to rm
                 $template1 = array(
                     'table_open' => '<table border="1" cellpadding="2" cellspacing="0" class="mytable">'
@@ -1509,7 +1498,7 @@ class Around_scheduler extends CI_Controller {
                 $html_table = $this->table->generate();
                 $rm_template = $this->booking_model->get_booking_email_template("sf_gst_notification_for_rm");
                 $rm_body = vsprintf($rm_template[0], $html_table);
-                $rm_to = $rm['official_email'].",".$rm_template[1];
+                $rm_to = $rm['official_email'] . "," . $rm_template[1];
                 $rm_from = $rm_template[2];
                 $rm_cc = $rm_template[3];
                 $rm_subject = $rm_template[4];
@@ -1519,7 +1508,7 @@ class Around_scheduler extends CI_Controller {
             }
         }
     }
-    
+
     /**
      * @desc This is used to refund cashback for those customer who had paid through Paytm
      */
@@ -1546,6 +1535,7 @@ class Around_scheduler extends CI_Controller {
                 }
             }
     }
+
     /**
      * @desc: This method is used to send qr sms to customer.
      * It will send sms only those customer whose booking is assigned to sf.
@@ -1554,10 +1544,9 @@ class Around_scheduler extends CI_Controller {
     function send_qrCode_sms_to_customer() {
         log_message("info", __METHOD__ . " Entering.....");
         $booking = $this->booking_model->get_bookings_count_by_any("services, assigned_vendor_id, booking_id, "
-                . "user_id, booking_primary_contact_no",
-                array('current_status IN ("' . _247AROUND_PENDING . '", "' . _247AROUND_RESCHEDULED . '") ' => NULL,
+                . "user_id, booking_primary_contact_no", array('current_status IN ("' . _247AROUND_PENDING . '", "' . _247AROUND_RESCHEDULED . '") ' => NULL,
             'amount_due > 0' => NULL, 'assigned_vendor_id IS NOT NULL' => NULL));
-        
+
         if (!empty($booking)) {
             foreach ($booking as $value) {
                 $sf = $this->vendor_model->getVendorContact($value['assigned_vendor_id']);
@@ -1567,7 +1556,7 @@ class Around_scheduler extends CI_Controller {
                 $user = json_decode($userDownload, TRUE);
                 if ($user['status'] == SUCCESS_STATUS) {
 
-                    $url = S3_WEBSITE_URL.$user['qr_url'];
+                    $url = S3_WEBSITE_URL . $user['qr_url'];
                     $tinyUrl = $this->miscelleneous->getShortUrl($url);
                     if ($tinyUrl) {
 
@@ -1585,7 +1574,7 @@ class Around_scheduler extends CI_Controller {
                         log_message("info", __METHOD__ . " Booking id " . $value['booking_id'] . " Tiny url Not generated");
                     }
                 } else {
-                    log_message("info", __METHOD__ . " QR Not generated for booking id " . $value['booking_id'] );
+                    log_message("info", __METHOD__ . " QR Not generated for booking id " . $value['booking_id']);
                 }
             }
         }
@@ -1797,75 +1786,8 @@ class Around_scheduler extends CI_Controller {
             log_message('info', __METHOD__ . " CP is not exist ");
         }
     }
-
-    /**
-     * @desc This is used to send outstanding amount to CP through SMS/Email
-     */
-    function send_reminder_mail_for_cp_outstanding() {
-        log_message('info', __METHOD__ . " Enterring..");
-        $cp = $this->vendor_model->getVendorDetails('id, cp_credit_limit, company_name, primary_contact_email, owner_email, owner_phone_1', 
-                array('is_cp' => 1));
-        if (!empty($cp)) {
-            foreach ($cp as $value) {
-                $amount_cr_deb = $this->miscelleneous->get_cp_buyback_credit_debit($value['id']);
-                if ($amount_cr_deb['total_balance'] < $value['cp_credit_limit']) {
-                    log_message('info', __METHOD__ . " CP Id ". $value['id']. " Outstanding Amount ".$amount_cr_deb['total_balance']);
-                    
-                    //Send SMS
-                    $sms['phone_no'] = $value['owner_phone_1'];
-                    $sms['smsData']['amount'] = abs(round($amount_cr_deb['total_balance'],0));
-		    $sms['tag'] = "cp_outstanding_sms";
-		    $sms['booking_id'] = "";
-		    $sms['type'] = "vendor";
-		    $sms['type_id'] = $value['id'];
-
-		    $this->notify->send_sms_msg91($sms);
-                    
-                    //Send Email
-
-//                    $html = '<html><head><title>Outstanding Amount</title><link href="' . base_url() . 
-//                            'css/bootstrap.min.css" rel="stylesheet"></head><body>';
-//
-//                    $template = array(
-//                        'table_open' => '<table  border="1" cellpadding="2" cellspacing="1"'
-//                        . ' class="table table-striped table-bordered jambo_table bulk_action">'
-//                    );
-//                    $this->table->set_template($template);
-//                    $this->table->set_heading(array('Name', 'Advance Paid', 'Un-Settle Invoice (Rs)', 'Un-billed Delivered (Rs)', 
-//                        'Un-billed In-transit (Rs)', 'Balance (Rs)'));
-//                    $this->table->add_row($value['company_name'], round(abs($amount_cr_deb['advance']), 0), 
-//                            -round($amount_cr_deb['unbilled'], 0), -round($amount_cr_deb['cp_delivered'], 0), 
-//                            -round($amount_cr_deb['cp_transit'], 0), round($amount_cr_deb['total_balance'], 0));
-//
-//                    $html .= $this->table->generate();
-//                    $html .= '</body></html>';
-                    $email_template = $this->booking_model->get_booking_email_template(CP_OUTSTANDING_AMOUNT);
-                    if(!empty($email_template)){
-                        $rm = $this->vendor_model->get_rm_sf_relation_by_sf_id($value['id']);
-                        $rm_email = "";
-                        $from = $email_template[2];
-                        if(!empty($rm)){
-                            $rm_email = ", ".$rm[0]['official_email'];
-                            $from = $rm[0]['official_email'];
-                        }
-                        $to = $value['primary_contact_email'] . "," . $value['owner_email'];
-                        $bcc = $email_template[5];
-                        $cc = $email_template[3]. $rm_email;
-                        $subject = vsprintf($email_template[4], array($value['company_name'], abs(round($amount_cr_deb['total_balance'], 0))));
-                        $message = vsprintf($email_template[0], array(abs(round($amount_cr_deb['total_balance'], 0))));
-                        
-                        
-                        $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "",CP_OUTSTANDING_AMOUNT);
-                    }
-                } else {
-                    log_message('info', __METHOD__ . " CP outstanding Amount  ".$amount_cr_deb['total_balance']. " CP ID ". $value['id']);
-                }
-            }
-        } else {
-            log_message('info', __METHOD__ . " CP is not exist ");
-        }
-    }
- /** This function is used to get gst detail of all vendor from the taxPro API **/
+    
+    /** This function is used to get gst detail of all vendor from the taxPro API **/
     function all_vendor_gst_checking_by_api(){
         $vendor = $this->vendor_model->getVendorDetails('id,gst_no', array(), 'id', array());
         foreach ($vendor as $vendor){            
@@ -1902,29 +1824,6 @@ class Around_scheduler extends CI_Controller {
             }
         }
     } 
-    
-    function check_GST_number($gst){
-        $curl = curl_init();
-        curl_setopt_array($curl, array(
-          CURLOPT_URL => "https://api.taxprogsp.co.in/commonapi/v1.1/search?aspid=1606680918&password=priya@b30&Action=TP&Gstin=07ALDPK4562B1ZG",  
-          CURLOPT_RETURNTRANSFER => true,
-          CURLOPT_ENCODING => "",
-          CURLOPT_MAXREDIRS => 10,
-          CURLOPT_TIMEOUT => 30,
-          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-          CURLOPT_CUSTOMREQUEST => "GET",
-        ));
-        $response = curl_exec($curl);
-        $err = curl_error($curl);
-        curl_close($curl);
-        if ($err) {
-            //return "cURL Error :" . $err;
-        } else {
-          return $response;
-        }
-    }
-   
-
     /*
      * This function will be used to auto approve all those booking where partner was responsible to approve theses booking but partner did not review these booking within time
      * So for this case we automatically approved these bookings
@@ -2011,4 +1910,3 @@ class Around_scheduler extends CI_Controller {
     }
 
 }
-

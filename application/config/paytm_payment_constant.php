@@ -23,7 +23,6 @@ define('QR_CREATED_SUCCESSFULLY_MSG','QR GENERATED');
 define('QR_CODE_REQUEST_TYPE','QR_ORDER');
 define('QR_CODE_S3_FOLDER','qr-codes');
 define('QR_CODE_DATABASE_ERROR','Not Saved In Database QR Generated');
-define('CASHBACK_DATABASE_ERROR','Cashback transaction Not Saved In Database');
 define('QR_CODE_FAILURE','Error From Paytm');
 define('PAYTM_PAYMENT_METHOD_FOR_QR','Paytm QR Code');
 define('QR_CODE_VALIDITY', "30");
@@ -36,6 +35,7 @@ define('QR_FAILURE_CC','abhaya@247around.com');
 /*
  * Cashback Constatnts
  */
+define('CASHBACK_DATABASE_ERROR','Cashback transaction Not Saved In Db');
 define("PAYTM_CASHBACK_TAG", "Paytm");
 define('CASHBACK_TRANSACTION_NOT_FOUND_MSG',"Transaction ID doesn't exist in database");
 define('CASHBACK_ALREADY_DONE_FOR_THIS_TRANSACTION_ID',"Cashback already Processes against this transaction ID");

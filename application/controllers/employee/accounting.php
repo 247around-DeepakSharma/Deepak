@@ -349,9 +349,9 @@ class Accounting extends CI_Controller {
      * @param: void
      * @return : void
      */
-    function show_search_invoice_id_view() {
+    function show_search_invoice_view() {
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/search_invoice_id');
+        $this->load->view('employee/search_invoice_data');
     }
 
     /**
@@ -702,5 +702,145 @@ class Accounting extends CI_Controller {
             
         } 
         redirect(base_url() . "employee/accounting/view_shipped_documents");
+    }
+    /**
+     * @desc This is used to get all unique invoice type 
+     */
+    function get_invoice_type(){
+        $data = $this->invoices_model->get_invoices_details(array(), "Distinct type");
+        $html = "<option value=''>Select Invoice Type</option>";
+        foreach ($data as $value) {
+            $html .= "<option value='".$value['type']."' >".$value['type']."</option>";
+        }
+        
+        echo $html;
+    }
+    /**
+     * @desc Filter invoice data from Invoice Search page
+     */
+    function get_invoice_searched_data(){
+        log_message("info", __METHOD__. json_encode($_POST, TRUE)); 
+        $post = $this->getInvoiceDataTablePost();
+        
+        $post['column_order'] = array( NULL, 'invoice_id');
+        $post['column_search'] = array('invoice_id');
+        
+        $select = "IFNULL(service_centres.name, partners.public_name) as party_name, vendor_partner_invoices.*";
+        $list = $this->invoices_model->searchInvoicesdata($select, $post);
+        $no = $post['start'];
+        $data = array();
+        foreach ($list as $invoice_list) {
+            $no++;
+            $row =  $this->invoice_datatable($invoice_list, $no);
+            $data[] = $row;
+        }
+        $output = array(
+            "draw" => $post['draw'],
+            "recordsTotal" => $this->invoices_model->count_all_invoices($post),
+            "recordsFiltered" =>  $this->invoices_model->count_filtered_invoice($select, $post),
+            "data" => $data,
+        );
+        
+        echo json_encode($output);
+        
+    }
+    /**
+     * @desc This is used to generate Data table row
+     * @param Array $invoice_list
+     * @param int $no
+     * @return Array
+     */
+    function invoice_datatable($invoice_list, $no){
+        $row = array();
+        $row[] = $no;
+        $row[] = "<a href='". base_url()."employee/invoice/invoice_summary/".$invoice_list->vendor_partner."/".$invoice_list->vendor_partner_id."' target='_blank'>".$invoice_list->party_name."</a>";
+        $row[] = $invoice_list->invoice_id;
+        $row[] = $invoice_list->type;
+        $row[] = $invoice_list->num_bookings."/".$invoice_list->parts_count;
+        $row[] = date("jS M, Y", strtotime($invoice_list->invoice_date))." <br/><br/> ".date("jS M, Y", strtotime($invoice_list->from_date)). " to ". date("jS M, Y", strtotime($invoice_list->to_date));
+        $row[] = $invoice_list->total_amount_collected;
+        $row[] = sprintf("%.2f",($invoice_list->total_service_charge + $invoice_list->service_tax));
+        $row[] = sprintf("%.2f", $invoice_list->total_additional_service_charge );
+        $row[] = sprintf("%.2f", ($invoice_list->parts_cost + $invoice_list->vat));
+        $row[] = sprintf("%.2f", $invoice_list->tds_amount);
+        $row[] = sprintf("%.2f", $invoice_list->penalty_amount);
+        $row[] = sprintf("%.2f",$invoice_list->igst_tax_amount + $invoice_list->cgst_tax_amount + $invoice_list->sgst_tax_amount);
+        $row[] = ($invoice_list->amount_collected_paid < 0)?  sprintf("%.2f",$invoice_list->amount_collected_paid) : 0;
+        $row[] = ($invoice_list->amount_collected_paid > 0)?  sprintf("%.2f",$invoice_list->amount_collected_paid) : 0;
+        $row[] = $invoice_list->amount_paid;
+        $row[] = $invoice_list->remarks;
+        $a_update = '<a href="'.base_url().'employee/invoice/insert_update_invoice/'.$invoice_list->vendor_partner.'/'.$invoice_list->invoice_id.'"';
+        if($invoice_list->amount_paid > 0){
+            $a_update .= " disabled ";
+        }
+        $a_update .= ' class="btn btn-sm btn-info">update</a> ';
+        $row[] = $a_update;
+        
+        $resend_invoice = '<a href="'.base_url().'employee/invoice/sendInvoiceMail/'.$invoice_list->invoice_id.'" class="btn btn-sm btn-primary">Resend Invoice</a>';
+        $row[] = $resend_invoice;
+        if(($invoice_list->type == "DebitNote") && $invoice_list->credit_generated == 0){
+            $row[] = '<a target="_blank" href="'.base_url().'employee/invoice/generate_gst_creditnote/'.$invoice_list->invoice_id.'" class="btn btn-sm btn-success"> Generate</a>';
+        } else {
+            $row[] = "";
+        }
+        return $row;
+    }
+    /**
+     * @desc Get POST data from DataTable
+     * @return Array
+     */
+    function getInvoiceDataTablePost(){
+        
+        $post['length'] = $this->input->post('length');
+        $post['start'] = $this->input->post('start');
+        $search = $this->input->post('search');
+        $post['search_value'] = trim($search['value']);
+        
+        $post['order'] = $this->input->post('order');
+        $post['draw'] = $this->input->post('draw');
+        
+        $vendor_partner = $this->input->post("vendor_partner");
+        $vendor_partner_id = $this->input->post("vendor_partner_id");
+        $invoice_date = $this->input->post("invoice_date");
+        $invoice_period = $this->input->post("invoice_period_date");
+        $settle_amount = $this->input->post("settle");
+        $remarks = trim($this->input->post("invoice_remarks"));
+        $invoice_type = trim($this->input->post("invoice_type"));
+        
+        if(!empty($vendor_partner)){
+            $post['where']['vendor_partner'] = $vendor_partner;
+        }
+        if(!empty($vendor_partner_id)){
+            if($vendor_partner_id != "All"){
+                $post['where']['vendor_partner_id'] = $vendor_partner_id;
+            } 
+        }
+        
+        if(!empty($invoice_date)){
+           $in = explode("/", $invoice_date);
+           $post['where']['invoice_date >="'.$in[0].'"'] = NULL;
+           $post['where']['invoice_date <= "'.$in[1].'"'] = NULL;
+           
+        }
+        
+        if(!empty($invoice_period)){
+            $period = explode("/", $invoice_period);
+            $post['where']['invoice_date >="'.$period[0].'"'] = NULL;
+            $post['where']['invoice_date <= "'.$period[1].'"'] = NULL;
+        }
+        
+        if($settle_amount != 2){
+            $post['where']['settle_amount'] = $settle_amount;
+        }
+        
+        if(!empty($remarks)){
+            $post['where']['vendor_partner_invoices.remarks LIKE "%'.$remarks.'%" '] = NULL;
+        }
+        
+        if(!empty($invoice_type)){
+            $post['where']['vendor_partner_invoices.type'] = $invoice_type;
+        }
+        
+        return $post;
     }
 }

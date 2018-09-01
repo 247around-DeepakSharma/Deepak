@@ -60,8 +60,7 @@ class Login extends CI_Controller {
             if ($login) {
                 $is_am = 0;
                 $this->session->sess_create();
-                $amArray = $this->reusable_model->get_search_result_data("employee",'1',array("groups"=>"accountmanager"),NULL,NULL,NULL,NULL,NULL,array()); 
-                if(!empty($amArray)){
+                if($login[0]['groups'] == 'accountmanager'){
                     $is_am = 1;
                 }
                 $this->setSession($login[0]['employee_id'], $login[0]['id'], $login[0]['phone'],$login[0]['official_email'],$login[0]['full_name'],$is_am);
@@ -835,9 +834,7 @@ function user_role_management(){
                 $is_am = 0;
                 $this->session->sess_create();
                  $this->session->set_userdata(array("login_by"=>_247AROUND_EMPLOYEE_STRING));
-                $amArray = $this->reusable_model->get_search_result_data("partners",'1',array("partners.account_manager_id"=>$login[0]['id'],"employee.groups != 'admin'"=>NULL,'partners.is_active'=>1),
-                        array("employee"=>"employee.id = partners.account_manager_id"),NULL,NULL,NULL,NULL,array()); 
-                if(!empty($amArray)){
+                if($login[0]['groups'] == 'accountmanager'){
                     $is_am = 1;
                 }
                 $this->setSession($login[0]['employee_id'], $login[0]['id'], $login[0]['phone'],$login[0]['official_email'],$login[0]['full_name'],$is_am);

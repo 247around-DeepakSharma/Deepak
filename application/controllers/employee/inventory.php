@@ -1398,7 +1398,7 @@ class Inventory extends CI_Controller {
     function seach_by_email(){
         $email_id = trim($this->input->post("email_id"));
         if(!empty($email_id)){ 
-            $data['data'] = $this->inventory_model->search_email($email_id);
+            $data['data'] = $this->vendor_model->search_email($email_id);
             $this->miscelleneous->load_nav_header();
             $this->load->view("employee/search_email_form", $data);
         } else {
@@ -2608,7 +2608,7 @@ class Inventory extends CI_Controller {
     }
 
     /**
-     * @desc This is used to upload spare related image. It is used from Booking view details page.
+     *@desc This is used to upload spare related image. It is used from Booking view details page.
      */
     function processUploadSpareItem(){
         log_message('info', __METHOD__. " ". print_r($this->input->post(), TRUE). " ". print_r($_FILES, true)) ;
@@ -2624,7 +2624,22 @@ class Inventory extends CI_Controller {
         } else {
             echo json_encode(array('code' => "error", "message" => "File size or file type is not supported"));
         }
-
+    }
+    
+    /**
+     * @desc: This function will check SF Session
+     * @param: void
+     * @return: true if details matches else session is destroy.
+     */
+    function checkSFSession() {
+        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'service_center') 
+                && !empty($this->session->userdata('service_center_id')) && !empty($this->session->userdata('is_sf'))) {
+            return TRUE;
+        } else {
+            log_message('info', __FUNCTION__. " Session Expire for Service Center");
+            $this->session->sess_destroy();
+            redirect(base_url() . "service_center/login");
+        }
     }
     
     
@@ -4512,23 +4527,6 @@ class Inventory extends CI_Controller {
         $this->load->view('employee/acknowledge_spares_send_by_partner_by_admin');
     }
     
-
-    /**
-     * @desc: This function will check SF Session
-     * @param: void
-     * @return: true if details matches else session is destroy.
-     */
-    function checkSFSession() {
-        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'service_center') 
-                && !empty($this->session->userdata('service_center_id')) && !empty($this->session->userdata('is_sf'))) {
-            return TRUE;
-        } else {
-            log_message('info', __FUNCTION__. " Session Expire for Service Center");
-            $this->session->sess_destroy();
-            redirect(base_url() . "service_center/login");
-        }
-    }
-        
     /**
      * @desc: This function is used to check partner session.
      * @param: void
@@ -4542,6 +4540,47 @@ class Inventory extends CI_Controller {
             $this->session->sess_destroy();
             redirect(base_url() . "partner/login");
         }
+    }
+    
+    
+                    
+    /**
+     * @desc: This function is used to upload the courier receipt for spare parts
+     * @params: void
+     * @return: returns true if file is uploaded 
+     * 
+     */
+    function upload_defective_courier_receipt(){
+         if (!empty($_FILES['defective_courier_receipt']['tmp_name'])) {
+            
+            $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
+            $booking_id = $this->input->post("booking_id");
+            
+            
+            
+            
+            $defective_courier_receipt = $this->miscelleneous->upload_file_to_s3($_FILES["defective_courier_receipt"], 
+                    "defective_courier_receipt", $allowedExts, $booking_id, "misc-images", "defective_courier_receipt");
+            if($defective_courier_receipt){
+                
+               return true;
+            } else {
+                $this->form_validation->set_message('upload_defective_courier_receipt', 'Defective Front Parts, File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
+                        . 'Maximum file size is 5 MB.');
+                return false;
+            }
+        } else {
+            return true;
+        }
+    }
+
+   
+    
+     public function update_tagged_invoice() {
+        
+        $data['inventory'] = $this->inventory_model->get_inventory_master_list_data('inventory_id,part_name,part_number');
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/update_tagged_invoice', $data);
     }
     
     /**
@@ -4689,6 +4728,7 @@ class Inventory extends CI_Controller {
                 . "spare_parts_details.parts_shipped as 'Part Shipped By Partner',spare_parts_details.shipped_parts_type as 'Part Type',"
                 . "spare_parts_details.shipped_date as 'Partner Part Shipped Date',spare_parts_details.awb_by_partner as 'Partner AWB Number',"
                 . "spare_parts_details.courier_name_by_partner as 'Partner Courier Name',spare_parts_details.courier_price_by_partner as 'Partner Courier Price',"
+                . "partner_challan_number AS 'Partner Challan Number', sf_challan_number as 'SF Challan Number', "
                 . "spare_parts_details.acknowledge_date as 'Spare Received Date',spare_parts_details.auto_acknowledeged as 'IS Spare Auto Acknowledge',"
                 . "spare_parts_details.defective_part_shipped as 'Part Shipped By SF',challan_approx_value As 'Parts Charge', "
                 . "spare_parts_details.awb_by_sf as 'SF AWB Number',spare_parts_details.courier_name_by_sf as 'SF Courier Name',"

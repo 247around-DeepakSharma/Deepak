@@ -9,6 +9,8 @@ class Payment extends CI_Controller {
         $this->load->library('paytm_payment_lib');
         $this->load->model('reusable_model');
         $this->load->library('authentication_lib');
+        $this->load->library('booking_utilities');
+        $this->load->model('booking_model');
     }
     /*
      * This function is used to handle paytm callback after transaction against any qr code

@@ -24,13 +24,6 @@ class User_invoice extends CI_Controller {
     }
     
     /**
-
-     * @desc
-
-    }
-    /**
-     * 
-
      * @desc This method is used to generate Customer invoice on the behalf of Sf
      * @param String $booking_id
      * @param String $agent_id
@@ -84,9 +77,7 @@ class User_invoice extends CI_Controller {
 
                 $sd = $ed = $invoice_date = $data[0]->closed_date;
 
-
                 $response = $this->invoices_model->_set_partner_excel_invoice_data($invoice, $sd, $ed, "Tax Invoice", $invoice_date, true, $data[0]->state);
-
                 $response['meta']['customer_name'] = $data[0]->name;
                 $response['meta']['customer_address'] = $data[0]->home_address . ", " . $data[0]->city . ", Pincode - " . $data[0]->pincode . ", " . $data[0]->state;
                 $response['meta']['customer_phone_number'] = $data[0]->booking_primary_contact_no;
@@ -366,15 +357,13 @@ class User_invoice extends CI_Controller {
                         unlink($response['meta']['invoice_id'] . '.xlsx');
                     }
                 } else {
-
-                    log_message("info" . __METHOD__ . " Excel Not Created Booking ID" . $booking_id);
+                    log_message("info" , __METHOD__ . " Excel Not Created Booking ID" . $booking_id);
                 }
             } else {
-                log_message("info" . __METHOD__ . " Booking ID Not found " . $booking_id);
+                log_message("info" , __METHOD__ . " Booking ID Not found " . $booking_id);
             }
         } else {
-            log_message("info" . __METHOD__ . " Invoice Already Exsit dor booking ID " . $booking_id . " Invoice Data " . $txnID);
-
+            log_message("info" , __METHOD__ . " Invoice Already Exsit dor booking ID " . $booking_id . " Invoice Data " . $txnID);
         }
     }
 

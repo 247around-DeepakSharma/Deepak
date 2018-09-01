@@ -10,6 +10,14 @@
                             <strong>' . $this->session->userdata('success') . '</strong>
                         </div>';
         }
+        if ($this->session->userdata('error')) {
+            echo '<div class="alert alert-error alert-dismissible" role="alert" style="margin-top: 55px;">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <strong>' . $this->session->userdata('error') . '</strong>
+                        </div>';
+        }
     ?>
     <div class="row">
 <?php } ?>        
@@ -24,7 +32,6 @@
             <?php
             }
             ?>
-
             <div class="right_holder" style="float:right;margin-right:10px;">
                             <lable>State</lable>
                             <select class="form-control " id="serachInput" style="border-radius:3px;">

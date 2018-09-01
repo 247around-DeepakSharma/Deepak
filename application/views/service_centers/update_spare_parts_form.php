@@ -300,7 +300,7 @@
                                 if (form_error('shipment_date')) { echo 'has-error';} ?>">
                                 <label for="shipment_date" class="col-md-4">Shipment Date</label>
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control"  id="shipment_date" name="shipment_date"  value = "<?php echo  date("Y-m-d", strtotime("+0 day")); ?>"  required readonly=''>
+                                    <input type="text" class="form-control"  id="shipment_date" name="shipment_date"  value = "<?php echo  date("Y-m-d", strtotime("+0 day")); ?>"  required>
                                     <?php echo form_error('shipment_date'); ?>
                                 </div>
                             </div>

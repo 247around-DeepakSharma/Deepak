@@ -364,7 +364,8 @@
       $("#approved_close:checked").each(function(i) {
          count = count+1;
       });
-      if(count >40){
+      
+      if(Number(count) > 40){
          alert("Maximum 40 bookings can be completed/cancelled in one time.");
          return false;
       } else if(count ===0){

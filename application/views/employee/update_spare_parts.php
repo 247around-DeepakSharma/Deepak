@@ -179,7 +179,7 @@
                                     <div class="form-group ">
                                         <label for="courier" class="col-md-4">Courier Name</label>
                                         <div class="col-md-6">
-                                            <input type="text" class="form-control" id="courier_name" name="courier_name" placeholder="Please Enter Courier Name"  value="<?php if (isset($bookinghistory[0]['courier_name_by_partner'])) {
+                                            <input type="text" class="form-control" id="courier_name" name="courier_name" placeholder="Please Enter courier Name"  value="<?php if (isset($bookinghistory[0]['courier_name_by_partner'])) {
                                                 echo $bookinghistory[0]['courier_name_by_partner'];
                                                 } ?>">
                                         </div>

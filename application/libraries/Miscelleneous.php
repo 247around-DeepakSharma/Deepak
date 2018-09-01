@@ -14,7 +14,6 @@ class Miscelleneous {
         $this->My_CI->load->library('notify');
         $this->My_CI->load->library('push_notification_lib');
         $this->My_CI->load->library('send_grid_api');
-
         $this->My_CI->load->library('s3');
         $this->My_CI->load->library('PHPReport');
         $this->My_CI->load->model('vendor_model');
@@ -1417,25 +1416,20 @@ class Miscelleneous {
             $booking['partner_name'] = $tempPartner[0]['public_name'];
         }
         $message = $this->My_CI->load->view('employee/sf_not_found_email_template', $booking, true);
-
         $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $rm_email, $cc, "", $subject, $message, "",SF_NOT_FOUND);
         if(!empty($isPartner)){
-
-            $this->send_mail_to_partner_sf_not_exist($booking, $subject);
+            $this->send_mail_to_partner_sf_not_exist($booking, $subject, SF_NOT_FOUND);
         }
     }
     
-    function send_mail_to_partner_sf_not_exist($booking, $subject){
+    function send_mail_to_partner_sf_not_exist($booking, $subject, $templatetag){
         $partner_email = $this->get_partner_email_constant();
         if(isset($partner_email[$booking['partner_id']])){
             $to = $partner_email[$booking['partner_id']];
             $cc = ANUJ_EMAIL_ID;
             $booking['jeeves_not_assign'] = true;
             $message = $this->My_CI->load->view('employee/sf_not_found_email_template', $booking, true);
-
-            // $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
-             //When release 51 puhsed then uncomment below code and remove above line
-             $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "",$templatetag);
+            $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "",$templatetag);
         }
     }
     
@@ -1443,7 +1437,6 @@ class Miscelleneous {
         return array(
             JEEVES_ID => VINESH_FLIPKART_EMAIL
        );
-
     }
 
     /*
@@ -1847,6 +1840,9 @@ class Miscelleneous {
      */
 
     function update_insert_bank_account_details($bankDetailsArray) {
+        if(!$bankDetailsArray['cancelled_cheque_file']){
+            unset($bankDetailsArray['cancelled_cheque_file']);
+        }
         if($bankDetailsArray['entity_id']){
             $where['entity_id'] = $bankDetailsArray['entity_id'];
             $where['entity_type'] = $bankDetailsArray['entity_type'];

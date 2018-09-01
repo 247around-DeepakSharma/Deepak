@@ -579,6 +579,25 @@
         </div>
     </div>
 </div>
+<div id="showBrandCollateral" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Brand Collateral</h4>
+      </div>
+        <div class="modal-body" id="collatral_container">
+             <center><img id="loader_gif_pending" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
 <?php } ?>
 <?php if($this->session->userdata('is_engineer_app') == 1){ ?>
 <div role="tabpanel" class="tab-pane" id="bookings_on_approval">
@@ -744,8 +763,8 @@
                 function create_booking_contacts(response){
         var data="";
         var result = JSON.parse(response);
-        data =data +  "<tr><td>1) </td><td>Account Manager</td><td>"+result[0].am+"</td><td>"+result[0].am_caontact+"</td></tr>";
-        data =data +  "<tr><td>2) </td><td>Partner POC</td><td>"+result[0].partner_poc+"</td><td>"+result[0].poc_contact+"</td></tr>";
+        data =data +  "<tr><td>1) </td><td>247around Account Manager</td><td>"+result[0].am+"</td><td>"+result[0].am_caontact+"</td></tr>";
+        data =data +  "<tr><td>2) </td><td>Brand POC</td><td>"+result[0].partner_poc+"</td><td>"+result[0].poc_contact+"</td></tr>";
         var tb="<table class='table  table-bordered table-condensed ' >";
         tb+='<thead>';
         tb+='<tr>';

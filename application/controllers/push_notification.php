@@ -10,7 +10,8 @@ class Push_Notification extends CI_Controller {
         parent::__Construct();
         $this->load->model('reusable_model');
         $this->load->library('miscelleneous');
-	$this->load->library('user_agent');
+        $this->load->library('user_agent');
+        $this->load->helper('text');
     }
     // This function is used to get notification center data and create a view for notifictaion center
      function send_pushcrew_notification(){
@@ -87,6 +88,7 @@ class Push_Notification extends CI_Controller {
          echo $notificationString;
    }
        function save_push_notification_subscribers(){
+        log_message('info', __FUNCTION__ . " Function Start");
         $data['subscriber_id'] = $this->input->post('subscriberID');
         $data['entity_id'] = $this->session->userdata('id');
         $data['entity_type'] = $this->session->all_userdata()['userType'];

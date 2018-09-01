@@ -189,7 +189,6 @@ class Booking extends CI_Controller {
                 $services_details['booking_id'] = $booking['booking_id'];
                 //$appliances_details['serial_number'] = $services_details['serial_number'] = $serial_number[$key];
                 $appliances_details['description'] = $services_details['appliance_description'] = $appliance_description[$key];
-
                 $appliances_details['service_id'] = $services_details['service_id'] = $booking['service_id'];
                 $appliances_details['last_service_date'] = date('Y-m-d H:i:s');
                 $services_details['partner_id'] = $booking['partner_id'];
@@ -396,7 +395,6 @@ class Booking extends CI_Controller {
                 $is_send_sms = 1;
                 $booking_id_with_flag['new_state'] = _247AROUND_PENDING;
                 $booking_id_with_flag['old_state'] = _247AROUND_NEW_BOOKING;
-
                 if ($booking['type'] == "Booking") {
                     $booking['initial_booking_date'] = $booking['booking_date'];
                     $booking['current_status'] =  _247AROUND_PENDING;
@@ -558,6 +556,7 @@ class Booking extends CI_Controller {
         
         return $dealer_id;
     }
+
     /**
      * @desc: This method is used to send sms while Customer not reachable in Pending Queries.
      * This is Asynchronous Process
@@ -569,6 +568,56 @@ class Booking extends CI_Controller {
         $send['booking_id'] = $booking_id;
         $send['state'] = $state;
         $this->asynchronous_lib->do_background_process($url, $send);
+    }
+
+    /**
+     * @desc: this method returns Booking data in array
+     * @return Array
+     */
+    function get_booking_input($user_id) {
+        log_message('info', __FUNCTION__);
+        $booking['service_id'] = $this->input->post('service_id');
+        $booking['source'] = $this->input->post('source_code');
+        $booking['type'] = $this->input->post('type');
+        $booking['amount_due'] = $this->input->post('grand_total_price');
+        $booking['booking_address'] = trim($this->input->post('home_address'));
+        $booking['city'] = trim($this->input->post('city'));
+        $booking_date = $this->input->post('booking_date');
+        $booking['partner_source'] = $this->input->post('partner_source');
+        $booking['booking_date'] = date('d-m-Y', strtotime($booking_date));
+        $booking['booking_pincode'] = trim($this->input->post('booking_pincode'));
+        // select state, taluk, district by pincode
+        $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($booking['booking_pincode']));
+        $booking['state'] = $distict_details['state'];
+        $booking['district'] = $distict_details['district'];
+        $booking['taluk'] = $distict_details['taluk'];
+        $booking['booking_primary_contact_no'] = trim($this->input->post('booking_primary_contact_no'));
+        $booking['order_id'] = $this->input->post('order_id');
+        $booking['booking_alternate_contact_no'] = trim($this->input->post('booking_alternate_contact_no'));
+        $booking['booking_timeslot'] = $this->input->post('booking_timeslot');
+        $booking['update_date'] = date("Y-m-d H:i:s");
+        $booking['partner_id'] = $this->input->post('partner_id');
+        
+        if(empty($user_id)){
+            $user['phone_number'] = trim($booking['booking_primary_contact_no']);
+            $user['name'] = trim($this->input->post('user_name'));
+            $user['user_email'] = trim($this->input->post('user_email'));
+            $user['home_address'] = trim($booking['booking_address']);
+            $user['city'] = trim($booking['city']);
+            $user['state'] =  trim($booking['state']);
+            $user['pincode'] = trim($booking['booking_pincode']) ;
+            $user['alternate_phone_number'] = trim($booking['booking_alternate_contact_no']);
+            $user['create_date'] = date("Y-m-d H:i:s");
+        
+            $user_id = $this->user_model->add_user($user);
+            
+
+            $this->booking_model->addSampleAppliances($user_id, 5);
+        }
+        
+        $booking['user_id'] = $user_id;
+
+        return $booking;
     }
 
     /**
@@ -1194,6 +1243,9 @@ class Booking extends CI_Controller {
                 $html .= "<td><input type='hidden'name ='is_up_val' id='is_up_val_" . $i . "_" . $clone_number . "' value ='" . $prices['is_upcountry'] . "' /><input class='price_checkbox'";
 
                 $html .=" type='checkbox' id='checkbox_" . $i . "_" . $clone_number . "'";
+                if($prices['service_category'] == REPAIR_OOW_PARTS_PRICE_TAGS ){
+                    $html .= " onclick='return false;' ";
+                }
                 $html .= "name='prices[$brand_id][$clone_number][]'";
                 $html .= "  onclick='final_price(), enable_discount(this.id), set_upcountry()'" .
                         "value=" . $prices['id'] . "_" . intval($prices['customer_total']) . "_" . $i . "_" . $clone_number . " ></td><tr>";
