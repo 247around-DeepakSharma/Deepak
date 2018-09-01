@@ -3876,8 +3876,8 @@ function get_learning_collateral_for_bookings(){
                             $data['courier_pic_by_partner'] = $courier_image['message'];
                             $data['shipped_inventory_id'] = $part_details['inventory_id'];
                             $data['model_number_shipped'] = $part_details['shipped_model_number'];
-                            $data['shipped_parts_type'] = $part_details['parts_type'];
-                            $data['parts_shipped'] = $part_details['parts_name'];
+                            $data['shipped_parts_type'] = $part_details['shipped_part_type'];
+                            $data['parts_shipped'] = $part_details['shipped_parts_name'];
                             $data['courier_name_by_partner'] = $this->input->post('courier_name');
                             $data['awb_by_partner'] = $this->input->post('awb');
                             if($key == 0){
