@@ -200,11 +200,13 @@
         });
     });
     $('#invoice_period_date').on('apply.daterangepicker', function(ev, picker) {
-        $('#invoice_period_date').val(picker.startDate.format('YYYY-MM-DD') + '/' + picker.startDate.format('YYYY-MM-DD'));
+
+        $('#invoice_period_date').val(picker.startDate.format('YYYY-MM-DD') + '/' + picker.endDate.format('YYYY-MM-DD'));
     });
     
     $('#invoice_date').on('apply.daterangepicker', function(ev, picker) {
-        $('#invoice_date').val(picker.startDate.format('YYYY-MM-DD') + '/' + picker.startDate.format('YYYY-MM-DD'));
+        $('#invoice_date').val(picker.startDate.format('YYYY-MM-DD') + '/' + picker.endDate.format('YYYY-MM-DD'));
+
     });
 
     get_invoice_type();
