@@ -40,6 +40,7 @@
                             <select name="invoice_type" class="form-control col-md-12" id="invoice_type" style="width:100%;"> 
                             </select>
                         </div>
+                        
                         <div class="form-group col-md-3">
                             <label>Is Settle Invoice</label>
                             <select name="settle" class="form-control col-md-12" id="settle" style="width:100%;">
@@ -200,11 +201,12 @@
         });
     });
     $('#invoice_period_date').on('apply.daterangepicker', function(ev, picker) {
-        $('#invoice_period_date').val(picker.startDate.format('YYYY-MM-DD') + '/' + picker.startDate.format('YYYY-MM-DD'));
+        
+        $('#invoice_period_date').val(picker.startDate.format('YYYY-MM-DD') + '/' + picker.endDate.format('YYYY-MM-DD'));
     });
     
     $('#invoice_date').on('apply.daterangepicker', function(ev, picker) {
-        $('#invoice_date').val(picker.startDate.format('YYYY-MM-DD') + '/' + picker.startDate.format('YYYY-MM-DD'));
+        $('#invoice_date').val(picker.startDate.format('YYYY-MM-DD') + '/' + picker.endDate.format('YYYY-MM-DD'));
     });
 
     get_invoice_type();
