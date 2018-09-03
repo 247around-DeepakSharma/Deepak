@@ -522,8 +522,8 @@ define('PINCODE_FILE_PASSSWORD',"247around" );
 //Chavi
 //define('PUSH_NOTIFICATION_API_KEY','3d15cad629128ac894c9a73a0ff5852b');
 //Around
-define('PUSH_NOTIFICATION_API_KEY','5e80dc70981389335ae38d969ca075be');
-define('PUSH_NOTIFICATION_SUBSCRIBER_LIST_SEND_NOTIFICATION_URL','https://pushcrew.com/api/v1/send/list');
+//define('PUSH_NOTIFICATION_API_KEY','5e80dc70981389335ae38d969ca075be');
+//define('PUSH_NOTIFICATION_SUBSCRIBER_LIST_SEND_NOTIFICATION_URL','https://pushcrew.com/api/v1/send/list');
 
 define('BUYBACK','buyback');
 //Collateral 
@@ -543,13 +543,14 @@ define('LA_SVC', "7014851010000029");
 //Mobile SVC
 define('MOBILE_SVC', "7014851010000091");
 
-define("DEPENDENCY_ON_AROUND", "SPD breach due to 247Around dependency");
 
+define("DEPENDENCY_ON_AROUND", "SPD breach due to 247Around dependency");
 define("DEPENDENCY_ON_CUSTOMER", "SPD breach due to customer dependency");
 define("S3_WEBSITE_URL", "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/");
 
 //mobile service id
 define("_247AROUND_MOBILE_SERVICE_ID",'54');
+
 //247around call center number
 define('_247AROUND_CALLCENTER_NUMBER',9555000247);
 //jeeves call center number
@@ -563,6 +564,7 @@ define('VINESH_FLIPKART_EMAIL', 'vinesh.poojari@flipkart.com,bsdflipkart@jeeves.
 define('THRESHOLD_LIMIT_TO_CANCEL_NOT_FOUND_SF_QUERIES', '5');
 define('SF_NOT_FOUND_BOOKING_CANCELLED_REASON', 'Services not started in this region yet');
 define('SF_NOT_FOUND_BOOKING_CANCELLED_REASON_TEXT', 'Service Not Available in this region');
+
 
 define("_247Around_Rejected_SF_Update", "247Around Rejected SF Update");
 
@@ -624,7 +626,6 @@ define('ASP_PASSWORD', 'priya@b30');
 define('BOOKING_CAN_NOT_BE_CANCEL_AFTER_THIS_TIME_INTERVAL',10);
 //show this text when partner cancel booking before time interval
 define('TEXT_FOR_BOOKING_CAN_NOT_BE_CANCEL_AFTER_THIS_TIME_INTERVAL','This booking can not be cancelled');
-
 define('REVIEW_NOTIFICATION_TO_PARTNER_DAYS','2');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

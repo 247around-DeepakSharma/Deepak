@@ -289,7 +289,6 @@ class Partner extends CI_Controller {
             } else {
                 $data['appliances'] = $services = $this->booking_model->selectservice();
             }
-
             $data['phone_number'] = trim($phone_number);
             $this->miscelleneous->load_partner_nav_header();
             //$this->load->view('partner/header');
@@ -893,7 +892,7 @@ class Partner extends CI_Controller {
        $results['contact_name'] = $this->partner_model->select_contact_person($id);
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/addpartner', array('query' => $query, 'results' => $results, 'employee_list' => $employee_list, 'form_type' => 'update','department'=>$departmentArray));
-        }
+    }
 
     /**
      * @desc: This is used to get find user form in Partner CRM

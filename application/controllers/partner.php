@@ -1886,6 +1886,40 @@ class Partner extends CI_Controller {
             }
 
             $this->booking_model->update_booking($booking['booking_id'], $data);
+
+            $p_login_details = $this->dealer_model->entity_login(array('entity_id' => $this->partner['id'], "user_id" => strtolower($this->partner['public_name'] . "-STS")));
+            $this->notify->insert_state_change($booking['booking_id'], PRODUCT_DELIVERED, _247AROUND_PENDING, PRODUCT_DELIVERED, $p_login_details[0]['agent_id'], $this->partner['public_name'], $this->partner['id']);
+
+            $up_flag = 1;
+            $url = base_url() . "employee/vendor/update_upcountry_and_unit_in_sc/" . $booking['booking_id'] . "/" . $up_flag;
+            $async_data['booking'] = array();
+            $this->asynchronous_lib->do_background_process($url, $async_data);
+
+            if ($booking['type'] == "Query") {
+
+                $data['booking_date'] = '';
+            } else if (!empty($booking['assigned_vendor_id'])) {
+
+                $new_booking_date = date('d-m-Y');
+                if (date('H') > 12) {
+                    $new_booking_date = date('d-m-Y', strtotime("+1 days"));
+                }
+
+                $sf = $this->reusable_model->get_search_result_data("service_centres", "service_centres.non_working_days "
+                        , array("service_centres.id" => $booking['assigned_vendor_id']), NULL, NULL, NULL, NULL, NULL, array());
+
+                if (!empty($sf[0]['non_working_days'])) {
+
+                    $non_workng_days = explode(",", $sf[0]['non_working_days']);
+
+                    $slot = $this->getWorkingDays($non_workng_days, $new_booking_date);
+                    $new_booking_date = date('d-m-Y', $slot[0]['Slot'][0]['StartTime']);
+                }
+
+                $data['booking_date'] = $new_booking_date;
+            }
+
+            $this->booking_model->update_booking($booking['booking_id'], $data);
             $p_login_details = $this->dealer_model->entity_login(array('entity_id' => $this->partner['id'], "user_id" => strtolower($this->partner['public_name'] . "-STS")));
              $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, PRODUCT_DELIVERED, $data['query_remarks'], $p_login_details[0]['agent_id'], 
                     $this->partner['public_name'],$actor,$next_action, $this->partner['id']);
@@ -2306,7 +2340,6 @@ class Partner extends CI_Controller {
             return $workingDate;
        }
     }
-    
     function download_price_sheet(){
         $partnerID = $this->session->userdata('partner_id');
         $where['partner_id'] = $partnerID;

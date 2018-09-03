@@ -270,7 +270,7 @@
                         <th>Booking Date</th>
                         <th>Booking Age</th>
                         <th>Status</th>
-                        <th>Service Centre</th>
+                        <th>Service Center</th>
                         <th></th>
                         <th></th>
                         <th></th>

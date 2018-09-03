@@ -53,7 +53,4 @@
    
 <?php } ?>
 </div>
-
-
-
 <?php if($this->session->userdata('success')) {$this->session->unset_userdata('success');} ?>

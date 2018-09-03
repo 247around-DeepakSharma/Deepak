@@ -3205,6 +3205,11 @@ class Inventory extends CI_Controller {
         $row = array();
         
         $row[] = $no;
+	if($this->session->userdata('service_center_id')){
+		$row[] = "<a href='".base_url()."service_center/booking_details/".urlencode(base64_encode($inventory_list->booking_id))."'target='_blank'>".$inventory_list->booking_id."</a>";
+	}else if($this->session->userdata('id')){
+		$row[] = "<a href='".base_url()."employee/booking/viewdetails/".$inventory_list->booking_id."'target='_blank'>".$inventory_list->booking_id."</a>";
+	}
         $row[] = $inventory_list->services;
         $row[] = $inventory_list->booking_id;
         $row[] = $inventory_list->invoice_id;
