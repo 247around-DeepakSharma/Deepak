@@ -520,7 +520,7 @@
                                         <th >Estimate Cost</th>
                                         <th >Estimate Given Date </th>
                                         <th >Purchase Invoice</th>
-                                        <th >Sell Invoice ID</th>
+                                        <th >Sale Invoice ID</th>
                                         <th >Status </th>
                                     </tr>
                                 </thead>

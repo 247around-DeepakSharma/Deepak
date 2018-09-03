@@ -184,13 +184,13 @@
                 <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
                     <div class="menu_section">
                         <ul class="nav side-menu">
-                            <li><a href="<?php echo base_url(); ?>employee/user" target="_blank"><i class="fa fa-home"></i> Go TO CRM</a>
-                            <li><a href="<?php echo base_url(); ?>employee/dashboard"><i class="fa fa-bar-chart-o"></i>DASHBOARD</a>
+                            <li><a href="<?php echo base_url(); ?>employee/user" target="_blank"><i class="fa fa-home"></i>Go TO CRM</a>
+                            <li><a href="<?php echo base_url(); ?>employee/dashboard"><i class="fa fa-bar-chart-o"></i>SERVICE DASHBOARD</a>
                             </li>
-                            <li><a href="<?php echo base_url(); ?>employee/dashboard/buyback_dashboard"><i class="fa fa-bar-chart-o"></i>Buyback DASHBOARD</a>
+                            <li><a href="<?php echo base_url(); ?>employee/dashboard/buyback_dashboard" target="_blank"><i class="fa fa-bar-chart-o"></i>BUYBACK DASHBOARD</a>
                             </li>
                             <li>
-                                <a><i class="fa fa-edit"></i> BUYBACK <span class="fa fa-chevron-down"></span></a>
+                                <a><i class="fa fa-edit"></i>BUYBACK<span class="fa fa-chevron-down"></span></a>
                                 <ul class="nav child_menu">
                                     
                                     <li><a href="<?php echo base_url(); ?>buyback/buyback_process/view_bb_order_details">Pending Orders</a></li>

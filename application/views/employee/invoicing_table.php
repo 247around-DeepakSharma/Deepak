@@ -1,3 +1,14 @@
+<style>
+.dropdown-submenu {
+    position: relative;
+}
+
+.dropdown-submenu .dropdown-menu {
+    top: 0;
+    left: 100%;
+    margin-top: -1px;
+}
+</style>
 <?php if(isset($invoice_array)){ ?>
 <p><h2>Invoices Generated</h2></p>
 
@@ -12,6 +23,7 @@
          <th>Type</th>
          <th>Bookings/ Parts</th>
          <th>Invoice Period</th>
+         <th>Due Date</th>
          <th>Total Invoice</th>
          <th>Service Charges</th>
          <th>Additional Service Charges</th>
@@ -26,9 +38,9 @@
          <th>Amount Paid</th> 
          <th>Remarks</th> 
          <th>Select</th>
-         <th>ReGenerate</th>
-         <th>Update</th>
-         <th>Resend</th>
+         <th>Action</th>
+<!--         <th>Update</th>
+         <th>Resend</th>-->
         
       </tr>
    </thead>
@@ -64,6 +76,7 @@
          <td style="max-width: 56px; word-wrap:break-word;"><?php echo $invoice['type']; ?></td>
          <td ><?php echo $invoice['num_bookings']."/".$invoice['parts_count']; ?></td>
          <td><?php echo date("jS M, Y", strtotime($invoice['invoice_date'])). " <br/><br/> ".date("jS M, Y", strtotime($invoice['from_date'])). " to ". date("jS M, Y", strtotime($invoice['to_date'])); ?></td>
+          <td><?php echo $invoice['due_date'];?></td>
          <td><?php echo $invoice['total_amount_collected'];?></td>
          <td><?php echo (sprintf("%.2f",($invoice['total_service_charge'] + $invoice['service_tax']))); $sum_of_total_service_charges +=  $invoice['total_service_charge'] + $invoice['service_tax']; ?></td>
          <td><?php echo sprintf("%.2f",$invoice['total_additional_service_charge']); $sum_total_additional_service_charge += $invoice['total_additional_service_charge'];?></td>
@@ -91,31 +104,58 @@
          </td>
          <td>
              <?php if($invoice['vendor_partner'] == "vendor") { ?>
-             <div class="dropdown">
-                <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" <?php if($invoice['amount_paid'] > 0 ) { echo "disabled"; } ?>>Action
+             
+                <div class="dropdown">
+                    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Action
+                    <span class="caret"></span></button>
+                    <ul class="dropdown-menu">
+                      <li><a <?php if($invoice['amount_paid'] > 0 ) { echo 'style="color:#33333385;"'; } else { echo 'href="'.base_url().'employee/invoice/insert_update_invoice/'.$invoice['vendor_partner'].'/'.$invoice['invoice_id'].'"'; } ?>>Update</a></li>
+                      <li class="divider"></li>
+                      <li><a href="<?php echo base_url()?>employee/invoice/sendInvoiceMail/<?php echo $invoice['invoice_id']; ?>">Resend Invoice</a></li>
+                      <li class="divider"></li>
+                      <li class="dropdown-submenu">
+                        <a class="custom_dropdown-submenu"  href="#">ReGenerate<span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                          <li><a <?php if($invoice['amount_paid'] > 0 ) { echo 'style="color:#33333385;"'; } else{ echo 'href="'.base_url().'employee/invoice/regenerate_invoice/'.$invoice['invoice_id'].'/final"'; } ?>>Final</a></li>
+                          <li class="divider"></li>
+                          <li><a <?php if($invoice['amount_paid'] > 0 ) { echo 'style="color:#33333385;"'; } else{ echo 'href="'.base_url().'employee/invoice/regenerate_invoice/'.$invoice['invoice_id'].'/draft"'; } ?>>Draft</a></li>
+                        </ul>
+                      </li>
+                    </ul>
+                </div>
+            
+<!--             <div class="dropdown">
+                <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" <?php //if($invoice['amount_paid'] > 0 ) { echo "disabled"; } ?>>Action
                 <span class="caret"></span></button>
                 <ul class="dropdown-menu">
-                    <li><a href="<?php echo base_url();?>employee/invoice/regenerate_invoice/<?php echo $invoice['invoice_id'];?>/final">Final</a></li>
+                  <li><a href="<?php //echo base_url();?>employee/invoice/regenerate_invoice/<?php //echo $invoice['invoice_id'];?>/final">Final</a></li>
                   <li class="divider"></li>
-                  <li><a href="<?php echo base_url();?>employee/invoice/regenerate_invoice/<?php echo $invoice['invoice_id'];?>/draft">Draft</a></li>
+                  <li><a href="<?php //echo base_url();?>employee/invoice/regenerate_invoice/<?php //echo $invoice['invoice_id'];?>/draft">Draft</a></li>
                 </ul>
-              </div>
-             <?php } ?>
+              </div>-->
+            <?php }else{?>
+                
+                <div class="dropdown">
+                    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Action
+                    <span class="caret"></span></button>
+                    <ul class="dropdown-menu">
+                        <li><a <?php if($invoice['amount_paid'] > 0 ) { echo 'style="color:#33333385;"'; } else { echo 'href="'.base_url().'employee/invoice/insert_update_invoice/'.$invoice['vendor_partner'].'/'.$invoice['invoice_id'].'"'; } ?> >Update</a></li>
+                      <li class="divider"></li>
+                      <li><a href="<?php echo base_url()?>employee/invoice/sendInvoiceMail/<?php echo $invoice['invoice_id']; ?>">Resend Invoice</a></li>
+                    </ul>
+                </div>
+            <?php } ?>
          </td>
-         <td>
-             <a href="<?php echo base_url()?>employee/invoice/insert_update_invoice/<?php echo $invoice['vendor_partner'];?>/<?php echo $invoice['invoice_id'];?>" <?php if($invoice['amount_paid'] > 0 ) { echo "disabled"; } ?> class="btn btn-sm btn-info" >Update</a>
-         </td>
-         </td>
+<!--         <td>
+             <a href="<?php //echo base_url()?>employee/invoice/insert_update_invoice/<?php //echo $invoice['vendor_partner'];?>/<?php //echo $invoice['invoice_id'];?>" <?php //if($invoice['amount_paid'] > 0 ) { echo "disabled"; } ?> class="btn btn-sm btn-info" >Update</a>
+         </td>-->
          
-
           <?php  $count = $count+1;  ?>
-         <td class="col-md-6">
-             <a href="<?php echo base_url()?>employee/invoice/sendInvoiceMail/<?php echo $invoice['invoice_id']; ?>" class="btn btn-sm btn-primary">Resend Invoice</a>
-          
-         </td>
+<!--         <td class="col-md-6">
+             <a href="<?php //echo base_url()?>employee/invoice/sendInvoiceMail/<?php //echo $invoice['invoice_id']; ?>" class="btn btn-sm btn-primary">Resend Invoice</a>
+         </td>-->
 
-
-      </tr>
+        </tr>
       <?php }} ?>
 
 
@@ -417,4 +457,13 @@ function get_defective_spare_count_details(){
     });
     
 }
+</script>
+<script>
+$(document).ready(function(){
+  $('.dropdown-submenu a.custom_dropdown-submenu').on("click", function(e){
+    $(this).next('ul').toggle();
+    e.stopPropagation();
+    e.preventDefault();
+  });
+});
 </script>

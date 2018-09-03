@@ -1308,9 +1308,7 @@ class Inventory_model extends CI_Model {
         $query = $this->db->get();
         
         return $query->result_array();
-        
-    }
-    
+    }   
     /**
      * @desc: This function is used to get courier services details like courier name, courier code
      * @params: string $select

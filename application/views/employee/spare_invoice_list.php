@@ -13,7 +13,7 @@
                     <th>Sell Price</th>
                     <th>Purchase Invoice ID</th>
                     <th>Purchase Invoice PDF</th>
-                    <th>Sell Invoice ID</th>
+                    <th>Sale Invoice ID</th>
                     <th>Create Purchase Invoice </th>
                 </tr>
             </thead>

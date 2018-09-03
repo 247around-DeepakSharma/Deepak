@@ -638,5 +638,32 @@ class Buyback {
         $view = $this->My_CI->load->view('buyback/show_bb_charges', $cp);
         return $view;
     }
+    
+    /**
+     * @desc This function is used to get the appliance SVC by using service Id
+     * @param int $service_id
+     * @return string $bb_qc_svc
+     */
+    function get_bb_qc_svc_details($service_id){
+        $bb_qc_svc = "";
+        switch ($service_id){
+            case _247AROUND_TV_SERVICE_ID:
+                $bb_qc_svc = TV_SVC;
+                break;
+            case _247AROUND_MOBILE_SERVICE_ID:
+                $bb_qc_svc = MOBILE_SVC;
+                break;
+            case _247AROUND_WASHING_MACHINE_SERVICE_ID:
+            case _247AROUND_AC_SERVICE_ID:
+            case _247AROUND_REFRIGERATOR_SERVICE_ID:
+                $bb_qc_svc = LA_SVC;
+                break;
+            default :
+                $bb_qc_svc = "";
+                break;
+        }
+        
+        return$bb_qc_svc;
+    }
 
 }

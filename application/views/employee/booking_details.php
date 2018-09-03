@@ -465,15 +465,15 @@
                             <table class="table  table-striped table-bordered" >
                                 <thead>
                                     <tr>
-                                        <th >Shipped Parts </th>
+                                        <th >Shipped Parts</th>
                                         <th >Courier Name</th>
-                                        <th >AWB </th>
-                                        <th >Shipped date </th>
-                                        <th >EDD </th>
+                                        <th >AWB</th>
+                                        <th >Shipped Date </th>
+                                        <th >EDD</th>
                                         <th >Remarks By Partner</th>
-                                        <th >Challan Number </th>
-                                        <th >Challan approx Value </th>
-                                        <th>Challan File</th>
+                                        <th >Delivery Challan Number</th>
+                                        <th >Spare Cost (Approximate)</th>
+                                        <th>Delivery Challan File</th>
                                     </tr>
                                 </thead>
                                 <tbody>
