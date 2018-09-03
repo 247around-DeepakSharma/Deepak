@@ -4363,7 +4363,7 @@ class Partner extends CI_Controller {
         $where = array(
             "spare_parts_details.defective_part_required" => 1,
             "spare_parts_details.partner_id" => $partner_id,
-            "status IN ('" . DEFECTIVE_PARTS_PENDING . "')  " => NULL
+            "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '".DEFECTIVE_PARTS_REJECTED."')  " => NULL
         );
 
         $select = "CONCAT( '', GROUP_CONCAT((parts_shipped ) ) , '' ) as defective_part_shipped, "
@@ -4596,15 +4596,16 @@ class Partner extends CI_Controller {
         $where = array(
             "spare_parts_details.defective_part_required" => 1,
             "spare_parts_details.partner_id" => $partner_id,
-            "status IN ('" . DEFECTIVE_PARTS_PENDING . "')  " => NULL
+            "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '".DEFECTIVE_PARTS_REJECTED."')  " => NULL
         );
         $select = "CONCAT( '', GROUP_CONCAT((parts_shipped ) ) , '' ) as defective_part_shipped, "
                 . " spare_parts_details.booking_id, users.name,spare_parts_details.courier_name_by_partner,spare_parts_details.awb_by_partner, spare_parts_details.partner_challan_number, "
-                . "DATEDIFF(CURDATE(),date(booking_details.service_center_closed_date)) as aging";
+                . "DATEDIFF(CURDATE(),date(booking_details.service_center_closed_date)) as aging, service_centres.company_name,primary_contact_phone_1, service_centres.address,"
+                . "service_centres.district, service_centres.pincode, service_centres.state";
         $group_by = "spare_parts_details.booking_id";
         $order_by = "spare_parts_details.defective_part_shipped_date DESC";
         $data = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by);
-        $headings = array("Parts","Booking ID","Name","Courier","AWB","Challan","Aging");
+        $headings = array("Parts","Booking ID","Name","Courier","AWB","Challan","Aging", "SF Company Name","SF Contatct Number", "SF Address", "SF District", "SF Pincode", "SF State");
         foreach($data as $sparePartBookings){
             $tempArray = array_values($sparePartBookings);
             $CSVData[]  = $tempArray;
