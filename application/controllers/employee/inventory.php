@@ -2966,7 +2966,7 @@ class Inventory extends CI_Controller {
      */
     function move_inventory_to_warehouse($ledger, $fomData, $wh_id) {
         log_message('info', __METHOD__ . " warehouse id " . $wh_id . " ledger " . json_encode($ledger, true). " Form data " . json_encode($fomData). " WH id ". $wh_id);
-        if(isset($this->session->userdata("partner_id"))){
+        if($this->session->userdata("partner_id")){
             $s_partner_id = $this->session->userdata("partner_id");
         } else {
             $s_partner_id = _247AROUND;
