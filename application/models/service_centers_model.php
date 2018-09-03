@@ -201,7 +201,7 @@ class Service_centers_model extends CI_Model {
             $where_sc = $where_sc." AND EXISTS (SELECT 1 FROM service_center_booking_action sc_sub WHERE sc_sub.booking_id = sc.booking_id AND sc_sub.internal_status ='Completed' LIMIT 1) ";
         }
         if ($booking_id != "") {
-            $where_sc =$where_sc. ' AND sc.booking_id = "'.$booking_id.'"' ;
+            $where_sc =$where_sc. ' AND sc.booking_id LIKE "%'.trim($booking_id).'%"' ;
         }
         if($perPage){
             $limit = " LIMIT ".$offest.", ".$perPage;
