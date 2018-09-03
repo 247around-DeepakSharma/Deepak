@@ -1786,6 +1786,7 @@ class invoices_model extends CI_Model {
                 AND ud.ud_closed_date <  '$to_date'
                 AND `approved_defective_parts_by_partner` = 1
                 AND partner_invoice_id IS NULL
+                AND partner_courier_invoice_id IS NULL
                 AND courier_charges_by_sf > 0 ";
 
         $query = $this->db->query($sql);
