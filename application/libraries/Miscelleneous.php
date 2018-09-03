@@ -3402,7 +3402,6 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
         if(!empty($statusData)){
             $where['booking_details.partner_id'] = $partnerID;
             $statusArray = explode(",",$statusData[0]['booking_review_for']);
-            $where['booking_unit_details.product_or_services'] = "Service";
             $whereIN['service_center_booking_action.internal_status'] = array("Completed","Cancelled");
             if($afterLimit == 1){
               $where['DATEDIFF(CURRENT_TIMESTAMP,  service_center_booking_action.closed_date)>'.$statusData[0]['review_time_limit']] = NULL;
@@ -3427,11 +3426,7 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
                         }
                     }
                     if($is_considrable){
-                    if(array_key_exists($values['booking_id'], $finalArray)){
-                        $finalArray[$values['booking_id']]['appliance_brand'][] = $values['appliance_brand'];
-                    }
-                    else{
-                        $finalArray[$values['booking_id']]['appliance_brand'][] = $values['appliance_brand'];
+                            $finalArray[$values['booking_id']]['appliance_brand'] = $values['appliance_brand'];
                         $finalArray[$values['booking_id']]['services'] = $values['services'];
                         $finalArray[$values['booking_id']]['request_type']= $values['request_type'];
                         $finalArray[$values['booking_id']]['internal_status'] = $values['internal_status'];
@@ -3448,7 +3443,6 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
                         $finalArray[$values['booking_id']]['partner_id'] = $values['partner_id'];
                     }
                 }
-            }
             }
             else{
                  $data= array();
