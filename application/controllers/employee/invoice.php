@@ -2748,62 +2748,62 @@ class Invoice extends CI_Controller {
                
                 $d = json_decode($jdata, true);
                 $amount = $d['amount'];
-                if(abs($amount) > 100){
-                                    $parts_name = $d['parts_name'];
-                    $explode = explode("_", $key);
-                    $service_center_id = $explode[0];
-                    $defective_parts =$explode[1];
-                    $defective_parts_max_age = $explode[2];
-                    $sc = $this->vendor_model->viewvendor($service_center_id)[0];
+                
+                $parts_name = $d['parts_name'];
+                $explode = explode("_", $key);
+                $service_center_id = $explode[0];
+                $defective_parts =$explode[1];
+                $defective_parts_max_age = $explode[2];
+                $sc = $this->vendor_model->viewvendor($service_center_id)[0];
 
-                    $sc_details['debit_acc_no'] = '102405500277';
-                    $sc_details['bank_account'] = trim($sc['bank_account']);
-                    $sc_details['beneficiary_name'] = trim($sc['beneficiary_name']);
+                $sc_details['debit_acc_no'] = '102405500277';
+                $sc_details['bank_account'] = trim($sc['bank_account']);
+                $sc_details['beneficiary_name'] = trim($sc['beneficiary_name']);
 
-                    $sc_details['final_amount'] = abs(sprintf("%.2f",$amount));
-                    if (trim($sc['bank_name']) === ICICI_BANK_NAME) {
-                        $sc_details['payment_mode'] = "I";
-                    } else {
-                        $sc_details['payment_mode'] = "N";
-                    }
-
-                    $sc_details['payment_date'] = date("d-M-Y");
-                    $sc_details['ifsc_code'] = trim($sc['ifsc_code']);
-                    $sc_details['payable_location_name'] = "";
-                    $sc_details['print_location'] = "";
-                    $sc_details['bene_mobile_no'] = "";
-                    $sc_details['bene_email_id'] = "";
-                    $sc_details['ben_add_1'] = "";
-                    $sc_details['ben_add_2'] = "";
-                    $sc_details['ben_add_3'] = "";
-                    $sc_details['ben_add_4'] = "";
-                    $sc_details['add_details_1'] = "";
-                    $sc_details['add_details_2'] = "";
-                    $sc_details['add_details_3'] = "";
-                    $sc_details['add_details_4'] = "";
-                    $sc_details['add_details_5'] = "";
-                    $sc_details['remarks'] = preg_replace("/[^A-Za-z0-9]/", "", $sc['name']);
-                    $sc_details['gst_no'] = $sc['gst_no'];
-                    if(!empty($sc['signature_file'])){
-                        $sc_details['is_signature'] = "Yes";
-                    } else {
-                        $sc_details['is_signature'] = "NO";
-                    }
-                    $sc_details['defective_parts'] = $defective_parts;
-                    $sc_details['defective_parts_max_age'] = $defective_parts_max_age;
-                    $sc_details['shipped_parts_name'] = $parts_name;
-                    $sc_details['is_verified'] = ($sc['is_verified'] ==0) ? "Not Verified" : "Verified";
-                    if ($amount > 0) {
-                        $sc_details['amount_type'] = "CR";
-                    } else {
-                        $sc_details['amount_type'] = "DR";
-                    }
-                    $sc_details['sf_id'] = $service_center_id;
-                    $sc_details['is_sf'] = $sc['is_sf'];
-                    $sc_details['is_cp'] = $sc['is_cp'];
-                    $sc_details['check_file'] = !empty($sc['cancelled_cheque_file']) ? "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/".$sc['cancelled_cheque_file'] : "";
-                    array_push($payment_data, $sc_details);
+                $sc_details['final_amount'] = abs(sprintf("%.2f",$amount));
+                if (trim($sc['bank_name']) === ICICI_BANK_NAME) {
+                    $sc_details['payment_mode'] = "I";
+                } else {
+                    $sc_details['payment_mode'] = "N";
                 }
+
+                $sc_details['payment_date'] = date("d-M-Y");
+                $sc_details['ifsc_code'] = trim($sc['ifsc_code']);
+                $sc_details['payable_location_name'] = "";
+                $sc_details['print_location'] = "";
+                $sc_details['bene_mobile_no'] = "";
+                $sc_details['bene_email_id'] = "";
+                $sc_details['ben_add_1'] = "";
+                $sc_details['ben_add_2'] = "";
+                $sc_details['ben_add_3'] = "";
+                $sc_details['ben_add_4'] = "";
+                $sc_details['add_details_1'] = "";
+                $sc_details['add_details_2'] = "";
+                $sc_details['add_details_3'] = "";
+                $sc_details['add_details_4'] = "";
+                $sc_details['add_details_5'] = "";
+                $sc_details['remarks'] = preg_replace("/[^A-Za-z0-9]/", "", $sc['name']);
+                $sc_details['gst_no'] = $sc['gst_no'];
+                if(!empty($sc['signature_file'])){
+                    $sc_details['is_signature'] = "Yes";
+                } else {
+                    $sc_details['is_signature'] = "NO";
+                }
+                $sc_details['defective_parts'] = $defective_parts;
+                $sc_details['defective_parts_max_age'] = $defective_parts_max_age;
+                $sc_details['shipped_parts_name'] = $parts_name;
+                $sc_details['is_verified'] = ($sc['is_verified'] ==0) ? "Not Verified" : "Verified";
+                if ($amount > 0) {
+                    $sc_details['amount_type'] = "CR";
+                } else {
+                    $sc_details['amount_type'] = "DR";
+                }
+                $sc_details['sf_id'] = $service_center_id;
+                $sc_details['is_sf'] = $sc['is_sf'];
+                $sc_details['is_cp'] = $sc['is_cp'];
+                $sc_details['check_file'] = !empty($sc['cancelled_cheque_file']) ? "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/".$sc['cancelled_cheque_file'] : "";
+                array_push($payment_data, $sc_details);
+                
             }
 
             header('Content-Type: text/csv; charset=utf-8');
