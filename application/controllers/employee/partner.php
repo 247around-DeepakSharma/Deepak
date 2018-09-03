@@ -5182,7 +5182,7 @@ class Partner extends CI_Controller {
     
     function download_partner_review_bookings($partnerID){
         ob_start();
-        $data = $this->get_review_bookings($partnerID,NULL,'0');
+        $data = $this->miscelleneous->get_review_bookings_for_partner($partner_id);
         $headings = array_keys($data[0]);
         $this->miscelleneous->downloadCSV($data, $headings, "Review_bookings");
     }

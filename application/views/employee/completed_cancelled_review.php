@@ -4,7 +4,7 @@
 <div class="" style="margin-top: 30px;">
          <div class="row">
             <div class="col-md-3 pull-right" style="margin-top:20px;">
-               <input type="search" class="form-control pull-right"  id="search" placeholder="search">
+                <input type="search" class="form-control pull-right"  id="search" placeholder="search" onchange="review_search('<?php echo $status ?>',<?php echo $is_partner; ?>)">
             </div>
              <h2 style="margin-left: 13px;" >
                   <b><?php echo $status; ?> Bookings</b>
@@ -28,7 +28,7 @@
                            </tr>
                         </thead>
                         <tbody>
-                           <?php $count =1; foreach ($charges as $key => $value) { ?>
+                           <?php $count =1;$initial_offset = $offset; foreach ($charges as $key => $value) { ?>
                             <tr id="<?php echo  "row_".$value['booking_id'] ?>">
                               <?php $offset++ ;?>
                               <td style="text-align: left;white-space: inherit;font-size:80%"><?php echo $offset; ?></td>
@@ -141,7 +141,7 @@
             
          </div>
       </div>
-<div class = 'msg_holder' style="float:left;"> <?php echo "<p>Showing ".(($offset-$per_page)+1)." to ". ($offset)." of ".$total_rows." entries</p>"; ?></div>
+<div class = 'msg_holder' style="float:left;"> <?php echo "<p>Showing ".(($initial_offset)+1)." to ". ($offset)." of ".$total_rows." entries</p>"; ?></div>
 <div class="link_holder" style="float:right;">
  <?php
              if($is_partner){
