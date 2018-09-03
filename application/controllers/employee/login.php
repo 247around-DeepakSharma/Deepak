@@ -334,8 +334,13 @@ class Login extends CI_Controller {
             } else {
                 $logo_img = 'logo.png';
             }
+              $booking_review = FALSE;
+                if($partner_details[0]['booking_review_for']){
+                    $booking_review = TRUE;
+                }
              $this->setPartnerSession($partner_details[0]['id'], $partner_details[0]['public_name'], $agent[0]['agent_id'],
-                        $partner_details[0]['is_active'], $partner_details[0]['is_prepaid'],$partner_details[0]['is_wh'],$logo_img,0,$agent[0]['department'],$agent[0]['role'],$agent[0]['is_filter_applicable']);
+                        $partner_details[0]['is_active'], $partner_details[0]['is_prepaid'],$partner_details[0]['is_wh'],$logo_img,0,$agent[0]['department'],$agent[0]['role'],$agent[0]['is_filter_applicable'],
+                     $booking_review);
                 log_message('info', 'Partner loggedIn  partner id' .$partner_details[0]['id'] . " Partner name" . $partner_details[0]['public_name']);
                 // Add Navigation Header In Cache
                 $this->miscelleneous->set_header_navigation_in_cache("Partner");
@@ -354,7 +359,7 @@ class Login extends CI_Controller {
      * @param: Partner name
      * @return: void
      */
-    function setPartnerSession($partner_id, $partner_name, $agent_id,$status, $is_prepaid,$is_wh,$logo_img,$is_login_by_247=1,$department,$role,$filter) {
+    function setPartnerSession($partner_id, $partner_name, $agent_id,$status, $is_prepaid,$is_wh,$logo_img,$is_login_by_247=1,$department,$role,$filter,$review) {
         $userSession = array(
             'session_id' => md5(uniqid(mt_rand(), true)),
             'partner_id' => $partner_id,
@@ -369,7 +374,8 @@ class Login extends CI_Controller {
             'is_wh' => $is_wh,
             'department' => $department,
             'user_group' => $role,
-            'is_filter_applicable' => $filter
+            'is_filter_applicable' => $filter,
+            'review' => $review
         );
         
         $this->session->set_userdata($userSession);
@@ -411,8 +417,13 @@ class Login extends CI_Controller {
                 }else{
                     $logo_img = 'logo.png';
                 }
+                $booking_review = FALSE;
+                if($partner_details[0]['booking_review_for']){
+                    $booking_review = TRUE;
+                }
                 $this->setPartnerSession($partner_details[0]['id'], $partner_details[0]['public_name'], $agent[0]['agent_id'],
-                        $partner_details[0]['is_active'], $partner_details[0]['is_prepaid'],$partner_details[0]['is_wh'],$logo_img,0,$agent[0]['department'],$agent[0]['role'],$agent[0]['is_filter_applicable']);
+                        $partner_details[0]['is_active'], $partner_details[0]['is_prepaid'],$partner_details[0]['is_wh'],$logo_img,0,$agent[0]['department'],$agent[0]['role'],$agent[0]['is_filter_applicable'],
+                        $booking_review);
                 log_message('info', 'Partner loggedIn  partner id' .$partner_details[0]['id'] . " Partner name" . $partner_details[0]['public_name']);
                 // Add Navigation Header In Cache
                 $this->miscelleneous->set_header_navigation_in_cache("Partner");
