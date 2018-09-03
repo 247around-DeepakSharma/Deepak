@@ -1804,12 +1804,9 @@ class Booking extends CI_Controller {
             $serviceCenters = $sf_list[0]['service_centres_id'];
             $whereIN =array("service_center_id"=>explode(",",$serviceCenters));
         }
-         $data['partner_review_bookings'] = $this->get_booking_partner_will_review($booking_id);
-        log_message('info', __FUNCTION__ . " Booking ID: " . print_r($booking_id, true));
-        $data['charges'] = $this->booking_model->get_booking_for_review($booking_id,$whereIN);
         $data['data'] = $this->booking_model->review_reschedule_bookings_request($whereIN);
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/review_booking', $data);
+        $this->load->view('employee/admin_booking_review', $data);
     }
     function get_booking_partner_will_review($bookingID = NULL){
         $bookingArray = array();
@@ -4673,6 +4670,42 @@ class Booking extends CI_Controller {
         $bookingData =   $this->reusable_model->get_search_result_data("booking_details","booking_id",array("date(closed_date)>'2018-03-31'"=>NULL),NULL,NULL,array("booking_details.closed_date"=>"ASC"),NULL,NULL,array());
         foreach($bookingData as $values){
             $this->miscelleneous->process_booking_tat_on_completion($values['booking_id']);
+        }
+    }
+    function review_rescheduled_bookings($is_tab = 0){
+      $whereIN = array();
+        if($this->session->userdata('user_group') == 'regionalmanager'){
+            $sf_list = $this->vendor_model->get_employee_relation($this->session->userdata('id'));
+            $serviceCenters = $sf_list[0]['service_centres_id'];
+            $whereIN =array("service_center_id"=>explode(",",$serviceCenters));
+        }
+        $data['data'] = $this->booking_model->review_reschedule_bookings_request($whereIN);
+        if($is_tab == 0){
+         $this->miscelleneous->load_nav_header();
+        }
+        $this->load->view('employee/rescheduled_review', $data);
+    }
+    function review_bookings_by_status($status,$offset = 0,$is_partner = 0,$booking_id = NULL){
+        $this->checkUserSession();
+        $whereIN = array();
+        if($this->session->userdata('user_group') == 'regionalmanager'){
+            $sf_list = $this->vendor_model->get_employee_relation($this->session->userdata('id'));
+            $serviceCenters = $sf_list[0]['service_centres_id'];
+            $whereIN =array("service_center_id"=>explode(",",$serviceCenters));
+        }
+        $total_rows = $this->service_centers_model->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,NULL,NULL);
+        if(!empty($total_rows)){
+            $data['per_page'] = 100;
+            $data['offset'] = $offset;
+            $data['charges'] = $this->booking_model->get_booking_for_review($booking_id,$status,$whereIN,$is_partner,$offset,$data['per_page']);
+            $data['status'] = $status;
+            $data['total_rows'] = count($total_rows);
+            $data['total_pages'] = $data['total_rows']/$data['per_page'];
+            $data['is_partner'] = $is_partner;
+            $this->load->view('employee/completed_cancelled_review', $data);
+        }
+        else{
+            echo "<center style='margin-top:30px;'>No Booking Found</center>";
         }
     }
 }

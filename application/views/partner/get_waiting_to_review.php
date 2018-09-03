@@ -72,8 +72,7 @@
                                 }
                                 ?>
                             </td>
-                            <td class="text-center"><?php
-                            echo implode(", ",$row['appliance_brand']); ?></td>
+                            <td class="text-center"> <?= $row['appliance_brand']; ?></td>
                             <td class="text-center"> 
                                 <?= $row['name']; ?>
                             </td>

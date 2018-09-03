@@ -187,28 +187,45 @@ class Service_centers_model extends CI_Model {
     /**
      *
      */
-    function getcharges_filled_by_service_center($booking_id,$whereIN=array(),$where = NULL) {
-        $this->db->distinct();
-        $this->db->select('service_center_booking_action.booking_id, service_center_booking_action.amount_paid, admin_remarks, service_center_remarks, service_center_booking_action.cancellation_reason');
-        if ($booking_id != "") {
-            $this->db->where('service_center_booking_action.booking_id', $booking_id);
+    function get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$offest,$perPage){
+        $limit = "";
+        $where_in = "";
+        $where_sc = "AND (partners.booking_review_for NOT LIKE '%".$status."%' OR partners.booking_review_for IS NULL)";
+         if($is_partner){
+            $where_sc = " AND (partners.booking_review_for IS NOT NULL)";
         }
-        $this->db->where('service_center_booking_action.current_status', 'InProcess'); 
-        if(!array_key_exists("service_center_booking_action.internal_status", $whereIN)){
-            $this->db->where_in('service_center_booking_action.internal_status',array('Completed','Cancelled'));
+        if($status == "Cancelled"){
+            $where_sc = $where_sc." AND NOT EXISTS (SELECT 1 FROM service_center_booking_action sc_sub WHERE sc_sub.booking_id = sc.booking_id AND sc_sub.internal_status ='Completed' LIMIT 1) ";
+        }
+        else if($status == "Completed"){
+            $where_sc = $where_sc." AND EXISTS (SELECT 1 FROM service_center_booking_action sc_sub WHERE sc_sub.booking_id = sc.booking_id AND sc_sub.internal_status ='Completed' LIMIT 1) ";
+        }
+        if ($booking_id != "") {
+            $where_sc =$where_sc. ' AND sc.booking_id = "'.$booking_id.'"' ;
+        }
+        if($perPage){
+            $limit = " LIMIT ".$offest.", ".$perPage;
         }
         if(!empty($whereIN)){
              foreach ($whereIN as $fieldName=>$conditionArray){
-                     $this->db->where_in($fieldName, $conditionArray);
+                     $where_in = " AND ".$fieldName." IN (".implode("','",$conditionArray).")";
              }
          }
-         if($where){
-            $this->db->where($where);  
-         }
-         $this->db->where('booking_details.is_in_process', 0);
-         $this->db->join('booking_details', 'booking_details.booking_id = service_center_booking_action.booking_id');
-        $query = $this->db->get('service_center_booking_action');
+        $sql = "SELECT sc.booking_id,sc.amount_paid,sc.admin_remarks,sc.cancellation_reason,sc.service_center_remarks FROM service_center_booking_action sc "
+                . " JOIN booking_details ON booking_details.booking_id = sc.booking_id  "
+                . " JOIN partners ON booking_details.partner_id = partners.id "
+                . " WHERE sc.current_status = 'InProcess' "
+                . $where_sc . $where_in
+                . " AND sc.internal_status IN ('Cancelled','Completed') "
+                . " AND booking_details.is_in_process = 0"
+                . " GROUP BY sc.booking_id $limit";
+        $query = $this->db->query($sql);
         $booking = $query->result_array();
+        return $booking;
+    }
+
+    function getcharges_filled_by_service_center($booking_id,$status,$whereIN,$is_partner,$offest,$perPage) {
+        $booking = $this->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$offest,$perPage);
         foreach ($booking as $key => $value) {
             // get data from booking unit details table on the basis of appliance id
             $this->db->select('booking_unit_details.partner_id,unit_details_id, service_charge, additional_service_charge,  parts_cost, upcountry_charges,'
