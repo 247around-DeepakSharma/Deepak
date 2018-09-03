@@ -187,48 +187,6 @@ class Invoice_lib {
         }
     }
     
-    function convert_invoice_file_into_pdf($template, $invoice_id, $meta, $invoice_data, $invoice_type, $copy = false, $triplicate = FALSE){
-        $output_file_name = $invoice_id.'-draft';
-        if ($invoice_type == "final") {
-            //generate main invoice pdf
-            $output_file_name = $invoice_id;
-            
-        }
-        $main_template = explode(".xlsx", $template);
-        $meta['recipient_type'] = "Original Copy";
-        $html = $this->ci->load->view('templates/'.$main_template[0], array("booking"=>$invoice_data,'meta'=>$meta), true);     
-        
-        //convert html into pdf
-        $json_result = $this->ci->miscelleneous->convert_html_to_pdf($html,$invoice_id,$output_file_name.".pdf","invoices-excel");
-        $pdf_response = json_decode($json_result,TRUE);
-        
-        if(!empty($pdf_response) && $pdf_response['response'] == "Success"){
-            $copy_invoice = "copy_".$output_file_name.".pdf";
-            $meta['recipient_type'] = "Duplicate Copy";
-            
-            $this->ci->miscelleneous->convert_html_to_pdf($html,$invoice_id,$copy_invoice,"invoices-excel");
-            if($triplicate){
-                $triplicate_invoice = "triplicate_".$output_file_name.".pdf";
-                $meta['recipient_type'] = "Triplicate Copy";
-
-                $this->ci->miscelleneous->convert_html_to_pdf($html,$invoice_id,$copy_invoice,"invoices-excel");
-                
-                $array = array("main_pdf_file_name" =>$copy_invoice, "copy_file" =>$output_file_name.".pdf",
-                    'triplicate_file' => $triplicate_invoice, "excel_file" => $output_file_name.".xlsx");
-            }
-            
-            if($copy){
-                $array = array("main_pdf_file_name" =>$copy_invoice, "copy_file" =>$output_file_name.".pdf", "excel_file" => $output_file_name.".xlsx" );
-             } else {
-                $array = array("main_pdf_file_name" =>$output_file_name.".pdf",  "copy_file" => $copy_invoice, "excel_file" => $output_file_name.".xlsx" );
-             }
-             
-             return $array;
-        } else {
-            return $this->send_request_to_convert_excel_to_pdf($invoice_id, $invoice_type, $copy, $triplicate);
-        }
-    }
-    
     function send_request_to_convert_excel_to_pdf($invoice_id, $invoice_type, $copy = false, $triplicate = FALSE){
         $excel_file_to_convert_in_pdf = $invoice_id.'-draft.xlsx';
         
