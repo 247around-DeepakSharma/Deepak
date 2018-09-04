@@ -2216,7 +2216,7 @@ class Partner extends CI_Controller {
                 log_message("info",__METHOD__." Mail Not Sent.. to ");
             }
         } else {
-            log_message("info".__METHOD__."Invalid File Format");
+            log_message("info",__METHOD__."Invalid File Format");
             $email_template = $this->booking_model->get_booking_email_template("distance_pincode_api");
             $subject = $email_template[4];
 //            $message = $email_template[0];
