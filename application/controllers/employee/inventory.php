@@ -1209,7 +1209,7 @@ class Inventory extends CI_Controller {
             }
             if($flag){
                 $response = $this->service_centers_model->update_spare_parts($where, $data);
-                if($response && in_array($requestType,array('CANCEL_PARTS'))){
+                if($response && $requestType == "CANCEL_PARTS"){
                    $this->update_inventory_on_cancel_parts($id,$booking_id, $old_state);
                 }
                 
@@ -1398,7 +1398,7 @@ class Inventory extends CI_Controller {
     function seach_by_email(){
         $email_id = trim($this->input->post("email_id"));
         if(!empty($email_id)){ 
-            $data['data'] = $this->inventory_model->search_email($email_id);
+            $data['data'] = $this->vendor_model->search_email($email_id);
             $this->miscelleneous->load_nav_header();
             $this->load->view("employee/search_email_form", $data);
         } else {
@@ -2608,7 +2608,7 @@ class Inventory extends CI_Controller {
     }
 
     /**
-     * @desc This is used to upload spare related image. It is used from Booking view details page.
+     *@desc This is used to upload spare related image. It is used from Booking view details page.
      */
     function processUploadSpareItem(){
         log_message('info', __METHOD__. " ". print_r($this->input->post(), TRUE). " ". print_r($_FILES, true)) ;
@@ -2624,7 +2624,22 @@ class Inventory extends CI_Controller {
         } else {
             echo json_encode(array('code' => "error", "message" => "File size or file type is not supported"));
         }
-
+    }
+    
+    /**
+     * @desc: This function will check SF Session
+     * @param: void
+     * @return: true if details matches else session is destroy.
+     */
+    function checkSFSession() {
+        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'service_center') 
+                && !empty($this->session->userdata('service_center_id')) && !empty($this->session->userdata('is_sf'))) {
+            return TRUE;
+        } else {
+            log_message('info', __FUNCTION__. " Session Expire for Service Center");
+            $this->session->sess_destroy();
+            redirect(base_url() . "service_center/login");
+        }
     }
     
     
@@ -2793,7 +2808,7 @@ class Inventory extends CI_Controller {
                                 $courier_data['AWB_no'] = $awb_number;
                                 $courier_data['courier_name'] = $courier_name;
                                 $courier_data['create_date'] = date('Y-m-d H:i:s');
-                                $courier_data['quantity'] = $tqty;
+                                $courier_data['quantity'] = count($booking_id_array);
                                 $courier_data['bill_to_partner'] = $partner_id;
                                 if (!empty($booking_id_array)) {
                                     $courier_data['booking_id'] = implode(",", $booking_id_array);
@@ -2951,6 +2966,11 @@ class Inventory extends CI_Controller {
      */
     function move_inventory_to_warehouse($ledger, $fomData, $wh_id) {
         log_message('info', __METHOD__ . " warehouse id " . $wh_id . " ledger " . json_encode($ledger, true). " Form data " . json_encode($fomData). " WH id ". $wh_id);
+        if($this->session->userdata("partner_id")){
+            $s_partner_id = $this->session->userdata("partner_id");
+        } else {
+            $s_partner_id = _247AROUND;
+        }
         if (!empty($ledger['booking_id'])) {
             if (isset($fomData['spare_id']) && $fomData['spare_id'] != 'new_spare_id') {
 
@@ -2960,17 +2980,17 @@ class Inventory extends CI_Controller {
                     'inventory_invoice_on_booking' => 1);
                 $update_spare_part = $this->service_centers_model->update_spare_parts(array('id' => $fomData['spare_id']), $a);
                 if ($update_spare_part) {
-
+                    $this->notify->insert_state_change($ledger['booking_id'], SPARE_SHIPPED_TO_WAREHOUSE, "", SPARE_SHIPPED_TO_WAREHOUSE, $ledger['agent_id'], $ledger['agent_id'], NULL, NULL, $s_partner_id, NULL);
                     log_message('info', ' Spare mapped to warehouse successfully for booking id ' . trim($fomData['booking_id']) . " Spare ID " . $fomData['spare_id']);
                 } else {
                     log_message('info', ' error in updating spare details');
                 }
             } else if(isset($fomData['spare_id']) && $fomData['spare_id'] == 'new_spare_id'){
-                $this->insert_new_spare_item($ledger, $fomData, $wh_id);
+                $this->insert_new_spare_item($ledger, $fomData, $wh_id, $s_partner_id);
             }
             
         } else {
-            $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, "
+            $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.booking_id, "
                     . "spare_parts_details.status, entity_type, spare_parts_details.partner_id, "
                     . "requested_inventory_id", array('requested_inventory_id' => $ledger['inventory_id'],
                 'status' => SPARE_PARTS_REQUESTED,
@@ -2985,6 +3005,7 @@ class Inventory extends CI_Controller {
                             'wh_ack_received_part' => 0, 'purchase_invoice_id' => $ledger['invoice_id']);
 
                         $update_spare_part = $this->service_centers_model->update_spare_parts(array('id' => $value['id']), $data);
+                        $this->notify->insert_state_change($value['booking_id'], SPARE_SHIPPED_TO_WAREHOUSE, "", SPARE_SHIPPED_TO_WAREHOUSE, $ledger['agent_id'], $ledger['agent_id'], NULL, NULL, $s_partner_id, NULL);
                         $qty = $qty + 1;
                     }
                 }
@@ -2992,7 +3013,7 @@ class Inventory extends CI_Controller {
         }
     }
     
-    function insert_new_spare_item($ledger, $fomData, $wh_id){
+    function insert_new_spare_item($ledger, $fomData, $wh_id, $s_partner_id){
         log_message('info',__METHOD__. " ledger ". print_r($ledger, true). " Form data ". json_encode($fomData, true). " wh id ". $wh_id);
         $spare = $this->partner_model->get_spare_parts_by_any("*", array('booking_id' => $ledger['booking_id']), false);
         
@@ -3020,6 +3041,7 @@ class Inventory extends CI_Controller {
             
             $spare_id = $this->service_centers_model->insert_data_into_spare_parts($newdata);
             if($spare_id){
+                $this->notify->insert_state_change($ledger['booking_id'], SPARE_SHIPPED_TO_WAREHOUSE, "", SPARE_SHIPPED_TO_WAREHOUSE, $ledger['agent_id'], $ledger['agent_id'], NULL, NULL, $s_partner_id, NULL);
                 log_message('info', __METHOD__. " New Spare Inserted for booking id ". $ledger['booking_id']. " Spare Line item ". $spare_id);
             } else {
                 log_message('info', __METHOD__. " failed new spare insert for booking id ". $ledger['booking_id']);
@@ -3125,7 +3147,7 @@ class Inventory extends CI_Controller {
         }
 
 
-        $invoice['toal_amount'] = $invoice['taxable_value'] + $gst_amount;
+        $invoice['total_amount'] = $invoice['taxable_value'] + $gst_amount;
         $invoice['create_date'] = date('Y-m-d H:i:s');
 
         return $invoice;
@@ -3633,8 +3655,8 @@ class Inventory extends CI_Controller {
             if ($status) {
 
                 log_message('info', __FUNCTION__ . ' Invoice File is created. invoice id' . $response['meta']['invoice_id']);
-                $convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($response['meta']['invoice_id'], "final");
-
+                //$convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($response['meta']['invoice_id'], "final");
+                $convert = $this->invoice_lib->convert_invoice_file_into_pdf($response, "final");
                 $output_file = "";
                 $template = "partner_inventory_invoice_annexure-v1.xlsx";
                 $output_file = $response['meta']['invoice_id'] . "-detailed.xlsx";
@@ -3738,7 +3760,7 @@ class Inventory extends CI_Controller {
             $invoice['is_settle'] = 1;
             $invoice['settle_qty'] = $value['qty'];
 
-            $invoice['toal_amount'] = $value['toal_amount'];
+            $invoice['total_amount'] = $value['total_amount'];
             $invoice['create_date'] = date('Y-m-d H:i:s');
             
             array_push($a, $invoice);
@@ -4505,23 +4527,6 @@ class Inventory extends CI_Controller {
         $this->load->view('employee/acknowledge_spares_send_by_partner_by_admin');
     }
     
-
-    /**
-     * @desc: This function will check SF Session
-     * @param: void
-     * @return: true if details matches else session is destroy.
-     */
-    function checkSFSession() {
-        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'service_center') 
-                && !empty($this->session->userdata('service_center_id')) && !empty($this->session->userdata('is_sf'))) {
-            return TRUE;
-        } else {
-            log_message('info', __FUNCTION__. " Session Expire for Service Center");
-            $this->session->sess_destroy();
-            redirect(base_url() . "service_center/login");
-        }
-    }
-        
     /**
      * @desc: This function is used to check partner session.
      * @param: void
@@ -4535,6 +4540,47 @@ class Inventory extends CI_Controller {
             $this->session->sess_destroy();
             redirect(base_url() . "partner/login");
         }
+    }
+    
+    
+                    
+    /**
+     * @desc: This function is used to upload the courier receipt for spare parts
+     * @params: void
+     * @return: returns true if file is uploaded 
+     * 
+     */
+    function upload_defective_courier_receipt(){
+         if (!empty($_FILES['defective_courier_receipt']['tmp_name'])) {
+            
+            $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
+            $booking_id = $this->input->post("booking_id");
+            
+            
+            
+            
+            $defective_courier_receipt = $this->miscelleneous->upload_file_to_s3($_FILES["defective_courier_receipt"], 
+                    "defective_courier_receipt", $allowedExts, $booking_id, "misc-images", "defective_courier_receipt");
+            if($defective_courier_receipt){
+                
+               return true;
+            } else {
+                $this->form_validation->set_message('upload_defective_courier_receipt', 'Defective Front Parts, File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
+                        . 'Maximum file size is 5 MB.');
+                return false;
+            }
+        } else {
+            return true;
+        }
+    }
+
+   
+    
+     public function update_tagged_invoice() {
+        
+        $data['inventory'] = $this->inventory_model->get_inventory_master_list_data('inventory_id,part_name,part_number');
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/update_tagged_invoice', $data);
     }
     
     /**
@@ -4682,6 +4728,7 @@ class Inventory extends CI_Controller {
                 . "spare_parts_details.parts_shipped as 'Part Shipped By Partner',spare_parts_details.shipped_parts_type as 'Part Type',"
                 . "spare_parts_details.shipped_date as 'Partner Part Shipped Date',spare_parts_details.awb_by_partner as 'Partner AWB Number',"
                 . "spare_parts_details.courier_name_by_partner as 'Partner Courier Name',spare_parts_details.courier_price_by_partner as 'Partner Courier Price',"
+                . "partner_challan_number AS 'Partner Challan Number', sf_challan_number as 'SF Challan Number', "
                 . "spare_parts_details.acknowledge_date as 'Spare Received Date',spare_parts_details.auto_acknowledeged as 'IS Spare Auto Acknowledge',"
                 . "spare_parts_details.defective_part_shipped as 'Part Shipped By SF',challan_approx_value As 'Parts Charge', "
                 . "spare_parts_details.awb_by_sf as 'SF AWB Number',spare_parts_details.courier_name_by_sf as 'SF Courier Name',"

@@ -1,6 +1,7 @@
 
 var review_completeUrl = baseUrl + '/employee/booking/complete_review_booking/';
 var admin_remarksUrl = baseUrl + '/employee/booking/reject_booking_from_review/';
+var partner_remarksUrl = baseUrl + '/employee/partner/reject_booking_from_review/';
 
 $(document).on("click", ".open-AddBookingDialog", function () {
     $('#modal-title2').text("");
@@ -111,11 +112,23 @@ function send_remarks() {
     var postData = {};
     postData['booking_id'] = $('#modal-title').text();
     postData['admin_remarks'] = $('#textarea').val();
+    postData['rejected_by'] = $('#admin_id').val();
     sendAjaxRequest(postData, admin_remarksUrl).done(function (data) {
-        alert("Booking Has been Rejected Successfully");
+        alert(data);
         document.getElementById("row_"+bookingID).style.background = "#89d4a7";
     });
 
+}
+function review_search(status,is_partner){
+    bookingID = $('#search').val();
+    var tab = "#tabs-3";
+    if(status == "Completed"){
+       var tab = "#tabs-2";
+    }
+    if(is_partner){
+        var tab = "#tabs-4";
+    }
+     load_view('employee/booking/review_bookings_by_status/'+status+'/0/'+is_partner+'/'+bookingID, tab,0);
 }
 
 

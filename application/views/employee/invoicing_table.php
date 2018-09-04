@@ -1,3 +1,14 @@
+<style>
+.dropdown-submenu {
+    position: relative;
+}
+
+.dropdown-submenu .dropdown-menu {
+    top: 0;
+    left: 100%;
+    margin-top: -1px;
+}
+</style>
 <?php if(isset($invoice_array)){ ?>
 <p><h2>Invoices Generated</h2></p>
 
@@ -12,6 +23,7 @@
          <th>Type</th>
          <th>Bookings/ Parts</th>
          <th>Invoice Period</th>
+         <th>Due Date</th>
          <th>Total Invoice</th>
          <th>Service Charges</th>
          <th>Additional Service Charges</th>
@@ -26,9 +38,9 @@
          <th>Amount Paid</th> 
          <th>Remarks</th> 
          <th>Select</th>
-         <th>ReGenerate</th>
-         <th>Update</th>
-         <th>Resend</th>
+         <th>Action</th>
+<!--         <th>Update</th>
+         <th>Resend</th>-->
         
       </tr>
    </thead>
@@ -64,6 +76,7 @@
          <td style="max-width: 56px; word-wrap:break-word;"><?php echo $invoice['type']; ?></td>
          <td ><?php echo $invoice['num_bookings']."/".$invoice['parts_count']; ?></td>
          <td><?php echo date("jS M, Y", strtotime($invoice['invoice_date'])). " <br/><br/> ".date("jS M, Y", strtotime($invoice['from_date'])). " to ". date("jS M, Y", strtotime($invoice['to_date'])); ?></td>
+          <td><?php echo $invoice['due_date'];?></td>
          <td><?php echo $invoice['total_amount_collected'];?></td>
          <td><?php echo (sprintf("%.2f",($invoice['total_service_charge'] + $invoice['service_tax']))); $sum_of_total_service_charges +=  $invoice['total_service_charge'] + $invoice['service_tax']; ?></td>
          <td><?php echo sprintf("%.2f",$invoice['total_additional_service_charge']); $sum_total_additional_service_charge += $invoice['total_additional_service_charge'];?></td>
@@ -91,31 +104,58 @@
          </td>
          <td>
              <?php if($invoice['vendor_partner'] == "vendor") { ?>
-             <div class="dropdown">
-                <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" <?php if($invoice['amount_paid'] > 0 ) { echo "disabled"; } ?>>Action
+             
+                <div class="dropdown">
+                    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Action
+                    <span class="caret"></span></button>
+                    <ul class="dropdown-menu">
+                      <li><a <?php if($invoice['amount_paid'] > 0 ) { echo 'style="color:#33333385;"'; } else { echo 'href="'.base_url().'employee/invoice/insert_update_invoice/'.$invoice['vendor_partner'].'/'.$invoice['invoice_id'].'"'; } ?>>Update</a></li>
+                      <li class="divider"></li>
+                      <li><a href="<?php echo base_url()?>employee/invoice/sendInvoiceMail/<?php echo $invoice['invoice_id']; ?>">Resend Invoice</a></li>
+                      <li class="divider"></li>
+                      <li class="dropdown-submenu">
+                        <a class="custom_dropdown-submenu"  href="#">ReGenerate<span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                          <li><a <?php if($invoice['amount_paid'] > 0 ) { echo 'style="color:#33333385;"'; } else{ echo 'href="'.base_url().'employee/invoice/regenerate_invoice/'.$invoice['invoice_id'].'/final"'; } ?>>Final</a></li>
+                          <li class="divider"></li>
+                          <li><a <?php if($invoice['amount_paid'] > 0 ) { echo 'style="color:#33333385;"'; } else{ echo 'href="'.base_url().'employee/invoice/regenerate_invoice/'.$invoice['invoice_id'].'/draft"'; } ?>>Draft</a></li>
+                        </ul>
+                      </li>
+                    </ul>
+                </div>
+            
+<!--             <div class="dropdown">
+                <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" <?php //if($invoice['amount_paid'] > 0 ) { echo "disabled"; } ?>>Action
                 <span class="caret"></span></button>
                 <ul class="dropdown-menu">
-                    <li><a href="<?php echo base_url();?>employee/invoice/regenerate_invoice/<?php echo $invoice['invoice_id'];?>/final">Final</a></li>
+                  <li><a href="<?php //echo base_url();?>employee/invoice/regenerate_invoice/<?php //echo $invoice['invoice_id'];?>/final">Final</a></li>
                   <li class="divider"></li>
-                  <li><a href="<?php echo base_url();?>employee/invoice/regenerate_invoice/<?php echo $invoice['invoice_id'];?>/draft">Draft</a></li>
+                  <li><a href="<?php //echo base_url();?>employee/invoice/regenerate_invoice/<?php //echo $invoice['invoice_id'];?>/draft">Draft</a></li>
                 </ul>
-              </div>
-             <?php } ?>
+              </div>-->
+            <?php }else{?>
+                
+                <div class="dropdown">
+                    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Action
+                    <span class="caret"></span></button>
+                    <ul class="dropdown-menu">
+                        <li><a <?php if($invoice['amount_paid'] > 0 ) { echo 'style="color:#33333385;"'; } else { echo 'href="'.base_url().'employee/invoice/insert_update_invoice/'.$invoice['vendor_partner'].'/'.$invoice['invoice_id'].'"'; } ?> >Update</a></li>
+                      <li class="divider"></li>
+                      <li><a href="<?php echo base_url()?>employee/invoice/sendInvoiceMail/<?php echo $invoice['invoice_id']; ?>">Resend Invoice</a></li>
+                    </ul>
+                </div>
+            <?php } ?>
          </td>
-         <td>
-             <a href="<?php echo base_url()?>employee/invoice/insert_update_invoice/<?php echo $invoice['vendor_partner'];?>/<?php echo $invoice['invoice_id'];?>" <?php if($invoice['amount_paid'] > 0 ) { echo "disabled"; } ?> class="btn btn-sm btn-info" >Update</a>
-         </td>
-         </td>
+<!--         <td>
+             <a href="<?php //echo base_url()?>employee/invoice/insert_update_invoice/<?php //echo $invoice['vendor_partner'];?>/<?php //echo $invoice['invoice_id'];?>" <?php //if($invoice['amount_paid'] > 0 ) { echo "disabled"; } ?> class="btn btn-sm btn-info" >Update</a>
+         </td>-->
          
-
           <?php  $count = $count+1;  ?>
-         <td class="col-md-6">
-             <a href="<?php echo base_url()?>employee/invoice/sendInvoiceMail/<?php echo $invoice['invoice_id']; ?>" class="btn btn-sm btn-primary">Resend Invoice</a>
-          
-         </td>
+<!--         <td class="col-md-6">
+             <a href="<?php //echo base_url()?>employee/invoice/sendInvoiceMail/<?php //echo $invoice['invoice_id']; ?>" class="btn btn-sm btn-primary">Resend Invoice</a>
+         </td>-->
 
-
-      </tr>
+        </tr>
       <?php }} ?>
 
 
@@ -159,6 +199,32 @@
         
     </div>
 <!-- end Invoice Payment History Modal -->
+
+<!--Invoice Defective Part Pending Booking with Age Modal-->
+    <div id="defective_part_pending_booking_age" class="modal fade" role="dialog">
+      <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-body">
+                  <table class="table table-bordered  table-hover table-striped data">
+                      <thead>
+                        <th>SN</th>
+                        <th>Booking ID</th>
+                        <th>Shipped Part Type</th>
+                        <th>Pending Age</th>
+                      </thead>
+                      <tbody id="defective-model">
+                          
+                      </tbody>
+                  </table>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              </div>
+            </div>
+      </div>
+        
+    </div>
+<!-- end Invoice Defective Part Pending Booking with Age Moda -->
 
       </form>
   <script type="text/javascript">
@@ -228,9 +294,6 @@
           <thead>
           <tr>
              <th class="text-center">PAN</th>     
-<!--             <th class="text-center">Service Tax </th>
-             <th class="text-center">VAT/TIN</th>
-             <th class="text-center">CST</th>-->
              <th class="text-center">GST</th>
              <th class="text-center">Bank Details Verification</th>
              <th class="text-center">Contract</th>
@@ -244,18 +307,6 @@
                  
                    <img src="<?php echo  base_url(); ?><?php if(!empty($invoicing_summary['pan_no'])){ echo "images/ok.png";} else { echo "images/red_cross.png";} ?>" style="width:15px; height: 15px;" /> 
                </td>
-<!--                <td class="text-center">
-                 
-                   <img src="<?php //echo  base_url(); ?><?php //if(!empty($invoicing_summary['service_tax_no'])){ echo "images/ok.png";} else { echo "images/red_cross.png";} ?>" style="width:15px; height: 15px;" /> 
-               </td>
-                <td class="text-center">
-                 
-                   <img src="<?php //echo  base_url(); ?><?php //if(!empty($invoicing_summary['tin_no']) || !empty($invoicing_summary['tin_no'])){ echo "images/ok.png";} else { echo "images/red_cross.png";} ?>" style="width:15px; height: 15px;" /> 
-               </td>
-                <td class="text-center">
-                 
-                   <img src="<?php //echo  base_url(); ?><?php //if(!empty($invoicing_summary['cst_no'])){ echo "images/ok.png";} else { echo "images/red_cross.png";} ?>" style="width:15px; height: 15px;" /> 
-               </td>-->
                <td class="text-center">
                  
                    <img src="<?php echo  base_url(); ?><?php if(!empty($invoicing_summary['gst_no'])){ echo "images/ok.png";} else { echo "images/red_cross.png";} ?>" style="width:15px; height: 15px;" /> 
@@ -269,8 +320,10 @@
                    <img src="<?php echo  base_url(); ?><?php if(!empty($invoicing_summary['contract_file'])){ echo "images/ok.png";} else { echo "images/red_cross.png";} ?>" style="width:15px; height: 15px;" /> 
                </td>
                <td class="text-center">
-                 
-                  <?php print_r($invoicing_summary['count_spare_part']);?>
+                  <?php if($invoicing_summary['count_spare_part'] > 0){ ?>
+                      <a href="javascript:void(0)" onclick="get_defective_spare_count_details()">  <?php print_r($invoicing_summary['count_spare_part']);?> </a>
+                 <?php  } else { echo "0"; } ?>
+ 
                </td>
                <td class="text-center">
                  
@@ -369,3 +422,48 @@
     
     
 </style>
+
+<script>
+function get_defective_spare_count_details(){
+    var vendor_id = $("#invoice_id").val();
+    
+    $.ajax({
+        type:"POST",
+        beforeSend: function(){
+
+                    $('body').loadingModal({
+                    position: 'auto',
+                    text: 'Loading Please Wait...',
+                    color: '#fff',
+                    opacity: '0.7',
+                    backgroundColor: 'rgb(0,0,0)',
+                    animation: 'wave'
+                });
+
+        },
+        url: "<?php echo base_url(); ?>employee/invoice/get_pending_defective_parts_list/" + vendor_id,
+        success:function(response){
+            console.log(response);
+            if(response === "DATA NOT FOUND"){
+                $('body').loadingModal('destroy');
+                alert("DATA NOT FOUND");
+            } else {
+               $("#defective-model").html(response);   
+               $('#defective_part_pending_booking_age').modal('toggle'); 
+               $('body').loadingModal('destroy');
+            }
+            
+        }
+    });
+    
+}
+</script>
+<script>
+$(document).ready(function(){
+  $('.dropdown-submenu a.custom_dropdown-submenu').on("click", function(e){
+    $(this).next('ul').toggle();
+    e.stopPropagation();
+    e.preventDefault();
+  });
+});
+</script>

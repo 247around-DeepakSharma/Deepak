@@ -3,20 +3,28 @@
 <script src="<?php echo base_url(); ?>js/buyback_app/app.js"></script>
 <script src="<?php echo base_url(); ?>js/buyback_app/controller/controllers.js"></script>
 <style>
+    .collape_icon {
+        font-size: 18px;
+        color: #4b5561 !important;
+        float:right;
+    }
+</style>
+<style>
     .col-md-2 {
         width: 16.666667%;
     }
     .tile_count .tile_stats_count, ul.quick-list li {
         white-space: normal;
     }
-
+    .text_warning{
+        color:red;
+    }
     [ng\:cloak], [ng-cloak], .ng-cloak {
         display: none !important;
     }
 </style>
-<div class="right_col ngCloak" role="main" ng-app="rm_dashboard" ng-cloak="">
-
-
+<div class="right_col" role="main">
+    <div ng-app="rm_dashboard" ng-cloak="">
     <!-- top tiles -->
     <div class="row tile_count" id="title_count">
         <div class="col-md-12">
@@ -24,11 +32,16 @@
         </div>
     </div>
     <!-- /top tiles -->
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
                 <div class="x_panel">
                 <div class="x_title">
                     <h2>TAT Reporting</h2>
+                    <span class="collape_icon" href="#RM_completed_booking_reports_div" data-toggle="collapse" onclick="collapse_icon_change(this)"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
+                   
                     <div class="clearfix"></div>
                 </div>
+                <div class="x_content collapse in" id="RM_completed_booking_reports_div">
                 <div class="table-responsive" id="escalation_data" ng-controller="completedBooking_Controller" ng-cloak="">
  <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 160px;">
                     <div class="item form-group">
@@ -99,7 +112,7 @@
                 <table class="table table-striped table-bordered jambo_table bulk_action">
                     <thead>
                         <tr>
-                            <th>S.no</th>
+                            <th>S.no11</th>
                             <th>RM</th>
                             <th>D0</th>
                             <th>D1</th>
@@ -128,15 +141,21 @@
                 </table>
                 <center><img id="loader_gif_completed_rm" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
             </div>
+        </div>
+    </div>            
+    </div>   
+    </div>
     <!-- Booking Report Start-->
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
-            <div class="x_panel">
+            <div class="x_panel" ng-controller="pendngBooking_Controller" ng-cloak="">
                 <div class="x_title">
                     <h2>Pending Bookings Reporting</h2>
+                    <span class="collape_icon" href="#RM_booking_reports_div" data-toggle="collapse" data-ng-click="pendingBookingByRMCall()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
-                <div class="table-responsive" id="escalation_data" ng-controller="pendngBooking_Controller" ng-cloak="">
+                <div class="x_content collapse" id="RM_booking_reports_div">
+                <div class="table-responsive" id="escalation_data" >
                     <table class="table table-striped table-bordered jambo_table bulk_action">
                         <thead>
                             <tr>
@@ -169,6 +188,7 @@
                 </div>
             </div>
         </div>
+    </div>
     </div>
     <!-- Booking Report End-->
     <div class="row" ng-controller="rm_dashboardController" ng-cloak="">
@@ -209,10 +229,11 @@ if($this->session->userdata("wrong_pincode_msg")){
             <div class="x_panel">
                 <div class="x_title">
                     <h2>Missing Pincodes</h2>
+                    <span class="collape_icon" href="#pincode_table_data_div" data-toggle="collapse" onclick="get_missing_pincodes()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     <a id="download_pin_code" class="btn btn-success" href="<?php echo base_url(); ?>employee/vendor/insert_pincode_form" style="float:right">Add New Pincode</a>
                     <div class="clearfix"></div>
                 </div>
-                <div class="x_content">
+                <div class="x_content collapse" id="pincode_table_data_div">
                     <div class="table-responsive" id="pincode_table_data">
                         <center><img id="pincode_loader" src="<?php echo base_url(); ?>images/loadring.gif"></center>
                     </div>
@@ -227,15 +248,16 @@ if($this->session->userdata("wrong_pincode_msg")){
             <div class="x_panel">
                 <div class="x_title">
                     <h2>Escalation</h2>
+                    <span class="collape_icon" href="#escalation_data_div" data-toggle="collapse" onclick="initiate_escalation_data(this)"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
 
-                <div class="x_content">
+                <div class="x_content collapse" id="escalation_data_div">
 
                     <div class="table-responsive" id="escalation_data">
                         <input type="text" id="session_id_holder" style="display:none;" value="<?php if ($this->session->userdata('user_group') == 'regionalmanager') {
             echo $this->session->userdata('id');
-        } ?>">
+        } ?>">          
                         <button type="button"class="btn btn-default" style="float:right" data-toggle="tooltip"data-placement="left"title="To calculate escalation percentage, logic use current months booking and current month escalation ">?</button>
                         <button type="button" class="btn btn-info" ng-click="mytoggle = !mytoggle" id="order_by_toggal" onclick="change_toggal_text()"style="float:right">Sort By Number Of Escalation</button>
                         <form class="form-inline"style="float:left;background: #46b8da;color: #fff;padding: 3px;border-radius: 4px;">
@@ -316,24 +338,28 @@ if($this->session->userdata("wrong_pincode_msg")){
                     </div>
                 </div>-->
     </div>
-    <!-- SF Brackets snapshot Section -->
+    
+     <!-- SF Brackets snapshot Section -->
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
-            <div class="x_panel">
+            <div class="x_panel" ng-controller="bracketsSnapshot_Controller" ng-cloak="">
                 <div class="x_title">
-                    <div class="col-md-6">
+                    <div class="col-md-6" style="padding-left:0px">
                         <h2>Service Center Brackets Snapshot</h2>
                     </div>
-                    <div class="col-md-6">
-                        <div class="pull-right">
+                    <div class="col-md-5">
+                        <div class="pull-right" style="margin-right: -20%;">
                             <a class="btn btn-sm btn-success" href="<?php echo base_url();?>employee/dashboard/brackets_snapshot_full_view" target="_blank">Show All</a>
                         </div>
                     </div>
-                    <div class="clearfix"></div>
+                    <div class="col-md-1" style="    padding-right: 0px;">
+                       <span class="collape_icon" href="#service_center_brackets_snapshot_div" data-toggle="collapse" data-ng-click="bracketsSnapshotCall()"><i class="fa fa-plus-square" aria-hidden="true"></i></span> 
+                    </div>
+                    <div class="clearfix" ></div>
                 </div>
-                <div class="x_content">
+                <div class="x_content collapse" id="service_center_brackets_snapshot_div">
                     <div class="table-responsive">
-                        <div class="table-responsive" id="escalation_data" ng-controller="bracketsSnapshot_Controller" ng-cloak="">
+                        <div class="table-responsive" id="escalation_data" >
                             <center><img id="brackets_loader" src="<?php echo base_url(); ?>images/loadring.gif"></center>
                             <div ng-if="brackets_div">
                                 <table class="table table-striped table-bordered jambo_table bulk_action">
@@ -383,12 +409,13 @@ if($this->session->userdata("wrong_pincode_msg")){
             <div class="x_panel">
                 <div class="x_title">
                     <h2>Monthly Booking Status <small>Completed</small></h2>
+                    <span class="collape_icon" href="#monthly_booking_chart_div" data-toggle="collapse" onclick="around_monthly_data(this)"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
                 <div class="col-md-12">
                     <center><img id="loader_gif2" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
                 </div>
-                <div class="x_content">
+                <div class="x_content collapse" id="monthly_booking_chart_div">
                     <div id="monthly_booking_chart" style="width:100%; height:400px;" ></div>
                 </div>
             </div>
@@ -398,26 +425,143 @@ if($this->session->userdata("wrong_pincode_msg")){
         <div class="col-md-6 col-sm-12 col-xs-12" id="based_on_Region">
             <div class="x_panel">
                 <div class="x_title">
+                    <div class="col-md-5">
                     <h2 style="font-size:15px;">Booking based on Region <small></small></h2>
+                    </div>
+                    <div class="col-md-6">
+                    <small>
                     <div class="nav navbar-right panel_toolbox">
-                        <div id="reportrange2" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc">
+                        <div id="reportrange2" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; margin-right: -14%;">
                             <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
                             <span></span> <b class="caret"></b>
-                        </div>
+                        </div></small>
+                        
                     </div>
+                    
+                    </div>
+                    <div class="col-md-1" style="padding-right:0px"><span class="collape_icon" href="#state_type_booking_chart_div" data-toggle="collapse" onclick="get_bookings_data_by_rm(this)"><i class="fa fa-plus-square" aria-hidden="true"></i></span></div>
                     <div class="clearfix"></div>
                 </div>
                 <div class="col-md-12">
                     <center><img id="loader_gif3" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
                 </div>
-                <div class="x_content">
+                <div class="x_content collapse" id="state_type_booking_chart_div">
                     <div id="state_type_booking_chart"></div>
                 </div>
             </div>
         </div>
         <!-- RM wise booking status -->
     </div>
-</div>
+    </div>
+    <div id="admin_dashboard_app" style="display:none">
+        <div class="x_panel">
+                <div class="x_title">
+                    <h2>AM TAT Reporting</h2>
+                     <span class="collape_icon" href="#AM_TAT_Reporting_div" data-toggle="collapse" onclick="initialise_AM_TAT_reporting(this)" style="margin-right: 8px;"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                    <div class="clearfix"></div>
+                </div>
+            <div class="table-responsive collapse" id="AM_TAT_Reporting_div" ng-controller="completedBooking_ControllerAM" ng-cloak="">
+                    <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 160px;">
+                    <div class="item form-group">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <label for="">Services</label>
+                            <select class="form-control filter_table" id="service_id_am" name="services">
+                                <option value="" selected="selected">Select Service</option>
+                                <?php foreach($services as $val){ ?>
+                                <option value="<?php echo $val['id']?>"><?php echo $val['services']?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                    <div class="form-group col-md-3">
+                    <div class="item form-group">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <label for="">Request Type</label>
+                            <select class="form-control filter_table" id="request_type_am" name="request_type_am">
+                                <option value="">Request Type</option>
+                                <option value="Installation" selected="selected">Installations</option>
+                                <option value="Repair">Repair</option>
+                                <option value="Repair_with_part">Repair With Spare</option>  
+                                <option value="Repair_without_part">Repair Without Spare</option>  
+                            </select>
+                        </div>
+                </div>
+                    </div>
+                    <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 170px;">
+                    <div class="item form-group">
+                        <div class="col-md-12 col-sm-12 col-xs-12">  
+                            <label for="">Is Free</label>
+                            <select class="form-control filter_table" id="free_paid_am" name="free_paid_am">
+                                <option value="" selected="selected">Is Free</option>
+                                <option value="Yes">Yes (In Warranty)</option>
+                                <option value="No">No (Out Of Warranty)</option>  
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                    <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 170px;">
+                    <div class="item form-group">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <label for="">Is Upcountry</label>
+                            <select class="form-control filter_table" id="upcountry_am" name="upcountry_am">
+                                <option value="">Is Upcountry</option>
+                                <option value="Yes">Yes</option>
+                                 <option value="No" selected="selected">No</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                    <div class="form-group col-md-3">
+                                         <label for="">Booking Completed Date</label>
+                                         <input type="text" class="form-control" name="completed_daterange_id_am" id="completed_daterange_id_am" ng-change="ShowAMCompletedBookingBYDateRange()" ng-model="dates">
+                            </div>
+                    <div class="form-group col-md-3">
+                                         <label for="">Booking Status</label>
+                                        <select class="form-control"  ng-model="status" id="completed_status_am">
+                                            <option value="">All</option>
+                                            <option value="Completed" ng-selected="true">Completed</option>
+                                            <option value="Cancelled">Cancelled</option>
+                                        </select>
+                    </div>
+                    <button class="btn btn-primary" ng-click="ShowAMCompletedBookingBYDateRange()" ng-model="partner_dashboard_filter" style="margin-top: 23px;background: #405467;border-color: #405467;">Apply Filters</button>
+                <br>
+                <div class="clear"></div>
+                <table class="table table-striped table-bordered jambo_table bulk_action">
+                    <thead>
+                        <tr>
+                            <th>S.no</th>
+                            <th>RM</th>
+                            <th>D0</th>
+                            <th>D1</th>
+                            <th>D2</th>
+                            <th>D3</th>
+                            <th>D4</th>
+                            <th>D5 - D7</th>
+                             <th>D8 - D15</th>
+                             <th>> D15</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="x in completedBookingByAM | orderBy:'TAT_16'">
+                           <td>{{$index+1}}</td>
+                           <td><a type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" href="<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/{{x.id}}/0/1">{{x.AM}}</a></td>
+                           <td>{{x.TAT_0}} <br> ({{x.TAT_0_per}}%) </td>
+                           <td>{{x.TAT_1}} <br> ({{x.TAT_1_per}}%) </td>
+                           <td>{{x.TAT_2}} <br> ({{x.TAT_2_per}}%)</td>
+                           <td>{{x.TAT_3}} <br> ({{x.TAT_3_per}}%)</td>
+                           <td>{{x.TAT_4}} <br> ({{x.TAT_4_per}}%)</td>
+                           <td>{{x.TAT_5}} <br> ({{x.TAT_5_per}}%) </td>
+                           <td>{{x.TAT_8}} <br> ({{x.TAT_8_per}}%)</td>
+                           <td>{{x.TAT_16}} <br> ({{x.TAT_16_per}}%)</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <center><img id="loader_gif_pending_AM" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
+            </div>
+        </div>
+        </div> 
+</div>   
 <!-- END -->
 <style>
     .dropdown:hover .dropdown-menu {
@@ -466,16 +610,20 @@ if($this->session->userdata("wrong_pincode_msg")){
             }
     };
     $(document).ready(function () {
+        $("#admin_dashboard_app").css("display", "inline");
         //top count data
         get_query_data();
         //company monthly data
-        around_monthly_data();
+        //around_monthly_data();
         //Rm wise bookings data
-        get_bookings_data_by_rm();
-         //missing pincode data
-        get_missing_pincodes();
+        //get_bookings_data_by_rm();
+        //missing pincode data
+        //get_missing_pincodes();
+        
+
     });
-    function get_missing_pincodes(){
+    function get_missing_pincodes(span){
+        collapse_icon_change(span);
         var data = {};
         url = '<?php echo base_url(); ?>employee/dashboard/get_pincode_not_found_sf_details_admin';
         data['partner_id'] = '';
@@ -508,8 +656,9 @@ if($this->session->userdata("wrong_pincode_msg")){
             create_chart_based_on_bookings_state(response);
         });
     });
-
-    $(function () {
+  
+   function initiate_escalation_data(span){
+       collapse_icon_change(span);
         var d = new Date();
         n = d.getMonth() + 1;
         y = d.getFullYear();
@@ -522,7 +671,8 @@ if($this->session->userdata("wrong_pincode_msg")){
             },
             startDate: y + '-' + n + '-01'
         });
-    });
+   }
+  
 
 
     function change_toggal_text() {
@@ -553,7 +703,8 @@ if($this->session->userdata("wrong_pincode_msg")){
         });
     }
     
-    function around_monthly_data(){
+    function around_monthly_data(span){
+        collapse_icon_change(span);
         $('#loader_gif2').fadeIn();
         $('#monthly_booking_chart').fadeOut();
         var data = {partner_id:''};
@@ -564,7 +715,8 @@ if($this->session->userdata("wrong_pincode_msg")){
         });
     }
     
-    function get_bookings_data_by_rm(){
+    function get_bookings_data_by_rm(span){
+        collapse_icon_change(span);
         $('#loader_gif3').fadeIn();
         $('#state_type_booking_chart').fadeOut();
         var data = {};
@@ -689,18 +841,40 @@ if($this->session->userdata("wrong_pincode_msg")){
     
     }
     $(function() {
-     var d = new Date();
-        n = d.getMonth();
-        y = d.getFullYear();
-        date = d.getDate();
-        $('input[name="daterange_completed_bookings"]').daterangepicker({
-             timePicker: true,
-        timePickerIncrement: 30,
-        locale: {
-            format: 'YYYY-MM-DD'
-        },
-        startDate: y+'-'+n+'-'+date
+        var d = new Date();
+         n = d.getMonth();
+         y = d.getFullYear();
+         date = d.getDate();
+         $('input[name="daterange_completed_bookings"]').daterangepicker({
+              timePicker: true,
+             timePickerIncrement: 30,
+             locale: {
+                 format: 'YYYY-MM-DD'
+             },
+             startDate: y+'-'+n+'-'+date
+        });
+       
     });
-});
+    
+    function initialise_AM_TAT_reporting(span){
+        collapse_icon_change(span);
+            var dvSecond = document.getElementById('admin_dashboard_app');
+        angular.element(document).ready(function() {
+            angular.bootstrap(dvSecond, ['admin_dashboard']);
+            var d = new Date();
+            n = d.getMonth();
+            y = d.getFullYear();
+            date = d.getDate();
+            $('#completed_daterange_id_am').daterangepicker({
+                timePicker: true,
+                timePickerIncrement: 30,
+                locale: {
+                     format: 'YYYY-MM-DD'
+                },
+                startDate: y+'-'+n+'-'+date
+            });
+        });
+    }
+
 </script>
 

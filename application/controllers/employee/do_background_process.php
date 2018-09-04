@@ -174,6 +174,7 @@ class Do_background_process extends CI_Controller {
         $agent_id = $this->input->post('agent_id');
         $agent_name = $this->input->post('agent_name');
         $partner_id_array = $this->input->post('partner_id');
+        $approved_by = $this->input->post('approved_by');
         
         foreach ($approvalBooking_id as $booking_id) {
             
@@ -262,6 +263,7 @@ class Do_background_process extends CI_Controller {
             $booking['cancellation_reason'] = NULL;
             $booking['customer_paid_upcountry_charges'] = $upcountry_charges;
             $booking['update_date'] = date('Y-m-d H:i:s');
+            $booking['approved_by'] = $approved_by;
             //update booking_details table
             log_message('info', ": " . " update booking details data (" . $current_status . ")" . print_r($booking, TRUE));
 
@@ -280,7 +282,7 @@ class Do_background_process extends CI_Controller {
                 $actor = $booking['actor'] = $partner_status[2];
                 $next_action = $booking['next_action'] = $partner_status[3];
             }
-
+            $booking['is_in_process'] = 0;
             $this->booking_model->update_booking($booking_id, $booking);
             $this->miscelleneous->process_booking_tat_on_completion($booking_id);
             //Update Spare parts details table
@@ -291,7 +293,7 @@ class Do_background_process extends CI_Controller {
             }
 
             //Log this state change as well for this booking
-           $this->notify->insert_state_change($booking_id, $current_status, _247AROUND_PENDING, $booking['closing_remarks'], $agent_id, $agent_name, $actor,$next_action,_247AROUND);
+           $this->notify->insert_state_change($booking_id, $current_status, _247AROUND_PENDING, $booking['closing_remarks'], $agent_id, $agent_name, $actor,$next_action,$approved_by);
             
             $this->notify->send_sms_email_for_booking($booking_id, $current_status);
 

@@ -51,8 +51,8 @@ class Buyback {
         $cp_id = NULL;
         if (!empty($cp_data)) {
             //Get Charges list
-            if(stripos('imei', $this->POST_DATA['order_key']) !== FALSE){
-                $file_order_key = rtrim(trim(explode('imei',$this->POST_DATA['order_key'])[0]),":");
+            if(stripos($this->POST_DATA['order_key'],'IMEI') !== FALSE){
+                $file_order_key = rtrim(trim(explode('IMEI',$this->POST_DATA['order_key'])[0]),":");
             }else{
                 $file_order_key = $this->POST_DATA['order_key'];
             }
@@ -232,10 +232,8 @@ class Buyback {
             'service_id' => (!empty($bb_charges) ? $bb_charges[0]['service_id'] : $service_id),
         );
         
-        //get bb qc_svc number by order service id
-        $qc_svc = $this->get_bb_qc_svc_details($service_id);
-        if(!empty($qc_svc)){
-            $bb_unit_details['qc_svc'] = $qc_svc;
+        if($this->My_CI->input->post('qc_svc')){
+            $bb_unit_details['qc_svc'] = $this->My_CI->input->post('qc_svc');
         }
 
 

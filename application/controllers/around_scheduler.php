@@ -1735,12 +1735,12 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                     //Send SMS
                     $sms['phone_no'] = $value['owner_phone_1'];
                     $sms['smsData']['amount'] = abs(round($amount_cr_deb['total_balance'],0));
-            $sms['tag'] = "cp_outstanding_sms";
-            $sms['booking_id'] = "";
-            $sms['type'] = "vendor";
-            $sms['type_id'] = $value['id'];
+		    $sms['tag'] = "cp_outstanding_sms";
+		    $sms['booking_id'] = "";
+		    $sms['type'] = "vendor";
+		    $sms['type_id'] = $value['id'];
 
-            $this->notify->send_sms_msg91($sms);
+		    $this->notify->send_sms_msg91($sms);
                     
                     //Send Email
 
@@ -1824,5 +1824,90 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
             }
         }
     } 
-    
+    /*
+     * This function will be used to auto approve all those booking where partner was responsible to approve theses booking but partner did not review these booking within time
+     * So for this case we automatically approved these bookings
+     * In this function first we get all those partner , who review there booking by themselves
+     */
+    function auto_approve_all_partner_review_bookings_after_threshold(){
+        log_message('info', __FUNCTION__ . ' Start');
+        $partnerArray = $this->reusable_model->get_search_result_data("partners","id",array("booking_review_for IS NOT NULL"=>NULL),NULL,NULL,NULL,NULL,NULL,array());
+        foreach($partnerArray  as $partner){
+            $this->auto_approve_partner_review_bookings_after_threshold($partner['id']);
+        }
+         log_message('info', __FUNCTION__ . ' End');
+    }
+    /*
+     * Note - Partner Specific  - pass partner ID
+     * This function will be used to auto approve all those booking where partner was responsible to approve theses booking but partner did not review these booking within time
+     * So for this case we automatically approved these bookings
+     */
+    function auto_approve_partner_review_bookings_after_threshold($partnerID){
+        log_message('info', __FUNCTION__ . ' Start for partner '.$partnerID);
+        //Get All booking where review time limit is crossed by partner 
+        $tempData = $this->miscelleneous->get_review_bookings_for_partner($partnerID,NULL,1,1);
+        //Convert booking into structured format requiredd by checked_complete_review_booking function
+        if($tempData){
+            foreach($tempData as $booking_id=>$values){
+                $data['partner_id'][$booking_id] = $values['partner_id'];
+                $data['approved_booking'][] = $booking_id;
+            }
+            $data['approved_by'] = _247AROUND;
+            //Call function to review the bookings
+            $this->checked_complete_review_booking($data);
+            log_message('info', __FUNCTION__ . ' End');
+        }
+        else{
+           log_message('info', __FUNCTION__ . ' Function End With No Booking Found');
+        }
+    }
+    /*
+     * This Function is used to complete review bookings
+     * Input  - $bookingData this array will contain 3 keys
+     */
+    function checked_complete_review_booking($bookingData) {
+        log_message('info', __FUNCTION__ . ' Function Start '.print_r($bookingData,TRUE));
+        $requested_bookings = $bookingData['approved_booking'];
+        $where['is_in_process'] = 0;
+        $whereIN['booking_id'] = $requested_bookings; 
+        $tempArray = $this->reusable_model->get_search_result_data("booking_details","booking_id",$where,NULL,NULL,NULL,$whereIN,NULL,array());
+        foreach($tempArray as $values){
+            $approved_booking[] = $values['booking_id'];
+        }
+        $this->booking_model->mark_booking_in_process($approved_booking);
+        $url = base_url() . "employee/do_background_process/complete_booking";
+        if (!empty($approved_booking)) {
+            $data['booking_id'] = $approved_booking;
+            $data['agent_id'] = _247AROUND_DEFAULT_AGENT;
+            $data['agent_name'] = _247AROUND_DEFAULT_AGENT_NAME;
+            $data['partner_id'] = $bookingData['partner_id'];
+            $data['approved_by'] = $bookingData['approved_by']; 
+            $this->asynchronous_lib->do_background_process($url, $data);
+        } else {
+            //Logging
+            log_message('info', __FUNCTION__ . ' Approved Booking Empty from Post');
+        }
+         log_message('info', __FUNCTION__ . ' End');
+    }
+
+    function send_notifiction_to_review_bookings() {
+        log_message('info', __FUNCTION__ . ' Start');
+        $partnerArray = $this->reusable_model->get_search_result_data("partners", "*", array("booking_review_for IS NOT NULL" => NULL), NULL, NULL, NULL, NULL, NULL, array());
+        foreach ($partnerArray as $partner) {
+            $tempData = $this->miscelleneous->get_review_bookings_for_partner($partner['id'], NULL, 1, 0, REVIEW_NOTIFICATION_TO_PARTNER_DAYS);
+            $data['bookings'] = array_keys($tempData);
+            $template = $this->booking_model->get_booking_email_template("notify_partner_to_review_bookings");
+            $subject = $template[4];
+            $data['text'] = vsprintf($template[0], array($partnerArray[0]['review_time_limit']));
+            $message = $this->load->view('employee/partner_review_booking_email_template',$data,true);
+            $to =  $partnerArray[0]['primary_contact_email'];
+            $bcc = $template[5];
+            $cc = $template[1];
+            $from = $template[2];
+            $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "", "notify_partner_to_review_bookings");
+            log_message('info', __FUNCTION__ . " END  " . $partner['id'] . $message);
+        }
+        log_message('info', __FUNCTION__ . ' End');
+    }
+
 }

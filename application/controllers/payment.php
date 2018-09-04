@@ -9,6 +9,8 @@ class Payment extends CI_Controller {
         $this->load->library('paytm_payment_lib');
         $this->load->model('reusable_model');
         $this->load->library('authentication_lib');
+        $this->load->library('booking_utilities');
+        $this->load->model('booking_model');
     }
     /*
      * This function is used to handle paytm callback after transaction against any qr code
@@ -194,10 +196,14 @@ class Payment extends CI_Controller {
         echo "<p style='text-align:center;background: #2c9d9c;padding:10px;color:fff;font:20px Century Gothic'>".$msg."</p>";
          echo '<script>setTimeout(function(){ window.close(); }, 1500);</script>';
     }
-    function test($bookingID){
-         $response = $this->paytm_payment_lib->generate_qr_code($bookingID, QR_CHANNEL_APP, 
-                    50, "8826186751");
-         echo "<pre>";
-         print_r($response);
+    function test(){
+        $sms['type'] = "user";
+        $sms['type_id'] = 1111;
+        $sms['tag'] = "customer_qr_download";
+        $sms['smsData']['services'] = "Television";
+        $sms['smsData']['url'] = "dff";
+        $sms['phone_no'] = "8826186751";
+        $sms['booking_id'] = "dfdghfthg";
+        $this->notify->send_sms_msg91($sms);
     }
 }

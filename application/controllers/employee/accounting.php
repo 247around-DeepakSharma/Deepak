@@ -690,7 +690,7 @@ class Accounting extends CI_Controller {
     }
     //deletes doc and redirects to same page
     function delete_shipped_document($id){
-        if(!($this->accounting_model->delete_shipped_documents($id))){
+        if(!($this->reusable_model->update_table('courier_details', array('is_active'=>0), array('id'=>$id)))){
             echo '<script language="javascript">'; 
             echo 'alert("Record not deleted")'; 
             echo '</script>';

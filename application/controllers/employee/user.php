@@ -428,6 +428,19 @@ class User extends CI_Controller {
     }
     
     /**
+     * 
+     * @Desc: This function is used to inactive employee
+     * @params: employee id
+     * @return: view
+     */
+    function deactive_employee($id){
+        $data = array("active"=>0);
+        $this->employee_model->update($id,$data);
+        $this->session->set_userdata('success','Employee Updated Sucessfully.');
+        redirect(base_url() . "employee/user/show_employee_list");
+    }
+    
+    /**
      *@Desc: This function is used to show holiday list to employees
      * @params: void
      * @return: void 

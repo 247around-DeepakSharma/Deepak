@@ -14,7 +14,6 @@ class Miscelleneous {
         $this->My_CI->load->library('notify');
         $this->My_CI->load->library('push_notification_lib');
         $this->My_CI->load->library('send_grid_api');
-
         $this->My_CI->load->library('s3');
         $this->My_CI->load->library('PHPReport');
         $this->My_CI->load->model('vendor_model');
@@ -1417,25 +1416,20 @@ class Miscelleneous {
             $booking['partner_name'] = $tempPartner[0]['public_name'];
         }
         $message = $this->My_CI->load->view('employee/sf_not_found_email_template', $booking, true);
-
         $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $rm_email, $cc, "", $subject, $message, "",SF_NOT_FOUND);
         if(!empty($isPartner)){
-
-            $this->send_mail_to_partner_sf_not_exist($booking, $subject);
+            $this->send_mail_to_partner_sf_not_exist($booking, $subject, SF_NOT_FOUND);
         }
     }
     
-    function send_mail_to_partner_sf_not_exist($booking, $subject){
+    function send_mail_to_partner_sf_not_exist($booking, $subject, $templatetag){
         $partner_email = $this->get_partner_email_constant();
         if(isset($partner_email[$booking['partner_id']])){
             $to = $partner_email[$booking['partner_id']];
             $cc = ANUJ_EMAIL_ID;
             $booking['jeeves_not_assign'] = true;
             $message = $this->My_CI->load->view('employee/sf_not_found_email_template', $booking, true);
-
-            // $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
-             //When release 51 puhsed then uncomment below code and remove above line
-             $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "",$templatetag);
+            $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "",$templatetag);
         }
     }
     
@@ -1443,7 +1437,6 @@ class Miscelleneous {
         return array(
             JEEVES_ID => VINESH_FLIPKART_EMAIL
        );
-
     }
 
     /*
@@ -2891,19 +2884,13 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
             $partnerJoin["employee"] = "employee.id=partners.account_manager_id";
             $bookingData = $this->My_CI->reusable_model->get_search_result_data("booking_details",$select,$where,$join,NULL,NULL,NULL,NULL,array());
             $amEmail = $this->My_CI->reusable_model->get_search_result_data("booking_details","employee.official_email",$where,$partnerJoin,NULL,NULL,NULL,NULL,array());
-            if(!isset($bookingData[0]['rating_comments'])){
-                $subject = 'Bad Feedback From Customer, Rating ('.$rating.') For '.$bookingID;
-                $message = "Please take action as Customer is Not Satisfied with our Service.<br>"
-                        . "SF : ".$bookingData[0]['name']."<br>"
-                        . "Customer remarks : ".$bookingData[0]['rating_comments']."<br> "
-                        . "Request Type : ".$bookingData[0]['request_type']."<br> "
-                        . "Appliance : ".$bookingData[0]['services']."<br> ";
-                $to = ANUJ_EMAIL_ID;  
-                $cc = $bookingData[0]['official_email'].",".$amEmail[0]['official_email'].",".$this->My_CI->session->userdata("official_email");
-                $bcc = "chhavid@247around.com";
-                $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "","we_get_bad_rating");
-            }
-            
+            $template = $this->My_CI->booking_model->get_booking_email_template("we_get_bad_rating");
+            $subject = vsprintf($template[4], array($rating,$bookingID));
+            $message = vsprintf($template[0], array($bookingData[0]['name'],$bookingData[0]['rating_comments'],$bookingData[0]['request_type'],$bookingData[0]['services']));
+            $to = $template[1];  
+            $cc = $bookingData[0]['official_email'].",".$amEmail[0]['official_email'].",".$this->My_CI->session->userdata("official_email");
+            $from = $template[2];
+            $this->My_CI->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "","we_get_bad_rating");
             log_message('info', __FUNCTION__ . " END  ".$bookingID.$number);
         }
     }
@@ -3332,6 +3319,7 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
         $data['leg_1'] = $this->get_tat_with_considration_of_non_working_day($bookingData[0]['non_working_days'],$bookingData[0]['initial_booking_date'],date("Y-m-d"));
         $data['applicable_on_partner'] = $this->is_booking_valid_for_partner_panelty($bookingData[0]['request_type']);
         $data['applicable_on_sf'] = 1;
+        $tatArray['is_upcountry'] =  $bookingData[0]['is_upcountry'];
         $data['is_leg_1_faulty_for_partner'] = $this->is_booking_faulty($spare_id,$bookingData[0]['is_upcountry'],"leg_1",$data['leg_1'],"Partner");
         $data['is_leg_1_faulty_for_vendor'] = $this->is_booking_faulty($spare_id,$bookingData[0]['is_upcountry'],"leg_1",$data['leg_1'],"Vendor");
         $data['partner_id'] = $bookingData[0]['partner_id'];
@@ -3357,5 +3345,115 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
        else{
            return 0;
        }
+    }
+    function reject_booking_from_review($postData){
+        log_message('info', __FUNCTION__. " POST ". json_encode($postData, true));
+        $booking_id =$postData['booking_id'];
+        $admin_remarks = $postData['admin_remarks'];
+        $data['internal_status'] = _247Around_Rejected_SF_Update;
+        $data['current_status'] = _247AROUND_PENDING;
+        $data['update_date'] = date("Y-m-d H:i:s");
+        $data['serial_number'] = "";
+        $data['service_center_remarks'] = NULL; 
+        $data['booking_date'] = $data['booking_timeslot'] = NUll;
+        $data['closed_date'] = NULL;
+        $data['service_charge'] = $data['additional_service_charge'] = $data['parts_cost'] = "0.00";
+        $data['admin_remarks'] = date("F j") . "  :-" . $admin_remarks;
+        log_message('info', __FUNCTION__ . " Booking_id " . $booking_id . " Update service center action table: " . print_r($data, true));
+        $this->My_CI->vendor_model->update_service_center_action($booking_id, $data);
+        //Send Push Notification
+        $b = $this->My_CI->booking_model->get_bookings_count_by_any("booking_details.partner_id, assigned_vendor_id",array('booking_details.booking_id' => $booking_id));
+        //Get RM For Assigned Vendor
+        $rmArray = $this->My_CI->vendor_model->get_rm_sf_relation_by_sf_id($b[0]['assigned_vendor_id']);
+        if(!empty($rmArray)){
+            $receiverArray['employee']= array($rmArray[0]['agent_id']);
+            $receiverArray['vendor']= array($b[0]['assigned_vendor_id']);
+            $notificationTextArray['msg'] = array($booking_id,"Rejected");
+            $notificationTextArray['title'] = array("Rejected");
+            $this->My_CI->push_notification_lib->create_and_send_push_notiifcation(BOOKING_UPDATED_BY_247AROUND,$receiverArray,$notificationTextArray);
+        }
+        $partner_status = $this->My_CI->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, _247Around_Rejected_SF_Update , $b[0]['partner_id'], $booking_id);
+        $actor = ACTOR_REJECT_FROM_REVIEW;
+        $next_action = REJECT_FROM_REVIEW_NEXT_ACTION;
+        if (!empty($partner_status)) {
+            $booking['partner_current_status'] = $partner_status[0];
+            $booking['partner_internal_status'] = $partner_status[1];
+            $booking['internal_status'] = "Rejected From Review";
+            $booking['rejected_by'] = $postData['rejected_by'];
+            $actor = $booking['actor'] = $partner_status[2];
+            $next_action = $booking['next_action'] = $partner_status[3];
+            $booking['service_center_closed_date'] = NULL;
+            $data['cancellation_reason'] = NULL;
+            $this->My_CI->booking_model->update_booking($booking_id, $booking);
+        }
+        if($postData['rejected_by'] == '247001'){
+            $this->My_CI->notify->insert_state_change($booking_id, "Rejected", "InProcess_Completed", $admin_remarks, $this->My_CI->session->userdata('id'), $this->My_CI->session->userdata('employee_id'), 
+                $actor,$next_action,_247AROUND);
+        }
+        else{
+            $this->My_CI->notify->insert_state_change($booking_id, "Rejected", "InProcess_Completed", $admin_remarks, $this->My_CI->session->userdata('agent_id'), $this->My_CI->session->userdata('partner_name'), 
+                $actor,$next_action,$postData['rejected_by']);
+        }
+    }
+    function get_review_bookings_for_partner($partnerID,$booking_id = NULL,$structuredData = 1,$afterLimit = 0,$before_days = NULL){
+         $finalArray = array();
+        $whereIN = array();
+        $statusData = $this->My_CI->reusable_model->get_search_result_data("partners","partners.booking_review_for,partners.review_time_limit",array("booking_review_for IS NOT NULL"=>NULL,"id"=>$partnerID),NULL,NULL,NULL,NULL,NULL,array());
+        if(!empty($statusData)){
+            $where['booking_details.partner_id'] = $partnerID;
+            $statusArray = explode(",",$statusData[0]['booking_review_for']);
+            $whereIN['service_center_booking_action.internal_status'] = array("Completed","Cancelled");
+            if($afterLimit == 1){
+              $where['DATEDIFF(CURRENT_TIMESTAMP,  service_center_booking_action.closed_date)>'.$statusData[0]['review_time_limit']] = NULL;
+            }
+            else{
+                $days = $statusData[0]['review_time_limit'];
+                if($before_days){
+                    $days = $statusData[0]['review_time_limit'] - $before_days;
+                }
+                $where['(DATEDIFF(CURRENT_TIMESTAMP,  service_center_booking_action.closed_date)>='.$days
+                    . ' AND DATEDIFF(CURRENT_TIMESTAMP,  service_center_booking_action.closed_date)<='.$statusData[0]['review_time_limit'].')'] = NULL;
+            }
+            $where['booking_details.amount_due'] = 0;
+            $where['service_center_booking_action.current_status'] = 'InProcess';
+            $where['booking_details.is_in_process'] = 0;
+            $tempData = $this->My_CI->partner_model->get_booking_review_data($where,$whereIN,$booking_id);
+            if(!empty($tempData)){
+                foreach($tempData as $values){
+                    $is_considrable = TRUE;
+                    if(count($statusArray) == 1 && $statusArray[0] == 'Cancelled'){
+                        if (strpos($values['combined_status'], 'Completed') !== false) {
+                            $is_considrable = FALSE;
+                        }
+                    }
+                    if($is_considrable){
+                            $finalArray[$values['booking_id']]['appliance_brand'] = $values['appliance_brand'];
+                        $finalArray[$values['booking_id']]['services'] = $values['services'];
+                        $finalArray[$values['booking_id']]['request_type']= $values['request_type'];
+                        $finalArray[$values['booking_id']]['internal_status'] = $values['internal_status'];
+                        $finalArray[$values['booking_id']]['name'] = $values['name'];
+                        $finalArray[$values['booking_id']]['booking_primary_contact_no'] = $values['booking_primary_contact_no'];
+                        $finalArray[$values['booking_id']]['city'] = $values['city'];
+                        $finalArray[$values['booking_id']]['state'] = $values['state'];
+                        $finalArray[$values['booking_id']]['initial_booking_date'] = $values['initial_booking_date'];
+                        $finalArray[$values['booking_id']]['age'] = $values['age'];
+                        $finalArray[$values['booking_id']]['is_upcountry'] = $values['is_upcountry'];
+                        $finalArray[$values['booking_id']]['booking_jobcard_filename'] = $values['booking_jobcard_filename'];
+                        $finalArray[$values['booking_id']]['internal_status'] = $values['internal_status'];
+                        $finalArray[$values['booking_id']]['amount_due'] = $values['amount_due'];
+                        $finalArray[$values['booking_id']]['partner_id'] = $values['partner_id'];
+                    }
+                }
+            }
+            else{
+                 $data= array();
+            }
+            if($structuredData == 0){
+                return $tempData;
+            }
+            else{
+                return $finalArray;
+            }
+        }
     }
 }

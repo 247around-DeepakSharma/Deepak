@@ -330,9 +330,9 @@ class Inventory_model extends CI_Model {
         $this->db->select($post['select'].", DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request,"
                 . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(estimate_cost_given_date, '%Y-%m-%d')) AS age_of_est_given", FALSE);
 
-        $this->db->join('booking_details','spare_parts_details.booking_id = booking_details.booking_id');
+        $this->db->join('booking_details','spare_parts_details.booking_id = booking_details.booking_id', "left");
         $this->db->join('partners','partners.id = spare_parts_details.partner_id', "left");
-        $this->db->join('users','users.user_id = booking_details.user_id');
+        $this->db->join('users','users.user_id = booking_details.user_id', "left");
         if (!empty($post['where'])) {
             $this->db->where($post['where'], FALSE);
         }
@@ -1158,7 +1158,7 @@ class Inventory_model extends CI_Model {
                 CASE WHEN(sc1.name IS NOT NULL) THEN (sc1.name) 
                 WHEN(p1.public_name IS NOT NULL) THEN (p1.public_name) 
                 WHEN (e1.full_name IS NOT NULL) THEN (e1.full_name) END as sender,i.booking_id,i.invoice_id,invoice_details.description,
-                invoice_details.hsn_code,invoice_details.qty,invoice_details.rate as basic_price,invoice_details.toal_amount as total_amount,
+                invoice_details.hsn_code,invoice_details.qty,invoice_details.rate as basic_price,invoice_details.total_amount as total_amount,
                 invoice_details.igst_tax_rate as gst_rate,i.create_date
                 FROM `inventory_ledger` as i LEFT JOIN service_centres as sc on (sc.id = i.`receiver_entity_id` AND i.`receiver_entity_type` = 'vendor') Left JOIN partners as p on (p.id = i.`receiver_entity_id` AND i.`receiver_entity_type` = 'partner') LEFT JOIN employee as e ON (e.id = i.`receiver_entity_id` AND i.`receiver_entity_type` = 'employee')  
                 LEFT JOIN service_centres as sc1 on (sc1.id = i.`sender_entity_id` AND i.`sender_entity_type` = 'vendor') 
@@ -1305,36 +1305,6 @@ class Inventory_model extends CI_Model {
         return $query->result_array();
     }   
     /**
-     * @desc: This function is used to get detail of given email id
-    **/
-    function search_email($email_id){
-       
-            $sql =  "SELECT 'employee' as entity_type, full_name as 'name', CASE 
-				WHEN `official_email` = '".$email_id."' THEN 'official_email'
-                                WHEN `personal_email` = '".$email_id."' THEN 'personal_email'
-                                END  AS 'email_type'
-                FROM employee WHERE official_email = '".$email_id."' OR personal_email = '".$email_id."'
-                UNION
-                SELECT 'partner' as entity_type, company_name as 'name', CASE 
-                                WHEN `primary_contact_email` = '".$email_id."' THEN 'primary_contact_email'
-                                WHEN `owner_email` = '".$email_id."' THEN 'owner_email'
-                                WHEN `owner_alternate_email` = '".$email_id."' THEN 'owner_alternate_email'
-                                WHEN `upcountry_approval_email` = '".$email_id."' THEN 'upcountry_approval_email'
-                                END AS 'email_type'
-                FROM partners WHERE primary_contact_email = '".$email_id."' OR owner_email = 'kalyanit@247around.com' OR owner_alternate_email = '".$email_id."' OR upcountry_approval_email = '".$email_id."'
-                UNION
-                SELECT 'vendor' as entity_type, company_name as 'name', CASE 
-                                WHEN `email` = '".$email_id."' THEN 'email'
-                                WHEN `primary_contact_email` = '".$email_id."' THEN 'primary_contact_email'
-                                WHEN `owner_email` = '".$email_id."' THEN 'owner_email'
-                                END AS 'email_type'
-                FROM service_centres WHERE email= '".$email_id."' OR primary_contact_email = '".$email_id."' OR owner_email = '".$email_id."'";
-            
-            $query = $this->db->query($sql);
-            return $query->result_array();
-    }
-
-     /**
      * @desc: This function is used to get courier services details like courier name, courier code
      * @params: string $select
      * @params: Array $where

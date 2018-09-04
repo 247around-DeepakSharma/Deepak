@@ -657,25 +657,49 @@ class Notify {
                 curl_close($ch);
         }
     }
-
-    function sendTransactionalSmsMsg91($phone_number, $body) {
-        log_message("info",__METHOD__);
+    function send_sms_using_knowlarity($phone_number, $body){
+        $params = json_encode(array("client_id"=>KNOWLARITY_CLIENT_ID,"passphrase"=>KNOWLARITY_PASSPHRASE,"sender_id"=>KNOWLARITY_SENDER_ID,"sms_text"=>$body,"sms_number"=>"+91".$phone_number));
+        $session = curl_init(KNOWLARITY_SMS_URL);
+        curl_setopt_array($session, array(
+            CURLOPT_POST => TRUE,
+            CURLOPT_RETURNTRANSFER => TRUE,
+            CURLOPT_HTTPHEADER => array(
+                'auth_key: 8b89e0a5-9c0a-11e8-8f5a-02d35676b79a',
+                'Content-Type: application/json'
+            ),
+            CURLOPT_POSTFIELDS => $params
+        ));
+        $response = curl_exec($session);
+        $responseAarray = json_decode($response);
+        $data['content'] = $responseAarray['status'];
+        return $data;
+    }
+    function send_sms_using_msg91($phone_number,$body){
         $data = array();
+        $message = urlencode($body);
+        $url = "https://control.msg91.com/api/sendhttp.php?authkey=141750AFjh6p9j58a80789&mobiles="
+                . $phone_number . "&message=" . $message
+                . "&sender=AROUND&route=4&country=91";
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $data['content'] = curl_exec($ch);
+                        log_message('info', __METHOD__. "Transactional SMS91 Log: ".$data['content']);
+                        curl_close($ch);
+        return  $data;
+    }
+    function sendTransactionalSmsMsg91($phone_number, $body) {
+        $data = array();
+        log_message("info",__METHOD__);
         switch (ENVIRONMENT) {
                 case 'production':
-                $message = urlencode($body);
-                $url = "https://control.msg91.com/api/sendhttp.php?authkey=141750AFjh6p9j58a80789&mobiles="
-                        . $phone_number . "&message=" . $message
-                        . "&sender=AROUND&route=4&country=91";
-                
-                $ch = curl_init($url);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                
-                $data['content'] = curl_exec($ch);
-				log_message('info', __METHOD__. "Transactional SMS91 Log: ".$data['content']);
-				curl_close($ch);
-                
-		break;
+                switch (CURRENT_SMS_SOLUTION) {
+                    case KNOWLARITY_STRING :
+                        $data = $this->send_sms_using_knowlarity($phone_number, $body);
+                        break;
+                        default:
+                        $data  = $this->send_sms_using_msg91($phone_number, $body);
+                }
+        break;
         }
         
         return $data;
@@ -701,7 +725,7 @@ class Notify {
                 log_message('info', __METHOD__ . print_r($status, 1));
 
                 //sometimes we get a 24 char random value, other times we get 'success'
-                if ((ctype_alnum($status['content']) && strlen($status['content']) == 24) || ($status['content'] == 'success')){
+                if ((ctype_alnum($status['content']) && strlen($status['content']) == 24) || (ctype_alnum($status['content']) && strlen($status['content']) == 25) || ($status['content'] == 'success')){
                     $this->add_sms_sent_details($sms['type_id'], $sms['type'], $sms['phone_no'], $smsBody, $sms['booking_id'], $sms['tag'], $status['content']);
                 } else {
                     $this->add_sms_sent_details($sms['type_id'], $sms['type'], $sms['phone_no'], $smsBody, $sms['booking_id'], $sms['tag'], $status['content']);

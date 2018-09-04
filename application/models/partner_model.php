@@ -398,6 +398,7 @@ function get_data_for_partner_callback($booking_id) {
             FROM booking_details JOIN booking_unit_details ud  ON booking_details.booking_id = ud.booking_id 
             JOIN services ON booking_details.service_id = services.id 
             JOIN users ON booking_details.user_id = users.user_id
+            LEFT JOIN dealer_details on dealer_details.dealer_id = booking_details.dealer_id
             LEFT JOIN spare_parts_details ON spare_parts_details.booking_id = booking_details.booking_id
             LEFT JOIN service_center_booking_action ON service_center_booking_action.booking_id = booking_details.booking_id
             WHERE product_or_services != 'Product' AND booking_details.partner_id = $partner_id AND $where GROUP BY ud.booking_id");
@@ -422,24 +423,45 @@ function get_data_for_partner_callback($booking_id) {
 
 	return $query->result_array();
     }
+    function bookings_by_status($bookingTempArray){
+        foreach($bookingTempArray as $values){
+            if($values->closed_date != "" && ($values->current_status == 'Pending' || $values->current_status == 'Rescheduled' )){
+                if($values->internal_status == 'InProcess_Cancelled'){
+                    $status = 'Cancelled';
+                }
+                else{
+                    $status = 'Completed';
+                }
+            }
+            else{
+                $status = $values->current_status;
+            }
+           $values->current_status = $status;
+        }
+        return $bookingTempArray;
+    }
 
     //Get partner summary parameters for daily report
     function get_partner_summary_params($partner_id) {
         
         $where1 = array('booking_details.partner_id' => $partner_id, 'MONTH(booking_details.create_date) = MONTH(CURDATE())' => NULL, 'YEAR(booking_details.create_date) = YEAR(CURDATE())' => NULL);
-        $current_month_booking = $this->booking_model->get_bookings_count_by_any( 'DISTINCT current_status,booking_details.initial_booking_date,booking_details.create_date,booking_details.service_center_closed_date as closed_date,booking_details.request_type,booking_details.booking_date',$where1, "", "", true);
-
-        $where2 = array('booking_details.partner_id' => $partner_id, 'DATE(booking_details.create_date) = CURDATE()' => NULL);
-        $today_booking = $this->booking_model->get_bookings_count_by_any('DISTINCT current_status,booking_details.initial_booking_date,booking_details.create_date,booking_details.service_center_closed_date as closed_date,booking_details.request_type,booking_details.booking_date', $where2, "", "", true );
-
-        $where3 = array('booking_details.partner_id' => $partner_id, 'DATE(booking_details.create_date) = DATE(DATE_SUB(NOW(), INTERVAL 1 DAY))' => NULL);
-        $yesterday_booking = $this->booking_model->get_bookings_count_by_any('DISTINCT current_status,booking_details.initial_booking_date,booking_details.create_date,booking_details.service_center_closed_date as closed_date,booking_details.request_type,booking_details.booking_date', $where3, "", "", true );
+        $current_month_booking_temp = $this->booking_model->get_bookings_count_by_any( 'DISTINCT current_status,booking_details.initial_booking_date,booking_details.internal_status,booking_details.create_date,booking_details.service_center_closed_date as closed_date,booking_details.request_type,booking_details.booking_date',$where1, "", "", true);
+        $current_month_booking = $this->bookings_by_status($current_month_booking_temp);
         
-        $where4 = array('booking_details.partner_id' => $partner_id, "booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."')" => NULL);
+        $where2 = array('booking_details.partner_id' => $partner_id, 'DATE(booking_details.create_date) = CURDATE()' => NULL);
+        $today_booking_temp = $this->booking_model->get_bookings_count_by_any('DISTINCT current_status,booking_details.initial_booking_date,booking_details.internal_status,booking_details.create_date,booking_details.service_center_closed_date as closed_date,booking_details.request_type,booking_details.booking_date', $where2, "", "", true );
+        $today_booking = $this->bookings_by_status($today_booking_temp);
+        
+        $where3 = array('booking_details.partner_id' => $partner_id, 'DATE(booking_details.create_date) = DATE(DATE_SUB(NOW(), INTERVAL 1 DAY))' => NULL);
+        $yesterday_booking_temp = $this->booking_model->get_bookings_count_by_any('DISTINCT current_status,booking_details.initial_booking_date,booking_details.internal_status,booking_details.create_date,booking_details.service_center_closed_date as closed_date,booking_details.request_type,booking_details.booking_date', $where3, "", "", true );
+        $yesterday_booking = $this->bookings_by_status($yesterday_booking_temp);
+        
+        $where4 = array('booking_details.partner_id' => $partner_id, "booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."')" => NULL,"booking_details.service_center_closed_date IS NULL"=>NULL);
         
         $totalPending = $this->booking_model->get_bookings_count_by_any('DISTINCT current_status,booking_details.initial_booking_date,booking_details.create_date,booking_details.service_center_closed_date as closed_date,booking_details.request_type,booking_details.booking_date', $where4, "", "", true);
 
         $current_month_status = array_count_values(array_column($current_month_booking, 'current_status'));
+
         if (count($today_booking) !== 0 || count($yesterday_booking) !== 0 || (isset($current_month_status['Pending']) && !empty($current_month_status['Pending'])) || (isset($current_month_status['Rescheduled']) && !empty($current_month_status['Rescheduled']))) {
             $result['current_month_installation_booking_requested'] = 0;
             $result['current_month_installation_booking_completed'] = 0;
@@ -540,7 +562,7 @@ function get_data_for_partner_callback($booking_id) {
                             break;
                         case _247AROUND_PENDING:
                         case _247AROUND_RESCHEDULED:
-                            if (date('Y-m-d', strtotime($value->booking_date)) >= date('Y-m-d')){
+                            if (date('Y-m-d', strtotime($value->initial_booking_date)) >= date('Y-m-d')){
                                 $result['today_repair_booking_pending'] ++;
                             }
                             break;
@@ -559,7 +581,7 @@ function get_data_for_partner_callback($booking_id) {
                             break;
                         case _247AROUND_PENDING:
                         case _247AROUND_RESCHEDULED:
-                            if (date('Y-m-d', strtotime($value->booking_date)) >= date('Y-m-d')){
+                            if (date('Y-m-d', strtotime($value->initial_booking_date)) >= date('Y-m-d')){
                                 $result['today_installation_booking_pending'] ++;
                             }
                             break;
@@ -569,7 +591,6 @@ function get_data_for_partner_callback($booking_id) {
                     }
                 }
             }
-
             foreach ($yesterday_booking as $value) {
                 if (strpos($value->request_type, 'Repair') !== false || strpos($value->request_type, 'Repeat') !== false) {
                     $result['yesterday_repair_booking_requested'] ++;
@@ -582,7 +603,7 @@ function get_data_for_partner_callback($booking_id) {
                             break;
                         case _247AROUND_PENDING:
                         case _247AROUND_RESCHEDULED:
-                            if (date('Y-m-d', strtotime($value->booking_date)) == date("Y-m-d", strtotime("-1 days"))){
+                            if (date('Y-m-d', strtotime($value->initial_booking_date)) == date("Y-m-d", strtotime("-1 days"))){
                                 $result['yesterday_repair_booking_pending'] ++;
                             }
                             break;
@@ -601,7 +622,7 @@ function get_data_for_partner_callback($booking_id) {
                             break;
                         case _247AROUND_PENDING:
                         case _247AROUND_RESCHEDULED:
-                            if (date('Y-m-d', strtotime($value->booking_date)) == date("Y-m-d", strtotime("-1 days"))){
+                            if (date('Y-m-d', strtotime($value->initial_booking_date)) == date("Y-m-d", strtotime("-1 days"))){
                                 $result['yesterday_installation_booking_pending'] ++;
                             }
                             break;
@@ -619,19 +640,19 @@ function get_data_for_partner_callback($booking_id) {
             $result['total_greater_than_5_days_installation_booking_pending'] = 0;
             foreach ($totalPending as $key => $value) {
                 if (strpos($value->request_type, 'Repair') !== false || strpos($value->request_type, 'Repeat') !== false) {
-                    if (date('Y-m-d', strtotime($value->booking_date)) <= date('Y-m-d') && (date('Y-m-d', strtotime($value->booking_date)) >= date("Y-m-d", strtotime("-2 days"))) || date('Y-m-d', strtotime($value->booking_date)) >= date('Y-m-d')) {
+                    if (date('Y-m-d', strtotime($value->initial_booking_date)) <= date('Y-m-d') && (date('Y-m-d', strtotime($value->initial_booking_date)) >= date("Y-m-d", strtotime("-2 days"))) || date('Y-m-d', strtotime($value->initial_booking_date)) >= date('Y-m-d')) {
                         $result['total_zero_to_two_days_repair_booking_pending'] ++;
-                    } else if ((date("Y-m-d", strtotime($value->booking_date)) < date("Y-m-d", strtotime("-2 days"))) && (date("Y-m-d", strtotime($value->booking_date)) >= date("Y-m-d", strtotime("-5 days")))) {
+                    } else if ((date("Y-m-d", strtotime($value->initial_booking_date)) < date("Y-m-d", strtotime("-2 days"))) && (date("Y-m-d", strtotime($value->initial_booking_date)) >= date("Y-m-d", strtotime("-5 days")))) {
                         $result['total_three_to_five_days_repair_booking_pending'] ++;
-                    } else if (date('Y-m-d', strtotime($value->booking_date)) < date('Y-m-d', strtotime("-5 days"))) {
+                    } else if (date('Y-m-d', strtotime($value->initial_booking_date)) < date('Y-m-d', strtotime("-5 days"))) {
                         $result['total_greater_than_5_days_repair_booking_pending'] ++;
                     }
                 } else {
-                    if (date('Y-m-d', strtotime($value->booking_date)) <= date('Y-m-d') && (date('Y-m-d', strtotime($value->booking_date)) >= date("Y-m-d", strtotime("-2 days"))) || date('Y-m-d', strtotime($value->booking_date)) >= date('Y-m-d')) {
+                    if (date('Y-m-d', strtotime($value->initial_booking_date)) <= date('Y-m-d') && (date('Y-m-d', strtotime($value->initial_booking_date)) >= date("Y-m-d", strtotime("-2 days"))) || date('Y-m-d', strtotime($value->initial_booking_date)) >= date('Y-m-d')) {
                         $result['total_zero_to_two_days_installation_booking_pending'] ++;
-                    } else if ((date("Y-m-d", strtotime($value->booking_date)) < date("Y-m-d", strtotime("-2 days"))) && (date("Y-m-d", strtotime($value->booking_date)) >= date("Y-m-d", strtotime("-5 days")))) {
+                    } else if ((date("Y-m-d", strtotime($value->initial_booking_date)) < date("Y-m-d", strtotime("-2 days"))) && (date("Y-m-d", strtotime($value->initial_booking_date)) >= date("Y-m-d", strtotime("-5 days")))) {
                         $result['total_three_to_five_days_installation_booking_pending'] ++;
-                    } else if (date('Y-m-d', strtotime($value->booking_date)) < date('Y-m-d', strtotime("-5 days"))) {
+                    } else if (date('Y-m-d', strtotime($value->initial_booking_date)) < date('Y-m-d', strtotime("-5 days"))) {
                         $result['total_greater_than_5_days_installation_booking_pending'] ++;
                     }
                 }
@@ -807,23 +828,29 @@ function get_data_for_partner_callback($booking_id) {
      * @param boolean $flag_select
      * @return Array
      */
-    function get_spare_parts_booking_list($where, $start, $end,$flag_select,$state=0,$is_stock_needed = null){
+    function get_spare_parts_booking_list($where, $start, $end,$flag_select,$state=0,$is_stock_needed = null,$is_unit_details = false){
         if($state ==1){
             $where = $where." AND booking_details.state IN (SELECT state FROM agent_filters WHERE agent_id = ".$this->session->userdata('agent_id')." AND agent_filters.is_active=1)";
         }
         $limit = "";
         $select = " ";
+        $join = "";
+        $group_by = "";
         if($flag_select){
             $select = "SELECT spare_parts_details.*, users.name, booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id,"
                 . " booking_details.booking_address,booking_details.initial_booking_date, booking_details.is_upcountry, booking_details.upcountry_paid_by_customer,"
                     . "booking_details.amount_due,booking_details.state, "
                 . " service_centres.name as vendor_name, service_centres.address, service_centres.state, service_centres.gst_no, "
-                . " service_centres.pincode, service_centres.district,service_centres.id as sf_id,service_centres.is_gst_doc,service_centres.signature_file,"
+                . " service_centres.pincode, service_centres.district,service_centres.id as sf_id,service_centres.is_gst_doc,service_centres.signature_file, service_centres.primary_contact_phone_1,"
                 . " DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request ";
             if($end){
                 $limit = "LIMIT $start, $end";
             }
-            
+            if($is_unit_details){
+                $select = $select.", GROUP_CONCAT(DISTINCT booking_unit_details.appliance_brand) as brands";
+                $join = "JOIN booking_unit_details ON booking_unit_details.booking_id =  spare_parts_details.booking_id";
+                $group_by = " GROUP BY spare_parts_details.id";
+            }
         } else {
             $select = "SELECT count(spare_parts_details.id) as total_rows ";
         }
@@ -834,16 +861,25 @@ function get_data_for_partner_callback($booking_id) {
                     . ' FROM spare_parts_details'
                     . ' JOIN booking_details ON spare_parts_details.booking_id = booking_details.booking_id'
                     . ' JOIN service_centres ON spare_parts_details.service_center_id = service_centres.id'
-                    . ' JOIN users ON users.user_id = booking_details.user_id'
+                    . ' JOIN users ON users.user_id = booking_details.user_id '.$join
                     . ' LEFT JOIN inventory_stocks ON spare_parts_details.requested_inventory_id = inventory_stocks.inventory_id'
-                    . " WHERE $where ORDER BY spare_parts_details.purchase_invoice_id DESC,spare_parts_details.create_date $limit";
+                    . " WHERE $where $group_by ORDER BY spare_parts_details.purchase_invoice_id DESC,spare_parts_details.create_date $limit";
         }else{
-            $sql =   $select
-                ." FROM spare_parts_details,booking_details,users, "
-                . " service_centres WHERE booking_details.booking_id = spare_parts_details.booking_id"
+                        if($is_unit_details){
+                $sql =   $select
+                ." FROM spare_parts_details,booking_details,users,booking_unit_details, "
+                . " service_centres WHERE booking_details.booking_id = spare_parts_details.booking_id AND booking_unit_details.booking_id = spare_parts_details.booking_id"
                 . " AND users.user_id = booking_details.user_id AND service_centres.id = spare_parts_details.service_center_id "
-                . " AND ".$where . "  ORDER BY status = '". DEFECTIVE_PARTS_REJECTED."', spare_parts_details.create_date ASC $limit";
-        }
+                . " AND ".$where . $group_by."  ORDER BY status = '". DEFECTIVE_PARTS_REJECTED."', spare_parts_details.create_date ASC $limit";
+            }
+            else{
+                $sql =   $select
+                    ." FROM spare_parts_details,booking_details,users, "
+                    . " service_centres WHERE booking_details.booking_id = spare_parts_details.booking_id"
+                    . " AND users.user_id = booking_details.user_id AND service_centres.id = spare_parts_details.service_center_id "
+                    . " AND ".$where . "  ORDER BY status = '". DEFECTIVE_PARTS_REJECTED."', spare_parts_details.create_date ASC $limit";
+            }
+            }
         
         $query = $this->db->query($sql);
        
@@ -1611,6 +1647,29 @@ function get_data_for_partner_callback($booking_id) {
         $this->db->where('p.id', $id);  
         $query = $this->db->get();
         return $query->result();
+    }
+    function get_booking_review_data($where = array(), $whereIN = array(),$booking_id = NULL){
+        $this->db->select("service_center_booking_action.booking_id,services.services,booking_details.request_type,booking_details.partner_id,booking_details.is_upcountry,"
+                . "booking_details.amount_due, GROUP_CONCAT(service_center_booking_action.internal_status) as combined_status,"
+                . "GROUP_CONCAT(booking_unit_details.appliance_brand) as appliance_brand,booking_details.booking_jobcard_filename,"
+                . "service_center_booking_action.internal_status,users.name,booking_details.booking_primary_contact_no,booking_details.city,booking_details.state,"
+                . "STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date,"
+                . "DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as age",FALSE);
+        $this->db->join("booking_details","booking_details.booking_id = service_center_booking_action.booking_id");
+        $this->db->join("services","booking_details.service_id = services.id");
+        $this->db->join("booking_unit_details","booking_unit_details.booking_id = service_center_booking_action.booking_id");
+        $this->db->join("users","users.user_id = booking_details.user_id");
+        $this->db->group_by("service_center_booking_action.booking_id");
+        if(!empty($whereIN)){
+            foreach ($whereIN as $fieldName=>$conditionArray){
+                    $this->db->where_in($fieldName, $conditionArray);
+            }
+        }
+         if(!empty($where)){
+            $this->db->where($where,FALSE);
+        }
+        $query = $this->db->get("service_center_booking_action");
+        return $query->result_array();
     }
 }
 

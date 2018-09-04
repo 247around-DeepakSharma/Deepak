@@ -157,6 +157,7 @@ define('_247AROUND_CLOSURE','closure');
 define('_247AROUND_RM','regionalmanager');
 define('_247AROUND_DEVELOPER','developer');
 define('_247AROUND_ACCOUNTANT','accountant');
+define('_247AROUND_AM','accountmanager');
 
 //
 define('Max_TIME_TO_BE_ASSIGNED_ENGINEER', 12);
@@ -211,6 +212,10 @@ define('INTERNALTYPE', "INTERNAL");
 define('ECOMMERCETYPE', "ECOMMERCE");
 //Define New SF Creation
 define('NEW_SF_ADDED','New SF Added');
+define('NEW_SF_DOCUMENTS','New SF Documents Added');
+define('NEW_SF_BRANDS','New SF Brands Added');
+define('NEW_SF_CONTACTS','New SF Contacts Added');
+define('NEW_SF_BANK_DETAILS','New SF Bank Details Added');
 //Define Edit SF State
 define('SF_UPDATED','SF Updated');
 //Define New Partner Creation
@@ -582,7 +587,7 @@ define("INVOCIE_TAG_FOR_INVENTORY", "inventory");
 //Define Constant for Partner Appliance model
 define('PARTNER_APPLIANCE_MODEL_FILe','Appliance-model');
 
-define("PARTNER_CALL_CENTER_USER_GROUP", "callcenter");
+define("PARTNER_CALL_CENTER_USER_GROUP", "Call Center");
 
 //Define Constant for Partner BOM file upload
 define('PARTNER_BOM_FILE','Partner-BOM');
@@ -591,7 +596,7 @@ define('PARTNER_BOM_FILE','Partner-BOM');
 define('PARTNER_SERIAL_NUMBER_FILE_TYPE','partner_serial_number');
 
 //warehouse incharge constant
-define('WAREHOUSE_INCHARCGE_CONSTANT','wh_incharge');
+define('WAREHOUSE_INCHARCGE_CONSTANT','Warehouse Incharge');    
 define('NEW_CHARGES_ADDED','New Charges Added');
 define('MISC_CHARGES_REMOVED','Miscellaneous Charges Removed');
 //Partner Login
@@ -621,5 +626,6 @@ define('ASP_PASSWORD', 'priya@b30');
 define('BOOKING_CAN_NOT_BE_CANCEL_AFTER_THIS_TIME_INTERVAL',10);
 //show this text when partner cancel booking before time interval
 define('TEXT_FOR_BOOKING_CAN_NOT_BE_CANCEL_AFTER_THIS_TIME_INTERVAL','This booking can not be cancelled');
+define('REVIEW_NOTIFICATION_TO_PARTNER_DAYS','2');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

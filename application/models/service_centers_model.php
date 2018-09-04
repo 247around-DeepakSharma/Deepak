@@ -187,25 +187,48 @@ class Service_centers_model extends CI_Model {
     /**
      *
      */
-    function getcharges_filled_by_service_center($booking_id,$whereIN=array()) {
-        $this->db->distinct();
-        $this->db->select('booking_id, amount_paid, admin_remarks, service_center_remarks, cancellation_reason');
-        if ($booking_id != "") {
-            $this->db->where('booking_id', $booking_id);
+    function get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$offest,$perPage){
+        $limit = "";
+        $where_in = "";
+        $where_sc = "AND (partners.booking_review_for NOT LIKE '%".$status."%' OR partners.booking_review_for IS NULL)";
+         if($is_partner){
+            $where_sc = " AND (partners.booking_review_for IS NOT NULL)";
         }
-        $this->db->where('current_status', 'InProcess');
-        $this->db->where_in('internal_status',array('Completed','Cancelled'));
+        if($status == "Cancelled"){
+            $where_sc = $where_sc." AND NOT EXISTS (SELECT 1 FROM service_center_booking_action sc_sub WHERE sc_sub.booking_id = sc.booking_id AND sc_sub.internal_status ='Completed' LIMIT 1) ";
+        }
+        else if($status == "Completed"){
+            $where_sc = $where_sc." AND EXISTS (SELECT 1 FROM service_center_booking_action sc_sub WHERE sc_sub.booking_id = sc.booking_id AND sc_sub.internal_status ='Completed' LIMIT 1) ";
+        }
+        if ($booking_id != "") {
+            $where_sc =$where_sc. ' AND sc.booking_id LIKE "%'.trim($booking_id).'%"' ;
+        }
+        if($perPage){
+            $limit = " LIMIT ".$offest.", ".$perPage;
+        }
         if(!empty($whereIN)){
              foreach ($whereIN as $fieldName=>$conditionArray){
-                     $this->db->where_in($fieldName, $conditionArray);
+                     $where_in = " AND ".$fieldName." IN (".implode("','",$conditionArray).")";
              }
          }
-        $query = $this->db->get('service_center_booking_action');
+        $sql = "SELECT sc.booking_id,sc.amount_paid,sc.admin_remarks,sc.cancellation_reason,sc.service_center_remarks FROM service_center_booking_action sc "
+                . " JOIN booking_details ON booking_details.booking_id = sc.booking_id  "
+                . " JOIN partners ON booking_details.partner_id = partners.id "
+                . " WHERE sc.current_status = 'InProcess' "
+                . $where_sc . $where_in
+                . " AND sc.internal_status IN ('Cancelled','Completed') "
+                . " AND booking_details.is_in_process = 0"
+                . " GROUP BY sc.booking_id $limit";
+        $query = $this->db->query($sql);
         $booking = $query->result_array();
+        return $booking;
+    }
 
+    function getcharges_filled_by_service_center($booking_id,$status,$whereIN,$is_partner,$offest,$perPage) {
+        $booking = $this->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$offest,$perPage);
         foreach ($booking as $key => $value) {
             // get data from booking unit details table on the basis of appliance id
-            $this->db->select('unit_details_id, service_charge, additional_service_charge,  parts_cost, upcountry_charges,'
+            $this->db->select('booking_unit_details.partner_id,unit_details_id, service_charge, additional_service_charge,  parts_cost, upcountry_charges,'
                     . ' amount_paid, price_tags,appliance_brand, appliance_category,'
                     . ' appliance_capacity, service_center_booking_action.internal_status, '
                     . ' service_center_booking_action.serial_number, customer_net_payable, '
@@ -213,7 +236,7 @@ class Service_centers_model extends CI_Model {
                     . ' service_center_booking_action.serial_number_pic, '
                     . ' service_center_booking_action.mismatch_pincode, '
                     . ' service_center_booking_action.model_number');
-            $this->db->where('service_center_booking_action.booking_id', $value['booking_id']);
+            $this->db->where('service_center_booking_action.booking_id', $value['booking_id']); 
             $this->db->from('service_center_booking_action');
             $this->db->join('booking_unit_details', 'booking_unit_details.id = service_center_booking_action.unit_details_id');
             $query2 = $this->db->get();
@@ -278,10 +301,17 @@ class Service_centers_model extends CI_Model {
      * @param Array $data
      * @return boolean
      */
-    function update_spare_parts($where, $data){
-        $this->db->where($where); 
-        $result = $this->db->update('spare_parts_details', $data);
-        log_message('info', __FUNCTION__ . '=> Update Spare Parts: ' .$this->db->last_query());
+    function update_spare_parts($where, $data) {
+        $this->db->where($where);
+        $this->db->update('spare_parts_details', $data);
+        log_message('info', __FUNCTION__ . '=> Update Spare Parts: ' . $this->db->last_query());
+
+        if ($this->db->affected_rows() > 0) {
+            $result = true;
+        } else {
+            $result = false;
+        }
+        
         return $result;
     }
     /**
@@ -736,14 +766,20 @@ FROM booking_unit_details WHERE booking_id='".$booking_id."' GROUP BY request_ty
         return $insert_id;
     }
     
-    function get_spare_parts_on_group($where, $select, $group_by, $sf_id){
+    function get_spare_parts_on_group($where, $select, $group_by, $sf_id = false, $start = -1, $end = -1){
         $this->db->select($select, false);
         $this->db->from("spare_parts_details");
         $this->db->join('booking_details', " booking_details.booking_id = spare_parts_details.booking_id");
-        $this->db->join("inventory_stocks", "inventory_stocks.inventory_id = requested_inventory_id AND inventory_stocks.entity_id = '".$sf_id."' and inventory_stocks.entity_type = '"._247AROUND_SF_STRING."'", "left");
+        if($sf_id){
+            $this->db->join("inventory_stocks", "inventory_stocks.inventory_id = requested_inventory_id AND inventory_stocks.entity_id = '".$sf_id."' and inventory_stocks.entity_type = '"._247AROUND_SF_STRING."'", "left");
+        }
+        
         $this->db->join("users", "users.user_id = booking_details.user_id");
         $this->db->join("service_centres", "service_centres.id = booking_details.assigned_vendor_id");
         $this->db->where($where);
+        if($start > -1){
+            $this->db->limit($start, $end);
+        }
         $this->db->group_by($group_by);
         $query = $this->db->get();
         log_message('info', __METHOD__. "  ".$this->db->last_query());

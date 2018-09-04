@@ -309,7 +309,9 @@ class Upload_buyback_process extends CI_Controller {
         $temp_arr['old_item_del_date'] = $rowData['delivery_date'];
         $temp_arr['buyback_details'] = $rowData['buyback_details'];
         $temp_arr['sweetner_value'] = isset($rowData['partner_sweetner_charges']) ? $rowData['partner_sweetner_charges'] : '';
-        
+        if($this->input->post('qc_svc')){
+                $temp_arr['qc_svc'] = $this->input->post('qc_svc');
+        }
         array_push($this->upload_sheet_data, $temp_arr);
         
     }

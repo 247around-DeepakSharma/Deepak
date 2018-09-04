@@ -89,6 +89,14 @@
                     <span >DEVELOPER</span>
                 </div>
             </div>
+             <div class="col-md-3">
+                <div class="col-md-4">
+                    <div style="background-color: #f0ad4e;margin-top:10px;margin-bottom: 10px;border-radius: 10px;">&nbsp;&nbsp;&nbsp;</div>
+                </div>
+                <div class="col-md-8" style="margin-top:10px;margin-bottom: 10px;">
+                    <span >A M</span>
+                </div>
+            </div>
         </div>
         <?php }?>
         
@@ -127,6 +135,8 @@
                             $style='style="background-color:#FF8080;text-align:center"';
                         }else if($value['groups'] == _247AROUND_DEVELOPER){
                             $style='style="background-color:#286090;text-align:center"';
+                        }else if($value['groups'] == _247AROUND_AM){
+                            $style='style="background-color:#f0ad4e;text-align:center"';
                         }
                         ?>      
                     <tr>
@@ -163,6 +173,7 @@
                             <!--     <td style="text-align: center;"><a href="javascript:void(0)" class="btn btn-md btn-success" onclick='return login_to_employee(<?php echo $value['id']?>)'  <?php echo ($value['active'] == 0)?'disabled=""':'' ?> title="<?php echo strtolower($value['id']) . " / " . strtolower($value['employee_id']);  ?>">Login</a></td>-->
                             <td style="text-align: center">
                                 <a href="<?php base_url()?>update_employee/<?php echo $value['id']?>" class="btn btn-sm btn-primary" title="Update Employee" > <i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
+                                <a href="<?php base_url()?>deactive_employee/<?php echo $value['id']; ?>" class="btn btn-sm btn-warning" title="Deactive Employee" > <i class="fa fa-check-square" aria-hidden="true"></i></a>
                             </td>
                             <?php }?>
                                 

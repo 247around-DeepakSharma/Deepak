@@ -251,7 +251,7 @@ class Do_background_upload_excel extends CI_Controller {
         }
         
         
-        $to = NITS_ANUJ_EMAIL_ID.",".$file_upload_agent_email;
+        $to = ANUJ_EMAIL_ID.",".$file_upload_agent_email;
         $from = "noreply@247around.com";
         $cc = "";
         $bcc = "";
@@ -518,16 +518,15 @@ class Do_background_upload_excel extends CI_Controller {
                     $booking['taluk'] = $distict_details['taluk'];
                     $booking['quantity'] = '1';
                     
+                    //capture order_item_id if it exist
                     if (isset($value['order_item_id'])) {
                         $unit_details['sub_order_id'] = $value['order_item_id'];
                     } else if (isset($value['item_id'])) {
                         $unit_details['sub_order_id'] = $value['item_id'];
                     }
-
                     
                     //capture service_promise_date if it exist
                     if (isset($value['service_promise_date']) && !empty($value['service_promise_date'])) {
-
 
                         $spd = str_replace('/', '-', $value['service_promise_date']);
 
@@ -1167,7 +1166,7 @@ class Do_background_upload_excel extends CI_Controller {
             $file_upload_agent_email = $this->email_send_to;
         }
         
-	$to = NITS_ANUJ_EMAIL_ID.",".$file_upload_agent_email;
+	$to = ANUJ_EMAIL_ID.",".$file_upload_agent_email;
         $from = "noreply@247around.com";
 	$cc = "";
 	$bcc = "";

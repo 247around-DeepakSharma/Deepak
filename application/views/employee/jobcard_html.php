@@ -111,7 +111,15 @@ foreach($booking_unit_details as $data){
   </tr>
   <tr>
     <td><p><b>Remarks</b></p></td>
-    <td colspan="5"><p><?php echo $booking_details[0]['booking_remarks']?></p></td>
+    <td colspan="5">
+        <?php
+            $autoRemarks = "";
+            if (strripos($booking_details[0]['request_type'], 'Out of Warranty') !== false) {
+                $autoRemarks =  "If estimate not approved from customer, Rs. 300 visit charge to be taken <br>";
+            }
+        ?>
+        <p><?php echo $autoRemarks.$booking_details[0]['booking_remarks']?></p>
+    </td>
   </tr>
   <tr>
     <td><p><b>S.N</b></p></td>

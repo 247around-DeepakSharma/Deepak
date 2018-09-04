@@ -1851,6 +1851,8 @@ class Partner extends CI_Controller {
                 $data['query_remarks'] = $requestData->data->remarks;
             }
             $data['internal_status'] = PRODUCT_DELIVERED;
+            $data['booking_date'] = '';
+            $actor = $next_action = 'not_define';
             $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], PRODUCT_DELIVERED, $booking['partner_id'], $booking['partner_id']);
             if (!empty($partner_status)) {
                 $data['partner_current_status'] = $partner_status[0];

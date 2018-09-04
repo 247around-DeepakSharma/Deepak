@@ -260,7 +260,7 @@
                     <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
                         <div class="menu_section">
                             <ul class="nav side-menu">
-                                <li><a href="<?php echo base_url(); ?>partner/get_user_form" data-toggle="tooltip" data-placement="right" title="" data-original-title="Advanced Search"><i class="fa fa-search"></i><span class="side_menu_list_title">Advanced Search</span></a></li>
+                                <li><a href="<?php echo base_url(); ?>partner/get_user_form" data-toggle="tooltip" data-placement="right" title="" data-original-title="Advance Search"><i class="fa fa-search"></i><span class="side_menu_list_title">Advance Search</span></a></li>
                                 <li>
                                     <a data-toggle="tooltip" data-placement="right" title="" data-original-title="Bookings"><i class="fa fa-book"></i> <span class="side_menu_list_title">Bookings</span><span class="fa fa-chevron-down"></span></a>
                                     <ul class="nav child_menu" style="display:none!important;">
@@ -277,7 +277,6 @@
                                     <ul class="nav child_menu">
                                         <li><a href="<?php echo base_url(); ?>partner/get_spare_parts_booking">Pending Spares On <?php echo $partner_name ?></a></li>
                                         <li><a href="<?php echo base_url(); ?>partner/get_shipped_parts_list">Shipped Spares by <?php echo $partner_name ?></a></li>
-
                                          <li><a href="<?php echo base_url(); ?>partner/get_pending_part_on_sf">Pending Spares On SF</a></li>
                                         <li><a href="<?php echo base_url(); ?>partner/get_waiting_defective_parts">Shipped Spares by SF</a></li>
                                         <li><a href="<?php echo base_url(); ?>partner/get_approved_defective_parts_booking">Received Spares by <?php echo $partner_name ?></a></li>

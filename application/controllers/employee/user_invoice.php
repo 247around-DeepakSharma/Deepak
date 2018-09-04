@@ -24,13 +24,6 @@ class User_invoice extends CI_Controller {
     }
     
     /**
-
-     * @desc
-
-    }
-    /**
-     * 
-
      * @desc This method is used to generate Customer invoice on the behalf of Sf
      * @param String $booking_id
      * @param String $agent_id
@@ -84,9 +77,7 @@ class User_invoice extends CI_Controller {
 
                 $sd = $ed = $invoice_date = $data[0]->closed_date;
 
-
                 $response = $this->invoices_model->_set_partner_excel_invoice_data($invoice, $sd, $ed, "Tax Invoice", $invoice_date, true, $data[0]->state);
-
                 $response['meta']['customer_name'] = $data[0]->name;
                 $response['meta']['customer_address'] = $data[0]->home_address . ", " . $data[0]->city . ", Pincode - " . $data[0]->pincode . ", " . $data[0]->state;
                 $response['meta']['customer_phone_number'] = $data[0]->booking_primary_contact_no;
@@ -98,7 +89,8 @@ class User_invoice extends CI_Controller {
                 $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final", true);
                 if ($status) {
                     log_message('info', __FUNCTION__ . ' Invoice File is created. invoice id' . $response['meta']['invoice_id']);
-                    $convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($response['meta']['invoice_id'], "final", true, true);
+                    //$convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($response['meta']['invoice_id'], "final", true, true);
+                    $convert = $this->invoice_lib->convert_invoice_file_into_pdf($response, "final", true, true);
                     $this->invoice_lib->upload_invoice_to_S3($response['meta']['invoice_id'], false, true);
 
                     $output_pdf_file_name = $convert['main_pdf_file_name'];
@@ -179,13 +171,13 @@ class User_invoice extends CI_Controller {
                             $data[0]->closed_date, $agent_id, $convert, $data[0]->user_id,$preinvoice_id);
                     
                     if(file_exists(TMP_FOLDER.$response['meta']['invoice_id'] . '.xlsx')){
-                        unlink($invoice['meta']['invoice_id'] . '.xlsx');
+                        unlink(TMP_FOLDER.$response['meta']['invoice_id']. '.xlsx');
                     }
                     if(file_exists(TMP_FOLDER.$convert['triplicate_file'])){
-                        unlink($convert['triplicate_file']);
+                        unlink(TMP_FOLDER.$convert['triplicate_file']);
                     }
                     if(file_exists(TMP_FOLDER.$convert['copy_file'])){
-                        unlink($convert['copy_file']);
+                        unlink(TMP_FOLDER.$convert['copy_file']);
                     }
                     echo json_encode(array(
                         'status' => true,
@@ -259,7 +251,7 @@ class User_invoice extends CI_Controller {
                 "sgst_tax_amount" => (isset($value['sgst_tax_amount']) ? $value['sgst_tax_amount'] : 0),
                 "igst_tax_amount" => (isset($value['igst_tax_amount']) ? $value['igst_tax_amount'] : 0),
                 "hsn_code" => $value['hsn_code'],
-                "toal_amount" => $value['toal_amount'],
+                "total_amount" => $value['total_amount'],
                 "create_date" => date('Y-m-d H:i:s')
                 
             );
@@ -341,7 +333,8 @@ class User_invoice extends CI_Controller {
 
                 if ($status) {
                     log_message('info', __FUNCTION__ . ' Invoice File is created. invoice id' . $response['meta']['invoice_id']);
-                    $convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($response['meta']['invoice_id'], "final", TRUE, FALSE);
+                    //$convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($response['meta']['invoice_id'], "final", TRUE, FALSE);
+                    $convert = $this->invoice_lib->convert_invoice_file_into_pdf($response, "final", true, FALSE);
                     $this->invoice_lib->upload_invoice_to_S3($response['meta']['invoice_id'], false, false);
                     log_message("info", __METHOD__ . " SF Credit note uploaded to s3 for booking ID " . $booking_id . " Invoice ID " . $response['meta']['invoice_id']);
                     //$output_pdf_file_name = $convert['main_pdf_file_name'];
@@ -364,15 +357,13 @@ class User_invoice extends CI_Controller {
                         unlink($response['meta']['invoice_id'] . '.xlsx');
                     }
                 } else {
-
-                    log_message("info" . __METHOD__ . " Excel Not Created Booking ID" . $booking_id);
+                    log_message("info" , __METHOD__ . " Excel Not Created Booking ID" . $booking_id);
                 }
             } else {
-                log_message("info" . __METHOD__ . " Booking ID Not found " . $booking_id);
+                log_message("info" , __METHOD__ . " Booking ID Not found " . $booking_id);
             }
         } else {
-            log_message("info" . __METHOD__ . " Invoice Already Exsit dor booking ID " . $booking_id . " Invoice Data " . $txnID);
-
+            log_message("info" , __METHOD__ . " Invoice Already Exsit dor booking ID " . $booking_id . " Invoice Data " . $txnID);
         }
     }
 

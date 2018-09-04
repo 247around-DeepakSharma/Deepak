@@ -122,7 +122,6 @@
                                         <div class="col-md-6">
                                             <div class="input-group input-append date">
                                                 <input id="dop" class="form-control" placeholder="Select Date" name="dop" type="text" >
-
                                                 <span class="input-group-addon add-on" onclick="dop_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
                                             </div>
                                         </div>

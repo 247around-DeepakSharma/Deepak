@@ -206,7 +206,6 @@
     
     $('#invoice_date').on('apply.daterangepicker', function(ev, picker) {
         $('#invoice_date').val(picker.startDate.format('YYYY-MM-DD') + '/' + picker.endDate.format('YYYY-MM-DD'));
-
     });
 
     get_invoice_type();
