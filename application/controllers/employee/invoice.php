@@ -3822,6 +3822,7 @@ class Invoice extends CI_Controller {
                     'total_amount_collected' => $invoice_details[0]['total_amount_collected'],
                     //Amount needs to be Paid to Vendor
                     'amount_collected_paid' => -$invoice_details[0]['amount_collected_paid'],
+                    'settle_amount' => 0,
                     //Add 1 month to end date to calculate due date
                     'due_date' => date("Y-m-d"),
                     //add agent id
