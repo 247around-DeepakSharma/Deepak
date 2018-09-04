@@ -249,6 +249,12 @@ class Invoice_lib {
         }
     }
     
+    /**
+     * @desc This function is used to call taxpro gst api 
+     * @param String $vendor_id
+     * @param String $gst_number
+     * @return api response 
+     */
     function gst_curl_call($gst_no, $vendor_id=""){
         if(!$vendor_id){
           $vendor_id = _247AROUND;
@@ -282,14 +288,8 @@ class Invoice_lib {
             $response = json_decode($api_response, true);
             if(isset($response['error'])){
                 $email_template = $this->ci->booking_model->get_booking_email_template(TAXPRO_API_FAIL);
-                if($response['error']['error_cd'] =='GSP050D'){
-                   $message = vsprintf($email_template[0], array("Wrong GST No Used: ".$gst_no,$this->ci->session->userdata('emp_name') ));  
-                   $to = $this->ci->session->userdata('official_email').$email_template[1];
-                }
-                else{
-                    $message = vsprintf($email_template[0], array("Used GST NO ".$gst_no,$this->ci->session->userdata('emp_name'), $api_response));  
-                    $to = DEVELOPER_EMAIL.$email_template[1];
-                }
+                $message = vsprintf($email_template[0], array("GST NO - ".$gst_no,"Filled by - ".$this->ci->session->userdata('emp_name'), $api_response));  
+                $to = DEVELOPER_EMAIL.$email_template[1];
                 $this->ci->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $email_template[3] , $email_template[5], $email_template[4], $message, '', TAXPRO_API_FAIL);
                 return $api_response;
             }
@@ -300,6 +300,11 @@ class Invoice_lib {
         $this->ci->partner_model->log_partner_activity($activity);
     }
     
+    /**
+     * @desc This function is used to check GSTIN detail by using taxpro api
+     * @param String $vendor_id
+     * @return array gst type and status
+     */
     function get_gstin_status_by_api($vendor_id){
         $data = array();
         $vendor = $this->ci->vendor_model->getVendorDetails('gst_no, gst_status, gst_taxpayer_type, company_name, gst_cancelled_date', array('id'=>$vendor_id), 'id', array());
