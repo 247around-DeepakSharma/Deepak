@@ -2802,7 +2802,7 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
   
 Greetings from 247around!
 
-As you are aware, the introduction of Goods and Services Tax (“GST”) will be implemented on 1st July 2017.
+As you are aware, the introduction of Goods and Services Tax (“GST�?) will be implemented on 1st July 2017.
 
 Government has already initiated the migration process for registration under GST and you would have received a GSTIN / Provisional GSTIN from GSTN portal.
  
@@ -8076,6 +8076,5 @@ UPDATE `partner_summary_report_mapping` SET `sub_query` = 'booking_details.booki
 UPDATE `partner_summary_report_mapping` SET `sub_query` = '(CASE WHEN (booking_details.current_status = \'Completed\' || booking_details.current_status = \'Cancelled\') THEN booking_details.cancellation_reason ELSE GROUP_CONCAT(service_center_booking_action.cancellation_reason) END) AS \'Cancellation Remarks\'' WHERE `partner_summary_report_mapping`.`id` = 37;--Chhavi 30th Aug
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'notify_partner_to_review_bookings','Please review the bookings','Hi Partner, <br><br> Below bookings are long pending, please review these bookings otherwise these will be automatically approve after %s \r\n days <br><br>\r\nBooking IDs : <br>  %s', 'noreply@247around.com', '', 'anuj@247around.com', 'chhavid@247around.com', '1', '2018-08-30 15:30:00');
 
---Abahy 24 Aug
-INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'upcountry_missed_mail', 'Upcountry Booking Missed - Need To Take Action', 'Booking should be upcountry but not marked properly. Please check and update booking.<br/> \r\n%s', 'noreply@247around.com', '', '247around_dev@247around.com', '', '1', '2018-08-24 00:00:00');
-
+--Kalyani
+UPDATE `email_template` SET `template` = '<b>TAXPRO GSP API FAIL:-</b><br/><p>%s</p><p>%s</p><p>%s</p>' WHERE `email_template`.`tag` = 'taxpro_api_fail';
