@@ -203,7 +203,7 @@
     $(document).ready(function(){
     $('[data-toggle="tooltip"]').tooltip();   
 });
-    var table = $('#pending_booking_table').DataTable(
+    var table = $('#review_booking_table').DataTable(
                 {
                     "pageLength": 50
                 }
