@@ -217,7 +217,7 @@
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content collapse" id="spare_snapshot_div">
-                        <div class="col-md-12"><center><img id="loader_gif2" src="<?php echo base_url(); ?>images/loadring.gif"></center></div>
+                        <div class="col-md-12"><center><img id="loader_gif_spare_snapshot" src="<?php echo base_url(); ?>images/loadring.gif"></center></div>
                         <div id="spare_snapshot" style="width:100%; height:400px;"></div>
                     </div>
                 </div>
@@ -330,7 +330,7 @@
         var data = JSON.parse(response);
         var spare_status = data.status.split(',');
         var spare_count = JSON.parse("[" + data.spare_count + "]");
-        $('#loader_gif2').hide();
+        $('#loader_gif_spare_snapshot').hide();
         $('#spare_snapshot').fadeIn();
         rm_based_chart = new Highcharts.Chart({
             chart: {
