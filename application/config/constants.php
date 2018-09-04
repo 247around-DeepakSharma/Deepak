@@ -622,6 +622,10 @@ define('TOTAL', 'Total');
 define('ASP_ID', '1606680918');
 define('ASP_PASSWORD', 'priya@b30');
 
+//taxpayer api error codes
+define('INVALID_GSTIN', 'GSP050D');
+define('INVALID_GSTIN_MSG', 'Please enter valid GST number');
+
 //do not allow cancel from partner panel after this time interval
 define('BOOKING_CAN_NOT_BE_CANCEL_AFTER_THIS_TIME_INTERVAL',10);
 //show this text when partner cancel booking before time interval

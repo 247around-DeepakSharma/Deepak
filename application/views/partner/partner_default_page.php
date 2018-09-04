@@ -55,7 +55,7 @@
                             if($this->session->userdata('review') == 1){
                             ?>
                             <li role="presentation">
-                                <a href="#tabs-6" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php //echo base_url();?>employee/partner/partner_review_bookings/0/1">
+                                <a href="#tabs-6" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php //echo base_url();?>partner/review_bookings/0/1">
                                     Waiting For Review
                                 </a>
                             </li>

@@ -4546,7 +4546,7 @@ class Partner extends CI_Controller {
         $CSVData = array();
         $partner_id = $this->session->userdata('partner_id');
         $where = "booking_details.partner_id = '" . $partner_id . "' "
-                . " AND status IN ('Delivered', 'Shipped', '" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_SHIPPED . "')  ";
+                . " AND status != 'Cancelled' AND parts_shipped IS NOT NULL  ";
         $data= $this->partner_model->get_spare_parts_booking_list($where, NULL, NULL, true);
         $headings = array("Customer Name","Booking ID","Shipped Parts","Courier Name","AWB","Challan","Partner Shipped Date","SF Received Date","Price","Remarks");
         foreach($data as $sparePartBookings){
@@ -5135,7 +5135,7 @@ class Partner extends CI_Controller {
             //Logging
             log_message('info', __FUNCTION__ . ' Approved Booking Empty from Post');
         }
-            redirect(base_url() . 'employee/partner/partner_review_bookings');
+            redirect(base_url() . 'partner/review_bookings');
     }
     function reject_booking_from_review(){
         $postArray = $this->input->post();

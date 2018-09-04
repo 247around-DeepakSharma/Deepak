@@ -36,7 +36,7 @@
                               <td  style="text-align: left;white-space: inherit;"><?php echo $value['booking_id']." <br/><br/>".$value['booking'][0]['vendor_name']; ?>
                                  
                                   <input type="hidden" name="booking_id[]" value="<?php echo $value['booking_id']; ?>" id="<?php echo "booking_id".$count; ?>">
-                                  <input type="hidden" name="approved_by" value="247001" id="approved_by">
+                                  <input type="hidden" name="approved_by" value='<?php echo _247AROUND ?>'  id="approved_by">
                               </td>
 
                             <input type="hidden" class="form-control" id="partner_id" name="partner_id[<?php echo $value['booking_id']; ?>]" value = "<?php echo $value['booking'][0]['partner_id'];?>" >
@@ -174,7 +174,7 @@
                <textarea rows="8" class="form-control" id="textarea"></textarea>
             </div>
             <input type="hidden" id="id_no">
-            <input type="hidden" value="247001" id="admin_id">
+            <input type="hidden" value='<?php echo _247AROUND; ?>' id="admin_id">
             <div class="modal-footer">
                <button type="button" class="btn btn-success" onclick="send_remarks()">Send</button>
                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="close_model()">Close</button>
