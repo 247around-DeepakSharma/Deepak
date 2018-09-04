@@ -8078,3 +8078,6 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 
 --Kalyani
 UPDATE `email_template` SET `template` = '<b>TAXPRO GSP API FAIL:-</b><br/><p>%s</p><p>%s</p><p>%s</p>' WHERE `email_template`.`tag` = 'taxpro_api_fail';
+
+UPDATE `email_template` SET `template` = '<b>TAXPRO GSP API FAIL:-</b><br/><p>%s</p><p>%s</p><p>%s</p>' WHERE `email_template`.`tag` = 'taxpro_api_fail';UPDATE `email_template` SET `template` = 'Below bookings are long pending, please review these bookings otherwise these will be automatically approve after %s \r\n days <br>' WHERE tag = 'notify_partner_to_review_bookings';
+
