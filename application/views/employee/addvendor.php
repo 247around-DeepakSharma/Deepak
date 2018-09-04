@@ -599,7 +599,7 @@
                                                 if (isset($query[0]['gst_no'])) {
                                                     echo $query[0]['gst_no'];
                                                 }
-                                                ?>" onkeyup="validateGSTNo()">
+                                                ?>" oninput="validateGSTNo()">
                                             <span class="err1"> <?php echo form_error('gst_no'); ?></span>
                                         </div>
                                     </div>
@@ -1460,12 +1460,12 @@ function manageAccountNameField(value){
                } <?php }?>
             }
             //Check for GST  no.
-            if($('#is_gst_doc').is(":checked")){
+            if($('#is_gst_doc').is(":checked")){ 
                if($('#gst_no').val() != ''){
-                   alert('Please Enter GST Number or Tick "Not Available" checkbox');
+                   alert('Please Enter valid GST Number or Tick "Not Available" checkbox');
                    return false;
                }
-            }else{
+            }else{ 
                 var is_gst_file = <?php if(isset($query[0]['gst_file']) && !empty($query[0]['gst_file'])){ echo '1';}else{echo '0';}?>;
                 if($('#gst_no').val() == ''){
                    alert('Please Enter GST Number or Tick "Not Available" checkbox');
@@ -1479,18 +1479,17 @@ function manageAccountNameField(value){
                    alert('Please Enter Valid GST Number or Tick "Not Available" checkbox');
                    return false;
                 }
-//                else if($('#gst_no').val() != '' && $('#gst_file').get(0).files.length === 0 && is_gst_file === 0){
-//                   alert("Please Upload GST File");
-//                   return false;
-//                }
+                else if($('#gst_no').val() != '' && $('#gst_file').get(0).files.length === 0 && is_gst_file === 0){
+                   alert("Please Upload GST File");
+                   return false;
+                }
             }
-             var  gst_n = $('#gst_no').val();
              var is_signature_file = <?php if(isset($query[0]['signature_file']) && !empty($query[0]['signature_file'])){ echo '1';}else{echo '0';}?>;
              if(is_signature_file == 0){
                 var is_signature_file = $('#signature_file').get(0).files.length;
              }
-             if(!(gst_n || is_signature_file)){
-                   alert('Please Update GST details or Signature ');
+             if(!(is_signature_file)){
+                   alert('Please Update Signature file');
                    return false;
     }
     }
@@ -1682,7 +1681,7 @@ function manageAccountNameField(value){
                     return false;
                 }
         }
-            function validateGSTNo(){
+    function validateGSTNo(){
         var gstin = $("#gst_no").val();
         gstin = gstin.trim();
         var vendor_id="";
@@ -1694,7 +1693,6 @@ function manageAccountNameField(value){
                 type: 'POST',
                 url: '<?php echo base_url(); ?>employee/vendor/check_GST_number/'+gstin+vendor_id,
                 success: function (response) {
-                    console.log(response);
                     response = JSON.parse(response);
                     if(response.status_cd != '0'){
                         $("#gst_type").val(response.dty);
@@ -1702,28 +1700,32 @@ function manageAccountNameField(value){
                         $("#gst_cancelled_date").val(response.cxdt);
                         $("#gst_type").attr("readonly", "readonly");
                         $("#gst_status").attr("readonly", "readonly");
+                        if(response.dty !== 'Regular' || response.sts !== 'Active'){
+                            alert('Filled GST number detail - \n GST Type - '+response.dty+' \n GST Status - '+ response.sts);
+                        }
                     }
                     else{
+                        $("#gst_type, #gst_status").val("");
                         if(response.errorMsg){
-                           alert(response.errorMsg);
-                           $("#gst_type, #gst_status").val("");
+                           alert("Error occured while calling curl");
                         }
                         else if(response.error.message){
-                            if(response.error.error_cd == 'GSP050D'){
-                                alert("Please enter valid email");
+                            if(response.error.error_cd == '<?php echo INVALID_GSTIN; ?>'){
+                                alert("<?php echo INVALID_GSTIN_MSG; ?>");
                             }else{
                                 alert(response.error.message);
                             }
-                            $("#gst_type, #gst_status").val("");
                         }
                         else{
-                           alert("API unable to work"); 
+                           alert("API unable to work!"); 
                         }
                     }
                 }
             });
         }
-        else{ }
+        else{
+            $("#gst_type, #gst_status").val("");
+        }
     }
 </script>
 
