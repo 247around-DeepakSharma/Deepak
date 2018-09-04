@@ -8077,4 +8077,4 @@ UPDATE `partner_summary_report_mapping` SET `sub_query` = '(CASE WHEN (booking_d
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'notify_partner_to_review_bookings','Please review the bookings','Hi Partner, <br><br> Below bookings are long pending, please review these bookings otherwise these will be automatically approve after %s \r\n days <br><br>\r\nBooking IDs : <br>  %s', 'noreply@247around.com', '', 'anuj@247around.com', 'chhavid@247around.com', '1', '2018-08-30 15:30:00');
 
 --Kalyani
-UPDATE `email_template` SET `template` = '<b>TAXPRO GSP API FAIL:-</b><br/><p>%s</p><p>%s</p><p>%s</p>' WHERE `email_template`.`tag` = 'taxpro_api_fail';
+UPDATE `email_template` SET `template` = '<b>TAXPRO GSP API FAIL:-</b><br/><p>%s</p><p>%s</p><p>%s</p>' WHERE `email_template`.`tag` = 'taxpro_api_fail';UPDATE `email_template` SET `template` = 'Below bookings are long pending, please review these bookings otherwise these will be automatically approve after %s \r\n days <br>' WHERE tag = 'notify_partner_to_review_bookings';
