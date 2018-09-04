@@ -100,3 +100,4 @@ define('CP_OUTSTANDING_AMOUNT', 'cp_out_standing_email');
 define('COURIER_DOCUMENT', 'courier_documents');
 define('TAXPRO_API_FAIL', 'taxpro_api_fail');
 define('GST_DETAIL_UPDATED', 'gst_detail_change');
+define('BAD_RATING', 'we_get_bad_rating');
