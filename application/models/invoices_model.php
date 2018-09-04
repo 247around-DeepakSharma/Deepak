@@ -336,7 +336,7 @@ class invoices_model extends CI_Model {
                 . " CASE WHEN (serial_number_pic = '' OR serial_number_pic IS NULL) THEN ('') ELSE (CONCAT('".S3_WEBSITE_URL."engineer-uploads/', serial_number_pic)) END as serial_number_pic,"
                 . "  DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y'), '%D %b %Y') as booking_date, "
                 . " `booking_details`.city, DATE_FORMAT(`booking_unit_details`.ud_closed_date, '%D %b %Y') as closed_date,price_tags, "
-                . " `booking_unit_details`.appliance_capacity,`booking_unit_details`.appliance_category, "
+                . " `booking_unit_details`.appliance_capacity,`booking_unit_details`.appliance_category,`booking_unit_details`.appliance_brand, "
                 . "  booking_details.booking_primary_contact_no,  "
                 . " `services`.services, users.name,order_id, "
                 . " partner_net_payable, round((partner_net_payable * ".DEFAULT_TAX_RATE .")/100,2) as gst_amount, 
