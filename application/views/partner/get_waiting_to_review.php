@@ -20,7 +20,7 @@
         </div>
         <div class="x_content">
             <form action="<?php echo base_url(); ?>employee/partner/checked_complete_review_booking" method="post">
-            <table class="table table-bordered table-hover table-striped" id="pending_booking_table" style=" z-index: -1;position: static;">
+            <table class="table table-bordered table-hover table-striped" id="review_booking_table" style=" z-index: -1;position: static;">
                 <thead>
                     <tr>
                         <th class="text-center">S.N</th>
