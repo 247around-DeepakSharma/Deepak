@@ -7,7 +7,7 @@
             </div>
             <div class="panel-body">
                 <div class="col-md-4">
-                <form name="myForm" id="myForm" class="form-horizontal" action="<?php echo base_url(); ?>employee/inventory/seach_by_email"  method="POST" >
+                <form name="myForm" id="myForm" class="form-horizontal" action="<?php echo base_url(); ?>employee/vendor/seach_by_email"  method="POST" >
                     <div class="col-md-10">
                         <input type="text" class="form-control" name="email_id" value="" id="email_id" />
                     </div>
