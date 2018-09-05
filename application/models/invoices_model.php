@@ -1087,14 +1087,14 @@ class invoices_model extends CI_Model {
 
     }
     
-    function get_foc_invoice_data($vendor_id, $from_date_tmp, $to_date, $is_regenerate){
+    function get_foc_invoice_data($vendor_id, $from_date_tmp, $to_date, $is_regenerate) {
         $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
         $is_invoice_null = "";
-        if($is_regenerate == 0){
+        if ($is_regenerate == 0) {
             $is_invoice_null = " AND vendor_foc_invoice_id IS NULL ";
         }
         $sql = "SELECT DISTINCT round((`vendor_basic_charges`),2) AS rate,product_or_services,
-                sc.gst_no as gst_number, ".HSN_CODE." AS hsn_code,
+                sc.gst_no as gst_number, " . HSN_CODE . " AS hsn_code,
                CASE 
                 WHEN MIN( ud.`appliance_capacity` ) = '' AND MAX( ud.`appliance_capacity` ) = '' THEN
                 concat(services,' ', price_tags )
@@ -1142,167 +1142,175 @@ class invoices_model extends CI_Model {
         $query = $this->db->query($sql);
         $result['booking'] = $query->result_array();
         //if(!empty($result['booking'])){
-            $result['upcountry'] =  $result['courier'] = $result['c_penalty'] = array();
-            $result['d_penalty'] = $result['c_penalty'] = $result['misc'] = array();
-            $result['warehouse_courier'] = $result['defective_return_to_partner'] = array();
-            $result['final_courier_data'] = array();
-            $result['packaging_rate'] = 0; $result['packaging_quantity'] = 0;
-            $result['warehouse_storage_charge'] = 0;
-            // Calculate Upcountry booking details
-            $upcountry_data = $this->upcountry_model->upcountry_foc_invoice($vendor_id, $from_date, $to_date, $is_regenerate);
-            $debit_penalty = $this->penalty_model->add_penalty_in_invoice($vendor_id, $from_date, $to_date, "", $is_regenerate);
-            $courier = $this->get_sf_courier_charges($vendor_id, $from_date, $to_date, $is_regenerate);
-            $credit_penalty = $this->penalty_model->get_removed_penalty($vendor_id, $from_date, $to_date, "" );
-            $closed_date = "date_format(closed_date,'%d/%m/%Y') as closed_date";
-            $misc_select = '"Misc" AS unit_id, "Completed" As internal_status,closed_date as closed_booking_date,"" As rating_stars,'
-                    . '"0" AS customer_net_payable, partner_charge AS partner_net_payable,"" AS around_net_payable, "" AS owner_phone_1, "" AS primary_contact_phone_1, '
-                    . 'booking_details.booking_id, booking_details.city, services, "" As appliance_category,'
-                . '"" AS appliance_capacity, '.$closed_date.', description as price_tags, miscellaneous_charges.id AS misc_id, '
+        $result['upcountry'] = $result['courier'] = $result['c_penalty'] = array();
+        $result['d_penalty'] = $result['c_penalty'] = $result['misc'] = array();
+        $result['warehouse_courier'] = $result['defective_return_to_partner'] = array();
+        $result['final_courier_data'] = array();
+        $result['packaging_rate'] = 0;
+        $result['packaging_quantity'] = 0;
+        $result['warehouse_storage_charge'] = 0;
+        // Calculate Upcountry booking details
+        $upcountry_data = $this->upcountry_model->upcountry_foc_invoice($vendor_id, $from_date, $to_date, $is_regenerate);
+        $debit_penalty = $this->penalty_model->add_penalty_in_invoice($vendor_id, $from_date, $to_date, "", $is_regenerate);
+        $courier = $this->get_sf_courier_charges($vendor_id, $from_date, $to_date, $is_regenerate);
+        $credit_penalty = $this->penalty_model->get_removed_penalty($vendor_id, $from_date, $to_date, "");
+        $closed_date = "date_format(closed_date,'%d/%m/%Y') as closed_date";
+        $misc_select = '"Misc" AS unit_id, "Completed" As internal_status,closed_date as closed_booking_date,"" As rating_stars,'
+                . '"0" AS customer_net_payable, partner_charge AS partner_net_payable,"" AS around_net_payable, "" AS owner_phone_1, "" AS primary_contact_phone_1, '
+                . 'booking_details.booking_id, booking_details.city, services, "" As appliance_category,'
+                . '"" AS appliance_capacity, ' . $closed_date . ', description as price_tags, miscellaneous_charges.id AS misc_id, '
                 . '(case when (product_or_services = "Service" )  THEN (round(vendor_basic_charges,2)) ELSE 0 END) as vendor_installation_charge, '
                 . '(case when (product_or_services = "Product" )  THEN (round(vendor_basic_charges,2)) ELSE 0 END) as vendor_stand,'
                 . 'vendor_basic_charges as total_booking_charge, vendor_basic_charges as amount_paid, product_or_services';
-            $misc = $this->get_misc_charges_invoice_data($misc_select, "miscellaneous_charges.vendor_invoice_id IS NULL", $from_date, 
-                    $to_date, "booking_details.assigned_vendor_id", $vendor_id, "vendor_basic_charges");
-            
-            $warehouse_courier = $this->get_sf_invoice_warehouse_courier_data($vendor_id, $from_date, $to_date, $is_regenerate);
-            $defective_return_to_partner = $this->get_defective_parts_return_partner_sf_invoice($vendor_id, $from_date, $to_date, $is_regenerate);
-            $final_courier_data = array_merge($courier, $warehouse_courier, $defective_return_to_partner);
-         
-            if (!empty($upcountry_data)) {
-                $up_country = array();
-                $up_country[0]['description'] = 'Upcountry Charges';
-                $up_country[0]['hsn_code'] = '';
-                $up_country[0]['qty'] = '';
-                $up_country[0]['rate'] = '';
-                $up_country[0]['product_or_services'] = 'Upcountry';
-                $up_country[0]['taxable_value'] = $upcountry_data[0]['total_upcountry_price'];
-                $result['booking'] = array_merge($result['booking'], $up_country);
-                $result['upcountry'] = $upcountry_data;
-            }
-            
-            if(!empty($debit_penalty)){
-                $d_penalty = array();
-                $d_penalty[0]['description'] = 'Discount (Bookings not updated)';
-                $d_penalty[0]['hsn_code'] = '';
-                $d_penalty[0]['qty'] = '';
-                $d_penalty[0]['rate'] = '';
-                $d_penalty[0]['product_or_services'] = 'Debit Penalty';
-                $d_penalty[0]['taxable_value'] = -(array_sum(array_column($debit_penalty, 'p_amount')));
-                $result['booking'] = array_merge($result['booking'], $d_penalty);
-                $result['d_penalty'] = $debit_penalty;
-            }
+        $misc = $this->get_misc_charges_invoice_data($misc_select, "miscellaneous_charges.vendor_invoice_id IS NULL", $from_date, $to_date, "booking_details.assigned_vendor_id", $vendor_id, "vendor_basic_charges");
 
-            if (!empty($final_courier_data)) {
-                $c_data = array();
-                $c_data[0]['description'] = 'Courier Charges';
-                $c_data[0]['hsn_code'] = '';
-                $c_data[0]['qty'] = '';
-                $c_data[0]['rate'] = '';
-                $c_data[0]['product_or_services'] = 'Courier';
-                $c_data[0]['taxable_value'] = (array_sum(array_column($final_courier_data, 'courier_charges_by_sf')));
-                $result['booking'] = array_merge($result['booking'], $c_data);
-                $result['defective_return_to_partner'] = $defective_return_to_partner;
-                $result['courier'] = $courier;
-                $result['final_courier_data'] = $final_courier_data;
-            }
-            
-            if (!empty($credit_penalty)) {
-                $cp_data = array();
-                $cp_data[0]['description'] = 'Credit (Penalty Removed)';
-                $cp_data[0]['hsn_code'] = '';
-                $cp_data[0]['qty'] = '';
-                $cp_data[0]['rate'] = '';
-                $cp_data[0]['product_or_services'] = 'Credit Penalty';
-                $cp_data[0]['taxable_value'] = (array_sum(array_column($credit_penalty, 'p_amount')));
-                $result['booking'] = array_merge($result['booking'], $cp_data);
-                $result['c_penalty'] = $credit_penalty;
-            }
-            
-            if (!empty($misc)) {
-                $m = array();
-                $m[0]['description'] = 'Miscellaneous Charge';
-                $m[0]['hsn_code'] = '';
-                $m[0]['qty'] = '';
-                $m[0]['rate'] = '';
-                $m[0]['product_or_services'] = 'Misc Charge';
-                $m[0]['taxable_value'] = (array_sum(array_column($misc, 'total_booking_charge')));
-                $result['booking'] = array_merge($result['booking'], $m);
-                $result['misc'] = $misc;
-            }
-            
-            if (!empty($warehouse_courier)) {
-                $packaging = $this->get_fixed_warehouse_charge(array('entity_type' => _247AROUND_SF_STRING,
-                    "entity_id" => $vendor_id, "charges_type" => PACKAGING_RATE_TAG));
-                if (!empty($packaging)) {
-                    $c_data = array();
-                    $c_data[0]['description'] = $packaging[0]['description'];
-                    $c_data[0]['hsn_code'] = $packaging[0]['hsn_code'];
-                    $c_data[0]['qty'] = count($warehouse_courier);
-                    $c_data[0]['rate'] = $packaging[0]['fixed_charges'];
-                    $c_data[0]['gst_rate'] = $packaging[0]['gst_rate'];
-                    $c_data[0]['product_or_services'] = $packaging[0]['description'];
-                    $c_data[0]['taxable_value'] = $c_data[0]['qty'] * $packaging[0]['fixed_charges'];
-                    $result['booking'] = array_merge($result['booking'], $c_data);
-                    $result['warehouse_courier'] = $warehouse_courier;
-                    $result['packaging_rate'] = $packaging[0]['fixed_charges'];
-                    $result['packaging_quantity'] = count($warehouse_courier);
-                }
-            }
+        //$warehouse_courier = $this->get_sf_invoice_warehouse_courier_data($vendor_id, $from_date, $to_date, $is_regenerate);
+        //$defective_return_to_partner = $this->get_defective_parts_return_partner_sf_invoice($vendor_id, $from_date, $to_date, $is_regenerate);
+        //$final_courier_data = array_merge($courier, $warehouse_courier, $defective_return_to_partner);
+        $final_courier_data = $courier;
+        if (!empty($upcountry_data)) {
+            $up_country = array();
+            $up_country[0]['description'] = 'Upcountry Charges';
+            $up_country[0]['hsn_code'] = '';
+            $up_country[0]['qty'] = '';
+            $up_country[0]['rate'] = '';
+            $up_country[0]['product_or_services'] = 'Upcountry';
+            $up_country[0]['taxable_value'] = $upcountry_data[0]['total_upcountry_price'];
+            $result['booking'] = array_merge($result['booking'], $up_country);
+            $result['upcountry'] = $upcountry_data;
+        }
 
-            
-            if(!empty($result['booking'])){
-                if(!isset($result['booking'][0]['company_name'])){
-                   $select = 'state,company_name,'
+        if (!empty($debit_penalty)) {
+            $d_penalty = array();
+            $d_penalty[0]['description'] = 'Discount (Bookings not updated)';
+            $d_penalty[0]['hsn_code'] = '';
+            $d_penalty[0]['qty'] = '';
+            $d_penalty[0]['rate'] = '';
+            $d_penalty[0]['product_or_services'] = 'Debit Penalty';
+            $d_penalty[0]['taxable_value'] = -(array_sum(array_column($debit_penalty, 'p_amount')));
+            $result['booking'] = array_merge($result['booking'], $d_penalty);
+            $result['d_penalty'] = $debit_penalty;
+        }
+
+        if (!empty($final_courier_data)) {
+            $c_data = array();
+            $c_data[0]['description'] = 'Courier Charges';
+            $c_data[0]['hsn_code'] = '';
+            $c_data[0]['qty'] = '';
+            $c_data[0]['rate'] = '';
+            $c_data[0]['product_or_services'] = 'Courier';
+            $c_data[0]['taxable_value'] = (array_sum(array_column($final_courier_data, 'courier_charges_by_sf')));
+            $result['booking'] = array_merge($result['booking'], $c_data);
+            //$result['defective_return_to_partner'] = $defective_return_to_partner;
+            $result['courier'] = $courier;
+            $result['final_courier_data'] = $final_courier_data;
+        }
+
+        if (!empty($credit_penalty)) {
+            $cp_data = array();
+            $cp_data[0]['description'] = 'Credit (Penalty Removed)';
+            $cp_data[0]['hsn_code'] = '';
+            $cp_data[0]['qty'] = '';
+            $cp_data[0]['rate'] = '';
+            $cp_data[0]['product_or_services'] = 'Credit Penalty';
+            $cp_data[0]['taxable_value'] = (array_sum(array_column($credit_penalty, 'p_amount')));
+            $result['booking'] = array_merge($result['booking'], $cp_data);
+            $result['c_penalty'] = $credit_penalty;
+        }
+
+        if (!empty($misc)) {
+            $m = array();
+            $m[0]['description'] = 'Miscellaneous Charge';
+            $m[0]['hsn_code'] = '';
+            $m[0]['qty'] = '';
+            $m[0]['rate'] = '';
+            $m[0]['product_or_services'] = 'Misc Charge';
+            $m[0]['taxable_value'] = (array_sum(array_column($misc, 'total_booking_charge')));
+            $result['booking'] = array_merge($result['booking'], $m);
+            $result['misc'] = $misc;
+        }
+
+//            if (!empty($warehouse_courier)) {
+//                $packaging = $this->get_fixed_warehouse_charge(array('entity_type' => _247AROUND_SF_STRING,
+//                    "entity_id" => $vendor_id, "charges_type" => PACKAGING_RATE_TAG));
+//                if (!empty($packaging)) {
+//                    $c_data = array();
+//                    $c_data[0]['description'] = $packaging[0]['description'];
+//                    $c_data[0]['hsn_code'] = $packaging[0]['hsn_code'];
+//                    $c_data[0]['qty'] = count($warehouse_courier);
+//                    $c_data[0]['rate'] = $packaging[0]['fixed_charges'];
+//                    $c_data[0]['gst_rate'] = $packaging[0]['gst_rate'];
+//                    $c_data[0]['product_or_services'] = $packaging[0]['description'];
+//                    $c_data[0]['taxable_value'] = $c_data[0]['qty'] * $packaging[0]['fixed_charges'];
+//                    $result['booking'] = array_merge($result['booking'], $c_data);
+//                    $result['warehouse_courier'] = $warehouse_courier;
+//                    $result['packaging_rate'] = $packaging[0]['fixed_charges'];
+//                    $result['packaging_quantity'] = count($warehouse_courier);
+//                }
+//            }
+
+
+        if (!empty($result['booking'])) {
+            if (!isset($result['booking'][0]['company_name'])) {
+                $select = 'state,company_name,'
                         . ' address as company_address, pincode, district,'
                         . ' is_wh, owner_phone_1, sc_code, primary_contact_email,'
                         . ' owner_email, pan_no, contract_file, company_type, signature_file, gst_no as gst_number ';
-                        
-                    $vendor_details = $this->vendor_model->getVendorDetails($select, array('id' => $vendor_id));
 
-                    $result['booking'][0]['company_name'] = $vendor_details[0]['company_name'];
-                    $result['booking'][0]['company_address'] = $vendor_details[0]['company_address'];
-                    $result['booking'][0]['pincode'] = $vendor_details[0]['pincode'];
-                    $result['booking'][0]['district'] = $vendor_details[0]['district'];
-                    $result['booking'][0]['is_wh'] = $vendor_details[0]['is_wh'];
-                    $result['booking'][0]['owner_phone_1'] = $vendor_details[0]['owner_phone_1'];
-                    $result['booking'][0]['sc_code'] = $vendor_details[0]['sc_code'];
-                    $result['booking'][0]['state'] = $vendor_details[0]['state'];
-                    $result['booking'][0]['primary_contact_email'] = $vendor_details[0]['primary_contact_email'];
-                    $result['booking'][0]['owner_email'] = $vendor_details[0]['owner_email'];
-                    $result['booking'][0]['pan_no'] = $vendor_details[0]['pan_no'];
-                    $result['booking'][0]['contract_file'] = $vendor_details[0]['contract_file'];
-                    $result['booking'][0]['company_type'] = $vendor_details[0]['signature_file'];
-                    $result['booking'][0]['signature_file'] = $vendor_details[0]['company_type'];
-                    $result['booking'][0]['gst_number'] = $vendor_details[0]['gst_number'];
+                $vendor_details = $this->vendor_model->getVendorDetails($select, array('id' => $vendor_id));
+
+                $result['booking'][0]['company_name'] = $vendor_details[0]['company_name'];
+                $result['booking'][0]['company_address'] = $vendor_details[0]['company_address'];
+                $result['booking'][0]['pincode'] = $vendor_details[0]['pincode'];
+                $result['booking'][0]['district'] = $vendor_details[0]['district'];
+                $result['booking'][0]['is_wh'] = $vendor_details[0]['is_wh'];
+                $result['booking'][0]['owner_phone_1'] = $vendor_details[0]['owner_phone_1'];
+                $result['booking'][0]['sc_code'] = $vendor_details[0]['sc_code'];
+                $result['booking'][0]['state'] = $vendor_details[0]['state'];
+                $result['booking'][0]['primary_contact_email'] = $vendor_details[0]['primary_contact_email'];
+                $result['booking'][0]['owner_email'] = $vendor_details[0]['owner_email'];
+                $result['booking'][0]['pan_no'] = $vendor_details[0]['pan_no'];
+                $result['booking'][0]['contract_file'] = $vendor_details[0]['contract_file'];
+                $result['booking'][0]['company_type'] = $vendor_details[0]['signature_file'];
+                $result['booking'][0]['signature_file'] = $vendor_details[0]['company_type'];
+                $result['booking'][0]['gst_number'] = $vendor_details[0]['gst_number'];
             }
 
-            if ($result['booking'][0]['is_wh'] == 1) {
-                $packaging1 = $this->get_fixed_warehouse_charge(array('entity_type' => _247AROUND_SF_STRING,
-                    "entity_id" => $vendor_id, "charges_type" => FIXED_MONTHLY_WAREHOUSE_CHARGES_TAG));
-                if (!empty($packaging1)) {
-                    $c_data = array();
-                    $c_data[0]['description'] = $packaging1[0]['description'];
-                    $c_data[0]['hsn_code'] = $packaging1[0]['hsn_code'];
-                    $c_data[0]['qty'] = 0;
-                    $c_data[0]['rate'] = $packaging1[0]['fixed_charges'];
-                    $c_data[0]['gst_rate'] = $packaging1[0]['gst_rate'];
-                    $c_data[0]['product_or_services'] = $packaging1[0]['description'];
-                    $c_data[0]['taxable_value'] = $packaging1[0]['fixed_charges'];
-                    $result['booking'] = array_merge($result['booking'], $c_data);
-                    $result['warehouse_storage_charge'] = $packaging1[0]['fixed_charges'];
+//            if ($result['booking'][0]['is_wh'] == 1) {
+//                $packaging1 = $this->get_fixed_warehouse_charge(array('entity_type' => _247AROUND_SF_STRING,
+//                    "entity_id" => $vendor_id, "charges_type" => FIXED_MONTHLY_WAREHOUSE_CHARGES_TAG));
+//                if (!empty($packaging1)) {
+//                    $c_data = array();
+//                    $c_data[0]['description'] = $packaging1[0]['description'];
+//                    $c_data[0]['hsn_code'] = $packaging1[0]['hsn_code'];
+//                    $c_data[0]['qty'] = 0;
+//                    $c_data[0]['rate'] = $packaging1[0]['fixed_charges'];
+//                    $c_data[0]['gst_rate'] = $packaging1[0]['gst_rate'];
+//                    $c_data[0]['product_or_services'] = $packaging1[0]['description'];
+//                    $c_data[0]['taxable_value'] = $packaging1[0]['fixed_charges'];
+//                    $result['booking'] = array_merge($result['booking'], $c_data);
+//                    $result['warehouse_storage_charge'] = $packaging1[0]['fixed_charges'];
+//                }
+//            }
+            // we have no gst number then we generte bill of supply.
+            // IF we have GSt number then check it is valid or not. 
+            // We are creating invoice only for valid GST Number.
+            if (!empty($result['booking'][0]['gst_number'])) {
+                $gst = $this->invoice_lib->check_gst_number_valid($vendor_id, $result['booking'][0]['gst_number']);
+                if(!empty($gst)){
+                    return $result;
+                } else {
+                    // IF we are getting false as response then we are not creating invoice 
+                    log_message("info", __METHOD__. " GST Number Invalid for Vendor ID ". $vendor_id);
+                    return FALSE;
                 }
-            }
-            
-            $result['booking'][0]['gst_number'] = $this->invoice_lib->check_gst_number_valid($vendor_id, $result['booking'][0]['gst_number']);
-            
-            return $result;
-                
             } else {
-                return FALSE;
+                return $result;
             }
-        //}
-
-        //return $result;
+        } else {
+            log_message("info", __METHOD__. " DATA Not Found vendor ID ". $vendor_id);
+            return FALSE;
+        }
     }
 
     /**
