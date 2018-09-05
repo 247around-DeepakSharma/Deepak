@@ -49,21 +49,6 @@ class Telephony extends CI_Controller {
         return $data;
     }
     function pass_through(){    
-//        $json = '{  
-//   "call_date":"2018-01-23",
-//   "call_time":"15:45:56",
-//   "caller_number":" 9650461855",
-//   "called_number":" 01130017603",
-//   "call_status":"connected",
-//   "agent_list":" 919582669508",
-//   "agent_number":" 919566889988",
-//   "call_transfer_status":"connected",
-//   "caller_duration":"0:00:15",
-//   "conversation_duration":"0:00:15",
-//   "call_uuid":"29e74a9a-9b19-4ac2-adce-65ad160701b8_0",
-//   "recording_url":"test.mp3",
-//   "solution_type":"Missed"
-//}';   
         log_message('info', __METHOD__);
         $jsonDecodeArray = $this->input->get();
         $activity = array('activity' => 'process knowlarity request', 'data' => json_encode($jsonDecodeArray), 'time' => $this->telephony_lib->microtime_float());
@@ -71,7 +56,7 @@ class Telephony extends CI_Controller {
          log_message('info', __METHOD__.print_r($jsonDecodeArray,TRUE));
         if($jsonDecodeArray){
             $data = $this->get_pass_through_parameter_array($jsonDecodeArray);
-            if($data['solution_type'] == 'Incoming'){
+            if($data['solution_type'] == 'incoming'){
                 $this->telephony_lib->process_incoming_calls_response($data);
             }
             else{
@@ -89,16 +74,13 @@ class Telephony extends CI_Controller {
     function outgoing_calls(){
         $params = "";
         $getParameter['call_type'] = 1;
-        $getParameter['limit'] = 100;
-        //$getParameter['end_time'] = $endTime = date('Y-m-d h:i:s');
-     //   $getParameter['start_time'] = date('Y-m-d h:i:s', strtotime('-15 day', strtotime($endTime)));
-        $getParameter['end_time'] = $endTime = "2018-07-26 23:59:59+05:30";
-        $getParameter['start_time'] = "2018-07-20 00:00:01+05:30";
-        $getParameter['offset'] = 2;
+        $getParameter['limit'] = 10000;
+        $getParameter['start_time']  = date("Y-m-d");
+        $getParameter['end_time'] = date('Y-m-d', strtotime('+1 day', strtotime($getParameter['start_time'])));
         foreach($getParameter as $key=>$value){
                 $params .= $key.'='.$value.'&'; 
         }
-        echo $params = KNOWLARITY_CALL_LOG_URL."?".urlencode($params);
+        $params = KNOWLARITY_CALL_LOG_URL."?".$params;
         $curl = curl_init();
         curl_setopt_array($curl, array(
         CURLOPT_URL => $params,
@@ -118,11 +100,8 @@ class Telephony extends CI_Controller {
             "call_type: 1"
         ),
         ));
-        echo $response = curl_exec($curl);
-//        $data = json_decode($response,TRUE);
-//        echo "<pre>";
-//        print_r($data);
-        exit();
+        $response = curl_exec($curl);
+        $data = json_decode($response,TRUE);
         $this->telephony_lib->process_outgoing_calls_data($data);
     }
 }
