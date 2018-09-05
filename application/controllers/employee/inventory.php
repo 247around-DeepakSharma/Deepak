@@ -1391,22 +1391,6 @@ class Inventory extends CI_Controller {
         }
     }
     
-     /**
-     * @desc This is used to load email search form.
-     * This form helps to search email in whole database
-     */
-    function seach_by_email(){
-        $email_id = trim($this->input->post("email_id"));
-        if(!empty($email_id)){ 
-            $data['data'] = $this->vendor_model->search_email($email_id);
-            $this->miscelleneous->load_nav_header();
-            $this->load->view("employee/search_email_form", $data);
-        } else {
-            $this->miscelleneous->load_nav_header();
-            $this->load->view("employee/search_email_form");
-        }
-    }
-    
     function process_update_parts_details() {
         $this->form_validation->set_rules('booking_id', 'Booking ID', 'required|trim');
         $this->form_validation->set_rules('service_charge', 'Service Charge', 'trim');
