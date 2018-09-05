@@ -624,7 +624,7 @@ admin_dashboard.controller('admin_escalationController', function ($scope, $http
          });
      }
      //Call loadAllRMView Function with dates
-    $scope.daterangeloadFullRMView = function(){ 
+    $scope.daterangeloadFullRMView = function(){
          var dateRange = $('#daterange_id').val().split(" - ");
          $("#s_date").val(dateRange[0]);
          $("#e_date").val(dateRange[1]);
@@ -805,10 +805,9 @@ rm_dashboard.controller('bracketsSnapshot_Controller', function ($scope, $http) 
  //This Function is used to call Completed Booking Days Reports
 admin_dashboard.controller('completedBooking_Controller', function ($scope, $http) { 
     $scope.loadCompletedBookingView = function(pending_url){ 
-        $("#loader_gif_completed_rm").css("display", "block");
             $scope.completedBookingByRM = "";
             $http.get(pending_url).then(function (response) { 
-            //$("#loader_gif_completed_rm").css("display", "none");
+            $("#loader_gif_completed_rm").css("display", "none");
             $("#loader_gif_pending").css("display", "none");
             $scope.completedBookingByRM = response.data;
          });

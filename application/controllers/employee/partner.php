@@ -738,17 +738,18 @@ class Partner extends CI_Controller {
     function viewpartner($partner_id = "") {
         $this->checkEmployeeUserSession();
         $partner_not_like ='';
+        $partnerType = '';
         $service_brands = array();
         $active = 1;
-        $partnerType= 'All';
         $ac= 'All';
         if($this->input->post()){
            $active = $this->input->post('active');
            $partnerType = $this->input->post('partnerType');
            $ac = $this->input->post('accountManager');
         }
-        if($partnerType == 'All'){
-            $partner_not_like ="INTERNAL";
+        if(!$partnerType){
+           $partner_not_like = INTERNALTYPE;
+           $partnerType= array(OEM, EXTWARRANTYPROVIDERTYPE, BUYBACKTYPE, ECOMMERCETYPE);
         }
         $query = $this->partner_model->get_partner_details_with_soucre_code($active,$partnerType,$ac,$partner_not_like,$partner_id);
         foreach ($query as $key => $value) {

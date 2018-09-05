@@ -1351,6 +1351,7 @@ function get_data_for_partner_callback($booking_id) {
      */
     function get_partner_details_with_soucre_code($active,$partnerType,$ac,$partner_not_like=NULL,$partner_id=""){
         $where = array();
+        $where_in = array();
         $this->db->select('partners.*,bookings_sources.code,bookings_sources.partner_type');
         if ($partner_id != "") {
             $where['partners.id']  = $partner_id;
@@ -1359,18 +1360,21 @@ function get_data_for_partner_callback($booking_id) {
             if($active !='All'){
                 $where['partners.is_active'] = $active;
             }
-             if($partnerType != 'All'){
-                 $where['bookings_sources.partner_type']  = $partnerType;
-             }
-             if($ac != 'All'){
-                 $where['partners.account_manager_id']  = $ac;
-             }
+            if($partnerType){
+                //$where['bookings_sources.partner_type']  = $partnerType;
+                $where_in = $partnerType;
+            }
+            if($ac != 'All'){
+                $where['partners.account_manager_id']  = $ac;
+            }
         }
         if($partner_not_like){
                $where['bookings_sources.partner_type != "'.$partner_not_like.'"']  = NULL;
         }
+        
         $this->db->join('bookings_sources','partners.id=bookings_sources.partner_id');
-        $this->db->where($where);     
+        $this->db->where($where);   
+        $this->db->where_in('bookings_sources.partner_type', $where_in);
         $query = $this->db->get('partners');
         return $query->result_array();
     }
