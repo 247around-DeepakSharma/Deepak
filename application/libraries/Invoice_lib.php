@@ -289,9 +289,12 @@ class Invoice_lib {
             $response = json_decode($api_response, true);
             if(isset($response['error'])){
                 $email_template = $this->ci->booking_model->get_booking_email_template(TAXPRO_API_FAIL);
-                $message = vsprintf($email_template[0], array("GST NO - ".$gst_no,"Filled by - ".$this->ci->session->userdata('emp_name'), $api_response));  
-                $to = DEVELOPER_EMAIL.$email_template[1];
-                $this->ci->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $email_template[3] , $email_template[5], $email_template[4], $message, '', TAXPRO_API_FAIL);
+                if(!empty($email_template)){
+                    $message = vsprintf($email_template[0], array("GST NO - ".$gst_no,"Filled by - ".$this->ci->session->userdata('emp_name'), $api_response));  
+                    $to = $email_template[1];
+                    $this->ci->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $email_template[3] , $email_template[5], $email_template[4], $message, '', TAXPRO_API_FAIL);
+                }
+                
                 return $api_response;
             }
             else{ 
@@ -309,7 +312,7 @@ class Invoice_lib {
     function get_gstin_status_by_api($vendor_id){
         $data = array();
         $vendor = $this->ci->vendor_model->getVendorDetails('gst_no, gst_status, gst_taxpayer_type, company_name, gst_cancelled_date', array('id'=>$vendor_id), 'id', array());
-        if(isset($vendor[0]['gst_no'])){
+        if(!empty($vendor[0]['gst_no'])){
             
             $api_response = $this->gst_curl_call($vendor[0]['gst_no'], $vendor_id);
             if (!$api_response) {
@@ -339,7 +342,7 @@ class Invoice_lib {
                         if(!empty($email_template)){ 
                             $subject = vsprintf($email_template[4], array($vendor[0]['company_name']));
                             $message = vsprintf($email_template[0], array($vendor[0]['gst_no'], $vendor[0]['gst_status'], $vendor[0]['gst_taxpayer_type'], $vendor[0]['gst_cancelled_date'], $response['gstin'], $response['sts'], $response['dty'], $response['cxdt']));
-                            $to = DEVELOPER_EMAIL.','.$email_template[1];
+                            $to = $email_template[1];
                             $this->ci->notify->sendEmail($email_template[2], $to, $email_template[3], $email_template[5], $subject, $message, '', GST_DETAIL_UPDATED);
                         }
                         $this->ci->vendor_model->edit_vendor($data, $vendor_id);
@@ -370,16 +373,16 @@ class Invoice_lib {
                     if ($gstin['gst_taxpayer_type'] == "Regular" && $gstin['gst_status'] == "Active") {
                         return $gst_number;
                     } else {
-                        return "";
+                        return FALSE;
                     }
                 } else {
-                    return $gst_number;
+                    return FALSE;
                 }
             } else {
-                return $gst_number;
+                return FALSE;
             }
         } else {
-            return $gst_number;
+            return FALSE;
         }
     }
 
