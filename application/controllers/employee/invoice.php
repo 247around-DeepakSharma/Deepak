@@ -3654,8 +3654,14 @@ class Invoice extends CI_Controller {
 
                 $entity_details = $this->vendor_model->getVendorDetails("gst_no as gst_number, sc_code,"
                         . "state,address as company_address,company_name,district, pincode", array("id" => $data['vendor_partner_id']));
+                
+                if(!empty($entity_details[0]['gst_number'])){
+                    
+                    $c_gst = $this->invoice_lib->check_gst_number_valid($data['vendor_partner_id'], $entity_details[0]['gst_number']);
+                } else {
+                    $c_gst = TRUE;
+                }
 
-                $c_gst = $this->invoice_lib->check_gst_number_valid($data['vendor_partner_id'], $entity_details[0]['gst_number']);
             } else {
 
                 $entity_details = $this->partner_model->getpartner_details("gst_number,"
