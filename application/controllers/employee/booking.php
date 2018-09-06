@@ -1765,6 +1765,7 @@ class Booking extends CI_Controller {
      */
     function checked_complete_review_booking() {
         $requested_bookings = $this->input->post('approved_booking');
+        if($requested_bookings){
         $where['is_in_process'] = 0;
         $whereIN['booking_id'] = $requested_bookings; 
         $tempArray = $this->reusable_model->get_search_result_data("booking_details","booking_id",$where,NULL,NULL,NULL,$whereIN,NULL,array());
@@ -1786,6 +1787,7 @@ class Booking extends CI_Controller {
         } else {
             //Logging
             log_message('info', __FUNCTION__ . ' Approved Booking Empty from Post');
+        }
         }
         redirect(base_url() . 'employee/booking/review_bookings');
     }
