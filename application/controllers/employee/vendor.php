@@ -216,6 +216,7 @@ class vendor extends CI_Controller {
         $vendor_data['is_sf'] = $this->input->post('is_sf');
         $vendor_data['is_cp'] = $this->input->post('is_cp');
         $vendor_data['is_wh'] = $this->input->post('is_wh');
+        $vendor_data['is_buyback_gst_invoice'] = $this->input->post('is_buyback_gst_invoice');
         $vendor_data['min_upcountry_distance'] = $this->input->post('min_upcountry_distance');
         return $vendor_data;
     }
@@ -387,6 +388,8 @@ class vendor extends CI_Controller {
         $html .= " " . $updated_vendor_details['is_cp'] . '</li>';
         $html .= "<li><b>" . 'IS WH' . '</b> =>';
         $html .= " " . $updated_vendor_details['is_wh'] . '</li>';
+        $html .= "<li><b>" . 'IS Buyback Invoice on GST' . '</b> =>';
+        $html .= " " . $updated_vendor_details['is_buyback_gst_invoice'] . '</li>';
         $html .= "</ul>";
         $to = ANUJ_EMAIL_ID . ',' . $rm_email;
         //Cleaning Email Variables
