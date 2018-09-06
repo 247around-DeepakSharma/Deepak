@@ -3434,6 +3434,7 @@ function generate_image($base64, $image_name,$directory){
                         $finalArray[$values['booking_id']]['internal_status'] = $values['internal_status'];
                         $finalArray[$values['booking_id']]['amount_due'] = $values['amount_due'];
                         $finalArray[$values['booking_id']]['partner_id'] = $values['partner_id'];
+                        $finalArray[$values['booking_id']]['cancellation_reason'] = $values['cancellation_reason'];
                     }
                 }
             }

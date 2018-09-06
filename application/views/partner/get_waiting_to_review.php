@@ -27,17 +27,17 @@
                         <th class="text-center">Booking ID</th>
                        <th class="text-center">Call Type</th>
                         <th class="text-center">Brand</th>
-                        <th class="text-center">Status</th>
+                        <th class="text-center">Cancellation Reason</th>
                         <th class="text-center">Customer Name</th>
                         <th class="text-center">Mobile</th>
                         <th class="text-center">City</th>
                        <th class="text-center">State</th>
                         <th class="text-center">Booking Date</th>
                         <th class="text-center">Age (Days)</th>
-                        <th class="text-center">Send Email</th>
+<!--                        <th class="text-center">Send Email</th>-->
                         <th class="text-center" style="padding: 0px 24px 6px;"><input type="checkbox" id="selecctall" /> Approve</th>
                         <th class="text-center">Reject</th>
-                        <th class="text-center">JobCard</th>
+<!--                        <th class="text-center">JobCard</th>-->
                     </tr>
                 </thead>
                 <tbody>
@@ -74,13 +74,13 @@
                             </td>
                             <td class="text-center"> <?= $row['appliance_brand']; ?></td>
                             <td class="text-center"> 
+                                <?= $row['cancellation_reason']; ?>
+                            </td>
+                            <td class="text-center">
                                 <?= $row['name']; ?>
                             </td>
                             <td class="text-center">
                                 <?= $row['booking_primary_contact_no']; ?>
-                            </td>
-                            <td class="text-center">
-                                <?= $row['internal_status']; ?>
                             </td>
                             <td class="text-center">
                                 <?= $row['city']; ?>
@@ -94,9 +94,9 @@
                              <td class="text-center">
                                 <?= $row['age']; ?>
                             </td>
-                             <td class="text-center">
+<!--                             <td class="text-center">
                                             <a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('<?php echo $bookingID?>')"><i class="fa fa-envelope" aria-hidden="true"></i></a>
-                                        </td>
+                                        </td>-->
                                         
                                         <td class="text-center">
                                             <input type="hidden" class="form-control" id="partner_id" name="partner_id[<?php echo $bookingID; ?>]" value = "<?php echo $row['partner_id']; ?>" >
@@ -107,7 +107,7 @@
                                             <button style="min-width: 59px;" type="button" class="btn btn-primary btn-sm open-adminremarks" 
                                                                                      data-toggle="modal" data-target="#myModal2" onclick="create_reject_form('<?php echo $bookingID?>')">Reject</button>
                             </td>
-                            <td class="text-center"><a href="javascript: w=window.open('https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $row['booking_jobcard_filename']; ?>'); w.print()" class='btn btn-sm btn-primary btn-sm' target="_blank" ><i class="fa fa-download" aria-hidden="true"></i></a></td>
+<!--                            <td class="text-center"><a href="javascript: w=window.open('https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $row['booking_jobcard_filename']; ?>'); w.print()" class='btn btn-sm btn-primary btn-sm' target="_blank" ><i class="fa fa-download" aria-hidden="true"></i></a></td>-->
                         </tr>
                             <?php $sn_no++;
                         } ?>
