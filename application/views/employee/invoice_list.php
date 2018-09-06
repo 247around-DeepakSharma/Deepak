@@ -47,7 +47,15 @@ ini_set('max_execution_time', 36000000);
         </div>
         <div class="row">
             <div class="col-md-4">
-                <label for="state" class="col-md-12 col-sm-12">Select Service Center</label>
+                <label for="state" class="col-md-12 col-sm-12">
+                    <?php if (isset($service_center)) { 
+                        echo "Select Service Center"; 
+                    }
+                    else {
+                        echo "Select Partner";
+                    }
+                    ?>
+                </label>
                 <div class="form-group">
                     <div class="col-md-12">
                         <?php if (isset($service_center)) { ?>
