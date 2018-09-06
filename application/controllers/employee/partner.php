@@ -5188,8 +5188,19 @@ class Partner extends CI_Controller {
     
     function download_partner_review_bookings($partnerID){
         ob_start();
-        $data = $this->miscelleneous->get_review_bookings_for_partner($partner_id);
-        $headings = array_keys($data[0]);
-        $this->miscelleneous->downloadCSV($data, $headings, "Review_bookings");
+        $finalArray = array();
+        $data = $this->miscelleneous->get_review_bookings_for_partner($partnerID);
+        foreach($data as $key => $values){
+            $values['Booking_ID'] = $key;
+            unset($values['booking_jobcard_filename']);
+            unset($values['amount_due']);
+            unset($values['partner_id']);
+            ksort($values);
+            $finalArray[] = $values;
+        }
+        if(!empty($finalArray)){
+            $headings = array_keys($finalArray[0]);
+            $this->miscelleneous->downloadCSV(array_values($finalArray), $headings, "Review_bookings");
+        }
     }
 }
