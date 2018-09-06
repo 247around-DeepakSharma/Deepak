@@ -3786,7 +3786,7 @@ class Service_centers extends CI_Controller {
         $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
         $config['total_rows'] = $total_rows[0]['total_rows'];
 
-        $config['per_page'] = 50;
+        $config['per_page'] = 100;
         $config['uri_segment'] = 3;
         $config['first_link'] = 'First';
         $config['last_link'] = 'Last';
