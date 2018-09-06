@@ -255,7 +255,7 @@ class Invoice_lib {
      * @param String $gst_number
      * @return api response 
      */
-    function gst_curl_call($gst_no, $vendor_id=""){
+    function taxpro_gstin_checking_curl_call($gst_no, $vendor_id=""){ 
         if(!$vendor_id){
           $vendor_id = _247AROUND;
         }
@@ -286,14 +286,15 @@ class Invoice_lib {
         else{
             $activity['json_response_string'] = $api_response;
             $response = json_decode($api_response, true);
-            if(isset($response['error'])){
-                $email_template = $this->ci->booking_model->get_booking_email_template(TAXPRO_API_FAIL);
-                if(!empty($email_template)){
-                    $message = vsprintf($email_template[0], array("GST NO - ".$gst_no,"Filled by - ".$this->ci->session->userdata('emp_name'), $api_response));  
-                    $to = $email_template[1];
-                    $this->ci->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $email_template[3] , $email_template[5], $email_template[4], $message, '', TAXPRO_API_FAIL);
+            if(isset($response['error'])){ 
+                if($response['error']['error_cd'] != INVALID_GSTIN){  /**** mail not send on invalid gst number *****/
+                    $email_template = $this->ci->booking_model->get_booking_email_template(TAXPRO_API_FAIL);
+                    if(!empty($email_template)){
+                        $message = vsprintf($email_template[0], array("GST NO - ".$gst_no,"Filled by - ".$this->ci->session->userdata('emp_name'), $api_response));  
+                        $to = $email_template[1];
+                        $this->ci->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $email_template[3] , $email_template[5], $email_template[4], $message, '', TAXPRO_API_FAIL);
+                    }
                 }
-                
                 return $api_response;
             }
             else{ 
@@ -313,7 +314,7 @@ class Invoice_lib {
         $vendor = $this->ci->vendor_model->getVendorDetails('gst_no, gst_status, gst_taxpayer_type, company_name, gst_cancelled_date', array('id'=>$vendor_id), 'id', array());
         if(!empty($vendor[0]['gst_no'])){
             
-            $api_response = $this->gst_curl_call($vendor[0]['gst_no'], $vendor_id);
+            $api_response = $this->taxpro_gstin_checking_curl_call($vendor[0]['gst_no'], $vendor_id);
             if (!$api_response) {
                 $data['status'] = 'error'; 
                 return $data;
