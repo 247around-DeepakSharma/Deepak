@@ -1674,8 +1674,12 @@ class Partner extends CI_Controller {
         } else {
             $config['total_rows'] =0;
         }
-        
-        $config['per_page'] = 50;
+        if($all ==1 ){
+             $config['per_page'] = -1;
+        } else {
+             $config['per_page'] = 50;
+        }
+       
         $config['uri_segment'] = 3;
         $config['first_link'] = 'First';
         $config['last_link'] = 'Last';
