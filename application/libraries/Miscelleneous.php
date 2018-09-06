@@ -3395,7 +3395,7 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
                 $actor,$next_action,$postData['rejected_by']);
         }
     }
-    function get_review_bookings_for_partner($partnerID,$booking_id = NULL,$structuredData = 1,$afterLimit = 0,$before_days = NULL){
+    function get_review_bookings_for_partner($partnerID,$booking_id = NULL,$structuredData = 1,$limit = REVIEW_LIMIT_BEFORE){
          $finalArray = array();
         $whereIN = array();
         $statusData = $this->My_CI->reusable_model->get_search_result_data("partners","partners.booking_review_for,partners.review_time_limit",array("booking_review_for IS NOT NULL"=>NULL,"id"=>$partnerID),NULL,NULL,NULL,NULL,NULL,array());
@@ -3403,11 +3403,16 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
             $where['booking_details.partner_id'] = $partnerID;
             $statusArray = explode(",",$statusData[0]['booking_review_for']);
             $whereIN['service_center_booking_action.internal_status'] = array("Completed","Cancelled");
-            if($afterLimit == 1){
+            if($limit == REVIEW_LIMIT_BEFORE){
+              $where['DATEDIFF(CURRENT_TIMESTAMP,  service_center_booking_action.closed_date)<='.$statusData[0]['review_time_limit']] = NULL;
+            }
+            else if($limit == REVIEW_LIMIT_AFTER){
               $where['DATEDIFF(CURRENT_TIMESTAMP,  service_center_booking_action.closed_date)>'.$statusData[0]['review_time_limit']] = NULL;
             }
             else{
-                $where['DATEDIFF(CURRENT_TIMESTAMP,  service_center_booking_action.closed_date)<='.$statusData[0]['review_time_limit']] = NULL;
+                $days = $statusData[0]['review_time_limit'] - $limit;
+                $where['(DATEDIFF(CURRENT_TIMESTAMP,  service_center_booking_action.closed_date)>='.$days
+                   . ' AND DATEDIFF(CURRENT_TIMESTAMP,  service_center_booking_action.closed_date)<='.$statusData[0]['review_time_limit'].')'] = NULL;
             }
             $where['booking_details.amount_due'] = 0;
             $where['service_center_booking_action.current_status'] = 'InProcess';

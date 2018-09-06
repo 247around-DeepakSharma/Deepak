@@ -635,5 +635,7 @@ define('REVIEW_NOTIFICATION_TO_PARTNER_DAYS','2');
 define("DEFAULT_PAYTM_MUNICIPAL_LIMIT", 5);
 // Default PAYTM UPCOUNTRY DISTRICT
 define("DEFAULT_PAYTM_UPCOUNTRY_DISTRICT", "Others");
+define("REVIEW_LIMIT_BEFORE", "BEFORE");
+define("REVIEW_LIMIT_AFTER", "AFTER");
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
