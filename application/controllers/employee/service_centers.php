@@ -498,7 +498,6 @@ class Service_centers extends CI_Controller {
                                 }
                             }
                             $status = $this->validate_serial_no->validateSerialNo($partner_id, $trimSno, $price_tag, $user_id, $booking_id);
-                            print_r($status);
                             if (!empty($status)) {
                                 if ($status['code'] == SUCCESS_CODE) {
                                     log_message('info', " Serial No validation success  for serial no " . trim($serial_number[$unit_id]));

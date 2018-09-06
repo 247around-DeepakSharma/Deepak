@@ -1634,16 +1634,64 @@ class invoices_model extends CI_Model {
         $commission_charge = $this->_buyback_invoice_query($vendor_id, $from_date, $to_date, $is_regenerate, false, $profit_loss);
 
         $meta['sub_total_amount'] = $meta['total_qty'] = 0;
-        
+       
+
         if(!empty($commission_charge)){
+            $is_buyback_gst = $commission_charge[0]['is_buyback_gst_invoice'];
+            $meta['total_qty'] = $meta['total_rate'] =  $meta['total_taxable_value'] =  
+            $meta['cgst_total_tax_amount'] = $meta['sgst_total_tax_amount'] =   $meta['igst_total_tax_amount'] =  $meta['sub_total_amount'] = 0;
+            $meta['igst_tax_rate'] =$meta['cgst_tax_rate'] = $meta['sgst_tax_rate'] = 0;
+            
+            $c_s_gst =$this->check_gst_tax_type($commission_charge[0]['state']);
+            
             foreach ($commission_charge as $key => $value) {
-                $commission_charge[$key]['rate'] = sprintf("%.2f",$value['taxable_value']/$value['qty']);
-                $meta['sub_total_amount'] += $value['taxable_value'];
-                $meta['total_qty'] += $value['qty'];
+                $is_bill_of_supply = TRUE;
+                if(!empty($commission_charge[0]['gst_no']) && !empty($is_buyback_gst)){
+                    $is_bill_of_supply = FALSE;
+                }
+                if($is_bill_of_supply){
+                    $commission_charge[$key]['rate'] = sprintf("%.2f",$value['taxable_value']/$value['qty']);
+                    $meta['sub_total_amount'] += $value['taxable_value'];
+                    $meta['total_qty'] += $value['qty'];
+                    $meta['invoice_template'] = "Buyback-v1.xlsx"; 
+                } else {
+                   $commission_charge[$key]['rate'] = sprintf("%.2f",$value['taxable_value']/$value['qty']);
+                   if($c_s_gst){
+                        $meta['invoice_template'] = "247around_Tax_Invoice_Intra_State.xlsx";
+
+                        $commission_charge[$key]['cgst_rate'] =  $commission_charge[$key]['sgst_rate'] = 9;
+                        $commission_charge[$key]['cgst_tax_amount'] = sprintf("%1\$.2f",($value['taxable_value'] * (SERVICE_TAX_RATE/2)));
+                        $commission_charge['sgst_tax_amount'] = sprintf("%1\$.2f",($value['taxable_value'] * (SERVICE_TAX_RATE/2)));
+                        $meta['cgst_total_tax_amount'] +=  $commission_charge[$key]['cgst_tax_amount'];
+                        $meta['sgst_total_tax_amount'] += $commission_charge[$key]['sgst_tax_amount'];
+                        $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = DEFAULT_TAX_RATE/2;
+                        $commission_charge[$key]['total_amount'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] *(SERVICE_TAX_RATE/2))));
+
+                    } else {
+                        $meta['invoice_template'] = "247around_Tax_Invoice_Inter_State.xlsx";
+
+                        $commission_charge[$key]['igst_rate'] =  $meta['igst_tax_rate'] = DEFAULT_TAX_RATE;
+                        $commission_charge[$key]['igst_tax_amount'] = sprintf("%1\$.2f",($value['taxable_value'] * SERVICE_TAX_RATE));
+                        $meta['igst_total_tax_amount'] +=  $commission_charge[$key]['igst_tax_amount'];
+                        $commission_charge[$key]['total_amount'] = sprintf("%1\$.2f",( $value['taxable_value'] + ($value['taxable_value'] * SERVICE_TAX_RATE)));
+                    }
+                    $meta['total_qty'] += $value['qty'];
+                
+                    $meta['total_rate'] += $commission_charge[$key]['rate'];
+                    $meta['total_taxable_value'] += $value['taxable_value'];
+                    $meta['sub_total_amount'] +=  $commission_charge[$key]['total_amount'];
+                    $meta['invoice_type'] = "Tax Invoice";
+                }
+                
             }
             
-            $meta['sub_total_amount'] = sprintf("%.2f",$meta['sub_total_amount']);
-            $meta['invoice_template'] = "Buyback-v1.xlsx"; 
+            $meta['sub_total_amount'] = round(sprintf("%.2f",$meta['sub_total_amount']),0);
+            
+            $meta['total_taxable_value'] = sprintf("%1\$.2f",$meta['total_taxable_value']);
+            $meta['cgst_total_tax_amount'] = sprintf("%1\$.2f",$meta['cgst_total_tax_amount']);
+            $meta['sgst_total_tax_amount'] = sprintf("%1\$.2f",$meta['sgst_total_tax_amount']);
+            $meta['igst_total_tax_amount'] = sprintf("%1\$.2f",$meta['igst_total_tax_amount']);
+            
             
             $meta['sd'] = date("jS M, Y", strtotime($from_date));
             $meta['ed'] = date('jS M, Y', strtotime($to_date_tmp));
@@ -1682,16 +1730,7 @@ class invoices_model extends CI_Model {
         }
         
         $profit_loss_where = ' AND CASE WHEN (cp_claimed_price > 0) THEN (cp_claimed_price) ELSE ((`cp_basic_charge` + cp_tax_charge)) END ';
-        $select = " COUNT(bb_unit_details.id) as qty, SUM(CASE WHEN ( bb_unit_details.cp_claimed_price > 0) 
-                THEN (round(bb_unit_details.cp_claimed_price,2)) 
-                ELSE (round(bb_unit_details.cp_basic_charge + cp_tax_charge,2)) END ) AS taxable_value, concat('Used ',services) as description, 
-                CASE WHEN (bb_unit_details.service_id = '"._247AROUND_TV_SERVICE_ID."') THEN (8528) 
-                WHEN (bb_unit_details.service_id = '"._247AROUND_AC_SERVICE_ID."') THEN (8415)
-                WHEN (bb_unit_details.service_id = '"._247AROUND_WASHING_MACHINE_SERVICE_ID."') THEN (8450)
-                WHEN (bb_unit_details.service_id = '"._247AROUND_REFRIGERATOR_SERVICE_ID."') THEN (8418) ELSE '' END As hsn_code, owner_phone_1, gst_no,
-                sc.company_name, sc.address as company_address, sc.state,
-                sc.owner_email, sc.primary_contact_email, sc.owner_phone_1";
-        $group_by = " GROUP BY bb_unit_details.service_id ";
+        
         if($is_unit){
             $select = " bb_unit_details.id AS unit_id,bb_unit_details.gst_amount, CASE WHEN ( bb_unit_details.cp_claimed_price > 0) 
                 THEN (round(bb_unit_details.cp_claimed_price,2)) 
@@ -1700,6 +1739,19 @@ class invoices_model extends CI_Model {
                 THEN (DATE_FORMAT( acknowledge_date,  '%d-%m-%Y' ) ) ELSE (DATE_FORMAT(delivery_date,  '%d-%m-%Y' )) END AS delivery_date, order_date,
                 order_date, services, bb_order_details.partner_order_id";
             $group_by = "";
+            
+        } else {
+            
+            $select = " COUNT(bb_unit_details.id) as qty, SUM(CASE WHEN ( bb_unit_details.cp_claimed_price > 0) 
+                THEN (round(bb_unit_details.cp_claimed_price,2)) 
+                ELSE (round(bb_unit_details.cp_basic_charge + cp_tax_charge,2)) END ) AS taxable_value, concat('Used ',services) as description, 
+                CASE WHEN (bb_unit_details.service_id = '"._247AROUND_TV_SERVICE_ID."') THEN (8528) 
+                WHEN (bb_unit_details.service_id = '"._247AROUND_AC_SERVICE_ID."') THEN (8415)
+                WHEN (bb_unit_details.service_id = '"._247AROUND_WASHING_MACHINE_SERVICE_ID."') THEN (8450)
+                WHEN (bb_unit_details.service_id = '"._247AROUND_REFRIGERATOR_SERVICE_ID."') THEN (8418) ELSE '' END As hsn_code, owner_phone_1, gst_no,
+                sc.company_name, sc.address as company_address, sc.state,
+                sc.owner_email, sc.primary_contact_email, sc.owner_phone_1, sc.is_buyback_gst_invoice";
+            $group_by = " GROUP BY bb_unit_details.service_id ";
         }
         
         $sql = "SELECT $select

@@ -5094,4 +5094,21 @@ class vendor extends CI_Controller {
             log_message('info', " Error in Getting Email Template for New Vendor Welcome Mail");
         }
     }
+    
+    /**
+    * @desc This is used to load email search form.
+    * This form helps to search email in whole database
+    */
+    function seach_by_email(){
+        $email_id = trim($this->input->post("email_id"));
+        if(!empty($email_id)){ 
+            $data['data'] = $this->vendor_model->search_email($email_id);
+            $this->miscelleneous->load_nav_header();
+            $this->load->view("employee/search_email_form", $data);
+        } else {
+            $this->miscelleneous->load_nav_header();
+            $this->load->view("employee/search_email_form");
+        }
+    }
+    
 }
