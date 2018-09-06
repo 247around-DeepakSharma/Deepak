@@ -3437,6 +3437,7 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
                         $finalArray[$values['booking_id']]['internal_status'] = $values['internal_status'];
                         $finalArray[$values['booking_id']]['amount_due'] = $values['amount_due'];
                         $finalArray[$values['booking_id']]['partner_id'] = $values['partner_id'];
+                        $finalArray[$values['booking_id']]['cancellation_reason'] = $values['cancellation_reason'];
                     }
                 }
             }

@@ -5132,7 +5132,7 @@ class Partner extends CI_Controller {
                 log_message('info', __FUNCTION__ . ' Approved Booking Empty from Post');
             }
         }
-       redirect(base_url() . 'partner/review_bookings'); 
+       redirect(base_url() . 'partner/home'); 
     }
     function reject_booking_from_review(){
         $postArray = $this->input->post();
