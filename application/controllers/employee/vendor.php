@@ -4759,9 +4759,9 @@ class vendor extends CI_Controller {
     }
     
     function check_GST_number($gst, $vendor_id=""){
-        $api_response = $this->invoice_lib->gst_curl_call($gst, $vendor_id);
+        $api_response = $this->invoice_lib->taxpro_gstin_checking_curl_call($gst, $vendor_id);
         if (!$api_response) {
-          echo '{"status_cd":"0","errorMsg":"cURL Error -'.$err.'"}';
+          echo '{"status_cd":"0","errorMsg":"cURL Error"}';
         } else {
           echo $api_response;
         }
