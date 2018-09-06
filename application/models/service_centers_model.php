@@ -208,7 +208,7 @@ class Service_centers_model extends CI_Model {
         }
         if(!empty($whereIN)){
              foreach ($whereIN as $fieldName=>$conditionArray){
-                     $where_in = " AND ".$fieldName." IN (".implode("','",$conditionArray).")";
+                     $where_in = " AND ".$fieldName." IN ('".implode("','",$conditionArray)."')";
              }
          }
         $sql = "SELECT sc.booking_id,sc.amount_paid,sc.admin_remarks,sc.cancellation_reason,sc.service_center_remarks FROM service_center_booking_action sc "
