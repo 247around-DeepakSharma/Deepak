@@ -36,7 +36,7 @@
                                  <div class="col-md-12 col-sm-12 col-xs-12">
                                     <div class="x_panel">
                                         <div class="x_title" style="border-bottom: none;">
-                                            <a target="blank" href="<?php echo base_url()."employee/partner/download_real_time_summary_report/".$this->session->userdata('partner_id') ?>" class="btn btn-success" style="float:right">Download Real Time Summary Report</a>
+                                            <a href="<?php echo base_url()."employee/partner/download_real_time_summary_report/".$this->session->userdata('partner_id') ?>" class="btn btn-success" style="float:right">Download Real Time Summary Report</a>
                                             <div class="clear"></div>
                                             <form style="border: 2px solid #4b9c7a;padding: 10px 0px;">
                         <div class="form-group col-md-4"> 
