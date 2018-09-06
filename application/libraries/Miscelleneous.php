@@ -3407,12 +3407,7 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
               $where['DATEDIFF(CURRENT_TIMESTAMP,  service_center_booking_action.closed_date)>'.$statusData[0]['review_time_limit']] = NULL;
             }
             else{
-                $days = $statusData[0]['review_time_limit'];
-                if($before_days){
-                    $days = $statusData[0]['review_time_limit'] - $before_days;
-                }
-                $where['(DATEDIFF(CURRENT_TIMESTAMP,  service_center_booking_action.closed_date)>='.$days
-                    . ' AND DATEDIFF(CURRENT_TIMESTAMP,  service_center_booking_action.closed_date)<='.$statusData[0]['review_time_limit'].')'] = NULL;
+                $where['DATEDIFF(CURRENT_TIMESTAMP,  service_center_booking_action.closed_date)<='.$statusData[0]['review_time_limit']] = NULL;
             }
             $where['booking_details.amount_due'] = 0;
             $where['service_center_booking_action.current_status'] = 'InProcess';
