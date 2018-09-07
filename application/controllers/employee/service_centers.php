@@ -2024,16 +2024,16 @@ class Service_centers extends CI_Controller {
                     //for now we add manish ji as a default warehouse
                     //when in spare parts table we start inserting wh_id as a seperate column then we have to 
                     //get the wh id from that table not by default
-                    $wh_incharge_id = $this->reusable_model->get_search_result_data("entity_role", "id", array("entity_type" => _247AROUND_SF_STRING, 'role' => WAREHOUSE_INCHARCGE_CONSTANT), NULL, NULL, NULL, NULL, NULL, array());
-                    if(!empty($wh_incharge_id)){
-                        //get 247around warehouse incharge email
-                        $wh_where = array('contact_person.role' => $wh_incharge_id[0]['id'],
-                            'contact_person.entity_id' => DEFAULT_WAREHOUSE_ID,
-                            'contact_person.entity_type' => _247AROUND_SF_STRING
-                        );
-                        $email_details = $this->inventory_model->get_warehouse_details('contact_person.official_email', $wh_where, FALSE, TRUE);
-                        $wh_email = !empty($email_details)?$email_details[0]['official_email']:'';
-                    }
+//                    $wh_incharge_id = $this->reusable_model->get_search_result_data("entity_role", "id", array("entity_type" => _247AROUND_SF_STRING, 'role' => WAREHOUSE_INCHARCGE_CONSTANT), NULL, NULL, NULL, NULL, NULL, array());
+//                    if(!empty($wh_incharge_id)){
+//                        //get 247around warehouse incharge email
+//                        $wh_where = array('contact_person.role' => $wh_incharge_id[0]['id'],
+//                            'contact_person.entity_id' => DEFAULT_WAREHOUSE_ID,
+//                            'contact_person.entity_type' => _247AROUND_SF_STRING
+//                        );
+//                        $email_details = $this->inventory_model->get_warehouse_details('contact_person.official_email', $wh_where, FALSE, TRUE);
+//                        $wh_email = !empty($email_details)?$email_details[0]['official_email']:'';
+//                    }
                     
                     $rm_email = $this->get_rm_email($service_center_id);
 
@@ -2047,7 +2047,7 @@ class Service_centers extends CI_Controller {
                     $email_from = $email_template[2];
 
                     $to = $email_template[1];
-                    $cc = $rm_email.",".$wh_email.','.$email_template[3];
+                    $cc = $rm_email.','.$email_template[3];
                     $bcc = $email_template[5];
 
                     $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $attachment, COURIER_DETAILS);
