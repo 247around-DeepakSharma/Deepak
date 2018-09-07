@@ -638,19 +638,21 @@ class invoices_model extends CI_Model {
         $result['packaging_quantity'] = 0;
         $result['warehouse_storage_charge'] = 0;
         $final_courier = array_merge($courier, $warehouse_courier, $defective_return_to_partner);
-
         
         if (!empty($upcountry_data)) {
-            $up_country = array();
-            $up_country[0]['description'] = 'Upcountry Charges';
-            $up_country[0]['hsn_code'] = '';
-            $up_country[0]['qty'] = '';
-            $up_country[0]['rate'] = '';
-            $up_country[0]['gst_rate'] = DEFAULT_TAX_RATE;
-            $up_country[0]['product_or_services'] = 'Upcountry';
-            $up_country[0]['taxable_value'] = $upcountry_data[0]['total_upcountry_price'];
-            $result['result'] = array_merge($result['result'], $up_country);
-            $result['upcountry'] = $upcountry_data;
+            if($upcountry_data[0]['total_upcountry_price'] > 0){
+                $up_country = array();
+                $up_country[0]['description'] = 'Upcountry Charges';
+                $up_country[0]['hsn_code'] = '';
+                $up_country[0]['qty'] = '';
+                $up_country[0]['rate'] = '';
+                $up_country[0]['gst_rate'] = DEFAULT_TAX_RATE;
+                $up_country[0]['product_or_services'] = 'Upcountry';
+                $up_country[0]['taxable_value'] = sprintf("%.2f", $upcountry_data[0]['total_upcountry_price']);
+                $result['result'] = array_merge($result['result'], $up_country);
+                $result['upcountry'] = $upcountry_data;
+            }
+            
         }
 
         if (!empty($warehouse_courier)) {
@@ -664,7 +666,7 @@ class invoices_model extends CI_Model {
                 $c_data[0]['rate'] = $packaging[0]['fixed_charges'];
                 $c_data[0]['gst_rate'] = $packaging[0]['gst_rate'];
                 $c_data[0]['product_or_services'] = $packaging[0]['description'];
-                $c_data[0]['taxable_value'] = $c_data[0]['qty'] * $packaging[0]['fixed_charges'];
+                $c_data[0]['taxable_value'] = sprintf("%.2f",($c_data[0]['qty'] * $packaging[0]['fixed_charges']));
                 $result['result'] = array_merge($result['result'], $c_data);
                 
                 $result['packaging_rate'] = $packaging[0]['fixed_charges'];
@@ -684,7 +686,7 @@ class invoices_model extends CI_Model {
                 $c_data[0]['rate'] = '';
                 $c_data[0]['gst_rate'] = DEFAULT_TAX_RATE;
                 $c_data[0]['product_or_services'] = 'Courier';
-                $c_data[0]['taxable_value'] = $courier_price;
+                $c_data[0]['taxable_value'] = sprintf("%.2f", $courier_price);
                 $result['result'] = array_merge($result['result'], $c_data);
                 
             }
@@ -702,7 +704,7 @@ class invoices_model extends CI_Model {
             $m[0]['rate'] = '';
             $m[0]['gst_rate'] = DEFAULT_TAX_RATE;
             $m[0]['product_or_services'] = 'Misc';
-            $m[0]['taxable_value'] = (array_sum(array_column($misc, 'partner_charge')));
+            $m[0]['taxable_value'] = sprintf("%.2f", (array_sum(array_column($misc, 'partner_charge'))));
             $result['result'] = array_merge($result['result'], $m);
             $result['misc'] = $misc;
         }
@@ -1176,7 +1178,7 @@ class invoices_model extends CI_Model {
             $up_country[0]['qty'] = '';
             $up_country[0]['rate'] = '';
             $up_country[0]['product_or_services'] = 'Upcountry';
-            $up_country[0]['taxable_value'] = $upcountry_data[0]['total_upcountry_price'];
+            $up_country[0]['taxable_value'] = sprintf("%1\$.2f",$upcountry_data[0]['total_upcountry_price']);
             $result['booking'] = array_merge($result['booking'], $up_country);
             $result['upcountry'] = $upcountry_data;
         }
@@ -1188,7 +1190,7 @@ class invoices_model extends CI_Model {
             $d_penalty[0]['qty'] = '';
             $d_penalty[0]['rate'] = '';
             $d_penalty[0]['product_or_services'] = 'Debit Penalty';
-            $d_penalty[0]['taxable_value'] = -(array_sum(array_column($debit_penalty, 'p_amount')));
+            $d_penalty[0]['taxable_value'] = -sprintf("%1\$.2f",(array_sum(array_column($debit_penalty, 'p_amount'))));
             $result['booking'] = array_merge($result['booking'], $d_penalty);
             $result['d_penalty'] = $debit_penalty;
         }
@@ -1200,7 +1202,7 @@ class invoices_model extends CI_Model {
             $c_data[0]['qty'] = '';
             $c_data[0]['rate'] = '';
             $c_data[0]['product_or_services'] = 'Courier';
-            $c_data[0]['taxable_value'] = (array_sum(array_column($final_courier_data, 'courier_charges_by_sf')));
+            $c_data[0]['taxable_value'] = sprintf("%1\$.2f",(array_sum(array_column($final_courier_data, 'courier_charges_by_sf'))));
             $result['booking'] = array_merge($result['booking'], $c_data);
             //$result['defective_return_to_partner'] = $defective_return_to_partner;
             $result['courier'] = $courier;
@@ -1214,7 +1216,7 @@ class invoices_model extends CI_Model {
             $cp_data[0]['qty'] = '';
             $cp_data[0]['rate'] = '';
             $cp_data[0]['product_or_services'] = 'Credit Penalty';
-            $cp_data[0]['taxable_value'] = (array_sum(array_column($credit_penalty, 'p_amount')));
+            $cp_data[0]['taxable_value'] = sprintf("%1\$.2f",(array_sum(array_column($credit_penalty, 'p_amount'))));
             $result['booking'] = array_merge($result['booking'], $cp_data);
             $result['c_penalty'] = $credit_penalty;
         }
@@ -1226,7 +1228,7 @@ class invoices_model extends CI_Model {
             $m[0]['qty'] = '';
             $m[0]['rate'] = '';
             $m[0]['product_or_services'] = 'Misc Charge';
-            $m[0]['taxable_value'] = (array_sum(array_column($misc, 'total_booking_charge')));
+            $m[0]['taxable_value'] = sprintf("%1\$.2f",(array_sum(array_column($misc, 'total_booking_charge'))));
             $result['booking'] = array_merge($result['booking'], $m);
             $result['misc'] = $misc;
         }
@@ -2186,8 +2188,8 @@ class invoices_model extends CI_Model {
 
         if (!empty($post['order'])) { // here order processing
             $this->db->order_by($post['column_order'][$post['order'][0]['column']], $post['order'][0]['dir']);
-        } else if (isset($this->order)) {
-            $order = $this->order;
+        } else if (isset($post['order_by'])) {
+            $order = $post['order_by'];
             $this->db->order_by(key($order), $order[key($order)]);
         }
     }
