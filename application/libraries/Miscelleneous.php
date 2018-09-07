@@ -3411,6 +3411,9 @@ function generate_image($base64, $image_name,$directory){
                 $where['(DATEDIFF(CURRENT_TIMESTAMP,  service_center_booking_action.closed_date)>='.$days
                    . ' AND DATEDIFF(CURRENT_TIMESTAMP,  service_center_booking_action.closed_date)<='.$statusData[0]['review_time_limit'].')'] = NULL;
             }
+            if($booking_id){
+                $where['booking_details.booking_id'] = $booking_id;
+            }
             $where['booking_details.amount_due'] = 0;
             $where['service_center_booking_action.current_status'] = 'InProcess';
             $where['booking_details.is_in_process'] = 0;
