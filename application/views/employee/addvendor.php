@@ -438,6 +438,9 @@
                                 <label class="checkbox-inline col-md-3">
                                     <input type="checkbox" id="is_wh" name="is_wh" <?php if(isset($query[0]['is_wh'])) { if($query[0]['is_wh'] == 1){ echo "checked";}}?> value="1"><b>Warehouse</b>
                                 </label>
+                                <label class="checkbox-inline col-md-4">
+                                    <input type="checkbox" id="is_buyback_gst_invoice" name="is_buyback_gst_invoice" <?php if(isset($query[0]['is_buyback_gst_invoice'])) { if($query[0]['is_buyback_gst_invoice'] == 1){ echo "checked";}}?> value="1"><b>Buyback Invoice on GST</b>
+                                </label>
                             </div>
                         </div>
                 </div>
@@ -1404,8 +1407,8 @@ function manageAccountNameField(value){
             if(Number(municipal_limit) < 1){
             alert("Please Add Municipal Limit");
             return false;}
-        if($('#is_sf').is(':checked')==0 && $('#is_cp').is(':checked')==0 && $('#is_wh').is(':checked')==0){
-            alert("Please Select Atleast One Checkbox of Service Center OR Collection Partner OR Warehouse");
+        if($('#is_sf').is(':checked')==0 && $('#is_cp').is(':checked')==0 && $('#is_wh').is(':checked')==0 && $('#is_buyback_gst_invoice').is(':checked')==0){
+            alert("Please Select Atleast One Checkbox of Service Center OR Collection Partner OR Warehouse OR Buyback Invoice on GST");
             return false;
         }
         form.submit();
