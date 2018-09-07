@@ -7583,7 +7583,7 @@ ALTER TABLE `inventory_ledger` ADD `courier_id` INT NULL DEFAULT NULL AFTER `par
 -- Table structure for table `vendor_partner_varialble_charges`
 --
 
-CREATE TABLE `vendor_partner_varialble_charges` (
+CREATE TABLE `vendor_partner_variable_charges` (
   `id` int(11) NOT NULL,
   `entity_type` varchar(28) NOT NULL,
   `entity_id` varchar(11) NOT NULL,
@@ -7604,7 +7604,7 @@ CREATE TABLE `vendor_partner_varialble_charges` (
 --
 -- Indexes for table `vendor_partner_varialble_charges`
 --
-ALTER TABLE `vendor_partner_varialble_charges`
+ALTER TABLE `vendor_partner_variable_charges`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -7614,7 +7614,7 @@ ALTER TABLE `vendor_partner_varialble_charges`
 --
 -- AUTO_INCREMENT for table `vendor_partner_varialble_charges`
 --
-ALTER TABLE `vendor_partner_varialble_charges`
+ALTER TABLE `vendor_partner_variable_charges`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 -- Released 28 June
@@ -7996,9 +7996,8 @@ INSERT INTO `partner_summary_report_mapping` (`id`, `Title`, `sub_query`, `is_de
 ALTER TABLE `log_partner_table` ADD `entity_type` VARCHAR(65) NOT NULL DEFAULT 'partner' AFTER `id`;
 
 --Abhay 14 Aug 2018
-ALTER TABLE `vendor_partner_invoices` ADD `credit_debit_generated` INT(1) NOT NULL DEFAULT '0' AFTER `create_date`;
-
-ALTER TABLE `vendor_partner_invoices` CHANGE `credit_debit_generated` `credit_generated` INT(1) NOT NULL DEFAULT '1';
+ALTER TABLE `vendor_partner_invoices` ADD `credit_generated` INT(1) NOT NULL DEFAULT '1' AFTER `create_date`;
+ALTER TABLE `trigger_vendor_partner_invoices` ADD `credit_generated` INT(1) NOT NULL DEFAULT '0' AFTER `create_date`
 
 
 ---Chhavi
@@ -8077,5 +8076,18 @@ UPDATE `partner_summary_report_mapping` SET `sub_query` = '(CASE WHEN (booking_d
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'notify_partner_to_review_bookings','Please review the bookings','Hi Partner, <br><br> Below bookings are long pending, please review these bookings otherwise these will be automatically approve after %s \r\n days <br><br>\r\nBooking IDs : <br>  %s', 'noreply@247around.com', '', 'anuj@247around.com', 'chhavid@247around.com', '1', '2018-08-30 15:30:00');
 
 --Kalyani
+
 UPDATE `email_template` SET `template` = '<b>TAXPRO GSP API FAIL</b><br/><p>%s</p><p>%s</p><p>%s</p>' WHERE `email_template`.`tag` = 'taxpro_api_fail';
 UPDATE `header_navigation` SET `link` = 'employee/vendor/seach_by_email' WHERE `title` = 'Email Search';
+
+UPDATE `email_template` SET `template` = '<b>TAXPRO GSP API FAIL:-</b><br/><p>%s</p><p>%s</p><p>%s</p>' WHERE `email_template`.`tag` = 'taxpro_api_fail';UPDATE `email_template` SET `template` = 'Below bookings are long pending, please review these bookings otherwise these will be automatically approve after %s \r\n days <br>' WHERE tag = 'notify_partner_to_review_bookings';
+--Abahy 24 Aug
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'upcountry_missed_mail', 'Upcountry Booking Missed - Need To Take Action', 'Booking should be upcountry but not marked properly. Please check and update booking.<br/> \r\n%s', 'noreply@247around.com', '', '247around_dev@247around.com', '', '1', '2018-08-24 00:00:00');
+
+
+--Abhay 05 Sept 2018
+ALTER TABLE `service_centres` ADD `is_buyback_gst_invoice` INT(1) NOT NULL DEFAULT '0' AFTER `update_date`;
+ALTER TABLE `trigger_service_centres` ADD `is_buyback_gst_invoice` INT(1) NOT NULL DEFAULT '0' AFTER `update_date`;
+
+
+---Released Date 06 Sept 2018
