@@ -3232,7 +3232,7 @@ function generate_image($base64, $image_name,$directory){
         $data = $this->My_CI->booking_model->get_booking_tat_required_data($booking_id);
         $this->get_faulty_booking_criteria($data[0]['partner_id']);
         //Set all variable as blank initiallly
-        $tatArray['leg_1'] = $tatArray['leg_2'] = $tatArray['leg_3'] = $tatArray['leg_4'] =NULL;
+        $tatArray['leg_2'] = $tatArray['leg_3'] = $tatArray['leg_4'] =NULL;
         $tatArray['applicable_on_partner'] = $tatArray['applicable_on_sf'] = 1;
         //Process data through loop
         foreach($data as $values){
