@@ -21,19 +21,20 @@
                                 </div>';
           }
           ?>
-         <div class="col-md-6 ">
-             <h1 class="page-header"><b><?php if(isset($service_center)){ ?>Service Center Invoices<?php } else {?>
+         <div class="col-md-12">
+            <h1 class="page-header"><b><?php if(isset($service_center)){ ?>Service Center Invoices <?php } else {?>
                Partner Invoices
-            <?php } ?></b></h1>
-             
-         </div>
-          <div class="pull-right">
+            <?php } ?></b>
+            <div class="pull-right">
               <button onclick="open_create_cd_invoice_form()" class="btn btn-md btn-primary">Create CN/DN</button>
-             </div>
+            </div>
+            </h1>
+        </div>
+          
       </div>
-      <div class="row" >
-         <div class="form-group col-md-5">
-            <label for="state" class="col-sm-2">Select</label>
+      <div class="row">
+        <div class="form-group col-md-5">
+            <label for="state" class="col-sm-2">Name</label>
             <div class="col-md-10">
                 <?php if(isset($service_center)){ ?>
                <select class="form-control" name ="service_center" id="invoice_id" onChange="getInvoicingData('vendor')">
