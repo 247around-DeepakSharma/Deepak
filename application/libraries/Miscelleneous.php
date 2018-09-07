@@ -3392,7 +3392,7 @@ function generate_image($base64, $image_name,$directory){
                 $actor,$next_action,$postData['rejected_by']);
         }
     }
-    function get_review_bookings_for_partner($partnerID,$booking_id = NULL,$structuredData = 1,$afterLimit = 0,$before_days = NULL){
+    function get_review_bookings_for_partner($partnerID,$booking_id = NULL,$structuredData = 1,$limit = REVIEW_LIMIT_BEFORE){
          $finalArray = array();
         $whereIN = array();
         $statusData = $this->My_CI->reusable_model->get_search_result_data("partners","partners.booking_review_for,partners.review_time_limit",array("booking_review_for IS NOT NULL"=>NULL,"id"=>$partnerID),NULL,NULL,NULL,NULL,NULL,array());
@@ -3400,11 +3400,16 @@ function generate_image($base64, $image_name,$directory){
             $where['booking_details.partner_id'] = $partnerID;
             $statusArray = explode(",",$statusData[0]['booking_review_for']);
             $whereIN['service_center_booking_action.internal_status'] = array("Completed","Cancelled");
-            if($afterLimit == 1){
+            if($limit == REVIEW_LIMIT_BEFORE){
+              $where['DATEDIFF(CURRENT_TIMESTAMP,  service_center_booking_action.closed_date)<='.$statusData[0]['review_time_limit']] = NULL;
+            }
+            else if($limit == REVIEW_LIMIT_AFTER){
               $where['DATEDIFF(CURRENT_TIMESTAMP,  service_center_booking_action.closed_date)>'.$statusData[0]['review_time_limit']] = NULL;
             }
             else{
-                $where['DATEDIFF(CURRENT_TIMESTAMP,  service_center_booking_action.closed_date)<='.$statusData[0]['review_time_limit']] = NULL;
+                $days = $statusData[0]['review_time_limit'] - $limit;
+                $where['(DATEDIFF(CURRENT_TIMESTAMP,  service_center_booking_action.closed_date)>='.$days
+                   . ' AND DATEDIFF(CURRENT_TIMESTAMP,  service_center_booking_action.closed_date)<='.$statusData[0]['review_time_limit'].')'] = NULL;
             }
             $where['booking_details.amount_due'] = 0;
             $where['service_center_booking_action.current_status'] = 'InProcess';
@@ -3434,6 +3439,7 @@ function generate_image($base64, $image_name,$directory){
                         $finalArray[$values['booking_id']]['internal_status'] = $values['internal_status'];
                         $finalArray[$values['booking_id']]['amount_due'] = $values['amount_due'];
                         $finalArray[$values['booking_id']]['partner_id'] = $values['partner_id'];
+                        $finalArray[$values['booking_id']]['cancellation_reason'] = $values['cancellation_reason'];
                     }
                 }
             }

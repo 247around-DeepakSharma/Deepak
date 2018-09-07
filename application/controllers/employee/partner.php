@@ -5118,29 +5118,31 @@ class Partner extends CI_Controller {
     }
       function checked_complete_review_booking() {
         $requested_bookings = $this->input->post('approved_booking');
-        $where['is_in_process'] = 0;
-        $whereIN['booking_id'] = $requested_bookings; 
-        $tempArray = $this->reusable_model->get_search_result_data("booking_details","booking_id",$where,NULL,NULL,NULL,$whereIN,NULL,array());
-        foreach($tempArray as $values){
-            $approved_booking[] = $values['booking_id'];
+        if($requested_bookings){
+            $where['is_in_process'] = 0;
+            $whereIN['booking_id'] = $requested_bookings; 
+            $tempArray = $this->reusable_model->get_search_result_data("booking_details","booking_id",$where,NULL,NULL,NULL,$whereIN,NULL,array());
+            foreach($tempArray as $values){
+                $approved_booking[] = $values['booking_id'];
+            }
+            $inProcessBookings = array_diff($requested_bookings,$approved_booking);
+            $this->session->set_flashdata('inProcessBookings', $inProcessBookings);
+            $this->booking_model->mark_booking_in_process($approved_booking);
+            $url = base_url() . "employee/do_background_process/complete_booking";
+            if (!empty($approved_booking)) {
+                $data['booking_id'] = $approved_booking;
+                $data['agent_id'] = $this->session->userdata('agent_id');
+                $data['agent_name'] = $this->session->userdata('partner_name');
+                $data['partner_id'] = $this->input->post('partner_id');
+                $data['approved_by'] = $this->input->post('approved_by'); 
+                $this->asynchronous_lib->do_background_process($url, $data);
+                $this->push_notification_lib->send_booking_completion_notification_to_partner($approved_booking);
+            } else {
+                //Logging
+                log_message('info', __FUNCTION__ . ' Approved Booking Empty from Post');
+            }
         }
-        $inProcessBookings = array_diff($requested_bookings,$approved_booking);
-        $this->session->set_flashdata('inProcessBookings', $inProcessBookings);
-        $this->booking_model->mark_booking_in_process($approved_booking);
-        $url = base_url() . "employee/do_background_process/complete_booking";
-        if (!empty($approved_booking)) {
-            $data['booking_id'] = $approved_booking;
-            $data['agent_id'] = $this->session->userdata('agent_id');
-            $data['agent_name'] = $this->session->userdata('partner_name');
-            $data['partner_id'] = $this->input->post('partner_id');
-            $data['approved_by'] = $this->input->post('approved_by'); 
-            $this->asynchronous_lib->do_background_process($url, $data);
-            $this->push_notification_lib->send_booking_completion_notification_to_partner($approved_booking);
-        } else {
-            //Logging
-            log_message('info', __FUNCTION__ . ' Approved Booking Empty from Post');
-        }
-            redirect(base_url() . 'partner/review_bookings');
+       redirect(base_url() . 'partner/home'); 
     }
     function reject_booking_from_review(){
         $postArray = $this->input->post();
@@ -5188,8 +5190,19 @@ class Partner extends CI_Controller {
     
     function download_partner_review_bookings($partnerID){
         ob_start();
-        $data = $this->miscelleneous->get_review_bookings_for_partner($partner_id);
-        $headings = array_keys($data[0]);
-        $this->miscelleneous->downloadCSV($data, $headings, "Review_bookings");
+        $finalArray = array();
+        $data = $this->miscelleneous->get_review_bookings_for_partner($partnerID);
+        foreach($data as $key => $values){
+            $values['Booking_ID'] = $key;
+            unset($values['booking_jobcard_filename']);
+            unset($values['amount_due']);
+            unset($values['partner_id']);
+            ksort($values);
+            $finalArray[] = $values;
+        }
+        if(!empty($finalArray)){
+            $headings = array_keys($finalArray[0]);
+            $this->miscelleneous->downloadCSV(array_values($finalArray), $headings, "Review_bookings");
+        }
     }
 }

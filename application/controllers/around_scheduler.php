@@ -1845,7 +1845,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
     function auto_approve_partner_review_bookings_after_threshold($partnerID){
         log_message('info', __FUNCTION__ . ' Start for partner '.$partnerID);
         //Get All booking where review time limit is crossed by partner 
-        $tempData = $this->miscelleneous->get_review_bookings_for_partner($partnerID,NULL,1,1);
+        $tempData = $this->miscelleneous->get_review_bookings_for_partner($partnerID,NULL,1,REVIEW_LIMIT_AFTER);
         //Convert booking into structured format requiredd by checked_complete_review_booking function
         if($tempData){
             foreach($tempData as $booking_id=>$values){
@@ -1871,6 +1871,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         $where['is_in_process'] = 0;
         $whereIN['booking_id'] = $requested_bookings; 
         $tempArray = $this->reusable_model->get_search_result_data("booking_details","booking_id",$where,NULL,NULL,NULL,$whereIN,NULL,array());
+        if($tempArray){
         foreach($tempArray as $values){
             $approved_booking[] = $values['booking_id'];
         }
@@ -1887,6 +1888,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
             //Logging
             log_message('info', __FUNCTION__ . ' Approved Booking Empty from Post');
         }
+        }
          log_message('info', __FUNCTION__ . ' End');
     }
 
@@ -1894,7 +1896,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         log_message('info', __FUNCTION__ . ' Start');
         $partnerArray = $this->reusable_model->get_search_result_data("partners", "*", array("booking_review_for IS NOT NULL" => NULL), NULL, NULL, NULL, NULL, NULL, array());
         foreach ($partnerArray as $partner) {
-            $tempData = $this->miscelleneous->get_review_bookings_for_partner($partner['id'], NULL, 1, 0, REVIEW_NOTIFICATION_TO_PARTNER_DAYS);
+            $tempData = $this->miscelleneous->get_review_bookings_for_partner($partner['id'], NULL, 1,REVIEW_NOTIFICATION_TO_PARTNER_DAYS);
             $data['bookings'] = array_keys($tempData);
             $template = $this->booking_model->get_booking_email_template("notify_partner_to_review_bookings");
             $subject = $template[4];
