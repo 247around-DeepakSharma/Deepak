@@ -3150,6 +3150,7 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
      * 
      */
     function get_tat_with_considration_of_non_working_day($non_working_day,$startDate,$endDate){
+         $holidayInTatArray = $nonWorkingDaysArray = array();
          log_message('info', __FUNCTION__ . "Start non_working_day = ".$non_working_day.", startDate = ".$startDate."end date= ".$endDate);
         //Create a week array to get week into days
         $weekArray = array("Monday"=>1,"Tuesday"=>2,"Wednesday"=>3,"Thursday"=>4,"Friday"=>5,"Saturday"=>6,"Sunday"=>7);
@@ -3160,7 +3161,9 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
         // calculate normal  tat from start to end date without working days considration
         $tatDays = floor((strtotime($endDate) - strtotime($startDate))/(60 * 60 * 24));
         //Convert non working days string into array
+        if($non_working_day){
         $nonWorkingDaysArray = explode(",",$non_working_day);
+        }
         //Process all holidays through array, because holiday may be more then 1
         foreach($nonWorkingDaysArray as $nonWorkingDay){
             // Calculate days upto 1st holiday from start date
@@ -3293,6 +3296,8 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
             $tatArray['booking_id'] = $booking_id;
             $tatArray['partner_id'] = $values['partner_id'];
             $tatArray['applicable_on_partner'] = $this->is_booking_valid_for_partner_panelty($values['request_type']);
+            $tatArray['sf_closed_date'] = $values['sf_closed_date'];
+            $tatArray['around_closed_date'] = $values['around_closed_date'];
             if($values['spare_id']){
                 $this->My_CI->reusable_model->update_table("booking_tat",$tatArray,array("booking_id"=>$booking_id,"spare_id"=>$values['spare_id']));
             }
