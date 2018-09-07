@@ -132,16 +132,45 @@
             </div>
         </div>
     </div>
-    <div class="row">
+    <!-- Partner Booking Status -->
+       <div class="row" style="margin-bottom: 10px;">
+        <div class="col-md-12 col-sm-12 col-xs-12 dashboard_graph" style="">
+<!--            <div class="x_panel">-->
+                <div class="row x_title">
+                    <div class="col-md-6">
+                        <h3>Partner Booking Status &nbsp;&nbsp;&nbsp;</h3>
+                    </div>
+                    <div class="col-md-5">
+                        <div id="reportrange" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; margin-right: -12%;">
+                            <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                            <span></span> <b class="caret"></b>
+                        </div>
+                    </div>
+                    <div class="col-md-1">
+                        <span class="collape_icon" href="#chart_container_div" data-toggle="collapse" onclick="collapse_icon_change(this)" style="margin-right: 8px;"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
+                    </div>
+                </div>
+                <div class="collapse in" id="chart_container_div">
+                <div class="col-md-12 x_content">
+                    <center><img id="loader_gif1" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
+                    <div id="chart_container" class="chart_container"></div>
+                </div>
+                </div>
+                <div class="clearfix"></div>
+<!--            </div>-->
+        </div>
+    </div>
+    <!-- End Partner Booking Status -->
+      <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
 <!--                AM reporting-->
                 <div class="x_panel">
                 <div class="x_title">
                     <h2>AM TAT Reporting</h2>
-                    <span class="collape_icon" href="#AM_TAT_Reporting" data-toggle="collapse" onclick="collapse_icon_change(this)"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
+                    <span class="collape_icon" href="#AM_TAT_Reporting" data-toggle="collapse" onclick="initiate_AM_TAT_Reporting(this)"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
-                <div id="AM_TAT_Reporting" class="collapse in">
+                <div id="AM_TAT_Reporting" class="collapse">
                 <div class="table-responsive" id="escalation_data" ng-controller="completedBooking_ControllerAM" ng-cloak="">
                     <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 160px;">
                     <div class="item form-group">
@@ -245,35 +274,6 @@
             </div>
         </div>
     </div>  
-       <!-- Partner Booking Status -->
-       <div class="row" style="margin-bottom: 10px;">
-        <div class="col-md-12 col-sm-12 col-xs-12 dashboard_graph" style="">
-<!--            <div class="x_panel">-->
-                <div class="row x_title">
-                    <div class="col-md-6">
-                        <h3>Partner Booking Status &nbsp;&nbsp;&nbsp;</h3>
-                    </div>
-                    <div class="col-md-5">
-                        <div id="reportrange" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; margin-right: -12%;">
-                            <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
-                            <span></span> <b class="caret"></b>
-                        </div>
-                    </div>
-                    <div class="col-md-1">
-                        <span class="collape_icon" href="#chart_container_div" data-toggle="collapse" onclick="collapse_icon_change(this)" style="margin-right: 8px;"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
-                    </div>
-                </div>
-                <div class="collapse in" id="chart_container_div">
-                <div class="col-md-12 x_content">
-                    <center><img id="loader_gif1" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
-                    <div id="chart_container" class="chart_container"></div>
-                </div>
-                </div>
-                <div class="clearfix"></div>
-<!--            </div>-->
-        </div>
-    </div>
-    <!-- End Partner Booking Status -->
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
             <div class="x_panel" ng-controller="pendngBooking_Controller" ng-cloak="">
@@ -773,7 +773,8 @@
         n = d.getMonth();
         y = d.getFullYear();
         date = d.getDate();
-        $('input[name="daterange_completed_bookings"]').daterangepicker({
+        // $('input[name="daterange_completed_bookings"]').daterangepicker({
+        $('input[id="completed_daterange_id"]').daterangepicker({
             timePicker: true,
             timePickerIncrement: 30,
             locale: {
@@ -801,6 +802,22 @@
         
     });
     
+    function initiate_AM_TAT_Reporting(span){
+        collapse_icon_change(span);
+        var d = new Date();
+        n = d.getMonth();
+        y = d.getFullYear();
+        date = d.getDate();
+        // $('input[name="daterange_completed_bookings"]').daterangepicker({
+        $('input[id="completed_daterange_id_am"]').daterangepicker({
+            timePicker: true,
+            timePickerIncrement: 30,
+            locale: {
+                format: 'YYYY-MM-DD'
+            },
+            startDate: y+'-'+n+'-'+date
+        });
+    }
    
     function agent_daily_report_call(span){ 
         collapse_icon_change(span);
