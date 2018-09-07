@@ -297,6 +297,8 @@
              <th class="text-center">GST</th>
              <th class="text-center">Bank Details Verification</th>
              <th class="text-center">Contract</th>
+             <th class="text-center">Temporary Status</th>
+             <th class="text-center">Permanent Status</th>
              <th class="text-center">Defective Parts Not Shipped by SF</th>
              <th class="text-center">Go to vendor Details</th>
           </tr>
@@ -318,6 +320,12 @@
                 <td class="text-center">
                  
                    <img src="<?php echo  base_url(); ?><?php if(!empty($invoicing_summary['contract_file'])){ echo "images/ok.png";} else { echo "images/red_cross.png";} ?>" style="width:15px; height: 15px;" /> 
+               </td>
+               <td class="text-center">
+                   <?php if($invoicing_summary['on_off'] == 1){ echo "On"; }else{ echo "Off"; } ?> 
+               </td>
+               <td class="text-center">
+                   <?php if($invoicing_summary['active'] == 1){ echo "Active"; }else{ echo "Deactive"; } ?>
                </td>
                <td class="text-center">
                   <?php if($invoicing_summary['count_spare_part'] > 0){ ?>
