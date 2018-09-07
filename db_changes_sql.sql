@@ -8091,3 +8091,6 @@ ALTER TABLE `trigger_service_centres` ADD `is_buyback_gst_invoice` INT(1) NOT NU
 
 
 ---Released Date 06 Sept 2018
+
+--Chhavi 07th Sep
+ALTER TABLE `booking_tat` ADD `sf_closed_date` DATETIME NULL AFTER `booking_id`, ADD `around_closed_date` DATETIME NULL AFTER `sf_closed_date`;
