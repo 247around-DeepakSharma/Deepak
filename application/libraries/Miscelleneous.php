@@ -3147,6 +3147,7 @@ function generate_image($base64, $image_name,$directory){
      * 
      */
     function get_tat_with_considration_of_non_working_day($non_working_day,$startDate,$endDate){
+         $holidayInTatArray = $nonWorkingDaysArray = array();
          log_message('info', __FUNCTION__ . "Start non_working_day = ".$non_working_day.", startDate = ".$startDate."end date= ".$endDate);
         //Create a week array to get week into days
         $weekArray = array("Monday"=>1,"Tuesday"=>2,"Wednesday"=>3,"Thursday"=>4,"Friday"=>5,"Saturday"=>6,"Sunday"=>7);
@@ -3157,7 +3158,9 @@ function generate_image($base64, $image_name,$directory){
         // calculate normal  tat from start to end date without working days considration
         $tatDays = floor((strtotime($endDate) - strtotime($startDate))/(60 * 60 * 24));
         //Convert non working days string into array
+        if($non_working_day){
         $nonWorkingDaysArray = explode(",",$non_working_day);
+        }
         //Process all holidays through array, because holiday may be more then 1
         foreach($nonWorkingDaysArray as $nonWorkingDay){
             // Calculate days upto 1st holiday from start date
@@ -3232,7 +3235,7 @@ function generate_image($base64, $image_name,$directory){
         $data = $this->My_CI->booking_model->get_booking_tat_required_data($booking_id);
         $this->get_faulty_booking_criteria($data[0]['partner_id']);
         //Set all variable as blank initiallly
-        $tatArray['leg_1'] = $tatArray['leg_2'] = $tatArray['leg_3'] = $tatArray['leg_4'] =NULL;
+        $tatArray['leg_2'] = $tatArray['leg_3'] = $tatArray['leg_4'] =NULL;
         $tatArray['applicable_on_partner'] = $tatArray['applicable_on_sf'] = 1;
         //Process data through loop
         foreach($data as $values){
@@ -3290,6 +3293,8 @@ function generate_image($base64, $image_name,$directory){
             $tatArray['booking_id'] = $booking_id;
             $tatArray['partner_id'] = $values['partner_id'];
             $tatArray['applicable_on_partner'] = $this->is_booking_valid_for_partner_panelty($values['request_type']);
+            $tatArray['sf_closed_date'] = $values['sf_closed_date'];
+            $tatArray['around_closed_date'] = $values['around_closed_date'];
             if($values['spare_id']){
                 $this->My_CI->reusable_model->update_table("booking_tat",$tatArray,array("booking_id"=>$booking_id,"spare_id"=>$values['spare_id']));
             }
@@ -3410,6 +3415,9 @@ function generate_image($base64, $image_name,$directory){
                 $days = $statusData[0]['review_time_limit'] - $limit;
                 $where['(DATEDIFF(CURRENT_TIMESTAMP,  service_center_booking_action.closed_date)>='.$days
                    . ' AND DATEDIFF(CURRENT_TIMESTAMP,  service_center_booking_action.closed_date)<='.$statusData[0]['review_time_limit'].')'] = NULL;
+            }
+            if($booking_id){
+                $where['booking_details.booking_id'] = $booking_id;
             }
             $where['booking_details.amount_due'] = 0;
             $where['service_center_booking_action.current_status'] = 'InProcess';

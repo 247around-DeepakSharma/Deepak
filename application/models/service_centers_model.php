@@ -190,9 +190,9 @@ class Service_centers_model extends CI_Model {
     function get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$offest,$perPage){
         $limit = "";
         $where_in = "";
-        $where_sc = "AND (partners.booking_review_for NOT LIKE '%".$status."%' OR partners.booking_review_for IS NULL)";
+        $where_sc = "AND (partners.booking_review_for NOT LIKE '%".$status."%' OR partners.booking_review_for IS NULL OR booking_details.amount_due != 0)";
          if($is_partner){
-            $where_sc = " AND (partners.booking_review_for IS NOT NULL)";
+            $where_sc = " AND (partners.booking_review_for IS NOT NULL AND booking_details.amount_due = 0)";
         }
         if($status == "Cancelled"){
             $where_sc = $where_sc." AND NOT EXISTS (SELECT 1 FROM service_center_booking_action sc_sub WHERE sc_sub.booking_id = sc.booking_id AND sc_sub.internal_status ='Completed' LIMIT 1) ";
