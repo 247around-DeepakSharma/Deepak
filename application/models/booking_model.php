@@ -2460,14 +2460,14 @@ class Booking_model extends CI_Model {
         return $this->db->affected_rows();
     }
     function get_booking_tat_required_data($booking_id){
-        $sql = "SELECT booking_details.partner_id,booking_details.booking_id,booking_details.request_type,STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date,"
+        $sql = "SELECT booking_details.partner_id,booking_details.booking_id,booking_details.request_type,booking_details.create_date,STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date,"
                 . "booking_details.is_upcountry,date(booking_details.service_center_closed_date) as sf_closed_date,"
                 . "date(booking_details.closed_date) as around_closed_date,spare_parts_details.id as spare_id,spare_parts_details.status as spare_status,date(spare_parts_details.date_of_request) as part_request_date,"
                 . "date(spare_parts_details.acknowledge_date) as spare_receieved_date ,"
                 . "date(spare_parts_details.defective_part_shipped_date) as defactive_part_shipped_date,date(spare_parts_details.spare_cancelled_date) as spare_cancelled_date,"
                 . "service_centres.non_working_days "
                 . "FROM booking_details LEFT JOIN spare_parts_details ON "
-                . "spare_parts_details.booking_id = booking_details.booking_id JOIN service_centres ON service_centres.id = booking_details.assigned_vendor_id "
+                . "spare_parts_details.booking_id = booking_details.booking_id LEFT JOIN service_centres ON service_centres.id = booking_details.assigned_vendor_id "
                 . "WHERE booking_details.booking_id = '".$booking_id."' order by booking_details.booking_id";
         $query = $this->db->query($sql);
         return $query->result_array();

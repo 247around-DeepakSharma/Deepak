@@ -534,6 +534,9 @@ class Miscelleneous {
 
         // call partner callback
         $this->My_CI->partner_cb->partner_callback($booking_id);
+         if($status == _247AROUND_FOLLOWUP){
+            $this->process_booking_tat_on_completion($booking_id);
+        }
         log_message('info', __METHOD__ . " => Exit " . $booking_id);
     }
 
@@ -3243,6 +3246,10 @@ function generate_image($base64, $image_name,$directory){
             if(!$values['sf_closed_date']){
                 log_message('info', __FUNCTION__ . "SF closed date was null so consider close date as sf date. sf_date= ".$values['around_closed_date']);
                 $values['sf_closed_date'] =  $values['around_closed_date'];
+             }
+             if(!$values['initial_booking_date']){
+                log_message('info', __FUNCTION__ . "SF Initial booking date was null so consider create date as initial_booking_date. initial_booking_date= ".$values['around_closed_date']);
+                $values['initial_booking_date'] =  $values['create_date'];
              }
             // Leg 4 will be TAT between around closed date and sf closed date
             $tatArray['leg_4'] = $this->get_tat_with_considration_of_non_working_day($values['non_working_days'],$values['sf_closed_date'],$values['around_closed_date']);
