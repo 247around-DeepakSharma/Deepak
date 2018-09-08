@@ -290,6 +290,8 @@ class Service_centers extends CI_Controller {
                 $i = 0;
 
                 foreach ($customer_basic_charge as $unit_id => $value) {
+                    //Check unit id exist in the sc action table.
+                    $this->check_unit_exist_action_table($booking_id, $unit_id);
                     // variable $unit_id  is existing id in booking unit details table of given booking id 
                     $data = array();
                     $data['unit_details_id'] = $unit_id;
@@ -4873,5 +4875,27 @@ class Service_centers extends CI_Controller {
                 echo json_encode(array("code" => -247));
             }
         }
+    }
+    /**
+     * @desc This is used to check unit line item exist in the service center action table.
+     * If not then insert new line item in action table.
+     * @param String $booking_id
+     * @param Strng $unit_id
+     */
+    function check_unit_exist_action_table($booking_id, $unit_id){
+        log_message("info", __METHOD__. " Booking ID ". $booking_id. " Unit ID ". $unit_id);
+        $data = $this->service_centers_model->get_service_center_action_details("*", array('unit_details_id' =>$unit_id,"booking_id" => $booking_id));
+        if(empty($data)){
+            log_message("info", __METHOD__. " Unit is not exist for booking id ". $booking_id. " Unit ID ". $unit_id);
+            $data1 = $this->service_centers_model->get_service_center_action_details("*", array("booking_id" => $booking_id));
+            if(!empty($data1)){
+                $a = $data1[0];
+                $a['id'] = NULL;
+                $a['create_date'] = date("Y-m-d H:i:s");
+                $a['unit_details_id'] = $unit_id;
+                log_message("info", __METHOD__. " data unit Insert ". print_r($a, true));
+                $this->vendor_model->insert_service_center_action($a);
+            }
+        } 
     }
 }

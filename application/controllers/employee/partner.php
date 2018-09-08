@@ -1808,10 +1808,10 @@ class Partner extends CI_Controller {
                 $data['courier_name_by_partner'] = $this->input->post('courier_name');
                 $data['awb_by_partner'] = $this->input->post('awb');
                 $data['shipped_date'] = $this->input->post('shipment_date');
-                if ($this->input->post('request_type') !== REPAIR_OOW_TAG) {
-                    $data['partner_challan_number'] = $this->input->post('partner_challan_number');
-                    $data['challan_approx_value'] = $this->input->post('approx_value');
-                }
+                //if ($this->input->post('request_type') !== REPAIR_OOW_TAG) {
+                $data['partner_challan_number'] = $this->input->post('partner_challan_number');
+                $data['challan_approx_value'] = $this->input->post('approx_value');
+                //}
 
                 $incoming_invoice_pdf = $this->input->post("incoming_invoice_pdf");
                 if (!empty($incoming_invoice_pdf)) {
