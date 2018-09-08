@@ -2889,6 +2889,7 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
             $message = vsprintf($template[0], array($bookingData[0]['name'],$bookingData[0]['rating_comments'],$bookingData[0]['request_type'],$bookingData[0]['services']));
             $to = $template[1];  
             $cc = $bookingData[0]['official_email'].",".$amEmail[0]['official_email'].",".$this->My_CI->session->userdata("official_email");
+            $bcc = "";
             $from = $template[2];
             $this->My_CI->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "",BAD_RATING);
             log_message('info', __FUNCTION__ . " END  ".$bookingID.$number);

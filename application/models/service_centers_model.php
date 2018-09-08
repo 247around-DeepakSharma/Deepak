@@ -348,7 +348,7 @@ class Service_centers_model extends CI_Model {
         return $query->result_array();
     }
     
-    function get_spare_parts_booking($where, $select, $group_by = false, $order_by = false, $offset = false, $limit = false,$state=0){
+    function get_spare_parts_booking($where, $select, $group_by = false, $order_by = false, $offset = false, $limit = false,$state=0,$download=NULL){
         $this->_spare_parts_booking_query($where, $select,$state);
         if($group_by){
             $this->db->group_by($group_by);
@@ -361,7 +361,12 @@ class Service_centers_model extends CI_Model {
             $this->db->limit($limit, $offset);
         }
         $query = $this->db->get();
+        if($download){
+          return $query;
+        }
+        else{
         return $query->result_array();
+    }
     }
     
     function _spare_parts_booking_query($where, $select,$state=0){
