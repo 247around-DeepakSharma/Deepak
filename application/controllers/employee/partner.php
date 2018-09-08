@@ -1890,7 +1890,7 @@ class Partner extends CI_Controller {
 
                         $userSession = array('success' => 'Parts Updated');
                         $this->session->set_userdata($userSession);
-                        redirect(base_url() . "partner/get_spare_parts_booking");
+                        redirect(base_url() . "partner/get_spare_parts_booking/0/1");
                     } else { //if($response){
                         log_message('info', __FUNCTION__ . '=> Spare parts booking NOT SHIP updated by Partner ' . $this->session->userdata('partner_id') .
                                 " booking id " . $booking_id . " Data" . print_r($this->input->post(), true));
@@ -4523,12 +4523,24 @@ class Partner extends CI_Controller {
                 . "defective_part_shipped_date,remarks_defective_part_by_sf";
         $group_by = "spare_parts_details.booking_id";
         $order_by = "spare_parts_details.defective_part_shipped_date DESC";
-        $data = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by);
-        $headings = array("Parts Shipped","Booking ID","Customer Name","Courier Name","AWB","SF Challan","Partner Challan","Shipped Date","Remarks");
-        foreach($data as $spareData){
-            $CSVData[]  = array_values($spareData);
-        }
-        $this->miscelleneous->downloadCSV($CSVData, $headings, "Waiting_Spare_Parts_".date("Y-m-d"));
+        $newCSVFileName = "Waiting_Spare_Parts_".date("Y-m-d").".csv";
+        $csv = TMP_FOLDER . $newCSVFileName;
+        $report = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by,FALSE,FALSE,0,1);
+        $delimiter = ",";
+        $newline = "\r\n";
+        $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
+        log_message('info', __FUNCTION__ . ' => Rendered CSV');
+        write_file($csv, $new_report);
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename="' . basename($csv) . '"');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($csv));
+        readfile($csv);
+        exec("rm -rf " . escapeshellarg($csv));
+        unlink($csv);
     }
     function download_waiting_upcountry_bookings(){
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
@@ -5145,6 +5157,7 @@ class Partner extends CI_Controller {
        redirect(base_url() . 'partner/home'); 
     }
     function reject_booking_from_review(){
+        if($this->input->post('booking_id')){
         $postArray = $this->input->post();
         $where['is_in_process'] = 0;
         $whereIN['booking_id'] = $postArray['booking_id']; 
@@ -5158,6 +5171,7 @@ class Partner extends CI_Controller {
         else{
             echo "Someone Else is Updating the booking , Please check updated booking and try again";
         }
+    }
     }
     function partner_review_bookings($offset = 0, $all = 0) {
         $this->checkUserSession();
