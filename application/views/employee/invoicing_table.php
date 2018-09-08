@@ -165,6 +165,7 @@
          <td></td>
          <td></td>
          <td></td>
+         <td></td>
          <td><?php echo sprintf("%.2f",$sum_of_total_service_charges); ?></td>
          <td><?php echo sprintf("%.2f",$sum_total_additional_service_charge); ?></td>
          <td><?php echo sprintf("%.2f",$sum_total_parts_cost); ?></td>
