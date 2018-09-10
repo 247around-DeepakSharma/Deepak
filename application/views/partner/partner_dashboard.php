@@ -638,6 +638,9 @@ function around_monthly_data(){
             margin-bottom: 0px;
             margin-top: 15px;
         }
+        .highcharts-contextbutton{
+            display: none;
+        }
         </style>
   
 
