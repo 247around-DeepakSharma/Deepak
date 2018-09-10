@@ -169,7 +169,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label  for="company_name" class="col-md-3">Company Name</label>
+                                        <label  for="company_name" class="col-md-3">Company Name*</label>
                                         <div class="col-md-8">
                                             <input  type="text" class="form-control blockspacialchar" id="company_name" name="company_name" value = "<?php
                                                 if (isset($query[0]['company_name'])) {
@@ -186,7 +186,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label  for="name" class="col-md-3">Display Name</label>
+                                        <label  for="name" class="col-md-3">Display Name*</label>
                                         <div class="col-md-8">
                                             <input  type="text" class="form-control blockspacialchar" id="name" name="name" value = "<?php
                                                 if (isset($query[0]['name'])) {
@@ -205,7 +205,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label for="rm" class="col-md-3 vertical-align">RM</label>
+                                        <label for="rm" class="col-md-3 vertical-align">RM*</label>
                                         <div class="col-md-8">
                                             <select id="rm" class="form-control" name ="rm">
                                                 <option selected disabled>Select Regional Manager</option>
@@ -231,7 +231,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label  for="address" class="col-md-3 vertical-align">Address</label>
+                                        <label  for="address" class="col-md-3 vertical-align">Address*</label>
                                         <div class="col-md-8">
                                             <input  type="text" class="form-control"  name="address" value = "<?php
                                                 if (isset($query[0]['address'])) {
@@ -262,7 +262,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label for="state" class="col-md-3 vertical-align">District</label>
+                                        <label for="state" class="col-md-3 vertical-align">District*</label>
                                         <div class="col-md-8">
                                             <select id="district_option" class="district form-control" name ="district" onChange="getPincode()">
                                                 <option selected disabled>Select District</option>
@@ -288,7 +288,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label for="state" class="col-md-3 vertical-align">State</label>
+                                        <label for="state" class="col-md-3 vertical-align">State*</label>
                                         <div class="col-md-8">
                                             <select class=" form-control" name ="state" id="state" onChange="getDistrict()" placeholder="Select State">
                                                 <option disabled="disabled" selected="selected"> Select State</option>
@@ -339,7 +339,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label for="phone_1" class="col-md-3 vertical-align">Phone 1</label>
+                                        <label for="phone_1" class="col-md-3 vertical-align">Phone 1*</label>
                                         <div class="col-md-8">
                                             <input type="text" class="form-control" id="phone_1" name="phone_1" value = "<?php
                                                 if (isset($query[0]['phone_1'])) {
@@ -392,7 +392,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label for="company_type" class="col-md-3">Company Type</label>
+                                        <label for="company_type" class="col-md-3">Company Type*</label>
                                         <div class="col-md-8">
                                             <select name="company_type" class="form-control">
                                                 <option disabled selected >Select Company Type</option>
@@ -426,7 +426,7 @@
                 </div>
 
                 <div class="panel panel-info">
-                        <div class="panel-heading"  style="background-color:#ECF0F1"><b>Vendor Type</b></div>
+                        <div class="panel-heading"  style="background-color:#ECF0F1"><b>Vendor Type*</b></div>
                         <div class="panel-body">
                             <div class="col-md-12">
                                 <label class="checkbox-inline col-md-3">
@@ -467,7 +467,7 @@
                     </div>
                 
                     <div class="panel panel-info">
-                        <div class="panel-heading" style="background-color:#ECF0F1"><b>Upcountry</b></div>
+                        <div class="panel-heading" style="background-color:#ECF0F1"><b>Upcountry*</b></div>
                         <div class="panel-body">
                             <div class="col-md-12">
                                 <div class="col-md-4">
@@ -519,7 +519,7 @@
                         <div class="panel-body">
                             <div class="col-md-12">
                                 <div class="col-md-12" style="height: 59px;">
-                                <div class="col-md-4" style="margin-right:21px;margin-left: 10px">
+                                <div class="col-md-4">
                                     <div class="form-group <?php
                                         if (form_error('name_on_pan')) {
                                             echo 'has-error';
@@ -639,7 +639,7 @@
                                         }
                                         ?>">
                                         <label for="gst_file" class="col-md-2 vertical-align" style="margin-right: 5%;">GST File</label>
-                                        <div class="col-md-6">
+                                        <div class="col-md-7">
                                             <input type="file" class="form-control"  id="gst_file" name="gst_file" value = "<?php
                                                 if (isset($query[0]['gst_file'])) {
                                                     echo $query[0]['gst_file'];
@@ -716,7 +716,7 @@
                                         }
                                         ?>">
                                         <label for="address_proof_file" class="col-md-3 vertical-align" style="width: 25%;">Address Proof File</label>
-                                        <div class="col-md-8" style="    width: 65%;">
+                                        <div class="col-md-7" style="    width: 65%;">
                                             <input type="file" class="form-control"  name="address_proof_file" >
                                             <?php echo form_error('address_proof_file'); ?>
                                         </div>
@@ -914,7 +914,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label  for="primary_contact_name" class="col-md-3 vertical-align">Name</label>
+                                        <label  for="primary_contact_name" class="col-md-3 vertical-align">Name*</label>
                                         <div class="col-md-8">
                                             <input  type="text" class="form-control blockspacialchar"  name="primary_contact_name" value = "<?php
                                                 if (isset($query[0]['primary_contact_name'])) {
@@ -931,7 +931,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label for="primary_contact_email" class="col-md-2 vertical-align">Email</label>
+                                        <label for="primary_contact_email" class="col-md-2 vertical-align">Email*</label>
                                         <div class="col-md-8">
                                             <input  type="text" class="form-control"  name="primary_contact_email" value = "<?php
                                                 if (isset($query[0]['primary_contact_email'])) {
@@ -950,7 +950,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label for="primary_contact_phone_1" class="col-md-3 vertical-align">Phone 1</label>
+                                        <label for="primary_contact_phone_1" class="col-md-3 vertical-align">Phone 1*</label>
                                         <div class="col-md-8">
                                             <input type="text" class="form-control" id="primary_contact_phone_1" name="primary_contact_phone_1" value = "<?php
                                                 if (isset($query[0]['primary_contact_phone_1'])) {
@@ -991,7 +991,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label for="owner_name" class="col-md-3 vertical-align">Name</label>
+                                        <label for="owner_name" class="col-md-3 vertical-align">Name*</label>
                                         <div class="col-md-8">
                                             <input type="text" class="form-control blockspacialchar"  name="owner_name" value = "<?php
                                                 if (isset($query[0]['owner_name'])) {
@@ -1008,7 +1008,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label for="owner_email" class="col-md-3 vertical-align">Email</label>
+                                        <label for="owner_email" class="col-md-3 vertical-align">Email*</label>
                                         <div class="col-md-8">
                                             <input type="text" class="form-control"  name="owner_email" value = "<?php
                                                 if (isset($query[0]['owner_email'])) {
@@ -1027,7 +1027,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label  for="owner_phone_1" class="col-md-3 vertical-align">Phone 1</label>
+                                        <label  for="owner_phone_1" class="col-md-3 vertical-align">Phone 1*</label>
                                         <div class="col-md-8">
                                             <input type="text" class="form-control" id="owner_phone_1" name="owner_phone_1" value = "<?php
                                                 if (isset($query[0]['owner_phone_1'])) {
@@ -1152,7 +1152,7 @@
                                     }
                                       ?>">
                                 <?php echo form_error('id'); ?>
-                                <div  class = "panel panel-info">
+                    <div  class = "panel panel-info">
                         <div class="panel-heading" style="background-color:#ECF0F1"><b>Bank Details</b></div>
                         <div class="panel-body" id="bank_details">
                             <div class="col-md-12">
@@ -1162,7 +1162,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label  for="bank_name" class="col-md-4 vertical-align">Bank Name</label>
+                                        <label  for="bank_name" class="col-md-4 vertical-align">Bank Name*</label>
                                         <div class="col-md-6">
                                             <select  style="width:170px;" class="form-control" id="bank_name" name="bank_name" onchange="manageAccountNameField(this.value)">
                                                 <option selected disabled  >Select Bank</option>
@@ -1180,7 +1180,7 @@
                                             echo 'account_type';
                                         }
                                         ?>">
-                                        <label for="account_type" class="col-md-4 vertical-align">Account Type</label>
+                                        <label for="account_type" class="col-md-4 vertical-align">Account Type*</label>
                                         <div class="col-md-6">
                                             <select class="form-control" id="account_type" name="account_type">
                                                 <option selected disabled>Account Type</option>
@@ -1196,7 +1196,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label for="bank_account" class="col-md-4 vertical-align">Bank Account</label>
+                                        <label for="bank_account" class="col-md-4 vertical-align">Bank Account*</label>
                                         <div class="col-md-6">
                                             <input type="text" class="form-control allowNumericWithDecimal" <?php if (!isset($query[0]['bank_name'])) {echo "disabled";}?>  id = "bank_account" name="bank_account"  value = "<?php
                                                 if (isset($query[0]['bank_account'])) {
@@ -1215,7 +1215,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label for="ifsc_code" class="col-md-4" >IFSC Code</label>
+                                        <label for="ifsc_code" class="col-md-4" >IFSC Code*</label>
                                         <div class="col-md-6">
                                             <input type="text" class="form-control blockspacialchar"  name="ifsc_code" id="ifsc_code" value = "<?php
                                                 if (isset($query[0]['ifsc_code'])) {
@@ -1232,7 +1232,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label for="beneficiary_name" class="col-md-4">Beneficiary Name</label>
+                                        <label for="beneficiary_name" class="col-md-4">Beneficiary Name*</label>
                                         <div class="col-md-6">
                                             <input type="text" class="form-control blockspacialchar"  name="beneficiary_name" id = "beneficiary_name" value = "<?php
                                                 if (isset($query[0]['beneficiary_name'])) {
@@ -1249,7 +1249,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label  for="cancelled_cheque_file" class="col-md-4" style="vertical-align:middle">Cancelled Cheque File</label>
+                                        <label  for="cancelled_cheque_file" class="col-md-4" style="vertical-align:middle">Cancelled Cheque File*</label>
                                         <div class="col-md-6">
                                             <input type="file" class="form-control"  name="cancelled_cheque_file" id = "cancelled_cheque_file" value = "<?php
                                                 if (isset($query[0]['cancelled_cheque_file'])) {
@@ -1291,11 +1291,12 @@
                             </div>
                                 </div>
         </div>
-                        </div>
-                                <center><input type="submit" onclick="return validate_bank_details()" value="Update Bank Details" class="btn btn-primary" id="submit_btn">
+                        <center><input type="submit" onclick="return validate_bank_details()" value="Update Bank Details" class="btn btn-primary" id="submit_btn">
                             <?php echo "<a class='btn btn-small btn-primary' href=" . base_url() . "employee/vendor/viewvendor>Cancel</a>"; ?>
                                 </center>
-                                    </form>
+                        </div>
+                                
+        </form>
 </div>
 
 <!--Validations here-->
