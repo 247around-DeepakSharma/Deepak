@@ -50,10 +50,15 @@
                         </div>
                         
                         <div class="form-group col-md-3">
+                             <label>Invoice Remark</label>
                              <input type="text" class="form-control" id="invoice_remarks" placeholder="Invoice Remarks" style="width:100%;">
                         </div>
                         <div class="form-group col-md-3">
-                            <button class="btn btn-success col-md-2" id="get_invoice_id_data" style="width:100%;">Search</button>
+                             <label>Invoice Id</label>
+                             <input type="text" class="form-control" id="invoice_id" placeholder="Invoice Id" style="width:100%;">
+                        </div>
+                        <div class="form-group col-md-3">
+                            <button class="btn btn-success col-md-2" id="get_invoice_id_data" style="width:100%; margin-top: 23px;">Search</button>
                         </div>
                         
                     </div>
@@ -148,6 +153,7 @@
                        d.settle = $("#settle").val();
                        d.invoice_remarks = $("#invoice_remarks").val();
                        d.invoice_type = $("#invoice_type").val();
+                       d.invoice_id = $("#invoice_id").val();
                  }
 
             },
