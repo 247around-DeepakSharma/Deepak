@@ -165,10 +165,10 @@
         <div class="col-md-6 col-sm-12 col-xs-12" id="based_on_Region">
             <div class="x_panel">
                 <div class="x_title">
-                    <div class="col-md-10">
+                    <div class="col-md-5">
                     <h2>Booking based on Region <small>Current Month</small></h2>
                     </div>
-                    <div class="col-md-1">
+                    <div class="col-md-5">
                     <div class="nav navbar-right panel_toolbox">
                         <div id="reportrange2" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; margin-right: -30%;">
                             <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
@@ -176,7 +176,7 @@
                         </div>
                     </div>
                     </div>
-                    <div class="col-md-1">
+                    <div class="col-md-1" style="float: right;">
                         <span class="collape_icon" href="#state_type_booking_chart_div" data-toggle="collapse" onclick="collapse_icon_change(this);"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
                     </div>
                     <div class="clearfix"></div>
@@ -276,6 +276,43 @@
  
   </div>
 <script>
+        var start = moment().startOf('month');
+    var end = moment().endOf('month');
+    var options = {
+            startDate: start,
+            endDate: end,
+            minDate: '01/01/2000',
+            maxDate: '12/31/2030',
+            dateLimit: {
+                days: 120},
+            showDropdowns: true,
+            showWeekNumbers: true,
+            timePicker: false,
+            timePickerIncrement: 1, timePicker12Hour: true,
+            ranges: {
+                'Today': [moment(), moment()],
+                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                'This Month': [moment().startOf('month'), moment().endOf('month')],
+                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+            },
+            opens: 'left',
+            buttonClasses: ['btn btn-default'],
+            applyClass: 'btn-small btn-primary',
+            cancelClass: 'btn-small',
+            format: 'MM/DD/YYYY', separator: ' to ',
+            locale: {
+                applyLabel: 'Submit',
+                cancelLabel: 'Clear',
+                fromLabel: 'From',
+                toLabel: 'To',
+                customRangeLabel: 'Custom',
+                daysOfWeek: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+                monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+                firstDay: 1
+            }
+    };
     var post_request = 'POST';
     var get_request = 'GET';
     var url = '';
@@ -294,6 +331,11 @@
            },
            startDate: y+'-'+n+'-'+date
         });
+          function cb(start, end) {
+            $('#reportrange2 span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+        }
+        $('#reportrange2').daterangepicker(options, cb);
+        cb(start, end);
     });
  //this function is used to call ajax request
     function sendAjaxRequest(postData, url,type) {
@@ -575,6 +617,18 @@ function around_monthly_data(){
         });
     
     }
+    $('#reportrange2').on('apply.daterangepicker', function (ev, picker) {
+        $('#loader_gif3').show();
+        $('#state_type_booking_chart').hide();
+        var startDate = picker.startDate.format('YYYY-MM-DD');
+        var endDate = picker.endDate.format('YYYY-MM-DD');
+        url = baseUrl + '/employee/dashboard/get_booking_data_by_region/1';
+        var data = {sDate: startDate, eDate: endDate};
+        
+        sendAjaxRequest(data,url,post_request).done(function(response){
+            create_chart_based_on_bookings_state(response);
+        });
+    });
     </script>
     <style>
         .highcharts-credits{
