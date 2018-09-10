@@ -8,7 +8,7 @@
 <div class="col-md-12 col-sm-12 col-xs-12">
     <div class="x_panel">
         <div class="x_title">
-            <h2>Review Bookings</h2>
+            <h2 Review Cancelled Bookings</h2>
             <?php
             if($this->session->userdata('agent_id') != '980084' && $this->session->userdata('agent_id') != '980083'){
             ?>
