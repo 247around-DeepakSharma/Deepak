@@ -5139,9 +5139,9 @@ class Partner extends CI_Controller {
             }
             $inProcessBookings = array_diff($requested_bookings,$approved_booking);
             $this->session->set_flashdata('inProcessBookings', $inProcessBookings);
-            $this->booking_model->mark_booking_in_process($approved_booking);
             $url = base_url() . "employee/do_background_process/complete_booking";
             if (!empty($approved_booking)) {
+                $this->booking_model->mark_booking_in_process($approved_booking);
                 $data['booking_id'] = $approved_booking;
                 $data['agent_id'] = $this->session->userdata('agent_id');
                 $data['agent_name'] = $this->session->userdata('partner_name');
@@ -5162,8 +5162,8 @@ class Partner extends CI_Controller {
         $where['is_in_process'] = 0;
         $whereIN['booking_id'] = $postArray['booking_id']; 
         $tempArray = $this->reusable_model->get_search_result_data("booking_details","booking_id",$where,NULL,NULL,NULL,$whereIN,NULL,array());
-        $this->booking_model->mark_booking_in_process(array($postArray['booking_id']));
         if(!empty($tempArray)){
+            $this->booking_model->mark_booking_in_process(array($postArray['booking_id']));
             echo "Booking Updated Successfully";
             $postArray = $this->input->post();
             $this->miscelleneous->reject_booking_from_review($postArray);
