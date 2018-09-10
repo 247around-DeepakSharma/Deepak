@@ -825,7 +825,7 @@ class invoices_model extends CI_Model {
                     $result[$key]['sgst_tax_amount'] = sprintf("%1\$.2f",($value['taxable_value'] * ($value['gst_rate']/100)/2));
                     $meta['cgst_total_tax_amount'] +=  $result[$key]['cgst_tax_amount'];
                     $meta['sgst_total_tax_amount'] += $result[$key]['sgst_tax_amount'];
-                    $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = $value['gst_rate'];
+                    $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = $value['gst_rate']/2;
                     $meta['total_taxable_value'] += $value['taxable_value'];
                     
                     $result[$key]['total_amount'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * ($value['gst_rate']/100))));
