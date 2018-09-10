@@ -125,7 +125,7 @@
                              <td class="text-center">
                                 <?= $row->aging; ?>
                             </td>
-                             <td style="vertical-align: middle;">
+                             <td>
                                             <a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('<?php echo $row->booking_id?>')"><i class="fa fa-envelope" aria-hidden="true"></i></a>
                                         </td>
                             <td class="text-center">
@@ -144,7 +144,7 @@
                                                 </ul>
                                             </div>
                             </td>
-                            <td class="text-center"><a href="javascript: w=window.open('https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $row->booking_jobcard_filename; ?>'); w.print()" class='btn btn-sm btn-primary btn-sm' target="_blank" ><i class="fa fa-download" aria-hidden="true"></i></a></td>
+                            <td class="text-center"><a target="_blank" href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $row->booking_jobcard_filename; ?>" class='btn btn-sm btn-primary btn-sm' target="_blank" ><i class="fa fa-download" aria-hidden="true"></i></a></td>
                             <td class="text-center">
                                 <?php
                                 $initialBooking = strtotime($row->initial_booking_date);
