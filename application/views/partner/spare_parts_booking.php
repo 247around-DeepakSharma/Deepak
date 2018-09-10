@@ -142,7 +142,7 @@ if ($this->uri->segment(4)) {
                                             <?php } ?>
                                         </td>
                                         <td>
-                                            <input type="checkbox" class="form-control checkbox_address" name="download_address[]" onclick='check_checkbox(1)' value="<?php echo $row['booking_id']; ?>" />
+                                            <input type="checkbox" class="form-control checkbox_address"  name="download_address" onclick='check_checkbox(1)' value="<?php echo $row['booking_id']; ?>" />
                                         </td>
                                         <td>
                                             <input type="checkbox" class="form-control checkbox_manifest" name="download_courier_manifest[]" onclick='check_checkbox(0)' value="<?php echo $row['booking_id']; ?>" />
@@ -155,7 +155,7 @@ if ($this->uri->segment(4)) {
                                 ?>
                             </tbody>
                         </table>
-                        <input type= "submit"  class="btn btn-md col-md-offset-4" style="background-color:#2C9D9C; border-color: #2C9D9C; color:#fff;" name="download_shippment_address" value ="Print Address/Courier Mainfest" >
+                        <input onclick="return checkValidationForBlank()" type= "submit"  class="btn btn-md col-md-offset-4" style="background-color:#2C9D9C; border-color: #2C9D9C; color:#fff;" name="download_shippment_address" value ="Print Address/Courier Mainfest" >
                     </form>
                 </div>
             </div>
@@ -429,6 +429,16 @@ $('#serachSpareInput').select2();
             }
             else{
                 alert("Subject Or Message should not be blank ");
+                return false;
+            }
+        }
+        function checkValidationForBlank(){
+            var address = $('.checkbox_address:checkbox:checked');
+            var manifest = $('.checkbox_manifest:checkbox:checked');
+            if(address.length != 0 || manifest.length !=0){
+                return true;
+            }
+            else{
                 return false;
             }
         }
