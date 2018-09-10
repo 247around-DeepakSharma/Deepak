@@ -806,6 +806,7 @@ class Accounting extends CI_Controller {
         $settle_amount = $this->input->post("settle");
         $remarks = trim($this->input->post("invoice_remarks"));
         $invoice_type = trim($this->input->post("invoice_type"));
+        $invoice_id = $this->input->post("invoice_id");
         
         if(!empty($vendor_partner)){
             $post['where']['vendor_partner'] = $vendor_partner;
@@ -839,6 +840,10 @@ class Accounting extends CI_Controller {
         
         if(!empty($invoice_type)){
             $post['where']['vendor_partner_invoices.type'] = $invoice_type;
+        }
+        
+        if(!empty($invoice_id)){
+            $post['where']['vendor_partner_invoices.invoice_id'] = $invoice_id;
         }
         
         return $post;
