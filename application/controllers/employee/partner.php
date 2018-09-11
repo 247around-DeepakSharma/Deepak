@@ -60,42 +60,15 @@ class Partner extends CI_Controller {
      * @param: Offset and page no., all flag to get all data, Booking id
      * @return: void
      */
-    function pending_booking($offset = 0, $all = 0, $booking_id = '') {
+    function pending_booking() {
         $this->checkUserSession();
         $state = 0;
         if($this->session->userdata('is_filter_applicable') == 1){
             $state = 1;
         }
         $partner_id = $this->session->userdata('partner_id');
-        $config['base_url'] = base_url() . 'partner/pending_booking';
-
-        if (!empty($booking_id)) {
-            $total_rows = $this->partner_model->getPending_booking($partner_id, $booking_id,$state);
-        } else {
-            $total_rows = $this->partner_model->getPending_booking($partner_id,"",$state);
-        }
-        $config['total_rows'] = count($total_rows);
-
-        if ($all == 1) {
-            $config['per_page'] = count($total_rows);
-        } else {
-            $config['per_page'] = 50;
-        }
-        $config['uri_segment'] = 3;
-        $config['first_link'] = 'First';
-        $config['last_link'] = 'Last';
-        $this->pagination->initialize($config);
-        $data['links'] = $this->pagination->create_links();
-
-        $data['count'] = $config['total_rows'];
-        $data['bookings'] = array_slice($total_rows, $offset, $config['per_page']);
         $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity' => 'partner', 'active' => '1'));
-
-        if ($this->session->flashdata('result') != '') {
-            $data['success'] = $this->session->flashdata('result');
-        }
         $agent_id = $this->session->userdata('agent_id');
-        log_message('info', 'Partner View: Pending booking: Partner id: ' . $partner_id . ", Partner name: " .$this->session->userdata('partner_name'));
         $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",array("agent_filters.agent_id"=>$agent_id),array("agent_filters"=>"agent_filters.state=state_code.state"),NULL,array('state'=>'ASC'),NULL,array("agent_filters"=>"left"),array());
         if(empty($data['states']))
             $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
@@ -108,7 +81,6 @@ class Partner extends CI_Controller {
         }else{
             $this->load->view('partner/pending_booking', $data);
         }
-        
     }
 
     /**
@@ -5248,5 +5220,118 @@ class Partner extends CI_Controller {
             $headings = array_keys($finalArray[0]);
             $this->miscelleneous->downloadCSV(array_values($finalArray), $headings, "Review_bookings");
         }
+    }
+    function get_pending_bookings(){
+        $this->checkUserSession();
+          $columnMappingArray = array("column_1"=>"booking_details.booking_id","column_3"=>"appliance_brand","column_4"=>"booking_details.partner_internal_status","column_7"=>"booking_details.city",
+                "column_8"=>"booking_details.state","column_9"=>"STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')","column_10"=>"DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y'))");
+        $order['column'] =$columnMappingArray["column_10"];
+        $order['sorting'] = "asc";
+        $state = 0;
+        if($this->session->userdata('is_filter_applicable') == 1){
+            $state = 1;
+        }
+        $postData = $this->input->post();
+        if(array_key_exists("order", $postData)){
+            $order['column'] =$columnMappingArray["column_".$postData['order'][0]['column']];
+            $order['sorting'] = $postData['order'][0]['dir'];
+        }
+        $bookingID = $this->input->post('booking_id');
+        $finalArray = array();
+        $partner_id = $this->session->userdata('partner_id');
+        $selectData = "Distinct services.services,users.name as customername, users.phone_number,booking_details.*,appliance_brand,"
+                . "DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as aging, count_escalation ";
+        $selectCount = "Count(DISTINCT booking_details.booking_id) as count";
+        $bookingsCount = $this->partner_model->getPending_booking($partner_id, $selectCount,$bookingID,$state,NULL,NULL,$this->input->post('state'))[0]->count;
+        $bookings = $this->partner_model->getPending_booking($partner_id, $selectData,$bookingID,$state,$this->input->post('start'),$this->input->post('length'),$this->input->post('state'),$order);
+        $sn_no = $this->input->post('start')+1;
+        $upcountryString = "";
+        foreach ($bookings as $key => $row) { 
+             $tempArray = array();
+              if ($row->is_upcountry == 1 && $row->upcountry_paid_by_customer == 0) {
+                 $upcountryString = '<i style="color:red; font-size:20px;" onclick="open_upcountry_model("'.$row->booking_id.'"," '.$row->amount_due.'")"
+                    class="fa fa-road" aria-hidden="true"></i>';
+               } 
+             $tempArray[] = $sn_no . $upcountryString;
+             $tempArray[] = '<a style="color:blue;" href='.base_url().'partner/booking_details/'.$row->booking_id.' target="_blank" title="View">'.$row->booking_id.'</a>';
+            switch ($row->request_type) {
+                case "Installation & Demo":
+                    $requestType =  "Installation";
+                    break;
+                case "Repair - In Warranty":
+                case REPAIR_OOW_TAG:
+                    $requestType =  "Repair";
+                    break;
+                default:
+                    $requestType =  $row->request_type;
+                    break;
+            }
+            $tempArray[] = $row->services . "<br>". $requestType;
+            $tempArray[]  = $row->appliance_brand; 
+            $is_escalation = "";
+             if ($row->count_escalation>0) {
+                  $is_escalation =  '<i data-toggle="tooltip" title="Escalation" style="color:red; font-size:13px;" onclick="" class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></i>';
+            } 
+            $tempArray[] =  $is_escalation.$row->partner_internal_status;
+            $tempArray[] = $row->customername;
+            $tempArray[] = $row->booking_primary_contact_no;
+            $tempArray[] = $row->city;
+            $tempArray[] = $row->state;
+            $tempArray[] = $row->booking_date;
+            $tempArray[] = $row->aging;
+            $bookingIdTemp = "'".$row->booking_id."'";
+            $tempArray[] = '<a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('.$bookingIdTemp.')"><i class="fa fa-envelope" aria-hidden="true"></i></a>';
+            if ($row->type == "Query") { 
+                $helperString = ' style="background-color: #26b99a;border-color:#26b99a;color:#fff;padding: 5px 0px;margin: 0px"';
+            } 
+            else { 
+                $helperString = ' style="background-color: #26b99a;border-color:#26b99a;color:#fff;padding: 5px 0px;margin: 0px"';
+            }
+            $tempArray[]= '<div class="dropdown">
+                                                <button class="btn btn-sm btn-primary" type="button" data-toggle="dropdown" style="border: 1px solid #2a3f54;background: #2a3f54;padding: 4px 24px;">Action
+                                                <span class="caret"></span></button>
+                                                <ul class="dropdown-menu" style="padding: 5px 5px 5px 5px;margin: 0px;min-width: 95px;position: inherit;z-index: 100;">
+                                                    <li style="color: #fff;"><a class="btn btn-sm btn-primary" href="'.base_url().'partner/update_booking/'.$row->booking_id.'"  title="View" 
+                                                        style="background-color:#2C9D9C; border-color: #2C9D9C;color:#fff;padding: 5px 0px;
+    margin: 0px;">Update</a></li>
+                                                    <li style="color: #fff;margin-top:5px;">
+                                                        <a id="a_hover"'.$helperString.' href="'.base_url().'partner/get_reschedule_booking_form/'.$row->booking_id.'" id="reschedule" class="btn btn-sm btn-success" title ="Reschedule">Reschedule</a>
+                                                    </li>
+                                                     <li style="color: #fff;margin-top:5px;">
+                                                         <a id="a_hover" style="background-color: #d9534f;border-color:#d9534f;color:#fff;padding: 5px 0px;margin: 0px;"href="<?php echo base_url(); ?>partner/get_cancel_form/Pending/<?php echo $row->booking_id; ?>" class="btn btn-sm btn-danger" title="Cancel">Cancel</a>
+                                                     </li>
+                                                </ul>
+                                            </div>';
+            
+            $tempArray[] =  '<a target="_blank" href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/'.$row->booking_jobcard_filename.'" class="btn btn-sm btn-primary btn-sm" target="_blank" ><i class="fa fa-download" aria-hidden="true"></i></a>';
+            $initialBooking = strtotime($row->initial_booking_date);
+            $now = time();
+            $datediff = $now - $initialBooking;
+            $days= round($datediff / (60 * 60 * 24));
+            $futureBookingDateMsg = "Booking has future booking date so you can not escalate the booking";
+            $partnerDependencyMsg = 'Escalation can not be Processed, Because booking in '.$row->partner_internal_status.' state';
+            if ($row->type == "Query") {
+                $helperText = 'style="pointer-events: none;background: #ccc;border-color:#ccc;"'; 
+            }
+            if($row->actor != 'Partner' && $days>=0){
+               $helperText_2 =  'data-target="#myModal"';
+            } 
+            else if($days<0){  
+              $helperText_2 =  'onclick="alert("'.$futureBookingDateMsg.'")"' ;
+            }
+            else{
+              $helperText_2 = 'onclick="alert("'.$partnerDependencyMsg.'")"'; 
+              }
+            $tempArray[] = '<a  href="#" class="btn btn-sm btn-warning open-AddBookDialog" data-id= "'.$row->booking_id.'" '.$helperText_2.' data-toggle="modal" title="Escalate"><i class="fa fa-circle" aria-hidden="true"></i></a>';
+            $finalArray[] = $tempArray;
+             $sn_no++;
+           }
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $bookingsCount,
+            "recordsFiltered" =>  $bookingsCount,
+            "data" => $finalArray,
+        );
+        echo json_encode($output);
     }
 }

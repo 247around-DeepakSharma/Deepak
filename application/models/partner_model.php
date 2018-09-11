@@ -149,12 +149,16 @@ function get_data_for_partner_callback($booking_id) {
       * @param: end limit, start limit, partner id
       * @return: Pending booking
       */
-     function getPending_booking($partner_id ,$booking_id = '',$state=0){
+     function getPending_booking($partner_id ,$select,$booking_id = '',$state=0,$offset = NULL,$limit = NULL,$stateValue = NULL,$order = array()){
          $join = "";
          $where = "";
          if($state == 1){
              $join = "JOIN agent_filters ON agent_filters.state = booking_details.state";
              $where = "agent_filters.agent_id= ".$this->session->userdata('agent_id')." AND agent_filters.is_active =1 AND" ;
+         }
+         $limitSuubQuery = "";
+         if($limit){
+             $limitSuubQuery = "LIMIT $offset, $limit";
          }
         $where .= "  booking_details.partner_id = '" . $partner_id . "'";
         if(!empty($booking_id)){
@@ -163,25 +167,24 @@ function get_data_for_partner_callback($booking_id) {
         } else {
             $where .= " AND (booking_details.current_status IN ('Pending', 'Rescheduled')) ";
         }
+         if($stateValue){
+              $where .= " AND (booking_details.state = '$stateValue') ";
+         }
+         $orderSubQuery = "";
+         if(!empty($order)){
+             $orderSubQuery = " ORDER BY " .$order['column']. $order['sorting'];
+         }
         //do not show bookings for future as of now
         //$where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0";
 
-          $query = $this->db->query("Select Distinct services.services,
-            users.name as customername, users.phone_number,
-            booking_details.*,appliance_brand,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as aging, count_escalation 
-
-            from booking_details
+          $query = $this->db->query("Select $select from booking_details
              JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
             ".$join."
             LEFT JOIN  `booking_unit_details` ON  `booking_unit_details`.`booking_id` =  `booking_details`.`booking_id`
-
-            WHERE
-            $where
-            AND booking_details.upcountry_partner_approved ='1'"
+            WHERE  $where AND booking_details.upcountry_partner_approved ='1' $orderSubQuery $limitSuubQuery"
         );
           $temp = $query->result();
-          usort($temp, array($this, 'date_compare_bookings'));
           return $temp;
      }
 
