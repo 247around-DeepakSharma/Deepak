@@ -1287,16 +1287,15 @@ class Partner extends CI_Controller {
 
             log_message('info', __FUNCTION__ . " escalation_reason  " . print_r($escalation, true));
 
-            //inserts vendor escalation details
-            $escalation_id = $this->vendor_model->insertVendorEscalationDetails($escalation);
-
+            $escalation_id = "";
+            if($escalation['vendor_id']){
+                //inserts vendor escalation details
+                $escalation_id = $this->vendor_model->insertVendorEscalationDetails($escalation);
+            }
             $this->notify->insert_state_change($escalation['booking_id'], "Escalation", _247AROUND_PENDING, $remarks, $this->session->userdata('agent_id'), $this->session->userdata('partner_name'), 
                     ACTOR_ESCALATION,NEXT_ACTION_ESCALATION,$this->session->userdata('partner_id'));
-            if ($escalation_id) {
-                log_message('info', __FUNCTION__ . " Escalation Inserted ");
-                $this->booking_model->increase_escalation_reschedule($booking_id, "count_escalation");
-                
-                //get account manager details
+            //Send Email
+            //get account manager details
                 $am_email = "";
                 $accountManagerData = $this->miscelleneous->get_am_data($this->session->userdata('partner_id'));
 
@@ -1327,7 +1326,10 @@ class Partner extends CI_Controller {
                     //Logging Error Message
                     log_message('info', " Error in Getting Email Template for Escalation Mail");
                 }
-
+            if ($escalation_id) {
+                log_message('info', __FUNCTION__ . " Escalation Inserted ");
+                $this->booking_model->increase_escalation_reschedule($booking_id, "count_escalation");
+                
                 $reason_flag['escalation_policy_flag'] = json_encode(array('mail_to_escalation_team' => 1), true);
 
                 $this->vendor_model->update_esclation_policy_flag($escalation_id, $reason_flag, $booking_id);
