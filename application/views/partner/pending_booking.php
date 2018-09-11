@@ -22,24 +22,22 @@
     <div class="row">
 <?php } ?>        
 <div class="col-md-12 col-sm-12 col-xs-12">
-    <div class="x_panel">
         <div class="x_title">
             <h2>Pending Bookings</h2>
             <?php
-            if($this->session->userdata('agent_id') != '980084' && $this->session->userdata('agent_id') != '980083'){
+            if($this->session->userdata('user_group') != PARTNER_CALL_CENTER_USER_GROUP){
             ?>
             <a style="float: right;background: #2a3f54;border-color: #2a3f54;"type="button" class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>employee/partner/download_partner_pending_bookings/<?php echo $this->session->userdata('partner_id')?>/Pending">Download</a>
             <?php
             }
             ?>
             <div class="right_holder" style="float:right;margin-right:10px;">
-                            <lable>State</lable>
-                            <select class="form-control " id="serachInput" style="border-radius:3px;">
-                    <option value="all">All</option>
+                            <select class="form-control " id="state_search" style="border-radius:3px;" onchange="booking_search()">
+                    <option value="">States</option>
       <?php
       foreach($states as $state){
           ?>
-      <option value="<?php echo $state['state'] ?>"><?php echo $state['state'] ?></option>
+                    <option value="<?php echo $state['state'] ?>"><?php echo $state['state'] ?></option>
       <?php
       }
       ?>
@@ -48,6 +46,7 @@
             <div class="clearfix"></div>
         </div>
         <div class="x_content">
+            <input type="text" id="booking_id_search" onchange="booking_search()" style="float: right;margin-bottom: -32px;border: 1px solid #ccc;padding: 5px;z-index: 100;position: inherit;">
             <table class="table table-bordered table-hover table-striped" id="pending_booking_table" style=" z-index: -1;position: static;">
                 <thead>
                     <tr>
@@ -68,117 +67,11 @@
                         <th class="text-center">Escalate</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <?php foreach ($bookings as $key => $row) { ?>
-                        <tr>
-                            <td class="text-center">
-                                   <?php echo $sn_no; ?>
-                                <?php if ($row->is_upcountry == 1 && $row->upcountry_paid_by_customer == 0) { ?>
-                                    <i style="color:red; font-size:20px;" onclick="open_upcountry_model('<?php echo $row->booking_id; ?>', '<?php echo $row->amount_due; ?>')"
-                                       class="fa fa-road" aria-hidden="true"></i><?php } ?>
-                            </td>
-                            <td class="text-center">
-                                <a style="color:blue;" href="<?php echo base_url(); ?>partner/booking_details/<?= $row->booking_id ?>" target='_blank' title='View'> <?php
-                                    echo $row->booking_id;
-                                    ?></a>
-                            </td>
-
-                            <td class="text-center">
-                                <?php
-                                echo $row->services . "<br/>";
-                                switch ($row->request_type) {
-
-                                    case "Installation & Demo":
-                                        echo "Installation";
-                                        break;
-                                    case "Repair - In Warranty":
-                                    case REPAIR_OOW_TAG:
-                                        echo "Repair";
-                                        break;
-                                    default:
-                                        echo $row->request_type;
-                                        break;
-                                }
-                                ?>
-                            </td>
-                            <td class="text-center"><?php echo $row->appliance_brand; ?></td>
-                            <td class="text-center"><?php if ($row->count_escalation>0) { ?>
-                                    <i data-toggle="tooltip" title="Escalation" style="color:red; font-size:13px;" onclick=""
-                                       class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></i><?php } ?>
-                                   <?php echo $row->partner_internal_status; ?>
-                            </td>
-                            <td class="text-center"> 
-                                <?= $row->customername; ?>
-                            </td>
-                            <td class="text-center">
-                                <?= $row->booking_primary_contact_no; ?>
-                            </td>
-                            <td class="text-center">
-                                <?= $row->city; ?>
-                            </td>
-                             <td class="text-center">
-                                <?= $row->state; ?>
-                            </td>
-                            <td class="text-center">
-                                <?= $row->booking_date; ?>
-                            </td>
-                             <td class="text-center">
-                                <?= $row->aging; ?>
-                            </td>
-                             <td style="vertical-align: middle;">
-                                            <a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('<?php echo $row->booking_id?>')"><i class="fa fa-envelope" aria-hidden="true"></i></a>
-                                        </td>
-                            <td class="text-center">
-                                            <div class="dropdown">
-                                                <button class="btn btn-sm btn-primary" type="button" data-toggle="dropdown" style="border: 1px solid #2a3f54;background: #2a3f54;">Action
-                                                <span class="caret"></span></button>
-                                                <ul class="dropdown-menu" style="padding: 5px 5px 5px 5px;margin: 0px;min-width: 95px;position: inherit;z-index: 100;">
-                                                    <li style="color: #fff;"><a class='btn btn-sm btn-primary' href="<?php echo base_url(); ?>partner/update_booking/<?= $row->booking_id ?>"  title='View' style="background-color:#2C9D9C; border-color: #2C9D9C;color:#fff;padding: 5px 0px;
-    margin: 0px;">Update</a></li>
-                                                    <li style="color: #fff;margin-top:5px;">
-                                                        <a id="a_hover" <?php if ($row->type == "Query") { ?> style="background-color: #26b99a;border-color:#26b99a;color:#fff;padding: 5px 0px;margin: 0px;" <?php } else{ echo "style='background-color: #26b99a;border-color:#26b99a;color:#fff;padding: 5px 0px;margin: 0px;'";} ?> href="<?php echo base_url(); ?>partner/get_reschedule_booking_form/<?php echo $row->booking_id; ?>" id="reschedule" class="btn btn-sm btn-success" title ="Reschedule">Reschedule</a>
-                                                    </li>
-                                                     <li style="color: #fff;margin-top:5px;">
-                                                         <a id="a_hover" style="background-color: #d9534f;border-color:#d9534f;color:#fff;padding: 5px 0px;margin: 0px;"href="<?php echo base_url(); ?>partner/get_cancel_form/Pending/<?php echo $row->booking_id; ?>" class='btn btn-sm btn-danger' title='Cancel'>Cancel</a>
-                                                     </li>
-                                                </ul>
-                                            </div>
-                            </td>
-                            <td class="text-center"><a href="javascript: w=window.open('https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $row->booking_jobcard_filename; ?>'); w.print()" class='btn btn-sm btn-primary btn-sm' target="_blank" ><i class="fa fa-download" aria-hidden="true"></i></a></td>
-                            <td class="text-center">
-                                <?php
-                                $initialBooking = strtotime($row->initial_booking_date);
-                                $now = time();
-                                $datediff = $now - $initialBooking;
-                                $days= round($datediff / (60 * 60 * 24));
-                                $futureBookingDateMsg = "Booking has future booking date so you can not escalate the booking";
-                                $partnerDependencyMsg = 'Escalation can not be Processed, Because booking in '.$row->partner_internal_status.' state';
-                                ?>
-                                <a <?php if ($row->type == "Query") { ?> style="pointer-events: none;background: #ccc;border-color:#ccc;" <?php } ?> href="#" 
-                                                                         class='btn btn-sm btn-warning open-AddBookDialog' data-id= "<?php echo $row->booking_id; ?>" data-toggle="modal" 
-                                                                             <?php if($row->actor != 'Partner' && $days>=0){ echo 'data-target="#myModal"';} else if($days<0)
-                                                                                 { ?>  onclick="alert('<?php echo $futureBookingDateMsg; ?>')" <?php }
-                                                                             else{ ?> onclick="alert('<?php echo $partnerDependencyMsg;?>')" <?php } ?> 
-                                                                         title="Escalate"><i class="fa fa-circle" aria-hidden="true"></i></a>
-                            </td>
-                        </tr>
-                            <?php $sn_no++;
-                        } ?>
-                </tbody>
             </table>
         </div>
-    </div>
 </div>
-        <script>
-            $(document).on("click", ".open-AddBookDialog", function () {
-                var myBookId = $(this).data('id');
-                $(".modal-body #ec_booking_id").val( myBookId );
-
-            });
-        </script>
 <?php if(empty($is_ajax)) { ?> 
     </div>
-    
     <div id="myModal" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -231,38 +124,6 @@
             </div>
         </div>
     </div>
-    <script>
-        function form_submit(){
-            var escalation_id = $("#escalation_reason_id").val();
-            var booking_id = $("#ec_booking_id").val();
-            var remarks = $("#es_remarks").val();
-
-            if(escalation_id ===  null){
-                $("#failed_validation").text("Please Select Any Escalation Reason");
-
-            }  else {
-                $.ajax({
-                    type: 'POST',
-                    url: '<?php echo base_url() ?>partner/process_escalation/'+booking_id,
-                    data: {escalation_reason_id: escalation_id,escalation_remarks:remarks,  booking_id:booking_id},
-                    success: function (data) {
-                        if(data === "success"){
-                            $("#failed_validation").text("");
-                            $("#success_validation").text("Booking Escalated");
-                            location.reload();
-                            $('#myModal').modal('toggle');
-                       } else {
-                           $("#success_validation").text("");
-                           $("#failed_validation").html(data);
-                       }
-                    }
-                  });
-
-            }
-
-            return false;
-        }
-    </script>
 </div>
 <?php } ?>
 <div class="clearfix"></div>
@@ -313,26 +174,41 @@
 <?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
 <?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>
 <script>
-    $(document).ready(function(){
-    $('[data-toggle="tooltip"]').tooltip();   
-});
-    var table = $('#pending_booking_table').DataTable(
+        $(document).on("click", ".open-AddBookDialog", function () {
+            var myBookId = $(this).data('id');
+            $(".modal-body #ec_booking_id").val( myBookId );
+        });
+        $('#serachInput').select2();
+        $(document).ready(function(){
+            $('[data-toggle="tooltip"]').tooltip();   
+            pending_bookings = $('#pending_booking_table').DataTable({
+            "processing": true,
+            "language":{ 
+                "processing": "<center><img id='loader_gif_title' src='<?php echo base_url(); ?>images/loadring.gif'></center>",
+            },
+            "serverSide": true, 
+            "order": [], 
+            "pageLength": 50,
+            "ajax": {
+                "url": "<?php echo base_url(); ?>employee/partner/get_pending_bookings/",
+                "type": "POST",
+                "data": function(d){
+                    d.booking_id =  $('#booking_id_search').val();
+                    d.state =  $('#state_search').val();
+                 }
+            },
+            "columnDefs": [
                 {
-                    "pageLength": 50
+                    "targets": [0,1,2,11,12,13,14], //first column / numbering column
+                    "orderable": false //set not orderable
                 }
-            );
-        $("#serachInput").change(function () {
-            if($('#serachInput').val() !== 'all'){
-                table
-                    .columns( 8 )
-                    .search($('#serachInput').val())
-                    .draw();
-            }
-            else{
-                location.reload();
-            }
-} );
-$('#serachInput').select2();
+            ],  
+            "deferRender": true 
+        });
+        });
+        function booking_search(){
+             pending_bookings.ajax.reload();
+        }
         function add_data_in_create_email_form(bookingID){
             $.ajax({
                 type: 'post',
@@ -383,6 +259,36 @@ $('#serachInput').select2();
                 return false;
             }
         }
+        function form_submit(){
+            var escalation_id = $("#escalation_reason_id").val();
+            var booking_id = $("#ec_booking_id").val();
+            var remarks = $("#es_remarks").val();
+
+            if(escalation_id ===  null){
+                $("#failed_validation").text("Please Select Any Escalation Reason");
+
+            }  else {
+                $.ajax({
+                    type: 'POST',
+                    url: '<?php echo base_url() ?>partner/process_escalation/'+booking_id,
+                    data: {escalation_reason_id: escalation_id,escalation_remarks:remarks,  booking_id:booking_id},
+                    success: function (data) {
+                        if(data === "success"){
+                            $("#failed_validation").text("");
+                            $("#success_validation").text("Booking Escalated");
+                            location.reload();
+                            $('#myModal').modal('toggle');
+                       } else {
+                           $("#success_validation").text("");
+                           $("#failed_validation").html(data);
+                       }
+                    }
+                  });
+
+            }
+
+            return false;
+        }
     </script>
     <style>
 /*        .dataTables_filter{
@@ -395,4 +301,12 @@ $('#serachInput').select2();
 .dropdown-backdrop{
     display: none;
 }
+#pending_booking_table_filter{
+    display: none;
+}
+#pending_booking_table_processing{
+    border:none !important;
+    background-color: transparent !important;
+}
+    
         </style>
