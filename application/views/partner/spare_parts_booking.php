@@ -142,7 +142,7 @@ if ($this->uri->segment(4)) {
                                             <?php } ?>
                                         </td>
                                         <td>
-                                            <input type="checkbox" class="form-control checkbox_address"  name="download_address" onclick='check_checkbox(1)' value="<?php echo $row['booking_id']; ?>" />
+                                            <input type="checkbox" class="form-control checkbox_address"  name="download_address[]" onclick='check_checkbox(1)' value="<?php echo $row['booking_id']; ?>" />
                                         </td>
                                         <td>
                                             <input type="checkbox" class="form-control checkbox_manifest" name="download_courier_manifest[]" onclick='check_checkbox(0)' value="<?php echo $row['booking_id']; ?>" />
@@ -439,6 +439,7 @@ $('#serachSpareInput').select2();
                 return true;
             }
             else{
+                alert("Please Select any checkbox");
                 return false;
             }
         }
