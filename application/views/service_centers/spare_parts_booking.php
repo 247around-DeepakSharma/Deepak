@@ -125,9 +125,9 @@ if ($this->uri->segment(3)) {
                                         </td>
                                         <td>
                                             <?php if(!empty($row['is_gst_doc'])){ ?> 
-                                                <a class="btn btn-sm btn-success" href="#" title="GST number available" style="background-color:#2C9D9C; border-color: #2C9D9C; cursor: not-allowed;"><i class="fa fa-check"></i></a>
+                                                <a class="btn btn-sm btn-success" href="#" title="GST number is not available" style="background-color:#2C9D9C; border-color: #2C9D9C; cursor: not-allowed;"><i class="fa fa-close"></i></a>
                                             <?php }else if(empty ($row['signature_file'])) { ?> 
-                                                <a class="btn btn-sm btn-success" href="#" title="Signature file is not available" style="background-color:#2C9D9C; border-color: #2C9D9C;cursor: not-allowed;"><i class="fa fa-times"></i></a>
+                                                <a class="btn btn-sm btn-success" href="#" title="Signature file is not available" style="background-color:#2C9D9C; border-color: #2C9D9C;cursor: not-allowed;"><i class="fa fa-close"></i></a>
                                             <?php }else{ ?>
                                                 <a class="btn btn-sm btn-success" href="<?php echo base_url();?>service_center/download_sf_declaration/<?php echo rawurlencode($row['sf_id'])?>" title="Download Declaration" style="background-color:#2C9D9C; border-color: #2C9D9C;" target="_blank"><i class="fa fa-download"></i></a>
                                             <?php } ?>
