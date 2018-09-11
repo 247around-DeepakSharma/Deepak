@@ -50,6 +50,7 @@ class Booking extends CI_Controller {
         $this->load->library("paytm_payment_lib");
         $this->load->library('paytmlib/encdec_paytm');
         $this->load->library('validate_serial_no');
+        $this->load->library("invoice_lib");
         $this->load->helper('file');
         $this->load->dbutil();
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
@@ -1084,16 +1085,25 @@ class Booking extends CI_Controller {
      * @desc: This is used to get appliance list its called by Ajax
      */
     function get_appliances($selected_service_id) {
-        $partner_id = $this->input->post('partner_id');
+        $partner_id = 1;#$this->input->post('partner_id');
+        $partner_details = $this->partner_model->getpartner_details("partners.id, public_name, "
+                . "postpaid_credit_period, is_active, postpaid_notification_limit, postpaid_grace_period, is_prepaid,partner_type, "
+                . "invoice_email_to,invoice_email_cc", array('partners.id' => $partner_id));
+        
+        if($partner_details[0]['is_prepaid'] == 1){
+            $prepaid = $this->miscelleneous->get_partner_prepaid_amount($partner_id);
+        } else {
+            $prepaid = $this->invoice_lib->get_postpaid_partner_outstanding($partner_details[0]);
+        }
+        
+        
 
-        $prepaid = $this->miscelleneous->get_partner_prepaid_amount($partner_id);
-
-        if ($prepaid['partner_type'] == OEM) {
+        if ($partner_details[0]['partner_type'] == OEM) {
             $services = $this->partner_model->get_partner_specific_services($partner_id);
         } else {
             $services = $this->booking_model->selectservice();
         }
-        $data['partner_type'] = $prepaid['partner_type'];
+        $data['partner_type'] = $partner_details[0]['partner_type'];
         $data['partner_id'] = $partner_id;
         $data['active'] = $prepaid['active'];
         if($prepaid['is_notification']){
@@ -4467,9 +4477,11 @@ class Booking extends CI_Controller {
 
     function test(){
         $this->partner_sd_cb->test();
-       // $bucket = "bookings-collateral";
-       // $directory_xls = "invoices-excel/Around-1819-1016.xlsx";
-       // $this->s3->putObjectFile(TMP_FOLDER."Around-1819-1016.xlsx", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+        $bucket = "bookings-collateral";
+        //$directory_xls = "invoices-excel/ARD-PV-1819-0073.pdf";
+        $this->s3->putObjectFile(TMP_FOLDER."Around-1819-1621.pdf", $bucket, "invoices-excel/Around-1819-1621.pdf", S3::ACL_PUBLIC_READ);
+        $this->s3->putObjectFile(TMP_FOLDER."Around-1819-1621.xlsx", $bucket, "invoices-excel/Around-1819-1621.xlsx", S3::ACL_PUBLIC_READ);
+        $this->s3->putObjectFile(TMP_FOLDER."copy_Around-1819-1621.xlsx", $bucket, "invoices-excel/copy_Around-1819-1621.xlsx", S3::ACL_PUBLIC_READ);
        // $this->load->library('serial_no_validation');
       //  $a = $this->upcountry_model->getupcountry_for_partner_prepaid(247042);
        // echo "<pre/>"; print_r($a);

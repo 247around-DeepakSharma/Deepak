@@ -38,6 +38,7 @@ class Around_scheduler extends CI_Controller {
         $this->load->library('miscelleneous');
         $this->load->library('paytm_payment_lib');
         $this->load->library('push_notification_lib');
+        $this->load->library("invoice_lib");
         $this->load->helper(array('form', 'url', 'file'));
         $this->load->dbutil();
     }
@@ -1908,6 +1909,59 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
             log_message('info', __FUNCTION__ . " END  " . $partner['id'] . $message);
         }
         log_message('info', __FUNCTION__ . ' End');
+    }
+    /**
+     * @desc this function is used to send notification to those postpaid partner whose invoice has un-paid.
+     * And date of payment exceeds from Today
+     */
+    function send_remainder_email_to_postpaid_partner(){
+        log_message("info", __METHOD__. " start..");
+        $partner_details = $this->partner_model->getpartner_details("partners.id, public_name, "
+                . "postpaid_credit_period, is_active, postpaid_notification_limit, postpaid_grace_period, "
+                . "invoice_email_to,invoice_email_cc", array('is_prepaid' => 0));
+        foreach($partner_details as $value){
+            $data = $this->invoice_lib->get_postpaid_partner_outstanding($value);
+            if(!empty($data)){
+                $template = array();
+                if(!empty($data['is_notification']) && !empty($data['active'])){
+                    
+                    $template = $this->booking_model->get_booking_email_template(POSTPAID_PARTNER_WITH_IN_DUE_DATE_INVOICE_NOTIFICATIOIN);
+                    $template_name = POSTPAID_PARTNER_WITH_IN_DUE_DATE_INVOICE_NOTIFICATIOIN;
+                    
+                } else if(!empty($data['is_notification']) && empty($data['active'])){
+                    
+                    $template = $this->booking_model->get_booking_email_template(POSTPAID_PARTNER_ABOVE_DUE_DATE_INVOICE_NOTIFICATION);
+                    $template_name = POSTPAID_PARTNER_ABOVE_DUE_DATE_INVOICE_NOTIFICATION;
+                }
+                
+                if(!empty($template)){
+                    
+                    $to = $partner_details[0]['invoice_email_to'].",".$template[1];
+                    $cc = $partner_details[0]['invoice_email_cc'].",".$template[3];
+                    $bcc = $template[5];
+                    $subject = $template[4];
+                    $from = $template[2];
+                    
+                    $table_template = array(
+                        'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
+                    );
+
+                    $this->table->set_template($table_template);
+
+                    $this->table->set_heading(array('Invoice ID', 'Amount Due'));
+                    foreach ($data['invoice_data'] as $value) {
+
+                        $this->table->add_row($value->invoice_id, "Rs. ".($value->amount_collected_paid - $value->amount_paid));
+                    }
+                    
+                    $table = $this->table->generate();
+                    $message = vsprintf($template[0], array($table));
+
+                    $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "", $template_name);
+                }
+            }
+        }
+       
     }
 
 }

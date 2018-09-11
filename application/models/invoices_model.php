@@ -253,7 +253,7 @@ class invoices_model extends CI_Model {
             $data[$key]['vendor_partner'] = $vendor_partner;
             $data[$key]['final_amount'] = $result[0]['final_amount'];
             $data[$key]['amount_collected_paid'] = $result[0]['amount_collected_paid'];
-            $data[$key]['is_stand'] = $result[0]['is_stand'];
+//            $data[$key]['is_stand'] = $result[0]['is_stand'];
             if (isset($value['name'])) {
                 $sp_d = $this->get_pending_defective_parts($value['id']);
                 if(!empty($sp_d)){
@@ -279,11 +279,8 @@ class invoices_model extends CI_Model {
     }
     
     function get_summary_invoice_amount($vendor_partner, $vendor_partner_id, $otherWhere =""){
-            $sql = "SELECT COALESCE(SUM(`amount_collected_paid` ),0) as amount_collected_paid, "
-                    . " CASE WHEN (SELECT count(id) FROM vendor_partner_invoices "
-                    . " WHERE type_code ='A' AND type = 'Stand' AND `settle_amount` = 0 AND vendor_partner_id = '$vendor_partner_id' "
-                    . " AND vendor_partner = '$vendor_partner' $otherWhere ) "
-                    . " THEN(1) ELSE 0 END as is_stand FROM  `vendor_partner_invoices` "
+            $sql = "SELECT COALESCE(SUM(`amount_collected_paid` ),0) as amount_collected_paid "
+                    . " FROM  `vendor_partner_invoices` "
                     . " WHERE vendor_partner_id = '$vendor_partner_id' AND vendor_partner = '$vendor_partner' $otherWhere";
 
 

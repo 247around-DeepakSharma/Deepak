@@ -386,5 +386,62 @@ class Invoice_lib {
             return FALSE;
         }
     }
+    /**
+     * @desc This is used to get partner notification details data.
+     * Who has un-paid invoice and whose date of payment exceed from today
+     * @param Array $partner_details
+     */
+    function get_postpaid_partner_outstanding($partner_details) {
+        log_message("info", __METHOD__ . " Partner ID " . print_r($partner_details, true));
+
+        $result = array('active' => 1, "is_notification" => FALSE, "notification_msg" => "", "partner_id" => $partner_details['id']);
+        if (!empty($partner_details)) {
+            // GET un-paid invoice whose due date less than today
+            $invoicingSummary = $this->ci->invoices_model->get_summary_invoice_amount("partner", $partner_details['id'], " AND `due_date` <= CURRENT_DATE() ");
+            if (!empty($invoicingSummary)) {
+                // If final_amount is greater than zero means partner will have to pay
+                if ($invoicingSummary[0]['final_amount'] > 0) {
+                    $invoice_select = "invoice_id, invoice_date, from_date, to_date, amount_collected_paid, amount_paid ";
+                    $where['where'] = array('vendor_partner' => "partner", "vendor_partner_id" =>
+                        $partner_details['id'], "settle_amount" => 0, "amount_collected_paid > 0 " => NULL);
+                    $where['length'] = -1;
+                    $where['order_by'] = array("invoice_date" => "ASC");
+                    // Get all un-mpaid invoices
+                    $invoice_data = $this->ci->invoices_model->searchInvoicesdata($invoice_select, $where);
+                    if (!empty($invoice_data)) {
+                        // Add notification days and invoice date
+                        $invoice_date = date('Y-m-d', strtotime($invoice_data[0]->invoice_date . " +" . $partner_details['postpaid_notification_limit'] . " days"));
+                        //if invoice date less than today then we will show/send notification to Partner
+                        if (date('Y-m-d') >=  $invoice_date) {
+                            $result['is_notification'] = true;
+                            $result['notification_msg'] = POSTPAID_PARTNER_UNPAID_INVOICE_MESSAGE;
+                            $result['invoice_data'] = $invoice_data;
+                        }
+
+                        $due_date = date('Y-m-d', strtotime($invoice_data[0]->invoice_date . " +" . $partner_details['postpaid_credit_period'] . " days"));
+                        // If due date is less than today then we de-activate CRM
+                        if (date('Y-m-d') >= $due_date) {
+                            $result['active'] = 0;
+                            if (!empty($grace_period)) {
+                                // IF grace period is greater than today then activate CRM
+                                $grace_period = date('Y-m-d', strtotime($invoice_data[0]->postpaid_grace_period));
+
+                                if ($grace_period >= date('Y-m-d')) {
+                                    $result['active'] = 1;
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    log_message("info", __METHOD__ . " Partner ID " . $partner_details['id']);
+                }
+            } else {
+                log_message("info", __METHOD__ . " Partner ID " . $partner_details['id']);
+            }
+        } else {
+            log_message("info", __METHOD__ . " Partner ID " . $partner_details['id']);
+        }
+        return $result;
+    }
 
 }

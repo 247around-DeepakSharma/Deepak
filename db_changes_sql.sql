@@ -2802,7 +2802,7 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
   
 Greetings from 247around!
 
-As you are aware, the introduction of Goods and Services Tax (“GST�?) will be implemented on 1st July 2017.
+As you are aware, the introduction of Goods and Services Tax (“GST?) will be implemented on 1st July 2017.
 
 Government has already initiated the migration process for registration under GST and you would have received a GSTIN / Provisional GSTIN from GSTN portal.
  
@@ -8080,3 +8080,32 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 
 UPDATE `email_template` SET `template` = '<b>TAXPRO GSP API FAIL</b><br/><p>%s</p><p>%s</p><p>%s</p>' WHERE `email_template`.`tag` = 'taxpro_api_fail';
 UPDATE `header_navigation` SET `link` = 'employee/vendor/seach_by_email' WHERE `title` = 'Email Search';
+
+
+UPDATE `email_template` SET `template` = '<b>TAXPRO GSP API FAIL:-</b><br/><p>%s</p><p>%s</p><p>%s</p>' WHERE `email_template`.`tag` = 'taxpro_api_fail';UPDATE `email_template` SET `template` = 'Below bookings are long pending, please review these bookings otherwise these will be automatically approve after %s \r\n days <br>' WHERE tag = 'notify_partner_to_review_bookings';
+--Abahy 24 Aug
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'upcountry_missed_mail', 'Upcountry Booking Missed - Need To Take Action', 'Booking should be upcountry but not marked properly. Please check and update booking.<br/> \r\n%s', 'noreply@247around.com', '', '247around_dev@247around.com', '', '1', '2018-08-24 00:00:00');
+
+
+--Abhay 05 Sept 2018
+ALTER TABLE `service_centres` ADD `is_buyback_gst_invoice` INT(1) NOT NULL DEFAULT '0' AFTER `update_date`;
+ALTER TABLE `trigger_service_centres` ADD `is_buyback_gst_invoice` INT(1) NOT NULL DEFAULT '0' AFTER `update_date`;
+
+
+---Released Date 06 Sept 2018
+
+--Chhavi 07th Sep
+ALTER TABLE `booking_tat` ADD `sf_closed_date` DATETIME NULL AFTER `booking_id`, ADD `around_closed_date` DATETIME NULL AFTER `sf_closed_date`;
+
+
+--Abhay 08 Sept
+ALTER TABLE `partners` ADD `postpaid_credit_period` INT(11) NULL DEFAULT NULL AFTER `review_time_limit`, ADD `postpaid_notification_limit` INT(11) NULL DEFAULT NULL AFTER `postpaid_credit_period`;
+ALTER TABLE `trigger_partners` ADD `postpaid_credit_period` INT(11) NULL DEFAULT NULL AFTER `review_time_limit`, ADD `postpaid_notification_limit` INT(11) NULL DEFAULT NULL AFTER `postpaid_credit_period`;
+ALTER TABLE `partners` ADD `postpaid_grace_period` DATE NULL DEFAULT NULL AFTER `postpaid_notification_limit`;
+ALTER TABLE `trigger_partners` ADD `postpaid_grace_period` DATE NULL DEFAULT NULL AFTER `postpaid_notification_limit`;
+
+
+--Abhay 11 Sept
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'postpaid_with_in_due_date_invoice_notification', NULL, 'Dear Partner,\r\n<br/>\r\n%s<br/>\r\n%s\r\n', 'bill@247around.com', '', 'anuj@247around.com', 'abhaya@247around.com', '1', '2018-09-11 00:00:00');
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'postpaid_above_due_date_invoice_notification', '%s', 'Dear Partner,\r\n<br/>\r\n%s<br/>\r\n%s\r\n', 'bill@247around.com', '', 'anuj@247around.com', 'abhaya@247around.com', '1', '2018-09-11 00:00:00');
