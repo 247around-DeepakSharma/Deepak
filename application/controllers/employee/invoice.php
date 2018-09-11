@@ -108,9 +108,10 @@ class Invoice extends CI_Controller {
      * @param: void
      * @return: void
      */
-    function getInvoicingData() {
+    function getInvoicingData() { 
         $this->checkUserSession();
         $invoice_period = $this->input->post('invoice_period');
+        $invoice_type = $this->input->post('invoice_type');
         $data = array('vendor_partner' => $this->input->post('source'),
                       'vendor_partner_id' => $this->input->post('vendor_partner_id'));
         
@@ -128,6 +129,13 @@ class Invoice extends CI_Controller {
             if($settle_amount == 0){
                 $where['settle_amount'] = 0;
             }
+            
+            if($invoice_type){
+               $types = implode('","', $invoice_type); 
+               if($types){
+                    $where['type IN ("'.$types.'")'] = NULL;
+               }
+            }
          
         }else if($invoice_period === 'cur_fin_year'){
             $where = "vendor_partner = '".$this->input->post('source')."' AND vendor_partner_id = '".$this->input->post('vendor_partner_id')
@@ -137,9 +145,17 @@ class Invoice extends CI_Controller {
             if($settle_amount == 0){
                 $where .= " AND settle_amount = 0 ";
             }
+            
+             if($this->input->post('invoice_type')){
+               $types = implode('","', $invoice_type); 
+                if($types){
+                    $where .= ' AND type IN ("'.$types.'") ';
+                }
+            }
         }
         
-        $invoice['invoice_array'] = $this->invoices_model->getInvoicingData($where);
+       
+        $invoice['invoice_array'] = $this->invoices_model->getInvoicingData($where, false);
         $invoice['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice($data['vendor_partner'],array('id' => $data['vendor_partner_id']))[0];
             
         //TODO: Fix the reversed names here & everywhere else as well

@@ -1288,16 +1288,15 @@ class Partner extends CI_Controller {
 
             log_message('info', __FUNCTION__ . " escalation_reason  " . print_r($escalation, true));
 
-            //inserts vendor escalation details
-            $escalation_id = $this->vendor_model->insertVendorEscalationDetails($escalation);
-
+            $escalation_id = "";
+            if($escalation['vendor_id']){
+                //inserts vendor escalation details
+                $escalation_id = $this->vendor_model->insertVendorEscalationDetails($escalation);
+            }
             $this->notify->insert_state_change($escalation['booking_id'], "Escalation", _247AROUND_PENDING, $remarks, $this->session->userdata('agent_id'), $this->session->userdata('partner_name'), 
                     ACTOR_ESCALATION,NEXT_ACTION_ESCALATION,$this->session->userdata('partner_id'));
-            if ($escalation_id) {
-                log_message('info', __FUNCTION__ . " Escalation Inserted ");
-                $this->booking_model->increase_escalation_reschedule($booking_id, "count_escalation");
-                
-                //get account manager details
+            //Send Email
+            //get account manager details
                 $am_email = "";
                 $accountManagerData = $this->miscelleneous->get_am_data($this->session->userdata('partner_id'));
 
@@ -1328,7 +1327,10 @@ class Partner extends CI_Controller {
                     //Logging Error Message
                     log_message('info', " Error in Getting Email Template for Escalation Mail");
                 }
-
+            if ($escalation_id) {
+                log_message('info', __FUNCTION__ . " Escalation Inserted ");
+                $this->booking_model->increase_escalation_reschedule($booking_id, "count_escalation");
+                
                 $reason_flag['escalation_policy_flag'] = json_encode(array('mail_to_escalation_team' => 1), true);
 
                 $this->vendor_model->update_esclation_policy_flag($escalation_id, $reason_flag, $booking_id);
@@ -3876,7 +3878,7 @@ class Partner extends CI_Controller {
 
     function process_partner_contracts() {
         $partner_id = $this->input->post('partner_id');
-        $p = $this->reusable_model->get_search_result_data("partners", "public_name, account_manager", array('id' => $partner_id), NULL, NULL, NULL, NULL, NULL);
+        $p = $this->reusable_model->get_search_result_data("partners", "public_name, account_manager_id", array('id' => $partner_id), NULL, NULL, NULL, NULL, NULL);
         $partnerName = $p[0]['public_name'];
         $start_date_array = $this->input->post('agreement_start_date');
         $end_date_array = $this->input->post('agreement_end_date');
@@ -3914,7 +3916,7 @@ class Partner extends CI_Controller {
                     $html .= "<li><b>" . $key . '</b> =>';
                     $html .= " " . $value . '</li>';
                 }
-                $logged_user_name = $this->employee_model->getemployeefromid($p[0]['account_manager']);
+                $logged_user_name = $this->employee_model->getemployeefromid($p[0]['account_manager_id']);
                 
                 if(!empty($logged_user_name)){
                     $to = $logged_user_name[0]['official_email']. ",". $this->session->userdata('official_email');
@@ -5139,9 +5141,9 @@ class Partner extends CI_Controller {
             }
             $inProcessBookings = array_diff($requested_bookings,$approved_booking);
             $this->session->set_flashdata('inProcessBookings', $inProcessBookings);
-            $this->booking_model->mark_booking_in_process($approved_booking);
             $url = base_url() . "employee/do_background_process/complete_booking";
             if (!empty($approved_booking)) {
+                $this->booking_model->mark_booking_in_process($approved_booking);
                 $data['booking_id'] = $approved_booking;
                 $data['agent_id'] = $this->session->userdata('agent_id');
                 $data['agent_name'] = $this->session->userdata('partner_name');
@@ -5162,8 +5164,8 @@ class Partner extends CI_Controller {
         $where['is_in_process'] = 0;
         $whereIN['booking_id'] = $postArray['booking_id']; 
         $tempArray = $this->reusable_model->get_search_result_data("booking_details","booking_id",$where,NULL,NULL,NULL,$whereIN,NULL,array());
-        $this->booking_model->mark_booking_in_process(array($postArray['booking_id']));
         if(!empty($tempArray)){
+            $this->booking_model->mark_booking_in_process(array($postArray['booking_id']));
             echo "Booking Updated Successfully";
             $postArray = $this->input->post();
             $this->miscelleneous->reject_booking_from_review($postArray);

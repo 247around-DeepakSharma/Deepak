@@ -36,7 +36,7 @@
         <div class="col-md-12 col-sm-12 col-xs-12">
                 <div class="x_panel">
                 <div class="x_title">
-                    <h2>TAT Reporting</h2>
+                    <h2>RM TAT Reporting</h2>
                     <span class="collape_icon" href="#RM_completed_booking_reports_div" data-toggle="collapse" onclick="collapse_icon_change(this)"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
                    
                     <div class="clearfix"></div>
@@ -112,7 +112,7 @@
                 <table class="table table-striped table-bordered jambo_table bulk_action">
                     <thead>
                         <tr>
-                            <th>S.no11</th>
+                            <th>S.N</th>
                             <th>RM</th>
                             <th>D0</th>
                             <th>D1</th>
@@ -531,7 +531,7 @@ if($this->session->userdata("wrong_pincode_msg")){
                     <thead>
                         <tr>
                             <th>S.no</th>
-                            <th>RM</th>
+                            <th>AM</th>
                             <th>D0</th>
                             <th>D1</th>
                             <th>D2</th>
