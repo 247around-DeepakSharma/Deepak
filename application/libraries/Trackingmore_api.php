@@ -104,7 +104,7 @@ class Trackingmore_api {
      * @param int $lang Language,eg:$lang=cn(optional)
      * @return array
      */
-   public function getTrackingsList($numbers = "", $orders = "", $page = 1, $limit = 500, $createdAtMin = 0, $createdAtMax = 0, $update_time_min = 0, $update_time_max = 0, $order_created_time_min = 0, $order_created_time_max = 0, $lang = "en") {
+   public function getTrackingsList($numbers = "", $orders = "", $page = 1, $limit = 1000, $createdAtMin = 0, $createdAtMax = 0, $update_time_min = 0, $update_time_max = 0, $order_created_time_min = 0, $order_created_time_max = 0, $lang = "en") {
         $returnData = array();
         $sendData = array();
         $requestUrl = self::ROUTE_LIST_ALL_TRACKINGS;
