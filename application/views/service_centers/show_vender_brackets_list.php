@@ -186,7 +186,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php
+                        <?php $k1 = 1;
                             foreach ($brackets as $key => $value) {
                                 $is_shipped = $value['is_shipped'];
                                 $is_received = $value['is_received'];
@@ -210,7 +210,7 @@
                                 }
                                 ?>		
                         <tr <?php echo $style ?>>
-                            <td ><?php echo ($key + 1) . '.' ?></td>
+                            <td ><?php echo ($k1 + $offset); $k1++; ?></td>
                             <td ><a href="<?php echo base_url() ?>employee/service_centers/show_brackets_order_history/<?php echo $value['order_id'] ?>" target="_blank"><?php echo $value['order_id'] ?></a></td>
                             <td style="text-align: center;">
                                 <?php echo $order_received_from[$key]['owner_name'] . '<br>' ?>
