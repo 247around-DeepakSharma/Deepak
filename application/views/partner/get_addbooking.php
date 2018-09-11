@@ -65,6 +65,7 @@
                                     <input type="hidden" name="upcountry_data" id="upcountry_data" value="" />
                                     <input type="hidden" name="partner_type" id="partner_type" value="<?php echo $partner_type;?>" />
                                     <input type="hidden" name="partner_code" id="partner_code" value="<?php echo $partner_code;?>" />
+                                    <input type="hidden" name="is_active" id="is_active" value="<?php echo $this->session->userdata('status');?>" />
                                     
                                     <input type="text" class="form-control" id="name" name="user_name" value = "<?php if(isset($user[0]['name'])){ echo $user[0]['name']; } else { echo set_value('user_name'); }  ?>" <?php //if(isset($user[0]['name'])){ echo "readonly"; }  ?> placeholder="Please Enter User Name">
                                     <?php echo form_error('user_name'); ?>
@@ -388,27 +389,29 @@
                     <div class="x_content">
                         <input type="hidden" id="not_visible" name="not_visible" value="0"/>
                         <input type="hidden" name="product_type" value="Delivered"/>
-                        <?php if(!empty($this->session->userdata('status'))) {?>
+                        <?php //if(!empty($this->session->userdata('status'))) {?>
                             <div class="row">
                                 <div class="form-group  col-md-12" >
                                     <center>
+                                   
                                         <input type="submit" id="submitform" class="btn btn-primary " onclick="return check_validation()" value="Submit Booking">
                                         <p id="error_not_visible" style="color: red"></p>
                                     </center>
                                 </div>
                             </div>
-                            <?php } ?>
+                            <?php //} ?>
                         </form>
-                        <?php if(empty($this->session->userdata('status'))) { ?>
-                            <div class="row">
+                        <?php //if(empty($this->session->userdata('status'))) { ?>
+<!--                            <div class="row">
                                 <div class="form-group  col-md-12" >
                                     <center>
-                                        <input type="submit" class="btn btn-primary " disabled value="Submit Booking">
-                                        <p id="error_not_visible" style="color: red"><?php echo PREPAID_LOW_AMOUNT_MSG_FOR_PARTNER; ?></p>
+                                  
+                                        <input type="submit" class="btn btn-primary " disabled value="Submit Booking"><br/><br/><br/>
+                                        <p id="error_not_visible" style="color: red"><?php echo $this->session->userdata('message'); ?></p>
                                     </center>
                                 </div>
-                            </div>
-                        <?php }?>
+                            </div>-->
+                        <?php //}?>
                     </div>
                 </div>
             </div>
@@ -579,8 +582,11 @@
         }
         
         <?php if(empty($this->session->userdata('status'))){ ?>
-                alert("<?php echo PREPAID_LOW_AMOUNT_MSG_FOR_PARTNER;?>");
-                 document.getElementById('error_not_visible').innerHTML = "<?php echo PREPAID_LOW_AMOUNT_MSG_FOR_PARTNER;?>";  
+                var grand_total = Number($("#grand_total").val());
+                if(grand_total < 2){
+                     alert("<?php echo $this->session->userdata("message");?>");
+                     document.getElementById('error_not_visible').innerHTML = "<?php echo $this->session->userdata("message");?>";  
+                }
                 
             return false;
        <?php } ?>
@@ -1037,6 +1043,30 @@
             $("#grand_total").val(final_price.toFixed(2));
         }
         
+  }
+  
+  function check_active_paid(no){
+       var is_active = Number($("#is_active").val());
+       if(is_active === 0){
+           if ($("#checkbox_" + no).is(':checked')) {
+                var price_array = $("#checkbox_"+no).val();
+                var price_array1 = price_array.split('_');
+                var customer_total = Number(price_array1[1]);
+
+                if(customer_total > 0){
+                    var partner_net_payable = Number(price_array1[2]);
+                    var customer_net_payable = customer_total - partner_net_payable;
+                    if(customer_net_payable < 1){
+
+                        alert('<?php echo $this->session->userdata("message");?>');
+
+                        document.getElementById("checkbox_" + no).checked = false;
+                         
+                    }
+                }
+           }
+       }
+       
   }
   
   

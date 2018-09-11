@@ -36,6 +36,7 @@ class Partner extends CI_Controller {
         $this->load->library("initialized_variable");
         $this->load->model("push_notification_model");
         $this->load->library('table');
+        $this->load->library("invoice_lib");
 
         $this->load->helper(array('form', 'url', 'file', 'array'));
         $this->load->dbutil();
@@ -2874,7 +2875,8 @@ class Partner extends CI_Controller {
                         $html .= " onclick='return false;' ";
                     }   
                 }
-                $html .= "  onclick='final_price(),set_upcountry()'" .
+                $ch  = 'check_active_paid("'.$i.'")';
+                $html .= "  onclick='final_price(), ".$ch.", set_upcountry()'" .
                         "value=" . $prices['id'] . "_" . intval($customer_total) . "_" . intval($partner_net_payable) . "_" . $i . " ></td><tr>";
 
                 $i++;
@@ -3533,9 +3535,12 @@ class Partner extends CI_Controller {
         $data['pincode_covered'] = $this->reusable_model->get_search_query('vendor_pincode_mapping','count(distinct pincode) as pincode',NULL,NULL,NULL,NULL,NULL,NULL)->result_array()[0]['pincode'];
         $data['avg_rating'] = $this->reusable_model->get_search_query('booking_details','ROUND( AVG( rating_stars ) , 2 ) AS rating_avg',
                 array("current_status"=>"Completed","rating_stars IS NOT NULL"=>NULL,'partner_id'=>$partner_id),NULL,NULL,NULL,NULL,NULL)->result_array()[0]['rating_avg'];
-        if (!empty($this->session->userdata('is_prepaid'))) {
-            $data['prepaid_amount'] = $this->get_prepaid_amount($partner_id);
+       
+        $p = $this->get_prepaid_amount($partner_id);
+        if(!empty($p)){
+            $data['prepaid_amount'] = $p;
         }
+        
 
         $this->load->view('partner/show_partner_booking_summary', $data);
     }
@@ -3611,20 +3616,43 @@ class Partner extends CI_Controller {
      */
     function get_prepaid_amount($partner_id) {
         log_message("info", __METHOD__ . " Partner Id " . $partner_id);
-        $p_details = $this->miscelleneous->get_partner_prepaid_amount($partner_id);
+        if (!empty($this->session->userdata('is_prepaid'))) {
+            $p_details = $this->miscelleneous->get_partner_prepaid_amount($partner_id);
 
-        if ($p_details['is_notification']) {
+            if ($p_details['is_notification']) {
 
-            $d['prepaid_amount'] = '<strong class="blink" style="color:red;">' . $p_details['prepaid_amount'] . '</strong> ';
+                $d['prepaid_amount'] = '<strong class="blink" style="color:red;">' . $p_details['prepaid_amount'] . '</strong> ';
+            } else {
+                $d['prepaid_amount'] = '<strong style="color:green;">' . $p_details['prepaid_amount'] . '</strong>';
+            }
+
+            $d['prepaid_msg'] = $p_details['prepaid_msg'];
+
+            $userSession = array('status' => $p_details['active'], "message" => $p_details['prepaid_msg']);
+            $this->session->set_userdata($userSession);
+            return $d;
         } else {
-            $d['prepaid_amount'] = '<strong style="color:green;">' . $p_details['prepaid_amount'] . '</strong>';
+            $this->check_postpaid_partner_active($partner_id);
+            return array();
         }
+        
+    }
+    /**
+     * @desc This function is used to check active/De-activate for Postpaid Partner
+     * @param String $partner_id
+     * @return boolean
+     */
+    function check_postpaid_partner_active($partner_id){
+        log_message('info', __METHOD__. " POSPAID PARTNER ". $partner_id);
+        $partner_details = $this->partner_model->getpartner_details("partners.id, public_name, "
+                . "postpaid_credit_period, is_active, postpaid_notification_limit, postpaid_grace_period, "
+                . "invoice_email_to,invoice_email_cc", array('partners.id' => $partner_id));
+        $postpaid = $this->invoice_lib->get_postpaid_partner_outstanding($partner_details[0]);
 
-        $d['prepaid_msg'] = $p_details['prepaid_msg'];
-
-        $userSession = array('status' => $p_details['active']);
+        $userSession = array('status' => $postpaid['active'], "message" => $postpaid['notification_msg']);
+        log_message("info", __METHOD__. " POSTPAID partner is active ". $postpaid['active']);
         $this->session->set_userdata($userSession);
-        return $d;
+        return true;
     }
 
     public function get_contact_us_page() {

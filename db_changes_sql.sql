@@ -8094,3 +8094,16 @@ ALTER TABLE `trigger_service_centres` ADD `is_buyback_gst_invoice` INT(1) NOT NU
 
 --Chhavi 07th Sep
 ALTER TABLE `booking_tat` ADD `sf_closed_date` DATETIME NULL AFTER `booking_id`, ADD `around_closed_date` DATETIME NULL AFTER `sf_closed_date`;
+
+
+--Abhay 08 Sept
+ALTER TABLE `partners` ADD `postpaid_credit_period` INT(11) NULL DEFAULT NULL AFTER `review_time_limit`, ADD `postpaid_notification_limit` INT(11) NULL DEFAULT NULL AFTER `postpaid_credit_period`;
+ALTER TABLE `trigger_partners` ADD `postpaid_credit_period` INT(11) NULL DEFAULT NULL AFTER `review_time_limit`, ADD `postpaid_notification_limit` INT(11) NULL DEFAULT NULL AFTER `postpaid_credit_period`;
+ALTER TABLE `partners` ADD `postpaid_grace_period` DATE NULL DEFAULT NULL AFTER `postpaid_notification_limit`;
+ALTER TABLE `trigger_partners` ADD `postpaid_grace_period` DATE NULL DEFAULT NULL AFTER `postpaid_notification_limit`;
+
+
+--Abhay 11 Sept
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'postpaid_with_in_due_date_invoice_notification', NULL, 'Dear Partner,\r\n<br/>\r\n%s<br/>\r\n%s\r\n', 'bill@247around.com', '', 'anuj@247around.com', 'abhaya@247around.com', '1', '2018-09-11 00:00:00');
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'postpaid_above_due_date_invoice_notification', '%s', 'Dear Partner,\r\n<br/>\r\n%s<br/>\r\n%s\r\n', 'bill@247around.com', '', 'anuj@247around.com', 'abhaya@247around.com', '1', '2018-09-11 00:00:00');

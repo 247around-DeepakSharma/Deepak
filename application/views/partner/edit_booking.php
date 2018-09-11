@@ -986,4 +986,8 @@
     $('#purchase_date').on('cancel.daterangepicker', function(ev, picker) {
         $(this).val('');
     });
+    
+    function check_active_paid(no){
+        
+    }
 </script>
