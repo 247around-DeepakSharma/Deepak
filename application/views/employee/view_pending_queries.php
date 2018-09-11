@@ -160,7 +160,7 @@
                 <div class="col-md-3">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
-                            <input type="text" class="form-control filter_table" id="booking_date" placeholder="Booking Date">
+                            <input type="text" class="form-control filter_table" id="booking_date" name="booking_date" placeholder="Booking Date">
                         </div>
                     </div>
                 </div>
@@ -234,7 +234,23 @@
     });
     $(document).ready(function(){
         
-        datatable1 = $('#datatable1').DataTable({
+        $('input[name="booking_date"]').daterangepicker({
+            autoUpdateInput: false,
+            locale: {
+                format: 'YYYY-MM-DD',
+                 cancelLabel: 'Clear'
+            }
+        });
+        $('input[name="booking_date"]').on('apply.daterangepicker', function (ev, picker) {
+            $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));  
+            datatable1.ajax.reload();
+        });
+        $('input[name="booking_date"]').on('cancel.daterangepicker', function (ev, picker) {
+            $('input[name="booking_date"]').val("");
+        });
+        
+      
+       datatable1 = $('#datatable1').DataTable({
             "processing": true,
             "language":{ 
                 "processing": "<div class='spinner'>\n\
