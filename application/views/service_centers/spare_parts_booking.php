@@ -62,7 +62,7 @@ if ($this->uri->segment(3)) {
                                     <th class="text-center">Booking Id</th>
                                     <th class="text-center">Invoice Id</th>
                                     <th class="text-center">SF Name</th>
-                                    <th class="text-center">Age of Requested</th>
+                                    <th class="text-center">Age of Request(Days)</th>
                                     <th class="text-center">Parts Required</th>
                                     <th class="text-center">Model Number</th>
                                     <th class="text-center">Serial Number</th>
@@ -96,7 +96,7 @@ if ($this->uri->segment(3)) {
                                             <?php echo $row['vendor_name']; ?>
                                         </td>
                                         <td>
-                                            <?php echo $row['age_of_request'] . " days"; ?>
+                                            <?php echo $row['age_of_request']; ?>
                                         </td>
                                         <td>
                                             <?php echo $row['parts_requested']; ?>
