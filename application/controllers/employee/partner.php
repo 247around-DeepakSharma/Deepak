@@ -3876,7 +3876,7 @@ class Partner extends CI_Controller {
 
     function process_partner_contracts() {
         $partner_id = $this->input->post('partner_id');
-        $p = $this->reusable_model->get_search_result_data("partners", "public_name, account_manager", array('id' => $partner_id), NULL, NULL, NULL, NULL, NULL);
+        $p = $this->reusable_model->get_search_result_data("partners", "public_name, account_manager_id", array('id' => $partner_id), NULL, NULL, NULL, NULL, NULL);
         $partnerName = $p[0]['public_name'];
         $start_date_array = $this->input->post('agreement_start_date');
         $end_date_array = $this->input->post('agreement_end_date');
@@ -3914,7 +3914,7 @@ class Partner extends CI_Controller {
                     $html .= "<li><b>" . $key . '</b> =>';
                     $html .= " " . $value . '</li>';
                 }
-                $logged_user_name = $this->employee_model->getemployeefromid($p[0]['account_manager']);
+                $logged_user_name = $this->employee_model->getemployeefromid($p[0]['account_manager_id']);
                 
                 if(!empty($logged_user_name)){
                     $to = $logged_user_name[0]['official_email']. ",". $this->session->userdata('official_email');
