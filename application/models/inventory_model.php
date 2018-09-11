@@ -1300,6 +1300,7 @@ class Inventory_model extends CI_Model {
         $this->db->select($select,FALSE);
         $this->db->where($where,FALSE);
         $this->db->from('courier_tracking_details');
+        $this->db->order_by("checkpoint_status_date", "desc");
         $query = $this->db->get();
         
         return $query->result_array();

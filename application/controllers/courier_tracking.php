@@ -76,7 +76,7 @@ class Courier_tracking extends CI_Controller {
             //check if data is empty
             if(!empty($awb_number_list->data)){
                 //do background process on api data to save it into database
-                $this->do_background_process_on_api_response($awb_number_list);
+                $this->insert_api_data($awb_number_list);
                 
                 $awb_number_to_be_deleted_from_api = array();
                 //make array of all delivered data so that we can update status of that spare
@@ -92,19 +92,22 @@ class Courier_tracking extends CI_Controller {
                             $deleted_awb_number_tmp_arr['carrier_code'] = $value->carrier_code;
                             $awb_number_to_be_deleted_from_api[] = $deleted_awb_number_tmp_arr;
                         }
+                        if(!empty($awb_number_to_be_deleted_from_api)){
+                            $delete_status = $this->delete_awb_data_from_api($awb_number_to_be_deleted_from_api);
+                            echo "DELETE AWB BY API";
+                            print_r($delete_status);
+                            if($delete_status['status']){
+                                log_message('info','Spare details updated and awb deleted from tracking more api Delete API Response: '. print_r($delete_status,true));
+                            }else{
+                                log_message('info','Spare details updated but awb not deleted from tracking more Delete API Response: '. print_r($delete_status,true));
+                            }
+
+                            $awb_number_to_be_deleted_from_api = array();
+                        } 
                     }
                 }
                 
-                if(!empty($awb_number_to_be_deleted_from_api)){
-                    //delete all the delivered data from the trackingmore api
-                    $delete_status = $this->delete_awb_data_from_api($awb_number_to_be_deleted_from_api);
-                    print_r($delete_status);
-                    if($delete_status['status']){
-                        log_message('info','Spare details updated and awb deleted from tracking more api Delete API Response: '. print_r($delete_status,true));
-                    }else{
-                        log_message('info','Spare details updated but awb not deleted from tracking more Delete API Response: '. print_r($delete_status,true));
-                    }
-                }
+                
             }
             log_message('info',__METHOD__.' Exit...');
         }else{
@@ -130,6 +133,7 @@ class Courier_tracking extends CI_Controller {
                 if(!empty($api_data['data'])){
                     $data['awb_details_by_api'] = $api_data['data'];
                     $data['awb_number'] = $awb_number;
+                    
                 }else{
                     log_message('info',  'no data found from API for awb number '.print_r($api_data,true));
                     
@@ -227,10 +231,10 @@ class Courier_tracking extends CI_Controller {
      * @param void
      * @return void 
      */
-    function insert_api_data() {
-        log_message('info', __METHOD__ . ' Entering...');
+    function insert_api_data($api_data1) {
+        log_message('info', __METHOD__ . ' Entering...'. print_r($api_data1, TRUE));
         //get api data which called in async
-        $api_data = $this->input->post('api_data');
+        $api_data = json_decode(json_encode($api_data1, true), true);
         $data_to_insert = array();
         
         //process api_data to insert it into database
@@ -255,7 +259,7 @@ class Courier_tracking extends CI_Controller {
                 }
             }
         }
-
+        print_r($data_to_insert);
         //insert data into database
         if (!empty($data_to_insert)) {
             $insert_data = $this->inventory_model->insert_courier_api_data($data_to_insert);
@@ -263,7 +267,7 @@ class Courier_tracking extends CI_Controller {
             if ($insert_data) {
                 log_message('info', __METHOD__ . ' api data inserted successfully');
             } else {
-                log_message('info', __METHOD__ . ' error in inserting api data : ' . print_r($data_to_insert));
+                log_message('info', __METHOD__ . ' error in inserting api data : ' . print_r($data_to_insert, true));
             }
         }else{
             log_message('info', __METHOD__ . ' No new data found to insert...');
@@ -390,6 +394,8 @@ class Courier_tracking extends CI_Controller {
                         $cb_url = base_url() . "employee/do_background_process/send_request_for_partner_cb/" . $parts_details[2];
                         $pcb = array();
                         $this->asynchronous_lib->do_background_process($cb_url, $pcb);
+                        
+                        $res = TRUE;
                     } else {
 
                         //reverse the change in the spare part table
@@ -402,6 +408,7 @@ class Courier_tracking extends CI_Controller {
                     }
                 }
             } else {
+                $res = TRUE;
                 echo " STATUS CHANGED "; print_r($parts_details);
             }
         }
