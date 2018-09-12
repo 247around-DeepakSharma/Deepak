@@ -3888,7 +3888,7 @@ class vendor extends CI_Controller {
             $am_emails = implode(",", array_unique($am_email));
             $to = $am_emails;
             $cc = DEVELOPER_EMAIL;
-            $message1 = "Booking should be upcountry but not marked properly. Please check and update booking.<br/>";
+            $message1 = "Booking should be upcountry but not marked properly. AM need to take action to update their below bookings.<br/>";
             $subject = "Upcountry Booking Missed - Need To Take Action";
             $message1 .= $this->table->generate();
 
