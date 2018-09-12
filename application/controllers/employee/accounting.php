@@ -842,10 +842,7 @@ class Accounting extends CI_Controller {
             $post['where']['vendor_partner_invoices.type'] = $invoice_type;
         }
         
-        if(!empty($invoice_id)){
-            $post['where']['vendor_partner_invoices.invoice_id'] = $invoice_id;
-        }
-        
+   
         return $post;
     }
 }

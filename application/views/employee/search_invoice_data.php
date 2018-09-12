@@ -53,10 +53,10 @@
                              <label>Invoice Remark</label>
                              <input type="text" class="form-control" id="invoice_remarks" placeholder="Invoice Remarks" style="width:100%;">
                         </div>
-                        <div class="form-group col-md-3">
+<!--                        <div class="form-group col-md-3">
                              <label>Invoice Id</label>
                              <input type="text" class="form-control" id="invoice_id" placeholder="Invoice Id" style="width:100%;">
-                        </div>
+                        </div>-->
                         <div class="form-group col-md-3">
                             <button class="btn btn-success col-md-2" id="get_invoice_id_data" style="width:100%; margin-top: 23px;">Search</button>
                         </div>
@@ -103,7 +103,7 @@
     $("#vendor_partner_id").select2();
     var invoice_table = null;
     $(document).ready(function () {
-        
+        loaddataTable();
         $('#get_invoice_id_data').click(function () {
             if(invoice_table == null){
                 loaddataTable();

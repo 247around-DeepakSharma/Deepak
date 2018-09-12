@@ -3848,10 +3848,10 @@ class vendor extends CI_Controller {
      */
     function re_check_upcountry_for_pending_booking() {
         log_message("info", __METHOD__);
+        $am_email = array();
         $this->load->library('table');
         $data = $this->booking_model->date_sorted_booking(500, 0, "");
-        
-        $this->table->set_heading('Booking ID');
+        $this->table->set_heading('Booking ID', 'Account Manager Name');
         $flag = 0;       
         foreach ($data as $value) {
             if (!empty($value->booking_id) && $value->is_upcountry == 0) {
@@ -3870,16 +3870,17 @@ class vendor extends CI_Controller {
                     case UPCOUNTRY_BOOKING:
                     case UPCOUNTRY_LIMIT_EXCEED:
                         $flag = 1;
-                        $this->table->add_row($value->booking_id);
-                        
+                        $am_detail = $this->partner_model->getpartner_details('official_email, full_name', array('partners.id' => $value->partner_id),"", TRUE);
+                        $this->table->add_row($value->booking_id, $am_detail[0]['full_name']);
+                        array_push($am_email, $am_detail[0]['official_email']);
                         break;
 
                 }
             }
         }
         if($flag == 1){
-            $to = ANUJ_EMAIL_ID . ", sales@247around.com, booking@247around.com, vijaya@247around.com, adila@247around.com,".RM_EMAIL;
-
+            $am_emails = implode(",", array_unique($am_email));
+            $to = $am_emails;
             $cc = DEVELOPER_EMAIL;
             $message1 = "Booking should be upcountry but not marked properly. Please check and update booking.<br/>";
             $subject = "Upcountry Booking Missed - Need To Take Action";
