@@ -1085,7 +1085,7 @@ class Booking extends CI_Controller {
      * @desc: This is used to get appliance list its called by Ajax
      */
     function get_appliances($selected_service_id) {
-        $partner_id = 1;#$this->input->post('partner_id');
+        $partner_id = $this->input->post('partner_id');
         $partner_details = $this->partner_model->getpartner_details("partners.id, public_name, "
                 . "postpaid_credit_period, is_active, postpaid_notification_limit, postpaid_grace_period, is_prepaid,partner_type, "
                 . "invoice_email_to,invoice_email_cc", array('partners.id' => $partner_id));

@@ -130,7 +130,19 @@ class Dealers extends CI_Controller {
         $category = $this->input->post("category");
         $service_id = $this->input->post("service_id");
         $partner_id = $this->input->post('partner_id');
-        $prepaid = $this->miscelleneous->get_partner_prepaid_amount($partner_id);
+        
+        $partner_details = $this->partner_model->getpartner_details("partners.id, public_name, "
+                . "postpaid_credit_period, is_active, postpaid_notification_limit, postpaid_grace_period, is_prepaid,partner_type, "
+                . "invoice_email_to,invoice_email_cc", array('partners.id' => $partner_id));
+        
+        if ($partner_details[0]['is_prepaid'] == 1) {
+            $prepaid = $this->miscelleneous->get_partner_prepaid_amount($partner_id);
+            $message = $prepaid['prepaid_msg'];
+        } else {
+            $prepaid = $this->invoice_lib->get_postpaid_partner_outstanding($partner_details[0]);
+            $message = $prepaid['notification_msg'];
+        }
+        
         if (!empty($prepaid)) {
             if ($prepaid['active'] == 1) {
                 $where = array('service_id' => $service_id, "brand" => $brand,
