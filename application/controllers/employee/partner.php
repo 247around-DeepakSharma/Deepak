@@ -2089,50 +2089,16 @@ class Partner extends CI_Controller {
     /**
      * @desc: Pending Defective Parts list 
      */
-    function get_waiting_defective_parts($offset = 0, $all = 0) {
+    function get_waiting_defective_parts() {
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
         $this->checkUserSession();
-        $partner_id = $this->session->userdata('partner_id');
-        $state = 0;
-            if($this->session->userdata('is_filter_applicable') == 1){
-            $state = 1;
-         }
-        $where = array(
-            "spare_parts_details.defective_part_required" => 1,
-            "approved_defective_parts_by_admin" => 1,
-            "spare_parts_details.partner_id" => $partner_id,
-            "status IN ('" . DEFECTIVE_PARTS_SHIPPED . "')  " => NULL
-        );
-
-        $select = "CONCAT( '', GROUP_CONCAT((defective_part_shipped ) ) , '' ) as defective_part_shipped, "
-                . " spare_parts_details.booking_id, users.name, courier_name_by_sf, awb_by_sf,defective_part_shipped_date,remarks_defective_part_by_sf,spare_parts_details.sf_challan_number"
-                . ",spare_parts_details.sf_challan_file,spare_parts_details.partner_challan_number";
-
-        $group_by = "spare_parts_details.booking_id";
-        $order_by = "spare_parts_details.defective_part_shipped_date DESC";
-
-        $config['base_url'] = base_url() . 'partner/get_waiting_defective_parts';
-        $config['total_rows'] = $this->service_centers_model->count_spare_parts_booking($where, $select, $group_by,$state);
-
-        if ($all == 1) {
-            $config['per_page'] = $config['total_rows'];
-        } else {
-            $config['per_page'] = 50;
+        $agent_id = $this->session->userdata('agent_id');
+            $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",array("agent_filters.agent_id"=>$agent_id),array("agent_filters"=>"agent_filters.state=state_code.state"),NULL,array('state'=>'ASC'),NULL,array("agent_filters"=>"left"),array());
+        if(empty($data['states'])){
+            $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
         }
-        $config['uri_segment'] = 3;
-        $config['first_link'] = 'First';
-        $config['last_link'] = 'Last';
-        $this->pagination->initialize($config);
-        $data['links'] = $this->pagination->create_links();
-
-        $data['count'] = $config['total_rows'];
-        $data['spare_parts'] = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $offset, $config['per_page']);
-        $where_internal_status = array("page" => "defective_parts", "active" => '1');
-        $data['internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
-        $data['is_ajax'] = $this->input->post('is_ajax');
         if(empty($this->input->post('is_ajax'))){
             $this->miscelleneous->load_partner_nav_header();
-           // $this->load->view('partner/header');
             $this->load->view('partner/waiting_defective_parts', $data);
             $this->load->view('partner/partner_footer');
         }else{
@@ -5332,7 +5298,7 @@ class Partner extends CI_Controller {
                        $tempString = '<i style="color:red; font-size:20px;" onclick="open_upcountry_model('.$row['booking_id'].'", "'.$row['amount_due'].')" class="fa fa-road" aria-hidden="true"></i>';
                     }
                     $tempArray[] =  $sn. $tempString;
-                    $tempArray[] =  '<a  style="color:blue;" href='.base_url().'"partner/booking_details/"'.$row['booking_id'].'  title="View">'.$row['booking_id'].'</a>';
+                    $tempArray[] =  '<a target="_blank"  style="color:blue;" href='.base_url().'partner/booking_details/'.$row['booking_id'].'  title="View">'.$row['booking_id'].'</a>';
                     $tempArray[] =  $row['name'];
                     $tempArray[] =  $row['age_of_request'];
                     $tempArray[] =  $row['parts_requested'];
@@ -5340,16 +5306,17 @@ class Partner extends CI_Controller {
                     $tempArray[] =  $row['serial_number'];
                     $tempArray[] =  $row['state'];
                     $tempArray[] =  $row['remarks_by_sc'];
-                    $tempArray[] =  '<a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('.$row['booking_id'].')"><i class="fa fa-envelope" aria-hidden="true"></i></a>';
+                    $bookingIdTemp = "'".$row['booking_id']."'";
+                    $tempArray[] =  '<a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('.$bookingIdTemp.')"><i class="fa fa-envelope" aria-hidden="true"></i></a>';
                     $tempString2 =  '<div class="dropdown">
                             <button class="btn btn-sm btn-primary" type="button" data-toggle="dropdown" style="    border: 1px solid #2a3f54;background: #2a3f54;">Action
                             <span class="caret"></span></button>
                             <ul class="dropdown-menu" style="border: none;background: none;z-index: 100;position: inherit;min-width: 70px;">
                                 <div class="action_holder" style="background: #fff;border: 1px solid #2c9d9c;padding: 1px;">
-                                <li style="color: #fff;"><a href='.base_url().'"partner/update_spare_parts_form/"'.$row['booking_id'].' class="btn btn-sm btn-success" title="Update" style="color:#fff;margin: 0px;padding: 5px 12px;" ></i>Update</a></li>';
+                                <li style="color: #fff;"><a href='.base_url().'partner/update_spare_parts_form/'.$row['booking_id'].' class="btn btn-sm btn-success" title="Update" style="color:#fff;margin: 0px;padding: 5px 12px;" ></i>Update</a></li>';
                     $explode = explode(",", $row['spare_id']);
                     if(count($explode) == 1){ 
-                     $tempString3 =  '<li style="color: #fff;margin-top:5px;"><a href="#" data-toggle="modal" id="spare_parts"'.$row['spare_id'].'" data-url='.base_url().'"employee/inventory/update_action_on_spare_parts/"'.$row['spare_id'] . '"/"' . $row['booking_id'].'"/CANCEL_PARTS" data-booking_id="'.$row['booking_id'].'" data-target="#myModal2" class="btn btn-sm btn-danger open-adminremarks" title="Reject" style="color:#fff;margin: 0px;padding: 5px 14.4px;" >Reject</a></li>';
+                     $tempString3 =  '<li style="color: #fff;margin-top:5px;"><a href="#" data-toggle="modal" id="spare_parts"'.$row['spare_id'].'" data-url='.base_url().'employee/inventory/update_action_on_spare_parts/'.$row['spare_id'] . '/' . $row['booking_id'].'/CANCEL_PARTS data-booking_id="'.$row['booking_id'].'" data-target="#myModal2" class="btn btn-sm btn-danger open-adminremarks" title="Reject" style="color:#fff;margin: 0px;padding: 5px 14.4px;" >Reject</a></li>';
                     }
                      $tempString4 = '</ul>';
                      $tempArray[] =  $tempString2 . $tempString3 .$tempString4;
@@ -5360,12 +5327,103 @@ class Partner extends CI_Controller {
                            $tempString5 = '<a class="btn btn-sm btn-success" href="#" title="Signature file is not available" style="background-color:#2C9D9C; border-color: #2C9D9C;cursor: not-allowed;"><i class="fa fa-times"></i></a>';
                       }
                       else{
-                            $tempString5 = '<a class="btn btn-sm btn-success" href="'.base_url().'"partner/download_sf_declaration/"'.rawurlencode($row['sf_id']).' title="Download Declaration" style="background-color:#2C9D9C; border-color: #2C9D9C;" target="_blank"><i class="fa fa-download"></i></a>';
+                            $tempString5 = '<a class="btn btn-sm btn-success" href='.base_url().'partner/download_sf_declaration/'.rawurlencode($row['sf_id']).'  title="Download Declaration" style="background-color:#2C9D9C; border-color: #2C9D9C;" target="_blank"><i class="fa fa-download"></i></a>';
                         }
                       $tempArray[] = $tempString5;
                       $tempArray[] = '<input type="checkbox" class="form-control checkbox_address"  name="download_address[]" onclick="check_checkbox(1)" value="'.$row['booking_id'].'" />';
                       $tempArray[] = '<input type="checkbox" class="form-control checkbox_manifest" name="download_courier_manifest[]" onclick="check_checkbox(0)" value="'.$row['booking_id'].'" />';
                       $finalArray[] = $tempArray;
+           }
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $bookingCount,
+            "recordsFiltered" =>  $bookingCount,
+            "data" => $finalArray,
+        );
+        echo json_encode($output);
+    }
+     function get_defactive_part_shipped_by_sf_bookings(){
+      $finalArray = array();
+      $postData = $this->input->post();
+      $state = 0;
+      $where_internal_status = array("page" => "defective_parts", "active" => '1');
+      $internal_status = $this->booking_model->get_internal_status($where_internal_status);
+      $columnMappingArray = array("column_1"=>"spare_parts_details.booking_id","column_3"=>"CONCAT('',GROUP_CONCAT((defective_part_shipped ) ))",
+          "column_4"=>"courier_name_by_sf");    
+      $order_by = "spare_parts_details.defective_part_shipped_date DESC";
+      if(array_key_exists("order", $postData)){
+            $order_by = $columnMappingArray["column_".$postData['order'][0]['column']] ." ". $postData['order'][0]['dir'];
+        }
+       $partner_id = $this->session->userdata('partner_id');
+            if($this->session->userdata('is_filter_applicable') == 1){
+            $state = 1;
+         }
+        $where = array(
+            "spare_parts_details.defective_part_required" => 1,
+            "approved_defective_parts_by_admin" => 1,
+            "spare_parts_details.partner_id" => $partner_id,
+            "status IN ('" . DEFECTIVE_PARTS_SHIPPED . "')  " => NULL
+        );
+       if($this->input->post('state')){
+           $where['booking_details.state'] = $this->input->post('state');
+       }
+       if($this->input->post('booking_id')){
+           $where['spare_parts_details.booking_id'] = $this->input->post('booking_id');
+       }
+        $select = "CONCAT( '', GROUP_CONCAT((defective_part_shipped ) ) , '' ) as defective_part_shipped, "
+                . " spare_parts_details.booking_id, users.name, courier_name_by_sf, awb_by_sf,defective_part_shipped_date,remarks_defective_part_by_sf,spare_parts_details.sf_challan_number"
+                . ",spare_parts_details.sf_challan_file,spare_parts_details.partner_challan_number";
+        $group_by = "spare_parts_details.booking_id";
+        $bookingData = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $postData['start'], $postData['length']);
+         $bookingCount = $this->service_centers_model->count_spare_parts_booking($where, $select, $group_by,$state);
+         $sn = $postData['start'];
+         foreach ($bookingData as $key => $row) {
+                    $tempArray = array();
+                    $tempString = $tempString2 = $tempString3 = $tempString4 = $tempString5 = $tempString6 = $tempString7 = "";
+                    $sn++;
+                    $tempArray[] = $sn;
+                    $tempArray[] = '<a target="_blank"  style="color:blue" href='.base_url().'partner/booking_details/'.$row['booking_id'].'  title="View">'.$row['booking_id'].'</a>';
+                    $tempArray[] = $row['name'];
+                    $tempArray[] = $row['defective_part_shipped'];
+                    $tempArray[] = $row['courier_name_by_sf'];
+                    $tempArray[] = $row['awb_by_sf'];
+                    if(!empty($row['sf_challan_file'])) {  
+                         $tempString = '<a style="color: blue;" href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/vendor-partner-docs/'.$row['sf_challan_file'].'" target="_blank">'.$row["sf_challan_number"].'</a>';
+                    }
+                    $tempArray[] = $tempString;
+                     if(!empty($row['partner_challan_file'])) {
+                        $tempString2 = '<a href="https://s3.amazonaws.com/'. BITBUCKET_DIRECTORY.'/vendor-partner-docs/'.$row['partner_challan_file'].'" target="_blank">'.$row["partner_challan_number"].'</a>';
+                     }
+                     else if(!empty($row['partner_challan_number'])) {
+                         $tempString2 = $row['partner_challan_number'];
+                    }
+                    $tempArray[] = $tempString2;
+                     $bookingIdTemp = "'".$row['booking_id']."'";
+                     $tempArray[] = '<a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email" onclick="create_email_form('.$bookingIdTemp.')"><i class="fa fa-envelope" aria-hidden="true"></i></a>';
+                     if (!is_null($row['defective_part_shipped_date'])) {
+                         $tempString3 =  date("d-m-Y", strtotime($row['defective_part_shipped_date']));
+                     }
+                    $tempArray[] = $tempString3;
+                    $tempArray[] = $row['remarks_defective_part_by_sf'];
+                     if (!empty($row['defective_part_shipped'])) {
+                            if(empty($row['defective_part_shipped'])){
+                             $tempString5 = 'disabled="disabled"';
+                            }
+                        $tempString4 = '<a style="background: #2a3f54; border-color: #2a3f54;" onclick="return confirm_received()" class="btn btn-sm btn-primary" id="defective_parts"
+                                               href='.base_url().'"partner/acknowledge_received_defective_parts/"'.$row['booking_id'].'"/."'.$this->session->userdata("partner_id").'" .'.$tempString5.'>Receive</a>';
+                     }
+                     $tempArray[] = $tempString4;
+                     if (!empty($row['defective_part_shipped'])) {
+                            foreach ($internal_status as $value) {
+                                  $tempString7 = $tempString7.'<li><a href='.base_url().'partner/reject_defective_part/'.$row['booking_id'].'/'.urlencode(base64_encode($value->status)).'>'.$value->status.'</a></li>';
+                                  $tempString7 = $tempString7.'<li class="divider"></li>';
+                             } 
+                              $tempString6 = '<div class="dropdown">
+                                            <a href="#" class="dropdown-toggle btn btn-sm btn-danger" type="button" data-toggle="dropdown">Reject<span class="caret"></span></a>
+                                            <ul class="dropdown-menu" style="right: 0px;left: auto;">'.$tempString7.'</ul> </div>';
+                       }
+                       $tempArray[] = $tempString6;
+                       $finalArray[] = $tempArray;
            }
         $output = array(
             "draw" => $this->input->post('draw'),
