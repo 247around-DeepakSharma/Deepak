@@ -98,7 +98,6 @@
                                 </div>
                             </div>
                              <div class="tab-pane" id="tabs-6"></div>
-                         <?php    } ?>
                         </div>
                     </div>
                 </div>
