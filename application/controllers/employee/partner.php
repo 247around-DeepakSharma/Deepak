@@ -2995,30 +2995,14 @@ class Partner extends CI_Controller {
      */
     function get_waiting_for_approval_upcountry_charges($offset = 0, $all = 0) {
         $this->checkUserSession();
-        $partner_id = $this->session->userdata('partner_id');
-        $state = 0;
-        if($this->session->userdata('is_filter_applicable') == 1){
-            $state = 1;
+        $agent_id = $this->session->userdata('agent_id');
+        $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",array("agent_filters.agent_id"=>$agent_id),array("agent_filters"=>"agent_filters.state=state_code.state"),NULL,array('state'=>'ASC'),NULL,array("agent_filters"=>"left"),array());
+        if(empty($data['states'])){
+            $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
         }
-        $config['base_url'] = base_url() . 'partner/get_waiting_for_approval_upcountry_charges';
-        $total_rows = $this->upcountry_model->get_waiting_for_approval_upcountry_charges($partner_id,$state);
-        $config['total_rows'] = count($total_rows);
-        if ($all == 1) {
-            $config['per_page'] = count($total_rows);
-        } else {
-            $config['per_page'] = 50;
-        }
-        $config['uri_segment'] = 3;
-        $config['first_link'] = 'First';
-        $config['last_link'] = 'Last';
-        $this->pagination->initialize($config);
-        $data['links'] = $this->pagination->create_links();
-        $data['count'] = $config['total_rows'];
-        $data['booking_details'] = array_slice($total_rows, $offset, $config['per_page']);
         $data['is_ajax'] = $this->input->post('is_ajax');
         if(empty($this->input->post('is_ajax'))){
             $this->miscelleneous->load_partner_nav_header();
-            //$this->load->view('partner/header');
             $this->load->view('partner/get_waiting_to_approval_upcountry', $data);
             $this->load->view('partner/partner_footer');
         }else{
@@ -5432,5 +5416,70 @@ class Partner extends CI_Controller {
             "data" => $finalArray,
         );
         echo json_encode($output);
+    }
+    function get_waiting_upcountry_charges(){
+        $where = array();
+        $finalArray = array();
+        $postData = $this->input->post();
+        $state = 0;
+         if($this->session->userdata('is_filter_applicable') == 1){
+              $state = 1;
+           }
+        $columnMappingArray = array("column_1"=>"bd.booking_id","column_3"=>"CONCAT('',GROUP_CONCAT((defective_part_shipped ) ))",
+            "column_4"=>"courier_name_by_sf");    
+        $order_by = "bd.booking_id DESC";
+        if(array_key_exists("order", $postData)){
+              $order_by = $columnMappingArray["column_".$postData['order'][0]['column']] ." ". $postData['order'][0]['dir'];
+          }
+         $partner_id = $this->session->userdata('partner_id');
+         if($this->input->post('state')){
+             $where['bd.state'] = $this->input->post('state');
+         }
+         if($this->input->post('booking_id')){
+             $where['bd.booking_id'] = $this->input->post('booking_id');
+         }
+          $bookingCount = $this->upcountry_model->get_waiting_for_approval_upcountry_charges($partner_id,$state,1,$where)[0]['count'];
+          $bookingData = $this->upcountry_model->get_waiting_for_approval_upcountry_charges($partner_id,$state,0,$where,$order_by,$postData['length'],$postData['start']);
+           $sn = $postData['start'];
+           foreach ($bookingData as $key => $row) {
+                      $tempArray = array();
+                      $tempString = "";
+                      $sn++;
+                      $tempArray[] = $sn;
+                      $tempArray[] = '<a style="color:blue;" href='. base_url().'partner/booking_details/'.$row['booking_id'].'  title="View">'.$row['booking_id'].'</a>';
+                      $tempArray[] = $row['request_type'];
+                      $tempArray[] = $row['name'];
+                      $tempArray[] = $row['services'];
+                      $tempArray[] = $row['appliance_brand'];
+                      $tempArray[] = $row['appliance_category'];
+                      $tempArray[] = $row['appliance_capacity'];
+                      $tempArray[] = $row['booking_address'] . ", " . $row['city'] . ", Pincode - " . $row['booking_pincode'] . ", " . $row['state'];
+                      $age_requested = date_diff(date_create($row['upcountry_update_date']), date_create('today'));
+                      $tempArray[] = $age_requested->days ." Days";
+                      $tempArray[] = $row['upcountry_distance'] . " KM";
+                      $tempArray[] = sprintf("%0.2f",$row['upcountry_distance'] * $row['partner_upcountry_rate']);
+                      $tempString = '<div class="dropdown">
+                                                <button class="btn btn-sm btn-primary" type="button" data-toggle="dropdown" style="border: 1px solid #2a3f54;background: #2a3f54;">Action
+                                                <span class="caret"></span></button>
+                                                <ul class="dropdown-menu" style="border: none;background: none;position: inherit;z-index: 100;min-width: 70px;">
+                                                    <div class="action_holder" style="background: #fff;border: 1px solid #2c9d9c;padding: 1px;">
+                                                    <li style="color: #fff;">
+                                                        <a href='.base_url().'partner/upcountry_charges_approval/'.$row['booking_id'].'/1 class="btn btn-md btn-success" style="color:#fff;margin: 0px;padding: 5px 5.5px;">Approve</a></li>
+                                                    <li style="color: #fff;margin-top:5px;">
+                                                        <a style="color:#fff;margin: 0px;padding: 5px 11px;" href='.base_url().'partner/reject_upcountry_charges/'.$row['booking_id'].'/1 class="btn btn-md btn-danger">Reject</a>
+                                                    </li>
+                                           </div>
+                                                </ul>
+                                            </div>';
+                      $tempArray[] = $tempString;
+                      $finalArray[] = $tempArray;
+             }
+          $output = array(
+              "draw" => $this->input->post('draw'),
+              "recordsTotal" => $bookingCount,
+              "recordsFiltered" =>  $bookingCount,
+              "data" => $finalArray,
+          );
+          echo json_encode($output);
     }
 }
