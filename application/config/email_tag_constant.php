@@ -101,3 +101,5 @@ define('COURIER_DOCUMENT', 'courier_documents');
 define('TAXPRO_API_FAIL', 'taxpro_api_fail');
 define('GST_DETAIL_UPDATED', 'gst_detail_change');
 define('BAD_RATING', 'we_get_bad_rating');
+define("POSTPAID_PARTNER_ABOVE_DUE_DATE_INVOICE_NOTIFICATION","postpaid_above_due_date_invoice_notification");
+define("POSTPAID_PARTNER_WITH_IN_DUE_DATE_INVOICE_NOTIFICATIOIN", "postpaid_with_in_due_date_invoice_notification");

@@ -191,7 +191,8 @@ ini_set('max_execution_time', 36000000);
                                     echo "background-color: #eeff41;";
                                 }
                                 ?>">
-                                <td><?php echo $count; if($value['is_stand']> 0) { ?>   <i class="fa fa-star" aria-hidden="true"></i> <?php } ?></td>
+<!--                                if($value['is_stand']> 0) { ?>   <i class="fa fa-star" aria-hidden="true"></i>-->
+                                <td><?php echo $count;   ?></td>
                                 
                                 <td> <a style="<?php if (isset($value['on_off'])) {
                                     if ($value['active'] == 0) {

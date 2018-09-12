@@ -212,21 +212,21 @@ $(document).on('keyup', '.partner_discount', function (e) {
 
 function check_prepaid_balance(type) {
    
-    if (type === "Booking") {
-           
-        var booking_type = $("#booking_type").val();
-        var is_active = $("#is_active").val();
-        if (booking_type === "" || booking_type === "Query" || booking_type === undefined ) {
-            
-            if (Number(is_active) === 0) {
-
-                alert(LOW_CREDIT_MSG);
-               
-                document.getElementById("booking").checked = false;
-                return false;
-            }
-        }
-    }
+//    if (type === "Booking") {
+//           
+//        var booking_type = $("#booking_type").val();
+//        var is_active = $("#is_active").val();
+//        if (booking_type === "" || booking_type === "Query" || booking_type === undefined ) {
+//            
+//            if (Number(is_active) === 0) {
+//
+//                alert(LOW_CREDIT_MSG);
+//               
+//                document.getElementById("booking").checked = false;
+//                return false;
+//            }
+//        }
+//    }
 
 }
 
@@ -305,15 +305,17 @@ function addBookingDialog() {
                 }
             }
             
-            if(booking_type ==="" || booking_type === "Query" || booking_type === undefined){
-                if(Number(is_active) === 0){
+            var grand_total_price = Number($("#grand_total_price").val());
+            if(grand_total_price < 2){
+                if(booking_type ==="" || booking_type === "Query" || booking_type === undefined){
+                    if(Number(is_active) === 0){
 
-                    alert(LOW_CREDIT_MSG);
-                    return false;
-                 }  
-            } 
-    
-    
+                        alert(LOW_CREDIT_MSG);
+                        return false;
+                     }  
+                } 
+            }
+            
         } else {
             if ($('input[name=internal_status]:checked').length > 0) {
                 // something when checked
@@ -543,11 +545,42 @@ function enable_discount(div_id) {
 
     if ($("#checkbox_" + div_no[1] + "_" + div_no[2]).is(':checked')) {
 
-        $("#discount_" + div_no[1] + "_" + div_no[2]).attr("readonly", false);
-        $("#partner_paid_basic_charges_" + div_no[1] + "_" + div_no[2]).attr("readonly", false);
+        var price_array = $("#checkbox_" + div_no[1] + "_" + div_no[2]).val();
+        var customer_total = Number(price_array.split('_')[1]);
+        var around_discount = Number($("#discount_" + div_no[1] + "_" + div_no[2]).val());
+        var partner_discount = Number($("#partner_paid_basic_charges_" + div_no[1] + "_" + div_no[2]).val());
+        var final_price = customer_total - around_discount - partner_discount;
+        if(customer_total === 0){
+            $("#discount_" + div_no[1] + "_" + div_no[2]).attr("readonly", false);
+            $("#partner_paid_basic_charges_" + div_no[1] + "_" + div_no[2]).attr("readonly", false);
+            
+        } else if (final_price > 1) {
 
-    }
-    else {
+            $("#discount_" + div_no[1] + "_" + div_no[2]).attr("readonly", false);
+            $("#partner_paid_basic_charges_" + div_no[1] + "_" + div_no[2]).attr("readonly", false);
+
+        } else {
+            if ($("#booking").is(':checked')) {
+                var booking_type = $("#booking_type").val();
+                var is_active = $("#is_active").val();
+                if (booking_type === "" || booking_type === "Query" || booking_type === undefined) {
+
+                    if (Number(is_active) === 0) {
+
+                        alert(LOW_CREDIT_MSG);
+
+                        document.getElementById("checkbox_" + div_no[1] + "_" + div_no[2]).checked = false;
+                    }
+                }
+            } else if ($("#query").is(':checked')) {
+                
+            } else {
+                alert("Please select Booking Type First");
+                document.getElementById("checkbox_" + div_no[1] + "_" + div_no[2]).checked = false;
+            }
+        }
+
+    } else {
         //$("#discount_"+div_no[1]+"_"+div_no[2]).val(0);
 
         $("#discount_" + div_no[1] + "_" + div_no[2]).attr("readonly", true);
