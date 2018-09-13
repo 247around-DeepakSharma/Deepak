@@ -37,7 +37,7 @@
          <th>Amount to be Paid By Partner</th>
          <th>Amount Paid</th> 
          <th>Remarks</th> 
-         <th>Select</th>
+         <th>Select<input align="center" type="checkbox" id="selecctall_amt"/></th>
          <th>Action</th>
 <!--         <th>Update</th>
          <th>Resend</th>-->
@@ -92,7 +92,7 @@
          <td id="<?php echo 'amount_paid_'.$count; ?>"><?php echo sprintf("%.2f",$invoice['amount_paid']) ?></td>
          <td><?php echo $invoice['remarks']; ?></td>
         
-         <td ><?php if($invoice['settle_amount'] == 0){ ?><input type="checkbox" class="form-control" name ="invoice_id[]" value="<?php echo $invoice['invoice_id'] ?>" id="<?php echo 'checkbox_'.$count; ?>" onclick="sum_amount()" />
+         <td ><?php if($invoice['settle_amount'] == 0){ ?><input type="checkbox" class="checkbox_amt form-control" name ="invoice_id[]" value="<?php echo $invoice['invoice_id'] ?>" id="<?php echo 'checkbox_'.$count; ?>" onclick="sum_amount()" />
              
              <input type="hidden" class ="in_disable" name="<?php echo "tds_amount[".$invoice['invoice_id']."] "; ?>" id="<?php echo "intdsAmount_".$count; ?>" value="<?php if($invoice['amount_paid'] > 0 ) { echo "0.00";} else { echo $invoice['tds_amount'];} ?>"/>
              <input type="hidden" class ="in_disable"    name="<?php echo "amount_collected[".$invoice['invoice_id']."] "; ?>" id="<?php echo "inAmountCollected_".$count; ?>" value="<?php if($invoice['amount_collected_paid'] > 0) {echo $invoice['amount_collected_paid'] - $invoice['amount_paid'];} else { echo $invoice['amount_collected_paid'] + $invoice['amount_paid'];}?>"/>
@@ -159,7 +159,7 @@
       <?php }} ?>
 
 
-      <tr>
+        <tr style="font-weight: bold;">
          <td><b>Total</b></td>
          <td></td>
          <td></td>
@@ -177,7 +177,7 @@
          <td></td>
          <td id="final_amount_selected"></td>
          <td><input type="submit" class="form-control btn btn-sm btn-primary" value="Pay"></td>
-          <td> </td><td> </td>
+         <td> </td>
         
        
          
@@ -263,6 +263,15 @@
               $('#selected_amount_collected').val(total_amount_collected.toFixed(2));
               $('#selected_tds').val(total_tds.toFixed(2));
               document.getElementById("final_amount_selected").innerHTML = Math.abs(total_amount_collected.toFixed(2));
+              if(Number($('#selected_amount_collected').val())>0){
+                    $('#final_amount_selected').css("color","#3f9c4e;");
+              }
+              else if(Number($('#selected_amount_collected').val()) === 0){
+                    $('#final_amount_selected').css("color", "#333333;");
+              }
+              else{
+                    $('#final_amount_selected').css("color","#ea1d27f2;"); 
+              }
              // document.getElementById("final_tds_selected").innerHTML = total_tds.toFixed(2);
               
       }
@@ -461,10 +470,18 @@ function get_defective_spare_count_details(){
 </script>
 <script>
 $(document).ready(function(){
-  $('.dropdown-submenu a.custom_dropdown-submenu').on("click", function(e){
-    $(this).next('ul').toggle();
-    e.stopPropagation();
-    e.preventDefault();
-  });
+    $('.dropdown-submenu a.custom_dropdown-submenu').on("click", function(e){
+      $(this).next('ul').toggle();
+      e.stopPropagation();
+      e.preventDefault();
+    });
+  
+    /****** this is used to check/uncheck all checkboxes  *****/
+    $("#selecctall_amt").change(function(){
+        $(".checkbox_amt").prop('checked', $(this).prop("checked"));
+        sum_amount();
+    });
+              
+  
 });
 </script>
