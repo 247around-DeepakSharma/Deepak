@@ -1610,26 +1610,6 @@ class Partner extends CI_Controller {
     }
 
     /**
-     * @desc: This is used to get those booking who has requested to spare parts by SF
-     */
-    function get_spare_parts_booking() {
-        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
-        $this->checkUserSession();
-        $agent_id = $this->session->userdata('agent_id');
-            $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",array("agent_filters.agent_id"=>$agent_id),array("agent_filters"=>"agent_filters.state=state_code.state"),NULL,array('state'=>'ASC'),NULL,array("agent_filters"=>"left"),array());
-        if(empty($data['states'])){
-            $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
-        }
-        if(empty($this->input->post('is_ajax'))){
-            $this->miscelleneous->load_partner_nav_header();
-           $this->load->view('partner/spare_parts_booking', $data);
-            $this->load->view('partner/partner_footer');
-        }else{
-            $this->load->view('partner/spare_parts_booking', $data);
-        }
-    }
-
-    /**
      * @desc: This is used to insert details into insert change table
      * @param String $booking_id
      * @param String $new_state
