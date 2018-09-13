@@ -4827,5 +4827,16 @@ class Inventory extends CI_Controller {
         );
         echo json_encode($array, TRUE);
     }
+    
+    /**
+     * @desc: This Function is used to view upload docket number
+     * @param: void
+     * @return : void
+     */
+    function upload_docket_number() {
+        $this->checkUserSession();
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/upload_docket_number');
+    }
 
 }

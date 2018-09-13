@@ -8107,3 +8107,5 @@ ALTER TABLE `trigger_partners` ADD `postpaid_grace_period` DATE NULL DEFAULT NUL
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'postpaid_with_in_due_date_invoice_notification', NULL, 'Dear Partner,\r\n<br/>\r\n%s<br/>\r\n%s\r\n', 'bill@247around.com', '', 'anuj@247around.com', 'abhaya@247around.com', '1', '2018-09-11 00:00:00');
 
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'postpaid_above_due_date_invoice_notification', '%s', 'Dear Partner,\r\n<br/>\r\n%s<br/>\r\n%s\r\n', 'bill@247around.com', '', 'anuj@247around.com', 'abhaya@247around.com', '1', '2018-09-11 00:00:00');
+--kalyani 
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (null, '247Around', 'Upload Docket Number', NULL, 'employee/inventory/upload_docket_number', '2', '89', 'admin,closure,developer,regionalmanager,accountmanager', 'main_nav', '1', CURRENT_TIMESTAMP);
