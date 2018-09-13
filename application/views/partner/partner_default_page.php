@@ -67,7 +67,7 @@
                             <div class="tab-pane" id="tabs-2" style="    margin: -40px;"></div>
                             <div class="tab-pane" id="tabs-3"></div>
                             <div class="tab-pane" id="tabs-4"></div>
-                            <div class="tab-pane" id="tabs-5">
+                            <div class="tab-pane" id="tabs-5" style="margin:-40px;">
                                 <div class="col-md-12 col-sm-12 col-xs-12">
                                     <div class="x_panel">
                                         <div class="x_title">
