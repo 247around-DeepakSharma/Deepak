@@ -5075,30 +5075,12 @@ class Partner extends CI_Controller {
     }
     function partner_review_bookings($offset = 0, $all = 0) {
         $this->checkUserSession();
-        $partner_id = $this->session->userdata('partner_id');
-        $config['base_url'] = base_url() . 'partner/partner_review_bookings';
-        $total_rows = $this->miscelleneous->get_review_bookings_for_partner($partner_id);
-        $config['total_rows'] = count($total_rows);
-        if ($all == 1) {
-            $config['per_page'] = count($total_rows);
-        } else {
-            $config['per_page'] = 50;
-        }
-        $config['uri_segment'] = 3;
-        $config['first_link'] = 'First';
-        $config['last_link'] = 'Last';
-        $this->pagination->initialize($config);
-        $data['links'] = $this->pagination->create_links();
-        $data['count'] = $config['total_rows'];
-        $data['booking_details'] = array_slice($total_rows, $offset, $config['per_page']);
-        $data['is_ajax'] = $this->input->post('is_ajax');
         if(empty($this->input->post('is_ajax'))){
             $this->miscelleneous->load_partner_nav_header();
-            //$this->load->view('partner/header');
-            $this->load->view('partner/get_waiting_to_review', $data);
+            $this->load->view('partner/get_waiting_to_review');
             $this->load->view('partner/partner_footer');
         }else{
-            $this->load->view('partner/get_waiting_to_review', $data);
+            $this->load->view('partner/get_waiting_to_review');
         }
     }
     
@@ -5472,6 +5454,72 @@ class Partner extends CI_Controller {
                                                 </ul>
                                             </div>';
                       $tempArray[] = $tempString;
+                      $finalArray[] = $tempArray;
+             }
+          $output = array(
+              "draw" => $this->input->post('draw'),
+              "recordsTotal" => $bookingCount,
+              "recordsFiltered" =>  $bookingCount,
+              "data" => $finalArray,
+          );
+          echo json_encode($output);
+    }
+    function get_review_booking_data(){
+        $finalArray = array();
+        $postData = $this->input->post();
+        $columnMappingArray = array("column_1"=>"booking_details.booking_id","column_3"=>"CONCAT('',GROUP_CONCAT((defective_part_shipped ) ))",
+            "column_4"=>"courier_name_by_sf");    
+        $order_by = "ORDER BY booking_details.booking_id DESC";
+        if(array_key_exists("order", $postData)){
+               $order_by = "ORDER BY ".$columnMappingArray["column_".$postData['order'][0]['column']] ." ". $postData['order'][0]['dir'];
+          }
+         $partner_id = $this->session->userdata('partner_id');
+         $statusData = $this->reusable_model->get_search_result_data("partners","partners.booking_review_for,partners.review_time_limit",array("booking_review_for IS NOT NULL"=>NULL,"id"=>$partner_id),NULL,NULL,NULL,NULL,NULL,array());
+         $whereIN['booking_details.partner_id'] = array($partner_id);
+         $where['DATEDIFF(CURRENT_TIMESTAMP,  sc.closed_date)<='.$statusData[0]['review_time_limit']] = NULL;
+         if($this->input->post('booking_id')){
+             $whereIN['booking_details.booking_id'] = array($this->input->post('booking_id'));
+         }
+           $bookingCount = $this->service_centers_model->get_admin_review_bookings(NULL,"Cancelled",$whereIN,1,-1,-1,$where,0,NULL,"COUNT(DISTINCT sc.booking_id) as count")[0]['count'];
+           $bookingData = $this->service_centers_model->get_admin_review_bookings(NULL,"Cancelled",$whereIN,1,$postData['start'],$postData['length'],$where,1,$order_by);
+           $sn = $postData['start'];
+           foreach ($bookingData as $key => $row) {
+                      $tempArray = array();
+                      $tempString = $tempString2 = $tempString3 = $tempString4 = "";
+                      $sn++;
+                      if ($row['is_upcountry'] == 1) {
+                            $tempString2 = '"'. $row['booking_id'].'"';
+                            $tempString3 = '"'. $row['amount_due'].'"';
+                            $tempString  ='<i style="color:red; font-size:20px;" onclick="open_upcountry_model('.$tempString2.'"," '.$tempString3.')"class="fa fa-road" aria-hidden="true"></i>';
+                       }
+                      $tempArray[] = $sn.$tempString;
+                      $tempArray[] = '<a style="color:blue;" href='.base_url().'partner/booking_details/'.$row['booking_id'].' target="_blank" title="View">'.$row['booking_id'].'</a>';
+                      switch ($row['request_type']) {
+                                    case "Installation & Demo":
+                                        $tempString4 =  "Installation";
+                                        break;
+                                    case "Repair - In Warranty":
+                                    case REPAIR_OOW_TAG:
+                                        $tempString4 =  "Repair";
+                                        break;
+                                    default:
+                                        $tempString4 =  $row['request_type'];
+                                        break;
+                                }
+                       $tempArray[] = $row['services']."</br>".$tempString4;
+                       $tempArray[] = $row['cancellation_reason'];
+                       $tempArray[] = $row['name'];
+                       $tempArray[] = $row['booking_primary_contact_no'];
+                       $tempArray[] = $row['city'];
+                       $tempArray[] = $row['state'];
+                       $tempArray[] = $row['booking_date'];
+                       $tempArray[] = $row['age'];
+                       $tempString5  = "'".$row['booking_id']."'";
+                       $tempArray[] = '<input type="hidden" class="form-control" id="partner_id" name="partner_id['.$row['booking_id'].']" value = '.$row['partner_id'].'>
+                                            <input id="approved_close" type="checkbox"  class="checkbox1" name="approved_booking[]" value="'.$row['booking_id'] .'">
+                                            <input id="approved_by" type="hidden"   name="approved_by" value="'.$row['partner_id'].'>';
+                       $tempArray[] = '<button style="min-width: 59px;" type="button" class="btn btn-primary btn-sm open-adminremarks" 
+                                                                                     data-toggle="modal" data-target="#myModal2" onclick="create_reject_form('.$tempString5.')">Reject</button>';
                       $finalArray[] = $tempArray;
              }
           $output = array(
