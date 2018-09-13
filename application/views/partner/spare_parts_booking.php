@@ -36,9 +36,8 @@ if ($this->uri->segment(4)) {
                     <div class="pull-right"><button style="background-color: #2a3f54;border-color:#2a3f54;" id="spareDownload" onclick="downloadSpare()" class="btn btn-sm btn-primary">Download</button>
                         <span style="color:#337ab7" id="messageSpare"></span></div>
                     <div class="right_holder" style="float:right;margin-right:10px;">
-                            <lable>State</lable>
-                            <select class="form-control " id="serachSpareInput" style="border-radius:3px;">
-                    <option value="all">All</option>
+                            <select class="form-control " id="state_search" style="border-radius:3px;" onchange="booking_search()">
+                    <option value="">States</option>
       <?php
       foreach($states as $state){
           ?>
@@ -51,6 +50,7 @@ if ($this->uri->segment(4)) {
                     <div class="clearfix"></div>
                     
                 </div>
+                <input type="text" id="booking_id_search" onchange="booking_search()" style="float: right;margin-bottom: -32px;border: 1px solid #ccc;padding: 5px;z-index: 100;position: inherit;">
                 <div class="x_content">
                     <form target="_blank"  action="<?php echo base_url(); ?>partner/print_all" name="fileinfo1"  method="POST" enctype="multipart/form-data">
                         <table class="table table-bordered table-hover table-striped" id="spare_table" style=" z-index: -1;position: static;">
@@ -59,7 +59,7 @@ if ($this->uri->segment(4)) {
                                     <th class="text-center">S.N</th>
                                     <th class="text-center">Booking ID</th>
                                     <th class="text-center">Customer Name</th>
-                                    <th class="text-center">Part Request Age</th>
+                                    <th class="text-center">Part Request Age(Days)</th>
                                     <th class="text-center">Required Parts</th>
                                     <th class="text-center">Model Number</th>
                                     <th class="text-center">Serial Number</th>
@@ -72,90 +72,8 @@ if ($this->uri->segment(4)) {
                                     <th class="text-center" >Courier Manifest <input type="checkbox" id="selectall_manifest" ></th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <?php
-                                $sn_no1 = 1;
-                                foreach ($spare_parts as $key => $row) {
-                                    ?>
-                                    <tr style="text-align: center;">
-                                        <td><?php echo $sn_no1; ?>
-                                            <?php if ($row['is_upcountry'] == 1 && $row['upcountry_paid_by_customer'] == 0) { ?>
-                                                <i style="color:red; font-size:20px;" onclick="open_upcountry_model('<?php echo $row['booking_id']; ?>', '<?php echo $row['amount_due']; ?>')"
-                                                   class="fa fa-road" aria-hidden="true"></i><?php } ?>
-                                        </td>
-                                        <td>
-                                            <a  style="color:blue;" href="<?php echo base_url(); ?>partner/booking_details/<?php echo $row['booking_id']; ?>"  title='View'><?php echo $row['booking_id']; ?></a>
-                                        </td>
-                                        <td>
-                                            <?php echo $row['name']; ?>
-                                        </td>
-                                        <td>
-                                            <?php echo $row['age_of_request'] . " days"; ?>
-                                        </td>
-                                        <td>
-                                            <?php echo $row['parts_requested']; ?>
-                                        </td>
-                                        <td>
-                                            <?php echo $row['model_number']; ?>
-                                        </td>
-                                        <td>
-                                            <?php echo $row['serial_number']; ?>
-                                        </td>
-                                        <td>
-                                            <?php echo $row['state']; ?>
-                                        </td>
-                                        <td>
-                                            <?php echo $row['remarks_by_sc']; ?>
-                                        </td>
-                                           <td style="vertical-align: middle;">
-                                            <a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('<?php echo $row['booking_id']?>')"><i class="fa fa-envelope" aria-hidden="true"></i></a>
-                                        </td>
-                                        <td class="text-center">
-                                            <div class="dropdown">
-                                                <button class="btn btn-sm btn-primary" type="button" data-toggle="dropdown" style="    border: 1px solid #2a3f54;background: #2a3f54;">Action
-                                                <span class="caret"></span></button>
-                                                <ul class="dropdown-menu" style="border: none;background: none;z-index: 100;position: inherit;min-width: 70px;">
-                                                    <div class="action_holder" style="background: #fff;border: 1px solid #2c9d9c;padding: 1px;">
-                                                    <li style="color: #fff;"><a href="<?php echo base_url() ?>partner/update_spare_parts_form/<?php echo $row['booking_id']; ?>" class="btn btn-sm btn-success" title="Update" style="color:#fff;margin: 0px;padding: 5px 12px;" ></i>Update</a></li>
-                                                    <?php $explode = explode(",", $row['spare_id']); if(count($explode) == 1){  ?>
-                                                    <li style="color: #fff;margin-top:5px;"><a href="#" data-toggle="modal" id="<?php echo "spare_parts" . $row['spare_id']; ?>" data-url="<?php echo base_url(); ?>employee/inventory/update_action_on_spare_parts/<?php echo $row['spare_id'] . "/" . $row['booking_id']; ?>/CANCEL_PARTS" data-booking_id="<?php echo $row['booking_id']; ?>" data-target="#myModal2" class="btn btn-sm btn-danger open-adminremarks" title="Reject" style="color:#fff;margin: 0px;padding: 5px 14.4px;" >Reject</a>
-                                                    <?php } ?>
-                                           </li>
-                                           </div>
-                                                </ul>
-                                            </div>
-                                        </td>
-
-<!--                                        <td>
-                                            <a href="<?php //echo base_url() ?>partner/update_spare_parts_form/<?php //echo $row['id']; ?>" class="btn btn-sm btn-primary" title="Update" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>
-                                        </td>
-                                        <td>
-                                            <a href="#" data-toggle="modal" id="<?php //echo "spare_parts" . $row['id']; ?>" data-url="<?php //echo base_url(); ?>employee/inventory/update_action_on_spare_parts/<?php //echo $row['id'] . "/" . $row['booking_id']; ?>/CANCEL_PARTS" data-booking_id="<?php //echo $row['booking_id']; ?>" data-target="#myModal2" class="btn btn-sm btn-danger open-adminremarks" title="Reject" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class="fa fa-times" aria-hidden='true'></i></a>
-                                        </td>-->
-                                        <td>
-                                            <?php if(!empty($row['is_gst_doc'])){ ?> 
-                                                <a class="btn btn-sm btn-success" href="#" title="GST number is not available" style="background-color:#2C9D9C; border-color: #2C9D9C; cursor: not-allowed;"><i class="fa fa-close"></i></a>
-                                            <?php }else if(empty ($row['signature_file'])) { ?> 
-                                                <a class="btn btn-sm btn-success" href="#" title="Signature file is not available" style="background-color:#2C9D9C; border-color: #2C9D9C;cursor: not-allowed;"><i class="fa fa-close"></i></a>
-                                            <?php }else{ ?>
-                                                <a class="btn btn-sm btn-success" href="<?php echo base_url();?>partner/download_sf_declaration/<?php echo rawurlencode($row['sf_id'])?>" title="Download Declaration" style="background-color:#2C9D9C; border-color: #2C9D9C;" target="_blank"><i class="fa fa-download"></i></a>
-                                            <?php } ?>
-                                        </td>
-                                        <td>
-                                            <input type="checkbox" class="form-control checkbox_address"  name="download_address[]" onclick='check_checkbox(1)' value="<?php echo $row['booking_id']; ?>" />
-                                        </td>
-                                        <td>
-                                            <input type="checkbox" class="form-control checkbox_manifest" name="download_courier_manifest[]" onclick='check_checkbox(0)' value="<?php echo $row['booking_id']; ?>" />
-                                        </td>
-
-                                    </tr>
-                                    <?php
-                                    $sn_no1++;
-                                }
-                                ?>
-                            </tbody>
                         </table>
-                        <input onclick="return checkValidationForBlank()" type= "submit"  class="btn btn-md col-md-offset-4" style="background-color:#2C9D9C; border-color: #2C9D9C; color:#fff;" name="download_shippment_address" value ="Print Address/Courier Mainfest" >
+                        <input onclick="return checkValidationForBlank()"  type= "submit"  class="btn btn-md col-md-offset-4" style="background-color:#2C9D9C; border-color: #2C9D9C; color:#fff;" name="download_shippment_address" value ="Print Address/Courier Mainfest" >
                     </form>
                 </div>
             </div>
@@ -231,6 +149,7 @@ if ($this->uri->segment(4)) {
 </div>
 <script>
     $(document).ready(function () {
+        $('#state_search').select2();
         $('body').popover({
             selector: '[data-popover]',
             trigger: 'click hover',
@@ -240,8 +159,34 @@ if ($this->uri->segment(4)) {
                 hide: 100
             }
         });
+        spare_table = $('#spare_table').DataTable({
+            "processing": true,
+            "language":{ 
+                "processing": "<center><img id='loader_gif_title' src='<?php echo base_url(); ?>images/loadring.gif'></center>",
+            },
+            "serverSide": true, 
+            "order": [], 
+            "pageLength": 50,
+            "ajax": {
+                "url": "<?php echo base_url(); ?>employee/partner/get_spare_bookings/",
+                "type": "POST",
+                "data": function(d){
+                    d.booking_id =  $('#booking_id_search').val();
+                    d.state =  $('#state_search').val();
+                 }
+            },
+            "columnDefs": [
+                {
+                    "targets": [0,2,5,6,8,9,10,11,12,13], //first column / numbering column
+                    "orderable": false //set not orderable
+                }
+            ],  
+            "deferRender": true 
+        });
     });
-    
+    function booking_search(){
+             spare_table.ajax.reload();
+        }
     function downloadSpare(){
         $("#spareDownload").css("display", "none");
         $("#messageSpare").text("Download In Progress");
@@ -357,31 +302,6 @@ if ($this->uri->segment(4)) {
             alert("Please Enter Remarks");
         }
     }
-</script>
-<?php if ($this->session->userdata('success')) {
-    $this->session->unset_userdata('success');
-} ?>
-<?php if ($this->session->userdata('error')) {
-    $this->session->unset_userdata('error');
-} ?>
-<script>
-    var table = $('#spare_table').DataTable(
-            {
-                 "pageLength": 50
-             }
-      );
-        $("#serachSpareInput").change(function () {
-            if($('#serachSpareInput').val() !== 'all'){
-    table
-        .columns( 7 )
-        .search($('#serachSpareInput').val())
-        .draw();
-            }
- else{
-                location.reload();
-            }
-} );
-$('#serachSpareInput').select2();
       function add_data_in_create_email_form(bookingID){
             $.ajax({
                 type: 'post',
@@ -448,4 +368,30 @@ $('#serachSpareInput').select2();
 .dropdown-backdrop{
     display: none;
 }
+.table tr td:nth-child(10) {
+    text-align: center;
+}
+.table tr td:nth-child(12) {
+    text-align: center;
+}
+.table tr td:nth-child(13) {
+    text-align: center;
+}
+.table tr td:nth-child(14) {
+    text-align: center;
+}
+#spare_table_filter{
+      display: none;
+}
+#pending_booking_table_processing{
+    border:none !important;
+    background-color: transparent !important;
+}
         </style>
+        
+        <?php if ($this->session->userdata('success')) {
+    $this->session->unset_userdata('success');
+} ?>
+<?php if ($this->session->userdata('error')) {
+    $this->session->unset_userdata('error');
+} ?>

@@ -178,7 +178,7 @@
             var myBookId = $(this).data('id');
             $(".modal-body #ec_booking_id").val( myBookId );
         });
-        $('#serachInput').select2();
+        $('#state_search').select2();
         $(document).ready(function(){
             $('[data-toggle="tooltip"]').tooltip();   
             pending_bookings = $('#pending_booking_table').DataTable({

@@ -64,7 +64,7 @@
                         </ul>
                         <div id="myTabContent" class="tab-content">
                             <div class="tab-pane active" id="tabs-1"></div>
-                            <div class="tab-pane" id="tabs-2"></div>
+                            <div class="tab-pane" id="tabs-2" style="    margin: -40px;"></div>
                             <div class="tab-pane" id="tabs-3"></div>
                             <div class="tab-pane" id="tabs-4"></div>
                             <div class="tab-pane" id="tabs-5">

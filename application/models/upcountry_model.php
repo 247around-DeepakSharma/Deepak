@@ -691,11 +691,27 @@ class Upcountry_model extends CI_Model {
      * @param type $partner_id
      * @return Array
      */
-    function get_waiting_for_approval_upcountry_charges($partner_id,$state=0){
+    function get_waiting_for_approval_upcountry_charges($partner_id,$state=0,$count = 0,$where=array(),$orderBy = NULL,$limit = -1,$start =-1){
         $this->db->distinct();
+        if(!$count){
         $this->db->select('bd.booking_id,request_type,name,booking_primary_contact_no,services,'
                 . ' appliance_brand,appliance_category, appliance_capacity, '
                 . ' booking_address,bd.city, bd.booking_pincode, bd.state, bd.upcountry_distance, bd.partner_upcountry_rate, bd.upcountry_update_date');
+        }
+        else{
+            $this->db->select('count(bd.booking_id) as count');
+        }
+        if($limit != -1){
+            $this->db->limit($limit, $start);
+        }
+        if(!empty($where)){
+            foreach($where as $key => $values){
+                $this->db->where($key,$values);  
+            } 
+        }
+        if($orderBy){
+            $this->db->order_by($orderBy, FALSE);
+        }
         $this->db->from('booking_details As bd');
         $this->db->where_in('current_status',array(_247AROUND_PENDING,_247AROUND_RESCHEDULED));
         $this->db->where('upcountry_partner_approved','0');

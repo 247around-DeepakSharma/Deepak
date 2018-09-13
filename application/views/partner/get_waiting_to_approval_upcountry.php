@@ -24,11 +24,26 @@
 <?php } ?>
 <div class="col-md-12 col-sm-12 col-xs-12">
     <div class="x_panel">
-        <div class="x_title">
+        <div class="x_title" style="border-bottom: none;">
             <h2>Approve/Reject Upcountry Charges</h2>
              <div class="pull-right"><a style="background: #2a3f54; border-color: #2a3f54;" href="<?php echo base_url(); ?>partner/download_waiting_upcountry_bookings"  class="btn btn-sm btn-primary">Download</a></div>
+                    <span style="color:#337ab7" id="messageSpare"></span></div>
+                    <div class="right_holder" style="float:right;margin-right:10px;margin-top: -16px;">
+                            <select class="form-control " id="state_search" style="border-radius:3px;" onchange="booking_search()">
+                    <option value="">States</option>
+      <?php
+      foreach($states as $state){
+          ?>
+      <option value="<?php echo $state['state'] ?>"><?php echo $state['state'] ?></option>
+      <?php
+      }
+      ?>
+  </select>            
+</div>
             <div class="clearfix"></div>
+                    
         </div>
+    <input type="text" id="booking_id_search" onchange="booking_search()" style="float: right;margin-bottom: -32px;border: 1px solid #ccc;padding: 5px;z-index: 100;position: inherit;">
         <div class="x_content">
             <table class="table table-bordered table-hover table-striped" id="waiting_upcountry_charges_table" style=" z-index: -1;position: static;">
                 <thead>
@@ -48,68 +63,6 @@
                         <th class="text-center">Action</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <?php $sn_no = 1;
-                    foreach ($booking_details as $key => $row) { ?>
-                        <tr style="text-align: center;">
-                            <td>
-                                <?php echo $sn_no; ?>
-                            </td>
-                            <td>
-                                <a style="color:blue;" href="<?php echo base_url(); ?>partner/booking_details/<?php echo $row['booking_id']; ?>"  title='View'><?php echo $row['booking_id']; ?></a>
-                            </td>
-                            <td>
-                                <?php echo $row['request_type']; ?>
-                            </td>
-
-                            <td>
-                                <?php echo $row['name']; ?>
-                            </td>
-
-                            <td>
-                                <?php echo $row['services']; ?>
-                            </td>
-                            <td>
-                                <?php echo $row['appliance_brand']; ?>
-                            </td>
-                            <td>
-                                <?php echo $row['appliance_category']; ?>
-                            </td>
-                            <td>
-                                <?php echo $row['appliance_capacity']; ?>
-                            </td>
-                            <td style="max-width: 200px;">
-                                <?php echo $row['booking_address'] . ", " . $row['city'] . ", Pincode - " . $row['booking_pincode'] . ", " . $row['state']; ?>
-                            </td>
-                            <td>
-                                <?php $age_requested = date_diff(date_create($row['upcountry_update_date']), date_create('today')); echo $age_requested->days. " Days";?>
-                            </td>
-                            <td>
-                                <?php echo $row['upcountry_distance'] . " KM"; ?>
-                            </td>
-                            <td>
-                                <?php echo sprintf("%0.2f",$row['upcountry_distance'] * $row['partner_upcountry_rate']); ?>
-                            </td>
-                            <td class="text-center">
-                                            <div class="dropdown">
-                                                <button class="btn btn-sm btn-primary" type="button" data-toggle="dropdown" style="border: 1px solid #2a3f54;background: #2a3f54;">Action
-                                                <span class="caret"></span></button>
-                                                <ul class="dropdown-menu" style="border: none;background: none;position: inherit;z-index: 100;min-width: 70px;">
-                                                    <div class="action_holder" style="background: #fff;border: 1px solid #2c9d9c;padding: 1px;">
-                                                    <li style="color: #fff;">
-                                                        <a href="<?php echo base_url() ?>partner/upcountry_charges_approval/<?php echo $row['booking_id'] ?>/1" class="btn btn-md btn-success" style="color:#fff;margin: 0px;padding: 5px 5.5px;">Approve</a></li>
-                                                    <li style="color: #fff;margin-top:5px;">
-                                                        <a style="color:#fff;margin: 0px;padding: 5px 11px;" href="<?php echo base_url() ?>partner/reject_upcountry_charges/<?php echo $row['booking_id'] ?>/1" class="btn btn-md btn-danger">Reject</a>
-                                                    </li>
-                                           </div>
-                                                </ul>
-                                            </div>
-                                        </td>
-                            
-                        </tr>
-                        <?php $sn_no++;
-                    } ?>
-                </tbody>
             </table>
         </div>
     </div>
@@ -122,14 +75,46 @@
 <?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
 <?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>
 <script>
-    var table = $('#waiting_upcountry_charges_table').DataTable(
+    $(document).ready(function () {
+        $('#state_search').select2();
+        waiting_upcountry_charges_table = $('#waiting_upcountry_charges_table').DataTable({
+            "processing": true,
+            "language":{ 
+                "processing": "<center><img id='loader_gif_title' src='<?php echo base_url(); ?>images/loadring.gif'></center>",
+            },
+            "serverSide": true, 
+            "order": [], 
+            "pageLength": 50,
+            "ajax": {
+                "url": "<?php echo base_url(); ?>employee/partner/get_waiting_upcountry_charges/",
+                "type": "POST",
+                "data": function(d){
+                    d.booking_id =  $('#booking_id_search').val();
+                    d.state =  $('#state_search').val();
+                 }
+            },
+            "columnDefs": [
             {
-                 "pageLength": 50
+                   //"targets": [0,2,5,6,8,9,10,11,12,13], //first column / numbering column
+                    "orderable": false //set not orderable
+                }
+            ],  
+            "deferRender": true 
+        });
+    });
+    function booking_search(){
+             waiting_upcountry_charges_table.ajax.reload();
              }
-                     );
     </script>
     <style>
 .dropdown-backdrop{
     display: none;
+}
+#waiting_upcountry_charges_table_filter{
+      display: none;
+}
+#waiting_upcountry_charges_table_processing{
+    border:none !important;
+    background-color: transparent !important;
 }
         </style>
