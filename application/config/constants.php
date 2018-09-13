@@ -632,5 +632,17 @@ define('BOOKING_CAN_NOT_BE_CANCEL_AFTER_THIS_TIME_INTERVAL',10);
 //show this text when partner cancel booking before time interval
 define('TEXT_FOR_BOOKING_CAN_NOT_BE_CANCEL_AFTER_THIS_TIME_INTERVAL','This booking can not be cancelled');
 define('REVIEW_NOTIFICATION_TO_PARTNER_DAYS','2');
+
+//Default Municipal limit for Paytm
+define("DEFAULT_PAYTM_MUNICIPAL_LIMIT", 5);
+// Default PAYTM UPCOUNTRY DISTRICT
+define("DEFAULT_PAYTM_UPCOUNTRY_DISTRICT", "Others");
+define("REVIEW_LIMIT_BEFORE", "BEFORE");
+define("REVIEW_LIMIT_AFTER", "AFTER");
+
+//Define Constant for upload docket file 
+define('DOCKET_NUMBER_FILE_TYPE','upload_docket_number');
+define('DOCKET_NUMBER_FILE','upload_docket_number');
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
