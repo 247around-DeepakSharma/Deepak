@@ -89,8 +89,3 @@ if ($this->uri->segment(3)) {
                     "pageLength": 50
                 });
     </script>
-        <style>
-        .pagination{
-    display: none;
-}
-        </style>
