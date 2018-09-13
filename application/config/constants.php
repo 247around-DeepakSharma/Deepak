@@ -638,5 +638,9 @@ define("DEFAULT_PAYTM_MUNICIPAL_LIMIT", 5);
 define("DEFAULT_PAYTM_UPCOUNTRY_DISTRICT", "Others");
 define("REVIEW_LIMIT_BEFORE", "BEFORE");
 define("REVIEW_LIMIT_AFTER", "AFTER");
+
+//Define Constant for upload docket file 
+define('DOCKET_NUMBER_FILE_TYPE','upload_docket_number');
+define('DOCKET_NUMBER_FILE','upload_docket_number');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
