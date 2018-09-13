@@ -4226,51 +4226,14 @@ function get_shipped_parts_list($offset = 0) {
     function get_pending_part_on_sf($offset = 0, $all = 0){
          log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
         $this->checkUserSession();
-        $partner_id = $this->session->userdata('partner_id');
-        $state = 0;
-        if($this->session->userdata('is_filter_applicable') == 1){
-            $state = 1;
+        $agent_id = $this->session->userdata('agent_id');
+        $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",array("agent_filters.agent_id"=>$agent_id),array("agent_filters"=>"agent_filters.state=state_code.state"),NULL,array('state'=>'ASC'),NULL,array("agent_filters"=>"left"),array());
+        if(empty($data['states'])){
+            $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
         }
-        $where = array(
-            "spare_parts_details.defective_part_required" => 1,
-            "spare_parts_details.partner_id" => $partner_id,
-            "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '".DEFECTIVE_PARTS_REJECTED."')  " => NULL
-        );
-
-        $select = "CONCAT( '', GROUP_CONCAT((parts_shipped ) ) , '' ) as defective_part_shipped, "
-                . " spare_parts_details.booking_id, users.name,DATEDIFF(CURDATE(),date(booking_details.service_center_closed_date)) as aging,spare_parts_details.courier_name_by_partner, "
-                . "spare_parts_details.awb_by_partner,spare_parts_details.partner_challan_number";
-
-        $group_by = "spare_parts_details.booking_id";
-        $order_by = "spare_parts_details.defective_part_shipped_date DESC";
-
-        $config['base_url'] = base_url() . 'partner/get_pending_part_on_sf';
-        $config['total_rows'] = $this->service_centers_model->count_spare_parts_booking($where, $select, $group_by,$state);
-
-        if ($all == 1) {
-            $config['per_page'] = $config['total_rows'];
-        } else {
-            $config['per_page'] = 50;
-        }
-        $config['uri_segment'] = 3;
-        $config['first_link'] = 'First';
-        $config['last_link'] = 'Last';
-        $this->pagination->initialize($config);
-        $data['links'] = $this->pagination->create_links();
-
-        $data['count'] = $config['total_rows'];
-        $data['spare_parts'] = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $offset, $config['per_page'],$state);
-        $where_internal_status = array("page" => "defective_parts", "active" => '1');
-        $data['internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
-        $data['is_ajax'] = $this->input->post('is_ajax');
-        if(empty($this->input->post('is_ajax'))){
-            //$this->load->view('partner/header');
             $this->miscelleneous->load_partner_nav_header();
             $this->load->view('partner/sf_needs_to_send_parts', $data);
             $this->load->view('partner/partner_footer');
-        }else{
-            $this->load->view('partner/sf_needs_to_send_parts', $data);
-        }
     }
     function get_reports(){
         $this->checkUserSession();
@@ -5515,6 +5478,66 @@ function get_shipped_parts_list($offset = 0) {
                     $tempArray[] = $tempString;
                     $tempArray[] = date("d-m-Y", strtotime($row['shipped_date']));
                     $tempArray[] = $row['remarks_by_partner'];
+                    $finalArray[] = $tempArray;
+           }
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $bookingCount,
+            "recordsFiltered" =>  $bookingCount,
+            "data" => $finalArray,
+        );
+        echo json_encode($output);
+    }
+    function get_sf_needs_to_send_spare(){
+      $finalArray = array();
+      $postData = $this->input->post();
+      $state = 0;
+        if($this->session->userdata('is_filter_applicable') == 1){
+          $state = 1;
+        }
+      $columnMappingArray = array("column_1"=>"spare_parts_details.booking_id","column_3"=>"CONCAT('',GROUP_CONCAT((parts_shipped ) ))",
+          "column_4"=>"courier_name_by_partner","column_5"=>"awb_by_partner","column_7"=>"DATEDIFF(CURDATE(),date(booking_details.service_center_closed_date))");    
+      $order_by = "spare_parts_details.defective_part_shipped_date DESC";
+      if(array_key_exists("order", $postData)){
+            $order_by = $columnMappingArray["column_".$postData['order'][0]['column']] ." ". $postData['order'][0]['dir'];
+        }
+       $partner_id = $this->session->userdata('partner_id');
+               $where = array(
+            "spare_parts_details.defective_part_required" => 1,
+            "spare_parts_details.partner_id" => $partner_id,
+            "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '".DEFECTIVE_PARTS_REJECTED."')  " => NULL
+        );
+       if($this->input->post('state')){
+           $where['booking_details.state'] = $this->input->post('state');
+       }
+       if($this->input->post('booking_id')){
+           $where['spare_parts_details.booking_id'] = $this->input->post('booking_id');
+       }
+        $select = "CONCAT( '', GROUP_CONCAT((parts_shipped ) ) , '' ) as defective_part_shipped, "
+                . " spare_parts_details.booking_id, users.name,DATEDIFF(CURDATE(),date(booking_details.service_center_closed_date)) as aging,spare_parts_details.courier_name_by_partner, "
+                . "spare_parts_details.awb_by_partner,spare_parts_details.partner_challan_number";
+        $group_by = "spare_parts_details.booking_id";
+        $bookingData = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $postData['start'], $postData['length'],$state);
+        $bookingCount =  $this->service_centers_model->count_spare_parts_booking($where, $select, $group_by,$state);
+         $sn = $postData['start'];
+         foreach ($bookingData as $key => $row) {
+                    $tempArray = array();
+                    $tempString = $tempString2 = $tempString3 = $tempString4 = $tempString5 = $tempString6 = $tempString7 = "";
+                    $sn++;
+                    $tempArray[] = $sn;
+                    $tempArray[] = '<a  style="color:blue" href='.base_url().'partner/booking_details/'.$row['booking_id'].'  title="View">'.$row['booking_id'].'</a>';  
+                    $tempArray[] = $row['name'];
+                    $tempArray[] = $row['defective_part_shipped'];
+                    $tempArray[] = $row['courier_name_by_partner'];
+                    $tempArray[] = $row['awb_by_partner'];
+                    if(!empty($row['partner_challan_file'])) {
+                         $tempString ='<a href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/vendor-partner-docs/'.$row['partner_challan_file'].' target="_blank">'.$row['partner_challan_number'].'</a>';
+                    }
+                     else if(!empty($row['partner_challan_number'])) {
+                          $tempString =  $row['partner_challan_number'];
+                    }
+                    $tempArray[] = $tempString;
+                    $tempArray[] = $row['aging'];
                     $finalArray[] = $tempArray;
            }
         $output = array(
