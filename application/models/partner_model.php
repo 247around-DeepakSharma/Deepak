@@ -829,7 +829,7 @@ function get_data_for_partner_callback($booking_id) {
      * @param boolean $flag_select
      * @return Array
      */
-    function get_spare_parts_booking_list($where, $start, $end,$flag_select,$state=0,$is_stock_needed = null,$is_unit_details = false){
+    function get_spare_parts_booking_list($where, $start, $end,$flag_select,$state=0,$is_stock_needed = null,$is_unit_details = false,$orderBy = false){
         if($state ==1){
             $where = $where." AND booking_details.state IN (SELECT state FROM agent_filters WHERE agent_id = ".$this->session->userdata('agent_id')." AND agent_filters.is_active=1)";
         }
@@ -855,9 +855,11 @@ function get_data_for_partner_callback($booking_id) {
         } else {
             $select = "SELECT count(spare_parts_details.id) as total_rows ";
         }
+        if(!$orderBy){
+            $orderBy = " ORDER BY status = '". DEFECTIVE_PARTS_REJECTED."'";
+        }
         
         if (!empty($is_stock_needed)) {
-            
             $sql = $select.' , inventory_stocks.stock'
                     . ' FROM spare_parts_details'
                     . ' JOIN booking_details ON spare_parts_details.booking_id = booking_details.booking_id'
@@ -878,12 +880,10 @@ function get_data_for_partner_callback($booking_id) {
                     ." FROM spare_parts_details,booking_details,users, "
                     . " service_centres WHERE booking_details.booking_id = spare_parts_details.booking_id"
                     . " AND users.user_id = booking_details.user_id AND service_centres.id = spare_parts_details.service_center_id "
-                    . " AND ".$where . "  ORDER BY status = '". DEFECTIVE_PARTS_REJECTED."', spare_parts_details.create_date ASC $limit";
+                    . " AND ".$where . $orderBy.", spare_parts_details.create_date ASC $limit";
             }
             }
-        
         $query = $this->db->query($sql);
-       
         return $query->result_array();
     }
 
