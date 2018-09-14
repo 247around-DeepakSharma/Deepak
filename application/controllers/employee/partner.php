@@ -2361,30 +2361,15 @@ function get_shipped_parts_list($offset = 0) {
      */
     function get_approved_defective_parts_booking($offset = 0) {
         $this->checkUserSession();
-        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
-        $partner_id = $this->session->userdata('partner_id');
         $state = 0;
         if($this->session->userdata('is_filter_applicable') == 1){
             $state = 1;
         }
-        $where = "spare_parts_details.partner_id = '" . $partner_id . "' "
-                . " AND approved_defective_parts_by_partner = '1' ";
-
-        $config['base_url'] = base_url() . 'partner/get_approved_defective_parts_booking';
-        $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false,$state);
-        $config['total_rows'] = $total_rows[0]['total_rows'];
-
-        $config['per_page'] = 50;
-        $config['uri_segment'] = 3;
-        $config['first_link'] = 'First';
-        $config['last_link'] = 'Last';
-        $this->pagination->initialize($config);
-        $data['links'] = $this->pagination->create_links();
-
-        $data['count'] = $config['total_rows'];
-        $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true,$state);
-
-        //$this->load->view('partner/header');
+        $agent_id = $this->session->userdata('agent_id');
+        $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",array("agent_filters.agent_id"=>$agent_id),array("agent_filters"=>"agent_filters.state=state_code.state"),NULL,array('state'=>'ASC'),NULL,array("agent_filters"=>"left"),array());
+        if(empty($data['states'])){
+            $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
+        }
         $this->miscelleneous->load_partner_nav_header();
         $this->load->view('partner/approved_defective_parts', $data);
         $this->load->view('partner/partner_footer');
@@ -5538,6 +5523,62 @@ function get_shipped_parts_list($offset = 0) {
                     }
                     $tempArray[] = $tempString;
                     $tempArray[] = $row['aging'];
+                    $finalArray[] = $tempArray;
+           }
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $bookingCount,
+            "recordsFiltered" =>  $bookingCount,
+            "data" => $finalArray,
+        );
+        echo json_encode($output);
+    }
+    function received_defactive_parts_by_partner(){
+      $finalArray = array();
+      $postData = $this->input->post();
+      $state = 0;
+        if($this->session->userdata('is_filter_applicable') == 1){
+          $state = 1;
+        }
+      $columnMappingArray = array("column_1"=>"spare_parts_details.booking_id","column_3"=>"defective_part_shipped",
+          "column_4"=>"received_defective_part_date","column_5"=>"awb_by_partner","column_6"=>"courier_name_by_partner");    
+      $order_by = "ORDER BY spare_parts_details.defective_part_shipped_date DESC";
+      if(array_key_exists("order", $postData)){
+            $order_by = "ORDER BY ".$columnMappingArray["column_".$postData['order'][0]['column']] ." ". $postData['order'][0]['dir'];
+        }
+       $partner_id = $this->session->userdata('partner_id');
+       $where = "spare_parts_details.partner_id = '" . $partner_id . "' AND approved_defective_parts_by_partner = '1' ";
+       if($this->input->post('state')){
+           $where =  $where.' AND booking_details.state = "' .$this->input->post('state').'"';
+       }
+       if($this->input->post('booking_id')){
+           $where =  $where.' AND booking_details.booking_id = "' .$this->input->post('booking_id').'"';
+       }
+        $bookingData = $this->partner_model->get_spare_parts_booking_list($where, $postData['start'], $postData['length'], true,$state,NULL,FALSE,$order_by);
+        $bookingCount =  $this->partner_model->get_spare_parts_booking_list($where, false, false, false,$state)[0]['total_rows'];
+         $sn = $postData['start'];
+         foreach ($bookingData as $key => $row) {
+                    $tempArray = array();
+                    $tempString = $tempString2 = $tempString3 = $tempString4 = $tempString5 = $tempString6 = $tempString7 = "";
+                    $sn++;
+                    $tempArray[] = $sn;
+                    $tempArray[] = '<a  style="color:blue" href='.base_url().'partner/booking_details/'.$row['booking_id'].'  title="View">'.$row['booking_id'].'</a>';  
+                    $tempArray[] = $row['name'];
+                    $tempArray[] = $row['defective_part_shipped'];
+                    if (!is_null($row['received_defective_part_date'])) {
+                         $tempString2 =   date("d-m-Y", strtotime($row['received_defective_part_date']));
+                    }
+                    $tempArray[] = $tempString2;
+                    $tempArray[] = $row['awb_by_partner'];
+                    $tempArray[] = $row['courier_name_by_partner'];
+                    if(!empty($row['partner_challan_file'])) {
+                         $tempString ='<a href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/vendor-partner-docs/'.$row['partner_challan_file'].' target="_blank">'.$row['partner_challan_number'].'</a>';
+                    }
+                     else if(!empty($row['partner_challan_number'])) {
+                          $tempString =  $row['partner_challan_number'];
+                    }
+                    $tempArray[] = $tempString;
+                    $tempArray[] = $row['remarks_defective_part_by_sf'];
                     $finalArray[] = $tempArray;
            }
         $output = array(
