@@ -1,10 +1,3 @@
-<?php
-if ($this->uri->segment(4)) {
-    $sn_no = $this->uri->segment(4) + 1;
-} else {
-    $sn_no = 1;
-}
-?>
 <?php if(empty($is_ajax)) { ?>
 <div class="right_col" role="main">
         <?php
@@ -36,7 +29,7 @@ if ($this->uri->segment(4)) {
                     <div class="pull-right"><button style="background-color: #2a3f54;border-color:#2a3f54;" id="spareDownload" onclick="downloadSpare()" class="btn btn-sm btn-primary">Download</button>
                         <span style="color:#337ab7" id="messageSpare"></span></div>
                     <div class="right_holder" style="float:right;margin-right:10px;">
-                            <select class="form-control " id="state_search" style="border-radius:3px;" onchange="booking_search()">
+                            <select class="form-control " id="state_search_spare" style="border-radius:3px;" onchange="booking_search_spare()">
                     <option value="">States</option>
       <?php
       foreach($states as $state){
@@ -50,7 +43,7 @@ if ($this->uri->segment(4)) {
                     <div class="clearfix"></div>
                     
                 </div>
-                <input type="text" id="booking_id_search" onchange="booking_search()" style="float: right;margin-bottom: -32px;border: 1px solid #ccc;padding: 5px;z-index: 100;position: inherit;">
+                <input type="text" id="booking_id_search_spare" onchange="booking_search_spare()" style="float: right;margin-bottom: -32px;border: 1px solid #ccc;padding: 5px;z-index: 100;position: inherit;">
                 <div class="x_content">
                     <form target="_blank"  action="<?php echo base_url(); ?>partner/print_all" name="fileinfo1"  method="POST" enctype="multipart/form-data">
                         <table class="table table-bordered table-hover table-striped" id="spare_table" style=" z-index: -1;position: static;">
@@ -171,20 +164,20 @@ if ($this->uri->segment(4)) {
                 "url": "<?php echo base_url(); ?>employee/partner/get_spare_bookings/",
                 "type": "POST",
                 "data": function(d){
-                    d.booking_id =  $('#booking_id_search').val();
-                    d.state =  $('#state_search').val();
+                    d.booking_id =  $('#booking_id_search_spare').val();
+                    d.state =  $('#state_search_spare').val();
                  }
             },
             "columnDefs": [
                 {
-                    "targets": [0,2,5,6,8,9,10,11,12,13], //first column / numbering column
+                    "targets": [0,1,2,5,6,7,8,9,10,11,12,13], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],  
             "deferRender": true 
         });
     });
-    function booking_search(){
+    function booking_search_spare(){
              spare_table.ajax.reload();
         }
     function downloadSpare(){
@@ -383,7 +376,7 @@ if ($this->uri->segment(4)) {
 #spare_table_filter{
       display: none;
 }
-#pending_booking_table_processing{
+#spare_table_processing{
     border:none !important;
     background-color: transparent !important;
 }

@@ -1492,7 +1492,7 @@ function manageAccountNameField(value){
              if(is_signature_file == 0){
                 var is_signature_file = $('#signature_file').get(0).files.length;
              }
-             if(!(is_signature_file)){
+             if(!(is_signature_file) && ($('#is_gst_doc').is(":checked")) ){
                    alert('Please Update Signature file');
                    return false;
     }
