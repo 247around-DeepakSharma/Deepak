@@ -111,11 +111,3 @@ function confirm_received(){
 }
 
 </script>
-    <style>
-        .paging_simple_numbers{
-            display: none;
-        }
-                .dataTables_info{
-    display: none;
-}
-        </style>

@@ -183,14 +183,14 @@
                                             <label for="parts_name" class="col-md-4">Parts Name *</label>
                                             <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                             <div class="col-md-6">
-                                                <select class="form-control spare_parts" id="parts_name_0" name="part[0][parts_name]" >
+                                                <select class="form-control spare_parts parts_name" id="parts_name_0" name="part[0][parts_name]" >
                                                     <option selected disabled>Select Part Name</option>
                                                 </select>
                                                 <span id="spinner" style="display:none"></span>
                                             </div>
                                             <?php } else { ?> 
                                             <div class="col-md-6">
-                                                <input type="text" class="form-control spare_parts" id="parts_name_0" name="part[0][parts_name]" value = "" placeholder="Parts Name" >
+                                                <input type="text" class="form-control spare_parts parts_name" id="parts_name_0" name="part[0][parts_name]" value = "" placeholder="Parts Name" >
                                             </div>
                                             <?php } ?>
                                             <button type="button" class="btn btn-primary addButton">Request More <br/>Parts</button>
@@ -233,7 +233,7 @@
                                             </div>
                                             <?php } else { ?> 
                                             <div class="col-md-6">
-                                                <input type="text" class="form-control spare_parts" id="parts_type" value = "<?php echo set_value('parts_type'); ?>" placeholder="Parts Type" >
+                                                <input type="text" class="form-control spare_parts parts_type" id="parts_type" value = "<?php echo set_value('parts_type'); ?>" placeholder="Parts Type" >
                                             </div>
                                             <?php } ?>
                                             
@@ -251,7 +251,7 @@
                                             </div>
                                             <?php } else { ?> 
                                             <div class="col-md-6">
-                                                <input type="text" class="form-control spare_parts" id="parts_name" value = "" placeholder="Parts Name" >
+                                                <input type="text" class="form-control spare_parts parts_name" id="parts_name" value = "" placeholder="Parts Name" >
                                             </div>
                                             <?php } ?>
                                             <button type="button" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
@@ -387,7 +387,7 @@
     });
     
     function submitForm(){
-       
+     
      var checkbox_value = 0;
      $("input[type=radio]:checked").each(function(i) {
          checkbox_value = 1;
@@ -411,7 +411,7 @@
               checkbox_value = 0;
           }
          
-      } else if(reason === "Spare Parts Required"){
+      } else if(reason === "<?php echo SPARE_PARTS_REQUIRED;?>" || reason === "<?php echo SPARE_OOW_EST_REQUESTED; ?>"){
           var around_flag = $('#partner_flag').val();
           
           if(around_flag === '0'){

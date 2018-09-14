@@ -8094,3 +8094,5 @@ ALTER TABLE `trigger_service_centres` ADD `is_buyback_gst_invoice` INT(1) NOT NU
 
 --Chhavi 07th Sep
 ALTER TABLE `booking_tat` ADD `sf_closed_date` DATETIME NULL AFTER `booking_id`, ADD `around_closed_date` DATETIME NULL AFTER `sf_closed_date`;
+--Chhavi 14th Sep
+ UPDATE `email_template` SET `template` = 'Below bookings are pending for you action, Please review these bookings else these will be automatically approved after %s \r\n days <br>' WHERE `email_template`.`tag` = 'notify_partner_to_review_bookings';
