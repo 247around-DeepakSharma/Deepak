@@ -285,7 +285,7 @@ class Invoice extends CI_Controller {
     }
 
     /**
-     * @desc: This is used to load upadate form of bank transaction details
+     * @desc: This is used to load update form of bank transaction details
      * @param String $id (Bank transaction id)
      */
     function update_banktransaction($id) {
@@ -333,132 +333,24 @@ class Invoice extends CI_Controller {
      */
     function post_add_new_transaction() {
         $this->checkUserSession();
-        $account_statement['partner_vendor'] = $this->input->post('partner_vendor');
-        $account_statement['partner_vendor_id'] = $this->input->post('partner_vendor_id');
-        $account_statement['bankname'] = $this->input->post('bankname');
-        $account_statement['transaction_mode'] = $this->input->post('transaction_mode');
-        $invoice_id_array = $this->input->post('invoice_id');
-        $credit_debit_array = $this->input->post('credit_debit');
+        $invoice_id = $this->input->post('invoice');
+        $invoice_id_array['partner_vendor'] = $this->input->post('partner_vendor');
+        $invoice_id_array['partner_vendor_id'] = $this->input->post('partner_vendor_id');
+        $invoice_id_array['bankname'] = $this->input->post('bankname');
+        $invoice_id_array['transaction_mode'] = $this->input->post('transaction_mode');
+        $invoice_id_array['agent_id'] = $this->input->post('agent_id');
+        $invoice_id_array['tdate'] = $this->input->post('tdate');
+        $invoice_id_array['description'] = $this->input->post('description');
+        $invoice_id_array['transaction_id'] = $this->input->post('transaction_id');
+        $invoice_id_array['bank_txn_id'] = $this->input->post('bank_txn_id');
+        $invoice_id_array['invoice_id'] = $invoice_id;
+
+        $this->invoice_lib->process_add_new_transaction($invoice_id_array);
         
-        $tds_amount_array = $this->input->post('tds_amount');
-        $credit_debit_amount = $this->input->post('credit_debit_amount');
-        $transaction_date = $this->input->post('tdate');
-        $account_statement['transaction_date'] = date("Y-m-d", strtotime($transaction_date));
-        $account_statement['description'] = $this->input->post('description');
-        $account_statement['transaction_id'] = $this->input->post('transaction_id');
-        //Get bank txn id while update other wise empty.
-        $bank_txn_id = $this->input->post("bank_txn_id");
-        $account_statement['invoice_id'] = implode(",", $invoice_id_array);
-        $paid_amount = 0;
-        $tds = 0;
-        $payment_history = array();
-        foreach ($invoice_id_array as $key => $invoice_id) {
-            if (!empty($invoice_id)) {
-                $p_history = array();
-                $vp_details = array();
-                $where = array('invoice_id' => $invoice_id);
-                $data = $this->invoices_model->get_invoices_details($where);
-                $credit_debit = $credit_debit_array[$key];
-                $p_history['invoice_id'] = $invoice_id;
-                $p_history['credit_debit'] = $credit_debit;
-                $p_history['credit_debit_amount'] = sprintf("%.2f",$credit_debit_amount[$key]);
-                $p_history['agent_id'] = $this->session->userdata('id');
-                $p_history['tds_amount'] = $tds_amount_array[$key];
-                $p_history['create_date'] = date("Y-m-d H:i:s");
-                array_push($payment_history, $p_history);
-
-                if ($credit_debit == 'Credit') {
-
-                    $paid_amount += sprintf("%.2f",$credit_debit_amount[$key]);
-                    $amount_collected = abs(sprintf("%.2f",($data[0]['amount_collected_paid'] - $data[0]['amount_paid'])));
-                    
-                } else if ($credit_debit == 'Debit') {
-
-                    $paid_amount += (-sprintf("%.2f",$credit_debit_amount[$key]));
-                    $amount_collected = abs(sprintf("%.2f",($data[0]['amount_collected_paid'] + $data[0]['amount_paid'])));
-                }
-              
-                $tds += $tds_amount_array[$key];
-
-                if (round($amount_collected,0) == round($credit_debit_amount[$key], 0)) {
-
-                    $vp_details['settle_amount'] = 1;
-                    $vp_details['amount_paid'] = $credit_debit_amount[$key] + $data[0]['amount_paid'];
-                } else {
-                    //partner Pay to 247Around
-                    if ($account_statement['partner_vendor'] == "partner" && $credit_debit == 'Credit' && $data[0]['tds_amount'] == 0) {
-                        $per_tds = 0;
-                        $vp_details['tds_amount'] = $tds_amount_array[$key];
-                        $vp_details['tds_rate'] = $per_tds;
-                        $amount_collected = $data[0]['total_amount_collected'] - $vp_details['tds_amount'];
-                        $vp_details['around_royalty'] = $vp_details['amount_collected_paid'] = $amount_collected;
-
-                        if (round($amount_collected, 0) == round(($data[0]['amount_paid'] + $credit_debit_amount[$key]), 0)) {
-                            $vp_details['settle_amount'] = 1;
-                        } else {
-                            $vp_details['settle_amount'] = 0;
-                        }
-                        $vp_details['amount_paid'] = $data[0]['amount_paid'] + $credit_debit_amount[$key];
-                    } else {
-
-                        $vp_details['settle_amount'] = 0;
-                        $vp_details['amount_paid'] = $data[0]['amount_paid'] + $credit_debit_amount[$key];
-                    }
-                }
-
-                $this->invoices_model->update_partner_invoices(array('invoice_id' => $invoice_id), $vp_details);
-            }
-        }
-
-        if ($paid_amount > 0) {
-            $account_statement['debit_amount'] = '0';
-            $account_statement['credit_amount'] = abs($paid_amount);
-            $account_statement['credit_debit'] = 'Credit';
-        } else {
-            $account_statement['debit_amount'] = abs($paid_amount);
-            $account_statement['credit_amount'] = '0';
-            $account_statement['credit_debit'] = 'Debit';
-        }
-
-        $account_statement['agent_id'] =  $this->session->userdata('id');   
-        $account_statement['tds_amount'] = $tds;            
-                    
-        if (empty($bank_txn_id)) {
-            $bank_txn_id = $this->invoices_model->bankAccountTransaction($account_statement);
-        } else {
-            $this->invoices_model->update_bank_transactions(array('id' => $bank_txn_id), $account_statement);
-        }
-        //Donot remove $value
-        foreach ($payment_history as $key => $value) {
-            $payment_history[$key]['bank_transaction_id'] = $bank_txn_id;
-        }
-        $this->accounting_model->insert_batch_payment_history($payment_history);
-
-        //Send SMS to vendors about payment
-        if ($account_statement['partner_vendor'] == 'vendor') {
-
-             $this->send_payment_sms_to_vendor($account_statement);
-        }
-
-          redirect(base_url() . 'employee/invoice/invoice_summary/' . $account_statement['partner_vendor'] . "/" . $account_statement['partner_vendor_id']);
+        redirect(base_url() . 'employee/invoice/invoice_summary/' . $invoice_id_array['partner_vendor'] . "/" . $invoice_id_array['partner_vendor_id']);
         
     }
 
-    function send_payment_sms_to_vendor($account_statement) {
-         $this->checkUserSession();
-        $vendor_arr = $this->vendor_model->getVendorContact($account_statement['partner_vendor_id']);
-        $v = $vendor_arr[0];
-
-        $sms['tag'] = "payment_made_to_vendor";
-        $sms['phone_no'] = $v['owner_phone_1'];
-        $sms['smsData'] = "previous month";
-        $sms['booking_id'] = "";
-        $sms['type'] = $account_statement['partner_vendor'];
-        $sms['type_id'] = $account_statement['partner_vendor_id'];
-
-
-        $this->notify->send_sms_msg91($sms);
-    }
 
     /**
      *  @desc : AJAX CALL. This function is to get the partner or vendor details.
@@ -2733,40 +2625,10 @@ class Invoice extends CI_Controller {
         $payment_data = array();
                 
         if (!empty($data)) {
-            $sc_details['debit_acc_no'] = "Debit Ac No";
-            $sc_details['bank_account'] = "Beneficiary Ac No";
-            $sc_details['beneficiary_name'] = "Beneficiary Name";
-            $sc_details['final_amount'] = "Amt";
-            $sc_details['payment_mode'] = "Pay Mod";
-            $sc_details['payment_date'] = "Date";
-            $sc_details['ifsc_code'] = "IFSC";
-            $sc_details['payable_location_name'] = "Payable Location name";
-            $sc_details['print_location'] = "Print Location";
-            $sc_details['bene_mobile_no'] = "Bene Mobile no";
-            $sc_details['bene_email_id'] = "Bene email id";
-            $sc_details['ben_add_1'] = "Ben add1";
-            $sc_details['ben_add_2'] = "Ben add2";
-            $sc_details['ben_add_3'] = "Ben add3";
-            $sc_details['ben_add_4'] = "Ben add4";
-            $sc_details['add_details_1'] = "Add details 1";
-            $sc_details['add_details_2'] = "Add details 2";
-            $sc_details['add_details_3'] = "Add details 3";
-            $sc_details['add_details_4'] = "Add details 4";
-            $sc_details['add_details_5'] = "Add details 5";
-            $sc_details['remarks'] = "Remarks";
-            $sc_details['gst_no'] = "GST Number";
-            $sc_details['is_signature'] = "Signature Exist";
-            $sc_details['defective_parts'] = "No Of Defective Parts";
-            $sc_details['defective_parts_max_age'] = "Max Age of Spare Pending";
-            $sc_details['shipped_parts_name'] = "Shipped Parts Name";
-            $sc_details['is_verified'] = "Bank Account Verified";
-            $sc_details['amount_type'] = "Type";
-            $sc_details['sf_id'] = "SF/CP Id";
-            $sc_details['is_sf'] = "SF";
-            $sc_details['is_cp'] = "CP";
-            $sc_details['check_file'] = "Check File";
             
+            $sc_details = $this->get_payment_summary_csv_header();
             array_push($payment_data, $sc_details);
+            $invoice_xl = array();
             foreach ($data as $key => $jdata) {
                
                 $d = json_decode($jdata, true);
@@ -2792,62 +2654,162 @@ class Invoice extends CI_Controller {
 
                 $sc_details['payment_date'] = date("d-M-Y");
                 $sc_details['ifsc_code'] = trim($sc['ifsc_code']);
-                $sc_details['payable_location_name'] = "";
-                $sc_details['print_location'] = "";
-                $sc_details['bene_mobile_no'] = "";
-                $sc_details['bene_email_id'] = "";
-                $sc_details['ben_add_1'] = "";
-                $sc_details['ben_add_2'] = "";
-                $sc_details['ben_add_3'] = "";
-                $sc_details['ben_add_4'] = "";
-                $sc_details['add_details_1'] = "";
-                $sc_details['add_details_2'] = "";
-                $sc_details['add_details_3'] = "";
-                $sc_details['add_details_4'] = "";
-                $sc_details['add_details_5'] = "";
+                $sc_details['payable_location_name'] = "";$sc_details['print_location'] = ""; $sc_details['bene_mobile_no'] = "";
+                $sc_details['bene_email_id'] = ""; $sc_details['ben_add_1'] = "";$sc_details['ben_add_2'] = ""; $sc_details['ben_add_3'] = "";
+                $sc_details['ben_add_4'] = ""; $sc_details['add_details_1'] = ""; $sc_details['add_details_2'] = "";
+                $sc_details['add_details_3'] = ""; $sc_details['add_details_4'] = ""; $sc_details['add_details_5'] = "";
                 $sc_details['remarks'] = preg_replace("/[^A-Za-z0-9]/", "", $sc['name']);
                 $sc_details['gst_no'] = $sc['gst_no'];
-                if(!empty($sc['signature_file'])){
-                    $sc_details['is_signature'] = "Yes";
-                } else {
-                    $sc_details['is_signature'] = "NO";
-                }
+                $sc_details['is_signature'] = !empty($sc['signature_file']) ?"Yes":"NO";
                 $sc_details['defective_parts'] = $defective_parts;
                 $sc_details['defective_parts_max_age'] = $defective_parts_max_age;
                 $sc_details['shipped_parts_name'] = $parts_name;
                 $sc_details['is_verified'] = ($sc['is_verified'] ==0) ? "Not Verified" : "Verified";
-                if ($amount > 0) {
-                    $sc_details['amount_type'] = "CR";
-                } else {
-                    $sc_details['amount_type'] = "DR";
-                }
+                $sc_details['amount_type'] = ($amount > 0)? "CR":"DR";
                 $sc_details['sf_id'] = $service_center_id;
                 $sc_details['is_sf'] = $sc['is_sf'];
                 $sc_details['is_cp'] = $sc['is_cp'];
-                $sc_details['check_file'] = !empty($sc['cancelled_cheque_file']) ? "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/".$sc['cancelled_cheque_file'] : "";
+                $sc_details['check_file'] = !empty($sc['cancelled_cheque_file']) ? S3_URL."vendor-partner-docs/".$sc['cancelled_cheque_file'] : "";
                 array_push($payment_data, $sc_details);
                 
+                $invoice_data = $this->get_paymnet_summary_invoice_data($service_center_id);
+                if(!empty($invoice_data)){
+                    array_push($invoice_xl, json_decode(json_encode($invoice_data, true), true));
+                }
             }
-
-            header('Content-Type: text/csv; charset=utf-8');
-            header('Content-Disposition: attachment; filename=payment_upload_summary.csv');
-
-            // create a file pointer connected to the output stream
-            $output = fopen('php://output', 'w');
-
-            foreach ($payment_data as $line) {
-                fputcsv($output, $line);
+            $this->_download_payment_invoice_summary($invoice_xl, $payment_data);
+        }
+    }
+    /**
+     * @desc Used to download payment summary csv file and its break up
+     * @param Array $invoice_xl
+     * @param Array $payment_data
+     */
+    function _download_payment_invoice_summary($invoice_xl, $payment_data) {
+        $main_invoice = array();
+        foreach ($invoice_xl as $invoice) {
+            foreach ($invoice as $val) {
+                $main_invoice[] = $val;
             }
         }
+
+        $template = 'payment_invoice_summary_details.xlsx';
+        // directory
+        $templateDir = __DIR__ . "/../excel-templates/";
+
+        $config = array(
+            'template' => $template,
+            'templateDir' => $templateDir
+        );
+
+        //load template
+        $R = new PHPReport($config);
+
+        $R->load(array(
+            array(
+                'id' => 'invoice',
+                'repeat' => true,
+                'data' => $main_invoice,
+            ),
+                )
+        );
+
+        $output_file_excel = TMP_FOLDER . "invoice_payment_file_" . date('Ymd') . ".xlsx";
+
+        $res1 = 0;
+        if (file_exists($output_file_excel)) {
+
+            system(" chmod 777 " . $output_file_excel, $res1);
+            unlink($output_file_excel);
+        }
+        //Create Excel FIle
+        $R->render('excel', $output_file_excel);
+        system(" chmod 777 " . $output_file_excel, $res1);
+
+        // create a file pointer connected to the output stream
+        $output = fopen(TMP_FOLDER."payment_upload_summary.csv", 'w');
+        //Write CSV file
+        foreach ($payment_data as $line) {
+            fputcsv($output, $line);
+        }
+        //Download zip file
+        system('zip ' . TMP_FOLDER . "payment_upload_summary" . '.zip ' . $output_file_excel . ' ' . TMP_FOLDER."payment_upload_summary.csv");
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/octet-stream');
+        header("Content-Disposition: attachment; filename=\"payment_upload_summary.zip\"");
+
+        $res2 = 0;
+        system(" chmod 777 " . TMP_FOLDER . 'payment_upload_summary.zip ', $res2);
+        readfile(TMP_FOLDER .  'payment_upload_summary.zip');
+        
+        //Delete All file
+        exec("rm -rf " . escapeshellarg(TMP_FOLDER."payment_upload_summary.csv"));
+        exec("rm -rf " . escapeshellarg($output_file_excel));
+        exec("rm -rf " . escapeshellarg(TMP_FOLDER . 'payment_upload_summary.zip'));
+    }
+    /**
+     * @desc Used to get un-settle invoice id
+     * @param int $service_center_id
+     * @return Object
+     */
+    function get_paymnet_summary_invoice_data($service_center_id) {
+        $select_invoice = "vendor_partner_invoices.id, vendor_partner_id, name, invoice_id, from_date, to_date, "
+                . "invoice_date, CASE WHEN (amount_collected_paid > 0) THEN (amount_collected_paid - amount_paid) ELSE (amount_collected_paid + amount_paid) END as amount_due";
+        $where_invoice['where'] = array('vendor_partner_id' => $service_center_id,
+            "vendor_partner" => "vendor", "due_date <= CURRENT_DATE() " => NULL,
+            "settle_amount" => 0);
+        $where_invoice['length'] = -1;
+        return $this->invoices_model->searchInvoicesdata($select_invoice, $where_invoice);
+    }
+    /**
+     * @desc Used to get header of payment csv file
+     * @return Array
+     */
+    function get_payment_summary_csv_header() {
+        log_message("info", __METHOD__);
+        $sc_details['debit_acc_no'] = "Debit Ac No";
+        $sc_details['bank_account'] = "Beneficiary Ac No";
+        $sc_details['beneficiary_name'] = "Beneficiary Name";
+        $sc_details['final_amount'] = "Amt";
+        $sc_details['payment_mode'] = "Pay Mod";
+        $sc_details['payment_date'] = "Date";
+        $sc_details['ifsc_code'] = "IFSC";
+        $sc_details['payable_location_name'] = "Payable Location name";
+        $sc_details['print_location'] = "Print Location";
+        $sc_details['bene_mobile_no'] = "Bene Mobile no";
+        $sc_details['bene_email_id'] = "Bene email id";
+        $sc_details['ben_add_1'] = "Ben add1";
+        $sc_details['ben_add_2'] = "Ben add2";
+        $sc_details['ben_add_3'] = "Ben add3";
+        $sc_details['ben_add_4'] = "Ben add4";
+        $sc_details['add_details_1'] = "Add details 1";
+        $sc_details['add_details_2'] = "Add details 2";
+        $sc_details['add_details_3'] = "Add details 3";
+        $sc_details['add_details_4'] = "Add details 4";
+        $sc_details['add_details_5'] = "Add details 5";
+        $sc_details['remarks'] = "Remarks";
+        $sc_details['gst_no'] = "GST Number";
+        $sc_details['is_signature'] = "Signature Exist";
+        $sc_details['defective_parts'] = "No Of Defective Parts";
+        $sc_details['defective_parts_max_age'] = "Max Age of Spare Pending";
+        $sc_details['shipped_parts_name'] = "Shipped Parts Name";
+        $sc_details['is_verified'] = "Bank Account Verified";
+        $sc_details['amount_type'] = "Type";
+        $sc_details['sf_id'] = "SF/CP Id";
+        $sc_details['is_sf'] = "SF";
+        $sc_details['is_cp'] = "CP";
+        $sc_details['check_file'] = "Check File";
+
+        return $sc_details;
     }
 
     /**
      * @desc: This method is used to fetch invoice id. It called by Ajax while 
      * invoice invoice details.
-     * @param String $vendor_partner_id
+     * @param int $vendor_partner_id
      * @param String $vendor_partner_type
-     * @param String $from_date
      * @param String $type_code
+     * @param String $type
      */
     function fetch_invoice_id($vendor_partner_id, $vendor_partner_type, $type_code, $type) {
         $entity_details = array();

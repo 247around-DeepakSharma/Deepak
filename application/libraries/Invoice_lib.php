@@ -421,9 +421,9 @@ class Invoice_lib {
                         // If due date is less than today then we de-activate CRM
                         if (date('Y-m-d') >= $due_date) {
                             $result['active'] = 0;
+                            $grace_period = date('Y-m-d', strtotime($partner_details['postpaid_grace_period']));
                             if (!empty($grace_period)) {
                                 // IF grace period is greater than today then activate CRM
-                                $grace_period = date('Y-m-d', strtotime($invoice_data[0]->postpaid_grace_period));
 
                                 if ($grace_period >= date('Y-m-d')) {
                                     $result['active'] = 1;
@@ -441,6 +441,148 @@ class Invoice_lib {
             log_message("info", __METHOD__ . " Partner ID " . $partner_details['id']);
         }
         return $result;
+    }
+    /**
+     * @desc This function is used to insert new bank transaction data from FOrm/Excel
+     * @param Array $invoice_id_array
+     * @return boolean
+     */
+    function process_add_new_transaction($invoice_id_array) {
+        log_message('info', __METHOD__. " Starting ". print_r($invoice_id_array, true));
+        $account_statement['partner_vendor'] = $invoice_id_array['partner_vendor'];
+        $account_statement['partner_vendor_id'] = $invoice_id_array['partner_vendor_id'];
+        $account_statement['bankname'] = $invoice_id_array['bankname'];
+        $account_statement['transaction_mode'] = $invoice_id_array['transaction_mode'];
+        
+        $agent_id = $invoice_id_array['agent_id'];
+        
+        $transaction_date = $invoice_id_array['tdate'];
+        $account_statement['transaction_date'] = date("Y-m-d", strtotime($transaction_date));
+        if(isset($invoice_id_array['description'])){
+            $account_statement['description'] = $invoice_id_array['description'];
+        } else {
+            $account_statement['description'] = "";
+        }
+        
+        $account_statement['transaction_id'] = $invoice_id_array['transaction_id'];
+        //Get bank txn id while update other wise empty.
+        $bank_txn_id = $invoice_id_array['bank_txn_id'];
+        
+        $paid_amount = 0;
+        $tds = 0;
+        $payment_history = array();
+        $invoices = array();
+        foreach ($invoice_id_array['invoice_id'] as $invoice_id => $value) {
+            if (!empty($invoice_id)) {
+                array_push($invoices, $invoice_id);
+                $p_history = array();
+                $vp_details = array();
+                $where = array('invoice_id' => $invoice_id);
+                $data = $this->ci->invoices_model->get_invoices_details($where);
+                if(!isset($value['tds_amount'])){
+                    if($data[0]['amount_paid'] == 0){
+                        $value['tds_amount'] = $data[0]['tds_amount'];
+                    } else {
+                        $value['tds_amount'] = 0;
+                    }
+                }
+                $credit_debit = $value['credit_debit'];
+                $p_history['invoice_id'] = $invoice_id;
+                $p_history['credit_debit'] = $credit_debit;
+                $p_history['credit_debit_amount'] = sprintf("%.2f", $value['credit_debit_amount']);
+                $p_history['agent_id'] = $agent_id;
+                $p_history['tds_amount'] = $value['tds_amount'];
+                $p_history['create_date'] = date("Y-m-d H:i:s");
+                array_push($payment_history, $p_history);
+
+                if ($credit_debit == 'Credit') {
+
+                    $paid_amount += sprintf("%.2f",$value['credit_debit_amount']);
+                    $amount_collected = abs(sprintf("%.2f",($data[0]['amount_collected_paid'] - $data[0]['amount_paid'])));
+                    
+                } else if ($credit_debit == 'Debit') {
+
+                    $paid_amount += (-sprintf("%.2f",$value['credit_debit_amount']));
+                    $amount_collected = abs(sprintf("%.2f",($data[0]['amount_collected_paid'] + $data[0]['amount_paid'])));
+                }
+              
+                $tds += $value['tds_amount'];
+
+                if (round($amount_collected,0) == round($value['credit_debit_amount'], 0)) {
+
+                    $vp_details['settle_amount'] = 1;
+                    $vp_details['amount_paid'] = $value['credit_debit_amount'] + $data[0]['amount_paid'];
+                } else {
+                    //partner Pay to 247Around
+                    if ($account_statement['partner_vendor'] == "partner" && $credit_debit == 'Credit' && $data[0]['tds_amount'] == 0) {
+                        $per_tds = 0;
+                        $vp_details['tds_amount'] = $value['tds_amount'];
+                        $vp_details['tds_rate'] = $per_tds;
+                        $amount_collected = $data[0]['total_amount_collected'] - $vp_details['tds_amount'];
+                        $vp_details['around_royalty'] = $vp_details['amount_collected_paid'] = $amount_collected;
+
+                        if (round($amount_collected, 0) == round(($data[0]['amount_paid'] + $value['credit_debit_amount']), 0)) {
+                            $vp_details['settle_amount'] = 1;
+                        } else {
+                            $vp_details['settle_amount'] = 0;
+                        }
+                        $vp_details['amount_paid'] = $data[0]['amount_paid'] + $value['credit_debit_amount'];
+                    } else {
+
+                        $vp_details['settle_amount'] = 0;
+                        $vp_details['amount_paid'] = $data[0]['amount_paid'] + $value['credit_debit_amount'];
+                    }
+                }
+
+                $this->ci->invoices_model->update_partner_invoices(array('invoice_id' => $invoice_id), $vp_details);
+            }
+        }
+        $account_statement['invoice_id'] = implode(",", $invoices);
+        if ($paid_amount > 0) {
+            $account_statement['debit_amount'] = '0';
+            $account_statement['credit_amount'] = abs($paid_amount);
+            $account_statement['credit_debit'] = 'Credit';
+        } else {
+            $account_statement['debit_amount'] = abs($paid_amount);
+            $account_statement['credit_amount'] = '0';
+            $account_statement['credit_debit'] = 'Debit';
+        }
+
+        $account_statement['agent_id'] =  $agent_id;
+        $account_statement['tds_amount'] = $tds;            
+                    
+        if (empty($bank_txn_id)) {
+            $bank_txn_id = $this->ci->invoices_model->bankAccountTransaction($account_statement);
+        } else {
+            $this->ci->invoices_model->update_bank_transactions(array('id' => $bank_txn_id), $account_statement);
+        }
+        //Donot remove $value
+        foreach ($payment_history as $key => $value) {
+            $payment_history[$key]['bank_transaction_id'] = $bank_txn_id;
+        }
+        $this->ci->accounting_model->insert_batch_payment_history($payment_history);
+
+        //Send SMS to vendors about payment
+        if ($account_statement['partner_vendor'] == 'vendor') {
+
+             $this->send_payment_sms_to_vendor($account_statement);
+        }
+        return true;
+
+    }
+    
+    function send_payment_sms_to_vendor($account_statement) {
+
+        $vendor_arr = $this->ci->vendor_model->getVendorContact($account_statement['partner_vendor_id']);
+        $v = $vendor_arr[0];
+
+        $sms['tag'] = "payment_made_to_vendor";
+        $sms['phone_no'] = $v['owner_phone_1'];
+        $sms['smsData'] = "previous month";
+        $sms['booking_id'] = "";
+        $sms['type'] = $account_statement['partner_vendor'];
+        $sms['type_id'] = $account_statement['partner_vendor_id'];
+        $this->ci->notify->send_sms_msg91($sms);
     }
 
 }

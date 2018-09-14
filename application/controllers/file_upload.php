@@ -20,11 +20,14 @@ class File_upload extends CI_Controller {
         $this->load->library('miscelleneous');
         $this->load->library('notify');
         $this->load->library('table');
+        $this->load->library('invoice_lib');
         
         //load model
         $this->load->model('inventory_model');
         $this->load->model('partner_model');
         $this->load->model('employee_model');
+        $this->load->model('invoices_model');
+        $this->load->model('accounting_model');
 
         $this->load->helper(array('form', 'url', 'file', 'array'));
     }
@@ -37,6 +40,7 @@ class File_upload extends CI_Controller {
     public function process_upload_file(){ 
         log_message('info', __FUNCTION__ . "=> File Upload Process Begin ". print_r($_POST,true));
         //get file extension and file tmp name
+         
         $file_status = $this->get_upload_file_type();
         $redirect_to = $this->input->post('redirect_url');
         if ($file_status['status']) { 
@@ -45,7 +49,7 @@ class File_upload extends CI_Controller {
             $data = $this->read_upload_file_header($file_status);
            
             $data['post_data'] = $this->input->post();
-           
+
             //check all required header and file type 
             if ($data['status']) { 
                 $response = array();
@@ -440,11 +444,11 @@ class File_upload extends CI_Controller {
         
         //Getting template from Database
         $template = $this->booking_model->get_booking_email_template("file_upload_email");
-
+        $attachment = TMP_FOLDER.$data['file_name'];
         if (!empty($template)) {
             $body = $response['message'];
             $body .= "<br> <b>File Name</b> " . $data['file_name'];
-            $attachment = TMP_FOLDER.$data['file_name'];
+            
             $sendmail = $this->notify->sendEmail($template[2], $to, $template[3], "", $subject, $body, "", 'inventory_not_found');
             
             if ($sendmail) {
@@ -453,9 +457,11 @@ class File_upload extends CI_Controller {
                 log_message('info', __FUNCTION__ . 'Error in Sending Mail');
             }
         }
+        if(file_exists($attachment)){
+            unlink($attachment);
+        }
         
         
-        unlink($attachment);
     }
     
     /**
@@ -990,4 +996,162 @@ class File_upload extends CI_Controller {
             }
         redirect(base_url() . $redirect_to);
     }
+
+    /**
+     * @desc load upload payment file view
+     */
+    function upload_payment_file(){
+        $this->miscelleneous->load_nav_header();
+	$this->load->view('employee/upload_payment_summary_invoice');
+    }
+    /**
+     * @desc: this function used to process sf payment.
+     * We will upload custom payment file.
+     */
+    function process_invoice_payment_file_upload() {
+        log_message("info", __METHOD__ . "starting...");
+        $file_status = $this->get_upload_file_type();
+        $file_upload_status = FILE_UPLOAD_FAILED_STATUS;
+        if ($file_status['status']) {
+            $sheetRowData = array();
+            $invalid_data = array();
+            $data = $this->read_upload_file_header($file_status);
+            if ($data['status']) {
+
+                $data['post_data']['file_type'] = INVOICE_PAYMENT_FILE_TYPE;
+                log_message('info', __METHOD__ . " HEADER " . print_r($data['header_data'], TRUE));
+
+                //column which must be present in the  upload inventory file
+                $header_column_need_to_be_present = array('vendor_partner_id', 'vendor_id', 'vendor_name', 'invoice_id',
+                    'invoice_date', 'from_date', 'to_date', 'amount_due', 'amount_paid', 'invoice_remarks', 'bank_transaction_id');
+                //check if required column is present in upload file header
+                $check_header = $this->check_column_exist($header_column_need_to_be_present, $data['header_data']);
+                if ($check_header['status']) {
+
+                    for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
+                        $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
+                        $sanitizes_row_data = array_map('trim', $rowData_array[0]);
+
+                        if (!empty(array_filter($sanitizes_row_data))) {
+                            $rowData = array_combine($data['header_data'], $rowData_array[0]);
+                            array_push($sheetRowData, $rowData);
+                        } else {
+                            $invalid_data['message'] = "Invalid Row Sheet";
+                        }
+                    }
+                    
+                    $total_amount = (array_sum(array_column($sheetRowData, 'amount_paid')));
+                    $p_amount_paid = $this->input->post("total_amount_paid");
+                    if(round($total_amount,0) == round($p_amount_paid,0) ){
+                        $main_data = $this->get_service_center_filtered_data($sheetRowData);
+                        log_message('info', __METHOD__. print_r($main_data, true));
+                        if($main_data['status']){
+                            if(!empty($main_data['data'])){
+                                foreach ($main_data['data'] as$value) {
+                                    $this->invoice_lib->process_add_new_transaction($value);
+                                }
+                                
+                                $response['status'] = TRUE;
+                                $response['message'] = "File Successfully uploaded.";
+                                $file_upload_status = FILE_UPLOAD_SUCCESS_STATUS;
+                                $message = "File Successfully uploaded.";
+                                
+                            } else {
+                                $response['status'] = FALSE;
+                                $response['message'] = "Data Filtered - Empty ";
+                                $message = "Payment file upload Failed"; 
+                            }
+                        } else {
+                             $response['status'] = FALSE;
+                             if(isset($main_data['message'])){
+                                 $response['message'] = $main_data['message'];
+                             } else {
+                                 $response['message'] = "File upload failed due to row data";
+                             }
+                             
+                             $message = "Payment file upload Failed"; 
+                        }
+
+                    } else {
+                        $response['status'] = FALSE;
+                        $response['message'] = "Total Amount Paid amount is not matching.";
+                        $message = "Payment file upload Failed - Total Amount Paid amount is not matching."; 
+                    }
+                
+                } else {
+                    $response['status'] = FALSE;
+                    $response['message'] = "File upload Failed. ".$check_header['message'];
+                    $message = "Payment file upload Failed. ".$check_header['message']; 
+                }
+                
+                $this->miscelleneous->update_file_uploads($data['file_name'],TMP_FOLDER.$data['file_name'], $data['post_data']['file_type'], $file_upload_status);
+                $this->send_email($data,$response);
+                
+            } else {
+                $response['status'] = FALSE;
+                $response['message'] = "File upload Failed. Empty file has been uploaded";
+                $message = "Payment file upload Failed. Empty file has been uploaded";
+                
+            }
+            
+            
+        } else {
+            $message = "Unable to find Partner, Please refresh and try again";
+        }
+        
+        echo $message;
+    }
+    /**
+     * @desc this is used to customized all excel data.
+     * All data grouped accordingly SC
+     * @param Array $data
+     * @return Array
+     */
+    function get_service_center_filtered_data($data) {
+        log_message("info", __METHOD__ . " starting..");
+        $main_data = array();
+        $v = array();
+        $v['status'] = true;
+        foreach ($data as $value) {
+            if (round(abs($value['amount_due']), 0) >= round($value['amount_paid'], 0)) {
+                if($value['amount_paid'] == 0){
+                    if(!empty($value['invoice_remarks'])){
+                        $this->invoices_model->update_partner_invoices(array('invoice_id' => $value['invoice_id']), array('remarks' => $value['invoice_remarks']));
+                    }
+                } else {
+                    $main_data[$value['vendor_id']]['invoice_id'][$value['invoice_id']]['invoice_id'] = $value['invoice_id'];
+                    $main_data[$value['vendor_id']]['invoice_id'][$value['invoice_id']]['pre_credit_amount'] = abs($value['amount_paid']);
+                    $main_data[$value['vendor_id']]['invoice_id'][$value['invoice_id']]['credit_debit_amount'] = abs($value['amount_paid']);
+                    if ($value['amount_due'] > 0) {
+                        $main_data[$value['vendor_id']]['invoice_id'][$value['invoice_id']]['credit_debit'] = 'Credit';
+                    } else {
+                        $main_data[$value['vendor_id']]['invoice_id'][$value['invoice_id']]['credit_debit'] = 'Debit';
+                    }
+
+                    $main_data[$value['vendor_id']]['bankname'] = "";
+                    $main_data[$value['vendor_id']]['tdate'] = $this->input->post('transaction_date');
+                    $main_data[$value['vendor_id']]['transaction_id'] = $value['bank_transaction_id'];
+                    $main_data[$value['vendor_id']]['transaction_mode'] = "Transfer";
+                    $main_data[$value['vendor_id']]['agent_id'] = $this->session->userdata('id');
+                    $main_data[$value['vendor_id']]['bank_txn_id'] = "";
+                    $main_data[$value['vendor_id']]['partner_vendor'] = "vendor";
+                    $main_data[$value['vendor_id']]['partner_vendor_id'] = $value['vendor_id'];
+                    if (!empty($value['description'])) {
+                        $main_data[$value['vendor_id']]['description'] = $value['description'];
+                    }
+                }
+                
+            } else {
+                $v['status'] = false;
+                $v['message'] = array('invoice_id' => "Amount Paid greater than amount due. Invoice ID: - ". $value['invoice_id']);
+               
+                break;
+            }
+        }
+
+        log_message('info', __METHOD__ . " DATA " . print_r($main_data, true));
+        $v['data'] = $main_data;
+        return $v;
+    }
+
 }
