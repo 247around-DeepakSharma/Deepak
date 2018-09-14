@@ -75,7 +75,6 @@ class Partner extends CI_Controller {
         }
         $data['is_ajax'] = $this->input->post('is_ajax');
         if(empty($this->input->post('is_ajax'))){
-            //$this->load->view('partner/header');
             $this->miscelleneous->load_partner_nav_header();
             $this->load->view('partner/pending_booking', $data);
             $this->load->view('partner/partner_footer');
@@ -1610,6 +1609,27 @@ class Partner extends CI_Controller {
     }
 
     /**
+     * @desc: This is used to get those booking who has requested to spare parts by SF
+     */
+  function get_spare_parts_booking() {
+        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
+        $this->checkUserSession();
+        $agent_id = $this->session->userdata('agent_id');
+            $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",array("agent_filters.agent_id"=>$agent_id),array("agent_filters"=>"agent_filters.state=state_code.state"),NULL,array('state'=>'ASC'),NULL,array("agent_filters"=>"left"),array());
+        if(empty($data['states'])){
+            $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
+        }
+        $data['is_ajax'] = $this->input->post('is_ajax');
+        if(empty($this->input->post('is_ajax'))){
+            $this->miscelleneous->load_partner_nav_header();
+           $this->load->view('partner/spare_parts_booking', $data);
+            $this->load->view('partner/partner_footer');
+        }else{
+            $this->load->view('partner/spare_parts_booking', $data);
+        }
+    }
+
+    /**
      * @desc: This is used to insert details into insert change table
      * @param String $booking_id
      * @param String $new_state
@@ -2063,6 +2083,7 @@ function get_shipped_parts_list($offset = 0) {
         if(empty($data['states'])){
             $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
         }
+        $data['is_ajax'] = $this->input->post('is_ajax');
         if(empty($this->input->post('is_ajax'))){
             $this->miscelleneous->load_partner_nav_header();
             $this->load->view('partner/waiting_defective_parts', $data);
@@ -2938,26 +2959,6 @@ function get_shipped_parts_list($offset = 0) {
                 $this->session->set_userdata($userSession);
                 redirect(base_url() . "partner/get_waiting_for_approval_upcountry_charges");
             }
-        }
-    }
-
-    /**
-     * @desc: used to display list of waiting to approve upcountry charges
-     */
-    function get_spare_parts_booking() {
-        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
-        $this->checkUserSession();
-        $agent_id = $this->session->userdata('agent_id');
-            $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",array("agent_filters.agent_id"=>$agent_id),array("agent_filters"=>"agent_filters.state=state_code.state"),NULL,array('state'=>'ASC'),NULL,array("agent_filters"=>"left"),array());
-        if(empty($data['states'])){
-            $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
-        }
-        if(empty($this->input->post('is_ajax'))){
-            $this->miscelleneous->load_partner_nav_header();
-           $this->load->view('partner/spare_parts_booking', $data);
-            $this->load->view('partner/partner_footer');
-        }else{
-            $this->load->view('partner/spare_parts_booking', $data);
         }
     }
 
@@ -4964,6 +4965,7 @@ function get_shipped_parts_list($offset = 0) {
     }
     function partner_review_bookings($offset = 0, $all = 0) {
         $this->checkUserSession();
+        $data['is_ajax'] = $this->input->post('is_ajax');
         if(empty($this->input->post('is_ajax'))){
             $this->miscelleneous->load_partner_nav_header();
             $this->load->view('partner/get_waiting_to_review');
@@ -5017,8 +5019,11 @@ function get_shipped_parts_list($offset = 0) {
         $upcountryString = "";
         foreach ($bookings as $key => $row) { 
              $tempArray = array();
+             $upcountryString = $tempString = "";
+             $tempString = "'".$row->booking_id."'";
+             $tempString2 = "'".$row->amount_due."'";
               if ($row->is_upcountry == 1 && $row->upcountry_paid_by_customer == 0) {
-                 $upcountryString = '<i style="color:red; font-size:20px;" onclick="open_upcountry_model("'.$row->booking_id.'"," '.$row->amount_due.'")"
+                 $upcountryString = '<i style="color:red; font-size:20px;" onclick="open_upcountry_model('.$tempString.','.$tempString2.')"
                     class="fa fa-road" aria-hidden="true"></i>';
                } 
              $tempArray[] = $sn_no . $upcountryString;
@@ -5067,7 +5072,7 @@ function get_shipped_parts_list($offset = 0) {
                                                         <a id="a_hover"'.$helperString.' href="'.base_url().'partner/get_reschedule_booking_form/'.$row->booking_id.'" id="reschedule" class="btn btn-sm btn-success" title ="Reschedule">Reschedule</a>
                                                     </li>
                                                      <li style="color: #fff;margin-top:5px;">
-                                                         <a id="a_hover" style="background-color: #d9534f;border-color:#d9534f;color:#fff;padding: 5px 0px;margin: 0px;"href="<?php echo base_url(); ?>partner/get_cancel_form/Pending/<?php echo $row->booking_id; ?>" class="btn btn-sm btn-danger" title="Cancel">Cancel</a>
+                                                         <a id="a_hover" style="background-color: #d9534f;border-color:#d9534f;color:#fff;padding: 5px 0px;margin: 0px;"href='.base_url().'partner/get_cancel_form/Pending/'.$row->booking_id.' class="btn btn-sm btn-danger" title="Cancel">Cancel</a>
                                                      </li>
                                                 </ul>
                                             </div>';
@@ -5080,7 +5085,7 @@ function get_shipped_parts_list($offset = 0) {
             $futureBookingDateMsg = "Booking has future booking date so you can not escalate the booking";
             $partnerDependencyMsg = 'Escalation can not be Processed, Because booking in '.$row->partner_internal_status.' state';
             if ($row->type == "Query") {
-                $helperText = 'style="pointer-events: none;background: #ccc;border-color:#ccc;"'; 
+                $helperText_2 = 'style="pointer-events: none;background: #ccc;border-color:#ccc;"'; 
             }
             if($row->actor != 'Partner' && $days>=0){
                $helperText_2 =  'data-target="#myModal"';
@@ -5254,7 +5259,7 @@ function get_shipped_parts_list($offset = 0) {
                     }
                     $tempArray[] = $tempString2;
                      $bookingIdTemp = "'".$row['booking_id']."'";
-                     $tempArray[] = '<a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email" onclick="create_email_form('.$bookingIdTemp.')"><i class="fa fa-envelope" aria-hidden="true"></i></a>';
+                     $tempArray[] = '<a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email" onclick="create_email_form_2('.$bookingIdTemp.')"><i class="fa fa-envelope" aria-hidden="true"></i></a>';
                      if (!is_null($row['defective_part_shipped_date'])) {
                          $tempString3 =  date("d-m-Y", strtotime($row['defective_part_shipped_date']));
                      }
@@ -5356,8 +5361,9 @@ function get_shipped_parts_list($offset = 0) {
     function get_review_booking_data(){
         $finalArray = array();
         $postData = $this->input->post();
-        $columnMappingArray = array("column_1"=>"booking_details.booking_id","column_3"=>"CONCAT('',GROUP_CONCAT((defective_part_shipped ) ))",
-            "column_4"=>"courier_name_by_sf");    
+        $columnMappingArray = array("column_2"=>"booking_details.request_type","column_3"=>"sc.cancellation_reason",
+            "column_6"=>"booking_details.city", "column_7"=>"booking_details.state","column_8"=>"STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')",
+            "column_9"=>"DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y'))");    
         $order_by = "ORDER BY booking_details.booking_id DESC";
         if(array_key_exists("order", $postData)){
                $order_by = "ORDER BY ".$columnMappingArray["column_".$postData['order'][0]['column']] ." ". $postData['order'][0]['dir'];
