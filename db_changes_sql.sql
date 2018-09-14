@@ -8113,3 +8113,5 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 --kalyani 
 INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (null, '247Around', 'Upload Docket Number', NULL, 'employee/inventory/upload_docket_number', '2', '89', 'admin,closure,developer,regionalmanager,accountmanager', 'main_nav', '1', CURRENT_TIMESTAMP);
 
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'sms_to_vendor_poc', '%s', '', '1', CURRENT_TIMESTAMP);
+

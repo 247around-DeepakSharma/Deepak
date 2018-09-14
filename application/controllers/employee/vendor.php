@@ -5121,4 +5121,20 @@ class vendor extends CI_Controller {
         }
     }
     
+    /**
+    * @desc This is used to load email search form.
+    * This form helps to search email in whole database
+    */
+    function send_sms_to_poc(){
+        $sms = array();
+        $sms['phone_no'] = trim($this->input->post("phone_no"));
+        $sms['smsData'] = $this->input->post("msg");
+        $sms['tag'] = $this->input->post("sms_tag");
+        $sms['status'] = "";
+        $sms['booking_id'] = "";
+        $sms['type'] = "sms_to_vendor";
+        $sms['type_id'] = $this->session->userdata('id');
+        $this->notify->send_sms_msg91($sms);
+    }
+    
 }
