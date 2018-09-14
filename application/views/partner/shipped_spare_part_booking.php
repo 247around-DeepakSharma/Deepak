@@ -10,10 +10,23 @@ if ($this->uri->segment(3)) {
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
                 <div class="x_title">
-                    <h2>Spare Parts Shipped By <?php echo $this->session->userdata('partner_name'); ?>, Waiting For Confirmation From SF</h2>
+                     <h2>Spare Parts Shipped By <?php echo $this->session->userdata('partner_name'); ?>, Waiting For Confirmation From SF</h2>
                     <div class="pull-right"><a style="background: #2a3f54;border-color: #2a3f54;" href="<?php echo base_url(); ?>employee/partner/download_spare_part_shipped_by_partner_not_acknowledged"  class="btn btn-sm btn-primary">Download</a></div>
+                    <div class="right_holder" style="float:right;margin-right:10px;">
+                            <select class="form-control " id="state_search" style="border-radius:3px;" onchange="booking_search()">
+                    <option value="">States</option>
+      <?php
+      foreach($states as $state){
+          ?>
+      <option value="<?php echo $state['state'] ?>"><?php echo $state['state'] ?></option>
+      <?php
+      }
+      ?>
+  </select>            
+</div>
                     <div class="clearfix"></div>
                 </div>
+                 <input type="text" id="booking_id_search" onchange="booking_search()" style="float: right;margin-bottom: -32px;border: 1px solid #ccc;padding: 5px;z-index: 100;position: inherit;">
                 <div class="x_content">
                     <table class="table table-bordered table-hover table-striped" id="shipped_spare_part_table">
                         <thead>
@@ -29,51 +42,7 @@ if ($this->uri->segment(3)) {
                                 <th class="text-center">Remarks</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <?php foreach ($spare_parts as $key => $row) { ?>
-                                <tr style="text-align: center;">
-                                    <td>
-                                        <?php echo $sn_no; ?>
-                                    </td>
-                                    <td>
-                                        <a style="color:blue;"  href="<?php echo base_url(); ?>partner/booking_details/<?php echo $row['booking_id']; ?>"  title='View'><?php echo $row['booking_id']; ?></a>
-                                    </td>
-                                    <td>
-                                        <?php echo $row['name']; ?>
-                                    </td>
-    <!--                                    <td>
-                                        <?php //echo $row['age_of_booking'];  ?>
-                                    </td>-->
-                                    <td>
-                                        <?php echo $row['parts_shipped']; ?>
-                                    </td>
-                                    <td>
-                                        <?php echo $row['courier_name_by_partner']; ?>
-                                    </td>
-                                    <td>
-                                        <?php echo $row['awb_by_partner']; ?>
-                                    </td>
-                                     <td> 
-                                        <?php  if(!empty($row['partner_challan_file'])) { ?> 
-                                            <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY ?>/vendor-partner-docs/<?php echo $row['partner_challan_file']; ?>" target="_blank"><?php echo $row['partner_challan_number']?></a>
-                                        <?php }
-                                        else if(!empty($row['partner_challan_number'])) {
-                                            echo $row['partner_challan_number'];
-                                        }
-?>
-                                      </td>
-                                    <td>
-                                        <?php echo date("d-m-Y", strtotime($row['shipped_date'])); ?>
-                                    </td>
-
-                                    <td>
-                                        <?php echo $row['remarks_by_partner']; ?>
-                                    </td>
-
-                                </tr>
-                                <?php $sn_no++;
-                            } ?>
-                        </tbody>
+                        
                     </table>
                     <div class="custom_pagination" style="margin-left: 16px;" > 
                 <?php if(isset($links)) { echo $links; } ?>
@@ -84,16 +53,43 @@ if ($this->uri->segment(3)) {
     </div>
 </div>
 <script>
-    var table = $('#shipped_spare_part_table').DataTable(
-            {
-                    "pageLength": 50
-                });
-    </script>
-        <style>
-        .pagination{
-            display: none;
+    $(document).ready(function () {
+        $('#state_search').select2();
+        shipped_spare_part_table = $('#shipped_spare_part_table').DataTable({
+            "processing": true,
+            "language":{ 
+                "processing": "<center><img id='loader_gif_title' src='<?php echo base_url(); ?>images/loadring.gif'></center>",
+            },
+            "serverSide": true, 
+            "order": [], 
+            "pageLength": 50,
+            "ajax": {
+                "url": "<?php echo base_url(); ?>employee/partner/get_shipped_spare_waiting_for_confirmation/",
+                "type": "POST",
+                "data": function(d){
+                    d.booking_id =  $('#booking_id_search').val();
+                    d.state =  $('#state_search').val();
+                 }
+            },
+            "columnDefs": [
+                {
+                    "targets": [0,2,6,8], //first column / numbering column
+                    "orderable": false //set not orderable
+                }
+            ],  
+            "deferRender": true 
+        });
+    });
+    function booking_search(){
+             shipped_spare_part_table.ajax.reload();
         }
-                .dataTables_info{
-    display: none;
+    </script>
+    <style>
+        #shipped_spare_part_table_filter{
+      display: none;
+}
+#shipped_spare_part_table_processing{
+    border:none !important;
+    background-color: transparent !important;
 }
         </style>

@@ -34,22 +34,23 @@ class File_upload extends CI_Controller {
      * @param: void
      * @return JSON
      */
-    public function process_upload_file(){
+    public function process_upload_file(){ 
         log_message('info', __FUNCTION__ . "=> File Upload Process Begin ". print_r($_POST,true));
         //get file extension and file tmp name
         $file_status = $this->get_upload_file_type();
         $redirect_to = $this->input->post('redirect_url');
-        
-        if ($file_status['status']) {
+        if ($file_status['status']) { 
+            
             //get file header
             $data = $this->read_upload_file_header($file_status);
+           
             $data['post_data'] = $this->input->post();
-            
+           
             //check all required header and file type 
-            if ($data['status']) {
+            if ($data['status']) { 
                 $response = array();
                 //process upload file
-                switch ($data['post_data']['file_type']){
+                switch ($data['post_data']['file_type']){ 
                     case PARTNER_INVENTORY_DETAILS_FILE:
                         //process inventory file upload
                         $response = $this->process_inventory_upload_file($data);
@@ -110,7 +111,7 @@ class File_upload extends CI_Controller {
      * @param void
      * @param $response array   //consist file temporary name, file extension and status(file type is correct or not)
      */
-    private function get_upload_file_type(){
+    private function get_upload_file_type(){ 
         log_message('info', __FUNCTION__ . "=> getting upload file type");
         if (!empty($_FILES['file']['name']) && $_FILES['file']['size'] > 0) {
             $pathinfo = pathinfo($_FILES["file"]["name"]);
@@ -140,19 +141,18 @@ class File_upload extends CI_Controller {
      * @param $file array  //consist file temporary name, file extension and status(file type is correct or not)
      * @param $response array  //consist file name,sheet name(in case of excel),header details,sheet highest row and highest column
      */
-    private function read_upload_file_header($file){
+    private function read_upload_file_header($file){ 
         log_message('info', __FUNCTION__ . "=> getting upload file header");
-        try {
+        try {  
             $objReader = PHPExcel_IOFactory::createReader($file['file_ext']);
             $objPHPExcel = $objReader->load($file['file_tmp_name']);
-        } catch (Exception $e) {
+        } catch (Exception $e) {   
             die('Error loading file "' . pathinfo($file['file_tmp_name'], PATHINFO_BASENAME) . '": ' . $e->getMessage());
         }
-
+        
         $file_name = $_FILES["file"]["name"];
         move_uploaded_file($file['file_tmp_name'],TMP_FOLDER.$file_name);
         chmod(TMP_FOLDER . $file_name, 0777);
-
         //  Get worksheet dimensions
         $sheet = $objPHPExcel->getSheet(0);
         $highestRow = $sheet->getHighestDataRow();
@@ -178,7 +178,6 @@ class File_upload extends CI_Controller {
         $response['sheet'] =  $sheet;
         $response['highest_row'] =  $highestRow;
         $response['highest_column'] =  $highestColumn;
-        
         return $response;
     }
     
@@ -454,6 +453,7 @@ class File_upload extends CI_Controller {
                 log_message('info', __FUNCTION__ . 'Error in Sending Mail');
             }
         }
+        
         
         unlink($attachment);
     }
@@ -898,5 +898,96 @@ class File_upload extends CI_Controller {
         }
         
         echo $message;
+    }
+    
+    /**
+     * @desc This function is used to upload docket number file only has two columns awb_number and courier_charges
+     */
+    function process_docket_number_file_upload(){ 
+        log_message('info', __FUNCTION__ . "=>  process_docket_number_file_upload");
+            $redirect_to = $this->input->post('redirect_url');
+            $file_upload_status = FILE_UPLOAD_FAILED_STATUS;
+            $file_status = $this->get_upload_file_type();
+            if ($file_status['status']) {
+                $data = $this->read_upload_file_header($file_status);
+                if ($data['status']) {
+                    //log_message('info', __METHOD__. " ". print_r($data['header_data'], TRUE));
+                    $data['post_data']['file_type'] = DOCKET_NUMBER_FILE_TYPE;
+                    
+                    //column which must be present in the  upload inventory file
+                    $header_column_need_to_be_present = array('awb_number','courier_charges');
+                    
+                    //check if required column is present in upload file header
+                    $check_header = $this->check_column_exist($header_column_need_to_be_present,$data['header_data']);
+                    if ($check_header['status']) {
+                        $notexistingData = array();
+                        $validData = true;
+                        $template = array(
+                            'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
+                        );
+                        $this->table->set_template($template);
+                        $this->table->set_heading(array('AWB Number'));
+                        //get file data to process
+                        for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
+                            $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
+                            $sanitizes_row_data = array_map('trim',$rowData_array[0]);
+                            if(!empty(array_filter($sanitizes_row_data))){
+                                $rowData = array_combine($data['header_data'], $rowData_array[0]);
+                                if(!empty($rowData['awb_number']) && !empty($rowData['courier_charges'])){
+                                    $data_spare_part_detail = $this->partner_model->get_spare_parts_by_any("id", array('awb_by_sf' => $rowData['awb_number'], 'status'=>'Cancelled'));
+                                    if(!empty($data_spare_part_detail)){
+                                        $courier_amount = $rowData['courier_charges']/count($data_spare_part_detail);
+                                        $courier_amount = sprintf('%0.2f', $courier_amount);
+                                        foreach ($data_spare_part_detail as  $value){
+                                            $this->inventory_model->update_spare_courier_details($value['id'], array('courier_charges_by_sf'=>$courier_amount));
+                                        }
+                                    } else {
+                                        $data_courier_detail = $this->inventory_model->get_courier_details("id", array('AWB_no' => $rowData['awb_number']));
+                                        if(!empty($data_courier_detail)){
+                                            foreach ($data_courier_detail as  $value){
+                                                $courier_amount = $rowData['courier_charges']/count($data_courier_detail);
+                                                $courier_amount = sprintf('%0.2f', $courier_amount);
+                                                $this->inventory_model->update_courier_detail(array('id'=>$value['id']), array('courier_charge'=>$courier_amount));
+                                            }
+                                        } else {
+                                            $this->table->add_row($rowData['awb_number']);
+                                        }
+                                    }
+                                } 
+                            }
+                        }
+                      
+                        if($validData){
+                            $response['status'] = TRUE;
+                            $email_message = "Below AWB number not found. Please check and upload only below data again: <br>";
+                            $email_message .= $this->table->generate();
+                            $response['message'] = $email_message;
+                            $file_upload_status = FILE_UPLOAD_SUCCESS_STATUS;
+                            $message = "File Successfully uploaded.";
+                        } else {
+                            $response['status'] = FALSE;
+                            $response['message'] = "File upload Failed. ";
+                            $message = "File upload Failed. ";
+                            $this->session->set_flashdata('file_error', $message);
+                        }
+                    } else {
+                        $response['status'] = FALSE;
+                        $response['message'] = "File upload Failed. ".$check_header['message'];
+                        $message = "File upload Failed. ".$check_header['message'];
+                        $this->session->set_flashdata('file_error', $message);
+                    }
+                } else {
+                    $response['status'] = FALSE;
+                    $response['message'] = "File upload Failed. Empty file has been uploaded";
+                    $message = "File upload Failed. Empty file has been uploaded";
+                    $this->session->set_flashdata('file_error', $message);
+                }
+                $this->miscelleneous->update_file_uploads($data['file_name'],TMP_FOLDER.$data['file_name'], $data['post_data']['file_type'], $file_upload_status);
+                $this->send_email($data,$response);
+            } else {
+                $message = "File upload Failed. Please Select file";
+                $this->session->set_flashdata('file_error', $message);
+            }
+        redirect(base_url() . $redirect_to);
     }
 }

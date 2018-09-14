@@ -187,9 +187,10 @@ class Service_centers_model extends CI_Model {
     /**
      *
      */
-    function get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$offest,$perPage){
+    function get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$offest,$perPage = -1,$where=array(),$userInfo=0,$orderBY = NULL,$select=NULL){
         $limit = "";
         $where_in = "";
+        $userSelect = $join = $groupBy = "";
         $where_sc = "AND (partners.booking_review_for NOT LIKE '%".$status."%' OR partners.booking_review_for IS NULL OR booking_details.amount_due != 0)";
          if($is_partner){
             $where_sc = " AND (partners.booking_review_for IS NOT NULL AND booking_details.amount_due = 0)";
@@ -203,7 +204,7 @@ class Service_centers_model extends CI_Model {
         if ($booking_id != "") {
             $where_sc =$where_sc. ' AND sc.booking_id LIKE "%'.trim($booking_id).'%"' ;
         }
-        if($perPage){
+        if($perPage !=-1){
             $limit = " LIMIT ".$offest.", ".$perPage;
         }
         if(!empty($whereIN)){
@@ -211,14 +212,31 @@ class Service_centers_model extends CI_Model {
                      $where_in = " AND ".$fieldName." IN ('".implode("','",$conditionArray)."')";
              }
          }
-        $sql = "SELECT sc.booking_id,sc.amount_paid,sc.admin_remarks,sc.cancellation_reason,sc.service_center_remarks FROM service_center_booking_action sc "
+         if(!empty($where)){
+             foreach ($where as $fieldName=>$conditionArray){
+                     $where_sc =$where_sc. " AND ".$fieldName;
+             }
+         }
+         if($userInfo){
+             $join = "JOIN users ON booking_details.user_id = users.user_id";
+             $join = $join." JOIN services ON booking_details.service_id = services.id";
+             $userSelect = ",users.name,services.services";
+         }
+         if(!$select){
+             $select = "sc.booking_id,sc.amount_paid,sc.admin_remarks,sc.cancellation_reason,sc.service_center_remarks,booking_details.request_type,booking_details.city,booking_details.state"
+                . ",STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as booking_date,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as age"
+                . ",booking_details.booking_primary_contact_no,booking_details.is_upcountry,booking_details.partner_id,booking_details.amount_due $userSelect";
+             $groupBy = "GROUP BY sc.booking_id";
+         }
+        $sql = "SELECT $select FROM service_center_booking_action sc "
                 . " JOIN booking_details ON booking_details.booking_id = sc.booking_id  "
                 . " JOIN partners ON booking_details.partner_id = partners.id "
+                . "$join"
                 . " WHERE sc.current_status = 'InProcess' "
                 . $where_sc . $where_in
                 . " AND sc.internal_status IN ('Cancelled','Completed') "
                 . " AND booking_details.is_in_process = 0"
-                . " GROUP BY sc.booking_id $limit";
+                . " $groupBy  $orderBY  $limit";
         $query = $this->db->query($sql);
         $booking = $query->result_array();
         return $booking;
