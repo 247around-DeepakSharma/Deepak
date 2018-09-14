@@ -595,7 +595,7 @@
                                         ?>">
                                         <label  for="gst_no" class="col-md-4">GST No.</label>
                                         <div class="col-md-7">
-                                            <input type="text" class="form-control blockspacialchar"  id ="gst_no" name="gst_no" value = "<?php
+                                            <input type="text" class="form-control blockspacialchar" style="text-transform: uppercase;" id ="gst_no" name="gst_no" value = "<?php
                                                 if (isset($query[0]['gst_no'])) {
                                                     echo $query[0]['gst_no'];
                                                 }
@@ -1288,11 +1288,12 @@
                             </div>
                                 </div>
         </div>
-                        </div>
+                        
                                 <center><input type="submit" onclick="return validate_bank_details()" value="Update Bank Details" class="btn btn-primary" id="submit_btn">
                             <?php echo "<a class='btn btn-small btn-primary' href=" . base_url() . "employee/vendor/viewvendor>Cancel</a>"; ?>
                                 </center>
                                     </form>
+        </div>
 </div>
 
 <!--Validations here-->

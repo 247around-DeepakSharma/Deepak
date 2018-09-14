@@ -296,6 +296,9 @@ class vendor extends CI_Controller {
                     //print_r($vendor_data); die;
                 }else{
                     $vendor_data['gst_no'] = NULL;
+                    $vendor_data['gst_taxpayer_type'] = NULL;
+                    $vendor_data['gst_status'] = NULL;
+                    $vendor_data['gst_cancelled_date'] = NULL;
                 }
              
                 $vendor_data['bank_name'] = trim($this->input->post('bank_name'));
@@ -2981,6 +2984,9 @@ class vendor extends CI_Controller {
              case 'service_tax_file': 
                     $this->form_validation->set_rules('service_tax_no', 'Service Tax Number', 'trim|required');
                     break;
+             case 'gst_file': 
+                $this->form_validation->set_rules('gst_no', 'GST Number', 'trim|required');
+                break;
          }
          return $this->form_validation->run();
      }
@@ -3982,7 +3988,8 @@ class vendor extends CI_Controller {
         //Start Processing signature File Upload
         if (($_FILES['signature_file']['error'] != 4) && !empty($_FILES['signature_file']['tmp_name'])) {
             //Adding file validation
-            $checkfilevalidation = $this->file_input_validation('signature_file');
+            //$checkfilevalidation = $this->file_input_validation('signature_file');
+            $checkfilevalidation = 1;
             if ($checkfilevalidation) {
                 
                 //Making process for file upload
@@ -4767,14 +4774,14 @@ class vendor extends CI_Controller {
         }
     }
 
-    function save_vendor_documents(){
+    function save_vendor_documents(){ 
             $this->checkUserSession();
             $vendor = [];
             $data = $this->input->post();
             $vendorArray = $this->reusable_model->get_search_result_data("service_centres", "name", array("id"=>$data['id']), NULL, NULL, NULL, NULL, NULL, array());
             $_POST['name'] = $vendorArray[0]['name'];
             //Start  Processing PAN File Upload
-            if (($_FILES['pan_file']['error'] != 4) && !empty($_FILES['pan_file']['tmp_name'])) {
+            if (($_FILES['pan_file']['error'] != 4) && !empty($_FILES['pan_file']['tmp_name'])) {  
                 //Adding file validation
                 $checkfilevalidation = $this->file_input_validation('pan_file');
                 if ($checkfilevalidation) {
@@ -4830,7 +4837,6 @@ class vendor extends CI_Controller {
                     //log_message('info',__CLASS__.' PAN FILE is being uploaded sucessfully.');
                 } else {
                     //Redirect back to Form
-
                     if (!empty($_POST['id'])) {
                         $this->editvendor($data['id']);
                     } else {
@@ -4871,7 +4877,8 @@ class vendor extends CI_Controller {
                     return FALSE;
                 }
             }
-            if (($_FILES['gst_file']['error'] != 4) && !empty($_FILES['gst_file']['tmp_name'])) {
+            if (($_FILES['gst_file']['error'] != 4) && !empty($_FILES['gst_file']['tmp_name'])) {  
+            
                 $attachment_gst = $this->upload_gst_file($data);
                 if($attachment_gst){} else {
                     return FALSE;
@@ -4904,8 +4911,14 @@ class vendor extends CI_Controller {
                 }
                  if(!empty($vendor_data['is_gst_doc']) && !empty($this->input->post('gst_no'))){
                     $vendor_data['gst_no'] = $this->input->post('gst_no');
+                    $vendor_data['gst_taxpayer_type'] = $this->input->post('gst_type');
+                    $vendor_data['gst_status'] = $this->input->post('gst_status');
+                    $vendor_data['gst_cancelled_date'] = date("Y-m-d", strtotime($this->input->post('gst_cancelled_date')));
                 }else{
                     $vendor_data['gst_no'] = NULL;
+                    $vendor_data['gst_taxpayer_type'] = NULL;
+                    $vendor_data['gst_status'] = NULL;
+                    $vendor_data['gst_cancelled_date'] = NULL;
                 }
                 if(!empty($this->input->post('pan_file'))){
                     $vendor_data['pan_file'] = $this->input->post('pan_file');
