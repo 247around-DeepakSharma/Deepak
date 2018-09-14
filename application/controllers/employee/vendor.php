@@ -4908,8 +4908,14 @@ class vendor extends CI_Controller {
                 }
                  if(!empty($vendor_data['is_gst_doc']) && !empty($this->input->post('gst_no'))){
                     $vendor_data['gst_no'] = $this->input->post('gst_no');
+                    $vendor_data['gst_taxpayer_type'] = $this->input->post('gst_type');
+                    $vendor_data['gst_status'] = $this->input->post('gst_status');
+                    $vendor_data['gst_cancelled_date'] = $this->input->post('gst_cancelled_date');
                 }else{
                     $vendor_data['gst_no'] = NULL;
+                    $vendor_data['gst_taxpayer_type'] = NULL;
+                    $vendor_data['gst_status'] = NULL;
+                    $vendor_data['gst_cancelled_date'] = NULL;
                 }
                 if(!empty($this->input->post('pan_file'))){
                     $vendor_data['pan_file'] = $this->input->post('pan_file');
