@@ -4,7 +4,7 @@
     }
     
     #datatable1_filter{
-        text-align: left;
+        text-align: right;
     }
 </style>
 <div id="page-wrapper">
