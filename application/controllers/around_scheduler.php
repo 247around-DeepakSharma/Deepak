@@ -1868,6 +1868,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
     function checked_complete_review_booking($bookingData) {
         log_message('info', __FUNCTION__ . ' Function Start '.print_r($bookingData,TRUE));
         $requested_bookings = $bookingData['approved_booking'];
+        if($requested_bookings){
         $where['is_in_process'] = 0;
         $whereIN['booking_id'] = $requested_bookings; 
         $tempArray = $this->reusable_model->get_search_result_data("booking_details","booking_id",$where,NULL,NULL,NULL,$whereIN,NULL,array());
@@ -1889,22 +1890,27 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
             log_message('info', __FUNCTION__ . ' Approved Booking Empty from Post');
         }
         }
+        }
+        else{
+            log_message('info', __FUNCTION__ . ' No booking Found');
+        }
          log_message('info', __FUNCTION__ . ' End');
     }
 
     function send_notifiction_to_review_bookings() {
         log_message('info', __FUNCTION__ . ' Start');
-        $partnerArray = $this->reusable_model->get_search_result_data("partners", "*", array("booking_review_for IS NOT NULL" => NULL), NULL, NULL, NULL, NULL, NULL, array());
+        $partnerArray = $this->reusable_model->get_search_result_data("partners", "partners.*,employee.official_email as am_email", array("booking_review_for IS NOT NULL" => NULL), 
+                array("employee"=>"employee.id = partners.account_manager_id"), NULL, NULL, NULL, NULL, array());
         foreach ($partnerArray as $partner) {
             $tempData = $this->miscelleneous->get_review_bookings_for_partner($partner['id'], NULL, 1,REVIEW_NOTIFICATION_TO_PARTNER_DAYS);
-            $data['bookings'] = array_keys($tempData);
+            $data['bookings'] = $tempData;
             $template = $this->booking_model->get_booking_email_template("notify_partner_to_review_bookings");
             $subject = $template[4];
             $data['text'] = vsprintf($template[0], array($partnerArray[0]['review_time_limit']));
             $message = $this->load->view('employee/partner_review_booking_email_template',$data,true);
             $to =  $partnerArray[0]['primary_contact_email'];
             $bcc = $template[5];
-            $cc = $template[1];
+            $cc = $partner['am_email'];
             $from = $template[2];
             $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "", "notify_partner_to_review_bookings");
             log_message('info', __FUNCTION__ . " END  " . $partner['id'] . $message);
