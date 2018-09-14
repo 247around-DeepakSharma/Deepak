@@ -1,4 +1,3 @@
-<?php if(is_numeric($this->uri->segment(3)) && !empty($this->uri->segment(3))){ $sn_no =  $this->uri->segment(3) +1; } else{ $sn_no = 1;} ?>
 <?php if(empty($is_ajax)) { ?>
 <div class="right_col" role="main">
     <?php
@@ -199,7 +198,7 @@
             },
             "columnDefs": [
                 {
-                    "targets": [0,1,2,11,12,13,14], //first column / numbering column
+                    "targets": [0,1,2,5,6,11,12,13,14], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],  
