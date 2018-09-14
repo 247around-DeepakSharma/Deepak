@@ -2967,7 +2967,7 @@ class vendor extends CI_Controller {
      * 
      */
      function file_input_validation($file_type){
-         switch($file_type){
+        switch($file_type){
              case 'pan_file': 
                     $this->form_validation->set_rules('name_on_pan', 'Name on Pan', 'trim|required');
                     $this->form_validation->set_rules('pan_no', 'Pan Number', 'trim|required');
@@ -2984,7 +2984,10 @@ class vendor extends CI_Controller {
              case 'service_tax_file': 
                     $this->form_validation->set_rules('service_tax_no', 'Service Tax Number', 'trim|required');
                     break;
-         }
+             case 'gst_file': 
+                    $this->form_validation->set_rules('gst_no', 'GST Number', 'trim|required');
+                    break;
+        }
          return $this->form_validation->run();
      }
 
@@ -3986,7 +3989,8 @@ class vendor extends CI_Controller {
         //Start Processing signature File Upload
         if (($_FILES['signature_file']['error'] != 4) && !empty($_FILES['signature_file']['tmp_name'])) {
             //Adding file validation
-            $checkfilevalidation = $this->file_input_validation('signature_file');
+            //$checkfilevalidation = $this->file_input_validation('signature_file');
+            $checkfilevalidation = 1;
             if ($checkfilevalidation) {
                 
                 //Making process for file upload
@@ -4910,7 +4914,7 @@ class vendor extends CI_Controller {
                     $vendor_data['gst_no'] = $this->input->post('gst_no');
                     $vendor_data['gst_taxpayer_type'] = $this->input->post('gst_type');
                     $vendor_data['gst_status'] = $this->input->post('gst_status');
-                    $vendor_data['gst_cancelled_date'] = $this->input->post('gst_cancelled_date');
+                    $vendor_data['gst_cancelled_date'] = date("Y-m-d", strtotime($this->input->post('gst_cancelled_date')));
                 }else{
                     $vendor_data['gst_no'] = NULL;
                     $vendor_data['gst_taxpayer_type'] = NULL;
@@ -5021,8 +5025,7 @@ class vendor extends CI_Controller {
         if(!empty($this->input->post('id_proof_1_file'))){
             $vendor_data['id_proof_1_file'] = $this->input->post('id_proof_1_file');
         }
-        $this->notify->insert_state_change('', NEW_SF_CONTACTS, NEW_SF_CONTACTS, 'Vendor ID : '.$this->input->post('id'), $this->session->userdata('id'), $this->session->userdata('employee_id'),
-                        ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
+        $this->notify->insert_state_change('', NEW_SF_CONTACTS, NEW_SF_CONTACTS, 'Vendor ID : '.$this->input->post('id'), $this->session->userdata('id'), $this->session->userdata('employee_id'), ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
         $this->session->set_flashdata('vendor_added', "Vendor Contacts Has been updated Successfully , Please Fill other details");
         $this->vendor_model->edit_vendor($vendor_data, $this->input->post('id'));
         redirect(base_url() . 'employee/vendor/editvendor/'.$data['id']);
