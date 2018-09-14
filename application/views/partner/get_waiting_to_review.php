@@ -1,10 +1,4 @@
-
-
-<?php if(is_numeric($this->uri->segment(3)) && !empty($this->uri->segment(3))){ $sn_no =  $this->uri->segment(3) +1; } else{ $sn_no = 1;} ?>
-<?php if(empty($is_ajax)) { ?>
-<div class="right_col" role="main">
-    <div class="row">
-<?php } ?>        
+      
 <div class="col-md-12 col-sm-12 col-xs-12">
     <div class="x_panel">
          <div class="x_title">
@@ -13,7 +7,7 @@
             </div>
                     <div class="clearfix"></div>
                 </div>
-        <input type="text" id="booking_id_search" onchange="booking_search()" style="float: right;margin-bottom: -32px;border: 1px solid #ccc;padding: 5px;z-index: 100;position: inherit;">
+        <input type="text" id="booking_id_search_review" onchange="booking_search_review()" style="float: right;margin-bottom: -32px;border: 1px solid #ccc;padding: 5px;z-index: 100;position: inherit;">
         <div class="x_content">
             <form action="<?php echo base_url(); ?>employee/partner/checked_complete_review_booking" method="post">
             <table class="table table-bordered table-hover table-striped" id="review_booking_table" style=" z-index: -1;position: static;">
@@ -48,8 +42,6 @@
             });
         </script>
 <div class="clearfix"></div>
-    </div>
-</div>
 <!-- Modal -->
    <div id="myModal2" class="modal fade" role="dialog">
       <div class="modal-dialog">
@@ -91,20 +83,19 @@
                 "url": "<?php echo base_url(); ?>employee/partner/get_review_booking_data/",
                 "type": "POST",
                 "data": function(d){
-                    d.booking_id =  $('#booking_id_search').val();
-                    d.state =  $('#state_search').val();
+                    d.booking_id =  $('#booking_id_search_review').val();
                  }
             },
             "columnDefs": [
                 {
-                    //"targets": [0,2,5,6,8,9,10,11,12,13], //first column / numbering column
+                    "targets": [0,1,4,5,10,11], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],  
             "deferRender": true 
             });
         });
-        function booking_search(){
+        function booking_search_review(){
              review_booking_table.ajax.reload();
         }
         function create_reject_form(booking_id){
@@ -134,7 +125,7 @@ function submit_approve_bookings(){
 .dropdown-backdrop{
     display: none;
 }
-#pending_booking_table_processing{
+#review_booking_table_processing{
     border:none !important;
     background-color: transparent !important;
 }

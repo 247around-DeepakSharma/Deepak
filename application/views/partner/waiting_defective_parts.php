@@ -18,7 +18,7 @@
                     <h2>Defective Parts Shipped By SF</h2>
                     <div class="pull-right"><a style="background: #2a3f54; border-color: #2a3f54;" href="<?php echo base_url(); ?>partner/download_waiting_defective_parts"  class="btn btn-sm btn-primary">Download</a></div>
                     <div class="right_holder" style="float:right;margin-right:10px;">
-                            <select class="form-control " id="state_search" style="border-radius:3px;" onchange="booking_search()">
+                            <select class="form-control " id="state_search_waiting" style="border-radius:3px;" onchange="booking_search_waiting()">
                     <option value="">States</option>
       <?php
       foreach($states as $state){
@@ -32,7 +32,7 @@
                     <div class="clearfix"></div>
                     
                 </div>
-        <input type="text" id="booking_id_search" onchange="booking_search()" style="float: right;margin-bottom: -32px;border: 1px solid #ccc;padding: 5px;z-index: 100;position: inherit;">
+        <input type="text" id="booking_id_search_waiting" onchange="booking_search_waiting()" style="float: right;margin-bottom: -32px;border: 1px solid #ccc;padding: 5px;z-index: 100;position: inherit;">
         <div class="x_content">
             <form target="_blank"  action="<?php echo base_url(); ?>partner/print_all" name="fileinfo1"  method="POST" enctype="multipart/form-data">
                 <table class="table table-bordered table-hover table-striped" id="waiting_defactive_parts">
@@ -121,8 +121,8 @@
                 "url": "<?php echo base_url(); ?>employee/partner/get_defactive_part_shipped_by_sf_bookings",
                 "type": "POST",
                 "data": function(d){
-                    d.booking_id =  $('#booking_id_search').val();
-                    d.state =  $('#state_search').val();
+                    d.booking_id =  $('#booking_id_search_waiting').val();
+                    d.state =  $('#state_search_waiting').val();
                  }
             },
             "columnDefs": [
@@ -134,7 +134,7 @@
             "deferRender": true 
         });
     });
-    function booking_search(){
+    function booking_search_waiting(){
              waiting_defactive_parts.ajax.reload();
         }
 function confirm_received(){
@@ -156,7 +156,7 @@ function confirm_received(){
                }
             });
         }
-        function create_email_form(booking_id){
+        function create_email_form_2(booking_id){
             $("#internal_email_booking_subject").prop('disabled', true);
             $("#internal_email_booking_cc").prop('disabled', true);
             $("#email_title").html("Send Email For Booking "+booking_id);
@@ -197,5 +197,9 @@ function confirm_received(){
     <style>
         #waiting_defactive_parts_filter{
       display: none;
+}
+#waiting_defactive_parts_processing{
+    border:none !important;
+    background-color: transparent !important;
 }
         </style>

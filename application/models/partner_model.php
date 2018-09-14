@@ -172,7 +172,7 @@ function get_data_for_partner_callback($booking_id) {
          }
          $orderSubQuery = "";
          if(!empty($order)){
-             $orderSubQuery = " ORDER BY " .$order['column']. $order['sorting'];
+             $orderSubQuery = " ORDER BY " .$order['column']." ".$order['sorting'];
          }
         //do not show bookings for future as of now
         //$where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0";
