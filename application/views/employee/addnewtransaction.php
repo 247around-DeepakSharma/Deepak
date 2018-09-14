@@ -154,77 +154,25 @@
                                     <?php $flag =0; if(!empty($invoice_id_array)){ foreach ($invoice_id_array as $key => $invoice_id) { $flag =1;?>
                                     <tr>
                                         <td>
-                                            <input type="text" class="form-control" name="invoice_id[]" value="<?php echo $invoice_id; ?>" readonly required />
+                                            <input type="text" class="form-control" name="invoice[<?php echo $invoice_id;?>][invoice_id]" value="<?php echo $invoice_id; ?>" readonly required />
                                         </td>
                                         <td>
-                                            <select class="form-control" name="credit_debit[]" id="<?php echo "cre_amount_".$key; ?>" onchange="check_price_details()" readonly>
+                                            <select class="form-control" name="invoice[<?php echo $invoice_id;?>][credit_debit]" id="<?php echo "cre_amount_".$key; ?>" onchange="check_price_details()" readonly>
                                                 <option value="Credit" <?php if($amount_collected[$invoice_id] > 0){ echo "selected"; } ?>>Credit</option>
                                                 <option value="Debit" <?php if($amount_collected[$invoice_id] <= 0){ echo "selected"; } ?> >Debit</option>
                                             </select>
                                         </td>
                                         <td>
-                                            <input type="number" class="form-control cal_amount" id="<?php echo "cal_amount_".$key; ?>" step=".02" name="credit_debit_amount[]" value="<?php echo abs($amount_collected[$invoice_id]); ?>" required/>
-                                            <input type="hidden" id= "<?php echo "pre_amount_".$key; ?>" class="form-control" name="pre_credit_amount[]" value="<?php echo abs($amount_collected[$invoice_id]); ?>" />
+                                            <input type="number" class="form-control cal_amount" id="<?php echo "cal_amount_".$key; ?>" step=".02" name="invoice[<?php echo $invoice_id;?>][credit_debit_amount]" value="<?php echo abs($amount_collected[$invoice_id]); ?>" required/>
+                                            <input type="hidden" id= "<?php echo "pre_amount_".$key; ?>" class="form-control" name="invoice[<?php echo $invoice_id;?>][pre_credit_amount]" value="<?php echo abs($amount_collected[$invoice_id]); ?>" />
                                             
                                         </td>
                                         <td>
-                                            <input type="number" class="form-control cal_tds_amount" name="tds_amount[]" value="<?php echo $tds_amount[$invoice_id]; ?>" <?php if($vendor_partner == "vendor") {?>readonly <?php } ?> />
+                                            <input type="number" class="form-control cal_tds_amount" name="invoice[<?php echo $invoice_id;?>][tds_amount]" value="<?php echo $tds_amount[$invoice_id]; ?>" <?php if($vendor_partner == "vendor") {?>readonly <?php } ?> />
                                         </td>
                                     </tr>
-                                    <?php } } else { ?>
-                                    <tr>
-                                        <td class="col-md-4">
-                                            <select id="invoice_id_0" class="form-control " name="invoice_id[]" required>
-                                                <option value="" selected disabled>Select Invoice ID</option>
-                                            <?php foreach ($invoice_id_list as $key => $value) { ?>
-                                                <option value="<?php echo $value['invoice_id'] ?>"><?php echo $value['invoice_id'] ?></option>
-             
-                                            <?php }?>
-                                                
-                                            </select>
-                                        </td>
-                                        <td >
-                                            <select class="form-control" name="credit_debit[]" id="cre_amount_0" onchange="check_price_details()">
-                                                <option value="Credit" >Credit</option>
-                                                <option value="Debit" >Debit</option>
-                                            </select>
-                                        </td>
-                                        <td>
-                                            <input  type="number" class="form-control cal_amount" id="cal_amount_0"  step=".02" name="credit_debit_amount[]" value="" placeholder="Amount" required/>
-                                        </td>
-                                        <td>
-                                            <input  type="number" class="form-control cal_tds_amount" name="tds_amount[]"  step=".02" value="" placeholder="TDS Amount" />
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="col-md-4">
-                                            <select id="invoice_id_1" class="form-control" name="invoice_id[]" required>
-                                                <option value="" selected disabled>Select Invoice ID</option>
-                                            <?php foreach ($invoice_id_list as $key => $value) { ?>
-                                                <option value="<?php echo $value['invoice_id'] ?>"><?php echo $value['invoice_id'] ?></option>
-             
-                                            <?php }?>
-                                                
-                                            </select>
-                                            <script>
-                                            $("#invoice_id_0").select2();
-                                            $("#invoice_id_1").select2();
-                                            </script>
-                                        </td>
-                                        <td>
-                                            <select class="form-control" name="credit_debit[]" id="cre_amount_1" onchange="check_price_details()">
-                                                <option value="Credit" >Credit</option>
-                                                <option value="Debit" >Debit</option>
-                                            </select>
-                                        </td>
-                                        <td>
-                                            <input type="number" class="form-control cal_amount" id="cal_amount_1"  step=".02" name="credit_debit_amount[]" value="" placeholder="Amount" />
-                                        </td>
-                                        <td>
-                                            <input type="number" class="form-control cal_tds_amount" name="tds_amount[]"  step=".02" value="" placeholder="TDS Amount" />
-                                        </td>
-                                    </tr>
-                                    <?php } ?>
+                                    <?php } } ?>
+
                                      <tr >
                                         <td style="border: 0px solid #fff;"></td>
                                         <td style="border: 0px solid #fff;"></td>
@@ -275,6 +223,7 @@
                                 </tbody>
                             </table>
                             <div class="col-md-12" style="text-align: center;">
+                                <input type="hidden" name="agent_id" value="<?php echo $this->session->userdata('id');?>" />
                                 <input onclick="return check_amount(<?php echo $flag;?>)" id="form_submit" type= "submit"  class="btn btn-primary btn-lg"  value ="Submit Transaction Details" >
                             </div>
                         </div>
