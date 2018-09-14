@@ -3390,6 +3390,7 @@ function generate_image($base64, $image_name,$directory){
             $booking['partner_internal_status'] = $partner_status[1];
             $booking['internal_status'] = "Rejected From Review";
             $booking['rejected_by'] = $postData['rejected_by'];
+            $booking['is_in_process'] = 0;
             $actor = $booking['actor'] = $partner_status[2];
             $next_action = $booking['next_action'] = $partner_status[3];
             $booking['service_center_closed_date'] = NULL;
