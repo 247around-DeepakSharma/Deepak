@@ -5010,9 +5010,22 @@ class vendor extends CI_Controller {
         $rm_email = $this->employee_model->getemployeefromid($rm_id)[0]['official_email'];
         //create vendor login details as well
         $new_vendor_mail = $this->input->post('owner_email').','.$this->input->post('primary_contact_email');
+        if($this->input->post('already_send_notification') == 0){
         $this->create_vendor_login($new_vendor_mail,$rm_email);
         //Send Vendor creation notification to internals and vendor officials
-        $this->send_vendor_creation_notification($new_vendor_mail,$rm_email);
+            $notificationUrl = base_url() . "employee/do_background_process/send_vendor_creation_notification/";
+            $postArray['rm_email'] = $rm_email;
+            $postArray['owner_email'] = $this->input->post('owner_email');
+            $postArray['primary_contact_phone_1'] = $this->input->post('primary_contact_phone_1');
+            $postArray['primary_contact_email'] = $this->input->post('primary_contact_email');
+            $postArray['name'] = $this->input->post('name');
+            $postArray['owner_phone_1'] = $this->input->post('owner_phone_1');
+            $postArray['owner_name'] = $this->input->post('owner_name');
+            $postArray['company_name'] = $this->input->post('company_name');
+            $postArray['district'] = $this->input->post('district');
+            $postArray['id'] = $this->input->post('id');
+            $this->asynchronous_lib->do_background_process($notificationUrl, $postArray);
+        }
         if(!empty($this->input->post('id_proof_2_file'))){
             $vendor_data['id_proof_2_file'] = $this->input->post('id_proof_2_file');
         }  
