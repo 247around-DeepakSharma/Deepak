@@ -54,7 +54,7 @@
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Service Type</label><br>
-                            <select class="form-control filter_table" id="request_type" name="request_type">
+                            <select class="form-control filter_table" id="request_type" name="request_type" multiple="">
                                 <option value="">All</option>
                                 <option value="Installation" selected="selected">Installations</option>
                                 <option value="Repair_with_part">Repair With Spare</option>  
@@ -275,7 +275,19 @@
  
   </div>
 <script>
-        var start = moment().startOf('month');
+    $('#request_type').select2();
+    function getMultipleSelectedValues(fieldName){
+    fieldObj = document.getElementById(fieldName);
+    var values = [];
+    var length = fieldObj.length;
+    for(var i=0;i<length;i++){
+       if (fieldObj[i].selected == true){
+           values.push(fieldObj[i].value);
+       }
+    }
+   return values.join(":");
+}
+    var start = moment().startOf('month');
     var end = moment().endOf('month');
     var options = {
             startDate: start,
@@ -636,6 +648,9 @@ function around_monthly_data(){
         }
         .highcharts-contextbutton{
             display: none;
+        }
+        .select2-container--default{
+            width: 175px !important;
         }
         </style>
   
