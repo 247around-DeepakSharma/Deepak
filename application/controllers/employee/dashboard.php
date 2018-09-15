@@ -1607,10 +1607,11 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         }
         return $this->get_TAT_days_total_completed_bookings($finalData,$key,$key2);
     }
-    function completed_booking_count_by_rm($startDate=NULL,$endDate=NULL,$status="not_set",$service_id="not_set",$request_type="not_set",$free_paid="not_set",$upcountry ="not_set",$for="RM"){
+    function completed_booking_count_by_rm($startDate=NULL,$endDate=NULL,$status="not_set",$service_id="not_set",$request_type_string="not_set",$free_paid="not_set",$upcountry ="not_set",$for="RM"){
         $finalData = array();
         $whereIN = array();
         $joinType = array();
+        $requestTypeArray = array();
         $where["(date(booking_details.service_center_closed_date) >= '".$startDate."' AND date(booking_details.service_center_closed_date) <= '".$endDate."') "] = NULL;
         $where['service_center_closed_date IS NOT NULL'] = NULL;
         if($status !="not_set"){
@@ -1624,38 +1625,42 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         if($service_id !="not_set"){
              $where['booking_details.service_id'] = $service_id;
         }
-        if($request_type !="not_set"){
-                if(strpos($request_type,"Repair") !== false){
-                    $where['request_type LIKE "%Repair%"'] = NULL;
-                    if($request_type == 'Repair'){
-                    }
-                    else{
+        if($request_type_string !="not_set"){
+            $requestTypeArray = explode(':',$request_type_string);
                         $join['spare_parts_details'] = "spare_parts_details.booking_id = booking_details.booking_id";
-                        if($request_type != 'Repair_with_part'){
-                            $where['spare_parts_details.booking_id IS NULL'] = NULL;
                             $joinType['spare_parts_details']  = "left";
+            foreach($requestTypeArray as $request_type){
+                     if($request_type == 'Repair_with_part'){
+                        $where['request_type LIKE "%Repair%"'] = NULL;
+                        $where['spare_parts_details.booking_id IS NOT NULL'] = NULL;
+                        }
+                     else if($request_type == 'Repair_without_part'){
+                        $where['request_type LIKE "%Repair%"'] = NULL;
+                        $where['spare_parts_details.booking_id IS NULL'] = NULL;
+                    }
+                      else if($request_type == 'Installation'){
+                        $where['request_type NOT LIKE "%Repair%"'] = NULL;
+                        $where['spare_parts_details.booking_id IS NULL'] = NULL;
                         }
                     }
-                     if($free_paid !="not_set"){
-                        if($free_paid == 'Yes'){
-                            $whereIN['request_type'] = array('Repair - In Warranty (Home Visit)','Repair - In Warranty (Service Center Visit)');
-                        }
-                        else{
-                            $whereIN['request_type'] = array('Repair - Out Of Warranty (Home Visit)','Repair - Out Of Warranty (Service Center Visit)','Repair - Out Of Warranty (Home Visit) (Paid)',
-                                'Repair - Out of Warranty');
-                        }
-                    }
+                    $count = count($requestTypeArray);
+                if(array_key_exists('request_type NOT LIKE "%Repair%"', $where) && array_key_exists('request_type LIKE "%Repair%"', $where)){
+                    unset($where['request_type NOT LIKE "%Repair%"']);
+                    unset($where['request_type LIKE "%Repair%"']);
             }
-            else{
-                $where['request_type NOT LIKE "%Repair%"'] = NULL;
-                if($free_paid !="not_set"){ 
-                        if($free_paid == "Yes"){
-                            $whereIN['request_type'] =  array('Installation & Demo (Free)');
+                 if(array_key_exists('spare_parts_details.booking_id IS NULL', $where) && array_key_exists('spare_parts_details.booking_id IS NOT NULL', $where)){
+                    unset($where['spare_parts_details.booking_id IS NULL']);
+                    unset($where['spare_parts_details.booking_id IS NOT NULL']);
                         }
-                        else{
-                            $whereIN['request_type'] =  array('Installation & Demo (Paid)');
+                if($count == 2 && in_array("Installation",$requestTypeArray) &&  in_array("Repair_with_part",$requestTypeArray)){
+                    $where['(spare_parts_details.booking_id IS NOT NULL AND request_type LIKE "%Repair%") OR (spare_parts_details.booking_id IS  NULL AND request_type NOT LIKE "%Repair%")']= NULL;
                         }
                     }
+            
+            if($free_paid !="not_set"){
+             $where['booking_details.amount_due'] = 0;
+             if($free_paid == 'No'){
+                 $where['booking_details.amount_due>0'] = NULL;
             }
         }
         if($upcountry !="not_set"){
@@ -1666,7 +1671,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $where['booking_details.is_upcountry'] = $upcountryValue;
         }
         if($for == "AM"){
-            $select = "employee.full_name as AM,partners.account_manager_id as id,COUNT(booking_details.booking_id) as count,DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as TAT";
+            $select = "employee.full_name as AM,partners.account_manager_id as id,COUNT(DISTINCT booking_details.booking_id) as count,DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as TAT";
             $groupBY=array("AM","TAT");
             $join['partners'] = "booking_details.partner_id = partners.id";
             $join['employee'] = "partners.account_manager_id = employee.id";
@@ -1680,7 +1685,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             if($this->session->userdata('partner_id')){
                 $where['booking_details.partner_id'] = $this->session->userdata('partner_id');
             }
-            $select = "employee.full_name as RM,employee_relation.agent_id as id,COUNT(booking_details.booking_id) as count,DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as TAT";
+            $select = "employee.full_name as RM,employee_relation.agent_id as id,COUNT(DISTINCT booking_details.booking_id) as count,DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as TAT";
             $groupBY=array("RM","TAT");
             $join['employee_relation'] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.service_centres_id)";
             $join['employee'] = "employee_relation.agent_id = employee.id";
@@ -1724,38 +1729,41 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
              }
             $where['booking_details.is_upcountry'] = $upcountry;
         }
+         if($this->input->post('free_paid') !="not_set"){
+             $where['booking_details.amount_due'] = 0;
+             if($this->input->post('free_paid') == 'No'){
+                 $where['booking_details.amount_due>0'] = NULL;
+             }
+        }
         if($this->input->post('request_type')){
-                if(strpos($this->input->post('request_type'),"Repair") !== false){
+            $requestTypeArray = $this->input->post('request_type');
+            $join['spare_parts_details'] = "spare_parts_details.booking_id = booking_details.booking_id";
+            $joinType['spare_parts_details']  = "left";
+            foreach($requestTypeArray as $request_type){
+                     if($request_type == 'Repair_with_part'){
                     $where['request_type LIKE "%Repair%"'] = NULL;
-                    if($this->input->post('request_type') == 'Repair'){
+                        $where['spare_parts_details.booking_id IS NOT NULL'] = NULL;
                     }
-                    else{
-                        $stateJoin['spare_parts_details']  = $sfJoin['spare_parts_details'] = "spare_parts_details.booking_id = booking_details.booking_id";
-                        if($this->input->post('request_type') != 'Repair_with_part'){
+                     else if($request_type == 'Repair_without_part'){
+                        $where['request_type LIKE "%Repair%"'] = NULL;
                             $where['spare_parts_details.booking_id IS NULL'] = NULL;
-                            $joinType['spare_parts_details']  = "left";
-                        }
                     }
-                     if($this->input->post('free_paid')){
-                        if($this->input->post('free_paid') == 'Yes'){
-                            $whereIN['request_type'] = array('Repair - In Warranty (Home Visit)','Repair - In Warranty (Service Center Visit)');
-                        }
-                        else{
-                            $whereIN['request_type'] = array('Repair - Out Of Warranty (Home Visit)','Repair - Out Of Warranty (Service Center Visit)','Repair - Out Of Warranty (Home Visit) (Paid)',
-                                'Repair - Out of Warranty');
-                        }
-                    }
-            }
-            else{
+                      else if($request_type == 'Installation'){
                 $where['request_type NOT LIKE "%Repair%"'] = NULL;
-                if($this->input->post('free_paid')){ 
-                        if($this->input->post('free_paid') == "Yes"){
-                            $whereIN['request_type'] =  array('Installation & Demo (Free)');
+                        $where['spare_parts_details.booking_id IS NULL'] = NULL;
                         }
-                        else{
-                            $whereIN['request_type'] =  array('Installation & Demo (Paid)');
                         }
+                    $count = count($requestTypeArray);
+                if(array_key_exists('request_type NOT LIKE "%Repair%"', $where) && array_key_exists('request_type LIKE "%Repair%"', $where)){
+                    unset($where['request_type NOT LIKE "%Repair%"']);
+                    unset($where['request_type LIKE "%Repair%"']);
+                }
+                 if(array_key_exists('spare_parts_details.booking_id IS NULL', $where) && array_key_exists('spare_parts_details.booking_id IS NOT NULL', $where)){
+                    unset($where['spare_parts_details.booking_id IS NULL']);
+                    unset($where['spare_parts_details.booking_id IS NOT NULL']);
                     }
+                if($count == 2 && in_array("Installation",$requestTypeArray) &&  in_array("Repair_with_part",$requestTypeArray)){
+                    $where['(spare_parts_details.booking_id IS NOT NULL AND request_type LIKE "%Repair%") OR (spare_parts_details.booking_id IS  NULL AND request_type NOT LIKE "%Repair%")']= NULL;
             }
         }
         $where['service_center_closed_date IS NOT NULL'] = NULL;

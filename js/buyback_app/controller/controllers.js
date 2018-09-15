@@ -819,7 +819,7 @@ admin_dashboard.controller('completedBooking_Controller', function ($scope, $htt
                 endDate = dateArray[1];
                 status = $("#completed_status").val();
                 service_id = $("#service_id").val();
-                request_type = $("#request_type").val();
+                request_type = getMultipleSelectedValues("request_type");
                 free_paid = $("#free_paid").val();
                 upcountry = $("#upcountry").val();
                 if(!status){
@@ -856,7 +856,7 @@ rm_dashboard.controller('completedBooking_Controller', function ($scope, $http) 
                 endDate = dateArray[1];
                 status = $("#completed_status").val();
                 service_id = $("#service_id").val();
-                request_type = $("#request_type").val();
+                request_type = getMultipleSelectedValues("request_type");
                 free_paid = $("#free_paid").val();
                 upcountry = $("#upcountry").val();
                 if(!status){
@@ -894,7 +894,7 @@ admin_dashboard.controller('completedBooking_ControllerAM', function ($scope, $h
                 endDate = dateArray[1];
                 status = $("#completed_status_am").val();
                 service_id = $("#service_id_am").val();
-                request_type = $("#request_type_am").val();
+                request_type = getMultipleSelectedValues("request_type_am");
                 free_paid = $("#free_paid_am").val();
                 upcountry = $("#upcountry_am").val();
                 if(!status){

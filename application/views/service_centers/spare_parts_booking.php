@@ -153,7 +153,7 @@ if ($this->uri->segment(3)) {
                             }
                             ?>
                         </div>
-                        <input type= "submit"  class="btn btn-md col-md-offset-4" style="background-color:#2C9D9C; border-color: #2C9D9C; color:#fff;" name="download_shippment_address" value ="Print Address/Courier Mainfest" >
+                        <input type= "submit" onclick="return checkValidationForBlank()"  class="btn btn-md col-md-offset-4" style="background-color:#2C9D9C; border-color: #2C9D9C; color:#fff;" name="download_shippment_address" value ="Print Address/Courier Mainfest" >
                     </form>
                 </div>
             </div>
@@ -312,6 +312,18 @@ if ($this->uri->segment(3)) {
             alert("Please Enter Remarks");
         }
     }
+    
+    function checkValidationForBlank(){
+        var address = $('.checkbox_address:checkbox:checked');
+        var manifest = $('.checkbox_manifest:checkbox:checked');
+        if(address.length != 0 || manifest.length !=0){
+            return true;
+        }
+        else{
+            alert("Please Select any checkbox");
+            return false;
+        }
+   }
 </script>
 <?php if ($this->session->userdata('success')) {
     $this->session->unset_userdata('success');

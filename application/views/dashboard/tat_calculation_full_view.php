@@ -48,15 +48,13 @@
                         </div>
                     </div>
                 </div>
-                 <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 160px;">
+                 <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 170px;">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
-                            <select class="form-control filter_table" id="request_type" name="request_type">
-                                <option value="" selected="selected" disabled="">Request Type</option>
-                                <option value="Installation" <?php if(isset($filters['request_type'])){if($filters['request_type']=='Installation'){echo 'selected="selected"';}} ?>>Installations</option>
-                                <option value="Repair" <?php if(isset($filters['request_type'])){if($filters['request_type']=='Repair'){echo 'selected="selected"';}} ?>>Repair</option>
-                                <option value="Repair_with_part" <?php if(isset($filters['request_type'])){if($filters['request_type']=='Repair_with_part'){echo 'selected="selected"';}} ?>>Repair With Spare</option>  
-                                <option value="Repair_without_part" <?php if(isset($filters['request_type'])){if($filters['request_type']=='Repair_without_part'){echo 'selected="selected"';}} ?>>Repair Without Spare</option>  
+                            <select class="form-control filter_table" id="request_type" name="request_type[]" multiple="">
+                                <option value="Installation" <?php if(isset($filters['request_type'])){if(in_array("Installation", $filters['request_type'])){echo 'selected="selected"';}} ?>>Installations</option>
+                                <option value="Repair_with_part" <?php if(isset($filters['request_type'])){if(in_array("Repair_with_part", $filters['request_type'])){echo 'selected="selected"';}} ?>>Repair With Spare</option>  
+                                <option value="Repair_without_part" <?php if(isset($filters['request_type'])){if(in_array("Repair_without_part", $filters['request_type'])){echo 'selected="selected"';}} ?>>Repair Without Spare</option>  
                             </select>
                         </div>
                     </div>
@@ -268,10 +266,7 @@
         "ordering": false
       });
     });
-    $('#request_type').select2({
-        placeholder: "Select Request Type",
-        allowClear: true
-    });
+    $('#request_type').select2();
      $('#partner_id').select2({
         placeholder: "Select Partner",
         allowClear: true
@@ -311,5 +306,8 @@ $(function() {
         }
         .dataTables_filter{
                 margin-top: -38px;
+        }
+        .select2-selection--multiple{
+           width: 170px !important; 
         }
  </style>

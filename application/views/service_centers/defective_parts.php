@@ -84,19 +84,20 @@
 <script>
 function check_checkbox(){
    
-    
-    $('.checkbox_address').each(function (i) {
-        var flag =1;
+    var flag =1;
+    //$('.checkbox_address').each(function (i) {
+        
         var d_m = $('.checkbox_address:checked');
         if(d_m.length === 0){
             flag = 0;  
        }
-       
-       if(flag ===0 ){
-           alert("Please Select Atleast One Checkbox");
-           return false;
-       }
-    });
+
+    //});
+    
+    if(flag ===0 ){
+        alert("Please Select Atleast One Checkbox");
+        return false;
+    }
 }
 
 $("#selectall_address").change(function(){
