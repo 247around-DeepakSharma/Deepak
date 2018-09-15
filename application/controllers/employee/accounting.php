@@ -845,4 +845,122 @@ class Accounting extends CI_Controller {
    
         return $post;
     }
+    
+    /**
+     * @desc: This Function is used to show the view for search the invoice Id 
+     * @param: void
+     * @return : void
+     */
+    function payment_summary() {
+       $this->miscelleneous->load_nav_header();
+       $this->load->view('employee/payment_summary');
+    }
+    
+    /**
+     * @desc This function is used to filter bank transaction data from payment summary page
+     * @return json for datatable
+     */
+    function get_payment_summary_searched_data(){
+       
+        $post = $this->getPaymentSummaryDataTablePost();
+        
+        $post['column_order'] = array( NULL, 'bank_transactions.id');
+        $post['column_search'] = array('invoice_id');
+        
+        $select = "bank_transactions.*, employee.full_name";
+        if($this->input->post("vendor_partner") == "vendor"){
+            $select .= ", service_centres.name as name";
+        }
+        else if($this->input->post("vendor_partner") == "partner"){
+            $select .= ", partners.public_name as name";
+        }
+        else{
+            $select .=  ', CASE WHEN partner_vendor = "vendor" THEN CONCAT("vendor/", service_centres.name) ELSE  CONCAT("partner/", partners.company_name) END as "name"';
+        }
+        
+        $list = $this->invoices_model->searchPaymentSummaryData($select, $post);
+        $no = $post['start'];
+        $data = array();
+        foreach ($list as $transaction_list) {
+            $no++;
+            $row =  $this->bank_transaction_datatable($transaction_list, $no);
+            $data[] = $row;
+        }
+        $output = array(
+            "draw" => $post['draw'],
+            "recordsTotal" => $this->invoices_model->count_all_transactions($post),
+            "recordsFiltered" =>  $this->invoices_model->count_filtered_bank_transaction($select, $post),
+            "data" => $data,
+        );
+        log_message("info", __METHOD__." final outpoot ". json_encode($output, TRUE)); 
+        echo json_encode($output);
+        
+    }
+    
+    /**
+     * @desc Get POST data from DataTable
+     * @return Array
+     */
+    function getPaymentSummaryDataTablePost(){
+        
+        $post['length'] = $this->input->post('length');
+        $post['start'] = $this->input->post('start');
+        $search = $this->input->post('search');
+        $post['search_value'] = trim($search['value']);
+        
+        $post['order'] = $this->input->post('order');
+        $post['draw'] = $this->input->post('draw');
+        
+        $vendor_partner = $this->input->post("vendor_partner");
+        $vendor_partner_id = $this->input->post("vendor_partner_id");
+        $transaction_date = $this->input->post("transaction_date");
+        $transaction_period = $this->input->post("transaction_period_date");
+       
+        if(!empty($vendor_partner)){
+            $post['where']['partner_vendor'] = $vendor_partner;
+        }
+        if(!empty($vendor_partner_id)){
+            if($vendor_partner_id != "All"){
+                $post['where']['partner_vendor_id'] = $vendor_partner_id;
+            } 
+        }
+        
+        if(!empty($transaction_date)){
+           $in = explode("/", $transaction_date);
+           $post['where']['transaction_date >="'.$in[0].'"'] = NULL;
+           $post['where']['transaction_date <= "'.$in[1].'"'] = NULL;
+           
+        }
+        
+        if(!empty($transaction_period)){
+            $period = explode("/", $transaction_period);
+            $post['where']['create_date >="'.$period[0].'"'] = NULL;
+            $post['where']['create_date <= "'.$period[1].'"'] = NULL;
+        }
+        
+        return $post;
+    }
+    
+    /**
+     * @desc This is used to generate Data table row for payment summary
+     * @param Array $transaction_list
+     * @param int $no
+     * @return Array
+     */
+    function bank_transaction_datatable($transaction_list, $no){
+        $row = array();
+        $row[] = $no;
+        $row[] = $transaction_list->name;
+        $row[] = $transaction_list->transaction_date;
+        $row[] = $transaction_list->description;
+        $row[] = sprintf("%.2f",$transaction_list->credit_amount); 
+        $row[] = sprintf("%.2f",$transaction_list->debit_amount); 
+        $row[] = sprintf("%.2f",$transaction_list->tds_amount);
+        $row[] = $transaction_list->invoice_id;
+        $row[] = $transaction_list->bankname."/".$transaction_list->transaction_mode;
+        $row[] = $transaction_list->transaction_id;
+        $row[] = $transaction_list->full_name;
+        return $row;
+    }
+    
 }
