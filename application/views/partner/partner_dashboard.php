@@ -53,11 +53,10 @@
                     <div class="form-group col-md-3">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
-                            <label for="">Service Type</label>
-                            <select class="form-control filter_table" id="request_type" name="request_type">
+                            <label for="">Service Type</label><br>
+                            <select class="form-control filter_table" id="request_type" name="request_type" multiple="">
                                 <option value="">All</option>
                                 <option value="Installation" selected="selected">Installations</option>
-                                <option value="Repair">Repair</option>
                                 <option value="Repair_with_part">Repair With Spare</option>  
                                 <option value="Repair_without_part">Repair Without Spare</option>  
                             </select>
@@ -276,6 +275,55 @@
  
   </div>
 <script>
+    $('#request_type').select2();
+    function getMultipleSelectedValues(fieldName){
+    fieldObj = document.getElementById(fieldName);
+    var values = [];
+    var length = fieldObj.length;
+    for(var i=0;i<length;i++){
+       if (fieldObj[i].selected == true){
+           values.push(fieldObj[i].value);
+       }
+    }
+   return values.join(":");
+}
+    var start = moment().startOf('month');
+    var end = moment().endOf('month');
+    var options = {
+            startDate: start,
+            endDate: end,
+            minDate: '01/01/2000',
+            maxDate: '12/31/2030',
+            dateLimit: {
+                days: 120},
+            showDropdowns: true,
+            showWeekNumbers: true,
+            timePicker: false,
+            timePickerIncrement: 1, timePicker12Hour: true,
+            ranges: {
+                'Today': [moment(), moment()],
+                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                'This Month': [moment().startOf('month'), moment().endOf('month')],
+                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+            },
+            opens: 'left',
+            buttonClasses: ['btn btn-default'],
+            applyClass: 'btn-small btn-primary',
+            cancelClass: 'btn-small',
+            format: 'MM/DD/YYYY', separator: ' to ',
+            locale: {
+                applyLabel: 'Submit',
+                cancelLabel: 'Clear',
+                fromLabel: 'From',
+                toLabel: 'To',
+                customRangeLabel: 'Custom',
+                daysOfWeek: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+                monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+                firstDay: 1
+            }
+    };
     var post_request = 'POST';
     var get_request = 'GET';
     var url = '';
@@ -583,6 +631,12 @@ function around_monthly_data(){
         .tile_count{
             margin-bottom: 0px;
             margin-top: 15px;
+        }
+        .highcharts-contextbutton{
+            display: none;
+        }
+        .select2-container--default{
+            width: 175px !important;
         }
         </style>
   
