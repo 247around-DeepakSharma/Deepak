@@ -722,7 +722,7 @@ class Partner extends CI_Controller {
         }
         if(!$partnerType){
            $partner_not_like = INTERNALTYPE;
-           $partnerType= array(OEM, EXTWARRANTYPROVIDERTYPE, BUYBACKTYPE, ECOMMERCETYPE);
+           $partnerType= array(OEM, EXTWARRANTYPROVIDERTYPE, ECOMMERCETYPE);
         }
         $query = $this->partner_model->get_partner_details_with_soucre_code($active,$partnerType,$ac,$partner_not_like,$partner_id);
         foreach ($query as $key => $value) {
