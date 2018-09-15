@@ -1407,7 +1407,6 @@ function get_data_for_partner_callback($booking_id) {
             $this->db->join('service_centres','spare_parts_details.service_center_id = service_centres.id');
         }
         $query = $this->db->get();
-        log_message('info',$this->db->last_query());
         return $query->result_array();
         
     }
