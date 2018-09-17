@@ -842,6 +842,9 @@ class Accounting extends CI_Controller {
             $post['where']['vendor_partner_invoices.type'] = $invoice_type;
         }
         
+        if(!empty($invoice_id)){
+            $post['where']['vendor_partner_invoices.invoice_id LIKE "%'.$invoice_id.'%"'] = NULL;
+        }
    
         return $post;
     }
@@ -851,7 +854,7 @@ class Accounting extends CI_Controller {
      * @param: void
      * @return : void
      */
-    function payment_summary() {
+    function bank_transactions() {
        $this->miscelleneous->load_nav_header();
        $this->load->view('employee/payment_summary');
     }
@@ -865,7 +868,7 @@ class Accounting extends CI_Controller {
         $post = $this->getPaymentSummaryDataTablePost();
         
         $post['column_order'] = array( NULL, 'bank_transactions.id');
-        $post['column_search'] = array('invoice_id');
+        $post['column_search'] = array('description', 'credit_amount', 'debit_amount', 'invoice_id');
         
         $select = "bank_transactions.*, employee.full_name";
         if($this->input->post("vendor_partner") == "vendor"){
@@ -875,7 +878,7 @@ class Accounting extends CI_Controller {
             $select .= ", partners.public_name as name";
         }
         else{
-            $select .=  ', CASE WHEN partner_vendor = "vendor" THEN CONCAT("vendor/", service_centres.name) ELSE  CONCAT("partner/", partners.company_name) END as "name"';
+            $select .=  ', CASE WHEN partner_vendor = "vendor" THEN service_centres.name ELSE partners.company_name END as "name"';
         }
         
         $list = $this->invoices_model->searchPaymentSummaryData($select, $post);
