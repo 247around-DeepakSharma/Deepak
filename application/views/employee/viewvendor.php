@@ -139,7 +139,7 @@
                     class="btn btn-sm btn-info">
                         <i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i>
                 </button>
-                <button type="button" onclick="model_for_sms(<?php echo $row['primary_contact_phone_1']; ?>)" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#msg_poc">
+                <button type="button" onclick="model_for_sms('<?php echo $row['primary_contact_phone_1']; ?>', '<?php echo $row['id']?>')" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#msg_poc">
                         <i class = 'fa fa-envelope' aria-hidden = 'true'></i>
                 </button>
           	</td>
@@ -326,7 +326,8 @@
                 <div class="col-md-12">
                     <div class="form-group">
                         <label for="Description">Message</label>
-                        <textarea class="form-control" placeholder="Enter Message" id="poc_msg"></textarea>
+                        <textarea class="form-control" placeholder="Enter Message" id="poc_msg" maxlength="160"></textarea>
+                        <input type="hidden" id="sms_vendor_id" name="sms_vendor_id">
                     </div>
                 </div>
             </form>
@@ -406,7 +407,7 @@
             $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url(); ?>employee/vendor/send_sms_to_poc',
-                data: {phone_no: $("#poc_phone_no").text(), msg:$("#poc_msg").val(), sms_tag:'sms_to_vendor_poc'},
+                data: {phone_no: $("#poc_phone_no").text(), msg:$("#poc_msg").val(), sms_tag:'sms_to_vendor_poc', vendor_id:$("#sms_vendor_id").val()},
                 success: function(response) {
                         alert("SMS sent to vendor poc");
                         $("#msg_poc .close").click();
@@ -418,7 +419,8 @@
         }
      }
      
-     function model_for_sms(phone_no){
+     function model_for_sms(phone_no, vendor_id){
         $("#poc_phone_no").text(phone_no);
+        $("#sms_vendor_id").val(vendor_id);
      }
      </script>

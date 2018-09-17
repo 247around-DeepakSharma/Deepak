@@ -5154,8 +5154,8 @@ class vendor extends CI_Controller {
         $sms['tag'] = $this->input->post("sms_tag");
         $sms['status'] = "";
         $sms['booking_id'] = "";
-        $sms['type'] = "sms_to_vendor";
-        $sms['type_id'] = $this->session->userdata('id');
+        $sms['type'] = "vendor";
+        $sms['type_id'] = $this->input->post("vendor_id");
         $this->notify->send_sms_msg91($sms);
     }
     
