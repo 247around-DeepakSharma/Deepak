@@ -877,25 +877,6 @@
                                       </tr>
                     <?php
                     $cashbackIndex = 1;
-                    if($paytm['paid_amount']>$cashback_rules[0]['amount_criteria_less_than']){
-                               $expectedCashback = ($paytm['paid_amount']*$cashback_rules[0]['cashback_amount_percentage'])/100;
-                               if($expectedCashback>$cashback_rules[0]['paytm_cashback_limit']){
-                                   $cashbackByPaytm = $cashback_rules[0]['paytm_cashback_limit'];
-                               }
-                               else{
-                                   $cashbackByPaytm = $expectedCashback;
-                               }
-                        ?>
-                             <tr>
-                            <td colspan="1"><?php echo $cashbackIndex?></td>
-                            <td colspan="1"><?php echo $cashbackByPaytm;?></td>
-                            <td colspan="2">Paytm</td>
-                            <td colspan="2">Discount</td>
-                            <td colspan="3"></td>
-                            </tr>
-                     <?php
-                     $cashbackIndex++;
-                    }
                     foreach($cashbackAmountArray as $index=>$value){
                         ?>
                         <tr>
