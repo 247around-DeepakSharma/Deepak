@@ -459,6 +459,38 @@ class Do_background_process extends CI_Controller {
     function send_request_for_partner_cb($booking_id){
         $this->partner_cb->partner_callback($booking_id);
     }
+      function sendWelcomeSms($phone_number, $vendor_name,$id) {
+        $template = $this->vendor_model->getVendorSmsTemplate("new_vendor_creation");
+        $smsBody = sprintf($template, $vendor_name);
+
+        $this->notify->sendTransactionalSmsAcl($phone_number, $smsBody);
+        //For saving SMS to the database on sucess
+    
+        $this->notify->add_sms_sent_details($id, 'vendor' , $phone_number,
+                   $smsBody, '','new_vendor_creation' );
+    
+
+    }
+function send_vendor_creation_notification(){
+     log_message('error', __FUNCTION__ . "Function Start");
+     $new_vendor_mail = $this->input->post('owner_email').','.$this->input->post('primary_contact_email');
+        $this->sendWelcomeSms($this->input->post('primary_contact_phone_1'), $this->input->post('name'),$this->input->post('id'));
+        $this->sendWelcomeSms($this->input->post('owner_phone_1'), $this->input->post('owner_name'),$this->input->post('id'));
+        //Sending Welcome Vendor Mail
+        //Getting template from Database
+        $template = $this->booking_model->get_booking_email_template("new_vendor_creation");
+        if (!empty($template)) {
+            $subject = "Welcome to 247around ".$this->input->post('company_name')." (".$this->input->post('district').")";
+            $emailBody = $template[0];
+            $this->notify->sendEmail($template[2], $new_vendor_mail, $template[3].",".$this->input->post('rm_email'), '', $subject, $emailBody, "",'new_vendor_creation');
+
+            //Logging
+            log_message('info', " Welcome Email Send successfully" . $emailBody);
+        }else{
+            //Logging Error Message
+            log_message('info', " Error in Getting Email Template for New Vendor Welcome Mail");
+        }
+    }
 
     /* end controller */
 }

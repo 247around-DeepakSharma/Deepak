@@ -903,6 +903,14 @@
                                         echo $query[0]['district'];
                                     }
                                       ?>">
+                                <input style="width:200px;" type="hidden" class="form-control"  name="already_send_notification" value = "<?php
+                                    if (isset($query[0]['primary_contact_email'])) {
+                                        echo "1";
+                                    }
+                                    else{
+                                        echo "0";
+                                    }
+                                      ?>">
                             </div>
             <div  class = "panel panel-info">
                         <div class="panel-heading" style="background-color:#ECF0F1"><b>POC Details</b></div>
