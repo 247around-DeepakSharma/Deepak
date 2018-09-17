@@ -484,12 +484,20 @@ $(document).ready(function(){
       e.preventDefault();
     });
   
-    /****** this is used to check/uncheck all checkboxes  *****/
+    /****** this is used to check/uncheck all checkboxes on select all checkbox *****/
     $("#selecctall_amt").change(function(){
         $(".checkbox_amt").prop('checked', $(this).prop("checked"));
         sum_amount();
     });
-              
-  
+    
+    $(".checkbox_amt").change(function(){
+        if ($('.checkbox_amt:checked').length === $('.checkbox_amt').length) {
+           $("#selecctall_amt").prop('checked', true);
+        }
+        else{
+            $("#selecctall_amt").prop('checked', false);
+        }
+    });
+    
 });
 </script>
