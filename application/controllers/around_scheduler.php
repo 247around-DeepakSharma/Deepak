@@ -1965,8 +1965,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
     }
 
     function auto_approved_saturday_rescheduled_booking(){
-        $saturdayDate = date('Y-m-d', strtotime('-1 day', strtotime(date("Y-m-d"))));
-        $whereIN['date(service_center_booking_action.reschedule_request_date)'] = array($saturdayDate);
+        $whereIN['date(service_center_booking_action.reschedule_request_date)'] = array(date("Y-m-d"));
         $data = $this->booking_model->review_reschedule_bookings_request($whereIN);
         foreach($data as $bookings){
             $reschedule_booking_date[$bookings['booking_id']] = $bookings['reschedule_date_request'];
