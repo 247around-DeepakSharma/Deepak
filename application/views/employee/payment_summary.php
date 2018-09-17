@@ -4,7 +4,7 @@
 <div id="page-wrapper" >
     <div class="container-fluid">
         <div class="search_invoice_id" style="border: 1px solid #e6e6e6; margin-top: 20px; margin-bottom: 20px;padding: 10px;">
-            <h3><strong>Search Payment Summary</strong></h3>
+            <h3><strong>Bank Transactions</strong></h3>
             <hr>
             <section class="fetch_invoice_id" style="padding-left:5px;">
                 <div class="row">
@@ -30,8 +30,8 @@
                             </input>
                         </div>
                         <div class="form-group col-md-3">
-                            <label>Select Period Date</label>
-                            <input name="transaction_period" placeholder="Select invoice period range" class="form-control col-md-12" id="transaction_period_date" style="width:100%;">
+                            <label>Select Create Date</label>
+                            <input name="transaction_period" placeholder="Select invoice create date range" class="form-control col-md-12" id="transaction_period_date" style="width:100%;">
                                
                             </input>
                         </div>
@@ -134,6 +134,7 @@
             ],
             fnInitComplete: function (oSettings, response) {
             $("#datatable_filter").addClass("pull-right");
+            $(".buttons-excel").hide();
             //$("#in_tranist_record").text(response.recordsTotal);
           }
 
