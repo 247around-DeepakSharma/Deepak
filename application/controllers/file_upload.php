@@ -926,8 +926,8 @@ class File_upload extends CI_Controller {
                     //check if required column is present in upload file header
                     $check_header = $this->check_column_exist($header_column_need_to_be_present,$data['header_data']);
                     if ($check_header['status']) {
-                        $notexistingData = array();
-                        $validData = true;
+                        $existingData = FALSE;
+                        $inValidData = FALSE;
                         $template = array(
                             'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
                         );
@@ -940,14 +940,15 @@ class File_upload extends CI_Controller {
                             if(!empty(array_filter($sanitizes_row_data))){
                                 $rowData = array_combine($data['header_data'], $rowData_array[0]);
                                 if(!empty($rowData['awb_number']) && !empty($rowData['courier_charges'])){
-                                    $data_spare_part_detail = $this->partner_model->get_spare_parts_by_any("id", array('awb_by_sf' => $rowData['awb_number'], 'status'=>'Cancelled'));
+                                   $data_spare_part_detail = $this->partner_model->get_spare_parts_by_any("id", array('awb_by_sf' => $rowData['awb_number'], 'status != '=>'Cancelled'));
                                     if(!empty($data_spare_part_detail)){
-                                        $courier_amount = $rowData['courier_charges']/count($data_spare_part_detail);
-                                        $courier_amount = sprintf('%0.2f', $courier_amount);
+                                        $existingData = TRUE;
+                                        $courier_amount = sprintf('%0.2f', ($rowData['courier_charges']/count($data_spare_part_detail)));
                                         foreach ($data_spare_part_detail as  $value){
                                             $this->inventory_model->update_spare_courier_details($value['id'], array('courier_charges_by_sf'=>$courier_amount));
                                         }
                                     } else {
+                                        $existingData = TRUE;
                                         $data_courier_detail = $this->inventory_model->get_courier_details("id", array('AWB_no' => $rowData['awb_number']));
                                         if(!empty($data_courier_detail)){
                                             foreach ($data_courier_detail as  $value){
@@ -956,6 +957,7 @@ class File_upload extends CI_Controller {
                                                 $this->inventory_model->update_courier_detail(array('id'=>$value['id']), array('courier_charge'=>$courier_amount));
                                             }
                                         } else {
+                                            $inValidData = TRUE;
                                             $this->table->add_row($rowData['awb_number']);
                                         }
                                     }
@@ -963,14 +965,15 @@ class File_upload extends CI_Controller {
                             }
                         }
                       
-                        if($validData){
+                        if($inValidData){
                             $response['status'] = TRUE;
                             $email_message = "Below AWB number not found. Please check and upload only below data again: <br>";
                             $email_message .= $this->table->generate();
                             $response['message'] = $email_message;
                             $file_upload_status = FILE_UPLOAD_SUCCESS_STATUS;
                             $message = "File Successfully uploaded.";
-                        } else {
+                        } 
+                        else {
                             $response['status'] = FALSE;
                             $response['message'] = "File upload Failed. ";
                             $message = "File upload Failed. ";
