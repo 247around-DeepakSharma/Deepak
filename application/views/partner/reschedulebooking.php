@@ -30,17 +30,6 @@
                                    
                                 </div>
                             </div>
-                            <hr style="width:200%;">
-                            <div class="form-group  <?php if( form_error('booking_date') ) { echo 'has-error';} ?>">
-                                <label for="reason" class="col-md-4"> New Booking Date *</label>
-                                <div class="col-md-6">
-                                    <div class="input-group input-append date">
-                                        <input id="booking_date" class="form-control" placeholder="Select Date" name="booking_date" type="text" value = "<?php echo set_value('booking_date'); ?>" required readonly style="background-color:#fff;">
-                                        <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
-                                    </div>
-                                    <?php echo form_error('booking_date'); ?>
-                                </div>
-                            </div>
                             
                             <input type="hidden" class="form-control" id="partner_id" name="partner_id" value = "<?php if (isset($data[0]['partner_id'])) {echo $data[0]['partner_id']; } ?>" >
                         </div>
@@ -62,6 +51,29 @@
                         </div>
                     </div>
                     <div>
+                        <hr style="width:200%;">
+                         <div class="col-md-12">
+                             <div class="col-md-6">
+                                 <div class="form-group  <?php if( form_error('booking_date') ) { echo 'has-error';} ?>">
+                                <label for="reason" class="col-md-4"> New Booking Date *</label>
+                                <div class="col-md-6">
+                                    <div class="input-group input-append date">
+                                        <input id="booking_date" class="form-control" placeholder="Select Date" name="booking_date" type="text" value = "<?php echo set_value('booking_date'); ?>" required readonly style="background-color:#fff;">
+                                        <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
+                                    </div>
+                                    <?php echo form_error('booking_date'); ?>
+                                </div>
+                            </div>
+                                 </div>
+                             <div class="col-md-6">
+                                 <div class="form-group">
+                                <label for="booking_id" class="col-md-4">Reschedule Reason</label>
+                                <div class="col-md-6">
+                                    <textarea class="form-control" rows="2" id="r_reason" name="r_reason"></textarea>
+                                </div>
+                            </div>
+                                 </div>
+                             </div>
                         <center>
                             <input type="submit" value="Reschedule Booking" class="btn btn-success">
                         </center>
