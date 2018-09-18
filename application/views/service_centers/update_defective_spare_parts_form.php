@@ -98,7 +98,13 @@
                                 <div class="form-group <?php if (form_error('courier_name_by_sf')) { echo 'has-error';} ?>">
                                     <label for="courier" class="col-md-4">Courier Name</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control" id="courier_name_by_sf" name="courier_name_by_sf" value = "<?php if((set_value("courier_name_by_sf"))){ echo set_value("courier_name_by_sf");} else{ echo $spare_parts[0]['courier_name_by_sf'];}?>" placeholder="Please Enter Courier Name"  required>
+                                        <select class="form-control" id="courier_name_by_sf" name="courier_name_by_sf" required>
+                                            <option selected="" disabled="" value="">Select Courier Name</option>
+                                            <?php foreach ($courier_details as $value1) { ?> 
+                                            <option <?php if((set_value("courier_name_by_sf") == $value1['courier_name'])){ echo "selected";} else if($spare_parts[0]['courier_name_by_sf'] == $value1['courier_code']){ echo "selected";}?> value="<?php echo $value1['courier_code'];?>"><?php echo $value1['courier_name'];?></option>
+                                            <?php } ?>
+                                        </select>
+                                        
                                     </div>
                                      <?php echo form_error('courier_name_by_sf'); ?>
                                 </div>

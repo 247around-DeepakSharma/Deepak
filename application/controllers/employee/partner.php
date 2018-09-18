@@ -2135,6 +2135,21 @@ class Partner extends CI_Controller {
             $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Partner Received Defective Spare Parts", $actor,$next_action,$is_cron);
             
             $this->booking_model->update_booking($booking_id, $booking);
+            
+            $is_oow_return = $this->partner_model->get_spare_parts_by_any("booking_unit_details_id, purchase_price, sell_price, sell_invoice_id", 
+                    array('spare_parts_details.booking_id' => $booking_id, 
+                        'booking_unit_details_id IS NOT NULL' => NULL,
+                        'sell_price > 0 ' => NULL,
+                        'sell_invoice_id IS NOT NULL' => NULL,
+                        'estimate_cost_given_date IS NOT NULL' => NULL,
+                        'request_type' => REPAIR_OOW_TAG,
+                        '(reverse_sale_invoice_id IS NULL OR reverse_purchase_invoice_id)' => NULL),
+                    true);
+            if(!empty($is_oow_return)){
+                $url = base_url() . "employee/invoice/generate_reverse_oow_invoice";
+                $async_data['booking_id'] = $booking_id;
+                $this->asynchronous_lib->do_background_process($url, $async_data);
+            }
 
             if (empty($is_cron)) {
                 $userSession = array('success' => ' Received Defective Spare Parts');
