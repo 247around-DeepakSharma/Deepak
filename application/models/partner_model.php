@@ -182,7 +182,12 @@ function get_data_for_partner_callback($booking_id) {
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
             ".$join."
             LEFT JOIN  `booking_unit_details` ON  `booking_unit_details`.`booking_id` =  `booking_details`.`booking_id`
-            WHERE  $where AND booking_details.upcountry_partner_approved ='1' $orderSubQuery $limitSuubQuery"
+            WHERE  $where AND booking_details.upcountry_partner_approved ='1' AND NOT EXISTS (SELECT 1 FROM service_center_booking_action sc JOIN booking_details bd ON "
+                  . "bd.booking_id = sc.booking_id JOIN partners ON bd.partner_id = partners.id WHERE sc.booking_id = booking_details.booking_id AND sc.current_status = 'InProcess' "
+                  . "AND (partners.booking_review_for IS NOT NULL "
+                  . "AND bd.amount_due = 0) AND NOT EXISTS (SELECT 1 FROM service_center_booking_action sc_sub WHERE sc_sub.booking_id = sc.booking_id AND sc_sub.internal_status ='Completed' LIMIT 1) "
+                  . "AND bd.partner_id IN ('".$partner_id."') AND sc.internal_status IN ('Cancelled','Completed')) "
+                  . "$orderSubQuery $limitSuubQuery"
         );
           $temp = $query->result();
           return $temp;
