@@ -1726,7 +1726,6 @@ class invoices_model extends CI_Model {
             $profit_loss_where = ' AND CASE WHEN (cp_claimed_price > 0) THEN ((`partner_basic_charge` + `partner_tax_charge` ) >  (cp_claimed_price)) ELSE ((`partner_basic_charge` + `partner_tax_charge`) >  (`cp_basic_charge` + cp_tax_charge)) END ';
         }
         
-        $profit_loss_where = ' AND CASE WHEN (cp_claimed_price > 0) THEN (cp_claimed_price) ELSE ((`cp_basic_charge` + cp_tax_charge)) END ';
         
         if($is_unit){
             $select = " bb_unit_details.id AS unit_id,bb_unit_details.gst_amount, CASE WHEN ( bb_unit_details.cp_claimed_price > 0) 
