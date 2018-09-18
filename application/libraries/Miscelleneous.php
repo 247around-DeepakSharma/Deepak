@@ -3293,6 +3293,15 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
             $tatArray['booking_id'] = $booking_id;
             $tatArray['partner_id'] = $values['partner_id'];
             $tatArray['applicable_on_partner'] = $this->is_booking_valid_for_partner_panelty($values['request_type']);
+            $tatArray['sf_closed_date'] = $values['sf_closed_date'];
+            $tatArray['around_closed_date'] = $values['around_closed_date'];
+            if (stripos($values['request_type'], 'Repair') !== false) {
+                $requestType = 'Repair';
+            }
+            else{
+                $requestType = 'Installation';
+            }
+            $tatArray['request_type'] = $requestType;
             if($values['spare_id']){
                 $this->My_CI->reusable_model->update_table("booking_tat",$tatArray,array("booking_id"=>$booking_id,"spare_id"=>$values['spare_id']));
             }
@@ -3319,10 +3328,11 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
         $data['leg_1'] = $this->get_tat_with_considration_of_non_working_day($bookingData[0]['non_working_days'],$bookingData[0]['initial_booking_date'],date("Y-m-d"));
         $data['applicable_on_partner'] = $this->is_booking_valid_for_partner_panelty($bookingData[0]['request_type']);
         $data['applicable_on_sf'] = 1;
-        $tatArray['is_upcountry'] =  $bookingData[0]['is_upcountry'];
+        $data['is_upcountry'] =  $bookingData[0]['is_upcountry'];
         $data['is_leg_1_faulty_for_partner'] = $this->is_booking_faulty($spare_id,$bookingData[0]['is_upcountry'],"leg_1",$data['leg_1'],"Partner");
         $data['is_leg_1_faulty_for_vendor'] = $this->is_booking_faulty($spare_id,$bookingData[0]['is_upcountry'],"leg_1",$data['leg_1'],"Vendor");
         $data['partner_id'] = $bookingData[0]['partner_id'];
+        $data['request_type'] = "Repair";
         $this->My_CI->reusable_model->insert_into_table("booking_tat",$data);
         log_message('info', __FUNCTION__ . "End booking_id = ".$booking_id.", spare_id = ".$spare_id);
     }
