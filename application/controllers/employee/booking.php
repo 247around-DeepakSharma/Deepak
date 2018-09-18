@@ -1893,6 +1893,7 @@ class Booking extends CI_Controller {
         $partner_id = $this->input->post('partner_id');
         $sp_required_id = json_decode($this->input->post("sp_required_id"), true);
         $spare_parts_required = $this->input->post('spare_parts_required');
+        $price_tag_array = $this->input->post('price_tags');
         $service_center_details = $this->booking_model->getbooking_charges($booking_id);
         $b_unit_details = array();
         if($status == 1){
@@ -1997,7 +1998,16 @@ class Booking extends CI_Controller {
                     $service_center['current_status'] = "InProcess";
                     $service_center['internal_status'] = DEFECTIVE_PARTS_PENDING;
                     $service_center['closed_date'] = $closed_date;
-                    $data['booking_status'] = _247AROUND_PENDING;
+                    if( isset($price_tag_array[$unit_id]) && 
+                            $data['booking_status'] == _247AROUND_CANCELLED && 
+                            $price_tag_array[$unit_id] === REPAIR_OOW_PARTS_PRICE_TAGS){
+                        
+                        $data['ud_closed_date'] = $closed_date;
+                        
+                    } else {
+                        $data['booking_status'] = _247AROUND_PENDING;
+                    }
+                    
                     
                 } else {
                     
@@ -2111,7 +2121,7 @@ class Booking extends CI_Controller {
         if(!empty($sp_required_id)){ 
             foreach ($sp_required_id as $sp_id) {
                 
-                $this->service_centers_model->update_spare_parts(array('id' => $sp_id), array('status' => DEFECTIVE_PARTS_PENDING));
+                $this->service_centers_model->update_spare_parts(array('id' => $sp_id), array('status' => DEFECTIVE_PARTS_PENDING, 'defective_part_required' => 1));
             }
         }
         

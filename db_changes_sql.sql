@@ -8118,3 +8118,8 @@ INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `crea
 INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Search Bank Transactions', NULL, 'employee/accounting/bank_transactions', '2', '56', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
 INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Search Bank Transactions', NULL, 'employee/accounting/bank_transactions', '2', '56', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);--Chhavi 18th Sep
 ALTER TABLE `booking_tat` ADD `request_type` VARCHAR(128) NULL AFTER `around_closed_date`;
+
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Search Bank Transactions', NULL, 'employee/accounting/bank_transactions', '2', '56', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
+
+--Abhay 18 Sept
+ALTER TABLE `spare_parts_details` ADD `reverse_sale_invoice_id` VARCHAR(128) NULL DEFAULT NULL AFTER `sell_price`, ADD `reverse_purchase_invoice_id` VARCHAR(128) NULL DEFAULT NULL AFTER `reverse_sale_invoice_id`;

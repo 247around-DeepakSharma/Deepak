@@ -118,7 +118,7 @@
                                             <textarea class="form-control" id="<?php echo "requestedpartstype_". $key; ?>" name="part[<?php echo $key;?>][requested_parts_type]" readonly="readonly" required><?php echo $value->parts_requested_type; ?></textarea>
                                         </div>
                                     </div>
-                                    <?php if($value->request_type == REPAIR_OOW_TAG){  $purchase_price += $value->purchase_price; ?>
+                                    <?php if(!is_null($value->estimate_cost_given_date) || $value->request_type == REPAIR_OOW_TAG){  $purchase_price += $value->purchase_price; ?>
                                     <div class="form-group <?php
                                         if (form_error('incoming_invoice')) { echo 'has-error';} ?>">
                                         <label for="incoming_invoice" class="col-md-4">Spare Invoice (PDF)*</label>
