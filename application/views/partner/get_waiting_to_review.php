@@ -29,7 +29,7 @@
                 </thead>
                
             </table>
-            <center><input  type="submit" value="Approve Bookings"  style=" background-color: #2C9D9C;
+                <center><input  type="submit" value="Approve Bookings" onclick="return checkValidationForBlank_review()" style=" background-color: #2C9D9C;
                      border-color: #2C9D9C;" class="btn btn-md btn-success"></input></center>
                 </form>
         </div>
@@ -116,6 +116,16 @@ function submit_approve_bookings(){
     var bookings = $("input[name=approved_booking]").val();
     alert(bookings);
 }
+function checkValidationForBlank_review(){
+    var is_checked = $('.checkbox1:checkbox:checked');
+    if(is_checked.length != 0){
+        return true;
+    }
+    else{
+        alert("Please Select any booking");
+        return false;
+    }
+    }
     </script>
     <style>
 #a_hover a:hover {
