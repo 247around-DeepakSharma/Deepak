@@ -1604,6 +1604,7 @@ class Partner extends CI_Controller {
 
                                             //check upcountry and send sms
                                             $async_data['booking_id'] = array($booking['booking_id'] => $upcountry_data['vendor_id']);
+                                            $async_data['agent_id'] = _247AROUND_DEFAULT_AGENT;
                                             $this->asynchronous_lib->do_background_process($url, $async_data);
                                         }
 
