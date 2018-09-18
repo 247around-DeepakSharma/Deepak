@@ -1135,6 +1135,11 @@ class Partner extends CI_Controller {
 //            $data['current_status'] = 'Rescheduled';
 //            $data['internal_status'] = 'Rescheduled';
             $data['update_date'] = date("Y-m-d H:i:s");
+            $rescheduled_reason = NULL;
+            if($this->input->post('r_reason')){
+                $rescheduled_reason = $this->input->post('r_reason');
+            }
+            $data['reschedule_reason'] = $rescheduled_reason;
 
             //check partner status from partner_booking_status_mapping table  
 //            $partner_id = $this->input->post('partner_id');
