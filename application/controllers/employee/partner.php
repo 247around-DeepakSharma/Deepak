@@ -5440,7 +5440,7 @@ function get_shipped_parts_list($offset = 0) {
         }
         $partner_id = $this->session->userdata('partner_id');
         //Parts Shipped by Partner But Did'nt Get by SF
-        $where = "spare_parts_details.partner_id = '" . $partner_id . "'AND status IN ( 'Shipped')  ";
+        $where = "spare_parts_details.partner_id = '" . $partner_id . "'AND status IN ( '".SPARE_SHIPPED_BY_PARTNER."')  ";
        if($this->input->post('state')){
            $where = $where." AND booking_details.state = '".$this->input->post('state')."'";
        }
