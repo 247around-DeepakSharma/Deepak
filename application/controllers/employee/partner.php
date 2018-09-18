@@ -5439,7 +5439,7 @@ class Partner extends CI_Controller {
                                     case "Installation & Demo":
                                         $tempString4 =  "Installation";
                                         break;
-                                    case "Repair - In Warranty":
+                                    case REPAIR_IN_WARRANTY_TAG:
                                     case REPAIR_OOW_TAG:
                                         $tempString4 =  "Repair";
                                         break;
