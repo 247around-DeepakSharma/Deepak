@@ -1383,7 +1383,7 @@ class Do_background_upload_excel extends CI_Controller {
                     //get email details 
                     if(empty($this->email_send_to)){
                         if(empty($this->session->userdata('official_email'))){
-                            $get_partner_am_id = $this->partner_model->getpartner_details('account_manager_id', array('partners.id' => $partner_id));
+                            $get_partner_am_id = $this->partner_model->getpartner_details('account_manager_id,primary_contact_email', array('partners.id' => $partner_id));
                             if (!empty($get_partner_am_id[0]['account_manager_id'])) {
                                 $to = $this->employee_model->getemployeefromid($get_partner_am_id[0]['account_manager_id'])[0]['official_email'];
                             }else{
@@ -1396,7 +1396,11 @@ class Do_background_upload_excel extends CI_Controller {
                         $to = $this->email_send_to;
                     }
                     
-                    $cc = NITS_ANUJ_EMAIL_ID;
+                    $poc_email = "";
+                    if (!empty($get_partner_am_id[0]['primary_contact_email'])) {
+                        $poc_email = $get_partner_am_id[0]['primary_contact_email'];
+                    }
+                    $cc = NITS_ANUJ_EMAIL_ID.",".$poc_email;
                     $agent_name = !empty($this->session->userdata('emp_name')) ? $this->session->userdata('emp_name') : _247AROUND_DEFAULT_AGENT_NAME;
                     $subject = "Failed! $upload_file_type File uploaded by " . $agent_name;
                     $body = $response['msg'];
