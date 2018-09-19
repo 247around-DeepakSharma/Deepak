@@ -3058,7 +3058,7 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
     function get_booking_contacts($bookingID){
         $select = "e.phone as am_caontact,e.official_email as am_email, e.full_name as am,partners.primary_contact_name as partner_poc,"
                 . "partners.primary_contact_phone_1 as poc_contact,service_centres.primary_contact_email as service_center_email,partners.public_name as partner,"
-                . "booking_details.assigned_vendor_id,employee.official_email as rm_email";
+                . "booking_details.assigned_vendor_id,employee.official_email as rm_email,employee.full_name as rm ,employee.phone as rm_contact";
         $join['employee_relation'] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.service_centres_id)";
         $join['partners'] = "partners.id = booking_details.partner_id";
         $join['service_centres'] = "service_centres.id = booking_details.assigned_vendor_id";
