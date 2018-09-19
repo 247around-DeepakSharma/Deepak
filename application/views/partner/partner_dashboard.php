@@ -32,7 +32,7 @@
                 <div class="x_title">
                     <h2>TAT Reporting<button type="button"class="btn btn-default" style="float: right;margin-bottom: 10px;padding: 1px 4px;margin-top: 0px;font-size: 8px;margin-left: 5px;background: #f7a35c;
     color: #fff;border: none;" data-toggle="tooltip"data-placement="right"title="(Booking Completed on x Day / Total Completed Bookings (Within Selected Range))*100">?</button></h2>
-                    <span class="collape_icon" href="#TAT_reporting_div" data-toggle="collapse" onclick="collapse_icon_change(this)"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
+                    <span class="collape_icon" href="#TAT_reporting_div" data-toggle="collapse" onclick=""><i class="fa fa-minus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content collapse in" id="TAT_reporting_div">
@@ -147,7 +147,7 @@
             <div class="x_panel">
                 <div class="x_title">
                     <h2>Monthly Booking Status <small>Completed</small></h2>
-                    <span class="collape_icon" href="#monthly_booking_chart_div" data-toggle="collapse" onclick="collapse_icon_change(this);"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
+                    <span class="collape_icon" href="#monthly_booking_chart_div" data-toggle="collapse" onclick=""><i class="fa fa-minus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content collapse in" id="monthly_booking_chart_div">
@@ -175,8 +175,8 @@
                         </div>
                     </div>
                     </div>
-                    <div class="col-md-1">
-                        <span class="collape_icon" href="#state_type_booking_chart_div" data-toggle="collapse" onclick="collapse_icon_change(this);"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
+                    <div class="col-md-1" style="float: right;">
+                        <span class="collape_icon" href="#state_type_booking_chart_div" data-toggle="collapse" onclick=""><i class="fa fa-minus-square" aria-hidden="true"></i></span>
                     </div>
                     <div class="clearfix"></div>
                 </div>
@@ -197,7 +197,7 @@
                     <div class="x_title">
                         <h2>Spare Details by Status <button type="button"class="btn btn-default" style="float: right;margin-bottom: 10px;padding: 1px 4px;margin-top: 0px;font-size: 8px;margin-left: 5px;background: #f7a35c;
     color: #fff;border: none;" data-toggle="tooltip"data-placement="left"title="Breakup of all spare status">?</button></h2>
-                        <span class="collape_icon" href="#spare_details_by_status_div" data-toggle="collapse" onclick="get_partner_spare_data_by_status(this)"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                        <span class="collape_icon" href="#spare_details_by_status_div" data-toggle="collapse" onclick="get_partner_spare_data_by_status()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content collapse" id="spare_details_by_status_div">
@@ -212,7 +212,7 @@
                     <div class="x_title">
                         <h2>Spare Snapshot <button type="button"class="btn btn-default" style="float: right;margin-bottom: 10px;padding: 1px 4px;margin-top: 0px;font-size: 8px;margin-left: 5px;background: #f7a35c;
                                                    color: #fff;border: none;" data-toggle="tooltip"data-placement="left"title="Below graphs shows total parts pending shipped by partner and Out Of TAT (30 days from shipped date)">?</button></h2>
-                        <span class="collape_icon" href="#spare_snapshot_div" data-toggle="collapse" onclick="get_partner_spare_snapshot(this)"><i class="fa fa-plus-square" aria-hidden="true"></i></span>                           
+                        <span class="collape_icon" href="#spare_snapshot_div" data-toggle="collapse" onclick="get_partner_spare_snapshot()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>                           
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content collapse" id="spare_snapshot_div">
@@ -231,7 +231,7 @@
                     <h2>Escalation <button type="button"class="btn btn-default" style="float: right;margin-bottom: 10px;padding: 1px 4px;margin-top: 0px;font-size: 8px;margin-left: 5px;background: #f7a35c;
     color: #fff;border: none;" data-toggle="tooltip"data-placement="right"title="Number of booking in current Month 
     and Number Of escalation in current Month">?</button></h2>
-                    <span class="collape_icon" href="#escalation_data_div" data-toggle="collapse" onclick="initiate_escalation_data(this)"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                    <span class="collape_icon" href="#escalation_data_div" data-toggle="collapse" onclick="initiate_escalation_data()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
 
@@ -366,8 +366,7 @@
             }
         });
       });
-    function get_partner_spare_snapshot(span){
-        collapse_icon_change(span);
+    function get_partner_spare_snapshot(){
         url =  '<?php echo base_url(); ?>employee/dashboard/get_partner_spare_snapshot';
         data = {partner_id:+<?php echo $this->session->userdata('partner_id')?>};
         sendAjaxRequest(data,url,post_request).done(function(response){
@@ -416,8 +415,7 @@
         });
     
     }
-      function get_partner_spare_data_by_status(span){
-        collapse_icon_change(span);
+      function get_partner_spare_data_by_status(){
         var url = baseUrl + '/employee/dashboard/get_partner_specific_count_by_status';
         $('#loader_gif1').css('display', 'inherit');
         $('#loader_gif1').attr('src', "<?php echo base_url(); ?>images/loadring.gif");
@@ -473,8 +471,7 @@
         }
     }
     
-function initiate_escalation_data(span){
-    collapse_icon_change(span);
+function initiate_escalation_data(){
     var d = new Date();
         n = d.getMonth();
         y = d.getFullYear();

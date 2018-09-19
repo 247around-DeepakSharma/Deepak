@@ -105,7 +105,7 @@
                         </div>
                     </div>
                     <div class="col-md-1">
-                        <span class="collape_icon" href="#chart_container2_div" data-toggle="collapse" onclick="agent_daily_report_call(this)"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                        <span class="collape_icon" href="#chart_container2_div" data-toggle="collapse" onclick="agent_daily_report_call()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     </div>
                 </div>
                 <div class="collapse" id="chart_container2_div">
@@ -126,7 +126,7 @@
             <div class="x_panel">
                 <div class="x_title">
                     <h2>Monthly Booking Status <small>Completed</small></h2>
-                        <span class="collape_icon" href="#monthly_booking_chart_div" data-toggle="collapse" onclick="around_monthly_data(this)"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                        <span class="collape_icon" href="#monthly_booking_chart_div" data-toggle="collapse" onclick="around_monthly_data()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
                 <div class="collapse" id="monthly_booking_chart_div">
@@ -239,8 +239,7 @@
     });
     
     
-    function agent_daily_report_call(span){ 
-        collapse_icon_change(span);
+    function agent_daily_report_call(){ 
         agent_daily_report(start.format('MMMM D, YYYY'), end.format('MMMM D, YYYY'));
     }
     
@@ -265,8 +264,7 @@
         });
     }
     
-    function around_monthly_data(span){
-        collapse_icon_change(span);
+    function around_monthly_data(){
         $('#loader_gif2').fadeIn();
         $('#monthly_booking_chart').fadeOut();
         var data = {partner_id:''};

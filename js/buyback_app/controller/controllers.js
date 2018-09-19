@@ -641,8 +641,7 @@ admin_dashboard.controller('pendngBooking_Controller', function ($scope, $http) 
             $scope.pendingBookingByRM = response.data;
          });
      }
-     $scope.callloadPendingBookingView = function(span){
-        collapse_icon_change(span);
+     $scope.callloadPendingBookingView = function(){
         $scope.loadPendingBookingView(baseUrl + "/employee/dashboard/pending_booking_count_by_rm/");
      }
      

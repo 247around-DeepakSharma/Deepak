@@ -25,7 +25,7 @@
           <div class="x_panel">
                 <div class="x_title">
                     <h2>AM TAT Reporting</h2>
-                     <span class="collape_icon" href="#escalation_data" data-toggle="collapse" onclick="collapse_icon_change(this)" style="margin-right: 8px;"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
+                     <span class="collape_icon" href="#escalation_data" data-toggle="collapse" style="margin-right: 8px;"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
                 <div class="table-responsive collapse in" id="escalation_data" ng-controller="completedBooking_ControllerAM" ng-cloak="">
@@ -134,7 +134,7 @@
                 <div class="x_panel">
                 <div class="x_title">
                     <h2>RM TAT Reporting</h2>
-                    <span class="collape_icon" href="#RM_completed_booking_reports_div" data-toggle="collapse" onclick="collapse_icon_change(this)"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
+                    <span class="collape_icon" href="#RM_completed_booking_reports_div" data-toggle="collapse"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
                    
                     <div class="clearfix"></div>
                 </div>
@@ -329,7 +329,7 @@
                         </div>
                     </div>
                      <div class="col-md-1">
-                        <span class="collape_icon" href="#agent_booking_status_div" data-toggle="collapse" onclick="agent_daily_report_call(this)" style="margin-right: 8px;"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                        <span class="collape_icon" href="#agent_booking_status_div" data-toggle="collapse" onclick="agent_daily_report_call()" style="margin-right: 8px;"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     </div>
                 </div>
                 <div class="collapse" id="agent_booking_status_div">
@@ -350,7 +350,7 @@
             <div class="x_panel">
                 <div class="x_title">
                     <h2>Monthly Booking Status <small>Completed</small></h2>
-                    <span class="collape_icon" href="#monthly_booking_status_div" data-toggle="collapse" onclick="around_monthly_data(this)"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                    <span class="collape_icon" href="#monthly_booking_status_div" data-toggle="collapse" onclick="around_monthly_data()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
                 <div class="collapse" id="monthly_booking_status_div">
@@ -474,8 +474,7 @@
         
     });
     
-    function agent_daily_report_call(span){
-       collapse_icon_change(span);
+    function agent_daily_report_call(){
        agent_daily_report(start.format('MMMM D, YYYY'), end.format('MMMM D, YYYY')); 
     }
     
@@ -500,8 +499,7 @@
         });
     }
     
-    function around_monthly_data(span){
-        collapse_icon_change(span);
+    function around_monthly_data(){
         $('#loader_gif2').fadeIn();
         $('#monthly_booking_chart').fadeOut();
         var data = {partner_id:''};

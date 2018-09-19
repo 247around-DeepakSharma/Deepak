@@ -3237,7 +3237,7 @@ function init_echarts() {
             },
             calculable: true,
             series: [{
-                    name: '漏斗图',
+                    name: '�?斗图',
                     type: 'funnel',
                     width: '40%',
                     data: [{
@@ -4339,7 +4339,7 @@ function init_echarts() {
             },
             calculable: true,
             series: [{
-                    name: '访问来源',
+                    name: '访问�?��?',
                     type: 'pie',
                     radius: '55%',
                     center: ['50%', '48%'],
@@ -5108,16 +5108,17 @@ function init_echarts() {
 
 }
 
-function collapse_icon_change(span){
-        if($(span).find("i").hasClass("fa fa-plus-square")){ 
-            $(span).find("i").removeClass("fa fa-plus-square"); 
-            $(span).find("i").addClass("fa fa-minus-square");
-        }
-        else{ 
-            $(span).find("i").removeClass("fa fa-minus-square"); 
-            $(span).find("i").addClass("fa fa-plus-square");
-        }
-}
+
+$(".collape_icon").click(function(){
+    if($(this).find("i").hasClass("fa fa-plus-square")){ 
+        $(this).find("i").removeClass("fa fa-plus-square"); 
+        $(this).find("i").addClass("fa fa-minus-square");
+    }
+    else{ 
+        $(this).find("i").removeClass("fa fa-minus-square"); 
+        $(this).find("i").addClass("fa fa-plus-square");
+    }
+});
 
 $(document).ready(function () {
 
