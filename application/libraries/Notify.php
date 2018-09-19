@@ -330,7 +330,7 @@ class Notify {
      * @param: booking id current status
      * @return: true
      */
-    function send_sms_email_for_booking($booking_id, $current_status) {
+    function send_sms_email_for_booking($booking_id, $current_status) { 
 	log_message("info",__METHOD__);
 	$query1 = $this->My_CI->booking_model->getbooking_filter_service_center($booking_id);
 	if (!empty($query1)) {
@@ -498,11 +498,12 @@ class Notify {
 		    break;
 
 		case 'Newbooking':
-                    
+                    $partner_type = $this->My_CI->reusable_model->get_search_query('bookings_sources','partner_type' , array('partner_id'=>$query1[0]['partner_id']),NULL, NULL ,NULL,NULL,NULL)->result_array()[0]['partner_type'];
                     if($query1[0]['partner_id'] == GOOGLE_FLIPKART_PARTNER_ID){
                         $sms['tag'] = "flipkart_google_scheduled_sms";
                         $sms['smsData'] = array();
                     }else{
+                        
                         $call_type = explode(" ", $query1[0]['request_type']);
                         $sms['smsData']['service'] = $query1[0]['services'];
                         $sms['smsData']['call_type'] = $call_type[0];
@@ -512,7 +513,14 @@ class Notify {
 
                         if ($query1[0]['partner_id'] == JEEVES_ID) {
                             $sms['smsData']['public_name'] = "";
-                        } else {
+                        } 
+                        else if($partner_type === OEM){ 
+                            $brand_name = $this->My_CI->booking_model->get_unit_details(array('booking_id'=>$booking_id), false, 'appliance_brand');
+                            if(!empty($brand_name)){
+                                $sms['smsData']['public_name'] = $brand_name[0]['appliance_brand']." Partner";
+                            }
+                        }
+                        else { 
                             $sms['smsData']['public_name'] = $query1[0]['public_name']. " Partner";
                         }
 
@@ -523,7 +531,7 @@ class Notify {
 		    $sms['booking_id'] = $query1[0]['booking_id'];
 		    $sms['type'] = "user";
 		    $sms['type_id'] = $query1[0]['user_id'];
-
+                
 		    $this->send_sms_msg91($sms);
                     
                     //send sms to dealer
