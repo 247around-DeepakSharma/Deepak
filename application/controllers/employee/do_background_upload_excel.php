@@ -558,7 +558,7 @@ class Do_background_upload_excel extends CI_Controller {
                         $sms['type_id'] = $user_id;
                         $this->notify->send_sms_msg91($sms);
                     }else{
-                        $is_sms = $this->miscelleneous->check_upcountry($booking, $value['appliance'], $is_price, $file_type);
+                        $is_sms = $this->miscelleneous->check_upcountry($booking, $value['appliance'], $is_price, $file_type, $value['brand']);
                         if (!$is_sms) {
                             $booking['internal_status'] = SF_UNAVAILABLE_SMS_NOT_SENT;
                         } else {
@@ -679,7 +679,7 @@ class Do_background_upload_excel extends CI_Controller {
                                     $is_price['is_upcountry'] = $prices[0]['is_upcountry'];
                                 }
 
-                                $is_sms = $this->miscelleneous->check_upcountry($partner_booking, $value['appliance'], $is_price, $file_type);
+                                $is_sms = $this->miscelleneous->check_upcountry($partner_booking, $value['appliance'], $is_price, $file_type, $value['brand']);
                                 if ($is_sms) {
                                     $sms_count = 1;
                                 } else {

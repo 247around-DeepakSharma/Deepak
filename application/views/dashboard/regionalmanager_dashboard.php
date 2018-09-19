@@ -37,7 +37,7 @@
                 <div class="x_panel">
                 <div class="x_title">
                     <h2>RM TAT Reporting</h2>
-                    <span class="collape_icon" href="#RM_completed_booking_reports_div" data-toggle="collapse" onclick="collapse_icon_change(this)"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
+                    <span class="collape_icon" href="#RM_completed_booking_reports_div" data-toggle="collapse"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
                    
                     <div class="clearfix"></div>
                 </div>
@@ -151,7 +151,7 @@
             <div class="x_panel" ng-controller="pendngBooking_Controller" ng-cloak="">
                 <div class="x_title">
                     <h2>Pending Bookings Reporting</h2>
-                    <span class="collape_icon" href="#RM_booking_reports_div" data-toggle="collapse" data-ng-click="pendingBookingByRMCall(this)"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                    <span class="collape_icon" href="#RM_booking_reports_div" data-toggle="collapse" data-ng-click="pendingBookingByRMCall()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content collapse" id="RM_booking_reports_div">
@@ -248,7 +248,7 @@ if($this->session->userdata("wrong_pincode_msg")){
             <div class="x_panel">
                 <div class="x_title">
                     <h2>Escalation</h2>
-                    <span class="collape_icon" href="#escalation_data_div" data-toggle="collapse" onclick="initiate_escalation_data(this)"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                    <span class="collape_icon" href="#escalation_data_div" data-toggle="collapse" onclick="initiate_escalation_data()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
 
@@ -409,7 +409,7 @@ if($this->session->userdata("wrong_pincode_msg")){
             <div class="x_panel">
                 <div class="x_title">
                     <h2>Monthly Booking Status <small>Completed</small></h2>
-                    <span class="collape_icon" href="#monthly_booking_chart_div" data-toggle="collapse" onclick="around_monthly_data(this)"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                    <span class="collape_icon" href="#monthly_booking_chart_div" data-toggle="collapse" onclick="around_monthly_data()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
                 <div class="col-md-12">
@@ -439,7 +439,7 @@ if($this->session->userdata("wrong_pincode_msg")){
                     </div>
                     
                     </div>
-                    <div class="col-md-1" style="padding-right:0px"><span class="collape_icon" href="#state_type_booking_chart_div" data-toggle="collapse" onclick="get_bookings_data_by_rm(this)"><i class="fa fa-plus-square" aria-hidden="true"></i></span></div>
+                    <div class="col-md-1" style="padding-right:0px"><span class="collape_icon" href="#state_type_booking_chart_div" data-toggle="collapse" onclick="get_bookings_data_by_rm()"><i class="fa fa-plus-square" aria-hidden="true"></i></span></div>
                     <div class="clearfix"></div>
                 </div>
                 <div class="col-md-12">
@@ -457,7 +457,7 @@ if($this->session->userdata("wrong_pincode_msg")){
         <div class="x_panel">
                 <div class="x_title">
                     <h2>AM TAT Reporting</h2>
-                     <span class="collape_icon" href="#AM_TAT_Reporting_div" data-toggle="collapse" onclick="initialise_AM_TAT_reporting(this)" style="margin-right: 8px;"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                     <span class="collape_icon" href="#AM_TAT_Reporting_div" data-toggle="collapse" onclick="initialise_AM_TAT_reporting()" style="margin-right: 8px;"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
             <div class="table-responsive collapse" id="AM_TAT_Reporting_div" ng-controller="completedBooking_ControllerAM" ng-cloak="">
@@ -622,8 +622,7 @@ if($this->session->userdata("wrong_pincode_msg")){
         
 
     });
-    function get_missing_pincodes(span){
-        collapse_icon_change(span);
+    function get_missing_pincodes(){
         var data = {};
         url = '<?php echo base_url(); ?>employee/dashboard/get_pincode_not_found_sf_details_admin';
         data['partner_id'] = '';
@@ -657,8 +656,7 @@ if($this->session->userdata("wrong_pincode_msg")){
         });
     });
   
-   function initiate_escalation_data(span){
-       collapse_icon_change(span);
+   function initiate_escalation_data(){
         var d = new Date();
         n = d.getMonth() + 1;
         y = d.getFullYear();
@@ -703,8 +701,7 @@ if($this->session->userdata("wrong_pincode_msg")){
         });
     }
     
-    function around_monthly_data(span){
-        collapse_icon_change(span);
+    function around_monthly_data(){
         $('#loader_gif2').fadeIn();
         $('#monthly_booking_chart').fadeOut();
         var data = {partner_id:''};
@@ -715,8 +712,7 @@ if($this->session->userdata("wrong_pincode_msg")){
         });
     }
     
-    function get_bookings_data_by_rm(span){
-        collapse_icon_change(span);
+    function get_bookings_data_by_rm(){
         $('#loader_gif3').fadeIn();
         $('#state_type_booking_chart').fadeOut();
         var data = {};
@@ -856,8 +852,7 @@ if($this->session->userdata("wrong_pincode_msg")){
        
     });
     
-    function initialise_AM_TAT_reporting(span){
-        collapse_icon_change(span);
+    function initialise_AM_TAT_reporting(){
             var dvSecond = document.getElementById('admin_dashboard_app');
         angular.element(document).ready(function() {
             angular.bootstrap(dvSecond, ['admin_dashboard']);

@@ -166,6 +166,7 @@ class Service_centers extends CI_Controller {
         
         $data['unit_details'] = $booking_unit_details;
         $data['penalty'] = $this->penalty_model->get_penalty_on_booking_by_booking_id($booking_id, $data['booking_history'][0]['assigned_vendor_id']);
+        $data['paytm_transaction'] = $this->paytm_payment_model->get_paytm_transaction_and_cashback($booking_id);
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/booking_details', $data);
     }

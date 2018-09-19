@@ -5108,17 +5108,17 @@ function init_echarts() {
 
 }
 
-function collapse_icon_change(span){
-        if($(span).find("i").hasClass("fa fa-plus-square")){ 
-            $(span).find("i").removeClass("fa fa-plus-square"); 
-            $(span).find("i").addClass("fa fa-minus-square");
+
+$(".collape_icon").click(function(){
+     if($(this).find("i").hasClass("fa fa-plus-square")){ 
+            $(this).find("i").removeClass("fa fa-plus-square"); 
+            $(this).find("i").addClass("fa fa-minus-square");
         }
         else{ 
-            $(span).find("i").removeClass("fa fa-minus-square"); 
-            $(span).find("i").addClass("fa fa-plus-square");
-            return false;
+            $(this).find("i").removeClass("fa fa-minus-square"); 
+            $(this).find("i").addClass("fa fa-plus-square");
         }
-}
+});
 
 $(document).ready(function () {
 

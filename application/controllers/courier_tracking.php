@@ -68,7 +68,10 @@ class Courier_tracking extends CI_Controller {
     function auto_acknowledge_spare_shipped_by_partner(){
         log_message('info',__METHOD__.' Entering...');
         //update trackingmore data by creating new awb number from spare part details
-        $this->create_awb_number_data();
+        $select = "spare_parts_details.id as 'spare_id',"
+                . "spare_parts_details.awb_by_partner as 'awb',spare_parts_details.courier_name_by_partner as 'courier_name',"
+                . "spare_parts_details.shipped_date as 'shipped_date',spare_parts_details.booking_id,booking_details.partner_id";
+        $this->create_awb_number_data($select,SPARE_SHIPPED_BY_PARTNER);
         //getting awb list from the api and process on delivered status
         $awb_number_list = $this->trackingmore_api->getTrackingsList();
         echo $awb_number_list->meta->code;
@@ -127,8 +130,7 @@ class Courier_tracking extends CI_Controller {
     function get_awb_real_time_tracking_details($carrier_code,$awb_number,$spare_status){
         //$this->checkUserSession();
         if(!empty($carrier_code) && !empty($awb_number) && !empty($spare_status)){
-            
-            if($spare_status === SPARE_SHIPPED_BY_PARTNER){
+            if($spare_status === SPARE_SHIPPED_BY_PARTNER || $spare_status === DEFECTIVE_PARTS_SHIPPED){
                 $api_data = $this->trackingmore_api->getRealtimeTrackingResults($carrier_code,$awb_number);
                 if(!empty($api_data['data'])){
                     $data['awb_details_by_api'] = $api_data['data'];
@@ -164,13 +166,11 @@ class Courier_tracking extends CI_Controller {
      * @param void
      * @return void 
      */
-    function create_awb_number_data(){
+    function create_awb_number_data($select,$status){
         $post['length'] = 200;
         $post['start'] = 0;
-        $post['select'] = "spare_parts_details.id as 'spare_id',"
-                . "spare_parts_details.awb_by_partner,spare_parts_details.courier_name_by_partner,"
-                . "spare_parts_details.shipped_date,spare_parts_details.booking_id,booking_details.partner_id";
-        $post['where'] = array('spare_parts_details.status' => SPARE_SHIPPED_BY_PARTNER);
+        $post['select'] = $select;
+        $post['where'] = array('spare_parts_details.status' => $status);
         $spare_data = $this->inventory_model->get_spare_parts_query($post);
         if(!empty($spare_data)){
             foreach ($spare_data as $key => $val) {
@@ -181,7 +181,7 @@ class Courier_tracking extends CI_Controller {
                 //at that time we don't need to go to database to get the details of the parts
                 $extra_info['order_id'] = $val->spare_id.'/'.$val->partner_id.'/'.$val->booking_id;
                 $extra_info['tracking_ship_date'] = $val->shipped_date;
-                $this->trackingmore_api->createTracking($val->courier_name_by_partner,$val->awb_by_partner,$extra_info);
+                $this->trackingmore_api->createTracking($val->courier_name,$val->awb,$extra_info);
             }
         }
     }
@@ -408,6 +408,107 @@ class Courier_tracking extends CI_Controller {
         }
 
         return $res;
+    }
+    /*
+     * This function is used to update data for recieved defactive part by partner
+     */
+    function process_sf_shipped_auto_acknowledge_data($data){
+        log_message('info', __FUNCTION__ ."start with data".print_r($data,FALSE));
+        $res = FALSE;
+        $parts_details = explode('/', $data->order_id);
+        if (!empty($parts_details)) {
+            $booking_id = $parts_details[2];
+            $partner_id = $parts_details[1];
+            $spare_id = $parts_details[0];
+            $awb_number = $data->tracking_number;
+            $getsparedata = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, booking_id, status", array("spare_parts_details.id" => $spare_id, "status" => DEFECTIVE_PARTS_SHIPPED));
+            if (!empty($getsparedata)) {
+                $response = $this->service_centers_model->update_spare_parts(array('booking_id' => $booking_id,"awb_by_sf"=>$awb_number), array('status' => DEFECTIVE_PARTS_RECEIVED,
+                    'approved_defective_parts_by_partner' => '1', 'remarks_defective_part_by_partner' => DEFECTIVE_PARTS_RECEIVED,
+                    'received_defective_part_date' => date("Y-m-d H:i:s")));
+                if ($response) {
+                    $sc_data['current_status'] = "InProcess";
+                    $sc_data['internal_status'] = _247AROUND_COMPLETED;
+                    $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+                    $booking['internal_status'] = DEFECTIVE_PARTS_RECEIVED;
+                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $booking_id);
+                    $actor = $next_action = 'not_define';
+                    if (!empty($partner_status)) {
+                        $booking['partner_current_status'] = $partner_status[0];
+                        $booking['partner_internal_status'] = $partner_status[1];
+                        $actor = $booking['actor'] = $partner_status[2];
+                        $next_action = $booking['next_action'] = $partner_status[3];
+                    }
+                    $this->notify->insert_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, DEFECTIVE_PARTS_SHIPPED, DELIVERY_CONFIRMED_WITH_COURIER, _247AROUND_DEFAULT_AGENT, _247AROUND, $actor, $next_action, _247AROUND);
+                    $updationFlag = $this->booking_model->update_booking($booking_id, $booking);
+                    if($updationFlag){
+                        $res = TRUE;
+                    }
+                }
+                else{
+                    log_message('info', __FUNCTION__ ."Combination of booking_id and awb_by_sf was not available".$booking_id."_".$awb_number);
+                }
+            }
+        }
+        else{
+           log_message('info', __FUNCTION__ ."order_id is empty"); 
+        }
+        return $res;
+    }
+       /** @desc:List all details of the courier awb number
+     *  @param int $numbers Tracking numbers,eg:$awb_numbers = LY044217709CN,UG561422482CN (optional)
+     *  @param int $orders Tracking order,eg:$orders = #123 (optional)
+     *  @return: view
+     */
+    function auto_acknowledge_defactive_part_shipped_by_sf(){
+        log_message('info',__METHOD__.' Entering...');
+        //update trackingmore data by creating new awb number from spare part details
+        $select = "spare_parts_details.id as 'spare_id',"
+                . "spare_parts_details.awb_by_sf as 'awb',spare_parts_details.courier_name_by_sf as 'courier_name',"
+                . "spare_parts_details.defective_part_shipped_date as 'shipped_date',spare_parts_details.booking_id,booking_details.partner_id";
+        $this->create_awb_number_data($select,DEFECTIVE_PARTS_SHIPPED);
+        //getting awb list from the api and process on delivered status
+        $awb_number_list = $this->trackingmore_api->getTrackingsList();
+        //echo $awb_number_list->meta->code;
+        if(!empty($awb_number_list) && $awb_number_list->meta->code == 200 ){
+            //check if data is empty
+            if(!empty($awb_number_list->data)){
+                //do background process on api data to save it into database
+                $this->insert_api_data($awb_number_list);
+                $awb_number_to_be_deleted_from_api = array();
+                //make array of all delivered data so that we can update status of that spare
+                foreach ($awb_number_list->data->items as $key => $value){
+                    if($value->status == 'delivered'){
+                        $update_status = $this->process_sf_shipped_auto_acknowledge_data($value);
+                        if($update_status){
+                            log_message('info','Spare Status Updated Successfully for awb number '.$value->tracking_number);
+                            $deleted_awb_number_tmp_arr = array();
+                            $deleted_awb_number_tmp_arr['tracking_number'] = $value->tracking_number;
+                            $deleted_awb_number_tmp_arr['carrier_code'] = $value->carrier_code;
+                            $awb_number_to_be_deleted_from_api[] = $deleted_awb_number_tmp_arr;
+                        }
+                        if(!empty($awb_number_to_be_deleted_from_api)){
+                            $delete_status = $this->delete_awb_data_from_api($awb_number_to_be_deleted_from_api);
+                            echo "DELETE AWB BY API";
+                            print_r($delete_status);
+                            if($delete_status['status']){
+                                log_message('info','Spare details updated and awb deleted from tracking more api Delete API Response: '. print_r($delete_status,true));
+                            }else{
+                                log_message('info','Spare details updated but awb not deleted from tracking more Delete API Response: '. print_r($delete_status,true));
+                            }
+
+                            $awb_number_to_be_deleted_from_api = array();
+                        } 
+                    }
+                }
+            }
+            log_message('info',__METHOD__.' Exit...');
+        }else{
+            log_message('info','api did not return success response '. print_r($awb_number_list,true));
+            //send mail to developer
+            $this->send_api_failed_email(json_encode($awb_number_list));
+        }
+        
     }
 
 }
