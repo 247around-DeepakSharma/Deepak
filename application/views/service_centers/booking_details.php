@@ -40,6 +40,11 @@
             <div class="hidden-xs">Penalty</div>
         </button>
     </div>
+    <div class="btn-group" role="group">
+        <button type="button" id="following" class="btn btn-default" href="#tab8" data-toggle="tab">
+            <div class="hidden-xs">Transactions</div>
+        </button>
+    </div>
     <?php if($this->session->userdata('is_engineer_app') == 1){ ?>
     <div class="btn-group" role="group">
         <button type="button" id="following" class="btn btn-default" href="#tab6" data-toggle="tab">
@@ -640,6 +645,44 @@
                         </table>
                         <?php } else { echo "Penalty Not Found";?>
                         <?php } ?>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade in" id="tab8">
+                <div class="row">
+                    <div class="col-md-12">
+                         <?php if($paytm_transaction) { ?>   
+                        <h3>Paytm Transaction</h3>
+                <table class="table  table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>S.N</th>
+                        <th>Paid Amount</th>
+                        <th>Txn ID</th>
+                        <th>Transaction Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    $index =1;
+                    foreach($paytm_transaction as $paytm){
+                        $tempPaidArray[] = $paytm['paid_amount'];
+                        ?>
+                    <tr>
+                <td ><?php echo $index?></td>
+                <td ><?php echo $paytm['paid_amount']?></td>
+                <td ><?php echo $paytm['txn_id']?></td>
+                <td ><?php echo $paytm['create_date']?></td>
+                            <?php
+                        }?>
+                <?php $index++;?>
+                </tr>
+                    <?php
+                    }
+                    ?>
+                </tbody>
+                </table>
+                        </div>
                     </div>
                 </div>
             </div>
