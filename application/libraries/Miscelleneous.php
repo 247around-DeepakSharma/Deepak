@@ -721,9 +721,21 @@ class Miscelleneous {
      * @param String $partner_data
      * @return boolean
      */
-    function check_upcountry($booking, $appliance, $is_price, $file_type) {
+    function check_upcountry($booking, $appliance, $is_price, $file_type, $appliance_brand = false) {
         log_message('info', __FUNCTION__ . ' booking_data: ' . print_r($booking, true) . ' appliance: ' . print_r($appliance, true) . ' file_type: ' . $file_type);
         $partner_data = $this->My_CI->initialized_variable->get_partner_data();
+        $partner_type = $this->My_CI->reusable_model->get_search_query('bookings_sources','partner_type' , array('partner_id'=>$partner_data[0]['partner_id']),NULL, NULL ,NULL,NULL,NULL)->result_array()[0]['partner_type'];
+        if($partner_type == OEM){
+            if(!empty($appliance_brand)){
+                $smsPartner = $appliance_brand;
+            }
+            else{
+               $smsPartner =  $partner_data[0]['public_name'];
+            }
+        }
+        else{
+            $smsPartner =  $partner_data[0]['public_name'];
+        }
         $data = $this->check_upcountry_vendor_availability($booking['city'], $booking['booking_pincode'], $booking['service_id'], $partner_data, false);
         if (isset($data['vendor_not_found'])) {
             if ($data['vendor_not_found'] == 1) {
@@ -827,10 +839,10 @@ class Miscelleneous {
                     return FALSE;
             }
 
-            $this->send_sms_to_snapdeal_customer($appliance, $booking['booking_primary_contact_no'], $booking['user_id'], $booking['booking_id'], $partner_data[0]['public_name'], $charges);
+            $this->send_sms_to_snapdeal_customer($appliance, $booking['booking_primary_contact_no'], $booking['user_id'], $booking['booking_id'], $smsPartner, $charges);
             return true;
         } else {
-            $this->send_sms_to_snapdeal_customer($appliance, $booking['booking_primary_contact_no'], $booking['user_id'], $booking['booking_id'], $partner_data[0]['public_name'], "");
+            $this->send_sms_to_snapdeal_customer($appliance, $booking['booking_primary_contact_no'], $booking['user_id'], $booking['booking_id'], $smsPartner, "");
             return true;
         }
     }
