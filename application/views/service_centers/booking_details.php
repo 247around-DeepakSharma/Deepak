@@ -40,6 +40,11 @@
             <div class="hidden-xs">Penalty</div>
         </button>
     </div>
+    <div class="btn-group" role="group">
+        <button type="button" id="following" class="btn btn-default" href="#tab8" data-toggle="tab">
+            <div class="hidden-xs">Transactions</div>
+        </button>
+    </div>
     <?php if($this->session->userdata('is_engineer_app') == 1){ ?>
     <div class="btn-group" role="group">
         <button type="button" id="following" class="btn btn-default" href="#tab6" data-toggle="tab">
@@ -395,7 +400,8 @@
                             <tr>
                                 <td><?php echo $sp['parts_shipped']; ?></td>
                                 <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['courier_name_by_partner'])); ?></td>
-                                <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['courier_name_by_partner']; ?>','<?php echo $sp['awb_by_partner']; ?>','<?php echo $sp['status']; ?>')"><?php echo $sp['awb_by_partner']; ?></a> <span id="awb_loader" style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
+                                <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['courier_name_by_partner']; ?>','<?php echo $sp['awb_by_partner']; ?>','<?php echo $sp['status']; ?>','<?php echo "awb_loader_".$sp['awb_by_partner']; ?>')"><?php echo $sp['awb_by_partner']; ?></a> 
+                                            <span id=<?php echo "awb_loader_".$sp['awb_by_partner'];?> style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
                                 <td><?php echo $sp['shipped_date']; ?></td>
                                 <td><?php echo $sp['edd']; ?></td>
                                 <td><?php echo $sp['remarks_by_partner']; ?></td>
@@ -435,7 +441,8 @@
                             <tr>
                                 <td><?php echo $sp['defective_part_shipped']; ?></td>
                                 <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['courier_name_by_sf'])); ?></td>
-                                <td><?php echo $sp['awb_by_sf']; ?></td>
+                                <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['courier_name_by_sf']; ?>','<?php echo $sp['awb_by_sf']; ?>','<?php echo $sp['status']; ?>','<?php echo "awb_loader_".$sp['awb_by_sf']; ?>')"><?php echo $sp['awb_by_sf']; ?></a> 
+                                            <span id=<?php echo "awb_loader_".$sp['awb_by_sf'];?> style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
                                 <td><?php echo $sp['courier_charges_by_sf']; ?></td>
                                 <td><?php echo date('Y-m-d', strtotime($sp['defective_part_shipped_date'])); ?></td>
                                 <td><?php echo $sp['remarks_defective_part_by_sf']; ?></td>
@@ -643,6 +650,44 @@
                     </div>
                 </div>
             </div>
+            <div class="tab-pane fade in" id="tab8">
+                <div class="row">
+                    <div class="col-md-12">
+                         <?php if($paytm_transaction) { ?>   
+                        <h3>Paytm Transaction</h3>
+                <table class="table  table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>S.N</th>
+                        <th>Paid Amount</th>
+                        <th>Txn ID</th>
+                        <th>Transaction Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    $index =1;
+                    foreach($paytm_transaction as $paytm){
+                        $tempPaidArray[] = $paytm['paid_amount'];
+                        ?>
+                    <tr>
+                <td ><?php echo $index?></td>
+                <td ><?php echo $paytm['paid_amount']?></td>
+                <td ><?php echo $paytm['txn_id']?></td>
+                <td ><?php echo $paytm['create_date']?></td>
+                            <?php
+                        }?>
+                <?php $index++;?>
+                </tr>
+                    <?php
+                    }
+                    ?>
+                </tbody>
+                </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
     </div>
 </div>
     <!-- model -->
@@ -733,15 +778,14 @@
     
     });
     
-    function get_awb_details(courier_code,awb_number,status){
+    function get_awb_details(courier_code,awb_number,status,id){
         if(courier_code && awb_number && status){
-            $('#awb_loader').show();
+            $('#'+id).show();
             $.ajax({
                 method:"POST",
                 url:'<?php echo base_url(); ?>courier_tracking/get_awb_real_time_tracking_details/' + courier_code + '/' + awb_number + '/' + status,
                 success: function(res){
-                    console.log(res);
-                    $('#awb_loader').hide();
+                    $('#'+id).hide();
                     $('#gen_model_title').html('<h3> AWB Number : ' + awb_number + '</h3>');
                     $('#gen_model_body').html(res);
                     $('#gen_model').modal('toggle');
