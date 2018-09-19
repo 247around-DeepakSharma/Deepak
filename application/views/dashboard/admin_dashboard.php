@@ -25,7 +25,7 @@
             <div class="x_panel">
                 <div class="x_title">
                     <h2>RM TAT Reporting</h2>
-                    <span class="collape_icon" href="#RM_TAT_Reporting" data-toggle="collapse" onclick="collapse_icon_change(this)"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
+                    <span class="collape_icon" href="#RM_TAT_Reporting" data-toggle="collapse" onclick=""><i class="fa fa-minus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
                 <div id="RM_TAT_Reporting" class="collapse in">
@@ -147,7 +147,7 @@
                         </div>
                     </div>
                     <div class="col-md-1">
-                        <span class="collape_icon" href="#chart_container_div" data-toggle="collapse" onclick="collapse_icon_change(this)" style="margin-right: 8px;"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
+                        <span class="collape_icon" href="#chart_container_div" data-toggle="collapse" onclick="" style="margin-right: 8px;"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
                     </div>
                 </div>
                 <div class="collapse in" id="chart_container_div">
@@ -167,7 +167,7 @@
                 <div class="x_panel">
                 <div class="x_title">
                     <h2>AM TAT Reporting</h2>
-                    <span class="collape_icon" href="#AM_TAT_Reporting" data-toggle="collapse" onclick="initiate_AM_TAT_Reporting(this)"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                    <span class="collape_icon" href="#AM_TAT_Reporting" data-toggle="collapse" onclick="initiate_AM_TAT_Reporting()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
                 <div id="AM_TAT_Reporting" class="collapse">
@@ -279,7 +279,7 @@
             <div class="x_panel" ng-controller="pendngBooking_Controller" ng-cloak="">
                 <div class="x_title">
                     <h2>RM Pending Booking Report</h2>
-                     <span class="collape_icon" href="#RM_Pending_Booking_Report_div" data-toggle="collapse" ng-click="callloadPendingBookingView(this)"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                     <span class="collape_icon" href="#RM_Pending_Booking_Report_div" data-toggle="collapse" ng-click="callloadPendingBookingView()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                      <div class="clearfix"></div>
                 </div>
                 <div id="RM_Pending_Booking_Report_div" class="collapse">
@@ -343,7 +343,7 @@
             <div class="x_panel">
                 <div class="x_title">
                     <h2>Missing Pincodes</h2>
-                    <span class="collape_icon" href="#pincode_table_data_div" data-toggle="collapse" onclick="get_missing_pincodes(this)"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                    <span class="collape_icon" href="#pincode_table_data_div" data-toggle="collapse" onclick="get_missing_pincodes()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     <a id="download_pin_code" class="btn btn-success btn-xs" href="<?php echo base_url(); ?>employee/vendor/insert_pincode_form" style="float:right">Add New Pincode</a>
                     <div class="clearfix"></div>
                 </div>
@@ -425,7 +425,7 @@
             <div class="x_panel">
                 <div class="x_title">
                     <h2>Partner Spare Parts Details <span class="badge badge-info" data-toggle="popover" data-content="Below table shows parts which are OOT with respect to sf (after 7 days from booking completion by sf)"><i class="fa fa-info"></i></span></h2>
-                    <span class="collape_icon" href="#spare_details_by_partner_div" data-toggle="collapse" onclick="spare_details_by_partner(this);"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                    <span class="collape_icon" href="#spare_details_by_partner_div" data-toggle="collapse" onclick="spare_details_by_partner();"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
                 <div class="col-md-12">
@@ -446,7 +446,7 @@
             <div class="x_panel">
                 <div class="x_title">
                     <h2>Escalation</h2>
-                    <span class="collape_icon" href="#escalation_data_div" data-toggle="collapse" onclick="initiate_escalation_data(this)"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                    <span class="collape_icon" href="#escalation_data_div" data-toggle="collapse" onclick="initiate_escalation_data()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
 
@@ -499,7 +499,7 @@
             <div class="x_panel">
                 <div class="x_title">
                     <h2>Monthly Booking Status <small>Completed</small></h2>
-                    <span class="collape_icon" href="#monthly_booking_chart_div" data-toggle="collapse" onclick="around_monthly_data(this);"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                    <span class="collape_icon" href="#monthly_booking_chart_div" data-toggle="collapse" onclick="around_monthly_data();"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
                 <div class="col-md-12">
@@ -526,7 +526,7 @@
                         </div>
                         </small>
                     </div>
-                    <div class="col-md-1" style="padding-right: 0px;"><span class="collape_icon" href="#state_type_booking_chart_div" data-toggle="collapse" onclick="get_bookings_data_by_rm(this)"><i class="fa fa-plus-square" aria-hidden="true"></i></span></div>
+                    <div class="col-md-1" style="padding-right: 0px;"><span class="collape_icon" href="#state_type_booking_chart_div" data-toggle="collapse" onclick="get_bookings_data_by_rm()"><i class="fa fa-plus-square" aria-hidden="true"></i></span></div>
                     <div class="clearfix"></div>
                 </div>
                 <div class="col-md-12">
@@ -557,7 +557,7 @@
                         </div>
                     </div>
                     <div class="col-md-1">
-                        <span class="collape_icon" href="#chart_container2_div" data-toggle="collapse" onclick="agent_daily_report_call(this)" style="margin-right: 8px;"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                        <span class="collape_icon" href="#chart_container2_div" data-toggle="collapse" onclick="agent_daily_report_call()" style="margin-right: 8px;"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     </div>
                 </div>
                 <div class="x_content collapse" id="chart_container2_div">
@@ -802,8 +802,7 @@
         
     });
     
-    function initiate_AM_TAT_Reporting(span){
-        collapse_icon_change(span);
+    function initiate_AM_TAT_Reporting(){
         var d = new Date();
         n = d.getMonth();
         y = d.getFullYear();
@@ -819,8 +818,7 @@
         });
     }
    
-    function agent_daily_report_call(span){ 
-        collapse_icon_change(span);
+    function agent_daily_report_call(){ 
         agent_daily_report(start.format('MMMM D, YYYY'), end.format('MMMM D, YYYY'));
     }
     
@@ -855,8 +853,7 @@
         });
     }
     
-    function get_missing_pincodes(span){
-        collapse_icon_change(span);
+    function get_missing_pincodes(){
         var data = {};
         url = '<?php echo base_url(); ?>employee/dashboard/get_pincode_not_found_sf_details_admin';
         data['partner_id'] = '';
@@ -877,8 +874,7 @@
         });
     }
     
-    function around_monthly_data(span){
-        collapse_icon_change(span);
+    function around_monthly_data(){
         $('#loader_gif2').fadeIn();
         $('#monthly_booking_chart').fadeOut();
         var data = {partner_id:''};
@@ -901,8 +897,7 @@
         });
     }
     
-    function get_bookings_data_by_rm(span){
-        collapse_icon_change(span);
+    function get_bookings_data_by_rm(){
         $('#loader_gif3').fadeIn();
         $('#state_type_booking_chart').fadeOut();
         var data = {};
@@ -1337,8 +1332,7 @@
     }
     
     //this function is used to get the spare details for partner
-    function spare_details_by_partner(span){
-        collapse_icon_change(span);
+    function spare_details_by_partner(){
         $('#loader_gif_spare_part_by_partner').show();
         url =  '<?php echo base_url(); ?>employee/dashboard/get_oot_spare_parts_count_by_partner';
         data = {};
@@ -1413,8 +1407,7 @@
         }
     }
 
-function initiate_escalation_data(span){
-    collapse_icon_change(span);
+function initiate_escalation_data(){
     var d = new Date();
     n = d.getMonth()+1;
     y = d.getFullYear();
@@ -1429,10 +1422,6 @@ function initiate_escalation_data(span){
     });
 }
 
-function initiate_pending_booking_controller(span){
-    collapse_icon_change(span);
-    $("#pending_booking_btn").click();
-}
 </script>
 <style>
 .text_warning{
