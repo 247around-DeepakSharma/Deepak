@@ -280,6 +280,7 @@
                         <th></th>
                         <th></th>
                         <th></th>
+                        <th></th>
                     </tr>
                     <tbody></tbody>
                 </thead>
@@ -329,6 +330,25 @@
       </div>
     </div>
     <!-- end cancel model -->
+    <!-- Start Contact Model -->
+   <div id="relevant_content_modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header well" style="background-color:  #2C9D9C;border-color: #2C9D9C;">
+                <button type="button" class="close btn-primary well"  data-dismiss="modal"style="color: white;">&times;</button>
+                <h4 class="modal-title"style="color: white;background-color: #2c9d9c;border-color: #2c9d9c;border: 0px; text-align: center;">Contacts</h4>
+            </div>
+            <div class="modal-body">
+            </div>
+            <center><img id="loader_gif_contact" src="<?php echo base_url(); ?>images/loadring.gif"></center>
+        </div>
+
+
+    </div>
+</div>
+    <!-- End Contact Model -->
     
 </div>
 <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
@@ -604,6 +624,46 @@ $('input[name="booking_date"]').daterangepicker({
             get_internal_status(actor);
             get_request_type(actor);
         }
+        function show_contacts(bookingID,create_booking_contacts_flag){
+            $("#relevant_content_modal .modal-body").html("");
+            $("#loader_gif_contact").show();
+                    $.ajax({
+                        type: 'post',
+                        url: '<?php echo base_url()  ?>employee/service_centers/get_booking_contacts/'+bookingID,
+                        data: {},
+                        success: function (response) {
+                            if(create_booking_contacts_flag){
+                              create_booking_contacts(response);
+                            }
+                       }
+                    });
+                }
+                 function create_booking_contacts(response){
+        var data="";
+        var result = JSON.parse(response);
+        data =data +  "<tr><td>1) </td><td>247around Account Manager</td><td>"+result[0].am+"</td><td>"+result[0].am_caontact+"</td></tr>";
+        data =data +  "<tr><td>2) </td><td>247around Regional Manager</td><td>"+result[0].rm+"</td><td>"+result[0].rm_contact+"</td></tr>";
+        data =data +  "<tr><td>2) </td><td>Brand POC</td><td>"+result[0].partner_poc+"</td><td>"+result[0].poc_contact+"</td></tr>";
+        var tb="<table class='table  table-bordered table-condensed ' >";
+        tb+='<thead>';
+        tb+='<tr>';
+        tb+='<th class="jumbotron col-md-1">SNo.</th> ';
+        tb+='<th class="jumbotron col-md-6">Role</th>';
+        tb+='<th class="jumbotron  col-md-5">Name</th>';
+        tb+='<th class="jumbotron  col-md-5">Contact</th>';
+        tb+='</tr>';
+        tb+='</thead>';
+        tb+='<tbody>';
+        tb+=data;
+        tb+='</tbody>';
+        tb+='</table>';
+        $("#loader_gif_contact").hide();
+        $("#relevant_content_modal .modal-body").html(tb);
+        $('#relevant_content_table').DataTable();
+        $('#relevant_content_table  th').css("background-color","#ECEFF1");
+        $('#relevant_content_table  tr:nth-child(even)').css("background-color","#FAFAFA");
+        $("#relevant_content_modal").modal("show");
+    }
 </script>
 <?php if ($this->session->userdata('success')) {$this->session->unset_userdata('success');} ?>
 <?php if ($this->session->userdata('error')) {$this->session->unset_userdata('error');} ?>
