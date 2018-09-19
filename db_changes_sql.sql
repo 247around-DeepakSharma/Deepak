@@ -8112,4 +8112,5 @@ INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `li
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'sms_to_vendor_poc', '%s', '', '1', CURRENT_TIMESTAMP);
 
 --Kalyani 17-sept
-INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Search Bank Transactions', NULL, 'employee/accounting/bank_transactions', '2', '56', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Search Bank Transactions', NULL, 'employee/accounting/bank_transactions', '2', '56', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);--Chhavi 18th Sep
+ALTER TABLE `booking_tat` ADD `request_type` VARCHAR(128) NULL AFTER `around_closed_date`;

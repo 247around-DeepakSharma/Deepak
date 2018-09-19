@@ -132,7 +132,7 @@
                      </table>
                      <?php if(!empty($charges)){?>
                      <div class="col-md-12">
-                        <center><input type="submit" value="Approve Bookings"  style=" background-color: #2C9D9C;
+                        <center><input type="submit" value="Approve Bookings" onclick="return checkValidationForBlank_review() style=" background-color: #2C9D9C;
                            border-color: #2C9D9C;"  class="btn btn-md btn-success"></center>
                      </div>
                      <?php } ?>
@@ -189,4 +189,14 @@
           $(".checkbox1").prop('checked', $(this).prop("checked"));
          });
    });
+   function checkValidationForBlank_review(){
+    var is_checked = $('.checkbox1:checkbox:checked');
+    if(is_checked.length != 0){
+        return true;
+    }
+    else{
+        alert("Please Select any booking");
+        return false;
+    }
+    }
     </script>

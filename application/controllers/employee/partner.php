@@ -1135,6 +1135,11 @@ class Partner extends CI_Controller {
 //            $data['current_status'] = 'Rescheduled';
 //            $data['internal_status'] = 'Rescheduled';
             $data['update_date'] = date("Y-m-d H:i:s");
+            $rescheduled_reason = NULL;
+            if($this->input->post('r_reason')){
+                $rescheduled_reason = $this->input->post('r_reason');
+            }
+            $data['reschedule_reason'] = $rescheduled_reason;
 
             //check partner status from partner_booking_status_mapping table  
 //            $partner_id = $this->input->post('partner_id');
@@ -5439,7 +5444,7 @@ class Partner extends CI_Controller {
                                     case "Installation & Demo":
                                         $tempString4 =  "Installation";
                                         break;
-                                    case "Repair - In Warranty":
+                                    case REPAIR_IN_WARRANTY_TAG:
                                     case REPAIR_OOW_TAG:
                                         $tempString4 =  "Repair";
                                         break;
@@ -5486,7 +5491,7 @@ class Partner extends CI_Controller {
         }
         $partner_id = $this->session->userdata('partner_id');
         //Parts Shipped by Partner But Did'nt Get by SF
-        $where = "spare_parts_details.partner_id = '" . $partner_id . "'AND status IN ( 'Shipped')  ";
+        $where = "spare_parts_details.partner_id = '" . $partner_id . "'AND status IN ( '".SPARE_SHIPPED_BY_PARTNER."')  ";
        if($this->input->post('state')){
            $where = $where." AND booking_details.state = '".$this->input->post('state')."'";
        }

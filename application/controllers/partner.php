@@ -1470,7 +1470,8 @@ class Partner extends CI_Controller {
                     }
 
                     $unit_details['booking_id'] = $booking['booking_id'];
-                    $appliance_details['purchase_date'] = $unit_details['purchase_date'] = $requestData['purchase_date'];
+                    $p_date = date("Y-m-d", strtotime($requestData['purchase_date']));
+                    $appliance_details['purchase_date'] = $unit_details['purchase_date'] = $p_date;
 
                     $booking['quantity'] = $requestData['appliance_unit'];
                     $appliance_details['serial_number'] = $unit_details['partner_serial_number'] = $requestData['serial_number'];
@@ -1603,6 +1604,7 @@ class Partner extends CI_Controller {
 
                                             //check upcountry and send sms
                                             $async_data['booking_id'] = array($booking['booking_id'] => $upcountry_data['vendor_id']);
+                                            $async_data['agent_id'] = _247AROUND_DEFAULT_AGENT;
                                             $this->asynchronous_lib->do_background_process($url, $async_data);
                                         }
 
