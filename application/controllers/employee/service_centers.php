@@ -1940,6 +1940,9 @@ class Service_centers extends CI_Controller {
                     . " AND spare_parts_details.booking_id = '" . $booking_id . "' AND spare_parts_details.defective_part_required = 1 "
                     . " AND spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."') ";
             $data['spare_parts'] = $this->partner_model->get_spare_parts_booking($where);
+            
+            $data['courier_details'] = $this->inventory_model->get_courier_services('*');
+            
             if (!empty($data['spare_parts'])) {
                 $this->load->view('service_centers/header');
                 $this->load->view('service_centers/update_defective_spare_parts_form', $data);
