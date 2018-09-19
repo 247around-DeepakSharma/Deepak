@@ -930,15 +930,15 @@ class Accounting extends CI_Controller {
         
         if(!empty($transaction_date)){
            $in = explode("/", $transaction_date);
-           $post['where']['transaction_date >="'.$in[0].'"'] = NULL;
-           $post['where']['transaction_date <= "'.$in[1].'"'] = NULL;
+           $post['where']['bank_transactions.transaction_date >="'.$in[0].'"'] = NULL;
+           $post['where']['bank_transactions.transaction_date <= "'.$in[1].'"'] = NULL;
            
         }
         
         if(!empty($transaction_period)){
             $period = explode("/", $transaction_period);
-            $post['where']['create_date >="'.$period[0].'"'] = NULL;
-            $post['where']['create_date <= "'.$period[1].'"'] = NULL;
+            $post['where']['bank_transactions.create_date >="'.$period[0].'"'] = NULL;
+            $post['where']['bank_transactions.create_date <= "'.$period[1].'"'] = NULL;
         }
         
         return $post;
