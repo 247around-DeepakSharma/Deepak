@@ -35,12 +35,12 @@ class Accounting extends CI_Controller {
         //  $this->load->library('upload');
         //  $this->load->library('email');
 
-        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
-            return TRUE;
-        } else {
-            echo PHP_EOL . 'Terminal Access Not Allowed' . PHP_EOL;
-            redirect(base_url() . "employee/login");
-        }
+//        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
+//            return TRUE;
+//        } else {
+//            echo PHP_EOL . 'Terminal Access Not Allowed' . PHP_EOL;
+//            redirect(base_url() . "employee/login");
+//        }
     }
 
     /**
@@ -715,16 +715,51 @@ class Accounting extends CI_Controller {
         
         echo $html;
     }
+    
     /**
-     * @desc Filter invoice data from Invoice Search page
+     * @desc This function is generalize used to get the data for invoice datatable
+     * @param request_type
      */
     function get_invoice_searched_data(){
-        log_message("info", __METHOD__. json_encode($_POST, TRUE)); 
+        log_message("info", __METHOD__);
         $post = $this->getInvoiceDataTablePost();
-        
-        $post['column_order'] = array( NULL, 'invoice_id');
+        $post['column_order'] = array(NULL, 'invoice_id');
         $post['column_search'] = array('invoice_id');
+        $data = array();
         
+        switch ($this->input->post('request_type')){
+            case 'sf_invoice_summary':
+                $data = $this->getServiceCenterInvoicingData($post);
+                break;
+            case 'partner_invoice_summary':
+                $data = $this->getPartnerInvoicingData($post);
+                break;
+            case 'admin_search':
+                $data = $this->getSearchedInvoicingData($post);
+                break;
+            default :
+               break; 
+        }
+        
+       
+        $output = array(
+            "draw" => $post['draw'],
+            "recordsTotal" => $this->invoices_model->count_all_invoices($post),
+            "recordsFiltered" =>  $this->invoices_model->count_filtered_invoice('*', $post),
+            "data" => $data,
+        );
+        
+        echo json_encode($output);
+        
+    }
+    
+    /**
+     * @desc Filter invoice data from Invoice Search page from admin
+     * @param type $post
+     * @return type
+     */
+     
+    function getSearchedInvoicingData($post){
         $select = "IFNULL(service_centres.name, partners.public_name) as party_name, vendor_partner_invoices.*";
         $list = $this->invoices_model->searchInvoicesdata($select, $post);
         $no = $post['start'];
@@ -734,16 +769,62 @@ class Accounting extends CI_Controller {
             $row =  $this->invoice_datatable($invoice_list, $no);
             $data[] = $row;
         }
-        $output = array(
-            "draw" => $post['draw'],
-            "recordsTotal" => $this->invoices_model->count_all_invoices($post),
-            "recordsFiltered" =>  $this->invoices_model->count_filtered_invoice($select, $post),
-            "data" => $data,
-        );
-        
-        echo json_encode($output);
-        
+        return $data;
     }
+    
+     /**
+     * @desc This function is used to get service center invoice data
+     * @param type $post
+     * @return type
+     */
+    function getServiceCenterInvoicingData($post){
+        $select = "IFNULL(service_centres.name, partners.public_name) as party_name, vendor_partner_invoices.*";
+        $list = $this->invoices_model->searchInvoicesdata($select, $post);
+        $no = $post['start'];
+        $data = array();
+        foreach ($list as $invoice_list) {
+            $no++;
+            $row =  $this->invoice_sf_datatable($invoice_list, $no);
+            $data[] = $row;
+        }
+        return $data;
+    }
+    
+     /**
+     * @desc This function is used to get partner invoice data
+     * @param type $post
+     * @return type
+     */
+    function getPartnerInvoicingData($post){
+        $select = "vendor_partner_invoices.*";
+        $list = $this->invoices_model->searchInvoicesdata($select, $post);
+        $no = $post['start'];
+        $data = array();
+        foreach ($list as $invoice_list) {
+            $no++;
+            $row =  $this->invoice_partner_datatable($invoice_list, $no);
+            $data[] = $row;
+        }
+        return $data;
+    }
+    
+     /**
+     * @desc This function is used to get service center invoice bank transactions
+     * @param type $post
+     * @return type
+     */
+    function getServiceCenterBankTransactionData($post){
+        $list = $this->invoices_model->searchPaymentSummaryData('*', $post);
+        $no = $post['start'];
+        $data = array();
+        foreach ($list as $transaction_list) {
+            $no++;
+            $row =  $this->sf_bank_transaction_datatable($transaction_list, $no);
+            $data[] = $row;
+        }
+        return $data;
+    }
+    
     /**
      * @desc This is used to generate Data table row
      * @param Array $invoice_list
@@ -790,7 +871,7 @@ class Accounting extends CI_Controller {
      * @return Array
      */
     function getInvoiceDataTablePost(){
-        
+
         $post['length'] = $this->input->post('length');
         $post['start'] = $this->input->post('start');
         $search = $this->input->post('search');
@@ -829,7 +910,7 @@ class Accounting extends CI_Controller {
             $post['where']['invoice_date >="'.$period[0].'"'] = NULL;
             $post['where']['invoice_date <= "'.$period[1].'"'] = NULL;
         }
-        
+
         if($settle_amount != 2){
             $post['where']['settle_amount'] = $settle_amount;
         }
@@ -845,7 +926,6 @@ class Accounting extends CI_Controller {
         if(!empty($invoice_id)){
             $post['where']['vendor_partner_invoices.invoice_id LIKE "%'.$invoice_id.'%"'] = NULL;
         }
-   
         return $post;
     }
     
@@ -860,16 +940,42 @@ class Accounting extends CI_Controller {
     }
     
     /**
+     * @desc This function is generalize used to get the data for invoice datatable
+     * @param request_type
+     */
+    function get_payment_summary_searched_data(){
+        log_message("info", __METHOD__);
+        $post = $this->getPaymentSummaryDataTablePost();
+        $post['column_order'] = array( NULL, 'bank_transactions.id');
+        $post['column_search'] = array('description', 'credit_amount', 'debit_amount', 'invoice_id');
+        $data = array();
+        
+        switch ($this->input->post('request_type')){
+            case 'sf_bank_transaction':
+                $data = $this->getServiceCenterBankTransactionData($post);
+                break;
+            case 'admin_search':
+                $data = $this->getAdminBankTransactionData($post);
+                break;
+            default :
+               break; 
+        }
+        
+        $output = array(
+            "draw" => $post['draw'],
+            "recordsTotal" => $this->invoices_model->count_all_transactions($post),
+            "recordsFiltered" =>  $this->invoices_model->count_filtered_bank_transaction('*', $post),
+            "data" => $data,
+        );
+        log_message("info", __METHOD__." final outpoot ". json_encode($output, TRUE)); 
+        echo json_encode($output);
+    }
+    
+     /**
      * @desc This function is used to filter bank transaction data from payment summary page
      * @return json for datatable
      */
-    function get_payment_summary_searched_data(){
-       
-        $post = $this->getPaymentSummaryDataTablePost();
-        
-        $post['column_order'] = array( NULL, 'bank_transactions.id');
-        $post['column_search'] = array('description', 'credit_amount', 'debit_amount', 'invoice_id');
-        
+    function getAdminBankTransactionData($post){
         $select = "bank_transactions.*, employee.full_name";
         if($this->input->post("vendor_partner") == "vendor"){
             $select .= ", service_centres.name as name";
@@ -889,15 +995,7 @@ class Accounting extends CI_Controller {
             $row =  $this->bank_transaction_datatable($transaction_list, $no);
             $data[] = $row;
         }
-        $output = array(
-            "draw" => $post['draw'],
-            "recordsTotal" => $this->invoices_model->count_all_transactions($post),
-            "recordsFiltered" =>  $this->invoices_model->count_filtered_bank_transaction($select, $post),
-            "data" => $data,
-        );
-        log_message("info", __METHOD__." final outpoot ". json_encode($output, TRUE)); 
-        echo json_encode($output);
-        
+        return $data;
     }
     
     /**
@@ -963,6 +1061,103 @@ class Accounting extends CI_Controller {
         $row[] = $transaction_list->bankname."/".$transaction_list->transaction_mode;
         $row[] = $transaction_list->transaction_id;
         $row[] = $transaction_list->full_name;
+        return $row;
+    }
+    
+    
+    /**
+     * @desc This is used to generate Data table row for SF invoice table
+     * @param Array $order_list
+     * @param int $no
+     * @return Array  
+     */
+    function invoice_sf_datatable($order_list, $no){
+        //log_message("info",__METHOD__);
+        $row = array();
+        if($order_list->settle_amount == 1){
+            $row[] = '<span class="satteled_row">'.$no.'</span>';
+        }
+        else{
+            $row[] = $no;
+        }
+        $row[] = $order_list->invoice_id;
+        $row[] = date("jS M, Y", strtotime($order_list->from_date)). " to ". date("jS M, Y", strtotime($order_list->to_date));
+        $row[] = $order_list->type;
+        $row[] = '<a href="https://s3.amazonaws.com/bookings-collateral/invoices-excel/'.$order_list->invoice_file_main.'">'.$order_list->invoice_file_main.'</a>';
+        $row[] = '<a href="https://s3.amazonaws.com/bookings-collateral/invoices-excel/'.$order_list->invoice_detailed_excel.'">'.$order_list->invoice_detailed_excel.'</a>';
+       
+        $row[] = $order_list->num_bookings;
+       
+        $row[] = $order_list->tds_amount;
+        if($order_list->amount_collected_paid < 0){ 
+            $row[] = abs($order_list->amount_collected_paid); 
+            
+        } else {
+            $row[] = "0.00"; 
+            
+        } 
+        if($order_list->amount_collected_paid > 0){ 
+            $row[] = round($order_list->amount_collected_paid,0); 
+        } else {
+            $row[] = "0.00";
+            
+        }
+        return $row;
+    }
+    
+    /**
+     * @desc This is used to generate Data table row for partner invoice table
+     * @param Array $order_list
+     * @param int $no
+     * @return Array  
+     */
+    function invoice_partner_datatable($order_list, $no){
+        //log_message("info",__METHOD__);
+        $row = array();
+        if($order_list->settle_amount == 1){
+            $row[] = '<span class="satteled_row">'.$no.'</span>';
+        }
+        else{
+            $row[] = $no;
+        }
+        $row[] = $order_list->invoice_id;
+        $row[] = date("jS M, Y", strtotime($order_list->invoice_date));
+        $row[] = date("jS M, Y", strtotime($order_list->from_date)) . " to " . date("jS M, Y", strtotime($order_list->to_date));
+        $row[] = $order_list->num_bookings . "/" . $order_list->parts_count;
+        $row[] = $order_list->total_amount_collected;
+        $html = '<ul style=" list-style-type: none;">';
+        if(!empty($order_list->invoice_file_main)) { 
+          $html .=  '<li style="display: inline; font-size: 30px;"><a title="Main File"  href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/invoices-excel/'.$order_list->invoice_file_main.'"><i class="fa fa-file-pdf-o" aria-hidden="true"></i></a></li>';
+        } 
+        if(!empty($order_list->invoice_detailed_excel)) { 
+           $html .=  '<li style="display: inline;font-size: 30px; margin-left: 10px;"><a  href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/invoices-excel/'.$order_list->invoice_detailed_excel.'"><i class="fa fa-file-excel-o" aria-hidden="true"></i></a></li>';
+        } 
+        $html .=  '</ul>';
+        $row[] = $html;
+        return $row;
+    }
+    
+    /**
+     * @desc This is used to generate Data table row for service center payment summary
+     * @param Array $transaction_list
+     * @param int $no
+     * @return Array
+     */
+    function sf_bank_transaction_datatable($transaction_list, $no){
+        $row = array();
+        if($transaction_list->is_advance ==1){ 
+            $row[] = $no.'<p id="advance_text"> Advance</p>';
+        }
+        else{
+            $row[] = $no;
+        }
+        $row[] = $transaction_list->transaction_date;
+        $row[] = $transaction_list->description;
+        $row[] = round($transaction_list->credit_amount,0);
+        $row[] = round($transaction_list->debit_amount,0);
+        $row[] = round($transaction_list->tds_amount,0);
+        $row[] = $transaction_list->invoice_id;
+        $row[] = $transaction_list->bankname."/".$transaction_list->transaction_mode;
         return $row;
     }
     

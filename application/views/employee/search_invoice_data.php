@@ -147,6 +147,7 @@
                 data: function(d){
 
                        d.vendor_partner = $("#vendor_partner").val();
+                       d.request_type = "admin_search";
                        d.vendor_partner_id = $('#vendor_partner_id').val();
                        d.invoice_date = $("#invoice_date").val();
                        d.invoice_period_date = $("#invoice_period_date").val();
@@ -161,7 +162,7 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    targets: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19], //first column / numbering column
+                    targets: [0,1,2], //first column / numbering column
                     orderable: false //set not orderable
                 }
             ],
