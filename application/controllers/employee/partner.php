@@ -656,6 +656,12 @@ class Partner extends CI_Controller {
             $return_data['is_reporting_mail'] = '0';
         }
 
+        if($this->input->post('is_review')){
+            $return_data['booking_review_for'] = 'Cancelled';
+        }
+        if($this->input->post('review_time_limit')){
+         $return_data['review_time_limit'] = $this->input->post('review_time_limit');
+        }
         //Checking for Upcountry
         $upcountry = $this->input->post('is_upcountry');
         if (isset($upcountry) && $upcountry == 'on') {
