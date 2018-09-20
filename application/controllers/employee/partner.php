@@ -546,14 +546,16 @@ class Partner extends CI_Controller {
                 //Set Flashdata on success or on Error of Data insert in table
                 if (!empty($partner_id)) {
                     //Create Login For Partner
-                    $loginData['partner_id'] = $partner_id;
-                    $loginData['contact_person_name'][] = $return_data['partner']['primary_contact_name'];
-                    $loginData['contact_person_email'][] = $return_data['partner']['primary_contact_email'];
-                    $loginData['contact_person_contact'][] = $return_data['partner']['primary_contact_phone_1'];
-                    $loginData['checkbox_value_holder'][] = 'true';
-                    $loginData['contact_person_role'][] = PARTNER_POC_ROLE_ID;
-                    $sendUrl = base_url().'employee/partner/process_partner_contacts';
-                    $this->asynchronous_lib->do_background_process($sendUrl, $loginData);
+                    if($this->input->post('partner_type') == OEM){
+                        $loginData['partner_id'] = $partner_id;
+                        $loginData['contact_person_name'][] = $return_data['partner']['primary_contact_name'];
+                        $loginData['contact_person_email'][] = $return_data['partner']['primary_contact_email'];
+                        $loginData['contact_person_contact'][] = $return_data['partner']['primary_contact_phone_1'];
+                        $loginData['checkbox_value_holder'][] = 'true';
+                        $loginData['contact_person_role'][] = PARTNER_POC_ROLE_ID;
+                        $sendUrl = base_url().'employee/partner/process_partner_contacts';
+                        $this->asynchronous_lib->do_background_process($sendUrl, $loginData);
+                    }
                     //End Login
                     $msg = "Partner added successfully Please update documents and Operation Regions.";
                     $this->session->set_userdata('success', $msg);
