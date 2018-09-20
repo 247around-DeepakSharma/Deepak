@@ -265,13 +265,18 @@ class Bb_model extends CI_Model {
      * @param type $status_flag
      * @return Object
      */
-    function get_bb_review_order_list($length, $start, $search_value, $order) {
+    function get_bb_review_order_list($length, $start, $search_value, $order,$only_object = NULL) {
         $this->_get_bb__review_order_list_query($search_value, $order);
         if ($length != -1) {
             $this->db->limit($length, $start);
         }
         $query = $this->db->get();
-        return $query->result();
+        if($only_object){
+            return $query;
+        }
+        else{
+            return $query->result();
+        }
     }
 
     /**
