@@ -1894,6 +1894,7 @@ class Booking extends CI_Controller {
         $partner_id = $this->input->post('partner_id');
         $sp_required_id = json_decode($this->input->post("sp_required_id"), true);
         $spare_parts_required = $this->input->post('spare_parts_required');
+        $price_tag_array = $this->input->post('price_tags');
         $service_center_details = $this->booking_model->getbooking_charges($booking_id);
         $b_unit_details = array();
         if($status == 1){
@@ -1998,7 +1999,16 @@ class Booking extends CI_Controller {
                     $service_center['current_status'] = "InProcess";
                     $service_center['internal_status'] = DEFECTIVE_PARTS_PENDING;
                     $service_center['closed_date'] = $closed_date;
-                    $data['booking_status'] = _247AROUND_PENDING;
+                    if( isset($price_tag_array[$unit_id]) && 
+                            $data['booking_status'] == _247AROUND_CANCELLED && 
+                            $price_tag_array[$unit_id] === REPAIR_OOW_PARTS_PRICE_TAGS){
+                        
+                        $data['ud_closed_date'] = $closed_date;
+                        
+                    } else {
+                        $data['booking_status'] = _247AROUND_PENDING;
+                    }
+                    
                     
                 } else {
                     
@@ -2112,7 +2122,7 @@ class Booking extends CI_Controller {
         if(!empty($sp_required_id)){ 
             foreach ($sp_required_id as $sp_id) {
                 
-                $this->service_centers_model->update_spare_parts(array('id' => $sp_id), array('status' => DEFECTIVE_PARTS_PENDING));
+                $this->service_centers_model->update_spare_parts(array('id' => $sp_id), array('status' => DEFECTIVE_PARTS_PENDING, 'defective_part_required' => 1));
             }
         }
         
@@ -3722,6 +3732,8 @@ class Booking extends CI_Controller {
         $row[] = $order_list->booking_age." days";
         $row[] = $escalation." ".$order_list->partner_internal_status;
         $row[] = "<a target = '_blank' href='".base_url()."employee/vendor/viewvendor/".$order_list->assigned_vendor_id."'>$sf</a>";
+        $row[] = '<button type="button" title = "Booking Contacts" class="btn btn-sm btn-color" data-toggle="modal" data-target="#relevant_content_modal" id ="'.$order_list->booking_id.'" onclick="show_contacts(this.id,1)">'
+                . ' <span class="glyphicon glyphicon-user"></span></button>';
         $row[] = "<a id ='view' class ='btn btn-sm btn-color' href='".base_url()."employee/booking/viewdetails/".$order_list->booking_id."' title = 'view' target = '_blank'><i class = 'fa fa-eye' aria-hidden = 'true'></i></a>";
         $row[] = "<a target = '_blank' id = 'edit' class = 'btn btn-sm btn-color' "
             . "href=" . base_url() . "employee/booking/get_reschedule_booking_form/$order_list->booking_id title='Reschedule'><i class = 'fa fa-calendar' aria-hidden='true' ></i></a>";

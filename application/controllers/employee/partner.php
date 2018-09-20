@@ -546,14 +546,16 @@ class Partner extends CI_Controller {
                 //Set Flashdata on success or on Error of Data insert in table
                 if (!empty($partner_id)) {
                     //Create Login For Partner
-                    $loginData['partner_id'] = $partner_id;
-                    $loginData['contact_person_name'][] = $return_data['partner']['primary_contact_name'];
-                    $loginData['contact_person_email'][] = $return_data['partner']['primary_contact_email'];
-                    $loginData['contact_person_contact'][] = $return_data['partner']['primary_contact_phone_1'];
-                    $loginData['checkbox_value_holder'][] = 'true';
-                    $loginData['contact_person_role'][] = PARTNER_POC_ROLE_ID;
-                    $sendUrl = base_url().'employee/partner/process_partner_contacts';
-                    $this->asynchronous_lib->do_background_process($sendUrl, $loginData);
+                    if($this->input->post('partner_type') == OEM){
+                        $loginData['partner_id'] = $partner_id;
+                        $loginData['contact_person_name'][] = $return_data['partner']['primary_contact_name'];
+                        $loginData['contact_person_email'][] = $return_data['partner']['primary_contact_email'];
+                        $loginData['contact_person_contact'][] = $return_data['partner']['primary_contact_phone_1'];
+                        $loginData['checkbox_value_holder'][] = 'true';
+                        $loginData['contact_person_role'][] = PARTNER_POC_ROLE_ID;
+                        $sendUrl = base_url().'employee/partner/process_partner_contacts';
+                        $this->asynchronous_lib->do_background_process($sendUrl, $loginData);
+                    }
                     //End Login
                     $msg = "Partner added successfully Please update documents and Operation Regions.";
                     $this->session->set_userdata('success', $msg);
@@ -656,6 +658,12 @@ class Partner extends CI_Controller {
             $return_data['is_reporting_mail'] = '0';
         }
 
+        if($this->input->post('is_review')){
+            $return_data['booking_review_for'] = 'Cancelled';
+        }
+        if($this->input->post('review_time_limit')){
+         $return_data['review_time_limit'] = $this->input->post('review_time_limit');
+        }
         //Checking for Upcountry
         $upcountry = $this->input->post('is_upcountry');
         if (isset($upcountry) && $upcountry == 'on') {
@@ -933,7 +941,7 @@ class Partner extends CI_Controller {
                 redirect(base_url() . 'employee/partner/get_user_form');
             }
         } else if ($search_type === 'booking_id') {  //if booking id given and matched, will be displayed
-            $where = array('booking_details.booking_id' => $search_value);
+            $where['booking_details.booking_id LIKE "%'.$search_value.'%"'] = NULL;
             $Bookings = $this->booking_model->search_bookings($where, $this->session->userdata('partner_id'));
             $data['data'] = json_decode(json_encode($Bookings), True);
             $this->miscelleneous->load_partner_nav_header();
@@ -941,8 +949,7 @@ class Partner extends CI_Controller {
             $this->load->view('partner/bookinghistory', $data);
             $this->load->view('partner/partner_footer');
         } else if ($search_type === 'order_id') {
-
-            $where = array('order_id' => $search_value);
+            $where['order_id LIKE "%'.$search_value.'%"'] = NULL;
             $Bookings = $this->booking_model->search_bookings($where, $this->session->userdata('partner_id'));
             $data['data'] = json_decode(json_encode($Bookings), True);
             $this->miscelleneous->load_partner_nav_header();
@@ -950,8 +957,8 @@ class Partner extends CI_Controller {
             $this->load->view('partner/bookinghistory', $data);
             $this->load->view('partner/partner_footer');
         } else if ($search_type === 'serial_number') {
-
-            $where = array('partner_serial_number' => $search_value);
+            $serialNumberSearc = "(partner_serial_number LIKE '%".$search_value."%' OR serial_number LIKE '%".$search_value."%')";
+            $where[$serialNumberSearc] = NULL;
             $Bookings = $this->booking_model->search_bookings($where, $this->session->userdata('partner_id'));
             $data['data'] = json_decode(json_encode($Bookings), True);
             $data['search'] = "Search";
@@ -2135,6 +2142,21 @@ class Partner extends CI_Controller {
             $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Partner Received Defective Spare Parts", $actor,$next_action,$is_cron);
             
             $this->booking_model->update_booking($booking_id, $booking);
+            
+            $is_oow_return = $this->partner_model->get_spare_parts_by_any("booking_unit_details_id, purchase_price, sell_price, sell_invoice_id", 
+                    array('spare_parts_details.booking_id' => $booking_id, 
+                        'booking_unit_details_id IS NOT NULL' => NULL,
+                        'sell_price > 0 ' => NULL,
+                        'sell_invoice_id IS NOT NULL' => NULL,
+                        'estimate_cost_given_date IS NOT NULL' => NULL,
+                        'request_type' => REPAIR_OOW_TAG,
+                        '(reverse_sale_invoice_id IS NULL OR reverse_purchase_invoice_id)' => NULL),
+                    true);
+            if(!empty($is_oow_return)){
+                $url = base_url() . "employee/invoice/generate_reverse_oow_invoice";
+                $async_data['booking_id'] = $booking_id;
+                $this->asynchronous_lib->do_background_process($url, $async_data);
+            }
 
             if (empty($is_cron)) {
                 $userSession = array('success' => ' Received Defective Spare Parts');

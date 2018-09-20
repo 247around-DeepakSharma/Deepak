@@ -752,15 +752,14 @@
                             </div>
                         </div>
                     </div>
-                         <div class="col-md-12">
                         <div class="col-md-12">
                             <div class="panel panel-default">
                                 <div class="panel-heading"><b>Warehouse Details</b></div>
                                 <div class="panel-body">
                                     <div class="col-md-6">
                                         <div class="form-group ">
-                                            <label for="is_wh" class="col-md-4">Is partner using 247around warehouse</label>
-                                            <div class="col-md-1">
+                                            <label for="is_wh" class="col-md-6" style="width: 40%;">Is partner using 247around warehouse</label>
+                                            <div class="col-md-1" style = "margin-top: -7px;margin-bottom: -5px;">
                                                 <input  type="checkbox" class="form-control"  name="is_wh" value = "1" <?php if (isset($query[0])) {
                                                     if($query[0]['is_wh'] == '1'){ echo "checked"; }
                                                     } ?> >
@@ -770,7 +769,33 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    <div class="col-md-12">
+                            <div class="panel panel-default">
+                                <div class="panel-heading"><b>Booking Review Details</b></div>
+                                <div class="panel-body">
+                                    <div class="col-md-6">
+                                        <div class="form-group ">
+                                            <label for="is_wh" class="col-md-6" style="width: 43%;">Will Partner Review cancelled Bookings?</label>
+                                            <div class="col-md-1" style = "margin-top: -7px;margin-bottom: -5px;">
+                                                <input  type="checkbox" class="form-control"  name="is_review" id="is_review" value = "1" <?php if (isset($query[0])) {
+                                                    if($query[0]['booking_review_for']){ echo "checked"; }
+                                                    } ?> >
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group ">
+                                            <label for="is_wh" class="col-md-6" style="width: 43%;"> Review Time Limit</label>
+                                            <div class="col-md-4" style = "margin-top: -7px;margin-bottom: -5px;">
+                                              <input type="text" id="review_time_limit" class="form-control"  name="review_time_limit" value = "<?php if (isset($query[0]['review_time_limit'])) {
+                                                    echo $query[0]['review_time_limit'];
+                                                    } ?>" >
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     <div class="clear clear_bottom">
                         <br>
                         <center><input type="Submit" value="<?php if (isset($query[0]['id'])) {
@@ -2255,6 +2280,19 @@ function up_message(){
     $.validator.addMethod("regx", function (value, element, regexpr) {
         return regexpr.test(value);
     }, "Please enter a valid Number.");
+    jQuery.validator.addMethod("both_should_null", function(value, element) {
+        var checkboxValue = $('#is_review').is(":checked");
+        if(value && checkboxValue){
+            return true;
+        }
+        else if(!(value || checkboxValue)){
+            return true;
+        }
+        else{
+            return false;
+        }
+ return this.optional(element) || value == 'default' ;
+    }, "Please Enter Review checkbox and time limit both or both will be NULL");
     (function ($, W, D)
     {
         var JQUERY4U = {};
@@ -2307,6 +2345,9 @@ function up_message(){
                                 },
                                 invoice_courier_phone_number: {
                                     number: true
+                                },
+                                review_time_limit: {
+                                    both_should_null: true
                                 }
                             },
                             messages: {

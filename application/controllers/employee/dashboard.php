@@ -1638,11 +1638,10 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                     }
                      if($free_paid !="not_set"){
                         if($free_paid == 'Yes'){
-                            $whereIN['request_type'] = array('Repair - In Warranty (Home Visit)','Repair - In Warranty (Service Center Visit)');
+                            $where['amount_due'] = '0';
                         }
                         else{
-                            $whereIN['request_type'] = array('Repair - Out Of Warranty (Home Visit)','Repair - Out Of Warranty (Service Center Visit)','Repair - Out Of Warranty (Home Visit) (Paid)',
-                                'Repair - Out of Warranty');
+                            $where['amount_due != 0'] = NULL;
                         }
                     }
             }
@@ -1650,10 +1649,10 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 $where['request_type NOT LIKE "%Repair%"'] = NULL;
                 if($free_paid !="not_set"){ 
                         if($free_paid == "Yes"){
-                            $whereIN['request_type'] =  array('Installation & Demo (Free)');
+                           $where['amount_due'] = '0';
                         }
                         else{
-                            $whereIN['request_type'] =  array('Installation & Demo (Paid)');
+                             $where['amount_due != 0'] = NULL;
                         }
                     }
             }

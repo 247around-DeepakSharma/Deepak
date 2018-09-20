@@ -13,6 +13,11 @@
                                 <div class="btn btn-success" class="approved_reject_all_order" onclick="process_approval_rejection('approved');" data-value="approved">Approve Order</div>
                             </div>
                         </li>
+                        <li>
+                            <div class="approved">
+                                <a href="<?php echo base_url()?>buyback/buyback_process/download_review_orders" class="btn btn-success" class="" data-value="Download">Download Review Orders</a>
+                            </div>
+                        </li>
                         <!--                            <li>
                             <div class="reject">
                                 <div class="btn btn-danger" class="approved_reject_all_order" onclick="process_approval_rejection('rejected');" data-value="rejected">Reject Order</div>

@@ -1624,12 +1624,12 @@ EOD;
      * This Function is used to send D0 Report to Partners
      */
     function send_days_format_reports_to_all_partners(){
-        $partnersArray[0] = array("id"=>'247010',"public_name"=>'Wybor');
-        $partnersArray[1] = array("id"=>'247034',"public_name"=>'Akai');
-        $partnersArray[2] = array("id"=>'247064',"public_name"=>'Salora');
-        $partnersArray[3] = array("id"=>'247073',"public_name"=>'T-Series');
-        $partnersArray[4] = array("id"=>'247018',"public_name"=>'Murphy');
-        $partnersArray[4] = array("id"=>'247030',"public_name"=>'Jeeves');
+        $partnersArray[0] = array("id"=>WYBOR_ID,"public_name"=>'Wybor');
+        $partnersArray[1] = array("id"=>AKAI_ID,"public_name"=>'Akai');
+        $partnersArray[2] = array("id"=>SALORA_ID,"public_name"=>'Salora');
+        $partnersArray[3] = array("id"=>T_SERIES_PARTNER_ID,"public_name"=>'T-Series');
+        $partnersArray[4] = array("id"=>MURPHY_ID,"public_name"=>'Murphy');
+        $partnersArray[4] = array("id"=>JEEVES_ID,"public_name"=>'Jeeves');
         foreach($partnersArray as $partners){
             $emailTemplateDataArray['aroundDate'] = $this->partner_model->get_partner_report_overview_in_percentage_format($partners['id'],"STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')");
             $email_body = $this->load->view('employee/partner_report',$emailTemplateDataArray,true);
