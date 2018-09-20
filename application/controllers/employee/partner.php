@@ -941,7 +941,7 @@ class Partner extends CI_Controller {
                 redirect(base_url() . 'employee/partner/get_user_form');
             }
         } else if ($search_type === 'booking_id') {  //if booking id given and matched, will be displayed
-            $where = array('booking_details.booking_id' => $search_value);
+            $where['booking_details.booking_id LIKE "%'.$search_value.'%"'] = NULL;
             $Bookings = $this->booking_model->search_bookings($where, $this->session->userdata('partner_id'));
             $data['data'] = json_decode(json_encode($Bookings), True);
             $this->miscelleneous->load_partner_nav_header();
@@ -949,8 +949,7 @@ class Partner extends CI_Controller {
             $this->load->view('partner/bookinghistory', $data);
             $this->load->view('partner/partner_footer');
         } else if ($search_type === 'order_id') {
-
-            $where = array('order_id' => $search_value);
+            $where['order_id LIKE "%'.$search_value.'%"'] = NULL;
             $Bookings = $this->booking_model->search_bookings($where, $this->session->userdata('partner_id'));
             $data['data'] = json_decode(json_encode($Bookings), True);
             $this->miscelleneous->load_partner_nav_header();
@@ -958,8 +957,8 @@ class Partner extends CI_Controller {
             $this->load->view('partner/bookinghistory', $data);
             $this->load->view('partner/partner_footer');
         } else if ($search_type === 'serial_number') {
-
-            $where = array('partner_serial_number' => $search_value);
+            $serialNumberSearc = "(partner_serial_number LIKE '%".$search_value."%' OR serial_number LIKE '%".$search_value."%')";
+            $where[$serialNumberSearc] = NULL;
             $Bookings = $this->booking_model->search_bookings($where, $this->session->userdata('partner_id'));
             $data['data'] = json_decode(json_encode($Bookings), True);
             $data['search'] = "Search";

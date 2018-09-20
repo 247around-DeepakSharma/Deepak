@@ -1199,8 +1199,7 @@ class Booking_model extends CI_Model {
         $this->db->join('booking_unit_details', 'booking_unit_details.booking_id = booking_details.booking_id');
         $this->db->where('booking_details.partner_id', $partner_id);
     }
-
-    $this->db->like($where);
+    $this->db->where($where);
     $query =  $this->db->get();
     $temp = $query->result();
     for ($i=0; $i < count($temp) ; $i++) {
