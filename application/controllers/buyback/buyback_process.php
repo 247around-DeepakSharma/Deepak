@@ -27,8 +27,9 @@ class Buyback_process extends CI_Controller {
         $this->load->model('reusable_model');
         $this->load->model("service_centre_charges_model");
         $this->load->library('PHPReport');
-
         $this->load->library('push_notification_lib');
+        $this->load->dbutil();
+        $this->load->helper('file');
 
         if (($this->session->userdata('loggedIn') == TRUE) && $this->session->userdata('userType') == 'employee') {
             return TRUE;
@@ -2104,5 +2105,25 @@ class Buyback_process extends CI_Controller {
         $this->response =  write_file($file_name, $this->new_report);
     }
     
+    function download_review_orders(){
+        $newCSVFileName = "Buyback_review_orders_" . date('j-M-Y-H-i-s') . ".csv";
+        $csv = TMP_FOLDER . $newCSVFileName;
+        $list = $this->bb_model->get_bb_review_order_list(-1,NULL,NULL,NULL,1);
+        $delimiter = ",";
+        $newline = "\r\n";
+        $new_report = $this->dbutil->csv_from_result($list, $delimiter, $newline);
+        log_message('info', __FUNCTION__ . ' => Rendered CSV');
+        write_file($csv, $new_report);
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename="' . basename($csv) . '"');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($csv));
+        readfile($csv);
+        exec("rm -rf " . escapeshellarg($csv));
+        exit;
+    }
     
 }
