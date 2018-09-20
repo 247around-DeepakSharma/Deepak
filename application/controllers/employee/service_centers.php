@@ -977,19 +977,15 @@ class Service_centers extends CI_Controller {
             
     }
     /**
-     * @desc: get invoice details and bank transacton details to display in view
+     * @desc: get invoice details to display in view
      * Get Service center Id from session.
      */
     function invoices_details() {
         //$this->checkUserSession();
         if(!empty($this->session->userdata('service_center_id'))){
-            $data['vendor_partner'] = "vendor";
-            $data['vendor_partner_id'] = $this->session->userdata('service_center_id');
-            $invoice['invoice_array'] = $this->invoices_model->getInvoicingData($data);
-
             $data2['partner_vendor'] = "vendor";
             $data2['partner_vendor_id'] = $this->session->userdata('service_center_id');
-            $invoice['bank_statement'] = $this->invoices_model->get_bank_transactions_details('*',$data2);
+            $invoice['final_settlement'] = $this->invoices_model->get_summary_invoice_amount($data2['partner_vendor'], $data2['partner_vendor_id'])[0]['final_amount'];
             $this->load->view('service_centers/header');
             $this->load->view('service_centers/invoice_summary', $invoice);
         }else{
@@ -998,6 +994,23 @@ class Service_centers extends CI_Controller {
         }
         
     }
+    
+     /**
+     * @desc: get bank transacton details to display in view
+     * Get Service center Id from session.
+     */
+    function bank_transactions() {
+        //$this->checkUserSession();
+        if(!empty($this->session->userdata('service_center_id'))){
+            $this->load->view('service_centers/header');
+            $this->load->view('service_centers/bank_transactions');
+        }else{
+            $this->session->sess_destroy();
+            redirect(base_url() . "service_center/login");
+        }
+        
+    }
+    
 
     /**
      * @desc: This is used to update assigned engineer in booking details and insert data into state change and update sc sction table

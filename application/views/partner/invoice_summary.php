@@ -43,7 +43,7 @@
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
                 <div class="x_content">
-                    <table class="table table-bordered table-hover table-striped data" id="invoice_table">
+                    <table class="table table-bordered table-hover table-striped data" id="datatable">
                         <thead>
                             <tr >
                                 <th>S.N</th>
@@ -55,33 +55,33 @@
                                 <th>Download</th>
                             </tr>
                         </thead>
-                        <tbody>
+<!--                        <tbody>
                             <?php
-                                if (!empty($invoice_array)) {
-                                    foreach ($invoice_array as $key => $invoice) {
+                                //if (!empty($invoice_array)) {
+                                   // foreach ($invoice_array as $key => $invoice) {
                                         ?>
-                            <tr <?php if ($invoice['settle_amount'] == 1) { ?> style="background-color: #90EE90; " <?php } ?>>
-                                <td><?php echo ($key + 1); ?></td>
+                            <tr <?php //if ($invoice['settle_amount'] == 1) { ?> style="background-color: #90EE90; " <?php //} ?>>
+                                <td><?php //echo ($key + 1); ?></td>
                                 <td>
-                                    <?php echo $invoice["invoice_id"]; ?>
+                                    <?php //echo $invoice["invoice_id"]; ?>
                                 </td>
-                                <td><?php echo date("jS M, Y", strtotime($invoice['invoice_date'])); ?></td>
-                                <td><?php echo date("jS M, Y", strtotime($invoice['from_date'])) . " to " . date("jS M, Y", strtotime($invoice['to_date'])); ?></td>
-                                <td><?php echo $invoice['num_bookings'] . "/" . $invoice['parts_count']; ?></td>
-                                <td><?php echo $invoice['total_amount_collected']; ?></td>
+                                <td><?php //echo date("jS M, Y", strtotime($invoice['invoice_date'])); ?></td>
+                                <td><?php //echo date("jS M, Y", strtotime($invoice['from_date'])) . " to " . date("jS M, Y", strtotime($invoice['to_date'])); ?></td>
+                                <td><?php //echo $invoice['num_bookings'] . "/" . $invoice['parts_count']; ?></td>
+                                <td><?php //echo $invoice['total_amount_collected']; ?></td>
                                 <td>
                                     <ul style=" list-style-type: none;">
-                                        <?php if(!empty($invoice['invoice_file_main'])) { ?><li style="display: inline; font-size: 30px;"><a title="Main File"  href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/invoices-excel/<?php echo $invoice['invoice_file_main']; ?>"><i class="fa fa-file-pdf-o" aria-hidden="true"></i></a></li><?php } ?>
-                                         <?php if(!empty($invoice['invoice_detailed_excel'])) { ?><li style="display: inline;font-size: 30px; margin-left: 10px;"><a  href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/invoices-excel/<?php echo $invoice['invoice_detailed_excel']; ?>"><i class="fa fa-file-excel-o" aria-hidden="true"></i></a></li><?php } ?>
+                                        <?php //if(!empty($invoice['invoice_file_main'])) { ?><li style="display: inline; font-size: 30px;"><a title="Main File"  href="https://s3.amazonaws.com/<?php //echo BITBUCKET_DIRECTORY; ?>/invoices-excel/<?php //echo $invoice['invoice_file_main']; ?>"><i class="fa fa-file-pdf-o" aria-hidden="true"></i></a></li><?php //} ?>
+                                         <?php //if(!empty($invoice['invoice_detailed_excel'])) { ?><li style="display: inline;font-size: 30px; margin-left: 10px;"><a  href="https://s3.amazonaws.com/<?php //echo BITBUCKET_DIRECTORY; ?>/invoices-excel/<?php //echo $invoice['invoice_detailed_excel']; ?>"><i class="fa fa-file-excel-o" aria-hidden="true"></i></a></li><?php //} ?>
                                     </ul>
                                 </td>
                                 <?php ?>
                             </tr>
                             <?php
-                                }
-                                }
+                                //}
+                                //}
                                 ?>
-                        </tbody>
+                        </tbody>-->
                     </table>
                 </div>
             </div>
@@ -136,7 +136,66 @@
    </div>    
 </div>
 <script>
+    var invoice_table = null;
     $(document).ready(function () {
-        $('#invoice_table').DataTable();
+         loaddataTable();
+    });
+    
+    function loaddataTable(){
+        invoice_table = $('#datatable').DataTable({
+         "processing": true, //Feature control the processing indicator.
+         "serverSide": true, //Feature control DataTables' server-side processing mode.
+         "order": [[ 1, "asc" ]], //Initial no order.
+         "pageLength": 50,
+          dom: 'lBfrtip',
+         "lengthMenu": [[10, 25, 50,100, -1], [10, 25, 50, 100,"All"]],
+          buttons: [
+                {
+                    extend: 'excel',
+                    text: '<span class="fa fa-file-excel-o"></span> Excel Export',
+                    pageSize: 'LEGAL',
+                    title: 'Invoice',
+                    exportOptions: {
+                       columns: [1,2,3,4,5,6],
+                        modifier : {
+                             // DataTables core
+                             order : 'index',  // 'current', 'applied', 'index',  'original'
+                             page : 'All',      // 'all',     'current'
+                             search : 'none'     // 'none',    'applied', 'removed'
+                         }
+                    }
+                    
+                }
+            ],
+         // Load data for the table's content from an Ajax source
+            ajax: {
+                url: "<?php echo base_url();?>employee/accounting/get_invoice_searched_data",
+                type: "POST",
+                data: function(d){
+
+                        d.request_type = "partner_invoice_summary";
+                        d.vendor_partner = 'partner';
+                        d.vendor_partner_id = '<?php echo $this->session->userdata('partner_id') ?>';
+                        d.settle = '2';
+                 }
+
+            },
+
+            //Set column definition initialisation properties.
+            columnDefs: [
+                {
+                    targets: [0,1,2,3,4,5,6], //first column / numbering column
+                    orderable: false //set not orderable
+                }
+            ],
+            fnInitComplete: function (oSettings, response) {
+                $('#datatable tr span.satteled_row').each(function(){ $(this).closest('tr').css("background-color", "#90EE90");  });
+          }
+
+     });
+    }
+    
+    $("#datatable").bind("DOMSubtreeModified", function() {
+        $('#datatable tr span.satteled_row').each(function(){ $(this).closest('tr').css("background-color", "#90EE90");  });
     });
 </script>

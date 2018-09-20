@@ -974,10 +974,9 @@ class Partner extends CI_Controller {
     function invoices_details() {
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
-        $data['vendor_partner'] = "partner";
-        $data['vendor_partner_id'] = $partner_id;
-        $invoice['invoice_array'] = $this->invoices_model->getInvoicingData($data);
-
+//        $data['vendor_partner'] = "partner";
+//        $data['vendor_partner_id'] = $partner_id;
+//        $invoice['invoice_array'] = $this->invoices_model->getInvoicingData($data);
         $where = array(
                 'partner_id' => $partner_id,
                 'partner_invoice_id is null' => NULL,
@@ -990,6 +989,7 @@ class Partner extends CI_Controller {
         $unbilled_data  = $this->booking_model->get_unit_details($where, false, 'booking_id, partner_net_payable');
         
         $unbilled_amount = 0;
+        $msic_charge = 0;
         if(!empty($unbilled_data)){
             $unbilled_amount = (array_sum(array_column($unbilled_data, 'partner_net_payable')));
         }

@@ -179,6 +179,10 @@
                                 <li>
                                     <a href="<?php echo base_url() ?>service_center/invoices_details" > <strong> Invoice Summary</strong></a>
                                 </li>
+                                <li role="separator" class="divider"></li>
+                                <li>
+                                    <a href="<?php echo base_url() ?>service_center/bank_transactions" > <strong> Bank Transactions</strong></a>
+                                </li>
                                 <?php if($this->session->userdata('is_sf') === '1'){ ?>
                                 <li role="separator" class="divider"></li>
                                 <li>
