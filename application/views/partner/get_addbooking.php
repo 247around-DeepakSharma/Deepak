@@ -404,7 +404,9 @@
                                 <div class="form-group  col-md-12" >
                                     <center>
                                         <input type="submit" class="btn btn-primary " disabled value="Submit Booking">
-                                        <p id="error_not_visible" style="color: red"><?php echo PREPAID_LOW_AMOUNT_MSG_FOR_PARTNER; ?></p>
+                                        <br/><br/><br/>
+                                        <?php echo PREPAID_LOW_AMOUNT_MSG_FOR_PARTNER; ?>
+                                        <p id="error_not_visible" style="color: red"></p>
                                     </center>
                                 </div>
                             </div>
