@@ -103,6 +103,8 @@
                                         <th class="text-center" data-orderable="false">Booking Type</th>
 					<th class="text-center" data-orderable="false">Defective Parts</th>
                                         <th class="text-center" data-orderable="false">Defective Parts Rejection Reason</th>
+                                        <th class="text-center" data-orderable="false">Status</th>
+                                        <th class="text-center" data-orderable="false">Age</th>
                                         
 <!--                                        <th class="text-center" data-orderable="false">Cancel Part</th>-->
                                         <th class="text-center" data-orderable="false">IS Defective Parts Required</th>
@@ -125,6 +127,13 @@
                                         <td class="text-center"><?php echo $value['request_type'];?></td>
 				        <td class="text-center"><?php echo $value['defective_part_shipped'];?></td>
                                         <td class="text-center"><?php echo $value['remarks_defective_part_by_partner'];?></td> 
+                                        <td class="text-center"><?php if($value['defactive_part_received_date_by_courier_api']){ echo 'Delivered';} else{ echo 'Intransit'; } ?></td> 
+                                        <td class="text-center"><?php
+                                            $now = time(); // or your date as well
+                                            $your_date = strtotime($value['defective_part_shipped_date']);
+                                            $datediff = $now - $your_date;
+                                            echo round($datediff / (60 * 60 * 24));
+                                        ?></td> 
                                        
 <!--                                        <td class="text-center"><button type="button" data-booking_id="<?php //echo $value['booking_id'];?>" data-url="<?php //echo base_url(); ?>employee/inventory/update_action_on_spare_parts/<?php//echo $value['id']."/".$value['booking_id'];?>/CANCEL_COMPLETED_BOOKING_PARTS" class="btn btn-primary btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2">Cancel</button></td>-->
                                         
