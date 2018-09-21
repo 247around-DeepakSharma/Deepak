@@ -2126,4 +2126,65 @@ class Buyback_process extends CI_Controller {
         exit;
     }
     
+    function upload_tracking_file(){
+        log_message("info",__METHOD__);
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $this->load->view('buyback/upload_tracking_file');
+        $this->load->view('dashboard/dashboard_footer');
+    }
+    function process_tracking_number_file(){
+        $blankIndexes = array();
+        $errormsg = "";
+        $notFoundOrderID = array();
+        $fileData['result'] = "SUCCESS";
+        $file['file'] = $_FILES['tracking_file'];
+        $excelArray = $this->miscelleneous->excel_to_Array_converter($file);
+        if(!empty($excelArray)){
+            foreach($excelArray as $index => $values){
+                if($values['order_id'] && $values['tracking_number']){
+                    $where['partner_order_id'] = trim($values['order_id']);
+                    $data['partner_tracking_id'] = trim($values['tracking_number']);
+                    $affected_rows = $this->reusable_model->update_table("bb_order_details",$data,$where);
+                    if($affected_rows == 0){
+                        $notFoundOrderID[] = $values['order_id'];
+                    }
+                }
+                else{
+                    $blankIndexes[] = $index+1;
+                }
+            }
+        }
+        else{
+            $errormsg = "File is blank, Please upload file with order_id and tracking number";
+        }
+        if(!empty($blankIndexes)){
+            $errormsg = "File Contains Blank Values. at lines ".(implode(",",$blankIndexes))." Except those lines all traking numbers has been updated<br>";
+        }
+        if(!empty($notFoundOrderID)){
+            $errormsg = $errormsg." Not Found order IDs -  ".(implode(",",$notFoundOrderID)).", Please check";
+            $fileData['result'] = "SUCCESS";
+        }
+        if(!$errormsg){
+            $msg = "Tracking Number Updated Successfully";
+            $this->session->set_userdata('tracking_success',$msg);
+            $fileData['result'] = "SUCCESS";
+        }
+        else{
+            $this->session->set_userdata('tracking_error',$errormsg);
+        }
+        $bucket = BITBUCKET_DIRECTORY;
+        $directory_xls = "summary-excels/" . "buyback_tracking_file_".date("Y-m-d");
+        $this->s3->putObjectFile($file['file']['tmp_name'], $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+        $fileData['entity_type'] = "247around";
+        $fileData['entity_id'] = _247AROUND;
+        $fileData['file_type'] = "Buyback_Tracking_File";
+        $fileData['file_name'] = $directory_xls;
+        $fileData['agent_id'] = $this->session->userdata('id');
+        $this->reusable_model->insert_into_table("file_uploads",$fileData);
+        redirect(base_url() . 'buyback/buyback_process/upload_tracking_file');
+    }
+    function download_tracking_sample_file(){
+        $config = array('template' => "tracking_number_sample_file.xlsx", 'templateDir' => __DIR__ . "/../excel-templates/");
+        $this->miscelleneous->downloadExcel(array(), $config);
+    }
 }
