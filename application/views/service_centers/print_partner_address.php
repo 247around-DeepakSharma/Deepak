@@ -1,7 +1,7 @@
  <script src="<?php echo base_url()?>js/jquery.js"></script>
 <?php foreach ($details as  $value) { ?>
 
-<div style="display:inline; height: 318px; float:left;border: 1px solid #ccc; margin-left: 10px;margin-top:10px;width: 320px;padding: 8px;">
+<div style="display:inline; height: 360px; float:left;border: 1px solid #ccc; margin-left: 10px;margin-top:10px;width: 320px;padding: 8px;">
     <div style="border: 1px solid #ccc;padding:8px; width: 300px;">
         <img style='vertical-align:middle;width:50px;' src="<?php echo base_url(); ?>images/logo.png">
         <div style='vertical-align:middle; display:inline;font-weight:bold; font-size: 20px;margin-left:10px;'>
@@ -20,6 +20,7 @@
     </div>
      <div style="float:right;margin-left: 5px;">
        <span>From: <?php echo $value['vendor']['company_name'];?></span><br/>
+       <span>C/o - <?php echo $value['vendor']['primary_contact_name'];?></span><br/>
        <span><?php echo $value['vendor']['address'];?></span><br/>
        <span><?php echo $value['vendor']['district']. " ". $value['vendor']['state']. " - ".$value['vendor']['pincode'];?> </span><br/>
        <span>Ph:<?php echo $value['vendor']['primary_contact_phone_1'];?></span><br/>
