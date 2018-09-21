@@ -910,7 +910,6 @@ class File_upload extends CI_Controller {
      * @desc This function is used to upload docket number file only has two columns awb_number and courier_charges
      */
     function process_docket_number_file_upload(){ 
-        log_message('info', __FUNCTION__ . "=>  process_docket_number_file_upload");
             $redirect_to = $this->input->post('redirect_url');
             $file_upload_status = FILE_UPLOAD_FAILED_STATUS;
             $file_status = $this->get_upload_file_type();
@@ -921,13 +920,15 @@ class File_upload extends CI_Controller {
                     $data['post_data']['file_type'] = DOCKET_NUMBER_FILE_TYPE;
                     
                     //column which must be present in the  upload inventory file
-                    $header_column_need_to_be_present = array('awb_number','courier_charges');
+                    $header_column_need_to_be_present = array('awb_number', 'courier_charges', 'invoice_id', 'billable_weight', 'actual_weight');
                     
                     //check if required column is present in upload file header
                     $check_header = $this->check_column_exist($header_column_need_to_be_present,$data['header_data']);
                     if ($check_header['status']) {
-                        $existingData = FALSE;
+                        $excelData = array();
                         $inValidData = FALSE;
+                        $notfoundData = array();
+                        $check = FALSE;
                         $template = array(
                             'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
                         );
@@ -935,64 +936,116 @@ class File_upload extends CI_Controller {
                         $this->table->set_heading(array('AWB Number'));
                         //get file data to process
                         for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
+                            $existexcelData = FALSE;
                             $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
                             $sanitizes_row_data = array_map('trim',$rowData_array[0]);
                             if(!empty(array_filter($sanitizes_row_data))){
                                 $rowData = array_combine($data['header_data'], $rowData_array[0]);
-                                if(!empty($rowData['awb_number']) && !empty($rowData['courier_charges'])){
-                                   $data_spare_part_detail = $this->partner_model->get_spare_parts_by_any("id", array('awb_by_sf' => $rowData['awb_number'], 'status != '=>'Cancelled'));
-                                    if(!empty($data_spare_part_detail)){
-                                        $existingData = TRUE;
-                                        $courier_amount = sprintf('%0.2f', ($rowData['courier_charges']/count($data_spare_part_detail)));
-                                        foreach ($data_spare_part_detail as  $value){
-                                            $this->inventory_model->update_spare_courier_details($value['id'], array('courier_charges_by_sf'=>$courier_amount));
+                                if(!empty($rowData['awb_number']) && !empty($rowData['courier_charges']) && !empty($rowData['invoice_id']) && !empty($rowData['billable_weight']) && !empty($rowData['actual_weight'])){
+                                    $courier_company_detail = $this->inventory_model->get_courier_company_invoice_details('id', array('awb_number' => $rowData['awb_number']));
+                                    log_message('info', __METHOD__. "courier_company_detail ". print_r($courier_company_detail, TRUE));
+                                    if(!empty($courier_company_detail)){
+                                        if(in_array($rowData['awb_number'], $excelData)){
+                                            $existexcelData = TRUE; 
                                         }
-                                    } else {
-                                        $existingData = TRUE;
-                                        $data_courier_detail = $this->inventory_model->get_courier_details("id", array('AWB_no' => $rowData['awb_number']));
-                                        if(!empty($data_courier_detail)){
-                                            foreach ($data_courier_detail as  $value){
-                                                $courier_amount = $rowData['courier_charges']/count($data_courier_detail);
-                                                $courier_amount = sprintf('%0.2f', $courier_amount);
-                                                $this->inventory_model->update_courier_detail(array('id'=>$value['id']), array('courier_charge'=>$courier_amount));
+                                        else{
+                                            $inValidData = TRUE;
+                                            $email_message = "Duplicate entry found for below AWB number. Please check : <br>";
+                                            $this->table->add_row($rowData['awb_number']);
+                                        }
+                                    }
+                                    if(empty($courier_company_detail) || $existexcelData === TRUE){
+                                        log_message('info', __METHOD__. " kalyani if ". print_r(null, TRUE));
+                                        $data_spare_part_detail = $this->partner_model->get_spare_parts_by_any('id, awb_by_partner, awb_by_sf', array('awb_by_sf = '.$rowData['awb_number'].' OR awb_by_partner = '.$rowData['awb_number'].' AND status != "Cancelled"'=>null));
+                                        log_message('info', __METHOD__. "data_spare_part_detail ". print_r($data_spare_part_detail, TRUE));
+                                        if(!empty($data_spare_part_detail)){
+                                            $check = TRUE;
+                                            log_message('info', __METHOD__. "data_spare_part_detail if". print_r($data_spare_part_detail, TRUE));
+                                            $courier_amount = sprintf('%0.2f', ($rowData['courier_charges']/count($data_spare_part_detail)));
+                                            foreach ($data_spare_part_detail as  $value){
+                                                if($value['awb_by_sf']){
+                                                   $this->inventory_model->update_spare_courier_details($value['id'], array('courier_charges_by_sf'=>$courier_amount));
+                                                }
+                                                else if($value['awb_by_partner']){
+                                                   $this->inventory_model->update_spare_courier_details($value['id'], array('courier_price_by_partner'=>$courier_amount)); 
+                                                }
                                             }
                                         } else {
-                                            $inValidData = TRUE;
-                                            $this->table->add_row($rowData['awb_number']);
+                                            $data_courier_detail = $this->inventory_model->get_courier_details("id", array('AWB_no' => $rowData['awb_number']));
+                                            if(!empty($data_courier_detail)){
+                                                $check = TRUE;
+                                                foreach ($data_courier_detail as  $value){
+                                                    $courier_amount = $rowData['courier_charges']/count($data_courier_detail);
+                                                    $courier_amount = sprintf('%0.2f', $courier_amount);
+                                                    $this->inventory_model->update_courier_detail(array('id'=>$value['id']), array('courier_charge'=>$courier_amount));
+                                                }
+                                            } else {
+                                                $notfoundData[] =$rowData['awb_number'];
+                                            }
+                                        }
+                                        if($check){
+                                            $courier_company_data = array(
+                                                'awb_number'=>$rowData['awb_number'],
+                                                'courier_charge'=>$rowData['courier_charges'],
+                                                'invoice_id'=>$rowData['invoice_id'],
+                                                'billable_weight'=>$rowData['billable_weight'],
+                                                'actual_weight'=>$rowData['actual_weight'],
+                                            );
+                                            if(empty($courier_company_detail)){
+                                                log_message('info', __METHOD__. "data_spare_part_detail insert");
+                                                $this->inventory_model->insert_courier_company_invoice_details($courier_company_data);
+                                                $excelData[] = $rowData['awb_number'];
+                                            }
+                                            else{
+                                                log_message('info', __METHOD__. "data_spare_part_detail insert");
+                                                $this->inventory_model->update_courier_company_invoice_details(array('id'=>$courier_company_detail[0]['id']), $courier_company_data);
+                                            }
                                         }
                                     }
                                 } 
                             }
                         }
-                      
                         if($inValidData){
                             $response['status'] = TRUE;
-                            $email_message = "Below AWB number not found. Please check and upload only below data again: <br>";
                             $email_message .= $this->table->generate();
                             $response['message'] = $email_message;
                             $file_upload_status = FILE_UPLOAD_SUCCESS_STATUS;
                             $message = "File Successfully uploaded.";
                         } 
                         else {
-                            $response['status'] = FALSE;
-                            $response['message'] = "File upload Failed. ";
-                            $message = "File upload Failed. ";
-                            $this->session->set_flashdata('file_error', $message);
+                            $response['status'] = TRUE;
+                            $file_upload_status = FILE_UPLOAD_SUCCESS_STATUS;
+                            $response['message'] = "Docket Number Successfully Uploaded. ";
+                            $message = "File Successfully uploaded. ";
                         }
                     } else {
                         $response['status'] = FALSE;
                         $response['message'] = "File upload Failed. ".$check_header['message'];
                         $message = "File upload Failed. ".$check_header['message'];
                         $this->session->set_flashdata('file_error', $message);
+                        redirect(base_url() . $redirect_to);
                     }
                 } else {
                     $response['status'] = FALSE;
                     $response['message'] = "File upload Failed. Empty file has been uploaded";
                     $message = "File upload Failed. Empty file has been uploaded";
                     $this->session->set_flashdata('file_error', $message);
+                    redirect(base_url() . $redirect_to);
                 }
                 $this->miscelleneous->update_file_uploads($data['file_name'],TMP_FOLDER.$data['file_name'], $data['post_data']['file_type'], $file_upload_status);
                 $this->send_email($data,$response);
+                if(!empty($notfoundData)){
+                    $this->table->set_template($template);
+                    $this->table->set_heading(array('AWB Number'));
+                    foreach ($notfoundData as $value) {
+                        $this->table->add_row($value);
+                    }
+                    $response['status'] = TRUE;
+                    $email_message = "Below AWB number not found. Please check and upload only below data again: <br>";
+                    $email_message .= $this->table->generate();
+                    $response['message'] = $email_message;
+                    $this->send_email($data,$response);
+                }
             } else {
                 $message = "File upload Failed. Please Select file";
                 $this->session->set_flashdata('file_error', $message);
