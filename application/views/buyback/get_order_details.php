@@ -28,6 +28,7 @@
                     <h2>
                         <i class="fa fa-bars"></i> Order Details <!--<small>Float left</small>-->
                     </h2>
+                    <a style="float: right;" target="_blank" href="<?php echo base_url()?>buyback/buyback_process/upload_tracking_file" class="btn btn-success" class="" data-value="Upload">Upload Tracking File</a>
                     <div class="clearfix"></div>
                 </div>
                 <div ng-if="showLoader" style="position: absolute;z-index: 99999;width: 100%;height: 100%; background-color: rgba(19, 17, 17, 0.31);">
