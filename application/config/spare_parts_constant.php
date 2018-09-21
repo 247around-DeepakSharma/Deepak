@@ -64,3 +64,6 @@ define('DEFAULT_WAREHOUSE_ID',10);
 //tracking more production api key
 define('TRACKINGMORE_PROD_API_KEY','06ec4a31-6125-4b01-9da9-bf8d420767df');
 define('DELIVERY_CONFIRMED_WITH_COURIER','Delivery Confirmed With Courier Company');
+
+define('DEFECTIVE_PARTS_RECEIVED_API_CONFORMATION','Defective Part Received By Partner API Conformation');
+

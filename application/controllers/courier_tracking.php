@@ -412,38 +412,20 @@ class Courier_tracking extends CI_Controller {
     /*
      * This function is used to update data for recieved defactive part by partner
      */
-    function process_sf_shipped_auto_acknowledge_data($data){
+    function update_defactive_part_status($data){
         log_message('info', __FUNCTION__ ."start with data".print_r($data,FALSE));
         $res = FALSE;
         $parts_details = explode('/', $data->order_id);
         if (!empty($parts_details)) {
             $booking_id = $parts_details[2];
-            $partner_id = $parts_details[1];
             $spare_id = $parts_details[0];
             $awb_number = $data->tracking_number;
-            $getsparedata = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, booking_id, status", array("spare_parts_details.id" => $spare_id, "status" => DEFECTIVE_PARTS_SHIPPED));
+            $getsparedata = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, booking_id, status", array("spare_parts_details.id" => $spare_id, "status" => DEFECTIVE_PARTS_SHIPPED, 
+                "defactive_part_received_date_by_courier_api IS NULL"=>NULL));
             if (!empty($getsparedata)) {
-                $response = $this->service_centers_model->update_spare_parts(array('booking_id' => $booking_id,"awb_by_sf"=>$awb_number), array('status' => DEFECTIVE_PARTS_RECEIVED,
-                    'approved_defective_parts_by_partner' => '1', 'remarks_defective_part_by_partner' => DEFECTIVE_PARTS_RECEIVED,
-                    'received_defective_part_date' => date("Y-m-d H:i:s")));
+                $response = $this->service_centers_model->update_spare_parts(array('booking_id' => $booking_id,"awb_by_sf"=>$awb_number), array('defactive_part_received_date_by_courier_api' => date("Y-m-d H:i:s")));
                 if ($response) {
-                    $sc_data['current_status'] = "InProcess";
-                    $sc_data['internal_status'] = _247AROUND_COMPLETED;
-                    $this->vendor_model->update_service_center_action($booking_id, $sc_data);
-                    $booking['internal_status'] = DEFECTIVE_PARTS_RECEIVED;
-                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $booking_id);
-                    $actor = $next_action = 'not_define';
-                    if (!empty($partner_status)) {
-                        $booking['partner_current_status'] = $partner_status[0];
-                        $booking['partner_internal_status'] = $partner_status[1];
-                        $actor = $booking['actor'] = $partner_status[2];
-                        $next_action = $booking['next_action'] = $partner_status[3];
-                    }
-                    $this->notify->insert_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, DEFECTIVE_PARTS_SHIPPED, DELIVERY_CONFIRMED_WITH_COURIER, _247AROUND_DEFAULT_AGENT, _247AROUND, $actor, $next_action, _247AROUND);
-                    $updationFlag = $this->booking_model->update_booking($booking_id, $booking);
-                    if($updationFlag){
-                        $res = TRUE;
-                    }
+                    $this->notify->insert_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED_API_CONFORMATION, DEFECTIVE_PARTS_SHIPPED, DELIVERY_CONFIRMED_WITH_COURIER, _247AROUND_DEFAULT_AGENT, _247AROUND, "Partner", "Approve or Reject the part", _247AROUND);
                 }
                 else{
                     log_message('info', __FUNCTION__ ."Combination of booking_id and awb_by_sf was not available".$booking_id."_".$awb_number);
@@ -479,7 +461,7 @@ class Courier_tracking extends CI_Controller {
                 //make array of all delivered data so that we can update status of that spare
                 foreach ($awb_number_list->data->items as $key => $value){
                     if($value->status == 'delivered'){
-                        $update_status = $this->process_sf_shipped_auto_acknowledge_data($value);
+                        $update_status = $this->update_defactive_part_status($value);
                         if($update_status){
                             log_message('info','Spare Status Updated Successfully for awb number '.$value->tracking_number);
                             $deleted_awb_number_tmp_arr = array();
