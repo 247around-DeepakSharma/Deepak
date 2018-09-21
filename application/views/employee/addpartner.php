@@ -695,7 +695,7 @@
                         </div>
                     </div>
                     <div class="col-md-12">
-                        <div class="col-md-12">
+                        <div class="col-md-12" style="padding: 0px;">
                             <div class="panel panel-default">
                                 <div class="panel-heading"><b>Prepaid Account Details</b></div>
                                 <div class="panel-body">
@@ -752,23 +752,76 @@
                             </div>
                         </div>
                     </div>
-                        <div class="col-md-12">
+                    <div class="col-md-12">
+                        <div class="col-md-12" style="padding: 0px;">
                             <div class="panel panel-default">
-                                <div class="panel-heading"><b>Warehouse Details</b></div>
+                                <div class="panel-heading"><b>Postpaid Account Details</b></div>
                                 <div class="panel-body">
+                                   <div class="col-md-12">
                                     <div class="col-md-6">
-                                        <div class="form-group ">
-                                            <label for="is_wh" class="col-md-6" style="width: 40%;">Is partner using 247around warehouse</label>
-                                            <div class="col-md-1" style = "margin-top: -7px;margin-bottom: -5px;">
-                                                <input  type="checkbox" class="form-control"  name="is_wh" value = "1" <?php if (isset($query[0])) {
-                                                    if($query[0]['is_wh'] == '1'){ echo "checked"; }
-                                                    } ?> >
+                                        <div class="form-group <?php if (form_error('postpaid_amount_limit')) {
+                                            echo 'has-error';
+                                            } ?>">
+                                            <label for="postpaid_credit_period" class="col-md-4">Postpaid Minimum Days Limit</label>
+                                            <div class="col-md-8">
+                                                <input type="text" class="form-control"  name="postpaid_credit_period" value = "<?php if (isset($query[0]['postpaid_credit_period'])) {
+                                                    echo $query[0]['postpaid_credit_period'];
+                                                    } ?>" >
+                                                <?php echo form_error('postpaid_credit_period'); ?>
                                             </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group <?php if (form_error('postpaid_notification_limit')) {
+                                            echo 'has-error';
+                                            } ?>">
+                                            <label for="postpaid_notification_limit" class="col-md-4">Notification Days Limit</label>
+                                            <div class="col-md-8">
+                                                <input type="text" class="form-control"  name="postpaid_notification_limit" value = "<?php if (isset($query[0]['postpaid_notification_limit'])) {
+                                                    echo $query[0]['postpaid_notification_limit'];
+                                                    } ?>" >
+                                                <?php echo form_error('postpaid_notification_limit'); ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                    <div class="col-md-6">
+                                        <div class="form-group <?php if (form_error('postpaid_grace_period')) {
+                                            echo 'has-error';
+                                            } ?>">
+                                            <label for="postpaid_grace_period" class="col-md-4">Postpaid Grace Period Date </label>
+                                            <div class="col-md-8">
+                                                <input type="text" id="postpaid_grace_period_date" placeholder="Select Date When Partner De-Activate" class="form-control"  name="postpaid_grace_period" value = "<?php if (isset($query[0]['postpaid_grace_period'])) {
+                                                    echo $query[0]['postpaid_grace_period'];
+                                                    } ?>" >
+                                                <?php echo form_error('postpaid_grace_period'); ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                   </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-12">
+                        <div class="panel panel-default">
+                            <div class="panel-heading"><b>Warehouse Details</b></div>
+                            <div class="panel-body">
+                                <div class="col-md-6">
+                                    <div class="form-group ">
+                                        <label for="is_wh" class="col-md-6" style="width: 40%;">Is partner using 247around warehouse</label>
+                                        <div class="col-md-1" style = "margin-top: -7px;margin-bottom: -5px;">
+                                            <input  type="checkbox" class="form-control"  name="is_wh" value = "1" <?php if (isset($query[0])) {
+                                                if($query[0]['is_wh'] == '1'){ echo "checked"; }
+                                                } ?> >
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                    </div>
                     <div class="col-md-12">
                             <div class="panel panel-default">
                                 <div class="panel-heading"><b>Booking Review Details</b></div>
@@ -2199,7 +2252,7 @@ function up_message(){
     });
     //$( ".agreement_start_date" ).datepicker({ dateFormat: 'yy-mm-dd' });
     //$("#agreement_end_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0});
-    $("#grace_period_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0});
+    $("#grace_period_date, #postpaid_grace_period_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0});
     
     
     //Check for upcountry

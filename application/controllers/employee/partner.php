@@ -647,7 +647,9 @@ class Partner extends CI_Controller {
         } else {
             $return_data['is_prepaid'] = 0;
         }
-
+        $return_data['postpaid_credit_period'] = $this->input->post('postpaid_credit_period');
+        $return_data['postpaid_notification_limit'] = $this->input->post('postpaid_notification_limit');
+        $return_data['postpaid_grace_period'] = $this->input->post('postpaid_grace_period');
         if (empty($partner_code)) {
             $return_data['is_active'] = 0;
         }
