@@ -116,7 +116,7 @@
                 url: "<?php echo base_url();?>employee/accounting/get_payment_summary_searched_data",
                 type: "POST",
                 data: function(d){
-
+                       d.request_type = "admin_search";
                        d.vendor_partner = $("#vendor_partner").val();
                        d.vendor_partner_id = $('#vendor_partner_id').val();
                        d.transaction_date = $("#transaction_date").val();

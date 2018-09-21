@@ -61,6 +61,7 @@ $route['service_center/complete_booking_form/(:any)'] = 'employee/service_center
 $route['service_center/add_engineer'] = 'employee/vendor/add_engineer';
 $route['service_center/get_engineers'] = 'employee/vendor/get_engineers';
 $route['service_center/invoices_details'] = 'employee/service_centers/invoices_details';
+$route['service_center/bank_transactions'] = 'employee/service_centers/bank_transactions';
 $route['service_center/update_booking_status/(:any)'] = 'employee/service_centers/update_booking_status/$1';
 $route['service_center/process_update_booking'] = 'employee/service_centers/process_update_booking';
 $route['service_center/acknowledge_delivered_spare_parts/(:any)/(:any)/(:any)/(:any)'] = 'employee/service_centers/acknowledge_delivered_spare_parts/$1/$2/$3/$4';
