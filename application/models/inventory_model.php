@@ -1367,4 +1367,49 @@ class Inventory_model extends CI_Model {
             return TRUE;
         }
     }
+
+     /**
+     * @Desc: This function is used to get the courier company invoice details
+     * @params: $select string
+     * @params: $where string
+     * @return: array
+     * 
+     */
+    function get_courier_company_invoice_details($select, $where){
+         $this->db->select($select);
+        $this->db->where($where);
+        $query = $this->db->get('courier_company_invoice_details');
+        log_message('info kalyani', __METHOD__. " ".$this->db->last_query());
+        return $query->result_array();
+        
+    }
+    
+     /**
+     * @Desc: This function is used to insert the courier company invoice details
+     * @params: $select string
+     * @params: $where string
+     * @return: array
+     * 
+     */
+    function insert_courier_company_invoice_details($details){
+        $this->db->insert('courier_company_invoice_details', $details);
+        return $this->db->insert_id();
+    }
+    
+    /**
+     * @desc: This function is used to update courier_company_invoice_details
+     * @params: Array $where
+     * @params: Array $data
+     * @return: boolean
+     */
+    function update_courier_company_invoice_details($where,$data){
+        $this->db->where($where);
+        $this->db->update('courier_company_invoice_details', $data);
+        if ($this->db->affected_rows() > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }
