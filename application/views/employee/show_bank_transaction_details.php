@@ -52,7 +52,6 @@
     $(document).ready(function(){
         $('.get_invoice_id_data').click(function(){
             var invoice_id = $.trim($(this).attr("data-id"));
-            alert(invoice_id);
             get_invoice_data(invoice_id)
         });
 
