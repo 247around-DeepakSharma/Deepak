@@ -1898,17 +1898,19 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         $partnerArray = $this->reusable_model->get_search_result_data("partners", "*", array("booking_review_for IS NOT NULL" => NULL), NULL, NULL, NULL, NULL, NULL, array());
         foreach ($partnerArray as $partner) {
             $tempData = $this->miscelleneous->get_review_bookings_for_partner($partner['id'], NULL, 1,REVIEW_NOTIFICATION_TO_PARTNER_DAYS);
-            $data['bookings'] = array_keys($tempData);
-            $template = $this->booking_model->get_booking_email_template("notify_partner_to_review_bookings");
-            $subject = $template[4];
-            $data['text'] = vsprintf($template[0], array($partnerArray[0]['review_time_limit']));
-            $message = $this->load->view('employee/partner_review_booking_email_template',$data,true);
-            $to =  $partnerArray[0]['primary_contact_email'];
-            $bcc = $template[5];
-            $cc = $template[1];
-            $from = $template[2];
-            $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "", "notify_partner_to_review_bookings");
-            log_message('info', __FUNCTION__ . " END  " . $partner['id'] . $message);
+            if(!empty($tempData)){
+                $data['bookings'] = array_keys($tempData);
+                $template = $this->booking_model->get_booking_email_template("notify_partner_to_review_bookings");
+                $subject = $template[4];
+                $data['text'] = vsprintf($template[0], array($partnerArray[0]['review_time_limit']));
+                $message = $this->load->view('employee/partner_review_booking_email_template',$data,true);
+                $to =  $partnerArray[0]['primary_contact_email'];
+                $bcc = $template[5];
+                $cc = $template[1];
+                $from = $template[2];
+                $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "", "notify_partner_to_review_bookings");
+                log_message('info', __FUNCTION__ . " END  " . $partner['id'] . $message);
+            }
         }
         log_message('info', __FUNCTION__ . ' End');
     }
