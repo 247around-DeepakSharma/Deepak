@@ -104,11 +104,11 @@
                     <div class="col-md-6 col-sm-6 col-xs-12 profile_details">
                         <div class="well profile_view" style="width:100%!important;">
                             <div class="left col-xs-12">
-                                <h2><b>Mr. Manoj Jena</b></h2>
+                                <h2><b>Mr. Pankaj Kumar</b></h2>
                                 <p><strong>About: </strong> Accountant </p>
                                 <ul class="list-unstyled">
-                                    <li><i class="fa fa-phone"></i> Phone: 9555009004</li>
-                                    <li><i class="fa fa-envelope"></i> Email: manojaj@247around.com </li>
+                                    <li><i class="fa fa-phone"></i> Phone: 9268953761</li>
+                                    <li><i class="fa fa-envelope"></i> Email: billing@247around.com </li>
                                 </ul>
                             </div>
                         </div>
