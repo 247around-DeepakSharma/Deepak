@@ -1225,7 +1225,7 @@
                                         ?>">
                                         <label for="ifsc_code" class="col-md-4" >IFSC Code*</label>
                                         <div class="col-md-6">
-                                            <input type="text" class="form-control blockspacialchar"  name="ifsc_code" id="ifsc_code" value = "<?php
+                                            <input type="text" class="form-control blockspacialchar"  name="ifsc_code" id="ifsc_code" style="text-transform: uppercase;" maxlength="11" value = "<?php
                                                 if (isset($query[0]['ifsc_code'])) {
                                                     echo $query[0]['ifsc_code'];
                                                 }
