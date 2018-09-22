@@ -1601,11 +1601,14 @@ function get_data_for_partner_callback($booking_id) {
             GROUP_CONCAT(spare_parts_details.shipped_date) As 'Part Shipped Date', 
             GROUP_CONCAT(spare_parts_details.defective_part_shipped) As 'Shipped Defective Part', 
             GROUP_CONCAT(spare_parts_details.defective_part_shipped_date) As 'Defactive Part Shipped Date'
-            ".$agingSubQuery."
+            ".$agingSubQuery.",
+            IFNULL(dealer_details.dealer_name,'') AS 'Dealer Name',
+            IFNULL(dealer_details.dealer_phone_number_1,'') AS 'Dealer Phone Number'
             FROM booking_details JOIN booking_unit_details ud  ON booking_details.booking_id = ud.booking_id 
             JOIN services ON booking_details.service_id = services.id 
             JOIN users ON booking_details.user_id = users.user_id
             LEFT JOIN spare_parts_details ON spare_parts_details.booking_id = booking_details.booking_id
+            LEFT JOIN dealer_details on dealer_details.dealer_id = booking_details.dealer_id
             WHERE product_or_services != 'Product' AND booking_details.partner_id = $partner_id AND $where GROUP BY ud.booking_id");
     }
     
