@@ -113,7 +113,13 @@
                                         <td><?php echo $booking_history[0]['booking_remarks']; ?></td>
                                         <th></th>
                                         <td></td>
-                                         </tr>
+                                    </tr>
+                                    <tr>
+                                        <th>Dealer Name: </th>
+                                        <td><?php if($booking_history[0]['dealer_id'] || $booking_history[0]['dealer_id']>0){ echo $booking_history[0]['dealer_name'];  } ?></td>
+                                        <th>Dealer Phone Number</th>
+                                        <td><?php if($booking_history[0]['dealer_id'] || $booking_history[0]['dealer_id']>0){ echo $booking_history[0]['dealer_phone_number_1'];  } ?></td>
+                                    </tr>   
                                 </table>
                             </div>
                             <div role="tabpanel" class="tab-pane fade" id="tab_content2">

@@ -166,6 +166,11 @@ class Partner extends CI_Controller {
     function booking_details($booking_id) {
         $this->checkUserSession();
         $data['booking_history'] = $this->booking_model->getbooking_filter_service_center($booking_id);
+        if($data['booking_history'][0]['dealer_id']){ 
+            $dealer_detail = $this->dealer_model->get_dealer_details('dealer_name, dealer_phone_number_1', array('dealer_id'=>$data['booking_history'][0]['dealer_id']));
+            $data['booking_history'][0]['dealer_name'] = $dealer_detail[0]['dealer_name'];
+            $data['booking_history'][0]['dealer_phone_number_1'] = $dealer_detail[0]['dealer_phone_number_1'];
+        }
         $unit_where = array('booking_id' => $booking_id);
         $data['unit_details'] = $this->booking_model->get_unit_details($unit_where);
         if (!is_null($data['booking_history'][0]['sub_vendor_id'])) {
