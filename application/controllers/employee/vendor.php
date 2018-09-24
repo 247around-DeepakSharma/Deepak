@@ -5153,4 +5153,58 @@ class vendor extends CI_Controller {
         $this->notify->send_sms_msg91($sms);
     }
     
+     /**
+    * @desc This is used to load email search form.
+    * This form helps to search email in whole database
+    */
+    function seach_gst_number(){
+        $gst_no = "";
+        $gst_array = array();
+        $gstin = trim($this->input->post("gst_number"));
+        $api_check = $this->input->post("api_check");
+        if(!empty($gstin)){
+            if(strpos($gstin, ',')){
+                $gst =  explode(",",$gstin);
+                foreach ($gst as $value) {
+                  $gst_no .= "'".trim($value)."',";  
+                  $gst_array[] = trim($value);
+                }
+            }
+            else{
+                $gst_no = "'".$gstin."'";
+                $gst_array[] = trim($gstin);
+            }
+            $gst_no = rtrim($gst_no,",");
+            if($api_check){
+                $gstApiData = array();
+                 $i = 0;
+                foreach ($gst_array as $value) {
+                    if($value){
+                        $api_response = $this->invoice_lib->taxpro_gstin_checking_curl_call($value);
+                        //$api_response = '{"stjCd":"UP530","lgnm":"NEERAJ RASTOGI","dty":"Regular","stj":"Ghaziabad Sector-4 , AC","adadr":[],"cxdt":"","gstin":"09ABJPR2848D1ZF","nba":["Service Provision","Office / Sale Office","Retail Business"],"lstupdt":"03/08/2018","ctb":"Proprietorship","rgdt":"01/07/2017","pradr":{"addr":{"bnm":"R.D.C","loc":"GHAZIABAD","st":"RAJ NAGAR","bno":"R-7/6","dst":"Ghaziabad","stcd":"Uttar Pradesh","city":"","flno":"","lt":"","pncd":"201002","lg":""},"ntr":"Service Provision, Office / Sale Office, Retail Business"},"tradeNam":"M/S SHIVAY ELECTRONICS","ctjCd":"YE0103","sts":"Active","ctj":"RANGE - 3"}';
+                        $api_response = json_decode($api_response, true);
+                        
+                        $gstApiData[$i]['entity'] = "";
+                        $gstApiData[$i]['name'] = $api_response['lgnm'];
+                        $gstApiData[$i]['gst_number'] = $api_response['gstin'];
+                        $gstApiData[$i]['gst_status'] = $api_response['sts'];
+                        $gstApiData[$i]['gst_type'] = $api_response['dty'];
+                    }
+                    $i++;
+                }
+                $data['data'] = $gstApiData;
+                $this->miscelleneous->load_nav_header();
+                $this->load->view("employee/search_gst_number", $data);
+            }
+            else{
+                $data['data'] = $this->vendor_model->search_gstn_number($gst_no);
+                $this->miscelleneous->load_nav_header();
+                $this->load->view("employee/search_gst_number", $data);
+            }
+        } else {
+            $this->miscelleneous->load_nav_header();
+            $this->load->view("employee/search_gst_number");
+        }
+    }
+    
 }
