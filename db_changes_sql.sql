@@ -8122,4 +8122,9 @@ ALTER TABLE `spare_parts_details` ADD `reverse_sale_invoice_id` VARCHAR(128) NUL
 --Chhavi 21st Nov
 ALTER TABLE `spare_parts_details` ADD `defactive_part_received_date_by_courier_api` DATETIME NULL AFTER `defective_part_shipped_date`;
 --Kalyani 22 Sep 
-ALTER TABLE `courier_company_invoice_details` ADD `invoice_id` VARCHAR(255) NOT NULL AFTER `courier_charge`, ADD `billable_weight` INT NOT NULL AFTER `invoice_id`, ADD `actual_weight` INT NOT NULL AFTER `billable_weight`;
+ALTER TABLE `courier_company_invoice_details` ADD `invoice_id` VARCHAR(255) NOT NULL AFTER `courier_charge`, ADD `billable_weight` INT NOT NULL AFTER `invoice_id`, ADD `actual_weight` INT NOT NULL AFTER `billable_weight`;--Chhavi 24th november
+ALTER TABLE `employee_relation` ADD `region` VARCHAR(128) NULL AFTER `state_code`;
+UPDATE employee_relation SET state_code = "North" WHERE employee_id = '36'
+UPDATE employee_relation SET state_code = "West" WHERE employee_id = '38'
+UPDATE employee_relation SET state_code = "East" WHERE employee_id = '24'
+UPDATE employee_relation SET state_code = "South" WHERE employee_id = '16'
