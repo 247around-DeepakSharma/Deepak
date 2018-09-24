@@ -331,6 +331,7 @@ $(document).ready(function(){
         var entity_type = $("#entity_type option:selected").val();
         var doc_type= $('#doc_type option:selected').val();
         var email = $("#email_input").val();
+        var courier_name = $("#courier_name").val();
         var id="";
         switch(doc_type){
             case "invoice":
@@ -351,18 +352,19 @@ $(document).ready(function(){
                 break; 
         }
        
+        
         if(is_file == 0){
              track_file= $('#track_file').val();
         }
+        else{
+           track_file =  is_file;
+        }
         var awb_no = $('#awb_no').val();
         var shipment_date = $('#shipment_date').val();
-        //var contact = $('#contact').val();
-        //var contact_input = $('#contact_input').val();
-        if(!(entity_type && doc_type && id && track_file && awb_no && email && shipment_date)){
+        if(!entity_type || !doc_type || !id || !track_file || !awb_no || !email || !shipment_date || !courier_name){
             alert('Please fill all the fields');
             return false;
         }
-        
     }
 </script>
 
