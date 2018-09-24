@@ -162,7 +162,7 @@
             ?>
         <tr>
             <td><?php echo $key+1   ;?></td>
-            <td><button style="margin: 0px;padding: 3px 9px;font-size: 15px;" type="button" class="btn btn-info" id="district_level"><?php echo $values['State']?></button></td>
+            <td><button style="margin: 0px;padding: 3px 9px;font-size: 15px;" type="button" class="btn btn-info" id="district_level"><?php echo $values['entity']?></button></td>
             <td><?php echo $values['TAT_0'] ."<br>(". $values['TAT_0_per']."%)";?></td>
             <td><?php echo $values['TAT_1'] ."<br>(". $values['TAT_1_per']."%)";?></td>
             <td><?php echo $values['TAT_2'] ."<br>(". $values['TAT_2_per']."%)";?></td>
@@ -188,7 +188,6 @@
         <tr style="background: #405467;color: #fff;margin-top: 5px;">
                             <th>S.no</th>
                             <th>Service Centers</th>
-                             <th>State</th>
                             <th>D0</th>
                             <th>D1</th>
                             <th>D2</th>
@@ -211,18 +210,17 @@
                 <?php
                 if($this->session->userdata('partner_id')){
                     if($values['id'] !="00"){
-                        echo $values['sf_district']."_247Around_Service_Center_".$values['id'];
+                        echo "247Around_Service_Center_".$values['id'];
                     }
                     else{
-                        echo wordwrap($values['SF'], 30, "<br />\n");
+                        echo wordwrap($values['entity'], 30, "<br />\n");
                     }
                 }
                 else{
-                    echo wordwrap($values['SF'], 30, "<br />\n");
+                    echo wordwrap($values['entity'], 30, "<br />\n");
                 }
                 ?>
            </button> </td>
-            <td><button style="margin: 0px;padding: 3px 9px;font-size: 15px;background: #405467;border: 1px solid #405467;" type="button" class="btn btn-info"><?php echo $values['State']?></button></td>
             <td><?php echo $values['TAT_0'] ."<br>(". $values['TAT_0_per']."%)";?></td>
             <td><?php echo $values['TAT_1'] ."<br>(". $values['TAT_1_per']."%)";?></td>
             <td><?php echo $values['TAT_2'] ."<br>(". $values['TAT_2_per']."%)";?></td>
