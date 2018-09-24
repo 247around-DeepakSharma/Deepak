@@ -796,12 +796,12 @@ rm_dashboard.controller('bracketsSnapshot_Controller', function ($scope, $http) 
             
             $("#brackets_loader").css("display", "none");
      });
-    }
+    };
 });
 
  //This Function is used to call Completed Booking Days Reports
 admin_dashboard.controller('completedBooking_Controller', function ($scope, $http) { 
-    $scope.loadCompletedBookingView = function(pending_url){ 
+    $scope.loadCompletedBookingView = function(pending_url){
             $scope.completedBookingByRM = "";
             $http.get(pending_url).then(function (response) { 
             $("#loader_gif_completed_rm").css("display", "none");
@@ -834,7 +834,7 @@ admin_dashboard.controller('completedBooking_Controller', function ($scope, $htt
                  if(!upcountry){
                     upcountry = "not_set";
                 }
-              $scope.loadCompletedBookingView(baseUrl + "/employee/dashboard/completed_booking_count_by_rm/"+startDate+"/"+endDate+"/"+status+"/"+service_id+"/"+request_type+"/"+free_paid+"/"+upcountry);
+              $scope.loadCompletedBookingView(baseUrl + "/employee/dashboard/get_booking_tat_report/"+startDate+"/"+endDate+"/"+status+"/"+service_id+"/"+request_type+"/"+free_paid+"/"+upcountry+"/RM");
     }
 });
 rm_dashboard.controller('completedBooking_Controller', function ($scope, $http) { 
@@ -871,7 +871,7 @@ rm_dashboard.controller('completedBooking_Controller', function ($scope, $http) 
                  if(!upcountry){
                     upcountry = "not_set";
                 }
-              $scope.loadCompletedBookingView(baseUrl + "/employee/dashboard/completed_booking_count_by_rm/"+startDate+"/"+endDate+"/"+status+"/"+service_id+"/"+request_type+"/"+free_paid+"/"+upcountry);
+              $scope.loadCompletedBookingView(baseUrl + "/employee/dashboard/get_booking_tat_report/"+startDate+"/"+endDate+"/"+status+"/"+service_id+"/"+request_type+"/"+free_paid+"/"+upcountry+"/RM");
     }
 });
 //This Function is used to call Completed Booking Days Reports
@@ -909,6 +909,6 @@ admin_dashboard.controller('completedBooking_ControllerAM', function ($scope, $h
                  if(!upcountry){
                     upcountry = "not_set";
                 }
-              $scope.loadCompletedBookingViewAM(baseUrl + "/employee/dashboard/completed_booking_count_by_rm/"+startDate+"/"+endDate+"/"+status+"/"+service_id+"/"+request_type+"/"+free_paid+"/"+upcountry+"/AM");
+              $scope.loadCompletedBookingViewAM(baseUrl + "/employee/dashboard/get_booking_tat_report/"+startDate+"/"+endDate+"/"+status+"/"+service_id+"/"+request_type+"/"+free_paid+"/"+upcountry+"/AM");
     }
 });

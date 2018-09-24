@@ -71,7 +71,7 @@
                         </div>
                     </div>
                 </div>
-                    <div class="form-group col-md-3">
+                <div class="form-group col-md-3" style="    width: 18%;">
                                          <label for="">Booking Completed Date <button type="button"class="btn btn-default" style="float: right;margin-bottom: 10px;padding: 1px 4px;margin-top: 0px;font-size: 8px;margin-left: 5px;background: #008000;
     color: #fff;border: none;" data-toggle="tooltip"data-placement="left"title="By Default last 30 days">?</button></label>
                                          <input type="text" class="form-control" name="daterange_completed_bookings" id="completed_daterange_id">
@@ -86,6 +86,7 @@
                     </div>
                 <button class="btn btn-primary" style="margin-top: 23px;background: #c1591c;border-color: #c1591c;" onclick="fetch_filtered_tat_report()">Apply Filters</button>
              </div>
+            <div class="clearfix"></div>
             <hr style="border: 1px solid #2c9d9c;">  
             <div class="col-md-12" id="tat_holder">
                 <table class="table table-bordered" id="tat_table">
