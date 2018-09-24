@@ -1685,6 +1685,16 @@ function manageAccountNameField(value){
             var bank_account = $('#bank_account').val();
             var ifsc_code = $('#ifsc_code').val();
             var beneficiary = $('#beneficiary_name').val();
+            if(!$('#ifsc_code').val().match('^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]+$')){
+                alert("Please enter alphanumeric value for IFSC Code");
+                return false;
+            }
+            
+            if($('#ifsc_code').val().length < 11){
+                alert("Please enter 11 alphanumeric number");
+                return false;
+            }
+               
             if((cheque_final) && !(bank_name == null || bank_name == '') && !(account_type == null || account_type == '') && !(bank_account == null || bank_account == '') && 
                     !(ifsc_code == null || ifsc_code == '') && !(beneficiary == null || beneficiary == '')){
                return true;
@@ -1693,6 +1703,7 @@ function manageAccountNameField(value){
                     alert("Please Fill all banks related fields");
                     return false;
                 }
+             
         }
     function validateGSTNo(){
         var gstin = $("#gst_no").val();
