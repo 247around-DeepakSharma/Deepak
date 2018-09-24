@@ -249,10 +249,11 @@
     });
 });
 function fetch_filtered_tat_report(){
-    get_sf_tat_report("Installation","Installation");
-    get_sf_tat_report("Repair_with_part","Repair With Spare");
-    get_sf_tat_report("Repair_without_part","Repair without Spare");
-    get_sf_tat_report("Repair","Repair");
+    get_sf_tat_report("Installation");
+    get_sf_tat_report("Repair_with_part");
+    get_sf_tat_report("Repair_without_part");
+    get_sf_tat_report("Repair");
+   get_sf_tat_report();
 }
 function get_header_summary(){
        $.ajax({
