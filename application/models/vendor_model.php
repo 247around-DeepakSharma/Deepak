@@ -1876,27 +1876,39 @@ class vendor_model extends CI_Model {
         return $query->result_array();
     }
     
-     /**
+    /**
      * @desc: This function is used to get detail of given email id
     **/
     function search_email($email_id){
        
-            $sql =  "SELECT 'partner' as entity_type, company_name as 'name', CASE 
-                                WHEN `primary_contact_email` = '".$email_id."' THEN 'primary_contact_email'
-                                WHEN `owner_email` = '".$email_id."' THEN 'owner_email'
-                                WHEN `owner_alternate_email` = '".$email_id."' THEN 'owner_alternate_email'
-                                WHEN `upcountry_approval_email` = '".$email_id."' THEN 'upcountry_approval_email'
-                                END AS 'email_type'
-                FROM partners WHERE primary_contact_email = '".$email_id."' OR owner_email = '".$email_id."' OR owner_alternate_email = '".$email_id."' OR upcountry_approval_email = '".$email_id."'
+        $sql =  "SELECT 'partner' as entity_type, company_name as 'name', CASE 
+                            WHEN `primary_contact_email` = '".$email_id."' THEN 'primary_contact_email'
+                            WHEN `owner_email` = '".$email_id."' THEN 'owner_email'
+                            WHEN `owner_alternate_email` = '".$email_id."' THEN 'owner_alternate_email'
+                            WHEN `upcountry_approval_email` = '".$email_id."' THEN 'upcountry_approval_email'
+                            END AS 'email_type'
+            FROM partners WHERE primary_contact_email = '".$email_id."' OR owner_email = '".$email_id."' OR owner_alternate_email = '".$email_id."' OR upcountry_approval_email = '".$email_id."'
+            UNION
+            SELECT 'vendor' as entity_type, company_name as 'name', CASE 
+                            WHEN `email` = '".$email_id."' THEN 'email'
+                            WHEN `primary_contact_email` = '".$email_id."' THEN 'primary_contact_email'
+                            WHEN `owner_email` = '".$email_id."' THEN 'owner_email'
+                            END AS 'email_type'
+            FROM service_centres WHERE email= '".$email_id."' OR primary_contact_email = '".$email_id."' OR owner_email = '".$email_id."'";
+
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
+    /**
+     * @desc: This function is used to get searched gstin detail
+    **/
+    function search_gstn_number($gst_no){
+       $sql =  "SELECT 'vendor' as 'entity', company_name as 'name', gst_no as 'gst_number', gst_status as 'gst_status', gst_taxpayer_type as 'gst_type' FROM service_centres where gst_no in (".$gst_no.") 
                 UNION
-                SELECT 'vendor' as entity_type, company_name as 'name', CASE 
-                                WHEN `email` = '".$email_id."' THEN 'email'
-                                WHEN `primary_contact_email` = '".$email_id."' THEN 'primary_contact_email'
-                                WHEN `owner_email` = '".$email_id."' THEN 'owner_email'
-                                END AS 'email_type'
-                FROM service_centres WHERE email= '".$email_id."' OR primary_contact_email = '".$email_id."' OR owner_email = '".$email_id."'";
-            
-            $query = $this->db->query($sql);
-            return $query->result_array();
+                SELECT 'partner' as 'entity', public_name as 'name', gst_number as 'gst_number', 'gst_status', 'gst_type' FROM partners where gst_number in (".$gst_no.")";
+
+        $query = $this->db->query($sql);
+        return $query->result_array();
     }
 }
