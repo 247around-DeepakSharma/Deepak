@@ -247,6 +247,7 @@ $(document).ready(function(){
             $('#div_id').removeClass('hidden');
             $('#div_partner_id').addClass('hidden');
             $('#div_sf_id').addClass('hidden');
+            $('#div_partner').addClass('hidden');
         }
         else if(selectedDocument=="contract"){
             if($("#entity_type").val() == "partner"){
