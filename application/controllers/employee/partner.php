@@ -5630,4 +5630,70 @@ function get_shipped_parts_list($offset = 0) {
         );
         echo json_encode($output);
     }
+     
+    /**
+     * @desc: This is used to show the partner contract list
+     * @param void
+     * @return void
+     */
+    function show_contract_list(){
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/show_contract_list');
+    }
+    
+    /**
+     * @desc: This is used to get the partner contract list
+     * @param void
+     * @return void
+     */
+    function get_contract_list(){
+        log_message("info", __METHOD__."");
+        $post['length'] = $this->input->post('length');
+        $post['start'] = $this->input->post('start');
+        $search = $this->input->post('search');
+        $post['search_value'] = $search['value'];
+        $post['order'] = $this->input->post('order');
+        $post['draw'] = $this->input->post('draw');
+        
+        $post['column_order'] = array( NULL, 'partners.id');
+        $post['column_search'] = array('partners.public_name', 'collateral_type.collateral_tag', 'collateral.start_date', 'collateral.end_date');
+        
+        $select = 'partners.public_name, collateral_type.collateral_tag, collateral.document_description, collateral.start_date, collateral.end_date';
+        
+        $post['where']['entity_type'] = 'partner';
+        $post['where']['is_valid'] = '1';
+       
+        $list = $this->partner_model->search_contract_detail($select, $post);                            
+       
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $contract_list) {
+            $no++;
+            $row =  $this->contract_table_data($contract_list, $no);
+            $data[] = $row;
+        }
+       
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $this->reusable_model->get_search_query('collateral', 'count(id) as total',  $post['where'], NULL, NULL, NULL, NULL, NULL)->result_array()[0]['total'],
+            "recordsFiltered" => $this->reusable_model->get_search_query('collateral', 'count(id) as total',  $post['where'], NULL, NULL, NULL, NULL, NULL)->result_array()[0]['total'],
+            "data" => $data,
+        );
+        
+        echo json_encode($output);
+    }
+    
+    function contract_table_data($contract_list, $no){
+        
+        $row = array();
+        $row[] = $no;
+        $row[] = $contract_list->public_name;
+        $row[] = $contract_list->collateral_tag;
+        $row[] = $contract_list->document_description;
+        $row[] = $contract_list->start_date;
+        $row[] = $contract_list->end_date;
+        return $row;
+        
+    }
+    
 }

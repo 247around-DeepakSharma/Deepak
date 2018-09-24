@@ -8125,3 +8125,5 @@ INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `li
 ALTER TABLE `spare_parts_details` ADD `reverse_sale_invoice_id` VARCHAR(128) NULL DEFAULT NULL AFTER `sell_price`, ADD `reverse_purchase_invoice_id` VARCHAR(128) NULL DEFAULT NULL AFTER `reverse_sale_invoice_id`;
 --Chhavi 21st Nov
 ALTER TABLE `spare_parts_details` ADD `defactive_part_received_date_by_courier_api` DATETIME NULL AFTER `defective_part_shipped_date`;
+--Kalyani 22 Sep 
+ALTER TABLE `courier_company_invoice_details` ADD `invoice_id` VARCHAR(255) NOT NULL AFTER `courier_charge`, ADD `billable_weight` INT NOT NULL AFTER `invoice_id`, ADD `actual_weight` INT NOT NULL AFTER `billable_weight`;
