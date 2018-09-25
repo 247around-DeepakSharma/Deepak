@@ -8127,4 +8127,6 @@ ALTER TABLE `employee_relation` ADD `region` VARCHAR(128) NULL AFTER `state_code
 UPDATE employee_relation SET state_code = "North" WHERE employee_id = '36'
 UPDATE employee_relation SET state_code = "West" WHERE employee_id = '38'
 UPDATE employee_relation SET state_code = "East" WHERE employee_id = '24'
-UPDATE employee_relation SET state_code = "South" WHERE employee_id = '16'
+UPDATE employee_relation SET state_code = "South" WHERE employee_id = '16'UPDATE employee_relation SET state_code = "South" WHERE employee_id = '16'--Chhavi 25th november
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES
+(NULL, 'oow_estimate_updated', 'Repair OOW Parts Estimate Updated By Partner For Booking ID %s', 'Updated Spare Estimate Amount: Rs. %s', 'noreply@247around.com', '', 'chhavid@247around, anuj@247around.com', '', '1', '2018-09-25 18:26:57');
