@@ -5161,9 +5161,9 @@ class Partner extends CI_Controller {
             $initialBooking = strtotime($row->initial_booking_date);
             $now = time();
             $datediff = $now - $initialBooking;
-            $days= round($datediff / (60 * 60 * 24));
-            $futureBookingDateMsg = "Booking has future booking date so you can not escalate the booking";
-            $partnerDependencyMsg = 'Escalation can not be Processed, Because booking in '.$row->partner_internal_status.' state';
+            $days= $datediff / (60 * 60 * 24);
+            $futureBookingDateMsg = "'Booking has future booking date so you can not escalate the booking'";
+            $partnerDependencyMsg = "'Escalation can not be Processed, Because booking in ".$row->partner_internal_status." state'";
             if ($row->type == "Query") {
                 $helperText_2 = 'style="pointer-events: none;background: #ccc;border-color:#ccc;"'; 
             }
@@ -5171,7 +5171,7 @@ class Partner extends CI_Controller {
                $helperText_2 =  'data-target="#myModal"';
             } 
             else if($days<0){  
-              $helperText_2 =  'onclick="alert("'.$futureBookingDateMsg.'")"' ;
+              $helperText_2 =  'onclick="alert('.$futureBookingDateMsg.')"' ;
             }
             else{
               $helperText_2 = 'onclick="alert("'.$partnerDependencyMsg.'")"'; 
@@ -5379,12 +5379,12 @@ class Partner extends CI_Controller {
         $finalArray = array();
         $postData = $this->input->post();
         $state = 0;
+         $columnMappingArray = array("column_1"=>"bd.booking_id","column_2"=>"request_type","column_4"=>"services","column_5"=>"appliance_brand","column_6"=>"appliance_category","column_7"=>"appliance_capacity"
+             ,"column_10"=>"bd.upcountry_distance","column_11"=>"bd.partner_upcountry_rate");    
+         $order_by = "bd.booking_id";
          if($this->session->userdata('is_filter_applicable') == 1){
               $state = 1;
-           }
-        $columnMappingArray = array("column_1"=>"bd.booking_id","column_3"=>"CONCAT('',GROUP_CONCAT((defective_part_shipped ) ))",
-            "column_4"=>"courier_name_by_sf");    
-        $order_by = "bd.booking_id DESC";
+           }  
         if(array_key_exists("order", $postData)){
               $order_by = $columnMappingArray["column_".$postData['order'][0]['column']] ." ". $postData['order'][0]['dir'];
           }
@@ -5740,6 +5740,76 @@ class Partner extends CI_Controller {
         $row[] = $contract_list->end_date;
         return $row;
         
+    }
+    
+    function update_spare_estimate_quote(){
+        $response = $unit_response = $booking_response = FALSE;
+        $booking_id = $this->input->post("booking_id");
+        $vendor_id = $this->input->post("vendor_id");
+        $amount_due = $this->input->post("amount_due");
+        $spare_id = $this->input->post("spare_id");
+        $updated_price = $this->input->post("updated_price");
+        $partner_id = $this->input->post("partner_id");
+        $agent_id = $this->input->post("agent_id");
+        $booking_unit_id = $this->input->post("booking_unit_id");
+        if($spare_id && $booking_unit_id && $booking_id && $updated_price && $vendor_id && $partner_id){
+            //Update Spare Table
+            $where = array('id' => $spare_id);
+            $data['purchase_price'] = $updated_price;
+            $data['sell_price'] = ($updated_price + $updated_price *SPARE_OOW_EST_MARGIN );
+            $data['estimate_cost_given_date'] = date('Y-m-d');
+            $response = $this->service_centers_model->update_spare_parts($where, $data);
+            if ($response) {
+                //Update Booking_unit_details_table
+                $unit['vendor_basic_percentage'] = ($updated_price * REPAIR_OOW_VENDOR_PERCENTAGE)/$data['sell_price'];
+                $unit['customer_total'] = $data['sell_price'];
+                $unit['ud_update_date'] = date("Y-m-d H:i:s");
+                $unit_where = array('id' => $booking_unit_id);
+                $unit_response = $this->booking_model->update_booking_unit_details_by_any($unit_where,$unit);
+            }
+            if($unit_response){
+                //Update Booking_details table
+                $booking['amount_due'] = ($amount_due + $data['sell_price']);
+                $booking_response = $this->booking_model->update_booking($booking_id, $booking);
+            }
+            if($booking_response){
+                //Update Booking_History Table
+                if($this->session->userdata('partner_id')){
+                    $this->notify->insert_state_change($booking_id, SPARE_OOW_EST_UPDATED, SPARE_OOW_EST_GIVEN, "UPDATED Price - ".$updated_price, $agent_id, "", $actor,$next_action,$partner_id);
+                }else if($this->session->userdata('service_center_id')){
+                    $this->notify->insert_state_change($booking_id, SPARE_OOW_EST_UPDATED, SPARE_OOW_EST_GIVEN, "UPDATED Price - ".$updated_price, $agent_id, "", $actor,$next_action,NULL,$this->session->userdata('service_center_id'));
+                } else {
+                    $this->notify->insert_state_change($booking_id, SPARE_OOW_EST_UPDATED, SPARE_OOW_EST_GIVEN, "UPDATED Price - ".$updated_price, _247AROUND_DEFAULT_AGENT, "", $actor,$next_action, _247AROUND);
+                }
+            }
+            if($response && $unit_response && $booking_response){
+                //Update Job Card
+                $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
+                //Send Price Updation Email
+                $template = $this->booking_model->get_booking_email_template("oow_estimate_updated");
+                if (!empty($template)) {
+                    $to = "";
+                    $am_data = $this->miscelleneous->get_am_data($partner_id);
+                    if(!empty($am_data)){
+                        $to = $am_data[0]['official_email'];
+                    }
+                    $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_id);
+                    if(!empty($rm_details)){
+                        $to = (!empty($to))? $to.", ".$rm_details[0]['official_email']: $rm_details[0]['official_email'];
+                    }
+                    if (!empty($to)) {
+                        $to = $am_data[0]['official_email'];
+                        $subject = vsprintf($template[4], $booking_id);
+                        $emailBody = vsprintf($template[0], $updated_price);
+                        $this->notify->sendEmail($template[2], $to, $template[3], '', $subject, $emailBody, "",'oow_estimate_updated');
+                    }
+                }
+                return true;
+            }
+            else{
+                return false;
+            }
+        }
     }
     
 }
