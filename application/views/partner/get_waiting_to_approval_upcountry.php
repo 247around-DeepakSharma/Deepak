@@ -95,7 +95,7 @@
             },
             "columnDefs": [
             {
-                   //"targets": [0,2,5,6,8,9,10,11,12,13], //first column / numbering column
+                    "targets": [0,2,3,8,9,12], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],  

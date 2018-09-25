@@ -5161,9 +5161,9 @@ class Partner extends CI_Controller {
             $initialBooking = strtotime($row->initial_booking_date);
             $now = time();
             $datediff = $now - $initialBooking;
-            $days= round($datediff / (60 * 60 * 24));
-            $futureBookingDateMsg = "Booking has future booking date so you can not escalate the booking";
-            $partnerDependencyMsg = 'Escalation can not be Processed, Because booking in '.$row->partner_internal_status.' state';
+            $days= $datediff / (60 * 60 * 24);
+            $futureBookingDateMsg = "'Booking has future booking date so you can not escalate the booking'";
+            $partnerDependencyMsg = "'Escalation can not be Processed, Because booking in ".$row->partner_internal_status." state'";
             if ($row->type == "Query") {
                 $helperText_2 = 'style="pointer-events: none;background: #ccc;border-color:#ccc;"'; 
             }
@@ -5171,7 +5171,7 @@ class Partner extends CI_Controller {
                $helperText_2 =  'data-target="#myModal"';
             } 
             else if($days<0){  
-              $helperText_2 =  'onclick="alert("'.$futureBookingDateMsg.'")"' ;
+              $helperText_2 =  'onclick="alert('.$futureBookingDateMsg.')"' ;
             }
             else{
               $helperText_2 = 'onclick="alert("'.$partnerDependencyMsg.'")"'; 
@@ -5379,12 +5379,12 @@ class Partner extends CI_Controller {
         $finalArray = array();
         $postData = $this->input->post();
         $state = 0;
+         $columnMappingArray = array("column_1"=>"bd.booking_id","column_2"=>"request_type","column_4"=>"services","column_5"=>"appliance_brand","column_6"=>"appliance_category","column_7"=>"appliance_capacity"
+             ,"column_10"=>"bd.upcountry_distance","column_11"=>"bd.partner_upcountry_rate");    
+         $order_by = "bd.booking_id";
          if($this->session->userdata('is_filter_applicable') == 1){
               $state = 1;
-           }
-        $columnMappingArray = array("column_1"=>"bd.booking_id","column_3"=>"CONCAT('',GROUP_CONCAT((defective_part_shipped ) ))",
-            "column_4"=>"courier_name_by_sf");    
-        $order_by = "bd.booking_id DESC";
+           }  
         if(array_key_exists("order", $postData)){
               $order_by = $columnMappingArray["column_".$postData['order'][0]['column']] ." ". $postData['order'][0]['dir'];
           }
