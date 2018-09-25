@@ -403,6 +403,8 @@ define('BUYBACK_VOUCHER','Buyback_Voucher');
 define('PARTNER_VOUCHER','Partner_Voucher');
 define('VENDOR_VOUCHER','Vendor_Voucher');
 
+define('BUYBACK_TYPE','Buyback');
+
 define('CLAIM_DEBIT_NOTE_RAISED','Claim Debit Note Raised');
 
 define('SF_NOTIFICATION_MSG','Urgent - Update your GST number by clicking on the GST link above IMMEDIATELY. Your CRM will get deactivated if GST is not updated soon.');
