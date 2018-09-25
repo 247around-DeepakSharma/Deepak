@@ -108,7 +108,7 @@
                                 <p><strong>About: </strong> Accountant </p>
                                 <ul class="list-unstyled">
                                     <li><i class="fa fa-phone"></i> Phone: 9268953761</li>
-                                    <li><i class="fa fa-envelope"></i> Email: billing@247around.com </li>
+                                    <li><i class="fa fa-envelope"></i> Email: pankajk@247around.com </li>
                                 </ul>
                             </div>
                         </div>
