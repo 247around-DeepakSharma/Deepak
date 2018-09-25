@@ -59,7 +59,7 @@
                     <h5><b>Mr. Pankaj Kumar</b></h5> 
                     <p>Delhi Office</p>
                     <p>‭+91 9268953761</p>
-                    <p>billing@247around.com</p>
+                    <p>pankajk@247around.com</p>
                 </div>
             </div>
         </div>
