@@ -1909,7 +1909,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                 $subject = $template[4];
                 $data['text'] = vsprintf($template[0], array($partnerArray[0]['review_time_limit']));
                 $message = $this->load->view('employee/partner_review_booking_email_template',$data,true);
-                $to =  $partnerArray[0]['primary_contact_email'];
+                $to =  $partner['primary_contact_email'];
                 $bcc = $template[5];
                 $cc = $template[1];
                 $from = $template[2];
