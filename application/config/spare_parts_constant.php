@@ -8,6 +8,7 @@ define("REPAIR_OOW_TAG", "Repair - Out Of Warranty (Home Visit)");
 define("REPAIR_IN_WARRANTY_TAG", "Repair - In Warranty (Home Visit)");
 define('SPARE_OOW_EST_REQUESTED','Request Quote for Spare Part');
 define('SPARE_OOW_EST_GIVEN','Spare Estimate Cost Given');
+define('SPARE_OOW_EST_UPDATED','Spare Estimate Cost Updated');
 define('SPARE_OOW_EST_MARGIN','0.25');
 define('REPAIR_OOW_PARTS_PRICE_TAGS','Spare Parts');
 define('REPAIR_OOW_VENDOR_PERCENTAGE','10');
