@@ -147,7 +147,7 @@
                             
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 <?php if( form_error('model_number') ) { echo 'has-error';} ?>">
-                                    <label for="model_number_1">Model Number *  <span id="error_model" style="color: red;"></label>
+                                    <label for="model_number_1">Model Number  <span id="error_model" style="color: red;"></label>
                                     <span id="model_number_2">
                                     <select class="form-control"  name="model_number" id="model_number_1" >
                                         <option selected disabled>Select Model</option>
@@ -315,7 +315,7 @@
 
                         <div class="col-md-6">
                             <div class="form-group col-md-12  <?php if (form_error('query_remarks')) { echo 'has-error';} ?>">
-                                <label for="remarks">Remarks  <span id="error_remarks" style="color: red;"></label>
+                                <label for="remarks">Remarks*  <span id="error_remarks" style="color: red;"></label>
                                 <textarea class="form-control" rows="2" id="remarks" name="query_remarks"  placeholder="Enter Problem Description" ><?php echo set_value('query_remarks'); ?></textarea>
                                 <?php echo form_error('query_remarks'); ?>
                             </div>
@@ -372,7 +372,7 @@
                                     echo $user[0]['home_address'];
                                     } else {
                                         echo set_value('booking_address');
-                                    } ?>\
+                                    } ?>
                                 </textarea>
                                 <?php echo form_error('booking_address'); ?>
                             </div>
@@ -401,17 +401,17 @@
                             </div>
                             <?php //} ?>
                         </form>
-                        <?php //if(empty($this->session->userdata('status'))) { ?>
-<!--                            <div class="row">
+                        <?php if(empty($this->session->userdata('status'))) { ?>
+                            <div class="row">
                                 <div class="form-group  col-md-12" >
                                     <center>
                                   
-                                        <input type="submit" class="btn btn-primary " disabled value="Submit Booking"><br/><br/><br/>
-                                        <p id="error_not_visible" style="color: red"><?php echo $this->session->userdata('message'); ?></p>
+<!--                                        <input type="submit" class="btn btn-primary " disabled value="Submit Booking"><br/><br/><br/>-->
+                                        <p id="error_not_visible" style="color: red; margin-top: 10px;"></p>
                                     </center>
                                 </div>
-                            </div>-->
-                        <?php //}?>
+                            </div>
+                        <?php }?>
                     </div>
                 </div>
             </div>
@@ -460,6 +460,12 @@
            display_message("name","error_username","green","");
             
         }
+        if(appliance === null){
+            display_message("service_name","error_appliance","red","Please Select Appliance");
+             return false;
+        } else {
+            display_message("service_name","error_appliance","green","");
+        }
         if(pincode === ""){
               display_message("booking_pincode","error_pincode","red","Please Enter Pincode");
              return false;
@@ -475,12 +481,7 @@
              display_message("booking_city","error_city","green","");
             
         }
-        if(appliance === null){
-            display_message("service_name","error_appliance","red","Please Select Appliance");
-             return false;
-        } else {
-            display_message("service_name","error_appliance","green","");
-        }
+        
         if(brand === null){
             display_message("appliance_brand_1","error_brand","red","Please Select Brand");
              return false;
@@ -508,18 +509,6 @@
            display_message("partner_source","error_seller","green","");
             
         }
-        if(purchase_date === ""){
-              display_message("purchase_date","error_purchase_date","red","Please Enter Purchase Date");
-             return false;
-        } else {
-           display_message("booking_pincode","error_purchase_date","green",""); 
-        }
-        
-        if(not_visible === 0){
-             display_message("not_visible","error_not_visible","red","Service Temporarily Un-available In This Pincode, Please Contact 247around Team.");
-             return false;
-        }
-        
         service_category =0;
          $("input[type=checkbox]:checked").each(function(i) {
             service_category = 1;
@@ -534,13 +523,6 @@
              $("#selected_service").css("color","black");
           
         }
-        
-//        if(order_id === '' && serial_number === '' && dealer_phone_number === ''){
-//            alert("Please Fill Any one of these Order Id/Serial Number/Dealer Phone Number");
-//            return false;
-//        } 
-        
-       
         if(dealer_phone_number !== "" && dealer_name === ""){
              alert("Please Enter Dealer Name");
              return false;
@@ -549,6 +531,25 @@
             alert('Please Enter Valid Dealer Phone Number');   
             return false;
         }
+        if(purchase_date === ""){
+              display_message("purchase_date","error_purchase_date","red","Please Enter Purchase Date");
+             return false;
+        } else {
+           display_message("purchase_date","error_purchase_date","green",""); 
+        }
+        
+        if(not_visible === 0){
+             display_message("not_visible","error_not_visible","red","Service Temporarily Un-available In This Pincode, Please Contact 247around Team.");
+             return false;
+        }
+        
+//        if(order_id === '' && serial_number === '' && dealer_phone_number === ''){
+//            alert("Please Fill Any one of these Order Id/Serial Number/Dealer Phone Number");
+//            return false;
+//        } 
+        
+       
+        
         
 //        if (order_id === "" && serial_number === ""  ) {
 //             document.getElementById('order_id').style.borderColor = "red";
@@ -565,13 +566,13 @@
 //            document.getElementById('error_serial_number').innerHTML = "";
 //        }
 
-        if(booking_address === ""){
+        if(booking_address.trim().length < 1){
              display_message("booking_address","error_address","red","Please Enter Booking Address");
              return false;
         } else {
-          display_message("booking_address","error_address","green","");
+            display_message("booking_address","error_address","green","");
         }
-      
+        
         if(remarks === ""){
              document.getElementById('remarks').style.borderColor = "red";
              document.getElementById('error_remarks').innerHTML = "Please Enter Problem Description";
@@ -581,21 +582,20 @@
             document.getElementById('error_remarks').innerHTML = "";  
         }
         
-        <?php if(empty($this->session->userdata('status'))){ ?>
+       
+        <?php if(empty($this->session->userdata('status'))){   ?>
                 var grand_total = Number($("#grand_total").val());
                 if(grand_total < 2){
-                     alert("<?php echo $this->session->userdata("message");?>");
-                     document.getElementById('error_not_visible').innerHTML = "<?php echo $this->session->userdata("message");?>";  
+                    alert("<?php echo $this->session->userdata("message");?>");
+                    document.getElementById('error_not_visible').innerHTML = "<?php echo $this->session->userdata("message");?>"; 
+                    return false;
                 }
-                
-            return false;
+               
        <?php } ?>
         
         $('#submitform').val("Please wait.....");
         
         return true;
-        
-       
     }
     
     
