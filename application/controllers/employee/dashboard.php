@@ -1564,65 +1564,89 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         return $structuredArray;
     }
     function get_tat_conditions_by_filter($startDate=NULL,$endDate=NULL,$status="not_set",$service_id="not_set",$request_type="not_set",$free_paid="not_set",$upcountry ="not_set",$partner_id = NULL){
-        $where = $joinType = $groupBY = $join = array();
-        if($startDate && $endDate){
-            $where["(date(booking_details.service_center_closed_date) >= '".$startDate."' AND date(booking_details.service_center_closed_date) <= '".$endDate."') "] = NULL;
-        }
-        if($status !="not_set"){
-            if($status == 'Completed'){
-                 $where['!(current_status = "Cancelled" OR internal_status ="InProcess_Cancelled")'] = NULL; 
+            $where = $joinType = $groupBY = $join = $requestTypeArray = array();
+            //Filter For date
+            if($startDate && $endDate){
+                $where["(date(booking_details.service_center_closed_date) >= '".$startDate."' AND date(booking_details.service_center_closed_date) <= '".$endDate."') "] = NULL;
             }
-            else{
-                $where['(current_status = "Cancelled" OR internal_status = "InProcess_Cancelled")'] = NULL; 
+            //Filter on status
+            if($status !="not_set"){
+                if($status == 'Completed'){
+                     $where['!(current_status = "Cancelled" OR internal_status ="InProcess_Cancelled")'] = NULL; 
+                }
+                else{
+                    $where['(current_status = "Cancelled" OR internal_status = "InProcess_Cancelled")'] = NULL; 
+                }
             }
-        }
-        if($service_id !="not_set"){
-             $where['booking_details.service_id'] = $service_id;
-        }
-        if($request_type !="not_set"){
-                if(strpos($request_type,"Repair") !== false){
-                    $where['booking_details.request_type LIKE "%Repair%"'] = NULL;
-                    if($request_type == 'Repair'){
+            //Filter on service ID
+            if($service_id !="not_set"){
+                 $where['booking_details.service_id'] = $service_id;
+            }
+            //Filter on request Type
+            if($request_type !="not_set"){
+                $requestTypeArray = explode(':',$request_type);
+                $join['spare_parts_details'] = "spare_parts_details.booking_id = booking_details.booking_id";
+                $joinType['spare_parts_details']  = "left";
+                foreach($requestTypeArray as $request_type){
+                    if($request_type == 'Repair_with_part'){
+                        $where['request_type LIKE "%Repair%"'] = NULL;                        
+                        $where['spare_parts_details.booking_id IS NOT NULL'] = NULL;
                     }
-                    else{
-                        $join['spare_parts_details'] = "spare_parts_details.booking_id = booking_details.booking_id";
-                        if($request_type != 'Repair_with_part'){
-                            $where['spare_parts_details.booking_id IS NULL'] = NULL;
-                            $joinType['spare_parts_details']  = "left";
-                        }
+                    else if($request_type == 'Repair_without_part'){
+                        $where['request_type LIKE "%Repair%"'] = NULL;
+                        $where['spare_parts_details.booking_id IS NULL'] = NULL;
                     }
+                    else if($request_type == 'Installation'){
+                        $where['request_type NOT LIKE "%Repair%"'] = NULL;
+                        $where['spare_parts_details.booking_id IS NULL'] = NULL;
+                    }
+                }
+                $count = count($requestTypeArray);
+                if(array_key_exists('request_type NOT LIKE "%Repair%"', $where) && array_key_exists('request_type LIKE "%Repair%"', $where)){
+                    unset($where['request_type NOT LIKE "%Repair%"']);
+                    unset($where['request_type LIKE "%Repair%"']);
+                }
+                if(array_key_exists('spare_parts_details.booking_id IS NULL', $where) && array_key_exists('spare_parts_details.booking_id IS NOT NULL', $where)){
+                    unset($where['spare_parts_details.booking_id IS NULL']);
+                    unset($where['spare_parts_details.booking_id IS NOT NULL']);
+                }
+                if($count == 2 && in_array("Installation",$requestTypeArray) &&  in_array("Repair_with_part",$requestTypeArray)){
+                    $where['(spare_parts_details.booking_id IS NOT NULL AND request_type LIKE "%Repair%") OR (spare_parts_details.booking_id IS NULL AND request_type NOT LIKE "%Repair%")']= NULL;
+                }
             }
-            else{
-                $where['booking_details.request_type NOT LIKE "%Repair%"'] = NULL;
+            //Filter on free or paid
+            if($free_paid !="not_set"){ 
+                if($free_paid == "Yes"){
+                   $where['amount_due'] = '0';
+                }
+                else{
+                   $where['amount_due != 0'] = NULL;
+                }
             }
-        }
-        if($free_paid !="not_set"){ 
-            if($free_paid == "Yes"){
-               $where['amount_due'] = '0';
+            //Filter on upcountry
+            if($upcountry !="not_set"){
+                 $upcountryValue = 0;
+                 if($upcountry == 'Yes'){
+                     $upcountryValue = 1;
+                 }
+                $where['booking_details.is_upcountry'] = $upcountryValue;
             }
-            else{
-               $where['amount_due != 0'] = NULL;
+            //Filter on partner ID
+            if($this->input->post('partner_id')){
+                $where['booking_details.partner_id'] = $this->input->post('partner_id');
             }
+            if($this->session->userdata('partner_id')){
+               $where['booking_details.partner_id'] = $this->session->userdata('partner_id');
+            }
+            //only is sf closed date is not null
+            $where['service_center_closed_date IS NOT NULL'] = NULL;
+            //Group by on booking_tat
+            $groupBY = array("booking_tat.booking_id");
+            //Default join on booking_tat
+            $join['booking_tat'] = "booking_tat.booking_id = booking_details.booking_id";
+            return array("where"=>$where,"joinType"=>$joinType,"groupBy"=>$groupBY,"join"=>$join);
         }
-        if($upcountry !="not_set"){
-             $upcountryValue = 0;
-             if($upcountry == 'Yes'){
-                 $upcountryValue = 1;
-             }
-            $where['booking_details.is_upcountry'] = $upcountryValue;
-        }
-        if($this->input->post('partner_id')){
-            $where['booking_details.partner_id'] = $this->input->post('partner_id');
-        }
-        if($this->session->userdata('partner_id')){
-           $where['booking_details.partner_id'] = $this->session->userdata('partner_id');
-        }
-        $where['service_center_closed_date IS NOT NULL'] = NULL;
-        $groupBY = array("booking_tat.booking_id");
-        $join['booking_tat'] = "booking_tat.booking_id = booking_details.booking_id";
-        return array("where"=>$where,"joinType"=>$joinType,"groupBy"=>$groupBY,"join"=>$join);
-    }
-    function get_booking_tat_report($startDate=NULL,$endDate=NULL,$status="not_set",$service_id="not_set",$request_type="not_set",$free_paid="not_set",$upcountry ="not_set",$for = "RM",$partner_id = NULL){
+        function get_booking_tat_report($startDate=NULL,$endDate=NULL,$status="not_set",$service_id="not_set",$request_type="not_set",$free_paid="not_set",$upcountry ="not_set",$for = "RM",$partner_id = NULL){
         $conditionsArray  = $this->get_tat_conditions_by_filter($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry,$partner_id);
         $finalData = $data = array();
         if($for == "AM"){
@@ -1648,7 +1672,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         }
         echo json_encode($finalData);
     }
-    function get_data_for_sf_tat_filters($conditionsArray,$rmID,$is_am){
+    
+        function get_data_for_sf_tat_filters($conditionsArray,$rmID,$is_am){
         $sfData = array();
         $sfSelect = "CONCAT(service_centres.district,'_',service_centres.id) as id,service_centres.name as entity,booking_tat.booking_id,MAX(IFNULL(leg_1,'0')+IFNULL(leg_2,'0')+IFNULL(leg_3,'0')) AS TAT";
         if($is_am == 0){
