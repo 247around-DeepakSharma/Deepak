@@ -8133,6 +8133,77 @@ UPDATE employee_relation SET state_code = "South" WHERE employee_id = '16'
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES
 (NULL, 'oow_estimate_updated', 'Repair OOW Parts Estimate Updated By Partner For Booking ID %s', 'Updated Spare Estimate Amount: Rs. %s', 'noreply@247around.com', '', 'chhavid@247around, anuj@247around.com', '', '1', '2018-09-25 18:26:57');
 
+
 --Kalyani
 INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Search GSTIN', NULL, 'employee/vendor/seach_gst_number', '2', '80', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
 INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES ('', '247Around', 'Partner Contract List', NULL, 'employee/partner/show_contract_list', '2', '24', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
+
+
+-- Abhay 26 Sept
+
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET time_zone = "+00:00";
+
+--
+-- Database: `boloaaka`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tat_invoice_condition`
+--
+
+CREATE TABLE `tat_invoice_condition` (
+  `id` int(11) NOT NULL,
+  `entity` varchar(28) NOT NULL,
+  `entity_id` int(11) DEFAULT NULL,
+  `local_upcountry` int(11) NOT NULL COMMENT '0 means local and 1 means upcountry',
+  `installation_repair` int(11) NOT NULL COMMENT '0 means installation and 1 means repair',
+  `tat_with_in_days` int(11) NOT NULL,
+  `target_acheived_percentage` int(11) NOT NULL,
+  `penalty_below_criteria` int(11) NOT NULL,
+  `penalty_percentage` int(11) NOT NULL,
+  `basic_amount` decimal(10,0) NOT NULL DEFAULT '0',
+  `description` varchar(128) DEFAULT NULL,
+  `remarks` varchar(128) DEFAULT NULL,
+  `create_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `active` int(1) NOT NULL DEFAULT '1'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `tat_invoice_condition`
+--
+
+INSERT INTO `tat_invoice_condition` (`id`, `entity`, `entity_id`, `local_upcountry`, `installation_repair`, `tat_with_in_days`, `target_acheived_percentage`, `penalty_below_criteria`, `penalty_percentage`, `basic_amount`, `description`, `remarks`, `create_date`, `update_date`, `active`) VALUES
+(1, 'partner', 247073, 0, 0, 1, 70, 80, 5, '250', 'Local Installation', 'Within 1 day', '2018-09-21 11:12:20', '2018-09-25 17:05:19', 1),
+(2, 'partner', 247073, 0, 0, 3, 70, 80, 5, '250', 'Local Installation', 'Within 3 days', '2018-09-21 11:12:20', '2018-09-25 17:05:34', 1),
+(3, 'partner', 247073, 1, 0, 2, 70, 80, 5, '250', 'Upcountry Installation', 'Within 2 days', '2018-09-21 11:12:20', '2018-09-25 17:05:34', 1),
+(4, 'partner', 247073, 1, 0, 4, 70, 80, 5, '250', 'Upcountry Installation', 'Within 4 days', '2018-09-21 11:12:20', '2018-09-25 17:05:34', 1),
+(5, 'partner', 247073, 0, 1, 2, 70, 80, 5, '250', 'Local Repair Ist Visit', 'Within 2 days', '2018-09-21 11:12:20', '2018-09-25 17:05:34', 1),
+(6, 'partner', 247073, 0, 1, 3, 70, 80, 5, '250', 'Local Repair 1st Visit', 'Within 3 days', '2018-09-21 11:12:20', '2018-09-25 17:05:34', 1),
+(7, 'partner', 247073, 1, 1, 2, 70, 80, 5, '250', 'Upcountry Repair 1st Visit', 'Within 2 days', '2018-09-21 11:12:20', '2018-09-25 17:05:34', 1),
+(8, 'partner', 247073, 1, 1, 4, 70, 80, 5, '250', 'Upcountry Repair 1st Visit', 'Within 4 days', '2018-09-21 11:12:20', '2018-09-25 17:05:34', 1);
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `tat_invoice_condition`
+--
+ALTER TABLE `tat_invoice_condition`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `tat_invoice_condition`
+--
+ALTER TABLE `tat_invoice_condition`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
