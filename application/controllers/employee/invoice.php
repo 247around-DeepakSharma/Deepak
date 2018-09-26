@@ -443,48 +443,47 @@ class Invoice extends CI_Controller {
     function create_partner_invoices_detailed($partner_id, $f_date, $t_date, $invoice_type, $misc_data, $agent_id, $hsn_code) {
         
         log_message('info', __METHOD__ . "=> " . $invoice_type . " Partner Id " . $partner_id . ' invoice_type: ' . $invoice_type . ' agent_id: ' . $agent_id);
-        $data = $this->invoices_model->getpartner_invoices($partner_id, $f_date, $t_date);
+        $data = $misc_data['annexure'];
         $files = array();
         $template = 'Partner_invoice_detail_template-v3.xlsx';
 
-        $courier = $misc_data['final_courier'];
         $def_couier = $misc_data['courier'];
         $packaging_rate = $misc_data['packaging_rate'];
         $packaging_quantity = $misc_data['packaging_quantity'];
         $defective_part_by_wh = $misc_data['defective_part_by_wh'];
         $warehouse_courier = $misc_data['warehouse_courier'];
         $meta = $misc_data['meta'];
-        $upcountry = $misc_data['upcountry'];
         $miscellaneous_charge = $misc_data['misc'];
         $total_misc_charge = 0;
+        $total_penalty_discount = 0;
+        $penalty_booking_count = 0;
         $warehouse_fixed_charge = $misc_data['warehouse_storage_charge'];
         if(!empty($misc_data['misc'])){
             $total_misc_charge = (array_sum(array_column($misc_data['misc'], 'partner_charge')));
         }
         
-        $meta['total_courier_charge'] = (array_sum(array_column($courier, 'courier_charges_by_sf')));
+        $meta['total_courier_charge'] = (array_sum(array_column($misc_data['final_courier'], 'courier_charges_by_sf')));
         $meta['total_upcountry_price'] = 0;
         $total_upcountry_distance = $total_upcountry_booking = 0;
         
-        $num_booking = $meta['service_count'];
 
         $output_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-detailed.xlsx";
 
         $this->invoice_lib->generate_invoice_excel($template, $meta, $data, $output_file_excel);
 
         // Generate Upcountry Excel
-        if (!empty($upcountry)) {
-            $meta['total_upcountry_price'] = $upcountry[0]['total_upcountry_price'];
-            $total_upcountry_booking = $upcountry[0]['total_booking'];
-            $total_upcountry_distance = $upcountry[0]['total_distance'];
-            $u_files_name = $this->generate_partner_upcountry_excel($partner_id, $upcountry, $meta);
+        if (!empty($misc_data['upcountry'])) {
+            $meta['total_upcountry_price'] = $misc_data['upcountry'][0]['total_upcountry_price'];
+            $total_upcountry_booking = $misc_data['upcountry'][0]['total_booking'];
+            $total_upcountry_distance = $misc_data['upcountry'][0]['total_distance'];
+            $u_files_name = $this->generate_partner_upcountry_excel($partner_id, $misc_data['upcountry'], $meta);
             array_push($files, $u_files_name);
 
             log_message('info', __METHOD__ . "=> File created " . $u_files_name);
         }
 
-        if (!empty($courier)) {
-            $c_files_name = $this->generate_partner_courier_excel($courier, $meta);
+        if (!empty($misc_data['final_courier'])) {
+            $c_files_name = $this->generate_partner_courier_excel($misc_data['final_courier'], $meta);
             array_push($files, $c_files_name);
             log_message('info', __METHOD__ . "=> File created " . $c_files_name);
         }
@@ -494,6 +493,13 @@ class Invoice extends CI_Controller {
             $c_files_name = $this->generate_partner_misc_excel($miscellaneous_charge, $meta);
             array_push($files, $c_files_name);
             log_message('info', __METHOD__ . "=> File created " . $c_files_name);
+        }
+        
+        if(!empty($misc_data['penalty_discount'])){
+            $total_penalty_discount = (array_sum(array_column($misc_data['penalty_discount'], 'penalty_amount')));
+            $penalty_booking_count = (array_sum(array_column($misc_data['penalty_discount'], 'booking_failed')));
+            $c_files_name = $this->generate_partner_penalty_excel($misc_data['penalty_discount'], $misc_data['penalty_tat_count'], $meta['invoice_id']);
+            array_push($files, $c_files_name);
         }
 
         $this->combined_partner_invoice_sheet($output_file_excel, $files);
@@ -576,7 +582,9 @@ class Invoice extends CI_Controller {
                 'packaging_quantity' => $packaging_quantity,
                 'packaging_rate' => $packaging_rate,
                 'miscellaneous_charges' => $total_misc_charge,
-                'warehouse_storage_charges' => $warehouse_fixed_charge
+                'warehouse_storage_charges' => $warehouse_fixed_charge,
+                'penalty_amount'=> $total_penalty_discount,
+                'penalty_bookings_count' => $penalty_booking_count
             );
 
             $this->invoices_model->insert_new_invoice($invoice_details);
@@ -588,8 +596,8 @@ class Invoice extends CI_Controller {
                 $this->booking_model->update_booking_unit_details_by_any(array('id' => $value1['unit_id']), array('partner_invoice_id' => $meta['invoice_id']));
             }
 
-            if (!empty($upcountry)) {
-                foreach ($upcountry as $up_booking_details) {
+            if (!empty($misc_data['upcountry'])) {
+                foreach ($misc_data['upcountry'] as $up_booking_details) {
                     $up_b = explode(",", $up_booking_details['booking_id']);
                     for($i=0; $i < count($up_b); $i++){
                         
@@ -701,6 +709,20 @@ class Invoice extends CI_Controller {
         $template = 'Partner_invoice_detail_template-v2-misc.xlsx';
         $output_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-miscellaneous-detailed.xlsx";
         $this->invoice_lib->generate_invoice_excel($template, $meta, $data, $output_file_excel);
+        return $output_file_excel;
+    }
+    /**
+     * @desc This function is used to generate penalty annexure file
+     * Partner apply penalty on Around
+     * @param Array $tat_data
+     * @param Array $tat_count
+     * @param int $invoice_id
+     * @return string
+     */
+    function generate_partner_penalty_excel($tat_data, $tat_count, $invoice_id){
+        $template = 'partner_penalty_discount.xlsx';
+        $output_file_excel = TMP_FOLDER . $invoice_id . "-penalty-detailed.xlsx";
+        $this->invoice_lib->generate_invoice_excel($template, $tat_count, $tat_data, $output_file_excel, true);
         return $output_file_excel;
     }
 

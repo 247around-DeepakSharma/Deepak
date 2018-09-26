@@ -463,6 +463,8 @@
                                         <th >Acknowledge Date BY SF </th>
                                         <th >Remarks By SC </th>
                                         <th >Current Status</th>
+                                        <th >Vendor Invoice ID</th>
+                                        <th >Partner Invoice ID</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -498,6 +500,9 @@
                                         <td><?php echo $sp['acknowledge_date']; ?></td>
                                         <td><?php echo $sp['remarks_by_sc']; ?></td>
                                         <td><?php echo $sp['status']; ?></td>
+                                        <td><a  href="javascript:void(0)" onclick="get_invoice_data('<?php echo $sp['vendor_foc_invoice_id']; ?>')" ><?php echo $sp['vendor_foc_invoice_id']; ?></a></td>
+                                        <td><a  href="javascript:void(0)" onclick="get_invoice_data('<?php echo $sp['partner_invoice_id']; ?>')"><?php echo $sp['partner_invoice_id'];?></a></td>
+                                   
                                     </tr>
                                     <?php if(!is_null($sp['parts_shipped'])){ $parts_shipped = true;} if(!empty($sp['defective_part_shipped'])){
                                         $defective_parts_shipped = TRUE;

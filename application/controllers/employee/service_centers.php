@@ -1617,7 +1617,8 @@ class Service_centers extends CI_Controller {
             //Update Spare Parts table
             $ss = $this->service_centers_model->update_spare_parts($where, $sp_data);
             if ($ss) { //if($ss){
-                $is_requested = $this->partner_model->get_spare_parts_by_any("id, status, booking_id", array('booking_id' => $booking_id, 'status' => SPARE_SHIPPED_BY_PARTNER));
+                $is_requested = $this->partner_model->get_spare_parts_by_any("id, status, booking_id", array('booking_id' => $booking_id, 'status IN ("'.SPARE_SHIPPED_BY_PARTNER.'", "'
+                    .SPARE_PARTS_REQUESTED.'", "'.ESTIMATE_APPROVED_BY_CUSTOMER.'", "'.SPARE_OOW_EST_GIVEN.'", "'.SPARE_OOW_EST_REQUESTED.'") ' => NULL));
                 if ($this->session->userdata('service_center_id')) {
                         $agent_id = $this->session->userdata('service_center_agent_id');
                         $sc_entity_id = $this->session->userdata('service_center_id');

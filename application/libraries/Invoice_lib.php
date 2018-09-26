@@ -83,7 +83,7 @@ class Invoice_lib {
         }
     }
     
-    function generate_invoice_excel($template, $meta, $data, $output_file_excel) {
+    function generate_invoice_excel($template, $meta, $data, $output_file_excel, $meta_repeat = false) {
        
         // directory
         $templateDir = FCPATH . "application/controllers/excel-templates/";
@@ -97,7 +97,7 @@ class Invoice_lib {
         $R->load(array(
             array(
                 'id' => 'meta',
-                'repeat' => false,
+                'repeat' => $meta_repeat,
                 'data' => $meta,
                 'format' => array(
                     'date' => array('datetime' => 'd/M/Y')
