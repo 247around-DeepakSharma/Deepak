@@ -719,6 +719,7 @@
                                                     echo $query[0]['prepaid_amount_limit'];
                                                     } ?>" >
                                                 <?php echo form_error('prepaid_amount_limit'); ?>
+                                                 <p style="font-weight:bold;"><?php echo $query[0]['prepaid_amount_limit']; ?> is minimum pre paid amount</p>
                                             </div>
                                         </div>
                                     </div>
@@ -732,6 +733,7 @@
                                                     echo $query[0]['prepaid_notification_amount'];
                                                     } ?>" >
                                                 <?php echo form_error('prepaid_notification_amount'); ?>
+                                                 <p style="font-weight:bold;"><?php echo $query[0]['prepaid_notification_amount']; ?> is minimum notification amount</p>
                                             </div>
                                         </div>
                                     </div>
@@ -745,6 +747,7 @@
                                                     echo $query[0]['grace_period_date'];
                                                     } ?>" >
                                                 <?php echo form_error('grace_period_date'); ?>
+                                                <p style="font-weight:bold;">Account will be active before <?php echo $query[0]['grace_period_date']; ?></p>
                                             </div>
                                         </div>
                                     </div>
