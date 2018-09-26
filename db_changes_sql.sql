@@ -8234,3 +8234,7 @@ CREATE TABLE `gstin_detail` (
 ALTER TABLE `gstin_detail` ADD PRIMARY KEY(`id`);
 ALTER TABLE `gstin_detail` CHANGE `id` `id` INT(11) NOT NULL AUTO_INCREMENT;
 ALTER TABLE `gstin_detail` ADD `nature_of_business` VARCHAR(255) NOT NULL AFTER `company_name`;
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES (NULL, 'missed_upcountry_booking', 'Upcountry Booking Missed - Need To Take Action', 'Booking should be upcountry but not marked properly. AM need to take action to update their below bookings<br>%s', 'noreply@247around.com', '', '', '', '1', '', CURRENT_TIMESTAMP);
+
+
