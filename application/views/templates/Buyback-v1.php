@@ -25,9 +25,9 @@
     <body>
         <table class="table">
             <tr>
-                <td style="text-align: center;border-bottom: hidden; border-right: 1px solid;" colspan="6" ><h1 style="margin: 0px;"><?php echo $meta['company_name']; ?></h1></td></tr>
+                <td style="text-align: center;border-bottom: hidden; border-right: 1px solid;" colspan="6" ><h1 style="margin: 0px;">Blackmelon Advance Technology Co. Pvt. Ltd.</h1></td></tr>
             <tr style="">
-                <td colspan="5" align="center" style="padding-left: 20%"><?php echo $meta['company_address']; ?><br>Phone:  <?php echo $meta['owner_phone_1']; ?></td>
+                <td colspan="5" align="center" style="padding-left: 20%">A-1/7a, A BLOCK, KRISHNA NAGAR, DELHI 110051<br>Phone:  9555000247</td>
                 <td colspan="1" style="text-align: center; width: 20%; border-left: hidden; border-right: 2px solid;"><b>(<?php echo $meta['recipient_type']; ?>)</td>
             </tr>
 <!--            <tr style="font-weight: bold;"><td colspan="6" style="text-align: center;">Phone:  <?php //echo "$owner_phone_1"; ?></td></tr>-->
@@ -50,11 +50,11 @@
                 <td colspan="6" style="border-right: 2px solid;" align="center"><b>Bill to Party</b></tr>
 
 
-            <tr style="height: 20px" class="bold"><td colspan="6" style="border-right: 2px solid;">Name: Blackmelon Advance Technology Co. Pvt. Ltd.</td></tr>
-            <tr style="height: 5%"><td colspan="6" style="padding-top: 2%; padding-bottom: 2%; border-right: 2px solid;">Address: A-1/7a, A BLOCK, KRISHNA NAGAR, DELHI 110051</td></tr>
-            <tr><td colspan="2">GSTIN: 07AAFCB1281J1ZQ</td>
-                <td colspan="3" width="30%">Place of Supply: Delhi</td>	
-                <td style="border-right: 2px solid;">Code: 07</td></tr>
+            <tr style="height: 20px" class="bold"><td colspan="6" style="border-right: 2px solid;">Name: <?php echo $meta['company_name']; ?></td></tr>
+            <tr style="height: 5%"><td colspan="6" style="padding-top: 2%; padding-bottom: 2%; border-right: 2px solid;">Address: <?php echo $meta['company_address']; ?></td></tr>
+            <tr><td colspan="2">GSTIN: </td>
+                <td colspan="3" width="30%">Place of Supply: <?php echo $meta["state"]; ?></td>	
+                <td style="border-right: 2px solid;">Code: <?php echo $meta["state_code"]; ?></td></tr>
 
 
             <tr style="text-align: center;background-color: rgb(211,211,211);">
