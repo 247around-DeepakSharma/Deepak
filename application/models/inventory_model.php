@@ -16,8 +16,8 @@ class Inventory_model extends CI_Model {
 
     
     /**
-     * @desc: This fucntion is used to insert data in brackets table
-     * params: Array of data
+     * @desc: This function is used to insert data in brackets table
+     * @params: Array of data
      * return : boolean
      */
     function insert_brackets($data){
