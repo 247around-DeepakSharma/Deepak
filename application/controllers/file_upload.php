@@ -956,7 +956,7 @@ class File_upload extends CI_Controller {
                                     }
                                     if(empty($courier_company_detail) || $existexcelData === TRUE){
                                         log_message('info', __METHOD__. " kalyani if ". print_r(null, TRUE));
-                                        $data_spare_part_detail = $this->partner_model->get_spare_parts_by_any('id, awb_by_partner, awb_by_sf', array('awb_by_sf = '.$rowData['awb_number'].' OR awb_by_partner = '.$rowData['awb_number'].' AND status != "Cancelled"'=>null));
+                                        $data_spare_part_detail = $this->partner_model->get_spare_parts_by_any('id, awb_by_partner, awb_by_sf', array('awb_by_sf = '.$rowData['awb_number'].' OR awb_by_partner = '.$rowData['awb_number'].' AND status != "'._247AROUND_CANCELLED.'"'=>null));
                                         log_message('info', __METHOD__. "data_spare_part_detail ". print_r($data_spare_part_detail, TRUE));
                                         if(!empty($data_spare_part_detail)){
                                             $check = TRUE;
