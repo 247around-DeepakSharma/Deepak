@@ -291,6 +291,8 @@ class Service_centers extends CI_Controller {
                 $i = 0;
 
                 foreach ($customer_basic_charge as $unit_id => $value) {
+                    //Check unit id exist in the sc action table.
+                    $this->check_unit_exist_action_table($booking_id, $unit_id);
                     // variable $unit_id  is existing id in booking unit details table of given booking id 
                     $data = array();
                     $data['unit_details_id'] = $unit_id;
@@ -2045,16 +2047,16 @@ class Service_centers extends CI_Controller {
                     //for now we add manish ji as a default warehouse
                     //when in spare parts table we start inserting wh_id as a seperate column then we have to 
                     //get the wh id from that table not by default
-                    $wh_incharge_id = $this->reusable_model->get_search_result_data("entity_role", "id", array("entity_type" => _247AROUND_SF_STRING, 'role' => WAREHOUSE_INCHARCGE_CONSTANT), NULL, NULL, NULL, NULL, NULL, array());
-                    if(!empty($wh_incharge_id)){
-                        //get 247around warehouse incharge email
-                        $wh_where = array('contact_person.role' => $wh_incharge_id[0]['id'],
-                            'contact_person.entity_id' => DEFAULT_WAREHOUSE_ID,
-                            'contact_person.entity_type' => _247AROUND_SF_STRING
-                        );
-                        $email_details = $this->inventory_model->get_warehouse_details('contact_person.official_email', $wh_where, FALSE, TRUE);
-                        $wh_email = !empty($email_details)?$email_details[0]['official_email']:'';
-                    }
+//                    $wh_incharge_id = $this->reusable_model->get_search_result_data("entity_role", "id", array("entity_type" => _247AROUND_SF_STRING, 'role' => WAREHOUSE_INCHARCGE_CONSTANT), NULL, NULL, NULL, NULL, NULL, array());
+//                    if(!empty($wh_incharge_id)){
+//                        //get 247around warehouse incharge email
+//                        $wh_where = array('contact_person.role' => $wh_incharge_id[0]['id'],
+//                            'contact_person.entity_id' => DEFAULT_WAREHOUSE_ID,
+//                            'contact_person.entity_type' => _247AROUND_SF_STRING
+//                        );
+//                        $email_details = $this->inventory_model->get_warehouse_details('contact_person.official_email', $wh_where, FALSE, TRUE);
+//                        $wh_email = !empty($email_details)?$email_details[0]['official_email']:'';
+//                    }
                     
                     $rm_email = $this->get_rm_email($service_center_id);
 
@@ -2068,7 +2070,7 @@ class Service_centers extends CI_Controller {
                     $email_from = $email_template[2];
 
                     $to = $email_template[1];
-                    $cc = $rm_email.",".$wh_email.','.$email_template[3];
+                    $cc = $rm_email.','.$email_template[3];
                     $bcc = $email_template[5];
 
                     $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $attachment, COURIER_DETAILS);
@@ -2093,6 +2095,7 @@ class Service_centers extends CI_Controller {
      * @desc: This is used to print booking partner Address
      */
     function print_partner_address(){
+        log_message('info', __METHOD__. json_encode($_POST, true));
         $this->checkUserSession();
         log_message('info', __FUNCTION__.' Used by :'.$this->session->userdata('service_center_name'));
         $booking_address = $this->input->post('download_address');
@@ -2101,10 +2104,8 @@ class Service_centers extends CI_Controller {
         
         if(!empty($booking_address)){
             
-            foreach ($booking_address as $partner_id=> $booking_id) {
-                
+            foreach ($booking_address as $partner_id=> $booking_ids_array) {
                 $wh_entity_details = explode('-', $partner_id);
-                
                 switch ($wh_entity_details[1]) {
                     case _247AROUND_PARTNER_STRING:
                         $booking_details = $this->partner_model->getpartner($wh_entity_details[0])[0];
@@ -2114,25 +2115,26 @@ class Service_centers extends CI_Controller {
                         $booking_details = $this->vendor_model->getVendorDetails($select, array('id' => $wh_entity_details[0]))[0];
                         break;
                 }
-                
-                $select = "contact_person.name as  primary_contact_name,contact_person.official_contact_number as primary_contact_phone_1,contact_person.alternate_contact_number as primary_contact_phone_2,"
+                foreach ($booking_ids_array as $booking_id) {
+                    $select = "contact_person.name as  primary_contact_name,contact_person.official_contact_number as primary_contact_phone_1,contact_person.alternate_contact_number as primary_contact_phone_2,"
                         . "concat(warehouse_address_line1,',',warehouse_address_line2) as address,warehouse_details.warehouse_city as district,"
                         . "warehouse_details.warehouse_pincode as pincode,"
                         . "warehouse_details.warehouse_state as state";
                 
-                $where = array('contact_person.entity_id' => $wh_entity_details[0], 'contact_person.entity_type' => $wh_entity_details[1]);
-                
-                $wh_address_details = $this->inventory_model->get_warehouse_details($select,$where,FALSE);
-                if(!empty($wh_address_details)){
-                    $wh_address_details[0]['company_name'] = $booking_details['company_name'];
-                    $booking_history['details'][$i] = $wh_address_details[0];
-                }else{
-                    $booking_history['details'][$i] = $booking_details;
+                    $where = array('contact_person.entity_id' => $wh_entity_details[0], 'contact_person.entity_type' => $wh_entity_details[1]);
+
+                    $wh_address_details = $this->inventory_model->get_warehouse_details($select,$where,FALSE);
+                    if(!empty($wh_address_details)){
+                        $wh_address_details[0]['company_name'] = $booking_details['company_name'];
+                        $booking_history['details'][$i] = $wh_address_details[0];
+                    }else{
+                        $booking_history['details'][$i] = $booking_details;
+                    }
+
+                    $booking_history['details'][$i]['vendor'] = $this->vendor_model->getVendor($booking_id)[0];
+                    $booking_history['details'][$i]['booking_id'] = $booking_id;
+                    $i++;
                 }
-                
-                $booking_history['details'][$i]['vendor'] = $this->vendor_model->getVendor($booking_id)[0];
-                $booking_history['details'][$i]['booking_id'] = $booking_id;
-                $i++;
             }
         }else{
            //Logging

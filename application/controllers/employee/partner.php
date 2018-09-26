@@ -267,6 +267,9 @@ class Partner extends CI_Controller {
             } else {
                 $data['appliances'] = $services = $this->booking_model->selectservice();
             }
+            if (!empty($this->session->userdata('is_prepaid'))) {
+                $data['prepaid_amount'] = $this->get_prepaid_amount($this->session->userdata('partner_id'));
+            }
             $data['phone_number'] = trim($phone_number);
             $this->miscelleneous->load_partner_nav_header();
             //$this->load->view('partner/header');
@@ -1280,16 +1283,15 @@ class Partner extends CI_Controller {
 
             log_message('info', __FUNCTION__ . " escalation_reason  " . print_r($escalation, true));
 
-            //inserts vendor escalation details
-            $escalation_id = $this->vendor_model->insertVendorEscalationDetails($escalation);
-
+            $escalation_id = "";
+            if($escalation['vendor_id']){
+                //inserts vendor escalation details
+                $escalation_id = $this->vendor_model->insertVendorEscalationDetails($escalation);
+            }
             $this->notify->insert_state_change($escalation['booking_id'], "Escalation", _247AROUND_PENDING, $remarks, $this->session->userdata('agent_id'), $this->session->userdata('partner_name'), 
                     ACTOR_ESCALATION,NEXT_ACTION_ESCALATION,$this->session->userdata('partner_id'));
-            if ($escalation_id) {
-                log_message('info', __FUNCTION__ . " Escalation Inserted ");
-                $this->booking_model->increase_escalation_reschedule($booking_id, "count_escalation");
-                
-                //get account manager details
+            //Send Email
+            //get account manager details
                 $am_email = "";
                 $accountManagerData = $this->miscelleneous->get_am_data($this->session->userdata('partner_id'));
 
@@ -1320,7 +1322,10 @@ class Partner extends CI_Controller {
                     //Logging Error Message
                     log_message('info', " Error in Getting Email Template for Escalation Mail");
                 }
-
+            if ($escalation_id) {
+                log_message('info', __FUNCTION__ . " Escalation Inserted ");
+                $this->booking_model->increase_escalation_reschedule($booking_id, "count_escalation");
+                
                 $reason_flag['escalation_policy_flag'] = json_encode(array('mail_to_escalation_team' => 1), true);
 
                 $this->vendor_model->update_esclation_policy_flag($escalation_id, $reason_flag, $booking_id);
@@ -1749,10 +1754,10 @@ class Partner extends CI_Controller {
                 $data['courier_name_by_partner'] = $this->input->post('courier_name');
                 $data['awb_by_partner'] = $this->input->post('awb');
                 $data['shipped_date'] = $this->input->post('shipment_date');
-                if ($this->input->post('request_type') !== REPAIR_OOW_TAG) {
-                    $data['partner_challan_number'] = $this->input->post('partner_challan_number');
-                    $data['challan_approx_value'] = $this->input->post('approx_value');
-                }
+                //if ($this->input->post('request_type') !== REPAIR_OOW_TAG) {
+                $data['partner_challan_number'] = $this->input->post('partner_challan_number');
+                $data['challan_approx_value'] = $this->input->post('approx_value');
+                //}
 
                 $incoming_invoice_pdf = $this->input->post("incoming_invoice_pdf");
                 if (!empty($incoming_invoice_pdf)) {
@@ -1831,7 +1836,7 @@ class Partner extends CI_Controller {
 
                         $userSession = array('success' => 'Parts Updated');
                         $this->session->set_userdata($userSession);
-                        redirect(base_url() . "partner/get_spare_parts_booking");
+                        redirect(base_url() . "partner/get_spare_parts_booking/0/1");
                     } else { //if($response){
                         log_message('info', __FUNCTION__ . '=> Spare parts booking NOT SHIP updated by Partner ' . $this->session->userdata('partner_id') .
                                 " booking id " . $booking_id . " Data" . print_r($this->input->post(), true));
@@ -3762,7 +3767,7 @@ function get_shipped_parts_list($offset = 0) {
 
     function process_partner_contracts() {
         $partner_id = $this->input->post('partner_id');
-        $p = $this->reusable_model->get_search_result_data("partners", "public_name, account_manager", array('id' => $partner_id), NULL, NULL, NULL, NULL, NULL);
+        $p = $this->reusable_model->get_search_result_data("partners", "public_name, account_manager_id", array('id' => $partner_id), NULL, NULL, NULL, NULL, NULL);
         $partnerName = $p[0]['public_name'];
         $start_date_array = $this->input->post('agreement_start_date');
         $end_date_array = $this->input->post('agreement_end_date');
@@ -3800,7 +3805,7 @@ function get_shipped_parts_list($offset = 0) {
                     $html .= "<li><b>" . $key . '</b> =>';
                     $html .= " " . $value . '</li>';
                 }
-                $logged_user_name = $this->employee_model->getemployeefromid($p[0]['account_manager']);
+                $logged_user_name = $this->employee_model->getemployeefromid($p[0]['account_manager_id']);
                 
                 if(!empty($logged_user_name)){
                     $to = $logged_user_name[0]['official_email']. ",". $this->session->userdata('official_email');
@@ -4372,12 +4377,24 @@ function get_shipped_parts_list($offset = 0) {
                 . "defective_part_shipped_date,remarks_defective_part_by_sf";
         $group_by = "spare_parts_details.booking_id";
         $order_by = "spare_parts_details.defective_part_shipped_date DESC";
-        $data = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by);
-        $headings = array("Parts Shipped","Booking ID","Customer Name","Courier Name","AWB","SF Challan","Partner Challan","Shipped Date","Remarks");
-        foreach($data as $spareData){
-            $CSVData[]  = array_values($spareData);
-        }
-        $this->miscelleneous->downloadCSV($CSVData, $headings, "Waiting_Spare_Parts_".date("Y-m-d"));
+        $newCSVFileName = "Waiting_Spare_Parts_".date("Y-m-d").".csv";
+        $csv = TMP_FOLDER . $newCSVFileName;
+        $report = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by,FALSE,FALSE,0,1);
+        $delimiter = ",";
+        $newline = "\r\n";
+        $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
+        log_message('info', __FUNCTION__ . ' => Rendered CSV');
+        write_file($csv, $new_report);
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename="' . basename($csv) . '"');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($csv));
+        readfile($csv);
+        exec("rm -rf " . escapeshellarg($csv));
+        unlink($csv);
     }
     function download_waiting_upcountry_bookings(){
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
@@ -4965,9 +4982,9 @@ function get_shipped_parts_list($offset = 0) {
             }
             $inProcessBookings = array_diff($requested_bookings,$approved_booking);
             $this->session->set_flashdata('inProcessBookings', $inProcessBookings);
-            $this->booking_model->mark_booking_in_process($approved_booking);
             $url = base_url() . "employee/do_background_process/complete_booking";
             if (!empty($approved_booking)) {
+                $this->booking_model->mark_booking_in_process($approved_booking);
                 $data['booking_id'] = $approved_booking;
                 $data['agent_id'] = $this->session->userdata('agent_id');
                 $data['agent_name'] = $this->session->userdata('partner_name');
@@ -4983,12 +5000,13 @@ function get_shipped_parts_list($offset = 0) {
        redirect(base_url() . 'partner/home'); 
     }
     function reject_booking_from_review(){
+        if($this->input->post('booking_id')){
         $postArray = $this->input->post();
         $where['is_in_process'] = 0;
         $whereIN['booking_id'] = $postArray['booking_id']; 
         $tempArray = $this->reusable_model->get_search_result_data("booking_details","booking_id",$where,NULL,NULL,NULL,$whereIN,NULL,array());
-        $this->booking_model->mark_booking_in_process(array($postArray['booking_id']));
         if(!empty($tempArray)){
+            $this->booking_model->mark_booking_in_process(array($postArray['booking_id']));
             echo "Booking Updated Successfully";
             $postArray = $this->input->post();
             $this->miscelleneous->reject_booking_from_review($postArray);
@@ -4996,6 +5014,7 @@ function get_shipped_parts_list($offset = 0) {
         else{
             echo "Someone Else is Updating the booking , Please check updated booking and try again";
         }
+    }
     }
     function partner_review_bookings($offset = 0, $all = 0) {
         $this->checkUserSession();

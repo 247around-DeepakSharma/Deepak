@@ -405,9 +405,11 @@
                             <div class="row">
                                 <div class="form-group  col-md-12" >
                                     <center>
-                                  
-<!--                                        <input type="submit" class="btn btn-primary " disabled value="Submit Booking"><br/><br/><br/>-->
-                                        <p id="error_not_visible" style="color: red; margin-top: 10px;"></p>
+                                        <input type="submit" class="btn btn-primary " disabled value="Submit Booking">
+                                        <br/><br/><br/>
+                                        <?php echo PREPAID_LOW_AMOUNT_MSG_FOR_PARTNER; ?>
+                                        <p id="error_not_visible" style="color: red"></p>
+
                                     </center>
                                 </div>
                             </div>

@@ -2901,6 +2901,7 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
             $message = vsprintf($template[0], array($bookingData[0]['name'],$bookingData[0]['rating_comments'],$bookingData[0]['request_type'],$bookingData[0]['services']));
             $to = $template[1];  
             $cc = $bookingData[0]['official_email'].",".$amEmail[0]['official_email'].",".$this->My_CI->session->userdata("official_email");
+            $bcc = "";
             $from = $template[2];
             $this->My_CI->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "",BAD_RATING);
             log_message('info', __FUNCTION__ . " END  ".$bookingID.$number);
@@ -3069,7 +3070,7 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
     function get_booking_contacts($bookingID){
         $select = "e.phone as am_caontact,e.official_email as am_email, e.full_name as am,partners.primary_contact_name as partner_poc,"
                 . "partners.primary_contact_phone_1 as poc_contact,service_centres.primary_contact_email as service_center_email,partners.public_name as partner,"
-                . "booking_details.assigned_vendor_id,employee.official_email as rm_email";
+                . "booking_details.assigned_vendor_id,employee.official_email as rm_email,employee.full_name as rm ,employee.phone as rm_contact";
         $join['employee_relation'] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.service_centres_id)";
         $join['partners'] = "partners.id = booking_details.partner_id";
         $join['service_centres'] = "service_centres.id = booking_details.assigned_vendor_id";
@@ -3162,6 +3163,7 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
      * 
      */
     function get_tat_with_considration_of_non_working_day($non_working_day,$startDate,$endDate){
+         $holidayInTatArray = $nonWorkingDaysArray = array();
          log_message('info', __FUNCTION__ . "Start non_working_day = ".$non_working_day.", startDate = ".$startDate."end date= ".$endDate);
         //Create a week array to get week into days
         $weekArray = array("Monday"=>1,"Tuesday"=>2,"Wednesday"=>3,"Thursday"=>4,"Friday"=>5,"Saturday"=>6,"Sunday"=>7);
@@ -3172,7 +3174,9 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
         // calculate normal  tat from start to end date without working days considration
         $tatDays = floor((strtotime($endDate) - strtotime($startDate))/(60 * 60 * 24));
         //Convert non working days string into array
+        if($non_working_day){
         $nonWorkingDaysArray = explode(",",$non_working_day);
+        }
         //Process all holidays through array, because holiday may be more then 1
         foreach($nonWorkingDaysArray as $nonWorkingDay){
             // Calculate days upto 1st holiday from start date
@@ -3247,7 +3251,7 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
         $data = $this->My_CI->booking_model->get_booking_tat_required_data($booking_id);
         $this->get_faulty_booking_criteria($data[0]['partner_id']);
         //Set all variable as blank initiallly
-        $tatArray['leg_1'] = $tatArray['leg_2'] = $tatArray['leg_3'] = $tatArray['leg_4'] =NULL;
+        $tatArray['leg_2'] = $tatArray['leg_3'] = $tatArray['leg_4'] =NULL;
         $tatArray['applicable_on_partner'] = $tatArray['applicable_on_sf'] = 1;
         //Process data through loop
         foreach($data as $values){
@@ -3307,6 +3311,7 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
             $tatArray['applicable_on_partner'] = $this->is_booking_valid_for_partner_panelty($values['request_type']);
             $tatArray['sf_closed_date'] = $values['sf_closed_date'];
             $tatArray['around_closed_date'] = $values['around_closed_date'];
+
             if (stripos($values['request_type'], 'Repair') !== false) {
                 $requestType = 'Repair';
             }
@@ -3402,6 +3407,7 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
             $booking['partner_internal_status'] = $partner_status[1];
             $booking['internal_status'] = "Rejected From Review";
             $booking['rejected_by'] = $postData['rejected_by'];
+            $booking['is_in_process'] = 0;
             $actor = $booking['actor'] = $partner_status[2];
             $next_action = $booking['next_action'] = $partner_status[3];
             $booking['service_center_closed_date'] = NULL;
@@ -3417,7 +3423,7 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
                 $actor,$next_action,$postData['rejected_by']);
         }
     }
-    function get_review_bookings_for_partner($partnerID,$booking_id = NULL,$structuredData = 1,$afterLimit = 0,$before_days = NULL){
+    function get_review_bookings_for_partner($partnerID,$booking_id = NULL,$structuredData = 1,$limit = REVIEW_LIMIT_BEFORE){
          $finalArray = array();
         $whereIN = array();
         $statusData = $this->My_CI->reusable_model->get_search_result_data("partners","partners.booking_review_for,partners.review_time_limit",array("booking_review_for IS NOT NULL"=>NULL,"id"=>$partnerID),NULL,NULL,NULL,NULL,NULL,array());
@@ -3425,11 +3431,19 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
             $where['booking_details.partner_id'] = $partnerID;
             $statusArray = explode(",",$statusData[0]['booking_review_for']);
             $whereIN['service_center_booking_action.internal_status'] = array("Completed","Cancelled");
-            if($afterLimit == 1){
+            if($limit == REVIEW_LIMIT_BEFORE){
+              $where['DATEDIFF(CURRENT_TIMESTAMP,  service_center_booking_action.closed_date)<='.$statusData[0]['review_time_limit']] = NULL;
+            }
+            else if($limit == REVIEW_LIMIT_AFTER){
               $where['DATEDIFF(CURRENT_TIMESTAMP,  service_center_booking_action.closed_date)>'.$statusData[0]['review_time_limit']] = NULL;
             }
             else{
-                $where['DATEDIFF(CURRENT_TIMESTAMP,  service_center_booking_action.closed_date)<='.$statusData[0]['review_time_limit']] = NULL;
+                $days = $statusData[0]['review_time_limit'] - $limit;
+                $where['(DATEDIFF(CURRENT_TIMESTAMP,  service_center_booking_action.closed_date)>='.$days
+                   . ' AND DATEDIFF(CURRENT_TIMESTAMP,  service_center_booking_action.closed_date)<='.$statusData[0]['review_time_limit'].')'] = NULL;
+            }
+            if($booking_id){
+                $where['booking_details.booking_id'] = $booking_id;
             }
             $where['booking_details.amount_due'] = 0;
             $where['service_center_booking_action.current_status'] = 'InProcess';

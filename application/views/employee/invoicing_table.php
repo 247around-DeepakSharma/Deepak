@@ -263,10 +263,12 @@
               $('#selected_amount_collected').val(total_amount_collected.toFixed(2));
               $('#selected_tds').val(total_tds.toFixed(2));
               document.getElementById("final_amount_selected").innerHTML = Math.abs(total_amount_collected.toFixed(2));
-              if($('#selected_amount_collected').val()>0){
+
+              if(Number($('#selected_amount_collected').val())>0){
                     $('#final_amount_selected').css("color","#3f9c4e;");
               }
-              else if($('#selected_amount_collected').val() == 0){
+              else if(Number($('#selected_amount_collected').val()) === 0){
+
                     $('#final_amount_selected').css("color", "#333333;");
               }
               else{

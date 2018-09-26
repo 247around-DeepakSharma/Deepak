@@ -98,7 +98,7 @@
                     <thead>
                         <tr>
                             <th>S.no</th>
-                            <th>RM</th>
+                            <th>AM</th>
                             <th>D0</th>
                             <th>D1</th>
                             <th>D2</th>
@@ -208,7 +208,7 @@
                 <table class="table table-striped table-bordered jambo_table bulk_action">
                     <thead>
                         <tr>
-                            <th>S.no11</th>
+                            <th>S.N</th>
                             <th>RM</th>
                             <th>D0</th>
                             <th>D1</th>

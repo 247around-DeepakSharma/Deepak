@@ -812,10 +812,12 @@ class Upcountry_model extends CI_Model {
                 }
                 
             }
-            $result[0]['total_upcountry_price'] = $total_price;
-            $result[0]['total_booking'] = $total_booking;
-            $result[0]['total_distance'] = round($total_distance, 0);
-            
+            if(!empty($result)){
+                $result[0]['total_upcountry_price'] = $total_price;
+                $result[0]['total_booking'] = $total_booking;
+                $result[0]['total_distance'] = round($total_distance, 0);
+            }
+           
             return $result;
             
         } else {
@@ -830,6 +832,13 @@ class Upcountry_model extends CI_Model {
             $distance_data = $this->get_distance_between_pincodes($booking_pincode,$upcountry_pincode);
             $upcountry_distance = ($distance_data[0]['distance'] - $data[0]["municipal_limit"]) * 2;
             $data[0]['distance'] = $upcountry_distance;
+        } else {
+            $data = array();
+            $data[0]["municipal_limit"] = DEFAULT_PAYTM_MUNICIPAL_LIMIT;
+            $distance_data = $this->get_distance_between_pincodes($booking_pincode,$upcountry_pincode);
+            $upcountry_distance = ($distance_data[0]['distance'] - $data[0]["municipal_limit"]) * 2;
+            $data[0]['distance'] = $upcountry_distance;
+            $data[0]['district'] = DEFAULT_PAYTM_UPCOUNTRY_DISTRICT;
         }
         
         return $data;

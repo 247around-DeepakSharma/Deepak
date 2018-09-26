@@ -164,10 +164,10 @@
         <div class="col-md-6 col-sm-12 col-xs-12" id="based_on_Region">
             <div class="x_panel">
                 <div class="x_title">
-                    <div class="col-md-10">
+                    <div class="col-md-5">
                     <h2>Booking based on Region <small>Current Month</small></h2>
                     </div>
-                    <div class="col-md-1">
+                    <div class="col-md-5">
                     <div class="nav navbar-right panel_toolbox">
                         <div id="reportrange2" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; margin-right: -30%;">
                             <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
@@ -176,7 +176,7 @@
                     </div>
                     </div>
                     <div class="col-md-1" style="float: right;">
-                        <span class="collape_icon" href="#state_type_booking_chart_div" data-toggle="collapse" onclick=""><i class="fa fa-minus-square" aria-hidden="true"></i></span>
+                        <span class="collape_icon" href="#state_type_booking_chart_div" data-toggle="collapse" onclick="collapse_icon_change(this);"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
                     </div>
                     <div class="clearfix"></div>
                 </div>
@@ -275,19 +275,7 @@
  
   </div>
 <script>
-    $('#request_type').select2();
-    function getMultipleSelectedValues(fieldName){
-    fieldObj = document.getElementById(fieldName);
-    var values = [];
-    var length = fieldObj.length;
-    for(var i=0;i<length;i++){
-       if (fieldObj[i].selected == true){
-           values.push(fieldObj[i].value);
-       }
-    }
-   return values.join(":");
-}
-    var start = moment().startOf('month');
+        var start = moment().startOf('month');
     var end = moment().endOf('month');
     var options = {
             startDate: start,
@@ -342,6 +330,11 @@
            },
            startDate: y+'-'+n+'-'+date
         });
+          function cb(start, end) {
+            $('#reportrange2 span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+        }
+        $('#reportrange2').daterangepicker(options, cb);
+        cb(start, end);
     });
  //this function is used to call ajax request
     function sendAjaxRequest(postData, url,type) {
@@ -620,6 +613,18 @@ function around_monthly_data(){
         });
     
     }
+    $('#reportrange2').on('apply.daterangepicker', function (ev, picker) {
+        $('#loader_gif3').show();
+        $('#state_type_booking_chart').hide();
+        var startDate = picker.startDate.format('YYYY-MM-DD');
+        var endDate = picker.endDate.format('YYYY-MM-DD');
+        url = baseUrl + '/employee/dashboard/get_booking_data_by_region/1';
+        var data = {sDate: startDate, eDate: endDate};
+        
+        sendAjaxRequest(data,url,post_request).done(function(response){
+            create_chart_based_on_bookings_state(response);
+        });
+    });
     </script>
     <style>
         .highcharts-credits{
@@ -631,9 +636,6 @@ function around_monthly_data(){
         }
         .highcharts-contextbutton{
             display: none;
-        }
-        .select2-container--default{
-            width: 175px !important;
         }
         </style>
   

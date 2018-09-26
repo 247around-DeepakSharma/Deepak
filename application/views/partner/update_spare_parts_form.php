@@ -311,7 +311,7 @@
                 </div>
             </div>
         </div>
-        <?php if($spare_parts[0]->request_type != REPAIR_OOW_TAG){ ?>
+        <?php //if($spare_parts[0]->request_type != REPAIR_OOW_TAG){ ?>
         <div class="row">
             <div class="col-md-12 col-sm-12 col-xs-12">
                 <div class="x_panel">
@@ -323,7 +323,7 @@
                         <div class="col-md-6">
                             <div class="form-group <?php
                                 if (form_error('awb')) { echo 'has-error'; } ?>">
-                                <label for="awb" class="col-md-4">AWB*</label>
+                                <label for="awb" class="col-md-4">AWB *</label>
                                 <div class="col-md-6">
                                     <input type="text" class="form-control" id="awb" name="awb" value = "" placeholder="Please Enter AWB"  required>
                                     <?php echo form_error('awb'); ?>
@@ -331,7 +331,7 @@
                             </div>
                             <div class="form-group <?php
                                 if (form_error('shipment_date')) { echo 'has-error';} ?>">
-                                <label for="shipment_date" class="col-md-4">Shipment Date</label>
+                                <label for="shipment_date" class="col-md-4">Shipment Date *</label>
                                 <div class="col-md-6">
                                     <input type="text" class="form-control" readonly  style="background-color:#FFF; cursor: pointer;" id="shipment_date" name="shipment_date"  value = "<?php echo  date("Y-m-d", strtotime("+0 day")); ?>"  required>
                                     <?php echo form_error('shipment_date'); ?>
@@ -339,9 +339,9 @@
                             </div>
                             <div class="form-group <?php
                                 if (form_error('approx_value')) { echo 'has-error'; } ?>">
-                                <label for="approx_value" class="col-md-4">Approx Value*</label>
+                                <label for="approx_value" class="col-md-4">Approx Value <?php if($spare_parts[0]->request_type != REPAIR_OOW_TAG){  ?>*<?php } ?></label>
                                 <div class="col-md-6">
-                                    <input type="number" class="form-control" id="approx_value" name="approx_value" max="100000" value = "" placeholder="Please Enter approx value"  required>
+                                    <input type="number" class="form-control" id="approx_value" name="approx_value" max="100000" value = "" placeholder="Please Enter approx value"  <?php if($spare_parts[0]->request_type != REPAIR_OOW_TAG){  ?> required  <?php } ?>>
                                     <?php echo form_error('approx_value'); ?>
                                 </div>
                             </div>
@@ -349,7 +349,7 @@
                         <div class="col-md-6">
                             <div class="form-group <?php
                                 if (form_error('courier_name')) {echo 'has-error';} ?>">
-                                <label for="courier" class="col-md-4">Courier Name*</label>
+                                <label for="courier" class="col-md-4">Courier Name *</label>
                                 <div class="col-md-6">
                                     <!--                                    <input type="text" class="form-control" id="courier_name" name="courier_name" value = "" placeholder="Please Enter courier Name"  required>-->
                                     <select class="form-control" id="courier_name" name="courier_name" required>
@@ -382,7 +382,7 @@
                 </div>
             </div>
         </div>
-        <?php } ?>
+        <?php //} ?>
         <div class="row">
             <div class="col-md-12 col-sm-12 col-xs-12">
                 <div class="x_panel">

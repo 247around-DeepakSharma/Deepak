@@ -190,7 +190,9 @@ class Service_centers_model extends CI_Model {
 function get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$offest,$perPage = -1,$where=array(),$userInfo=0,$orderBY = NULL,$select=NULL){
         $limit = "";
         $where_in = "";
+
         $userSelect = $join = $groupBy = "";
+        
         $where_sc = "AND (partners.booking_review_for NOT LIKE '%".$status."%' OR partners.booking_review_for IS NULL OR booking_details.amount_due != 0)";
          if($is_partner){
             $where_sc = " AND (partners.booking_review_for IS NOT NULL AND booking_details.amount_due = 0)";
@@ -366,7 +368,7 @@ function get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$off
         return $query->result_array();
     }
     
-    function get_spare_parts_booking($where, $select, $group_by = false, $order_by = false, $offset = false, $limit = false,$state=0){
+    function get_spare_parts_booking($where, $select, $group_by = false, $order_by = false, $offset = false, $limit = false,$state=0,$download=NULL){
         $this->_spare_parts_booking_query($where, $select,$state);
         if($group_by){
             $this->db->group_by($group_by);
@@ -379,7 +381,12 @@ function get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$off
             $this->db->limit($limit, $offset);
         }
         $query = $this->db->get();
+        if($download){
+          return $query;
+        }
+        else{
         return $query->result_array();
+    }
     }
     
     function _spare_parts_booking_query($where, $select,$state=0){

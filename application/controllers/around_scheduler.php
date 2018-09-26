@@ -1846,7 +1846,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
     function auto_approve_partner_review_bookings_after_threshold($partnerID){
         log_message('info', __FUNCTION__ . ' Start for partner '.$partnerID);
         //Get All booking where review time limit is crossed by partner 
-        $tempData = $this->miscelleneous->get_review_bookings_for_partner($partnerID,NULL,1,1);
+        $tempData = $this->miscelleneous->get_review_bookings_for_partner($partnerID,NULL,1,REVIEW_LIMIT_AFTER);
         //Convert booking into structured format requiredd by checked_complete_review_booking function
         if($tempData){
             foreach($tempData as $booking_id=>$values){
@@ -1869,15 +1869,17 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
     function checked_complete_review_booking($bookingData) {
         log_message('info', __FUNCTION__ . ' Function Start '.print_r($bookingData,TRUE));
         $requested_bookings = $bookingData['approved_booking'];
+        if($requested_bookings){
         $where['is_in_process'] = 0;
         $whereIN['booking_id'] = $requested_bookings; 
         $tempArray = $this->reusable_model->get_search_result_data("booking_details","booking_id",$where,NULL,NULL,NULL,$whereIN,NULL,array());
+        if($tempArray){
         foreach($tempArray as $values){
             $approved_booking[] = $values['booking_id'];
         }
-        $this->booking_model->mark_booking_in_process($approved_booking);
         $url = base_url() . "employee/do_background_process/complete_booking";
         if (!empty($approved_booking)) {
+                $this->booking_model->mark_booking_in_process($approved_booking);
             $data['booking_id'] = $approved_booking;
             $data['agent_id'] = _247AROUND_DEFAULT_AGENT;
             $data['agent_name'] = _247AROUND_DEFAULT_AGENT_NAME;
@@ -1888,12 +1890,18 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
             //Logging
             log_message('info', __FUNCTION__ . ' Approved Booking Empty from Post');
         }
+        }
+        }
+        else{
+            log_message('info', __FUNCTION__ . ' No booking Found');
+        }
          log_message('info', __FUNCTION__ . ' End');
     }
 
     function send_notifiction_to_review_bookings() {
         log_message('info', __FUNCTION__ . ' Start');
-        $partnerArray = $this->reusable_model->get_search_result_data("partners", "*", array("booking_review_for IS NOT NULL" => NULL), NULL, NULL, NULL, NULL, NULL, array());
+        $partnerArray = $this->reusable_model->get_search_result_data("partners", "partners.*,employee.official_email as am_email", array("booking_review_for IS NOT NULL" => NULL), 
+                array("employee"=>"employee.id = partners.account_manager_id"), NULL, NULL, NULL, NULL, array());
         foreach ($partnerArray as $partner) {
             $tempData = $this->miscelleneous->get_review_bookings_for_partner($partner['id'], NULL, 1,REVIEW_NOTIFICATION_TO_PARTNER_DAYS);
             if(!empty($tempData)){
@@ -1902,7 +1910,8 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                 $subject = $template[4];
                 $data['text'] = vsprintf($template[0], array($partnerArray[0]['review_time_limit']));
                 $message = $this->load->view('employee/partner_review_booking_email_template',$data,true);
-                $to =  $partnerArray[0]['primary_contact_email'];
+                $to =  $partner['primary_contact_email'];
+
                 $bcc = $template[5];
                 $cc = $template[1];
                 $from = $template[2];

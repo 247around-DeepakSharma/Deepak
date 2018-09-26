@@ -8081,7 +8081,6 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 UPDATE `email_template` SET `template` = '<b>TAXPRO GSP API FAIL</b><br/><p>%s</p><p>%s</p><p>%s</p>' WHERE `email_template`.`tag` = 'taxpro_api_fail';
 UPDATE `header_navigation` SET `link` = 'employee/vendor/seach_by_email' WHERE `title` = 'Email Search';
 
-
 UPDATE `email_template` SET `template` = '<b>TAXPRO GSP API FAIL:-</b><br/><p>%s</p><p>%s</p><p>%s</p>' WHERE `email_template`.`tag` = 'taxpro_api_fail';UPDATE `email_template` SET `template` = 'Below bookings are long pending, please review these bookings otherwise these will be automatically approve after %s \r\n days <br>' WHERE tag = 'notify_partner_to_review_bookings';
 --Abahy 24 Aug
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'upcountry_missed_mail', 'Upcountry Booking Missed - Need To Take Action', 'Booking should be upcountry but not marked properly. Please check and update booking.<br/> \r\n%s', 'noreply@247around.com', '', '247around_dev@247around.com', '', '1', '2018-08-24 00:00:00');
@@ -8096,6 +8095,7 @@ ALTER TABLE `trigger_service_centres` ADD `is_buyback_gst_invoice` INT(1) NOT NU
 
 --Chhavi 07th Sep
 ALTER TABLE `booking_tat` ADD `sf_closed_date` DATETIME NULL AFTER `booking_id`, ADD `around_closed_date` DATETIME NULL AFTER `sf_closed_date`;
+
 
 
 --Abhay 08 Sept
@@ -8136,4 +8136,8 @@ UPDATE employee_relation SET state_code = "South" WHERE employee_id = '16'
 --Chhavi 25th november
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES
 (NULL, 'oow_estimate_updated', 'Repair OOW Parts Estimate Updated By Partner For Booking ID %s', 'Updated Spare Estimate Amount: Rs. %s', 'noreply@247around.com', '', 'chhavid@247around, anuj@247around.com', '', '1', '2018-09-25 18:26:57');
+
+
+--Chhavi 14th Sep
+ UPDATE `email_template` SET `template` = 'Below bookings are pending for you action, Please review these bookings else these will be automatically approved after %s \r\n days <br>' WHERE `email_template`.`tag` = 'notify_partner_to_review_bookings';
 
