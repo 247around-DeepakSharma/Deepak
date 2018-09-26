@@ -3265,6 +3265,7 @@ function generate_image($base64, $image_name,$directory){
                 $values['initial_booking_date'] =  $values['create_date'];
              }
             // Leg 4 will be TAT between around closed date and sf closed date
+            log_message('info', __FUNCTION__ . "leg_4 = ".$booking_id);
             $tatArray['leg_4'] = $this->get_tat_with_considration_of_non_working_day($values['non_working_days'],$values['sf_closed_date'],$values['around_closed_date']);
             // IF Booking is without Spare Part then calculate leg_1
             //leg_2,leg_3 is not applicable for this case
@@ -3285,9 +3286,15 @@ function generate_image($base64, $image_name,$directory){
                     $values['spare_cancelled_date'] = date ( 'Y-m-d' , $newdatec);
                      log_message('info', __FUNCTION__ . "spare_cancelled_date was null so minus a day from sf_closed_date and consider it as spare_cancelled_date. spare_cancelled_date= ".$values['spare_receieved_date']);
                 }
+                // IF defactive_part_shipped_date blank then consider defactive_part_shipped_date as a day after sf_closed_date
+                if(!$values['defactive_part_shipped_date']){
+                    $newdated = strtotime ( '+1 day' , strtotime ( $values['sf_closed_date'] ) ) ;
+                    $values['defactive_part_shipped_date'] = date ( 'Y-m-d' , $newdated);
+                     log_message('info', __FUNCTION__ . "defactive_part_shipped_date was null so add a day from sf_closed_date and consider it as defactive_part_shipped_date. defactive_part_shipped_date= ".$values['defactive_part_shipped_date']);
+                }
                 //If spare was cancelled then leg_2 will be between cancellation date and service center closed date
                 //leg_3 is not applicable for this case
-                if($values['spare_status'] == 'cancelled'){
+                if($values['spare_status'] == 'Cancelled'){
                      $tatArray['leg_2'] = $this->get_tat_with_considration_of_non_working_day($values['non_working_days'],$values['spare_cancelled_date'],$values['sf_closed_date']);
                 }
                 //IF Spare flow was completed then leg_2 will be between spare_receieved_date and service_center_closed_date
