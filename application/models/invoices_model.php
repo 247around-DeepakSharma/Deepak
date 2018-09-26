@@ -322,10 +322,8 @@ class invoices_model extends CI_Model {
      * @param: partner id and date range
      * @return: Array()
      */
-    function getpartner_invoices($partner_id, $from_date_tmp, $to_date_tmp) {
+    function getpartner_invoices($partner_id, $from_date, $to_date) {
         log_message('info', __FUNCTION__);
-        $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
-        $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
 
         $sql1 = "SELECT booking_unit_details.id AS unit_id, CONCAT('''', booking_unit_details.sub_order_id) as sub_order_id, `booking_details`.booking_id as booking_id, "
                 . "  invoice_email_to,invoice_email_cc, booking_details.rating_stars,  "
@@ -764,8 +762,35 @@ class invoices_model extends CI_Model {
         $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
         log_message("info", $from_date . "- " . $to_date);
         $result_data = $this->get_partner_invoice_data($partner_id, $from_date, $to_date);
-
+        $anx_data = array();
+        $penalty_count = array();
+        $penalty_tat = array();
         if (!empty($result_data['result'])) {
+            $anx_data = $this->invoices_model->getpartner_invoices($partner_id, $from_date, $to_date);
+            
+            if(!empty($anx_data)){
+                $result_data['penalty_discount'] = array();
+                $penalty_data = $this->get_partner_invoice_tat_data($anx_data, $partner_id);
+                
+                if (!empty($penalty_data)) {
+                    $penalty_price = (array_sum(array_column($penalty_data['tat'], 'penalty_amount')));
+                    $penalty_tat = $penalty_data['tat'];
+                    $penalty_count = $penalty_data['tat_count'];
+                    if($penalty_price > 0){
+                        $p_data = array();
+                        $p_data[0]['description'] = 'Discount';
+                        $p_data[0]['hsn_code'] = '';
+                        $p_data[0]['qty'] = '';
+                        $p_data[0]['rate'] = '';
+                        $p_data[0]['gst_rate'] = DEFAULT_TAX_RATE;
+                        $p_data[0]['product_or_services'] = 'Penalty Discount';
+                        $p_data[0]['taxable_value'] = -sprintf("%.2f", $penalty_price);
+                        $result_data['result'] = array_merge($result_data['result'], $p_data);
+                    }
+
+                }
+            }
+            
             $result =  $result_data['result'];
             $response = $this->_set_partner_excel_invoice_data($result,$from_date_tmp,$to_date_tmp, "Tax Invoice");
 
@@ -780,6 +805,9 @@ class invoices_model extends CI_Model {
             $data['defective_part_by_wh'] = $result_data['defective_part_by_wh'];
             $data['packaging_rate'] = $result_data['packaging_rate'];
             $data['packaging_quantity'] = $result_data['packaging_quantity'];
+            $data['annexure'] = $anx_data;
+            $data['penalty_discount'] = $penalty_tat;
+            $data['penalty_tat_count'] = $penalty_count;
           
             return $data;
         } else {
@@ -2369,5 +2397,98 @@ class invoices_model extends CI_Model {
             $this->db->order_by(key($order), $order[key($order)]);
         }
     }
-    
+    /**
+     * @desc This function is used to get Partner booking Tat data
+     * @param Array $data
+     * @param int $partner_id
+     * @return boolean|Array
+     */
+    function get_partner_invoice_tat_data($data, $partner_id){
+        log_message('info', __METHOD__);
+        $booking_id = array_column($data, 'booking_id');
+        $w = array('entity_id'=> $partner_id, "entity" => _247AROUND_PARTNER_STRING, "active" => 1);
+        $tat_condition = $this->get_tat_invoicing_codition($w);
+        $booking_tat_type = array();
+        if(!empty($tat_condition)){
+            foreach ($tat_condition as $key => $value) {
+                $request_type = ($value['installation_repair'] == 0)?"Installation":"Repair";
+                $l_u = ($value['local_upcountry'] == 0)?"Local":"Upcountry";
+                
+                $b_w = array('is_upcountry' => $value['local_upcountry'],
+                    'request_type' => $value['installation_repair'],
+                    'leg_1 >="0" ' => NULL,
+                    'leg_1 <"'.($value['tat_with_in_days']).'" ' => NULL);
+                
+                $b_data = $this->get_booking_tat_data("*", $b_w, array('booking_id' => $booking_id));
+                $tat_condition[$key]['achieved_count'] = count($b_data);
+                
+                
+                $b_w1 = array('is_upcountry' => $value['local_upcountry'],
+                    'request_type' => $value['installation_repair']);
+                
+                $tat_condition[$key]['total_booking'] = $this->get_booking_tat_data("COUNT(id) as count", $b_w1, array('booking_id' => $booking_id))[0]['count'];
+                if($tat_condition[$key]['total_booking'] > 0){
+                    $tat_condition[$key]['archieved_percentage'] = sprintf("%.2f",($tat_condition[$key]['achieved_count']/$tat_condition[$key]['total_booking'])*100);
+                    if($tat_condition[$key]['archieved_percentage'] < $value['penalty_below_criteria']){
+                        $tat_condition[$key]['booking_failed'] = sprintf("%.2f",(($value['penalty_below_criteria'] - $tat_condition[$key]['archieved_percentage'])/100) * $tat_condition[$key]['total_booking']);
+                        $tat_condition[$key]['penalty_amount'] = sprintf("%.2f",((($tat_condition[$key]['basic_amount'] * $value['penalty_percentage'])/100) * $tat_condition[$key]['booking_failed']));
+                    } else {
+                        $tat_condition[$key]['booking_failed'] = 0;
+                        $tat_condition[$key]['penalty_amount'] = 0;
+                    }
+                } else {
+                    $tat_condition[$key]['archieved_percentage'] = 0;
+                    $tat_condition[$key]['booking_failed'] = 0;
+                    $tat_condition[$key]['penalty_amount'] = 0;
+                }
+                
+                array_push($booking_tat_type, array('booking_type' => $request_type." ".$l_u, "booking_count" => $tat_condition[$key]['total_booking']));
+
+            }
+            
+            $tat['tat_count'] = array_map("unserialize", array_unique(array_map("serialize", $booking_tat_type)));
+            $tat['tat'] = $tat_condition;
+            
+            return $tat;
+            
+        } else {
+            return false;
+        }
+    }
+    /**
+     * @desc This function is used to get penalty condition
+     * Partner apply penalty on Around. We already set condition for specific partner
+     * @param Array $where
+     * @return boolean|Array
+     */
+    function get_tat_invoicing_codition($where){
+        $this->db->select("*");
+        $this->db->where($where);
+        
+        $query = $this->db->get("tat_invoice_condition");
+        return $query->result_array();
+    }
+    /**
+     * @desc This function is used to get booking tat data
+     * @param String $select
+     * @param Array $where
+     * @param Array $where_in
+     * @return boolean|Array
+     */
+    function get_booking_tat_data($select, $where, $where_in){
+        log_message('info', __METHOD__ );
+        $this->db->select($select);
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        if (isset($where_in)) {
+            foreach ($where_in as $index => $value) {
+
+                $this->db->where_in($index, $value);
+            }
+        }
+        
+        $query = $this->db->get("booking_tat");
+        return $query->result_array();
+    }
 }
