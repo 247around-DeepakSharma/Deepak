@@ -3882,14 +3882,15 @@ class vendor extends CI_Controller {
             }
         }
         if($flag == 1){
-            $am_emails = implode(",", array_unique($am_email));
-            $to = $am_emails;
-            $cc = DEVELOPER_EMAIL;
-            $message1 = "Booking should be upcountry but not marked properly. AM need to take action to update their below bookings.<br/>";
-            $subject = "Upcountry Booking Missed - Need To Take Action";
-            $message1 .= $this->table->generate();
-
-            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message1, "",UPCOUNTRY_BOOKING_NOT_MARKED);
+            $template = $this->booking_model->get_booking_email_template(MISSED_UPCOUNTRY_BOOKING);
+            if (!empty($template)) {
+                $am_emails = implode(",", array_unique($am_email));
+                $to = $am_emails;
+                $cc = DEVELOPER_EMAIL;
+                $subject = $template[4];
+                $emailBody = vsprintf($template[0],$this->table->generate());
+                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $emailBody, "", UPCOUNTRY_BOOKING_NOT_MARKED);
+            }
         } else {
             log_message("info", __METHOD__." There is no pending booking which need to update for upcountry");
         }

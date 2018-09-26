@@ -8127,9 +8127,16 @@ ALTER TABLE `employee_relation` ADD `region` VARCHAR(128) NULL AFTER `state_code
 UPDATE employee_relation SET state_code = "North" WHERE employee_id = '36'
 UPDATE employee_relation SET state_code = "West" WHERE employee_id = '38'
 UPDATE employee_relation SET state_code = "East" WHERE employee_id = '24'
-UPDATE employee_relation SET state_code = "South" WHERE employee_id = '16'UPDATE employee_relation SET state_code = "South" WHERE employee_id = '16'--Chhavi 25th november
+UPDATE employee_relation SET state_code = "South" WHERE employee_id = '16'
+
+--Chhavi 25th november
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES
 (NULL, 'oow_estimate_updated', 'Repair OOW Parts Estimate Updated By Partner For Booking ID %s', 'Updated Spare Estimate Amount: Rs. %s', 'noreply@247around.com', '', 'chhavid@247around, anuj@247around.com', '', '1', '2018-09-25 18:26:57');
+
+
+--Kalyani
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Search GSTIN', NULL, 'employee/vendor/seach_gst_number', '2', '80', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES ('', '247Around', 'Partner Contract List', NULL, 'employee/partner/show_contract_list', '2', '24', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
 
 
 -- Abhay 26 Sept
@@ -8199,3 +8206,6 @@ ALTER TABLE `tat_invoice_condition`
 --
 ALTER TABLE `tat_invoice_condition`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES (NULL, 'missed_upcountry_booking', 'Upcountry Booking Missed - Need To Take Action', 'Booking should be upcountry but not marked properly. AM need to take action to update their below bookings<br>%s', 'noreply@247around.com', '', '', '', '1', '', CURRENT_TIMESTAMP);
+

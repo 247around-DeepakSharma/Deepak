@@ -46,10 +46,9 @@
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Request Type</label>
-                            <select class="form-control filter_table" id="request_type_am" name="request_type_am">
+                            <select class="form-control filter_table" id="request_type_am" name="request_type_am" multiple="">
                                 <option value="">Request Type</option>
                                 <option value="Installation" selected="selected">Installations</option>
-                                <option value="Repair">Repair</option>
                                 <option value="Repair_with_part">Repair With Spare</option>  
                                 <option value="Repair_without_part">Repair Without Spare</option>  
                             </select>
@@ -158,10 +157,9 @@
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Request Type</label>
-                            <select class="form-control filter_table" id="request_type" name="request_type">
+                            <select class="form-control filter_table" id="request_type" name="request_type" multiple="">
                                 <option value="">All</option>
                                 <option value="Installation" selected="selected">Installations</option>
-                                <option value="Repair">Repair</option>
                                 <option value="Repair_with_part">Repair With Spare</option>  
                                 <option value="Repair_without_part">Repair Without Spare</option>  
                             </select>
@@ -385,6 +383,19 @@
 <!-- /page content -->
 <!-- Chart Script -->
 <script>
+    $('#request_type_am').select2();
+    $('#request_type').select2();
+        function getMultipleSelectedValues(fieldName){
+    fieldObj = document.getElementById(fieldName);
+    var values = [];
+    var length = fieldObj.length;
+    for(var i=0;i<length;i++){
+       if (fieldObj[i].selected == true){
+           values.push(fieldObj[i].value);
+       }
+    }
+   return values.join(":");
+}
     var post_request = 'POST';
     var get_request = 'GET';
     var url = '';
