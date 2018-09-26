@@ -310,12 +310,68 @@
             </div>
             <!-- /.container-fluid -->
         </nav>
+        <div class="main_search">
+                    <button type="button" class="search_fab"  id="partner_tollfree" data-toggle="modal" style="margin-left:90%;border: none;background-color: #2C9D9C">
+    <i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i> </button>
+        </div>
+        <div id="partner_tollfree_no_modal" class="modal fade" role="dialog">
+             <div class="modal-dialog">
+
+                 <!-- Modal content-->
+                 <div class="modal-content">
+                     <div class="modal-header well"  style="background-color: #2C9D9C;border-color: #2C9D9C;">
+                         <button type="button" class="close btn-primary well" data-dismiss="modal"style="color:white;">&times;</button>
+                         <h4 class="modal-title"style="color:white;text-align: center;">Partners Contacts</h4>
+                     </div>
+                     <div class="modal-body">
+
+                     </div>
+                     </div>
+
+
+             </div>
+         </div>
         <style type="text/css">
         </style>
     </body>
 </html>
 
 <script>
+    $("#partner_tollfree").click(function(){
+                    $("#partner_tollfree_no_modal").modal("show");
+                    $.ajax({
+                        type: 'post',
+                        url: '<?php echo  base_url()?>employee/partner/get_partner_tollfree_numbers',
+                        success: function (response) {
+                            var result = JSON.parse(response);
+                            var data="";
+                            for(var element in result){
+                                if(result[element].contact){
+                                    data = data +  "<tr><td>"+result[element].partner+"</td>";
+                                    data +=  "<td>"+result[element].name+"</td>";
+                                    data +=  "<td>"+result[element].contact+"<button style ='margin-left: 10px;height: 25px;padding: 2px 7px;float: right;' type='button' class='btn btn-sm btn-color' onclick='outbound_call("+result[element].contact+")'>\n\
+                                <i class='fa fa-phone fa-lg' aria-hidden='true'></i></button></td></tr>";
+                                }
+                            }
+                            var tb="<table class='table  table-bordered table-condensed ' id='partner_toll_free_table'>";
+                            tb+='<thead>';
+                            tb+='<tr>';
+                            tb+='<th>Partner</th>';
+                            tb+='<th>Name</th>';
+                            tb+='<th>No.</th>';
+                            tb+='</tr>';
+                            tb+='</thead>';
+                            tb+='<tbody>';
+                            tb+=data;
+                            tb+='</tbody>';
+                            tb+='</table>';
+                            $("#partner_tollfree_no_modal  .modal-body").html(tb);
+                            $('#partner_toll_free_table').DataTable();
+                            $('#partner_toll_free_table  th').css("background-color","#ECEFF1");
+                            $('#partner_toll_free_table  tr:nth-child(even)').css("background-color","#FAFAFA");
+                       }
+                    });
+                });
     get_defective_parts_count();
     $(document).ready(function(){
         
