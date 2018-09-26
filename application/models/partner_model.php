@@ -1601,11 +1601,14 @@ function get_data_for_partner_callback($booking_id) {
             GROUP_CONCAT(spare_parts_details.shipped_date) As 'Part Shipped Date', 
             GROUP_CONCAT(spare_parts_details.defective_part_shipped) As 'Shipped Defective Part', 
             GROUP_CONCAT(spare_parts_details.defective_part_shipped_date) As 'Defactive Part Shipped Date'
-            ".$agingSubQuery."
+            ".$agingSubQuery.",
+            IFNULL(dealer_details.dealer_name,'') AS 'Dealer Name',
+            IFNULL(dealer_details.dealer_phone_number_1,'') AS 'Dealer Phone Number'
             FROM booking_details JOIN booking_unit_details ud  ON booking_details.booking_id = ud.booking_id 
             JOIN services ON booking_details.service_id = services.id 
             JOIN users ON booking_details.user_id = users.user_id
             LEFT JOIN spare_parts_details ON spare_parts_details.booking_id = booking_details.booking_id
+            LEFT JOIN dealer_details on dealer_details.dealer_id = booking_details.dealer_id
             WHERE product_or_services != 'Product' AND booking_details.partner_id = $partner_id AND $where GROUP BY ud.booking_id");
     }
     
@@ -1681,6 +1684,58 @@ function get_data_for_partner_callback($booking_id) {
         }
         $query = $this->db->get("service_center_booking_action");
         return $query->result_array();
+    }
+    
+    /*
+     * @desc: This function is used to get searched data for partner contract datatable list
+     * @param: $select
+     * @param: $post
+     */
+    function search_contract_detail($select, $post){
+        $this->db->from('collateral');
+        $this->db->select($select, FALSE);
+        
+        $this->db->join('collateral_type','collateral_type.id= collateral.collateral_id');
+        $this->db->join('partners', 'partners.id = collateral.entity_id');
+        
+        if (!empty($post['where'])) {
+            $this->db->where($post['where'], FALSE);
+        }
+        if (isset($post['where_in'])) {
+            foreach ($post['where_in'] as $index => $value) {
+
+                $this->db->where_in($index, $value);
+            }
+        }
+
+        if (!empty($post['search_value'])) {
+            $like = "";
+            foreach ($post['column_search'] as $key => $item) { // loop column 
+                // if datatable send POST for search
+                if ($key === 0) { // first loop
+                    $like .= "( " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+
+        if (!empty($post['order'])) { // here order processing
+            $this->db->order_by($post['column_order'][$post['order'][0]['column']], $post['order'][0]['dir']);
+        } else if (isset($post['order_by'])) {
+            $order = $post['order_by'];
+            $this->db->order_by(key($order), $order[key($order)]);
+        }
+        
+        if ($post['length'] != -1) {
+            $this->db->limit($post['length'], $post['start']);
+        }
+        $query = $this->db->get();
+        //log_message("info", __METHOD__." query ".$this->db->last_query()); 
+        return $query->result();
     }
 }
 

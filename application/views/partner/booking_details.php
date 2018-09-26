@@ -113,7 +113,13 @@
                                         <td><?php echo $booking_history[0]['booking_remarks']; ?></td>
                                         <th></th>
                                         <td></td>
-                                         </tr>
+                                    </tr>
+                                    <tr>
+                                        <th>Dealer Name: </th>
+                                        <td><?php if($booking_history[0]['dealer_id'] || $booking_history[0]['dealer_id']>0){ echo $booking_history[0]['dealer_name'];  } ?></td>
+                                        <th>Dealer Phone Number</th>
+                                        <td><?php if($booking_history[0]['dealer_id'] || $booking_history[0]['dealer_id']>0){ echo $booking_history[0]['dealer_phone_number_1'];  } ?></td>
+                                    </tr>   
                                 </table>
                             </div>
                             <div role="tabpanel" class="tab-pane fade" id="tab_content2">
@@ -336,7 +342,16 @@
                                                                 if ($sp['purchase_price'] > 0) { ?>
                                                                     <tr>
 
-                                                                        <td><?php echo $sp['purchase_price']; ?></td>
+                                                                        <td><?php 
+                                                                        if($sp['status'] == SPARE_OOW_EST_GIVEN){
+                                                                           ?>
+                                                                            <input type="text" value="<?php echo $sp['purchase_price']?>" id="edit_purchase_price"
+                                                                                   onchange="update_purchase_price('<?php echo $sp['id']?>','<?php echo $sp['booking_unit_details_id']?>')">
+                                                                            <?php
+                                                                        }
+                                                                        else{
+                                                                            echo $sp['purchase_price']; 
+                                                                        }?></td>
                                                                         <td><?php if (!empty($sp['estimate_cost_given_date'])) {
                                                                                 echo date("d-m-Y", strtotime($sp['estimate_cost_given_date']));
                                                                             } ?>
@@ -545,6 +560,38 @@
         </div>
     </div>
 <script>
+    function update_purchase_price(spare_id,booking_unit_id){
+        var price = $('#edit_purchase_price').val();
+        if(price && price > 1){
+            swal({
+                title: "Do You Want To Continue?",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                closeOnConfirm: true
+                },
+                function(){
+                    $.ajax({
+                    method: 'POST',
+                    data: {booking_id: '<?php echo $booking_history[0]['booking_id'] ?>', vendor_id: '<?php echo $booking_history[0]['assigned_vendor_id'] ?>', amount_due: '<?php echo $booking_history[0]['amount_due'] ?>', 
+                        spare_id: spare_id, updated_price: price, partner_id: '<?php echo $this->session->userdata('partner_id');?>', agent_id: '<?php echo $this->session->userdata('agent_id');?>', booking_unit_id:booking_unit_id},
+                    url: '<?php echo base_url(); ?>employee/partner/update_spare_estimate_quote',
+                        success: function (response) {
+                            if(response){
+                                alert("Price has been updated successfully");
+                            }
+                            else{
+                                alert("Something Went Wrong please contact to admin");
+                            }
+                        }
+                    });
+                }
+            );
+        }
+        else{
+            alert("Estimate price Can not be blank or 0");
+        }
+    }
     function sf_tab_active(){
         <?php if($booking_history[0]['is_upcountry'] == 1){  ?>  
              setTimeout(function(){ GetRoute(); }, 1000);

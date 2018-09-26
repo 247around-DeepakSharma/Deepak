@@ -70,7 +70,7 @@ class accounting_model extends CI_Model {
     function get_account_report_data($payment_type, $from_date, $to_date, $partner_vendor,$is_challan_data,$invoice_data_by,$report_type="") {
         $return_data = array();
         switch ($payment_type) {
-            case 'A':
+            case 'A': 
             case 'B': 
                 $return_data = $this->get_accounting_s_p_report($from_date, $to_date, $partner_vendor,$is_challan_data,$invoice_data_by, $payment_type);
                 break;
@@ -107,15 +107,16 @@ class accounting_model extends CI_Model {
         }
 
         $sql = "SELECT invoice_id, vendor_partner, IFNULL(sc.name,partners.company_name ) as company_name, "
+                . " IFNULL(sc.address,partners.address ) as address, "
                 . " IFNULL(sc.state,partners.state ) as state, "
-                . " IFNULL(sc.gst_no,partners.gst_number ) as gst_number, "
+                . " IFNULL(sc.gst_no,partners.gst_number ) as gst_number, IFNULL(sc.gst_taxpayer_type, '') as gst_reg_type,"
                 . " invoice_date, from_date,"
                 . " IFNULL(sc.service_tax_no, partners.service_tax) as service_tax_no, "
                 . " IFNULL(sc.tin_no, partners.tin) as tin_no, "
                 . " to_date,total_service_charge,"
                 . " `total_additional_service_charge`,vpi.`service_tax`,"
-                . " `parts_cost`,`parts_count`,`vat`,`total_amount_collected`,"
-                . " `around_royalty`,`amount_collected_paid`,"
+                . " `parts_cost`,`parts_count`, `parts_cost`, `vat`,`total_amount_collected`,"
+                . " `around_royalty`,`total_service_charge`,`parts_count`,`reference_invoice_id`,`amount_collected_paid`,"
                 . " `hsn_code`,`cgst_tax_amount`,`igst_tax_amount`,"
                 . "`sgst_tax_amount`,`cgst_tax_rate`,"
                 . "`igst_tax_rate`,`sgst_tax_rate`,`tds_rate`,"
@@ -124,7 +125,7 @@ class accounting_model extends CI_Model {
                 . " FROM vendor_partner_invoices as vpi LEFT JOIN service_centres as sc ON vendor_partner = 'vendor' "
                 . " AND sc.id = vpi.vendor_partner_id LEFT JOIN partners ON vendor_partner = 'partner' "
                 . " AND partners.id = vpi.vendor_partner_id WHERE "
-                . " type_code = '$payment_type' AND vpi.type NOT IN ('".BUYBACK_VOUCHER."') AND  vendor_partner = '$partner_vendor' $where";
+                . " type_code = '$payment_type' AND vpi.type NOT IN ('".BUYBACK_VOUCHER."', '".BUYBACK_TYPE."') AND  vendor_partner = '$partner_vendor' $where";
         
         $query = $this->db->query($sql);
         $data = $query->result_array();
@@ -142,9 +143,9 @@ class accounting_model extends CI_Model {
     function get_tds_accounting_report($from_date, $to_date, $report_type,$invoice_data_by) {
         $group_by = "";
         if($report_type == "draft"){
-            $select = "name,company_name, company_type, vpi.invoice_id, vpi.invoice_date,name_on_pan,
-                    pan_no, owner_name, vpi.total_service_charge, 
-                    vpi.total_additional_service_charge, vpi.service_tax,
+            $select = "name,company_name, company_type, vpi.invoice_id, vpi.invoice_date,name_on_pan, address, state, gst_taxpayer_type,
+                    pan_no, owner_name, vpi.total_service_charge, vpi.type, vpi.reference_invoice_id, vpi.type_code,
+                    vpi.total_additional_service_charge, vpi.service_tax, vpi.parts_count, vpi.parts_cost,
                     vpi.total_amount_collected,(total_amount_collected - vpi.tds_amount) as net_amount,
                     vpi.tds_amount, tds_rate ,abs(vpi.amount_collected_paid) as amount_collected_paid,sc.gst_no ";
         } else {
@@ -232,14 +233,16 @@ class accounting_model extends CI_Model {
         }
 
         $sql = "SELECT invoice_id, vendor_partner, IFNULL(sc.name,partners.company_name ) as company_name, "
+                . " IFNULL(sc.address,partners.address ) as address, "
                 . " IFNULL(sc.state,partners.state ) as state, "
                 . " IFNULL(sc.gst_no,partners.gst_number ) as gst_number, "
+                . " IFNULL(sc.gst_taxpayer_type, '') as gst_registration_type, "
                 . " invoice_date, from_date,"
                 . " IFNULL(sc.service_tax_no, partners.service_tax) as service_tax_no, "
                 . " IFNULL(sc.tin_no, partners.tin) as tin_no, "
                 . " to_date,total_service_charge,"
                 . " `total_additional_service_charge`,vpi.`service_tax`,"
-                . " `parts_cost`,`parts_count`,`vat`,`total_amount_collected`,"
+                . " `parts_cost`,`parts_count`,`vat`,`total_amount_collected`, vpi.type, vpi.type_code,"
                 . " `around_royalty`,`amount_collected_paid`,"
                 . " `hsn_code`,"
                 . " case when((`cgst_tax_amount`+`igst_tax_amount`+`sgst_tax_amount`) = 0) Then buyback_tax_amount ELSE (`cgst_tax_amount`+`igst_tax_amount`+`sgst_tax_amount`) END as tax,"
@@ -258,7 +261,6 @@ class accounting_model extends CI_Model {
         return $data;
     }
     function get_courier_documents($id=NULL){
-        //$where = " "; /modiflied by kalyani/
         $where = "WHERE courier_details.is_active = 1";
         if($id){
             $where = " WHERE courier_details.id = ".$id;

@@ -53,7 +53,7 @@
                     <div class="form-group col-md-3">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
-                            <label for="">Service Type</label>
+                            <label for="">Service Type</label><br>
                             <select class="form-control filter_table" id="request_type" name="request_type">
                                 <option value="">All</option>
                                 <option value="Installation" selected="selected">Installations</option>
@@ -123,7 +123,7 @@
                     <tbody>
                         <tr ng-repeat="x in completedBookingByRM | orderBy:'TAT_16'">
                            <td>{{$index+1}}</td>
-                           <td><a type="button" style="border: none;" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" href="<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/{{x.id}}">{{x.Region}}</a></td>
+                           <td><a type="button" style="border: none;" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" href="<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/{{x.id}}">{{x.entity}}</a></td>
                            <td>{{x.TAT_0}} <br> ({{x.TAT_0_per}}%) </td>
                            <td>{{x.TAT_1}} <br> ({{x.TAT_1_per}}%) </td>
                            <td>{{x.TAT_2}} <br> ({{x.TAT_2_per}}%)</td>

@@ -8121,3 +8121,12 @@ INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `li
 ALTER TABLE `spare_parts_details` ADD `reverse_sale_invoice_id` VARCHAR(128) NULL DEFAULT NULL AFTER `sell_price`, ADD `reverse_purchase_invoice_id` VARCHAR(128) NULL DEFAULT NULL AFTER `reverse_sale_invoice_id`;
 --Chhavi 21st Nov
 ALTER TABLE `spare_parts_details` ADD `defactive_part_received_date_by_courier_api` DATETIME NULL AFTER `defective_part_shipped_date`;
+--Kalyani 22 Sep 
+ALTER TABLE `courier_company_invoice_details` ADD `invoice_id` VARCHAR(255) NOT NULL AFTER `courier_charge`, ADD `billable_weight` INT NOT NULL AFTER `invoice_id`, ADD `actual_weight` INT NOT NULL AFTER `billable_weight`;--Chhavi 24th november
+ALTER TABLE `employee_relation` ADD `region` VARCHAR(128) NULL AFTER `state_code`;
+UPDATE employee_relation SET state_code = "North" WHERE employee_id = '36'
+UPDATE employee_relation SET state_code = "West" WHERE employee_id = '38'
+UPDATE employee_relation SET state_code = "East" WHERE employee_id = '24'
+UPDATE employee_relation SET state_code = "South" WHERE employee_id = '16'UPDATE employee_relation SET state_code = "South" WHERE employee_id = '16'--Chhavi 25th november
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES
+(NULL, 'oow_estimate_updated', 'Repair OOW Parts Estimate Updated By Partner For Booking ID %s', 'Updated Spare Estimate Amount: Rs. %s', 'noreply@247around.com', '', 'chhavid@247around, anuj@247around.com', '', '1', '2018-09-25 18:26:57');
