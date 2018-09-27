@@ -288,7 +288,7 @@ class Invoice_lib {
             $activity['json_response_string'] = $api_response;
             $response = json_decode($api_response, true);
             if(isset($response['error'])){ 
-                if($response['error']['error_cd'] != INVALID_GSTIN){  /**** mail not send on invalid gst number *****/
+                if($response['error']['error_cd'] != INVALID_LENGHT_GSTIN && $response['error']['error_cd'] != INVALID_GSTIN){  /**** mail not send on invalid gst number or invalid length of gst number *****/
                     $email_template = $this->ci->booking_model->get_booking_email_template(TAXPRO_API_FAIL);
                     if(!empty($email_template)){
                         $message = vsprintf($email_template[0], array("GST NO - ".$gst_no,"Filled by - ".$this->ci->session->userdata('emp_name'), $api_response));  
