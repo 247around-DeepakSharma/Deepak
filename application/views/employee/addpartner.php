@@ -715,11 +715,11 @@
                                             } ?>">
                                             <label for="prepaid_amount_limit" class="col-md-4">Prepaid Minimum Amt Limit</label>
                                             <div class="col-md-8">
-                                                <input type="text" class="form-control"  name="prepaid_amount_limit" value = "<?php if (isset($query[0]['prepaid_amount_limit'])) {
+                                                <input type="number" class="form-control" onkeyup="show_help_text(this)"  name="prepaid_amount_limit" value = "<?php if (isset($query[0]['prepaid_amount_limit'])) {
                                                     echo $query[0]['prepaid_amount_limit'];
                                                     } ?>" >
                                                 <?php echo form_error('prepaid_amount_limit'); ?>
-                                                 <p style="font-weight:bold;"><?php echo $query[0]['prepaid_amount_limit']; ?> is minimum pre paid amount</p>
+                                                 <p style="font-weight:bold;"><span><?php echo $query[0]['prepaid_amount_limit']; ?></span> is minimum pre paid amount</p>
                                             </div>
                                         </div>
                                     </div>
@@ -729,11 +729,11 @@
                                             } ?>">
                                             <label for="prepaid_notification_amount" class="col-md-4">Notification Amt Limit</label>
                                             <div class="col-md-8">
-                                                <input type="text" class="form-control"  name="prepaid_notification_amount" value = "<?php if (isset($query[0]['prepaid_notification_amount'])) {
+                                                <input type="number" class="form-control" onkeyup="show_help_text(this)" id="prepaid_notification_amount"  name="prepaid_notification_amount" value = "<?php if (isset($query[0]['prepaid_notification_amount'])) {
                                                     echo $query[0]['prepaid_notification_amount'];
                                                     } ?>" >
                                                 <?php echo form_error('prepaid_notification_amount'); ?>
-                                                 <p style="font-weight:bold;"><?php echo $query[0]['prepaid_notification_amount']; ?> is minimum notification amount</p>
+                                                <p style="font-weight:bold;"><span><?php echo $query[0]['prepaid_notification_amount']; ?> </span> is minimum notification amount</p>
                                             </div>
                                         </div>
                                     </div>
@@ -743,11 +743,11 @@
                                             } ?>">
                                             <label for="grace_period_date" class="col-md-4">Grace Period Date </label>
                                             <div class="col-md-8">
-                                                <input type="text" id="grace_period_date" placeholder="Select Date When Partner De-Activate" class="form-control"  name="grace_period_date" value = "<?php if (isset($query[0]['grace_period_date'])) {
+                                                <input type="text" id="grace_period_date" placeholder="Select Date When Partner De-Activate" class="form-control" onchange="show_help_text(this)"  name="grace_period_date" value = "<?php if (isset($query[0]['grace_period_date'])) {
                                                     echo $query[0]['grace_period_date'];
                                                     } ?>" >
                                                 <?php echo form_error('grace_period_date'); ?>
-                                                <p style="font-weight:bold;">Account will be active before <?php echo $query[0]['grace_period_date']; ?></p>
+                                                <p style="font-weight:bold;">Account will be active before <span><?php echo $query[0]['grace_period_date']; ?></span></p>
                                             </div>
                                         </div>
                                     </div>
@@ -2181,9 +2181,14 @@
    
 });
 up_message();
+
 $(document).on('keyup', '.up_message', function (e) {
     up_message();
 });
+
+function show_help_text(input){
+   $(input).parent('div').find('span').text($(input).val());
+}
 
 function up_message(){
     var up_rate = $("#up_rate").val();
