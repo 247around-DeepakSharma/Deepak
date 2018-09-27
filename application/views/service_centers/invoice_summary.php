@@ -130,26 +130,26 @@
          "serverSide": true, //Feature control DataTables' server-side processing mode.
          "order": [[ 1, "asc" ]], //Initial no order.
          "pageLength": 50,
-          dom: 'lBfrtip',
+//          dom: 'lBfrtip',
          "lengthMenu": [[10, 25, 50,100, -1], [10, 25, 50, 100,"All"]],
-          buttons: [
-                {
-                    extend: 'excel',
-                    text: '<span class="fa fa-file-excel-o"></span> Excel Export',
-                    pageSize: 'LEGAL',
-                    title: 'Invoice',
-                    exportOptions: {
-                       columns: [1,2,3,4,5,6,7,8,9],
-                        modifier : {
-                             // DataTables core
-                             order : 'index',  // 'current', 'applied', 'index',  'original'
-                             page : 'All',      // 'all',     'current'
-                             search : 'none'     // 'none',    'applied', 'removed'
-                         }
-                    }
-                    
-                }
-            ],
+//          buttons: [
+//                {
+//                    extend: 'excel',
+//                    text: '<span class="fa fa-file-excel-o"></span> Excel Export',
+//                    pageSize: 'LEGAL',
+//                    title: 'Invoice',
+//                    exportOptions: {
+//                       columns: [1,2,3,4,5,6,7,8,9],
+//                        modifier : {
+//                             // DataTables core
+//                             order : 'index',  // 'current', 'applied', 'index',  'original'
+//                             page : 'All',      // 'all',     'current'
+//                             search : 'none'     // 'none',    'applied', 'removed'
+//                         }
+//                    }
+//                    
+//                }
+//            ],
          // Load data for the table's content from an Ajax source
             ajax: {
                 url: "<?php echo base_url();?>employee/accounting/get_invoice_searched_data",
