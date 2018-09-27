@@ -7,11 +7,20 @@
             </div>
             <div class="panel-body">
                 
+                <?php if (isset($error) && !empty($error)) { ?>
+                <div class="alert alert-danger alert-dismissible" role="alert" style="margin-top:15px;">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                    <strong><?php print_r($error); ?></strong>
+                </div>
+                <?php } ?>
+                
                   <form class="form-horizontal"  method="POST" action="<?php echo base_url(); ?>employee/vendor/seach_gst_number">
                     <div class="form-group">
                         <label for="gst_number" class="col-md-1"> GSTIN</label>
                         <div class="col-md-4">
-                        <input type="text" class="form-control" name="gst_number" value="" id="gst_number" />
+                            <input type="text" class="form-control" name="gst_number" value="" id="gst_number" style="text-transform: uppercase" />
                         </div>
                     </div>
                     <div class="form-group">
@@ -34,10 +43,9 @@
    
 
 <?php if (isset($data) && !empty($data)) { ?>
-<?php //print_r($data); die(); ?>
         <div class="container col-md-12" >
             <div class="panel panel-info" >
-                <div class="panel-heading" >GSTIN Detail</div>
+                <div class="panel-heading" >GST Number Detail</div>
                 <div class="panel-body">
                 <div class="col-md-12">
                     <table class="table table-bordered">
@@ -69,4 +77,4 @@
    
 <?php } ?>
 </div>
-<?php if($this->session->userdata('success')) {$this->session->unset_userdata('success');} ?>
+
