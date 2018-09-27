@@ -5163,6 +5163,9 @@ class vendor extends CI_Controller {
         $api_response = "";
         $gst_array = array();
         $gstin = trim($this->input->post("gst_number"));
+        if(substr($gstin, -1) == ','){
+            $gstin = rtrim($gstin,","); 
+        }
         $api_check = $this->input->post("api_check");
         if(!empty($gstin)){
             if(strpos($gstin, ',')){
@@ -5176,7 +5179,7 @@ class vendor extends CI_Controller {
                 $gst_no = "'".$gstin."'";
                 $gst_array[] = trim($gstin);
             }
-            $gst_no = rtrim($gst_no,",");
+            $gst_no = rtrim($gst_no,",");       
             if($api_check){
                 $gstApiData = array();
                 $gstApiDataError = "";
