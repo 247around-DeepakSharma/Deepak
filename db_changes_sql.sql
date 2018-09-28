@@ -8211,3 +8211,20 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 
 -- Abhay
 INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Upload Service Center Payment', NULL, 'file_upload/upload_payment_file', '2', '56', 'admin,developer', 'main_nav', '1', '2018-09-28 10:37:02');
+
+--kalyani
+CREATE TABLE `gstin_detail` (
+  `id` int(11) NOT NULL,
+  `gst_number` varchar(15) NOT NULL,
+  `lager_name` varchar(55) NOT NULL,
+  `type` varchar(55) NOT NULL,
+  `status` varchar(55) NOT NULL,
+  `address` varchar(255) NOT NULL,
+  `company_name` varchar(255) NOT NULL,
+  `cancellation_date` datetime NOT NULL,
+  `create_date` datetime NOT NULL
+) 
+
+ALTER TABLE `gstin_detail` ADD PRIMARY KEY(`id`);
+ALTER TABLE `gstin_detail` CHANGE `id` `id` INT(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `gstin_detail` ADD `nature_of_business` VARCHAR(255) NOT NULL AFTER `company_name`;
