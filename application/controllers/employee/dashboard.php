@@ -1589,22 +1589,22 @@ function get_tat_conditions_by_filter($startDate=NULL,$endDate=NULL,$status="not
                 $joinType['spare_parts_details']  = "left";
                 foreach($requestTypeArray as $request_type){
                     if($request_type == 'Repair_with_part'){
-                        $where['request_type LIKE "%Repair%"'] = NULL;                        
+                        $where['booking_details.request_type LIKE "%Repair%"'] = NULL;                        
                         $where['spare_parts_details.booking_id IS NOT NULL'] = NULL;
                     }
                     else if($request_type == 'Repair_without_part'){
-                        $where['request_type LIKE "%Repair%"'] = NULL;
+                        $where['booking_details.request_type LIKE "%Repair%"'] = NULL;
                         $where['spare_parts_details.booking_id IS NULL'] = NULL;
                     }
                     else if($request_type == 'Installation'){
-                        $where['request_type NOT LIKE "%Repair%"'] = NULL;
+                        $where['booking_details.request_type NOT LIKE "%Repair%"'] = NULL;
                         $where['spare_parts_details.booking_id IS NULL'] = NULL;
                     }
                 }
                 $count = count($requestTypeArray);
-                if(array_key_exists('request_type NOT LIKE "%Repair%"', $where) && array_key_exists('request_type LIKE "%Repair%"', $where)){
-                    unset($where['request_type NOT LIKE "%Repair%"']);
-                    unset($where['request_type LIKE "%Repair%"']);
+                if(array_key_exists('booking_details.request_type NOT LIKE "%Repair%"', $where) && array_key_exists('booking_details.request_type LIKE "%Repair%"', $where)){
+                    unset($where['booking_details.request_type NOT LIKE "%Repair%"']);
+                    unset($where['booking_details.request_type LIKE "%Repair%"']);
                 }
                 if(array_key_exists('spare_parts_details.booking_id IS NULL', $where) && array_key_exists('spare_parts_details.booking_id IS NOT NULL', $where)){
                     unset($where['spare_parts_details.booking_id IS NULL']);
