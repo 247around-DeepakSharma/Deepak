@@ -5160,8 +5160,12 @@ class vendor extends CI_Controller {
     */
     function seach_gst_number(){
         $gst_no = "";
+        $api_response = "";
         $gst_array = array();
         $gstin = trim($this->input->post("gst_number"));
+        if(substr($gstin, -1) == ','){
+            $gstin = rtrim($gstin,","); 
+        }
         $api_check = $this->input->post("api_check");
         if(!empty($gstin)){
             if(strpos($gstin, ',')){
@@ -5175,25 +5179,40 @@ class vendor extends CI_Controller {
                 $gst_no = "'".$gstin."'";
                 $gst_array[] = trim($gstin);
             }
-            $gst_no = rtrim($gst_no,",");
+            $gst_no = rtrim($gst_no,",");       
             if($api_check){
                 $gstApiData = array();
+                $gstApiDataError = "";
                  $i = 0;
                 foreach ($gst_array as $value) {
                     if($value){
                         $api_response = $this->invoice_lib->taxpro_gstin_checking_curl_call($value);
                         //$api_response = '{"stjCd":"UP530","lgnm":"NEERAJ RASTOGI","dty":"Regular","stj":"Ghaziabad Sector-4 , AC","adadr":[],"cxdt":"","gstin":"09ABJPR2848D1ZF","nba":["Service Provision","Office / Sale Office","Retail Business"],"lstupdt":"03/08/2018","ctb":"Proprietorship","rgdt":"01/07/2017","pradr":{"addr":{"bnm":"R.D.C","loc":"GHAZIABAD","st":"RAJ NAGAR","bno":"R-7/6","dst":"Ghaziabad","stcd":"Uttar Pradesh","city":"","flno":"","lt":"","pncd":"201002","lg":""},"ntr":"Service Provision, Office / Sale Office, Retail Business"},"tradeNam":"M/S SHIVAY ELECTRONICS","ctjCd":"YE0103","sts":"Active","ctj":"RANGE - 3"}';
+                        //$api_response = '{"status_cd":"0","error":{"error_cd":"GSP050D","message":"Error while decrypting or decoding received data. Upstream Response: {\"url\":\"/\",\"message\":null,\"errorCode\":\"SWEB_9035\"}"}}';
                         $api_response = json_decode($api_response, true);
-                        
-                        $gstApiData[$i]['entity'] = "";
-                        $gstApiData[$i]['name'] = $api_response['lgnm'];
-                        $gstApiData[$i]['gst_number'] = $api_response['gstin'];
-                        $gstApiData[$i]['gst_status'] = $api_response['sts'];
-                        $gstApiData[$i]['gst_type'] = $api_response['dty'];
+                        if(!(isset($api_response['error']))){
+                            $gstApiData[$i]['entity'] = "";
+                            $gstApiData[$i]['name'] = $api_response['lgnm'];
+                            $gstApiData[$i]['gst_number'] = $api_response['gstin'];
+                            $gstApiData[$i]['gst_status'] = $api_response['sts'];
+                            $gstApiData[$i]['gst_type'] = $api_response['dty'];
+                        }
+                        else{
+                            if($api_response['error']['error_cd'] == INVALID_GSTIN){
+                               $gstApiDataError .= INVALID_GSTIN_MSG." - ".$value."<br/>";
+                            }
+                            else if($api_response['error']['error_cd'] == INVALID_LENGHT_GSTIN){
+                                $gstApiDataError .= INVALID_LENGHT_GSTIN_MSG." - ".$value."<br/>";
+                            }
+                            else{
+                               $gstApiDataError .= "Error while finding GST Number - ".$value."<br/>";
+                            }
+                        }
                     }
                     $i++;
                 }
                 $data['data'] = $gstApiData;
+                $data['error'] = $gstApiDataError;
                 $this->miscelleneous->load_nav_header();
                 $this->load->view("employee/search_gst_number", $data);
             }
