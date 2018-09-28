@@ -8207,3 +8207,5 @@ ALTER TABLE `tat_invoice_condition`
 ALTER TABLE `tat_invoice_condition`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES (NULL, 'missed_upcountry_booking', 'Upcountry Booking Missed - Need To Take Action', 'Booking should be upcountry but not marked properly. AM need to take action to update their below bookings<br>%s', 'noreply@247around.com', '', '', '', '1', '', CURRENT_TIMESTAMP);
+
