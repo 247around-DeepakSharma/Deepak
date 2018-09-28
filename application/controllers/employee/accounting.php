@@ -723,7 +723,7 @@ class Accounting extends CI_Controller {
     function get_invoice_searched_data(){
         log_message("info", __METHOD__);
         $post = $this->getInvoiceDataTablePost();
-        $post['column_order'] = array(NULL, 'invoice_id');
+        $post['column_order'] = array(NULL, 'vendor_partner_invoices.id');
         $post['column_search'] = array('invoice_id');
         $data = array();
         
