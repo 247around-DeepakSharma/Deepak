@@ -3600,18 +3600,21 @@ class Service_centers extends CI_Controller {
             $template = 'delivery_challan_template';
             $excel_data['excel_data']['sf_gst'] = $sf_details[0]['gst_no'];
             $signature_file = FALSE;
-        } else if ($sf_details[0]['is_gst_doc'] == 0 && !empty ($sf_details[0]['signature_file'])) {
+        } else {
             $template = "delivery_challan_without_gst";
             $excel_data['excel_data']['sf_gst'] = '';
             $excel_data['excel_data']['sf_owner_name'] = $sf_details[0]['owner_name'];
             //get signature file from s3 and save it to server
-            $s3_bucket = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $sf_details[0]['signature_file'];
-            copy($s3_bucket, TMP_FOLDER . $sf_details[0]['signature_file']);
-            system(" chmod 777 " . TMP_FOLDER . $sf_details[0]['signature_file']);
-            $excel_data['excel_data']['signature_file'] = $signature_file = $sf_details[0]['signature_file'] ;
-        } else {
-            $template = "";
-        }
+            if(!empty($sf_details[0]['signature_file'])){
+                $s3_bucket = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $sf_details[0]['signature_file'];
+                copy($s3_bucket, TMP_FOLDER . $sf_details[0]['signature_file']);
+                system(" chmod 777 " . TMP_FOLDER . $sf_details[0]['signature_file']);
+                $excel_data['excel_data']['signature_file'] = $signature_file = $sf_details[0]['signature_file'] ;
+            } else {
+                $excel_data['excel_data']['signature_file'] = $signature_file = "" ;
+            }
+            
+        } 
 
         if (!empty($template)) {
             //generated pdf file name
