@@ -145,7 +145,7 @@
         invoice_table = $('#datatable').DataTable({
          "processing": true, //Feature control the processing indicator.
          "serverSide": true, //Feature control DataTables' server-side processing mode.
-         "order": [[ 1, "asc" ]], //Initial no order.
+         "order": [[ 1, "desc" ]], //Initial no order.
          "pageLength": 50,
           dom: 'lBfrtip',
          "lengthMenu": [[10, 25, 50,100, -1], [10, 25, 50, 100,"All"]],
