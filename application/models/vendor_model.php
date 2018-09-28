@@ -1904,10 +1904,14 @@ class vendor_model extends CI_Model {
      * @desc: This function is used to get searched gstin detail
     **/
     function search_gstn_number($gst_no){
-       $sql =  "SELECT 'vendor' as 'entity', company_name as 'name', gst_no as 'gst_number', gst_status as 'gst_status', gst_taxpayer_type as 'gst_type' FROM service_centres where gst_no in (".$gst_no.") 
+       $last_month = date('Y-m-d H:i:s', strtotime(date('Y-m-d H:i:s'). ' - 30 days'));
+       $sql =  "SELECT 'vendor' as 'entity', company_name as 'lager_name', gst_no as 'gst_number', gst_status as 'status', gst_taxpayer_type as 'type' FROM service_centres where gst_no = '".$gst_no."'
                 UNION
-                SELECT 'partner' as 'entity', public_name as 'name', gst_number as 'gst_number', 'gst_status', 'gst_type' FROM partners where gst_number in (".$gst_no.")";
-
+                SELECT 'partner' as 'entity', public_name as 'lager_name', gst_number as 'gst_number', 'status', 'type' FROM partners where gst_number = '".$gst_no."'
+                UNION
+                SELECT 'Previously Searched Data' as 'entity', lager_name as 'lager_name', gst_number as 'gst_number', status as 'status', type as 'type' FROM gstin_detail where gst_number = '".$gst_no."' and create_date >= '".$last_month."'
+                ";
+        
         $query = $this->db->query($sql);
         return $query->result_array();
     }
