@@ -3212,9 +3212,9 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
     }
     function get_faulty_booking_criteria($partner_id){
          //Where condition to get faulty booking criteria for partner
-        $whereFaulty["(entity_type = 'Partner' AND entity_id ='".$partner_id."') OR entity_type = 'Vendor' OR (entity_type = 'Partner' AND entity_id IS NULL)"] = NULL;
+        $where_in['entity_id'] = array(_247AROUND,$partner_id);
         //Get Partner Data to calculate "is legs faulty"
-        $tatFaultyBookingCriteriaTemp = $this->My_CI->reusable_model->get_search_result_data("tat_defactive_booking_criteria","*",$whereFaulty,NULL,NULL,NULL,NULL,NULL,array());
+        $tatFaultyBookingCriteriaTemp = $this->My_CI->reusable_model->get_search_result_data("tat_defactive_booking_criteria","*",NULL,NULL,NULL,NULL,$where_in,NULL,array());
         $count = count($tatFaultyBookingCriteriaTemp);
         foreach ($tatFaultyBookingCriteriaTemp as $values){
             if($values['entity_type'] == 'Vendor'){
@@ -3225,7 +3225,7 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
                     $this->tatFaultyBookingCriteria['Partner'] = $values;
                 }
                 else{
-                     if($values['entity_type'] == 'Partner' && $values['entity_id']){
+                     if($values['entity_type'] == 'Partner' && $values['entity_id'] != _247AROUND){
                          $this->tatFaultyBookingCriteria['Partner'] = $values;
                      }
                 }
