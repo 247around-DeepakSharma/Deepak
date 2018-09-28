@@ -93,8 +93,7 @@
         fd.append("file_type", "<?php echo INVOICE_PAYMENT_FILE_TYPE;?>");
         fd.append("redirect_url", "");
         var amount_paid = Number($("#amount_paid").val());
-        var transaction_date = $("transaction_date").val();
-        alert(transaction_date);
+        var transaction_date = $("#transaction_date").val();
         if(amount_paid > 0 && (transaction_date !=="undefined") || transaction_date === ""){
             $.ajax({
                 url: "<?php echo base_url() ?>file_upload/process_invoice_payment_file_upload",

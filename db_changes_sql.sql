@@ -8215,3 +8215,5 @@ ALTER TABLE `tat_invoice_condition`
 INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Search GSTIN', NULL, 'employee/vendor/seach_gst_number', '2', '80', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
 INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES ('', '247Around', 'Partner Contract List', NULL, 'employee/partner/show_contract_list', '2', '24', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
 
+-- Abhay
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Upload Service Center Payment', NULL, 'file_upload/upload_payment_file', '2', '56', 'admin,developer', 'main_nav', '1', '2018-09-28 10:37:02');

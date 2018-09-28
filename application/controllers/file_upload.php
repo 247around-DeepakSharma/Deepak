@@ -1098,7 +1098,7 @@ class File_upload extends CI_Controller {
                     
                     $total_amount = (array_sum(array_column($sheetRowData, 'amount_paid')));
                     $p_amount_paid = $this->input->post("total_amount_paid");
-                    if(round($total_amount,0) == round($p_amount_paid,0) ){
+                    if(abs(round($total_amount,0)) == round($p_amount_paid,0) ){
                         $main_data = $this->get_service_center_filtered_data($sheetRowData);
                         log_message('info', __METHOD__. print_r($main_data, true));
                         if($main_data['status']){
