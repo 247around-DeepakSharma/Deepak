@@ -451,7 +451,7 @@
               $('.parts_name').each(function() {
                 var id = $(this).attr('id');
                 if(id !== "parts_name"){
-                    if(!$(this).val()){
+                    if(!$(this).val() || $(this).val() === "undefined" ||  $(this).val() === null){
                         alert('Please Enter Parts Nmae');
                         checkbox_value = 0;
                         return false;
@@ -464,7 +464,7 @@
             $('.parts_type').each(function() {
                 var id = $(this).attr('id');
                 if(id !== "parts_type"){
-                    if(!$(this).val()){
+                    if(!$(this).val() || $(this).val() === "undefined" ||  $(this).val() === null){
                         alert('Please Enter Parts Type');
                         checkbox_value = 0;
                        return false;
@@ -522,7 +522,7 @@
               
           }
       }
-    
+
       if(checkbox_value === 0){
           $('#submitform').val("Update Booking");
           return false;
