@@ -126,7 +126,10 @@
             Signature of Authorized Signatory:
             <br><br>
             <div style="border:solid  1px; width: 500px; height: 100px">
-                <img style="padding: 2px;" src="<?php echo base_url();?>/247around_tmp/<?php echo $excel_data['signature_file']; ?>">
+                <?php if(!empty($excel_data['signature_file'])){ ?>
+                    <img style="padding: 2px;" src="<?php echo base_url();?>/247around_tmp/<?php echo $excel_data['signature_file']; ?>">
+                <?php } ?>
+                
             </div>
             <br>
             Name of the Authorized Signatory: <?php echo $excel_data['sf_owner_name']; ?><br>
