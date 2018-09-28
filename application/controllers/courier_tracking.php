@@ -192,27 +192,31 @@ class Courier_tracking extends CI_Controller {
      */
     function delete_awb_data_from_api($data){
         log_message('info',__METHOD__.' Entering...');
-        $response = array();
-        if(!empty($data)){
-            $api_response = $this->trackingmore_api->deleteMultipleTracking($data);
-            log_message('info',__METHOD__.' delete api response '. print_r($api_response,true));
-            if($api_response['meta']['code'] === 200){
-                $response['status'] = TRUE;
-                $response['msg'] = $api_response['meta']['message'];
+        $count = count($data);
+        $x = 0;
+        while($x <= $count) {
+            $response = array();
+            $deleteData = array_slice($data,$x,50);
+            if(!empty($deleteData)){
+                $api_response = $this->trackingmore_api->deleteMultipleTracking($deleteData);
+                log_message('info',__METHOD__.' delete api response '. print_r($api_response,true));
+                if($api_response['meta']['code'] === 200){
+                    $response['status'] = TRUE;
+                    $response['msg'] = $api_response['meta']['message'];
+                }else{
+                    $response['status'] = FALSE;
+                    $response['msg'] = $api_response['meta']['message'];
+                    //send mail to developer
+                    $this->send_api_failed_email(json_encode($api_response));
+                }
             }else{
                 $response['status'] = FALSE;
-                $response['msg'] = $api_response['meta']['message'];
-                //send mail to developer
-                $this->send_api_failed_email(json_encode($api_response));
+                $response['msg'] = 'Empty Data Found';
             }
-        }else{
-            $response['status'] = FALSE;
-            $response['msg'] = 'Empty Data Found';
+            log_message('info',__METHOD__.' Return Response '. print_r($response));
+            $x = $x+50;
         }
-        
-        log_message('info',__METHOD__.' Return Response '. print_r($response));
         return $response;
-        
     }
     
     /** @desc: this function is used to call function in background

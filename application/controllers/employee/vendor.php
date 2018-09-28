@@ -635,16 +635,14 @@ class vendor extends CI_Controller {
      * @return : String (Service center code)
      */
     function sendWelcomeSms($phone_number, $vendor_name,$id) {
-        $template = $this->vendor_model->getVendorSmsTemplate("new_vendor_creation");
-        $smsBody = sprintf($template, $vendor_name);
-
-        $this->notify->sendTransactionalSmsAcl($phone_number, $smsBody);
-        //For saving SMS to the database on sucess
-    
-        $this->notify->add_sms_sent_details($id, 'vendor' , $phone_number,
-                   $smsBody, '','new_vendor_creation' );
-    
-
+        $sms['tag'] = "new_vendor_creation";
+        $sms['smsData']['vendor_name'] = $vendor_name;
+        $sms['phone_no'] = $phone_number;
+        $sms['booking_id'] = "";
+        $sms['type'] = "user";
+        $sms['type_id'] = $id;
+        $sms['smsData'] = "";
+        $this->notify->send_sms_msg91($sms);
     }
 
     /**

@@ -62,15 +62,12 @@ class Partner extends CI_Controller {
      */
     function pending_booking() {
         $this->checkUserSession();
-        $state = 0;
-        if($this->session->userdata('is_filter_applicable') == 1){
-            $state = 1;
-        }
-        $partner_id = $this->session->userdata('partner_id');
         $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity' => 'partner', 'active' => '1'));
         $agent_id = $this->session->userdata('agent_id');
-        $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",array("agent_filters.agent_id"=>$agent_id),array("agent_filters"=>"agent_filters.state=state_code.state"),NULL,array('state'=>'ASC'),NULL,array("agent_filters"=>"left"),array());
-        if(empty($data['states'])){
+        if($this->session->userdata('is_filter_applicable') == 1){
+           $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",array("agent_filters.agent_id"=>$agent_id),array("agent_filters"=>"agent_filters.state=state_code.state"),NULL,array('state'=>'ASC'),NULL,array("agent_filters"=>"left"),array()); 
+        }
+        else{
             $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
         }
         $data['is_ajax'] = $this->input->post('is_ajax');
@@ -1636,8 +1633,10 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
         $this->checkUserSession();
         $agent_id = $this->session->userdata('agent_id');
+        if($this->session->userdata('is_filter_applicable') == 1){
             $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",array("agent_filters.agent_id"=>$agent_id),array("agent_filters"=>"agent_filters.state=state_code.state"),NULL,array('state'=>'ASC'),NULL,array("agent_filters"=>"left"),array());
-        if(empty($data['states'])){
+        }
+        else{
             $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
         }
         $data['is_ajax'] = $this->input->post('is_ajax');
@@ -2082,8 +2081,10 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
         $this->checkUserSession();
         $agent_id = $this->session->userdata('agent_id');
-        $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",array("agent_filters.agent_id"=>$agent_id),array("agent_filters"=>"agent_filters.state=state_code.state"),NULL,array('state'=>'ASC'),NULL,array("agent_filters"=>"left"),array());
-        if(empty($data['states'])){
+        if($this->session->userdata('is_filter_applicable') == 1){
+            $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",array("agent_filters.agent_id"=>$agent_id),array("agent_filters"=>"agent_filters.state=state_code.state"),NULL,array('state'=>'ASC'),NULL,array("agent_filters"=>"left"),array());
+        }
+        else{   
             $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
         }
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
@@ -2099,8 +2100,10 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
         $this->checkUserSession();
         $agent_id = $this->session->userdata('agent_id');
+        if($this->session->userdata('is_filter_applicable') == 1){
             $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",array("agent_filters.agent_id"=>$agent_id),array("agent_filters"=>"agent_filters.state=state_code.state"),NULL,array('state'=>'ASC'),NULL,array("agent_filters"=>"left"),array());
-        if(empty($data['states'])){
+        }
+        else{
             $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
         }
         $data['is_ajax'] = $this->input->post('is_ajax');
@@ -2417,13 +2420,11 @@ class Partner extends CI_Controller {
      */
     function get_approved_defective_parts_booking($offset = 0) {
         $this->checkUserSession();
-        $state = 0;
-        if($this->session->userdata('is_filter_applicable') == 1){
-            $state = 1;
-        }
         $agent_id = $this->session->userdata('agent_id');
-        $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",array("agent_filters.agent_id"=>$agent_id),array("agent_filters"=>"agent_filters.state=state_code.state"),NULL,array('state'=>'ASC'),NULL,array("agent_filters"=>"left"),array());
-        if(empty($data['states'])){
+        if($this->session->userdata('is_filter_applicable') == 1){
+            $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",array("agent_filters.agent_id"=>$agent_id),array("agent_filters"=>"agent_filters.state=state_code.state"),NULL,array('state'=>'ASC'),NULL,array("agent_filters"=>"left"),array());
+        }
+        else{
             $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
         }
         $this->miscelleneous->load_partner_nav_header();
@@ -3000,11 +3001,13 @@ class Partner extends CI_Controller {
     /**
      * @desc: used to display list of waiting to approve upcountry charges
      */
-    function get_waiting_for_approval_upcountry_charges($offset = 0, $all = 0) {
+    function get_waiting_for_approval_upcountry_charges() {
         $this->checkUserSession();
         $agent_id = $this->session->userdata('agent_id');
-        $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",array("agent_filters.agent_id"=>$agent_id),array("agent_filters"=>"agent_filters.state=state_code.state"),NULL,array('state'=>'ASC'),NULL,array("agent_filters"=>"left"),array());
-        if(empty($data['states'])){
+        if($this->session->userdata('is_filter_applicable') == 1){
+            $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",array("agent_filters.agent_id"=>$agent_id),array("agent_filters"=>"agent_filters.state=state_code.state"),NULL,array('state'=>'ASC'),NULL,array("agent_filters"=>"left"),array());
+        }
+        else{
             $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
         }
         $data['is_ajax'] = $this->input->post('is_ajax');
@@ -4264,12 +4267,14 @@ class Partner extends CI_Controller {
         $this->load->view('partner/inventory_stock_list');
         $this->load->view('partner/partner_footer');
     }
-    function get_pending_part_on_sf($offset = 0, $all = 0){
+    function get_pending_part_on_sf(){
          log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
         $this->checkUserSession();
         $agent_id = $this->session->userdata('agent_id');
-        $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",array("agent_filters.agent_id"=>$agent_id),array("agent_filters"=>"agent_filters.state=state_code.state"),NULL,array('state'=>'ASC'),NULL,array("agent_filters"=>"left"),array());
-        if(empty($data['states'])){
+        if($this->session->userdata('is_filter_applicable') == 1){
+            $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",array("agent_filters.agent_id"=>$agent_id),array("agent_filters"=>"agent_filters.state=state_code.state"),NULL,array('state'=>'ASC'),NULL,array("agent_filters"=>"left"),array());
+        }
+        else{
             $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
         }
             $this->miscelleneous->load_partner_nav_header();
@@ -4279,15 +4284,16 @@ class Partner extends CI_Controller {
     function get_reports(){
         $this->checkUserSession();
         $partnerID = $this->session->userdata('partner_id');
-        $stateWhere['agent_filters.agent_id'] = $this->session->userdata('agent_id');
-        $stateWhere['agent_filters.is_active'] = 1;
-        $join['agent_filters'] = 'agent_filters.state =  state_code.state';
-        $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",$stateWhere,$join,NULL,array('state_code.state'=>'ASC'),NULL,NULL,array());
+        if($this->session->userdata('is_filter_applicable') == 1){
+            $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",array("agent_filters.agent_id"=>$agent_id),array("agent_filters"=>"agent_filters.state=state_code.state"),NULL,array('state'=>'ASC'),NULL,array("agent_filters"=>"left"),array());
+        }
+        else{
+            $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
+        }
         $data['services'] = $this->booking_model->selectservice();
         $data['summaryReportData'] = $this->reusable_model->get_search_result_data("reports_log","filters,date(create_date) as create_date,url",array("entity_type"=>"partner","entity_id"=>$partnerID),NULL,array("length"=>50,"start"=>""),
                 array('id'=>'DESC'),NULL,NULL,array());
         $this->miscelleneous->load_partner_nav_header();
-        //$this->load->view('partner/header');
         $this->load->view('partner/report',$data);
         $this->load->view('partner/partner_footer');
     }
@@ -5108,17 +5114,12 @@ class Partner extends CI_Controller {
                } 
              $tempArray[] = $sn_no . $upcountryString;
              $tempArray[] = '<a style="color:blue;" href='.base_url().'partner/booking_details/'.$row->booking_id.' target="_blank" title="View">'.$row->booking_id.'</a>';
-            switch ($row->request_type) {
-                case "Installation & Demo":
-                    $requestType =  "Installation";
-                    break;
-                case "Repair - In Warranty":
-                case REPAIR_OOW_TAG:
-                    $requestType =  "Repair";
-                    break;
-                default:
-                    $requestType =  $row->request_type;
-                    break;
+            $requestType =  $row->request_type;
+            if (strpos($row->request_type, 'Installation') !== false) {
+                $requestType =  "Installation";
+            }
+            else if(strpos($row->request_type, 'Repair') !== false){
+                $requestType =  "Repair";
             }
             $tempArray[] = $row->services . "<br>". $requestType;
             $tempArray[]  = $row->appliance_brand; 
@@ -5460,43 +5461,38 @@ class Partner extends CI_Controller {
            $bookingData = $this->service_centers_model->get_admin_review_bookings(NULL,"Cancelled",$whereIN,1,$postData['start'],$postData['length'],$where,1,$order_by);
            $sn = $postData['start'];
            foreach ($bookingData as $key => $row) {
-                      $tempArray = array();
-                      $tempString = $tempString2 = $tempString3 = $tempString4 = "";
-                      $sn++;
-                      if ($row['is_upcountry'] == 1) {
-                            $tempString2 = '"'. $row['booking_id'].'"';
-                            $tempString3 = '"'. $row['amount_due'].'"';
-                            $tempString  ='<i style="color:red; font-size:20px;" onclick="open_upcountry_model('.$tempString2.'"," '.$tempString3.')"class="fa fa-road" aria-hidden="true"></i>';
-                       }
-                      $tempArray[] = $sn.$tempString;
-                      $tempArray[] = '<a style="color:blue;" href='.base_url().'partner/booking_details/'.$row['booking_id'].' target="_blank" title="View">'.$row['booking_id'].'</a>';
-                      switch ($row['request_type']) {
-                                    case "Installation & Demo":
-                                        $tempString4 =  "Installation";
-                                        break;
-                                    case REPAIR_IN_WARRANTY_TAG:
-                                    case REPAIR_OOW_TAG:
-                                        $tempString4 =  "Repair";
-                                        break;
-                                    default:
-                                        $tempString4 =  $row['request_type'];
-                                        break;
-                                }
-                       $tempArray[] = $row['services']."</br>".$tempString4;
-                       $tempArray[] = $row['cancellation_reason'];
-                       $tempArray[] = $row['name'];
-                       $tempArray[] = $row['booking_primary_contact_no'];
-                       $tempArray[] = $row['city'];
-                       $tempArray[] = $row['state'];
-                       $tempArray[] = $row['booking_date'];
-                       $tempArray[] = $row['age'];
-                       $tempString5  = "'".$row['booking_id']."'";
-                       $tempArray[] = '<input type="hidden" class="form-control" id="partner_id" name="partner_id['.$row['booking_id'].']" value = '.$row['partner_id'].'>
-                                            <input id="approved_close" type="checkbox"  class="checkbox1" name="approved_booking[]" value="'.$row['booking_id'] .'">
-                                            <input id="approved_by" type="hidden"   name="approved_by" value="'.$row['partner_id'].'>';
-                       $tempArray[] = '<button style="min-width: 59px;" type="button" class="btn btn-primary btn-sm open-adminremarks" 
-                                                                                     data-toggle="modal" data-target="#myModal2" onclick="create_reject_form('.$tempString5.')">Reject</button>';
-                      $finalArray[] = $tempArray;
+                $tempArray = array();
+                $tempString = $tempString2 = $tempString3 = $tempString4 = "";
+                $sn++;
+                if ($row['is_upcountry'] == 1) {
+                      $tempString2 = '"'. $row['booking_id'].'"';
+                      $tempString3 = '"'. $row['amount_due'].'"';
+                      $tempString  ='<i style="color:red; font-size:20px;" onclick="open_upcountry_model('.$tempString2.'"," '.$tempString3.')"class="fa fa-road" aria-hidden="true"></i>';
+                 }
+                $tempArray[] = $sn.$tempString;
+                $tempArray[] = '<a style="color:blue;" href='.base_url().'partner/booking_details/'.$row['booking_id'].' target="_blank" title="View">'.$row['booking_id'].'</a>';
+                $tempString4 =  $row['request_type'];
+                if (strpos($row['request_type'], 'Installation') !== false) {
+                    $tempString4 =  "Installation";
+                }
+                else if(strpos($row['request_type'], 'Repair') !== false){
+                    $tempString4 =  "Repair";
+                }
+                 $tempArray[] = $row['services']."</br>".$tempString4;
+                 $tempArray[] = $row['cancellation_reason'];
+                 $tempArray[] = $row['name'];
+                 $tempArray[] = $row['booking_primary_contact_no'];
+                 $tempArray[] = $row['city'];
+                 $tempArray[] = $row['state'];
+                 $tempArray[] = $row['booking_date'];
+                 $tempArray[] = $row['age'];
+                 $tempString5  = "'".$row['booking_id']."'";
+                 $tempArray[] = '<input type="hidden" class="form-control" id="partner_id" name="partner_id['.$row['booking_id'].']" value = '.$row['partner_id'].'>
+                                      <input id="approved_close" type="checkbox"  class="checkbox1" name="approved_booking[]" value="'.$row['booking_id'] .'">
+                                      <input id="approved_by" type="hidden"   name="approved_by" value="'.$row['partner_id'].'>';
+                 $tempArray[] = '<button style="min-width: 59px;" type="button" class="btn btn-primary btn-sm open-adminremarks" 
+                                                                               data-toggle="modal" data-target="#myModal2" onclick="create_reject_form('.$tempString5.')">Reject</button>';
+                $finalArray[] = $tempArray;
              }
           $output = array(
               "draw" => $this->input->post('draw'),
@@ -5515,7 +5511,7 @@ class Partner extends CI_Controller {
       }
       $columnMappingArray = array("column_1"=>"spare_parts_details.booking_id","column_3"=>"parts_shipped",
           "column_4"=>"courier_name_by_partner","column_5"=>"awb_by_partner","column_7"=>"shipped_date");    
-     $order_by = " ORDER BY status = '". DEFECTIVE_PARTS_REJECTED."'";
+     $order_by = "ORDER BY shipped_date DESC";
       if(array_key_exists("order", $postData)){
             $order_by = "ORDER BY ".$columnMappingArray["column_".$postData['order'][0]['column']] ." ". $postData['order'][0]['dir'];
         }
@@ -5634,7 +5630,7 @@ class Partner extends CI_Controller {
             $order_by = "ORDER BY ".$columnMappingArray["column_".$postData['order'][0]['column']] ." ". $postData['order'][0]['dir'];
         }
        $partner_id = $this->session->userdata('partner_id');
-       $where = "spare_parts_details.partner_id = '" . $partner_id . "' AND approved_defective_parts_by_partner = '1' ";
+       $where = "spare_parts_details.partner_id = '" . $partner_id . "' AND approved_defective_parts_by_partner = '1' AND status != '"._247AROUND_CANCELLED."'";
        if($this->input->post('state')){
            $where =  $where.' AND booking_details.state = "' .$this->input->post('state').'"';
        }
