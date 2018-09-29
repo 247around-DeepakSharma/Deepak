@@ -17,7 +17,7 @@
                     <div class="form-group">
                         <label for="gst_number" class="col-md-1"> GST Number</label>
                         <div class="col-md-6">
-                            <input type="text" class="form-control" name="gst_number" value="" id="gst_number" style="text-transform: uppercase" placeholder="You can enter multiple GST number seprated by comma"/>
+                            <input type="text" class="form-control" name="gst_number" value="" id="gst_number" style="text-transform: uppercase" placeholder="You can enter multiple GST number separated by comma"/>
                         </div>
                         <div class="col-md-4">
                             <input type="submit" class="btn btn-primary" value="Search"> 
@@ -78,7 +78,7 @@
                     }
                 }
                 else{
-                   alert("Special Charecter Not Allowed - "+ gstin[i]); 
+                   alert("Special Character Not Allowed - "+ gstin[i]); 
                    return false;
                 }
             }

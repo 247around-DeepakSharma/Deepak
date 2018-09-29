@@ -5169,6 +5169,9 @@ class vendor extends CI_Controller {
         $api_response = "";
         $gstin = trim($this->input->post("gst_number"));
         if(!empty($gstin)){
+            while(substr($gstin, -1) == ','){
+                $gstin = rtrim($gstin,","); 
+            }
             $gst =  explode(",",$gstin);
             $i = 0;
             foreach ($gst as $value) {
@@ -5177,7 +5180,7 @@ class vendor extends CI_Controller {
                     $data['data'][] = $dbData[0];
                 }
                 else{
-                    $api_response = json_decode($this->invoice_lib->taxpro_gstin_checking_curl_call(trim($value)),true) ;
+                    $api_response = json_decode($this->invoice_lib->taxpro_gstin_checking_curl_call(trim($value)),true);
                     //$api_response = '{"stjCd":"UP530","lgnm":"NEERAJ RASTOGI","dty":"Regular","stj":"Ghaziabad Sector-4 , AC","adadr":[],"cxdt":"","gstin":"09ABJPR2848D1ZF","nba":["Service Provision","Office / Sale Office","Retail Business"],"lstupdt":"03/08/2018","ctb":"Proprietorship","rgdt":"01/07/2017","pradr":{"addr":{"bnm":"R.D.C","loc":"GHAZIABAD","st":"RAJ NAGAR","bno":"R-7/6","dst":"Ghaziabad","stcd":"Uttar Pradesh","city":"","flno":"","lt":"","pncd":"201002","lg":""},"ntr":"Service Provision, Office / Sale Office, Retail Business"},"tradeNam":"M/S SHIVAY ELECTRONICS","ctjCd":"YE0103","sts":"Active","ctj":"RANGE - 3"}';
                     //$api_response = '{"status_cd":"0","error":{"error_cd":"GSP050D","message":"Error while decrypting or decoding received data. Upstream Response: {\"url\":\"/\",\"message\":null,\"errorCode\":\"SWEB_9035\"}"}}';
                     //$api_response = json_decode($api_response, true);
@@ -5186,7 +5189,7 @@ class vendor extends CI_Controller {
                         $data['data'][$i]['gst_number'] = $api_response['gstin'];
                         $data['data'][$i]['status'] = $api_response['sts'];
                         $data['data'][$i]['type'] = $api_response['dty'];
-                        $data['data'][$i]['address'] = $api_response['stj'];
+                        $data['data'][$i]['address'] = json_encode($api_response['pradr']);
                         $data['data'][$i]['company_name'] = $api_response['tradeNam'];
                         $data['data'][$i]['cancellation_date'] = $api_response['cxdt'];
                         $data['data'][$i]['nature_of_business'] = $api_response['ctb'];
