@@ -139,7 +139,7 @@
                     pageSize: 'LEGAL',
                     title: 'Invoice',
                     exportOptions: {
-                       columns: [1,2,3,4,5,6,7,8,9],
+                       columns: [1,2,3,6,7,8,9],
                         modifier : {
                              // DataTables core
                              order : 'index',  // 'current', 'applied', 'index',  'original'
