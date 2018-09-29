@@ -264,6 +264,9 @@ class Partner extends CI_Controller {
             } else {
                 $data['appliances'] = $services = $this->booking_model->selectservice();
             }
+            
+            $data['prepaid_amount'] = $this->get_prepaid_amount($this->session->userdata('partner_id'));
+            
             $data['phone_number'] = trim($phone_number);
             $this->miscelleneous->load_partner_nav_header();
             //$this->load->view('partner/header');

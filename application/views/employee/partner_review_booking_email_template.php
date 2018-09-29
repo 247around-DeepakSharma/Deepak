@@ -16,13 +16,15 @@
             <div style="padding: 15px;">
                 <table border="1" cellspacing="0" cellpadding="1px" style="width:100%; table-layout: fixed; ">
                     <tr>
-                        <td><b>Booking ID</b></td>
+                        <td style="width:20%;text-align: left;padding-left: 10px;"><b>Booking ID</b></td>
+                        <td style="text-align: left;padding-left: 10px;"><b>Cancellation Reason</b></td>
                     </tr>
                     <?php
-                    foreach($bookings as $booking){
+                    foreach($bookings as $bookingiD => $values){
                     ?>
                     <tr>
-                        <td><?php echo $booking; ?></td>
+                        <td style="width:20%;text-align: left;padding-left: 10px;"><?php echo $bookingiD; ?></td>
+                        <td style="text-align: left;padding-left: 10px;"><?php echo $values['cancellation_reason']; ?></td>
                     </tr>
                     <?php
                     }

@@ -297,6 +297,9 @@ class vendor extends CI_Controller {
                     //print_r($vendor_data); die;
                 }else{
                     $vendor_data['gst_no'] = NULL;
+                    $vendor_data['gst_taxpayer_type'] = NULL;
+                    $vendor_data['gst_status'] = NULL;
+                    $vendor_data['gst_cancelled_date'] = NULL;
                 }
              
                 $vendor_data['bank_name'] = trim($this->input->post('bank_name'));
@@ -888,6 +891,12 @@ class vendor extends CI_Controller {
                         //Insert log into booking state change
                        $this->notify->insert_state_change($booking_id, ASSIGNED_VENDOR, _247AROUND_PENDING, "Service Center Id: " . $service_center_id, $agent_id, $agent_name, 
                                ACTOR_ASSIGN_BOOKING_TO_VENDOR,NEXT_ACTION_ASSIGN_BOOKING_TO_VENDOR,_247AROUND);
+                       //Send Push Notification
+                       $receiverArray['vendor'] = array($service_center_id); 
+                       $notificationTextArray['url'] = array($booking_id);
+                       $notificationTextArray['msg'] = array($booking_id);
+                       $this->push_notification_lib->create_and_send_push_notiifcation(BOOKING_ASSIGN_TO_VENDOR,$receiverArray,$notificationTextArray);
+                       //End Push Notification
                         $count++;
                                
                         if($sf_status[$booking_id] == "SF_NOT_EXIST"){
