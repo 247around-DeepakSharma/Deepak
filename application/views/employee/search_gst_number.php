@@ -64,7 +64,7 @@
 </div>
 <script>
     function check_validation(){
-        var gstin = $("#gst_number").val();
+        var gstin = $("#gst_number").val().toUpperCase();
         if(gstin){
             while(gstin.slice(-1) === ','){
                gstin = gstin.slice(0, -1); 

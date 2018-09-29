@@ -5183,11 +5183,11 @@ class vendor extends CI_Controller {
                         $data['data'][$i]['nature_of_business'] = $api_response['ctb'];
                         $data['data'][$i]['create_date'] = date('Y-m-d H:i:s');
                         
-                        $checkGSTDetail = $this->reusable_model->get_search_query("gstin_detail", 'id', array('gst_number'=>$api_response['gstin']), null, null, null, null, null, null);
-                        if(empty($checkGSTDetail)){
+                        $checkGSTDetail = $this->reusable_model->get_search_query("gstin_detail", 'id', array('gst_number'=>$api_response['gstin']), null, null, null, null, null, null)->result_array();
+                        if(empty($checkGSTDetail)){ 
                             $this->reusable_model->insert_into_table("gstin_detail", $data['data'][$i]);
                         }
-                        else{
+                        else{ 
                             $this->reusable_model->update_table("gstin_detail", $data['data'][$i], array('gst_number'=>$api_response['gstin']));
                         }
                         $data['data'][$i]['entity'] = "By API";
