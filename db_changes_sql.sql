@@ -8208,6 +8208,28 @@ ALTER TABLE `tat_invoice_condition`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES (NULL, 'missed_upcountry_booking', 'Upcountry Booking Missed - Need To Take Action', 'Booking should be upcountry but not marked properly. AM need to take action to update their below bookings<br>%s', 'noreply@247around.com', '', '', '', '1', '', CURRENT_TIMESTAMP);
+UPDATE tat_defactive_booking_criteria SET entity_id = '247001';
 
 -- Abhay
+
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Upload Service Center Payment', NULL, 'file_upload/upload_payment_file', '2', '56', 'admin,developer', 'main_nav', '1', '2018-09-28 10:37:02');--Chhavi
+INSERT INTO `query_report` (`id`, `main_description`, `query1_description`, `query2_description`, `query1`, `query2`, `role`, `priority`, `type`, `active`, `result`, `create_date`) VALUES (NULL, 'missing_in_booking_tat', '', '', 'SELECT COUNT(booking_id) FROM `booking_details` LEFT JOIN booking_tat ON booking_tat.booking_id = booking_details.booking_id WHERE DATE(booking_details.closed_date)>\'2018-03-31\' AND booking_tat.booking_id IS NULL AND booking_details.type != \'Query\'', '', 'developer', '1', 'service', '1', NULL, '2018-09-28 05:03:42');
+
 INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Upload Service Center Payment', NULL, 'file_upload/upload_payment_file', '2', '56', 'admin,developer', 'main_nav', '1', '2018-09-28 10:37:02');
+
+--kalyani
+CREATE TABLE `gstin_detail` (
+  `id` int(11) NOT NULL,
+  `gst_number` varchar(15) NOT NULL,
+  `lager_name` varchar(55) NOT NULL,
+  `type` varchar(55) NOT NULL,
+  `status` varchar(55) NOT NULL,
+  `address` varchar(255) NOT NULL,
+  `company_name` varchar(255) NOT NULL,
+  `cancellation_date` datetime NOT NULL,
+  `create_date` datetime NOT NULL
+) 
+
+ALTER TABLE `gstin_detail` ADD PRIMARY KEY(`id`);
+ALTER TABLE `gstin_detail` CHANGE `id` `id` INT(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `gstin_detail` ADD `nature_of_business` VARCHAR(255) NOT NULL AFTER `company_name`;

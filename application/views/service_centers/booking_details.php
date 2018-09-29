@@ -783,7 +783,8 @@
             $('#'+id).show();
             $.ajax({
                 method:"POST",
-                url:'<?php echo base_url(); ?>courier_tracking/get_awb_real_time_tracking_details/' + courier_code + '/' + awb_number + '/' + status,
+                data : {courier_code: courier_code, awb_number: awb_number, status: status},
+                url:'<?php echo base_url(); ?>courier_tracking/get_awb_real_time_tracking_details',
                 success: function(res){
                     $('#'+id).hide();
                     $('#gen_model_title').html('<h3> AWB Number : ' + awb_number + '</h3>');
