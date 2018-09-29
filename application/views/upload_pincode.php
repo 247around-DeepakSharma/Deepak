@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>247Around</title>
+        <title>Pincode Distance Calculator</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <!-- include jQuery -->
@@ -64,8 +64,9 @@
     <body>
         <div class="container">
             <div class="row">
-                <h3>Upload Pincode File To Get Distance</h3>
-                <img style='float: right;width:268px;' src="<?php echo base_url();?>images/powered-by-google.png">
+                <h3>Upload Pincode File To Get Distance<img style='float: right;width:268px;' src="<?php echo base_url();?>images/powered-by-google.png"></h3>
+                <br/>
+                <br/>
                 <form id="myform" method="post">
 
                     <div class="form-group">

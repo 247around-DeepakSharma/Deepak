@@ -1016,11 +1016,11 @@ EOD;
                     if (!empty($data['data']) && $data['data'][0]['not_update'] > 0) {
                         
                         //get rm email
-//                        $rm_email = "";
-//                        $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($value['id']);
-//                        if(!empty($rm_details)){
-//                            $rm_email = $rm_details[0]['official_email'];
-//                        }
+                        $rm_email = "";
+                        $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($value['id']);
+                        if(!empty($rm_details)){
+                            $rm_email = $rm_details[0]['official_email'];
+                        }
                         
                         $view = $this->load->view('employee/get_crimes', $data, TRUE);
                         $file_data = $this->penalty_model->get_penalty_on_booking_any(array('penalty_on_booking.service_center_id' => $data['data'][0]['service_center_id'],

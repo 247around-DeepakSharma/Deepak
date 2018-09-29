@@ -63,9 +63,9 @@ class Do_background_process extends CI_Controller {
                     if ($upcountry_status) {
                         //Send Push Notification
                         //Send To Vendor
-                        //$receiverArrayVendor['vendor'] = array($service_center_id);
-                        //$notificationTextArrayVendor['msg'] = array($booking_id);
-                        //$this->push_notification_lib->create_and_send_push_notiifcation(BOOKING_ASSIGN_TO_VENDOR,$receiverArrayVendor,$notificationTextArrayVendor);
+                        $receiverArrayVendor['vendor'] = array($service_center_id);
+                        $notificationTextArrayVendor['msg'] = array($booking_id);
+                        $this->push_notification_lib->create_and_send_push_notiifcation(BOOKING_ASSIGN_TO_VENDOR,$receiverArrayVendor,$notificationTextArrayVendor);
                         //End Push Notification
                         log_message('info', __FUNCTION__ . " => Continue Process" . $booking_id);
                         $this->miscelleneous->send_sms_create_job_card($upcountry_status);

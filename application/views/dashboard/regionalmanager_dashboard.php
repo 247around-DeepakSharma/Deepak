@@ -37,7 +37,8 @@
                 <div class="x_panel">
                 <div class="x_title">
                     <h2>RM TAT Reporting</h2>
-                    <span class="collape_icon" href="#RM_completed_booking_reports_div" data-toggle="collapse"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
+
+                    <span class="collape_icon" href="#RM_completed_booking_reports_div" data-toggle="collapse" onclick="collapse_icon_change(this)"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
                    
                     <div class="clearfix"></div>
                 </div>

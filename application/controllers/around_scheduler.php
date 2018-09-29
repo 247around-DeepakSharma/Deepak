@@ -1869,6 +1869,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
     function checked_complete_review_booking($bookingData) {
         log_message('info', __FUNCTION__ . ' Function Start '.print_r($bookingData,TRUE));
         $requested_bookings = $bookingData['approved_booking'];
+        if($requested_bookings){
         $where['is_in_process'] = 0;
         $whereIN['booking_id'] = $requested_bookings; 
         $tempArray = $this->reusable_model->get_search_result_data("booking_details","booking_id",$where,NULL,NULL,NULL,$whereIN,NULL,array());
@@ -1889,6 +1890,10 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
             //Logging
             log_message('info', __FUNCTION__ . ' Approved Booking Empty from Post');
         }
+        }
+        }
+        else{
+            log_message('info', __FUNCTION__ . ' No booking Found');
         }
          log_message('info', __FUNCTION__ . ' End');
     }
