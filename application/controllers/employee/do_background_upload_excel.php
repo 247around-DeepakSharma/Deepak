@@ -1268,7 +1268,8 @@ class Do_background_upload_excel extends CI_Controller {
             'Spun Filter pack of ',
             'Zero B Filter',
             'Tower Heater',
-            'Oil Filled Heater'
+            'Oil Filled Heater',
+            'H-STORE Manual Hand Water Dispenser/ Polypropylene Set of 1 for 20 liter bottle'
 	);
 
 	return $unproductive_description;
