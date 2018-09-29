@@ -1161,4 +1161,23 @@ class Accounting extends CI_Controller {
         return $row;
     }
     
+     /**
+     * @desc This is used to show vendor GST Report
+     * @param void
+     * @return view
+     */
+    function show_vendor_gst_report(){
+        //SELECT company_name, SUM(CASE WHEN from_date <= "2018-03-31" THEN amount_collected_paid ELSE 0 END) as am1,(case when (from_date <= "2018-03-31" ) THEN (sum(amount_collected_paid)) ELSE 0 END) as 'amount' FROM `vendor_partner_invoices`join service_centres on service_centres.id = vendor_partner_invoices.vendor_partner_id WHERE invoice_id like "%AROUND-GST_CN%" and vendor_partner = 'vendor' group by vendor_partner_id
+        $data = array();
+        $select = 'service_centres.company_name as "name", SUM(CASE WHEN from_date <= "'.date("Y").'-03-31" THEN amount_collected_paid ELSE 0 END) as fy_amount, SUM(CASE WHEN from_date <= "'.date("Y-m-d").'" THEN amount_collected_paid ELSE 0 END) as total_amount';
+        $post['group_by'] = 'vendor_partner_id';
+        $post['where'] = array('vendor_partner'=>'vendor', 'invoice_id like "%Around-GST-CN%" OR invoice_id like "%Around-GST-DN%"'=>NULL);
+        $post['length'] = -1;
+        $post['order_by'] = array('total_amount'=>'desc');
+        $data['data'] = $this->invoices_model->searchInvoicesdata($select, $post);
+        //print_r($data['data']);
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/vendor_gst_report', $data); 
+    }
+    
 }

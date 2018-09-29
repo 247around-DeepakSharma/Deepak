@@ -2216,6 +2216,10 @@ class invoices_model extends CI_Model {
             $order = $post['order_by'];
             $this->db->order_by(key($order), $order[key($order)]);
         }
+        
+        if(isset($post['group_by']) && !empty($post['group_by'])){
+             $this->db->group_by($post['group_by']);
+        }
     }
     /**
      * @desc This function is used to  get count of all invoice
