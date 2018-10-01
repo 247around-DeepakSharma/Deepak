@@ -2216,6 +2216,10 @@ class invoices_model extends CI_Model {
             $order = $post['order_by'];
             $this->db->order_by(key($order), $order[key($order)]);
         }
+        
+        if(isset($post['group_by']) && !empty($post['group_by'])){
+             $this->db->group_by($post['group_by']);
+        }
     }
     /**
      * @desc This function is used to  get count of all invoice
@@ -2356,50 +2360,12 @@ class invoices_model extends CI_Model {
      * @return Int
      */
     function count_filtered_bank_transaction($select, $post) {
-        $this->_queryCount_filtered_bank_transaction($select, $post);
+        $this->_querySearchPaymentSummaryData($select, $post);
 
         $query = $this->db->get();
         return $query->num_rows();
     }
     
-      function _queryCount_filtered_bank_transaction($select, $post){
-        $this->db->from('bank_transactions');
-        $this->db->select($select, FALSE);
-        $this->db->join('employee','bank_transactions.agent_id = employee.id', "LEFT");    
-        $this->db->join('service_centres', 'service_centres.id = bank_transactions.partner_vendor_id AND bank_transactions.partner_vendor = "vendor" ', "LEFT");
-        $this->db->join('partners', 'partners.id = bank_transactions.partner_vendor_id AND bank_transactions.partner_vendor = "partner" ', "LEFT");
-        if (!empty($post['where'])) {
-            $this->db->where($post['where'], FALSE);
-        }
-        if (isset($post['where_in'])) {
-            foreach ($post['where_in'] as $index => $value) {
-
-                $this->db->where_in($index, $value);
-            }
-        }
-
-        if (!empty($post['search_value'])) {
-            $like = "";
-            foreach ($post['column_search'] as $key => $item) { // loop column 
-                // if datatable send POST for search
-                if ($key === 0) { // first loop
-                    $like .= "( " . $item . " LIKE '%" . $post['search_value'] . "%' ";
-                } else {
-                    $like .= " OR " . $item . " LIKE '%" . $post['search_value'] . "%' ";
-                }
-            }
-            $like .= ") ";
-
-            $this->db->where($like, null, false);
-        }
-
-        if (!empty($post['order'])) { // here order processing
-            $this->db->order_by($post['column_order'][$post['order'][0]['column']], $post['order'][0]['dir']);
-        } else if (isset($post['order_by'])) {
-            $order = $post['order_by'];
-            $this->db->order_by(key($order), $order[key($order)]);
-        }
-    }
     /**
      * @desc This function is used to get Partner booking Tat data
      * @param Array $data

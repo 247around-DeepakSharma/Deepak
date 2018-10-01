@@ -32,14 +32,13 @@ class Accounting extends CI_Controller {
         $this->load->library('form_validation');
         $this->load->library("session");
         $this->load->library('s3');
-        //  $this->load->library('upload');
         //  $this->load->library('email');
 
-//        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
+//    if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
 //            return TRUE;
 //        } else {
-//            echo PHP_EOL . 'Terminal Access Not Allowed' . PHP_EOL;
-//            redirect(base_url() . "employee/login");
+//           echo PHP_EOL . 'Terminal Access Not Allowed' . PHP_EOL;
+//           redirect(base_url() . "employee/login");
 //        }
     }
 
@@ -826,6 +825,23 @@ class Accounting extends CI_Controller {
     }
     
     /**
+     * @desc This function is used to get partner bank transactions
+     * @param type $post
+     * @return type
+     */
+    function getPartnerBankTransactionData($post){
+        $list = $this->invoices_model->searchPaymentSummaryData('*', $post);
+        $no = $post['start'];
+        $data = array();
+        foreach ($list as $transaction_list) {
+            $no++;
+            $row =  $this->partner_transaction_datatable($transaction_list, $no);
+            $data[] = $row;
+        }
+        return $data;
+    }
+    
+    /**
      * @desc This is used to generate Data table row
      * @param Array $invoice_list
      * @param int $no
@@ -953,6 +969,9 @@ class Accounting extends CI_Controller {
         switch ($this->input->post('request_type')){
             case 'sf_bank_transaction':
                 $data = $this->getServiceCenterBankTransactionData($post);
+                break;
+            case 'partner_bank_transaction':
+                $data = $this->getPartnerBankTransactionData($post);
                 break;
             case 'admin_search':
                 $data = $this->getAdminBankTransactionData($post);
@@ -1159,6 +1178,51 @@ class Accounting extends CI_Controller {
         $row[] = $transaction_list->invoice_id;
         $row[] = $transaction_list->bankname."/".$transaction_list->transaction_mode;
         return $row;
+    }
+    
+     /**
+     * @desc This is used to generate Data table row partner bank transaction
+     * @param Array $transaction_list
+     * @param int $no
+     * @return Array
+     */
+    function partner_transaction_datatable($transaction_list, $no){
+        $row = array();
+       
+        $row[] = $no;
+        $row[] = date("jS M, Y", strtotime($transaction_list->transaction_date));
+        $row[] = round($transaction_list->credit_amount,0);
+        $row[] = $transaction_list->invoice_id;
+        $row[] = $transaction_list->description;
+        return $row;
+    }
+    
+    
+     /**
+     * @desc This is used to show vendor GST Report
+     * @param void
+     * @return view
+     */
+    function show_gst_report(){
+        $current_month = date('m');
+        if ($current_month > 3) {
+            $financial_year = date('Y');
+            $next_year = (date('Y') + 1);
+        } else {
+            $financial_year = (date('Y') - 1);
+            $next_year = date('Y');
+        }
+        $data = array();
+        $select = 'vendor_partner_id, service_centres.company_name as "name", SUM(CASE WHEN from_date >= "'.$financial_year.'-03-31" AND from_date < "'.$next_year.'-03-31"'
+                . 'THEN amount_collected_paid ELSE 0 END) as fy_amount, SUM(amount_collected_paid) as total_amount';
+        $post['group_by'] = 'vendor_partner_id';
+        $post['where'] = array('vendor_partner'=>'vendor', 'invoice_id like "%Around-GST-CN%" OR invoice_id like "%Around-GST-DN%"'=>NULL);
+        $post['length'] = -1;
+        $post['order_by'] = array('fy_amount'=>'desc');
+        $data['data'] = $this->invoices_model->searchInvoicesdata($select, $post);
+        //print_r($data['data']);
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/gst_report', $data); 
     }
     
 }
