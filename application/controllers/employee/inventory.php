@@ -824,24 +824,7 @@ class Inventory extends CI_Controller {
     function get_spare_parts(){
         log_message('info', __FUNCTION__. "Entering... ");
         $this->checkUserSession();
-//	$offset = ($this->uri->segment(4) != '' ? $this->uri->segment(4) : 0);
-//       
-//	$config['base_url'] = base_url() . 'employee/inventory/get_spare_parts/';
-//        $total_rows =  $this->booking_model->get_spare_parts_booking(0, "All");
-//        
-//	$config['total_rows'] = $total_rows[0]['count'];
-//
-//	$config['per_page'] = 50;
-//	
-//	$config['uri_segment'] = 4;
-//	$config['first_link'] = 'First';
-//	$config['last_link'] = 'Last';
-//
-//	$this->pagination->initialize($config);
-//	$data['links'] = $this->pagination->create_links();
-//	$data['spare_parts'] = $this->booking_model->get_spare_parts_booking($config['per_page'], $offset);
-//        echo "<pre>";
-//        print_r($data);exit();
+
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/get_spare_parts');
     }
@@ -1071,16 +1054,8 @@ class Inventory extends CI_Controller {
     function spare_part_booking_on_tab(){
         log_message('info', __FUNCTION__. "Entering... ");
         $this->checkUserSession();
-	$offset = ($this->uri->segment(4) != '' ? $this->uri->segment(4) : 0);
-            
-        $sf = $this->vendor_model->get_employee_relation($this->session->userdata("id"));
-        $vendor_id = array();
-        if(!empty($sf)){
-            $vendor_id = explode(",", $sf[0]["service_centres_id"]);
-        }
-        
-        $partner_id = $this->input->post('partner_id');
-        $data['spare_parts'] = $this->booking_model->get_spare_parts_booking(-1, $offset, $vendor_id,$partner_id);
+	
+        $data['partner_id'] = $this->input->post('partner_id');
         $this->load->view('employee/sparepart_on_tab' , $data);
     }
     /**

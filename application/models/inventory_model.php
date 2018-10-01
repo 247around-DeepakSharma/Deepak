@@ -328,10 +328,15 @@ class Inventory_model extends CI_Model {
     public function _get_spare_parts_query($post) {
         $this->db->from('spare_parts_details');
         $this->db->select($post['select'].", DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request,"
+                . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(spare_parts_details.shipped_date, '%Y-%m-%d')) AS age_of_shipped_date,"
+                . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(spare_parts_details.acknowledge_date, '%Y-%m-%d')) AS age_of_delivered_to_sf,"
+                . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(booking_details.service_center_closed_date, '%Y-%m-%d')) AS age_part_pending_to_sf,"
+                . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(spare_parts_details.defective_part_shipped_date, '%Y-%m-%d')) AS age_defective_part_shipped_date,"
                 . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(estimate_cost_given_date, '%Y-%m-%d')) AS age_of_est_given", FALSE);
 
         $this->db->join('booking_details','spare_parts_details.booking_id = booking_details.booking_id', "left");
-        $this->db->join('partners','partners.id = spare_parts_details.partner_id', "left");
+        $this->db->join('partners','partners.id = booking_details.partner_id', "left");
+        $this->db->join('service_centres','service_centres.id = booking_details.assigned_vendor_id', "left");
         $this->db->join('users','users.user_id = booking_details.user_id', "left");
         if (!empty($post['where'])) {
             $this->db->where($post['where'], FALSE);
@@ -343,7 +348,6 @@ class Inventory_model extends CI_Model {
             }
         }
         
-
         if (!empty($post['search']['value'])) {
             $like = "";
             foreach ($post['column_search'] as $key => $item) { // loop column 
@@ -374,6 +378,7 @@ class Inventory_model extends CI_Model {
         if ($post['length'] != -1) {
             $this->db->limit($post['length'], $post['start']);
         }
+        
         $query = $this->db->get();
         return $query->result();
     }
@@ -1415,6 +1420,19 @@ class Inventory_model extends CI_Model {
         } else {
             return false;
         }
+    }
+    
+    function update_bluk_spare_data($where_in, $data){
+        log_message('info', __METHOD__. " ". print_r($where_in, true));
+        if(!empty($where_in)){
+            $this->db->where_in(key($where_in), $where_in[key($where_in)]);
+            $this->db->update('spare_parts_details', $data);
+
+            return TRUE;
+        } else {
+            return false;
+        }
+         
     }
 
 }

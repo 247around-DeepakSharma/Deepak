@@ -8233,3 +8233,7 @@ CREATE TABLE `gstin_detail` (
 ALTER TABLE `gstin_detail` ADD PRIMARY KEY(`id`);
 ALTER TABLE `gstin_detail` CHANGE `id` `id` INT(11) NOT NULL AUTO_INCREMENT;
 ALTER TABLE `gstin_detail` ADD `nature_of_business` VARCHAR(255) NOT NULL AFTER `company_name`;
+
+
+-- Abhay 29 Sept
+ALTER TABLE `spare_parts_details` ADD `around_pickup_from_partner` INT(1) NOT NULL DEFAULT '0' AFTER `wh_ack_received_part`, ADD `around_pickup_from_service_center` INT(1) NOT NULL DEFAULT '0' AFTER `around_pickup_from_partner`;
