@@ -8233,3 +8233,6 @@ CREATE TABLE `gstin_detail` (
 ALTER TABLE `gstin_detail` ADD PRIMARY KEY(`id`);
 ALTER TABLE `gstin_detail` CHANGE `id` `id` INT(11) NOT NULL AUTO_INCREMENT;
 ALTER TABLE `gstin_detail` ADD `nature_of_business` VARCHAR(255) NOT NULL AFTER `company_name`;
+
+--Kalyani 01-10-2018
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'GST Report', NULL, 'employee/accounting/show_gst_report', '2', '80', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);

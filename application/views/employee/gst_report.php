@@ -15,7 +15,7 @@
                     <tbody>
          <?php   foreach ($data as $value){ ?>
                 <tr>
-                    <td><?php  echo $value->name; ?></td>
+                    <td><a href="<?php echo base_url(); ?>employee/invoice/invoice_summary/vendor/<?php echo $value->vendor_partner_id; ?>"><?php  echo $value->name; ?></a></td>
                    <td><?php echo $value->fy_amount; ?></td>
                     <td><?php echo $value->total_amount; ?></td>
                 </tr>
