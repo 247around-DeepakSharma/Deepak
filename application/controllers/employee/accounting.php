@@ -825,6 +825,23 @@ class Accounting extends CI_Controller {
     }
     
     /**
+     * @desc This function is used to get partner bank transactions
+     * @param type $post
+     * @return type
+     */
+    function getPartnerBankTransactionData($post){
+        $list = $this->invoices_model->searchPaymentSummaryData('*', $post);
+        $no = $post['start'];
+        $data = array();
+        foreach ($list as $transaction_list) {
+            $no++;
+            $row =  $this->partner_transaction_datatable($transaction_list, $no);
+            $data[] = $row;
+        }
+        return $data;
+    }
+    
+    /**
      * @desc This is used to generate Data table row
      * @param Array $invoice_list
      * @param int $no
@@ -952,6 +969,9 @@ class Accounting extends CI_Controller {
         switch ($this->input->post('request_type')){
             case 'sf_bank_transaction':
                 $data = $this->getServiceCenterBankTransactionData($post);
+                break;
+            case 'partner_bank_transaction':
+                $data = $this->getPartnerBankTransactionData($post);
                 break;
             case 'admin_search':
                 $data = $this->getAdminBankTransactionData($post);
@@ -1159,6 +1179,24 @@ class Accounting extends CI_Controller {
         $row[] = $transaction_list->bankname."/".$transaction_list->transaction_mode;
         return $row;
     }
+    
+     /**
+     * @desc This is used to generate Data table row partner bank transaction
+     * @param Array $transaction_list
+     * @param int $no
+     * @return Array
+     */
+    function partner_transaction_datatable($transaction_list, $no){
+        $row = array();
+       
+        $row[] = $no;
+        $row[] = date("jS M, Y", strtotime($transaction_list->transaction_date));
+        $row[] = round($transaction_list->credit_amount,0);
+        $row[] = $transaction_list->invoice_id;
+        $row[] = $transaction_list->description;
+        return $row;
+    }
+    
     
      /**
      * @desc This is used to show vendor GST Report
