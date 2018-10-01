@@ -34,12 +34,12 @@ class Accounting extends CI_Controller {
         $this->load->library('s3');
         //  $this->load->library('email');
 
-    if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
-            return TRUE;
-        } else {
-           echo PHP_EOL . 'Terminal Access Not Allowed' . PHP_EOL;
-           redirect(base_url() . "employee/login");
-        }
+//    if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
+//            return TRUE;
+//        } else {
+//           echo PHP_EOL . 'Terminal Access Not Allowed' . PHP_EOL;
+//           redirect(base_url() . "employee/login");
+//        }
     }
 
     /**
