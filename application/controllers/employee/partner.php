@@ -1034,13 +1034,13 @@ class Partner extends CI_Controller {
     
     function get_bank_transaction(){
          $this->checkUserSession();
-         $partner_id = $this->session->userdata('partner_id');
-         $data2['partner_vendor'] = "partner";
-         $data2['partner_vendor_id'] = $partner_id;
-         $invoice['bank_statement'] = $this->invoices_model->get_bank_transactions_details('*', $data2);
+         //$partner_id = $this->session->userdata('partner_id');
+         //$data2['partner_vendor'] = "partner";
+         //$data2['partner_vendor_id'] = $partner_id;
+         //$invoice['bank_statement'] = $this->invoices_model->get_bank_transactions_details('*', $data2);
          //$this->load->view('partner/header');
          $this->miscelleneous->load_partner_nav_header();
-         $this->load->view('partner/bank_transaction', $invoice);
+         $this->load->view('partner/bank_transaction');
          $this->load->view('partner/partner_footer');
     }
 
