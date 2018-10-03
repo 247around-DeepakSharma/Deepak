@@ -615,6 +615,7 @@ class invoices_model extends CI_Model {
         //if (!empty($result['result'])) {
         $upcountry_data = $this->upcountry_model->upcountry_partner_invoice($partner_id, $from_date, $to_date);
         $courier = $this->get_partner_courier_charges($partner_id, $from_date, $to_date);
+        $pickup_courier = $this->get_pickup_arranged_by_247around_from_partner($partner_id, $from_date, $to_date);
         $warehouse_courier = $this->get_partner_invoice_warehouse_courier_data($partner_id, $from_date, $to_date);
         $defective_return_to_partner = $this->get_defective_parts_courier_return_partner($partner_id, $from_date, $to_date);
         $misc_select = 'booking_details.order_id, miscellaneous_charges.booking_id, '
@@ -624,6 +625,7 @@ class invoices_model extends CI_Model {
 
         $misc = $this->get_misc_charges_invoice_data($misc_select, "miscellaneous_charges.partner_invoice_id IS NULL", $from_date, $to_date, "booking_details.partner_id", $partner_id, "partner_charge");
         $result['upcountry'] = array();
+        $result['pickup_courier'] = array();
         $result['courier'] = array();
         $result['misc'] = array();
         $result['warehouse_courier'] = array();
@@ -632,7 +634,7 @@ class invoices_model extends CI_Model {
         $result['packaging_rate'] = 0;
         $result['packaging_quantity'] = 0;
         $result['warehouse_storage_charge'] = 0;
-        $final_courier = array_merge($courier, $warehouse_courier, $defective_return_to_partner);
+        $final_courier = array_merge($courier,$pickup_courier, $warehouse_courier, $defective_return_to_partner);
         
         if (!empty($upcountry_data)) {
             if($upcountry_data[0]['total_upcountry_price'] > 0){
@@ -686,6 +688,7 @@ class invoices_model extends CI_Model {
                 
             }
             $result['courier'] = $courier;
+            $result['pickup_courier'] = $pickup_courier;
             $result['final_courier'] = $final_courier;
             $result['defective_part_by_wh'] = $defective_return_to_partner;
             
@@ -811,6 +814,7 @@ class invoices_model extends CI_Model {
             $data['annexure'] = $anx_data;
             $data['penalty_discount'] = $penalty_tat;
             $data['penalty_tat_count'] = $penalty_count;
+            $data['pickup_courier'] = $result_data['pickup_courier'];
           
             return $data;
         } else {
@@ -1821,7 +1825,7 @@ class invoices_model extends CI_Model {
     }
 
     /**
-     * @desc This method returns booking id and curier charges for completed booking
+     * @desc This method returns booking id and courier charges for completed booking
      * @param String $vendor_id
      * @param String $from_date
      * @param String $to_date
@@ -1832,52 +1836,93 @@ class invoices_model extends CI_Model {
         if($is_regenerate == 0){
             $invoice_check .= "AND vendor_foc_invoice_id IS NULL ";
         }
-        $sql = " SELECT sp.id as sp_id, bd.booking_id, courier_charges_by_sf 
+        $sql = " SELECT GROUP_CONCAT(sp.id) as sp_id, GROUP_CONCAT(bd.booking_id) as booking_id, 
+                 SUM(sp.courier_charges_by_sf) as courier_charges_by_sf 
                 FROM  booking_details as bd, booking_unit_details as ud,
                 spare_parts_details as sp
                 WHERE 
-                ud.booking_status =  'Completed'
+                ud.booking_status =  '"._247AROUND_COMPLETED."'
                 AND bd.assigned_vendor_id = '$vendor_id'
-                AND  status = 'Completed'
+                AND status IN( '"._247AROUND_COMPLETED."', '".DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH."')
                 AND sp.booking_id = bd.booking_id
                 AND bd.booking_id = ud.booking_id
                 AND ud.ud_closed_date >=  '$from_date'
                 AND ud.ud_closed_date <  '$to_date'
                 AND pay_to_sf = '1'
                 AND `approved_defective_parts_by_partner` = 1
+                AND around_pickup_from_service_center = 0
                 $invoice_check
-                AND courier_charges_by_sf > 0 ";
+                AND courier_charges_by_sf > 0 
+                AND awb_by_sf IS NOT NULL 
+                GROUP BY awb_by_sf HAVING SUM(sp.courier_charges_by_sf) > 0 ";
 
         $query = $this->db->query($sql);
         return $query->result_array();
     }
-    
+    /**
+     * @desc This function is used to return those courier data who sent to partner from service center.
+     * @param String $partner_id
+     * @param String $from_date
+     * @param String $to_date
+     * @return Array
+     */
     function get_partner_courier_charges($partner_id, $from_date, $to_date){
       
         
-        $sql = " SELECT sp.id as sp_id, bd.booking_id, awb_by_sf as awb,
-                courier_charges_by_sf, bd.city,
+        $sql = "SELECT GROUP_CONCAT(sp.id) as sp_id, GROUP_CONCAT(bd.booking_id) as booking_id, 
+                awb_by_sf as awb, 
+                SUM(sp.courier_charges_by_sf) as courier_charges_by_sf, bd.city,
                 CASE WHEN (defective_courier_receipt IS NOT NULL) THEN 
-                 (concat('".S3_WEBSITE_URL."misc-images/',defective_courier_receipt)) ELSE '' END AS courier_receipt_link
+                (concat('".S3_WEBSITE_URL."misc-images/',defective_courier_receipt)) ELSE '' END AS courier_receipt_link
                 FROM  booking_details as bd, booking_unit_details as ud,
                 spare_parts_details as sp
-                
                 WHERE 
-                ud.booking_status =  'Completed'
+                ud.booking_status =  '"._247AROUND_COMPLETED."'
                 AND bd.partner_id = '$partner_id'
                 AND ud.partner_id = '$partner_id'
-                AND status = 'Completed'
+                AND status IN( '"._247AROUND_COMPLETED."', '".DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH."')
                 AND sp.booking_id = bd.booking_id
                 AND bd.booking_id = ud.booking_id
                 AND ud.ud_closed_date >=  '$from_date'
                 AND ud.ud_closed_date <  '$to_date'
                 AND `approved_defective_parts_by_partner` = 1
-                AND partner_invoice_id IS NULL
                 AND partner_courier_invoice_id IS NULL
-                AND courier_charges_by_sf > 0 ";
+                AND awb_by_sf IS NOT NULL
+                GROUP BY awb HAVING SUM(sp.courier_charges_by_sf) > 0 ";
 
         $query = $this->db->query($sql);
         
+        return $query->result_array();
+    }
+    /**
+     * @desc This function is used to return those courier data who arranged by 247around from Partner
+     * @param int $partner_id
+     * @param String $from_date
+     * @param String $to_date
+     * @return Array
+     */
+    function get_pickup_arranged_by_247around_from_partner($partner_id, $from_date, $to_date){
+        $sql = "SELECT GROUP_CONCAT(sp.id) as sp_id, GROUP_CONCAT(bd.booking_id) as booking_id, 
+                awb_by_partner as awb, 
+                SUM(sp.courier_price_by_partner) as courier_charges_by_sf, bd.city,
+                '' AS courier_receipt_link
+                FROM  booking_details as bd, booking_unit_details as ud,
+                spare_parts_details as sp
+                WHERE 
+                ud.booking_status =  '"._247AROUND_COMPLETED."'
+                AND bd.partner_id = '$partner_id'
+                AND ud.partner_id = '$partner_id'
+                AND status IN( '"._247AROUND_COMPLETED."', '".DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH."')
+                AND sp.booking_id = bd.booking_id
+                AND bd.booking_id = ud.booking_id
+                AND ud.ud_closed_date >=  '$from_date'
+                AND ud.ud_closed_date <  '$to_date'
+                AND `around_pickup_from_partner` = 1
+                AND partner_warehouse_courier_invoice_id IS NULL
+                AND awb_by_partner IS NOT NULL
+                GROUP BY awb HAVING SUM(sp.courier_price_by_partner) > 0 ";
+
+        $query = $this->db->query($sql);
         return $query->result_array();
     }
             
