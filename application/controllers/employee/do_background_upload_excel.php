@@ -789,7 +789,21 @@ class Do_background_upload_excel extends CI_Controller {
             if(!empty($value['phone'])){
 	        // check mobile number validation
                 $phone = explode('/', $value['phone']);
+                if (strlen($phone[0]) == 12 && substr($phone[0], 0, 2) == "91"){
+                    $mobile = substr($phone[0], 2, 10);
+                    $data[$key]['phone'] = $mobile;
+                    $phone[0] = $mobile;
+                }
+                
+                if (strlen($phone[0]) == 11 && substr($phone[0], 0, 1) == "0"){
+                    $mobile  =substr($phone[0], 1, 10);
+                    $data[$key]['phone'] = $mobile;
+                    $phone[0] = $mobile;
+    
+                }
+
 	        if (!preg_match('/^\d{10}$/', trim($phone[0]))) {
+                    
 		    unset($data[$key]);
 		    array_push($invalid_data, $value);
 	        }
@@ -1173,10 +1187,10 @@ class Do_background_upload_excel extends CI_Controller {
 	$subject = "";
            
 	if ($filetype == "delivered") {
-	    $subject = "Delivered File is uploaded";
+	    $subject = "Failed! Delivered File is uploaded";
 	    $message = " Please check shipped file data:<br/>". " Agent Name ". $this->session->userdata('employee_id');
 	} else {
-	    $subject = "Shipped File is uploaded";
+	    $subject = "Falied! Shipped File is uploaded";
 	    $message = " Please check delivered file data:<br/>". " Agent Name ". $this->session->userdata('employee_id');
 	}
         $invalid_data_with_reason['file_name']= $file_name;
