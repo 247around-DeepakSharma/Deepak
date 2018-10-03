@@ -258,7 +258,7 @@ class Partner extends CI_Controller {
             $data['partner_type'] = $partner_type;
 
             $data['partner_code'] = $partner_data[0]['code'];
-            if ($partner_type == OEM) {
+            if ($partner_type != INTERNAL) {
 
                 $data['appliances'] = $this->partner_model->get_partner_specific_services($this->session->userdata('partner_id'));
             } else {
