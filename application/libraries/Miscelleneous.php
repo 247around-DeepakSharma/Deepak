@@ -3320,10 +3320,10 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
             $tatArray['around_closed_date'] = $values['around_closed_date'];
 
             if (stripos($values['request_type'], 'Repair') !== false) {
-                $requestType = 'Repair';
+                $requestType = '1';
             }
             else{
-                $requestType = 'Installation';
+                $requestType = '0';
             }
             $tatArray['request_type'] = $requestType;
             if($values['spare_id']){
@@ -3356,7 +3356,7 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
         $data['is_leg_1_faulty_for_partner'] = $this->is_booking_faulty($spare_id,$bookingData[0]['is_upcountry'],"leg_1",$data['leg_1'],"Partner");
         $data['is_leg_1_faulty_for_vendor'] = $this->is_booking_faulty($spare_id,$bookingData[0]['is_upcountry'],"leg_1",$data['leg_1'],"Vendor");
         $data['partner_id'] = $bookingData[0]['partner_id'];
-        $data['request_type'] = "Repair";
+        $data['request_type'] = "1";
         $this->My_CI->reusable_model->insert_into_table("booking_tat",$data);
         log_message('info', __FUNCTION__ . "End booking_id = ".$booking_id.", spare_id = ".$spare_id);
     }
