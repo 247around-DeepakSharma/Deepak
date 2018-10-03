@@ -1375,7 +1375,7 @@ class Do_background_upload_excel extends CI_Controller {
                 }else{
                     log_message('info','duplicate header found.');
                     $response['status'] = false;
-                    $response['msg'] = 'File Contains Duplicate Header Column. Please Check and upload again';
+                    $response['msg'] = 'File Contains Duplicate Header Column. Please Check and Try again';
                 }
                 
                 //if file uploaded successfully then log else send email 
@@ -1616,7 +1616,7 @@ class Do_background_upload_excel extends CI_Controller {
                 $return_response['key'] = $key;
                 break;
             }else{
-                $this->Columfailed = "<b>".implode($is_all_header_present, ',')." </b> column does not exist.Please correct these and upload again. <br><br><b> For reference,Please use previous successfully upload file from CRM</b>";
+                $this->Columfailed = "<b>".implode($is_all_header_present, ',')." </b> column does not exist.Please correct these and send again. <br><br>";
                 $return_response['status'] = FALSE;
                 $return_response['msg'] = $this->Columfailed;
             }
