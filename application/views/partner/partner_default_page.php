@@ -417,7 +417,7 @@
       
         if(Number(estimate_cost) > 1){
             swal({
-                title: "Do You Want To Continue?",
+                title: "Do You Want To Continue with amount "+estimate_cost+ "?",
                 type: "warning",
                 showCancelButton: true,
                 confirmButtonColor: "#DD6B55",
