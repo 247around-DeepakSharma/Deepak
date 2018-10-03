@@ -59,6 +59,8 @@ class Spare_parts extends CI_Controller {
             } else {
                 echo "Error";
             }
+        } else {
+            echo "Error";
         }
         
     }

@@ -448,6 +448,7 @@ class Invoice extends CI_Controller {
         $template = 'Partner_invoice_detail_template-v3.xlsx';
 
         $def_couier = $misc_data['courier'];
+        $pickup_courier = $misc_data['pickup_courier'];
         $packaging_rate = $misc_data['packaging_rate'];
         $packaging_quantity = $misc_data['packaging_quantity'];
         $defective_part_by_wh = $misc_data['defective_part_by_wh'];
@@ -626,8 +627,20 @@ class Invoice extends CI_Controller {
             }
             
             if(!empty($def_couier)){
-                foreach ($def_couier as $spare_id) {
-                    $this->service_centers_model->update_spare_parts(array('id' => $spare_id['sp_id']), array('partner_courier_invoice_id' => $meta['invoice_id']));
+                foreach ($def_couier as $spare_array) {
+                    $s_id = explode(",", $spare_array['sp_id']);
+                    foreach($s_id as $spare_id){
+                        $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('partner_courier_invoice_id' => $meta['invoice_id']));
+                    }
+                }
+            }
+            
+            if(!empty($pickup_courier)){
+                foreach ($pickup_courier as $pickup) {
+                    $s_id = explode(",", $pickup['sp_id']);
+                    foreach($s_id as $spare_id){
+                        $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('partner_warehouse_courier_invoice_id' => $meta['invoice_id']));
+                    }
                 }
             }
             
@@ -1212,19 +1225,22 @@ class Invoice extends CI_Controller {
                 }
             }
             
-            if(!empty($invoice_data['defective_return_to_partner'])){
-                foreach ($invoice_data['defective_return_to_partner'] as $defective_id) {
-                    $c_id = explode(",", $defective_id['c_id']);
-                    foreach($c_id as $cid){
-                        $this->inventory_model->update_courier_detail(array('id' => $cid), array('sender_invoice_id' => $invoice_data['meta']['invoice_id']));
-                    }
-                }
-            }
+//            if(!empty($invoice_data['defective_return_to_partner'])){
+//                foreach ($invoice_data['defective_return_to_partner'] as $defective_id) {
+//                    $c_id = explode(",", $defective_id['c_id']);
+//                    foreach($c_id as $cid){
+//                        $this->inventory_model->update_courier_detail(array('id' => $cid), array('sender_invoice_id' => $invoice_data['meta']['invoice_id']));
+//                    }
+//                }
+//            }
             
             if(!empty($invoice_data['courier'])){
-                foreach ($invoice_data['courier'] as $sc) {
-                        $this->inventory_model->update_courier_detail(array('id' => $sc['sp_id']), array('sender_invoice_id' => $invoice_data['meta']['invoice_id']));
-
+                foreach ($invoice_data['courier'] as $spare_array) {
+                    $s_id = explode(",", $spare_array['sp_id']);
+                    foreach($s_id as $spare_id){
+                        $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('vendor_courier_invoice_id' =>$invoice_data['meta']['invoice_id']));
+                        
+                    }
                 }
             }
 
