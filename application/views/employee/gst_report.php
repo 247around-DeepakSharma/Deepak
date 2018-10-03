@@ -8,20 +8,31 @@
                     <thead>
                         <tr>
                             <th>Vendor</th>
+                            <th>Owner Phone Number</th>
+                            <th>PoC Phone Number</th>
                             <th>Amount till last FY</th>
-                            <th>Total Amound</th>
+                            <th>Total Amount</th>
                         </tr>
                     </thead>
                     <tbody>
-         <?php   foreach ($data as $value){ ?>
+            <?php  
+                $total_fy_amount = 0;
+                $total_amount = 0;
+                foreach ($data as $value){ 
+                $total_fy_amount = $total_fy_amount + $value->fy_amount; 
+                $total_amount = $total_amount + $value->total_amount;
+            ?>
                 <tr>
-                    <td><a href="<?php echo base_url(); ?>employee/invoice/invoice_summary/vendor/<?php echo $value->vendor_partner_id; ?>"><?php  echo $value->name; ?></a></td>
-                   <td><?php echo $value->fy_amount; ?></td>
+                    <td><a href="<?php echo base_url(); ?>employee/invoice/invoice_summary/vendor/<?php echo $value->vendor_partner_id; ?>" target="_blank"><?php  echo $value->name; ?></a></td>
+                    <td><?php echo $value->owner_phone_1; ?></td>
+                    <td><?php echo $value->primary_contact_phone_1; ?></td>
+                    <td><?php echo $value->fy_amount; ?></td>
                     <td><?php echo $value->total_amount; ?></td>
                 </tr>
            <?php } ?>
-               </tbody>
-                 </table>
+                <tr style="font-weight: bold;"><td>Total</td><td></td><td></td><td><?php echo $total_fy_amount;  ?></td><td><?php echo $total_amount; ?></td></tr>
+                </tbody>
+                </table>
             </div>
             </div>
         </div>
