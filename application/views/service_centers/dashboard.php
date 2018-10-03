@@ -166,12 +166,24 @@
 </div>
 <script>
     $(document).ready(function () {
+        var d = new Date();
+        n = d.getMonth();
+        y = d.getFullYear();
+        date = d.getDate();
+        $('input[id="completed_daterange_id"]').daterangepicker({
+           timePicker: true,
+           timePickerIncrement: 30,
+           locale: {
+               format: 'YYYY-MM-DD'
+           },
+           startDate: y+'-'+n+'-'+date
+       });
         get_header_summary();
         get_sf_tat_report("Installation");
         get_sf_tat_report("Repair_with_part");
         get_sf_tat_report("Repair_without_part");
-        get_sf_tat_report("Repair");
-        get_sf_tat_report();
+        get_sf_tat_report("Repair_with_part:Repair_without_part");
+        get_sf_tat_report("not_set");
         get_escalation_report();
     });
     function get_escalation_report(){
@@ -199,7 +211,7 @@
             type: type
         });
     }
-    function get_sf_tat_report(request_type = ""){
+    function get_sf_tat_report(request_type){
         vendor_id = '<?php echo $this->session->userdata('service_center_id'); ?>';
         service_id = $("#service_id").val();
         free_paid = $("#free_paid").val();
@@ -209,8 +221,11 @@
         var data = {'vendor_id':vendor_id,'services':service_id,'free_paid':free_paid,'upcountry':upcountry,'daterange_completed_bookings':completed_daterange_id,'status':completed_status,'request_type':request_type};
         url =  '<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/00/1';
         sendAjaxRequest(data,url,"POST").done(function(response){
-            if(!request_type){
+            if(request_type == 'not_set'){
                 request_type = 'total';
+            }
+            if(request_type == 'Repair_with_part:Repair_without_part'){
+                request_type = 'Repair';
             }
             var obj = JSON.parse(response);
             if(obj[0]){
@@ -253,8 +268,8 @@ function fetch_filtered_tat_report(){
     get_sf_tat_report("Installation");
     get_sf_tat_report("Repair_with_part");
     get_sf_tat_report("Repair_without_part");
-    get_sf_tat_report("Repair");
-   get_sf_tat_report();
+    get_sf_tat_report("Repair_with_part:Repair_without_part");
+    get_sf_tat_report("not_set");
 }
 function get_header_summary(){
        $.ajax({
