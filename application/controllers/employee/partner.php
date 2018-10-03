@@ -5768,7 +5768,8 @@ class Partner extends CI_Controller {
      * @param - form post
      * @retun - void
      */
-    function process_add_bank_detail_details(){ 
+    function process_add_bank_detail_details(){
+        $check_file = '';
         $this->form_validation->set_rules('bank_name', 'bank_name', 'required|trim');
         $this->form_validation->set_rules('account_type','account_type', 'required|trim');
         $this->form_validation->set_rules('account_number', 'account_number','required|trim');
@@ -5801,9 +5802,21 @@ class Partner extends CI_Controller {
                 'beneficiary_name' => $this->input->post('beneficiary_name'),
                 'agent_id' => $this->session->userdata('id'),
                 'is_active' => '0'
-            ); 
-            if($this->reusable_model->insert_into_table('account_holders_bank_details', $bank_data)){
-                log_message("info", __METHOD__ . " Data Entered Successfully");
+            );
+            if($this->input->post('BD_action') > 0 && $this->input->post('BD_action') != NULL){
+                unset($bank_data['is_active']);
+                if(!$check_file){
+                    unset($bank_data['cancelled_cheque_file']);   
+                }
+                $action = $this->reusable_model->update_table('account_holders_bank_details', $bank_data, array('id'=>$this->input->post('BD_action')));
+                $msg = "Data Updated Successfully";
+            }
+            else{
+                $action = $this->reusable_model->insert_into_table('account_holders_bank_details', $bank_data);
+                $msg = "Data Entered Successfully";
+            }
+            if($action){
+                log_message("info", __METHOD__ .$msg);
                 $this->session->set_userdata('success', 'Data Entered Successfully');
                 redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
             } else {
@@ -5815,5 +5828,24 @@ class Partner extends CI_Controller {
             $this->session->set_userdata('error', 'Please Fill All Bank Detail');
             redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
         } 
+    }
+    
+    function process_active_inactive_bank_detail(){
+        if($this->input->post('is_active') == 0){
+           $this->reusable_model->update_table('account_holders_bank_details', array('is_active'=> 0), array('entity_id'=>$this->input->post('partner_id')));
+           $update = $this->reusable_model->update_table('account_holders_bank_details', array('is_active'=> 1), array('id'=>$this->input->post('id')));  
+       
+        }
+        else{
+          $update = $this->reusable_model->update_table('account_holders_bank_details', array('is_active'=> 0), array('id'=>$this->input->post('id')));   
+        }
+        if($update){
+            $this->session->set_userdata('success', 'Bank Data Updated Successfully');
+            redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
+        }
+        else{
+            $this->session->set_userdata('failed', 'Data can not be updated. Please Try Again...');
+            redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
+        }
     }
 }
