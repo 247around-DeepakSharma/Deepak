@@ -81,9 +81,10 @@
                         <li><a id="7" href="#tabs-7" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Upload Serial No</span></a></li>
                         <li><a id="8" href="#tabs-8" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Add Contacts</span></a></li>
                         <li><a id="9" href="#tabs-9" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Warehouse Details</span></a></li>
+                        <li><a id="10" href="#tabs-10" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Bank Details</span></a></li>
                         <?php
                             }
-                            else{
+                        else{
                             ?>
                         <li style="background:#fff"><a id="1" href="#tabs-1" onclick="load_form(this.id)"><span class="panel-title">Basic Details</span></a></li>
                         <li><a id="2" href="#tabs-2"  onclick="load_form(this.id)"><span class="panel-title">Documents</span></a></li>
@@ -94,9 +95,10 @@
                         <li><a id="7" href="#tabs-7" onclick="load_form(this.id)"><span class="panel-title">Upload Serial No</span></a></li>
                         <li><a id="8" href="#tabs-8" onclick="load_form(this.id)"><span class="panel-title">Add Contacts</span></a></li>
                         <li><a id="9" href="#tabs-9" onclick="load_form(this.id)"><span class="panel-title">Warehouse Details</span></a></li>
+                        <li><a id="10" href="#tabs-10" onclick="load_form(this.id)"><span class="panel-title">Bank Details</span></a></li>
                         <?php
                             }
-                            ?>
+                        ?>
                     </ul>
                 </div>
             </div>
@@ -1852,8 +1854,130 @@
                         <tbody id="wh_table_body"></tbody>
                     </table>
                 </div>
+            </div>
+            <div class="clear"></div>
+             <div id="container_10"  style="display:none;margin: 30px 10px;" class="form_container">
+                <button class="btn btn-primary" onclick="show_add_bank_detail_form()" style="background-color: #337ab7;color: #fff;margin-bottom: 10px;">Add Bank Detail</button>
+                    <form  class="form-horizontal" id ="bank_detail_form" action="<?php echo base_url() ?>employee/partner/process_add_bank_detail_details" method="POST" enctype="multipart/form-data" >
+                    <?php if(isset($query[0]['id'])){ ?>
+                        <input type="hidden" id="partner_id" name="partner_id" value=<?php echo  $query[0]['id']?>>
+                    <?php } ?>
+                        <div class="clonedInput panel panel-info " id="clonedInput1">
+                            <div class="panel-heading" style=" background-color: #f5f5f5;">
+                                <p style="color: #000;"><b>Bank Details</b></p> 
+                                <div class="clone_button_holder" style="float:right;margin-top: -31px;">
+                                    <button type="button" class="remove_add_bank btn btn-sm btn-info">Remove</button>
+                                </div>
+                            </div> 
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="col-md-6">
+                                        <div class="form-group <?php if( form_error('bank_name') ) { echo 'has-error';} ?>">
+                                            <label for="bank_name" class="col-md-4">Bank Name *</label>
+                                            <div class="col-md-6">
+                                                <input  type="text" rows="1" class="form-control input-contact-name"  name="bank_name" id="bank_name" value = "" placeholder="Enter Bank Name" required="" />
+                                                <?php echo form_error('bank_name'); ?>
+                                            </div>
+                                        </div>
+                                    </div>    
+                                     <div class="col-md-6">
+                                        <div class="form-group <?php if( form_error('account_type') ) { echo 'has-error';} ?> ">
+                                            <label for="account_type" class="col-md-4">Account Type *</label>
+                                            <div class="col-md-6">
+                                                <select class="form-control" id="account_type" name="account_type">
+                                                    <option selected disabled>Account Type</option>
+                                                    <option value="Saving">Saving</option>
+                                                    <option value="Current">Current</option>
+                                                </select>
+                                                 <?php echo form_error('account_type'); ?>
+                                            </div>
+                                        </div>
+                                    </div>    
+                                    <div class="col-md-6">
+                                        <div class="form-group <?php if( form_error('account_number') ) { echo 'has-error';} ?>">
+                                            <label for="account_number" class="col-md-4">Account Number *</label>
+                                            <div class="col-md-6">
+                                                <input  type="text" class="form-control input-contact-name"  name="account_number" id="account_number" value = "" placeholder="Enter Account Number" required="">
+                                                 <?php echo form_error('account_number'); ?>
+                                            </div>
+                                        </div>
+                                    </div>   
+                                    <div class="col-md-6">
+                                        <div class="form-group <?php if( form_error('ifsc_code') ) { echo 'has-error';} ?>">
+                                            <label for="ifsc_code" class="col-md-4">IFSC Code *</label>
+                                            <div class="col-md-6">
+                                                <input type="text" class="form-control blockspacialchar"  name="ifsc_code" id="ifsc_code" style="text-transform: uppercase;" placeholder="Enter IFSC Code" maxlength="11" value = "" required="">
+                                                <?php echo form_error('ifsc_code'); ?>
+                                            </div>
+                                        </div>
+                                    </div>   
+                                    <div class="col-md-6">
+                                        <div class="form-group <?php if( form_error('beneficiary_name') ) { echo 'has-error';} ?>">
+                                            <label for="beneficiary_name" class="col-md-4">Beneficiary Name *</label>
+                                            <div class="col-md-6">
+                                                <input  type="text" class="form-control input-contact-name"  name="beneficiary_name" id="beneficiary_name" placeholder="Enter Beneficiary Name" required="">
+                                                <?php echo form_error('beneficiary_name'); ?>
+                                            </div>
+                                        </div>
+                                    </div> 
+                                    <div class="col-md-6">
+                                        <div class="form-group <?php if( form_error('cancelled_cheque_file') ) { echo 'has-error';} ?>">
+                                            <label for="cancelled_cheque_file" class="col-md-4">Cancelled Cheque File *</label>
+                                            <div class="col-md-5">
+                                            <input type="file" class="form-control"  name="cancelled_cheque_file" id = "cancelled_cheque_file" required="">
+                                             <?php echo form_error('cancelled_cheque_file'); ?>
+                                            </div>
+                                              <div class="col-md-1">
+                                            <?php
+                                                $src = base_url() . 'images/no_image.png';
+                                                $image_src = $src;
+                                            ?>
+                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
+                                        </div>
+                                        </div>
+                                    </div>
+                                       
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group " style="text-align:center">
+                                <input type="submit" class="btn btn-primary" value="Save Bank Detail">
+                            </div>
+                        </div>
+                </form>
+                 
+                <div id="bank_detail_section">
+                    <table class="table" id="warehouse_datatable">
+                        <thead>
+                            <tr>
+                                <th>Bank Name</th>
+                                <th>Account Type</th>
+                                <th>Account Number</th>
+                                <th>IFSC Code</th>
+                                <th>Beneficiary Name</th>
+                                <th>Cancelled Cheque File</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="BD_table_body">
+                        <?php
+                            foreach ($results['bank_detail'] as  $value) { ?>
+                            <tr>
+                                <td><?php echo $value['bank_name']; ?></td>
+                                <td><?php echo $value['account_type']; ?></td>
+                                <td><?php echo $value['bank_account']; ?></td>
+                                <td><?php echo $value['ifsc_code']; ?></td>
+                                <td><?php echo $value['beneficiary_name']; ?></td>
+                                <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/vendor-partner-docs/<?php echo $value['cancelled_cheque_file']; ?>" target="_blank"><?php echo $value['cancelled_cheque_file']; ?></a></td>
+                                <td><button class="btn btn-info btn-sm" style="margin-right: 5px;"><i class="fa fa-edit"></i></button><button class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></button></td>
+                            </tr>  
+                        <?php } ?>  
+                        </tbody>
+                    </table>
+                </div>
                                 
-             </div>
+            </div>
         </div>
     </div>
 </div>
@@ -2170,6 +2294,7 @@
      $(document).ready(function () {
   $('#contact_form').hide();
   $('#warehouse_form').hide();
+  $('#bank_detail_form').hide();
   //called when key is pressed in textbox
   $("#grand_total_price").keypress(function (e) {
      //if the letter is not digit then display error and don't type anything
@@ -2833,9 +2958,16 @@ function sendAjaxRequest(postData, url,type) {
     function show_add_contact_form(){
         $('#contact_form').show();
     }
-     function show_add_warehouse_form(){
+    function show_add_warehouse_form(){
         $('#warehouse_form').show();
     }
+    function show_add_bank_detail_form(){
+        $('#bank_detail_form').show();
+    }
+    
+    $(".remove_add_bank").click(function(){
+        $('#bank_detail_form').hide();
+    });
     
     function get_warehouse_details(){
         var partner = $("#partner_id").val();
