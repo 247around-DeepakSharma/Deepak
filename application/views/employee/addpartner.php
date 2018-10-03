@@ -1925,16 +1925,17 @@
                                         <div class="form-group <?php if( form_error('cancelled_cheque_file') ) { echo 'has-error';} ?>">
                                             <label for="cancelled_cheque_file" class="col-md-4">Cancelled Cheque File *</label>
                                             <div class="col-md-5">
-                                            <input type="file" class="form-control"  name="cancelled_cheque_file" id = "cancelled_cheque_file" required="">
+                                            <input type="file" class="form-control"  name="cancelled_cheque_file" id = "cancelled_cheque_file">
                                              <?php echo form_error('cancelled_cheque_file'); ?>
                                             </div>
                                               <div class="col-md-1">
                                             <?php
                                                 $src = base_url() . 'images/no_image.png';
-                                                $image_src = $src;
+                                                $image_update = base_url() . 'images/view_image.png';
                                             ?>
-                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
-                                        </div>
+                                             <a id="bank_cancelled_check_img" href="<?php echo $src?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
+                                             <a id="bank_cancelled_check_img_update" href="" target="_blank" style="display:none"><img src="<?php echo $image_update ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
+                                            </div>
                                         </div>
                                     </div>
                                        
@@ -1942,7 +1943,8 @@
                                 </div>
                             </div>
                             <div class="form-group " style="text-align:center">
-                                <input type="submit" class="btn btn-primary" value="Save Bank Detail">
+                                <input type="hidden" id="BD_action" name="BD_action" value="">
+                                <input type="submit" id="BD_submit" class="btn btn-primary" value="Save Bank Detail">
                             </div>
                         </div>
                 </form>
@@ -1957,6 +1959,7 @@
                                 <th>IFSC Code</th>
                                 <th>Beneficiary Name</th>
                                 <th>Cancelled Cheque File</th>
+                                <th>Status</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -1970,7 +1973,24 @@
                                 <td><?php echo $value['ifsc_code']; ?></td>
                                 <td><?php echo $value['beneficiary_name']; ?></td>
                                 <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/vendor-partner-docs/<?php echo $value['cancelled_cheque_file']; ?>" target="_blank"><?php echo $value['cancelled_cheque_file']; ?></a></td>
-                                <td><button class="btn btn-info btn-sm" style="margin-right: 5px;"><i class="fa fa-edit"></i></button><button class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></button></td>
+                                <td>
+                                    
+                                     <?php if($value['is_active'] == '0'){ ?>
+                                        <form method="post" action="<?php echo base_url() ?>employee/partner/process_active_inactive_bank_detail">
+                                            <input type="hidden" name="status" value="<?php echo $value['is_active']; ?>">
+                                            <input type="hidden" name="id" value="<?php echo $value['id']; ?>">
+                                            <input type="hidden" name="partner_id" value="<?php echo $query[0]['id']; ?>">
+                                            <button class="btn btn-warning btn-xs">Inactive</button>   
+                                        </form>
+                                    <?php }else{ ?>
+                                      <form method="post" action="<?php echo base_url() ?>employee/partner/process_active_inactive_bank_detail">
+                                       <button class="btn btn-warning btn-xs">Active</button>
+                                      </form>
+                                    <?php } ?>
+                                </td>
+                                <td>
+                                    <button class="btn btn-info btn-xs" onclick="update_bank_detail(this, <?php echo $value['id']; ?>)" style="margin-right: 5px;">Update</button>
+                                </td>
                             </tr>  
                         <?php } ?>  
                         </tbody>
@@ -2965,6 +2985,10 @@ function sendAjaxRequest(postData, url,type) {
     }
     
     $(".remove_add_bank").click(function(){
+        $("#bank_name, #account_type, #account_number, #ifsc_code, #beneficiary_name, #BD_action").val(null);
+        $("#bank_cancelled_check_img_update").css("display", "none");
+        $("#bank_cancelled_check_img").show();
+        $("#BD_submit").val("Save Bank Deatil");
         $('#bank_detail_form').hide();
     });
     
@@ -3164,4 +3188,19 @@ function sendAjaxRequest(postData, url,type) {
         $("#myModal").modal("show");
     }
 
+    function update_bank_detail(button, id){
+       $('#bank_detail_form').show(); 
+       $("#bank_name").val($(button).closest('tr').find('td').eq(0).text());
+       $("#account_type").val($(button).closest('tr').find('td').eq(1).text());
+       $("#account_number").val($(button).closest('tr').find('td').eq(2).text());
+       $("#ifsc_code").val($(button).closest('tr').find('td').eq(3).text());
+       $("#beneficiary_name").val($(button).closest('tr').find('td').eq(4).text());
+       $("#bank_cancelled_check_img_update").attr('href', 'https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/vendor-partner-docs/'+$(button).closest('tr').find('td').eq(5).text().trim());
+       $("#bank_cancelled_check_img_update").css("display", "inline");
+       $("#bank_cancelled_check_img").hide();
+       $("#BD_action").val(id);
+       $("#BD_submit").val("Update Bank Deatil");
+    }
+    
 </script>    
+
