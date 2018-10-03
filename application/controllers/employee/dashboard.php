@@ -1611,7 +1611,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                     unset($where['spare_parts_details.booking_id IS NOT NULL']);
                 }
                 if($count == 2 && in_array("Installation",$requestTypeArray) &&  in_array("Repair_with_part",$requestTypeArray)){
-                    $where['(spare_parts_details.booking_id IS NOT NULL AND request_type LIKE "%Repair%") OR (spare_parts_details.booking_id IS NULL AND request_type NOT LIKE "%Repair%")']= NULL;
+                    $where['(spare_parts_details.booking_id IS NOT NULL AND booking_details.request_type LIKE "%Repair%") OR (spare_parts_details.booking_id IS NULL AND booking_details.request_type NOT LIKE "%Repair%")']= NULL;
                 }
             }
             //Filter on free or paid
