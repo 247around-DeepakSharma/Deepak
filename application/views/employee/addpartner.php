@@ -1980,11 +1980,14 @@
                                             <input type="hidden" name="status" value="<?php echo $value['is_active']; ?>">
                                             <input type="hidden" name="id" value="<?php echo $value['id']; ?>">
                                             <input type="hidden" name="partner_id" value="<?php echo $query[0]['id']; ?>">
-                                            <button class="btn btn-warning btn-xs">Inactive</button>   
+                                            <button class="btn btn-success btn-xs">Active</button>   
                                         </form>
                                     <?php }else{ ?>
                                       <form method="post" action="<?php echo base_url() ?>employee/partner/process_active_inactive_bank_detail">
-                                       <button class="btn btn-warning btn-xs">Active</button>
+                                          <input type="hidden" name="status" value="<?php echo $value['is_active']; ?>">
+                                          <input type="hidden" name="id" value="<?php echo $value['id']; ?>">
+                                          <input type="hidden" name="partner_id" value="<?php echo $query[0]['id']; ?>">
+                                          <button class="btn btn-danger btn-xs">Inactive</button>
                                       </form>
                                     <?php } ?>
                                 </td>
