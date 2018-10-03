@@ -756,7 +756,7 @@ class Do_background_upload_excel extends CI_Controller {
         
 	if (isset($row_data['error'])) {
 		log_message('info', __FUNCTION__ . "=> File type: " . $file_type . " => Errors found, sending mail now");
-	    $this->get_invalid_data($row_data['error'], $file_type, $file_name ,$default_partner,FALSE);
+	    $this->get_invalid_data($row_data['error'], $file_type, $file_name ,$default_partner,"", FALSE);
 	} else {
             log_message('info', __FUNCTION__ . "=> File type: " . $file_type . " => Wow, no errors found !!!");
         }
@@ -781,7 +781,7 @@ class Do_background_upload_excel extends CI_Controller {
 
 	    if (count($invalid_data) > 4) {
 		$status['invalid_phone'] = $invalid_data;
-		$this->get_invalid_data($status, $filetype, $file_name,$partner_id);
+		$this->get_invalid_data($status, $filetype, $file_name,$partner_id, "Failed! ");
                 log_message('info', __FUNCTION__ . "=> Exiting validation routine: Limit Crossed");
 
 		exit();
@@ -847,7 +847,7 @@ class Do_background_upload_excel extends CI_Controller {
 
 		// Add Only user
 		$this->add_user_for_invalid($invalid_data);
-		$this->get_invalid_data($status, $filetype, $file_name,$partner_id);
+		$this->get_invalid_data($status, $filetype, $file_name,$partner_id, "Failed! ");
                 
                 log_message('info', __FUNCTION__ . "=> Exiting validation routine: Limit Crossed");
 
@@ -1003,7 +1003,7 @@ class Do_background_upload_excel extends CI_Controller {
 
                 // Add Only user
 		$this->add_user_for_invalid($invalid_data);
-		$this->get_invalid_data($status, $filetype, $file_name,$partner_id);
+		$this->get_invalid_data($status, $filetype, $file_name,$partner_id, "Failed! ");
                 log_message('info', __FUNCTION__ . "=> Exiting validation routine: Limit Crossed");
 
 		exit();
@@ -1056,7 +1056,7 @@ class Do_background_upload_excel extends CI_Controller {
 
 		// Add Only user
 		$this->add_user_for_invalid($invalid_data);
-		$this->get_invalid_data($status, $file_type, $file_name,$partner_id);
+		$this->get_invalid_data($status, $file_type, $file_name,$partner_id, "Failed! ");
                 log_message('info', __FUNCTION__ . "=> Exiting validation routine: Limit Crossed");
 		exit();
 	    }
@@ -1133,7 +1133,7 @@ class Do_background_upload_excel extends CI_Controller {
 		$status['invalid_same_order_id_phone'] = $invalid_data;
 		// Add Only user
 		$this->add_user_for_invalid($invalid_data);
-		$this->get_invalid_data($status, $filetype, $file_name,$partner_id);
+		$this->get_invalid_data($status, $filetype, $file_name,$partner_id, "Failed! ");
                  log_message('info', __FUNCTION__ . "=> Exiting validation routine: Limit Crossed");
 		exit();
 	    }
@@ -1161,7 +1161,7 @@ class Do_background_upload_excel extends CI_Controller {
      * @param Array $invalid_data_with_reason
      * @param string $filetype
      */
-    function get_invalid_data($invalid_data_with_reason, $filetype, $file_name,$partner_id,$file_upload = true) {
+    function get_invalid_data($invalid_data_with_reason, $filetype, $file_name,$partner_id,$extra = "", $file_upload = true) {
         
         if(empty($this->email_send_to)){
             if(empty($this->session->userdata('official_email'))){
@@ -1187,10 +1187,10 @@ class Do_background_upload_excel extends CI_Controller {
 	$subject = "";
            
 	if ($filetype == "delivered") {
-	    $subject = "Failed! Delivered File is uploaded";
+	    $subject = $extra." Delivered File is uploaded";
 	    $message = " Please check shipped file data:<br/>". " Agent Name ". $this->session->userdata('employee_id');
 	} else {
-	    $subject = "Falied! Shipped File is uploaded";
+	    $subject = $extra." Shipped File is uploaded";
 	    $message = " Please check delivered file data:<br/>". " Agent Name ". $this->session->userdata('employee_id');
 	}
         $invalid_data_with_reason['file_name']= $file_name;
