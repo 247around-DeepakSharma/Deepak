@@ -1708,7 +1708,7 @@ class Booking extends CI_Controller {
             'customer_phone' => $cust_phone
         ));
        // if(CURRENT_TELEPHONY_SOLUTION == KNOWLARITY_STRING){
-        if($agent_id == 29){
+        if($agent_id == 22){
             $this->notify->make_outbound_call_using_knowlarity($agent_phone, $cust_phone);
         }
         else{
