@@ -1707,7 +1707,8 @@ class Booking extends CI_Controller {
             'agent_id' => $agent_id, 'customer_id' => $cust_id,
             'customer_phone' => $cust_phone
         ));
-        if(CURRENT_TELEPHONY_SOLUTION == KNOWLARITY_STRING){
+        // if(CURRENT_TELEPHONY_SOLUTION == KNOWLARITY_STRING){
+        if($agent_id == 22 || $agent_id == 10026){
             $this->notify->make_outbound_call_using_knowlarity($agent_phone, $cust_phone);
         }
         else{
@@ -4721,7 +4722,7 @@ class Booking extends CI_Controller {
             $serviceCenters = $sf_list[0]['service_centres_id'];
             $whereIN =array("service_center_id"=>explode(",",$serviceCenters));
         }
-        $total_rows = $this->service_centers_model->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,NULL,NULL);
+        $total_rows = $this->service_centers_model->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,NULL,-1);
         if(!empty($total_rows)){
             $data['per_page'] = 100;
             $data['offset'] = $offset;

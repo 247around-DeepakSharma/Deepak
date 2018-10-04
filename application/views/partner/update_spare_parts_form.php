@@ -466,15 +466,15 @@
         $(".purchase_price").each(function (i){
                 var estimate_given = $(this).val();
                 var invoice_amount = Number($("#invoiceamount_" + i).val()); 
-                if(invoice_amount > Number(estimate_given)){
-                swal("OOPS!", "Invoice amount exceeding the quote provided earlier.", "error");
-                flag = false;
-                return false;
-            } else if(Number(invoice_amount) === 0){
-                swal("OOPS!", "Please Enter Invoice amount.", "error");
-                flag = false;
-                return false;
-            }
+                if(Number(invoice_amount) < 1){
+                    swal("OOPS!", "Please Enter Invoice amount.", "error");
+                    flag = false;
+                    return false;
+                } else if(invoice_amount > Number(estimate_given)){
+                    swal("OOPS!", "Invoice amount exceeding the quote provided earlier.", "error");
+                    flag = false;
+                    return false;
+                }
         });
         
         if(flag){

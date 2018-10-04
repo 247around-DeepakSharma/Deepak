@@ -8213,10 +8213,10 @@ UPDATE tat_defactive_booking_criteria SET entity_id = '247001';
 -- Abhay
 
 INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Upload Service Center Payment', NULL, 'file_upload/upload_payment_file', '2', '56', 'admin,developer', 'main_nav', '1', '2018-09-28 10:37:02');--Chhavi
-INSERT INTO `query_report` (`id`, `main_description`, `query1_description`, `query2_description`, `query1`, `query2`, `role`, `priority`, `type`, `active`, `result`, `create_date`) VALUES (NULL, 'missing_in_booking_tat', '', '', 'SELECT COUNT(booking_id) FROM `booking_details` LEFT JOIN booking_tat ON booking_tat.booking_id = booking_details.booking_id WHERE DATE(booking_details.closed_date)>\'2018-03-31\' AND booking_tat.booking_id IS NULL AND booking_details.type != \'Query\'', '', 'developer', '1', 'service', '1', NULL, '2018-09-28 05:03:42');
+INSERT INTO `query_report` (`id`, `main_description`, `query1_description`, `query2_description`, `query1`, `query2`, `role`, `priority`, `type`, `active`, `result`, `create_date`) VALUES (NULL, 'missing_in_booking_tat', '', '', 'SELECT COUNT(booking_details.booking_id)as count FROM `booking_details` LEFT JOIN booking_tat ON booking_tat.booking_id = booking_details.booking_id WHERE DATE(booking_details.closed_date)>\'2018-03-31\' AND booking_tat.booking_id IS NULL AND booking_details.type != \'Query\'', '', 'developer', '1', 'service', '1', NULL, '2018-09-28 05:03:42');
+
 
 INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Upload Service Center Payment', NULL, 'file_upload/upload_payment_file', '2', '56', 'admin,developer', 'main_nav', '1', '2018-09-28 10:37:02');
-
 --kalyani
 CREATE TABLE `gstin_detail` (
   `id` int(11) NOT NULL,
@@ -8241,3 +8241,10 @@ ALTER TABLE `spare_parts_details` ADD `around_pickup_from_partner` INT(1) NOT NU
 --Kalyani 01-10-2018
 INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'GST Report', NULL, 'employee/accounting/show_gst_report', '2', '80', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
 
+
+
+-- Abhay 29 Sept
+ALTER TABLE `spare_parts_details` ADD `around_pickup_from_partner` INT(1) NOT NULL DEFAULT '0' AFTER `wh_ack_received_part`, ADD `around_pickup_from_service_center` INT(1) NOT NULL DEFAULT '0' AFTER `around_pickup_from_partner`;
+
+--Chhavi
+INSERT INTO `query_report` (`id`, `main_description`, `query1_description`, `query2_description`, `query1`, `query2`, `role`, `priority`, `type`, `active`, `result`, `create_date`) VALUES (NULL, 'missing_in_booking_tat', '', '', 'SELECT COUNT(booking_details.booking_id)as count FROM `booking_details` LEFT JOIN booking_tat ON booking_tat.booking_id = booking_details.booking_id WHERE DATE(booking_details.closed_date)>\'2018-03-31\' AND booking_tat.booking_id IS NULL AND booking_details.type != \'Query\'', '', 'developer', '1', 'service', '1', NULL, '2018-09-28 05:03:42');

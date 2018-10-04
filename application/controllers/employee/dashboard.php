@@ -1611,7 +1611,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                     unset($where['spare_parts_details.booking_id IS NOT NULL']);
                 }
                 if($count == 2 && in_array("Installation",$requestTypeArray) &&  in_array("Repair_with_part",$requestTypeArray)){
-                    $where['(spare_parts_details.booking_id IS NOT NULL AND request_type LIKE "%Repair%") OR (spare_parts_details.booking_id IS NULL AND request_type NOT LIKE "%Repair%")']= NULL;
+                    $where['(spare_parts_details.booking_id IS NOT NULL AND booking_details.request_type LIKE "%Repair%") OR (spare_parts_details.booking_id IS NULL AND booking_details.request_type NOT LIKE "%Repair%")']= NULL;
                 }
             }
             //Filter on free or paid
@@ -1743,7 +1743,12 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $service_id = $this->input->post('services');
         }
         if($this->input->post('request_type')){
-            $request_type = $this->input->post('request_type');
+            if(is_array($this->input->post('request_type'))){
+                $request_type = implode(":",$this->input->post('request_type'));
+            }
+            else{
+                $request_type = $this->input->post('request_type');
+            }
         }
         if($this->input->post('partner_id')){
             $partner_id = $this->input->post('partner_id');
