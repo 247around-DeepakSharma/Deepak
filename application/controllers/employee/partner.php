@@ -4288,6 +4288,7 @@ class Partner extends CI_Controller {
     function get_reports(){
         $this->checkUserSession();
         $partnerID = $this->session->userdata('partner_id');
+        $agent_id = $this->session->userdata('agent_id');
         if($this->session->userdata('is_filter_applicable') == 1){
             $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",array("agent_filters.agent_id"=>$agent_id),array("agent_filters"=>"agent_filters.state=state_code.state"),NULL,array('state'=>'ASC'),NULL,array("agent_filters"=>"left"),array());
         }
