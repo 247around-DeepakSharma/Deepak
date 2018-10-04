@@ -258,7 +258,7 @@ class Partner extends CI_Controller {
             $data['partner_type'] = $partner_type;
 
             $data['partner_code'] = $partner_data[0]['code'];
-            if ($partner_type == OEM) {
+            if ($partner_type != INTERNAL) {
 
                 $data['appliances'] = $this->partner_model->get_partner_specific_services($this->session->userdata('partner_id'));
             } else {
@@ -4397,7 +4397,8 @@ class Partner extends CI_Controller {
             "spare_parts_details.defective_part_required" => 1,
             "approved_defective_parts_by_admin" => 1,
             "spare_parts_details.partner_id" => $partner_id,
-            "status IN ('" . DEFECTIVE_PARTS_SHIPPED . "')  " => NULL
+            "status IN ('" . DEFECTIVE_PARTS_SHIPPED . "')  " => NULL,
+            "defactive_part_received_date_by_courier_api IS NOT NULL" => NULL
         );
         $select = "CONCAT( '', GROUP_CONCAT((defective_part_shipped ) ) , '' ) as defective_part_shipped, "
                 . " spare_parts_details.booking_id, users.name, courier_name_by_sf, awb_by_sf, spare_parts_details.sf_challan_number, spare_parts_details.partner_challan_number, "
@@ -5295,7 +5296,7 @@ class Partner extends CI_Controller {
       $where_internal_status = array("page" => "defective_parts", "active" => '1');
       $internal_status = $this->booking_model->get_internal_status($where_internal_status);
       $columnMappingArray = array("column_1"=>"spare_parts_details.booking_id","column_3"=>"CONCAT('',GROUP_CONCAT((defective_part_shipped ) ))",
-          "column_4"=>"courier_name_by_sf");    
+          "column_4"=>"courier_name_by_sf","column_9"=>"spare_parts_details.defective_part_shipped_date");    
       $order_by = "spare_parts_details.defective_part_shipped_date DESC";
       if(array_key_exists("order", $postData)){
             $order_by = $columnMappingArray["column_".$postData['order'][0]['column']] ." ". $postData['order'][0]['dir'];
