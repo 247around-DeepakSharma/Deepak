@@ -1743,7 +1743,12 @@ function get_tat_conditions_by_filter($startDate=NULL,$endDate=NULL,$status="not
             $service_id = $this->input->post('services');
         }
         if($this->input->post('request_type')){
-            $request_type = $this->input->post('request_type');
+            if(is_array($this->input->post('request_type'))){
+                $request_type = implode(":",$this->input->post('request_type'));
+            }
+            else{
+                $request_type = $this->input->post('request_type');
+            }
         }
         if($this->input->post('partner_id')){
             $partner_id = $this->input->post('partner_id');

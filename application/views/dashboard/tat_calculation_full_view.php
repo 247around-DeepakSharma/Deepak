@@ -156,10 +156,12 @@
     </thead>
     <tbody>
         <?php
+        $index = 0;
         foreach($state as $key => $values){
+            $index++;
             ?>
         <tr>
-            <td><?php echo $key+1   ;?></td>
+            <td><?php echo $index;?></td>
             <td><button style="margin: 0px;padding: 3px 9px;font-size: 15px;" type="button" class="btn btn-info" id="district_level"><?php echo $values['entity']?></button></td>
             <td><?php echo $values['TAT_0'] ."<br>(". $values['TAT_0_per']."%)";?></td>
             <td><?php echo $values['TAT_1'] ."<br>(". $values['TAT_1_per']."%)";?></td>
