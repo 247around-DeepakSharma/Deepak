@@ -5185,6 +5185,7 @@ function get_shipped_parts_list($offset = 0) {
         echo json_encode($output);
     }
     function get_spare_bookings(){
+      $agent_id = $this->session->userdata('agent_id');
       $finalArray = array();
       $postData = $this->input->post();
       $state = 0;
