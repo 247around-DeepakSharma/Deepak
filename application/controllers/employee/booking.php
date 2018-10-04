@@ -4737,4 +4737,7 @@ class Booking extends CI_Controller {
             echo "<center style='margin-top:30px;'>No Booking Found</center>";
         }
     }
+    function sms_test($number,$text){
+          $this->notify->send_sms_using_knowlarity($number,$text);
+    }
 }
