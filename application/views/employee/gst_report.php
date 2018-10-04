@@ -8,8 +8,8 @@
                     <thead>
                         <tr>
                             <th>Vendor</th>
-                            <th>Owner Phone Number</th>
-                            <th>PoC Phone Number</th>
+                            <th>Owner Detail</th>
+                            <th>PoC Detail</th>
                             <th>Amount till last FY</th>
                             <th>Total Amount</th>
                         </tr>
@@ -24,8 +24,8 @@
             ?>
                 <tr>
                     <td><a href="<?php echo base_url(); ?>employee/invoice/invoice_summary/vendor/<?php echo $value->vendor_partner_id; ?>" target="_blank"><?php  echo $value->name; ?></a></td>
-                    <td><?php echo $value->owner_phone_1; ?></td>
-                    <td><?php echo $value->primary_contact_phone_1; ?></td>
+                    <td><?php echo $value->owner_name.' / '.$value->owner_phone_1; ?></td>
+                    <td><?php echo $value->primary_contact_name.' / '.$value->primary_contact_phone_1; ?></td>
                     <td><?php echo $value->fy_amount; ?></td>
                     <td><?php echo $value->total_amount; ?></td>
                 </tr>
