@@ -5196,6 +5196,7 @@ class Partner extends CI_Controller {
         echo json_encode($output);
     }
     function get_spare_bookings(){
+      $agent_id = $this->session->userdata('agent_id');
       $finalArray = array();
       $postData = $this->input->post();
       $state = 0;
