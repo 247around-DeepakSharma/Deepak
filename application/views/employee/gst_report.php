@@ -30,7 +30,7 @@
                     <td><?php echo $value->total_amount; ?></td>
                 </tr>
            <?php } ?>
-                <tr style="font-weight: bold;"><td>Total</td><td></td><td></td><td><?php echo $total_fy_amount;  ?></td><td><?php echo $total_amount; ?></td></tr>
+                <tr style="font-weight: bold;"><td>Total</td><td></td><td></td><td><?php echo round($total_fy_amount, 2);  ?></td><td><?php echo round($total_amount, 2); ?></td></tr>
                 </tbody>
                 </table>
             </div>
