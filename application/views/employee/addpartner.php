@@ -1959,8 +1959,8 @@
                                 <th>IFSC Code</th>
                                 <th>Beneficiary Name</th>
                                 <th>Cancelled Cheque File</th>
-                                <th>Status</th>
-                                <th>Action</th>
+                                <th>Current Status</th>
+                                <th colspan="2" style="text-align:center">Action</th>
                             </tr>
                         </thead>
                         <tbody id="BD_table_body">
@@ -1973,18 +1973,19 @@
                                 <td><?php echo $value['ifsc_code']; ?></td>
                                 <td><?php echo $value['beneficiary_name']; ?></td>
                                 <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/vendor-partner-docs/<?php echo $value['cancelled_cheque_file']; ?>" target="_blank"><?php echo $value['cancelled_cheque_file']; ?></a></td>
+                                <td> <?php if($value['is_active'] == '0'){ ?> Inactive<?php }else{ ?> Active <?php } ?></td>
                                 <td>
                                     
                                      <?php if($value['is_active'] == '0'){ ?>
                                         <form method="post" action="<?php echo base_url() ?>employee/partner/process_active_inactive_bank_detail">
-                                            <input type="hidden" name="status" value="<?php echo $value['is_active']; ?>">
+                                            <input type="hidden" name="is_active" value="<?php echo $value['is_active']; ?>">
                                             <input type="hidden" name="id" value="<?php echo $value['id']; ?>">
                                             <input type="hidden" name="partner_id" value="<?php echo $query[0]['id']; ?>">
                                             <button class="btn btn-success btn-xs">Active</button>   
                                         </form>
                                     <?php }else{ ?>
                                       <form method="post" action="<?php echo base_url() ?>employee/partner/process_active_inactive_bank_detail">
-                                          <input type="hidden" name="status" value="<?php echo $value['is_active']; ?>">
+                                          <input type="hidden" name="is_active" value="<?php echo $value['is_active']; ?>">
                                           <input type="hidden" name="id" value="<?php echo $value['id']; ?>">
                                           <input type="hidden" name="partner_id" value="<?php echo $query[0]['id']; ?>">
                                           <button class="btn btn-danger btn-xs">Inactive</button>
