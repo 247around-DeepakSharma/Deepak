@@ -4396,7 +4396,8 @@ class Partner extends CI_Controller {
             "spare_parts_details.defective_part_required" => 1,
             "approved_defective_parts_by_admin" => 1,
             "spare_parts_details.partner_id" => $partner_id,
-            "status IN ('" . DEFECTIVE_PARTS_SHIPPED . "')  " => NULL
+            "status IN ('" . DEFECTIVE_PARTS_SHIPPED . "')  " => NULL,
+            "defactive_part_received_date_by_courier_api IS NOT NULL" => NULL
         );
         $select = "CONCAT( '', GROUP_CONCAT((defective_part_shipped ) ) , '' ) as defective_part_shipped, "
                 . " spare_parts_details.booking_id, users.name, courier_name_by_sf, awb_by_sf, spare_parts_details.sf_challan_number, spare_parts_details.partner_challan_number, "
