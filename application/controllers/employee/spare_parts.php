@@ -75,7 +75,7 @@ class Spare_parts extends CI_Controller {
      * @desc This function is used to load different spare tab data using datatable
      */
     function get_spare_parts_tab_details(){
-        //log_message('info', __METHOD__ . json_encode($_POST, true));
+        //log_message('info', __METHOD__ . print_r($_POST, true));
         
         $post = $this->get_spare_tab_datatable_data();
         switch ($post['type']){
@@ -99,6 +99,9 @@ class Spare_parts extends CI_Controller {
                 break;
             case 6:
                 $this->get_marked_pickup_booking($post);
+                break;
+            case 7:
+                $this->get_edit_spare_pickup_by_247Around($post);
                 break;
         }
     }
@@ -298,6 +301,65 @@ class Spare_parts extends CI_Controller {
         
         echo json_encode($output);
     }
+    
+     /**
+     * @desc This function is used to get data for edit spare pickup by @$&around
+     * @param Array $post
+     */
+    function get_edit_spare_pickup_by_247Around($post){
+        log_message('info', __METHOD__. print_r($post, TRUE));
+        
+        $post['column_order'] = array('spare_parts_details.id'=>NULL);
+       
+        if($post['vendor_partner'] == _247AROUND_PARTNER_STRING){
+            $post['column_search'] = array('spare_parts_details.booking_id', 'awb_by_partner');
+            $post['where'] = array('around_pickup_from_partner'=>1);
+            $post['select'] = "spare_parts_details.id, spare_parts_details.booking_id, awb_by_partner as awb_no, courier_price_by_partner as courier_charges, courier_name_by_partner as courier_name";
+        }
+        else if($post['vendor_partner'] == _247AROUND_SF_STRING){
+            $post['column_search'] = array('spare_parts_details.booking_id', 'awb_by_sf');
+            $post['where'] = array('around_pickup_from_service_center'=>1);
+            $post['select'] = "spare_parts_details.id, spare_parts_details.booking_id, awb_by_sf as awb_no, courier_charges_by_sf as courier_charges, courier_name_by_sf as courier_name";
+        }
+        $list = $this->inventory_model->get_spare_parts_query($post);
+        
+
+        $no = $post['start'];
+        $data = array();
+        foreach ($list as $spare_list) {
+            $no++;
+            $row =  $this->edit_spare_pickup_by_247Around_table_data($spare_list, $no);
+            $data[] = $row;
+        }
+        $output = array(
+            "draw" => $post['draw'],
+            "recordsTotal" => $this->inventory_model->count_spare_parts($post),
+            "recordsFiltered" =>  $this->inventory_model->count_spare_filtered($post),
+            "data" => $data,
+        );
+        
+        echo json_encode($output);
+    }
+    
+    /**
+     * @desc this function is used to create table row data for the spare pickup by 247Around
+     * @param Array $spare_list
+     * @param int $no
+     * @return Array
+     */
+    function edit_spare_pickup_by_247Around_table_data($spare_list, $no){
+        $row = array();
+       
+        $row[] = $no;
+        $row[] = $spare_list->booking_id;
+        $row[] = $spare_list->awb_no;
+        $row[] = $spare_list->courier_charges;
+        $row[] = $spare_list->courier_name;
+        $row[] = '<button type="button" class="btn btn-danger btn-xs" onclick="update_spare_part_detail('.trim($spare_list->id).', this)">Remove</button>';
+       
+        return $row;
+    }
+    
     /**
      * @desc this function is used to create table row data for the approved courier charges by admin tab
      * @param Array $spare_list
@@ -528,7 +590,12 @@ class Spare_parts extends CI_Controller {
         $post['draw'] = $this->input->post('draw');
         $post['type'] = $this->input->post('type');
         $post['where']['status'] = $this->input->post("status");
-        $sf = $this->vendor_model->get_employee_relation($this->session->userdata("id"));
+        if(!empty($this->input->post('vendor_partner'))){
+            $post['vendor_partner'] = $this->input->post('vendor_partner');
+        }
+        else{
+           $sf = $this->vendor_model->get_employee_relation($this->session->userdata("id")); 
+        }
         $vendor_id = array();
         if(!empty($sf)){
             $vendor_id = explode(",", $sf[0]["service_centres_id"]);
@@ -542,7 +609,23 @@ class Spare_parts extends CI_Controller {
             $post['where']['approved_defective_parts_by_admin'] = $this->input->post('approved_defective_parts_by_admin');
         }
         
-
         return $post;
+    }
+    
+     /**
+     * @desc This function is used to load view 
+     * In this view, we will update those booking whose pickup arranged by 247Around Team
+     */
+    function edit_spare_pickup(){
+        log_message('info', __METHOD__);
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/edit_spare_pickup');
+    }
+    
+    function process_edit_spare_pickup(){
+       $id = $this->input->post('id');
+       $data = array($this->input->post('column')=>0);
+       $row = $this->inventory_model->update_spare_courier_details(trim($id), $data); 
+       echo $row;
     }
 }
