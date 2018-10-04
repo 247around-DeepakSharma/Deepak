@@ -1207,13 +1207,11 @@ class Accounting extends CI_Controller {
         $current_month = date('m');
         if ($current_month > 3) {
             $financial_year = date('Y');
-            $next_year = (date('Y') + 1);
         } else {
             $financial_year = (date('Y') - 1);
-            $next_year = date('Y');
         }
         $data = array();
-        $select = 'vendor_partner_id, service_centres.company_name as "name", SUM(CASE WHEN from_date >= "'.$financial_year.'-03-31" AND from_date < "'.$next_year.'-03-31"'
+        $select = 'vendor_partner_id, service_centres.name as "name", service_centres.owner_phone_1, service_centres.primary_contact_phone_1, SUM(CASE WHEN to_date <= "'.$financial_year.'-03-31"'
                 . 'THEN amount_collected_paid ELSE 0 END) as fy_amount, SUM(amount_collected_paid) as total_amount';
         $post['group_by'] = 'vendor_partner_id';
         $post['where'] = array('vendor_partner'=>'vendor', 'invoice_id like "%Around-GST-CN%" OR invoice_id like "%Around-GST-DN%"'=>NULL);

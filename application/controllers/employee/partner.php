@@ -879,6 +879,7 @@ class Partner extends CI_Controller {
                 array("entity_role"=>"contact_person.role = entity_role.id","agent_filters"=>"contact_person.id=agent_filters.contact_person_id","entity_login_table"=>"entity_login_table.contact_person_id = contact_person.id"), NULL, 
                 array("name"=>'ASC'), NULL,  array("agent_filters"=>"left","entity_role"=>"left","entity_login_table"=>"left"),array("contact_person.id"));
        $results['contact_name'] = $this->partner_model->select_contact_person($id);
+       $results['bank_detail'] = $this->reusable_model->get_search_result_data("account_holders_bank_details", '*',array("entity_id"=>$id, "entity_type" => 'partner'),NULL, NULL, array('is_active'=>'DESC'), NULL, NULL, array());  
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/addpartner', array('query' => $query, 'results' => $results, 'employee_list' => $employee_list, 'form_type' => 'update','department'=>$departmentArray));
     }
@@ -5753,4 +5754,89 @@ function get_shipped_parts_list($offset = 0) {
         }
     }
     
+    /*
+     * @desc - This function is used to save bank detail for partner
+     * @param - form post
+     * @retun - void
+     */
+    function process_add_bank_detail_details(){
+        $check_file = '';
+        $this->form_validation->set_rules('bank_name', 'bank_name', 'required|trim');
+        $this->form_validation->set_rules('account_type','account_type', 'required|trim');
+        $this->form_validation->set_rules('account_number', 'account_number','required|trim');
+        $this->form_validation->set_rules('ifsc_code', 'ifsc_code', 'required|trim');
+        $this->form_validation->set_rules('beneficiary_name', 'beneficiary_name','required|trim');
+        if ($this->form_validation->run() == TRUE) { 
+            //Processing cancelled check file
+            if (($_FILES['cancelled_cheque_file']['error'] != 4) && !empty($_FILES['cancelled_cheque_file']['tmp_name'])) {
+                $tmpFile = $_FILES['cancelled_cheque_file']['tmp_name'];
+                $check_file = "Partner-" . preg_replace('/\s+/', '', strtolower($this->input->post('partner_id'))) . '-CANCELLED-CHECK' . "." . explode(".", $_FILES['cancelled_cheque_file']['name'])[1];
+                move_uploaded_file($tmpFile, TMP_FOLDER . $check_file);
+
+                //Upload files to AWS
+                $bucket = BITBUCKET_DIRECTORY;
+                $directory_xls = "vendor-partner-docs/" . $check_file;
+                $this->s3->putObjectFile(TMP_FOLDER . $check_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                unlink(TMP_FOLDER . $check_file);
+
+                //Logging success for file uppload
+                log_message('info', __FUNCTION__ . ' CHECK FILE is being uploaded sucessfully.');
+            } 
+            $bank_data = array(
+                'entity_id' => $this->input->post('partner_id'),
+                'entity_type' => _247AROUND_PARTNER_STRING,
+                'bank_name' => $this->input->post('bank_name'),
+                'account_type' => $this->input->post('account_type'),
+                'bank_account' => $this->input->post('account_number'),
+                'ifsc_code' => $this->input->post('ifsc_code'),
+                'cancelled_cheque_file' => $check_file,
+                'beneficiary_name' => $this->input->post('beneficiary_name'),
+                'agent_id' => $this->session->userdata('id'),
+                'is_active' => '0'
+            );
+            if($this->input->post('BD_action') > 0 && $this->input->post('BD_action') != NULL){
+                unset($bank_data['is_active']);
+                if(!$check_file){
+                    unset($bank_data['cancelled_cheque_file']);   
+                }
+                $action = $this->reusable_model->update_table('account_holders_bank_details', $bank_data, array('id'=>$this->input->post('BD_action')));
+                $msg = "Data Updated Successfully";
+            }
+            else{
+                $action = $this->reusable_model->insert_into_table('account_holders_bank_details', $bank_data);
+                $msg = "Data Entered Successfully";
+            }
+            if($action){
+                log_message("info", __METHOD__ .$msg);
+                $this->session->set_userdata('success', 'Data Entered Successfully');
+                redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
+            } else {
+                log_message("info", __METHOD__ . " Error in adding details");
+                $this->session->set_userdata('failed', 'Data can not be inserted. Please Try Again...');
+                redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
+            }
+        }else{
+            $this->session->set_userdata('error', 'Please Fill All Bank Detail');
+            redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
+        } 
+    }
+    
+    function process_active_inactive_bank_detail(){
+        if($this->input->post('is_active') == 0){
+           $this->reusable_model->update_table('account_holders_bank_details', array('is_active'=> 0), array('entity_id'=>$this->input->post('partner_id')));
+           $update = $this->reusable_model->update_table('account_holders_bank_details', array('is_active'=> 1), array('id'=>$this->input->post('id')));  
+       
+        }
+        else{
+          $update = $this->reusable_model->update_table('account_holders_bank_details', array('is_active'=> 0), array('id'=>$this->input->post('id')));   
+        }
+        if($update){
+            $this->session->set_userdata('success', 'Bank Data Updated Successfully');
+            redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
+        }
+        else{
+            $this->session->set_userdata('failed', 'Data can not be updated. Please Try Again...');
+            redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
+        }
+    }
 }
