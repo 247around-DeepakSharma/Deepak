@@ -1218,7 +1218,6 @@ class Accounting extends CI_Controller {
         $post['length'] = -1;
         $post['order_by'] = array('fy_amount'=>'desc');
         $data['data'] = $this->invoices_model->searchInvoicesdata($select, $post);
-        //print_r($data['data']);
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/gst_report', $data); 
     }
