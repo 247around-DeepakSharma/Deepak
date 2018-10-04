@@ -4722,7 +4722,7 @@ class Booking extends CI_Controller {
             $serviceCenters = $sf_list[0]['service_centres_id'];
             $whereIN =array("service_center_id"=>explode(",",$serviceCenters));
         }
-        $total_rows = $this->service_centers_model->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,NULL,NULL);
+        $total_rows = $this->service_centers_model->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,NULL,-1);
         if(!empty($total_rows)){
             $data['per_page'] = 100;
             $data['offset'] = $offset;
