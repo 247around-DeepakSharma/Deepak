@@ -5167,7 +5167,7 @@ class vendor extends CI_Controller {
     */
     function seach_gst_number(){
         $api_response = "";
-        $gstin = trim($this->input->post("gst_number"));
+        $gstin = strtoupper(trim($this->input->post("gst_number")));
         if(!empty($gstin)){
             while(substr($gstin, -1) == ','){
                 $gstin = rtrim($gstin,","); 
