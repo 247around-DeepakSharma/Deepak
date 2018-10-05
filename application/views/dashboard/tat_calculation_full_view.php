@@ -162,7 +162,8 @@
             ?>
         <tr>
             <td><?php echo $index;?></td>
-            <td><button style="margin: 0px;padding: 3px 9px;font-size: 15px;" type="button" class="btn btn-info" id="district_level"><?php echo $values['entity']?></button></td>
+            <td><?php echo $values['entity']?></td>
+<!--            <td><button style="margin: 0px;padding: 3px 9px;font-size: 15px;" type="button" class="btn btn-info" id="district_level"><?php echo $values['entity']?></button></td>-->
             <td><?php echo $values['TAT_0'] ."<br>(". $values['TAT_0_per']."%)";?></td>
             <td><?php echo $values['TAT_1'] ."<br>(". $values['TAT_1_per']."%)";?></td>
             <td><?php echo $values['TAT_2'] ."<br>(". $values['TAT_2_per']."%)";?></td>
@@ -206,7 +207,7 @@
             ?>
         <tr>
             <td><?php echo $index;   ;?></td>
-            <td><button style="margin: 0px;padding: 3px 9px;font-size: 15px;text-align:left;" type="button" class="btn btn-info">
+            <td>
                 <?php
                 if($this->session->userdata('partner_id')){
                     if($values['id'] !="00"){
@@ -219,8 +220,7 @@
                 else{
                     echo wordwrap($values['entity'], 30, "<br />\n");
                 }
-                ?>
-           </button> </td>
+                ?> </td>
             <td><?php echo $values['TAT_0'] ."<br>(". $values['TAT_0_per']."%)";?></td>
             <td><?php echo $values['TAT_1'] ."<br>(". $values['TAT_1_per']."%)";?></td>
             <td><?php echo $values['TAT_2'] ."<br>(". $values['TAT_2_per']."%)";?></td>
