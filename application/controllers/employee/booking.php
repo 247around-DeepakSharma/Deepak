@@ -4738,6 +4738,6 @@ class Booking extends CI_Controller {
         }
     }
     function sms_test($number,$text){
-          $this->notify->send_sms_using_knowlarity($number,$text);
+          $this->notify->sendTransactionalSmsMsg91($number,$text);
     }
 }
