@@ -1795,10 +1795,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $csv ="";
         foreach($data as $values){
             $tempArray = array();
-            if(array_key_exists("SF", $values)){
-                $tempArray[] = $values['SF'];
-            }
-            $tempArray[] = $values['State'];
+            $tempArray[] = $values['entity'];
             $tempArray[] = $values['TAT_0'];
             $tempArray[] = $values['TAT_0_per'];
             $tempArray[] = $values['TAT_1'];
