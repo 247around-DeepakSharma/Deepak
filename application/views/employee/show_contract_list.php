@@ -28,7 +28,7 @@
                         <td ><?php echo $i.'.'?></td>
                         <td><?php echo $value->public_name; ?></td>
                         <td><?php if($value->collateral_tag != NULL){ ?> 
-                            <img src="<?php echo base_url()?>images/ok.png" width="20" height="20" onclick="show_contract_file('<?php echo $value->file; ?>')"/>
+                            <a href="<?php echo S3_URL; ?>vendor-partner-docs/<?php echo $value->file; ?>" target="_blank"><img src="<?php echo base_url()?>images/ok.png" width="20" height="20"/></a>
                             <?php } ?>
                         </td>
                         <td><?php echo $value->start_date; ?></td>
@@ -41,9 +41,3 @@
         </div>
     </div>
 </div>
-<script>
-    function show_contract_file(filename){
-       var href = 'https://s3.amazonaws.com/bookings-collateral-test/vendor-partner-docs/'+filename;
-       window.open(href,'_blank');
-    }
-</script>
