@@ -3814,8 +3814,8 @@ function get_shipped_parts_list($offset = 0) {
                 $insertArray = array("entity_id" => $partner_id, "entity_type" => "partner", "collateral_id" => $contract_type,
                     "document_description" => $contract_description_array[$index], 'file' => $contract_file, "start_date" => $start_date_array[$index], 'end_date' => $end_date_array[$index]);
                 $finalInsertArray[] = $insertArray;
-                $contract_type_tag = $this->reusable_model->execute_custom_select_query("SELECT `collateral_tag` FROM `collateral_type` WHERE `id`='".$contract_type[$index]."'");
-                $emailArray = array("Contract_Type"=>$contract_type_tag[0]['collateral_tag'], "Partnership_Start_Date"=>$start_date_array[$index], "Partnership_End_Date"=>$end_date_array[$index], "Contract_Description" => $contract_description_array[$index]);
+                $contract_type_tag = $this->reusable_model->execute_custom_select_query("SELECT `collateral_tag`, collateral_type FROM `collateral_type` WHERE `id`='".$contract_type[$index]."'");
+                $emailArray = array("Contract_Type"=>$contract_type_tag[0]['collateral_type'], "Partnership_Start_Date"=>$start_date_array[$index], "Partnership_End_Date"=>$end_date_array[$index], "Contract_Description" => $contract_description_array[$index]);
             }
         }
         if ($finalInsertArray) {
