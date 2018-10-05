@@ -1329,8 +1329,16 @@ class invoices_model extends CI_Model {
             // We are creating invoice only for valid GST Number.
             if (!empty($result['booking'][0]['gst_number'])) {
                 $gst = $this->invoice_lib->check_gst_number_valid($vendor_id, $result['booking'][0]['gst_number']);
+               
                 if(!empty($gst)){
-                    return $result;
+                   if($gst['status'] == true && $gst['gst_type'] == true ){
+                       return $result;
+                   } else if($gst['status'] == true && $gst['gst_type'] == FALSE ){
+                       $result['booking'][0]['gst_number'] = "";
+                       return $result;
+                   } else {
+                       return FALSE;
+                   }
                 } else {
                     // IF we are getting false as response then we are not creating invoice 
                     log_message("info", __METHOD__. " GST Number Invalid for Vendor ID ". $vendor_id);
