@@ -368,11 +368,18 @@ class Invoice_lib {
     function check_gst_number_valid($vendor_id, $gst_number) {
         if (!empty($gst_number)) {
             $gstin = $this->get_gstin_status_by_api($vendor_id);
+            
             if (!empty($gstin)) {
                 if ($gstin['status'] == "success") {
-                    if ($gstin['gst_taxpayer_type'] == "Regular" && $gstin['gst_status'] == "Active") {
-                        return $gst_number;
-                    } else {
+                    
+                    if ($gstin['gst_taxpayer_type'] == "Regular" && ($gstin['gst_status'] == "Active" || $gstin['gst_status'] == "Provisional" )) {
+                        
+                        return array('staus' => TRUE, "gst_type" => TRUE);
+                        
+                    } else if($gstin['gst_status'] == "Cancelled" || $gstin['gst_taxpayer_type'] == "Composition"){
+                        
+                        return array('staus' => TRUE, "gst_type" => FALSE);
+                    }else {
                         return FALSE;
                     }
                 } else {

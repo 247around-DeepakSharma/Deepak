@@ -103,7 +103,7 @@ class ApiDataRequest extends CI_Controller {
             $no++;
             $row = array();
             $row[] = $no;
-            $row[] = $sp_list->booking_id;
+            $row[] = '<a style="color:blue;" href='.base_url().'partner/booking_details/'.$sp_list->booking_id.' target="_blank" title="View">'.$sp_list->booking_id.'</a>'; 
             $row[] = $sp_list->parts_requested;
             $row[] = $sp_list->age_of_request;
             $row[] = $sp_list->model_number;
