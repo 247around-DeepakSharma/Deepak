@@ -349,19 +349,23 @@ class Inventory_model extends CI_Model {
         }
         
         if (!empty($post['search']['value'])) {
-            $like = "";
-            foreach ($post['column_search'] as $key => $item) { // loop column 
-                // if datatable send POST for search
-                if ($key === 0) { // first loop
-                    $like .= "( " . $item . " LIKE '%" . $post['search']['value'] . "%' ";
-                   
-                } else {
-                    $like .= " OR " . $item . " LIKE '%" . $post['search']['value'] . "%' ";
-                   
-                }
-            }
-            $like .= ") ";
+             $like = "";
+            if(array_key_exists("column_search", $post)){
+                foreach ($post['column_search'] as $key => $item) { // loop column 
+                    // if datatable send POST for search
+                    if ($key === 0) { // first loop
+                        $like .= "( " . $item . " LIKE '%" . $post['search']['value'] . "%' ";
 
+                    } else {
+                        $like .= " OR " . $item . " LIKE '%" . $post['search']['value'] . "%' ";
+
+                    }
+                }
+                $like .= ") ";
+            }
+            else{
+                $like .= "(booking_details.booking_id LIKE '%" . $post['search']['value'] . "%')";
+            }
             $this->db->where($like, null, false);
         }
 
