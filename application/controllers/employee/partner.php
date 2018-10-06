@@ -5309,14 +5309,14 @@ function get_shipped_parts_list($offset = 0) {
        if($this->input->post('booking_id')){
            $where['spare_parts_details.booking_id'] = $this->input->post('booking_id');
        }
-        $select = "CONCAT( '', GROUP_CONCAT((defective_part_shipped ) ) , '' ) as defective_part_shipped, "
+        $select = "CONCAT( '', GROUP_CONCAT((defective_part_shipped ) ) , '' ) as defective_part_shipped,spare_parts_details.defactive_part_received_date_by_courier_api, "
                 . " spare_parts_details.booking_id, users.name, courier_name_by_sf, awb_by_sf,defective_part_shipped_date,remarks_defective_part_by_sf,spare_parts_details.sf_challan_number"
                 . ",spare_parts_details.sf_challan_file,spare_parts_details.partner_challan_number";
         $group_by = "spare_parts_details.booking_id";
         $bookingData = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $postData['start'], $postData['length']);
          $bookingCount = $this->service_centers_model->count_spare_parts_booking($where, $select, $group_by,$state);
          $sn = $postData['start'];
-         foreach ($bookingData as $key => $row) {
+         foreach ($bookingData as  $row) {
                     $tempArray = array();
                     $tempString = $tempString2 = $tempString3 = $tempString4 = $tempString5 = $tempString6 = $tempString7 = "";
                     $sn++;
@@ -5325,7 +5325,16 @@ function get_shipped_parts_list($offset = 0) {
                     $tempArray[] = $row['name'];
                     $tempArray[] = $row['defective_part_shipped'];
                     $tempArray[] = $row['courier_name_by_sf'];
-                    $tempArray[] = $row['awb_by_sf'];
+                    $courier_name_by_sf = "'".$row['courier_name_by_sf']."'";
+                    $awb_by_sf = "'".$row['awb_by_sf']."'";
+                    $spareStatus = "'Delivered'";
+                    if(!$row['defactive_part_received_date_by_courier_api']){
+                        $spareStatus = "'".DEFECTIVE_PARTS_SHIPPED."'";
+                    }
+                    $container = "'awb_loader_".$row['awb_by_sf']."'";
+                    $awbString = '<a href="javascript:void(0)" onclick="get_awb_details('.$courier_name_by_sf.','.$awb_by_sf.','.$spareStatus.','.$container.')">'.$row['awb_by_sf'].'</a> 
+                                            <span id='.$container.' style="display:none;"><i class="fa fa-spinner fa-spin"></i></span>';
+                    $tempArray[] = $awbString;
                     if(!empty($row['sf_challan_file'])) {  
                          $tempString = '<a style="color: blue;" href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/vendor-partner-docs/'.$row['sf_challan_file'].'" target="_blank">'.$row["sf_challan_number"].'</a>';
                     }
