@@ -56,7 +56,7 @@
                 <td colspan="8" align="center"><b>Bill to Party</b>
             </tr>
             <tr style="height: 20px">
-                <td colspan="8">Name : <?php echo $meta['company_name'];?>247around service center</td>
+                <td colspan="8">Name : <?php echo $meta['company_name'];?></td>
             </tr>
             <tr style="height: 5%">
                 <td colspan="8" style="padding-bottom: 2%;padding-top: 2%">Address : <?php echo $meta['company_address'];?></td>

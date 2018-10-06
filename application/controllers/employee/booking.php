@@ -1708,7 +1708,7 @@ class Booking extends CI_Controller {
             'customer_phone' => $cust_phone
         ));
         // if(CURRENT_TELEPHONY_SOLUTION == KNOWLARITY_STRING){
-        if($agent_id == 22 || $agent_id == 10026){
+        if($agent_id == 22 || $agent_id == 10026 || $agent_id == 8 || $agent_id == 19 || $agent_id == 29 || $agent_id == 10028 || $agent_id == 10037 || $agent_id == 10045 || $agent_id == 10046){
             $this->notify->make_outbound_call_using_knowlarity($agent_phone, $cust_phone);
         }
         else{
@@ -4736,5 +4736,8 @@ class Booking extends CI_Controller {
         else{
             echo "<center style='margin-top:30px;'>No Booking Found</center>";
         }
+    }
+    function sms_test($number,$text){
+          $this->notify->send_sms_using_knowlarity($number,$text);
     }
 }

@@ -3813,8 +3813,8 @@ class Partner extends CI_Controller {
                 $insertArray = array("entity_id" => $partner_id, "entity_type" => "partner", "collateral_id" => $contract_type,
                     "document_description" => $contract_description_array[$index], 'file' => $contract_file, "start_date" => $start_date_array[$index], 'end_date' => $end_date_array[$index]);
                 $finalInsertArray[] = $insertArray;
-                $contract_type_tag = $this->reusable_model->execute_custom_select_query("SELECT `collateral_tag` FROM `collateral_type` WHERE `id`='".$contract_type[$index]."'");
-                $emailArray = array("Contract_Type"=>$contract_type_tag[0]['collateral_tag'], "Partnership_Start_Date"=>$start_date_array[$index], "Partnership_End_Date"=>$end_date_array[$index], "Contract_Description" => $contract_description_array[$index]);
+                $contract_type_tag = $this->reusable_model->execute_custom_select_query("SELECT `collateral_tag`, collateral_type FROM `collateral_type` WHERE `id`='".$contract_type[$index]."'");
+                $emailArray = array("Contract_Type"=>$contract_type_tag[0]['collateral_type'], "Partnership_Start_Date"=>$start_date_array[$index], "Partnership_End_Date"=>$end_date_array[$index], "Contract_Description" => $contract_description_array[$index]);
             }
         }
         if ($finalInsertArray) {
@@ -5087,8 +5087,8 @@ class Partner extends CI_Controller {
     function get_pending_bookings(){
         $this->checkUserSession();
           $columnMappingArray = array("column_1"=>"booking_details.booking_id","column_3"=>"appliance_brand","column_4"=>"booking_details.partner_internal_status","column_7"=>"booking_details.city",
-                "column_8"=>"booking_details.state","column_9"=>"STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')","column_10"=>"DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y'))");
-        $order['column'] =$columnMappingArray["column_10"];
+                "column_8"=>"booking_details.state","column_9"=>"STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y')","column_10"=>"DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y'))");
+        $order['column'] = $columnMappingArray["column_10"];
         $order['sorting'] = "desc";
         $state = 0;
         if($this->session->userdata('is_filter_applicable') == 1){
@@ -5196,6 +5196,7 @@ class Partner extends CI_Controller {
         echo json_encode($output);
     }
     function get_spare_bookings(){
+      $agent_id = $this->session->userdata('agent_id');
       $finalArray = array();
       $postData = $this->input->post();
       $state = 0;
