@@ -152,8 +152,8 @@
                                         <th class="text-center" data-orderable="false">Service Center</th>
                                         <th class="text-center" data-orderable="false">Partner</th>
                                         <th class="text-center" data-orderable="false">Requested Part</th>
-                                        <th class="text-center" data-orderable="false">Booking Type</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
+                                        <th class="text-center" data-orderable="false">Booking Type</th>
                                         <th class="text-center" data-orderable="false">Partner Shipped Date</th>
                                         <th class="text-center" data-orderable="false">SF Received Date</th>
                                         <th class="text-center" data-orderable="false">Price</th>
@@ -232,8 +232,9 @@
                                         <th class="text-center" data-orderable="false">Service Center</th>
                                         <th class="text-center" data-orderable="false">Partner</th>
                                         <th class="text-center" data-orderable="false">Requested Part</th>
-                                        <th class="text-center" data-orderable="false">Booking Type</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
+                                        <th class="text-center" data-orderable="false">Booking Type</th>
+                                        
                                     
                                         <th class="text-center" data-orderable="true">Age Of Shipped</th>
                                         <th class="text-center" data-orderable="false">Challan File</th>
