@@ -40,7 +40,7 @@
             <tr style="text-align: center;background-color: rgb(211,211,211);"><td colspan="10" style="text-align: center;"><b>Bill to Party</b></tr>
 
 
-            <tr style="height: 20px"><td colspan="10">Name: 247around service center - <?php echo $meta['customer_name']; ?></td></tr>
+            <tr style="height: 20px"><td colspan="10">Name:  <?php echo $meta['customer_name']; ?></td></tr>
             <tr style="height: 5%"><td colspan="10">Address: <?php echo $meta['customer_address']; ?></td></tr>
             <tr><td colspan="3">Phone: 9555000247</td>
                 <td colspan="4" style="">Place of Supply: <?php echo $meta['state']; ?></td>	
