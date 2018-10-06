@@ -8252,3 +8252,11 @@ ALTER TABLE `spare_parts_details` ADD `around_pickup_from_partner` INT(1) NOT NU
 
 --Chhavi
 INSERT INTO `query_report` (`id`, `main_description`, `query1_description`, `query2_description`, `query1`, `query2`, `role`, `priority`, `type`, `active`, `result`, `create_date`) VALUES (NULL, 'missing_in_booking_tat', '', '', 'SELECT COUNT(booking_details.booking_id)as count FROM `booking_details` LEFT JOIN booking_tat ON booking_tat.booking_id = booking_details.booking_id WHERE DATE(booking_details.closed_date)>\'2018-03-31\' AND booking_tat.booking_id IS NULL AND booking_details.type != \'Query\'', '', 'developer', '1', 'service', '1', NULL, '2018-09-28 05:03:42');
+
+--Chhavi
+UPDATE email_template SET subject = 'Delivered Defactive Parts',template = 'Dear Partner,<br><br>
+Defective parts for below bookings have been delivered by 247around Service Centre but Delivery has not been acknowledged by your team till now: <br><br>
+%s  <br><br>
+Please confirm / reject these defective parts. Post 7 days of delivery, 247around system will mark them confirm automatically. <br><br>
+Thanks. <br> 247around Team' WHERE tag = 'defective_parts_acknowledge_reminder';
+
