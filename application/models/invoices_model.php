@@ -2271,7 +2271,9 @@ class invoices_model extends CI_Model {
         }
         
         if(isset($post['group_by']) && !empty($post['group_by'])){
-             $this->db->group_by($post['group_by']);
+            $this->db->join('employee_relation', 'FIND_IN_SET ( vendor_partner_id , employee_relation.service_centres_id )', 'LEFT');
+            $this->db->join('employee', 'employee_relation.agent_id = employee.id', 'LEFT');
+            $this->db->group_by($post['group_by']);
         }
     }
     /**
