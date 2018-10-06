@@ -2513,4 +2513,22 @@ class invoices_model extends CI_Model {
         $query = $this->db->get("booking_tat");
         return $query->result_array();
     }
+    
+    function insert_into_variable_charge($data){
+        $this->db->insert('vendor_partner_variable_charges', $data);
+        return $this->db->insert_id();
+    }
+    
+    function get_variable_charge($select, $where=array(), $join=null){
+        $this->db->select($select);
+        if(!empty($where)){
+          $this->db->where($where);  
+        }
+        if(!empty($join)){
+            $this->db->join('service_centres', 'service_centres.id = vendor_partner_variable_charges.entity_id AND vendor_partner_variable_charges.entity_type = "vendor" ', "LEFT");
+            $this->db->join('partners', 'partners.id =  vendor_partner_variable_charges.entity_id AND vendor_partner_variable_charges.entity_type = "partner" ', "LEFT");
+        }
+        $query = $this->db->get('vendor_partner_variable_charges');
+        return $query->result_array();
+    }
 }
