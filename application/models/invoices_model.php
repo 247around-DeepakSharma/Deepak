@@ -2515,4 +2515,48 @@ class invoices_model extends CI_Model {
         $query = $this->db->get("booking_tat");
         return $query->result_array();
     }
+
+    /**
+     * @desc This function is used to insert fixed variable charges
+     * @param String $data
+     * @return insert_id
+     */
+    function insert_into_variable_charge($data){
+        $this->db->insert('vendor_partner_variable_charges', $data);
+        return $this->db->insert_id();
+    }
+    
+    /**
+     * @desc This function is used to get fixed variable charges
+     * @param String - $select, Array - $where, $join - boolean
+     * @return Array
+    */
+    function get_variable_charge($select, $where=array(), $join=null){
+        $this->db->select($select);
+        if(!empty($where)){
+          $this->db->where($where);  
+        }
+        if(!empty($join)){
+            $this->db->join('service_centres', 'service_centres.id = vendor_partner_variable_charges.entity_id AND vendor_partner_variable_charges.entity_type = "vendor" ', "LEFT");
+            $this->db->join('partners', 'partners.id =  vendor_partner_variable_charges.entity_id AND vendor_partner_variable_charges.entity_type = "partner" ', "LEFT");
+        }
+        $query = $this->db->get('vendor_partner_variable_charges');
+        return $query->result_array();
+    }
+    
+     /**
+     * @desc This function is used to update fixed variable charges
+     * @param Array $where and $data
+     * @return boolean
+     */
+    function update_into_variable_charge($where, $data){
+        $this->db->where($where);
+        $this->db->update('vendor_partner_variable_charges', $data);
+        if($this->db->affected_rows() > 0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
 }
