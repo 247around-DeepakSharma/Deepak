@@ -15,7 +15,7 @@
 <div class="col-md-12 col-sm-12 col-xs-12">
     <div class="x_panel">
         <div class="x_title">
-                    <h2>Defective Parts Shipped By SF</h2>
+                    <h2>Defective Parts Delivered to Partner</h2>
                     <div class="pull-right"><a style="background: #2a3f54; border-color: #2a3f54;" href="<?php echo base_url(); ?>partner/download_waiting_defective_parts"  class="btn btn-sm btn-primary">Download</a></div>
                     <div class="right_holder" style="float:right;margin-right:10px;">
                             <select class="form-control " id="state_search_waiting" style="border-radius:3px;" onchange="booking_search_waiting()">
@@ -106,6 +106,22 @@
 
     </div>
 </div>
+ <div id="gen_model" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title" id="gen_model_title"></h4>
+                </div>
+                <div class="modal-body" id="gen_model_body"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
 <?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
 <script type="text/javascript">
     $(document).ready(function () {
@@ -193,6 +209,24 @@ function confirm_received(){
                 return false;
             }
         }
+        function get_awb_details(courier_code,awb_number,status,id){
+        if(courier_code && awb_number && status){
+            $('#'+id).show();
+            $.ajax({
+                method:"POST",
+                data : {courier_code: courier_code, awb_number: awb_number, status: status},
+                url:'<?php echo base_url(); ?>courier_tracking/get_awb_real_time_tracking_details',
+                success: function(res){
+                    $('#'+id).hide();
+                    $('#gen_model_title').html('<h3> AWB Number : ' + awb_number + '</h3>');
+                    $('#gen_model_body').html(res);
+                    $('#gen_model').modal('toggle');
+                }
+            });
+        }else{
+            alert('Something Wrong. Please Refresh Page...');
+        }
+    }
 </script>
     <style>
         #waiting_defactive_parts_filter{
