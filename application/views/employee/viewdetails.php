@@ -463,8 +463,6 @@
                                         <th >Acknowledge Date BY SF </th>
                                         <th >Remarks By SC </th>
                                         <th >Current Status</th>
-                                        <th >Vendor Invoice ID</th>
-                                        <th >Partner Invoice ID</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -500,8 +498,6 @@
                                         <td><?php echo $sp['acknowledge_date']; ?></td>
                                         <td><?php echo $sp['remarks_by_sc']; ?></td>
                                         <td><?php echo $sp['status']; ?></td>
-                                        <td><a  href="javascript:void(0)" onclick="get_invoice_data('<?php echo $sp['vendor_foc_invoice_id']; ?>')" ><?php echo $sp['vendor_foc_invoice_id']; ?></a></td>
-                                        <td><a  href="javascript:void(0)" onclick="get_invoice_data('<?php echo $sp['partner_invoice_id']; ?>')"><?php echo $sp['partner_invoice_id'];?></a></td>
                                    
                                     </tr>
                                     <?php if(!is_null($sp['parts_shipped'])){ $parts_shipped = true;} if(!empty($sp['defective_part_shipped'])){
@@ -625,7 +621,13 @@
                                     <tr>
                                         <td><?php echo $sp['defective_part_shipped']; ?></td>
                                         <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['courier_name_by_sf'])); ?></td>
-                                        <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['courier_name_by_sf']; ?>','<?php echo $sp['awb_by_sf']; ?>','<?php echo $sp['status']; ?>','<?php echo "awb_loader_".$sp['awb_by_sf']; ?>')"><?php echo $sp['awb_by_sf']; ?></a> 
+                                        <?php
+                                        $spareStatus = 'Delivered';
+                                        if(!$sp['defactive_part_received_date_by_courier_api']){
+                                            $spareStatus = $sp['status'];
+                                        }
+                                        ?>
+                                        <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['courier_name_by_sf']; ?>','<?php echo $sp['awb_by_sf']; ?>','<?php echo $spareStatus; ?>','<?php echo "awb_loader_".$sp['awb_by_sf']; ?>')"><?php echo $sp['awb_by_sf']; ?></a> 
                                             <span id=<?php echo "awb_loader_".$sp['awb_by_sf'];?> style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
                                         <td><?php echo $sp['courier_charges_by_sf']; ?></td>
                                         <td><a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['defective_courier_receipt']; ?> " target="_blank">Click Here to view</a></td>

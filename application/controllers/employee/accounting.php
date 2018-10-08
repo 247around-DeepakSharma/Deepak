@@ -1211,16 +1211,57 @@ class Accounting extends CI_Controller {
             $financial_year = (date('Y') - 1);
         }
         $data = array();
-        $select = 'vendor_partner_id, service_centres.name as "name", service_centres.owner_phone_1, service_centres.primary_contact_phone_1, SUM(CASE WHEN to_date <= "'.$financial_year.'-03-31"'
+        $select = 'employee.full_name as rm_name, employee.phone, vendor_partner_id, service_centres.name as "name", service_centres.owner_name, service_centres.primary_contact_name, service_centres.owner_phone_1, service_centres.primary_contact_phone_1, CASE WHEN service_centres.active = "1" THEN "Active" ELSE "Inactive" END as "status", SUM(CASE WHEN to_date <= "'.$financial_year.'-03-31"'
                 . 'THEN amount_collected_paid ELSE 0 END) as fy_amount, SUM(amount_collected_paid) as total_amount';
         $post['group_by'] = 'vendor_partner_id';
         $post['where'] = array('vendor_partner'=>'vendor', 'invoice_id like "%Around-GST-CN%" OR invoice_id like "%Around-GST-DN%"'=>NULL);
         $post['length'] = -1;
         $post['order_by'] = array('fy_amount'=>'desc');
         $data['data'] = $this->invoices_model->searchInvoicesdata($select, $post);
-        //print_r($data['data']);
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/gst_report', $data); 
+    }
+    
+     /**
+     * @desc This is used to add, update and show fixed variable charges for vendor partner
+     * @param void
+     * @return view
+     */
+    function add_variable_charges(){ 
+        if($this->input->post('submit_btn')){
+            $data = array();
+            $data['entity_type'] = $this->input->post('vendor_partner');
+            $data['entity_id'] = $this->input->post('vendor_partner_id');
+            $data['charges_type'] = $this->input->post('charges_type');
+            $data['description'] = $this->input->post('description');
+            $data['fixed_charges'] = $this->input->post('fixed_charges');
+            $data['percentage_charge'] = $this->input->post('percentage_charge');
+            $data['hsn_code'] = $this->input->post('hsn_code');
+            $data['gst_rate'] = $this->input->post('gst_rate');
+            
+            if(!empty($this->input->post('variable_charges_id')) && $this->input->post('variable_charges_id') > 0){
+               $data['update_date'] = date("Y-m-d H:i:s");
+               $result = $this->invoices_model->update_into_variable_charge(array('id'=>$this->input->post('variable_charges_id')), $data); 
+               $this->session->set_userdata('success', 'Data Updated Successfully');
+            }else{
+               $data['create_date'] = date("Y-m-d H:i:s");
+               $result = $this->invoices_model->insert_into_variable_charge($data);
+               $this->session->set_userdata('success', 'Data Entered Successfully');
+            }
+            if(!$result){
+                $this->session->set_userdata('failed', 'Data can not be inserted. Please Try Again...');
+            }
+            $select = "IFNULL( service_centres.name, partners.public_name ) as name, vendor_partner_variable_charges.*";
+            $variable_charges['charges'] = $this->invoices_model->get_variable_charge($select, array(), true);
+            $this->miscelleneous->load_nav_header();
+            $this->load->view('employee/add_variable_charges', $variable_charges); 
+        }
+        else{
+            $select = "IFNULL( service_centres.name, partners.public_name ) as name, vendor_partner_variable_charges.*";
+            $variable_charges['charges'] = $this->invoices_model->get_variable_charge($select, array(), true);
+            $this->miscelleneous->load_nav_header();
+            $this->load->view('employee/add_variable_charges', $variable_charges);  
+        }
     }
     
 }

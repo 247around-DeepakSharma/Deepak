@@ -955,12 +955,9 @@ class File_upload extends CI_Controller {
                                         }
                                     }
                                     if(empty($courier_company_detail) || $existexcelData === TRUE){
-                                        log_message('info', __METHOD__. " kalyani if ". print_r(null, TRUE));
                                         $data_spare_part_detail = $this->partner_model->get_spare_parts_by_any('id, awb_by_partner, awb_by_sf', array('awb_by_sf = '.$rowData['awb_number'].' OR awb_by_partner = '.$rowData['awb_number'].' AND status != "'._247AROUND_CANCELLED.'"'=>null));
-                                        log_message('info', __METHOD__. "data_spare_part_detail ". print_r($data_spare_part_detail, TRUE));
                                         if(!empty($data_spare_part_detail)){
                                             $check = TRUE;
-                                            log_message('info', __METHOD__. "data_spare_part_detail if". print_r($data_spare_part_detail, TRUE));
                                             $courier_amount = sprintf('%0.2f', ($rowData['courier_charges']/count($data_spare_part_detail)));
                                             foreach ($data_spare_part_detail as  $value){
                                                 if($value['awb_by_sf']){
@@ -974,9 +971,8 @@ class File_upload extends CI_Controller {
                                             $data_courier_detail = $this->inventory_model->get_courier_details("id", array('AWB_no' => $rowData['awb_number']));
                                             if(!empty($data_courier_detail)){
                                                 $check = TRUE;
+                                                $courier_amount = sprintf('%0.2f', ($rowData['courier_charges']/count($data_courier_detail)));
                                                 foreach ($data_courier_detail as  $value){
-                                                    $courier_amount = $rowData['courier_charges']/count($data_courier_detail);
-                                                    $courier_amount = sprintf('%0.2f', $courier_amount);
                                                     $this->inventory_model->update_courier_detail(array('id'=>$value['id']), array('courier_charge'=>$courier_amount));
                                                 }
                                             } else {
@@ -992,12 +988,10 @@ class File_upload extends CI_Controller {
                                                 'actual_weight'=>$rowData['actual_weight'],
                                             );
                                             if(empty($courier_company_detail)){
-                                                log_message('info', __METHOD__. "data_spare_part_detail insert");
                                                 $this->inventory_model->insert_courier_company_invoice_details($courier_company_data);
                                                 $excelData[] = $rowData['awb_number'];
                                             }
                                             else{
-                                                log_message('info', __METHOD__. "data_spare_part_detail insert");
                                                 $this->inventory_model->update_courier_company_invoice_details(array('id'=>$courier_company_detail[0]['id']), $courier_company_data);
                                             }
                                         }

@@ -1650,7 +1650,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $conditionsArray  = $this->get_tat_conditions_by_filter($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry,$partner_id);
         $finalData = $data = array();
         if($for == "AM"){
-            $select = "employee.full_name as entity,partners.account_manager_id as id,booking_tat.booking_id,MAX(IFNULL(leg_1,'0')+IFNULL(leg_2,'0')+IFNULL(leg_3,'0')) as TAT";
+            $select = "employee.full_name as entity,partners.account_manager_id as id,booking_tat.booking_id,MAX(IFNULL(leg_1,'0')+IFNULL(leg_2,'0')) as TAT";
             $conditionsArray['join']['partners'] = "booking_details.partner_id = partners.id";
             $conditionsArray['join']['employee'] = "partners.account_manager_id = employee.id";
             $conditionsArray['where']['partners.is_active'] = 1;
@@ -1658,10 +1658,10 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         }
         else if($for == "RM"){
             if($this->session->userdata('partner_id') ){
-                $select = "employee_relation.region as entity,employee_relation.agent_id as id,booking_tat.booking_id,MAX(IFNULL(leg_1,'0')+IFNULL(leg_2,'0')+IFNULL(leg_3,'0')) as TAT";
+                $select = "employee_relation.region as entity,employee_relation.agent_id as id,booking_tat.booking_id,MAX(IFNULL(leg_1,'0')+IFNULL(leg_2,'0')) as TAT";
             }
             else{
-                $select = "employee.full_name as entity,employee_relation.agent_id as id,booking_tat.booking_id,MAX(IFNULL(leg_1,'0')+IFNULL(leg_2,'0')+IFNULL(leg_3,'0')) as TAT";
+                $select = "employee.full_name as entity,employee_relation.agent_id as id,booking_tat.booking_id,MAX(IFNULL(leg_1,'0')+IFNULL(leg_2,'0')) as TAT";
             }
             $conditionsArray['join']['employee_relation'] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.service_centres_id)";
             $conditionsArray['join']['employee'] = "employee_relation.agent_id = employee.id";
@@ -1675,7 +1675,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
     
         function get_data_for_sf_tat_filters($conditionsArray,$rmID,$is_am){
         $sfData = array();
-        $sfSelect = "CONCAT(service_centres.district,'_',service_centres.id) as id,service_centres.name as entity,booking_tat.booking_id,MAX(IFNULL(leg_1,'0')+IFNULL(leg_2,'0')+IFNULL(leg_3,'0')) AS TAT";
+        $sfSelect = "CONCAT(service_centres.district,'_',service_centres.id) as id,service_centres.name as entity,booking_tat.booking_id,MAX(IFNULL(leg_1,'0')+IFNULL(leg_2,'0')) AS TAT";
         if($is_am == 0){
             if($this->input->post('vendor_id')){
                 $conditionsArray['where']['assigned_vendor_id'] = $this->input->post('vendor_id');
@@ -1705,7 +1705,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
     function get_data_for_state_tat_filters($conditionsArray,$rmID,$is_am){
         $stateData = array();
         $stateSelect = "booking_details.State as id,(CASE WHEN booking_details.State = '' THEN 'Unknown' ELSE booking_details.State END ) as entity,"
-                . "booking_tat.booking_id,MAX(IFNULL(leg_1,'0')+IFNULL(leg_2,'0')+IFNULL(leg_3,'0')) AS TAT";
+                . "booking_tat.booking_id,MAX(IFNULL(leg_1,'0')+IFNULL(leg_2,'0')) AS TAT";
         if($is_am == 0){
             if($rmID != "00"){
                 $conditionsArray['where']["employee_relation.agent_id"] = $rmID;    
@@ -1743,7 +1743,12 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $service_id = $this->input->post('services');
         }
         if($this->input->post('request_type')){
-            $request_type = $this->input->post('request_type');
+            if(is_array($this->input->post('request_type'))){
+                $request_type = implode(":",$this->input->post('request_type'));
+            }
+            else{
+                $request_type = $this->input->post('request_type');
+            }
         }
         if($this->input->post('partner_id')){
             $partner_id = $this->input->post('partner_id');
@@ -1790,10 +1795,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $csv ="";
         foreach($data as $values){
             $tempArray = array();
-            if(array_key_exists("SF", $values)){
-                $tempArray[] = $values['SF'];
-            }
-            $tempArray[] = $values['State'];
+            $tempArray[] = $values['entity'];
             $tempArray[] = $values['TAT_0'];
             $tempArray[] = $values['TAT_0_per'];
             $tempArray[] = $values['TAT_1'];
