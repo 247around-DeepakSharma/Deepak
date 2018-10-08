@@ -8258,3 +8258,4 @@ Thanks. <br> 247around Team' WHERE tag = 'defective_parts_acknowledge_reminder';
 
 --Kalyani 06-10-2018
 INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Add variable charges', NULL, 'employee/accounting/add_variable_charges', '10', '56', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
+ALTER TABLE `courier_company_invoice_details` ADD `is_exist` TINYINT(1) NOT NULL AFTER `actual_weight`;
