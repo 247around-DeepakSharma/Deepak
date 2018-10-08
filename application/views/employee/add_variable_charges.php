@@ -155,6 +155,8 @@
                         <div class="form-group col-md-12">
                             <center>
                                 <input type="submit" id="submit_btn" name="submit_btn" class="btn btn-info" value="Submit"/>
+                                <a href="<?php echo base_url(); ?>employee/accounting/add_variable_charges" class="btn btn-warning" style="display:none" id="clear_btn">Clear</a>
+                                <input type="hidden" id="variable_charges_id" name="variable_charges_id">
                             </center>
                         </div>
                     </div>
@@ -251,12 +253,16 @@
     
     function update_charge(id, button){
         $("#vendor_partner").val($(button).closest('tr').find('td').eq(1).text()).trigger('change');
-        $("#charges_type").val($(button).closest('tr').find('td').eq(4).text());
-        $("#fixed_charges").val($(button).closest('tr').find('td').eq(5).text());
-        $("#percentage_charge").val($(button).closest('tr').find('td').eq(6).text());
-        $("#hsn_code").val($(button).closest('tr').find('td').eq(7).text());
-        $("#gst_rate").val($(button).closest('tr').find('td').eq(8).text());
-        $("#description").val($(button).closest('tr').find('td').eq(9).text());
-        $("#vendor_partner_id").val($(button).closest('tr').find('td').eq(1).text()).trigger('change');
+        $("#charges_type").val($(button).closest('tr').find('td').eq(3).text());
+        $("#fixed_charges").val($(button).closest('tr').find('td').eq(4).text());
+        $("#percentage_charge").val($(button).closest('tr').find('td').eq(5).text());
+        $("#hsn_code").val($(button).closest('tr').find('td').eq(6).text());
+        $("#gst_rate").val($(button).closest('tr').find('td').eq(7).text());
+        $("#description").val($(button).closest('tr').find('td').eq(8).text());
+        $("#clear_btn").show();
+        $("#variable_charges_id").val(id);
+        setTimeout(function(){
+            $("#vendor_partner_id").val($(button).closest('tr').find('td').eq(2).attr('entity_id')).trigger('change');
+        }, 500);
     }
 </script>

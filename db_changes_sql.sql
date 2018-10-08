@@ -8255,3 +8255,14 @@ ALTER TABLE `vendor_partner_variable_charges` ADD `is_fixed` INT(1) NOT NULL DEF
 --Abhay 06 Sept
 ALTER TABLE `courier_company_invoice_details` ADD `partner_id` INT(11) NULL DEFAULT NULL AFTER `update_date`, ADD `partner_invoice_id` VARCHAR(128) NULL DEFAULT NULL AFTER `partner_id`, ADD `booking_id` TEXT NULL DEFAULT NULL AFTER `partner_invoice_id`;
 ALTER TABLE `courier_company_invoice_details` ADD `basic_billed_charge_to_partner` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `partner_id`;
+
+--Chhavi
+UPDATE email_template SET subject = 'Delivered Defactive Parts',template = 'Dear Partner,<br><br>
+Defective parts for below bookings have been delivered by 247around Service Centre but Delivery has not been acknowledged by your team till now: <br><br>
+%s  <br><br>
+Please confirm / reject these defective parts. Post 7 days of delivery, 247around system will mark them confirm automatically. <br><br>
+Thanks. <br> 247around Team' WHERE tag = 'defective_parts_acknowledge_reminder';
+
+--Kalyani 06-10-2018
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Add variable charges', NULL, 'employee/accounting/add_variable_charges', '10', '56', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
+

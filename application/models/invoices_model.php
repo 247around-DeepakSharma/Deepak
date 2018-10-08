@@ -2275,7 +2275,9 @@ class invoices_model extends CI_Model {
         }
         
         if(isset($post['group_by']) && !empty($post['group_by'])){
-             $this->db->group_by($post['group_by']);
+            $this->db->join('employee_relation', 'FIND_IN_SET ( vendor_partner_id , employee_relation.service_centres_id )', 'LEFT');
+            $this->db->join('employee', 'employee_relation.agent_id = employee.id', 'LEFT');
+            $this->db->group_by($post['group_by']);
         }
     }
     /**
@@ -2518,11 +2520,21 @@ class invoices_model extends CI_Model {
         return $query->result_array();
     }
     
+    /**
+     * @desc This function is used to insert fixed variable charges
+     * @param String $data
+     * @return insert_id
+     */
     function insert_into_variable_charge($data){
         $this->db->insert('vendor_partner_variable_charges', $data);
         return $this->db->insert_id();
     }
     
+    /**
+     * @desc This function is used to get fixed variable charges
+     * @param String - $select, Array - $where, $join - boolean
+     * @return Array
+    */
     function get_variable_charge($select, $where=array(), $join=null){
         $this->db->select($select);
         if(!empty($where)){
@@ -2542,6 +2554,22 @@ class invoices_model extends CI_Model {
         $this->db->where($where);
         $query = $this->db->get("invoice_details");
         return $query->result_array();
+    }
 
+    
+     /**
+     * @desc This function is used to update fixed variable charges
+     * @param Array $where and $data
+     * @return boolean
+     */
+    function update_into_variable_charge($where, $data){
+        $this->db->where($where);
+        $this->db->update('vendor_partner_variable_charges', $data);
+        //echo $this->db->last_query(); die();
+        if($this->db->affected_rows() > 0){
+            return true;
+        }else{
+            return false;
+        }
     }
 }
