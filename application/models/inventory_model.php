@@ -1389,11 +1389,18 @@ class Inventory_model extends CI_Model {
      * @return: array
      * 
      */
-    function get_courier_company_invoice_details($select, $where){
-         $this->db->select($select);
-        $this->db->where($where);
+    function get_courier_company_invoice_details($select, $where, $where_in=array()){
+        $this->db->select($select);
+        
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        
+        if(!empty($where_in)){
+            $this->db->where_in(key($where_in), $where_in[key($where_in)]);
+        }
+        
         $query = $this->db->get('courier_company_invoice_details');
-        log_message('info kalyani', __METHOD__. " ".$this->db->last_query());
         return $query->result_array();
         
     }
@@ -1438,5 +1445,75 @@ class Inventory_model extends CI_Model {
         }
          
     }
-
+    
+    /**
+     * @desc: This function is specifically used for upload docket number from excel to courier company invoice detail and recheck docket number
+     * @params: Array $data
+     * @return: Array $data
+    */
+    function update_docket_price($data){
+        $returnData = array();
+        $check = FALSE;
+        $updateCharge = FALSE;
+        if(isset($data['tid'])){
+            $updateCharge = TRUE;
+            $courier_company_detail[0]['id'] = $data['tid'];
+        }
+        else{
+            $courier_company_detail = $this->get_courier_company_invoice_details('id, is_exist', array('awb_number' => $data['awb_number']));
+            if(empty($courier_company_detail)){
+                $courier_company_data = array(
+                    'awb_number'=>$data['awb_number'],
+                    'courier_charge'=>$data['courier_charges'],
+                    'invoice_id'=>$data['invoice_id'],
+                    'billable_weight'=>$data['billable_weight'],
+                    'actual_weight'=>$data['actual_weight'],
+                    'is_exist'=>0
+                );
+                $this->insert_courier_company_invoice_details($courier_company_data);
+                $updateCharge = TRUE;
+            }
+            else{
+                if($courier_company_detail[0]['is_exist'] == 0){
+                   $updateCharge = TRUE;
+                }
+                else if($courier_company_detail[0]['is_exist'] == 1){
+                    $returnData['inValidData'] = $data['awb_number'];
+                }
+            }
+        }
+        if($updateCharge === TRUE){
+            $data_spare_part_detail = $this->partner_model->get_spare_parts_by_any('id, awb_by_partner, awb_by_sf', array('awb_by_sf = '.$data['awb_number'].' OR awb_by_partner = '.$data['awb_number'].' AND status != "'._247AROUND_CANCELLED.'"'=>null));
+            if(!empty($data_spare_part_detail)){
+                $check =TRUE;
+                $courier_amount = sprintf('%0.2f', ($data['courier_charges']/count($data_spare_part_detail)));
+                foreach ($data_spare_part_detail as  $value){
+                    if($value['awb_by_sf']){
+                       $this->update_spare_courier_details($value['id'], array('courier_charges_by_sf'=>$courier_amount));
+                    }
+                    else if($value['awb_by_partner']){
+                       $this->update_spare_courier_details($value['id'], array('courier_price_by_partner'=>$courier_amount)); 
+                    }
+                }
+            } else {
+                $data_courier_detail = $this->get_courier_details("id", array('AWB_no' => $data['awb_number']));
+                if(!empty($data_courier_detail)){
+                    $check = TRUE;
+                    $courier_amount = sprintf('%0.2f', ($data['courier_charges']/count($data_courier_detail)));
+                    foreach ($data_courier_detail as  $value){
+                        $this->update_courier_detail(array('id'=>$value['id']), array('courier_charge'=>$courier_amount));
+                    }
+                } else {
+                    $returnData['notfoundData'] = $data['awb_number'];
+                }
+            }
+        }
+        if($check === TRUE){
+            $courier_company_data =array(
+                'is_exist'=>1
+            );
+            $returnData['update_awb'] = $this->update_courier_company_invoice_details(array('id'=>$courier_company_detail[0]['id']), $courier_company_data);
+        }
+        return $returnData;
+    }
 }
