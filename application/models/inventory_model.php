@@ -1389,6 +1389,7 @@ class Inventory_model extends CI_Model {
      * @return: array
      * 
      */
+
     function get_courier_company_invoice_details($select, $where, $where_in=array()){
         $this->db->select($select);
         
@@ -1399,10 +1400,9 @@ class Inventory_model extends CI_Model {
         if(!empty($where_in)){
             $this->db->where_in(key($where_in), $where_in[key($where_in)]);
         }
-        
+
         $query = $this->db->get('courier_company_invoice_details');
         return $query->result_array();
-        
     }
     
      /**

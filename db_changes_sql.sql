@@ -8249,6 +8249,13 @@ ALTER TABLE `spare_parts_details` ADD `around_pickup_from_partner` INT(1) NOT NU
 --Chhavi
 INSERT INTO `query_report` (`id`, `main_description`, `query1_description`, `query2_description`, `query1`, `query2`, `role`, `priority`, `type`, `active`, `result`, `create_date`) VALUES (NULL, 'missing_in_booking_tat', '', '', 'SELECT COUNT(booking_details.booking_id)as count FROM `booking_details` LEFT JOIN booking_tat ON booking_tat.booking_id = booking_details.booking_id WHERE DATE(booking_details.closed_date)>\'2018-03-31\' AND booking_tat.booking_id IS NULL AND booking_details.type != \'Query\'', '', 'developer', '1', 'service', '1', NULL, '2018-09-28 05:03:42');
 
+--Abhay 04 Sept
+ALTER TABLE `vendor_partner_variable_charges` ADD `is_fixed` INT(1) NOT NULL DEFAULT '1' AFTER `update_date`;
+
+--Abhay 06 Sept
+ALTER TABLE `courier_company_invoice_details` ADD `partner_id` INT(11) NULL DEFAULT NULL AFTER `update_date`, ADD `partner_invoice_id` VARCHAR(128) NULL DEFAULT NULL AFTER `partner_id`, ADD `booking_id` TEXT NULL DEFAULT NULL AFTER `partner_invoice_id`;
+ALTER TABLE `courier_company_invoice_details` ADD `basic_billed_charge_to_partner` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `partner_id`;
+
 --Chhavi
 UPDATE email_template SET subject = 'Delivered Defactive Parts',template = 'Dear Partner,<br><br>
 Defective parts for below bookings have been delivered by 247around Service Centre but Delivery has not been acknowledged by your team till now: <br><br>
@@ -8258,6 +8265,138 @@ Thanks. <br> 247around Team' WHERE tag = 'defective_parts_acknowledge_reminder';
 
 --Kalyani 06-10-2018
 INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Add variable charges', NULL, 'employee/accounting/add_variable_charges', '10', '56', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
+
 ALTER TABLE `courier_company_invoice_details` ADD `is_exist` TINYINT(1) NOT NULL AFTER `actual_weight`;
 INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Recheck Docket Number', NULL, 'employee/inventory/recheck_docket_number', '2', '164', 'employee/inventory/recheck_docket_number', 'main_nav', '1', CURRENT_TIMESTAMP);
 INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Bulk Search Docket Number', NULL, 'employee/inventory/search_courier_invoices', '2', '164', 'accountmanager,admin,developer,inventory_manager,regionalmanager', 'main_nav', '1', CURRENT_TIMESTAMP);
+
+
+--Shraddhanand 08-10-2018
+-- phpMyAdmin SQL Dump
+-- version 4.8.3
+-- https://www.phpmyadmin.net/
+--
+-- Host: 127.0.0.1
+-- Generation Time: Oct 08, 2018 at 08:23 AM
+-- Server version: 10.1.36-MariaDB
+-- PHP Version: 7.2.10
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET AUTOCOMMIT = 0;
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Database: `boloaaka`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `assets_assigned`
+--
+
+CREATE TABLE `assets_assigned` (
+  `id` int(11) NOT NULL,
+  `asset_id` int(11) NOT NULL,
+  `employee_id` int(11) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `agent_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `assets_assigned`
+--
+ALTER TABLE `assets_assigned`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `assets_assigned`
+--
+ALTER TABLE `assets_assigned`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+--Shraddhanand 08-10-2018
+-- phpMyAdmin SQL Dump
+-- version 4.8.3
+-- https://www.phpmyadmin.net/
+--
+-- Host: 127.0.0.1
+-- Generation Time: Oct 08, 2018 at 08:22 AM
+-- Server version: 10.1.36-MariaDB
+-- PHP Version: 7.2.10
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET AUTOCOMMIT = 0;
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Database: `boloaaka`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `assets_list`
+--
+
+CREATE TABLE `assets_list` (
+  `id` int(11) NOT NULL,
+  `assets_name` varchar(128) NOT NULL,
+  `serial_number` varchar(128) NOT NULL,
+  `create_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `update_date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
+  `employee_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `assets_list`
+--
+ALTER TABLE `assets_list`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `assets_list`
+--
+ALTER TABLE `assets_list`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
