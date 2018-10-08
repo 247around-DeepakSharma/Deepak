@@ -1385,7 +1385,7 @@ class Inventory_model extends CI_Model {
      * 
      */
     function get_courier_company_invoice_details($select, $where){
-         $this->db->select($select);
+        $this->db->select($select);
         $this->db->where($where);
         $query = $this->db->get('courier_company_invoice_details');
         log_message('info kalyani', __METHOD__. " ".$this->db->last_query());
