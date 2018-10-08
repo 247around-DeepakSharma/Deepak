@@ -170,6 +170,6 @@ class Assets extends CI_Controller {
     public function assigned_history($asset_id) {
         $where = array('asset_id' => $asset_id);
         $data = $this->assets_model->get_assigned_history($where);
-        $this->load->view('employee/view_history', array('data' => $data));
+        $this->load->view('employee/asset_assigned_history', array('data' => $data));
     }
 }
