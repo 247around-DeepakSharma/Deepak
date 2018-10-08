@@ -55,8 +55,8 @@
                        
                     </div>
                     <div class="col-md-12" style="margin-top: 20px;">
-                        <div class="col-md-6 <?php if( form_error('invoice_id') ) { echo 'has-error';} ?>">
-                            <div class="form-group">
+                        <div class="col-md-6 ">
+                            <div class="form-group <?php if( form_error('invoice_id') ) { echo 'has-error';} ?>">
                                 <label for="Vendor Partner" class="col-md-4">Invoice ID</label>
                                 <div class="col-md-6">
                                     <input type="text" class="form-control" name="invoice_id" id="invoice_id_gen" value="<?php if (isset($invoice_details[0]['invoice_id'])) {

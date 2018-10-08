@@ -334,7 +334,8 @@ class invoices_model extends CI_Model {
                 . " `booking_unit_details`.appliance_capacity,`booking_unit_details`.appliance_category,`booking_unit_details`.appliance_brand, "
                 . "  booking_details.booking_primary_contact_no,  "
                 . " `services`.services, users.name,order_id, "
-                . " partner_net_payable, round((partner_net_payable * ".DEFAULT_TAX_RATE .")/100,2) as gst_amount, 
+                . " partner_net_payable, round((partner_net_payable * ".DEFAULT_TAX_RATE .")/100,2) as gst_amount,
+                    CASE WHEN (booking_details.is_upcountry = 1) THEN ('Yes') ELSE 'NO' END As upcountry,
               
                     CASE WHEN(serial_number IS NULL OR serial_number = '') THEN '' ELSE (CONCAT('''', booking_unit_details.serial_number))  END AS serial_number,
                     CASE WHEN(model_number IS NULL OR model_number = '') THEN (sf_model_number) ELSE (model_number) END AS model_number
@@ -653,7 +654,7 @@ class invoices_model extends CI_Model {
         }
 
         if (!empty($warehouse_courier)) {
-            $packaging = $this->get_fixed_warehouse_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
+            $packaging = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
                 "entity_id" => $partner_id, "charges_type" => PACKAGING_RATE_TAG));
             if (!empty($packaging)) {
                 $c_data = array();
@@ -727,22 +728,25 @@ class invoices_model extends CI_Model {
                 $result['result'][0]['gst_number'] = $partner_details[0]['gst_number'];
             }
 
-            if ($result['result'][0]['is_wh'] == 1) {
-                $packaging1 = $this->get_fixed_warehouse_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
-                    "entity_id" => $partner_id, "charges_type" => FIXED_MONTHLY_WAREHOUSE_CHARGES_TAG));
-                if (!empty($packaging1)) {
+            
+            $fixed_charges = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
+                "entity_id" => $partner_id, "is_fixed" => 1));
+            if (!empty($fixed_charges)) {
+                foreach ($fixed_charges as $value) {
                     $c_data = array();
-                    $c_data[0]['description'] = $packaging1[0]['description'];
-                    $c_data[0]['hsn_code'] = $packaging1[0]['hsn_code'];
+                    $c_data[0]['description'] = $value['description'];
+                    $c_data[0]['hsn_code'] = $value['hsn_code'];
                     $c_data[0]['qty'] = 0;
-                    $c_data[0]['rate'] = $packaging1[0]['fixed_charges'];
-                    $c_data[0]['gst_rate'] = $packaging1[0]['gst_rate'];
-                    $c_data[0]['product_or_services'] = $packaging1[0]['description'];
-                    $c_data[0]['taxable_value'] = $packaging1[0]['fixed_charges'];
+                    $c_data[0]['rate'] = $value['fixed_charges'];
+                    $c_data[0]['gst_rate'] = $value['gst_rate'];
+                    $c_data[0]['product_or_services'] = $value['description'];
+                    $c_data[0]['taxable_value'] = $value['fixed_charges'];
                     $result['result'] = array_merge($result['result'], $c_data);
-                    $result['warehouse_storage_charge'] = $packaging1[0]['fixed_charges'];
+                    //$result['warehouse_storage_charge'] = $packaging1[0]['fixed_charges'];
                 }
+                
             }
+            
 
             return $result;
         } else {
@@ -1263,7 +1267,7 @@ class invoices_model extends CI_Model {
         }
 
 //            if (!empty($warehouse_courier)) {
-//                $packaging = $this->get_fixed_warehouse_charge(array('entity_type' => _247AROUND_SF_STRING,
+//                $packaging = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_SF_STRING,
 //                    "entity_id" => $vendor_id, "charges_type" => PACKAGING_RATE_TAG));
 //                if (!empty($packaging)) {
 //                    $c_data = array();
@@ -1309,7 +1313,7 @@ class invoices_model extends CI_Model {
             }
 
 //            if ($result['booking'][0]['is_wh'] == 1) {
-//                $packaging1 = $this->get_fixed_warehouse_charge(array('entity_type' => _247AROUND_SF_STRING,
+//                $packaging1 = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_SF_STRING,
 //                    "entity_id" => $vendor_id, "charges_type" => FIXED_MONTHLY_WAREHOUSE_CHARGES_TAG));
 //                if (!empty($packaging1)) {
 //                    $c_data = array();
@@ -2072,7 +2076,7 @@ class invoices_model extends CI_Model {
         return $query->result_array();
     }
     
-    function get_fixed_warehouse_charge($where){
+    function get_fixed_variable_charge($where){
         $this->db->select('*');
         $this->db->where($where);
         $query = $this->db->get('vendor_partner_variable_charges');
@@ -2530,5 +2534,14 @@ class invoices_model extends CI_Model {
         }
         $query = $this->db->get('vendor_partner_variable_charges');
         return $query->result_array();
+    }
+
+    function get_breakup_invoice_details($select, $where){
+        log_message('info', __METHOD__);
+        $this->db->select($select);
+        $this->db->where($where);
+        $query = $this->db->get("invoice_details");
+        return $query->result_array();
+
     }
 }

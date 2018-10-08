@@ -8248,3 +8248,10 @@ ALTER TABLE `spare_parts_details` ADD `around_pickup_from_partner` INT(1) NOT NU
 
 --Chhavi
 INSERT INTO `query_report` (`id`, `main_description`, `query1_description`, `query2_description`, `query1`, `query2`, `role`, `priority`, `type`, `active`, `result`, `create_date`) VALUES (NULL, 'missing_in_booking_tat', '', '', 'SELECT COUNT(booking_details.booking_id)as count FROM `booking_details` LEFT JOIN booking_tat ON booking_tat.booking_id = booking_details.booking_id WHERE DATE(booking_details.closed_date)>\'2018-03-31\' AND booking_tat.booking_id IS NULL AND booking_details.type != \'Query\'', '', 'developer', '1', 'service', '1', NULL, '2018-09-28 05:03:42');
+
+--Abhay 04 Sept
+ALTER TABLE `vendor_partner_variable_charges` ADD `is_fixed` INT(1) NOT NULL DEFAULT '1' AFTER `update_date`;
+
+--Abhay 06 Sept
+ALTER TABLE `courier_company_invoice_details` ADD `partner_id` INT(11) NULL DEFAULT NULL AFTER `update_date`, ADD `partner_invoice_id` VARCHAR(128) NULL DEFAULT NULL AFTER `partner_id`, ADD `booking_id` TEXT NULL DEFAULT NULL AFTER `partner_invoice_id`;
+ALTER TABLE `courier_company_invoice_details` ADD `basic_billed_charge_to_partner` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `partner_id`;
