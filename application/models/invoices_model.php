@@ -2112,14 +2112,23 @@ class invoices_model extends CI_Model {
      * 
      */
     
-     public function get_partners_annual_charges($select, $where = array()) {
-        $this->db->select($select);
-        if (!empty($where)) {
-            $this->db->where($where);
+     public function get_partners_annual_charges($select, $partner_id = "") {
+        $wh = "";
+        if(!empty($partner_id)){
+            $wh = " AND vendor_partner_id = '$partner_id' ";
         }
-        $this->db->join('partners', 'vendor_partner_id = partners.id');
-        $this->db->order_by('from_date',"desc");
-        $query = $this->db->get('vendor_partner_invoices');
+        $sql = "SELECT $select FROM vendor_partner_invoices "
+                . "INNER JOIN (SELECT id, MAX(to_date) as date "
+                . "FROM vendor_partner_invoices WHERE "
+                
+                . "invoice_tagged LIKE '%".ANNUAL_CHARGE_INVOICE_TAGGING."%' "
+                . $wh
+                . "AND vendor_partner = '"._247AROUND_PARTNER_STRING."'  "
+                . "GROUP BY vendor_partner_id) "
+                . "AS EachItem ON EachItem.id = vendor_partner_invoices.id "
+                . " JOIN partners on partners.id = vendor_partner_id ORDER BY public_name";
+       
+        $query = $this->db->query($sql);
         return $query->result();
     }
     /**
