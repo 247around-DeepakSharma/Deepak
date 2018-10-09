@@ -401,7 +401,7 @@ class Invoice_lib {
         log_message("info", __METHOD__ . " Partner ID " . print_r($partner_details, true));
 
         $result = array('active' => 1, "is_notification" => FALSE, "notification_msg" => "", "partner_id" => $partner_details['id']);
-        if (!empty($partner_details)) {
+        if (!empty($partner_details) && $partner_details[0]['is_prepaid'] == 0) {
             // GET un-paid invoice whose due date less than today
             $invoicingSummary = $this->ci->invoices_model->get_summary_invoice_amount("partner", $partner_details['id'], " AND `due_date` <= CURRENT_DATE() ");
             if (!empty($invoicingSummary)) {

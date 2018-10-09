@@ -138,7 +138,7 @@ class Dealers extends CI_Controller {
         if ($partner_details[0]['is_prepaid'] == 1) {
             $prepaid = $this->miscelleneous->get_partner_prepaid_amount($partner_id);
             $message = $prepaid['prepaid_msg'];
-        } else {
+        } else if ($partner_details[0]['is_prepaid'] == 0) {
             $prepaid = $this->invoice_lib->get_postpaid_partner_outstanding($partner_details[0]);
             $message = $prepaid['notification_msg'];
         }
