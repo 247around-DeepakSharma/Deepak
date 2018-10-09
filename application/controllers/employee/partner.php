@@ -647,11 +647,15 @@ class Partner extends CI_Controller {
         $return_data['grace_period_date'] = $this->input->post('grace_period_date');
         $return_data['is_wh'] = $this->input->post('is_wh');
         $is_prepaid = $this->input->post('is_prepaid');
-        if (!empty($is_prepaid)) {
+        $return_data['is_prepaid'] = 2; // Default set
+        if ($is_prepaid == 1) {
             $return_data['is_prepaid'] = 1;
-        } else {
+        }
+        $postpaid = $this->input->post('is_postpaid');
+        if($postpaid == 1){
             $return_data['is_prepaid'] = 0;
         }
+        
         $return_data['postpaid_credit_period'] = $this->input->post('postpaid_credit_period');
         $return_data['postpaid_notification_limit'] = $this->input->post('postpaid_notification_limit');
         $return_data['postpaid_grace_period'] = $this->input->post('postpaid_grace_period');
@@ -3501,7 +3505,7 @@ function get_shipped_parts_list($offset = 0) {
      */
     function get_prepaid_amount($partner_id) {
         log_message("info", __METHOD__ . " Partner Id " . $partner_id);
-        if (!empty($this->session->userdata('is_prepaid'))) {
+        if ($this->session->userdata('is_prepaid') == 1) {
             $p_details = $this->miscelleneous->get_partner_prepaid_amount($partner_id);
 
             if ($p_details['is_notification']) {
@@ -3516,7 +3520,7 @@ function get_shipped_parts_list($offset = 0) {
             $userSession = array('status' => $p_details['active'], "message" => $p_details['prepaid_msg']);
             $this->session->set_userdata($userSession);
             return $d;
-        } else {
+        } else if ($this->session->userdata('is_prepaid') == 0) {
             $this->check_postpaid_partner_active($partner_id);
             return array();
         }
