@@ -4877,14 +4877,17 @@ class Inventory extends CI_Controller {
                   $html .= "<td>". $i++ ."</td><td>".$value['awb_number']."</td><td>".$value['company_name']."</td><td>".$value['courier_charge']."</td><td>".$value['invoice_id']."</td><td>".$value['billable_weight']."</td><td>".$value['actual_weight']."</td><td>".$value['update_date']."</td><td>".$value['create_date']."</td>";
                   $html .=  "</tr>";
                 }
+                $returndata['status'] = "success";
                 $returndata['html'] = $html;
                 $returndata['notFound'] = array_diff($docket_no_array, $notFoundData);
                 echo json_encode($returndata);
             } else {
-                echo "Error";
+                $returndata['status'] = "error";
+                echo json_encode($returndata);
             }
         } else {
-            echo "Error";
+            $returndata['status'] = "error";
+            echo json_encode($returndata);
         }
     }
 }
