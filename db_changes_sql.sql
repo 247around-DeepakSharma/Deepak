@@ -8400,3 +8400,5 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 
+--Kalyani 09-Oct
+UPDATE partner_file_upload_header_mapping set `brand` = 'brand' where`partner_id` = '247010'
