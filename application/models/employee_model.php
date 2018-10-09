@@ -181,5 +181,18 @@ class Employee_model extends CI_Model{
           $query = $this->db->get('employee');
           return $query->result_array();
       }
+      
+        /**
+        * @Desc: This function is used to get all employee groups
+        * @params: void
+        * @return: Array
+        * 
+        */
+       function get_employee_groups(){
+           $this->db->select('groups');
+           $this->db->distinct();
+           $query = $this->db->get('employee');
+           return $query->result_array();
+       }
 
 }
