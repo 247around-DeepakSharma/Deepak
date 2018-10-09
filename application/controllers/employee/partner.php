@@ -743,7 +743,7 @@ class Partner extends CI_Controller {
            $partner_not_like = INTERNALTYPE;
            $partnerType= array(OEM, EXTWARRANTYPROVIDERTYPE, ECOMMERCETYPE);
         }
-        $query = $this->partner_model->get_partner_details_with_soucre_code($active,$partnerType,$ac,$partner_not_like,$partner_id);
+        $query = $this->partner_model->get_partner_details_with_soucre_code($active,$partnerType,$ac,$partner_not_like,$partner_id, null);
         foreach ($query as $key => $value) {
             //Getting Appliances and Brands details for partner
             $service_brands[] = $this->partner_model->get_service_brands_for_partner($value['id']);
