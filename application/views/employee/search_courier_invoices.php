@@ -47,7 +47,6 @@
 </div>
 <script>
     function loadData(){
-        //select_type = document.getElementById("vendor_partner_type").value;
         bulk_input = document.getElementById("bulk_input").value;
         bulkInputArray = bulk_input.replace( /\n/g, " " ).split( " " );
         if(bulkInputArray.length>50){
@@ -64,9 +63,9 @@
                 processData: false,
                 contentType: false,
                 success: function (response) { 
+                    //console.log(response);
                     response = JSON.parse(response);
-                    console.log(response);
-                    if(response !== "Error"){ 
+                    if(response.status === "success"){ 
                         $("#searched_table tbody").html(response.html);  
                         $("#searched_table").show();
                         console.log(response.notFound.length);
@@ -75,7 +74,7 @@
                            $("#not_found_data").text(response.notFound);
                         }
                     } else {
-                        alert('There is issue to update booking');
+                        alert('No data found');
                     }
                 }
             });
