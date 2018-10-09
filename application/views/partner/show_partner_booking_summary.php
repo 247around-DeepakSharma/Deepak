@@ -36,7 +36,7 @@
         <span class="count_top"> Avg Rating</span>
         <div class="count"><?php echo $avg_rating; ?></div>
     </div>
-    <?php if (!empty($this->session->userdata('is_prepaid'))) { ?>
+    <?php if ($this->session->userdata('is_prepaid') == 1) { ?>
     <a href="<?php echo base_url();?>payment/details" target="_blank">
         <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count" style="width: 14%;">
             <span class="count_top">Prepaid Amount ( Rs.)</span>
