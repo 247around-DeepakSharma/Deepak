@@ -221,7 +221,7 @@
                 messages: {
                     vendor_partner: "Please select entity type",
                     vendor_partner_id: "Please select entity",
-                    charges_type: "Please charges type",
+                    charges_type: "Please enter charges type",
                 },
                 submitHandler: function (form) {
                     form.submit();
