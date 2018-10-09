@@ -80,11 +80,12 @@ class Invoice extends CI_Controller {
     public function invoice_listing_ajax($vendor_type = ""){
         $this->checkUserSession();
         $vendor_partner = $this->input->post('vendor_partner');
+        $partner_source_type = $this->input->post('partner_source_type');
         $sf_cp = json_decode($this->input->post('sf_cp'), true);
         if($vendor_type != ""){
             $sf_cp['active'] = $vendor_type;
         }
-          $invoicingSummary= $this->invoices_model->getsummary_of_invoice($vendor_partner,$sf_cp);
+          $invoicingSummary= $this->invoices_model->getsummary_of_invoice($vendor_partner,$sf_cp, false, $partner_source_type);
           if($this->session->userdata('user_group') == 'regionalmanager'){
           $rmSpecificData = $this->get_rm_specific_service_centers_invoice_data($this->session->userdata('id'),$invoicingSummary);
           $data['invoicing_summary']= $rmSpecificData["invoiceSummaryData"];
@@ -232,8 +233,9 @@ class Invoice extends CI_Controller {
      */
     function invoice_partner_view() {
         $this->checkUserSession();
+        $data['partnerType'] = array(OEM, EXTWARRANTYPROVIDERTYPE);
         $data['partner'] = $this->partner_model->getpartner("", false);
-        $invoicing_summary = $this->invoices_model->getsummary_of_invoice("partner", array('active' => '1'));
+        $invoicing_summary = $this->invoices_model->getsummary_of_invoice("partner", array('active' => '1'), false, $data['partnerType']);
         foreach ($invoicing_summary as $key => $value) {
             $invoicing_summary[$key]['prepaid_data'] = $this->miscelleneous->get_partner_prepaid_amount($value["id"], FALSE);
         }

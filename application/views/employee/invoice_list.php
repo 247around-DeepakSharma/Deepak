@@ -31,17 +31,18 @@ ini_set('max_execution_time', 36000000);
         <?php if(isset($service_center)){ $vendor_partner = 'vendor';}else{ $vendor_partner = 'partner';}?>
         <?php if(!isset($is_ajax)){ ?>
             
-        <a target="_blank" class="btn btn-lg btn-primary pull-right" style="margin-top:20px;" href="<?php echo base_url(); ?>employee/invoice/insert_update_invoice/<?php if (isset($service_center)) {
-            echo 'vendor';
-            } else {
-            echo 'partner';
-            } ?>">Create Invoice</a>
+        
         <div class="row">
-            <div class="col-md-6 ">
+            <div class="col-md-12 ">
                 <h1 class="page-header"><b><?php if (isset($service_center)) { ?>Service Center Invoices<?php } else { ?>
                     Partner Invoices
                     <?php } ?>
                     </b>
+                    <a target="_blank" class="btn btn-lg btn-primary pull-right" href="<?php echo base_url(); ?>employee/invoice/insert_update_invoice/<?php if (isset($service_center)) {
+                        echo 'vendor';
+                        } else {
+                        echo 'partner';
+                        } ?>">Create Invoice</a>
                 </h1>
             </div>
         </div>
@@ -86,7 +87,7 @@ ini_set('max_execution_time', 36000000);
             </div>
             
                 <div class="col-md-4">
-                     <?php if(isset($service_center)){ $label = 'Select Service Center Type';}else{ $label = 'Select Partner Type' ;} ?>
+                     <?php if(isset($service_center)){ $label = 'Select Service Center Type';}else{ $label = 'Select Partner Status' ;} ?>
                         <label for="sf_type" class="col-md-12 col-sm-12"><?php echo $label;?></label>
                         <div class="form-group col-md-12 col-sm-12">
                             <select class="form-control" id="sf_type" onchange="getVendor()">
@@ -104,9 +105,26 @@ ini_set('max_execution_time', 36000000);
                             <option value='<?php echo json_encode(array("is_sf" => 1));?>' selected>Service Center</option>
                             <option value='<?php echo json_encode(array("is_cp" => 1));?>'>Collection Partner</option>
                         </select>
+                        <input type="hidden" name="partnerType" id="partner_sc" value="<?php print_r(array()); ?>">
                     </div>
                     <?php } else{ ?>
                     <input type="hidden" id="sf_cp" value="<?php echo json_encode(array())?>" />
+                    <div class="form-group">
+                        <label for="Service Code">Select Partner Type</label>
+                        <select class="form-control filter_table" id="partner_sc" name="partnerType[]" onchange="getVendor()" multiple="multiple" placeholder="All">
+                            <option value="<?php echo OEM; ?>" <?php if (in_array(OEM, $partnerType)) { echo "selected"; } ?>><?php echo OEM ?></option>
+                            <option value="<?php echo EXTWARRANTYPROVIDERTYPE; ?>" <?php if (in_array(EXTWARRANTYPROVIDERTYPE, $partnerType)) { echo "selected"; } ?>><?php echo EXTWARRANTYPROVIDERTYPE ?></option>
+                            <option value="<?php echo BUYBACKTYPE; ?>" <?php if (in_array(BUYBACKTYPE, $partnerType)) {
+                                echo "selected";
+                            } ?>><?php echo BUYBACKTYPE ?></option>
+                            <option value="<?php echo INTERNALTYPE; ?>" <?php if (in_array(INTERNALTYPE, $partnerType)) {
+                                echo "selected";
+                            } ?>><?php echo INTERNALTYPE ?></option>
+                            <option value="<?php echo ECOMMERCETYPE; ?>" <?php if (in_array(ECOMMERCETYPE, $partnerType)) {
+                                echo "selected";
+                            } ?>><?php echo ECOMMERCETYPE ?></option>
+                        </select>
+                    </div>
                    <?php } ?>
                 </div>
         </div>
@@ -250,7 +268,7 @@ ini_set('max_execution_time', 36000000);
                                 <?php if (isset($service_center)) { ?>
                                 <td></td>
                                 <td class="text-center"><input type="submit" class="btn btn-md btn-primary"  value="Download"/></td>
-                                <?php } ?>
+                                <?php }else{ ?> <td></td> <?php } ?>
                             </tr>
                         </tbody>
                    
@@ -338,6 +356,9 @@ if(isset($_SESSION['file_error'])){
 ?>
 <script type="text/javascript">
     $("#invoice_id").select2();
+    if($("#partner_sc").attr('type') !== "hidden"){
+        $("#partner_sc").select2();
+    }
     
     function getInvoicingData(source) {
         $('#loader_gif').attr('src', '<?php echo base_url() ?>images/loader.gif');
@@ -390,6 +411,7 @@ if(isset($_SESSION['file_error'])){
     
     function getVendor(){
         $('#loader_gif').attr('src', '<?php echo base_url() ?>images/loadring.gif');
+        var  partner_source_type = $("#partner_sc").val();
         var vendor_type = $('#sf_type').val();
         $("#invoicing_table").css('display', 'none');
         $('#overall_summary').css('display', 'none');
@@ -397,9 +419,9 @@ if(isset($_SESSION['file_error'])){
         $.ajax({
             type: 'POST',
             url: '<?php echo base_url(); ?>employee/invoice/invoice_listing_ajax/'+vendor_type,
-            data:{'vendor_partner': '<?php echo $vendor_partner; ?>', 'sf_cp':sf_cp},
+            data:{'vendor_partner': '<?php echo $vendor_partner; ?>', 'sf_cp':sf_cp, 'partner_source_type':partner_source_type},
             success: function (data) {
-                //console.log(data);
+                console.log(data);
                 $('#loader_gif').attr('src', '');
                 $("#overall_summary").show();
                 $("#overall_summary").html(data);

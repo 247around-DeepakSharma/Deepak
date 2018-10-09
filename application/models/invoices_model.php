@@ -215,8 +215,9 @@ class invoices_model extends CI_Model {
      * @param: String ( vendor or partner)
      * @return: Array()
      */
-    function getsummary_of_invoice($vendor_partner, $where, $due_date_flag = false) {
-       
+    function getsummary_of_invoice($vendor_partner, $where, $due_date_flag = false, $partner_type=array()) {
+        $is_active = 'All';
+        $is_prepaid = NULL;
         if ($vendor_partner == "vendor") {
             $select = "service_centres.name, service_centres.id, service_centres.on_off, service_centres.active, account_holders_bank_details.is_verified, service_centres.pan_no, service_centres.service_tax_no, service_centres.tin_no, service_centres.cst_no, service_centres.contract_file, service_centres.gst_no";
             if($where){
@@ -234,14 +235,22 @@ class invoices_model extends CI_Model {
             $p_where = array();
             if(isset($where['active'])){
                 $p_where = array('is_active' => $where['active']);
+                $is_active = $where['active'];
             }
             if(isset($where['id'])){    
                 $p_where['id'] = $where['id'];
             }
             if(isset($where['is_prepaid'])){    
                 $p_where['is_prepaid'] = $where['is_prepaid'];
+                $is_prepaid = $where['is_prepaid'];
             }
-            $data = $this->partner_model->get_all_partner($p_where);
+            
+            if(empty($partner_type)){
+                $data = $this->partner_model->get_all_partner($p_where);
+            }
+            else{
+                $data = $this->partner_model->get_partner_details_with_soucre_code($is_active, $partner_type, 'All', NULL, NULL, $is_prepaid);
+            }
             
             $due_date_status = "";
         }
