@@ -5163,22 +5163,26 @@ function get_shipped_parts_list($offset = 0) {
             else { 
                 $helperString = ' style="background-color: #26b99a;border-color:#26b99a;color:#fff;padding: 5px 0px;margin: 0px"';
             }
-            $tempArray[]= '<div class="dropdown">
-                                                <button class="btn btn-sm btn-primary" type="button" data-toggle="dropdown" style="border: 1px solid #2a3f54;background: #2a3f54;padding: 4px 24px;">Action
-                                                <span class="caret"></span></button>
-                                                <ul class="dropdown-menu" style="padding: 5px 5px 5px 5px;margin: 0px;min-width: 95px;position: inherit;z-index: 100;">
-                                                    <li style="color: #fff;"><a class="btn btn-sm btn-primary" href="'.base_url().'partner/update_booking/'.$row->booking_id.'"  title="View" 
-                                                        style="background-color:#2C9D9C; border-color: #2C9D9C;color:#fff;padding: 5px 0px;
-    margin: 0px;">Update</a></li>
-                                                    <li style="color: #fff;margin-top:5px;">
-                                                        <a id="a_hover"'.$helperString.' href="'.base_url().'partner/get_reschedule_booking_form/'.$row->booking_id.'" id="reschedule" class="btn btn-sm btn-success" title ="Reschedule">Reschedule</a>
-                                                    </li>
-                                                     <li style="color: #fff;margin-top:5px;">
-                                                         <a id="a_hover" style="background-color: #d9534f;border-color:#d9534f;color:#fff;padding: 5px 0px;margin: 0px;"href='.base_url().'partner/get_cancel_form/Pending/'.$row->booking_id.' class="btn btn-sm btn-danger" title="Cancel">Cancel</a>
-                                                     </li>
-                                                </ul>
-                                            </div>';
-            
+            if ($row->type != "Query") { 
+                $tempArray[]= '<div class="dropdown">
+                                                    <button class="btn btn-sm btn-primary" type="button" data-toggle="dropdown" style="border: 1px solid #2a3f54;background: #2a3f54;padding: 4px 24px;">Action
+                                                    <span class="caret"></span></button>
+                                                    <ul class="dropdown-menu" style="padding: 5px 5px 5px 5px;margin: 0px;min-width: 95px;position: inherit;z-index: 100;">
+                                                        <li style="color: #fff;"><a class="btn btn-sm btn-primary" href="'.base_url().'partner/update_booking/'.$row->booking_id.'"  title="View" 
+                                                            style="background-color:#2C9D9C; border-color: #2C9D9C;color:#fff;padding: 5px 0px;
+        margin: 0px;">Update</a></li>
+                                                        <li style="color: #fff;margin-top:5px;">
+                                                            <a id="a_hover"'.$helperString.' href="'.base_url().'partner/get_reschedule_booking_form/'.$row->booking_id.'" id="reschedule" class="btn btn-sm btn-success" title ="Reschedule">Reschedule</a>
+                                                        </li>
+                                                         <li style="color: #fff;margin-top:5px;">
+                                                             <a id="a_hover" style="background-color: #d9534f;border-color:#d9534f;color:#fff;padding: 5px 0px;margin: 0px;"href='.base_url().'partner/get_cancel_form/Pending/'.$row->booking_id.' class="btn btn-sm btn-danger" title="Cancel">Cancel</a>
+                                                         </li>
+                                                    </ul>
+                                                </div>';
+            }
+            else{
+              $tempArray[] =  "";
+            }
             $tempArray[] =  '<a target="_blank" href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/'.$row->booking_jobcard_filename.'" class="btn btn-sm btn-primary btn-sm" target="_blank" ><i class="fa fa-download" aria-hidden="true"></i></a>';
             $initialBooking = strtotime($row->initial_booking_date);
             $now = time();
