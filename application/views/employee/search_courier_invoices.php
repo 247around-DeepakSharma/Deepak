@@ -68,8 +68,7 @@
                     if(response.status === "success"){ 
                         $("#searched_table tbody").html(response.html);  
                         $("#searched_table").show();
-                        console.log(response.notFound.length);
-                        if(response.notFound.length > 0){ 
+                        if(response.notFound){ 
                            $("#not_found_data_div").css("display", "block");
                            $("#not_found_data").text(response.notFound);
                         }
