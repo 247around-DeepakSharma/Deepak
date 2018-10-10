@@ -32,7 +32,7 @@
                     </div>';
                 }
                 ?>
-                <form name="myForm" class="form-horizontal" id ="charges_form" novalidate="novalidate" action="<?php echo base_url()?>employee/accounting/add_variable_charges"  method="POST" enctype="multipart/form-data">
+                <form name="myForm" class="form-horizontal" id ="charges_form" novalidate="novalidate" action="<?php echo base_url()?>employee/accounting/process_variable_charges"  method="POST" enctype="multipart/form-data">
                     <div class="row">
                          <div class="col-md-12">
                             <div class="col-md-6">
@@ -156,7 +156,7 @@
                             <center>
                                 <input type="submit" id="submit_btn" name="submit_btn" class="btn btn-info" value="Submit"/>
                                 <a href="<?php echo base_url(); ?>employee/accounting/add_variable_charges" class="btn btn-warning" style="display:none" id="clear_btn">Clear</a>
-                                <input type="hidden" id="variable_charges_id" name="variable_charges_id">
+                                <input type="hidden" id="variable_charges_id" name="variable_charges_id" value="">
                             </center>
                         </div>
                     </div>
@@ -206,8 +206,8 @@
         </div>
     </div>
 </div>
-<?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>
-<?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
+<?php if($this->session->userdata('error')){ $this->session->unset_userdata('error'); } ?>
+<?php if($this->session->userdata('success')){ $this->session->unset_userdata('success');  } ?>
 <script type="text/javascript">
     (function ($, W, D){
         var JQUERY4U = {};
@@ -221,7 +221,7 @@
                 messages: {
                     vendor_partner: "Please select entity type",
                     vendor_partner_id: "Please select entity",
-                    charges_type: "Please charges type",
+                    charges_type: "Please enter charges type",
                 },
                 submitHandler: function (form) {
                     form.submit();
