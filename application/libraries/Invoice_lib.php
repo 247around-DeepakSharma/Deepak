@@ -374,11 +374,11 @@ class Invoice_lib {
                     
                     if ($gstin['gst_taxpayer_type'] == "Regular" && ($gstin['gst_status'] == "Active" || $gstin['gst_status'] == "Provisional" )) {
                         
-                        return array('staus' => TRUE, "gst_type" => TRUE);
+                        return array('status' => TRUE, "gst_type" => TRUE);
                         
                     } else if($gstin['gst_status'] == "Cancelled" || $gstin['gst_taxpayer_type'] == "Composition"){
                         
-                        return array('staus' => TRUE, "gst_type" => FALSE);
+                        return array('status' => TRUE, "gst_type" => FALSE);
                     }else {
                         return FALSE;
                     }
