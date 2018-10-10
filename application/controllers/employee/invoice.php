@@ -4133,6 +4133,20 @@ class Invoice extends CI_Controller {
 
                 $this->invoices_model->action_partner_invoice($credit_invoice_details);
                 $this->invoices_model->update_partner_invoices(array('invoice_id' => $dn_invoice_id), array('credit_generated' => 1));
+                
+                $email_template = $this->booking_model->get_booking_email_template(CN_AGAINST_GST_DN);
+                if(!empty($email_template)){
+                    $subject = vsprintf($email_template[4], array($invoice_id));
+                    $message = vsprintf($email_template[0], array($invoice_id)); 
+                    $email_from = $email_template[2];
+                    $get_rm_email =$this->vendor_model->get_rm_sf_relation_by_sf_id($invoice_details[0]['vendor_partner_id']); 
+                    $get_owner_email = $this->vendor_model->getVendorDetails("owner_email", array('id' =>$invoice_details[0]['vendor_partner_id']));
+                    $to = $get_owner_email[0]['owner_email'].",".$this->session->userdata('official_email').",".$get_rm_email[0]['official_email'];
+                    $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID;
+                    $this->notify->sendEmail($email_from, $to, $cc, '', $subject, $message, '', CN_AGAINST_GST_DN);
+                }
+                
+                
                 redirect(base_url() . 'employee/invoice/invoice_summary/' . $invoice_details[0]['vendor_partner'] . "/" . $invoice_details[0]['vendor_partner_id']);
                 
             } else {

@@ -8407,3 +8407,5 @@ INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `li
 --Kalyani 09-Oct
 UPDATE partner_file_upload_header_mapping set `brand` = 'brand' where`partner_id` = '247010'
 
+--Kalyani 10-Oct
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES (NULL, 'credit_note_against_gst_debit_note', '247around generated credit note against - %s - gst debit note', 'Dear Vendor<br/> Credit note is generate against %s gst debit note <br/><strong>Reply All</strong> for raising any query or concern regarding the invoice.\r\n<br/><br/>Thanks,<br/>247around Team', 'billing@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '', '1', '', CURRENT_TIMESTAMP);
