@@ -37,6 +37,7 @@ class Partner extends CI_Controller {
         $this->load->model("push_notification_model");
         $this->load->library('table');
         $this->load->library("invoice_lib");
+    
 
         $this->load->helper(array('form', 'url', 'file', 'array'));
         $this->load->dbutil();
@@ -5858,4 +5859,120 @@ function get_shipped_parts_list($offset = 0) {
             redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
         }
     }
+    /*
+     * This function extracts channels list and partner name from database and loads it to the view in tabular format.
+     */
+   public function get_channels(){
+        $fetch_data = $this->partner_model->get_channels();
+        
+        $this->miscelleneous->load_nav_header();
+        $this->load->view("employee/get_channel_list", array('fetch_data' => $fetch_data));
+       
+        
+        
+   }
+   /*
+    * This function displays channel form in the browser.
+    */
+    public function add_channel(){ 
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/channel_form');
+    }
+    /*
+     * This performs the process of adding channels to the form and submiting it to the database table.
+     */
+    public function process_add_channel(){
+        $this->form_validation->set_rules('channel','Channel','required');
+        if ($this->form_validation->run() == FALSE) {
+            $this->add_channel();
+        } else {
+            $channel = $this->input->post("channel");
+            $partner_id = $this->input->post("partner_id");
+            $data = array(
+                'channel_name' => $channel,
+                'partner_id' => $partner_id
+                );
+          
+            $is_exist = $this->partner_model->get_channels($data);
+           
+            
+            if (empty($is_exist)) {
+                $data['create_date'] = date('Y-m-d H:i:s');
+                $channel_id = $this->partner_model->insert_new_channels($data);
+               // exit();
+                if ($channel_id){
+                    $output = "Your data inserted successfully";
+                    $userSession = array('success' => $output);
+                    $this->session->set_userdata($userSession);
+                    redirect(base_url() . "employee/partner/add_channel");
+                }else{
+                    $output = "Failed! Data did not insert";
+                    $userSession = array('error' => $output);
+                    $this->session->set_userdata($userSession);
+                    redirect(base_url() . "employee/partner/add_channel");
+                }
+            }
+            else {
+                $output = "This Data already exist";
+                $userSession = array('error' => $output);
+                $this->session->set_userdata($userSession);
+                redirect(base_url() . "employee/partner/add_channel");
+            }
+    }
 }
+/*
+ * This function loads the tabular format of the view of update channel form 
+ */
+function update_channel($id) {
+        $data = array(
+            'partner_channel.id' => $id
+        );
+        
+        $channel['fetch_data'] = $this->partner_model->get_channels($data);
+      
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/update_channel', $channel);
+        
+       
+    }
+    /*
+     * This function supports in performing update functionalties to the form and further submiting it to the database. 
+     */
+    function process_update_channel($id) {
+        $this->form_validation->set_rules('channel', 'Channel', 'required');
+        if ($this->form_validation->run() == FALSE) {
+            $this->update_channel($id);
+        } else {
+            $channel = $this->input->post("channel");
+            $partner_id = $this->input->post("partner_id");
+            $data = array(
+                'channel_name' => $channel,
+                'partner_id' => $partner_id
+            );
+            $is_exist = $this->partner_model->get_channels($data);
+            if (empty($is_exist)) {
+                 $data['update_date'] = date('Y-m-d H:i:s');
+                $channel_id = $this->partner_model->insert_new_channels($data);
+                $status = $this->partner_model->update_channel($id, $data);
+                if ($status) {
+                    $output = "Your data updated successfully";
+                    $userSession = array('success' => $output);
+                    $this->session->set_userdata($userSession);
+                    redirect(base_url() . "employee/partner/update_channel/" . $id);
+                } else {
+                    $output = "Failed! Data did not update";
+                    $userSession = array('error' => $output);
+                    $this->session->set_userdata($userSession);
+                    redirect(base_url() . "employee/partner/update_channel/" . $id);
+                }
+            }  else {
+                    $output = "This Data already exist";
+                    $userSession = array('error' => $output);
+                    $this->session->set_userdata($userSession);
+                    redirect(base_url() . "employee/partner/update_channel/" . $id);
+                }
+            }
+        }
+
+}
+
