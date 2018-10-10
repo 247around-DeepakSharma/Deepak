@@ -3522,6 +3522,10 @@ class Partner extends CI_Controller {
         } else if ($this->session->userdata('is_prepaid') == 0) {
             $this->check_postpaid_partner_active($partner_id);
             return array();
+        } else {
+            $userSession = array('status' => true);
+            $this->session->set_userdata($userSession);
+            return array();
         }
         
     }
