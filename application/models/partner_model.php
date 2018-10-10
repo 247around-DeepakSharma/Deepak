@@ -1710,6 +1710,31 @@ function get_data_for_partner_callback($booking_id) {
         $query = $this->db->get();
         return $query->result();
     }
+    function insert_new_channels($details) {
+        $this->db->insert('partner_channel', $details);
+        return $this->db->insert_id();
+    }
+    public function get_channels($data = array()) {
+
+        $this->db->select('partner_channel.*,partners.public_name');
+        if(!empty($data)){
+            $this->db->where($data);
+        }
+        $this->db->from('partner_channel');
+         $this->db->join('partners', 'partner_channel.partner_id = partners.id', 'left');
+        $query = $this->db->get();
+        //echo "<pre>";
+       // echo $this->db->last_query();
+        //print_r($query);
+       // echo "</pre>";
+       // exit();
+        return $query->result_array();
+    }
+    function update_channel($id, $data) {
+        $this->db->where("id", $id);
+        $this->db->update("partner_channel", $data);
+        return true;
     
+}
 }
 

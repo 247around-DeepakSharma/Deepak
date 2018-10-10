@@ -9,11 +9,11 @@
                 <table class = "table table-condensed table-bordered table-striped table-responsive">
                     
                     <tr>
-                        <th>SNo</th>
-                        <th>Assets name</th>
-                        <th>Serial number</th>
-                        <th>Employee name</th>
-                        <th>create_date</th>
+                        <th>S No</th>
+                        <th>Assets Name</th>
+                        <th>Serial Number</th>
+                        <th>Employee Name</th>
+                        <th>Create Date</th>
                         <th>Action</th>
                         <th>History</th>
                     </tr>
