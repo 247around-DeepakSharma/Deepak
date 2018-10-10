@@ -1093,13 +1093,15 @@ class Booking extends CI_Controller {
                 . "postpaid_credit_period, is_active, postpaid_notification_limit, postpaid_grace_period, is_prepaid,partner_type, "
                 . "invoice_email_to,invoice_email_cc", array('partners.id' => $partner_id));
         
+        $prepaid['active'] = true;
+        $prepaid['is_notification'] = false;
+        
         if($partner_details[0]['is_prepaid'] == 1){
             $prepaid = $this->miscelleneous->get_partner_prepaid_amount($partner_id);
         } else  if($partner_details[0]['is_prepaid'] == 0){
             
             $prepaid = $this->invoice_lib->get_postpaid_partner_outstanding($partner_details[0]);
         }
-        
         
 
         if ($partner_details[0]['partner_type'] == OEM) {
