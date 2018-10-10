@@ -404,6 +404,7 @@ class User extends CI_Controller {
         $data['query'] = $this->employee_model->getemployeefromid($data['id']);
         else
             $data['query'] = $this->employee_model->getemployeefromid($id);
+        $data['employee_groups'] = $this->employee_model->get_employee_groups();
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/employee_add_edit',$data);
     }

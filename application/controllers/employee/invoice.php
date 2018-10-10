@@ -80,11 +80,12 @@ class Invoice extends CI_Controller {
     public function invoice_listing_ajax($vendor_type = ""){
         $this->checkUserSession();
         $vendor_partner = $this->input->post('vendor_partner');
+        $partner_source_type = $this->input->post('partner_source_type');
         $sf_cp = json_decode($this->input->post('sf_cp'), true);
         if($vendor_type != ""){
             $sf_cp['active'] = $vendor_type;
         }
-          $invoicingSummary= $this->invoices_model->getsummary_of_invoice($vendor_partner,$sf_cp);
+          $invoicingSummary= $this->invoices_model->getsummary_of_invoice($vendor_partner,$sf_cp, false, $partner_source_type);
           if($this->session->userdata('user_group') == 'regionalmanager'){
           $rmSpecificData = $this->get_rm_specific_service_centers_invoice_data($this->session->userdata('id'),$invoicingSummary);
           $data['invoicing_summary']= $rmSpecificData["invoiceSummaryData"];
@@ -232,8 +233,9 @@ class Invoice extends CI_Controller {
      */
     function invoice_partner_view() {
         $this->checkUserSession();
+        $data['partnerType'] = array(OEM, EXTWARRANTYPROVIDERTYPE);
         $data['partner'] = $this->partner_model->getpartner("", false);
-        $invoicing_summary = $this->invoices_model->getsummary_of_invoice("partner", array('active' => '1'));
+        $invoicing_summary = $this->invoices_model->getsummary_of_invoice("partner", array('active' => '1'), false, $data['partnerType']);
         foreach ($invoicing_summary as $key => $value) {
             $invoicing_summary[$key]['prepaid_data'] = $this->miscelleneous->get_partner_prepaid_amount($value["id"], FALSE);
         }
@@ -2693,7 +2695,8 @@ class Invoice extends CI_Controller {
             array_push($payment_data, $sc_details);
             $invoice_xl = array();
             foreach ($data as $key => $jdata) {
-               
+                
+                
                 $d = json_decode($jdata, true);
                 $amount = $d['amount'];
                 
@@ -2703,7 +2706,6 @@ class Invoice extends CI_Controller {
                 $defective_parts =$explode[1];
                 $defective_parts_max_age = $explode[2];
                 $sc = $this->vendor_model->viewvendor($service_center_id)[0];
-
                 $sc_details['debit_acc_no'] = '102405500277';
                 $sc_details['bank_account'] = trim($sc['bank_account']);
                 $sc_details['beneficiary_name'] = trim($sc['beneficiary_name']);
@@ -2721,6 +2723,10 @@ class Invoice extends CI_Controller {
                 $sc_details['bene_email_id'] = ""; $sc_details['ben_add_1'] = "";$sc_details['ben_add_2'] = ""; $sc_details['ben_add_3'] = "";
                 $sc_details['ben_add_4'] = ""; $sc_details['add_details_1'] = ""; $sc_details['add_details_2'] = "";
                 $sc_details['add_details_3'] = ""; $sc_details['add_details_4'] = ""; $sc_details['add_details_5'] = "";
+                
+                $rm = $this->vendor_model->get_rm_sf_relation_by_sf_id($service_center_id);
+
+                $sc_details['rm_name'] = $rm[0]['full_name'];
                 $sc_details['remarks'] = preg_replace("/[^A-Za-z0-9]/", "", $sc['name']);
                 $sc_details['gst_no'] = $sc['gst_no'];
                 $sc_details['is_signature'] = !empty($sc['signature_file']) ?"Yes":"NO";
@@ -2850,6 +2856,7 @@ class Invoice extends CI_Controller {
         $sc_details['add_details_3'] = "Add details 3";
         $sc_details['add_details_4'] = "Add details 4";
         $sc_details['add_details_5'] = "Add details 5";
+        $sc_details['rm_name'] = "RM Name";
         $sc_details['remarks'] = "Remarks";
         $sc_details['gst_no'] = "GST Number";
         $sc_details['is_signature'] = "Signature Exist";
@@ -4084,9 +4091,8 @@ class Invoice extends CI_Controller {
     
     public function partners_annual_charges() {  
          $this->miscelleneous->load_nav_header();
-         $where = array('vendor_partner_invoices.invoice_tagged' => ANNUAL_CHARGE_INVOICE_TAGGING, 'vendor_partner' => 'partner');
          $data['annual_charges_data'] =$this->invoices_model->get_partners_annual_charges("public_name, invoice_id, vendor_partner_id, "
-                 . "from_date, to_date,amount_collected_paid, invoice_file_main",$where);  
+                 . "from_date, to_date,amount_collected_paid, invoice_file_main");  
          $this->load->view('employee/partners_annual_charges_view', $data);  
     }
     
@@ -4127,6 +4133,20 @@ class Invoice extends CI_Controller {
 
                 $this->invoices_model->action_partner_invoice($credit_invoice_details);
                 $this->invoices_model->update_partner_invoices(array('invoice_id' => $dn_invoice_id), array('credit_generated' => 1));
+                
+                $email_template = $this->booking_model->get_booking_email_template(CN_AGAINST_GST_DN);
+                if(!empty($email_template)){
+                    $subject = vsprintf($email_template[4], array($invoice_id));
+                    $message = vsprintf($email_template[0], array($invoice_id)); 
+                    $email_from = $email_template[2];
+                    $get_rm_email =$this->vendor_model->get_rm_sf_relation_by_sf_id($invoice_details[0]['vendor_partner_id']); 
+                    $get_owner_email = $this->vendor_model->getVendorDetails("owner_email", array('id' =>$invoice_details[0]['vendor_partner_id']));
+                    $to = $get_owner_email[0]['owner_email'].",".$this->session->userdata('official_email').",".$get_rm_email[0]['official_email'];
+                    $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID;
+                    $this->notify->sendEmail($email_from, $to, $cc, '', $subject, $message, '', CN_AGAINST_GST_DN);
+                }
+                
+                
                 redirect(base_url() . 'employee/invoice/invoice_summary/' . $invoice_details[0]['vendor_partner'] . "/" . $invoice_details[0]['vendor_partner_id']);
                 
             } else {

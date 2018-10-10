@@ -215,8 +215,9 @@ class invoices_model extends CI_Model {
      * @param: String ( vendor or partner)
      * @return: Array()
      */
-    function getsummary_of_invoice($vendor_partner, $where, $due_date_flag = false) {
-       
+    function getsummary_of_invoice($vendor_partner, $where, $due_date_flag = false, $partner_type=array()) {
+        $is_active = 'All';
+        $is_prepaid = NULL;
         if ($vendor_partner == "vendor") {
             $select = "service_centres.name, service_centres.id, service_centres.on_off, service_centres.active, account_holders_bank_details.is_verified, service_centres.pan_no, service_centres.service_tax_no, service_centres.tin_no, service_centres.cst_no, service_centres.contract_file, service_centres.gst_no";
             if($where){
@@ -234,14 +235,22 @@ class invoices_model extends CI_Model {
             $p_where = array();
             if(isset($where['active'])){
                 $p_where = array('is_active' => $where['active']);
+                $is_active = $where['active'];
             }
             if(isset($where['id'])){    
                 $p_where['id'] = $where['id'];
             }
             if(isset($where['is_prepaid'])){    
                 $p_where['is_prepaid'] = $where['is_prepaid'];
+                $is_prepaid = $where['is_prepaid'];
             }
-            $data = $this->partner_model->get_all_partner($p_where);
+            
+            if(empty($partner_type)){
+                $data = $this->partner_model->get_all_partner($p_where);
+            }
+            else{
+                $data = $this->partner_model->get_partner_details_with_soucre_code($is_active, $partner_type, 'All', NULL, NULL, $is_prepaid);
+            }
             
             $due_date_status = "";
         }
@@ -2112,14 +2121,23 @@ class invoices_model extends CI_Model {
      * 
      */
     
-     public function get_partners_annual_charges($select, $where = array()) {
-        $this->db->select($select);
-        if (!empty($where)) {
-            $this->db->where($where);
+     public function get_partners_annual_charges($select, $partner_id = "") {
+        $wh = "";
+        if(!empty($partner_id)){
+            $wh = " AND vendor_partner_id = '$partner_id' ";
         }
-        $this->db->join('partners', 'vendor_partner_id = partners.id');
-        $this->db->order_by('from_date',"desc");
-        $query = $this->db->get('vendor_partner_invoices');
+        $sql = "SELECT $select FROM vendor_partner_invoices "
+                . "INNER JOIN (SELECT id, MAX(to_date) as date "
+                . "FROM vendor_partner_invoices WHERE "
+                
+                . "invoice_tagged LIKE '%".ANNUAL_CHARGE_INVOICE_TAGGING."%' "
+                . $wh
+                . "AND vendor_partner = '"._247AROUND_PARTNER_STRING."'  "
+                . "GROUP BY vendor_partner_id) "
+                . "AS EachItem ON EachItem.id = vendor_partner_invoices.id "
+                . " JOIN partners on partners.id = vendor_partner_id ORDER BY public_name";
+       
+        $query = $this->db->query($sql);
         return $query->result();
     }
     /**

@@ -455,6 +455,7 @@ class Booking extends CI_Controller {
                 $booking['booking_remarks'] = $remarks;
                 $new_state = $booking_id_with_flag['new_state'];
                 $old_state = $booking_id_with_flag['old_state'];
+                $booking['current_status'] =  _247AROUND_PENDING;
             } else if ($booking['type'] == 'Query') {
 
                 $booking['current_status'] = _247AROUND_FOLLOWUP;
@@ -1092,12 +1093,15 @@ class Booking extends CI_Controller {
                 . "postpaid_credit_period, is_active, postpaid_notification_limit, postpaid_grace_period, is_prepaid,partner_type, "
                 . "invoice_email_to,invoice_email_cc", array('partners.id' => $partner_id));
         
+        $prepaid['active'] = true;
+        $prepaid['is_notification'] = false;
+        
         if($partner_details[0]['is_prepaid'] == 1){
             $prepaid = $this->miscelleneous->get_partner_prepaid_amount($partner_id);
-        } else {
+        } else  if($partner_details[0]['is_prepaid'] == 0){
+            
             $prepaid = $this->invoice_lib->get_postpaid_partner_outstanding($partner_details[0]);
         }
-        
         
 
         if ($partner_details[0]['partner_type'] == OEM) {

@@ -8266,6 +8266,11 @@ Thanks. <br> 247around Team' WHERE tag = 'defective_parts_acknowledge_reminder';
 --Kalyani 06-10-2018
 INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Add variable charges', NULL, 'employee/accounting/add_variable_charges', '10', '56', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
 
+ALTER TABLE `courier_company_invoice_details` ADD `is_exist` TINYINT(1) NOT NULL AFTER `actual_weight`;
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Recheck Docket Number', NULL, 'employee/inventory/recheck_docket_number', '2', '164', 'employee/inventory/recheck_docket_number', 'main_nav', '1', CURRENT_TIMESTAMP);
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Bulk Search Docket Number', NULL, 'employee/inventory/search_courier_invoices', '2', '164', 'accountmanager,admin,developer,inventory_manager,regionalmanager', 'main_nav', '1', CURRENT_TIMESTAMP);
+
+
 --Shraddhanand 08-10-2018
 -- phpMyAdmin SQL Dump
 -- version 4.8.3
@@ -8394,3 +8399,10 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+--Kalyani 09-Oct
+UPDATE partner_file_upload_header_mapping set `brand` = 'brand' where`partner_id` = '247010'
+
+--Kalyani 10-Oct
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES (NULL, 'credit_note_against_gst_debit_note', '247around generated credit note against - %s - gst debit note', 'Dear Vendor<br/> Credit note is generate against %s gst debit note <br/><strong>Reply All</strong> for raising any query or concern regarding the invoice.\r\n<br/><br/>Thanks,<br/>247around Team', 'billing@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '', '1', '', CURRENT_TIMESTAMP);
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES (NULL, 'vendor_gst_return', '%s fill 247around GST amount', 'Dear Partner<br/> Kindly fill the 247around GST amount respect to the following invoices - <br/>%s<br/><strong>Reply All</strong> for raising any query or concern regarding the invoice.\r\n<br/><br/>Thanks,<br/>247around Team', 'billing@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '', '1', '', CURRENT_TIMESTAMP);

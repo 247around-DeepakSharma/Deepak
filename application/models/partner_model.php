@@ -96,7 +96,7 @@ class Partner_model extends CI_Model {
 
 
         $query = $this->db->get('partners');
-
+        //echo $this->db->last_query(); die();
         return $query->result_array();
     }
 
@@ -1357,7 +1357,7 @@ function get_data_for_partner_callback($booking_id) {
      * @param String $partner_id
      * @return Array
      */
-    function get_partner_details_with_soucre_code($active,$partnerType,$ac,$partner_not_like=NULL,$partner_id=""){
+    function get_partner_details_with_soucre_code($active,$partnerType,$ac,$partner_not_like=NULL,$partner_id="", $is_prepaid=null){
         $where = array();
         $where_in = array();
         $this->db->select('partners.*,bookings_sources.code,bookings_sources.partner_type');
@@ -1367,6 +1367,9 @@ function get_data_for_partner_callback($booking_id) {
         else{
             if($active !='All'){
                 $where['partners.is_active'] = $active;
+            }
+            if($is_prepaid){
+               $where['partners.is_prepaid'] = $is_prepaid; 
             }
             if($partnerType){
                 //$where['bookings_sources.partner_type']  = $partnerType;

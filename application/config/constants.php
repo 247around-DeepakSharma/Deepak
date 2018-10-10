@@ -638,5 +638,11 @@ define('DOCKET_NUMBER_FILE_TYPE','upload_docket_number');
 define('DOCKET_NUMBER_FILE','upload_docket_number');
 //Partner invoice payment file type
 define('INVOICE_PAYMENT_FILE_TYPE','invoice_payment_file_type');
+// 247around service string for invoices
+define('_247AROUND_SERVICE_STRING','Service');
+// 247around installation and repair string for invoices
+define('_247AROUND_INSTALLATION_AND_REPAIR_STRING','Installation & Repair');
+// 247around GST Debit Note string for invoices
+define('_247AROUND_GST_DEBIT_NOTE_STRING','GST Debit Note');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
