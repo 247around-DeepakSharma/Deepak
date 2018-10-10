@@ -105,3 +105,4 @@ define("POSTPAID_PARTNER_ABOVE_DUE_DATE_INVOICE_NOTIFICATION","postpaid_above_du
 define("POSTPAID_PARTNER_WITH_IN_DUE_DATE_INVOICE_NOTIFICATIOIN", "postpaid_with_in_due_date_invoice_notification");
 define("MISSED_UPCOUNTRY_BOOKING", "missed_upcountry_booking");
 define("CN_AGAINST_GST_DN", "credit_note_against_gst_debit_note");
+define("VENDOR_GST_RETURN_WARNING", "vendor_gst_return");
