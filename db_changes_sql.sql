@@ -8406,3 +8406,58 @@ UPDATE partner_file_upload_header_mapping set `brand` = 'brand' where`partner_id
 --Kalyani 10-Oct
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES (NULL, 'credit_note_against_gst_debit_note', '247around generated credit note against - %s - gst debit note', 'Dear Vendor<br/> Credit note is generate against %s gst debit note <br/><strong>Reply All</strong> for raising any query or concern regarding the invoice.\r\n<br/><br/>Thanks,<br/>247around Team', 'billing@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '', '1', '', CURRENT_TIMESTAMP);
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES (NULL, 'vendor_gst_return', '%s fill 247around GST amount', 'Dear Partner<br/> Kindly fill the 247around GST amount respect to the following invoices - <br/>%s<br/><strong>Reply All</strong> for raising any query or concern regarding the invoice.\r\n<br/><br/>Thanks,<br/>247around Team', 'billing@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '', '1', '', CURRENT_TIMESTAMP);
+
+--Shraddhanand 10-oct
+CREATE TABLE `partner_channel` (
+  `id` int(11) NOT NULL,
+  `partner_id` int(11) NOT NULL,
+  `channel_name` varchar(255) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `update_date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `partner_channel`
+--
+
+INSERT INTO `partner_channel` (`id`, `partner_id`, `channel_name`, `create_date`, `update_date`) VALUES
+(1, 247001, 'Amazon', '2018-10-10 05:37:54', '0000-00-00 00:00:00'),
+(2, 247001, 'AndroidApp', '2018-10-10 05:38:18', '0000-00-00 00:00:00'),
+(3, 247001, 'CallCenter', '2018-10-10 05:38:36', '0000-00-00 00:00:00'),
+(4, 247001, 'Ebay', '2018-10-10 05:38:50', '0000-00-00 00:00:00'),
+(5, 247001, 'Flipkart', '2018-10-10 05:39:14', '0000-00-00 00:00:00'),
+(6, 247001, 'Offline', '2018-10-10 05:39:41', '0000-00-00 00:00:00'),
+(7, 247001, 'Shopclues', '2018-10-10 05:40:02', '0000-00-00 00:00:00'),
+(8, 247001, 'Tatacliq', '2018-10-10 05:40:28', '0000-00-00 00:00:00'),
+(9, 247001, 'Techwider', '2018-10-10 05:41:06', '0000-00-00 00:00:00'),
+(10, 247001, 'Jeeves-delivered-excel', '2018-10-10 05:41:38', '0000-00-00 00:00:00'),
+(11, 247001, 'Pepperfry', '2018-10-10 05:42:05', '0000-00-00 00:00:00'),
+(12, 247001, 'STS', '2018-10-10 05:42:23', '0000-00-00 00:00:00'),
+(13, 247001, 'Snapdeal-delivered-excel', '2018-10-10 05:42:47', '0000-00-00 00:00:00'),
+(14, 247001, 'Snapdeal-shipped-excel', '2018-10-10 05:43:16', '0000-00-00 00:00:00'),
+(15, 247001, 'Snapdeal', '2018-10-10 05:43:41', '0000-00-00 00:00:00'),
+(16, 247001, 'Paytm-delivered-excel', '2018-10-10 05:44:08', '0000-00-00 00:00:00'),
+(17, 247001, 'paytm', '2018-10-10 05:44:26', '0000-00-00 00:00:00'),
+(18, 247001, 'VibgyorNXT', '2018-10-10 05:44:48', '0000-00-00 00:00:00'),
+(19, 247001, 'Website', '2018-10-10 05:45:01', '0000-00-00 00:00:00');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `partner_channel`
+--
+ALTER TABLE `partner_channel`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `partner_channel`
+--
+ALTER TABLE `partner_channel`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+COMMIT;
