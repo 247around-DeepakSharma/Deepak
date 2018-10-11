@@ -3542,7 +3542,7 @@ function get_shipped_parts_list($offset = 0) {
         log_message('info', __METHOD__. " POSPAID PARTNER ". $partner_id);
         $partner_details = $this->partner_model->getpartner_details("partners.id, public_name, "
                 . "postpaid_credit_period, is_active, postpaid_notification_limit, postpaid_grace_period, "
-                . "invoice_email_to,invoice_email_cc", array('partners.id' => $partner_id));
+                . "invoice_email_to,invoice_email_cc, is_prepaid", array('partners.id' => $partner_id));
         $postpaid = $this->invoice_lib->get_postpaid_partner_outstanding($partner_details[0]);
 
         $userSession = array('status' => $postpaid['active'], "message" => $postpaid['notification_msg']);
