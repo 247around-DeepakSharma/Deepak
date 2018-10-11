@@ -173,7 +173,7 @@
                                     <select class="form-control"  id="partner_source" name="partner_source" >
                                         <option value="" selected disabled>Please select seller channel</option>
                                         <?php foreach ($channel as $key => $value) { ?>
-                                        <option value="<?php echo $value['id']; ?>" <?php if(set_value('partner_source') == $value['id']){ echo "selected";} ?>><?php echo $value['channel_name'];  ?></option>  
+                                        <option><?php echo $value['channel_name'];  ?></option>  
                                        <?php } ?>
                                     </select>
                                     <?php echo form_error('partner_source'); ?>
