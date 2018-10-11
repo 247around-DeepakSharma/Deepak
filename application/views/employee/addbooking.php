@@ -156,31 +156,9 @@
                                 <div class="form-group ">
                                     <label for="partner_source" class="col-md-4">Partner Source</label>
                                 <div class="col-md-6">
-                                    <select class="form-control"  id="partner_source" name="partner_source"  >
-                                    <option value="">Please select seller channel</option>
-                                    <option>Amazon</option>
-                                    <option>AndroidApp</option>
-                                    <option>CallCenter</option>
-                                    <option>Ebay</option>
-                                    <option>Flipkart</option>
-                                    <option>Ebay</option>
-                                    <option>Offline</option>
-                                    <option>Shopclues</option>
-                                    <option>TataCliq</option>
-                                    <option>Techwider</option>
-                                    <option>Jeeves-delivered-excel</option>
-                                    <option>Pepperfry</option>
-                                    <option>STS</option>
-                                    <option>Snapdeal-delivered-excel</option>
-                                    <option>Snapdeal-shipped-excel</option>
-                                    <option>Snapdeal</option>
-                                    <option>Paytm-delivered-excel</option>
-                                    <option>Paytm</option>
-                                    <option>VibgyorNXT</option>
-                                    <option>Website</option>
-                                    
-                                    
-                                </select>
+                                    <select class="form-control"  id="partner_source" name="partner_source">
+                                        <option value="" selected disabled>Please select seller channel</option>
+                                    </select>
                                 </div>
                                 </div>
                                 <div class="form-group <?php if( form_error('type') ) { echo 'has-error';} ?>">

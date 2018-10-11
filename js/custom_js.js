@@ -11,6 +11,7 @@ var DEFAULT_UPCOUNTRY_RATE = 3;
 var LOW_CREDIT_MSG = "Low Balance, Please Inform Brand To Recharge Account Immediately";
 
 var modelServiceUrl = baseUrl + '/employee/booking/getModelForService/';
+var partnerChannelServiceUrl = baseUrl + '/employee/partner/get_partner_channel/';
 
 
 function getAppliance(service_id) {
@@ -38,7 +39,20 @@ function getAppliance(service_id) {
              } 
         } 
        getBrandForService();
+       getPartnerChannel();
     });
+}
+
+function getPartnerChannel(){
+    var postData = {};
+    postData['partner_id'] = $("#source_code").find(':selected').attr('data-id');
+    
+    if( postData['partner_id'] !== null){
+        sendAjaxRequest(postData, partnerChannelServiceUrl).done(function (data) {
+           $("#partner_source").html("");
+           $("#partner_source").html(data).change();
+        });
+    }
 }
 
 function getBrandForService() {

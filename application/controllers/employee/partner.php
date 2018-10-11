@@ -238,7 +238,7 @@ class Partner extends CI_Controller {
      * @desc: This method loads abb booking form
      * it gets user details(if exist), city, source, services
      */
-    function get_addbooking_form($phone_number = "") {
+    function get_addbooking_form($phone_number = "") { 
         $this->checkUserSession();
         if (!empty($phone_number)) {
             $_POST['phone_number'] = $phone_number;
@@ -269,6 +269,7 @@ class Partner extends CI_Controller {
             $data['prepaid_amount'] = $this->get_prepaid_amount($this->session->userdata('partner_id'));
             
             $data['phone_number'] = trim($phone_number);
+            $data['channel'] = $this->partner_model->get_channels('partner_channel.id, partner_channel.channel_name', array('partner_id'=>$this->session->userdata('partner_id')));
             $this->miscelleneous->load_partner_nav_header();
             //$this->load->view('partner/header');
             $this->load->view('partner/get_addbooking', $data);
@@ -1422,6 +1423,7 @@ class Partner extends CI_Controller {
                     $data['dealer_data'] = $dealer_data[0];
                 }
             }
+            $data['channel'] = $this->partner_model->get_channels('partner_channel.id, partner_channel.channel_name', array('partner_id'=>$partner_id));
             $this->miscelleneous->load_partner_nav_header();
             //$this->load->view('partner/header');
             $this->load->view('partner/edit_booking', $data);
@@ -5862,15 +5864,30 @@ function get_shipped_parts_list($offset = 0) {
     /*
      * This function extracts channels list and partner name from database and loads it to the view in tabular format.
      */
-   public function get_channels(){
-        $fetch_data = $this->partner_model->get_channels();
+    public function get_channels(){
+        $select = 'partner_channel.*,partners.public_name';
+        $fetch_data = $this->partner_model->get_channels($select);
         
         $this->miscelleneous->load_nav_header();
         $this->load->view("employee/get_channel_list", array('fetch_data' => $fetch_data));
-       
-        
-        
-   }
+    }
+    
+    public function get_partner_channel() {
+        $select = 'partner_channel.id, partner_channel.channel_name';
+        if(!empty($this->input->post('partner_id'))){ 
+            $where = array('partner_id' => $this->input->post('partner_id'));
+        }
+        else{
+            $where = array();
+        }
+        $fetch_data = $this->partner_model->get_channels($select, $where);
+        $html = '<option value="" selected disabled>Please select seller channel</option>';
+        foreach ($fetch_data as $key => $value) {
+           $html .= '<option value="'.$value['id'].'">'.$value['channel_name'].'</option>'; 
+        }
+        echo $html;
+    }
+    
    /*
     * This function displays channel form in the browser.
     */
@@ -5928,7 +5945,7 @@ function update_channel($id) {
             'partner_channel.id' => $id
         );
         
-        $channel['fetch_data'] = $this->partner_model->get_channels($data);
+        $channel['fetch_data'] = $this->partner_model->get_channels('', $data);
       
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/update_channel', $channel);
