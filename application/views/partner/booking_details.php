@@ -111,8 +111,11 @@
                                     </tr>
                                     <tr><th>Remarks: </th>
                                         <td><?php echo $booking_history[0]['booking_remarks']; ?></td>
-                                        <th></th>
-                                        <td></td>
+                                        <th>Job Card</th>
+                                        <td><?php if(!empty($booking_history['0']['booking_jobcard_filename'])){ ?> 
+                                                    <a target="_blank" href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $booking_history['0']['booking_jobcard_filename']; ?>" class="btn btn-sm btn-primary btn-xs"><i class="fa fa-download" aria-hidden="true"></i></a>
+                                            <?php } ?>
+                                        </td>
                                     </tr>
                                     <tr>
                                         <th>Dealer Name: </th>
