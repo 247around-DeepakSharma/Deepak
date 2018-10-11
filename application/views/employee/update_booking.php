@@ -174,7 +174,7 @@
                                         <select class="form-control"  id="partner_source" name="partner_source" <?php if(!empty($booking_history[0]['partner_source'])){ echo "readonly";} ?> >
                                             <option value="">Please Select Seller Platform</option>
                                             <?php foreach ($channel as $key => $values) { ?>
-                                            <option  <?php if($values['id'] == $booking_history[0]['partner_source']){ echo "selected"; } ?> value=<?php echo $values['id']; ?>>
+                                            <option  <?php if($values['channel_name'] == $booking_history[0]['partner_source']){ echo "selected"; } ?>>
                                                 <?php echo $values['channel_name']; ?> 
                                             </option>
                                             <?php }    ?>
