@@ -8461,3 +8461,8 @@ ALTER TABLE `partner_channel`
 ALTER TABLE `partner_channel`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 COMMIT;
+
+-- Kalyani 11-Oct
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Partner Channel', NULL, NULL, '2', '24', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Add Channel', NULL, 'employee/partner/add_channel', '2', '169', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Channel List', NULL, 'employee/partner/get_channels', '2', '169', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);

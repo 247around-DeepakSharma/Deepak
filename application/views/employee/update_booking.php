@@ -173,24 +173,11 @@
                                     <div class="col-md-6">
                                         <select class="form-control"  id="partner_source" name="partner_source" <?php if(!empty($booking_history[0]['partner_source'])){ echo "readonly";} ?> >
                                             <option value="">Please Select Seller Platform</option>
-                                            <option <?php if($booking_history[0]['partner_source'] === "AndroidApp" ){ echo "selected"; } ?> >AndroidApp</option>
-                                            <option <?php if($booking_history[0]['partner_source'] === "Amazon" ){ echo "selected"; } ?> >Amazon</option>
-                                            <option <?php if($booking_history[0]['partner_source'] === "CallCenter" ){ echo "selected"; } ?> >CallCenter</option>
-                                            <option <?php if($booking_history[0]['partner_source'] === "Ebay" ){ echo "selected"; } ?>>Ebay</option>
-                                            <option <?php if($booking_history[0]['partner_source'] === "Flipkart" ){ echo "selected"; } ?>>Flipkart</option>
-                                            <option <?php if($booking_history[0]['partner_source'] === "Jeeves-delivered-excel" ){ echo "selected"; } ?> >Jeeves-delivered-excel</option>
-                                            <option <?php if($booking_history[0]['partner_source'] === "Offline" ){ echo "selected"; } ?>>Offline</option>
-                                            <option <?php if($booking_history[0]['partner_source'] === "Paytm-delivered-excel" ){ echo "selected"; } ?> >Paytm</option>
-                                            <option <?php if($booking_history[0]['partner_source'] === "Paytm-delivered-excel" ){ echo "selected"; } ?> >Paytm-delivered-excel</option>
-                                            <option <?php if($booking_history[0]['partner_source'] === "Pepperfry" ){ echo "selected"; } ?> >Pepperfry</option>
-                                            <option <?php if($booking_history[0]['partner_source'] === "Shopclues" ){ echo "selected"; } ?> >Shopclues</option>
-                                            <option <?php if($booking_history[0]['partner_source'] === "STS" ){ echo "selected"; } ?> >STS</option>
-                                            <option <?php if($booking_history[0]['partner_source'] === "Snapdeal-delivered-excel" ){ echo "selected"; } ?> >Snapdeal-delivered-excel</option>
-                                            <option <?php if($booking_history[0]['partner_source'] === "Snapdeal-shipped-excel" ){ echo "selected"; } ?> >Snapdeal-shipped-excel</option>
-                                            <option <?php if($booking_history[0]['partner_source'] === "TataCliq" ){ echo "selected"; } ?> >TataCliq</option>
-                                            <option <?php if($booking_history[0]['partner_source'] === "Techwider" ){ echo "selected"; } ?> >Techwider</option>
-                                            <option <?php if($booking_history[0]['partner_source'] === "VibgyorNXT" ){ echo "selected"; } ?> >VibgyorNXT</option>
-                                            <option <?php if($booking_history[0]['partner_source'] === "Website" ){ echo "selected"; } ?> >Website</option>
+                                            <?php foreach ($channel as $key => $values) { ?>
+                                            <option  <?php if($values['id'] == $booking_history[0]['partner_source']){ echo "selected"; } ?> value=<?php echo $values['id']; ?>>
+                                                <?php echo $values['channel_name']; ?> 
+                                            </option>
+                                            <?php }    ?>
                                         </select>
                                     </div>
                                 </div>

@@ -171,18 +171,10 @@
                                 <div class="form-group col-md-12  <?php if( form_error('partner_source') ) { echo 'has-error';} ?>">
                                     <label for="partner_source">Seller Channel* <span id="error_seller" style="color: red;"></label>
                                     <select class="form-control"  id="partner_source" name="partner_source" >
-                                        <option value="">Please select seller channel</option>
-                                        <option <?php if(set_value('partner_source') == "Amazon"){ echo "selected";} ?>>Amazon</option>
-                                        <option <?php if(set_value('partner_source') == "Ebay"){ echo "selected";} ?>>Ebay</option>
-                                        <option <?php if(set_value('partner_source') == "Flipkart"){ echo "selected";} ?>>Flipkart</option>
-                                        <option <?php if(set_value('partner_source') == "Offline"){ echo "selected";} ?>>Offline</option>
-                                        <option <?php if(set_value('partner_source') == "Paytm"){ echo "selected";} ?>>Paytm</option>
-                                        <option <?php if(set_value('partner_source') == "Pepperfry"){ echo "selected";} ?>>Pepperfry</option>
-                                        <option <?php if(set_value('partner_source') == "Shopclues"){ echo "selected";} ?>>Shopclues</option>
-                                        <option <?php if(set_value('partner_source') == "Snapdeal"){ echo "selected";} ?>>Snapdeal</option>
-                                        <option <?php if(set_value('partner_source') == "TataCliq"){ echo "selected";} ?>>TataCliq</option>
-                                        <option <?php if(set_value('partner_source') == "Techwider"){ echo "selected";} ?>>Techwider</option>
-                                        <option <?php if(set_value('partner_source') == "VibgyorNXT"){ echo "selected";} ?>>VibgyorNXT</option>
+                                        <option value="" selected disabled>Please select seller channel</option>
+                                        <?php foreach ($channel as $key => $value) { ?>
+                                        <option value="<?php echo $value['id']; ?>" <?php if(set_value('partner_source') == $value['id']){ echo "selected";} ?>><?php echo $value['channel_name'];  ?></option>  
+                                       <?php } ?>
                                     </select>
                                     <?php echo form_error('partner_source'); ?>
                                 </div>
