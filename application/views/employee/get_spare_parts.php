@@ -45,8 +45,12 @@
                 <div role="tabpanel"> 
                     <div class="col-md-12">
                         <ul class="nav nav-tabs" role="tablist" >
-                            <li role="presentation" class="active"><a href="#spare_parts_requested" aria-controls="spare_parts_requested" role="tab" data-toggle="tab">Parts Requested</a></li>
-                            <li role="presentation"><a href="#shipped" aria-controls="shipped" role="tab" data-toggle="tab">Partner Shipped Part</a></li>
+                            <li role="presentation" class="active"><a href="#estimate_cost_requested" aria-controls="spare_parts_requested" role="tab" data-toggle="tab">Spare Quote Requested</a></li>
+                            <li role="presentation" ><a href="#estimate_cost_given" aria-controls="spare_parts_requested" role="tab" data-toggle="tab">Quote Given</a></li>
+                  
+                            <li role="presentation" ><a href="#spare_parts_requested" aria-controls="spare_parts_requested" role="tab" data-toggle="tab">Parts Requested</a></li>
+                            <li role="presentation"><a href="#oow_part_shipped" aria-controls="shipped" role="tab" data-toggle="tab">Partner Shipped Part(Pending on Approval)</a></li>
+                            <li role="presentation"><a href="#shipped" aria-controls="shipped" role="tab" data-toggle="tab">Partner Shipped Part(Approved)</a></li>
                             <li role="presentation"><a href="#delivered" aria-controls="delivered" role="tab" data-toggle="tab">SF Received Part</a></li>
                             <li role="presentation"><a href="#defective_part_pending" aria-controls="defective_part_pending" role="tab" data-toggle="tab">Defective Part Pending</a></li>
                             <li role="presentation"><a href="#defective_part_rejected_by_partner" aria-controls="defective_part_rejected_by_partner" role="tab" data-toggle="tab">Defective Part Rejected By Partner</a></li>

@@ -1752,6 +1752,7 @@ class Partner extends CI_Controller {
                 $this->form_validation->set_message('challan_file', "Uploaded File Must be Less Than 2Mb in size");
                 $this->update_spare_parts_form($booking_id);
             } else {
+                $request_type = $this->input->post('request_type');
                 $challan_file = $this->upload_challan_file(rand(10, 100));
                 if ($challan_file) {
                     $data['partner_challan_file'] = $challan_file;
@@ -1780,6 +1781,12 @@ class Partner extends CI_Controller {
                     foreach ($shipped_part_details as $key => $value) {
                         if ($value['shippingStatus'] == 1) {
                             $data['status'] = SPARE_SHIPPED_BY_PARTNER;
+//                            if($request_type == REPAIR_OOW_TAG){
+//                                $data['status'] = SPARE_OOW_SHIPPED;
+//                            } else {
+//                                $data['status'] = SPARE_SHIPPED_BY_PARTNER;
+//                            }
+                            
                             $data['parts_shipped'] = $value['shipped_parts_name'];
                             $data['model_number_shipped'] = $value['shipped_model_number'];
                             $data['shipped_parts_type'] = $value['shipped_part_type'];
@@ -1816,6 +1823,13 @@ class Partner extends CI_Controller {
 
                         $sc_data['current_status'] = $current_status;
                         $sc_data['internal_status'] = $internal_status;
+//                        if($request_type == REPAIR_OOW_TAG){
+//                            $sc_data['internal_status'] = SPARE_OOW_SHIPPED;
+//                        } else {
+//                            $sc_data['internal_status'] = $internal_status;
+//                            
+//                        }
+                        
                         $this->vendor_model->update_service_center_action($booking_id, $sc_data);
 
                         $booking['internal_status'] = $internal_status;
@@ -2164,20 +2178,20 @@ class Partner extends CI_Controller {
             
             $this->booking_model->update_booking($booking_id, $booking);
             
-            $is_oow_return = $this->partner_model->get_spare_parts_by_any("booking_unit_details_id, purchase_price, sell_price, sell_invoice_id", 
-                    array('spare_parts_details.booking_id' => $booking_id, 
-                        'booking_unit_details_id IS NOT NULL' => NULL,
-                        'sell_price > 0 ' => NULL,
-                        'sell_invoice_id IS NOT NULL' => NULL,
-                        'estimate_cost_given_date IS NOT NULL' => NULL,
-                        'request_type' => REPAIR_OOW_TAG,
-                        '(reverse_sale_invoice_id IS NULL OR reverse_purchase_invoice_id)' => NULL),
-                    true);
-            if(!empty($is_oow_return)){
-                $url = base_url() . "employee/invoice/generate_reverse_oow_invoice";
-                $async_data['booking_id'] = $booking_id;
-                $this->asynchronous_lib->do_background_process($url, $async_data);
-            }
+//            $is_oow_return = $this->partner_model->get_spare_parts_by_any("booking_unit_details_id, purchase_price, sell_price, sell_invoice_id", 
+//                    array('spare_parts_details.booking_id' => $booking_id, 
+//                        'booking_unit_details_id IS NOT NULL' => NULL,
+//                        'sell_price > 0 ' => NULL,
+//                        'sell_invoice_id IS NOT NULL' => NULL,
+//                        'estimate_cost_given_date IS NOT NULL' => NULL,
+//                        'request_type' => REPAIR_OOW_TAG,
+//                        '(reverse_sale_invoice_id IS NULL OR reverse_purchase_invoice_id)' => NULL),
+//                    true);
+//            if(!empty($is_oow_return)){
+//                $url = base_url() . "employee/invoice/generate_reverse_oow_invoice";
+//                $async_data['booking_id'] = $booking_id;
+//                $this->asynchronous_lib->do_background_process($url, $async_data);
+//            }
 
             if (empty($is_cron)) {
                 $userSession = array('success' => ' Received Defective Spare Parts');
