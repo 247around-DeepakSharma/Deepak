@@ -1992,8 +1992,8 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         $table_template = array(
                             'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
                         );
-        $select = "GROUP_CONCAT(`reference_invoice_id`) as reference_invoice_id, vendor_partner_invoices.vendor_partner_id, service_centres.company_name, service_centres.owner_email, service_centres.primary_contact_email";
-        $invoice_select = "vendor_partner_invoices.invoice_id, vendor_partner_invoices.total_amount_collected, vendor_partner_invoices.igst_tax_amount, vendor_partner_invoices.cgst_tax_amount, vendor_partner_invoices.sgst_tax_amount";
+        $select = "GROUP_CONCAT(`reference_invoice_id`) as reference_invoice_id, vendor_partner_invoices.vendor_partner_id, service_centres.company_name, service_centres.owner_email, service_centres.primary_contact_email, service_centres.gst_no";
+        $invoice_select = "vendor_partner_invoices.invoice_id, vendor_partner_invoices.total_amount_collected, vendor_partner_invoices.igst_tax_amount, vendor_partner_invoices.cgst_tax_amount, vendor_partner_invoices.sgst_tax_amount, vendor_partner_invoices.invoice_date";
         $post['length'] = -1;
         $post['where'] = array(
            'vendor_partner'=>_247AROUND_SF_STRING,
@@ -2006,7 +2006,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         $invoices = $this->invoices_model->searchInvoicesdata($select, $post);
         foreach ($invoices as $key => $vendor_value) {
            $this->table->set_template($table_template);
-           $this->table->set_heading(array('Invoice ID', 'Invoice Amount', 'GST Amount'));
+           $this->table->set_heading(array('Invoice No', 'Date', 'Taxable Value', 'CGST (Rs.)', 'SGST (Rs.)', 'IGST (Rs.)', 'Total Tax (Rs.)', 'Invoice Total (Rs.)'));
            $where_in = explode(',', $vendor_value->reference_invoice_id);
            $invoices_id = "";
            foreach ($where_in as $val){
@@ -2017,16 +2017,18 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
            
             foreach ($invoices_detail as $key => $value) {
                $gst_amt =  $value['igst_tax_amount'] + $value['cgst_tax_amount'] + $value['sgst_tax_amount'];
-               $this->table->add_row($value['invoice_id'], $value['total_amount_collected'], $gst_amt);
+               $taxable_value =  $value['total_amount_collected'] - $gst_amt;
+               $this->table->add_row($value['invoice_id'], $value['invoice_date'], $taxable_value, $value['cgst_tax_amount'], $value['sgst_tax_amount'], $value['igst_tax_amount'], $gst_amt, $value['total_amount_collected']);
             }
             $email_template = $this->booking_model->get_booking_email_template(VENDOR_GST_RETURN_WARNING);
             if(!empty($email_template)){
                 $table = $this->table->generate();
-                $subject = vsprintf($email_template[4], array($vendor_value->company_name));
-                $message = vsprintf($email_template[0], $table); 
+                //$subject = vsprintf($email_template[4], array($vendor_value->company_name));
+                $subject = $email_template[4];
+                $message = vsprintf($email_template[0], array($vendor_value->company_name, $vendor_value->gst_no, $table)); 
                 $email_from = $email_template[2];
                 $to = $vendor_value->owner_email.",".$vendor_value->primary_contact_email;
-                $cc = ACCOUNTANT_EMAILID;
+                $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID;
                 $this->notify->sendEmail($email_from, $to, $cc, '', $subject, $message, '', CN_AGAINST_GST_DN);
             }
         }
