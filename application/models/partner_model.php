@@ -96,7 +96,7 @@ class Partner_model extends CI_Model {
 
 
         $query = $this->db->get('partners');
-
+        //echo $this->db->last_query(); die();
         return $query->result_array();
     }
 
@@ -1357,7 +1357,7 @@ function get_data_for_partner_callback($booking_id) {
      * @param String $partner_id
      * @return Array
      */
-    function get_partner_details_with_soucre_code($active,$partnerType,$ac,$partner_not_like=NULL,$partner_id=""){
+    function get_partner_details_with_soucre_code($active,$partnerType,$ac,$partner_not_like=NULL,$partner_id="", $is_prepaid=null){
         $where = array();
         $where_in = array();
         $this->db->select('partners.*,bookings_sources.code,bookings_sources.partner_type');
@@ -1367,6 +1367,9 @@ function get_data_for_partner_callback($booking_id) {
         else{
             if($active !='All'){
                 $where['partners.is_active'] = $active;
+            }
+            if($is_prepaid){
+               $where['partners.is_prepaid'] = $is_prepaid; 
             }
             if($partnerType){
                 //$where['bookings_sources.partner_type']  = $partnerType;
@@ -1710,6 +1713,26 @@ function get_data_for_partner_callback($booking_id) {
         $query = $this->db->get();
         return $query->result();
     }
+    function insert_new_channels($details) {
+        $this->db->insert('partner_channel', $details);
+        return $this->db->insert_id();
+    }
+    public function get_channels($select = '*', $data = array()) {
+
+        $this->db->select($select);
+        if(!empty($data)){
+            $this->db->where($data);
+        }
+        $this->db->from('partner_channel');
+         $this->db->join('partners', 'partner_channel.partner_id = partners.id', 'left');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    function update_channel($id, $data) {
+        $this->db->where("id", $id);
+        $this->db->update("partner_channel", $data);
+        return true;
     
+}
 }
 

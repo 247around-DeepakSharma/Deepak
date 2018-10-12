@@ -37,6 +37,7 @@ class Partner extends CI_Controller {
         $this->load->model("push_notification_model");
         $this->load->library('table');
         $this->load->library("invoice_lib");
+    
 
         $this->load->helper(array('form', 'url', 'file', 'array'));
         $this->load->dbutil();
@@ -237,7 +238,7 @@ class Partner extends CI_Controller {
      * @desc: This method loads abb booking form
      * it gets user details(if exist), city, source, services
      */
-    function get_addbooking_form($phone_number = "") {
+    function get_addbooking_form($phone_number = "") { 
         $this->checkUserSession();
         if (!empty($phone_number)) {
             $_POST['phone_number'] = $phone_number;
@@ -268,6 +269,7 @@ class Partner extends CI_Controller {
             $data['prepaid_amount'] = $this->get_prepaid_amount($this->session->userdata('partner_id'));
             
             $data['phone_number'] = trim($phone_number);
+            $data['channel'] = $this->partner_model->get_channels('partner_channel.id, partner_channel.channel_name', array('partner_id'=>$this->session->userdata('partner_id')));
             $this->miscelleneous->load_partner_nav_header();
             //$this->load->view('partner/header');
             $this->load->view('partner/get_addbooking', $data);
@@ -647,11 +649,15 @@ class Partner extends CI_Controller {
         $return_data['grace_period_date'] = $this->input->post('grace_period_date');
         $return_data['is_wh'] = $this->input->post('is_wh');
         $is_prepaid = $this->input->post('is_prepaid');
-        if (!empty($is_prepaid)) {
+        $return_data['is_prepaid'] = 2; // Default set
+        if ($is_prepaid == 1) {
             $return_data['is_prepaid'] = 1;
-        } else {
+        }
+        $postpaid = $this->input->post('is_postpaid');
+        if($postpaid == 1){
             $return_data['is_prepaid'] = 0;
         }
+        
         $return_data['postpaid_credit_period'] = $this->input->post('postpaid_credit_period');
         $return_data['postpaid_notification_limit'] = $this->input->post('postpaid_notification_limit');
         $return_data['postpaid_grace_period'] = $this->input->post('postpaid_grace_period');
@@ -739,7 +745,7 @@ class Partner extends CI_Controller {
            $partner_not_like = INTERNALTYPE;
            $partnerType= array(OEM, EXTWARRANTYPROVIDERTYPE, ECOMMERCETYPE);
         }
-        $query = $this->partner_model->get_partner_details_with_soucre_code($active,$partnerType,$ac,$partner_not_like,$partner_id);
+        $query = $this->partner_model->get_partner_details_with_soucre_code($active,$partnerType,$ac,$partner_not_like,$partner_id, null);
         foreach ($query as $key => $value) {
             //Getting Appliances and Brands details for partner
             $service_brands[] = $this->partner_model->get_service_brands_for_partner($value['id']);
@@ -1417,6 +1423,7 @@ class Partner extends CI_Controller {
                     $data['dealer_data'] = $dealer_data[0];
                 }
             }
+            $data['channel'] = $this->partner_model->get_channels('partner_channel.id, partner_channel.channel_name', array('partner_id'=>$partner_id));
             $this->miscelleneous->load_partner_nav_header();
             //$this->load->view('partner/header');
             $this->load->view('partner/edit_booking', $data);
@@ -1745,6 +1752,7 @@ class Partner extends CI_Controller {
                 $this->form_validation->set_message('challan_file', "Uploaded File Must be Less Than 2Mb in size");
                 $this->update_spare_parts_form($booking_id);
             } else {
+                $request_type = $this->input->post('request_type');
                 $challan_file = $this->upload_challan_file(rand(10, 100));
                 if ($challan_file) {
                     $data['partner_challan_file'] = $challan_file;
@@ -1773,6 +1781,12 @@ class Partner extends CI_Controller {
                     foreach ($shipped_part_details as $key => $value) {
                         if ($value['shippingStatus'] == 1) {
                             $data['status'] = SPARE_SHIPPED_BY_PARTNER;
+//                            if($request_type == REPAIR_OOW_TAG){
+//                                $data['status'] = SPARE_OOW_SHIPPED;
+//                            } else {
+//                                $data['status'] = SPARE_SHIPPED_BY_PARTNER;
+//                            }
+                            
                             $data['parts_shipped'] = $value['shipped_parts_name'];
                             $data['model_number_shipped'] = $value['shipped_model_number'];
                             $data['shipped_parts_type'] = $value['shipped_part_type'];
@@ -1809,6 +1823,13 @@ class Partner extends CI_Controller {
 
                         $sc_data['current_status'] = $current_status;
                         $sc_data['internal_status'] = $internal_status;
+//                        if($request_type == REPAIR_OOW_TAG){
+//                            $sc_data['internal_status'] = SPARE_OOW_SHIPPED;
+//                        } else {
+//                            $sc_data['internal_status'] = $internal_status;
+//                            
+//                        }
+                        
                         $this->vendor_model->update_service_center_action($booking_id, $sc_data);
 
                         $booking['internal_status'] = $internal_status;
@@ -2157,20 +2178,20 @@ class Partner extends CI_Controller {
             
             $this->booking_model->update_booking($booking_id, $booking);
             
-            $is_oow_return = $this->partner_model->get_spare_parts_by_any("booking_unit_details_id, purchase_price, sell_price, sell_invoice_id", 
-                    array('spare_parts_details.booking_id' => $booking_id, 
-                        'booking_unit_details_id IS NOT NULL' => NULL,
-                        'sell_price > 0 ' => NULL,
-                        'sell_invoice_id IS NOT NULL' => NULL,
-                        'estimate_cost_given_date IS NOT NULL' => NULL,
-                        'request_type' => REPAIR_OOW_TAG,
-                        '(reverse_sale_invoice_id IS NULL OR reverse_purchase_invoice_id)' => NULL),
-                    true);
-            if(!empty($is_oow_return)){
-                $url = base_url() . "employee/invoice/generate_reverse_oow_invoice";
-                $async_data['booking_id'] = $booking_id;
-                $this->asynchronous_lib->do_background_process($url, $async_data);
-            }
+//            $is_oow_return = $this->partner_model->get_spare_parts_by_any("booking_unit_details_id, purchase_price, sell_price, sell_invoice_id", 
+//                    array('spare_parts_details.booking_id' => $booking_id, 
+//                        'booking_unit_details_id IS NOT NULL' => NULL,
+//                        'sell_price > 0 ' => NULL,
+//                        'sell_invoice_id IS NOT NULL' => NULL,
+//                        'estimate_cost_given_date IS NOT NULL' => NULL,
+//                        'request_type' => REPAIR_OOW_TAG,
+//                        '(reverse_sale_invoice_id IS NULL OR reverse_purchase_invoice_id)' => NULL),
+//                    true);
+//            if(!empty($is_oow_return)){
+//                $url = base_url() . "employee/invoice/generate_reverse_oow_invoice";
+//                $async_data['booking_id'] = $booking_id;
+//                $this->asynchronous_lib->do_background_process($url, $async_data);
+//            }
 
             if (empty($is_cron)) {
                 $userSession = array('success' => ' Received Defective Spare Parts');
@@ -3500,7 +3521,7 @@ class Partner extends CI_Controller {
      */
     function get_prepaid_amount($partner_id) {
         log_message("info", __METHOD__ . " Partner Id " . $partner_id);
-        if (!empty($this->session->userdata('is_prepaid'))) {
+        if ($this->session->userdata('is_prepaid') == 1) {
             $p_details = $this->miscelleneous->get_partner_prepaid_amount($partner_id);
 
             if ($p_details['is_notification']) {
@@ -3515,8 +3536,12 @@ class Partner extends CI_Controller {
             $userSession = array('status' => $p_details['active'], "message" => $p_details['prepaid_msg']);
             $this->session->set_userdata($userSession);
             return $d;
-        } else {
+        } else if ($this->session->userdata('is_prepaid') == 0) {
             $this->check_postpaid_partner_active($partner_id);
+            return array();
+        } else {
+            $userSession = array('status' => true);
+            $this->session->set_userdata($userSession);
             return array();
         }
         
@@ -3530,7 +3555,7 @@ class Partner extends CI_Controller {
         log_message('info', __METHOD__. " POSPAID PARTNER ". $partner_id);
         $partner_details = $this->partner_model->getpartner_details("partners.id, public_name, "
                 . "postpaid_credit_period, is_active, postpaid_notification_limit, postpaid_grace_period, "
-                . "invoice_email_to,invoice_email_cc", array('partners.id' => $partner_id));
+                . "invoice_email_to,invoice_email_cc, is_prepaid", array('partners.id' => $partner_id));
         $postpaid = $this->invoice_lib->get_postpaid_partner_outstanding($partner_details[0]);
 
         $userSession = array('status' => $postpaid['active'], "message" => $postpaid['notification_msg']);
@@ -5864,4 +5889,135 @@ class Partner extends CI_Controller {
             redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
         }
     }
+    /*
+     * This function extracts channels list and partner name from database and loads it to the view in tabular format.
+     */
+    public function get_channels(){
+        $select = 'partner_channel.*,partners.public_name';
+        $fetch_data = $this->partner_model->get_channels($select);
+        
+        $this->miscelleneous->load_nav_header();
+        $this->load->view("employee/get_channel_list", array('fetch_data' => $fetch_data));
+    }
+    
+    public function get_partner_channel() {
+        $select = 'partner_channel.id, partner_channel.channel_name';
+        if(!empty($this->input->post('partner_id'))){ 
+            $where = array('partner_id' => $this->input->post('partner_id'));
+        }
+        else{
+            $where = array();
+        }
+        $fetch_data = $this->partner_model->get_channels($select, $where);
+        $html = '<option value="" selected disabled>Please select seller channel</option>';
+        foreach ($fetch_data as $key => $value) {
+           $html .= '<option>'.$value['channel_name'].'</option>'; 
+        }
+        echo $html;
+    }
+    
+   /*
+    * This function displays channel form in the browser.
+    */
+    public function add_channel(){ 
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/channel_form');
+    }
+    /*
+     * This performs the process of adding channels to the form and submiting it to the database table.
+     */
+    public function process_add_channel(){
+        $this->form_validation->set_rules('channel','Channel','required');
+        if ($this->form_validation->run() == FALSE) {
+            $this->add_channel();
+        } else {
+            $channel = $this->input->post("channel");
+            $partner_id = $this->input->post("partner_id");
+            $data = array(
+                'channel_name' => $channel,
+                'partner_id' => $partner_id
+                );
+          
+            $is_exist = $this->partner_model->get_channels($data);
+           
+            
+            if (empty($is_exist)) {
+                $data['create_date'] = date('Y-m-d H:i:s');
+                $channel_id = $this->partner_model->insert_new_channels($data);
+               // exit();
+                if ($channel_id){
+                    $output = "Your data inserted successfully";
+                    $userSession = array('success' => $output);
+                    $this->session->set_userdata($userSession);
+                    redirect(base_url() . "employee/partner/add_channel");
+                }else{
+                    $output = "Failed! Data did not insert";
+                    $userSession = array('error' => $output);
+                    $this->session->set_userdata($userSession);
+                    redirect(base_url() . "employee/partner/add_channel");
+                }
+            }
+            else {
+                $output = "This Data already exist";
+                $userSession = array('error' => $output);
+                $this->session->set_userdata($userSession);
+                redirect(base_url() . "employee/partner/add_channel");
+            }
+    }
 }
+/*
+ * This function loads the tabular format of the view of update channel form 
+ */
+function update_channel($id) {
+        $data = array(
+            'partner_channel.id' => $id
+        );
+        
+        $channel['fetch_data'] = $this->partner_model->get_channels('', $data);
+      
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/update_channel', $channel);
+        
+       
+    }
+    /*
+     * This function supports in performing update functionalties to the form and further submiting it to the database. 
+     */
+    function process_update_channel($id) {
+        $this->form_validation->set_rules('channel', 'Channel', 'required');
+        if ($this->form_validation->run() == FALSE) {
+            $this->update_channel($id);
+        } else {
+            $channel = $this->input->post("channel");
+            $partner_id = $this->input->post("partner_id");
+            $data = array(
+                'channel_name' => $channel,
+                'partner_id' => $partner_id
+            );
+            $is_exist = $this->partner_model->get_channels($data);
+            if (empty($is_exist)) {
+                 $data['update_date'] = date('Y-m-d H:i:s');
+                $channel_id = $this->partner_model->insert_new_channels($data);
+                $status = $this->partner_model->update_channel($id, $data);
+                if ($status) {
+                    $output = "Your data updated successfully";
+                    $userSession = array('success' => $output);
+                    $this->session->set_userdata($userSession);
+                    redirect(base_url() . "employee/partner/update_channel/" . $id);
+                } else {
+                    $output = "Failed! Data did not update";
+                    $userSession = array('error' => $output);
+                    $this->session->set_userdata($userSession);
+                    redirect(base_url() . "employee/partner/update_channel/" . $id);
+                }
+            }  else {
+                    $output = "This Data already exist";
+                    $userSession = array('error' => $output);
+                    $this->session->set_userdata($userSession);
+                    redirect(base_url() . "employee/partner/update_channel/" . $id);
+                }
+            }
+        }
+
+}
+

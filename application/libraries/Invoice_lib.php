@@ -374,11 +374,11 @@ class Invoice_lib {
                     
                     if ($gstin['gst_taxpayer_type'] == "Regular" && ($gstin['gst_status'] == "Active" || $gstin['gst_status'] == "Provisional" )) {
                         
-                        return array('staus' => TRUE, "gst_type" => TRUE);
+                        return array('status' => TRUE, "gst_type" => TRUE);
                         
                     } else if($gstin['gst_status'] == "Cancelled" || $gstin['gst_taxpayer_type'] == "Composition"){
                         
-                        return array('staus' => TRUE, "gst_type" => FALSE);
+                        return array('status' => TRUE, "gst_type" => FALSE);
                     }else {
                         return FALSE;
                     }
@@ -401,7 +401,7 @@ class Invoice_lib {
         log_message("info", __METHOD__ . " Partner ID " . print_r($partner_details, true));
 
         $result = array('active' => 1, "is_notification" => FALSE, "notification_msg" => "", "partner_id" => $partner_details['id']);
-        if (!empty($partner_details)) {
+        if (!empty($partner_details) && $partner_details['is_prepaid'] == 0) {
             // GET un-paid invoice whose due date less than today
             $invoicingSummary = $this->ci->invoices_model->get_summary_invoice_amount("partner", $partner_details['id'], " AND `due_date` <= CURRENT_DATE() ");
             if (!empty($invoicingSummary)) {
@@ -590,6 +590,134 @@ class Invoice_lib {
         $sms['type'] = $account_statement['partner_vendor'];
         $sms['type_id'] = $account_statement['partner_vendor_id'];
         $this->ci->notify->send_sms_msg91($sms);
+    }
+    
+    /**
+     * @desc this function is used to generate the challan PDF file
+     * @param array $sf_details
+     * @param array $partner_details
+     * @param String $sf_challan_number
+     * @param Array $spare_details
+     * @param Array $partner_challan_number
+     * @return String $output_pdf_file_name
+     */
+    function process_create_sf_challan_file($sf_details, $partner_details, $sf_challan_number,  $spare_details, $partner_challan_number = "") {
+        $excel_data = array();
+        $excel_data['excel_data']['sf_name'] = $sf_details[0]['name'];
+        $excel_data['excel_data']['sf_address'] = $sf_details[0]['address'];
+        $excel_data['excel_data']['partner_name'] = $partner_details[0]['company_name'];
+        $excel_data['excel_data']['partner_address'] = $partner_details[0]['address'];
+        $excel_data['excel_data']['partner_gst'] = $partner_details[0]['gst_number'];
+        $excel_data['excel_data']['partner_challan_no'] = $partner_challan_number;
+        $excel_data['excel_data']['sf_challan_no'] = $sf_challan_number;
+        $excel_data['excel_data']['date'] = date('Y-m-d');
+        $booking_id  = $spare_details[0]['booking_id'];
+        $excel_data['excel_data_line_item'] = array();
+        
+        foreach ($spare_details as $value) {
+            if (!empty($value)) {
+                $tmp_arr = array();
+                $tmp_arr['value'] = $value['challan_approx_value'];
+                $tmp_arr['booking_id'] = $value['booking_id'];
+                $tmp_arr['spare_desc'] = $value['parts_shipped'];
+                $tmp_arr['qty'] = 1;
+
+                array_push($excel_data['excel_data_line_item'], $tmp_arr);
+            }
+        }
+
+        if ($sf_details[0]['is_gst_doc'] == 1) {
+            $template = 'delivery_challan_template';
+            $excel_data['excel_data']['sf_gst'] = $sf_details[0]['gst_no'];
+            $signature_file = FALSE;
+        } else {
+            $template = "delivery_challan_without_gst";
+            $excel_data['excel_data']['sf_gst'] = '';
+            $excel_data['excel_data']['sf_owner_name'] = $sf_details[0]['owner_name'];
+            //get signature file from s3 and save it to server
+            if(!empty($sf_details[0]['signature_file'])){
+                $s3_bucket = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $sf_details[0]['signature_file'];
+                copy($s3_bucket, TMP_FOLDER . $sf_details[0]['signature_file']);
+                system(" chmod 777 " . TMP_FOLDER . $sf_details[0]['signature_file']);
+                $excel_data['excel_data']['signature_file'] = $signature_file = $sf_details[0]['signature_file'] ;
+            } else {
+                $excel_data['excel_data']['signature_file'] = $signature_file = "" ;
+            }
+            
+        } 
+
+        if (!empty($template)) {
+            //generated pdf file name
+            $output_file = "delivery_challan_" . $booking_id . "_" . rand(10,100) . "_" . date('d_M_Y_H_i_s');
+            //generated pdf file template
+            $html_file = $this->ci->load->view('templates/' . $template, $excel_data, true);
+            $output_pdf_file_name = $output_file . ".pdf";
+
+            $json_result = $this->ci->miscelleneous->convert_html_to_pdf($html_file, $booking_id, $output_pdf_file_name, 'vendor-partner-docs');
+            log_message('info', __FUNCTION__ . 'HTML TO PDF JSON RESPONSE' . print_r($json_result, TRUE));
+            $pdf_response = json_decode($json_result, TRUE);
+            
+            if ($pdf_response['response'] === 'Success') {
+                log_message('info', ' Mpdf ' . $pdf_response['response_msg']);
+                $output_pdf_file_name = $pdf_response['output_pdf_file'];
+                if (file_exists(TMP_FOLDER . $output_pdf_file_name)) {
+                    $res1 = 0;
+                    system(" chmod 777 " . TMP_FOLDER . $output_pdf_file_name, $res1);
+                    unlink(TMP_FOLDER . $output_pdf_file_name);
+                }
+            } else {
+                log_message('info', $pdf_response['response_msg'] . ' Error in generating pdf');
+                $output_pdf_file_name = '';
+            }
+            
+            if ($signature_file && file_exists(TMP_FOLDER . $sf_details[0]['signature_file'])) {
+                unlink(TMP_FOLDER . $sf_details[0]['signature_file']);
+            }
+        } else {
+            log_message('info','pdf file can not be generated because no template found');
+            $output_pdf_file_name = "";
+        }
+
+        return $output_pdf_file_name;
+    }
+    /**
+     * @desc Generate Challan file
+     * @param type $booking_id
+     * @return boolean
+     */
+    function generate_challan_file($booking_id, $service_center_id){
+        
+        $select = 'spare_parts_details.*';
+        $where =  array('spare_parts_details.booking_id' => $booking_id, "status" => DEFECTIVE_PARTS_PENDING, 'defective_part_required' => 1);
+        
+        
+        $spare_parts_details  = $this->ci->partner_model->get_spare_parts_by_any($select,$where );
+        if(!empty($spare_parts_details)){
+            $partner_challan_number = trim(implode(',', array_column($spare_parts_details, 'partner_challan_number')),',');
+            $sf_details = $this->ci->vendor_model->getVendorDetails('name,address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,is_signature_doc',array('id'=>$service_center_id));
+            if ($spare_parts_details[0]['entity_type'] == _247AROUND_PARTNER_STRING) {
+                    $partner_details = $this->ci->partner_model->getpartner_details('company_name,address,gst_number', array('partners.id' => $spare_parts_details[0]['partner_id']));
+            } else if ($spare_parts_details[0]['entity_type'] === _247AROUND_SF_STRING) {
+                $partner_details = $this->ci->vendor_model->getVendorDetails('name as company_name,address,owner_name,gst_no as gst_number', array('id' => $spare_parts_details[0]['partner_id']));
+            }
+            
+            $sf_challan_number = $spare_parts_details[0]['sf_challan_number'];
+            
+            if (empty($sf_challan_number)) {
+                $sf_challan_number = $this->ci->miscelleneous->create_sf_challan_id($sf_details[0]['sc_code']);
+            }
+            
+            $sf_challan_file = $this->process_create_sf_challan_file($sf_details, $partner_details, $sf_challan_number, $spare_parts_details, $partner_challan_number);
+            
+            $data['sf_challan_number'] = $sf_challan_number;
+            $data['sf_challan_file'] = $sf_challan_file;
+            
+            foreach($spare_parts_details as $value){
+                $this->ci->service_centers_model->update_spare_parts(array('id' => $value['id']), $data);
+            }
+        } 
+        
+        return true;
     }
 
 }

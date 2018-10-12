@@ -721,7 +721,7 @@
                                                     echo $query[0]['prepaid_amount_limit'];
                                                     } ?>" >
                                                 <?php echo form_error('prepaid_amount_limit'); ?>
-                                                 <p style="font-weight:bold;"><span><?php echo $query[0]['prepaid_amount_limit']; ?></span> is minimum pre paid amount</p>
+                                                <p style="font-weight:bold;"><span><?php if(isset($query[0]['prepaid_amount_limit'])){ echo $query[0]['prepaid_amount_limit']; }?></span> is minimum pre paid amount</p>
                                             </div>
                                         </div>
                                     </div>
@@ -735,7 +735,7 @@
                                                     echo $query[0]['prepaid_notification_amount'];
                                                     } ?>" >
                                                 <?php echo form_error('prepaid_notification_amount'); ?>
-                                                <p style="font-weight:bold;"><span><?php echo $query[0]['prepaid_notification_amount']; ?> </span> is minimum notification amount</p>
+                                                <p style="font-weight:bold;"><span><?php if(isset($query[0]['prepaid_notification_amount'])){ echo $query[0]['prepaid_notification_amount']; } ?> </span> is minimum notification amount</p>
                                             </div>
                                         </div>
                                     </div>
@@ -749,7 +749,7 @@
                                                     echo $query[0]['grace_period_date'];
                                                     } ?>" >
                                                 <?php echo form_error('grace_period_date'); ?>
-                                                <p style="font-weight:bold;">Account will be active till date - <span><?php echo $query[0]['grace_period_date']; ?></span></p>
+                                                <p style="font-weight:bold;">Account will be active till date - <span><?php if(isset($query[0]['grace_period_date'])){ echo $query[0]['grace_period_date']; }?></span></p>
                                             </div>
                                         </div>
                                     </div>
@@ -763,6 +763,16 @@
                                 <div class="panel-heading"><b>Postpaid Account Details</b></div>
                                 <div class="panel-body">
                                    <div class="col-md-12">
+                                       <div class="col-md-6">
+                                        <div class="form-group ">
+                                            <label for="is prepaid" class="col-md-4">Is Postpaid Account</label>
+                                            <div class="col-md-1">
+                                                <input  type="checkbox" class="form-control"  name="is_postpaid" value = "1" <?php if (isset($query[0])) {
+                                                    if($query[0]['is_prepaid'] == '0'){ echo "checked"; }
+                                                    } ?> >
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div class="col-md-6">
                                         <div class="form-group <?php if (form_error('postpaid_amount_limit')) {
                                             echo 'has-error';
@@ -772,7 +782,7 @@
                                                 <input type="number" class="form-control" onkeyup="show_help_text(this)"  name="postpaid_credit_period" value = "<?php if (isset($query[0]['postpaid_credit_period'])) {
                                                     echo $query[0]['postpaid_credit_period'];
                                                     } ?>" >
-                                                <p style="font-weight:bold;"><span><?php echo $query[0]['postpaid_credit_period']; ?></span> is minimum post paid amount</p>
+                                                <p style="font-weight:bold;"><span><?php if(isset($query[0]['postpaid_credit_period'])){ echo $query[0]['postpaid_credit_period']; }?></span> is minimum post paid amount</p>
                                                 <?php echo form_error('postpaid_credit_period'); ?>
                                             </div>
                                         </div>
@@ -786,7 +796,7 @@
                                                 <input type="number" class="form-control" onkeyup="show_help_text(this)"  name="postpaid_notification_limit" value = "<?php if (isset($query[0]['postpaid_notification_limit'])) {
                                                     echo $query[0]['postpaid_notification_limit'];
                                                     } ?>" >
-                                                <p style="font-weight:bold;"><span><?php echo $query[0]['postpaid_notification_limit']; ?> </span> is minimum notification amount</p>
+                                                <p style="font-weight:bold;"><span><?php if(isset($query[0]['postpaid_notification_limit'])){ echo $query[0]['postpaid_notification_limit'];} ?> </span> is minimum notification amount</p>
                                                 <?php echo form_error('postpaid_notification_limit'); ?>
                                             </div>
                                         </div>
@@ -802,7 +812,7 @@
                                                 <input type="text" onchange="show_help_text(this)" id="postpaid_grace_period_date" placeholder="Select Date When Partner De-Activate" class="form-control"  name="postpaid_grace_period" value = "<?php if (isset($query[0]['postpaid_grace_period'])) {
                                                     echo $query[0]['postpaid_grace_period'];
                                                     } ?>" >
-                                                <p style="font-weight:bold;">Account will be active till date - <span><?php echo $query[0]['postpaid_grace_period']; ?></span></p>
+                                                <p style="font-weight:bold;">Account will be active till date - <span><?php if(isset($query[0]['postpaid_grace_period'])){ echo $query[0]['postpaid_grace_period'];} ?></span></p>
                                                 <?php echo form_error('postpaid_grace_period'); ?>
                                             </div>
                                         </div>

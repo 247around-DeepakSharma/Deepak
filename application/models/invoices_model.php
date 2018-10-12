@@ -215,8 +215,9 @@ class invoices_model extends CI_Model {
      * @param: String ( vendor or partner)
      * @return: Array()
      */
-    function getsummary_of_invoice($vendor_partner, $where, $due_date_flag = false) {
-       
+    function getsummary_of_invoice($vendor_partner, $where, $due_date_flag = false, $partner_type=array()) {
+        $is_active = 'All';
+        $is_prepaid = NULL;
         if ($vendor_partner == "vendor") {
             $select = "service_centres.name, service_centres.id, service_centres.on_off, service_centres.active, account_holders_bank_details.is_verified, service_centres.pan_no, service_centres.service_tax_no, service_centres.tin_no, service_centres.cst_no, service_centres.contract_file, service_centres.gst_no";
             if($where){
@@ -234,14 +235,22 @@ class invoices_model extends CI_Model {
             $p_where = array();
             if(isset($where['active'])){
                 $p_where = array('is_active' => $where['active']);
+                $is_active = $where['active'];
             }
             if(isset($where['id'])){    
                 $p_where['id'] = $where['id'];
             }
             if(isset($where['is_prepaid'])){    
                 $p_where['is_prepaid'] = $where['is_prepaid'];
+                $is_prepaid = $where['is_prepaid'];
             }
-            $data = $this->partner_model->get_all_partner($p_where);
+            
+            if(empty($partner_type)){
+                $data = $this->partner_model->get_all_partner($p_where);
+            }
+            else{
+                $data = $this->partner_model->get_partner_details_with_soucre_code($is_active, $partner_type, 'All', NULL, NULL, $is_prepaid);
+            }
             
             $due_date_status = "";
         }
@@ -334,7 +343,8 @@ class invoices_model extends CI_Model {
                 . " `booking_unit_details`.appliance_capacity,`booking_unit_details`.appliance_category,`booking_unit_details`.appliance_brand, "
                 . "  booking_details.booking_primary_contact_no,  "
                 . " `services`.services, users.name,order_id, "
-                . " partner_net_payable, round((partner_net_payable * ".DEFAULT_TAX_RATE .")/100,2) as gst_amount, 
+                . " partner_net_payable, round((partner_net_payable * ".DEFAULT_TAX_RATE .")/100,2) as gst_amount,
+                    CASE WHEN (booking_details.is_upcountry = 1) THEN ('Yes') ELSE 'NO' END As upcountry,
               
                     CASE WHEN(serial_number IS NULL OR serial_number = '') THEN '' ELSE (CONCAT('''', booking_unit_details.serial_number))  END AS serial_number,
                     CASE WHEN(model_number IS NULL OR model_number = '') THEN (sf_model_number) ELSE (model_number) END AS model_number
@@ -653,7 +663,7 @@ class invoices_model extends CI_Model {
         }
 
         if (!empty($warehouse_courier)) {
-            $packaging = $this->get_fixed_warehouse_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
+            $packaging = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
                 "entity_id" => $partner_id, "charges_type" => PACKAGING_RATE_TAG));
             if (!empty($packaging)) {
                 $c_data = array();
@@ -727,22 +737,25 @@ class invoices_model extends CI_Model {
                 $result['result'][0]['gst_number'] = $partner_details[0]['gst_number'];
             }
 
-            if ($result['result'][0]['is_wh'] == 1) {
-                $packaging1 = $this->get_fixed_warehouse_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
-                    "entity_id" => $partner_id, "charges_type" => FIXED_MONTHLY_WAREHOUSE_CHARGES_TAG));
-                if (!empty($packaging1)) {
+            
+            $fixed_charges = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
+                "entity_id" => $partner_id, "is_fixed" => 1));
+            if (!empty($fixed_charges)) {
+                foreach ($fixed_charges as $value) {
                     $c_data = array();
-                    $c_data[0]['description'] = $packaging1[0]['description'];
-                    $c_data[0]['hsn_code'] = $packaging1[0]['hsn_code'];
+                    $c_data[0]['description'] = $value['description'];
+                    $c_data[0]['hsn_code'] = $value['hsn_code'];
                     $c_data[0]['qty'] = 0;
-                    $c_data[0]['rate'] = $packaging1[0]['fixed_charges'];
-                    $c_data[0]['gst_rate'] = $packaging1[0]['gst_rate'];
-                    $c_data[0]['product_or_services'] = $packaging1[0]['description'];
-                    $c_data[0]['taxable_value'] = $packaging1[0]['fixed_charges'];
+                    $c_data[0]['rate'] = $value['fixed_charges'];
+                    $c_data[0]['gst_rate'] = $value['gst_rate'];
+                    $c_data[0]['product_or_services'] = $value['description'];
+                    $c_data[0]['taxable_value'] = $value['fixed_charges'];
                     $result['result'] = array_merge($result['result'], $c_data);
-                    $result['warehouse_storage_charge'] = $packaging1[0]['fixed_charges'];
+                    //$result['warehouse_storage_charge'] = $packaging1[0]['fixed_charges'];
                 }
+                
             }
+            
 
             return $result;
         } else {
@@ -1263,7 +1276,7 @@ class invoices_model extends CI_Model {
         }
 
 //            if (!empty($warehouse_courier)) {
-//                $packaging = $this->get_fixed_warehouse_charge(array('entity_type' => _247AROUND_SF_STRING,
+//                $packaging = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_SF_STRING,
 //                    "entity_id" => $vendor_id, "charges_type" => PACKAGING_RATE_TAG));
 //                if (!empty($packaging)) {
 //                    $c_data = array();
@@ -1309,7 +1322,7 @@ class invoices_model extends CI_Model {
             }
 
 //            if ($result['booking'][0]['is_wh'] == 1) {
-//                $packaging1 = $this->get_fixed_warehouse_charge(array('entity_type' => _247AROUND_SF_STRING,
+//                $packaging1 = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_SF_STRING,
 //                    "entity_id" => $vendor_id, "charges_type" => FIXED_MONTHLY_WAREHOUSE_CHARGES_TAG));
 //                if (!empty($packaging1)) {
 //                    $c_data = array();
@@ -2072,7 +2085,7 @@ class invoices_model extends CI_Model {
         return $query->result_array();
     }
     
-    function get_fixed_warehouse_charge($where){
+    function get_fixed_variable_charge($where){
         $this->db->select('*');
         $this->db->where($where);
         $query = $this->db->get('vendor_partner_variable_charges');
@@ -2108,14 +2121,23 @@ class invoices_model extends CI_Model {
      * 
      */
     
-     public function get_partners_annual_charges($select, $where = array()) {
-        $this->db->select($select);
-        if (!empty($where)) {
-            $this->db->where($where);
+     public function get_partners_annual_charges($select, $partner_id = "") {
+        $wh = "";
+        if(!empty($partner_id)){
+            $wh = " AND vendor_partner_id = '$partner_id' ";
         }
-        $this->db->join('partners', 'vendor_partner_id = partners.id');
-        $this->db->order_by('from_date',"desc");
-        $query = $this->db->get('vendor_partner_invoices');
+        $sql = "SELECT $select FROM vendor_partner_invoices "
+                . "INNER JOIN (SELECT id, MAX(to_date) as date "
+                . "FROM vendor_partner_invoices WHERE "
+                
+                . "invoice_tagged LIKE '%".ANNUAL_CHARGE_INVOICE_TAGGING."%' "
+                . $wh
+                . "AND vendor_partner = '"._247AROUND_PARTNER_STRING."'  "
+                . "GROUP BY vendor_partner_id) "
+                . "AS EachItem ON EachItem.id = vendor_partner_invoices.id "
+                . " JOIN partners on partners.id = vendor_partner_id ORDER BY public_name";
+       
+        $query = $this->db->query($sql);
         return $query->result();
     }
     /**
@@ -2516,11 +2538,21 @@ class invoices_model extends CI_Model {
         return $query->result_array();
     }
     
+    /**
+     * @desc This function is used to insert fixed variable charges
+     * @param String $data
+     * @return insert_id
+     */
     function insert_into_variable_charge($data){
         $this->db->insert('vendor_partner_variable_charges', $data);
         return $this->db->insert_id();
     }
     
+    /**
+     * @desc This function is used to get fixed variable charges
+     * @param String - $select, Array - $where, $join - boolean
+     * @return Array
+    */
     function get_variable_charge($select, $where=array(), $join=null){
         $this->db->select($select);
         if(!empty($where)){
@@ -2532,5 +2564,30 @@ class invoices_model extends CI_Model {
         }
         $query = $this->db->get('vendor_partner_variable_charges');
         return $query->result_array();
+    }
+
+    function get_breakup_invoice_details($select, $where){
+        log_message('info', __METHOD__);
+        $this->db->select($select);
+        $this->db->where($where);
+        $query = $this->db->get("invoice_details");
+        return $query->result_array();
+    }
+
+    
+     /**
+     * @desc This function is used to update fixed variable charges
+     * @param Array $where and $data
+     * @return boolean
+     */
+    function update_into_variable_charge($where, $data){
+        $this->db->where($where);
+        $this->db->update('vendor_partner_variable_charges', $data);
+        //echo $this->db->last_query(); die();
+        if($this->db->affected_rows() > 0){
+            return true;
+        }else{
+            return false;
+        }
     }
 }

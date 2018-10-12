@@ -4682,6 +4682,7 @@ class Inventory extends CI_Controller {
         log_message('info',__METHOD__.' Processing...');
         
         $select = "booking_details.booking_id as 'Booking ID',employee.full_name as 'Account Manager Name',partners.public_name as 'Partner Name',service_centres.name as 'SF Name',"
+                . "service_centres.district as 'SF City', "
                 . "booking_details.current_status as 'Booking Status',spare_parts_details.status as 'Spare Status', "
                 . "spare_parts_details.parts_shipped as 'Part Shipped By Partner',spare_parts_details.shipped_parts_type as 'Part Type',"
                 . "spare_parts_details.shipped_date as 'Partner Part Shipped Date',spare_parts_details.awb_by_partner as 'Partner AWB Number',"
@@ -4690,6 +4691,7 @@ class Inventory extends CI_Controller {
                 . "spare_parts_details.acknowledge_date as 'Spare Received Date',spare_parts_details.auto_acknowledeged as 'IS Spare Auto Acknowledge',"
                 . "spare_parts_details.defective_part_shipped as 'Part Shipped By SF',challan_approx_value As 'Parts Charge', "
                 . "spare_parts_details.awb_by_sf as 'SF AWB Number',spare_parts_details.courier_name_by_sf as 'SF Courier Name',"
+                . "remarks_defective_part_by_sf as 'Defective Parts Remarks By SF', defective_part_shipped_date as 'Defective Parts Shipped Date', "
                 . "datediff(CURRENT_DATE,spare_parts_details.shipped_date) as 'Spare Shipped Age'";
         $where = array("spare_parts_details.status NOT IN('".SPARE_PARTS_REQUESTED."')" => NULL);
         if(!empty($partner_id)){
@@ -4813,5 +4815,81 @@ class Inventory extends CI_Controller {
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/upload_docket_number');
     }
-
+    
+     /**
+     * @desc: This Function is used to show view for rechecking docket number
+     * @param: void
+     * @return : view
+     */
+    function recheck_docket_number() { 
+        $this->checkUserSession();
+        $data['courier_company_detail'] = $this->inventory_model->get_courier_company_invoice_details('*', array('is_exist'=>0));
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/recheck_docket_number', $data);
+    }
+    
+     /**
+     * @desc: This Function is used to process recheck docket number
+     * @param: void
+     * @return : boolean
+     */
+    function process_recheck_docket_number(){
+        if(!empty($this->input->post('id'))){  
+            $data = array(
+               'awb_number' => $this->input->post('awb_no'),
+               'tid' => $this->input->post('id'),
+               'courier_charges'=> $this->input->post('courier_charge'),
+            );
+            $return = $this->inventory_model->update_docket_price($data);
+            if($return['update_awb']){
+                echo true;
+            }
+            else{
+                echo false;
+            }        
+        }
+        
+    }
+    
+     /**
+     * @desc: This Function is used to search docket number in bulk
+     * @param: void
+     * @return : view
+     */
+    function search_courier_invoices() { 
+        $this->checkUserSession();
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/search_courier_invoices');
+    }
+    
+    function process_search_courier_invoice(){ 
+        $docket_no = $this->input->post("docket_no");
+        $html = "";
+        $notFoundData = array();
+        if(!empty($docket_no)){
+            $docket_no = explode(",", $docket_no);
+            $docket_no_array = array_filter($docket_no);
+            $where_in = array('awb_number' => $docket_no_array);
+            $data = $this->inventory_model->get_courier_company_invoice_details('*', array(), $where_in);
+            if(!empty($data)){
+                $i=1;
+                foreach ($data as $key => $value) {
+                  $foundedData[] = $value['awb_number'];
+                  $html .= "<tr>";
+                  $html .= "<td>". $i++ ."</td><td>".$value['awb_number']."</td><td>".$value['company_name']."</td><td>".$value['courier_charge']."</td><td>".$value['invoice_id']."</td><td>".$value['billable_weight']."</td><td>".$value['actual_weight']."</td><td>".$value['update_date']."</td><td>".$value['create_date']."</td>";
+                  $html .=  "</tr>";
+                }
+                $returndata['status'] = "success";
+                $returndata['html'] = $html;
+                $returndata['notFound'] = implode(", ", array_diff($docket_no_array, $foundedData));
+                echo json_encode($returndata);
+            } else {
+                $returndata['status'] = "error";
+                echo json_encode($returndata);
+            }
+        } else {
+            $returndata['status'] = "error";
+            echo json_encode($returndata);
+        }
+    }
 }

@@ -8249,9 +8249,220 @@ ALTER TABLE `spare_parts_details` ADD `around_pickup_from_partner` INT(1) NOT NU
 --Chhavi
 INSERT INTO `query_report` (`id`, `main_description`, `query1_description`, `query2_description`, `query1`, `query2`, `role`, `priority`, `type`, `active`, `result`, `create_date`) VALUES (NULL, 'missing_in_booking_tat', '', '', 'SELECT COUNT(booking_details.booking_id)as count FROM `booking_details` LEFT JOIN booking_tat ON booking_tat.booking_id = booking_details.booking_id WHERE DATE(booking_details.closed_date)>\'2018-03-31\' AND booking_tat.booking_id IS NULL AND booking_details.type != \'Query\'', '', 'developer', '1', 'service', '1', NULL, '2018-09-28 05:03:42');
 
+--Abhay 04 Sept
+ALTER TABLE `vendor_partner_variable_charges` ADD `is_fixed` INT(1) NOT NULL DEFAULT '1' AFTER `update_date`;
+
+--Abhay 06 Sept
+ALTER TABLE `courier_company_invoice_details` ADD `partner_id` INT(11) NULL DEFAULT NULL AFTER `update_date`, ADD `partner_invoice_id` VARCHAR(128) NULL DEFAULT NULL AFTER `partner_id`, ADD `booking_id` TEXT NULL DEFAULT NULL AFTER `partner_invoice_id`;
+ALTER TABLE `courier_company_invoice_details` ADD `basic_billed_charge_to_partner` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `partner_id`;
+
 --Chhavi
 UPDATE email_template SET subject = 'Delivered Defactive Parts',template = 'Dear Partner,<br><br>
 Defective parts for below bookings have been delivered by 247around Service Centre but Delivery has not been acknowledged by your team till now: <br><br>
 %s  <br><br>
 Please confirm / reject these defective parts. Post 7 days of delivery, 247around system will mark them confirm automatically. <br><br>
 Thanks. <br> 247around Team' WHERE tag = 'defective_parts_acknowledge_reminder';
+
+--Kalyani 06-10-2018
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Add variable charges', NULL, 'employee/accounting/add_variable_charges', '10', '56', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
+
+ALTER TABLE `courier_company_invoice_details` ADD `is_exist` TINYINT(1) NOT NULL AFTER `actual_weight`;
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Recheck Docket Number', NULL, 'employee/inventory/recheck_docket_number', '2', '164', 'employee/inventory/recheck_docket_number', 'main_nav', '1', CURRENT_TIMESTAMP);
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Bulk Search Docket Number', NULL, 'employee/inventory/search_courier_invoices', '2', '164', 'accountmanager,admin,developer,inventory_manager,regionalmanager', 'main_nav', '1', CURRENT_TIMESTAMP);
+
+
+--Shraddhanand 08-10-2018
+-- phpMyAdmin SQL Dump
+-- version 4.8.3
+-- https://www.phpmyadmin.net/
+--
+-- Host: 127.0.0.1
+-- Generation Time: Oct 08, 2018 at 08:23 AM
+-- Server version: 10.1.36-MariaDB
+-- PHP Version: 7.2.10
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET AUTOCOMMIT = 0;
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Database: `boloaaka`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `assets_assigned`
+--
+
+CREATE TABLE `assets_assigned` (
+  `id` int(11) NOT NULL,
+  `asset_id` int(11) NOT NULL,
+  `employee_id` int(11) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `agent_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `assets_assigned`
+--
+ALTER TABLE `assets_assigned`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `assets_assigned`
+--
+ALTER TABLE `assets_assigned`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+--Shraddhanand 08-10-2018
+-- phpMyAdmin SQL Dump
+-- version 4.8.3
+-- https://www.phpmyadmin.net/
+--
+-- Host: 127.0.0.1
+-- Generation Time: Oct 08, 2018 at 08:22 AM
+-- Server version: 10.1.36-MariaDB
+-- PHP Version: 7.2.10
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET AUTOCOMMIT = 0;
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Database: `boloaaka`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `assets_list`
+--
+
+CREATE TABLE `assets_list` (
+  `id` int(11) NOT NULL,
+  `assets_name` varchar(128) NOT NULL,
+  `serial_number` varchar(128) NOT NULL,
+  `create_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `update_date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
+  `employee_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `assets_list`
+--
+ALTER TABLE `assets_list`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `assets_list`
+--
+ALTER TABLE `assets_list`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+--Kalyani 09-Oct
+UPDATE partner_file_upload_header_mapping set `brand` = 'brand' where`partner_id` = '247010'
+
+--Kalyani 10-Oct
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES (NULL, 'credit_note_against_gst_debit_note', '247around generated credit note against - %s - gst debit note', 'Dear Vendor<br/> Credit note is generate against %s gst debit note <br/><strong>Reply All</strong> for raising any query or concern regarding the invoice.\r\n<br/><br/>Thanks,<br/>247around Team', 'billing@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '', '1', '', CURRENT_TIMESTAMP);
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES (NULL, 'vendor_gst_return', 'GST tax Amount Pending', 'Dear Partner<br/><br/>As a part of GST compliance procedure, we have reconciled our books / purchase register with Form GSTR-2A as available on GST Portal.<br/>In this relation, we have found that details for the below invoices were not provided by you while filing GSTR-1. Because of this difference, your GST amount is held by us.<br/>In this regard, we request you to upload the details of such invoices on GSTN portal and share the screenshot with us within next 3 days. Once the same is verified by us, your GST amount pertaining to these invoices will be credited to you.<br/><br/>Company Name: %s<br>GST No: %s<br/>%s<br/>Further, note that we reserve all the rights to withhold the payment to the extent of GST in the case of any failure in complying the action mentioned above or in case of ITC loss due to discrepancy in your GST returns or non- Filing of GST returns on time.<br/>Please treat this on urgent basis.<br/><br/>Thanks & Regards, <br/>Pankaj Singh<br/>9810594247 / 9268953761', 'billing@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '', '1', '', CURRENT_TIMESTAMP);
+
+--Shraddhanand 10-oct
+CREATE TABLE `partner_channel` (
+  `id` int(11) NOT NULL,
+  `partner_id` int(11) NOT NULL,
+  `channel_name` varchar(255) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `update_date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `partner_channel`
+--
+
+INSERT INTO `partner_channel` (`id`, `partner_id`, `channel_name`, `create_date`, `update_date`) VALUES
+(1, 247001, 'Amazon', '2018-10-10 05:37:54', '0000-00-00 00:00:00'),
+(2, 247001, 'AndroidApp', '2018-10-10 05:38:18', '0000-00-00 00:00:00'),
+(3, 247001, 'CallCenter', '2018-10-10 05:38:36', '0000-00-00 00:00:00'),
+(4, 247001, 'Ebay', '2018-10-10 05:38:50', '0000-00-00 00:00:00'),
+(5, 247001, 'Flipkart', '2018-10-10 05:39:14', '0000-00-00 00:00:00'),
+(6, 247001, 'Offline', '2018-10-10 05:39:41', '0000-00-00 00:00:00'),
+(7, 247001, 'Shopclues', '2018-10-10 05:40:02', '0000-00-00 00:00:00'),
+(8, 247001, 'Tatacliq', '2018-10-10 05:40:28', '0000-00-00 00:00:00'),
+(9, 247001, 'Techwider', '2018-10-10 05:41:06', '0000-00-00 00:00:00'),
+(10, 247001, 'Jeeves-delivered-excel', '2018-10-10 05:41:38', '0000-00-00 00:00:00'),
+(11, 247001, 'Pepperfry', '2018-10-10 05:42:05', '0000-00-00 00:00:00'),
+(12, 247001, 'STS', '2018-10-10 05:42:23', '0000-00-00 00:00:00'),
+(13, 247001, 'Snapdeal-delivered-excel', '2018-10-10 05:42:47', '0000-00-00 00:00:00'),
+(14, 247001, 'Snapdeal-shipped-excel', '2018-10-10 05:43:16', '0000-00-00 00:00:00'),
+(15, 247001, 'Snapdeal', '2018-10-10 05:43:41', '0000-00-00 00:00:00'),
+(16, 247001, 'Paytm-delivered-excel', '2018-10-10 05:44:08', '0000-00-00 00:00:00'),
+(17, 247001, 'paytm', '2018-10-10 05:44:26', '0000-00-00 00:00:00'),
+(18, 247001, 'VibgyorNXT', '2018-10-10 05:44:48', '0000-00-00 00:00:00'),
+(19, 247001, 'Website', '2018-10-10 05:45:01', '0000-00-00 00:00:00');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `partner_channel`
+--
+ALTER TABLE `partner_channel`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `partner_channel`
+--
+ALTER TABLE `partner_channel`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+COMMIT;
+
+-- Kalyani 11-Oct
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Partner Channel', NULL, NULL, '2', '24', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Add Channel', NULL, 'employee/partner/add_channel', '2', '169', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Channel List', NULL, 'employee/partner/get_channels', '2', '169', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);

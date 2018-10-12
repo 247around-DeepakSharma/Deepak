@@ -32,7 +32,7 @@
                     </div>';
                 }
                 ?>
-                <form name="myForm" class="form-horizontal" id ="charges_form" novalidate="novalidate" action="<?php echo base_url()?>employee/accounting/add_variable_charges"  method="POST" enctype="multipart/form-data">
+                <form name="myForm" class="form-horizontal" id ="charges_form" novalidate="novalidate" action="<?php echo base_url()?>employee/accounting/process_variable_charges"  method="POST" enctype="multipart/form-data">
                     <div class="row">
                          <div class="col-md-12">
                             <div class="col-md-6">
@@ -155,6 +155,8 @@
                         <div class="form-group col-md-12">
                             <center>
                                 <input type="submit" id="submit_btn" name="submit_btn" class="btn btn-info" value="Submit"/>
+                                <a href="<?php echo base_url(); ?>employee/accounting/add_variable_charges" class="btn btn-warning" style="display:none" id="clear_btn">Clear</a>
+                                <input type="hidden" id="variable_charges_id" name="variable_charges_id" value="">
                             </center>
                         </div>
                     </div>
@@ -204,8 +206,8 @@
         </div>
     </div>
 </div>
-<?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>
-<?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
+<?php if($this->session->userdata('error')){ $this->session->unset_userdata('error'); } ?>
+<?php if($this->session->userdata('success')){ $this->session->unset_userdata('success');  } ?>
 <script type="text/javascript">
     (function ($, W, D){
         var JQUERY4U = {};
@@ -219,7 +221,7 @@
                 messages: {
                     vendor_partner: "Please select entity type",
                     vendor_partner_id: "Please select entity",
-                    charges_type: "Please charges type",
+                    charges_type: "Please enter charges type",
                 },
                 submitHandler: function (form) {
                     form.submit();
@@ -251,12 +253,16 @@
     
     function update_charge(id, button){
         $("#vendor_partner").val($(button).closest('tr').find('td').eq(1).text()).trigger('change');
-        $("#charges_type").val($(button).closest('tr').find('td').eq(4).text());
-        $("#fixed_charges").val($(button).closest('tr').find('td').eq(5).text());
-        $("#percentage_charge").val($(button).closest('tr').find('td').eq(6).text());
-        $("#hsn_code").val($(button).closest('tr').find('td').eq(7).text());
-        $("#gst_rate").val($(button).closest('tr').find('td').eq(8).text());
-        $("#description").val($(button).closest('tr').find('td').eq(9).text());
-        $("#vendor_partner_id").val($(button).closest('tr').find('td').eq(1).text()).trigger('change');
+        $("#charges_type").val($(button).closest('tr').find('td').eq(3).text());
+        $("#fixed_charges").val($(button).closest('tr').find('td').eq(4).text());
+        $("#percentage_charge").val($(button).closest('tr').find('td').eq(5).text());
+        $("#hsn_code").val($(button).closest('tr').find('td').eq(6).text());
+        $("#gst_rate").val($(button).closest('tr').find('td').eq(7).text());
+        $("#description").val($(button).closest('tr').find('td').eq(8).text());
+        $("#clear_btn").show();
+        $("#variable_charges_id").val(id);
+        setTimeout(function(){
+            $("#vendor_partner_id").val($(button).closest('tr').find('td').eq(2).attr('entity_id')).trigger('change');
+        }, 500);
     }
 </script>

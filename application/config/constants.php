@@ -628,7 +628,7 @@ define('BOOKING_CAN_NOT_BE_CANCEL_AFTER_THIS_TIME_INTERVAL',10);
 define('TEXT_FOR_BOOKING_CAN_NOT_BE_CANCEL_AFTER_THIS_TIME_INTERVAL','This booking can not be cancelled');
 define('REVIEW_NOTIFICATION_TO_PARTNER_DAYS','2');
 //Default Municipal limit for Paytm
-define("DEFAULT_PAYTM_MUNICIPAL_LIMIT", 5);
+define("DEFAULT_PAYTM_MUNICIPAL_LIMIT", 15);
 // Default PAYTM UPCOUNTRY DISTRICT
 define("DEFAULT_PAYTM_UPCOUNTRY_DISTRICT", "Others");
 define("REVIEW_LIMIT_BEFORE", "BEFORE");
@@ -638,5 +638,11 @@ define('DOCKET_NUMBER_FILE_TYPE','upload_docket_number');
 define('DOCKET_NUMBER_FILE','upload_docket_number');
 //Partner invoice payment file type
 define('INVOICE_PAYMENT_FILE_TYPE','invoice_payment_file_type');
+// 247around service string for invoices
+define('_247AROUND_SERVICE_STRING','Service');
+// 247around installation and repair string for invoices
+define('_247AROUND_INSTALLATION_AND_REPAIR_STRING','Installation & Repair');
+// 247around GST Debit Note string for invoices
+define('_247AROUND_GST_DEBIT_NOTE_STRING','GST Debit Note');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
