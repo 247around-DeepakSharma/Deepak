@@ -3863,8 +3863,12 @@ class Invoice extends CI_Controller {
 
                     $this->invoices_model->action_partner_invoice($invoice);
                     foreach ($spare_id as $id) {
-
+                        
+                        
                         $this->service_centers_model->update_spare_parts(array('id' => $id), array("purchase_invoice_id" => $invoice['invoice_id']));
+//
+//                        $this->service_centers_model->update_spare_parts(array('id' => $id), array("purchase_invoice_id" => $invoice['invoice_id'],
+//                            "status" => SPARE_SHIPPED_BY_PARTNER));
                     }
 
                     echo "Success";

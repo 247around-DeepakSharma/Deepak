@@ -665,5 +665,5 @@ class Buyback {
         
         return$bb_qc_svc;
     }
-
+    
 }

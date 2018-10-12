@@ -2187,4 +2187,27 @@ class Buyback_process extends CI_Controller {
         $config = array('template' => "tracking_number_sample_file.xlsx", 'templateDir' => __DIR__ . "/../excel-templates/");
         $this->miscelleneous->downloadExcel(array(), $config);
     }
+    
+//    function test(){
+//        $data = $this->bb_model->test();
+//        foreach($data as $key => $value){
+//            echo $key;
+//            echo $value['id'];
+//            $explode_brand  = explode("|", $value['brand']);
+//           
+//            foreach ($explode_brand as $key1 => $brand) {
+//                $order_key =  str_replace($value['brand'],trim($brand),$value['order_key']);
+//                if($key1 == 0){
+//                    echo "update".PHP_EOL;
+//                    $this->bb_model->test_update(array('brand' => trim($brand), "order_key" =>$order_key ), array('id' => $value['id']));
+//                } else {
+//                    unset($value['id']);
+//                    $value['brand'] = trim($brand);
+//                    $value['order_key'] = $order_key;
+//                    echo $this->bb_model->insert_buyback_order($value);
+//                    echo "insert".PHP_EOL;
+//                }
+//            }
+//        }
+//    }
 }
