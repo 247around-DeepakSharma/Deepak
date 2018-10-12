@@ -1265,4 +1265,9 @@ class Accounting extends CI_Controller {
         redirect(base_url() . 'employee/accounting/add_variable_charges'); 
     }
     
+    function rendor_taxpro_GSTR2a_Data(){ 
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/show_taxpro_GSTR2a_Data');
+    }
+    
 }
