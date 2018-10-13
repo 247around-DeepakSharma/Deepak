@@ -31,8 +31,7 @@
          
             <div class="form-group  <?php if( form_error('channel') ) { echo 'has-error';} ?>">
                 <label for="channel">Channel</label>
-                <input type="channel" class="form-control" id="channel" onkeypress="check_space()" placeholder="Enter channel Name" name="channel" required >
-                <span style="color:red; display: none;" id="chanal_err">No blank spaces.</span>
+                <input type="text" class="form-control" id="channel"placeholder="Enter channel Name" name="channel" required >
                     <?php echo form_error('channel'); ?>
             </div>
              <button type="submit" class="btn btn-default">Submit</button>
@@ -58,15 +57,8 @@
         });
         }
         
-        function check_space(e){
-        var numericVal = document.getElementById("channel").value;
-
-        if(isNaN(numericVal) || numericVal == "" || numericVal == null || numericVal.indexOf(' ') >= 0) {
-            $("#chanal_err").css('display','block');
-            return false;
-        } 
         
-        }
+        
 //        
 //    $(function() {
 //        $('#channel').on('keypress', function(e) {
