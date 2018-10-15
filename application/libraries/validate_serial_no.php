@@ -224,29 +224,38 @@ class Validate_serial_no {
             }
             return array('code' => SUCCESS_CODE);
         }
-        else if($stringLength == 16 || $stringLength == 18){ 
+        else if($stringLength>15 && $stringLength<20){
+            $startDigitLength = 4;
+            if($stringLength == 16 || $stringLength == 17){
+                $startDigitLength = 2;
+            }
             //Serial Number Should start with pre Defined Values
-            $start = substr($serialNo,0,$stringLength-14);
+            $start = substr($serialNo,0,$startDigitLength);
             $expectedStartValuesArray = explode(",",JVC_TV_SN_START_POSIBLE_VALUES);
             if(!in_array($start, $expectedStartValuesArray)){
                 //return array('code' => FAILURE_CODE, "message" => JVC_TV_SERIAL_NO_VALIDATION_START_FAILED_MSG .JVC_TV_SN_START_POSIBLE_VALUES);
                 return array('code' => FAILURE_CODE, "message" => JVC_SERIAL_NO_VALIDATION_FAILED_MSG);
             }
             //Open call Panel,MainBoardCoding,Factory model should consider 2 letter/Digit
-            $openCellPanelCoding = substr($serialNo,$stringLength-9,2);
-            $mainBoardCoding = substr($serialNo,$stringLength-7,1);
-            $factoryModel = substr($serialNo,$stringLength-14,5);
+            $factoryModel = substr($serialNo,$startDigitLength,5);
+            $openCellPanelCoding = substr($serialNo,$startDigitLength+5,2);
+            $mainBoardCodingLength = 1;
+            if($stringLength == 17 || $stringLength == 19){
+                $mainBoardCodingLength = 2;
+            }
+            $mainBoardCoding = substr($serialNo,$startDigitLength+7,$mainBoardCodingLength);
+            $nextIndex = $startDigitLength+7+$mainBoardCodingLength;
             if(!(ctype_alnum($openCellPanelCoding) && ctype_alnum($mainBoardCoding) && ctype_alnum($factoryModel))) {
                 //return array('code' => FAILURE_CODE, "message" => JVC_TV_SERIAL_NO_VALIDATION_ALPHANUMARIC_FAILED_MSG);
                 return array('code' => FAILURE_CODE, "message" => JVC_SERIAL_NO_VALIDATION_FAILED_MSG);
             }
             // Month should be alphabetic and Year should be a number , date should not be greater then today
-            $yearValidation =  $this->_jvc_year_month_validation(substr($serialNo,$stringLength-6,1),substr($serialNo,$stringLength-5,1),1);
+            $yearValidation =  $this->_jvc_year_month_validation(substr($serialNo,$nextIndex,1),substr($serialNo,$nextIndex+1,1),1);
             if(!$yearValidation){
                 return array('code' => FAILURE_CODE, "message" => JVC_SERIAL_NO_VALIDATION_FAILED_MSG);
             }
             //First Letter Should be alphabetic and other 3 should be numaric
-            $srNumberValidation = $this->_jvc_sr_number_validation(substr($serialNo,$stringLength-4,4));
+            $srNumberValidation = $this->_jvc_sr_number_validation(substr($serialNo,$nextIndex+2,4));
             if(!$srNumberValidation){
                 //return array('code' => FAILURE_CODE, "message" => JVC_TV_SERIAL_NO_VALIDATION_SR_FAILED_MSG);
                 return array('code' => FAILURE_CODE, "message" => JVC_SERIAL_NO_VALIDATION_FAILED_MSG);
