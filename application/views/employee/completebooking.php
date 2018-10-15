@@ -839,6 +839,7 @@
     postData['user_id'] = $("#user_id").val();
     postData['booking_id'] = $("#booking_id").val();
     postData['partner_id'] = $("#partner_id").val();
+    postData['appliance_id'] = '<?php echo $booking_history[0]['service_id'];?>';
     
     if(postData['serial_number'] !== ''){
         $.ajax({

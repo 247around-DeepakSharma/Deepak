@@ -31,4 +31,5 @@ define('T_SERIES_PARTNER_ID',247073);
 define("CLOUDTAIL_LA", 247029 );
 
 define("MURPHY_ID", 247018 );
+define("JVC_ID", 247092);
 
