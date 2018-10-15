@@ -6,3 +6,24 @@ define("SALORA_SERIAL_NO_VALIDATION_FAILED_MSG", "Serial No should be alphanumer
 define("DUPLICATE_SERIAL_NUMBER_USED", "Please insert valid Serial No as entered serial no is duplicate.");
 define("BOOKING_WARRANTY_DAYS", 30);
 define("DUPLICATE_SERIAL_NO_CODE", 1001);
+//JVC
+define("JVC_SERIAL_NO_VALIDATION_FAILED_MSG", "Please update valid serial number, as serial number is not valid");
+define("JVC_TV_SERIAL_NO_VALIDATION_LENGTH_FAILED_MSG", "Serial Number Length Should be 16 or 18 or it should be Start With SHG32");
+define("JVC_TV_SERIAL_NO_VALIDATION_START_FAILED_MSG", "Serial Number Should be Start With Following Values ");
+define("JVC_TV_SERIAL_NO_VALIDATION_ALPHANUMARIC_FAILED_MSG", "Only Alphanumaric Characters are allowed");
+define("JVC_TV_SERIAL_NO_VALIDATION_SR_FAILED_MSG", "Last 4 character Should be In A123 Pattern ");
+define("JVC_TV_SERIAL_NO_VALIDATION_SHG_FAILED_MSG", "In SHG32 Pattern 6,7 Character Should be alphabet");
+define("JVC_WM_SERIAL_NO_VALIDATION_COLOR_FAILED_MSG", "");
+define("JVC_WM_SERIAL_NO_VALIDATION_FM_FAILED_MSG", "In SHG32 Pattern 6,7 Character Should be alphabet");
+define("JVC_WM_SERIAL_NO_VALIDATION_PRODUCT_FAILED_MSG", "In SHG32 Pattern 6,7 Character Should be alphabet");
+define("JVC_WM_SERIAL_NO_VALIDATION_VENDOR_FAILED_MSG", "In SHG32 Pattern 6,7 Character Should be alphabet");
+define("JVC_WM_SERIAL_NO_VALIDATION_BRAND_FAILED_MSG", "In SHG32 Pattern 6,7 Character Should be alphabet");
+define("JVC_WM_SERIAL_NO_VALIDATION_START_FAILED_MSG", "In SHG32 Pattern 6,7 Character Should be alphabet");
+// JVC Serial number Posible values String
+define('JVC_TV_SN_START_POSIBLE_VALUES','C1,C2,C3,F1,F2,F3,J1,J2,J3,H1,No,I1,HS,HSNI');
+define('JVC_WM_SN_COLOR_CODE_POSIBLE_VALUES','RE,BR,BL,GR');
+define('JVC_WM_SN_FACTORY_MODEL_POSIBLE_VALUES','65,68,90,92,9S');
+define('JVC_WM_SN_PRODUCT_POSIBLE_VALUES','WM,WS');
+define('JVC_WM_SN_VENDOR_POSIBLE_VALUES','A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z');
+define('JVC_WM_SN_BRAND_POSIBLE_VALUES','CN,CW,NB');
+define('JVC_WM_SN_START_POSIBLE_VALUES','H2,H1');
