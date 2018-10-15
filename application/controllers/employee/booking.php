@@ -1575,7 +1575,10 @@ class Booking extends CI_Controller {
             } else {
                 $booking['services'] = $this->booking_model->selectservice();
             }
-            $booking['channel'] = $this->partner_model->get_channels("partner_channel.id, partner_channel.channel_name");
+            $channel_where = array(
+                'partner_id = "'.$booking_history[0]['partner_id'].'" OR is_default = 1'=>NULL
+            );
+            $booking['channel'] = $this->partner_model->get_channels("partner_channel.id, partner_channel.channel_name", $channel_where);
             $booking['capacity'] = array();
             $booking['category'] = array();
             $booking['brand'] = array();

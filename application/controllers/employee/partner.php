@@ -269,7 +269,8 @@ class Partner extends CI_Controller {
             $data['prepaid_amount'] = $this->get_prepaid_amount($this->session->userdata('partner_id'));
             
             $data['phone_number'] = trim($phone_number);
-            $data['channel'] = $this->partner_model->get_channels('partner_channel.id, partner_channel.channel_name', array('partner_id'=>$this->session->userdata('partner_id')));
+            $channel_where = array('partner_id = "'.$this->session->userdata('partner_id').'" OR is_default = 1'=>NULL);
+            $data['channel'] = $this->partner_model->get_channels('partner_channel.id, partner_channel.channel_name', $channel_where);
             $this->miscelleneous->load_partner_nav_header();
             //$this->load->view('partner/header');
             $this->load->view('partner/get_addbooking', $data);
@@ -1423,7 +1424,8 @@ class Partner extends CI_Controller {
                     $data['dealer_data'] = $dealer_data[0];
                 }
             }
-            $data['channel'] = $this->partner_model->get_channels('partner_channel.id, partner_channel.channel_name', array('partner_id'=>$partner_id));
+            $channel_where = array('partner_id = "'.$partner_id.'" OR is_default=1'=>NULL);
+            $data['channel'] = $this->partner_model->get_channels('partner_channel.id, partner_channel.channel_name', $channel_where);
             $this->miscelleneous->load_partner_nav_header();
             //$this->load->view('partner/header');
             $this->load->view('partner/edit_booking', $data);
@@ -5885,11 +5887,14 @@ class Partner extends CI_Controller {
     public function get_partner_channel() {
         $select = 'partner_channel.id, partner_channel.channel_name';
         if(!empty($this->input->post('partner_id'))){ 
-            $where = array('partner_id' => $this->input->post('partner_id'));
+            $where = array(
+                'partner_id = "'.$this->input->post('partner_id').'" OR is_default = 1'=>NULL
+            );
         }
         else{
             $where = array();
         }
+        
         $fetch_data = $this->partner_model->get_channels($select, $where);
         $html = '<option value="" selected disabled>Please select seller channel</option>';
         foreach ($fetch_data as $key => $value) {
@@ -5920,13 +5925,11 @@ class Partner extends CI_Controller {
                 'partner_id' => $partner_id
                 );
           
-            $is_exist = $this->partner_model->get_channels($data);
-           
+            $is_exist = $this->partner_model->get_channels('*', $data);
             
             if (empty($is_exist)) {
                 $data['create_date'] = date('Y-m-d H:i:s');
                 $channel_id = $this->partner_model->insert_new_channels($data);
-               // exit();
                 if ($channel_id){
                     $output = "Your data inserted successfully";
                     $userSession = array('success' => $output);
