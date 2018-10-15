@@ -740,8 +740,12 @@
     function validateSerialNo(index){
        var serialNo = $("#serial_number" +index).val();
        var price_tags = $("#price_tags"+index).text();
-       
-       if(serialNo !== ''){
+       var model_number = $("#model_number_"+index).val();
+       if(!model_number){
+           $("#serial_number" +index).val("");
+           alert("Please Select Model Number");
+       }
+       if(serialNo !== '' &&  model_number !== ''){
             $.ajax({
                 type: 'POST',
                 beforeSend: function(){
@@ -757,7 +761,7 @@
 
                     },
                 url: '<?php echo base_url() ?>employee/service_centers/validate_booking_serial_number',
-                data:{serial_number:serialNo,partner_id:'<?php echo $booking_history[0]['partner_id'];?>',appliance_id:'<?php echo $booking_history[0]['service_id'];?>', price_tags:price_tags,
+                data:{serial_number:serialNo,model_number:model_number,partner_id:'<?php echo $booking_history[0]['partner_id'];?>',appliance_id:'<?php echo $booking_history[0]['service_id'];?>', price_tags:price_tags,
                 user_id: '<?php echo $booking_history[0]['user_id'];?>', 'booking_id': '<?php echo $booking_history[0]['booking_id'];?>'},
                 success: function (response) {
                     console.log(response);
