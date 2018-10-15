@@ -269,8 +269,6 @@ class Partner extends CI_Controller {
             $data['prepaid_amount'] = $this->get_prepaid_amount($this->session->userdata('partner_id'));
             
             $data['phone_number'] = trim($phone_number);
-            $channel_where = array('partner_id = "'.$this->session->userdata('partner_id').'" OR is_default = 1'=>NULL);
-            $data['channel'] = $this->partner_model->get_channels('partner_channel.id, partner_channel.channel_name', $channel_where);
             $this->miscelleneous->load_partner_nav_header();
             //$this->load->view('partner/header');
             $this->load->view('partner/get_addbooking', $data);
@@ -1424,8 +1422,6 @@ class Partner extends CI_Controller {
                     $data['dealer_data'] = $dealer_data[0];
                 }
             }
-            $channel_where = array('partner_id = "'.$partner_id.'" OR is_default=1'=>NULL);
-            $data['channel'] = $this->partner_model->get_channels('partner_channel.id, partner_channel.channel_name', $channel_where);
             $this->miscelleneous->load_partner_nav_header();
             //$this->load->view('partner/header');
             $this->load->view('partner/edit_booking', $data);
@@ -5903,20 +5899,27 @@ class Partner extends CI_Controller {
     }
     
     public function get_partner_channel() {
+         log_message('info', __FUNCTION__ . print_r($_POST, true));
         $select = 'partner_channel.id, partner_channel.channel_name';
         if(!empty($this->input->post('partner_id'))){ 
             $where = array(
                 'partner_id = "'.$this->input->post('partner_id').'" OR is_default = 1'=>NULL
             );
+            
         }
         else{
-            $where = array();
+            $where = array('is_default' => 1);
         }
         
+        $channel = $this->input->post('channel');
         $fetch_data = $this->partner_model->get_channels($select, $where);
         $html = '<option value="" selected disabled>Please select seller channel</option>';
         foreach ($fetch_data as $key => $value) {
-           $html .= '<option>'.$value['channel_name'].'</option>'; 
+           $html .= '<option ';
+           if($channel ==$value['channel_name'] ){
+               $html .= " selected ";
+           }
+           $html .=' >'.$value['channel_name'].'</option>'; 
         }
         echo $html;
     }
@@ -5933,11 +5936,18 @@ class Partner extends CI_Controller {
      */
     public function process_add_channel(){
         $this->form_validation->set_rules('channel','Channel','required');
+        $is_default = 0;
         if ($this->form_validation->run() == FALSE) {
             $this->add_channel();
         } else {
             $channel = $this->input->post("channel");
-            $partner_id = $this->input->post("partner_id");
+            if($this->input->post("partner_id") === 'All'){
+                $partner_id = NULL;
+                $is_default = 1;
+            }
+            else{
+                $partner_id = $this->input->post("partner_id");
+            }
             $data = array(
                 'channel_name' => $channel,
                 'partner_id' => $partner_id
@@ -5947,6 +5957,7 @@ class Partner extends CI_Controller {
             
             if (empty($is_exist)) {
                 $data['create_date'] = date('Y-m-d H:i:s');
+                $data['is_default'] = $is_default;
                 $channel_id = $this->partner_model->insert_new_channels($data);
                 if ($channel_id){
                     $output = "Your data inserted successfully";
@@ -5976,7 +5987,8 @@ function update_channel($id) {
             'partner_channel.id' => $id
         );
         
-        $channel['fetch_data'] = $this->partner_model->get_channels('', $data);
+        $channel['fetch_data'] = $this->partner_model->get_channels(' partner_channel.* ', $data);
+        //print_r($channel); die();
       
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/update_channel', $channel);
@@ -5988,19 +6000,26 @@ function update_channel($id) {
      */
     function process_update_channel($id) {
         $this->form_validation->set_rules('channel', 'Channel', 'required');
+        $is_default = 0;
         if ($this->form_validation->run() == FALSE) {
             $this->update_channel($id);
         } else {
             $channel = $this->input->post("channel");
-            $partner_id = $this->input->post("partner_id");
+            if($this->input->post("partner_id") === 'All'){
+                $partner_id = NULL;
+                $is_default = 1;
+            }
+            else{
+                $partner_id = $this->input->post("partner_id");
+            }
             $data = array(
                 'channel_name' => $channel,
                 'partner_id' => $partner_id
             );
-            $is_exist = $this->partner_model->get_channels($data);
+            $is_exist = $this->partner_model->get_channels('partner_channel.id', $data);
             if (empty($is_exist)) {
-                 $data['update_date'] = date('Y-m-d H:i:s');
-                $channel_id = $this->partner_model->insert_new_channels($data);
+                $data['update_date'] = date('Y-m-d H:i:s');
+                $data['is_default'] = $is_default;
                 $status = $this->partner_model->update_channel($id, $data);
                 if ($status) {
                     $output = "Your data updated successfully";

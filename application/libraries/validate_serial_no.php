@@ -8,7 +8,7 @@ class Validate_serial_no {
         $this->MY_CI->load->model('booking_model');
     }
     
-    function validateSerialNo($partnerID, $serialNo, $price_tags, $user_id, $booking_id,$applianceID){
+    function validateSerialNo($partnerID, $serialNo, $price_tags, $user_id, $booking_id,$applianceID,$modelNumber = NULL){
         log_message('info', __METHOD__. " Enterring... Partner ID ". $partnerID. " Srial No ". $serialNo);
         $flag = true;
         
@@ -24,6 +24,9 @@ class Validate_serial_no {
             if(!empty($method)){
                 if($method == 'jvc_serialNoValidation'){
                     return $this->$method($partnerID, $serialNo,$applianceID);
+                }
+                 if($method == 'lemon_serialNoValidation'){
+                    return $this->$method($partnerID, $serialNo,$modelNumber);
                 }
                 return $this->$method($partnerID, $serialNo);
             } else{
@@ -45,6 +48,7 @@ class Validate_serial_no {
         $logic[SALORA_ID] = 'salora_serialNoValidation';
         $logic[QFX_ID] = 'qfx_serialNoValidation';
         $logic[JVC_ID] = 'jvc_serialNoValidation';
+        $logic[LEMON_ID] = 'lemon_serialNoValidation';
         
 	if (isset($logic[$partnerID])) {
             log_message('info', __METHOD__. " Method exist. Partner ID ". $logic[$partnerID]);
@@ -189,6 +193,7 @@ class Validate_serial_no {
         } else {
             return FALSE;
         }
+    }
          /**
      * @desc This method is used to validate JVC serial number.
      * @param String $partnerID
@@ -224,29 +229,38 @@ class Validate_serial_no {
             }
             return array('code' => SUCCESS_CODE);
         }
-        else if($stringLength == 16 || $stringLength == 18){ 
+        else if($stringLength>15 && $stringLength<20){
+            $startDigitLength = 4;
+            if($stringLength == 16 || $stringLength == 17){
+                $startDigitLength = 2;
+            }
             //Serial Number Should start with pre Defined Values
-            $start = substr($serialNo,0,$stringLength-14);
+            $start = substr($serialNo,0,$startDigitLength);
             $expectedStartValuesArray = explode(",",JVC_TV_SN_START_POSIBLE_VALUES);
             if(!in_array($start, $expectedStartValuesArray)){
                 //return array('code' => FAILURE_CODE, "message" => JVC_TV_SERIAL_NO_VALIDATION_START_FAILED_MSG .JVC_TV_SN_START_POSIBLE_VALUES);
                 return array('code' => FAILURE_CODE, "message" => JVC_SERIAL_NO_VALIDATION_FAILED_MSG);
             }
             //Open call Panel,MainBoardCoding,Factory model should consider 2 letter/Digit
-            $openCellPanelCoding = substr($serialNo,$stringLength-9,2);
-            $mainBoardCoding = substr($serialNo,$stringLength-7,1);
-            $factoryModel = substr($serialNo,$stringLength-14,5);
+            $factoryModel = substr($serialNo,$startDigitLength,5);
+            $openCellPanelCoding = substr($serialNo,$startDigitLength+5,2);
+            $mainBoardCodingLength = 1;
+            if($stringLength == 17 || $stringLength == 19){
+                $mainBoardCodingLength = 2;
+            }
+            $mainBoardCoding = substr($serialNo,$startDigitLength+7,$mainBoardCodingLength);
+            $nextIndex = $startDigitLength+7+$mainBoardCodingLength;
             if(!(ctype_alnum($openCellPanelCoding) && ctype_alnum($mainBoardCoding) && ctype_alnum($factoryModel))) {
                 //return array('code' => FAILURE_CODE, "message" => JVC_TV_SERIAL_NO_VALIDATION_ALPHANUMARIC_FAILED_MSG);
                 return array('code' => FAILURE_CODE, "message" => JVC_SERIAL_NO_VALIDATION_FAILED_MSG);
             }
             // Month should be alphabetic and Year should be a number , date should not be greater then today
-            $yearValidation =  $this->_jvc_year_month_validation(substr($serialNo,$stringLength-6,1),substr($serialNo,$stringLength-5,1),1);
+            $yearValidation =  $this->_jvc_year_month_validation(substr($serialNo,$nextIndex,1),substr($serialNo,$nextIndex+1,1),1);
             if(!$yearValidation){
                 return array('code' => FAILURE_CODE, "message" => JVC_SERIAL_NO_VALIDATION_FAILED_MSG);
             }
             //First Letter Should be alphabetic and other 3 should be numaric
-            $srNumberValidation = $this->_jvc_sr_number_validation(substr($serialNo,$stringLength-4,4));
+            $srNumberValidation = $this->_jvc_sr_number_validation(substr($serialNo,$nextIndex+2,4));
             if(!$srNumberValidation){
                 //return array('code' => FAILURE_CODE, "message" => JVC_TV_SERIAL_NO_VALIDATION_SR_FAILED_MSG);
                 return array('code' => FAILURE_CODE, "message" => JVC_SERIAL_NO_VALIDATION_FAILED_MSG);
@@ -353,6 +367,55 @@ class Validate_serial_no {
         }
         return TRUE;
     }
+             /**
+     * @desc This method is used to validate JVC serial number.
+     * @param String $partnerID
+     * @param String $serialNo
+     * @param String $applianceID
+     * @return Int
+     */
+    function lemon_serialNoValidation($partnerID, $serialNo,$modelNumber){
+        log_message('info', __METHOD__. " Enterring... Partner ID ". $partnerID. " Srial No ". $serialNo);
+        $stringLength = strlen($serialNo);
+        if($stringLength  == 15){
+            // Lemon  start Values
+            $colorCodingArray = explode(",",LEMON_SN_START_POSIBLE_VALUES);
+            if(!in_array(substr($serialNo,0,1),$colorCodingArray)){
+                return array('code' => FAILURE_CODE, "message" => "Index 0 Should have following Values ".LEMON_SERIAL_NO_ALL_VALIDATION_FAILED_MSG);
+            }
+            // Month should be alphabetic and Year should be a number , date should not be greater then today
+            $yearValidation =  $this->_jvc_year_month_validation(substr($serialNo,5,1),substr($serialNo,1,2),2);
+            if(!$yearValidation){
+                return array('code' => FAILURE_CODE, "message" => LEMON_SERIAL_NO_ALL_VALIDATION_FAILED_MSG);
+            }
+            //Vendor Value Should be only in expected values
+            $vendorArray = explode(",",LEMON_SN_VENDOR_POSIBLE_VALUES);
+            if(!in_array(substr($serialNo,3,2),$vendorArray)){
+                return array('code' => FAILURE_CODE, "message" => LEMON_SERIAL_NO_ALL_VALIDATION_FAILED_MSG);
+            }
+            //Model Code Values
+            if($modelNumber){
+                $modelCode = substr($serialNo,6,4);
+                $modelNumberValidation = $this->_lemonModelCodeValidation($modelNumber,$modelCode);
+                if(!$modelNumberValidation){
+                    return array('code' => FAILURE_CODE, "message" => LEMON_SERIAL_NO_ALL_VALIDATION_FAILED_MSG);
+                }
+            }
+            $siNumber = substr($serialNo,10,5);
+            if (!is_numeric($siNumber)) {
+                return array('code' => FAILURE_CODE, "message" => LEMON_SERIAL_NO_ALL_VALIDATION_FAILED_MSG);
+            }
+        }
+        else{
+            return array('code' => FAILURE_CODE, "message" => LEMON_SERIAL_NO_ALL_VALIDATION_FAILED_MSG);
+        }
+    }
+    function _lemonModelCodeValidation($modelNumber,$modelCode){
+        $expected_model_code = substr($modelNumber,0,4);
+        if($expected_model_code != $modelCode){
+            return FALSE;
+        }
+        return TRUE;
     }
 }
 
