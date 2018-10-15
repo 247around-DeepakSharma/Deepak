@@ -602,7 +602,7 @@ class Invoice_lib {
      * @param Array $partner_challan_number
      * @return String $output_pdf_file_name
      */
-    function process_create_sf_challan_file($sf_details, $partner_details, $sf_challan_number,  $spare_details, $partner_challan_number = "") {
+    function process_create_sf_challan_file($sf_details, $partner_details, $sf_challan_number,  $spare_details, $partner_challan_number = "", $service_center_closed_date = "") {
         $excel_data = array();
         $excel_data['excel_data']['sf_name'] = $sf_details[0]['name'];
         $excel_data['excel_data']['sf_address'] = $sf_details[0]['address'];
@@ -611,7 +611,12 @@ class Invoice_lib {
         $excel_data['excel_data']['partner_gst'] = $partner_details[0]['gst_number'];
         $excel_data['excel_data']['partner_challan_no'] = $partner_challan_number;
         $excel_data['excel_data']['sf_challan_no'] = $sf_challan_number;
-        $excel_data['excel_data']['date'] = date('Y-m-d');
+        if(!empty($service_center_closed_date)){
+            $excel_data['excel_data']['date'] = date('Y-m-d', strtotime($service_center_closed_date));
+        } else {
+            $excel_data['excel_data']['date'] = date('Y-m-d');
+        }
+        
         $booking_id  = $spare_details[0]['booking_id'];
         $excel_data['excel_data_line_item'] = array();
         
@@ -686,7 +691,7 @@ class Invoice_lib {
      * @param type $booking_id
      * @return boolean
      */
-    function generate_challan_file($booking_id, $service_center_id){
+    function generate_challan_file($booking_id, $service_center_id, $service_center_closed_date = ""){
         
         $select = 'spare_parts_details.*';
         $where =  array('spare_parts_details.booking_id' => $booking_id, "status" => DEFECTIVE_PARTS_PENDING, 'defective_part_required' => 1);
@@ -708,7 +713,7 @@ class Invoice_lib {
                 $sf_challan_number = $this->ci->miscelleneous->create_sf_challan_id($sf_details[0]['sc_code']);
             }
             
-            $sf_challan_file = $this->process_create_sf_challan_file($sf_details, $partner_details, $sf_challan_number, $spare_parts_details, $partner_challan_number);
+            $sf_challan_file = $this->process_create_sf_challan_file($sf_details, $partner_details, $sf_challan_number, $spare_parts_details, $partner_challan_number, $service_center_closed_date);
             
             $data['sf_challan_number'] = $sf_challan_number;
             $data['sf_challan_file'] = $sf_challan_file;

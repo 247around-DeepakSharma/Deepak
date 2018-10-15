@@ -4774,4 +4774,15 @@ class Booking extends CI_Controller {
            print_r($response);
         }
     }
+    
+    function testDefective(){
+       $where =  array("status" => DEFECTIVE_PARTS_PENDING, 'defective_part_required' => 1, 'sf_challan_number IS NOT NULL ' => NULL);
+        $data  = $this->partner_model->get_spare_parts_by_any("spare_parts_details.booking_id, service_center_id, service_center_closed_date",
+                $where, true);
+        foreach ($data as $value) {
+            $this->invoice_lib->generate_challan_file($value['booking_id'], $value['service_center_id'], $data['service_center_closed_date']);
+        }
+        
+        
+    }
 }
