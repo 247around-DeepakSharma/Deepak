@@ -3301,8 +3301,9 @@ class Inventory extends CI_Controller {
         if (!empty($data->booking_id)) {
            
             $where['booking_id'] = $data->booking_id;
-
+            
             $update_spare_part = $this->service_centers_model->update_spare_parts($where, array('wh_ack_received_part' => 1));
+            $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $receiver_entity_id, $data->inventory_id, 1);
              log_message('info', __METHOD__ . " Booking ID updated ". $data->booking_id);
         } else {
             $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status, entity_type, spare_parts_details.partner_id, requested_inventory_id", $where, false);
