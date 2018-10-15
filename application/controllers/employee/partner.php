@@ -269,8 +269,6 @@ class Partner extends CI_Controller {
             $data['prepaid_amount'] = $this->get_prepaid_amount($this->session->userdata('partner_id'));
             
             $data['phone_number'] = trim($phone_number);
-            $channel_where = array('partner_id = "'.$this->session->userdata('partner_id').'" OR is_default = 1'=>NULL);
-            $data['channel'] = $this->partner_model->get_channels('partner_channel.id, partner_channel.channel_name', $channel_where);
             $this->miscelleneous->load_partner_nav_header();
             //$this->load->view('partner/header');
             $this->load->view('partner/get_addbooking', $data);
@@ -1424,8 +1422,6 @@ class Partner extends CI_Controller {
                     $data['dealer_data'] = $dealer_data[0];
                 }
             }
-            $channel_where = array('partner_id = "'.$partner_id.'" OR is_default=1'=>NULL);
-            $data['channel'] = $this->partner_model->get_channels('partner_channel.id, partner_channel.channel_name', $channel_where);
             $this->miscelleneous->load_partner_nav_header();
             //$this->load->view('partner/header');
             $this->load->view('partner/edit_booking', $data);
@@ -5893,6 +5889,7 @@ function get_shipped_parts_list($offset = 0) {
     }
     
     public function get_partner_channel() {
+         log_message('info', __FUNCTION__ . print_r($_POST, true));
         $select = 'partner_channel.id, partner_channel.channel_name';
         if(!empty($this->input->post('partner_id'))){ 
             $where = array(
@@ -5900,13 +5897,18 @@ function get_shipped_parts_list($offset = 0) {
             );
         }
         else{
-            $where = array();
+            $where = array('is_default' => 1);
         }
         
+        $channel = $this->input->post('channel');
         $fetch_data = $this->partner_model->get_channels($select, $where);
         $html = '<option value="" selected disabled>Please select seller channel</option>';
         foreach ($fetch_data as $key => $value) {
-           $html .= '<option>'.$value['channel_name'].'</option>'; 
+           $html .= '<option ';
+           if($channel ==$value['channel_name'] ){
+               $html .= " selected ";
+           }
+           $html .=' >'.$value['channel_name'].'</option>'; 
         }
         echo $html;
     }

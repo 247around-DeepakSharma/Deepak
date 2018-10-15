@@ -62,6 +62,7 @@
                                 <div class="form-group col-md-12 <?php if( form_error('user_name') ) { echo 'has-error';} ?>">
                                     <label for="name">Name * <span id="error_username" style="color: red;"></span></label>
                                     <input type="hidden" name="assigned_vendor_id" id="assigned_vendor_id" value="" />
+                                    <input type="hidden" id="partner_channel" value=""/>
                                     <input type="hidden" name="upcountry_data" id="upcountry_data" value="" />
                                     <input type="hidden" name="partner_type" id="partner_type" value="<?php echo $partner_type;?>" />
                                     <input type="hidden" name="partner_code" id="partner_code" value="<?php echo $partner_code;?>" />
@@ -1136,4 +1137,19 @@ function dealer_setup(partner_id,search_term,search_filed){
         });
     }
 }
+
+getPartnerChannel();
+function getPartnerChannel(){
+    var partnerChannelServiceUrl = '<?php echo base_url(); ?>employee/partner/get_partner_channel/';
+    var postData = {};
+    postData['partner_id'] = '<?php echo $this->session->userdata('partner_id')?>';
+    postData['channel'] = $("#partner_channel").val();
+    if( postData['partner_id'] !== null){
+        sendAjaxRequest(postData, partnerChannelServiceUrl).done(function (data) {
+           $("#partner_source").html("");
+           $("#partner_source").html(data).change();
+        });
+    }
+}
 </script>
+

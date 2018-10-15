@@ -46,7 +46,7 @@ function getAppliance(service_id) {
 function getPartnerChannel(){
     var postData = {};
     postData['partner_id'] = $("#source_code").find(':selected').attr('data-id');
-    
+    postData['channel'] = $("#partner_channel").val();
     if( postData['partner_id'] !== null){
         sendAjaxRequest(postData, partnerChannelServiceUrl).done(function (data) {
            $("#partner_source").html("");

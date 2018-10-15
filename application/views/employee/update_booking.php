@@ -75,6 +75,7 @@
                                     <div class="col-md-6">
                                         <input type="hidden" name="partner_type" value="<?php echo $partner_type; ?>" id="partner_type" />
                                         <input type="hidden" name="is_active" value="<?php echo $active;?>" id="is_active" />
+                                        <input type="hidden" id="partner_channel" value="<?php echo $booking_history[0]['partner_source']; ?>"/>
                                         <input type="hidden" name="booking_type" id="booking_type" value="<?php echo $booking_history[0]["type"];?>" />
                                         <input type="hidden" name="partner_id" value="<?php echo $booking_history[0]['partner_id'];?>" id="partner_id" />
                                         <input type="hidden" name="assigned_vendor_id" value="<?php if(!empty($booking_history[0]['assigned_vendor_id'])){ echo $booking_history[0]['assigned_vendor_id']; } else { echo '';} ?>" id="assigned_vendor_id" />
@@ -766,6 +767,7 @@
     $("#partner_source").select2();
 
      $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0});
+       getPartnerChannel();
      
 
 </script>
@@ -865,6 +867,7 @@
    
 });
   $("#purchase_date").datepicker({dateFormat: 'yy-mm-dd'});
+
 </script>
 <style type="text/css">
     #errmsg1
