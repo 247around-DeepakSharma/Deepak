@@ -8471,3 +8471,6 @@ INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `li
 INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Add Channel', NULL, 'employee/partner/add_channel', '2', '169', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
 INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Channel List', NULL, 'employee/partner/get_channels', '2', '169', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
 ALTER TABLE `partner_channel` ADD `set_default` TINYINT(1) NOT NULL AFTER `channel_name`;
+
+-- Kalyani 15-Oct
+ALTER TABLE `partner_channel` CHANGE `partner_id` `partner_id` INT(11) NULL DEFAULT NULL;

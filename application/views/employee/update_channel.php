@@ -49,16 +49,18 @@
 </html>
 <script>
     
-       get_partner_list(); 
-    
+    get_partner_list(); 
     function get_partner_list(){
-
        $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url(); ?>employee/invoice/getPartnerOrVendor/partner',
-                data: {vendor_partner_id: '<?php echo $fetch_data[0]['partner_id'];?>', invoice_flag: 0},
+                data: {vendor_partner_id: '<?php echo $fetch_data[0]['partner_id'];?>', invoice_flag: 1},
                 success: function (data) {
                  $("#partner_id").select2().html(data).change();
+                 if(!$("#partner_id").val()){
+                    $("#partner_id").select2().val("All").change(); 
+                 }
+                 
             }
         });
         }
