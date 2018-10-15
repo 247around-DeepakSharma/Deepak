@@ -44,6 +44,7 @@
                                     <input type="hidden" name="user_id" id="user_id" value="<?php if(isset($booking_history[0]['user_id'])){ echo $booking_history[0]['user_id']; } ?>" />
                                     <input type="hidden" name="assigned_vendor_id" id="assigned_vendor_id" value="<?php if(isset($booking_history[0]['assigned_vendor_id'])){ echo $booking_history[0]['assigned_vendor_id']; }  ?>" />
                                     <input type="hidden" name="upcountry_data" id="upcountry_data" value="" />
+                                    <input type="hidden" name="partner_channel" id="partner_channel" value="<?php echo $booking_history[0]['partner_source']; ?>" />
                                     <input type="hidden" name="partner_code" id="partner_code" value="<?php echo $partner_code;?>" />
                                     <input type="hidden" name="partner_type" id="partner_type" value="<?php echo $partner_type;?>" />
                                     <input type="hidden" name="appliance_id" id='appliance_id' value="<?php echo $unit_details[0]['appliance_id']; ?>" />
@@ -982,5 +983,19 @@
     
     function check_active_paid(no){
         
+    }
+    getPartnerChannel();
+    function getPartnerChannel(){
+        var partnerChannelServiceUrl = '<?php echo base_url(); ?>employee/partner/get_partner_channel/';
+        
+        var postData = {};
+        postData['partner_id'] = '<?php echo $this->session->userdata('partner_id')?>';
+        postData['channel'] = $("#partner_channel").val();
+        if( postData['partner_id'] !== null){
+            sendAjaxRequest(postData, partnerChannelServiceUrl).done(function (data) {
+               $("#partner_source").html("");
+               $("#partner_source").html(data).change();
+            });
+        }
     }
 </script>
