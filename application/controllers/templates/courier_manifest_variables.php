@@ -1,0 +1,11 @@
+<?php
+$source="{source}";
+$booking_id="{booking_id}";
+$name="{name}";
+$booking_address="{booking_address}";
+$booking_age="{booking_age}";
+$parts_requested="{parts_requested}";
+$parts_shipped="{parts_shipped}";
+$serial_number="{serial_number}";
+$serial_number="{serial_number}";
+?>

@@ -1575,7 +1575,10 @@ class Booking extends CI_Controller {
             } else {
                 $booking['services'] = $this->booking_model->selectservice();
             }
-            $booking['channel'] = $this->partner_model->get_channels("partner_channel.id, partner_channel.channel_name");
+            $channel_where = array(
+                'partner_id = "'.$booking_history[0]['partner_id'].'" OR is_default = 1'=>NULL
+            );
+            $booking['channel'] = $this->partner_model->get_channels("partner_channel.id, partner_channel.channel_name", $channel_where);
             $booking['capacity'] = array();
             $booking['category'] = array();
             $booking['brand'] = array();
@@ -2189,8 +2192,9 @@ class Booking extends CI_Controller {
         $user_id = $this->input->post('user_id');
         $booking_id = $this->input->post('booking_id');
         $partner_id = $this->input->post('partner_id');
+        $appliance_id = $this->input->post('appliance_id');
         
-        $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number), $price_tags, $user_id, $booking_id);
+        $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number), $price_tags, $user_id, $booking_id,$appliance_id);
         if(!empty($status)){
             echo json_encode($status);
         } else {
