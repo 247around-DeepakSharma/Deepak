@@ -207,7 +207,7 @@
                                                     <tr>
                                                         <td>
                                                             <?php if(isset($price['model_data']) && !empty($price['model_data'])){ ?>
-                                                            <select class="form-control model_number" id="<?php echo "model_number_" . $count ?>" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>"  required="">
+                                                            <select class="form-control model_number" class="<?php echo "model_number_" . $count ?>" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>"  required="">
                                                                 <option value="" selected desa>Please Select Model Number</option>
                                                                 <?php foreach ($price['model_data'] as $m) { ?>
                                                                 <option value="<?php echo $m['model'];?>"><?php echo $m['model'];?></option>
@@ -215,7 +215,7 @@
                                                                 <?php }?>
                                                             </select>
                                                            <?php } else { ?>
-                                                            <input type="hidden" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" value="">
+                                                            <input type="hidden" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" value="" class="<?php echo "model_number_" . $count ?>">
                                                           <?php } ?>
                                                         </td>
                                                         <td>
@@ -740,12 +740,8 @@
     function validateSerialNo(index){
        var serialNo = $("#serial_number" +index).val();
        var price_tags = $("#price_tags"+index).text();
-       var model_number = $("#model_number_"+index).val();
-       if(!model_number){
-           $("#serial_number" +index).val("");
-           alert("Please Select Model Number");
-       }
-       if(serialNo !== '' &&  model_number !== ''){
+       var model_number = $(".model_number_"+index).val();
+       if(serialNo !== ''){
             $.ajax({
                 type: 'POST',
                 beforeSend: function(){
