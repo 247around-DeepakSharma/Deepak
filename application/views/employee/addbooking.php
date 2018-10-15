@@ -52,6 +52,7 @@
                                         <input type="hidden" name="upcountry_data" value="" id="upcountry_data" /> 
                                          <input type="hidden" name="user_id" value="<?php if(!empty($user)){ echo $user[0]['user_id'];} ?>" id="user_id" /> 
                                          <input type="hidden" name="partner_type" value="" id="partner_type" />
+                                         <input type="hidden" id="partner_channel" value=""/>
                                          <input type="hidden" name="partner_id" value="" id="partner_id" />
                                          <input type="hidden" name="is_active" value="" id="is_active" />
                                           <input type="hidden" name="assigned_vendor_id" value="" id="assigned_vendor_id" />
