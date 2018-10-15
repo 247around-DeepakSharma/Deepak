@@ -482,6 +482,7 @@ class Service_centers extends CI_Controller {
         $partner_id = $this->input->post('partner_id');
         $user_id = $this->input->post('user_id');
         $booking_id = $this->input->post('booking_id');
+        $appliance_id = $this->input->post('appliance_id');
         $price_tags_array = $this->input->post('price_tags');
         $return_status = true;
         if (isset($_POST['pod'])) {
@@ -501,7 +502,7 @@ class Service_centers extends CI_Controller {
                                     break;
                                 }
                             }
-                            $status = $this->validate_serial_no->validateSerialNo($partner_id, $trimSno, $price_tag, $user_id, $booking_id);
+                            $status = $this->validate_serial_no->validateSerialNo($partner_id, $trimSno, $price_tag, $user_id, $booking_id,$appliance_id);
                             if (!empty($status)) {
                                 if ($status['code'] == SUCCESS_CODE) {
                                     log_message('info', " Serial No validation success  for serial no " . trim($serial_number[$unit_id]));
@@ -627,8 +628,9 @@ class Service_centers extends CI_Controller {
         $partner_id = $this->input->post('partner_id');
         $user_id = $this->input->post('user_id');
         $price_tags = $this->input->post("price_tags");
-        $booking_id = $this->input->post("price_tags");
-        $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number), trim($price_tags), $user_id, $booking_id);
+        $booking_id = $this->input->post("booking_id");
+        $appliance_id = $this->input->post("appliance_id");
+        $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number), trim($price_tags), $user_id, $booking_id, $appliance_id);
         if (!empty($status)) {
             log_message('info', __METHOD__.'Status '. print_r($status, true));
             echo json_encode($status, true);

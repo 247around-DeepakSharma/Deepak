@@ -8,7 +8,7 @@ class Validate_serial_no {
         $this->MY_CI->load->model('booking_model');
     }
     
-    function validateSerialNo($partnerID, $serialNo, $price_tags, $user_id, $booking_id){
+    function validateSerialNo($partnerID, $serialNo, $price_tags, $user_id, $booking_id,$applianceID){
         log_message('info', __METHOD__. " Enterring... Partner ID ". $partnerID. " Srial No ". $serialNo);
         $flag = true;
         
@@ -22,6 +22,9 @@ class Validate_serial_no {
         if($flag){
             $method = $this->getLogicMethod($partnerID);
             if(!empty($method)){
+                if($method == 'jvc_serialNoValidation'){
+                    return $this->$method($partnerID, $serialNo,$applianceID);
+                }
                 return $this->$method($partnerID, $serialNo);
             } else{
                 return false;
@@ -41,6 +44,7 @@ class Validate_serial_no {
         $logic[AKAI_ID] = 'akai_serialNoValidation';
         $logic[SALORA_ID] = 'salora_serialNoValidation';
         $logic[QFX_ID] = 'qfx_serialNoValidation';
+        $logic[JVC_ID] = 'jvc_serialNoValidation';
         
 	if (isset($logic[$partnerID])) {
             log_message('info', __METHOD__. " Method exist. Partner ID ". $logic[$partnerID]);
@@ -185,6 +189,170 @@ class Validate_serial_no {
         } else {
             return FALSE;
         }
+         /**
+     * @desc This method is used to validate JVC serial number.
+     * @param String $partnerID
+     * @param String $serialNo
+     * @param String $applianceID
+     * @return Int
+     */
+    function jvc_serialNoValidation($partnerID, $serialNo, $applianceID){
+        log_message('info', __METHOD__. " Enterring... Partner ID ". $partnerID. " Srial No ". $serialNo);
+        switch ($applianceID) {
+            case _247AROUND_TV_SERVICE_ID:
+                return $this->jvc_television_serial_number_validation($serialNo);
+            case _247AROUND_WASHING_MACHINE_SERVICE_ID:
+                return $this->jvc_WM_serial_number_validation($serialNo);
+            default:
+        }
+    }
+     /**
+     * @desc This method is used to validate JVC Television (service_id 46) serial number.
+     * @param String $partnerID
+     * @param String $serialNo
+     * @param String $applianceID
+     * @return Int
+     */
+    function jvc_television_serial_number_validation($serialNo){
+        $stringLength = strlen($serialNo);
+        $firstString = strtoupper(substr($serialNo,0,5));
+        if ($firstString == 'SHG32') {
+            $secondString = substr($serialNo,5,2);
+            if (!(preg_match("/^[a-zA-Z]$/", $secondString[0]) && preg_match("/^[a-zA-Z]$/", $secondString[1]))) {
+                //return array('code' => FAILURE_CODE, "message" => JVC_TV_SERIAL_NO_VALIDATION_SHG_FAILED_MSG);
+                return array('code' => FAILURE_CODE, "message" => JVC_SERIAL_NO_VALIDATION_FAILED_MSG);
+            }
+            return array('code' => SUCCESS_CODE);
+        }
+        else if($stringLength == 16 || $stringLength == 18){ 
+            //Serial Number Should start with pre Defined Values
+            $start = substr($serialNo,0,$stringLength-14);
+            $expectedStartValuesArray = explode(",",JVC_TV_SN_START_POSIBLE_VALUES);
+            if(!in_array($start, $expectedStartValuesArray)){
+                //return array('code' => FAILURE_CODE, "message" => JVC_TV_SERIAL_NO_VALIDATION_START_FAILED_MSG .JVC_TV_SN_START_POSIBLE_VALUES);
+                return array('code' => FAILURE_CODE, "message" => JVC_SERIAL_NO_VALIDATION_FAILED_MSG);
+            }
+            //Open call Panel,MainBoardCoding,Factory model should consider 2 letter/Digit
+            $openCellPanelCoding = substr($serialNo,$stringLength-9,2);
+            $mainBoardCoding = substr($serialNo,$stringLength-7,1);
+            $factoryModel = substr($serialNo,$stringLength-14,5);
+            if(!(ctype_alnum($openCellPanelCoding) && ctype_alnum($mainBoardCoding) && ctype_alnum($factoryModel))) {
+                //return array('code' => FAILURE_CODE, "message" => JVC_TV_SERIAL_NO_VALIDATION_ALPHANUMARIC_FAILED_MSG);
+                return array('code' => FAILURE_CODE, "message" => JVC_SERIAL_NO_VALIDATION_FAILED_MSG);
+            }
+            // Month should be alphabetic and Year should be a number , date should not be greater then today
+            $yearValidation =  $this->_jvc_year_month_validation(substr($serialNo,$stringLength-6,1),substr($serialNo,$stringLength-5,1),1);
+            if(!$yearValidation){
+                return array('code' => FAILURE_CODE, "message" => JVC_SERIAL_NO_VALIDATION_FAILED_MSG);
+            }
+            //First Letter Should be alphabetic and other 3 should be numaric
+            $srNumberValidation = $this->_jvc_sr_number_validation(substr($serialNo,$stringLength-4,4));
+            if(!$srNumberValidation){
+                //return array('code' => FAILURE_CODE, "message" => JVC_TV_SERIAL_NO_VALIDATION_SR_FAILED_MSG);
+                return array('code' => FAILURE_CODE, "message" => JVC_SERIAL_NO_VALIDATION_FAILED_MSG);
+            }
+            return array('code' => SUCCESS_CODE);
+        }
+        else{
+            return array('code' => FAILURE_CODE, "message" => JVC_TV_SERIAL_NO_VALIDATION_LENGTH_FAILED_MSG);
+        }
+    }
+    function jvc_WM_serial_number_validation($serialNo){
+        $stringLength = strlen($serialNo);
+        if($stringLength == 18){
+            // Color Coding Validation 
+            $colorCodingArray = explode(",",JVC_WM_SN_COLOR_CODE_POSIBLE_VALUES);
+            if(!in_array(substr($serialNo,$stringLength-9,2),$colorCodingArray)){
+                //return array('code' => FAILURE_CODE, "message" => "Index 10,11 Should have following Values ".JVC_WM_SN_COLOR_CODE_POSIBLE_VALUES);
+                return array('code' => FAILURE_CODE, "message" => JVC_SERIAL_NO_VALIDATION_FAILED_MSG);
+            }
+            $factoryModelArray = explode(",",JVC_WM_SN_FACTORY_MODEL_POSIBLE_VALUES);
+            if(!in_array(substr($serialNo,$stringLength-11,2),$factoryModelArray)){
+                //return array('code' => FAILURE_CODE, "message" => "Index 8,9 Should have following Values ".JVC_WM_SN_FACTORY_MODEL_POSIBLE_VALUES);
+                return array('code' => FAILURE_CODE, "message" => JVC_SERIAL_NO_VALIDATION_FAILED_MSG);
+            }
+            $productArray = explode(",",JVC_WM_SN_PRODUCT_POSIBLE_VALUES);
+            if(!in_array(substr($serialNo,$stringLength-13,2),$productArray)){
+                //return array('code' => FAILURE_CODE, "message" => "Index 6,7 Should have following Values ".JVC_WM_SN_PRODUCT_POSIBLE_VALUES);
+                return array('code' => FAILURE_CODE, "message" => JVC_SERIAL_NO_VALIDATION_FAILED_MSG);
+            }
+            $vendorArray = explode(",",JVC_WM_SN_VENDOR_POSIBLE_VALUES);
+            if(!in_array(substr($serialNo,$stringLength-15,1),$vendorArray)){
+               //return array('code' => FAILURE_CODE, "message" => "Index 5 Should have following Values ".JVC_WM_SN_VENDOR_POSIBLE_VALUES);
+                return array('code' => FAILURE_CODE, "message" => JVC_SERIAL_NO_VALIDATION_FAILED_MSG);
+            }
+            $brandsArray = explode(",",JVC_WM_SN_BRAND_POSIBLE_VALUES);
+            if(!in_array(substr($serialNo,$stringLength-16,2),$brandsArray)){
+               //return array('code' => FAILURE_CODE, "message" => "Index 3,4 Should have following Values ".JVC_WM_SN_BRAND_POSIBLE_VALUES);
+                return array('code' => FAILURE_CODE, "message" => JVC_SERIAL_NO_VALIDATION_FAILED_MSG);
+            }
+            $startArray = explode(",",JVC_WM_SN_START_POSIBLE_VALUES);
+            if(!in_array(substr($serialNo,$stringLength-18,2),$startArray)){
+               //return array('code' => FAILURE_CODE, "message" => "Index 1,2 Should have following Values ".JVC_WM_SN_START_POSIBLE_VALUES);
+               return array('code' => FAILURE_CODE, "message" => JVC_SERIAL_NO_VALIDATION_FAILED_MSG);
+            }
+            // Month should be alphabetic and Year should be a number , date should not be greater then today
+            $yearValidation =  $this->_jvc_year_month_validation(substr($serialNo,$stringLength-7,1),substr($serialNo,$stringLength-6,2),2);
+            if(!$yearValidation){
+                return array('code' => FAILURE_CODE, "message" => JVC_SERIAL_NO_VALIDATION_FAILED_MSG);
+            }
+            //First Letter Should be alphabetic and other 3 should be numaric
+            $srNumberValidation = $this->_jvc_sr_number_validation(substr($serialNo,$stringLength-4,4));
+            if(!$srNumberValidation){
+                //return array('code' => FAILURE_CODE, "message" => JVC_TV_SERIAL_NO_VALIDATION_SR_FAILED_MSG);
+                return array('code' => FAILURE_CODE, "message" => JVC_SERIAL_NO_VALIDATION_FAILED_MSG);
+            }
+            return array('code' => SUCCESS_CODE);
+        }
+        else{
+            return array('code' => FAILURE_CODE, "message" => JVC_SERIAL_NO_VALIDATION_FAILED_MSG);
+        }
+    }
+    function _jvc_year_month_validation($month,$year,$yearDigit = 1){
+        $currentYear = substr(date("Y"),3,1);
+        if($yearDigit>1){
+           $currentYear = substr(date("Y"),2,2); 
+        }
+        $currentMonth = date("m");
+        $monthNumberMappingArray = array("A"=>1,"B"=>2,"C"=>3,"D"=>4,"E"=>5,"F"=>6,"G"=>7,"H"=>8,"I"=>9,"J"=>10,"K"=>11,"L"=>12);
+        if(array_key_exists($month, $monthNumberMappingArray)){
+            $letterMonth = $monthNumberMappingArray[$month];
+        }
+        else{
+            return FALSE;
+        }
+        //$month Should be alphabetic 
+        if (!preg_match("/^[a-zA-Z]$/", $month)) {
+            return FALSE;
+        }
+        //year Should be Numaric 
+        else if(!is_numeric($year)) {
+            return FALSE;
+        }
+        //Year Should not be greater then current year
+        else if($year>$currentYear){
+            return FALSE;
+        }
+        else if($year == $currentYear && $letterMonth > $currentMonth){
+            return FALSE;
+        }
+        else{
+            return TRUE;
+        }
+    }
+    function _jvc_sr_number_validation($sr_number){
+        $length = strlen($sr_number);
+        if($length != 4){
+            return FALSE;
+        }
+        else if(!preg_match("/^[a-zA-Z]$/", $sr_number[0])) {
+            return FALSE;
+        }
+        else if(!(is_numeric($sr_number[1]) && is_numeric($sr_number[2]) && is_numeric($sr_number[3]))){
+            return FALSE;
+        }
+        return TRUE;
+    }
     }
 }
 
