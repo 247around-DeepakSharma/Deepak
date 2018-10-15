@@ -630,7 +630,8 @@ class Service_centers extends CI_Controller {
         $price_tags = $this->input->post("price_tags");
         $booking_id = $this->input->post("booking_id");
         $appliance_id = $this->input->post("appliance_id");
-        $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number), trim($price_tags), $user_id, $booking_id, $appliance_id);
+        $model_number = $this->input->post("model_number");
+        $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number), trim($price_tags), $user_id, $booking_id, $appliance_id,$model_number);
         if (!empty($status)) {
             log_message('info', __METHOD__.'Status '. print_r($status, true));
             echo json_encode($status, true);
