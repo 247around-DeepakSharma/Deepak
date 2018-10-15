@@ -35,7 +35,7 @@
         </div>
     </div>
 </div>
-<div role="tabpanel" class="tab-pane" id="oow_part_shipped">
+<!--<div role="tabpanel" class="tab-pane" id="oow_part_shipped">
     <div class="container-fluid">
         <div class="row" >
             <div class="col-md-12">
@@ -78,7 +78,7 @@
             </div>
         </div>
     </div>
-</div>
+</div>-->
 <div role="tabpanel" class="tab-pane active" id="estimate_cost_requested">
     <div class="container-fluid">
         <div class="row" >
@@ -486,37 +486,37 @@
     var estimate_cost_given_table;
     var oow_part_shipped_table;
     $(document).ready(function() {
-        
-        oow_part_shipped_table = $('#oow_part_shipped_table').DataTable({
-            processing: true, //Feature control the processing indicator.
-            serverSide: true, //Feature control DataTables' server-side processing mode.
-            order: [[ 9, "desc" ]],//Initial no order.
-            pageLength: 50,
-            dom: 'Bfrtip',
-            buttons: [
-                {
-                    extend: 'excelHtml5',
-                    text: 'Export',
-                    exportOptions: {
-                        columns: [ 1,2,3,4,5,6,7,8,9,11,12 ]
-                    },
-                    title: 'partner_shipped_oow_part'
-                }
-            ],
-            // Load data for the table's content from an Ajax source
-            ajax: {
-                url: "<?php echo base_url(); ?>employee/spare_parts/get_spare_parts_tab_details",
-                type: "POST",
-                data: {type: '8', status: '<?php echo SPARE_OOW_SHIPPED; ?>', partner_id: '<?php echo $partner_id; ?>'}
-            },
-            //Set column definition initialisation properties.
-            columnDefs: [
-                {
-                    "targets": [0,1,2,3,4], //first column / numbering column
-                    "orderable": false //set not orderable
-                }
-            ]
-        });
+//        
+//        oow_part_shipped_table = $('#oow_part_shipped_table').DataTable({
+//            processing: true, //Feature control the processing indicator.
+//            serverSide: true, //Feature control DataTables' server-side processing mode.
+//            order: [[ 9, "desc" ]],//Initial no order.
+//            pageLength: 50,
+//            dom: 'Bfrtip',
+//            buttons: [
+//                {
+//                    extend: 'excelHtml5',
+//                    text: 'Export',
+//                    exportOptions: {
+//                        columns: [ 1,2,3,4,5,6,7,8,9,11,12 ]
+//                    },
+//                    title: 'partner_shipped_oow_part'
+//                }
+//            ],
+//            // Load data for the table's content from an Ajax source
+//            ajax: {
+//                url: "<?php //echo base_url(); ?>employee/spare_parts/get_spare_parts_tab_details",
+//                type: "POST",
+//                data: {type: '8', status: '<?php //echo SPARE_OOW_SHIPPED; ?>', partner_id: '<?php// echo $partner_id; ?>'}
+//            },
+//            //Set column definition initialisation properties.
+//            columnDefs: [
+//                {
+//                    "targets": [0,1,2,3,4], //first column / numbering column
+//                    "orderable": false //set not orderable
+//                }
+//            ]
+//        });
         
 
         
@@ -870,7 +870,7 @@
                          $("#hsn_code").val("");
                          $("#remarks").val("");
                          swal("Thanks!", "Booking updated successfully!", "success");
-                         oow_part_shipped_table.ajax.reload(null);
+                        // oow_part_shipped_table.ajax.reload(null);
 
                      } else {
                          swal("Oops", data, "error");
