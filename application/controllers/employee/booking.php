@@ -2007,6 +2007,7 @@ class Booking extends CI_Controller {
                     $service_center['internal_status'] = DEFECTIVE_PARTS_PENDING;
                     $service_center['closed_date'] = $closed_date;
                     $data['ud_closed_date'] = $closed_date;
+                    $data['booking_status'] = _247AROUND_PENDING;
 //                    if( isset($price_tag_array[$unit_id]) && 
 //                            $data['booking_status'] == _247AROUND_CANCELLED && 
 //                            $price_tag_array[$unit_id] === REPAIR_OOW_PARTS_PRICE_TAGS){
