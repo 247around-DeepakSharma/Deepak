@@ -28,7 +28,7 @@
                         <td ><?php echo $i.'.'?></td>
                         <td><?php echo $value->public_name; ?></td>
                         <td><?php if($value->collateral_tag != NULL){ ?> 
-                            <a href="<?php echo S3_URL; ?>vendor-partner-docs/<?php echo $value->file; ?>" target="_blank"><img src="<?php echo base_url()?>images/ok.png" width="20" height="20"/></a>
+                            <a href="<?php echo S3_WEBSITE_URL; ?>vendor-partner-docs/<?php echo $value->file; ?>" target="_blank"><img src="<?php echo base_url()?>images/ok.png" width="20" height="20"/></a>
                             <?php } ?>
                         </td>
                         <td><?php echo $value->start_date; ?></td>
