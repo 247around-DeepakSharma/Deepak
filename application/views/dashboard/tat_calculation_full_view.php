@@ -40,7 +40,6 @@
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <select class="form-control filter_table" id="service_id" name="services">
-                                <option value="" selected="selected" disabled="">Select Service</option>
                                 <?php foreach($services as $val){ ?>
                                 <option value="<?php echo $val['id']?>" <?php if(isset($filters['services'])){if($filters['services'] == $val['id']){echo 'selected="selected"';}} ?>><?php echo $val['services']?></option>
                                 <?php } ?>
@@ -48,7 +47,7 @@
                         </div>
                     </div>
                 </div>
-                 <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 170px;">
+                 <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 190px;">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <select class="form-control filter_table" id="request_type" name="request_type[]" multiple="">
@@ -266,7 +265,14 @@
         "ordering": false
       });
     });
-    $('#request_type').select2();
+    $('#request_type').select2({
+        placeholder: "Request Type",
+        allowClear: true
+    });
+    $('#service_id').select2({
+        placeholder: "Select Appliance",
+        allowClear: true
+    });
      $('#partner_id').select2({
         placeholder: "Select Partner",
         allowClear: true
@@ -277,10 +283,6 @@
     });
     $('#upcountry').select2({
         placeholder: "Is Upcountry",
-        allowClear: true
-    });
-    $('#service_id').select2({
-        placeholder: "Select Appliance",
         allowClear: true
     });
     $('#status').select2({
