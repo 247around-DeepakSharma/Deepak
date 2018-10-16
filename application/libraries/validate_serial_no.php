@@ -417,7 +417,7 @@ class Validate_serial_no {
             }
         }
         else{
-            return array('code' => FAILURE_CODE, "message" => LEMON_SERIAL_NO_ALL_VALIDATION_FAILED_MSG);
+            return array('code' => FAILURE_CODE, "message" => LEMON_SERIAL_NO_LENGTH_VALIDATION_FAILED_MSG);
         }
     }
     function _lemonModelCodeValidation($modelNumber,$modelCode){
