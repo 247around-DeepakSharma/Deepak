@@ -807,11 +807,11 @@ admin_dashboard.controller('completedBooking_Controller', function ($scope, $htt
             $scope.completedBookingByRM = "";
             $http.get(pending_url).then(function (response) { 
             $("#loader_gif_completed_rm").css("display", "none");
-            $("#loader_gif_pending").css("display", "none");
             $scope.completedBookingByRM = response.data;
          });
     }
      $scope.ShowRMCompletedBookingBYDateRange = function(){
+                $("#loader_gif_completed_rm").css("display", "block");
                 dateRange = $("#completed_daterange_id").val();
                 dateArray = dateRange.split(" - ");
                 startDate = dateArray[0];
