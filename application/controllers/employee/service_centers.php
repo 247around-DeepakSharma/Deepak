@@ -3879,7 +3879,7 @@ class Service_centers extends CI_Controller {
                                 $spare_details[0]['challan_approx_value'] = $data['challan_approx_value'];
 
 
-                                $data['partner_challan_file'] = $this->invoice_lib->create_sf_challan_file($sf_details, $assigned_sf_details, $data['partner_challan_number'], $part_details['spare_id'], $spare_details);
+                                $data['partner_challan_file'] = $this->invoice_lib->process_create_sf_challan_file($sf_details, $assigned_sf_details, $data['partner_challan_number'], $part_details['spare_id'], $spare_details);
 
                            }
                             if($part_details['spare_id'] == "new"){
