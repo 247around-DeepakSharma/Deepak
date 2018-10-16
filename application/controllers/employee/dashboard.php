@@ -1756,6 +1756,9 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         if($this->input->post('upcountry')){
             $upcountry = $this->input->post('upcountry');
         }
+        if($this->input->post('free_paid')){
+            $free_paid = $this->input->post('free_paid');
+        }
         $conditionsArray  = $this->get_tat_conditions_by_filter($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry,$partner_id);
         if(!$startDate){
             $conditionsArray['where']["DATEDIFF(CURDATE(),date(booking_details.service_center_closed_date)) < 31"] = NULL;
