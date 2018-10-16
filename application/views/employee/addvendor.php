@@ -1707,7 +1707,8 @@ function manageAccountNameField(value){
         }
     function validateGSTNo(){
         var gstin = $("#gst_no").val();
-        gstin = gstin.trim();
+        gstin = gstin.trim().toUpperCase();
+        $("#gst_no").val(gstin);
         var vendor_id="";
         if($("#vendor_id").val()){
             vendor_id = "/"+$("#vendor_id").val();
@@ -1731,17 +1732,17 @@ function manageAccountNameField(value){
                     else{
                         $("#gst_type, #gst_status").val("");
                         if(response.errorMsg){
-                           alert("Error occured while calling curl");
+                           alert("Error occured while checking GST number try again");
                         }
                         else if(response.error.message){
                             if(response.error.error_cd == '<?php echo INVALID_GSTIN; ?>'){
                                 alert("<?php echo INVALID_GSTIN_MSG; ?>");
                             }else{
-                                alert(response.error.message);
+                                alert("Error occured while checking GST number try again");
                             }
                         }
                         else{
-                           alert("API unable to work!"); 
+                           alert("API unable to work contact tech team!"); 
                         }
                     }
                 }
