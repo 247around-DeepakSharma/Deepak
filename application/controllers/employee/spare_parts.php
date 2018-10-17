@@ -436,13 +436,13 @@ class Spare_parts extends CI_Controller {
        
         $row[] = $no;
         $row[] = '<a href="'. base_url().'employee/booking/viewdetails/'.$spare_list->booking_id.'" target= "_blank" >'.$spare_list->booking_id.'</a>';
-        $row[] = $spare_list->name;
-        $row[] = $spare_list->booking_primary_contact_no;
         $row[] = $spare_list->sc_name;
         $row[] = $spare_list->source;
-
         $row[] = $spare_list->defective_part_shipped;
         $row[] = $spare_list->courier_name_by_sf;
+        $row[] = $spare_list->awb_by_sf;
+ 
+
         $row[] = "<i class='fa fa-inr'></i>".$spare_list->courier_charges_by_sf;
         $row[] = $spare_list->remarks_defective_part_by_sf;
         if(!empty($spare_list->defective_courier_receipt)){
