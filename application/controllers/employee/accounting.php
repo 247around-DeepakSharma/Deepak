@@ -1230,6 +1230,7 @@ class Accounting extends CI_Controller {
     function add_variable_charges(){ 
         $select = "IFNULL( service_centres.name, partners.public_name ) as name, vendor_partner_variable_charges.*";
         $variable_charges['charges'] = $this->invoices_model->get_variable_charge($select, array(), true);
+        $variable_charges['charges_type'] = $this->invoices_model->get_variable_charge("DISTINCT(charges_type)", array(), false);
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/add_variable_charges', $variable_charges);  
     }
