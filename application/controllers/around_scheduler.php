@@ -1909,9 +1909,10 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         $partnerArray = $this->reusable_model->get_search_result_data("partners", "partners.*,employee.official_email as am_email", array("booking_review_for IS NOT NULL" => NULL), 
                 array("employee"=>"employee.id = partners.account_manager_id"), NULL, NULL, NULL, NULL, array());
         foreach ($partnerArray as $partner) {
+            $tempData = array();
             $tempData = $this->miscelleneous->get_review_bookings_for_partner($partner['id'], NULL, 1,REVIEW_NOTIFICATION_TO_PARTNER_DAYS);
             if(!empty($tempData)){
-                $data['bookings'] = array_keys($tempData);
+                $data['bookings'] = $tempData;
                 $template = $this->booking_model->get_booking_email_template("notify_partner_to_review_bookings");
                 $subject = $template[4];
                 $data['text'] = vsprintf($template[0], array($partnerArray[0]['review_time_limit']));
@@ -1919,7 +1920,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                 $to =  $partner['primary_contact_email'];
 
                 $bcc = $template[5];
-                $cc = $template[1];
+                $cc = $partner['am_email'];
                 $from = $template[2];
                 $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "", "notify_partner_to_review_bookings");
                 log_message('info', __FUNCTION__ . " END  " . $partner['id'] . $message);
