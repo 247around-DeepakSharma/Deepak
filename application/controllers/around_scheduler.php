@@ -1808,7 +1808,10 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                     echo "cURL Error :" . $err ."</br>"; 
                 } else {
                     $api_response = json_decode($api_response, TRUE);
-                    if(isset($api_response['status_cd'])){  }
+                    if(isset($api_response['error'])){
+                       // $gstin_insert = array("gst_number"=> $vendor['gst_no'], "lager_name"=>$vendor['id']);
+                       // $this->reusable_model->insert_into_table("gstin_detail", $gstin_insert);
+                    }
                     else{
                         if(isset($api_response['dty'])){
                             $data['gst_taxpayer_type'] = $api_response['dty'];
@@ -1816,9 +1819,12 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                         if(isset($api_response['sts'])){
                             $data['gst_status'] = $api_response['sts'];
                             if($api_response['sts'] == 'Cancelled'){
-                                $data['gst_cancelled_date'] = date("Y-m-d", strtotime($api_response['cxdt']));
+                                 $date = str_replace('/', '-', $api_response['cxdt']);
+                                 $date1 = date("Y-m-d", strtotime($date)); 
+                                 $data['gst_cancelled_date'] = $date1;
                             }
                         }
+                       
                         $this->vendor_model->edit_vendor($data, $vendor['id']);
                     }
                 }
