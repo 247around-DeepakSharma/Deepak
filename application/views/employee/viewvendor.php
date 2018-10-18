@@ -1,4 +1,4 @@
-<?php if(!isset($is_ajax)) { ?>
+<?php $offset = ($this->uri->segment(7) != '' ? $this->uri->segment(7) : 0); if(!isset($is_ajax)) { ?>
 <script>
     function outbound_call(phone_number){
         var confirm_call = confirm("Call Vendor ?");
@@ -31,7 +31,9 @@
     function get_data()
     {
         var data = $("#active_state option:selected").val();
-        $('#get_vender').submit();
+        var sf_cp = $('#sf_cp').val();
+        window.open("<?php echo base_url();?>employee/vendor/viewvendor/all/"+data+"/"+sf_cp,"_self");
+        
     }
     
     function createPinCodeForm(id,name){
@@ -77,20 +79,20 @@
 
             <div class="pull-right" style="margin-bottom: 20px; margin-right: 50px;">
                 <div class="col-sm-7">
-                    <form action="<?php echo base_url();?>employee/vendor/viewvendor" method="get" id="get_vender" class="form-inline">
+                    <form action="javascript:void(0)" method="post" id="get_vender" class="form-inline">
                         <label for="active_state">Show Vendor &nbsp; &nbsp;</label>
                         <select name="active_state" id="active_state" onchange="get_data();" class="form-control">
-                            <option value="all" <?php echo isset($selected) && $selected['active_state'] == 'all'? 'selected="selected"':''?>>ALL</option>
-                            <option value="1" <?php echo isset($selected) && $selected['active_state'] == '1'? 'selected="selected"':''?>>Active</option>
+                            <option value="all" <?php echo isset($active_state) && $active_state == 'all'? 'selected="selected"':''?>>ALL</option>
+                            <option value="1" <?php echo isset($active_state) && $active_state == '1'? 'selected="selected"':''?>>Active</option>
                         </select> 
                     </form>
                 </div>
                 
                 <div class="col-sm-5">
-                    <select id="sf_cp" onchange="get_sf_cp();" class="form-control">
-                        <option value="sf">Service Center</option>
-                        <option value="cp">Collection Partner</option>
-                        <option value="wh">Warehouse</option>
+                    <select id="sf_cp" onchange="get_data();" class="form-control">
+                        <option value="sf" <?php echo isset($sf_cp_type) && $sf_cp_type == 'sf'? 'selected="selected"':''?>>Service Center</option>
+                        <option value="cp" <?php echo isset($sf_cp_type) && $sf_cp_type == 'cp'? 'selected="selected"':''?>>Collection Partner</option>
+                        <option value="wh" <?php echo isset($sf_cp_type) && $sf_cp_type == 'wh'? 'selected="selected"':''?>>Warehouse</option>
                     </select>
                 </div> 
             </div>
@@ -122,7 +124,7 @@
 
           
           <?php 
-          $x = 0;
+          $x = $offset;
           foreach($query as $key =>$row){
               $x++;
               ?>
@@ -214,7 +216,8 @@
           </tr>	
           <?php } ?>
         </table>
-
+        <?php if(!empty($links)){ ?><div class="custom_pagination" style=" text-align: center; margin-top: 20px;margin-bottom: 20px;"> <?php if(isset($links)){echo $links;} ?></div> <?php } ?>
+                
 <?php if(!isset($is_ajax)) { ?>
         
     </div>
@@ -236,27 +239,7 @@
             return false;
         }
     }
-    
-    function get_sf_cp(){
-        var sf_cp = $('#sf_cp').val();
-        var active_state = $('#active_state').val();
-        $('#vendor_sf_cp_list').html('<div class="col-md-6 col-md-offset-6" style="margin-top: 46px;"><img src="/images/loadring.gif"></div>');
-        $.ajax({
-                method: "POST",
-                url:'<?php echo base_url()."employee/vendor/get_filterd_sf_cp_data" ?>',
-                data: {'sf_cp':sf_cp,'active_state':active_state},
-                success: function (data) {
-                    //console.log(data);
-                    if(data === 'No Data Found'){
-                        var resHTML = "<div class = 'text-center text-danger' style='margin-top:20px;'><strong>"+data+"</strong><div>";
-                        $('#vendor_sf_cp_list').html(resHTML);
-                    }else{
-                        $('#vendor_sf_cp_list').html(data);
-                    }
-                    
-                }
-            });
-    }
+   
     
     </script>
 
