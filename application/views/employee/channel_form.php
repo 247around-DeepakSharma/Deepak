@@ -42,6 +42,8 @@
             </form>
     </div>
 </div>
+<?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
+<?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>
 <script>
     
        get_partner_list(); 
