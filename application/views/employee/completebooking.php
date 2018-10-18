@@ -593,6 +593,13 @@
                     alert("Please fill amount collected from customer, Amount Due: Rs." + amount_due);
                     flag = 1;
                 }
+                else if(Number(total_sf) < 10){
+                    admin_remarks = $("#admin_remarks").val();
+                    if(!admin_remarks){
+                        alert("Please Add remarks");
+                        flag = 1;
+                    }
+                }
             }
         } else {
             var cancelled_price_tags = $("#price_tags"+ div_no[2]).text();
