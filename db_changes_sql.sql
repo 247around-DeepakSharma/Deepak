@@ -8479,3 +8479,4 @@ ALTER TABLE `partner_file_upload_header_mapping` ADD `type_of_data` VARCHAR(100)
 
 ALTER TABLE `account_holders_bank_details` ADD `is_rejected` INT(10) NOT NULL DEFAULT '0' AFTER `is_verified`;
 ALTER TABLE `account_holders_bank_details_trigger` ADD `is_rejected` INT(10) NOT NULL DEFAULT '0' AFTER `is_verified`;
+
