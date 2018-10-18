@@ -8470,3 +8470,5 @@ ALTER TABLE `partner_channel` ADD `set_default` TINYINT(1) NOT NULL AFTER `chann
 
 -- Kalyani 15-Oct
 ALTER TABLE `partner_channel` CHANGE `partner_id` `partner_id` INT(11) NULL DEFAULT NULL;
+
+ALTER TABLE `partner_file_upload_header_mapping` ADD `type_of_data` VARCHAR(100) NOT NULL DEFAULT 'type_of_data' AFTER `update_date`, ADD `delivery_end_date` VARCHAR(100) NOT NULL DEFAULT 'delivery_end_date' AFTER `type_of_data`, ADD `expected_delivery_date` VARCHAR(100) NOT NULL DEFAULT 'expected_delivery_date' AFTER `delivery_end_date`;
