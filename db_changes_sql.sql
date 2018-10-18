@@ -8472,3 +8472,6 @@ ALTER TABLE `partner_channel` ADD `set_default` TINYINT(1) NOT NULL AFTER `chann
 ALTER TABLE `partner_channel` CHANGE `partner_id` `partner_id` INT(11) NULL DEFAULT NULL;
 
 ALTER TABLE `partner_file_upload_header_mapping` ADD `type_of_data` VARCHAR(100) NOT NULL DEFAULT 'type_of_data' AFTER `update_date`, ADD `delivery_end_date` VARCHAR(100) NOT NULL DEFAULT 'delivery_end_date' AFTER `type_of_data`, ADD `expected_delivery_date` VARCHAR(100) NOT NULL DEFAULT 'expected_delivery_date' AFTER `delivery_end_date`;
+
+ALTER TABLE `account_holders_bank_details` ADD `is_rejected` INT(10) NOT NULL DEFAULT '0' AFTER `is_verified`;
+ALTER TABLE `account_holders_bank_details_trigger` ADD `is_rejected` INT(10) NOT NULL DEFAULT '0' AFTER `is_verified`;
