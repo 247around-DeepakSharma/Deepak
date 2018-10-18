@@ -597,7 +597,7 @@
         } else {
             var cancelled_price_tags = $("#price_tags"+ div_no[2]).text();
             if(cancelled_price_tags === '<?php echo REPAIR_OOW_PARTS_PRICE_TAGS; ?>'){
-                <?php $required_sp_id1 = array(); foreach ($booking_history['spare_parts'] as  $value) {
+                <?php $required_sp_id1 = array(); if(isset($booking_history['spare_parts'])){ foreach ($booking_history['spare_parts'] as  $value) {
                     if($value['status'] == _247AROUND_COMPLETED || $value['status'] == _247AROUND_CANCELLED){} else {
                         if($value['status'] != SPARE_PARTS_REQUESTED){
                             
@@ -614,7 +614,7 @@
                             }
                         }
                     }
-                }?>
+                } }?>
                 $("#spare_parts_required").val('<?php echo $flag; ?>');
                 $("#sp_required_id").val('<?php echo json_encode($required_sp_id1,TRUE); ?>');
                 
