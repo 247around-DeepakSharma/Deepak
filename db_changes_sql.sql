@@ -8470,3 +8470,7 @@ ALTER TABLE `partner_channel` ADD `set_default` TINYINT(1) NOT NULL AFTER `chann
 
 -- Kalyani 15-Oct
 ALTER TABLE `partner_channel` CHANGE `partner_id` `partner_id` INT(11) NULL DEFAULT NULL;
+
+
+--Abhay - Released - 15 OCT-2018
+ALTER TABLE `partner_file_upload_header_mapping` ADD `type_of_data` VARCHAR(64) NULL DEFAULT NULL AFTER `update_date`, ADD `delivery_end_date` VARCHAR(64) NULL DEFAULT NULL AFTER `type_of_data`;
