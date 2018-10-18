@@ -93,7 +93,7 @@
                             <div class="form-group">
                                 <label for="total service charges" class="col-md-4">Basic Service Charge*</label>
                                 <div class="col-md-6">
-                                    <input type="number" step=".02"  class="form-control"  name="total_service_charge" value = "<?php if (isset($invoice_details[0]['total_service_charge'])) {
+                                    <input type="number" step=".01"  class="form-control"  name="total_service_charge" value = "<?php if (isset($invoice_details[0]['total_service_charge'])) {
                                         echo $invoice_details[0]['total_service_charge'];
                                         } else { echo "0";} ?>" placeholder="Total Service Charge" >
                                 </div>
@@ -101,7 +101,7 @@
                             <div class="form-group">
                                 <label for="Parts Cost" class="col-md-4">Parts Cost *</label>
                                 <div class="col-md-6">
-                                    <input type="number" step=".02"  class="form-control"  name="parts_cost" value = "<?php if (isset($invoice_details[0]['parts_cost'])) {
+                                    <input type="number" step=".01"  class="form-control"  name="parts_cost" value = "<?php if (isset($invoice_details[0]['parts_cost'])) {
                                         echo $invoice_details[0]['parts_cost'];
                                         } else { echo "0";} ?>" placeholder="Parts Cost" >
                                 </div>
@@ -109,7 +109,7 @@
                             <div class="form-group">
                                 <label for="vat" class="col-md-4">Debit Penalty Amount *</label>
                                 <div class="col-md-6">
-                                    <input type="number" step=".02"  class="form-control"  name="penalty_amount" value = "<?php if (isset($invoice_details[0]['penalty_amount'])) {
+                                    <input type="number" step=".01"  class="form-control"  name="penalty_amount" value = "<?php if (isset($invoice_details[0]['penalty_amount'])) {
                                         echo $invoice_details[0]['penalty_amount'];
                                         }else { echo "0";} ?>" placeholder="Penalty Amount" >
                                 </div>
@@ -117,7 +117,7 @@
                             <div class="form-group">
                                 <label for="vat" class="col-md-4">credit Penalty Amount *</label>
                                 <div class="col-md-6">
-                                    <input type="number" step=".02"  class="form-control"  name="credit_penalty_amount" value = "<?php if (isset($invoice_details[0]['credit_penalty_amount'])) {
+                                    <input type="number" step=".01"  class="form-control"  name="credit_penalty_amount" value = "<?php if (isset($invoice_details[0]['credit_penalty_amount'])) {
                                         echo $invoice_details[0]['credit_penalty_amount'];
                                         } else { echo "0";} ?>" placeholder="Credit Penalty Amount" >
                                 </div>
@@ -125,7 +125,7 @@
                             <div class="form-group">
                                 <label for="Parts Cost" class="col-md-4">Upcountry Charges *</label>
                                 <div class="col-md-6">
-                                    <input type="number" step=".02"  class="form-control"  name="upcountry_price" value = "<?php if (isset($invoice_details[0]['upcountry_price'])) {
+                                    <input type="number" step=".01"  class="form-control"  name="upcountry_price" value = "<?php if (isset($invoice_details[0]['upcountry_price'])) {
                                         echo $invoice_details[0]['upcountry_price'];
                                         } else { echo "0";} ?>" placeholder="Upcountry Charges" >
                                 </div>
@@ -133,7 +133,7 @@
                             <div class="form-group">
                                 <label for="vat" class="col-md-4">Upcountry Distance *</label>
                                 <div class="col-md-6">
-                                    <input type="number" step=".02"  class="form-control"  name="upcountry_distance" value = "<?php if (isset($invoice_details[0]['upcountry_distance'])) {
+                                    <input type="number" step=".01"  class="form-control"  name="upcountry_distance" value = "<?php if (isset($invoice_details[0]['upcountry_distance'])) {
                                         echo $invoice_details[0]['upcountry_distance'];
                                         } else { echo "0";} ?>" placeholder="Upcountry Distance" >
                                 </div>
@@ -141,7 +141,7 @@
                             <div class="form-group <?php if( form_error('packaging_rate') ) { echo 'has-error';} ?>">
                                 <label for="Parts Cost" class="col-md-4">Packaging Rate </label>
                                 <div class="col-md-6">
-                                    <input type="number" step=".02"  class="form-control"  name="packaging_rate" value = "<?php if (isset($invoice_details[0]['packaging_rate'])) {
+                                    <input type="number" step=".01"  class="form-control"  name="packaging_rate" value = "<?php if (isset($invoice_details[0]['packaging_rate'])) {
                                         echo $invoice_details[0]['packaging_rate'];
                                         } else { echo "0";} ?>" placeholder="Packaging Rate" required >
                                 </div>
@@ -151,7 +151,7 @@
                             <div class="form-group <?php if( form_error('warehouse_storage_charges') ) { echo 'has-error';} ?>">
                                 <label for="Warehouse Storage Charge" class="col-md-4">Warehouse Storage Charge </label>
                                 <div class="col-md-6">
-                                    <input type="number" step=".02"  class="form-control"  name="warehouse_storage_charges" value = "<?php if (isset($invoice_details[0]['warehouse_storage_charges'])) {
+                                    <input type="number" step=".01"  class="form-control"  name="warehouse_storage_charges" value = "<?php if (isset($invoice_details[0]['warehouse_storage_charges'])) {
                                         echo $invoice_details[0]['warehouse_storage_charges'];
                                         } else { echo "0";} ?>" placeholder="Warehouse Storage Charge" required >
                                 </div>
@@ -161,7 +161,7 @@
                             <div class="form-group <?php if( form_error('gst_rate') ) { echo 'has-error';} ?>">
                                 <label for="Parts Cost" class="col-md-4">GST Rate *</label>
                                 <div class="col-md-6">
-                                    <input type="number" step=".02"  class="form-control"  name="gst_rate" value = "<?php if (isset($invoice_details[0]['igst_tax_rate'])) {
+                                    <input type="number" step=".01"  class="form-control"  name="gst_rate" value = "<?php if (isset($invoice_details[0]['igst_tax_rate'])) {
                                         echo $invoice_details[0]['cgst_tax_rate'] + $invoice_details[0]['sgst_tax_rate'] + $invoice_details[0]['igst_tax_rate'];
                                         } else { echo DEFAULT_TAX_RATE;} ?>" placeholder="GST Rate" required >
                                 </div>
@@ -265,7 +265,7 @@
                             <div class="form-group">
                                 <label for="total additional service charges" class="col-md-4">Additional Charge*</label>
                                 <div class="col-md-6">
-                                    <input type="number" step=".02"  class="form-control"  name="total_additional_service_charge" value = "<?php if (isset($invoice_details[0]['total_additional_service_charge'])) {
+                                    <input type="number" step=".01"  class="form-control"  name="total_additional_service_charge" value = "<?php if (isset($invoice_details[0]['total_additional_service_charge'])) {
                                         echo $invoice_details[0]['total_additional_service_charge'];
                                         } else { echo "0";} ?>" placeholder="Total Addtional Service Charge" >
                                 </div>
@@ -273,7 +273,7 @@
                             <div class="form-group">
                                 <label for="vat" class="col-md-4">Courier Charges *</label>
                                 <div class="col-md-6">
-                                    <input type="number" step=".02"  class="form-control"  name="courier_charges" value = "<?php if (isset($invoice_details[0]['courier_charges'])) {
+                                    <input type="number" step=".01"  class="form-control"  name="courier_charges" value = "<?php if (isset($invoice_details[0]['courier_charges'])) {
                                         echo $invoice_details[0]['courier_charges'];
                                         } else {echo "0";} ?>" placeholder="Courier Charges" >
                                 </div>
@@ -289,7 +289,7 @@
                             <div class="form-group">
                                 <label for="Parts Cost" class="col-md-4">Credit Penalty Booking Count *</label>
                                 <div class="col-md-6">
-                                    <input type="number" step=".02" class="form-control"  name="credit_penalty_bookings_count" value = "<?php if (isset($invoice_details[0]['credit_penalty_bookings_count'])) {
+                                    <input type="number" step=".01" class="form-control"  name="credit_penalty_bookings_count" value = "<?php if (isset($invoice_details[0]['credit_penalty_bookings_count'])) {
                                         echo $invoice_details[0]['credit_penalty_bookings_count'];
                                         } else { echo "0";} ?>" placeholder="Credit Penalty Bookings Count" >
                                 </div>
@@ -312,7 +312,7 @@
                             <div class="form-group <?php if( form_error('packaging_quantity') ) { echo 'has-error';} ?>">
                                 <label for="Parts Cost" class="col-md-4">Packaging Quantity </label>
                                 <div class="col-md-6">
-                                    <input type="number" step=".02"  class="form-control"  name="packaging_quantity" value = "<?php if (isset($invoice_details[0]['packaging_quantity'])) {
+                                    <input type="number" step=".01"  class="form-control"  name="packaging_quantity" value = "<?php if (isset($invoice_details[0]['packaging_quantity'])) {
                                         echo $invoice_details[0]['packaging_quantity'];
                                         } else { echo "0";} ?>" placeholder="GST Rate" required >
                                 </div>
@@ -321,7 +321,7 @@
                             <div class="form-group <?php if( form_error('miscellaneous_charges') ) { echo 'has-error';} ?>">
                                 <label for="miscellaneous Charge" class="col-md-4">Miscellaneous Charge </label>
                                 <div class="col-md-6">
-                                    <input type="number" step=".02"  class="form-control"  name="miscellaneous_charges" value = "<?php if (isset($invoice_details[0]['miscellaneous_charges'])) {
+                                    <input type="number" step=".01"  class="form-control"  name="miscellaneous_charges" value = "<?php if (isset($invoice_details[0]['miscellaneous_charges'])) {
                                         echo $invoice_details[0]['miscellaneous_charges'];
                                         } else { echo "0";} ?>" placeholder="Miscellaneous Charge" required >
                                 </div>
