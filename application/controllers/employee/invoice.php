@@ -1158,7 +1158,6 @@ class Invoice extends CI_Controller {
                     "warehouse_storage_charges" => $invoice_data['warehouse_storage_charge'],
                     "packaging_rate" => $invoice_data['packaging_rate'],
                     "packaging_quantity" => $invoice_data['packaging_quantity']
-                   
                 );
                 
                 // insert invoice details into vendor partner invoices table
@@ -3267,8 +3266,14 @@ class Invoice extends CI_Controller {
                 $subject = vsprintf($email_template[4], array($partner_data['company_name'], $sd, $ed));
                 $message = $email_template[0];
                 $email_from = $email_template[2];
-                $to = $email_template[1];
-                $cc = $email_template[3];
+                if($email_tag === CRM_SETUP_INVOICE_EMAIL_TAG){
+                    $to = $partner_data['invoice_email_to'].",".$email_template[1];
+                    $cc = $partner_data['invoice_email_cc'].",".$email_template[3];
+                }
+                else{
+                    $to = $email_template[1];
+                    $cc = $email_template[3];
+                }
                 $cmd = "curl " . S3_WEBSITE_URL . "invoices-excel/" . $output_pdf_file_name . " -o " . TMP_FOLDER.$output_pdf_file_name;
                 exec($cmd);    
                 $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, TMP_FOLDER.$output_pdf_file_name, "",$email_tag);
@@ -4246,7 +4251,6 @@ class Invoice extends CI_Controller {
                 $main['from_date'] = trim($date_explode[0]);
                 $main['to_date'] = trim($date_explode[1]);
                 $main['remarks'] = $this->input->post("remarks");
-
                 $gst_amount = 0;
                 $service_charge = 0;
                 $tds_sc_charge = 0;
@@ -4376,5 +4380,4 @@ class Invoice extends CI_Controller {
             redirect(base_url() . 'employee/invoice/insert_update_invoice/' . $vendor_partner);
         }
     }
-
 }
