@@ -1576,6 +1576,7 @@ class Booking extends CI_Controller {
                 $booking['services'] = $this->booking_model->selectservice();
             }
 
+            
             $booking['capacity'] = array();
             $booking['category'] = array();
             $booking['brand'] = array();
@@ -2005,15 +2006,18 @@ class Booking extends CI_Controller {
                     $service_center['current_status'] = "InProcess";
                     $service_center['internal_status'] = DEFECTIVE_PARTS_PENDING;
                     $service_center['closed_date'] = $closed_date;
-                    if( isset($price_tag_array[$unit_id]) && 
-                            $data['booking_status'] == _247AROUND_CANCELLED && 
-                            $price_tag_array[$unit_id] === REPAIR_OOW_PARTS_PRICE_TAGS){
-                        
-                        $data['ud_closed_date'] = $closed_date;
-                        
-                    } else {
-                        $data['booking_status'] = _247AROUND_PENDING;
-                    }
+                    $data['ud_closed_date'] = $closed_date;
+                    $data['booking_status'] = _247AROUND_PENDING;
+//                    if( isset($price_tag_array[$unit_id]) && 
+//                            $data['booking_status'] == _247AROUND_CANCELLED && 
+//                            $price_tag_array[$unit_id] === REPAIR_OOW_PARTS_PRICE_TAGS){
+//                        
+//                        $data['ud_closed_date'] = $closed_date;
+//                        
+//                    } else {
+//                        
+//                        $data['booking_status'] = _247AROUND_PENDING;
+//                    }
                     
                     
                 } else {
@@ -2130,6 +2134,8 @@ class Booking extends CI_Controller {
                 
                 $this->service_centers_model->update_spare_parts(array('id' => $sp_id), array('status' => DEFECTIVE_PARTS_PENDING, 'defective_part_required' => 1));
             }
+            
+            $this->invoice_lib->generate_challan_file($booking_id, $service_center_details[0]['service_center_id']);
         }
         
         if ($status == 0) {
@@ -2185,8 +2191,9 @@ class Booking extends CI_Controller {
         $user_id = $this->input->post('user_id');
         $booking_id = $this->input->post('booking_id');
         $partner_id = $this->input->post('partner_id');
+        $appliance_id = $this->input->post('appliance_id');
         
-        $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number), $price_tags, $user_id, $booking_id);
+        $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number), $price_tags, $user_id, $booking_id,$appliance_id);
         if(!empty($status)){
             echo json_encode($status);
         } else {
@@ -4495,12 +4502,14 @@ class Booking extends CI_Controller {
     }
 
     function test(){
-        $this->partner_sd_cb->test();
-        $bucket = "bookings-collateral";
-        //$directory_xls = "invoices-excel/ARD-PV-1819-0073.pdf";
-        $this->s3->putObjectFile(TMP_FOLDER."Around-1819-1621.pdf", $bucket, "invoices-excel/Around-1819-1621.pdf", S3::ACL_PUBLIC_READ);
-        $this->s3->putObjectFile(TMP_FOLDER."Around-1819-1621.xlsx", $bucket, "invoices-excel/Around-1819-1621.xlsx", S3::ACL_PUBLIC_READ);
-        $this->s3->putObjectFile(TMP_FOLDER."copy_Around-1819-1621.xlsx", $bucket, "invoices-excel/copy_Around-1819-1621.xlsx", S3::ACL_PUBLIC_READ);
+        
+        $this->invoice_lib->generate_challan_file('SY-1824041809242', 129);
+//        $this->partner_sd_cb->test();
+//        $bucket = "bookings-collateral";
+//        //$directory_xls = "invoices-excel/ARD-PV-1819-0073.pdf";
+//        $this->s3->putObjectFile(TMP_FOLDER."Around-1819-1621.pdf", $bucket, "invoices-excel/Around-1819-1621.pdf", S3::ACL_PUBLIC_READ);
+//        $this->s3->putObjectFile(TMP_FOLDER."Around-1819-1621.xlsx", $bucket, "invoices-excel/Around-1819-1621.xlsx", S3::ACL_PUBLIC_READ);
+//        $this->s3->putObjectFile(TMP_FOLDER."copy_Around-1819-1621.xlsx", $bucket, "invoices-excel/copy_Around-1819-1621.xlsx", S3::ACL_PUBLIC_READ);
        // $this->load->library('serial_no_validation');
       //  $a = $this->upcountry_model->getupcountry_for_partner_prepaid(247042);
        // echo "<pre/>"; print_r($a);
@@ -4743,5 +4752,16 @@ class Booking extends CI_Controller {
     }
     function sms_test($number,$text){
           $this->notify->sendTransactionalSmsMsg91($number,$text);
+    }
+    
+    function testDefective(){
+       $where =  array("status" => DEFECTIVE_PARTS_PENDING, 'defective_part_required' => 1, 'sf_challan_number IS NOT NULL ' => NULL);
+        $data  = $this->partner_model->get_spare_parts_by_any("spare_parts_details.booking_id, service_center_id, service_center_closed_date",
+                $where, true);
+        foreach ($data as $value) {
+            $this->invoice_lib->generate_challan_file($value['booking_id'], $value['service_center_id'], $data['service_center_closed_date']);
+        }
+        
+        
     }
 }

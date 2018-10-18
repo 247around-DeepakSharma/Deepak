@@ -238,7 +238,7 @@ class Partner extends CI_Controller {
      * @desc: This method loads abb booking form
      * it gets user details(if exist), city, source, services
      */
-    function get_addbooking_form($phone_number = "") {
+    function get_addbooking_form($phone_number = "") { 
         $this->checkUserSession();
         if (!empty($phone_number)) {
             $_POST['phone_number'] = $phone_number;
@@ -259,7 +259,7 @@ class Partner extends CI_Controller {
             $data['partner_type'] = $partner_type;
 
             $data['partner_code'] = $partner_data[0]['code'];
-            if ($partner_type != INTERNAL) {
+            if ($partner_type == OEM ) {
 
                 $data['appliances'] = $this->partner_model->get_partner_specific_services($this->session->userdata('partner_id'));
             } else {
@@ -1750,6 +1750,7 @@ class Partner extends CI_Controller {
                 $this->form_validation->set_message('challan_file', "Uploaded File Must be Less Than 2Mb in size");
                 $this->update_spare_parts_form($booking_id);
             } else {
+                $request_type = $this->input->post('request_type');
                 $challan_file = $this->upload_challan_file(rand(10, 100));
                 if ($challan_file) {
                     $data['partner_challan_file'] = $challan_file;
@@ -1778,6 +1779,12 @@ class Partner extends CI_Controller {
                     foreach ($shipped_part_details as $key => $value) {
                         if ($value['shippingStatus'] == 1) {
                             $data['status'] = SPARE_SHIPPED_BY_PARTNER;
+//                            if($request_type == REPAIR_OOW_TAG){
+//                                $data['status'] = SPARE_OOW_SHIPPED;
+//                            } else {
+//                                $data['status'] = SPARE_SHIPPED_BY_PARTNER;
+//                            }
+                            
                             $data['parts_shipped'] = $value['shipped_parts_name'];
                             $data['model_number_shipped'] = $value['shipped_model_number'];
                             $data['shipped_parts_type'] = $value['shipped_part_type'];
@@ -1814,6 +1821,13 @@ class Partner extends CI_Controller {
 
                         $sc_data['current_status'] = $current_status;
                         $sc_data['internal_status'] = $internal_status;
+//                        if($request_type == REPAIR_OOW_TAG){
+//                            $sc_data['internal_status'] = SPARE_OOW_SHIPPED;
+//                        } else {
+//                            $sc_data['internal_status'] = $internal_status;
+//                            
+//                        }
+                        
                         $this->vendor_model->update_service_center_action($booking_id, $sc_data);
 
                         $booking['internal_status'] = $internal_status;
@@ -2162,20 +2176,20 @@ class Partner extends CI_Controller {
             
             $this->booking_model->update_booking($booking_id, $booking);
             
-            $is_oow_return = $this->partner_model->get_spare_parts_by_any("booking_unit_details_id, purchase_price, sell_price, sell_invoice_id", 
-                    array('spare_parts_details.booking_id' => $booking_id, 
-                        'booking_unit_details_id IS NOT NULL' => NULL,
-                        'sell_price > 0 ' => NULL,
-                        'sell_invoice_id IS NOT NULL' => NULL,
-                        'estimate_cost_given_date IS NOT NULL' => NULL,
-                        'request_type' => REPAIR_OOW_TAG,
-                        '(reverse_sale_invoice_id IS NULL OR reverse_purchase_invoice_id)' => NULL),
-                    true);
-            if(!empty($is_oow_return)){
-                $url = base_url() . "employee/invoice/generate_reverse_oow_invoice";
-                $async_data['booking_id'] = $booking_id;
-                $this->asynchronous_lib->do_background_process($url, $async_data);
-            }
+//            $is_oow_return = $this->partner_model->get_spare_parts_by_any("booking_unit_details_id, purchase_price, sell_price, sell_invoice_id", 
+//                    array('spare_parts_details.booking_id' => $booking_id, 
+//                        'booking_unit_details_id IS NOT NULL' => NULL,
+//                        'sell_price > 0 ' => NULL,
+//                        'sell_invoice_id IS NOT NULL' => NULL,
+//                        'estimate_cost_given_date IS NOT NULL' => NULL,
+//                        'request_type' => REPAIR_OOW_TAG,
+//                        '(reverse_sale_invoice_id IS NULL OR reverse_purchase_invoice_id)' => NULL),
+//                    true);
+//            if(!empty($is_oow_return)){
+//                $url = base_url() . "employee/invoice/generate_reverse_oow_invoice";
+//                $async_data['booking_id'] = $booking_id;
+//                $this->asynchronous_lib->do_background_process($url, $async_data);
+//            }
 
             if (empty($is_cron)) {
                 $userSession = array('success' => ' Received Defective Spare Parts');
@@ -3539,7 +3553,7 @@ class Partner extends CI_Controller {
         log_message('info', __METHOD__. " POSPAID PARTNER ". $partner_id);
         $partner_details = $this->partner_model->getpartner_details("partners.id, public_name, "
                 . "postpaid_credit_period, is_active, postpaid_notification_limit, postpaid_grace_period, "
-                . "invoice_email_to,invoice_email_cc", array('partners.id' => $partner_id));
+                . "invoice_email_to,invoice_email_cc, is_prepaid", array('partners.id' => $partner_id));
         $postpaid = $this->invoice_lib->get_postpaid_partner_outstanding($partner_details[0]);
 
         $userSession = array('status' => $postpaid['active'], "message" => $postpaid['notification_msg']);
@@ -5157,22 +5171,26 @@ class Partner extends CI_Controller {
             else { 
                 $helperString = ' style="background-color: #26b99a;border-color:#26b99a;color:#fff;padding: 5px 0px;margin: 0px"';
             }
-            $tempArray[]= '<div class="dropdown">
-                                                <button class="btn btn-sm btn-primary" type="button" data-toggle="dropdown" style="border: 1px solid #2a3f54;background: #2a3f54;padding: 4px 24px;">Action
-                                                <span class="caret"></span></button>
-                                                <ul class="dropdown-menu" style="padding: 5px 5px 5px 5px;margin: 0px;min-width: 95px;position: inherit;z-index: 100;">
-                                                    <li style="color: #fff;"><a class="btn btn-sm btn-primary" href="'.base_url().'partner/update_booking/'.$row->booking_id.'"  title="View" 
-                                                        style="background-color:#2C9D9C; border-color: #2C9D9C;color:#fff;padding: 5px 0px;
-    margin: 0px;">Update</a></li>
-                                                    <li style="color: #fff;margin-top:5px;">
-                                                        <a id="a_hover"'.$helperString.' href="'.base_url().'partner/get_reschedule_booking_form/'.$row->booking_id.'" id="reschedule" class="btn btn-sm btn-success" title ="Reschedule">Reschedule</a>
-                                                    </li>
-                                                     <li style="color: #fff;margin-top:5px;">
-                                                         <a id="a_hover" style="background-color: #d9534f;border-color:#d9534f;color:#fff;padding: 5px 0px;margin: 0px;"href='.base_url().'partner/get_cancel_form/Pending/'.$row->booking_id.' class="btn btn-sm btn-danger" title="Cancel">Cancel</a>
-                                                     </li>
-                                                </ul>
-                                            </div>';
-            
+            if ($row->type != "Query") { 
+                $tempArray[]= '<div class="dropdown">
+                                                    <button class="btn btn-sm btn-primary" type="button" data-toggle="dropdown" style="border: 1px solid #2a3f54;background: #2a3f54;padding: 4px 24px;">Action
+                                                    <span class="caret"></span></button>
+                                                    <ul class="dropdown-menu" style="padding: 5px 5px 5px 5px;margin: 0px;min-width: 95px;position: inherit;z-index: 100;">
+                                                        <li style="color: #fff;"><a class="btn btn-sm btn-primary" href="'.base_url().'partner/update_booking/'.$row->booking_id.'"  title="View" 
+                                                            style="background-color:#2C9D9C; border-color: #2C9D9C;color:#fff;padding: 5px 0px;
+        margin: 0px;">Update</a></li>
+                                                        <li style="color: #fff;margin-top:5px;">
+                                                            <a id="a_hover"'.$helperString.' href="'.base_url().'partner/get_reschedule_booking_form/'.$row->booking_id.'" id="reschedule" class="btn btn-sm btn-success" title ="Reschedule">Reschedule</a>
+                                                        </li>
+                                                         <li style="color: #fff;margin-top:5px;">
+                                                             <a id="a_hover" style="background-color: #d9534f;border-color:#d9534f;color:#fff;padding: 5px 0px;margin: 0px;"href='.base_url().'partner/get_cancel_form/Pending/'.$row->booking_id.' class="btn btn-sm btn-danger" title="Cancel">Cancel</a>
+                                                         </li>
+                                                    </ul>
+                                                </div>';
+            }
+            else{
+              $tempArray[] =  "";
+            }
             $tempArray[] =  '<a target="_blank" href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/'.$row->booking_jobcard_filename.'" class="btn btn-sm btn-primary btn-sm" target="_blank" ><i class="fa fa-download" aria-hidden="true"></i></a>';
             $initialBooking = strtotime($row->initial_booking_date);
             $now = time();
@@ -5872,15 +5890,40 @@ class Partner extends CI_Controller {
     /*
      * This function extracts channels list and partner name from database and loads it to the view in tabular format.
      */
-   public function get_channels(){
-        $fetch_data = $this->partner_model->get_channels();
+    public function get_channels(){
+        $select = 'partner_channel.*,partners.public_name';
+        $fetch_data = $this->partner_model->get_channels($select);
         
         $this->miscelleneous->load_nav_header();
         $this->load->view("employee/get_channel_list", array('fetch_data' => $fetch_data));
-       
+    }
+    
+    public function get_partner_channel() {
+         log_message('info', __FUNCTION__ . print_r($_POST, true));
+        $select = 'partner_channel.id, partner_channel.channel_name';
+        if(!empty($this->input->post('partner_id'))){ 
+            $where = array(
+                'partner_id = "'.$this->input->post('partner_id').'" OR is_default = 1'=>NULL
+            );
+            
+        }
+        else{
+            $where = array('is_default' => 1);
+        }
         
-        
-   }
+        $channel = $this->input->post('channel');
+        $fetch_data = $this->partner_model->get_channels($select, $where);
+        $html = '<option value="" selected disabled>Please select seller channel</option>';
+        foreach ($fetch_data as $key => $value) {
+           $html .= '<option ';
+           if($channel ==$value['channel_name'] ){
+               $html .= " selected ";
+           }
+           $html .=' >'.$value['channel_name'].'</option>'; 
+        }
+        echo $html;
+    }
+    
    /*
     * This function displays channel form in the browser.
     */
@@ -5893,23 +5936,29 @@ class Partner extends CI_Controller {
      */
     public function process_add_channel(){
         $this->form_validation->set_rules('channel','Channel','required');
+        $is_default = 0;
         if ($this->form_validation->run() == FALSE) {
             $this->add_channel();
         } else {
             $channel = $this->input->post("channel");
-            $partner_id = $this->input->post("partner_id");
+            if($this->input->post("partner_id") === 'All'){
+                $partner_id = NULL;
+                $is_default = 1;
+            }
+            else{
+                $partner_id = $this->input->post("partner_id");
+            }
             $data = array(
                 'channel_name' => $channel,
                 'partner_id' => $partner_id
                 );
           
-            $is_exist = $this->partner_model->get_channels($data);
-           
+            $is_exist = $this->partner_model->get_channels('*', $data);
             
             if (empty($is_exist)) {
                 $data['create_date'] = date('Y-m-d H:i:s');
+                $data['is_default'] = $is_default;
                 $channel_id = $this->partner_model->insert_new_channels($data);
-               // exit();
                 if ($channel_id){
                     $output = "Your data inserted successfully";
                     $userSession = array('success' => $output);
@@ -5938,7 +5987,8 @@ function update_channel($id) {
             'partner_channel.id' => $id
         );
         
-        $channel['fetch_data'] = $this->partner_model->get_channels($data);
+        $channel['fetch_data'] = $this->partner_model->get_channels(' partner_channel.* ', $data);
+        //print_r($channel); die();
       
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/update_channel', $channel);
@@ -5950,19 +6000,26 @@ function update_channel($id) {
      */
     function process_update_channel($id) {
         $this->form_validation->set_rules('channel', 'Channel', 'required');
+        $is_default = 0;
         if ($this->form_validation->run() == FALSE) {
             $this->update_channel($id);
         } else {
             $channel = $this->input->post("channel");
-            $partner_id = $this->input->post("partner_id");
+            if($this->input->post("partner_id") === 'All'){
+                $partner_id = NULL;
+                $is_default = 1;
+            }
+            else{
+                $partner_id = $this->input->post("partner_id");
+            }
             $data = array(
                 'channel_name' => $channel,
                 'partner_id' => $partner_id
             );
-            $is_exist = $this->partner_model->get_channels($data);
+            $is_exist = $this->partner_model->get_channels('partner_channel.id', $data);
             if (empty($is_exist)) {
-                 $data['update_date'] = date('Y-m-d H:i:s');
-                $channel_id = $this->partner_model->insert_new_channels($data);
+                $data['update_date'] = date('Y-m-d H:i:s');
+                $data['is_default'] = $is_default;
                 $status = $this->partner_model->update_channel($id, $data);
                 if ($status) {
                     $output = "Your data updated successfully";

@@ -3184,7 +3184,7 @@ class Api extends CI_Controller {
                     $requestData["amountPaid"], $requestData["engineerNo"]);
             $result = json_decode($response, TRUE);
             if ($result['status'] == SUCCESS_STATUS) {
-                $this->jsonResponseString['QrImageUrl'] = S3_URL . $result['qr_url'];
+                $this->jsonResponseString['QrImageUrl'] = S3_WEBSITE_URL . $result['qr_url'];
                 $this->sendJsonResponse(array('0000', 'success'));
             } else {
                 log_message("info", __METHOD__ . " QR Failed " . print_r($result, true));

@@ -2738,7 +2738,7 @@ class Invoice extends CI_Controller {
                 $sc_details['sf_id'] = $service_center_id;
                 $sc_details['is_sf'] = $sc['is_sf'];
                 $sc_details['is_cp'] = $sc['is_cp'];
-                $sc_details['check_file'] = !empty($sc['cancelled_cheque_file']) ? S3_URL."vendor-partner-docs/".$sc['cancelled_cheque_file'] : "";
+                $sc_details['check_file'] = !empty($sc['cancelled_cheque_file']) ? S3_WEBSITE_URL."vendor-partner-docs/".$sc['cancelled_cheque_file'] : "";
                 array_push($payment_data, $sc_details);
                 
                 $invoice_data = $this->get_paymnet_summary_invoice_data($service_center_id);
@@ -3863,8 +3863,12 @@ class Invoice extends CI_Controller {
 
                     $this->invoices_model->action_partner_invoice($invoice);
                     foreach ($spare_id as $id) {
-
+                        
+                        
                         $this->service_centers_model->update_spare_parts(array('id' => $id), array("purchase_invoice_id" => $invoice['invoice_id']));
+//
+//                        $this->service_centers_model->update_spare_parts(array('id' => $id), array("purchase_invoice_id" => $invoice['invoice_id'],
+//                            "status" => SPARE_SHIPPED_BY_PARTNER));
                     }
 
                     echo "Success";

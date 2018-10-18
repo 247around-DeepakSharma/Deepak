@@ -455,4 +455,20 @@ class Bb_model extends CI_Model {
         
         return $acknowledge_data;
     }
+    
+//    function test(){
+//        $sql = "SELECT * FROM `bb_charges` WHERE `service_id` IN (28,37)";
+//        $query = $this->db->query($sql);
+//        return $query->result_array();
+//    }
+//    
+//    function test_update($data, $where){
+//        $this->db->where($where);
+//        $this->db->update("bb_charges", $data);
+//    }
+//    
+//    function insert_buyback_order($data){
+//        $this->db->insert('bb_charges', $data);
+//        return $this->db->insert_id();
+//    }
 }

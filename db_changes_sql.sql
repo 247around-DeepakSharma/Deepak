@@ -8405,7 +8405,7 @@ UPDATE partner_file_upload_header_mapping set `brand` = 'brand' where`partner_id
 
 --Kalyani 10-Oct
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES (NULL, 'credit_note_against_gst_debit_note', '247around generated credit note against - %s - gst debit note', 'Dear Vendor<br/> Credit note is generate against %s gst debit note <br/><strong>Reply All</strong> for raising any query or concern regarding the invoice.\r\n<br/><br/>Thanks,<br/>247around Team', 'billing@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '', '1', '', CURRENT_TIMESTAMP);
-INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES (NULL, 'vendor_gst_return', '%s fill 247around GST amount', 'Dear Partner<br/> Kindly fill the 247around GST amount respect to the following invoices - <br/>%s<br/><strong>Reply All</strong> for raising any query or concern regarding the invoice.\r\n<br/><br/>Thanks,<br/>247around Team', 'billing@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '', '1', '', CURRENT_TIMESTAMP);
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES (NULL, 'vendor_gst_return', 'GST tax Amount Pending', 'Dear Partner<br/><br/>As a part of GST compliance procedure, we have reconciled our books / purchase register with Form GSTR-2A as available on GST Portal.<br/>In this relation, we have found that details for the below invoices were not provided by you while filing GSTR-1. Because of this difference, your GST amount is held by us.<br/>In this regard, we request you to upload the details of such invoices on GSTN portal and share the screenshot with us within next 3 days. Once the same is verified by us, your GST amount pertaining to these invoices will be credited to you.<br/><br/>Company Name: %s<br>GST No: %s<br/>%s<br/>Further, note that we reserve all the rights to withhold the payment to the extent of GST in the case of any failure in complying the action mentioned above or in case of ITC loss due to discrepancy in your GST returns or non- Filing of GST returns on time.<br/>Please treat this on urgent basis.<br/><br/>Thanks & Regards, <br/>Pankaj Singh<br/>9810594247 / 9268953761', 'billing@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '', '1', '', CURRENT_TIMESTAMP);
 
 --Shraddhanand 10-oct
 CREATE TABLE `partner_channel` (
@@ -8461,3 +8461,14 @@ ALTER TABLE `partner_channel`
 ALTER TABLE `partner_channel`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 COMMIT;
+
+-- Kalyani 11-Oct
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Partner Channel', NULL, NULL, '2', '24', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Add Channel', NULL, 'employee/partner/add_channel', '2', '169', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Channel List', NULL, 'employee/partner/get_channels', '2', '169', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
+ALTER TABLE `partner_channel` ADD `set_default` TINYINT(1) NOT NULL AFTER `channel_name`;
+
+-- Kalyani 15-Oct
+ALTER TABLE `partner_channel` CHANGE `partner_id` `partner_id` INT(11) NULL DEFAULT NULL;
+
+ALTER TABLE `partner_file_upload_header_mapping` ADD `type_of_data` VARCHAR(100) NOT NULL DEFAULT 'type_of_data' AFTER `update_date`, ADD `delivery_end_date` VARCHAR(100) NOT NULL DEFAULT 'delivery_end_date' AFTER `type_of_data`, ADD `expected_delivery_date` VARCHAR(100) NOT NULL DEFAULT 'expected_delivery_date' AFTER `delivery_end_date`;

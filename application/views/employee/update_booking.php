@@ -75,6 +75,7 @@
                                     <div class="col-md-6">
                                         <input type="hidden" name="partner_type" value="<?php echo $partner_type; ?>" id="partner_type" />
                                         <input type="hidden" name="is_active" value="<?php echo $active;?>" id="is_active" />
+                                        <input type="hidden" id="partner_channel" value="<?php echo $booking_history[0]['partner_source']; ?>"/>
                                         <input type="hidden" name="booking_type" id="booking_type" value="<?php echo $booking_history[0]["type"];?>" />
                                         <input type="hidden" name="partner_id" value="<?php echo $booking_history[0]['partner_id'];?>" id="partner_id" />
                                         <input type="hidden" name="assigned_vendor_id" value="<?php if(!empty($booking_history[0]['assigned_vendor_id'])){ echo $booking_history[0]['assigned_vendor_id']; } else { echo '';} ?>" id="assigned_vendor_id" />
@@ -173,24 +174,11 @@
                                     <div class="col-md-6">
                                         <select class="form-control"  id="partner_source" name="partner_source" <?php if(!empty($booking_history[0]['partner_source'])){ echo "readonly";} ?> >
                                             <option value="">Please Select Seller Platform</option>
-                                            <option <?php if($booking_history[0]['partner_source'] === "AndroidApp" ){ echo "selected"; } ?> >AndroidApp</option>
-                                            <option <?php if($booking_history[0]['partner_source'] === "Amazon" ){ echo "selected"; } ?> >Amazon</option>
-                                            <option <?php if($booking_history[0]['partner_source'] === "CallCenter" ){ echo "selected"; } ?> >CallCenter</option>
-                                            <option <?php if($booking_history[0]['partner_source'] === "Ebay" ){ echo "selected"; } ?>>Ebay</option>
-                                            <option <?php if($booking_history[0]['partner_source'] === "Flipkart" ){ echo "selected"; } ?>>Flipkart</option>
-                                            <option <?php if($booking_history[0]['partner_source'] === "Jeeves-delivered-excel" ){ echo "selected"; } ?> >Jeeves-delivered-excel</option>
-                                            <option <?php if($booking_history[0]['partner_source'] === "Offline" ){ echo "selected"; } ?>>Offline</option>
-                                            <option <?php if($booking_history[0]['partner_source'] === "Paytm-delivered-excel" ){ echo "selected"; } ?> >Paytm</option>
-                                            <option <?php if($booking_history[0]['partner_source'] === "Paytm-delivered-excel" ){ echo "selected"; } ?> >Paytm-delivered-excel</option>
-                                            <option <?php if($booking_history[0]['partner_source'] === "Pepperfry" ){ echo "selected"; } ?> >Pepperfry</option>
-                                            <option <?php if($booking_history[0]['partner_source'] === "Shopclues" ){ echo "selected"; } ?> >Shopclues</option>
-                                            <option <?php if($booking_history[0]['partner_source'] === "STS" ){ echo "selected"; } ?> >STS</option>
-                                            <option <?php if($booking_history[0]['partner_source'] === "Snapdeal-delivered-excel" ){ echo "selected"; } ?> >Snapdeal-delivered-excel</option>
-                                            <option <?php if($booking_history[0]['partner_source'] === "Snapdeal-shipped-excel" ){ echo "selected"; } ?> >Snapdeal-shipped-excel</option>
-                                            <option <?php if($booking_history[0]['partner_source'] === "TataCliq" ){ echo "selected"; } ?> >TataCliq</option>
-                                            <option <?php if($booking_history[0]['partner_source'] === "Techwider" ){ echo "selected"; } ?> >Techwider</option>
-                                            <option <?php if($booking_history[0]['partner_source'] === "VibgyorNXT" ){ echo "selected"; } ?> >VibgyorNXT</option>
-                                            <option <?php if($booking_history[0]['partner_source'] === "Website" ){ echo "selected"; } ?> >Website</option>
+                                            <?php foreach ($channel as $key => $values) { ?>
+                                            <option  <?php if($values['channel_name'] == $booking_history[0]['partner_source']){ echo "selected"; } ?>>
+                                                <?php echo $values['channel_name']; ?> 
+                                            </option>
+                                            <?php }    ?>
                                         </select>
                                     </div>
                                 </div>
@@ -779,6 +767,7 @@
     $("#partner_source").select2();
 
      $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0});
+       getPartnerChannel();
      
 
 </script>
@@ -878,6 +867,7 @@
    
 });
   $("#purchase_date").datepicker({dateFormat: 'yy-mm-dd'});
+
 </script>
 <style type="text/css">
     #errmsg1

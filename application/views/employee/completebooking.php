@@ -360,6 +360,7 @@
                                             <tr style="background-color:   #bce8f1; color: #222222;">
                                                 <td> <?php if ($value['pod'] == "1") { ?>
                                                     <input type="text" class="form-control" onblur="validateSerialNo('<?php echo $count;?>')"  id="<?php echo "serial_number" . $count; ?>" name="<?php echo "serial_number[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value="" placeholder= "Enter Serial Number" />
+                                                    <input type="hidden"  id="<?php echo "model_number" . $count; ?>" class="form-control" value="<?php echo $unit_details['model_number']; ?>"   />
                                                     <input type="hidden" class="form-control" id="<?php echo "serial_number_pic" . $count; ?>" name="<?php echo "serial_number_pic[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value="" />
                                                     <input type="hidden" id="<?php echo "pod" . $count ?>" class="form-control" name="<?php echo "pod[" . $price['unit_id'] . "]" ?>" value="<?php echo $price['pod']; ?>"   />
                                                     <?php } ?>
@@ -596,7 +597,7 @@
         } else {
             var cancelled_price_tags = $("#price_tags"+ div_no[2]).text();
             if(cancelled_price_tags === '<?php echo REPAIR_OOW_PARTS_PRICE_TAGS; ?>'){
-                <?php $required_sp_id1 = array(); foreach ($booking_history['spare_parts'] as  $value) {
+                <?php $required_sp_id1 = array(); if(isset($booking_history['spare_parts'])){ foreach ($booking_history['spare_parts'] as  $value) {
                     if($value['status'] == _247AROUND_COMPLETED || $value['status'] == _247AROUND_CANCELLED){} else {
                         if($value['status'] != SPARE_PARTS_REQUESTED){
                             
@@ -613,7 +614,7 @@
                             }
                         }
                     }
-                }?>
+                } }?>
                 $("#spare_parts_required").val('<?php echo $flag; ?>');
                 $("#sp_required_id").val('<?php echo json_encode($required_sp_id1,TRUE); ?>');
                 
@@ -839,6 +840,7 @@
     postData['user_id'] = $("#user_id").val();
     postData['booking_id'] = $("#booking_id").val();
     postData['partner_id'] = $("#partner_id").val();
+    postData['appliance_id'] = '<?php echo $booking_history[0]['service_id'];?>';
     
     if(postData['serial_number'] !== ''){
         $.ajax({

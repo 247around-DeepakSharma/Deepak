@@ -77,7 +77,12 @@
                                         ?>">
                                         <label  for="charges_type" class="col-md-4">Charges Type*</label>
                                         <div class="col-md-8">
-                                            <input  type="text" class="form-control" id="charges_type" name="charges_type" value = "" placeholder="Enter Charges Type">
+                                            <select  id="charges_type" name="charges_type" class="form-control">
+                                            <option selected disabled>Select Charges Type</option>
+                                               <?php foreach ($charges_type as $charges_type) { ?>
+                                                <option value="<?php echo $charges_type['charges_type'] ?>"><?php echo $charges_type['charges_type'] ?></option> 
+                                                <?php } ?>
+                                            </select>
                                             <?php echo form_error('charges_type'); ?>
                                         </div>
                                     </div>
@@ -238,6 +243,7 @@
     
     $("#vendor_partner").select2();
     $("#vendor_partner_id").select2();
+    $("#charges_type").select2();
     function get_vendor_partner_list(){
         var par_ven = $("#vendor_partner").val();
         $.ajax({
@@ -253,7 +259,7 @@
     
     function update_charge(id, button){
         $("#vendor_partner").val($(button).closest('tr').find('td').eq(1).text()).trigger('change');
-        $("#charges_type").val($(button).closest('tr').find('td').eq(3).text());
+        $("#charges_type").val($(button).closest('tr').find('td').eq(3).text()).trigger('change');
         $("#fixed_charges").val($(button).closest('tr').find('td').eq(4).text());
         $("#percentage_charge").val($(button).closest('tr').find('td').eq(5).text());
         $("#hsn_code").val($(button).closest('tr').find('td').eq(6).text());

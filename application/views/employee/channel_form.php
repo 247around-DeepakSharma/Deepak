@@ -31,7 +31,10 @@
          
             <div class="form-group  <?php if( form_error('channel') ) { echo 'has-error';} ?>">
                 <label for="channel">Channel</label>
-                <input type="text" class="form-control" id="channel"placeholder="Enter channel Name" name="channel" required >
+
+                <input type="channel" class="form-control" id="channel" onkeyup="check_space()" placeholder="Enter channel Name" name="channel" required >
+                <span style="color:red; display: none;" id="chanal_err">No blank spaces.</span>
+
                     <?php echo form_error('channel'); ?>
             </div>
              <button type="submit" class="btn btn-default">Submit</button>
@@ -41,6 +44,8 @@
             </form>
     </div>
 </div>
+<?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
+<?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>
 <script>
     
        get_partner_list(); 
@@ -50,22 +55,20 @@
        $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url(); ?>employee/invoice/getPartnerOrVendor/partner',
-                data: {vendor_partner_id: "", invoice_flag: 0},
+                data: {vendor_partner_id: "", invoice_flag: 1},
                 success: function (data) {
                  $("#partner_id").select2().html(data).change();
             }
         });
         }
         
-        
-        
-//        
-//    $(function() {
-//        $('#channel').on('keypress', function(e) {
-//        if (e.which == 32)
-//        $("#chanal_err").css('display','block');
-//        return false;
-//        });
-//    });
+        function check_space(e){
+             if($("#channel").val().indexOf(" ") >= 0) {
+                $("#chanal_err").css('display','block');
+                return false;
+            } 
+        }
+
+
 </script>
 

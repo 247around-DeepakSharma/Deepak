@@ -56,6 +56,14 @@
                                             ?>" readonly="readonly">
                                        
                                     </div>
+                                    <div class="col-md-6">
+                                        <input type="hidden" class="form-control" id="booking_id" name="appliance_id" value = "<?php
+                                            if (isset($booking_history[0]['service_id'])) {
+                                                echo $booking_history[0]['service_id'];
+                                            }
+                                            ?>" readonly="readonly">
+                                       
+                                </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="name" class="col-md-4">Name</label>
@@ -730,9 +738,17 @@
     }
     
     function validateSerialNo(index){
+       var model_number = '';
        var serialNo = $("#serial_number" +index).val();
        var price_tags = $("#price_tags"+index).text();
-       
+       if(<?php echo $booking_history[0]['partner_id'] ?> == <?php echo LEMON_ID ?>){
+            var model_number = $("#model_number_"+index).val();
+            if(!model_number){
+                alert("Please Select Model Number");
+                $("#serial_number" +index).val("");
+                return false;
+            }
+       }
        if(serialNo !== ''){
             $.ajax({
                 type: 'POST',
@@ -749,7 +765,7 @@
 
                     },
                 url: '<?php echo base_url() ?>employee/service_centers/validate_booking_serial_number',
-                data:{serial_number:serialNo,partner_id:'<?php echo $booking_history[0]['partner_id'];?>', price_tags:price_tags,
+                data:{serial_number:serialNo,model_number:model_number,partner_id:'<?php echo $booking_history[0]['partner_id'];?>',appliance_id:'<?php echo $booking_history[0]['service_id'];?>', price_tags:price_tags,
                 user_id: '<?php echo $booking_history[0]['user_id'];?>', 'booking_id': '<?php echo $booking_history[0]['booking_id'];?>'},
                 success: function (response) {
                     console.log(response);

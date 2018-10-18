@@ -44,6 +44,7 @@
                                     <input type="hidden" name="user_id" id="user_id" value="<?php if(isset($booking_history[0]['user_id'])){ echo $booking_history[0]['user_id']; } ?>" />
                                     <input type="hidden" name="assigned_vendor_id" id="assigned_vendor_id" value="<?php if(isset($booking_history[0]['assigned_vendor_id'])){ echo $booking_history[0]['assigned_vendor_id']; }  ?>" />
                                     <input type="hidden" name="upcountry_data" id="upcountry_data" value="" />
+                                    <input type="hidden" name="partner_channel" id="partner_channel" value="<?php echo $booking_history[0]['partner_source']; ?>" />
                                     <input type="hidden" name="partner_code" id="partner_code" value="<?php echo $partner_code;?>" />
                                     <input type="hidden" name="partner_type" id="partner_type" value="<?php echo $partner_type;?>" />
                                     <input type="hidden" name="appliance_id" id='appliance_id' value="<?php echo $unit_details[0]['appliance_id']; ?>" />
@@ -148,17 +149,10 @@
                                 <div class="form-group col-md-12  <?php if( form_error('partner_source') ) { echo 'has-error';} ?>">
                                     <label for="partner_source">Seller Channel*  <span id="error_seller" style="color: red;"></label>
                                     <select class="form-control"  id="partner_source" name="partner_source" >
-                                        <option value="">Please select seller channel</option>
-                                        <option <?php if(set_value('partner_source') == "Amazon"){ echo "selected";} else if($booking_history[0]['partner_source'] == 'Amazon') { echo "selected";} ?>>Amazon</option>
-                                        <option <?php if(set_value('partner_source') == "Ebay"){ echo "selected";} else if($booking_history[0]['partner_source'] == 'Ebay') { echo "selected";} ?>>Ebay</option>
-                                        <option <?php if(set_value('partner_source') == "Flipkart"){ echo "selected";} else if($booking_history[0]['partner_source'] == 'Flipkart') { echo "selected";} ?>>Flipkart</option>
-                                        <option <?php if(set_value('partner_source') == "Offline"){ echo "selected";} else if($booking_history[0]['partner_source'] == 'Offline') { echo "selected";} ?>>Offline</option>
-                                        <option <?php if(set_value('partner_source') == "Paytm"){ echo "selected";} else if($booking_history[0]['partner_source'] == 'Paytm') { echo "selected";} ?>>Paytm</option>
-                                        <option <?php if(set_value('partner_source') == "Pepperfry"){ echo "selected";} else if($booking_history[0]['partner_source'] == 'Pepperfry') { echo "selected";} ?>>Pepperfry</option>
-                                        <option <?php if(set_value('partner_source') == "Shopclues"){ echo "selected";} else if($booking_history[0]['partner_source'] == 'Shopclues') { echo "selected";} ?>>Shopclues</option>
-                                        <option <?php if(set_value('partner_source') == "TataCliq"){ echo "selected";} else if($booking_history[0]['partner_source'] == 'TataCliq') { echo "selected";} ?>>TataCliq</option>
-                                        <option <?php if(set_value('partner_source') == "Snapdeal"){ echo "selected";} else if($booking_history[0]['partner_source'] == 'Snapdeal') { echo "selected";} ?>>Snapdeal</option>
-                                         <option <?php if(set_value('partner_source') == "VibgyorNXT"){ echo "selected";} else if($booking_history[0]['partner_source'] == 'VibgyorNXT') { echo "selected";} ?>>VibgyorNXT</option>
+                                        <option value="" selected disabled>Please select seller channel</option>
+                                        <?php foreach ($channel as $key => $value) { ?>
+                                        <option <?php if($booking_history[0]['partner_source'] == $value['channel_name']){ echo "selected";} ?>><?php echo $value['channel_name'];  ?></option>  
+                                       <?php } ?>
                                     </select>
                                     <?php echo form_error('partner_source'); ?>
                                 </div>
@@ -989,5 +983,19 @@
     
     function check_active_paid(no){
         
+    }
+    getPartnerChannel();
+    function getPartnerChannel(){
+        var partnerChannelServiceUrl = '<?php echo base_url(); ?>employee/partner/get_partner_channel/';
+        
+        var postData = {};
+        postData['partner_id'] = '<?php echo $this->session->userdata('partner_id')?>';
+        postData['channel'] = $("#partner_channel").val();
+        if( postData['partner_id'] !== null){
+            sendAjaxRequest(postData, partnerChannelServiceUrl).done(function (data) {
+               $("#partner_source").html("");
+               $("#partner_source").html(data).change();
+            });
+        }
     }
 </script>

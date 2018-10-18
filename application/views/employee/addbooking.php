@@ -52,6 +52,7 @@
                                         <input type="hidden" name="upcountry_data" value="" id="upcountry_data" /> 
                                          <input type="hidden" name="user_id" value="<?php if(!empty($user)){ echo $user[0]['user_id'];} ?>" id="user_id" /> 
                                          <input type="hidden" name="partner_type" value="" id="partner_type" />
+                                         <input type="hidden" id="partner_channel" value=""/>
                                          <input type="hidden" name="partner_id" value="" id="partner_id" />
                                          <input type="hidden" name="is_active" value="" id="is_active" />
                                           <input type="hidden" name="assigned_vendor_id" value="" id="assigned_vendor_id" />
@@ -156,31 +157,9 @@
                                 <div class="form-group ">
                                     <label for="partner_source" class="col-md-4">Partner Source</label>
                                 <div class="col-md-6">
-                                    <select class="form-control"  id="partner_source" name="partner_source"  >
-                                    <option value="">Please select seller channel</option>
-                                    <option>Amazon</option>
-                                    <option>AndroidApp</option>
-                                    <option>CallCenter</option>
-                                    <option>Ebay</option>
-                                    <option>Flipkart</option>
-                                    <option>Ebay</option>
-                                    <option>Offline</option>
-                                    <option>Shopclues</option>
-                                    <option>TataCliq</option>
-                                    <option>Techwider</option>
-                                    <option>Jeeves-delivered-excel</option>
-                                    <option>Pepperfry</option>
-                                    <option>STS</option>
-                                    <option>Snapdeal-delivered-excel</option>
-                                    <option>Snapdeal-shipped-excel</option>
-                                    <option>Snapdeal</option>
-                                    <option>Paytm-delivered-excel</option>
-                                    <option>Paytm</option>
-                                    <option>VibgyorNXT</option>
-                                    <option>Website</option>
-                                    
-                                    
-                                </select>
+                                    <select class="form-control"  id="partner_source" name="partner_source">
+                                        <option value="" selected disabled>Please select seller channel</option>
+                                    </select>
                                 </div>
                                 </div>
                                 <div class="form-group <?php if( form_error('type') ) { echo 'has-error';} ?>">

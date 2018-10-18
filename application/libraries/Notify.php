@@ -402,8 +402,8 @@ class Notify {
 
 
 			$call_type = explode(" ", $query1[0]['request_type']);
-                        $sms['smsData']['call_type'] = $call_type[0];
                         $sms['smsData']['service'] = $query1[0]['services'];
+                        $sms['smsData']['call_type'] = $call_type[0];
                         $sms['tag'] = "cancel_booking";
                         $sms['booking_id'] = $query1[0]['booking_id'];
                         $sms['type'] = "user";
