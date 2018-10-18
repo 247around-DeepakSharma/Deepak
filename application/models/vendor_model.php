@@ -18,12 +18,13 @@ class vendor_model extends CI_Model {
      * @param: $vendor_id
      * @return: array of vendor details
      */
-    function viewvendor($vendor_id = "",$active = "",$sf_list = "", $is_cp = '',$is_wh = '') {
+    function viewvendor($vendor_id = "",$active = "",$sf_list = "", $is_cp = '',$is_wh = '',$limit ="", $start="") {
         $where_id = "";
         $where_active = "";
         $where_sf = "";
         $where_final = "";
         $cp = "";
+        
         if($is_cp != ''){
             $cp = " AND service_centres.is_cp = $is_cp";
         }
@@ -38,11 +39,9 @@ class vendor_model extends CI_Model {
         if ($active != "") {
             $where_active .= "service_centres.active= '$active'";
         }
+         
         if($sf_list != ""){
             $where_sf .= "service_centres.id  IN (" .$sf_list.")";
-        }
-        if($vendor_id != "" && $active != "" ){
-            $where_final = 'where '.$where_id." AND ".$where_active.$cp ;
         }
         if($vendor_id != ''){
             $where_final = 'where '.$where_id.$cp;
@@ -63,12 +62,27 @@ class vendor_model extends CI_Model {
         if($active === "" && $is_cp !== ""){
             $where_final = "where service_centres.is_cp = '1'";
         }
+        
+        if($active === "" && $is_wh !== ""){
+            $where_final = "where service_centres.is_wh = '1'";
+        } 
+        if ($limit != "") {
+             if($limit !="count"){
+                 //$this->db->limit($limit, $start);
+               $where_final .= " LIMIT ".$start.",".$limit." ";
+             }
+
+        }
         $sql = "Select service_centres.*,account_holders_bank_details.bank_name,account_holders_bank_details.account_type,account_holders_bank_details.bank_account,"
                 . "account_holders_bank_details.ifsc_code,account_holders_bank_details.cancelled_cheque_file,account_holders_bank_details.beneficiary_name,"
                 . "account_holders_bank_details.is_verified  from service_centres LEFT JOIN account_holders_bank_details ON account_holders_bank_details.entity_id=service_centres.id AND "
                 . "account_holders_bank_details.entity_type='SF ' AND account_holders_bank_details.is_active=1 $where_final";
         $query = $this->db->query($sql);
-       return $query->result_array();
+        $result = $query->result_array();
+        if ($limit == "count") {
+            return count($result);
+        }
+       return $result;
     }
 
     /**
