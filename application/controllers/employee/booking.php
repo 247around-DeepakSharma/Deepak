@@ -3186,6 +3186,7 @@ class Booking extends CI_Controller {
         $current_status = $this->input->post('current_status');
         $actor = $this->input->post('actor');
         $rm_id = $this->input->post('rm_id');
+        $is_upcountry = $this->input->post('is_upcountry');
         if($type == 'booking'){
             if($booking_status == _247AROUND_COMPLETED || $booking_status == _247AROUND_CANCELLED){
                 $post['where']  = array('current_status' => $booking_status,'type' => 'Booking');
@@ -3210,6 +3211,12 @@ class Booking extends CI_Controller {
         }
         if(!empty($internal_status)){
             $post['where_in']['booking_details.partner_internal_status'] =  explode(",",$internal_status);
+        }
+        if(!empty($is_upcountry)){
+            $post['where_in']['booking_details.is_upcountry'] =  1;
+            if($is_upcountry == 'no'){
+                $post['where_in']['booking_details.is_upcountry'] =  0;
+            }
         }
         if(!empty($current_status)){
             $post['where']['booking_details.current_status'] =  $current_status;
