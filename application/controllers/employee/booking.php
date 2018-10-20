@@ -1712,8 +1712,8 @@ class Booking extends CI_Controller {
             'agent_id' => $agent_id, 'customer_id' => $cust_id,
             'customer_phone' => $cust_phone
         ));
-        if(CURRENT_TELEPHONY_SOLUTION == KNOWLARITY_STRING){
-        //if($agent_id == 22 || $agent_id == 10026 || $agent_id == 8 || $agent_id == 19 || $agent_id == 29 || $agent_id == 10028 || $agent_id == 10037 || $agent_id == 10045 || $agent_id == 10046){
+        //if(CURRENT_TELEPHONY_SOLUTION == KNOWLARITY_STRING){
+        if($agent_id == 22 || $agent_id == 10026 || $agent_id == 8 || $agent_id == 19 || $agent_id == 29 || $agent_id == 10028 || $agent_id == 10037 || $agent_id == 10045 || $agent_id == 10046){
             $this->notify->make_outbound_call_using_knowlarity($agent_phone, $cust_phone);
         }
         else{
