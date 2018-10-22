@@ -11,41 +11,23 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-lg-12">
-                <?php
-                    if ($this->session->flashdata('file_error')) {
-                        echo '<div class="alert alert-danger alert-dismissible" role="alert" style="margin-top:15px;">
+                <div class="alert alert-danger alert-dismissible" id="file_error_msg_div" role="alert" style="margin-top:15px; display: none">
                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                            <span aria-hidden="true">&times;</span>
                        </button>
-                       <strong>' . $this->session->flashdata('file_error') . '</strong>
-                    </div>';
-                    }
-                    
-                    if ($this->session->flashdata('file_success')) {
-                        echo '<div class="alert alert-danger alert-dismissible" role="alert" style="margin-top:15px;">
+                        <strong id="file_error_msg"></strong>
+                    </div>
+                <div class="alert alert-success alert-dismissible" id="file_success_msg_div" role="alert" style="margin-top:15px; display: none">
                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                            <span aria-hidden="true">&times;</span>
                        </button>
-                       <strong>' . $this->session->flashdata('file_success') . '</strong>
-                    </div>';
-                    }
-                    ?>
+                        <strong id="file_success_msg"></strong>
+                    </div>
                 <h1 class="page-header">
                     <b> Upload File</b>
                 </h1>
-                <form class="form-horizontal"  id="fileinfo" onsubmit="submitForm();" name="fileinfo"  method="POST" enctype="multipart/form-data">
-                    <div class="form-group <?php if( form_error('file_type') ) { echo 'has-error';} ?>" id="file_type" style="display:none;">
-                        <label for="excel" class="col-md-1">Select File Type</label>
-                        <div class="col-md-4">
-                            <select name="file_type" class="form-control" id="file_type">
-                                <option value="" disabled selected>Select File Type</option>
-                                <option value="shipped">Shipped</option>
-                                <option value="delivered">Delivered</option>
-                            </select>
-                        </div>
-                         <?php echo form_error('file_type'); ?>
-                    </div>
-                    <div class="form-group  <?php if (form_error('excel')) {
+                <form class="form-horizontal"  id="fileinfo" name="fileinfo"  method="POST" enctype="multipart/form-data">
+                   <div class="form-group  <?php if (form_error('excel')) {
                         echo 'has-error';
                         } ?>">
                         <label for="excel" class="col-md-1">Upload File</label>
@@ -58,7 +40,7 @@
                     </div>
                     <div class="form-group">
                         <div class="col-md-4">
-                            <input type= "submit"  class="btn btn-success btn-md" id="submit_btn" value ="Upload">
+                            <input type= "button" onclick="submitForm()"  class="btn btn-success btn-md" id="submit_btn" value ="Upload">
                         </div>
                     </div>
                 </form>
@@ -100,13 +82,35 @@
         $.ajax({
             url: "<?php echo base_url() ?>file_upload/process_docket_number_file_upload",
             type: "POST",
+            beforeSend: function(){
+                $('body').loadingModal({
+                position: 'auto',
+                text: 'Loading Please Wait...',
+                color: '#fff',
+                opacity: '0.7',
+                backgroundColor: 'rgb(0,0,0)',
+                animation: 'wave'
+                });
+            },
             data: fd,
             processData: false,
             contentType: false 
-        }).done(function (data) { });
-        
-        alert('File validation is in progress, please wait....');
-    }
+        }).done(function (data) { 
+            data = JSON.parse(data);
+            if(data.status === true){
+                $("#file_success_msg_div").show();
+                $("#file_error_msg_div").hide(); 
+                $("#file_success_msg").text(data.message);
+            }
+            else if(data.status === false){
+               $("#file_error_msg_div").show();
+               $("#file_success_msg_div").hide();
+               $("#file_error_msg").text(data.message);
+            }
+            $('body').loadingModal('destroy');
+            table.ajax.reload();
+        });
+     }
     
     $(document).ready(function () {
         show_upload_file_history();
@@ -139,6 +143,3 @@
     
     
 </script>
-<?php  if ($this->session->flashdata('file_error')) {$this->session->unset_userdata('file_error');} 
-       if ($this->session->flashdata('file_success')) {$this->session->unset_userdata('file_success');} 
-?>

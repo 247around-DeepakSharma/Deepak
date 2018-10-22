@@ -1477,7 +1477,16 @@ class Inventory_model extends CI_Model {
             }
             else{
                 if($courier_company_detail[0]['is_exist'] == 0){
-                   $updateCharge = TRUE;
+                    $courier_company_data_update = array(
+                        'company_name'=>$data['courier_name'],
+                        'courier_charge'=>$data['courier_charges'],
+                        'courier_invoice_id'=>$data['invoice_id'],
+                        'billable_weight'=>$data['billable_weight'],
+                        'actual_weight'=>$data['actual_weight'],
+                        'is_exist'=>0
+                    );
+                    $this->update_courier_company_invoice_details(array('id'=>$courier_company_detail[0]['id']), $courier_company_data_update);
+                    $updateCharge = TRUE;
                 }
                 else if($courier_company_detail[0]['is_exist'] == 1){
                     $returnData['inValidData'] = $data['awb_number'];
@@ -1485,9 +1494,7 @@ class Inventory_model extends CI_Model {
             }
         }
         if($updateCharge === TRUE){
-            // log_message('info', __METHOD__. " kalyani data ". print_r($data['awb_number'], TRUE));
             $data_spare_part_detail = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id, awb_by_partner, awb_by_sf, booking_details.partner_id', array('awb_by_sf = "'.$data['awb_number'].'" OR awb_by_partner = "'.$data['awb_number'].'" AND status != "'._247AROUND_CANCELLED.'"'=>null), true);
-           //  log_message('info', __METHOD__. " kalyani courier amount". print_r($data_spare_part_detail, TRUE));
             if(!empty($data_spare_part_detail)){
                 $check =TRUE;
                 $courier_company_update_data['partner_id'] = $data_spare_part_detail[0]['partner_id'];
@@ -1508,7 +1515,8 @@ class Inventory_model extends CI_Model {
                 $data_courier_detail = $this->get_courier_details("id, booking_id, sender_entity_type", array('AWB_no' => $data['awb_number']));
                 if(!empty($data_courier_detail)){
                     $check = TRUE;
-                    $courier_company_update_data['partner_id'] = $this->reusable_model->get_search_result_data('booking_details', 'partner_id', array('booking_id'=>$data_courier_detail[0]['booking_id']), null, null, null, null, null, null)[0]['partner_id'];
+                    $courier_booking = explode(',', $data_courier_detail[0]['booking_id']);
+                    $courier_company_update_data['partner_id'] = $this->reusable_model->get_search_result_data('booking_details', 'partner_id', array('booking_id'=>$courier_booking[0]), null, null, null, null, null, null)[0]['partner_id'];
                     $courier_amount = sprintf('%0.2f', ($data['courier_charges']/count($data_courier_detail)));
                     $courier_company_update_data['pickup_from'] = _247AROUND_PARTNER_STRING;
                     foreach ($data_courier_detail as  $value){
