@@ -579,7 +579,7 @@ class Invoice extends CI_Controller {
                 'warehouse_storage_charges' => $misc_data['warehouse_storage_charge'],
                 'penalty_amount'=> $total_penalty_discount,
                 'penalty_bookings_count' => $penalty_booking_count
-            );
+             );
 
             $this->invoices_model->insert_new_invoice($invoice_details);
             log_message('info', __METHOD__ . "=> Insert Invoices in partner invoice table");
@@ -1158,7 +1158,6 @@ class Invoice extends CI_Controller {
                     "warehouse_storage_charges" => $invoice_data['warehouse_storage_charge'],
                     "packaging_rate" => $invoice_data['packaging_rate'],
                     "packaging_quantity" => $invoice_data['packaging_quantity']
-                   
                 );
                 
                 // insert invoice details into vendor partner invoices table
@@ -3267,8 +3266,14 @@ class Invoice extends CI_Controller {
                 $subject = vsprintf($email_template[4], array($partner_data['company_name'], $sd, $ed));
                 $message = $email_template[0];
                 $email_from = $email_template[2];
-                $to = $email_template[1];
-                $cc = $email_template[3];
+                if($email_tag === CRM_SETUP_INVOICE_EMAIL_TAG){
+                    $to = $partner_data['invoice_email_to'].",".$email_template[1];
+                    $cc = $partner_data['invoice_email_cc'].",".$email_template[3];
+                }
+                else{
+                    $to = $email_template[1];
+                    $cc = $email_template[3];
+                }
                 $cmd = "curl " . S3_WEBSITE_URL . "invoices-excel/" . $output_pdf_file_name . " -o " . TMP_FOLDER.$output_pdf_file_name;
                 exec($cmd);    
                 $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, TMP_FOLDER.$output_pdf_file_name, "",$email_tag);
@@ -4141,12 +4146,12 @@ class Invoice extends CI_Controller {
                 $email_template = $this->booking_model->get_booking_email_template(CN_AGAINST_GST_DN);
                 if(!empty($email_template)){
                     $subject = vsprintf($email_template[4], array($invoice_id));
-                    $message = vsprintf($email_template[0], array($invoice_id)); 
+                    $message = vsprintf($email_template[0], array($invoice_details[0]['total_amount_collected'], $invoice_id)); 
                     $email_from = $email_template[2];
                     $get_rm_email =$this->vendor_model->get_rm_sf_relation_by_sf_id($invoice_details[0]['vendor_partner_id']); 
                     $get_owner_email = $this->vendor_model->getVendorDetails("owner_email", array('id' =>$invoice_details[0]['vendor_partner_id']));
                     $to = $get_owner_email[0]['owner_email'].",".$this->session->userdata('official_email').",".$get_rm_email[0]['official_email'];
-                    $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID;
+                    $cc = ANUJ_EMAIL_ID.", ".$email_template[3];
                     $this->notify->sendEmail($email_from, $to, $cc, '', $subject, $message, '', CN_AGAINST_GST_DN);
                 }
                 
@@ -4246,6 +4251,7 @@ class Invoice extends CI_Controller {
                 $main['from_date'] = trim($date_explode[0]);
                 $main['to_date'] = trim($date_explode[1]);
                 $main['remarks'] = $this->input->post("remarks");
+                
 
                 $gst_amount = 0;
                 $service_charge = 0;
@@ -4376,5 +4382,4 @@ class Invoice extends CI_Controller {
             redirect(base_url() . 'employee/invoice/insert_update_invoice/' . $vendor_partner);
         }
     }
-
 }

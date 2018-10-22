@@ -20,6 +20,15 @@
                        <strong>' . $this->session->flashdata('file_error') . '</strong>
                     </div>';
                     }
+                    
+                    if ($this->session->flashdata('file_success')) {
+                        echo '<div class="alert alert-danger alert-dismissible" role="alert" style="margin-top:15px;">
+                       <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                           <span aria-hidden="true">&times;</span>
+                       </button>
+                       <strong>' . $this->session->flashdata('file_success') . '</strong>
+                    </div>';
+                    }
                     ?>
                 <h1 class="page-header">
                     <b> Upload File</b>
@@ -130,4 +139,6 @@
     
     
 </script>
-<?php  if ($this->session->flashdata('file_error')) {$this->session->unset_userdata('file_error');} ?>
+<?php  if ($this->session->flashdata('file_error')) {$this->session->unset_userdata('file_error');} 
+       if ($this->session->flashdata('file_success')) {$this->session->unset_userdata('file_success');} 
+?>

@@ -919,7 +919,7 @@ class File_upload extends CI_Controller {
                     $data['post_data']['file_type'] = DOCKET_NUMBER_FILE_TYPE;
                     
                     //column which must be present in the  upload inventory file
-                    $header_column_need_to_be_present = array('awb_number', 'courier_charges', 'invoice_id', 'billable_weight', 'actual_weight');
+                    $header_column_need_to_be_present = array('awb_number', 'courier_charges', 'invoice_id', 'courier_name', 'billable_weight', 'actual_weight');
                     
                     //check if required column is present in upload file header
                     $check_header = $this->check_column_exist($header_column_need_to_be_present,$data['header_data']);
@@ -938,7 +938,6 @@ class File_upload extends CI_Controller {
                             if(!empty(array_filter($sanitizes_row_data))){
                                 $rowData = array_combine($data['header_data'], $rowData_array[0]);
                                 if(!empty($rowData['awb_number']) && !empty($rowData['courier_charges']) && !empty($rowData['invoice_id']) && !empty($rowData['billable_weight']) && !empty($rowData['actual_weight'])){
-                                   
                                     $courier_company_detail = $this->inventory_model->update_docket_price($rowData);
                                     if(!empty($courier_company_detail['inValidData'])){
                                         $inValidData = TRUE;
@@ -947,7 +946,10 @@ class File_upload extends CI_Controller {
                                     if(!empty($courier_company_detail['notfoundData'])){
                                         $notfoundData[] = $courier_company_detail['notfoundData'];
                                     }
-                                } 
+                                }
+                                else{
+                                    log_message('info', __METHOD__. " kalyani data not found ". print_r($data['header_data'], TRUE));
+                                }
                             }
                         }
                         if($inValidData){
