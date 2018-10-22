@@ -166,16 +166,15 @@ class Bb_model extends CI_Model {
      * @param type $status_flag
      * @return Object
      */
-    function get_bb_order_list($post, $select = "") {
+    function get_bb_order_list($post, $select = "",$cp_name = 0) {
         $this->_get_bb_order_list_query($post, $select);
         if ($post['length'] != -1) {
             $this->db->limit($post['length'], $post['start']);
         }
-         $this->db->join('service_centres', 'service_centres.id = bb_order_details.assigned_cp_id');
-        $query = $this->db->get();
-
-
-
+        if($cp_name){
+           $this->db->join('service_centres', 'service_centres.id = bb_order_details.assigned_cp_id');
+        }
+         $query = $this->db->get();
         return $query->result();
     }
 
