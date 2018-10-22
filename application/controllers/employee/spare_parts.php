@@ -786,6 +786,7 @@ class Spare_parts extends CI_Controller {
         } 
         
     }
+<<<<<<< HEAD
     
     
     /**
@@ -959,5 +960,7 @@ class Spare_parts extends CI_Controller {
         return $row;
         
     }
+=======
+>>>>>>> c53b2cdc7... Move Requested Spare to Partner #CRM-1600
 
 }
