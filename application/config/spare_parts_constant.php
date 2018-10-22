@@ -66,3 +66,8 @@ define('DELIVERY_CONFIRMED_WITH_COURIER','Delivery Confirmed With Courier Compan
 
 define('DEFECTIVE_PARTS_RECEIVED_API_CONFORMATION','Defective Part Received By Partner API Conformation');
 
+define('REQUESTED_SPARED_REMAP','Requested spare remap to');
+
+
+
+
