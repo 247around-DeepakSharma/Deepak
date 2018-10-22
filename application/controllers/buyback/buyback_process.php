@@ -2161,10 +2161,10 @@ class Buyback_process extends CI_Controller {
         if(!empty($blankIndexes)){
             $errormsg = "File Contains Blank Values. at lines ".(implode(",",$blankIndexes))." Except those lines all traking numbers has been updated<br>";
         }
-        if(!empty($notFoundOrderID)){
-            $errormsg = $errormsg." Not Found order IDs -  ".(implode(",",$notFoundOrderID)).", Please check";
-            $fileData['result'] = "SUCCESS";
-        }
+//        if(!empty($notFoundOrderID)){
+//            $errormsg = $errormsg." Not Found order IDs -  ".(implode(",",$notFoundOrderID)).", Please check";
+//            $fileData['result'] = "SUCCESS";
+//        }
         if(!$errormsg){
             $msg = "Tracking Number Updated Successfully";
             $this->session->set_userdata('tracking_success',$msg);
