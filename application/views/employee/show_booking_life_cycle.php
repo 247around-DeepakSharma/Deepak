@@ -91,13 +91,13 @@
             <td><?php echo $row['email_to'] ?></td>
             <td><?php echo $row['cc'] ?></td>
             <td><?php echo $row['bcc'] ?></td>
-            <td style="text-align: center;"><input type="hidden" value="<?php echo $row['message'] ?>"><button type="button" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#email_message" onclick="viewEmailMessage(this)">View Message</button></td>
+            <td style="text-align: center;"><textarea style="display: none"><?php echo $row['message'];  ?></textarea><button type="button" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#email_message" onclick="viewEmailMessage(this)">View Message</button></td>
         </tr>
         <?php } ?>
 <!--</div>-->
 </table>
     <div id="email_message" class="modal fade" role="dialog">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-lg">
 
     <!-- Modal content-->
     <div class="modal-content">
@@ -119,7 +119,8 @@
 <script>
 
 function viewEmailMessage(button){
-   $("#email_message_body").html($(button).parent("td").find("input[type=hidden]").val());
+   $("#email_message_body").html($(button).parent("td").find("textarea").text());
+   $("#email_message_body div").each(function(){ $(this).removeAttr("style");  });
 }
 
 </script>

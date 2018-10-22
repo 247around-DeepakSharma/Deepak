@@ -31,8 +31,10 @@
          
             <div class="form-group  <?php if( form_error('channel') ) { echo 'has-error';} ?>">
                 <label for="channel">Channel</label>
+
                 <input type="channel" class="form-control" id="channel" onkeyup="check_space()" placeholder="Enter channel Name" name="channel" required >
                 <span style="color:red; display: none;" id="chanal_err">No blank spaces.</span>
+
                     <?php echo form_error('channel'); ?>
             </div>
              <button type="submit" class="btn btn-default">Submit</button>
@@ -66,6 +68,7 @@
                 return false;
             } 
         }
+
 
 </script>
 

@@ -44,7 +44,7 @@
                                         <th>Mobile</th>
                                         <th>Address</th>
                                         <th>Pincode</th>
-                                        <th>Region</th>
+                                        <th>City/Region</th>
                                         <th>Action</th>
                                         <th>View History</th>
                                         <th>

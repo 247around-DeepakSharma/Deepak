@@ -68,7 +68,7 @@ class Collection_partner extends CI_Controller {
             $row[] = "<b>".$cp_address->primary_contact_number."</b><br> <br> ".$cp_address->alternate_conatct_number."</b>";
             $row[] = "<b>".$cp_address->shop_address_line1."</b><br> <br>".$cp_address->shop_address_line2;
             $row[] = $cp_address->shop_address_pincode;
-            $row[] = $cp_address->shop_address_region;
+            $row[] = $cp_address->shop_address_city." / ".$cp_address->shop_address_region;
 
             if($cp_address->active == 1){
                  $row[] = "<div class='btn btn-sm btn-danger' onclick='activate_deactivate($cp_address->id,0)'  >De-Activate</div>";

@@ -8471,4 +8471,13 @@ ALTER TABLE `partner_channel` ADD `set_default` TINYINT(1) NOT NULL AFTER `chann
 -- Kalyani 15-Oct
 ALTER TABLE `partner_channel` CHANGE `partner_id` `partner_id` INT(11) NULL DEFAULT NULL;
 
+
+--Abhay - Released - 15 OCT-2018
+ALTER TABLE `partner_file_upload_header_mapping` ADD `type_of_data` VARCHAR(64) NULL DEFAULT NULL AFTER `update_date`, ADD `delivery_end_date` VARCHAR(64) NULL DEFAULT NULL AFTER `type_of_data`;
 ALTER TABLE `partner_file_upload_header_mapping` ADD `type_of_data` VARCHAR(100) NOT NULL DEFAULT 'type_of_data' AFTER `update_date`, ADD `delivery_end_date` VARCHAR(100) NOT NULL DEFAULT 'delivery_end_date' AFTER `type_of_data`, ADD `expected_delivery_date` VARCHAR(100) NOT NULL DEFAULT 'expected_delivery_date' AFTER `delivery_end_date`;
+
+ALTER TABLE `account_holders_bank_details` ADD `is_rejected` INT(10) NOT NULL DEFAULT '0' AFTER `is_verified`;
+ALTER TABLE `account_holders_bank_details_trigger` ADD `is_rejected` INT(10) NOT NULL DEFAULT '0' AFTER `is_verified`;
+
+UPDATE `email_template` SET `subject` = '247around GST Credit Note against invoice %s', `template` = 'Dear Partner<br/><br/><br/> Credit note for Rs. %s is generated against GST amount of the invoice %s. Which is available on CRM.<br/><br/><br/><strong>Reply All</strong> for raising any query or concern regarding the same.
+<br/><br/>Thanks,<br/>247around Team', `from` = 'pankajk@247around.com', `cc` = 'pankajk@247around.com,arunk@247around.com' WHERE `email_template`.`tag` = 'credit_note_against_gst_debit_note';

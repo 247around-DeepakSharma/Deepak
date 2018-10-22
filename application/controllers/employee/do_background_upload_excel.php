@@ -1600,9 +1600,11 @@ class Do_background_upload_excel extends CI_Controller {
         // Check if file contains type_of_data column , it means file have delivered and shipped data both
         if(isset($data[$header_data['type_of_data']])){
             if($data[$header_data['type_of_data']] == 'Delivered'){
-                    array_push($this->deliveredArray, $tmpArr);
+                $tmpArr['delivery_date'] = $data['delivery_end_date'];
+                array_push($this->deliveredArray, $tmpArr);
             }
             else{
+                    $tmpArr['delivery_end_date'] = $data['expected_delivery_date'];
                     array_push($this->shippedArray, $tmpArr);
             }
         }
