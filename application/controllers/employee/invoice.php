@@ -4150,8 +4150,8 @@ class Invoice extends CI_Controller {
                     $email_from = $email_template[2];
                     $get_rm_email =$this->vendor_model->get_rm_sf_relation_by_sf_id($invoice_details[0]['vendor_partner_id']); 
                     $get_owner_email = $this->vendor_model->getVendorDetails("owner_email", array('id' =>$invoice_details[0]['vendor_partner_id']));
-                    $to = $get_owner_email[0]['owner_email'].",".$this->session->userdata('official_email').",".$get_rm_email[0]['official_email'];
-                    $cc = ANUJ_EMAIL_ID.", ".$email_template[3];
+                    $to = $get_owner_email[0]['owner_email'].",".$this->session->userdata('official_email');
+                    $cc = ANUJ_EMAIL_ID.", ".$email_template[3].", ".$get_rm_email[0]['official_email'];
                     $this->notify->sendEmail($email_from, $to, $cc, '', $subject, $message, '', CN_AGAINST_GST_DN);
                 }
                 
