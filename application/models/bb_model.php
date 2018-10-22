@@ -171,6 +171,7 @@ class Bb_model extends CI_Model {
         if ($post['length'] != -1) {
             $this->db->limit($post['length'], $post['start']);
         }
+         $this->db->join('service_centres', 'service_centres.id = bb_order_details.assigned_cp_id');
         $query = $this->db->get();
 
 
