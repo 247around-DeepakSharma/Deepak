@@ -1,3 +1,8 @@
+<style>
+    #wrapper{
+        overflow-x: hidden;
+    }
+</style>
 <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
 
 <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
