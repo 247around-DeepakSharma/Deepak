@@ -1909,7 +1909,7 @@ class invoices_model extends CI_Model {
                 AND `approved_defective_parts_by_partner` = 1
                 AND partner_courier_invoice_id IS NULL
                 AND awb_by_sf IS NOT NULL
-                GROUP BY awb HAVING SUM(sp.courier_charges_by_sf) > 0 ";
+                GROUP BY awb HAVING courier_charges_by_sf > 0 ";
 
         $query = $this->db->query($sql);
         
@@ -1941,7 +1941,7 @@ class invoices_model extends CI_Model {
                 AND `around_pickup_from_partner` = 1
                 AND partner_warehouse_courier_invoice_id IS NULL
                 AND awb_by_partner IS NOT NULL
-                GROUP BY awb HAVING SUM(sp.courier_price_by_partner) > 0 ";
+                GROUP BY awb HAVING courier_charges_by_sf > 0 ";
 
         $query = $this->db->query($sql);
         return $query->result_array();
@@ -2213,7 +2213,7 @@ class invoices_model extends CI_Model {
                 . ' AND sp.shipped_date < "'.$to_date.'" '
                 . ' AND  parts_shipped IS NOT NULL '
                 .  $invoice_check
-                . ' GROUP BY awb_by_partner ';
+                . ' GROUP BY awb_by_partner HAVING courier_charges_by_sf > 0';
         
         $query = $this->db->query($sql);
         return $query->result_array();
@@ -2234,7 +2234,7 @@ class invoices_model extends CI_Model {
                 . ' AND shipment_date >= "'.$from_date.'" '
                 . ' AND shipment_date < "'.$to_date.'" '
                 .  $invoice_check
-                . ' GROUP BY `AWB_no` ';
+                . ' GROUP BY `AWB_no` HAVING courier_charges_by_sf > 0 ';
         
         $query = $this->db->query($sql);
         return $query->result_array();
