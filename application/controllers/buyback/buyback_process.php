@@ -1761,7 +1761,7 @@ class Buyback_process extends CI_Controller {
         $post['search_value'] = $this->input->post('search_value');
         
         $post['order'] = "";
-        $select = "bb_order_details.partner_order_id, service_centres.company_name,bb_order_details.partner_tracking_id as tracking_id,bb_order_details.acknowledge_date,services, category,city, order_date, delivery_date, current_status, "
+        $select = "bb_order_details.partner_order_id, service_centres.name,bb_order_details.partner_tracking_id as tracking_id,bb_order_details.acknowledge_date,services, category,city, order_date, delivery_date, current_status, "
                 . "internal_status, partner_basic_charge, cp_basic_charge,cp_tax_charge,gst_amount,partner_sweetner_charges,cp_claimed_price";
         $post1 = $this->_advanced_bb_search($post);
 
