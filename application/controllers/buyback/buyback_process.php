@@ -1765,7 +1765,7 @@ class Buyback_process extends CI_Controller {
                 . "internal_status, partner_basic_charge, cp_basic_charge,cp_tax_charge,gst_amount,partner_sweetner_charges,cp_claimed_price";
         $post1 = $this->_advanced_bb_search($post);
 
-        $list = $this->bb_model->get_bb_order_list($post1,$select);
+        $list = $this->bb_model->get_bb_order_list($post1,$select,1);
         $list1 = json_decode(json_encode($list, true), true);
         $template = "BuybackOrderSnapshot.xlsx";
         $templateDir = __DIR__ . "/../excel-templates/";
