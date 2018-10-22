@@ -4500,7 +4500,7 @@ class vendor extends CI_Controller {
             }
             $data['is_ajax'] = TRUE;
         }else{
-            $where = array('entity_type' => 'SF','service_centres.active' => 1,'account_holders_bank_details.is_verified' => 0);
+            $where = array('entity_type' => 'SF','service_centres.active' => 1,'account_holders_bank_details.is_verified' => 0,'account_holders_bank_details.is_rejected'=>0);
             $data['is_ajax'] = FALSE;
             $data['rm_details'] = $this->employee_model->get_rm_details();
             
@@ -4544,7 +4544,7 @@ class vendor extends CI_Controller {
         if($action == 'approve'){
             $update_data = array('is_verified'=> 1,'agent_id' => $this->session->userdata('id'));
         }else if($action == 'reject'){
-            $update_data = array('is_verified'=> 0,'agent_id' => $this->session->userdata('id'));
+            $update_data = array('is_rejected'=> 1,'agent_id' => $this->session->userdata('id'));
         }
         
         $update = $this->reusable_model->update_table('account_holders_bank_details',$update_data,array('entity_id' => $entity_id,'entity_type' => $entity_type,'is_active'=>1));
@@ -5066,6 +5066,7 @@ class vendor extends CI_Controller {
                 $bank_data['entity_type'] = 'SF';
                 $bank_data['agent_id'] = $this->session->userdata('id');
                 $bank_data['cancelled_cheque_file']= $this->input->post('cancelled_cheque_file');
+                $bank_data['is_rejected']= '0';
                 $this->notify->insert_state_change('', NEW_SF_BANK_DETAILS, NEW_SF_BANK_DETAILS, 'Vendor ID : '.$this->input->post('id'), $this->session->userdata('id'), $this->session->userdata('employee_id'),
                         ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
                 $this->session->set_flashdata('vendor_added', "Vendor Bank Details Has been updated Successfully");
