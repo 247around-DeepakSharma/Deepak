@@ -1481,11 +1481,11 @@ class Inventory_model extends CI_Model {
         }
         if($updateCharge === TRUE){
             // log_message('info', __METHOD__. " kalyani data ". print_r($data['awb_number'], TRUE));
-            $data_spare_part_detail = $this->partner_model->get_spare_parts_by_any('id, awb_by_partner, awb_by_sf, booking_id', array('awb_by_sf = "'.$data['awb_number'].'" OR awb_by_partner = "'.$data['awb_number'].'" AND status != "'._247AROUND_CANCELLED.'"'=>null));
+            $data_spare_part_detail = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id, awb_by_partner, awb_by_sf, booking_details.partner_id', array('awb_by_sf = "'.$data['awb_number'].'" OR awb_by_partner = "'.$data['awb_number'].'" AND status != "'._247AROUND_CANCELLED.'"'=>null), true);
            //  log_message('info', __METHOD__. " kalyani courier amount". print_r($data_spare_part_detail, TRUE));
             if(!empty($data_spare_part_detail)){
                 $check =TRUE;
-                $courier_company_update_data['partner_id'] = $this->reusable_model->get_search_result_data('booking_details', 'partner_id', array('booking_id'=>$data_spare_part_detail[0]['booking_id']), null, null, null, null, null, null)[0]['partner_id'];
+                $courier_company_update_data['partner_id'] = $data_spare_part_detail[0]['partner_id'];
                 
                 $courier_amount = sprintf('%0.2f', ($data['courier_charges']/count($data_spare_part_detail)));
                 foreach ($data_spare_part_detail as  $value){
