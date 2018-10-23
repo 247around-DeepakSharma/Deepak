@@ -3090,7 +3090,7 @@ class Invoice extends CI_Controller {
     function process_advance_payment() {
         $this->checkUserSession();
         $agent_id = $this->session->userdata('id');
-        $status = $this->_process_advance_payment($agent_id);
+        $status = $this->_process_advance_payment($agent_id, null);
         if ($status) {
 
             $userSession = array('success' => "Bank Transaction Added");
@@ -3105,7 +3105,7 @@ class Invoice extends CI_Controller {
     
     function paytm_gateway_payment($agent_id){
         log_message("info",__METHOD__. "POST ". print_r($this->input->post(), true));
-        $status = $this->_process_advance_payment($agent_id);
+        $status = $this->_process_advance_payment($agent_id, PAYTM_GATEWAY);
         if(!$status){
             $to = "abhaya@247around.com";
             $cc = "";
@@ -3117,7 +3117,7 @@ class Invoice extends CI_Controller {
         }
     }
     
-    function _process_advance_payment($agent_id){
+    function _process_advance_payment($agent_id, $flag = null){
         $data['partner_vendor'] = $this->input->post("partner_vendor");
         $data['partner_vendor_id'] = $this->input->post('partner_vendor_id');
         $data['credit_debit'] = $this->input->post("credit_debit");
@@ -3130,7 +3130,7 @@ class Invoice extends CI_Controller {
             
             $invoice_id = $this->advance_invoice_insert($data['partner_vendor'], 
                     $data['partner_vendor_id'], $data['transaction_date'],
-                    $amount, $data['tds_amount'], "Credit", $agent_id);
+                    $amount, $data['tds_amount'], "Credit", $agent_id, $flag);
             if($invoice_id){
                 $data['invoice_id'] = $invoice_id;
                 $data['is_advance'] = 1;
@@ -3163,7 +3163,7 @@ class Invoice extends CI_Controller {
         return $this->invoices_model->bankAccountTransaction($data);
     }
     
-    function advance_invoice_insert($vendor_partner, $vendor_partner_id, $date, $amount, $tds, $txntype, $agent_id) { 
+    function advance_invoice_insert($vendor_partner, $vendor_partner_id, $date, $amount, $tds, $txntype, $agent_id, $flag=null) { 
 
         if ($vendor_partner == "vendor") {
             $entity = $this->vendor_model->getVendorDetails("is_cp, sc_code", array("id" => $vendor_partner_id));
@@ -3233,10 +3233,19 @@ class Invoice extends CI_Controller {
                 $amount_collected_paid = $amount - $tds;
                 $data['type_code'] = "B";
                 $data['amount_collected_paid'] = -$amount_collected_paid;
-                $data['vertical'] =SERVICE;
-                $data['category'] = ADVANCE;
-                $data['sub_category'] = PREPAID;
-                $data['accounting'] = 0;
+                
+                if($flag && $flag == PAYTM_GATEWAY){
+                    $data['vertical'] =SERVICE;
+                    $data['category'] = ADVANCE;
+                    $data['sub_category'] = PRE_PAID_PAYMENT_GATEWAY;
+                    $data['accounting'] = 0;
+                }
+                else{
+                    $data['vertical'] =SERVICE;
+                    $data['category'] = ADVANCE;
+                    $data['sub_category'] = PREPAID;
+                    $data['accounting'] = 0;
+                }
             }
 
             
