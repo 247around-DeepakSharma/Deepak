@@ -33,6 +33,10 @@
         </div>
         <div class="panel-body">
             <form class="form-horizontal" method="POST" action="<?php echo base_url();?>employee/invoice/process_insert_update_invoice/<?php echo $vendor_partner;?>" enctype="multipart/form-data" >
+                <input type="hidden" value="<?php if(isset($invoice_details[0]['vertical'])){ echo $invoice_details[0]['vertical'];  } ?>" id="vertical_input">
+                <input type="hidden" value="<?php if(isset($invoice_details[0]['category'])){ echo $invoice_details[0]['category'];  } ?>" id="category_input">
+                <input type="hidden" value="<?php if(isset($invoice_details[0]['sub_category'])){ echo $invoice_details[0]['sub_category'];  } ?>" id="sub_category_input">
+                <input type="hidden" value="<?php if(isset($invoice_details[0]['accounting'])){ echo $invoice_details[0]['accounting'];  } ?>" id="accounting_input">
                 <div class="row">
                     <div class="col-md-12 col-md-offset-3">
                         <div class="form-group">
@@ -82,6 +86,22 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="form-group" >
+                                <label for="Due Date" class="col-md-4">Vertical</label>
+                                <div class="col-md-6">
+                                    <select class="form-control" name="vertical" id="vertical" onchange="get_category('<?php echo base_url(); ?>')">
+
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group" >
+                                <label for="Due Date" class="col-md-4">Sub Category</label>
+                                <div class="col-md-6">
+                                    <select class="form-control" name="sub_category" id="sub_category" onchange="get_accounting(this);">
+                                       <option>select</option>
+                                    </select>
+                                </div>
+                            </div>
                             <div class="form-group">
                                 <label for="Number of Booking" class="col-md-4">Number of Booking</label>
                                 <div class="col-md-6">
@@ -93,7 +113,7 @@
                             <div class="form-group">
                                 <label for="total service charges" class="col-md-4">Basic Service Charge*</label>
                                 <div class="col-md-6">
-                                    <input type="number" step=".01"  class="form-control"  name="total_service_charge" value = "<?php if (isset($invoice_details[0]['total_service_charge'])) {
+                                    <input type="number"   class="form-control"  name="total_service_charge" value = "<?php if (isset($invoice_details[0]['total_service_charge'])) {
                                         echo $invoice_details[0]['total_service_charge'];
                                         } else { echo "0";} ?>" placeholder="Total Service Charge" >
                                 </div>
@@ -167,27 +187,6 @@
                                 </div>
                                  <?php echo form_error('gst_rate'); ?>
                             </div>
-                            
-                            <div class="form-group">
-                                <label for="invoice_file_main" class="col-md-4">Main Invoice</label>
-                                <div class="col-md-6">
-                                    <input type="file" class="form-control"  name="invoice_file_main" >
-                                </div>
-                                <div class="col-md-2">
-                                    <?php
-                                        if (isset($invoice_details[0]['invoice_file_main'])) {
-                                            if (!is_null($invoice_details[0]['invoice_file_main'])) {
-                                        
-                                                if (isset($invoice_details[0]['invoice_file_main']) && !empty($invoice_details[0]['invoice_file_main'])) {
-                                                    //Path to be changed
-                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/invoices-excel/" . $invoice_details[0]['invoice_file_main']; ?>
-                                    <a href="<?php echo $src ?>" target="_blank">click Here</a>
-                                    <?php }
-                                        }
-                                        }
-                                        ?>
-                                </div>
-                            </div>
                             <div class="form-group">
                                 <label for="remarks" class="col-md-4">Remarks</label>
                                 <div class="col-md-6">
@@ -253,6 +252,14 @@
                                     </select>
                                 </div>
                                 <?php echo form_error('type'); ?>
+                            </div>
+                            <div class="form-group" >
+                                <label for="Due Date" class="col-md-4">Category</label>
+                                <div class="col-md-6">
+                                    <select class="form-control" name="category" id="category" onchange="get_sub_category('<?php echo base_url(); ?>')">
+                                       <option>select</option>
+                                    </select>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label for="Number of Parts" class="col-md-4">Number of Parts</label>
@@ -367,6 +374,29 @@
                                         ?>
                                 </div>
                             </div>
+                            <div class="form-group">
+                                <label for="invoice_file_main" class="col-md-4">Main Invoice</label>
+                                <div class="col-md-6">
+                                    <input type="file" class="form-control"  name="invoice_file_main" >
+                                </div>
+                                <div class="col-md-2">
+                                    <?php
+                                        if (isset($invoice_details[0]['invoice_file_main'])) {
+                                            if (!is_null($invoice_details[0]['invoice_file_main'])) {
+                                        
+                                                if (isset($invoice_details[0]['invoice_file_main']) && !empty($invoice_details[0]['invoice_file_main'])) {
+                                                    //Path to be changed
+                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/invoices-excel/" . $invoice_details[0]['invoice_file_main']; ?>
+                                    <a href="<?php echo $src ?>" target="_blank">click Here</a>
+                                    <?php }
+                                        }
+                                        }
+                                        ?>
+                                </div>
+                            </div>
+                                
+                                
+                                
                         </div>
                         <div class="clearfix" ></div>
                         <div class="col-md-offset-5" style ="margin-top: 40px; margin-bottom: 20px;">
@@ -379,6 +409,7 @@
         </div>
     </div>
 </div>
+<script src="<?php echo base_url() ?>js/invoice_tag.js"></script>
 <script>
     $("#to_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
     $("#invoice_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
@@ -486,5 +517,6 @@
          }, 5000);
       });
 
+    get_vertical('<?php echo base_url(); ?>');
 </script>
 <?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>

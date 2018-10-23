@@ -8481,3 +8481,8 @@ ALTER TABLE `account_holders_bank_details_trigger` ADD `is_rejected` INT(10) NOT
 
 UPDATE `email_template` SET `subject` = '247around GST Credit Note against invoice %s', `template` = 'Dear Partner<br/><br/><br/> Credit note for Rs. %s is generated against GST amount of the invoice %s. Which is available on CRM.<br/><br/><br/><strong>Reply All</strong> for raising any query or concern regarding the same.
 <br/><br/>Thanks,<br/>247around Team', `from` = 'pankajk@247around.com', `cc` = 'pankajk@247around.com,arunk@247around.com' WHERE `email_template`.`tag` = 'credit_note_against_gst_debit_note';
+
+ALTER TABLE `courier_company_invoice_details` ADD `pickup_from` VARCHAR(255) NOT NULL AFTER `actual_weight`;
+
+--Kalyani 23-Oct
+ALTER TABLE `invoice` ADD `vertical` VARCHAR(255) NOT NULL AFTER `remarks`, ADD `category` VARCHAR(255) NOT NULL AFTER `vertical`, ADD `sub_category` VARCHAR(255) NOT NULL AFTER `category`, ADD `accounting` TINYINT(1) NOT NULL AFTER `sub_category`;
