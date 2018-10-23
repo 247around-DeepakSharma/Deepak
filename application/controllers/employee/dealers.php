@@ -477,6 +477,7 @@ class Dealers extends CI_Controller {
      */
     function add_dealer_mapping($postData, $dealer_id){
         log_message("info", __METHOD__);
+        $status = "";
         $where_in = array("partner_id"=> $postData['partner_id']);
         $select = "partner_id, service_id, brand";
         $partner_data = $this->partner_model->get_partner_specific_details(array("active" => 1), $select, "service_id",$where_in );
@@ -487,7 +488,9 @@ class Dealers extends CI_Controller {
             $partner_data[$i]['create_date'] = date("Y-m-d H:i:s");
 
         }
-        $status = $this->dealer_model->insert_dealer_mapping_batch($partner_data);
+        if(!empty($partner_data)){
+            $status = $this->dealer_model->insert_dealer_mapping_batch($partner_data);
+        }
         if($status){
             return true;
         } else {
