@@ -578,8 +578,12 @@ class Invoice extends CI_Controller {
                 'miscellaneous_charges' => $total_misc_charge,
                 'warehouse_storage_charges' => $misc_data['warehouse_storage_charge'],
                 'penalty_amount'=> $total_penalty_discount,
-                'penalty_bookings_count' => $penalty_booking_count
-             );
+                'penalty_bookings_count' => $penalty_booking_count,
+                'vertical' => SERVICE,
+                'category' => INSTALLATION_AND_REPAIR,
+                'sub_category' => CASH,
+                'accounting' => 1,
+            );
 
             $this->invoices_model->insert_new_invoice($invoice_details);
             log_message('info', __METHOD__ . "=> Insert Invoices in partner invoice table");
@@ -864,7 +868,11 @@ class Invoice extends CI_Controller {
                 "sgst_tax_amount" => $meta["sgst_total_tax_amount"],
                 "cgst_tax_amount" => $meta["cgst_total_tax_amount"],
                 "hsn_code" => COMMISION_CHARGE_HSN_CODE,
-                "invoice_file_pdf" => $convert['copy_file']
+                "invoice_file_pdf" => $convert['copy_file'],
+                "vertical" => SERVICE,
+                "category" => INSTALLATION_AND_REPAIR,
+                "sub_category" => COMMISSION,
+                "accounting" => 1,
             );
 
             $this->invoices_model->action_partner_invoice($invoice_details);
@@ -1157,7 +1165,11 @@ class Invoice extends CI_Controller {
                     "miscellaneous_charges" => $total_misc_charges,
                     "warehouse_storage_charges" => $invoice_data['warehouse_storage_charge'],
                     "packaging_rate" => $invoice_data['packaging_rate'],
-                    "packaging_quantity" => $invoice_data['packaging_quantity']
+                    "packaging_quantity" => $invoice_data['packaging_quantity'],
+                    "vertical" => SERVICE,
+                    "category" => INSTALLATION_AND_REPAIR,
+                    "sub_category" => FOC,
+                    "accounting" => 1,
                 );
                 
                 // insert invoice details into vendor partner invoices table
@@ -1184,7 +1196,11 @@ class Invoice extends CI_Controller {
                         //Add 1 month to end date to calculate due date
                         'due_date' => date("Y-m-d", strtotime($to_date . "+1 month")),
                         //add agent id
-                        'agent_id' => $agent_id
+                        'agent_id' => $agent_id,
+                        'vertical' => SERVICE,
+                        'category' => INSTALLATION_AND_REPAIR,
+                        'sub_category' => GST_DEBIT_NOTE,
+                        'accounting' => 1,
                     );
             
                     $this->invoices_model->action_partner_invoice($debit_invoice_details);
@@ -1801,7 +1817,11 @@ class Invoice extends CI_Controller {
                         "igst_tax_amount" => $invoice['meta']["igst_total_tax_amount"],
                         "sgst_tax_amount" => $invoice['meta']["sgst_total_tax_amount"],
                         "cgst_tax_amount" => $invoice['meta']["cgst_total_tax_amount"],
-                        "invoice_file_pdf" => $convert['copy_file']
+                        "invoice_file_pdf" => $convert['copy_file'],
+                        "vertical" => SERVICE,
+                        "category" => SPARES,
+                        "sub_category" => BRACKETS,
+                        "accounting" => 1
                     );
                     
                     $this->invoices_model->action_partner_invoice($invoice_details);
@@ -2460,6 +2480,10 @@ class Invoice extends CI_Controller {
                     $data['invoice_file_excel'] = $file['invoice_file_excel'];
                 }
                 $data['agent_id'] = $this->session->userdata("id");
+                $data['vertical'] = $this->input->post("vertical");
+                $data['category'] = $this->input->post("category");
+                $data['sub_category'] = $this->input->post("sub_category");
+                $data['accounting'] = $this->input->post("accounting_input");
                 $status = $this->invoices_model->action_partner_invoice($data);
 
                 if ($status) {
@@ -2997,7 +3021,11 @@ class Invoice extends CI_Controller {
                 "sgst_tax_amount" => $response['meta']["sgst_total_tax_amount"],
                 "cgst_tax_amount" => $response['meta']["cgst_total_tax_amount"],
                 "hsn_code" => $hsn_code,
-                "invoice_file_pdf" => $response['meta']['copy_file']
+                "invoice_file_pdf" => $response['meta']['copy_file'],
+                "vertical" => SERVICE,
+                "category" => RECURRING_CHARGES,
+                "sub_category" => CRM,
+                "accounting" => 1
             );
             
              $this->invoices_model->insert_new_invoice($invoice_details);
@@ -3135,7 +3163,7 @@ class Invoice extends CI_Controller {
         return $this->invoices_model->bankAccountTransaction($data);
     }
     
-    function advance_invoice_insert($vendor_partner, $vendor_partner_id, $date, $amount, $tds, $txntype, $agent_id) {
+    function advance_invoice_insert($vendor_partner, $vendor_partner_id, $date, $amount, $tds, $txntype, $agent_id) { 
 
         if ($vendor_partner == "vendor") {
             $entity = $this->vendor_model->getVendorDetails("is_cp, sc_code", array("id" => $vendor_partner_id));
@@ -3149,10 +3177,22 @@ class Invoice extends CI_Controller {
         if (!empty($entity)) {
             if ($vendor_partner == "vendor") {
                 if($txntype == "Credit"){
+                    if($entity[0]['is_cp'] === '1'){
+                        $data['type'] = BUYBACK_VOUCHER;
+                        $data['vertical'] = BUYBACK;
+                        $data['category'] = EXCHANGE;
+                        $data['sub_category'] = ADVANCE;
+                        $data['accounting'] = 0;
+                    }
+                    else{
+                        $data['type'] = VENDOR_VOUCHER;
+                        $data['vertical'] =SERVICE;
+                        $data['category'] = ADVANCE;
+                        $data['sub_category'] = SECURITY;
+                        $data['accounting'] = 0;
+                    }
                     $data['invoice_id'] = $this->create_invoice_id_to_insert("ARD-RV");
-                    $data['type'] = BUYBACK_VOUCHER;
                     $basic_price = $amount;
-
                     $data['parts_cost'] = $basic_price;
                     $amount_collected_paid = $amount;
                     $data['type_code'] = "B";
@@ -3165,9 +3205,11 @@ class Invoice extends CI_Controller {
                     $data['total_service_charge'] = $basic_price;
                     $data['type_code'] = "A";
                     $data['amount_collected_paid'] = $amount_collected_paid;
+                    $data['vertical'] =SERVICE;
+                    $data['category'] = ADVANCE;
+                    $data['sub_category'] = CASH;
+                    $data['accounting'] = 0;
                 }
-                
-                
             } else {
                 $data['invoice_id'] = $this->create_invoice_id_to_insert("ARD-PV");
                 if($tds > 0){
@@ -3191,6 +3233,10 @@ class Invoice extends CI_Controller {
                 $amount_collected_paid = $amount - $tds;
                 $data['type_code'] = "B";
                 $data['amount_collected_paid'] = -$amount_collected_paid;
+                $data['vertical'] =SERVICE;
+                $data['category'] = ADVANCE;
+                $data['sub_category'] = PREPAID;
+                $data['accounting'] = 0;
             }
 
             
@@ -3551,7 +3597,11 @@ class Invoice extends CI_Controller {
                     "cgst_tax_amount" => $response['meta']["cgst_total_tax_amount"],
                     "hsn_code" => SPARE_HSN_CODE,
                     "invoice_file_pdf" => $response['meta']['copy_file'],
-                    "remarks" => $data[0]['description']
+                    "remarks" => $data[0]['description'],
+                    "vertical" => SERVICE,
+                    "category" => SPARES,
+                    "sub_category" => OUT_OF_WARRANTY,
+                    "accounting" => 1
                 );
 
                 $this->invoices_model->insert_new_invoice($invoice_details);
@@ -3937,7 +3987,7 @@ class Invoice extends CI_Controller {
                         foreach ($data as $value ) {
 
                             $this->service_centers_model->update_spare_parts(array('id' => $value->id), array("purchase_invoice_id" => $invoice['invoice_id'],
-                                "status" => SPARE_SHIPPED_BY_PARTNER));
+                                "status" => SPARE_SHIPPED_BY_PARTNER, 'invoice_gst_rate' => $part_data[$value->id]['gst_rate']));
                             
                             $this->vendor_model->update_service_center_action($value->booking_id, array('current_status' => "InProcess", 'internal_status' => SPARE_PARTS_SHIPPED));
                             
@@ -3954,6 +4004,11 @@ class Invoice extends CI_Controller {
                             
                             $this->notify->insert_state_change($value->booking_id, "Invoice Approved", "", "Admin Approve Partner OOW Invoice ", $this->session->userdata('id'), $this->session->userdata('employee_id'),
                     $actor,$next_action,_247AROUND);
+                            
+                            // Send OOW invoice to Inventory Manager
+                            $url = base_url() . "employee/invoice/generate_oow_parts_invoice/" . $value->id;
+                            $async_data['booking_id'] = $value->booking_id;
+                            $this->asynchronous_lib->do_background_process($url, $async_data);
                         }
                         
                         
@@ -4090,11 +4145,19 @@ class Invoice extends CI_Controller {
                     $invoice_id = $this->invoice_lib->create_invoice_id("ARD-CN");
                     $type = "Credit Note";
                     $data['type_code'] = "B";
+                    $data['vertical'] = SERVICE;
+                    $data['category'] = INSTALLATION_AND_REPAIR;
+                    $data['sub_category'] = CREDIT_NOTE;
+                    $data['accounting'] = 1;
                 } else {
 
                     $invoice_id = $this->invoice_lib->create_invoice_id("ARD-DN");
                     $type = "Debit Note";
                     $data['type_code'] = "A";
+                    $data['vertical'] = SERVICE;
+                    $data['category'] = INSTALLATION_AND_REPAIR;
+                    $data['sub_category'] = DEBIT_NOTE;
+                    $data['accounting'] = 1;
                 }
                 $invoice = array();
                 if ($service_rate > 0) {
@@ -4257,9 +4320,13 @@ class Invoice extends CI_Controller {
                     //Add 1 month to end date to calculate due date
                     'due_date' => date("Y-m-d"),
                     //add agent id
-                    'agent_id' => $this->session->userdata('id')
+                    'agent_id' => $this->session->userdata('id'),
+                    'vertical' => SERVICE,
+                    'category' => INSTALLATION_AND_REPAIR,
+                    'sub_category' => GST_CREDIT_NOTE,
+                    'accounting' => 0,
                 );
-
+               // print_r($credit_invoice_details); die();
                 $this->invoices_model->action_partner_invoice($credit_invoice_details);
                 $this->invoices_model->update_partner_invoices(array('invoice_id' => $dn_invoice_id), array('credit_generated' => 1));
                 
@@ -4371,7 +4438,10 @@ class Invoice extends CI_Controller {
                 $main['from_date'] = trim($date_explode[0]);
                 $main['to_date'] = trim($date_explode[1]);
                 $main['remarks'] = $this->input->post("remarks");
-                
+                $main['vertical'] = $this->input->post("vertical");
+                $main['category'] = $this->input->post("category");
+                $main['sub_category'] = $this->input->post("sub_category");
+                $main['accounting'] = $this->input->post("accounting");
 
                 $gst_amount = 0;
                 $service_charge = 0;
@@ -4546,6 +4616,7 @@ class Invoice extends CI_Controller {
         }
     }
 
+
     function get_all_invoice_vertical(){ 
         $vertical_input = $this->input->post('vertical_input');
         $html = "<option selected disabled>Select Vertical</option>";
@@ -4595,5 +4666,4 @@ class Invoice extends CI_Controller {
         }
         echo $html;
     }
-          
 }
