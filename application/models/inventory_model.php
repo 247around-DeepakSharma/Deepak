@@ -1452,6 +1452,7 @@ class Inventory_model extends CI_Model {
      * @return: Array $data
     */
     function update_docket_price($data){
+        $courier_company_update_data = array();
         $returnData = array();
         $check = FALSE;
         $updateCharge = FALSE;
@@ -1464,18 +1465,28 @@ class Inventory_model extends CI_Model {
             if(empty($courier_company_detail)){
                 $courier_company_data = array(
                     'awb_number'=>$data['awb_number'],
+                    'company_name'=>$data['courier_name'],
                     'courier_charge'=>$data['courier_charges'],
-                    'invoice_id'=>$data['invoice_id'],
+                    'courier_invoice_id'=>$data['invoice_id'],
                     'billable_weight'=>$data['billable_weight'],
                     'actual_weight'=>$data['actual_weight'],
                     'is_exist'=>0
                 );
-                $this->insert_courier_company_invoice_details($courier_company_data);
+                $courier_company_detail[0]['id'] = $this->insert_courier_company_invoice_details($courier_company_data);
                 $updateCharge = TRUE;
             }
             else{
                 if($courier_company_detail[0]['is_exist'] == 0){
-                   $updateCharge = TRUE;
+                    $courier_company_data_update = array(
+                        'company_name'=>$data['courier_name'],
+                        'courier_charge'=>$data['courier_charges'],
+                        'courier_invoice_id'=>$data['invoice_id'],
+                        'billable_weight'=>$data['billable_weight'],
+                        'actual_weight'=>$data['actual_weight'],
+                        'is_exist'=>0
+                    );
+                    $this->update_courier_company_invoice_details(array('id'=>$courier_company_detail[0]['id']), $courier_company_data_update);
+                    $updateCharge = TRUE;
                 }
                 else if($courier_company_detail[0]['is_exist'] == 1){
                     $returnData['inValidData'] = $data['awb_number'];
@@ -1483,24 +1494,33 @@ class Inventory_model extends CI_Model {
             }
         }
         if($updateCharge === TRUE){
-            $data_spare_part_detail = $this->partner_model->get_spare_parts_by_any('id, awb_by_partner, awb_by_sf', array('awb_by_sf = '.$data['awb_number'].' OR awb_by_partner = '.$data['awb_number'].' AND status != "'._247AROUND_CANCELLED.'"'=>null));
+            $data_spare_part_detail = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id, awb_by_partner, awb_by_sf, booking_details.partner_id', array('awb_by_sf = "'.$data['awb_number'].'" OR awb_by_partner = "'.$data['awb_number'].'" AND status != "'._247AROUND_CANCELLED.'"'=>null), true);
             if(!empty($data_spare_part_detail)){
                 $check =TRUE;
+                $courier_company_update_data['partner_id'] = $data_spare_part_detail[0]['partner_id'];
+                
                 $courier_amount = sprintf('%0.2f', ($data['courier_charges']/count($data_spare_part_detail)));
                 foreach ($data_spare_part_detail as  $value){
-                    if($value['awb_by_sf']){
+                    if($value['awb_by_sf'] == $data['awb_number']){
+                       $courier_company_update_data['pickup_from'] = _247AROUND_SF_STRING;
                        $this->update_spare_courier_details($value['id'], array('courier_charges_by_sf'=>$courier_amount));
                     }
-                    else if($value['awb_by_partner']){
+                    else if($value['awb_by_partner'] == $data['awb_number']){
+                       $courier_company_update_data['pickup_from'] = _247AROUND_PARTNER_STRING;
                        $this->update_spare_courier_details($value['id'], array('courier_price_by_partner'=>$courier_amount)); 
                     }
+                    
                 }
             } else {
-                $data_courier_detail = $this->get_courier_details("id", array('AWB_no' => $data['awb_number']));
+                $data_courier_detail = $this->get_courier_details("id, booking_id, sender_entity_type", array('AWB_no' => $data['awb_number']));
                 if(!empty($data_courier_detail)){
                     $check = TRUE;
+                    $courier_booking = explode(',', $data_courier_detail[0]['booking_id']);
+                    $courier_company_update_data['partner_id'] = $this->reusable_model->get_search_result_data('booking_details', 'partner_id', array('booking_id'=>$courier_booking[0]), null, null, null, null, null, null)[0]['partner_id'];
                     $courier_amount = sprintf('%0.2f', ($data['courier_charges']/count($data_courier_detail)));
+                    $courier_company_update_data['pickup_from'] = _247AROUND_PARTNER_STRING;
                     foreach ($data_courier_detail as  $value){
+                        $courier_company_update_data['pickup_from'] = $value['sender_entity_type'];
                         $this->update_courier_detail(array('id'=>$value['id']), array('courier_charge'=>$courier_amount));
                     }
                 } else {
@@ -1509,10 +1529,8 @@ class Inventory_model extends CI_Model {
             }
         }
         if($check === TRUE){
-            $courier_company_data =array(
-                'is_exist'=>1
-            );
-            $returnData['update_awb'] = $this->update_courier_company_invoice_details(array('id'=>$courier_company_detail[0]['id']), $courier_company_data);
+            $courier_company_update_data['is_exist'] = 1;
+            $returnData['update_awb'] = $this->update_courier_company_invoice_details(array('id'=>$courier_company_detail[0]['id']), $courier_company_update_data);
         }
         return $returnData;
     }

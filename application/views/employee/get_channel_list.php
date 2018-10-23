@@ -23,7 +23,7 @@
                         ?>
                         <tr> 
                             <td><?php echo ($key +1) ?></td>
-                            <td><?php echo $row['public_name'];?>
+                            <td><?php if($row['public_name'] == null){ echo 'All'; }else{ echo $row['public_name']; }?>
                             <td><?php echo $row['channel_name']; ?></td>
                             <td><?php echo date('d-m-y', strtotime($row['create_date'])); ?></td>
                             <td> <a class="btn btn-primary btn-sm" href ="<?php echo base_url();?>employee/partner/update_channel/<?php echo $row['id'];?>">Update</a></td>

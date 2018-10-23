@@ -5,6 +5,9 @@ ini_set('max_execution_time', 36000000);
     #overall_summary .col-md-3 {
         width: 25%;
     }
+    #wrapper{
+        overflow-x: hidden;
+    }
 </style>
 
 <div id="page-wrapper">
@@ -298,8 +301,8 @@ ini_set('max_execution_time', 36000000);
                         <div class="col-md-12">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="Amount">Invoice Value:</label>
-                                    <input type="number" step=".02" class="form-control" style="width:92%" id="service_charge" name="service_charge" placeholder="Total Service Charge" required>
+                                    <label for="Amount">Invoice Value<small> (with GST) </small>:</label>
+                                    <input type="number" step=".02" class="form-control" style="width:92%" id="service_charge" name="service_charge" placeholder="Total Invoice Amount" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
