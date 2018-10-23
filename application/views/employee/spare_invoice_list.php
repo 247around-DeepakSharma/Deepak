@@ -1,3 +1,8 @@
+<style>
+    #wrapper{
+        overflow-x: hidden;
+    }
+</style>
 <div id="page-wrapper" >
     <div class="col-md-12">
         <h2 class="page-header">Spare Invoice List</h2>
