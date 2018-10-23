@@ -1481,6 +1481,7 @@
                                 <th>Brand</th>
                                 <th>Category</th>
                                 <th>Capacity</th>
+                                <th>Model</th>
                                 <th>Request Type</th>
                                 <th>File</th>
                                 <th>Description</th>
@@ -1508,6 +1509,7 @@
                                 <td><?php echo $value['brand'] ?></td>
                                 <td><?php echo $value['category'] ?></td>
                                 <td><?php echo $value['capacity'] ?></td>
+                                <td><?php echo $value['model'] ?></td>
                                 <td><?php echo $value['request_type'] ?></td>
                                 <td><?php echo $this->miscelleneous->get_reader_by_file_type($value['document_type'],$url,"200")?></td>
                                 <td><?php echo $value['document_description'] ?></td>
