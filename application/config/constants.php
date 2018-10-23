@@ -12,6 +12,7 @@ include('serial_number_failed_msg_constant.php');
 include('warehouse_constant.php');
 include('telephony_constant.php');
 include('taxpro_api_constant.php');
+include('invoice_constant.php');
 /*
 |--------------------------------------------------------------------------
 | File and Directory Modes

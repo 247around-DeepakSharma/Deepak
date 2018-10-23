@@ -8486,3 +8486,8 @@ ALTER TABLE `collateral` ADD `model` VARCHAR(256) NOT NULL AFTER `capacity`;
 ALTER TABLE `collateral` CHANGE `model` `model` VARCHAR(256) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL;
 ALTER TABLE `collateral` ADD `is_url` INT(1) NOT NULL DEFAULT '0' AFTER `end_date`;
 ALTER TABLE `collateral` CHANGE `is_url` `is_file` INT(1) NOT NULL DEFAULT '0';
+
+ALTER TABLE `courier_company_invoice_details` ADD `pickup_from` VARCHAR(255) NOT NULL AFTER `actual_weight`;
+
+--Kalyani 23-Oct
+ALTER TABLE `invoice` ADD `vertical` VARCHAR(255) NOT NULL AFTER `remarks`, ADD `category` VARCHAR(255) NOT NULL AFTER `vertical`, ADD `sub_category` VARCHAR(255) NOT NULL AFTER `category`, ADD `accounting` TINYINT(1) NOT NULL AFTER `sub_category`;

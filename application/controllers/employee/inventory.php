@@ -3652,7 +3652,11 @@ class Inventory extends CI_Controller {
                     "cgst_tax_amount" => $response['meta']["cgst_total_tax_amount"],
                     "parts_count" => $response['meta']['parts_count'],
                     "invoice_file_pdf" => $convert['copy_file'],
-                    "hsn_code" => ''
+                    "hsn_code" => '',
+                    "vertical" => SERVICE,
+                    "category" => SPARES,
+                    "sub_category" => DEFECTIVE_RETURN,
+                    "accounting" => 1,
                 );
 
                 $this->invoices_model->insert_new_invoice($invoice_details);
