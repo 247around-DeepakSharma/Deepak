@@ -21,4 +21,6 @@ define('DEFECTIVE_RETURN', 'Defective Return');
 define('OUT_OF_WARRANTY', 'Out-of-Warranty');
 define('IN_WARRANTY', 'In-Warranty');
 define('CUSTOMER_PAYMENT', 'Customer Payment');
+define('PAYTM_GATEWAY', 'paytm_gateway');
+define('PRE_PAID_PAYMENT_GATEWAY', 'Pre-paid(PG)');
 ?>
