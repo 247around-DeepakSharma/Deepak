@@ -1404,7 +1404,7 @@
                                 </select>
                                 </div>
                                    <div class="form-group">
-                                <label for="Services">Select Catagory *</label>
+                                <label for="Services">Select Category *</label>
                                 <select class="form-control" id="l_c_category" name="l_c_category[]" multiple="multiple" disabled="">
                                 </select>
                                 </div>
@@ -1413,17 +1413,22 @@
                                 <select class="form-control" id="l_c_model" name="l_c_model[]" multiple="multiple" disabled="">
                                 </select>
                                 </div>
-                                   <div class="col-md-6" style="float: left;padding: 0px;width: 40%;;">
+                                   <div class="col-md-12" style="padding: 10px 0px;width: 102%;">
+                                   <div class="col-md-4" style="padding: 0px;width: 40%;">
                                    <div class="form-group" style="">
-                                <label for="Services">Select File </label>
+                                       <label for="Services">Select File </label>
                                 <input type="file" class="form-control"  name="l_c_file" id="l_c_file" disabled="">
                                 </div>
                                 </div>
-                                   <div class="col-md-6" style="float:right;">
+                                   <div class="col-md-4" style="padding: 0px;width: 20%;padding-left: 64px;">
+                                       <p style="padding-top: 33px;width: 20%;text-align: center;">OR</p>
+                                        </div>
+                                   <div class="col-md-4" style="width: 40%;">
                                     <div class="form-group">
                                 <label for="Services">Add URL </label>
                                 <input type="text" class="form-control"  name="l_c_url" id="l_c_url" disabled="">
                                 </div>
+                                       </div>
                                        </div>
                                    <div class="form-group">
                                 <label for="Services">Select Request Type*</label>
@@ -2801,10 +2806,6 @@ function up_message(){
         return false; 
     }
     if(service && brands && category && collateral_type && (file || url)&& request_type){
-       if(url){
-           $("#l_c_type").attr("selected","selected");
-           $("#l_c_type").val("6_User Manual_pdf");
-       }
         document.getElementById("l_c_form").submit();
     }
     else{
