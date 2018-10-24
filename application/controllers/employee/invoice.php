@@ -2430,7 +2430,7 @@ class Invoice extends CI_Controller {
                                 $tds['tds'] = 0;
                                 $tds['tds_rate'] = 0;
                             }
-                        } else if ($data['type'] == 'CreditNote' || $data['type'] == 'Buyback' || $data['type'] == 'Stand' || $data['type'] == "Parts") {
+                        } else if ($data['type'] == 'CreditNote' || $data['type'] == 'Buyback' || $data['type'] == 'Stand' || $data['type'] == "Parts" || $data['type'] == 'Liquidation') {
 
                             $tds['tds'] = 0;
                             $tds['tds_rate'] = 0;
@@ -4337,7 +4337,7 @@ class Invoice extends CI_Controller {
                                 $tds['tds'] = 0;
                                 $tds['tds_rate'] = 0;
                             }
-                        } else if ($main['type'] == 'CreditNote' || $main['type'] == 'Buyback' || $main['type'] == 'Stand' || $main['type'] == "Parts") {
+                        } else if ($main['type'] == 'CreditNote' || $main['type'] == 'Buyback' || $main['type'] == 'Stand' || $main['type'] == "Parts" || $main['type'] == "Liquidation") {
 
                             $tds['tds'] = 0;
                             $tds['tds_rate'] = 0;
