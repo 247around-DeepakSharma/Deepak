@@ -1804,7 +1804,13 @@ class Partner extends CI_Controller {
                             
                             array_push($spare_id_array, $spare_id);
                             $current_status = "InProcess";
-                            $internal_status = SPARE_PARTS_SHIPPED;
+                            if($request_type == REPAIR_OOW_TAG){
+                                $internal_status = SPARE_OOW_SHIPPED;
+                            } else {
+                                $internal_status = SPARE_PARTS_SHIPPED;
+
+                            }
+                            
                             
                         } else if ($value['shippingStatus'] == -1) {
                             $this->insert_details_in_state_change($booking_id, "SPARE TO BE SHIP", "Partner Update - " . $value['shipped_parts_name'] . " To Be Shipped", "", "");
