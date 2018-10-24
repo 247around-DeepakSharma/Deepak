@@ -525,7 +525,8 @@
             serverSide: true, //Feature control DataTables' server-side processing mode.
             order: [[ 8, "desc" ]], //Initial no order.
             pageLength: 50,
-            dom: 'Bfrtip',
+            dom: 'Blfrtip',
+            lengthMenu: [[ 50, 100, 50, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
             buttons: [
                 {
                     extend: 'excelHtml5',
@@ -548,7 +549,11 @@
                     "targets": [0,1,2,3,4], //first column / numbering column
                     "orderable": false //set not orderable
                 }
-            ]
+            ],
+            "fnInitComplete": function (oSettings, response) {
+            
+            $(".dataTables_filter").addClass("pull-right");
+          }
         });
         
         
@@ -557,7 +562,8 @@
             serverSide: true, //Feature control DataTables' server-side processing mode.
             order: [[ 8, "desc" ]], //Initial no order.
             pageLength: 50,
-            dom: 'Bfrtip',
+            dom: 'Blfrtip',
+            lengthMenu: [[ 50, 100, 50, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
             buttons: [
                 {
                     extend: 'excelHtml5',
@@ -580,7 +586,11 @@
                     "targets": [0,1,2,3,4], //first column / numbering column
                     "orderable": false //set not orderable
                 }
-            ]
+            ],
+            "fnInitComplete": function (oSettings, response) {
+            
+            $(".dataTables_filter").addClass("pull-right");
+          }
         });
  
 
@@ -590,7 +600,8 @@
             serverSide: true, //Feature control DataTables' server-side processing mode.
             order: [[ 8, "desc" ]], //Initial no order.
             pageLength: 50,
-            dom: 'Bfrtip',
+            dom: 'Blfrtip',
+            lengthMenu: [[ 50, 100, 50, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
             buttons: [
                 {
                     extend: 'excelHtml5',
@@ -613,7 +624,11 @@
                     "targets": [0,1,2,3,4], //first column / numbering column
                     "orderable": false //set not orderable
                 }
-            ]
+            ],
+            "fnInitComplete": function (oSettings, response) {
+            
+            $(".dataTables_filter").addClass("pull-right");
+          }
         });
 
     
@@ -622,7 +637,8 @@
             serverSide: true, //Feature control DataTables' server-side processing mode.
             order: [[ 9, "desc" ]],//Initial no order.
             pageLength: 50,
-            dom: 'Bfrtip',
+            dom: 'Blfrtip',
+            lengthMenu: [[ 50, 100, 50, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
             buttons: [
                 {
                     extend: 'excelHtml5',
@@ -645,7 +661,11 @@
                     "targets": [0,1,2,3,4], //first column / numbering column
                     "orderable": false //set not orderable
                 }
-            ]
+            ],
+            "fnInitComplete": function (oSettings, response) {
+            
+            $(".dataTables_filter").addClass("pull-right");
+          }
         });
         
         sf_received_part = $('#sf_received_part').DataTable({
@@ -653,7 +673,8 @@
             serverSide: true, //Feature control DataTables' server-side processing mode.
             order: [[12, "desc"]], //Initial no order.
             pageLength: 50,
-            dom: 'Bfrtip',
+            dom: 'Blfrtip',
+            lengthMenu: [[ 50, 100, 50, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
             buttons: [
                 {
                     extend: 'excelHtml5',
@@ -676,7 +697,11 @@
                     "targets": [0,1,2,3,4], //first column / numbering column
                     "orderable": false //set not orderable
                 }
-            ]
+            ],
+            "fnInitComplete": function (oSettings, response) {
+            
+            $(".dataTables_filter").addClass("pull-right");
+          }
         });
         
         defective_part_pending_table = $('#defective_part_pending_table').DataTable({
@@ -684,7 +709,8 @@
             serverSide: true, //Feature control DataTables' server-side processing mode.
             order: [[12, "desc"]], //Initial no order.
             pageLength: 50,
-            dom: 'Bfrtip',
+            dom: 'Blfrtip',
+            lengthMenu: [[ 50, 100, 50, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
             buttons: [
                 {
                     extend: 'excelHtml5',
@@ -707,7 +733,11 @@
                     "targets": [0,1,2,3,4], //first column / numbering column
                     "orderable": false //set not orderable
                 }
-            ]
+            ],
+            "fnInitComplete": function (oSettings, response) {
+            
+            $(".dataTables_filter").addClass("pull-right");
+          }
         });
         
         defective_part_rejected_by_partner_table = $('#defective_part_rejected_by_partner_table').DataTable({
@@ -715,7 +745,8 @@
             serverSide: true, //Feature control DataTables' server-side processing mode.
             order: [[9, "desc"]], //Initial no order.
             pageLength: 50,
-            dom: 'Bfrtip',
+            dom: 'Blfrtip',
+            lengthMenu: [[ 50, 100, 50, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
             buttons: [
                 {
                     extend: 'excelHtml5',
@@ -738,7 +769,11 @@
                     "targets": [0,1,2,3,4], //first column / numbering column
                     "orderable": false //set not orderable
                 }
-            ]
+            ],
+            "fnInitComplete": function (oSettings, response) {
+            
+            $(".dataTables_filter").addClass("pull-right");
+          }
         });
         
         defective_part_shipped_by_sf_table = $('#defective_part_shipped_by_sf_table').DataTable({
@@ -746,7 +781,8 @@
             serverSide: true, //Feature control DataTables' server-side processing mode.
             order: [], //Initial no order.
             pageLength: 50,
-            dom: 'Bfrtip',
+            dom: 'Blfrtip',
+            lengthMenu: [[ 50, 100, 50, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
             buttons: [
                 {
                     extend: 'excelHtml5',
@@ -769,7 +805,11 @@
                     "targets": [0,1,2,3,4], //first column / numbering column
                     "orderable": false //set not orderable
                 }
-            ]
+            ],
+            "fnInitComplete": function (oSettings, response) {
+            
+            $(".dataTables_filter").addClass("pull-right");
+          }
         });
         
         
@@ -778,7 +818,8 @@
             serverSide: true, //Feature control DataTables' server-side processing mode.
             order: [[11, "desc"]], //Initial no order.
             pageLength: 50,
-            dom: 'Bfrtip',
+            dom: 'Blfrtip',
+            lengthMenu: [[ 50, 100, 50, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
             buttons: [
                 {
                     extend: 'excelHtml5',
@@ -801,7 +842,11 @@
                     "targets": [0,1,2,3,4], //first column / numbering column
                     "orderable": false //set not orderable
                 }
-            ]
+            ],
+            "fnInitComplete": function (oSettings, response) {
+            
+            $(".dataTables_filter").addClass("pull-right");
+          }
         });
        
     });
