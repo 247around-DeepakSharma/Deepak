@@ -18,13 +18,13 @@ class vendor_model extends CI_Model {
      * @param: $vendor_id
      * @return: array of vendor details
      */
-    function viewvendor($vendor_id = "",$active = "",$sf_list = "", $is_cp = '',$is_wh = '',$limit ="", $start="") {
+    function viewvendor($vendor_id = "",$active = "",$sf_list = "", $is_cp = '',$is_wh = '',$limit ="", $start="",$vendor_name = "") {
         $where_id = "";
         $where_active = "";
         $where_sf = "";
         $where_final = "";
         $cp = "";
-        
+      
         if($is_cp != ''){
             $cp = " AND service_centres.is_cp = $is_cp";
         }
@@ -66,6 +66,10 @@ class vendor_model extends CI_Model {
         if($active === "" && $is_wh !== ""){
             $where_final = "where service_centres.is_wh = '1'";
         } 
+        if($vendor_name != ''){
+            $where_final = "where service_centres.name LIKE '%$vendor_name%'";
+        }
+        
         if ($limit != "") {
              if($limit !="count"){
                  //$this->db->limit($limit, $start);

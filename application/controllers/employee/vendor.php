@@ -735,12 +735,14 @@ class vendor extends CI_Controller {
      * @return : array(of details) to view
      */
     function viewvendor($vendor_id = "",$active = "1", $sf_cp_type ="sf",$offset = 0, $page = 0) {
+        $vendor_name = $this->input->post("vendor_name"); 
+        
         $this->checkUserSession();
         if ($page == 0) {
             $page = 50;
         }
         if($vendor_id == "all"){
-           $vendor_id = "";
+            $vendor_id = "";
         }
         $id = $this->session->userdata('id'); 
         if($active == "" || $active == "all"){
@@ -748,7 +750,7 @@ class vendor extends CI_Controller {
         } else {
             $active = 1;
         }
-        
+       
         $is_wh = '';
         $is_cp = '';
             if($sf_cp_type === 'sf'){
@@ -760,6 +762,7 @@ class vendor extends CI_Controller {
             }
         $data['sf_cp_type'] = $sf_cp_type;
         $data['active_state'] = $active;
+        $data['vendor_name']= $vendor_name;
         //Getting employee relation if present for logged in user
         $sf_list = $this->vendor_model->get_employee_relation($id);
         if (!empty($sf_list)) {
@@ -768,7 +771,7 @@ class vendor extends CI_Controller {
         
         $offset = ($this->uri->segment(7) != '' ? $this->uri->segment(7) : 0);
         $config['base_url'] = base_url() . 'employee/vendor/viewvendor/all/'.$active."/".$sf_cp_type;
-        $config['total_rows'] = $this->vendor_model->viewvendor($vendor_id, $active,$sf_list,$is_cp,$is_wh,"count","" );
+        $config['total_rows'] = $this->vendor_model->viewvendor($vendor_id, $active,$sf_list,$is_cp,$is_wh,"count","",$vendor_name );
 
         $config['per_page'] = $page;
         $config['uri_segment'] = 7;
@@ -776,13 +779,10 @@ class vendor extends CI_Controller {
         $config['last_link'] = 'Last';
         $this->pagination->initialize($config);
         $data['links'] = $this->pagination->create_links();
-        
-        $data['count'] = $config['total_rows'];
-        
-        
         //Getting State for SC charges
         $data['state'] = $this->service_centre_charges_model->get_unique_states_from_tax_rates();
-        $data['query'] = $this->vendor_model->viewvendor($vendor_id, $active, $sf_list, $is_cp, $is_wh,$config['per_page'], $offset  );
+        $data['query'] = $this->vendor_model->viewvendor($vendor_id, $active,$sf_list, $is_cp, $is_wh,$config['per_page'], $offset,$vendor_name  );
+
         $data['pushNotification'] = $this->push_notification_model->get_push_notification_subscribers_by_entity(_247AROUND_SF_STRING);
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/viewvendor', $data);

@@ -1377,7 +1377,6 @@ class invoices_model extends CI_Model {
 
         $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
         $data = $this->get_foc_invoice_data($vendor_id, $from_date, $to_date, $is_regenerate);
-
         if (!empty($data['booking'])) {
             
             $meta['total_qty'] = $meta['total_rate'] =  $meta['total_taxable_value'] =  
@@ -2587,5 +2586,19 @@ class invoices_model extends CI_Model {
         }else{
             return false;
         }
+    }
+    
+     /**
+     * @desc This function is used to get all invoice vertical
+     * @param void
+     * @return result array
+     */
+    function get_invoice_tag($select = '*', $where=array()){
+        $this->db->select($select);
+        if(!empty($where)){
+             $this->db->where($where);
+        }
+        $query = $this->db->get("invoice_tags");
+        return $query->result_array();
     }
 }

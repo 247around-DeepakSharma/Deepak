@@ -256,6 +256,16 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-md-4">
+                    <div class="item form-group">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <select class="form-control filter_table" id="is_upcountry" style="padding-left: 3px;">
+                                <option value="yes">Upcountry</option>
+                                <option value="no">Non Upcountry</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <hr>
@@ -395,6 +405,10 @@
         placeholder: "Select Actor",
         allowClear: true
     });
+    $('#is_upcountry').select2({
+        placeholder: "Select Upcountry Details",
+        allowClear: true
+    });
     $(document).ready(function(){
         get_internal_status_and_request_type("Vendor");
         datatable1 = $('#datatable1').DataTable({
@@ -427,6 +441,7 @@
                     d.current_status = $('#current_status').val();
                     d.actor = $('#actor').val();
                     d.rm_id = $('#rm_id').val();
+                    d.is_upcountry = $('#is_upcountry').val();
                  }
             },
             "columnDefs": [

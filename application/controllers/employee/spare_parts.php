@@ -13,6 +13,7 @@ class Spare_parts extends CI_Controller {
         parent::__Construct();
 
         $this->load->model('inventory_model');
+        $this->load->model('service_centers_model');
         
         $this->load->library('form_validation');
         $this->load->library('notify');
@@ -695,4 +696,82 @@ class Spare_parts extends CI_Controller {
        $row = $this->inventory_model->update_spare_courier_details(trim($id), $data); 
        echo $row;
     }
+    
+    
+     
+     /**
+     * @desc: This function is used to Move Requested Spare to Partner/Vendor page.
+     * @params: void
+     * @return: string
+     */
+    function move_request_spare_to_partner_vendor() {
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/move_request_spare_to_partner_vendor');
+    }
+
+    /**
+     * @desc: This function is used to get spare parts details by id.
+     * @params: void
+     * @return: string
+     */
+    function get_spare_parts_details_search_by_booking_id() {
+        $booking_id = $this->input->post('booking_id');
+        $spare_parts = $this->partner_model->get_spare_parts_by_any("booking_details.partner_id as booking_partner_id,"
+                . "spare_parts_details.id, spare_parts_details.status,"
+                . "spare_parts_details.parts_requested, entity_type, "
+                . "spare_parts_details.partner_id, spare_parts_details.requested_inventory_id,"
+                . "booking_details.booking_id", array('spare_parts_details.booking_id' => $booking_id), true, false);
+        $data = array('spare_parts_list' => $spare_parts);
+        $this->load->view('employee/search_spare_parts_details', $data);
+    }
+
+    /**
+     * @desc: This function is used to Update entity_type and booking_id of spare parts details by id.
+     * @params: void
+     * @return: string
+     */
+    function move_to_update_spare_parts_details() {        
+        log_message('info', __METHOD__ . " " . json_encode($_POST, true));
+        $spare_parts_id = $this->input->post('spare_parts_id');
+        $partner_id = $this->input->post('booking_partner_id');
+        $entity_type = $this->input->post('entity_type');
+        $booking_id = $this->input->post('booking_id');
+        $where = array('id' => $spare_parts_id);
+        $data = array('entity_type' => $entity_type, 'partner_id' => $partner_id);
+        $row = $this->service_centers_model->update_spare_parts($where, $data);
+        if ($entity_type == _247AROUND_PARTNER_STRING) {
+            $new_state = REQUESTED_SPARED_REMAP . " " . _247AROUND_PARTNER_STRING;
+        } else {
+            $new_state = REQUESTED_SPARED_REMAP . " " . WAREHOUSE;
+        }
+
+        if (!empty($row)) {
+            $this->notify->insert_state_change($booking_id, $new_state, '', '', $this->session->userdata('id'), $this->session->userdata('employee_id'), '', '', _247AROUND);
+            echo 'success';
+        }
+    }
+
+    /**
+     * @desc: This function is used to copy booking id by spare parts id.
+     * @params: void
+     * @return: string
+     */
+    
+    function copy_booking_details_by_spare_parts_id() {
+        $spare_parts_id = $this->input->post('spare_parts_id');
+        $new_booking_id = $this->input->post('new_booking_id');
+        $spare_parts_list = $this->partner_model->get_spare_parts_by_any("*", array('spare_parts_details.id' => $spare_parts_id), false, false);
+        if (!empty($spare_parts_list)) {
+            unset($spare_parts_list[0]['id']);
+            $spare_parts_list[0]['booking_id'] = $new_booking_id;
+            $insert_id = $this->service_centers_model->insert_data_into_spare_parts($spare_parts_list[0]);
+            if(!empty($insert_id ) && $insert_id !=''){
+                echo 'success';
+            }else{
+                echo 'fail';
+            }
+        } 
+        
+    }
+
 }
