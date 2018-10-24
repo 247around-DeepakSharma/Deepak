@@ -76,7 +76,7 @@ class Spare_parts extends CI_Controller {
      * @desc This function is used to load different spare tab data using datatable
      */
     function get_spare_parts_tab_details(){
-        //log_message('info', __METHOD__ . print_r($_POST, true));
+        log_message('info', __METHOD__ . print_r($_POST, true));
         
         $post = $this->get_spare_tab_datatable_data();
         switch ($post['type']){
@@ -615,7 +615,7 @@ class Spare_parts extends CI_Controller {
         } else {
             $row[] = "";
         }
-        $row[] = '<input type="checkbox" class="form-control spare_id" name="spare_id[]" value="'.$spare_list->id.'" />';
+        $row[] = '<input id="'.$spare_list->id.'" type="checkbox" class="form-control spare_id" name="spare_id[]" data-booking_id="'.$spare_list->booking_id.'" data-partner_id = "'.$spare_list->booking_partner_id.'" value="'.$spare_list->id.'" />';
         return $row;
         
     }
