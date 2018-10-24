@@ -83,10 +83,65 @@ class accounting_model extends CI_Model {
                
                 $return_data = $this->get_buyback_accounting_report($from_date, $to_date, $partner_vendor,$is_challan_data,$invoice_data_by, $payment_type);
                 break;
+            case 'paytm' :
+                $return_data = $this->get_paytm_accounting_report($from_date, $to_date, $partner_vendor,$is_challan_data,$invoice_data_by, $payment_type);
+                break;
         }
 
         return $return_data;
     }
+    
+    
+     /**
+     * @desc: This Function is used to get the PAYTM PAYMENT REPORT for vendor and partner
+     * @param: string
+     * @return : array
+     */
+    function get_paytm_accounting_report($from_date, $to_date, $partner_vendor, $is_challan_data, $invoice_data_by, $payment_type){
+        
+            if ($is_challan_data === '1') {
+                $where = " AND vpi.invoice_id NOT IN (SELECT invoice_id FROM invoice_challan_id_mapping)";
+            } else if ($is_challan_data === '2') {
+                $where = "";
+            }
+
+            if ($invoice_data_by === 'invoice_date') {
+                $where .= " AND vpi.`invoice_date`>='$from_date'  AND vpi.`invoice_date` <'$to_date'";
+            } else if ($invoice_data_by === 'period') {
+                $where .= " AND vpi.`from_date`>='$from_date'  AND vpi.`to_date` <'$to_date'";
+            }
+            if($partner_vendor == 'partner'){
+                $where .= " AND vpi.vertical = '".SERVICE."' AND vpi.category = '".ADVANCE."' AND  vpi.sub_category = '".PRE_PAID_PAYMENT_GATEWAY."'";
+            }
+            else if($partner_vendor == 'vendor'){
+                $where .= " AND vpi.vertical = '".SERVICE."' AND vpi.category = '".CREDIT_NOTE."' AND  vpi.sub_category = '".CUSTOMER_PAYMENT."'";
+            }
+            $sql = "SELECT invoice_id, vendor_partner, IFNULL(sc.name,partners.company_name ) as company_name, "
+                . " IFNULL(sc.address,partners.address ) as address, "
+                . " IFNULL(sc.state,partners.state ) as state, "
+                . " IFNULL(sc.gst_no,partners.gst_number ) as gst_number, IFNULL(sc.gst_taxpayer_type, '') as gst_reg_type,"
+                . " invoice_date, from_date,"
+                . " IFNULL(sc.service_tax_no, partners.service_tax) as service_tax_no, "
+                . " IFNULL(sc.tin_no, partners.tin) as tin_no, "
+                . " to_date,total_service_charge,"
+                . " `total_additional_service_charge`,vpi.`service_tax`,"
+                . " `parts_cost`,`parts_count`, `parts_cost`, `vat`,`total_amount_collected`,"
+                . " `around_royalty`,`total_service_charge`,`parts_count`,`reference_invoice_id`,`amount_collected_paid`,"
+                . " `hsn_code`,`cgst_tax_amount`,`igst_tax_amount`,"
+                . "`sgst_tax_amount`,`cgst_tax_rate`,"
+                . "`igst_tax_rate`,`sgst_tax_rate`,`tds_rate`,"
+                . "`tds_amount`,`upcountry_price`,`penalty_amount`,"
+                . "`credit_penalty_amount`,`courier_charges`,`num_bookings`,vpi.type,vpi.type_code "
+                . " FROM vendor_partner_invoices as vpi LEFT JOIN service_centres as sc ON vendor_partner = 'vendor' "
+                . " AND sc.id = vpi.vendor_partner_id LEFT JOIN partners ON vendor_partner = 'partner' "
+                . " AND partners.id = vpi.vendor_partner_id WHERE "
+                . " vendor_partner = '$partner_vendor' $where";
+        
+        $query = $this->db->query($sql);
+        $data = $query->result_array();
+        return $data;    
+    }
+    
 
     /**
      * @desc: This Function is used to get the purchase PAYMENT REPORT
