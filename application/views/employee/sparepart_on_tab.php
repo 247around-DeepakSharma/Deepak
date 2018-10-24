@@ -549,7 +549,11 @@
                     "targets": [0,1,2,3,4], //first column / numbering column
                     "orderable": false //set not orderable
                 }
-            ]
+            ],
+            "fnInitComplete": function (oSettings, response) {
+            
+            $(".dataTables_filter").addClass("pull-right");
+          }
         });
         
         
@@ -582,7 +586,11 @@
                     "targets": [0,1,2,3,4], //first column / numbering column
                     "orderable": false //set not orderable
                 }
-            ]
+            ],
+            "fnInitComplete": function (oSettings, response) {
+            
+            $(".dataTables_filter").addClass("pull-right");
+          }
         });
  
 
@@ -616,7 +624,11 @@
                     "targets": [0,1,2,3,4], //first column / numbering column
                     "orderable": false //set not orderable
                 }
-            ]
+            ],
+            "fnInitComplete": function (oSettings, response) {
+            
+            $(".dataTables_filter").addClass("pull-right");
+          }
         });
 
     
@@ -649,7 +661,11 @@
                     "targets": [0,1,2,3,4], //first column / numbering column
                     "orderable": false //set not orderable
                 }
-            ]
+            ],
+            "fnInitComplete": function (oSettings, response) {
+            
+            $(".dataTables_filter").addClass("pull-right");
+          }
         });
         
         sf_received_part = $('#sf_received_part').DataTable({
@@ -681,7 +697,11 @@
                     "targets": [0,1,2,3,4], //first column / numbering column
                     "orderable": false //set not orderable
                 }
-            ]
+            ],
+            "fnInitComplete": function (oSettings, response) {
+            
+            $(".dataTables_filter").addClass("pull-right");
+          }
         });
         
         defective_part_pending_table = $('#defective_part_pending_table').DataTable({
@@ -713,7 +733,11 @@
                     "targets": [0,1,2,3,4], //first column / numbering column
                     "orderable": false //set not orderable
                 }
-            ]
+            ],
+            "fnInitComplete": function (oSettings, response) {
+            
+            $(".dataTables_filter").addClass("pull-right");
+          }
         });
         
         defective_part_rejected_by_partner_table = $('#defective_part_rejected_by_partner_table').DataTable({
@@ -745,7 +769,11 @@
                     "targets": [0,1,2,3,4], //first column / numbering column
                     "orderable": false //set not orderable
                 }
-            ]
+            ],
+            "fnInitComplete": function (oSettings, response) {
+            
+            $(".dataTables_filter").addClass("pull-right");
+          }
         });
         
         defective_part_shipped_by_sf_table = $('#defective_part_shipped_by_sf_table').DataTable({
@@ -777,7 +805,11 @@
                     "targets": [0,1,2,3,4], //first column / numbering column
                     "orderable": false //set not orderable
                 }
-            ]
+            ],
+            "fnInitComplete": function (oSettings, response) {
+            
+            $(".dataTables_filter").addClass("pull-right");
+          }
         });
         
         
@@ -810,7 +842,11 @@
                     "targets": [0,1,2,3,4], //first column / numbering column
                     "orderable": false //set not orderable
                 }
-            ]
+            ],
+            "fnInitComplete": function (oSettings, response) {
+            
+            $(".dataTables_filter").addClass("pull-right");
+          }
         });
        
     });
