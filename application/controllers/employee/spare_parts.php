@@ -78,7 +78,8 @@ class Spare_parts extends CI_Controller {
     function get_spare_parts_tab_details(){
         //log_message('info', __METHOD__ . print_r($_POST, true));
         
-        $post = $this->get_spare_tab_datatable_data();
+        $post = $this->get_spare_tab_datatable_data();     
+        
         switch ($post['type']){
             case 0:
                 $this->get_spare_requested_tab($post);
@@ -109,6 +110,7 @@ class Spare_parts extends CI_Controller {
                 break;
         }
     }
+    
     /**
      * @desc used to create defective parts shipped by sf tab and whose courier price approved by Admin
      * @param Array $post
@@ -658,7 +660,9 @@ class Spare_parts extends CI_Controller {
      * @desc This function is used to get post data from datatable
      * @return Array
      */
-    function get_spare_tab_datatable_data(){
+    
+    function get_spare_tab_datatable_data(){        
+                
         $post['length'] = $this->input->post('length');
         $post['start'] = $this->input->post('start');
         $search = $this->input->post('search');
@@ -688,6 +692,9 @@ class Spare_parts extends CI_Controller {
         
         return $post;
     }
+    
+    
+    
     
      /**
      * @desc This function is used to load view 
@@ -780,6 +787,179 @@ class Spare_parts extends CI_Controller {
                 echo 'fail';
             }
         } 
+        
+    }
+    
+    
+    /**
+     * @desc: This function is used to brackets data table.
+     * @params: void
+     * @return: string
+     */
+    
+    
+     function get_brackets_tab_datatable_data() {
+        $post['length'] = $this->input->post('length');
+        $post['start'] = $this->input->post('start');
+        $search = $this->input->post('search');
+        $post['search']['value'] = $search['value'];
+        $post['order'] = $this->input->post('order');
+        $post['draw'] = $this->input->post('draw');
+        $post['type'] = $this->input->post('type');
+        $post['where']['is_shipped'] = $this->input->post("is_shipped");
+        $post['where']['is_received'] = $this->input->post("is_received");
+        if ($this->input->post("sf_id")) {
+            $sf_role = $this->input->post("sf_role");
+            $post['where'][$sf_role] = $this->input->post("sf_id");
+        }        
+        if ($this->input->post("daterange")) {
+            $daterange = explode("-", $this->input->post("daterange"));
+            $post['where']['order_date >= "' . date('Y-m-d 00:00:00', strtotime($daterange[0])) . '" '] = NULL;
+            $post['where']['order_date <= "' . date('Y-m-d 23:59:59', strtotime($daterange[1])) . '" '] = NULL;
+        }
+        $id = $this->session->userdata('id');
+        //Getting employee relation if present
+        if ($this->session->userdata('user_group') == 'regionalmanager') {
+            $sf_list_array = $this->vendor_model->get_employee_relation($id);
+            if (!empty($sf_list_array)) {
+                $sf_list = $sf_list_array[0]['service_centres_id'];
+                $post['where_in'] = array('order_received_from' => $sf_list);
+            }
+        }
+
+
+        return $post;
+    }
+
+    function get_brackets_tab_details() {
+        log_message('info', __METHOD__ . print_r($_POST, true));
+        $post = $this->get_brackets_tab_datatable_data();
+        switch ($post['type']) {
+            case 0:
+                $this->brackets_list_tabs($post);
+                break;
+        }
+    }
+
+    /**
+     * @desc Used to create tab in which we are showing brackets
+     * Parts requested by Sf
+     * @param Array $post
+     */
+    
+    function brackets_list_tabs($post) {
+        log_message('info', __METHOD__);
+        $post['select'] = "brackets.order_id,"
+                . "brackets.order_received_from,"
+                . "brackets.19_24_requested AS brackets_19_24_requested,"
+                . "brackets.26_32_requested AS brackets_26_32_requested,"
+                . "brackets.36_42_requested AS brackets_36_42_requested,"
+                . "brackets.43_requested AS brackets_43_requested,"
+                . "brackets.total_requested,"
+                . "brackets.19_24_shipped AS brackets_19_24_shipped,"
+                . "brackets.26_32_shipped AS brackets_26_32_shipped,"
+                . "brackets.36_42_shipped AS brackets_36_42_shipped,"
+                . "brackets.43_shipped AS brackets_43_shipped,"
+                . "brackets.shipment_receipt,"
+                . "brackets.total_shipped,"
+                . "brackets.19_24_received AS brackets_19_24_received,"
+                . "brackets.26_32_received AS brackets_26_32_received,"
+                . "brackets.36_42_received AS brackets_36_42_received,"
+                . "brackets.43_received AS brackets_43_received,"
+                . "brackets.total_received,"
+                . "brackets.order_date,"
+                . "brackets.shipment_date,"
+                . "brackets.received_date,"
+                . "brackets.is_shipped,"
+                . "brackets.is_received,"
+                . "brackets.active,"
+                . "service_centres.name,"
+                . "service_centres.owner_name";
+
+        $post['column_order'] = array(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+        $post['column_search'] = array('brackets.order_id', 'service_centres.name', 'service_centres.owner_name');
+        $list = $this->inventory_model->get_brackets_query($post);
+
+        $no = $post['start'];
+        $data = array();
+        foreach ($list as $brackets_list) {
+            $no++;
+            $row = $this->brackets_requested_table_data($brackets_list, $no);
+            $data[] = $row;
+        }
+        $output = array(
+            "draw" => $post['draw'],
+            "recordsTotal" => $this->inventory_model->count_brackets_parts($post),
+            "recordsFiltered" => $this->inventory_model->count_brackets_filtered($post),
+            "data" => $data,
+        );
+
+        echo json_encode($output);
+    }
+
+    /**
+     * @desc this function is used to create table row data for the spare parts requested tab
+     * @param Array $brackets_list
+     * @param int $no
+     * @return Array
+     */
+    function brackets_requested_table_data($brackets_list, $no) {
+
+        $date = "";
+        if ($brackets_list->order_date > 0) {
+            $date = $brackets_list->order_date;
+        }
+        if ($brackets_list->shipment_date > 0) {
+            $date = $brackets_list->order_date;
+        }
+        if ($brackets_list->received_date > 0) {
+            $date = $brackets_list->received_date;
+        }
+
+        $row = array();
+
+        if ($brackets_list->is_shipped == 0 && $brackets_list->is_received == 0) {
+            $re = "requested_order";
+        } else if ($brackets_list->is_shipped == 1 && $brackets_list->is_received == 0) {
+            $re = "shipped_order";
+        } else if ($brackets_list->is_shipped == 1 && $brackets_list->is_received == 1) {
+            $re = "received_order";
+        }
+        $row[] = "<span class='" . $re . "'>" . $no . "</span>";
+        $row[] = $brackets_list->order_id;
+        $row[] = $brackets_list->owner_name . "<br>" . $brackets_list->name;
+        $row[] = ($brackets_list->brackets_26_32_requested + $brackets_list->brackets_19_24_requested);
+        $row[] = ($brackets_list->brackets_36_42_requested + $brackets_list->brackets_43_requested);
+        $row[] = $brackets_list->total_requested;
+        $row[] = ($brackets_list->brackets_26_32_shipped + $brackets_list->brackets_19_24_shipped);
+        $row[] = ($brackets_list->brackets_36_42_shipped + $brackets_list->brackets_43_shipped);
+        $row[] = $brackets_list->total_shipped;
+        $row[] = ($brackets_list->brackets_26_32_received + $brackets_list->brackets_19_24_received);
+        $row[] = ($brackets_list->brackets_36_42_received + $brackets_list->brackets_43_received);
+        $row[] = $brackets_list->total_received;
+        $date_timestamp = strtotime($date);
+        $new_date = date('j M, Y g:i A', $date_timestamp);
+        $row[] = $new_date;       
+
+        if ($brackets_list->is_shipped == 1 || $brackets_list->active == 0) {
+            $update_request_link = '<a  href="' . base_url() . 'employee/inventory/get_update_requested_form/' . $brackets_list->order_id . '" class="btn btn-sm btn-primary" title="Update Requested" disabled=TRUE><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>';
+            $update_receiving_link = '<a href="' . base_url() . 'employee/inventory/get_update_receiving_form/' . $brackets_list->order_id . '" class="btn btn-sm btn-primary" style="margin-bottom: 3px;" title="Update Receiving"disabled=TRUE> <i class="fa fa-shopping-cart" aria-hidden="true"></i></a>';
+        } else {
+            $update_request_link = '<a  href="' . base_url() . 'employee/inventory/get_update_requested_form/' . $brackets_list->order_id . '" class="btn btn-sm btn-primary" title="Update Requested"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>';
+            $update_receiving_link = '<a href="' . base_url() . 'employee/inventory/get_update_receiving_form/' . $brackets_list->order_id . '" class="btn btn-sm btn-primary" style="margin-bottom: 3px;" title="Update Receiving"> <i class="fa fa-shopping-cart" aria-hidden="true"></i></a>';
+        }
+
+        if ($brackets_list->active == 0) {
+            $update_shipment_link = '<a href="' . base_url() . 'employee/inventory/get_update_shipment_form/' . $brackets_list->order_id . '" class="btn btn-sm btn-primary" title="Update Shipment" disabled=TRUE style="margin-bottom: 3px;"><i class="fa fa-truck" aria-hidden="true"></i></a>';
+            $un_cancel_request_link = '<a href="' . base_url() . 'employee/inventory/uncancel_brackets_request/' . $brackets_list->order_id . '" class="btn btn-sm btn-primary" style="margin-bottom: 3px;" title="Un-Cancel Request"disabled=TRUE><i class="fa fa-undo" aria-hidden="true"></i></a>';
+        } else {
+            $update_shipment_link = '<a href="' . base_url() . 'employee/inventory/get_update_shipment_form/' . $brackets_list->order_id . '" class="btn btn-sm btn-primary" title="Update Shipment" style="margin-bottom: 3px;"><i class="fa fa-truck" aria-hidden="true"></i></a>';
+            $un_cancel_request_link = '<a href="' . base_url() . 'employee/inventory/uncancel_brackets_request/' . $brackets_list->order_id . '" class="btn btn-sm btn-primary" style="margin-bottom: 3px;" title="Un-Cancel Request"><i class="fa fa-undo" aria-hidden="true"></i></a>';
+        }
+
+        $row[] = $update_request_link . "&nbsp;" . $update_shipment_link . " " . $update_receiving_link . " " . $un_cancel_request_link;
+
+        return $row;
         
     }
 
