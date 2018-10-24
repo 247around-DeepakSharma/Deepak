@@ -371,7 +371,7 @@
                         <div class="col-md-6 ">
                             <div class="form-group col-md-12  ">
                                 <label for="Claimed Price">Invoice ID *</label>
-                                <input type="text" class="form-control" style="font-size: 13px;"  id="invoice_id" placeholder="Enter Invoice ID" name="invoice_id" value = "" required>
+                                <input type="text" class="form-control" style="font-size: 13px;"  id="invoice_id" placeholder="Enter Invoice ID" name="invoice_id" value = "" onblur="check_invoice_id(this.id)" required>
                             </div>
                         </div>
                         <div class="col-md-6 ">
@@ -884,7 +884,7 @@
                  success: function (data) {
                      console.log(data);
                      if(data === 'Success'){
-                         $('#myModal2').modal('toggle'); 
+                         $('#purchase_invoice').modal('toggle'); 
                          $("#invoice_id").val("");
                          $("#invoice_date").val("");
                          $("#parts_cost").val("");
@@ -905,4 +905,27 @@
                });
                });
      }
+     
+   function check_invoice_id(id){
+    
+        var invoice_id = $('#'+id).val().trim();
+        if(invoice_id){
+
+            $.ajax({
+                method:'POST',
+                url:'<?php echo base_url(); ?>check_invoice_id_exists/'+invoice_id,
+                data:{is_ajax:true},
+                success:function(res){
+                    //console.log(res);
+                    var obj = JSON.parse(res);
+                    if(obj.status === true){
+
+                        alert('Invoice number already exists');
+                        $("#invoice_id").val('');
+                    }
+                }
+            });
+            
+        }
+    }
 </script>

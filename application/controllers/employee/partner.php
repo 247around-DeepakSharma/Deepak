@@ -2195,7 +2195,7 @@ class Partner extends CI_Controller {
                         '(reverse_sale_invoice_id IS NULL OR reverse_purchase_invoice_id)' => NULL),
                     true);
             if(!empty($is_oow_return)){
-                $url = base_url() . "employee/invoice/generate_reverse_oow_invoice";
+                $url = base_url() . "employee/invoice/generate_reverse_oow_invoice/".$booking_id;
                 $async_data['booking_id'] = $booking_id;
                 $this->asynchronous_lib->do_background_process($url, $async_data);
             }

@@ -3635,14 +3635,14 @@ class Invoice extends CI_Controller {
 
         if(!empty($oow_data)){
             foreach ($oow_data as $value) {
-                if(!empty($value['sell_invoice_id'])){
+                if(!empty($value['sell_invoice_id']) && empty($value['reverse_sale_invoice_id'])){
                    $invoice_details = $this->invoices_model->get_invoices_details(array('invoice_id' => $value['sell_invoice_id']), $select = "*");
                    if(!empty($invoice_details)){
                        $this->generate_reverse_sale_invoice($invoice_details, $value);
                    }
                 }
-                
-                if (empty($value['reverse_purchase_invoice_id'])){
+
+                if(!empty($value['purchase_invoice_id']) && empty($value['reverse_purchase_invoice_id'])){
                     $this->generate_reverse_purchase_invoice($value);
                 }
             }
@@ -3748,6 +3748,8 @@ class Invoice extends CI_Controller {
                 
                 log_message('info', __METHOD__ . ": ...Exit" . $response['meta']['invoice_id']);
             }
+            
+            return true;
     }
     /**
      * @desc This function is used to generate reverse purchase invoice means sale invoice to Partner 
@@ -3758,6 +3760,7 @@ class Invoice extends CI_Controller {
         $partner_details = $this->partner_model->getpartner($spare_data['booking_partner_id']);
         
         $invoice_breakup_details = $this->invoices_model->get_breakup_invoice_details("*", array('spare_id' => $spare_data['id'], "invoice_id" => $spare_data['purchase_invoice_id']));
+        
         if(!empty($invoice_breakup_details)){
             $data = array();
             $data[0]['description'] = $invoice_breakup_details[0]['description'];
@@ -3779,9 +3782,10 @@ class Invoice extends CI_Controller {
             $data[0]['hsn_code'] = SPARE_HSN_CODE;
             $sd = $ed = $invoice_date = date("Y-m-d");
             $gst_rate = $invoice_breakup_details[0]['cgst_tax_rate'] + $invoice_breakup_details[0]['sgst_tax_rate'] + $invoice_breakup_details[0]['igst_tax_rate'];
+            $data[0]['gst_rate'] = $gst_rate;
             $response = $this->invoices_model->_set_partner_excel_invoice_data($data, $sd, $ed, "Tax Invoice",$invoice_date);
             $response['meta']['invoice_id'] = $this->create_invoice_id_to_insert("Around");
-            $data[0]['gst_rate'] = $gst_rate;
+            
             $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
             
             if ($status) {
@@ -3846,6 +3850,7 @@ class Invoice extends CI_Controller {
                 
                 $invoice_breakup_details[0]['invoice_id'] = $response['meta']['invoice_id'];
                 $invoice_breakup_details[0]['create_date'] = date('Y-m-d H:i:s');
+                unset($invoice_breakup_details[0]['id']);
                 $this->invoices_model->insert_invoice_breakup($invoice_breakup_details);
 
                 $this->service_centers_model->update_spare_parts(array('id' => $spare_data['id']), array("reverse_purchase_invoice_id" => $response['meta']['invoice_id']));
@@ -3868,7 +3873,6 @@ class Invoice extends CI_Controller {
     
     function generate_spare_purchase_invoice() {
         log_message("info", __METHOD__ . " Post " . print_r(json_encode($this->input->post(), true), true));
-        //$str = '{"invoice_id":"TXN-14578","invoice_date":"2018-10-23","partner_id":"247034","part":{"12189":{"booking_id":"PA-2310001809305","hsn_code":"98745478","gst_rate":"18","basic_amount":"1200"},"12229":{"booking_id":"PA-2674141809281","hsn_code":"87878787","gst_rate":"28","basic_amount":"1500"}},"remarks":"This is testing","label":"WEBUPLOAD"}';
 
         $this->form_validation->set_rules('part', 'part', 'required');
         $this->form_validation->set_rules('invoice_date', 'Invoice Date', 'required');
@@ -3882,8 +3886,9 @@ class Invoice extends CI_Controller {
                 $w['length'] = -1;
                 $w['where_in'] = array("spare_parts_details.id" => $is_validate['data']);
                 $w['select'] = "spare_parts_details.id, spare_parts_details.booking_id, purchase_price, public_name, booking_details.partner_id, "
-                        . "purchase_invoice_id,sell_invoice_id, sell_price, incoming_invoice_pdf, partners.state";
+                        . "purchase_invoice_id,sell_invoice_id, sell_price, incoming_invoice_pdf, partners.state, parts_shipped";
                 $data = $this->inventory_model->get_spare_parts_query($w);
+                
                 $unique_partner = array_unique(array_map(function ($k) {
                         return $k->partner_id;
                     }, $data));
@@ -3901,7 +3906,8 @@ class Invoice extends CI_Controller {
                         $partner_id = $this->input->post('partner_id');
                         $invoice_date = $this->input->post('invoice_date');
                         $invoice_breakup = array();
-                        $c_s_gst =$this->check_gst_tax_type($data[0]->state);
+                        
+                        $c_s_gst = $this->invoices_model->check_gst_tax_type($data[0]->state);
                         $uni_booking_id = array_unique(array_map(function ($k) {
                             return $k->booking_id;
                         }, $data));
@@ -3930,10 +3936,10 @@ class Invoice extends CI_Controller {
                             $total_part_basic += $part_data[$value->id]['basic_amount'];
                             $invoice_details = array(
                                 "invoice_id" => $invoice_id,
-                                "description" => $value->part_shipped,
+                                "description" => $value->parts_shipped,
                                 "qty" => 1,
                                 "product_or_services" => "Parts",
-                                "rate" => $value['rate'],
+                                "rate" => $part_data[$value->id]['basic_amount'],
                                 "taxable_value" => $part_data[$value->id]['basic_amount'],
                                 "cgst_tax_rate" => $cgst_rate,
                                 "sgst_tax_rate" => $sgst_rate,
@@ -3972,11 +3978,29 @@ class Invoice extends CI_Controller {
                         $invoice['amount_collected_paid'] = -$total_amount_collected;
 
                         $this->invoices_model->action_partner_invoice($invoice);
+                        $this->invoices_model->insert_invoice_breakup($invoice_breakup);
                         foreach ($data as $value ) {
 
                             $this->service_centers_model->update_spare_parts(array('id' => $value->id), array("purchase_invoice_id" => $invoice['invoice_id'],
                                 "status" => SPARE_SHIPPED_BY_PARTNER));
+                            
+                            $this->vendor_model->update_service_center_action($value->booking_id, array('current_status' => "InProcess", 'internal_status' => SPARE_PARTS_SHIPPED));
+                            
+                            $booking['internal_status'] = SPARE_PARTS_SHIPPED;
+                            $actor = $next_action = 'not_define';
+                            $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $value->booking_id);
+                            if (!empty($partner_status)) {
+                                $booking['partner_current_status'] = $partner_status[0];
+                                $booking['partner_internal_status'] = $partner_status[1];
+                                $actor = $booking['actor'] = $partner_status[2];
+                                $next_action = $booking['next_action'] = $partner_status[3];
+                            }
+                            $this->booking_model->update_booking($value->booking_id, $booking);
+                            
+                            $this->notify->insert_state_change($value->booking_id, "Invoice Approved", "", "Admin Approve Partner OOW Invoice ", $this->session->userdata('id'), $this->session->userdata('employee_id'),
+                    $actor,$next_action,_247AROUND);
                         }
+                        
                         
                         echo "Success";
                     } else {
