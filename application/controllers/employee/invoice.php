@@ -2992,12 +2992,12 @@ class Invoice extends CI_Controller {
             
              $this->invoices_model->insert_new_invoice($invoice_details);
              log_message('info', __METHOD__ . ": Invoice ID inserted");
-             $this->session->set_flashdata('file_error', $description.'Invoice Generated');
+             $this->session->set_flashdata('file_error', $description.' Invoice Generated');
              redirect(base_url() . "employee/invoice/invoice_partner_view");
 
         } else {
             log_message('info', __METHOD__ . ": Invoice ID inserted");
-            $this->session->set_flashdata('file_error', $description. 'Not Generated');
+            $this->session->set_flashdata('file_error', $description. ' Not Generated');
             log_message('info', __METHOD__ . ": Validation Failed");
             $this->invoice_partner_view();
         }
@@ -3267,8 +3267,15 @@ class Invoice extends CI_Controller {
                 $subject = vsprintf($email_template[4], array($partner_data['company_name'], $sd, $ed));
                 $message = $email_template[0];
                 $email_from = $email_template[2];
-                $to = $email_template[1];
-                $cc = $email_template[3];
+                if($email_tag == CRM_SETUP_INVOICE_EMAIL_TAG){
+                    $to = $partner_data['invoice_email_to'].",".$email_template[1];
+                    $cc = $partner_data['invoice_email_cc'].",".$email_template[3];
+                }
+                else{
+                    $to = $email_template[1];
+                    $cc = $email_template[3];
+                }
+
                 $cmd = "curl " . S3_WEBSITE_URL . "invoices-excel/" . $output_pdf_file_name . " -o " . TMP_FOLDER.$output_pdf_file_name;
                 exec($cmd);    
                 $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, TMP_FOLDER.$output_pdf_file_name, "",$email_tag);
