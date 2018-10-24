@@ -1,6 +1,5 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 define("SPARE_HSN_CODE", "85299090");
-define('SPARE_INVOICE_EMAIL_TAG','spare_invoice_sent');
 define('SEND_DEFECTIVE_SPARE_PARTS_NOTIFICATION',7 );
 define("SPARE_PART_RADIO_BUTTON_NOT_REQUIRED", "0"); 
 define("ESTIMATE_APPROVED_BY_CUSTOMER", "Spare Estimate Approved By Customer");

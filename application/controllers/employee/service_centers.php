@@ -2107,6 +2107,9 @@ class Service_centers extends CI_Controller {
         $this->checkUserSession();
         $challan = $this->input->post('download_challan');
         $zip = 'zip '.TMP_FOLDER.'challan_file.zip ';
+        if(file_exists(TMP_FOLDER .  'challan_file.zip')){
+            unlink(TMP_FOLDER . 'challan_file.zip');
+        }
         foreach ($challan as $file) {
             $explode = explode(",", $file);
             foreach ($explode as $value) {
@@ -2125,6 +2128,9 @@ class Service_centers extends CI_Controller {
         $res2 = 0;
         system(" chmod 777 " . TMP_FOLDER . 'challan_file.zip ', $res2);
         readfile(TMP_FOLDER .  'challan_file.zip');
+        if(file_exists(TMP_FOLDER .  'challan_file.zip')){
+             unlink(TMP_FOLDER . 'challan_file.zip');
+        }
     }
 
     /**
