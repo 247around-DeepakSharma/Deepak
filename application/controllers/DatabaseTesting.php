@@ -29,10 +29,13 @@ class DatabaseTesting extends CI_Controller {
 
 	$this->load->model('database_testing_model');
 	$this->load->model('reporting_utils');
+        $this->load->model('partner_model');
 
 	$this->load->library('notify');
 	$this->load->library('email');
 	$this->load->library('booking_utilities');
+        $this->load->library('invoice_lib');
+        
     }
 
     function index() {
@@ -499,5 +502,20 @@ class DatabaseTesting extends CI_Controller {
             }
         }
     }
+    
+    function testDefective(){
+        $where =  array("status" => DEFECTIVE_PARTS_PENDING, 'defective_part_required' => 1, 'sf_challan_number IS NULL ' => NULL);
+               $data  = $this->partner_model->get_spare_parts_by_any("spare_parts_details.booking_id, service_center_id, service_center_closed_date",
+                        $where, true, false, "spare_parts_details.booking_id");
+            echo count($data);echo PHP_EOL;       
+         foreach ($data as $key => $value) {
+            echo $key.PHP_EOL;
+                        $this->invoice_lib->generate_challan_file($value['booking_id'], $value['service_center_id'], $value['service_center_closed_date']);
+            print_r($value); 
+         }
+
+
+    }
+
 
 }
