@@ -2009,10 +2009,10 @@ class Inventory extends CI_Controller {
         $w['where'] = array("booking_details.request_type" => REPAIR_OOW_TAG, 
             "status != 'Cancelled'" => NULL, 
             "spare_parts_details.create_date >= '2017-12-01'" => NULL, 
-            "(`purchase_invoice_id` IS NULL ||  `sell_invoice_id` IS NULL)" => NULL,
+            "(`purchase_invoice_id` IS NULL && ( `sell_invoice_id` IS NOT NULL))" => NULL,
             "spare_parts_details.partner_id != '"._247AROUND."'" => NULL);
         $w['select'] = "spare_parts_details.id, spare_parts_details.booking_id, purchase_price, public_name,"
-                . "purchase_invoice_id,sell_invoice_id, incoming_invoice_pdf, sell_price";
+                . "purchase_invoice_id,sell_invoice_id, incoming_invoice_pdf, sell_price, booking_details.partner_id as booking_partner_id";
         $data['spare'] = $this->inventory_model->get_spare_parts_query($w);
         $this->miscelleneous->load_nav_header();
         $this->load->view("employee/spare_invoice_list", $data);
@@ -4178,9 +4178,10 @@ class Inventory extends CI_Controller {
      * @param void
      * @param $res array()
      */
-    function check_invoice_id_exists($invoice_id){
+    function check_invoice_id_exists($invoice_id_temp){
         $res = array();
-        if($invoice_id){
+        if($invoice_id_temp){
+            $invoice_id = str_replace("/","-",$invoice_id_temp);
             $count = $this->invoices_model->get_invoices_details(array('invoice_id' => $invoice_id),'count(invoice_id) as count');
             if(!empty($count[0]['count'])){
                 $res['status'] = TRUE;
