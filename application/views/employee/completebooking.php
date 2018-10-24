@@ -609,7 +609,7 @@
                                     case SPARE_DELIVERED_TO_SF:
                                     case DEFECTIVE_PARTS_REJECTED:
                                     case DEFECTIVE_PARTS_PENDING: ?>
-                                        if(unit_id === '<?php echo $value['booking_unit_details'];?>'){
+                                        if(unit_id === '<?php echo $value['booking_unit_details_id'];?>'){
                                             <?php 
                                             $flag = 1; 
                                             array_push($required_sp_id1, $value['id']); 
