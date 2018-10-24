@@ -75,7 +75,7 @@ class Spare_parts extends CI_Controller {
      * @desc This function is used to load different spare tab data using datatable
      */
     function get_spare_parts_tab_details(){
-        log_message('info', __METHOD__ . print_r($_POST, true));
+        //log_message('info', __METHOD__ . print_r($_POST, true));
         
         $post = $this->get_spare_tab_datatable_data();
         switch ($post['type']){
@@ -615,8 +615,8 @@ class Spare_parts extends CI_Controller {
         
         $row[] = $spare_list->sell_invoice_id;
         if(!empty($spare_list->incoming_invoice_pdf)){
-            $row[] = '<a target="_blank" href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/invoices-excel/<?php echo $value->incoming_invoice_pdf;  ?>">
-                            <img style="width:27px;" src="<?php echo base_url();?>images/invoice_icon.png"; /></a>';
+            $row[] = '<a target="_blank" href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/invoices-excel/'.$spare_list->incoming_invoice_pdf.'">
+                            <img style="width:27px;" src="'.base_url().'images/invoice_icon.png"; /></a>';
         } else {
             $row[] = "";
         }
