@@ -5412,7 +5412,7 @@ function get_shipped_parts_list($offset = 0) {
                              $tempString5 = 'disabled="disabled"';
                             }
                         $tempString4 = '<a style="background: #2a3f54; border-color: #2a3f54;" onclick="return confirm_received()" class="btn btn-sm btn-primary" id="defective_parts"
-                                               href='.base_url().'"partner/acknowledge_received_defective_parts/"'.$row['booking_id'].'"/."'.$this->session->userdata("partner_id").'" .'.$tempString5.'>Receive</a>';
+                                               href='.base_url().'partner/acknowledge_received_defective_parts/'.$row['booking_id'].'/'.$this->session->userdata("partner_id").' '.$tempString5.'>Receive</a>';
                      }
                      $tempArray[] = $tempString4;
                      if (!empty($row['defective_part_shipped'])) {
