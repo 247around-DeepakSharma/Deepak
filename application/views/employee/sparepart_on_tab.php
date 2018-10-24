@@ -525,7 +525,8 @@
             serverSide: true, //Feature control DataTables' server-side processing mode.
             order: [[ 8, "desc" ]], //Initial no order.
             pageLength: 50,
-            dom: 'Bfrtip',
+            dom: 'Blfrtip',
+            lengthMenu: [[ 50, 100, 50, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
             buttons: [
                 {
                     extend: 'excelHtml5',
@@ -557,7 +558,8 @@
             serverSide: true, //Feature control DataTables' server-side processing mode.
             order: [[ 8, "desc" ]], //Initial no order.
             pageLength: 50,
-            dom: 'Bfrtip',
+            dom: 'Blfrtip',
+            lengthMenu: [[ 50, 100, 50, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
             buttons: [
                 {
                     extend: 'excelHtml5',
@@ -590,7 +592,8 @@
             serverSide: true, //Feature control DataTables' server-side processing mode.
             order: [[ 8, "desc" ]], //Initial no order.
             pageLength: 50,
-            dom: 'Bfrtip',
+            dom: 'Blfrtip',
+            lengthMenu: [[ 50, 100, 50, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
             buttons: [
                 {
                     extend: 'excelHtml5',
@@ -622,7 +625,8 @@
             serverSide: true, //Feature control DataTables' server-side processing mode.
             order: [[ 9, "desc" ]],//Initial no order.
             pageLength: 50,
-            dom: 'Bfrtip',
+            dom: 'Blfrtip',
+            lengthMenu: [[ 50, 100, 50, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
             buttons: [
                 {
                     extend: 'excelHtml5',
@@ -653,7 +657,8 @@
             serverSide: true, //Feature control DataTables' server-side processing mode.
             order: [[12, "desc"]], //Initial no order.
             pageLength: 50,
-            dom: 'Bfrtip',
+            dom: 'Blfrtip',
+            lengthMenu: [[ 50, 100, 50, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
             buttons: [
                 {
                     extend: 'excelHtml5',
@@ -684,7 +689,8 @@
             serverSide: true, //Feature control DataTables' server-side processing mode.
             order: [[12, "desc"]], //Initial no order.
             pageLength: 50,
-            dom: 'Bfrtip',
+            dom: 'Blfrtip',
+            lengthMenu: [[ 50, 100, 50, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
             buttons: [
                 {
                     extend: 'excelHtml5',
@@ -715,7 +721,8 @@
             serverSide: true, //Feature control DataTables' server-side processing mode.
             order: [[9, "desc"]], //Initial no order.
             pageLength: 50,
-            dom: 'Bfrtip',
+            dom: 'Blfrtip',
+            lengthMenu: [[ 50, 100, 50, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
             buttons: [
                 {
                     extend: 'excelHtml5',
@@ -746,7 +753,8 @@
             serverSide: true, //Feature control DataTables' server-side processing mode.
             order: [], //Initial no order.
             pageLength: 50,
-            dom: 'Bfrtip',
+            dom: 'Blfrtip',
+            lengthMenu: [[ 50, 100, 50, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
             buttons: [
                 {
                     extend: 'excelHtml5',
@@ -778,7 +786,8 @@
             serverSide: true, //Feature control DataTables' server-side processing mode.
             order: [[11, "desc"]], //Initial no order.
             pageLength: 50,
-            dom: 'Bfrtip',
+            dom: 'Blfrtip',
+            lengthMenu: [[ 50, 100, 50, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
             buttons: [
                 {
                     extend: 'excelHtml5',
