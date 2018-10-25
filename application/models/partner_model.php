@@ -1732,6 +1732,19 @@ function get_data_for_partner_callback($booking_id) {
         $this->db->update("partner_channel", $data);
         return true;
     
-}
+    }
+    
+    /*
+     * @desc: This is used to get partner code from partner code table
+     */
+    function get_all_partner_code($select='*', $whereIn=array()) {
+        $this->db->select($select);
+        if(!empty($whereIn)){
+            $this->db->where_in('series', $whereIn);
+        }
+        $this->db->order_by('code', 'ASC');
+        $query = $this->db->get('partner_code');
+        return $query->result_array();
+    }
 }
 
