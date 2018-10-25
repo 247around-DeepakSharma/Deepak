@@ -56,42 +56,11 @@ class Inventory_model extends CI_Model {
     
     
     /**
-     * @desc: This function is used to get all brackets details new changes 
+     * @desc: This function is used to get count of brackets. 
      * @params:void
      * @return:Array
-     */
-    
-    function get_brackets_new($limit, $start,$sf_list = "", $is_shipped, $is_received){
-        
-        
-        $sql = "SELECT * FROM brackets WHERE 1";
-        
-        if($sf_list != ""){
-            $sql .= " AND order_received_from  IN (".$sf_list.")";
-        }
-        
-        if($is_shipped!='' && $is_received!=''){
-            $sql .= " AND is_shipped =".$is_shipped." AND is_received=".$is_received;
-        }
-        
-        echo $sql;
-          /*
-        $add_limit = "";
-
-        if($start !== "All"){
-            $add_limit = " limit $start, $limit ";
-        }
-      
-       echo $sql = "SELECT * FROM brackets "
-                . $where.""
-                . " ORDER BY order_id Desc $add_limit";
-       */
-        
-        $query = $this->db->query($sql);
-        return $query->result_array();
-    }
-    
-    
+     *     
+     */    
     
     function get_total_brackets_count($sf_list = ""){
         if($sf_list != ""){
