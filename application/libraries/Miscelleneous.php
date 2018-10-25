@@ -523,6 +523,7 @@ class Miscelleneous {
         //Log this state change as well for this booking
         //param:-- booking id, new state, old state, employee id, employee name
         $this->My_CI->notify->insert_state_change($booking_id, $data['current_status'], $status, $historyRemarks, $agent_id, $agent_name,$actor,$next_action, $cancelled_by);
+        $this->process_booking_tat_on_completion($booking_id);
         // Not send Cancallation sms to customer for Query booking
         // this is used to send email or sms while booking cancelled
         $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
@@ -534,9 +535,6 @@ class Miscelleneous {
 
         // call partner callback
         $this->My_CI->partner_cb->partner_callback($booking_id);
-         if($status == _247AROUND_FOLLOWUP){
-            $this->process_booking_tat_on_completion($booking_id);
-        }
         log_message('info', __METHOD__ . " => Exit " . $booking_id);
     }
 
@@ -3383,6 +3381,9 @@ function generate_image($base64, $image_name,$directory){
             else{
                 return 0;
             }
+       }
+       else{
+           return 1;
        }
     }
     function reject_booking_from_review($postData){
