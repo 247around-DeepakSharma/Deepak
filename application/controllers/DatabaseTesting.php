@@ -517,5 +517,18 @@ class DatabaseTesting extends CI_Controller {
 
     }
 
-
+    function insert_partner_code(){ 
+        $data =array();
+       
+        foreach (range('A', 'Z') as $char1){
+            $i = 0;
+            foreach (range('A', 'Z') as $char) {
+                $code = $char1 . $char;
+                $data[$i]['code'] = $code;
+                $data[$i]['series'] = $char1;
+                $i++;
+            }
+            $this->partner_model->insert_data_in_batch("partner_code", $data, "gk");
+        }
+    }
 }

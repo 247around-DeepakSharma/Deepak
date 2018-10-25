@@ -453,6 +453,11 @@ class Partner extends CI_Controller {
             $code[] = $row['code']; // add each partner code to the array
         }
         $results['partner_code'] = $code;
+        $all_partner_code = $this->partner_model->get_all_partner_code('code', array('R', 'S', 'P', 'L'));
+        foreach ($all_partner_code as $row) {
+            $all_code[] = $row['code']; 
+        }
+        $results['all_partner_code'] = $all_code;
         $employee_list = $this->employee_model->get_employee_by_group(array("groups NOT IN ('developer') AND active = '1'" => NULL));
         $results['collateral_type'] = $this->reusable_model->get_search_result_data("collateral_type", '*', array("collateral_tag" => "Contract"), NULL, NULL, array("collateral_type" => "ASC"), NULL, NULL);
         $this->miscelleneous->load_nav_header();
@@ -866,6 +871,11 @@ class Partner extends CI_Controller {
             $code[] = $row['code']; // add each partner code to the array
         }
         $results['partner_code_availiable'] = $code;
+        $all_partner_code = $this->partner_model->get_all_partner_code('code', array('R', 'S', 'P', 'L'));
+        foreach ($all_partner_code as $row) {
+            $all_code[] = $row['code']; 
+        }
+        $results['all_partner_code'] = $all_code;
         //Getting Parnter Operation Region Details
         $where = array('partner_id' => $id);
         $results['partner_operation_region'] = $this->partner_model->get_partner_operation_region($where);
@@ -6076,6 +6086,5 @@ function update_channel($id) {
                 }
             }
         }
-
 }
 
