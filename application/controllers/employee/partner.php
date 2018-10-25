@@ -5917,12 +5917,15 @@ class Partner extends CI_Controller {
     
     function process_active_inactive_bank_detail(){
         if($this->input->post('is_active') == 0){
-           $this->reusable_model->update_table('account_holders_bank_details', array('is_active'=> 0), array('entity_id'=>$this->input->post('partner_id')));
-           $update = $this->reusable_model->update_table('account_holders_bank_details', array('is_active'=> 1), array('id'=>$this->input->post('id')));  
-       
+            if(!empty($this->input->post('partner_id'))){
+                $this->reusable_model->update_table('account_holders_bank_details', array('is_active'=> 0), array('entity_id'=>$this->input->post('partner_id')));
+                $update = $this->reusable_model->update_table('account_holders_bank_details', array('is_active'=> 1), array('id'=>$this->input->post('id')));  
+            }
         }
         else{
-          $update = $this->reusable_model->update_table('account_holders_bank_details', array('is_active'=> 0), array('id'=>$this->input->post('id')));   
+            if(!empty($this->input->post('partner_id'))){
+                $update = $this->reusable_model->update_table('account_holders_bank_details', array('is_active'=> 0), array('id'=>$this->input->post('id'))); 
+            }
         }
         if($update){
             $this->session->set_userdata('success', 'Bank Data Updated Successfully');
