@@ -79,6 +79,10 @@
 
             <div class="pull-right" style="margin-bottom: 20px; margin-right: 50px;">
                 <div class="col-sm-7">
+                    <form action="<?php echo base_url();?>employee/vendor/viewvendor/all/all/" method="post" class="form-inline" >
+                    <label for="search">Search </label>
+                    <input type="text"  name="vendor_name" value="<?php if(isset($vendor_name)){echo $vendor_name;}?>"/></br></br>
+                    </form>
                     <form action="javascript:void(0)" method="post" id="get_vender" class="form-inline">
                         <label for="active_state">Show Vendor &nbsp; &nbsp;</label>
                         <select name="active_state" id="active_state" onchange="get_data();" class="form-control">
@@ -216,7 +220,7 @@
           </tr>	
           <?php } ?>
         </table>
-        <?php if(!empty($links)){ ?><div class="custom_pagination" style=" text-align: center; margin-top: 20px;margin-bottom: 20px;"> <?php if(isset($links)){echo $links;} ?></div> <?php } ?>
+        <?php if(!empty($links)){ ?><div class="custom_pagination" style="float:left;margin-top: 20px;margin-bottom: 20px;"> <?php if(isset($links)){echo $links;} ?></div> <?php } ?>
                 
 <?php if(!isset($is_ajax)) { ?>
         

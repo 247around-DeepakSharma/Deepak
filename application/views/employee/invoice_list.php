@@ -5,6 +5,9 @@ ini_set('max_execution_time', 36000000);
     #overall_summary .col-md-3 {
         width: 25%;
     }
+    #wrapper{
+        overflow-x: hidden;
+    }
 </style>
 
 <div id="page-wrapper">

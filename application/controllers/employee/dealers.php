@@ -477,6 +477,7 @@ class Dealers extends CI_Controller {
      */
     function add_dealer_mapping($postData, $dealer_id){
         log_message("info", __METHOD__);
+        $status = "";
         $where_in = array("partner_id"=> $postData['partner_id']);
         $select = "partner_id, service_id, brand";
         $partner_data = $this->partner_model->get_partner_specific_details(array("active" => 1), $select, "service_id",$where_in );
@@ -487,7 +488,9 @@ class Dealers extends CI_Controller {
             $partner_data[$i]['create_date'] = date("Y-m-d H:i:s");
 
         }
-        $status = $this->dealer_model->insert_dealer_mapping_batch($partner_data);
+        if(!empty($partner_data)){
+            $status = $this->dealer_model->insert_dealer_mapping_batch($partner_data);
+        }
         if($status){
             return true;
         } else {
@@ -571,11 +574,11 @@ class Dealers extends CI_Controller {
             $data['where']['dealer_details.dealer_id'] =  $dealer_id;
         }
         
-        if ($this->session->userdata('user_group') == 'regionalmanager') {
-            $states = $this->reusable_model->get_state_for_rm($this->session->userdata('id'));
-            $finalStateArray = array_column($states, 'state');
-            $data['where_in'] = array("dealer_details.state" => $finalStateArray);
-        }
+//        if ($this->session->userdata('user_group') == 'regionalmanager') {
+//            $states = $this->reusable_model->get_state_for_rm($this->session->userdata('id'));
+//            $finalStateArray = array_column($states, 'state');
+//            $data['where_in'] = array("dealer_details.state" => $finalStateArray);
+//        }
         
         $data['column_order'] = array(NULL,'dealer_details.dealer_name','dealer_details.dealer_phone_number_1',NULL,NULL,NULL,NULL);
         $data['column_search'] = array('dealer_details.dealer_name','dealer_details.dealer_phone_number_1','dealer_details.city');

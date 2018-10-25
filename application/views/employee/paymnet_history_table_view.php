@@ -1,4 +1,4 @@
-<?php  if ($payment_type !== 'tds' && $payment_type !== BUYBACK) { 
+<?php  if ($payment_type !== 'tds' && $payment_type !== BUYBACK && $payment_type !== 'paytm') { 
     $flag =0;
     if($payment_type == "B"){
         $flag = 1;
@@ -10,6 +10,7 @@
             $flag = 1;
         }
     }
+   
     ?>
     <?php if ($flag == 1 ) { ?> 
         <table class="table table-bordered table-hover table-responsive paginated" id="payment_history_table">
@@ -441,4 +442,82 @@
         <?php } ?>
         </tbody>
 </table>
-<?php } ?>
+<?php } else if($payment_type == 'paytm'){  ?>
+             <table class="table table-bordered table-hover table-responsive paginated" id="payment_history_table">
+            <thead>
+                <tr>
+                    <th>S.No.</th>
+                    <th>Invoice No</th>
+                    <th>Company Name</th>
+                    <th>Address</th>
+                    <th>State</th>
+                    <th>Invoice Date</th>
+                    <th>Service Charge Income</th>
+                    <th>Total Additional Service Charge</th>
+                    <th>TDS Amount</th>
+                    <th>TDS Rate</th>
+                    <th>CGST Tax Amount</th>
+                    <th>SGST Tax Amount</th>
+                    <th>IGST Tax Amount</th>
+                    <th>GST Rate</th>
+                    <th>Total</th>
+                    <th>GST Number</th>
+                    <th>Category</th>
+                    <th>Type Code</th>
+                    
+                </tr>
+            </thead>
+            <tbody>
+                <?php if (isset($invoice_data)) { ?> 
+                    <?php
+                    $sn = 1; $total_sc = $total_pc = $total_asc = 
+                            $grand_total_amount_collected = $cgst = $sgst = $igst = $tds_amount = 0;
+                    foreach ($invoice_data as $key => $value) {
+                        ?>
+                        <tr>
+                            <td><?php echo $sn; ?></td>
+                            <td><?php echo $value['invoice_id']; ?></td>
+                            <td><?php echo $value['company_name']; ?></td>
+                            <td><?php echo $value['address']; ?></td>
+                            <td><?php echo $value['state']; ?></td>
+                            <td><?php echo $value['invoice_date']; ?></td>
+                            <td><?php echo round($value['total_service_charge'],0); $total_sc +=$value['total_service_charge']; ?></td>
+                            <td><?php echo round($value['total_additional_service_charge'],0); $total_asc += $value['total_additional_service_charge']; ?></td>
+                            <td><?php echo round($value['tds_amount']); $tds_amount += $value['tds_amount'];?></td>
+                            <td><?php echo round($value['tds_rate']);?></td>
+                            <td><?php echo round($value['cgst_tax_amount'],0); $cgst += $value['cgst_tax_amount']; ?></td>
+                            <td><?php echo round($value['sgst_tax_amount'],0); $sgst += $value['sgst_tax_amount']; ?></td>
+                            <td><?php echo round($value['igst_tax_amount'],0); $igst += $value['igst_tax_amount']; ?></td>
+                            <td><?php echo round($value['cgst_tax_rate'] + $value['sgst_tax_rate'] + $value['igst_tax_rate'],0); ?></td>
+                            <td><?php echo round($value['total_amount_collected'] - $value['tds_amount'],0); $grand_total_amount_collected += ($value['total_amount_collected'] - $value['tds_amount']);?></td>
+                            <td><?php echo $value['gst_number']; ?></td>
+                            <td><?php echo $value['type']; ?></td>
+                            <td><?php echo $value['type_code']; ?></td>
+                        </tr>
+                        <?php $sn++;
+                    }
+                    ?>
+                        <tr>
+                            <td><b>Total</b></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><b><?php echo round($total_sc,0); ?></b></td>
+                            <td><b><?php echo round($total_asc,0); ?></b></td>
+                            <td><b><?php echo round($tds_amount,0); ?></b></td>
+                            <td></td>
+                            <td><b><?php echo round($cgst,0); ?></b></td>
+                            <td><b><?php echo round($sgst,0); ?></b></td>
+                            <td><b><?php echo round($igst,0); ?></b></td>
+                            <td></td>
+                            <td><b><?php echo round($grand_total_amount_collected,0); ?></b></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+        <?php } ?>
+            </tbody>
+        </table>
+ <?php  } ?>

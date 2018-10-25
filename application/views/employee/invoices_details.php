@@ -1,3 +1,8 @@
+<style>
+    #wrapper{
+        overflow-x: hidden;
+    }
+</style>
 <div id="page-wrapper">
    <div class="container-fluid">
       <div class="row">

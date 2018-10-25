@@ -1098,6 +1098,7 @@ class Inventory extends CI_Controller {
                     } else {
                         $new_state = REQUESTED_QUOTE_REJECTED;
                         $b['internal_status'] = REQUESTED_QUOTE_REJECTED;
+                        $data['old_status'] = SPARE_PARTS_REQUESTED;
                     }
                     
                     $old_state = SPARE_PARTS_REQUESTED;
@@ -2020,10 +2021,10 @@ class Inventory extends CI_Controller {
         $w['where'] = array("booking_details.request_type" => REPAIR_OOW_TAG, 
             "status != 'Cancelled'" => NULL, 
             "spare_parts_details.create_date >= '2017-12-01'" => NULL, 
-            "(`purchase_invoice_id` IS NULL ||  `sell_invoice_id` IS NULL)" => NULL,
+            "(`purchase_invoice_id` IS NULL && ( `sell_invoice_id` IS NOT NULL))" => NULL,
             "spare_parts_details.partner_id != '"._247AROUND."'" => NULL);
         $w['select'] = "spare_parts_details.id, spare_parts_details.booking_id, purchase_price, public_name,"
-                . "purchase_invoice_id,sell_invoice_id, incoming_invoice_pdf, sell_price";
+                . "purchase_invoice_id,sell_invoice_id, incoming_invoice_pdf, sell_price, booking_details.partner_id as booking_partner_id";
         $data['spare'] = $this->inventory_model->get_spare_parts_query($w);
         $this->miscelleneous->load_nav_header();
         $this->load->view("employee/spare_invoice_list", $data);
@@ -3664,7 +3665,11 @@ class Inventory extends CI_Controller {
                     "cgst_tax_amount" => $response['meta']["cgst_total_tax_amount"],
                     "parts_count" => $response['meta']['parts_count'],
                     "invoice_file_pdf" => $convert['copy_file'],
-                    "hsn_code" => ''
+                    "hsn_code" => '',
+                    "vertical" => SERVICE,
+                    "category" => SPARES,
+                    "sub_category" => DEFECTIVE_RETURN,
+                    "accounting" => 1,
                 );
 
                 $this->invoices_model->insert_new_invoice($invoice_details);
@@ -4185,9 +4190,10 @@ class Inventory extends CI_Controller {
      * @param void
      * @param $res array()
      */
-    function check_invoice_id_exists($invoice_id){
+    function check_invoice_id_exists($invoice_id_temp){
         $res = array();
-        if($invoice_id){
+        if($invoice_id_temp){
+            $invoice_id = str_replace("/","-",$invoice_id_temp);
             $count = $this->invoices_model->get_invoices_details(array('invoice_id' => $invoice_id),'count(invoice_id) as count');
             if(!empty($count[0]['count'])){
                 $res['status'] = TRUE;
@@ -4694,7 +4700,7 @@ class Inventory extends CI_Controller {
     function download_spare_consolidated_data($partner_id = NULL){
         log_message('info',__METHOD__.' Processing...');
         
-        $select = "booking_details.booking_id as 'Booking ID',employee.full_name as 'Account Manager Name',partners.public_name as 'Partner Name',service_centres.name as 'SF Name',"
+        $select = "spare_parts_details.id as spare_id, booking_details.booking_id as 'Booking ID',employee.full_name as 'Account Manager Name',partners.public_name as 'Partner Name',service_centres.name as 'SF Name',"
                 . "service_centres.district as 'SF City', "
                 . "booking_details.current_status as 'Booking Status',spare_parts_details.status as 'Spare Status', "
                 . "spare_parts_details.parts_shipped as 'Part Shipped By Partner',spare_parts_details.shipped_parts_type as 'Part Type',"

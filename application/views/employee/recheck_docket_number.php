@@ -24,7 +24,7 @@
                         ?>
                         <tr>
                             <td><?php echo $i++; ?></td>
-                            <td><?php echo $value['invoice_id']; ?></td>
+                            <td><?php echo $value['courier_invoice_id']; ?></td>
                             <td><?php echo $value['awb_number']; ?></td>
                             <td><?php echo $value['company_name']; ?></td>
                             <td><?php echo $value['courier_charge']; ?></td>

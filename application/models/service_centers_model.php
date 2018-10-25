@@ -95,6 +95,7 @@ class Service_centers_model extends CI_Model {
                 . " bd.booking_alternate_contact_no, "
                 . " bd.request_type, "
                 . " bd.internal_status, "
+                . " bd.booking_remarks, "
                 . " services,"
                 . " (SELECT GROUP_CONCAT(DISTINCT brand.appliance_brand) FROM booking_unit_details brand WHERE brand.booking_id = bd.booking_id GROUP BY brand.booking_id ) as appliance_brand,"
                 . " (SELECT GROUP_CONCAT(model_number) FROM booking_unit_details brand WHERE booking_id = bd.booking_id) as model_numbers,"

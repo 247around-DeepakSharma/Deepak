@@ -261,7 +261,8 @@
                                                     </div>
                                                     <?php } ?>
                                                 </td>
-                                                <td id="<?php echo "price_tags".$count;?>"><?php echo $price['price_tags'] ?>
+                                                <td ><span id="<?php echo "price_tags".$count;?>"><?php echo $price['price_tags'] ?></span>
+                                                    <input type="hidden"  id="<?php echo "booking_unit_details".$count;?>" value="<?php echo $price['unit_id'] ?>" />
                                                  <input type="hidden" name="<?php echo "price_tags[" . $price['unit_id'] . "]" ?>" value="<?php echo $price['price_tags'];?>">
                                                 </td>
                                                 <td id="<?php echo "amount_due".$count; ?>"><?php echo $price['customer_net_payable']; ?></td>
@@ -603,6 +604,7 @@
             }
         } else {
             var cancelled_price_tags = $("#price_tags"+ div_no[2]).text();
+            var unit_id = $("#booking_unit_details"+ div_no[2]).val();
             if(cancelled_price_tags === '<?php echo REPAIR_OOW_PARTS_PRICE_TAGS; ?>'){
                 <?php $required_sp_id1 = array(); if(isset($booking_history['spare_parts'])){ foreach ($booking_history['spare_parts'] as  $value) {
                     if($value['status'] == _247AROUND_COMPLETED || $value['status'] == _247AROUND_CANCELLED){} else {
@@ -613,9 +615,14 @@
                                     case SPARE_SHIPPED_BY_PARTNER:
                                     case SPARE_DELIVERED_TO_SF:
                                     case DEFECTIVE_PARTS_REJECTED:
-                                    case DEFECTIVE_PARTS_PENDING:
-                                        $flag = 1; 
-                                        array_push($required_sp_id1, $value['id']); 
+                                    case DEFECTIVE_PARTS_PENDING: ?>
+                                        if(unit_id === '<?php echo $value['booking_unit_details_id'];?>'){
+                                            <?php 
+                                            $flag = 1; 
+                                            array_push($required_sp_id1, $value['id']); 
+                                            ?>
+                                        }
+                                    <?php    
                                 }
 
                             }

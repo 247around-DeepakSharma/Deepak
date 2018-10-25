@@ -1,3 +1,4 @@
+
 <div id="page-wrapper" >
     <div class="container-fluid" >
         <div class="panel panel-info" style="margin-top:20px;">
@@ -6,6 +7,9 @@
             </div>
             <div class="panel-body">
                 <form class="form-horizontal" method="post" action="<?php echo base_url();?>employee/invoice/update_invoice_with_breakup/<?php echo $vendor_partner;?>/<?php echo $invoice_details[0]['vendor_partner_id'];?>/<?php echo $invoice_breakup[0]['invoice_id'];?>">
+                    <input type="hidden" value="<?php if(isset($invoice_details[0]['vertical'])){ echo $invoice_details[0]['vertical'];  } ?>" id="vertical_input">
+                    <input type="hidden" value="<?php if(isset($invoice_details[0]['category'])){ echo $invoice_details[0]['category'];  } ?>" id="category_input">
+                    <input type="hidden" value="<?php if(isset($invoice_details[0]['sub_category'])){ echo $invoice_details[0]['sub_category'];  } ?>" id="sub_category_input">
                     <div class="row">
                         <div class="col-md-12 col-md-offset-3">
                             <div class="form-group">
@@ -80,6 +84,9 @@
                                             <option value="Parts" <?php if (isset($invoice_details[0]['type'])) {
                                                 if($invoice_details[0]['type'] == "Parts"){ echo "selected";}
                                                 } ?>>Parts</option>
+                                            <option value="Liquidation" <?php if (isset($invoice_details[0]['type'])) {
+                                                if($invoice_details[0]['type'] == "Liquidation"){ echo "selected";}
+                                                } ?>>Liquidation</option>
                                         </select>
                                     </div>
                                     <?php echo form_error('type'); ?>
@@ -144,6 +151,12 @@
                                             ?>
                                     </div>
                                 </div>
+                                <div class="form-group">
+                                    <label for="remarks" class="col-md-4">Remarks</label>
+                                    <div class="col-md-6">
+                                        <textarea class="form-control" cols="50" rows="4" id="remarks" name="remarks" placeholder="remarks"><?php if (isset($invoice_details[0]['remarks'])){echo $invoice_details[0]['remarks'];}?></textarea>
+                                    </div>
+                                </div>
                             </div>
                             <div class="col-md-6 ">
                                 <div class="form-group" >
@@ -166,12 +179,41 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="form-group">
-                                    <label for="remarks" class="col-md-4">Remarks</label>
+                                <div class="form-group" >
+                                    <label for="Due Date" class="col-md-4">Vertical</label>
                                     <div class="col-md-6">
-                                        <textarea class="form-control" cols="50" rows="4" id="remarks" name="remarks" placeholder="remarks"><?php if (isset($invoice_details[0]['remarks'])){echo $invoice_details[0]['remarks'];}?></textarea>
+                                        <select class="form-control" name="vertical" id="vertical" onchange="get_category('<?php echo base_url(); ?>')">
+                                          
+                                        </select>
                                     </div>
                                 </div>
+                                <div class="form-group" >
+                                    <label for="Due Date" class="col-md-4">Category</label>
+                                    <div class="col-md-6">
+                                        <select class="form-control" name="category" id="category" onchange="get_sub_category('<?php echo base_url(); ?>')">
+                                           <option>select</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group" >
+                                    <label for="Due Date" class="col-md-4">Sub Category</label>
+                                    <div class="col-md-6">
+                                        <select class="form-control" name="sub_category" id="sub_category">
+                                           <option>select</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group" >
+                                    <label for="Due Date" class="col-md-4">Accounting</label>
+                                    <div class="col-md-6">
+                                        <select class="form-control" name="accounting" id="accounting">
+                                            <option selected disabled>select Yes/No</option>
+                                            <option value="1" <?php if($invoice_details[0]['accounting'] === '1'){ echo 'selected'; } ?>>Yes</option>
+                                            <option value="0" <?php if($invoice_details[0]['accounting'] === '0'){ echo 'selected'; } ?>>No</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
                             </div>
                         </div>
                         <div class="col-md-12" style="margin-top:40px;">
@@ -269,6 +311,7 @@
         </div>
     </div>
 </div>
+<script src="<?php echo base_url() ?>js/invoice_tag.js"></script>
 <script>
     $("#to_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
     $("#invoice_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
@@ -400,5 +443,7 @@
         }
         $("#toatl_amount_charge").html("<b>"+total_charge.toFixed(2) + "</b>");
     }
+    
+    get_vertical('<?php echo base_url(); ?>');
     
 </script>

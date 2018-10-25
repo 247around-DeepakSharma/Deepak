@@ -3364,23 +3364,25 @@ function generate_image($base64, $image_name,$directory){
         log_message('info', __FUNCTION__ . "End booking_id = ".$booking_id.", spare_id = ".$spare_id);
     }
    function is_booking_faulty($spare_id,$isUpcountry,$leg,$tat,$entity_type) {
-       if($spare_id && $isUpcountry){
-           $tatLimit = $this->tatFaultyBookingCriteria[$entity_type]['with_repair_upcountry_'.$leg];
-       }
-       else if($spare_id && !($isUpcountry)){
-           $tatLimit = $this->tatFaultyBookingCriteria[$entity_type]['with_repair_non_upcountry_'.$leg];
-       }
-       else if(!($spare_id) && !($isUpcountry)){
-           $tatLimit = $this->tatFaultyBookingCriteria[$entity_type]['without_repair_non_upcountry'];
-       }
-       else if(!($spare_id) && $isUpcountry){
-           $tatLimit = $this->tatFaultyBookingCriteria[$entity_type]['without_repair_upcountry'];
-       }
-       if($tat>$tatLimit){
-           return 1;
-       }
-       else{
-           return 0;
+       if(!empty($this->tatFaultyBookingCriteria)){
+            if($spare_id && $isUpcountry){
+                $tatLimit = $this->tatFaultyBookingCriteria[$entity_type]['with_repair_upcountry_'.$leg];
+            }
+            else if($spare_id && !($isUpcountry)){
+                $tatLimit = $this->tatFaultyBookingCriteria[$entity_type]['with_repair_non_upcountry_'.$leg];
+            }
+            else if(!($spare_id) && !($isUpcountry)){
+                $tatLimit = $this->tatFaultyBookingCriteria[$entity_type]['without_repair_non_upcountry'];
+            }
+            else if(!($spare_id) && $isUpcountry){
+                $tatLimit = $this->tatFaultyBookingCriteria[$entity_type]['without_repair_upcountry'];
+            }
+            if($tat>$tatLimit){
+                return 1;
+            }
+            else{
+                return 0;
+            }
        }
     }
     function reject_booking_from_review($postData){

@@ -381,7 +381,8 @@ class Validate_serial_no {
             // Lemon  start Values
             $colorCodingArray = explode(",",LEMON_SN_START_POSIBLE_VALUES);
             if(!in_array(substr($serialNo,0,1),$colorCodingArray)){
-                return array('code' => FAILURE_CODE, "message" => "Index 0 Should have following Values ".LEMON_SERIAL_NO_ALL_VALIDATION_FAILED_MSG);
+               // return array('code' => FAILURE_CODE, "message" => "Index 0 Should have following Values ".LEMON_SERIAL_NO_ALL_VALIDATION_FAILED_MSG);
+                 return array('code' => FAILURE_CODE, "message" => LEMON_SERIAL_NO_ALL_VALIDATION_FAILED_MSG);
             }
             // Month should be alphabetic and Year should be a number , date should not be greater then today
             $yearValidation =  $this->_jvc_year_month_validation(substr($serialNo,5,1),substr($serialNo,1,2),2);
