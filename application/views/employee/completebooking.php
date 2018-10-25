@@ -88,6 +88,14 @@
                                             }
                                             ?>" readonly="readonly">
                                     </div>
+                                     <div class="col-md-6">
+                                        <input type="hidden" class="form-control" id="appliance_id" name="appliance_id" value = "<?php
+                                            if (isset($booking_history[0]['service_id'])) {
+                                                echo $booking_history[0]['service_id'];
+                                            }
+                                            ?>" readonly="readonly">
+                                       
+                                </div>
                                 </div>
                                 <div class="form-group ">
                                     <label for="booking_city" class="col-md-4">City</label>
@@ -257,6 +265,11 @@
                                                             <input type="text" onblur="validateSerialNo('<?php echo $count;?>')" class="form-control" id="<?php echo "serial_number" . $count; ?>" name="<?php echo "serial_number[" . $price['unit_id'] . "]" ?>"  value="<?php echo $price['serial_number']; ?>" placeholder = "Enter Serial Number" />
                                                             <input type="hidden" class="form-control" id="<?php echo "serial_number_pic" . $count; ?>" name="<?php echo "serial_number_pic[" . $price['unit_id'] . "]" ?>"  value="<?php echo $price['serial_number_pic']; ?>"  />
                                                             <input type="hidden" id="<?php echo "pod" . $count ?>" class="form-control" name="<?php echo "pod[" . $price['unit_id'] . "]" ?>" value="<?php echo $price['pod']; ?>"   />
+                                                             <input type="hidden" id="<?php echo "sno_required" . $count ?>" class="form-control" name="<?php echo "is_sn_file[" . $price['unit_id'] . "]" ?>" value="0"   />
+                                                                    <input type="hidden" id="<?php echo "duplicate_sno_required" . $count ?>" class="form-control" name="<?php echo "is_dupliacte[" . $price['unit_id'] . "]" ?>" value="0"   />
+                                                                    <br/>
+                                                                    <input type="file" style="display:none" id="<?php echo "upload_serial_number_pic" . $count ?>"   class="form-control" name="<?php echo "upload_serial_number_pic[" . $price['unit_id'] . "]" ?>"   />
+                                                                    <span style="color:red;" id="<?php echo 'error_serial_no'.$count;?>"></span>
                                                         </div>
                                                     </div>
                                                     <?php } ?>
@@ -573,15 +586,33 @@
                     flag = 1;
                 }
     
-                var numberRegex = /^[+-]?\d+(\.\d+)?([eE][+-]?\d+)?$/;
-                if (numberRegex.test(serial_number)) {
-                    if (serial_number > 0) {
-                        flag = 0;
-                    } else {
+                //If Serial Number Invalid then serial number image should be mendatory
+                var requiredPic = $('#sno_required'+ div_no[2]).val();
+                    if(requiredPic === '1'){
+                        if( document.getElementById("upload_serial_number_pic"+div_no[2]).files.length === 0 ){
+                            alert('Please Attach Serial Number image');
+                            document.getElementById('upload_serial_number_pic' + div_no[2]).style.borderColor = "red";
+                            flag = 1;
+                        }
+                    }
+                    else{
+                        var numberRegex = /^[+-]?\d+(\.\d+)?([eE][+-]?\d+)?$/;
+                        if (numberRegex.test(serial_number)) {
+                            if (serial_number > 0) {
+                                flag = 0;
+                            } else {
+                                document.getElementById('serial_number' + div_no[2]).style.borderColor = "red";
+                                flag = 1;
+                            }
+                        }
+                    }
+                    var duplicateSerialNo = $('#duplicate_sno_required'+ div_no[2]).val();
+                    if(duplicateSerialNo === '1'){
+                        alert('<?php echo DUPLICATE_SERIAL_NUMBER_USED;?>');
                         document.getElementById('serial_number' + div_no[2]).style.borderColor = "red";
+                        $("#error_serial_no" +div_no[2]).html('<?php echo DUPLICATE_SERIAL_NUMBER_USED;?>');
                         flag = 1;
                     }
-                }
             }
     
             var amount_due = $("#amount_due" + div_no[2]).text();
@@ -876,16 +907,24 @@
                 success: function (response) {
                     console.log(response);
                     var data = jQuery.parseJSON(response);
-                    if(data.code === Number(<?php echo DUPLICATE_SERIAL_NO_CODE; ?>)){
-                        alert(data.message + "\n Please enter valid reason in the Admin Remarks Filed.");
-                        
-                        $("#admin_remarks").prop('required',true);
+                    if(data.code === 247){
                         $('body').loadingModal('destroy');
-                        
+                        $("#upload_serial_number_pic"+count).css('display', "none");
+                        $("#error_serial_no" +count).text("");
+                        $("#sno_required"+count).val('0');
+                        $("#duplicate_sno_required"+count).val('0');
+                    } else if(data.code === Number(<?php echo DUPLICATE_SERIAL_NO_CODE; ?>)){
+                        $("#duplicate_sno_required"+count).val('1');
+                        $("#error_serial_no" +count).html(data.message);
+                        $('body').loadingModal('destroy');
+
                     } else {
+                        $("#sno_required"+count).val('1');
+                        $("#error_serial_no" +count).html(data.message);
+                        $("#upload_serial_number_pic"+count).css('display', "block");
+                        $("#duplicate_sno_required"+count).val('0');
                         $('body').loadingModal('destroy');
-                    } 
-                    
+                    }
                 }
             });
     }
