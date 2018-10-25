@@ -5878,6 +5878,11 @@ function get_shipped_parts_list($offset = 0) {
         } 
     }
     
+     /*
+     * @desc - This function is used to Active/Inactive bank detail for partner(only one bank detail active at a time)
+     * @param - form post
+     * @retun - void
+     */
     function process_active_inactive_bank_detail(){
         if($this->input->post('is_active') == 0){
             if(!empty($this->input->post('partner_id'))){
