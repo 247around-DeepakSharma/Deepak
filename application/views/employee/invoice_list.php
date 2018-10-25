@@ -181,7 +181,7 @@ ini_set('max_execution_time', 36000000);
                     <thead>
                         <tr>
                             <th>No #</th>
-                            <th class="text-center">Vendor/Partner</th>
+                            <th class="text-center">Partner</th>
                             <?php if(isset($invoicing_summary[0]['prepaid_data'])){ ?>
                             <th class="text-center">Prepaid Amount</th>
                             <?php } ?>
