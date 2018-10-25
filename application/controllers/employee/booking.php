@@ -2204,42 +2204,41 @@ class Booking extends CI_Controller {
     }
     
     function validate_serial_no() {
-          return true;
-//        $serial_number = $this->input->post('serial_number');
-//        $pod = $this->input->post('pod');
-//        $price_tags = $this->input->post('price_tags');
-//        $booking_status = $this->input->post('booking_status');
-//        $partner_id = $this->input->post('partner_id');
-//        $user_id = $this->input->post('user_id');
-//        $booking_id = $this->input->post('booking_id');
-//        $return_status = true;
-//        $message = "";
-//        if (isset($_POST['pod'])) {
-//            foreach ($pod as $unit_id => $value) {
-//                if ($value == '1') {
-//                    if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
-//
-//                        $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number[$unit_id]), $price_tags[$unit_id], $user_id, $booking_id);
-//                        if (!empty($status)) {
-//                            if ($status['code'] == DUPLICATE_SERIAL_NO_CODE) {
-//                                $return_status = false;
-//                                $message = $status['message'];
-//                                log_message('info', " Duplicate Serial No " . trim($serial_number[$unit_id]));
-//                                break;
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//            if ($return_status == true) {
-//                return true;
-//            } else {
-//                $this->form_validation->set_message('validate_serial_no', $message);
-//                return FALSE;
-//            }
-//        } else {
-//            return TRUE;
-//        }
+        $serial_number = $this->input->post('serial_number');
+        $pod = $this->input->post('pod');
+        $price_tags = $this->input->post('price_tags');
+        $booking_status = $this->input->post('booking_status');
+        $partner_id = $this->input->post('partner_id');
+        $user_id = $this->input->post('user_id');
+        $booking_id = $this->input->post('booking_id');
+        $service_id = $this->input->post('appliance_id');
+        $return_status = true;
+        $message = "";
+        if (isset($_POST['pod'])) {
+            foreach ($pod as $unit_id => $value) {
+                if ($value == '1') {
+                    if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
+                        $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number[$unit_id]), $price_tags[$unit_id], $user_id, $booking_id,$service_id);
+                        if (!empty($status)) {
+                            if ($status['code'] == DUPLICATE_SERIAL_NO_CODE) {
+                                $return_status = false;
+                                $message = $status['message'];
+                                log_message('info', " Duplicate Serial No " . trim($serial_number[$unit_id]));
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            if ($return_status == true) {
+                return true;
+            } else {
+                $this->form_validation->set_message('validate_serial_no', $message);
+                return FALSE;
+            }
+        } else {
+            return TRUE;
+        }
     }
 
     /**

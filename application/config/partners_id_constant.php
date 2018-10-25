@@ -21,16 +21,18 @@ define("SALORA_ID", 247064);
 define('_247AROUND_DEMO_PARTNER',247050);
  //demo partner id
 define('QFX_ID',247066);
-
 //google flipkart partner id
 define('GOOGLE_FLIPKART_PARTNER_ID',247077);
-
 //T-series Partner ID
 define('T_SERIES_PARTNER_ID',247073);
-
+//Cloudtail Partner ID
 define("CLOUDTAIL_LA", 247029 );
-
+//Murphy Partner ID
 define("MURPHY_ID", 247018 );
+//Lemon Partner ID
 define("LEMON_ID", 247080);
+//JVC Partner ID
 define("JVC_ID", 247092);
+//Paytm Partner ID
+define("PAYTM_ID", 3);
 
