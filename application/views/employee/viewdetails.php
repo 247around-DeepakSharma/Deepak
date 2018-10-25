@@ -32,6 +32,9 @@
     background-color: #2C9D9C;
     border-color: #2C9D9C;
     }
+    .modal-title{
+        color:#5bc0de;
+    }
 </style>
 <div class="page-wrapper" style="margin-top:35px;">
 <div class="btn-pref btn-group btn-group-justified btn-group-lg" role="group" aria-label="...">
@@ -427,7 +430,14 @@
                                     <?php } ?>
                             </tbody>
                         </table>
-                        <?php  } ?>
+                        <?php 
+                        
+echo '<pre>';
+print_r($booking_history[0]['request_type']);
+echo '</pre>';
+                        
+                        
+                                    } ?>
                     </div>
                 </div>
                 <div class="row">
@@ -463,6 +473,10 @@
                                         <th >Acknowledge Date BY SF </th>
                                         <th >Remarks By SC </th>
                                         <th >Current Status</th>
+                                        <th >Move R Spare to P/V</th>
+                                        <?php if($booking_history[0]['request_type']!=HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY){ ?>
+                                         <th>Copy Booking Id</th>
+                                        <?php } ?>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -498,6 +512,11 @@
                                         <td><?php echo $sp['acknowledge_date']; ?></td>
                                         <td><?php echo $sp['remarks_by_sc']; ?></td>
                                         <td><?php echo $sp['status']; ?></td>
+                                        <td><a href="<?php echo base_url(); ?>employee/spare_parts/move_request_spare_to_partner_vendor">Move To </a></td>
+                                       <?php if($booking_history[0]['request_type']!=HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY){ ?>
+                                        <td><button type="button" class="copy_booking_id  btn btn-info" data-toggle="modal" id="<?php echo $sp['booking_id']."_".$sp['id']; ?>" data-target="#copy_booking_id">Copy</button>
+                                       </td>                                
+                                     <?php } ?>
                                    
                                     </tr>
                                     <?php if(!is_null($sp['parts_shipped'])){ $parts_shipped = true;} if(!empty($sp['defective_part_shipped'])){
@@ -938,7 +957,7 @@
 
   </div>
 </div>
-                    <div id="processCashback" class="modal fade" role="dialog">
+  <div id="processCashback" class="modal fade" role="dialog">
   <div class="modal-dialog">
 
     <!-- Modal content-->
@@ -997,6 +1016,44 @@
 
         </div>
     </div>
+    
+    <!-- copy Booking Id  Modal  start -->
+        <div class="modal fade" id="copy_booking_id" role="dialog">
+            <div class="modal-dialog">    
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Copy Booking id</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p id="response_err"></p>
+                        <p>
+                        <div style="display: inline-block; font-weight: bold;">Old Booking Id : </div>
+                        <div id="old_booking_html" style="display: inline;"></div>                  
+                        </p>
+                        <p>
+                        <div style="display: inline-block; font-weight: bold;">New Booking Id : </div>
+                        <div  style="display: inline;">
+                            <input type="hidden" name="spare_parts_id" id="spare_parts_id" value="">
+                            <input type="text" name="new_booking_id" id="new_booking_id" value="">
+                        </div>                  
+                        </p>
+                        <p>
+                            <a href="javascript:void(0);" class="btn btn-primary" id="generate_new_booking">Generate</a>                 
+                        </p>              
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+<!-- copy Booking Id  Modal  End -->
+
 <script>
 function sf_tab_active(){
   <?php if($booking_history[0]['is_upcountry'] == 1){  ?>  
@@ -1569,3 +1626,36 @@ background-color: #f5f5f5;
         }
     }
     </script>
+    
+      
+    <script type="text/javascript">
+    $(document).ready(function(){
+        $(".copy_booking_id").click(function(){
+            var ids_string = $(this).attr('id');
+            var ids_array = ids_string.split('_');
+            $("#old_booking_html").html(ids_array[0]);
+            $("#spare_parts_id").val(ids_array[1]);
+        });
+        
+        $("#generate_new_booking").click(function(){           
+           var spare_parts_id = $("#spare_parts_id").val();
+           var new_booking_id = $("#new_booking_id").val();            
+            $.ajax({
+                method:"POST",
+                data : {spare_parts_id: spare_parts_id, new_booking_id: new_booking_id},
+                url:'<?php echo base_url(); ?>employee/spare_parts/copy_booking_details_by_spare_parts_id',
+                success: function(response){                    
+                    if(response=='success'){
+                        $("#response_err").html("Process is successful").css({"color": "green"});
+                        $("#new_booking_id").val("");
+                    }else{
+                        $("#response_err").html("Process is faile").css({"color": "red"});
+                    }                    
+                }
+            });
+            
+        });
+    });
+    </script>
+    
+   
