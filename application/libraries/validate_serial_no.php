@@ -386,6 +386,7 @@ class Validate_serial_no {
      */
     function lemon_serialNoValidation($partnerID, $serialNo,$modelNumber){
         log_message('info', __METHOD__. " Enterring... Partner ID ". $partnerID. " Srial No ". $serialNo);
+        $serialNo = strtoupper($serialNo);
         $stringLength = strlen($serialNo);
         if($stringLength  == 15){
             // Lemon  start Values
