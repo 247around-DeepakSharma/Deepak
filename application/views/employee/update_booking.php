@@ -184,6 +184,7 @@
                                 </div>
                                 <div class="form-group ">
                                     <label for="type" class="col-md-4">Type *</label>
+                                    <p id="booking_old_type_holder" style="display:none;"><?php echo $booking_history[0]['type'] ?></p>
                                     <div class="col-md-8">
                                      <!-- <input style="width:65px;height:20px;display:inline;" id="query" type="radio" class="form-control booking_type" name="type" value="Query"  <?php //if(isset($booking_history[0]['type'])){ if($booking_history[0]['type'] == "Query" ){ echo "checked"; } } ?>  required>Query
                                         <input style="width:65px;height:20px;display:inline;" id="booking" type="radio" class="form-control booking_type" name="type" value="Booking" <?php //if(isset($booking_history[0]['type'])){   if($booking_history[0]['type'] == "Booking" ){ echo "checked"; } } ?> required>Booking-->
@@ -742,7 +743,7 @@
                         <div class="form-group  col-md-12" >
                             <center>
                                 
-                                <input type="submit" id="submitform" onclick="return addBookingDialog()" class="btn btn-primary" value="Submit Booking">
+                                <input type="submit" id="submitform" onclick="return addBookingDialog('admin_update')" class="btn btn-primary" value="Submit Booking">
                         </div>
                         </center>
                     </div>
