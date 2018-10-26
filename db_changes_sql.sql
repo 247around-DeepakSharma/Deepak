@@ -8479,8 +8479,10 @@ ALTER TABLE `partner_file_upload_header_mapping` ADD `type_of_data` VARCHAR(100)
 
 ALTER TABLE `account_holders_bank_details` ADD `is_rejected` INT(10) NOT NULL DEFAULT '0' AFTER `is_verified`;
 ALTER TABLE `account_holders_bank_details_trigger` ADD `is_rejected` INT(10) NOT NULL DEFAULT '0' AFTER `is_verified`;
+
 UPDATE `email_template` SET `subject` = '247around GST Credit Note against invoice %s', `template` = 'Dear Partner<br/><br/><br/> Credit note for Rs. %s is generated against GST amount of the invoice %s. Which is available on CRM.<br/><br/><br/><strong>Reply All</strong> for raising any query or concern regarding the same.
 <br/><br/>Thanks,<br/>247around Team', `from` = 'pankajk@247around.com', `cc` = 'pankajk@247around.com,arunk@247around.com' WHERE `email_template`.`tag` = 'credit_note_against_gst_debit_note';--Chhavi 23rd Oct
+
 --Chhavi 23rd Oct
 ALTER TABLE `collateral` ADD `model` VARCHAR(256) NOT NULL AFTER `capacity`;
 ALTER TABLE `collateral` CHANGE `model` `model` VARCHAR(256) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL;
@@ -9210,4 +9212,14 @@ ALTER TABLE `partner_code`
 ALTER TABLE `partner_code`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=677;
 COMMIT;
+
+--Chhavi 24rth oct
+ALTER TABLE `collateral` ADD `create_date` TIMESTAMP NOT NULL AFTER `is_valid`;
+INSERT INTO `collateral_type` (`id`, `collateral_tag`, `collateral_type`, `document_type`) VALUES (NULL, 'Brand_Collateral', 'TV Demo', 'pdf');
+INSERT INTO `collateral_type` (`id`, `collateral_tag`, `collateral_type`, `document_type`) VALUES (NULL, 'Brand_Collateral', 'Software Upgrade', 'pdf');
+INSERT INTO `collateral_type` (`id`, `collateral_tag`, `collateral_type`, `document_type`) VALUES (NULL, 'Brand_Collateral', 'Factory Settings', 'pdf');
+INSERT INTO `collateral_type` (`id`, `collateral_tag`, `collateral_type`, `document_type`) VALUES (NULL, 'Brand_Collateral', 'User Manual', 'pdf');
+
+--Kalyani 26-Oct
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES (NULL, 'qwikcilver_transaction_detail', '%s transaction detail', 'Dear Partner<br/><br> Your transaction detail is following - <br/>%s<br/><br><strong>Reply All</strong> for raising any query or concern regarding the invoice.\r\n<br/><br/>Thanks,<br/>247around Team', 'billing@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '', '1', '', CURRENT_TIMESTAMP);
 

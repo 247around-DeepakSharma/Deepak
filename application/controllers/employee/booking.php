@@ -802,35 +802,45 @@ class Booking extends CI_Controller {
     function get_complete_booking_form($booking_id) {
         log_message('info', __FUNCTION__ . " Booking ID: " . print_r($booking_id, true));
         $data['booking_id'] = $booking_id;
+        //Get Booking Details
         $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
+        //Get Booking Unit Details Data
         $data['booking_unit_details'] = $this->booking_model->getunit_details($booking_id);
-        $source = $this->partner_model->getpartner_details('bookings_sources.source, partner_type', 
-                array('bookings_sources.partner_id' => $data['booking_history'][0]['partner_id']));
+        //Get Partner Details Like source and partner Type
+        $source = $this->partner_model->getpartner_details('bookings_sources.source, partner_type', array('bookings_sources.partner_id' => $data['booking_history'][0]['partner_id']));
+        //Add source name in booking_history array
         $data['booking_history'][0]['source_name'] = $source[0]['source'];
-
+        //Partner ID
         $partner_id = $data['booking_history'][0]['partner_id'];
+        //Define Blank Price array
         $data['prices'] = array();
-        //log_message('info', __FUNCTION__ . " data " . print_r($data, true));
+        //Define Upcountory Price as zero
         $upcountry_price = 0;
+        //Process booking Unit Details Data Through loop
         foreach ($data['booking_unit_details'] as $keys => $value) {
-            
-                    
+            //If partner type is OEM then get price for booking unit brands
             if ($source[0]['partner_type'] == OEM) {
                 $prices = $this->booking_model->getPricesForCategoryCapacity($data['booking_history'][0]['service_id'], $data['booking_unit_details'][$keys]['category'], $data['booking_unit_details'][$keys]['capacity'], $partner_id, $value['brand']);
-            } else {
+            } 
+            //If partner type is not OEM then check is brand white list for partner if brand is white listed then use brands if not then 
+            else {
                 $isWbrand = "";
-                $whiteListBrand = $this->partner_model->get_partner_blocklist_brand(array("partner_id" => $partner_id, "brand" => $value['brand'],
-            "service_id" => $data['booking_history'][0]['service_id'], "whitelist" => 1), "*");
+                $whiteListBrand = $this->partner_model->get_partner_blocklist_brand(array("partner_id" => $partner_id, "brand" => $value['brand'],"service_id" => $data['booking_history'][0]['service_id'], "whitelist" => 1), "*");
                 if(!empty($whiteListBrand)){
                     $isWbrand = $value['brand'];
                 }
                 $prices = $this->booking_model->getPricesForCategoryCapacity($data['booking_history'][0]['service_id'], $data['booking_unit_details'][$keys]['category'], $data['booking_unit_details'][$keys]['capacity'], $partner_id, $isWbrand);
             }
-            $upcountry_price = 0;
-            //log_message('info', __FUNCTION__ . " Prices " . print_r($prices, true));
+            $serialNumberMandatoryArray = explode(",",SERIAL_NUMBER_MENDATORY);
+            if(in_array($partner_id,$serialNumberMandatoryArray )){
+                $where = array("partner_id" => $partner_id, 'service_id' => $data['booking_history'][0]['service_id'], 
+                            'brand' => $value['brand'], 'category' => $value['category'], 'active'=> 1, 'capacity' => $value['capacity'],
+                            "NULLIF(model, '') IS NOT NULL" => NULL);
+                $data['booking_unit_details'][$keys]['model_dropdown'] =$this->partner_model->get_partner_specific_details($where, "model", "model");
+            }
+              //Process booking Unit Details Data Through loop
             foreach ($value['quantity'] as $key => $price_tag) {
                 $service_center_data = $this->service_centers_model->get_prices_filled_by_service_center($price_tag['unit_id'], $booking_id);
-
                 // print_r($service_center_data);
                 if (!empty($service_center_data)) {
                     $data['booking_unit_details'][$keys]['quantity'][$key]['customer_paid_basic_charges'] = $service_center_data[0]['service_charge'];
@@ -839,7 +849,6 @@ class Booking extends CI_Controller {
                     $data['booking_unit_details'][$keys]['quantity'][$key]['customer_paid_parts'] = $service_center_data[0]['parts_cost'];
                     $data['booking_unit_details'][$keys]['quantity'][$key]['serial_number_pic'] = $service_center_data[0]['serial_number_pic'];
                 }
-
                 // Searched already inserted price tag exist in the price array (get all service category)
                 $id = $this->search_for_key($price_tag['price_tags'], $prices);
                 // remove array key, if price tag exist into price array
@@ -851,15 +860,12 @@ class Booking extends CI_Controller {
 
             array_push($data['prices'], $prices);
         }
-        
         $isPaytmTxn = $this->paytm_payment_lib->get_paytm_transaction_data($booking_id);
-       
         if(!empty($isPaytmTxn)){
             if($isPaytmTxn['status']){
                 $data['booking_history'][0]['onlinePaymentAmount'] = $isPaytmTxn['total_amount'];
             }
         }
-        
         $data['upcountry_charges'] = $upcountry_price;
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/completebooking', $data);
@@ -1902,6 +1908,7 @@ class Booking extends CI_Controller {
         $sp_required_id = json_decode($this->input->post("sp_required_id"), true);
         $spare_parts_required = $this->input->post('spare_parts_required');
         $price_tag_array = $this->input->post('price_tags');
+        $model_number = $this->input->post('model_number');
         $service_center_details = $this->booking_model->getbooking_charges($booking_id);
         $b_unit_details = array();
         if($status == 1){
@@ -1921,11 +1928,15 @@ class Booking extends CI_Controller {
                 $data['serial_number'] = "";
                 $data['serial_number_pic'] = "";
             }
-            
+            //Model number Data
+            $data['sf_model_number'] = "";
+             if (isset($model_number[$unit_id])) {
+                $data['sf_model_number'] = $model_number[$unit_id];
+            }
             if(!empty($data['serial_number_pic'])){
-                $insertd = $this->partner_model->insert_partner_serial_number(array('partner_id' =>$partner_id, 
-                       "serial_number" => $data['serial_number'], "active" =>1, "added_by" => "vendor" ));
-                if(!empty($insertd) && $partner_id == AKAI_ID){
+                $insertd = $this->partner_model->insert_partner_serial_number(array('partner_id' =>$partner_id,"serial_number" => $data['serial_number'], "active" =>1, "added_by" => "vendor" ));
+                $serialNumberMandatoryPartners = explode(',',SERIAL_NUMBER_MENDATORY);
+                if(!empty($insertd)  && in_array($partner_id, $serialNumberMandatoryPartners)){
                     $this->miscelleneous->inform_partner_for_serial_no($booking_id, $service_center_details[0]['service_center_id'], $partner_id, $data['serial_number'], $data['serial_number_pic']);
                 }
             }
@@ -3187,6 +3198,7 @@ class Booking extends CI_Controller {
         $current_status = $this->input->post('current_status');
         $actor = $this->input->post('actor');
         $rm_id = $this->input->post('rm_id');
+        $is_upcountry = $this->input->post('is_upcountry');
         if($type == 'booking'){
             if($booking_status == _247AROUND_COMPLETED || $booking_status == _247AROUND_CANCELLED){
                 $post['where']  = array('current_status' => $booking_status,'type' => 'Booking');
@@ -3211,6 +3223,12 @@ class Booking extends CI_Controller {
         }
         if(!empty($internal_status)){
             $post['where_in']['booking_details.partner_internal_status'] =  explode(",",$internal_status);
+        }
+        if(!empty($is_upcountry)){
+            $post['where_in']['booking_details.is_upcountry'] =  1;
+            if($is_upcountry == 'no'){
+                $post['where_in']['booking_details.is_upcountry'] =  0;
+            }
         }
         if(!empty($current_status)){
             $post['where']['booking_details.current_status'] =  $current_status;

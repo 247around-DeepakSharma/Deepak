@@ -523,6 +523,7 @@ class Miscelleneous {
         //Log this state change as well for this booking
         //param:-- booking id, new state, old state, employee id, employee name
         $this->My_CI->notify->insert_state_change($booking_id, $data['current_status'], $status, $historyRemarks, $agent_id, $agent_name,$actor,$next_action, $cancelled_by);
+        $this->process_booking_tat_on_completion($booking_id);
         // Not send Cancallation sms to customer for Query booking
         // this is used to send email or sms while booking cancelled
         $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
@@ -3361,23 +3362,28 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
         log_message('info', __FUNCTION__ . "End booking_id = ".$booking_id.", spare_id = ".$spare_id);
     }
    function is_booking_faulty($spare_id,$isUpcountry,$leg,$tat,$entity_type) {
-       if($spare_id && $isUpcountry){
-           $tatLimit = $this->tatFaultyBookingCriteria[$entity_type]['with_repair_upcountry_'.$leg];
-       }
-       else if($spare_id && !($isUpcountry)){
-           $tatLimit = $this->tatFaultyBookingCriteria[$entity_type]['with_repair_non_upcountry_'.$leg];
-       }
-       else if(!($spare_id) && !($isUpcountry)){
-           $tatLimit = $this->tatFaultyBookingCriteria[$entity_type]['without_repair_non_upcountry'];
-       }
-       else if(!($spare_id) && $isUpcountry){
-           $tatLimit = $this->tatFaultyBookingCriteria[$entity_type]['without_repair_upcountry'];
-       }
-       if($tat>$tatLimit){
-           return 1;
+       if(!empty($this->tatFaultyBookingCriteria)){
+            if($spare_id && $isUpcountry){
+                $tatLimit = $this->tatFaultyBookingCriteria[$entity_type]['with_repair_upcountry_'.$leg];
+            }
+            else if($spare_id && !($isUpcountry)){
+                $tatLimit = $this->tatFaultyBookingCriteria[$entity_type]['with_repair_non_upcountry_'.$leg];
+            }
+            else if(!($spare_id) && !($isUpcountry)){
+                $tatLimit = $this->tatFaultyBookingCriteria[$entity_type]['without_repair_non_upcountry'];
+            }
+            else if(!($spare_id) && $isUpcountry){
+                $tatLimit = $this->tatFaultyBookingCriteria[$entity_type]['without_repair_upcountry'];
+            }
+            if($tat>$tatLimit){
+                return 1;
+            }
+            else{
+                return 0;
+            }
        }
        else{
-           return 0;
+           return 1;
        }
     }
     function reject_booking_from_review($postData){

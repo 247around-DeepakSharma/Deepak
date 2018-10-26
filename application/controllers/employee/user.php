@@ -357,8 +357,9 @@ class User extends CI_Controller {
      * 
      */
     function add_employee(){
+        $data['employee_groups'] = $this->employee_model->get_employee_groups();
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/employee_add_edit');
+        $this->load->view('employee/employee_add_edit', $data);
 }
     
     /**

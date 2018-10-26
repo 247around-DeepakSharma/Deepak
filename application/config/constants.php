@@ -58,6 +58,7 @@ define('PART_DELIVERY_PERCENTAGE', .10);
 define('SERVICE_TAX_RATE', 0.18);
 define('DEFAULT_TAX_RATE', 18);
 define('DEFAULT_PARTS_TAX_RATE', 28);
+define('DEFAULT_MOBILE_TAX_RATE', 12);
 
 //Agent ID used when Partner inserts a Booking by calling our API
 define('DEFAULT_PARTNER_AGENT', 978978);
@@ -647,5 +648,9 @@ define('_247AROUND_GST_DEBIT_NOTE_STRING','GST Debit Note');
 // it is use to check entity-type Warehouse 
 
 define('WAREHOUSE','Warehouse');  
+//constant to define New Query state
+define('_247AROUND_QUERY','Query');
+//constant to define QWIKCILVER partner id
+define('QWIKCILVER_PARTNER_ID','247025');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
