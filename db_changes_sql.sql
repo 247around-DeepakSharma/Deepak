@@ -9211,3 +9211,6 @@ INSERT INTO `collateral_type` (`id`, `collateral_tag`, `collateral_type`, `docum
 INSERT INTO `collateral_type` (`id`, `collateral_tag`, `collateral_type`, `document_type`) VALUES (NULL, 'Brand_Collateral', 'Factory Settings', 'pdf');
 INSERT INTO `collateral_type` (`id`, `collateral_tag`, `collateral_type`, `document_type`) VALUES (NULL, 'Brand_Collateral', 'User Manual', 'pdf');
 
+--Kalyani 26-Oct
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES (NULL, 'qwikcilver_transaction_detail', '%s transaction detail', 'Dear Partner<br/><br> Your transaction detail is following - <br/>%s<br/><br><strong>Reply All</strong> for raising any query or concern regarding the invoice.\r\n<br/><br/>Thanks,<br/>247around Team', 'billing@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '', '1', '', CURRENT_TIMESTAMP);
+

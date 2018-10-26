@@ -4568,32 +4568,43 @@ class Invoice extends CI_Controller {
     * This function loads the qvc email form view.
     */
     
-    function qvc_transction_details(){
-         $this->miscelleneous->load_nav_header();
-         $this->load->view('qvc_email_form');
+    function QC_transction_details(){
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/QC_transaction_form');
     }
     
     /**
      * @desc This function helps in sending email.
      * @param This also loads the template view.
      */
-    public function process_to_send_qvc_transction(){
-        
-       $this->miscelleneous->load_nav_header();
-       $data = array(
-            'transction_date' => $this->input->post('transction_date'),
-            'transction_amount' => $this->input->post('transction_amount'),
-            'review' => $this->input->post('review')
-        );
-        $this->load->view('qvc_email_template',$data);
-        
-        $fromemail="shraddhanandt@247around.com";
-        $cc="";
-        $toemail = "shraddhanandtiwary33@gmail.com";
-        $subject = "Sending Transction Form";
-        $mesg = $this->load->view('qvc_email_template',$data,true);
-        $this->notify->sendEmail($fromemail, $toemail,$cc, '', $subject, $mesg,'','');
-        
+    public function process_to_send_QC_transction(){ 
+        $agent_id = $this->session->userdata('id');
+        $status = $this->_process_advance_payment($agent_id, null);
+        if ($status) {
+            $data = array(
+                'transction_date' => $this->input->post('transction_date'),
+                'transction_amount' => $this->input->post('transction_amount'),
+                'review' => $this->input->post('review')
+            );
+
+            $email_template = $this->booking_model->get_booking_email_template(QWIKCILVER_TRANSACTION_DETAIL);
+            $partner_detail = $this->partner_model->getpartner(QWIKCILVER_PARTNER_ID, FALSE); //owner_email, invoice_email_to
+            if(!empty($email_template)){
+                $fromemail = $email_template[2];
+                $cc = $partner_detail[0]['invoice_email_cc'].", ".$email_template[3];
+                $toemail = $partner_detail[0]['owner_email']." ,".$partner_detail[0]['invoice_email_to'];
+                $subject = vsprintf($email_template[4], array($partner_detail[0]['company_name']));
+                $mesg = $this->load->view('templates/QC_email_template.php',$data,true);
+                $this->notify->sendEmail($fromemail, $toemail,$cc, '', $subject, $mesg, '', QWIKCILVER_TRANSACTION_DETAIL);
+            }
+            $userSession = array('success' => "Bank Transaction Added");
+            $this->session->set_userdata($userSession);
+            redirect(base_url() . "employee/invoice/QC_transction_details");
+        } else {
+            $userSession = array('error' => "Bank Transaction Not Added");
+            $this->session->set_userdata($userSession);
+            redirect(base_url() . "employee/invoice/QC_transction_details");
+        }
     }
 
     function get_all_invoice_vertical(){ 
