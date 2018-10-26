@@ -322,49 +322,19 @@
                                                 <?php
                                                     //Checking for Edit Parnter
                                                     if (isset($query[0]['id'])) {
-                                                        foreach (range('A', 'Z') as $char) {
-                                                            $code = "R" . $char;
-                                                            if (!in_array($code, $results['partner_code_availiable']) || isset($results['partner_code'][0]['code']) && ($results['partner_code'][0]['code'] == $code)) {
-                                                                ?>
-                                                <option value="<?php echo $code; ?>" <?php
-                                                    if (isset($results['partner_code'][0]['code']) && ($results['partner_code'][0]['code'] == $code )) {
-                                                        echo "selected=''";
-                                                    }
-                                                    ?>><?php echo $code; ?></option>
-                                                <?php
-                                                    }
-                                                    }
-                                                    foreach (range('A', 'Z') as $char) {
-                                                    $code = "S" . $char;
-                                                    if (!in_array($code, $results['partner_code_availiable']) || isset($results['partner_code'][0]['code']) && ($results['partner_code'][0]['code'] == $code)) {
-                                                        ?>
-                                                <option value="<?php echo $code; ?>" <?php
-                                                    if (isset($results['partner_code'][0]['code']) && ($results['partner_code'][0]['code'] == $code )) {
-                                                        echo "selected=''";
-                                                    }
-                                                    ?>><?php echo $code; ?></option>
-                                                <?php
-                                                    }
-                                                    }
-                                                    
-                                                    foreach (range('A', 'Z') as $char) {
-                                                    $code = "P" . $char;
-                                                    if (!in_array($code, $results['partner_code_availiable']) || isset($results['partner_code'][0]['code']) && ($results['partner_code'][0]['code'] == $code)) {
-                                                        ?>
-                                                <option value="<?php echo $code; ?>" <?php
-                                                    if (isset($results['partner_code'][0]['code']) && ($results['partner_code'][0]['code'] == $code )) {
-                                                        echo "selected=''";
-                                                    }
-                                                    ?>><?php echo $code; ?></option>
-                                                <?php
-                                                    }
-                                                    }
-                                                    
-                                                    
-                                                    
-                                                    } else {// New Partner Addition
-                                                    foreach (range('A', 'Z') as $char) {
-                                                        $code = "R" . $char;
+                                                        
+                                                        foreach ($results['all_partner_code'] as $code) {
+                                                            if (!in_array($code, $results['partner_code_availiable']) || isset($results['partner_code'][0]['code']) && ($results['partner_code'][0]['code'] == $code)) { ?>
+                                                        <option value="<?php echo $code; ?>" <?php
+                                                            if (isset($results['partner_code'][0]['code']) && ($results['partner_code'][0]['code'] == $code )) {
+                                                                echo "selected=''";
+                                                            }
+                                                            ?>><?php echo $code; ?></option>
+                                                        <?php
+                                                            }
+                                                        }
+                                                   } else {// New Partner Addition
+                                                    foreach ($results['all_partner_code'] as $code) {
                                                         if (!in_array($code, $results['partner_code'])) {
                                                             ?>
                                                             <option value="<?php echo $code; ?>" ><?php echo $code; ?></option>
@@ -1404,14 +1374,32 @@
                                 </select>
                                 </div>
                                    <div class="form-group">
-                                <label for="Services">Select Catagory *</label>
+                                <label for="Services">Select Category *</label>
                                 <select class="form-control" id="l_c_category" name="l_c_category[]" multiple="multiple" disabled="">
                                 </select>
                                 </div>
-                                <div class="form-group">
-                                <label for="Services">Select File *</label>
+                                    <div class="form-group">
+                                <label for="Services">Select Model </label><div class="checkbox" style="float:right;"><input onchange="select_all_models()" id="models_all" type="checkbox" value="">Select All</div>
+                                <select class="form-control" id="l_c_model" name="l_c_model[]" multiple="multiple" disabled="">
+                                </select>
+                                </div>
+                                   <div class="col-md-12" style="padding: 10px 0px;width: 102%;">
+                                   <div class="col-md-4" style="padding: 0px;width: 40%;">
+                                   <div class="form-group" style="">
+                                       <label for="Services">Select File </label>
                                 <input type="file" class="form-control"  name="l_c_file" id="l_c_file" disabled="">
                                 </div>
+                                </div>
+                                   <div class="col-md-4" style="padding: 0px;width: 20%;padding-left: 64px;">
+                                       <p style="padding-top: 33px;width: 20%;text-align: center;">OR</p>
+                                        </div>
+                                   <div class="col-md-4" style="width: 40%;">
+                                    <div class="form-group">
+                                <label for="Services">Add URL </label>
+                                <input type="text" class="form-control"  name="l_c_url" id="l_c_url" disabled="">
+                                </div>
+                                       </div>
+                                       </div>
                                    <div class="form-group">
                                 <label for="Services">Select Request Type*</label>
                                 <select class="form-control" id="l_c_request_type" name="l_c_request_type[]" multiple="multiple" disabled="">
@@ -1468,6 +1456,7 @@
                                 <th>Brand</th>
                                 <th>Category</th>
                                 <th>Capacity</th>
+                                <th>Model</th>
                                 <th>Request Type</th>
                                 <th>File</th>
                                 <th>Description</th>
@@ -1481,7 +1470,12 @@
                                 foreach($results['partner_contracts'] as $value){
                                     if($value['collateral_tag'] == LEARNING_DOCUMENT){
                                         $index++;
-                                        $url = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$value['file'];
+                                        if($value['is_file']){
+                                            $url = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$value['file'];
+                                        }
+                                        else{
+                                            $url = $value['file'];
+                                        }
                                 ?>
                             <tr>
                                 <td><?php echo $index?></td>
@@ -1490,6 +1484,7 @@
                                 <td><?php echo $value['brand'] ?></td>
                                 <td><?php echo $value['category'] ?></td>
                                 <td><?php echo $value['capacity'] ?></td>
+                                <td><?php echo $value['model'] ?></td>
                                 <td><?php echo $value['request_type'] ?></td>
                                 <td><?php echo $this->miscelleneous->get_reader_by_file_type($value['document_type'],$url,"200")?></td>
                                 <td><?php echo $value['document_description'] ?></td>
@@ -2699,6 +2694,7 @@ function up_message(){
         var brandDropdownString  = '';
         var categoryDropdownString  = '';
         var capacityDropdownString  = '';
+        var modelDropdownString = '';
         var collateral_typeDropdownString ='<option value="">Select Collateral</option>';
         var obj = JSON.parse(brandMappingJson);
         for(var i=0;i<obj.brand.length;i++){
@@ -2709,6 +2705,9 @@ function up_message(){
         }
         for(var i=0;i<obj.capacity.length;i++){
                 var capacityDropdownString = capacityDropdownString+"<option value='"+obj.capacity[i].capacity+"'>"+obj.capacity[i].capacity+"</option>";
+        }
+        for(var i=0;i<obj.model.length;i++){
+                var modelDropdownString = modelDropdownString+"<option value='"+obj.model[i].model+"'>"+obj.model[i].model+"</option>";
         }
         for(var i=0;i<obj.collateral_type.length;i++){
                 var collateral_typeDropdownString = collateral_typeDropdownString+"<option value='"+obj.collateral_type[i].id+"_"+obj.collateral_type[i].collateral_type+"'>"+obj.collateral_type[i].collateral_type+"</option>";
@@ -2731,6 +2730,10 @@ function up_message(){
             document.getElementById("l_c_capacity").disabled = false;
             document.getElementById("l_c_capacity").innerHTML = capacityDropdownString;
         }
+        if(modelDropdownString !== ''){
+            document.getElementById("l_c_model").disabled = false;
+            document.getElementById("l_c_model").innerHTML = modelDropdownString;
+        }
         if(collateral_typeDropdownString !== ''){
             document.getElementById("l_c_type").disabled = false;
             document.getElementById("l_c_type").innerHTML = collateral_typeDropdownString;
@@ -2746,6 +2749,17 @@ function up_message(){
                 }
             });
     }
+    function getMultipleSelectedValues(fieldName){
+    fieldObj = document.getElementById(fieldName);
+    var values = [];
+    var length = fieldObj.length;
+    for(var i=0;i<length;i++){
+       if (fieldObj[i].selected == true){
+           values.push(fieldObj[i].value);
+       }
+    }
+   return values.toString();
+}
     function validate_l_c_form(){
     service = $("#l_c_service").val();
     brands = $("#l_c_brands").val();
@@ -2758,11 +2772,11 @@ function up_message(){
         alert("Please enter either File or URL but not both");
         return false;
     }
+    if(!(file || url)){
+        alert("Either add file or Add URL");
+        return false; 
+    }
     if(service && brands && category && collateral_type && (file || url)&& request_type){
-       if(url){
-           $("#l_c_type").attr("selected","selected");
-           $("#l_c_type").val("6_User Manual_pdf");
-       }
         document.getElementById("l_c_form").submit();
     }
     else{
@@ -2770,8 +2784,7 @@ function up_message(){
         return false;
     }
     }
-    function 
-    get_partner_services(){
+    function get_partner_services(){
         var serviceDropdownString = '<option value="">Select Appliance</option>';
         var partner = $("#partner_id").val();
         $.ajax({
@@ -2806,6 +2819,27 @@ function up_message(){
 else{
      $('#l_c_capacity option').prop('selected', false);
      $('#l_c_capacity').select2({
+        placeholder: "Select All",
+        allowClear: true,
+        tags: true
+    });
+    }
+
+    }
+    
+     function select_all_models(){
+   if ($('#models_all').is(":checked"))
+{
+ $('#l_c_model option').prop('selected', true);
+ $('#l_c_model').select2({
+        placeholder: "All Selected",
+        allowClear: true,
+        tags: true
+    });
+}
+else{
+     $('#l_c_model option').prop('selected', false);
+     $('#l_c_model').select2({
         placeholder: "Select All",
         allowClear: true,
         tags: true
@@ -3137,6 +3171,10 @@ function sendAjaxRequest(postData, url,type) {
 
     $('#contact_person_states').select2({
         placeholder: "Select State",
+        allowClear: true
+    });
+    $('#l_c_model').select2({
+        placeholder: "Select Model",
         allowClear: true
     });
     

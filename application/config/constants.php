@@ -12,6 +12,7 @@ include('serial_number_failed_msg_constant.php');
 include('warehouse_constant.php');
 include('telephony_constant.php');
 include('taxpro_api_constant.php');
+include('invoice_constant.php');
 /*
 |--------------------------------------------------------------------------
 | File and Directory Modes
@@ -39,14 +40,14 @@ define('DIR_WRITE_MODE', 0777);
 |
 */
 
-define('FOPEN_READ',							'rb');
-define('FOPEN_READ_WRITE',						'r+b');
-define('FOPEN_WRITE_CREATE_DESTRUCTIVE',		'wb'); // truncates existing file data, use with care
-define('FOPEN_READ_WRITE_CREATE_DESTRUCTIVE',	'w+b'); // truncates existing file data, use with care
-define('FOPEN_WRITE_CREATE',					'ab');
-define('FOPEN_READ_WRITE_CREATE',				'a+b');
-define('FOPEN_WRITE_CREATE_STRICT',				'xb');
-define('FOPEN_READ_WRITE_CREATE_STRICT',		'x+b');
+define('FOPEN_READ','rb');
+define('FOPEN_READ_WRITE','r+b');
+define('FOPEN_WRITE_CREATE_DESTRUCTIVE','wb'); // truncates existing file data, use with care
+define('FOPEN_READ_WRITE_CREATE_DESTRUCTIVE','w+b'); // truncates existing file data, use with care
+define('FOPEN_WRITE_CREATE','ab');
+define('FOPEN_READ_WRITE_CREATE','a+b');
+define('FOPEN_WRITE_CREATE_STRICT','xb');
+define('FOPEN_READ_WRITE_CREATE_STRICT','x+b');
 
 define('INT_STATUS_CUSTOMER_NOT_REACHABLE', 'Customer not reachable / Customer not picked phone');
 define('DEFAULT_SEARCH_PAGE', 'employee/user');
@@ -58,6 +59,7 @@ define('PART_DELIVERY_PERCENTAGE', .10);
 define('SERVICE_TAX_RATE', 0.18);
 define('DEFAULT_TAX_RATE', 18);
 define('DEFAULT_PARTS_TAX_RATE', 28);
+define('DEFAULT_MOBILE_TAX_RATE', 12);
 
 //Agent ID used when Partner inserts a Booking by calling our API
 define('DEFAULT_PARTNER_AGENT', 978978);

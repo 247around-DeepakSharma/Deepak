@@ -183,7 +183,7 @@ class Partner extends CI_Controller {
     }
 
     /**
-     * @desc: This funtion will check Session
+     * @desc: This function will check Session
      * @param: void
      * @return: true if details matches else session is distroyed.
      */
@@ -205,7 +205,7 @@ class Partner extends CI_Controller {
     }
 
     /**
-     * @desc : This funtion for logout
+     * @desc : This function for logout
      * @param: void
      * @return: void
      */
@@ -453,6 +453,11 @@ class Partner extends CI_Controller {
             $code[] = $row['code']; // add each partner code to the array
         }
         $results['partner_code'] = $code;
+        $all_partner_code = $this->partner_model->get_all_partner_code('code', array('R', 'S', 'P', 'L'));
+        foreach ($all_partner_code as $row) {
+            $all_code[] = $row['code']; 
+        }
+        $results['all_partner_code'] = $all_code;
         $employee_list = $this->employee_model->get_employee_by_group(array("groups NOT IN ('developer') AND active = '1'" => NULL));
         $results['collateral_type'] = $this->reusable_model->get_search_result_data("collateral_type", '*', array("collateral_tag" => "Contract"), NULL, NULL, array("collateral_type" => "ASC"), NULL, NULL);
         $this->miscelleneous->load_nav_header();
@@ -866,14 +871,19 @@ class Partner extends CI_Controller {
             $code[] = $row['code']; // add each partner code to the array
         }
         $results['partner_code_availiable'] = $code;
+        $all_partner_code = $this->partner_model->get_all_partner_code('code', array('R', 'S', 'P', 'L'));
+        foreach ($all_partner_code as $row) {
+            $all_code[] = $row['code']; 
+        }
+        $results['all_partner_code'] = $all_code;
         //Getting Parnter Operation Region Details
         $where = array('partner_id' => $id);
         $results['partner_operation_region'] = $this->partner_model->get_partner_operation_region($where);
         $results['brand_mapping'] = $this->partner_model->get_partner_specific_details($where, "service_id, brand, active");
-        $results['partner_contracts'] = $this->reusable_model->get_search_result_data("collateral", 'collateral.document_description,collateral.file,collateral.start_date,'
+        $results['partner_contracts'] = $this->reusable_model->get_search_result_data("collateral", 'collateral.document_description,collateral.file,collateral.is_file,collateral.start_date,collateral.model,'
                 . 'collateral.end_date,collateral_type.collateral_type,collateral_type.collateral_tag,services.services,collateral.brand,collateral.category,collateral.capacity,'
                 . 'collateral_type.document_type,collateral.request_type',
-                array("entity_id" => $id, "entity_type" => "partner"), array("collateral_type" => "collateral_type.id=collateral.collateral_id","services"=>"services.id=collateral.appliance_id"), 
+                array("entity_id" => $id, "entity_type" => "partner","is_valid"=>1), array("collateral_type" => "collateral_type.id=collateral.collateral_id","services"=>"services.id=collateral.appliance_id"), 
                 NULL, NULL, NULL, array('services'=>'LEFT'));
         $results['collateral_type'] = $this->reusable_model->get_search_result_data("collateral_type", '*', array("collateral_tag" => "Contract"), NULL, NULL, array("collateral_type" => "ASC"), NULL, NULL);
         $employee_list = $this->employee_model->get_employee_by_group(array("groups NOT IN ('developer') AND active = '1'" => NULL));
@@ -1778,12 +1788,12 @@ class Partner extends CI_Controller {
                     $internal_status = "";
                     foreach ($shipped_part_details as $key => $value) {
                         if ($value['shippingStatus'] == 1) {
-                            $data['status'] = SPARE_SHIPPED_BY_PARTNER;
-//                            if($request_type == REPAIR_OOW_TAG){
-//                                $data['status'] = SPARE_OOW_SHIPPED;
-//                            } else {
-//                                $data['status'] = SPARE_SHIPPED_BY_PARTNER;
-//                            }
+                            //$data['status'] = SPARE_SHIPPED_BY_PARTNER;
+                            if($request_type == REPAIR_OOW_TAG){
+                                $data['status'] = SPARE_OOW_SHIPPED;
+                            } else {
+                                $data['status'] = SPARE_SHIPPED_BY_PARTNER;
+                            }
                             
                             $data['parts_shipped'] = $value['shipped_parts_name'];
                             $data['model_number_shipped'] = $value['shipped_model_number'];
@@ -1803,7 +1813,13 @@ class Partner extends CI_Controller {
                             
                             array_push($spare_id_array, $spare_id);
                             $current_status = "InProcess";
-                            $internal_status = SPARE_PARTS_SHIPPED;
+                            if($request_type == REPAIR_OOW_TAG){
+                                $internal_status = SPARE_OOW_SHIPPED;
+                            } else {
+                                $internal_status = SPARE_PARTS_SHIPPED;
+
+                            }
+                            
                             
                         } else if ($value['shippingStatus'] == -1) {
                             $this->insert_details_in_state_change($booking_id, "SPARE TO BE SHIP", "Partner Update - " . $value['shipped_parts_name'] . " To Be Shipped", "", "");
@@ -1820,13 +1836,13 @@ class Partner extends CI_Controller {
                     if (!empty($current_status)) {
 
                         $sc_data['current_status'] = $current_status;
-                        $sc_data['internal_status'] = $internal_status;
-//                        if($request_type == REPAIR_OOW_TAG){
-//                            $sc_data['internal_status'] = SPARE_OOW_SHIPPED;
-//                        } else {
-//                            $sc_data['internal_status'] = $internal_status;
-//                            
-//                        }
+                        
+                        if($request_type == REPAIR_OOW_TAG){
+                            $sc_data['internal_status'] = SPARE_OOW_SHIPPED;
+                        } else {
+                            $sc_data['internal_status'] = $internal_status;
+                            
+                        }
                         
                         $this->vendor_model->update_service_center_action($booking_id, $sc_data);
 
@@ -1844,7 +1860,7 @@ class Partner extends CI_Controller {
                         $this->booking_model->update_booking($booking_id, $booking);
                         if (!empty($incoming_invoice_pdf) && !empty($spare_id_array)) {
                             foreach($spare_id_array as $s_value){
-                                // Send OOW invoice to aditya
+                                // Send OOW invoice to Inventory Manager
                                 $url = base_url() . "employee/invoice/generate_oow_parts_invoice/" . $s_value;
                                 $async_data['booking_id'] = $booking_id;
                                 $this->asynchronous_lib->do_background_process($url, $async_data);
@@ -2176,20 +2192,23 @@ class Partner extends CI_Controller {
             
             $this->booking_model->update_booking($booking_id, $booking);
             
-//            $is_oow_return = $this->partner_model->get_spare_parts_by_any("booking_unit_details_id, purchase_price, sell_price, sell_invoice_id", 
-//                    array('spare_parts_details.booking_id' => $booking_id, 
-//                        'booking_unit_details_id IS NOT NULL' => NULL,
-//                        'sell_price > 0 ' => NULL,
-//                        'sell_invoice_id IS NOT NULL' => NULL,
-//                        'estimate_cost_given_date IS NOT NULL' => NULL,
-//                        'request_type' => REPAIR_OOW_TAG,
-//                        '(reverse_sale_invoice_id IS NULL OR reverse_purchase_invoice_id)' => NULL),
-//                    true);
-//            if(!empty($is_oow_return)){
-//                $url = base_url() . "employee/invoice/generate_reverse_oow_invoice";
-//                $async_data['booking_id'] = $booking_id;
-//                $this->asynchronous_lib->do_background_process($url, $async_data);
-//            }
+            $is_oow_return = $this->partner_model->get_spare_parts_by_any("booking_unit_details_id, purchase_price, sell_price, sell_invoice_id", 
+                    array('spare_parts_details.booking_id' => $booking_id, 
+                        'booking_unit_details_id IS NOT NULL' => NULL,
+                        'sell_price > 0 ' => NULL,
+                        'sell_invoice_id IS NOT NULL' => NULL,
+                        'estimate_cost_given_date IS NOT NULL' => NULL,
+                        'request_type' => REPAIR_OOW_TAG,
+                        'defective_part_required' => 1,
+                        'approved_defective_parts_by_partner' => 1,
+                        'status' => DEFECTIVE_PARTS_RECEIVED,
+                        '(reverse_sale_invoice_id IS NULL OR reverse_purchase_invoice_id)' => NULL),
+                    true);
+            if(!empty($is_oow_return)){
+                $url = base_url() . "employee/invoice/generate_reverse_oow_invoice/".$booking_id;
+                $async_data['booking_id'] = $booking_id;
+                $this->asynchronous_lib->do_background_process($url, $async_data);
+            }
 
             if (empty($is_cron)) {
                 $userSession = array('success' => ' Received Defective Spare Parts');
@@ -3999,9 +4018,10 @@ class Partner extends CI_Controller {
     function get_service_details(){
         $service_id = $this->input->post('service_id');
         $partner_id = $this->input->post('partner_id');
-        $data['brand'] = $this->reusable_model->get_search_result_data("service_centre_charges","DISTINCT brand",array('service_id'=>$service_id,'partner_id'=>$partner_id),NULL,NULL,NULL,NULL,NULL,array());
-        $data['category'] = $this->reusable_model->get_search_result_data("service_centre_charges","DISTINCT category",array('service_id'=>$service_id,'partner_id'=>$partner_id),NULL,NULL,NULL,NULL,NULL,array());
-        $data['capacity'] = $this->reusable_model->get_search_result_data("service_centre_charges","DISTINCT capacity",array('service_id'=>$service_id,'partner_id'=>$partner_id),NULL,NULL,NULL,NULL,NULL,array());
+        $data['brand'] = $this->reusable_model->get_search_result_data("partner_appliance_details","DISTINCT brand",array('service_id'=>$service_id,'partner_id'=>$partner_id),NULL,NULL,NULL,NULL,NULL,array());
+        $data['category'] = $this->reusable_model->get_search_result_data("partner_appliance_details","DISTINCT category",array('service_id'=>$service_id,'partner_id'=>$partner_id),NULL,NULL,NULL,NULL,NULL,array());
+        $data['capacity'] = $this->reusable_model->get_search_result_data("partner_appliance_details","DISTINCT capacity",array('service_id'=>$service_id,'partner_id'=>$partner_id),NULL,NULL,NULL,NULL,NULL,array());
+        $data['model'] = $this->reusable_model->get_search_result_data("partner_appliance_details","DISTINCT model",array('service_id'=>$service_id,'partner_id'=>$partner_id),NULL,NULL,NULL,NULL,NULL,array());
         $data['collateral_type'] = $this->reusable_model->get_search_result_data("collateral_type","id,concat(collateral_type, '_', document_type) as collateral_type",array('collateral_tag'=>LEARNING_DOCUMENT),NULL,NULL,NULL,NULL,NULL,array());
         echo json_encode($data);
     }
@@ -4061,26 +4081,41 @@ class Partner extends CI_Controller {
      * This function creates every posible combination of service,category,brand,capacity on the basis of input against the input file and save in database
      */
     function process_partner_learning_collaterals(){
+        $partner = $this->input->post('partner_id');
+        if(!empty($this->input->post('l_c_model')) && !empty($this->input->post('l_c_capacity'))){
+            $this->session->set_userdata('error', 'Either Select Capacity OR Select Model, Please Do not select Both Together');
+            redirect(base_url() . 'employee/partner/editpartner/' . $partner);
+            return FALSE;
+        }
+        $validation = TRUE;
+        $file = 0;
         $contract_typeTemp = $this->input->post('l_c_type');
         $tArray = explode("_",$contract_typeTemp);
         $contract_type = $tArray[0];
-        $partner = $this->input->post('partner_id');
-            $validation =  $this->brand_collaterals_file_validations($_FILES['l_c_file'],$tArray[2]);
+        if(!$this->input->post('l_c_url')){
+             $validation =  $this->brand_collaterals_file_validations($_FILES['l_c_file'],$tArray[2]);
+             $file = 1;
+        }
+        else{
+            $contract_file = $this->input->post('l_c_url');
+        }
         if($validation){
-            if (($_FILES['l_c_file']['error'] != 4) && !empty($_FILES['l_c_file']['tmp_name'])) {
-                    $tmpFile = $_FILES['l_c_file']['tmp_name'];
-                    $contract_file = "Partner-" . $partner . '-Brand_Collateral_' . $contract_type . "_" . date('Y-m-d') . "." .$_FILES['l_c_file']['name'];
-                    move_uploaded_file($tmpFile, TMP_FOLDER . $contract_file);
-                    //Upload files to AWS
-                    $bucket = BITBUCKET_DIRECTORY;
-                    $directory_xls = "vendor-partner-docs/" . $contract_file;
-                    $this->s3->putObjectFile(TMP_FOLDER . $contract_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                    $attachment_contract = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $contract_file;
-                    unlink(TMP_FOLDER . $contract_file);
-                    //Logging success for file uppload
-                    log_message('info', __FUNCTION__ . ' Learning Collateral FILE is being uploaded sucessfully.');
+            if($file){
+                if (($_FILES['l_c_file']['error'] != 4) && !empty($_FILES['l_c_file']['tmp_name'])) {
+                        $tmpFile = $_FILES['l_c_file']['tmp_name'];
+                        $contract_file = "Partner-" . $partner . '-Brand_Collateral_' . $contract_type . "_" . date('Y-m-d') . "." .$_FILES['l_c_file']['name'];
+                        move_uploaded_file($tmpFile, TMP_FOLDER . $contract_file);
+                        //Upload files to AWS
+                        $bucket = BITBUCKET_DIRECTORY;
+                        $directory_xls = "vendor-partner-docs/" . $contract_file;
+                        $this->s3->putObjectFile(TMP_FOLDER . $contract_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                        unlink(TMP_FOLDER . $contract_file);
+                        //Logging success for file uppload
+                        log_message('info', __FUNCTION__ . ' Learning Collateral FILE is being uploaded sucessfully.');
+                }
             }
             $l_c_capacity =array();
+            $l_c_model = array();
             $l_c_brands = $this->input->post('l_c_brands');
             $l_c_category = $this->input->post('l_c_category');
             $appliance_id = $this->input->post('l_c_service');
@@ -4088,6 +4123,11 @@ class Partner extends CI_Controller {
             $description = '';
             if($this->input->post('l_c_capacity') && !empty($this->input->post('l_c_capacity'))){
               $l_c_capacity = $this->input->post('l_c_capacity');  
+              $is_model = 0;
+            }
+            if($this->input->post('l_c_model') && !empty($this->input->post('l_c_model'))){
+              $l_c_capacity = $this->input->post('l_c_model');  
+              $is_model =  1;
             }
              if($this->input->post('description') && $this->input->post('description') !=''){
                  $description = $this->input->post('description');
@@ -4099,13 +4139,19 @@ class Partner extends CI_Controller {
                         if(!empty($l_c_capacity)){
                             foreach($l_c_capacity as $capacity){
                                 $temp['brand'] = $brands;
+                                $temp['is_file'] = $file;
                                 $temp['collateral_id'] = $contract_type;
                                 $temp['category'] = $category;
                                 $temp['appliance_id'] = $appliance_id;
                                 $temp['entity_id'] = $partner;
                                 $temp['entity_type'] = 'partner';
                                 $temp['start_date'] = date('Y-m-d');
-                                $temp['capacity'] = $capacity;
+                                if($is_model){
+                                    $temp['model'] = $capacity;
+                                }
+                                else{
+                                    $temp['capacity'] = $capacity;
+                                }
                                 $temp['document_description'] = $description;
                                 $temp['file'] = $contract_file;
                                 $temp['request_type'] = $requestType;
@@ -5395,7 +5441,7 @@ class Partner extends CI_Controller {
                              $tempString5 = 'disabled="disabled"';
                             }
                         $tempString4 = '<a style="background: #2a3f54; border-color: #2a3f54;" onclick="return confirm_received()" class="btn btn-sm btn-primary" id="defective_parts"
-                                               href='.base_url().'"partner/acknowledge_received_defective_parts/"'.$row['booking_id'].'"/."'.$this->session->userdata("partner_id").'" .'.$tempString5.'>Receive</a>';
+                                               href='.base_url().'partner/acknowledge_received_defective_parts/'.$row['booking_id'].'/'.$this->session->userdata("partner_id").' '.$tempString5.'>Receive</a>';
                      }
                      $tempArray[] = $tempString4;
                      if (!empty($row['defective_part_shipped'])) {
@@ -5869,14 +5915,22 @@ class Partner extends CI_Controller {
         } 
     }
     
+     /*
+     * @desc - This function is used to Active/Inactive bank detail for partner(only one bank detail active at a time)
+     * @param - form post
+     * @retun - void
+     */
     function process_active_inactive_bank_detail(){
         if($this->input->post('is_active') == 0){
-           $this->reusable_model->update_table('account_holders_bank_details', array('is_active'=> 0), array('entity_id'=>$this->input->post('partner_id')));
-           $update = $this->reusable_model->update_table('account_holders_bank_details', array('is_active'=> 1), array('id'=>$this->input->post('id')));  
-       
+            if(!empty($this->input->post('partner_id'))){
+                $this->reusable_model->update_table('account_holders_bank_details', array('is_active'=> 0), array('entity_id'=>$this->input->post('partner_id')));
+                $update = $this->reusable_model->update_table('account_holders_bank_details', array('is_active'=> 1), array('id'=>$this->input->post('id')));  
+            }
         }
         else{
-          $update = $this->reusable_model->update_table('account_holders_bank_details', array('is_active'=> 0), array('id'=>$this->input->post('id')));   
+            if(!empty($this->input->post('partner_id'))){
+                $update = $this->reusable_model->update_table('account_holders_bank_details', array('is_active'=> 0), array('id'=>$this->input->post('id'))); 
+            }
         }
         if($update){
             $this->session->set_userdata('success', 'Bank Data Updated Successfully');
@@ -6040,6 +6094,5 @@ function update_channel($id) {
                 }
             }
         }
-
 }
 

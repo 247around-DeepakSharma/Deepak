@@ -40,6 +40,7 @@
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <select class="form-control filter_table" id="service_id" name="services">
+                                    <option value="" selected="selected" disabled="">Select Service</option>
                                 <?php foreach($services as $val){ ?>
                                 <option value="<?php echo $val['id']?>" <?php if(isset($filters['services'])){if($filters['services'] == $val['id']){echo 'selected="selected"';}} ?>><?php echo $val['services']?></option>
                                 <?php } ?>

@@ -106,3 +106,4 @@ define("POSTPAID_PARTNER_WITH_IN_DUE_DATE_INVOICE_NOTIFICATIOIN", "postpaid_with
 define("MISSED_UPCOUNTRY_BOOKING", "missed_upcountry_booking");
 define("CN_AGAINST_GST_DN", "credit_note_against_gst_debit_note");
 define("VENDOR_GST_RETURN_WARNING", "vendor_gst_return");
+define('SPARE_INVOICE_EMAIL_TAG','spare_invoice_sent');

@@ -225,7 +225,11 @@ class User_invoice extends CI_Controller {
                 "total_sgst_tax_amount" => $invoice['meta']["sgst_total_tax_amount"],
                 "total_cgst_tax_amount" => $invoice['meta']["cgst_total_tax_amount"],
                 'create_date' => date('Y-m-d H:i:s'),
-                "remarks" => ''
+                "remarks" => '',
+                "vertical" => SERVICE,
+                "category" => INSTALLATION_AND_REPAIR,
+                "sub_category" => CUSTOMER_PAYMENT,
+                "accounting" => 0,
             );
         
         $invoice_breakup = array();
@@ -387,7 +391,11 @@ class User_invoice extends CI_Controller {
             "sgst_tax_amount" => $invoice['meta']["sgst_total_tax_amount"],
             "cgst_tax_amount" => $invoice['meta']["cgst_total_tax_amount"],
             "invoice_file_pdf" => $convert['copy_file'],
-            "remarks" => $booking_id
+            "remarks" => $booking_id,
+            "vertical" => SERVICE,
+            "category" => CREDIT_NOTE,
+            "sub_category" => CUSTOMER_PAYMENT,
+            "accounting" => 0,
         );
         //Insert Invoice
         $this->invoices_model->insert_new_invoice($invoice_details);

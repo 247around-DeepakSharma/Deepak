@@ -725,6 +725,7 @@ class Service_centers extends CI_Controller {
                         $bookingData['service_center_closed_date'] = date('Y-m-d H:i:s');
                     }
                     $this->reusable_model->update_table("booking_details",$bookingData,array('booking_id'=>$booking_id));
+                    $this->miscelleneous->process_booking_tat_on_completion($booking_id);
                    //End Update Service Center Closed Date
                     $this->update_booking_internal_status($booking_id, "InProcess_Cancelled",  $partner_id);
                     $this->insert_details_in_state_change($booking_id, 'InProcess_Cancelled', $can_state_change,"not_define","not_define");
@@ -2107,6 +2108,9 @@ class Service_centers extends CI_Controller {
         $this->checkUserSession();
         $challan = $this->input->post('download_challan');
         $zip = 'zip '.TMP_FOLDER.'challan_file.zip ';
+        if(file_exists(TMP_FOLDER .  'challan_file.zip')){
+            unlink(TMP_FOLDER . 'challan_file.zip');
+        }
         foreach ($challan as $file) {
             $explode = explode(",", $file);
             foreach ($explode as $value) {
@@ -2125,6 +2129,9 @@ class Service_centers extends CI_Controller {
         $res2 = 0;
         system(" chmod 777 " . TMP_FOLDER . 'challan_file.zip ', $res2);
         readfile(TMP_FOLDER .  'challan_file.zip');
+        if(file_exists(TMP_FOLDER .  'challan_file.zip')){
+             unlink(TMP_FOLDER . 'challan_file.zip');
+        }
     }
 
     /**

@@ -579,8 +579,12 @@ class Invoice extends CI_Controller {
                 'miscellaneous_charges' => $total_misc_charge,
                 'warehouse_storage_charges' => $misc_data['warehouse_storage_charge'],
                 'penalty_amount'=> $total_penalty_discount,
-                'penalty_bookings_count' => $penalty_booking_count
-             );
+                'penalty_bookings_count' => $penalty_booking_count,
+                'vertical' => SERVICE,
+                'category' => INSTALLATION_AND_REPAIR,
+                'sub_category' => CASH,
+                'accounting' => 1,
+            );
 
             $this->invoices_model->insert_new_invoice($invoice_details);
             log_message('info', __METHOD__ . "=> Insert Invoices in partner invoice table");
@@ -865,7 +869,11 @@ class Invoice extends CI_Controller {
                 "sgst_tax_amount" => $meta["sgst_total_tax_amount"],
                 "cgst_tax_amount" => $meta["cgst_total_tax_amount"],
                 "hsn_code" => COMMISION_CHARGE_HSN_CODE,
-                "invoice_file_pdf" => $convert['copy_file']
+                "invoice_file_pdf" => $convert['copy_file'],
+                "vertical" => SERVICE,
+                "category" => INSTALLATION_AND_REPAIR,
+                "sub_category" => COMMISSION,
+                "accounting" => 1,
             );
 
             $this->invoices_model->action_partner_invoice($invoice_details);
@@ -1158,7 +1166,11 @@ class Invoice extends CI_Controller {
                     "miscellaneous_charges" => $total_misc_charges,
                     "warehouse_storage_charges" => $invoice_data['warehouse_storage_charge'],
                     "packaging_rate" => $invoice_data['packaging_rate'],
-                    "packaging_quantity" => $invoice_data['packaging_quantity']
+                    "packaging_quantity" => $invoice_data['packaging_quantity'],
+                    "vertical" => SERVICE,
+                    "category" => INSTALLATION_AND_REPAIR,
+                    "sub_category" => FOC,
+                    "accounting" => 1,
                 );
                 
                 // insert invoice details into vendor partner invoices table
@@ -1185,7 +1197,11 @@ class Invoice extends CI_Controller {
                         //Add 1 month to end date to calculate due date
                         'due_date' => date("Y-m-d", strtotime($to_date . "+1 month")),
                         //add agent id
-                        'agent_id' => $agent_id
+                        'agent_id' => $agent_id,
+                        'vertical' => SERVICE,
+                        'category' => INSTALLATION_AND_REPAIR,
+                        'sub_category' => GST_DEBIT_NOTE,
+                        'accounting' => 1,
                     );
             
                     $this->invoices_model->action_partner_invoice($debit_invoice_details);
@@ -1798,7 +1814,11 @@ class Invoice extends CI_Controller {
                         "igst_tax_amount" => $invoice['meta']["igst_total_tax_amount"],
                         "sgst_tax_amount" => $invoice['meta']["sgst_total_tax_amount"],
                         "cgst_tax_amount" => $invoice['meta']["cgst_total_tax_amount"],
-                        "invoice_file_pdf" => $convert['copy_file']
+                        "invoice_file_pdf" => $convert['copy_file'],
+                        "vertical" => SERVICE,
+                        "category" => SPARES,
+                        "sub_category" => BRACKETS,
+                        "accounting" => 1
                     );
                     
                     $this->invoices_model->action_partner_invoice($invoice_details);
@@ -2431,7 +2451,7 @@ class Invoice extends CI_Controller {
                                 $tds['tds'] = 0;
                                 $tds['tds_rate'] = 0;
                             }
-                        } else if ($data['type'] == 'CreditNote' || $data['type'] == 'Buyback' || $data['type'] == 'Stand' || $data['type'] == "Parts") {
+                        } else if ($data['type'] == 'CreditNote' || $data['type'] == 'Buyback' || $data['type'] == 'Stand' || $data['type'] == "Parts" || $data['type'] == LIQUIDATION) {
 
                             $tds['tds'] = 0;
                             $tds['tds_rate'] = 0;
@@ -2455,6 +2475,10 @@ class Invoice extends CI_Controller {
                     $data['invoice_file_excel'] = $file['invoice_file_excel'];
                 }
                 $data['agent_id'] = $this->session->userdata("id");
+                $data['vertical'] = $this->input->post("vertical");
+                $data['category'] = $this->input->post("category");
+                $data['sub_category'] = $this->input->post("sub_category");
+                $data['accounting'] = $this->input->post("accounting_input");
                 $status = $this->invoices_model->action_partner_invoice($data);
 
                 if ($status) {
@@ -2987,17 +3011,21 @@ class Invoice extends CI_Controller {
                 "sgst_tax_amount" => $response['meta']["sgst_total_tax_amount"],
                 "cgst_tax_amount" => $response['meta']["cgst_total_tax_amount"],
                 "hsn_code" => $hsn_code,
-                "invoice_file_pdf" => $response['meta']['copy_file']
+                "invoice_file_pdf" => $response['meta']['copy_file'],
+                "vertical" => SERVICE,
+                "category" => RECURRING_CHARGES,
+                "sub_category" => CRM,
+                "accounting" => 1
             );
             
              $this->invoices_model->insert_new_invoice($invoice_details);
              log_message('info', __METHOD__ . ": Invoice ID inserted");
-             $this->session->set_flashdata('file_error', $description.'Invoice Generated');
+             $this->session->set_flashdata('file_error', $description.' Invoice Generated');
              redirect(base_url() . "employee/invoice/invoice_partner_view");
 
         } else {
             log_message('info', __METHOD__ . ": Invoice ID inserted");
-            $this->session->set_flashdata('file_error', $description. 'Not Generated');
+            $this->session->set_flashdata('file_error', $description. ' Not Generated');
             log_message('info', __METHOD__ . ": Validation Failed");
             $this->invoice_partner_view();
         }
@@ -3052,7 +3080,7 @@ class Invoice extends CI_Controller {
     function process_advance_payment() {
         $this->checkUserSession();
         $agent_id = $this->session->userdata('id');
-        $status = $this->_process_advance_payment($agent_id);
+        $status = $this->_process_advance_payment($agent_id, null);
         if ($status) {
 
             $userSession = array('success' => "Bank Transaction Added");
@@ -3067,7 +3095,7 @@ class Invoice extends CI_Controller {
     
     function paytm_gateway_payment($agent_id){
         log_message("info",__METHOD__. "POST ". print_r($this->input->post(), true));
-        $status = $this->_process_advance_payment($agent_id);
+        $status = $this->_process_advance_payment($agent_id, PAYTM_GATEWAY);
         if(!$status){
             $to = "abhaya@247around.com";
             $cc = "";
@@ -3079,7 +3107,7 @@ class Invoice extends CI_Controller {
         }
     }
     
-    function _process_advance_payment($agent_id){
+    function _process_advance_payment($agent_id, $flag = null){
         $data['partner_vendor'] = $this->input->post("partner_vendor");
         $data['partner_vendor_id'] = $this->input->post('partner_vendor_id');
         $data['credit_debit'] = $this->input->post("credit_debit");
@@ -3092,7 +3120,7 @@ class Invoice extends CI_Controller {
             
             $invoice_id = $this->advance_invoice_insert($data['partner_vendor'], 
                     $data['partner_vendor_id'], $data['transaction_date'],
-                    $amount, $data['tds_amount'], "Credit", $agent_id);
+                    $amount, $data['tds_amount'], "Credit", $agent_id, $flag);
             if($invoice_id){
                 $data['invoice_id'] = $invoice_id;
                 $data['is_advance'] = 1;
@@ -3125,7 +3153,7 @@ class Invoice extends CI_Controller {
         return $this->invoices_model->bankAccountTransaction($data);
     }
     
-    function advance_invoice_insert($vendor_partner, $vendor_partner_id, $date, $amount, $tds, $txntype, $agent_id) {
+    function advance_invoice_insert($vendor_partner, $vendor_partner_id, $date, $amount, $tds, $txntype, $agent_id, $flag=null) { 
 
         if ($vendor_partner == "vendor") {
             $entity = $this->vendor_model->getVendorDetails("is_cp, sc_code", array("id" => $vendor_partner_id));
@@ -3139,10 +3167,22 @@ class Invoice extends CI_Controller {
         if (!empty($entity)) {
             if ($vendor_partner == "vendor") {
                 if($txntype == "Credit"){
+                    if($entity[0]['is_cp'] === '1'){
+                        $data['type'] = BUYBACK_VOUCHER;
+                        $data['vertical'] = BUYBACK;
+                        $data['category'] = EXCHANGE;
+                        $data['sub_category'] = ADVANCE;
+                        $data['accounting'] = 0;
+                    }
+                    else{
+                        $data['type'] = VENDOR_VOUCHER;
+                        $data['vertical'] =SERVICE;
+                        $data['category'] = ADVANCE;
+                        $data['sub_category'] = SECURITY;
+                        $data['accounting'] = 0;
+                    }
                     $data['invoice_id'] = $this->create_invoice_id_to_insert("ARD-RV");
-                    $data['type'] = BUYBACK_VOUCHER;
                     $basic_price = $amount;
-
                     $data['parts_cost'] = $basic_price;
                     $amount_collected_paid = $amount;
                     $data['type_code'] = "B";
@@ -3155,9 +3195,11 @@ class Invoice extends CI_Controller {
                     $data['total_service_charge'] = $basic_price;
                     $data['type_code'] = "A";
                     $data['amount_collected_paid'] = $amount_collected_paid;
+                    $data['vertical'] =SERVICE;
+                    $data['category'] = ADVANCE;
+                    $data['sub_category'] = CASH;
+                    $data['accounting'] = 0;
                 }
-                
-                
             } else {
                 $data['invoice_id'] = $this->create_invoice_id_to_insert("ARD-PV");
                 if($tds > 0){
@@ -3181,6 +3223,19 @@ class Invoice extends CI_Controller {
                 $amount_collected_paid = $amount - $tds;
                 $data['type_code'] = "B";
                 $data['amount_collected_paid'] = -$amount_collected_paid;
+                
+                if($flag && $flag == PAYTM_GATEWAY){
+                    $data['vertical'] =SERVICE;
+                    $data['category'] = ADVANCE;
+                    $data['sub_category'] = PRE_PAID_PAYMENT_GATEWAY;
+                    $data['accounting'] = 0;
+                }
+                else{
+                    $data['vertical'] =SERVICE;
+                    $data['category'] = ADVANCE;
+                    $data['sub_category'] = PREPAID;
+                    $data['accounting'] = 0;
+                }
             }
 
             
@@ -3267,7 +3322,7 @@ class Invoice extends CI_Controller {
                 $subject = vsprintf($email_template[4], array($partner_data['company_name'], $sd, $ed));
                 $message = $email_template[0];
                 $email_from = $email_template[2];
-                if($email_tag === CRM_SETUP_INVOICE_EMAIL_TAG){
+                if($email_tag == CRM_SETUP_INVOICE_EMAIL_TAG){
                     $to = $partner_data['invoice_email_to'].",".$email_template[1];
                     $cc = $partner_data['invoice_email_cc'].",".$email_template[3];
                 }
@@ -3481,7 +3536,6 @@ class Invoice extends CI_Controller {
             if ($status) {
                 log_message("info", __METHOD__ . " Vendor Spare Invoice SF ID" . $sp_data[0]->service_center_id . " Spare Id " . $spare_id);
 
-                //$convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($response['meta']['invoice_id'], "final");
                 $convert = $this->invoice_lib->convert_invoice_file_into_pdf($response, "final");
                 $output_pdf_file_name = $convert['main_pdf_file_name'];
                 $response['meta']['invoice_file_main'] = $output_pdf_file_name;
@@ -3492,14 +3546,14 @@ class Invoice extends CI_Controller {
                 $message = $email_template[0];
                 $email_from = $email_template[2];
 
-               // $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($sp_data[0]->service_center_id);
-//                $rem_email_id = "";
-//                if (!empty($rm_details)) {
-//                    $rem_email_id = ", " . $rm_details[0]['official_email'];
-//                }
-               // $to = $vendor_details[0]['owner_email'] . ", " . $vendor_details[0]['primary_contact_email'];
-                $to = $email_template[3];
-                $cc ="";
+                $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($sp_data[0]->service_center_id);
+                $rem_email_id = "";
+                if (!empty($rm_details)) {
+                    $rem_email_id = ", " . $rm_details[0]['official_email'];
+                }
+                $to = $vendor_details[0]['owner_email'] . ", " . $vendor_details[0]['primary_contact_email'];
+//                $to = $email_template[3];
+                $cc = $email_template[3];;
 
                 $this->upload_invoice_to_S3($response['meta']['invoice_id'], false);
 
@@ -3539,7 +3593,11 @@ class Invoice extends CI_Controller {
                     "cgst_tax_amount" => $response['meta']["cgst_total_tax_amount"],
                     "hsn_code" => SPARE_HSN_CODE,
                     "invoice_file_pdf" => $response['meta']['copy_file'],
-                    "remarks" => $data[0]['description']
+                    "remarks" => $data[0]['description'],
+                    "vertical" => SERVICE,
+                    "category" => SPARES,
+                    "sub_category" => OUT_OF_WARRANTY,
+                    "accounting" => 1
                 );
 
                 $this->invoices_model->insert_new_invoice($invoice_details);
@@ -3561,7 +3619,7 @@ class Invoice extends CI_Controller {
      */
     function generate_reverse_oow_invoice($booking_id){
         log_message('info', __METHOD__. " Booking ID ".$booking_id);
-        $oow_data = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, booking_unit_details_id, purchase_price, sell_price, sell_invoice_id,"
+        $oow_data = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, booking_unit_details_id, purchase_price, sell_price, sell_invoice_id, purchase_invoice_id, "
                 . "spare_parts_details.purchase_price, parts_requested,invoice_gst_rate, spare_parts_details.service_center_id, spare_parts_details.booking_id,"
                 . "reverse_sale_invoice_id, reverse_purchase_invoice_id, booking_details.partner_id as booking_partner_id, invoice_gst_rate", 
                     array('spare_parts_details.booking_id' => $booking_id, 
@@ -3570,19 +3628,22 @@ class Invoice extends CI_Controller {
                         'sell_invoice_id IS NOT NULL' => NULL,
                         'estimate_cost_given_date IS NOT NULL' => NULL,
                         'request_type' => REPAIR_OOW_TAG,
+                        'defective_part_required' => 1,
+                        'approved_defective_parts_by_partner' => 1,
+                        'status' => DEFECTIVE_PARTS_RECEIVED,
                         '(reverse_sale_invoice_id IS NULL OR reverse_purchase_invoice_id IS NULL)' => NULL),
                     true);
 
         if(!empty($oow_data)){
             foreach ($oow_data as $value) {
-                if(empty($value['reverse_sale_invoice_id']) && !empty($value['sell_invoice_id'])){
+                if(!empty($value['sell_invoice_id']) && empty($value['reverse_sale_invoice_id'])){
                    $invoice_details = $this->invoices_model->get_invoices_details(array('invoice_id' => $value['sell_invoice_id']), $select = "*");
                    if(!empty($invoice_details)){
                        $this->generate_reverse_sale_invoice($invoice_details, $value);
                    }
                 }
-                
-                if (empty($value['reverse_purchase_invoice_id'])){
+
+                if(!empty($value['purchase_invoice_id']) && empty($value['reverse_purchase_invoice_id'])){
                     $this->generate_reverse_purchase_invoice($value);
                 }
             }
@@ -3688,6 +3749,8 @@ class Invoice extends CI_Controller {
                 
                 log_message('info', __METHOD__ . ": ...Exit" . $response['meta']['invoice_id']);
             }
+            
+            return true;
     }
     /**
      * @desc This function is used to generate reverse purchase invoice means sale invoice to Partner 
@@ -3696,34 +3759,37 @@ class Invoice extends CI_Controller {
     function generate_reverse_purchase_invoice($spare_data){
         log_message('info', __METHOD__. " Spare Data ". print_r($spare_data, true));
         $partner_details = $this->partner_model->getpartner($spare_data['booking_partner_id']);
-        $data = array();
-        $data[0]['description'] = ucwords($spare_data['parts_requested']) . " (" . $spare_data['booking_id'] . ") ";
-        $amount = $spare_data['purchase_price'];
-        $tax_charge = $this->booking_model->get_calculated_tax_charge($amount, $spare_data['invoice_gst_rate']);
-        $data[0]['taxable_value'] = ($amount - $tax_charge);
-        $data[0]['product_or_services'] = "Product";
-        if(empty($partner_details[0]['gst_number'])){
-            $data[0]['gst_number'] = $partner_details['gst_number'];
-        } else {
-            $data[0]['gst_number'] = 1;
-        }
         
-        $data[0]['company_name'] = $partner_details[0]['company_name'];
-        $data[0]['company_address'] = $partner_details[0]['address'];
-        $data[0]['district'] = $partner_details[0]['district'];
-        $data[0]['pincode'] = $partner_details[0]['pincode'];
-        $data[0]['state'] = $partner_details[0]['state'];
-        $data[0]['rate'] = "0";
-        $data[0]['qty'] = 1;
-        $data[0]['hsn_code'] = SPARE_HSN_CODE;
-        $sd = $ed = $invoice_date = date("Y-m-d");
-        $gst_rate = $spare_data['invoice_gst_rate'];
-        $data[0]['gst_rate'] = $gst_rate;
-
-        $response = $this->invoices_model->_set_partner_excel_invoice_data($data, $sd, $ed, "Tax Invoice",$invoice_date);
-        $response['meta']['invoice_id'] = $this->create_invoice_id_to_insert("Around");
-        $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
-        if ($status) {
+        $invoice_breakup_details = $this->invoices_model->get_breakup_invoice_details("*", array('spare_id' => $spare_data['id'], "invoice_id" => $spare_data['purchase_invoice_id']));
+        
+        if(!empty($invoice_breakup_details)){
+            $data = array();
+            $data[0]['description'] = $invoice_breakup_details[0]['description'];
+            $data[0]['taxable_value'] = $invoice_breakup_details[0]['taxable_value'];
+            $data[0]['product_or_services'] = "Product";
+            if(empty($partner_details[0]['gst_number'])){
+            $data[0]['gst_number'] = $partner_details['gst_number'];
+            } else {
+                $data[0]['gst_number'] = 1;
+            }
+            
+            $data[0]['company_name'] = $partner_details[0]['company_name'];
+            $data[0]['company_address'] = $partner_details[0]['address'];
+            $data[0]['district'] = $partner_details[0]['district'];
+            $data[0]['pincode'] = $partner_details[0]['pincode'];
+            $data[0]['state'] = $partner_details[0]['state'];
+            $data[0]['rate'] = $invoice_breakup_details[0]['taxable_value'];;
+            $data[0]['qty'] = 1;
+            $data[0]['hsn_code'] = SPARE_HSN_CODE;
+            $sd = $ed = $invoice_date = date("Y-m-d");
+            $gst_rate = $invoice_breakup_details[0]['cgst_tax_rate'] + $invoice_breakup_details[0]['sgst_tax_rate'] + $invoice_breakup_details[0]['igst_tax_rate'];
+            $data[0]['gst_rate'] = $gst_rate;
+            $response = $this->invoices_model->_set_partner_excel_invoice_data($data, $sd, $ed, "Tax Invoice",$invoice_date);
+            $response['meta']['invoice_id'] = $this->create_invoice_id_to_insert("Around");
+            
+            $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
+            
+            if ($status) {
                 log_message("info", __METHOD__ . " Vendor Spare Invoice SF ID" . $spare_data['service_center_id'] . " Spare Id " . $spare_data['id']);
 
                 $convert = $this->invoice_lib->convert_invoice_file_into_pdf($response, "final");
@@ -3782,12 +3848,19 @@ class Invoice extends CI_Controller {
 
                 $this->invoices_model->insert_new_invoice($invoice_details);
                 log_message('info', __METHOD__ . ": Invoice ID inserted");
+                
+                $invoice_breakup_details[0]['invoice_id'] = $response['meta']['invoice_id'];
+                $invoice_breakup_details[0]['create_date'] = date('Y-m-d H:i:s');
+                unset($invoice_breakup_details[0]['id']);
+                $this->invoices_model->insert_invoice_breakup($invoice_breakup_details);
 
                 $this->service_centers_model->update_spare_parts(array('id' => $spare_data['id']), array("reverse_purchase_invoice_id" => $response['meta']['invoice_id']));
                 log_message('info', __METHOD__ . ": Invoice Updated in Spare Parts " . $response['meta']['invoice_id']);
                 
                 log_message('info', __METHOD__ . ": ...Exit" . $response['meta']['invoice_id']);
             }
+        }
+
     }
             
     function checkUserSession() {
@@ -3800,92 +3873,184 @@ class Invoice extends CI_Controller {
     }
     
     function generate_spare_purchase_invoice() {
-        log_message("info", __METHOD__ . " Post " . print_r($this->input->post("spare_id"), true));
+        log_message("info", __METHOD__ . " Post " . print_r(json_encode($this->input->post(), true), true));
 
-        $this->form_validation->set_rules('spare_id', 'Spare ID', 'required');
+        $this->form_validation->set_rules('part', 'part', 'required');
         $this->form_validation->set_rules('invoice_date', 'Invoice Date', 'required');
         $this->form_validation->set_rules('remarks', 'Remarks', 'required');
-        $this->form_validation->set_rules('parts_count', 'Count', 'required');
         $this->form_validation->set_rules('invoice_id', 'Invoice ID', 'required');
-        $this->form_validation->set_rules('hsn_code', 'HSN Code', 'required');
-        $this->form_validation->set_rules('parts_charge', '', 'required');
         $validation = $this->form_validation->run();
         if ($validation) {
-            $spare_id = $this->input->post("spare_id");
-            $w['length'] = -1;
-            $w['where_in'] = array("spare_parts_details.id" => $spare_id);
-            $w['select'] = "spare_parts_details.id, spare_parts_details.booking_id, purchase_price, public_name, booking_details.partner_id, "
-                    . "purchase_invoice_id,sell_invoice_id, sell_price, incoming_invoice_pdf, partners.state";
-            $data = $this->inventory_model->get_spare_parts_query($w);
-
-            $unique_partner = array_unique(array_map(function ($k) {
+            $part_data = $this->input->post("part");
+            $is_validate = $this->validate_spare_purchase_data($part_data);
+            if($is_validate['status']){
+                $w['length'] = -1;
+                $w['where_in'] = array("spare_parts_details.id" => $is_validate['data']);
+                $w['select'] = "spare_parts_details.id, spare_parts_details.booking_id, purchase_price, public_name, booking_details.partner_id, "
+                        . "purchase_invoice_id,sell_invoice_id, sell_price, incoming_invoice_pdf, partners.state, parts_shipped";
+                $data = $this->inventory_model->get_spare_parts_query($w);
+                
+                $unique_partner = array_unique(array_map(function ($k) {
                         return $k->partner_id;
                     }, $data));
-
-            if (count($unique_partner) == 1) {
-                $uni_booking_id = array_unique(array_map(function ($k) {
+                    
+                if (count($unique_partner) == 1) {
+                    $invoice_pdf = "";
+                    foreach ($data as $sp) {
+                        if (!empty($sp->incoming_invoice_pdf)) {
+                            $invoice_pdf = $sp->incoming_invoice_pdf;
+                        }
+                    }
+                    if (!empty($invoice_pdf)) {
+                        $tmp_invoice_id = $this->input->post('invoice_id');
+                        $invoice_id = str_replace("/","-",$tmp_invoice_id);
+                        $partner_id = $this->input->post('partner_id');
+                        $invoice_date = $this->input->post('invoice_date');
+                        $invoice_breakup = array();
+                        
+                        $c_s_gst = $this->invoices_model->check_gst_tax_type($data[0]->state);
+                        $uni_booking_id = array_unique(array_map(function ($k) {
                             return $k->booking_id;
                         }, $data));
-                $invoice_pdf = "";
-                foreach ($data as $sp) {
-                    if (!empty($sp->incoming_invoice_pdf)) {
-                        $invoice_pdf = $sp->incoming_invoice_pdf;
-                    }
-                }
+                            
+                        $invoice = array();
+                        $booking_id_array = array();
+                        $total_amount_collected = 0;
+                        $total_part_basic = 0;
+                        $total_cgst_amount = $total_igst_ampount =0;
+                        
+                        foreach ($data as $value) {
+                            array_push($booking_id_array, $value->booking_id);
+                            $igst_rate = $cgst_rate = $sgst_rate = 0;
+                            $igst_amount = $cgst_amount = $sgst_amount = 0;
+                            if($c_s_gst){
+                                $cgst_rate = $sgst_rate = $part_data[$value->id]['gst_rate']/2;
+                                $cgst_amount = $sgst_amount = (($part_data[$value->id]['basic_amount'] * $part_data[$value->id]['gst_rate'])/100)/2;
+                                $total_cgst_amount += $cgst_amount;
+                            } else {
+                                $igst_rate = $part_data[$value->id]['gst_rate'];
+                                $igst_amount = (($part_data[$value->id]['basic_amount'] * $part_data[$value->id]['gst_rate'])/100);
+                                $total_igst_ampount += $igst_amount;
+                            }
+                            $total_amount = $part_data[$value->id]['basic_amount'] + $igst_amount +$cgst_amount + $sgst_amount;
+                            $total_amount_collected += $total_amount;
+                            $total_part_basic += $part_data[$value->id]['basic_amount'];
+                            $invoice_details = array(
+                                "invoice_id" => $invoice_id,
+                                "description" => $value->parts_shipped,
+                                "qty" => 1,
+                                "product_or_services" => "Parts",
+                                "rate" => $part_data[$value->id]['basic_amount'],
+                                "taxable_value" => $part_data[$value->id]['basic_amount'],
+                                "cgst_tax_rate" => $cgst_rate,
+                                "sgst_tax_rate" => $sgst_rate,
+                                "igst_tax_rate" => $igst_rate,
+                                "cgst_tax_amount" => $cgst_amount,
+                                "sgst_tax_amount" => $sgst_amount,
+                                "spare_id" => $value->id,
+                                "igst_tax_amount" => $igst_amount,
+                                "hsn_code" => $part_data[$value->id]['hsn_code'],
+                                "total_amount" => $total_amount,
+                                "create_date" => date('Y-m-d H:i:s')
 
-                if (!empty($invoice_pdf)) {
-                    $invoice_date = $this->input->post("invoice_date");
-                    $invoice['invoice_id'] = trim($this->input->post("invoice_id"));
-                    $invoice['vendor_partner'] = "partner";
-                    $invoice['remarks'] = trim($this->input->post("remarks")) . " for Booking id " . implode(", ", $uni_booking_id);
-                    $invoice['parts_count'] = trim($this->input->post("parts_count"));
-                    $invoice['hsn_code'] = trim($this->input->post("hsn_code"));
-                    $invoice['total_amount_collected'] = trim($this->input->post("parts_charge"));
-                   
-                    $invoice['type'] = "Parts";
-                    $invoice['invoice_date'] = $invoice['due_date'] = date("Y-m-d", strtotime($invoice_date));
-                    $invoice['from_date'] = $invoice['to_date'] = date("Y-m-d", strtotime($invoice_date));
-                    $invoice['type_code'] = "B";
-                    $invoice['agent_id'] = $this->session->userdata('id');
-                    $invoice['vendor_partner_id'] = $data[0]->partner_id;
-                    $gst_rate = trim($this->input->post('gst_rate'));
-                    $gst_amount =  $this->booking_model->get_calculated_tax_charge($invoice['total_amount_collected'], $gst_rate); 
-                    $amount_collected_paid = sprintf("%.2f",($invoice['total_amount_collected'] - $gst_amount));
-                    $invoice['parts_cost'] = $amount_collected_paid;
+                            );
+            
+                            array_push($invoice_breakup, $invoice_details);
+                        }
+                        
+                        $invoice['invoice_id'] = $invoice_id;
+                        $invoice['vendor_partner'] = "partner";
+                        $invoice['remarks'] = trim($this->input->post("remarks")) . " for Booking id " . implode(", ", $uni_booking_id);
+                        $invoice['parts_count'] = count($part_data);
+                        $invoice['hsn_code'] = '';
+                        $invoice['total_amount_collected'] = $total_amount_collected;
+
+                        $invoice['type'] = "Parts";
+                        $invoice['invoice_date'] = $invoice['due_date'] = date("Y-m-d", strtotime($invoice_date));
+                        $invoice['from_date'] = $invoice['to_date'] = date("Y-m-d", strtotime($invoice_date));
+                        $invoice['type_code'] = "B";
+                        $invoice['agent_id'] = $this->session->userdata('id');
+                        $invoice['vendor_partner_id'] =$partner_id;
+                        $invoice['parts_cost'] = $total_part_basic;
+                        $invoice['cgst_tax_amount'] = $invoice['sgst_tax_amount'] =  $total_cgst_amount;
+                        $invoice['igst_tax_amount'] = $total_igst_ampount;
                     
-                    $invoice['invoice_file_main'] = $invoice_pdf;
+                        $invoice['invoice_file_main'] = $invoice_pdf;
+                        $invoice['amount_collected_paid'] = -$total_amount_collected;
 
-                    $c_s_gst = $this->invoices_model->check_gst_tax_type($data[0]->state);
-                    if ($c_s_gst) {
+                        $this->invoices_model->action_partner_invoice($invoice);
+                        $this->invoices_model->insert_invoice_breakup($invoice_breakup);
+                        foreach ($data as $value ) {
 
-                        $invoice['cgst_tax_amount'] = $invoice['sgst_tax_amount'] = $gst_amount / 2;
-                        $invoice['cgst_tax_rate'] = $invoice['sgst_tax_rate'] = $gst_rate / 2;
+                            $this->service_centers_model->update_spare_parts(array('id' => $value->id), array("purchase_invoice_id" => $invoice['invoice_id'],
+                                "status" => SPARE_SHIPPED_BY_PARTNER));
+                            
+                            $this->vendor_model->update_service_center_action($value->booking_id, array('current_status' => "InProcess", 'internal_status' => SPARE_PARTS_SHIPPED));
+                            
+                            $booking['internal_status'] = SPARE_PARTS_SHIPPED;
+                            $actor = $next_action = 'not_define';
+                            $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $value->booking_id);
+                            if (!empty($partner_status)) {
+                                $booking['partner_current_status'] = $partner_status[0];
+                                $booking['partner_internal_status'] = $partner_status[1];
+                                $actor = $booking['actor'] = $partner_status[2];
+                                $next_action = $booking['next_action'] = $partner_status[3];
+                            }
+                            $this->booking_model->update_booking($value->booking_id, $booking);
+                            
+                            $this->notify->insert_state_change($value->booking_id, "Invoice Approved", "", "Admin Approve Partner OOW Invoice ", $this->session->userdata('id'), $this->session->userdata('employee_id'),
+                    $actor,$next_action,_247AROUND);
+                        }
+                        
+                        
+                        echo "Success";
                     } else {
-                        $invoice['igst_tax_amount'] = $gst_amount;
-                        $invoice['igst_tax_rate'] = $gst_rate;
+                         echo "Invoice PDF Not Available";
                     }
-                    
-                    $invoice['amount_collected_paid'] = -$amount_collected_paid;
-
-                    $this->invoices_model->action_partner_invoice($invoice);
-                    foreach ($spare_id as $id) {
-                        
-                        
-                        $this->service_centers_model->update_spare_parts(array('id' => $id), array("purchase_invoice_id" => $invoice['invoice_id']));
-//
-//                        $this->service_centers_model->update_spare_parts(array('id' => $id), array("purchase_invoice_id" => $invoice['invoice_id'],
-//                            "status" => SPARE_SHIPPED_BY_PARTNER));
-                    }
-
-                    echo "Success";
                 } else {
-                    echo "Invoice PDF Not Available";
+                     echo "Please Select Unique Partner Booking";
                 }
+                
             } else {
-                echo "Please Select Unique Partner Booking";
+                echo "Please Enter All Field";
             }
         } else {
             echo "Please Enter All Field";
+        }
+            
+    }
+    /**
+     * 
+     * @param Array $part_data
+     * @return Array
+     */
+    function validate_spare_purchase_data($part_data){
+        $invalid_data = "";
+        $spare_id =array();
+        foreach ($part_data as $id =>$value) {
+            if(empty($value['booking_id'])){
+                $invalid_data = "Booking ID should not be empty";
+                break;
+            } else if(empty($value['hsn_code'])){
+                
+                $invalid_data = "HSN Code should not be empty";
+                
+            } else if(empty($value['gst_rate'])){
+                
+                $invalid_data = "GST Rate should not be empty";
+                
+            }else if(empty($value['basic_amount'])){
+                
+                 $invalid_data = "Invoice Amount should not be empty";
+            } else {
+                array_push($spare_id, $id);
+            }
+        }
+        
+        if(!empty($invalid_data)){
+            return array('status' => false, "message" => $invalid_data);
+        } else {
+            return array('status' => true, "data" => $spare_id);
         }
     }
     
@@ -3971,11 +4136,19 @@ class Invoice extends CI_Controller {
                     $invoice_id = $this->invoice_lib->create_invoice_id("ARD-CN");
                     $type = "Credit Note";
                     $data['type_code'] = "B";
+                    $data['vertical'] = SERVICE;
+                    $data['category'] = INSTALLATION_AND_REPAIR;
+                    $data['sub_category'] = CREDIT_NOTE;
+                    $data['accounting'] = 1;
                 } else {
 
                     $invoice_id = $this->invoice_lib->create_invoice_id("ARD-DN");
                     $type = "Debit Note";
                     $data['type_code'] = "A";
+                    $data['vertical'] = SERVICE;
+                    $data['category'] = INSTALLATION_AND_REPAIR;
+                    $data['sub_category'] = DEBIT_NOTE;
+                    $data['accounting'] = 1;
                 }
                 $invoice = array();
                 if ($service_rate > 0) {
@@ -4138,9 +4311,13 @@ class Invoice extends CI_Controller {
                     //Add 1 month to end date to calculate due date
                     'due_date' => date("Y-m-d"),
                     //add agent id
-                    'agent_id' => $this->session->userdata('id')
+                    'agent_id' => $this->session->userdata('id'),
+                    'vertical' => SERVICE,
+                    'category' => INSTALLATION_AND_REPAIR,
+                    'sub_category' => GST_CREDIT_NOTE,
+                    'accounting' => 0,
                 );
-
+               // print_r($credit_invoice_details); die();
                 $this->invoices_model->action_partner_invoice($credit_invoice_details);
                 $this->invoices_model->update_partner_invoices(array('invoice_id' => $dn_invoice_id), array('credit_generated' => 1));
                 
@@ -4252,7 +4429,10 @@ class Invoice extends CI_Controller {
                 $main['from_date'] = trim($date_explode[0]);
                 $main['to_date'] = trim($date_explode[1]);
                 $main['remarks'] = $this->input->post("remarks");
-                
+                $main['vertical'] = $this->input->post("vertical");
+                $main['category'] = $this->input->post("category");
+                $main['sub_category'] = $this->input->post("sub_category");
+                $main['accounting'] = $this->input->post("accounting");
 
                 $gst_amount = 0;
                 $service_charge = 0;
@@ -4338,7 +4518,7 @@ class Invoice extends CI_Controller {
                                 $tds['tds'] = 0;
                                 $tds['tds_rate'] = 0;
                             }
-                        } else if ($main['type'] == 'CreditNote' || $main['type'] == 'Buyback' || $main['type'] == 'Stand' || $main['type'] == "Parts") {
+                        } else if ($main['type'] == 'CreditNote' || $main['type'] == 'Buyback' || $main['type'] == 'Stand' || $main['type'] == "Parts" || $main['type'] == "Liquidation") {
 
                             $tds['tds'] = 0;
                             $tds['tds_rate'] = 0;
@@ -4383,6 +4563,7 @@ class Invoice extends CI_Controller {
             redirect(base_url() . 'employee/invoice/insert_update_invoice/' . $vendor_partner);
         }
     }
+
    /**
     * This function loads the qvc email form view.
     */
@@ -4414,5 +4595,55 @@ class Invoice extends CI_Controller {
         $this->notify->sendEmail($fromemail, $toemail,$cc, '', $subject, $mesg,'','');
         
     }
+
+    function get_all_invoice_vertical(){ 
+        $vertical_input = $this->input->post('vertical_input');
+        $html = "<option selected disabled>Select Vertical</option>";
+        $select = 'distinct(vertical)';
+        $vertical = $this->invoices_model->get_invoice_tag($select);
+        foreach ($vertical as $vertical) {
+            $html .= '<option value="'.$vertical['vertical'].'"';
+            if($vertical['vertical'] === $vertical_input){
+               $html .= 'selected'; 
+            }
+            $html .= '>'.$vertical['vertical'].'</option>';
+        }
+        echo $html;
+    }
     
+    function get_invoice_category(){
+        $vertical = $this->input->post('vertical');
+        $category_input = $this->input->post('category_input');
+        $html = "<option selected disabled>Select Category</option>";
+        $select = 'distinct(category)';
+        $where = array('vertical'=>$vertical);
+        $category = $this->invoices_model->get_invoice_tag($select, $where);
+        foreach ($category as $category) {
+            $html .= '<option value="'.$category['category'].'"';
+            if($category['category'] === $category_input){
+               $html .= 'selected'; 
+            }
+            $html .= '>'.$category['category'].'</option>';
+        }
+        echo $html;
+    }
+    
+    function get_invoice_sub_category(){
+        $vertical = $this->input->post('vertical');
+        $category = $this->input->post('category');
+        $sub_category_input = $this->input->post('sub_category_input');
+        $html = "<option selected disabled>Select Category</option>";
+        $select = 'distinct(sub_category), accounting';
+        $where = array('vertical'=>$vertical, 'category'=>$category);
+        $sub_category = $this->invoices_model->get_invoice_tag($select, $where);
+        foreach ($sub_category as $sub_category) {
+            $html .= '<option data-id="'.$sub_category['accounting'].'" value="'.$sub_category['sub_category'].'"';
+            if($sub_category['sub_category'] === $sub_category_input){
+               $html .= 'selected'; 
+            }
+            $html .= '>'.$sub_category['sub_category'].'</option>';
+        }
+        echo $html;
+    }
+          
 }
