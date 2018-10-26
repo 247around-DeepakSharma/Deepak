@@ -5211,13 +5211,13 @@ class Partner extends CI_Controller {
             $tempArray[] = $row->aging;
             $bookingIdTemp = "'".$row->booking_id."'";
             $tempArray[] = '<a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('.$bookingIdTemp.')"><i class="fa fa-envelope" aria-hidden="true"></i></a>';
-            if ($row->type == "Query") { 
+            if ($row->type == _247AROUND_QUERY) { 
                 $helperString = ' style="background-color: #26b99a;border-color:#26b99a;color:#fff;padding: 5px 0px;margin: 0px"';
             } 
             else { 
                 $helperString = ' style="background-color: #26b99a;border-color:#26b99a;color:#fff;padding: 5px 0px;margin: 0px"';
             }
-            if ($row->type != "Query") { 
+            if ($row->type != _247AROUND_QUERY) { 
                 $tempArray[]= '<div class="dropdown">
                                                     <button class="btn btn-sm btn-primary" type="button" data-toggle="dropdown" style="border: 1px solid #2a3f54;background: #2a3f54;padding: 4px 24px;">Action
                                                     <span class="caret"></span></button>
@@ -5410,7 +5410,7 @@ class Partner extends CI_Controller {
                     $tempArray[] = $row['courier_name_by_sf'];
                     $courier_name_by_sf = "'".$row['courier_name_by_sf']."'";
                     $awb_by_sf = "'".$row['awb_by_sf']."'";
-                    $spareStatus = "'Delivered'";
+                    $spareStatus = "'".DELIVERED_SPARE_STATUS."'";
                     if(!$row['defactive_part_received_date_by_courier_api']){
                         $spareStatus = "'".DEFECTIVE_PARTS_SHIPPED."'";
                     }
