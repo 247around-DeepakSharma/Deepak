@@ -40,6 +40,7 @@ class Invoice extends CI_Controller {
         $this->load->library('table');
         $this->load->library('push_notification_lib');
         $this->load->library("invoice_lib");
+        $this->load->library('email');
 
     }
 
@@ -4562,7 +4563,39 @@ class Invoice extends CI_Controller {
             redirect(base_url() . 'employee/invoice/insert_update_invoice/' . $vendor_partner);
         }
     }
+
+   /**
+    * This function loads the qvc email form view.
+    */
     
+    function qvc_transction_details(){
+         $this->miscelleneous->load_nav_header();
+         $this->load->view('qvc_email_form');
+    }
+    
+    /**
+     * @desc This function helps in sending email.
+     * @param This also loads the template view.
+     */
+    public function process_to_send_qvc_transction(){
+        
+       $this->miscelleneous->load_nav_header();
+       $data = array(
+            'transction_date' => $this->input->post('transction_date'),
+            'transction_amount' => $this->input->post('transction_amount'),
+            'review' => $this->input->post('review')
+        );
+        $this->load->view('qvc_email_template',$data);
+        
+        $fromemail="shraddhanandt@247around.com";
+        $cc="";
+        $toemail = "shraddhanandtiwary33@gmail.com";
+        $subject = "Sending Transction Form";
+        $mesg = $this->load->view('qvc_email_template',$data,true);
+        $this->notify->sendEmail($fromemail, $toemail,$cc, '', $subject, $mesg,'','');
+        
+    }
+
     function get_all_invoice_vertical(){ 
         $vertical_input = $this->input->post('vertical_input');
         $html = "<option selected disabled>Select Vertical</option>";
@@ -4612,5 +4645,5 @@ class Invoice extends CI_Controller {
         }
         echo $html;
     }
-                    
+          
 }
