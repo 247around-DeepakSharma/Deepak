@@ -802,35 +802,45 @@ class Booking extends CI_Controller {
     function get_complete_booking_form($booking_id) {
         log_message('info', __FUNCTION__ . " Booking ID: " . print_r($booking_id, true));
         $data['booking_id'] = $booking_id;
+        //Get Booking Details
         $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
+        //Get Booking Unit Details Data
         $data['booking_unit_details'] = $this->booking_model->getunit_details($booking_id);
-        $source = $this->partner_model->getpartner_details('bookings_sources.source, partner_type', 
-                array('bookings_sources.partner_id' => $data['booking_history'][0]['partner_id']));
+        //Get Partner Details Like source and partner Type
+        $source = $this->partner_model->getpartner_details('bookings_sources.source, partner_type', array('bookings_sources.partner_id' => $data['booking_history'][0]['partner_id']));
+        //Add source name in booking_history array
         $data['booking_history'][0]['source_name'] = $source[0]['source'];
-
+        //Partner ID
         $partner_id = $data['booking_history'][0]['partner_id'];
+        //Define Blank Price array
         $data['prices'] = array();
-        //log_message('info', __FUNCTION__ . " data " . print_r($data, true));
+        //Define Upcountory Price as zero
         $upcountry_price = 0;
+        //Process booking Unit Details Data Through loop
         foreach ($data['booking_unit_details'] as $keys => $value) {
-            
-                    
+            //If partner type is OEM then get price for booking unit brands
             if ($source[0]['partner_type'] == OEM) {
                 $prices = $this->booking_model->getPricesForCategoryCapacity($data['booking_history'][0]['service_id'], $data['booking_unit_details'][$keys]['category'], $data['booking_unit_details'][$keys]['capacity'], $partner_id, $value['brand']);
-            } else {
+            } 
+            //If partner type is not OEM then check is brand white list for partner if brand is white listed then use brands if not then 
+            else {
                 $isWbrand = "";
-                $whiteListBrand = $this->partner_model->get_partner_blocklist_brand(array("partner_id" => $partner_id, "brand" => $value['brand'],
-            "service_id" => $data['booking_history'][0]['service_id'], "whitelist" => 1), "*");
+                $whiteListBrand = $this->partner_model->get_partner_blocklist_brand(array("partner_id" => $partner_id, "brand" => $value['brand'],"service_id" => $data['booking_history'][0]['service_id'], "whitelist" => 1), "*");
                 if(!empty($whiteListBrand)){
                     $isWbrand = $value['brand'];
                 }
                 $prices = $this->booking_model->getPricesForCategoryCapacity($data['booking_history'][0]['service_id'], $data['booking_unit_details'][$keys]['category'], $data['booking_unit_details'][$keys]['capacity'], $partner_id, $isWbrand);
             }
-            $upcountry_price = 0;
-            //log_message('info', __FUNCTION__ . " Prices " . print_r($prices, true));
+            $serialNumberMandatoryArray = explode(",",SERIAL_NUMBER_MENDATORY);
+            if(in_array($partner_id,$serialNumberMandatoryArray )){
+                $where = array("partner_id" => $partner_id, 'service_id' => $data['booking_history'][0]['service_id'], 
+                            'brand' => $value['brand'], 'category' => $value['category'], 'active'=> 1, 'capacity' => $value['capacity'],
+                            "NULLIF(model, '') IS NOT NULL" => NULL);
+                $data['booking_unit_details'][$keys]['model_dropdown'] =$this->partner_model->get_partner_specific_details($where, "model", "model");
+            }
+              //Process booking Unit Details Data Through loop
             foreach ($value['quantity'] as $key => $price_tag) {
                 $service_center_data = $this->service_centers_model->get_prices_filled_by_service_center($price_tag['unit_id'], $booking_id);
-
                 // print_r($service_center_data);
                 if (!empty($service_center_data)) {
                     $data['booking_unit_details'][$keys]['quantity'][$key]['customer_paid_basic_charges'] = $service_center_data[0]['service_charge'];
@@ -839,7 +849,6 @@ class Booking extends CI_Controller {
                     $data['booking_unit_details'][$keys]['quantity'][$key]['customer_paid_parts'] = $service_center_data[0]['parts_cost'];
                     $data['booking_unit_details'][$keys]['quantity'][$key]['serial_number_pic'] = $service_center_data[0]['serial_number_pic'];
                 }
-
                 // Searched already inserted price tag exist in the price array (get all service category)
                 $id = $this->search_for_key($price_tag['price_tags'], $prices);
                 // remove array key, if price tag exist into price array
@@ -851,15 +860,12 @@ class Booking extends CI_Controller {
 
             array_push($data['prices'], $prices);
         }
-        
         $isPaytmTxn = $this->paytm_payment_lib->get_paytm_transaction_data($booking_id);
-       
         if(!empty($isPaytmTxn)){
             if($isPaytmTxn['status']){
                 $data['booking_history'][0]['onlinePaymentAmount'] = $isPaytmTxn['total_amount'];
             }
         }
-        
         $data['upcountry_charges'] = $upcountry_price;
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/completebooking', $data);
@@ -1902,6 +1908,7 @@ class Booking extends CI_Controller {
         $sp_required_id = json_decode($this->input->post("sp_required_id"), true);
         $spare_parts_required = $this->input->post('spare_parts_required');
         $price_tag_array = $this->input->post('price_tags');
+        $model_number = $this->input->post('model_number');
         $service_center_details = $this->booking_model->getbooking_charges($booking_id);
         $b_unit_details = array();
         if($status == 1){
@@ -1921,11 +1928,15 @@ class Booking extends CI_Controller {
                 $data['serial_number'] = "";
                 $data['serial_number_pic'] = "";
             }
-            
+            //Model number Data
+            $data['sf_model_number'] = "";
+             if (isset($model_number[$unit_id])) {
+                $data['sf_model_number'] = $model_number[$unit_id];
+            }
             if(!empty($data['serial_number_pic'])){
-                $insertd = $this->partner_model->insert_partner_serial_number(array('partner_id' =>$partner_id, 
-                       "serial_number" => $data['serial_number'], "active" =>1, "added_by" => "vendor" ));
-                if(!empty($insertd) && $partner_id == AKAI_ID){
+                $insertd = $this->partner_model->insert_partner_serial_number(array('partner_id' =>$partner_id,"serial_number" => $data['serial_number'], "active" =>1, "added_by" => "vendor" ));
+                $serialNumberMandatoryPartners = explode(',',SERIAL_NUMBER_MENDATORY);
+                if(!empty($insertd)  && in_array($partner_id, $serialNumberMandatoryPartners)){
                     $this->miscelleneous->inform_partner_for_serial_no($booking_id, $service_center_details[0]['service_center_id'], $partner_id, $data['serial_number'], $data['serial_number_pic']);
                 }
             }
@@ -2204,42 +2215,41 @@ class Booking extends CI_Controller {
     }
     
     function validate_serial_no() {
-          return true;
-//        $serial_number = $this->input->post('serial_number');
-//        $pod = $this->input->post('pod');
-//        $price_tags = $this->input->post('price_tags');
-//        $booking_status = $this->input->post('booking_status');
-//        $partner_id = $this->input->post('partner_id');
-//        $user_id = $this->input->post('user_id');
-//        $booking_id = $this->input->post('booking_id');
-//        $return_status = true;
-//        $message = "";
-//        if (isset($_POST['pod'])) {
-//            foreach ($pod as $unit_id => $value) {
-//                if ($value == '1') {
-//                    if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
-//
-//                        $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number[$unit_id]), $price_tags[$unit_id], $user_id, $booking_id);
-//                        if (!empty($status)) {
-//                            if ($status['code'] == DUPLICATE_SERIAL_NO_CODE) {
-//                                $return_status = false;
-//                                $message = $status['message'];
-//                                log_message('info', " Duplicate Serial No " . trim($serial_number[$unit_id]));
-//                                break;
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//            if ($return_status == true) {
-//                return true;
-//            } else {
-//                $this->form_validation->set_message('validate_serial_no', $message);
-//                return FALSE;
-//            }
-//        } else {
-//            return TRUE;
-//        }
+        $serial_number = $this->input->post('serial_number');
+        $pod = $this->input->post('pod');
+        $price_tags = $this->input->post('price_tags');
+        $booking_status = $this->input->post('booking_status');
+        $partner_id = $this->input->post('partner_id');
+        $user_id = $this->input->post('user_id');
+        $booking_id = $this->input->post('booking_id');
+        $service_id = $this->input->post('appliance_id');
+        $return_status = true;
+        $message = "";
+        if (isset($_POST['pod'])) {
+            foreach ($pod as $unit_id => $value) {
+                if ($value == '1') {
+                    if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
+                        $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number[$unit_id]), $price_tags[$unit_id], $user_id, $booking_id,$service_id);
+                        if (!empty($status)) {
+                            if ($status['code'] == DUPLICATE_SERIAL_NO_CODE) {
+                                $return_status = false;
+                                $message = $status['message'];
+                                log_message('info', " Duplicate Serial No " . trim($serial_number[$unit_id]));
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            if ($return_status == true) {
+                return true;
+            } else {
+                $this->form_validation->set_message('validate_serial_no', $message);
+                return FALSE;
+            }
+        } else {
+            return TRUE;
+        }
     }
 
     /**

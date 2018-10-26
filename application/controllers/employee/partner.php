@@ -453,6 +453,11 @@ class Partner extends CI_Controller {
             $code[] = $row['code']; // add each partner code to the array
         }
         $results['partner_code'] = $code;
+        $all_partner_code = $this->partner_model->get_all_partner_code('code', array('R', 'S', 'P', 'L'));
+        foreach ($all_partner_code as $row) {
+            $all_code[] = $row['code']; 
+        }
+        $results['all_partner_code'] = $all_code;
         $employee_list = $this->employee_model->get_employee_by_group(array("groups NOT IN ('developer') AND active = '1'" => NULL));
         $results['collateral_type'] = $this->reusable_model->get_search_result_data("collateral_type", '*', array("collateral_tag" => "Contract"), NULL, NULL, array("collateral_type" => "ASC"), NULL, NULL);
         $this->miscelleneous->load_nav_header();
@@ -866,6 +871,11 @@ class Partner extends CI_Controller {
             $code[] = $row['code']; // add each partner code to the array
         }
         $results['partner_code_availiable'] = $code;
+        $all_partner_code = $this->partner_model->get_all_partner_code('code', array('R', 'S', 'P', 'L'));
+        foreach ($all_partner_code as $row) {
+            $all_code[] = $row['code']; 
+        }
+        $results['all_partner_code'] = $all_code;
         //Getting Parnter Operation Region Details
         $where = array('partner_id' => $id);
         $results['partner_operation_region'] = $this->partner_model->get_partner_operation_region($where);
@@ -5201,13 +5211,13 @@ class Partner extends CI_Controller {
             $tempArray[] = $row->aging;
             $bookingIdTemp = "'".$row->booking_id."'";
             $tempArray[] = '<a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('.$bookingIdTemp.')"><i class="fa fa-envelope" aria-hidden="true"></i></a>';
-            if ($row->type == "Query") { 
+            if ($row->type == _247AROUND_QUERY) { 
                 $helperString = ' style="background-color: #26b99a;border-color:#26b99a;color:#fff;padding: 5px 0px;margin: 0px"';
             } 
             else { 
                 $helperString = ' style="background-color: #26b99a;border-color:#26b99a;color:#fff;padding: 5px 0px;margin: 0px"';
             }
-            if ($row->type != "Query") { 
+            if ($row->type != _247AROUND_QUERY) { 
                 $tempArray[]= '<div class="dropdown">
                                                     <button class="btn btn-sm btn-primary" type="button" data-toggle="dropdown" style="border: 1px solid #2a3f54;background: #2a3f54;padding: 4px 24px;">Action
                                                     <span class="caret"></span></button>
@@ -5400,7 +5410,7 @@ class Partner extends CI_Controller {
                     $tempArray[] = $row['courier_name_by_sf'];
                     $courier_name_by_sf = "'".$row['courier_name_by_sf']."'";
                     $awb_by_sf = "'".$row['awb_by_sf']."'";
-                    $spareStatus = "'Delivered'";
+                    $spareStatus = "'".DELIVERED_SPARE_STATUS."'";
                     if(!$row['defactive_part_received_date_by_courier_api']){
                         $spareStatus = "'".DEFECTIVE_PARTS_SHIPPED."'";
                     }
@@ -5905,14 +5915,22 @@ class Partner extends CI_Controller {
         } 
     }
     
+     /*
+     * @desc - This function is used to Active/Inactive bank detail for partner(only one bank detail active at a time)
+     * @param - form post
+     * @retun - void
+     */
     function process_active_inactive_bank_detail(){
         if($this->input->post('is_active') == 0){
-           $this->reusable_model->update_table('account_holders_bank_details', array('is_active'=> 0), array('entity_id'=>$this->input->post('partner_id')));
-           $update = $this->reusable_model->update_table('account_holders_bank_details', array('is_active'=> 1), array('id'=>$this->input->post('id')));  
-       
+            if(!empty($this->input->post('partner_id'))){
+                $this->reusable_model->update_table('account_holders_bank_details', array('is_active'=> 0), array('entity_id'=>$this->input->post('partner_id')));
+                $update = $this->reusable_model->update_table('account_holders_bank_details', array('is_active'=> 1), array('id'=>$this->input->post('id')));  
+            }
         }
         else{
-          $update = $this->reusable_model->update_table('account_holders_bank_details', array('is_active'=> 0), array('id'=>$this->input->post('id')));   
+            if(!empty($this->input->post('partner_id'))){
+                $update = $this->reusable_model->update_table('account_holders_bank_details', array('is_active'=> 0), array('id'=>$this->input->post('id'))); 
+            }
         }
         if($update){
             $this->session->set_userdata('success', 'Bank Data Updated Successfully');
@@ -6076,6 +6094,5 @@ function update_channel($id) {
                 }
             }
         }
-
 }
 

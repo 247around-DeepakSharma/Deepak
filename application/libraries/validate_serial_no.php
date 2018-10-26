@@ -220,6 +220,7 @@ class Validate_serial_no {
      */
     function jvc_television_serial_number_validation($serialNo){
         $stringLength = strlen($serialNo);
+        $serialNo = strtoupper($serialNo);
         $firstString = strtoupper(substr($serialNo,0,5));
         if ($firstString == 'SHG32') {
             $secondString = substr($serialNo,5,2);
@@ -272,6 +273,7 @@ class Validate_serial_no {
         }
     }
     function jvc_WM_serial_number_validation($serialNo){
+        $serialNo = strtoupper($serialNo);
         $stringLength = strlen($serialNo);
         if($stringLength == 18){
             // Color Coding Validation 
@@ -376,6 +378,7 @@ class Validate_serial_no {
      */
     function lemon_serialNoValidation($partnerID, $serialNo,$modelNumber){
         log_message('info', __METHOD__. " Enterring... Partner ID ". $partnerID. " Srial No ". $serialNo);
+        $serialNo = strtoupper($serialNo);
         $stringLength = strlen($serialNo);
         if($stringLength  == 15){
             // Lemon  start Values

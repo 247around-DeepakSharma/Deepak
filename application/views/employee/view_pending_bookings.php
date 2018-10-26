@@ -260,7 +260,7 @@
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <select class="form-control filter_table" id="is_upcountry" style="padding-left: 3px;">
-                                <option value="" disabled="">Select Upcountry Details </option>
+                                <option value="" selected="selected" disabled="">Select Upcountry Details</option>
                                 <option value="yes">Upcountry</option>
                                 <option value="no">Non Upcountry</option>
                             </select>
@@ -447,7 +447,7 @@
             },
             "columnDefs": [
                 {
-                    "targets": [0,1,2,3,4,6,7,8,9,10,11,12,13,14,15,16], //first column / numbering column
+                    "targets": [0,1,2,3,4,6,7,8,9,10,11,12,13,14,15,16,17], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],  

@@ -649,5 +649,9 @@ define('_247AROUND_GST_DEBIT_NOTE_STRING','GST Debit Note');
 // it is use to check entity-type Warehouse 
 
 define('WAREHOUSE','Warehouse');  
+//constant to define New Query state
+define('_247AROUND_QUERY','Query');
+//constant to define QWIKCILVER partner id
+define('QWIKCILVER_PARTNER_ID','247025');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
