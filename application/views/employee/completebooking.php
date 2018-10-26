@@ -270,6 +270,22 @@
                                                                     <br/>
                                                                     <input type="file" style="display:none" id="<?php echo "upload_serial_number_pic" . $count ?>"   class="form-control" name="<?php echo "upload_serial_number_pic[" . $price['unit_id'] . "]" ?>"   />
                                                                     <span style="color:red;" id="<?php echo 'error_serial_no'.$count;?>"></span>
+                                                                    <?php
+                                                                    $isModelMandatory =0 ;
+                                                                    if(isset($unit_details['model_dropdown']) && !empty($unit_details['model_dropdown'])){ 
+                                                                        $isModelMandatory =1 ;
+                                                                        ?>
+                                                                    <div class="form-group">
+                                                                        <div class="col-md-12 ">
+                                                                                            <select class="form-control model_number" id="<?php echo "model_number_" . ($keys + 1) ?>" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>">
+                                                                                                <option value="" selected="" disabled="">Model Number</option>
+                                                                                                <?php foreach ($unit_details['model_dropdown'] as $m) { ?>
+                                                                                                <option value="<?php echo $m['model'];?>"><?php echo $m['model'];?></option>  
+                                                                                                <?php }?>
+                                                                                            </select>
+                                                                        </div>
+                                                                    </div>
+                                                                    <?php } ?>
                                                         </div>
                                                     </div>
                                                     <?php } ?>
@@ -512,6 +528,7 @@
 </div>
 <script>
     $(".booking_source").select2();
+    $(".model_number").select2();
 </script>
 <script>
     $("#service_id").select2();
@@ -615,6 +632,17 @@
                     }
             }
     
+                <?php
+                if($isModelMandatory){
+                    ?>
+                     var modelNumber = $('#model_number_'+div_no[2]).val();
+                     if(modelNumber == null){
+                         alert("Please Select Model number");
+                         flag = 1;
+                     }
+                    <?php
+                }
+                ?>
             var amount_due = $("#amount_due" + div_no[2]).text();
             var basic_charge = $("#basic_charge" + div_no[2]).val();
             var additional_charge = $("#extra_charge" + div_no[2]).val();
