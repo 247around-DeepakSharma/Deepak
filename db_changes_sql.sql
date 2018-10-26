@@ -8489,7 +8489,6 @@ ALTER TABLE `collateral` CHANGE `model` `model` VARCHAR(256) CHARACTER SET latin
 ALTER TABLE `collateral` ADD `is_url` INT(1) NOT NULL DEFAULT '0' AFTER `end_date`;
 ALTER TABLE `collateral` CHANGE `is_url` `is_file` INT(1) NOT NULL DEFAULT '0';
 
-
 ALTER TABLE `courier_company_invoice_details` ADD `pickup_from` VARCHAR(255) NOT NULL AFTER `actual_weight`;
 
 --Kalyani 23-Oct

@@ -523,6 +523,7 @@ class Miscelleneous {
         //Log this state change as well for this booking
         //param:-- booking id, new state, old state, employee id, employee name
         $this->My_CI->notify->insert_state_change($booking_id, $data['current_status'], $status, $historyRemarks, $agent_id, $agent_name,$actor,$next_action, $cancelled_by);
+        $this->process_booking_tat_on_completion($booking_id);
         // Not send Cancallation sms to customer for Query booking
         // this is used to send email or sms while booking cancelled
         $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
@@ -3380,6 +3381,9 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
             else{
                 return 0;
             }
+       }
+       else{
+           return 1;
        }
     }
     function reject_booking_from_review($postData){
