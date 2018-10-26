@@ -645,5 +645,10 @@ define('_247AROUND_SERVICE_STRING','Service');
 define('_247AROUND_INSTALLATION_AND_REPAIR_STRING','Installation & Repair');
 // 247around GST Debit Note string for invoices
 define('_247AROUND_GST_DEBIT_NOTE_STRING','GST Debit Note');
+// it is use to check entity-type Warehouse 
+
+define('WAREHOUSE','Warehouse');  
+//constant to define New Query state
+define('_247AROUND_QUERY','Query');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

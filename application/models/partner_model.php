@@ -404,6 +404,7 @@ function get_data_for_partner_callback($booking_id) {
             FROM booking_details JOIN booking_unit_details ud  ON booking_details.booking_id = ud.booking_id 
             JOIN services ON booking_details.service_id = services.id 
             JOIN users ON booking_details.user_id = users.user_id
+            LEFT JOIN booking_comments on booking_comments.booking_id = booking_details.booking_id
             LEFT JOIN dealer_details on dealer_details.dealer_id = booking_details.dealer_id
             LEFT JOIN spare_parts_details ON spare_parts_details.booking_id = booking_details.booking_id
             LEFT JOIN service_center_booking_action ON service_center_booking_action.booking_id = booking_details.booking_id
@@ -1731,6 +1732,19 @@ function get_data_for_partner_callback($booking_id) {
         $this->db->update("partner_channel", $data);
         return true;
     
-}
+    }
+    
+    /*
+     * @desc: This is used to get partner code from partner code table
+     */
+    function get_all_partner_code($select='*', $whereIn=array()) {
+        $this->db->select($select);
+        if(!empty($whereIn)){
+            $this->db->where_in('series', $whereIn);
+        }
+        $this->db->order_by('code', 'ASC');
+        $query = $this->db->get('partner_code');
+        return $query->result_array();
+    }
 }
 

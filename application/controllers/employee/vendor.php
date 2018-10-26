@@ -734,28 +734,58 @@ class vendor extends CI_Controller {
      * @param: vendor id
      * @return : array(of details) to view
      */
-    function viewvendor($vendor_id = "") {
+    function viewvendor($vendor_id = "",$active = "1", $sf_cp_type ="sf",$offset = 0, $page = 0) {
         $this->checkUserSession();
-        $id = $this->session->userdata('id');   
-        $active = "1";
-        $data['active_state'] = $active;
-        if(!empty($this->input->get())){
-            $data = $this->input->get();
-            if($data['active_state'] == 'all'){
-                $active = "";
-            }
+        if ($page == 0) {
+            $page = 50;
         }
+        if($vendor_id == "all"){
+           $vendor_id = "";
+        }
+        $id = $this->session->userdata('id'); 
+        if($active == "" || $active == "all"){
+            $active = "";
+        } else {
+            $active = 1;
+        }
+        
+        $is_wh = '';
+        $is_cp = '';
+            if($sf_cp_type === 'sf'){
+                $is_cp = '';
+            }else if($sf_cp_type === 'cp'){
+                $is_cp = '1';
+            }else if($sf_cp_type === 'wh'){
+                $is_wh = '1';
+            }
+        $data['sf_cp_type'] = $sf_cp_type;
+        $data['active_state'] = $active;
         //Getting employee relation if present for logged in user
         $sf_list = $this->vendor_model->get_employee_relation($id);
         if (!empty($sf_list)) {
             $sf_list = $sf_list[0]['service_centres_id'];
         }
+        
+        $offset = ($this->uri->segment(7) != '' ? $this->uri->segment(7) : 0);
+        $config['base_url'] = base_url() . 'employee/vendor/viewvendor/all/'.$active."/".$sf_cp_type;
+        $config['total_rows'] = $this->vendor_model->viewvendor($vendor_id, $active,$sf_list,$is_cp,$is_wh,"count","" );
+
+        $config['per_page'] = $page;
+        $config['uri_segment'] = 7;
+        $config['first_link'] = 'First';
+        $config['last_link'] = 'Last';
+        $this->pagination->initialize($config);
+        $data['links'] = $this->pagination->create_links();
+        
+        $data['count'] = $config['total_rows'];
+        
+        
         //Getting State for SC charges
-        $state = $this->service_centre_charges_model->get_unique_states_from_tax_rates();
-        $query = $this->vendor_model->viewvendor($vendor_id, $active, $sf_list);
-        $pushNotification = $this->push_notification_model->get_push_notification_subscribers_by_entity(_247AROUND_SF_STRING);
+        $data['state'] = $this->service_centre_charges_model->get_unique_states_from_tax_rates();
+        $data['query'] = $this->vendor_model->viewvendor($vendor_id, $active, $sf_list, $is_cp, $is_wh,$config['per_page'], $offset  );
+        $data['pushNotification'] = $this->push_notification_model->get_push_notification_subscribers_by_entity(_247AROUND_SF_STRING);
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/viewvendor', array('query' => $query,'state' =>$state , 'selected' =>$data,'push_notification'=>$pushNotification));
+        $this->load->view('employee/viewvendor', $data);
     }
 
     /**
@@ -3944,48 +3974,6 @@ class vendor extends CI_Controller {
         }
 
         echo $option;
-    }
-    
-    function get_filterd_sf_cp_data(){
-        $this->checkUserSession();
-        if($this->input->post()){
-            
-            $sf_cp_type = $this->input->post('sf_cp');
-            $active_state = $this->input->post('active_state');
-            if($active_state === 'all'){
-                $active = '';
-            }else{
-                $active = '1';
-            }
-            
-            $is_wh = '';
-            $is_cp = '';
-            if($sf_cp_type === 'sf'){
-                $is_cp = '';
-            }else if($sf_cp_type === 'cp'){
-                $is_cp = '1';
-            }else if($sf_cp_type === 'wh'){
-                $is_wh = '1';
-            }
-            
-            $id = $this->session->userdata('id');   
-            //$active = "1";
-            //Getting employee relation if present for logged in user
-            $sf_list = $this->vendor_model->get_employee_relation($id);
-            if (!empty($sf_list)) {
-                $sf_list = $sf_list[0]['service_centres_id'];
-            }
-            $query = $this->vendor_model->viewvendor('', $active, $sf_list,$is_cp,$is_wh);
-            if(!empty($query)){
-                $response = $this->load->view('employee/viewvendor', array('query' => $query,'is_ajax'=>true));
-            }else{
-                $response = "No Data Found";
-            }
-            echo $response;
-        }else{
-            echo "Invalid Request";
-        }
-        
     }
     
     function upload_signature_file() {

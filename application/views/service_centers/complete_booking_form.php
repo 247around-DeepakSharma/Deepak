@@ -57,7 +57,7 @@
                                        
                                     </div>
                                     <div class="col-md-6">
-                                        <input type="hidden" class="form-control" id="booking_id" name="appliance_id" value = "<?php
+                                        <input type="hidden" class="form-control" id="appliance_id" name="appliance_id" value = "<?php
                                             if (isset($booking_history[0]['service_id'])) {
                                                 echo $booking_history[0]['service_id'];
                                             }

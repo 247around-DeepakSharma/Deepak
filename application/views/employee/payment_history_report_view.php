@@ -46,6 +46,7 @@
                                             <option value="B">Purchase</option>
                                             <option value="tds">TDS</option>
                                             <option value="buyback">Buyback</option>
+                                            <option value="paytm">Paytm</option>
                                         </select>
                                     </div>
                                     

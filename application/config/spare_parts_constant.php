@@ -1,6 +1,5 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 define("SPARE_HSN_CODE", "85299090");
-define('SPARE_INVOICE_EMAIL_TAG','spare_invoice_sent');
 define('SEND_DEFECTIVE_SPARE_PARTS_NOTIFICATION',7 );
 define("SPARE_PART_RADIO_BUTTON_NOT_REQUIRED", "0"); 
 define("ESTIMATE_APPROVED_BY_CUSTOMER", "Spare Estimate Approved By Customer");
@@ -66,4 +65,14 @@ define('TRACKINGMORE_PROD_API_KEY','06ec4a31-6125-4b01-9da9-bf8d420767df');
 define('DELIVERY_CONFIRMED_WITH_COURIER','Delivery Confirmed With Courier Company');
 
 define('DEFECTIVE_PARTS_RECEIVED_API_CONFORMATION','Defective Part Received By Partner API Conformation');
+
+define('REQUESTED_SPARED_REMAP','Requested spare remap to');
+//Defactive part Delivered date by Courier API
+define('DEFACTIVE_PART_DELIVERED_DATE_BY_COURIER_API','defactive_part_received_date_by_courier_api');
+//Delivered Spare Status 
+define('DELIVERED_SPARE_STATUS','Delivered');
+
+
+
+
 

@@ -16,6 +16,8 @@ class Do_background_upload_excel extends CI_Controller {
     
     var $ColumnFailed = "";
     var $finalArray = array();
+    var $deliveredArray = array();
+    var $shippedArray = array();
     var $email_message_id = "";
     var $is_send_file_back = "";
     var $file_read_column = "";
@@ -1595,8 +1597,20 @@ class Do_background_upload_excel extends CI_Controller {
         }else{
             $tmpArr['service_promise_date'] = '';
         }
-        
-        array_push($this->finalArray, $tmpArr);
+        // Check if file contains type_of_data column , it means file have delivered and shipped data both
+        if(isset($data[$header_data['type_of_data']])){
+            if($data[$header_data['type_of_data']] == 'Delivered'){
+                $tmpArr['delivery_date'] = $data['delivery_end_date'];
+                array_push($this->deliveredArray, $tmpArr);
+            }
+            else{
+                    $tmpArr['delivery_end_date'] = $data['expected_delivery_date'];
+                    array_push($this->shippedArray, $tmpArr);
+            }
+        }
+        else{
+            array_push($this->deliveredArray, $tmpArr);
+        }
     }
     
     /**
@@ -1611,9 +1625,16 @@ class Do_background_upload_excel extends CI_Controller {
             $subArray = $this->get_sub_array($value,array('sub_order_id','product','product_type','customer_name','customer_address','pincode','phone'));
             $is_all_header_present = array_diff(array_values($subArray),$data['header_data']);
             if(empty($is_all_header_present)){
-                $return_response['status'] = TRUE;
-                $return_response['msg'] = '';
-                $return_response['key'] = $key;
+                if(isset($data['header_data']['type_of_data']) && !(isset($data['header_data']['expected_delivery_date']) && isset($data['header_data']['delivery_end_date']))){
+                    $this->Columfailed = "<b>type_of_data exists but expected_delivery_date or delivery_end_date </b> column does not exist.Please correct these and send again. <br><br>";
+                    $return_response['status'] = FALSE;
+                    $return_response['msg'] = $this->Columfailed; 
+                }
+                else{
+                    $return_response['status'] = TRUE;
+                    $return_response['msg'] = '';
+                    $return_response['key'] = $key;
+                }
                 break;
             }else{
                 $this->Columfailed = "<b>".implode($is_all_header_present, ',')." </b> column does not exist.Please correct these and send again. <br><br>";
@@ -1638,9 +1659,13 @@ class Do_background_upload_excel extends CI_Controller {
                 $this->get_final_file_data($rowData,$data['actual_header_data'][$response['key']]);
             }
             
-            if(!empty($this->finalArray)){
+            if(!empty($this->deliveredArray)){
                 //process file to insert bookings
-                $this->process_upload_sd_file($this->finalArray,'delivered', $data['file_name'],$this->input->post('partner_id'));
+                $this->process_upload_sd_file($this->deliveredArray,'delivered', $data['file_name'],$this->input->post('partner_id'));
+            }
+            if(!empty($this->shippedArray)){
+                //process file to insert bookings
+                $this->process_upload_sd_file($this->shippedArray,'shipped', $data['file_name'],$this->input->post('partner_id'));
             }
             
             $response['status'] = TRUE;
