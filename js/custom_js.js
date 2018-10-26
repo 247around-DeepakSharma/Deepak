@@ -264,6 +264,7 @@ function addBookingDialog(chanel = '') {
     var booking_type = $("#booking_type").val();
     var is_active = $("#is_active").val();
     var div_count = $('.purchase_date').length;
+    var partner_id = $("#source_code").find(':selected').attr('data-id');
    // var customer_paid = $("#grand_total_price").val();
     if (user_name == "" || user_name.trim().length ==0 || user_name == null) {
 
@@ -361,11 +362,11 @@ function addBookingDialog(chanel = '') {
         alert("Please fill city ");
         return false;
     }
-
-    var partner_id = $("#source_code").find(':selected').attr('data-id');
     var grand_total_price = $("#grand_total_price").val();
     if (Number(grand_total_price) === 0) {
+
        if (partner_id !== "247001") {
+
             if(partner_id === "3"){
                 firstPartNumaricValidation = firstPartLengthValidation = false;
                 secondPartNumaricValidation  =  secondPartLengthValidation = true;
@@ -385,6 +386,7 @@ function addBookingDialog(chanel = '') {
                     alert("Please Enter Correct Order ID , Space Should not be there in Order ID");
                     return false;
                 }
+
             }
             else{
                 old_type = $("#booking_old_type_holder").text();
@@ -396,6 +398,7 @@ function addBookingDialog(chanel = '') {
                     }
                 }
             }
+
         }
     }
     if(dealer_phone_number !=="" && !dealer_phone_number.match(exp1)){

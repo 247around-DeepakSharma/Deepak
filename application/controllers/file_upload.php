@@ -910,6 +910,7 @@ class File_upload extends CI_Controller {
      * @desc This function is used to upload docket number file only has two columns awb_number and courier_charges
      */
     function process_docket_number_file_upload(){ 
+            $data = array();
             $redirect_to = $this->input->post('redirect_url');
             $file_upload_status = FILE_UPLOAD_FAILED_STATUS;
             $file_status = $this->get_upload_file_type();
@@ -917,9 +918,8 @@ class File_upload extends CI_Controller {
                 $data = $this->read_upload_file_header($file_status);
                 if ($data['status']) {
                     $data['post_data']['file_type'] = DOCKET_NUMBER_FILE_TYPE;
-                    
                     //column which must be present in the  upload inventory file
-                    $header_column_need_to_be_present = array('awb_number', 'courier_charges', 'invoice_id', 'billable_weight', 'actual_weight');
+                    $header_column_need_to_be_present = array('awb_number', 'courier_charges', 'invoice_id', 'courier_name', 'billable_weight', 'actual_weight');
                     
                     //check if required column is present in upload file header
                     $check_header = $this->check_column_exist($header_column_need_to_be_present,$data['header_data']);
@@ -938,7 +938,6 @@ class File_upload extends CI_Controller {
                             if(!empty(array_filter($sanitizes_row_data))){
                                 $rowData = array_combine($data['header_data'], $rowData_array[0]);
                                 if(!empty($rowData['awb_number']) && !empty($rowData['courier_charges']) && !empty($rowData['invoice_id']) && !empty($rowData['billable_weight']) && !empty($rowData['actual_weight'])){
-                                   
                                     $courier_company_detail = $this->inventory_model->update_docket_price($rowData);
                                     if(!empty($courier_company_detail['inValidData'])){
                                         $inValidData = TRUE;
@@ -947,7 +946,10 @@ class File_upload extends CI_Controller {
                                     if(!empty($courier_company_detail['notfoundData'])){
                                         $notfoundData[] = $courier_company_detail['notfoundData'];
                                     }
-                                } 
+                                }
+                                else{
+                                    //log_message('info', __METHOD__. "data not found ". print_r($data['header_data'], TRUE));
+                                }
                             }
                         }
                         if($inValidData){
@@ -956,27 +958,27 @@ class File_upload extends CI_Controller {
                             $email_message .= $this->table->generate();
                             $response['message'] = $email_message;
                             $file_upload_status = FILE_UPLOAD_SUCCESS_STATUS;
-                            $message = "File Successfully uploaded.";
+                            $returnData['status'] = TRUE;
+                            $returnData['message'] = "File Successfully Uploaded.";
                         } 
                         else {
                             $response['status'] = TRUE;
                             $file_upload_status = FILE_UPLOAD_SUCCESS_STATUS;
                             $response['message'] = "Docket Number Successfully Uploaded. ";
-                            $message = "File Successfully uploaded. ";
+                            $returnData['status'] = TRUE;
+                            $returnData['message'] = "File Successfully Uploaded.";
                         }
                     } else {
                         $response['status'] = FALSE;
                         $response['message'] = "File upload Failed. ".$check_header['message'];
-                        $message = "File upload Failed. ".$check_header['message'];
-                        $this->session->set_flashdata('file_error', $message);
-                        redirect(base_url() . $redirect_to);
+                        $returnData['status'] = FALSE;
+                        $returnData['message'] = "File upload Failed. ".$check_header['message'];
                     }
                 } else {
                     $response['status'] = FALSE;
                     $response['message'] = "File upload Failed. Empty file has been uploaded";
-                    $message = "File upload Failed. Empty file has been uploaded";
-                    $this->session->set_flashdata('file_error', $message);
-                    redirect(base_url() . $redirect_to);
+                    $returnData['status'] = FALSE;
+                    $returnData['message'] = "File upload Failed. Empty file has been uploaded";
                 }
                 $this->miscelleneous->update_file_uploads($data['file_name'],TMP_FOLDER.$data['file_name'], $data['post_data']['file_type'], $file_upload_status);
                 $this->send_email($data,$response);
@@ -993,10 +995,10 @@ class File_upload extends CI_Controller {
                     $this->send_email($data,$response);
                 }
             } else {
-                $message = "File upload Failed. Please Select file";
-                $this->session->set_flashdata('file_error', $message);
+                $returnData['status'] = FALSE;
+                $returnData['message'] = "File upload Failed. Empty file has been uploaded";
             }
-        redirect(base_url() . $redirect_to);
+        echo json_encode($returnData);
     }
 
     /**
