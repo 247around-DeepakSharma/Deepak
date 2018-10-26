@@ -334,7 +334,9 @@ class invoices_model extends CI_Model {
     function getpartner_invoices($partner_id, $from_date, $to_date) {
         log_message('info', __FUNCTION__);
 
-        $sql1 = "SELECT booking_unit_details.id AS unit_id, CONCAT('''', booking_unit_details.sub_order_id) as sub_order_id, `booking_details`.booking_id as booking_id, "
+        $sql1 = "SELECT booking_unit_details.id AS unit_id,"
+                . " CASE WHEN (booking_unit_details.partner_id = '".PAYTM_ID."' ) THEN (SUBSTRING_INDEX(order_id, '-', 1)) ELSE (order_id) END AS order_id, "
+                . " CONCAT('''', booking_unit_details.sub_order_id) as sub_order_id, `booking_details`.booking_id as booking_id, "
                 . "  invoice_email_to,invoice_email_cc, booking_details.rating_stars,  "
                 . " `booking_details`.partner_id, `booking_details`.source, "
                 . " CASE WHEN (serial_number_pic = '' OR serial_number_pic IS NULL) THEN ('') ELSE (CONCAT('".S3_WEBSITE_URL."engineer-uploads/', serial_number_pic)) END as serial_number_pic,"
@@ -342,9 +344,10 @@ class invoices_model extends CI_Model {
                 . " `booking_details`.city, DATE_FORMAT(`booking_unit_details`.ud_closed_date, '%D %b %Y') as closed_date,price_tags, "
                 . " `booking_unit_details`.appliance_capacity,`booking_unit_details`.appliance_category,`booking_unit_details`.appliance_brand, "
                 . "  booking_details.booking_primary_contact_no,  "
-                . " `services`.services, users.name,order_id, "
+                . " `services`.services, users.name, "
                 . " partner_net_payable, round((partner_net_payable * ".DEFAULT_TAX_RATE .")/100,2) as gst_amount,
                     CASE WHEN (booking_details.is_upcountry = 1) THEN ('Yes') ELSE 'NO' END As upcountry,
+                    CASE WHEN (support_file = '' OR support_file IS NULL) THEN ('') ELSE (CONCAT('".S3_WEBSITE_URL."misc-images/', support_file)) END as support_file,
               
                     CASE WHEN(serial_number IS NULL OR serial_number = '') THEN '' ELSE (CONCAT('''', booking_unit_details.serial_number))  END AS serial_number,
                     CASE WHEN(model_number IS NULL OR model_number = '') THEN (sf_model_number) ELSE (model_number) END AS model_number
