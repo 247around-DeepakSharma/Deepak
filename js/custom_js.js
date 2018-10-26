@@ -243,7 +243,7 @@ function check_prepaid_balance(type) {
 
 }
 
-function addBookingDialog() {
+function addBookingDialog(chanel = '') {
 
     count_number++;
     var exp1 = /^[6-9]{1}[0-9]{9}$/;
@@ -365,15 +365,37 @@ function addBookingDialog() {
     var partner_id = $("#source_code").find(':selected').attr('data-id');
     var grand_total_price = $("#grand_total_price").val();
     if (Number(grand_total_price) === 0) {
-       
-        if (partner_id !== "247001") {
-            var order_id = $('#order_id').val();
-            if (order_id === "" && dealer_phone_number === "") {
-
-                alert('Please Fill Order Id Or Dealer Phone Number');
-                return false;
+       if (partner_id !== "247001") {
+            if(partner_id === "3"){
+                firstPartNumaricValidation = firstPartLengthValidation = false;
+                secondPartNumaricValidation  =  secondPartLengthValidation = true;
+                orderIDSplitArray = $("#order_id").val().split("-");
+                orderIDSplitLength = orderIDSplitArray.length;
+                firstPartNumaricValidation = /^\d+$/.test(orderIDSplitArray[0]);
+                if(orderIDSplitArray[0].length === 10){
+                    firstPartLengthValidation = true;
+                }
+                if(orderIDSplitLength === 2){
+                    secondPartNumaricValidation = /^\d+$/.test(orderIDSplitArray[1]);
+                    if(orderIDSplitArray[1].length != 10){
+                        secondPartLengthValidation = false;
+                    }
+                }
+                if(!(firstPartNumaricValidation && secondPartNumaricValidation && firstPartLengthValidation && secondPartLengthValidation)){
+                    alert("Please Enter Correct Order ID , Space Should not be there in Order ID");
+                    return false;
+                }
             }
-            
+            else{
+                old_type = $("#booking_old_type_holder").text();
+                if(!(chanel == 'admin_update' && old_type == 'Booking' && type == 'Booking')){
+                    var order_id = $('#order_id').val();
+                    if (order_id === "" && dealer_phone_number === "") {
+                        alert('Please Fill Order Id Or Dealer Phone Number');
+                        return false;
+                    }
+                }
+            }
         }
     }
     if(dealer_phone_number !=="" && !dealer_phone_number.match(exp1)){
