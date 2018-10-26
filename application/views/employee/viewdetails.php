@@ -348,7 +348,9 @@
                                 <?php $user_invoice_id  = ""; foreach ( $unit_details as $key =>  $unit_detail) { 
                                    if(!empty($unit_detail['user_invoice_id'])){
                                        $user_invoice_id = $unit_detail['user_invoice_id'];
-                                   }?>
+                                   }
+                                                            
+                                   ?>
                                 <tr>
                                     <td><?php echo $unit_detail['appliance_brand']?></td>
                                     <td><?php echo $unit_detail['appliance_category']."/<br/>".$unit_detail['appliance_capacity']?></td>
@@ -430,14 +432,7 @@
                                     <?php } ?>
                             </tbody>
                         </table>
-                        <?php 
-                        
-echo '<pre>';
-print_r($booking_history[0]['request_type']);
-echo '</pre>';
-                        
-                        
-                                    } ?>
+                        <?php } ?>
                     </div>
                 </div>
                 <div class="row">
@@ -451,8 +446,9 @@ echo '</pre>';
                     </div>
                 </div>
             </div>
+
             <div class="tab-pane fade in" id="tab3">
-                <?php if (isset($booking_history['spare_parts'])) { $estimate_given = false; $parts_shipped = false; $defective_parts_shipped = FALSE; ?>
+                <?php if (isset($booking_history['spare_parts'])) { $estimate_given = false; $parts_shipped = false; $defective_parts_shipped = FALSE;   ?>
                 <input type="file" id="fileLoader" name="files" onchange="uploadfile()" style="display:none" />
                 <div class="row">
                     <div class="col-md-12" >
@@ -473,16 +469,20 @@ echo '</pre>';
                                         <th >Acknowledge Date BY SF </th>
                                         <th >Remarks By SC </th>
                                         <th >Current Status</th>
-                                        <th >Move R Spare to P/V</th>
-                                        <?php if($booking_history[0]['request_type']!=HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY){ ?>
+                                        <?php if(($booking_history[0]['request_type']==HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) || ($booking_history[0]['request_type']==REPAIR_OOW_TAG)){ } else{ ?>
+                                        <?php  if($booking_history['spare_parts'][0]['entity_type']==_247AROUND_SF_STRING && $booking_history['spare_parts'][0]['status'] == SPARE_PARTS_REQUESTED){ ?> 
+                                        <th>Move To Vendor</th>
+                                         <?php                                       
+                                          } 
+                                          ?>                                        
                                          <th>Copy Booking Id</th>
-                                        <?php } ?>
+                                        <?php  } ?>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <?php foreach ($booking_history['spare_parts'] as $sp) { ?>
                                     <tr>
-                                        <td><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING){ echo "Partner";} else { echo "Warehouse";} ?></td>
+                                        <td><span id="entity_type_id"><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING){ echo "Partner";} else { echo "Warehouse";} ?></span></td>
                                         <td><?php echo $sp['model_number']; ?></td>
                                         <td><?php echo $sp['parts_requested']; ?></td>
                                         <td><?php echo $sp['create_date']; ?></td>
@@ -512,8 +512,20 @@ echo '</pre>';
                                         <td><?php echo $sp['acknowledge_date']; ?></td>
                                         <td><?php echo $sp['remarks_by_sc']; ?></td>
                                         <td><?php echo $sp['status']; ?></td>
-                                        <td><a href="<?php echo base_url(); ?>employee/spare_parts/move_request_spare_to_partner_vendor">Move To </a></td>
-                                       <?php if($booking_history[0]['request_type']!=HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY){ ?>
+                                        <?php if(($booking_history[0]['request_type']==HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) || ($booking_history[0]['request_type']==REPAIR_OOW_TAG)){ } else{ ?>
+                                        <?php  if($booking_history['spare_parts'][0]['entity_type']==_247AROUND_SF_STRING && $booking_history['spare_parts'][0]['status'] == SPARE_PARTS_REQUESTED){?>
+                                            <td>
+                                                <form id="move_to_update_spare_parts">
+                                                    <input type="hidden" name="spare_parts_id" id="spare_parts_id" value="<?php echo $booking_history['spare_parts'][0]['id']; ?>">
+                                                    <input type="hidden" name="booking_partner_id" id="booking_partner_id" value="<?php echo $booking_history[0]['partner_id']; ?>">
+                                                    <input type="hidden" name="entity_type" id="entity_type" value="<?php echo _247AROUND_PARTNER_STRING; ?>">
+                                                    <input type="hidden" name="booking_id" id="booking_id" value="<?php echo $booking_history['spare_parts'][0]['booking_id']; ?>">     
+                                                    <a class="move_to_update btn btn-md btn-primary" id="move_to_vendor" href="javascript:void(0);">Move To Vendor</a>
+                                                 </form>
+                                            </td>
+                                        <?php } } ?>
+                                        
+                                       <?php if(($booking_history[0]['request_type']==HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) || ($booking_history[0]['request_type']==REPAIR_OOW_TAG)){ } else{ ?>
                                         <td><button type="button" class="copy_booking_id  btn btn-info" data-toggle="modal" id="<?php echo $sp['booking_id']."_".$sp['id']; ?>" data-target="#copy_booking_id">Copy</button>
                                        </td>                                
                                      <?php } ?>
@@ -1024,20 +1036,22 @@ echo '</pre>';
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
-                        <h4 class="modal-title">Copy Booking id</h4>
+                        <h4 class="modal-title" style="display: inline-block">Old Booking Id :</h4>
+                        <span id="old_booking_html" style="display: inline;font-weight: bold; padding-left: 10px;"></span> 
                     </div>
                     <div class="modal-body">
-                        <p id="response_err"></p>
+                        <p id="response_err"></p>                       
                         <p>
-                        <div style="display: inline-block; font-weight: bold;">Old Booking Id : </div>
-                        <div id="old_booking_html" style="display: inline;"></div>                  
-                        </p>
-                        <p>
-                        <div style="display: inline-block; font-weight: bold;">New Booking Id : </div>
+                        <div style="display: inline-block; font-weight: bold; padding-bottom:5px;">New Booking Id  </div>
                         <div  style="display: inline;">
                             <input type="hidden" name="spare_parts_id" id="spare_parts_id" value="">
-                            <input type="text" name="new_booking_id" id="new_booking_id" value="">
-                        </div>                  
+                            <input type="text" class="form-control" name="new_booking_id" id="new_booking_id" value="">
+                        </div>                        
+                        <div style="display: inline-block; font-weight: bold; padding: 5px 0px 5px 0px;">Status</div>
+                        <div  style="display: inline;">                            
+                            <input type="text" class="form-control" name="status" id="status" value="<?php echo SPARE_PARTS_REQUESTED; ?>" disabled="true">
+                        </div>   
+                        
                         </p>
                         <p>
                             <a href="javascript:void(0);" class="btn btn-primary" id="generate_new_booking">Generate</a>                 
@@ -1637,14 +1651,21 @@ background-color: #f5f5f5;
             $("#spare_parts_id").val(ids_array[1]);
         });
         
+        $("#new_booking_id").on('keypress',function(){
+            $("#response_err").html('');
+        });
+        
         $("#generate_new_booking").click(function(){           
            var spare_parts_id = $("#spare_parts_id").val();
-           var new_booking_id = $("#new_booking_id").val();            
+           var new_booking_id = $("#new_booking_id").val(); 
+           var status = $("#status").val();            
+           if(spare_parts_id!='' && new_booking_id!='' && status!=''){          
+           
             $.ajax({
                 method:"POST",
-                data : {spare_parts_id: spare_parts_id, new_booking_id: new_booking_id},
+                data : {spare_parts_id: spare_parts_id, new_booking_id: new_booking_id,status:status},
                 url:'<?php echo base_url(); ?>employee/spare_parts/copy_booking_details_by_spare_parts_id',
-                success: function(response){                    
+                success: function(response){                  
                     if(response=='success'){
                         $("#response_err").html("Process is successful").css({"color": "green"});
                         $("#new_booking_id").val("");
@@ -1654,8 +1675,37 @@ background-color: #f5f5f5;
                 }
             });
             
+         }else{
+          $("#response_err").html("Please Enter Valid Information.").css({"color": "red"});
+          }
+            
         });
+       
+       $(".move_to_update").on('click', function () { 
+       var confirm_staus = confirm("Are you sure you want to Move ?");
+       if(confirm_staus){
+            $.ajax({
+                type: "POST",
+                url: "<?php echo base_url(); ?>employee/spare_parts/move_to_update_spare_parts_details",
+                data: $("#move_to_update_spare_parts").serialize(),
+                success: function (data) {
+                    if (data != '') {               
+                        $("#entity_type_id").html("<?php echo _247AROUND_PARTNER_STRING; ?>");
+                        $("#move_to_vendor").hide();
+                    }
+                },
+                error: function () {
+                    alert("error");
+                }
+
+            });
+           }
+
+        });
+       
     });
+    
+    
     </script>
     
    
