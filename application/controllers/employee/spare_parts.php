@@ -773,10 +773,13 @@ class Spare_parts extends CI_Controller {
     function copy_booking_details_by_spare_parts_id() {
         $spare_parts_id = $this->input->post('spare_parts_id');
         $new_booking_id = $this->input->post('new_booking_id');
+        $status = $this->input->post('status');
+        
         $spare_parts_list = $this->partner_model->get_spare_parts_by_any("*", array('spare_parts_details.id' => $spare_parts_id), false, false);
         if (!empty($spare_parts_list)) {
             unset($spare_parts_list[0]['id']);
             $spare_parts_list[0]['booking_id'] = $new_booking_id;
+            $spare_parts_list[0]['status'] = $status;
             $insert_id = $this->service_centers_model->insert_data_into_spare_parts($spare_parts_list[0]);
             if(!empty($insert_id ) && $insert_id !=''){
                 echo 'success';
@@ -786,8 +789,7 @@ class Spare_parts extends CI_Controller {
         } 
         
     }
-<<<<<<< HEAD
-    
+   
     
     /**
      * @desc: This function is used to brackets data table.
@@ -960,7 +962,5 @@ class Spare_parts extends CI_Controller {
         return $row;
         
     }
-=======
->>>>>>> c53b2cdc7... Move Requested Spare to Partner #CRM-1600
 
 }
