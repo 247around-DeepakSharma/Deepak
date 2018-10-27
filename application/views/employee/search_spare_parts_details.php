@@ -1,4 +1,10 @@
+<<<<<<< HEAD
 
+=======
+<?php
+//print_r($spare_parts_list);
+?>
+>>>>>>> c53b2cdc7... Move Requested Spare to Partner #CRM-1600
 <div class="row">
     <div class="container col-md-6">
 

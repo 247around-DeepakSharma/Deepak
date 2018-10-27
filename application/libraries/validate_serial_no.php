@@ -220,6 +220,7 @@ class Validate_serial_no {
      */
     function jvc_television_serial_number_validation($serialNo){
         $stringLength = strlen($serialNo);
+        $serialNo = strtoupper($serialNo);
         $firstString = strtoupper(substr($serialNo,0,5));
         if ($firstString == 'SHG32') {
             $secondString = substr($serialNo,5,2);
@@ -272,6 +273,7 @@ class Validate_serial_no {
         }
     }
     function jvc_WM_serial_number_validation($serialNo){
+        $serialNo = strtoupper($serialNo);
         $stringLength = strlen($serialNo);
         if($stringLength == 18){
             // Color Coding Validation 
