@@ -264,6 +264,25 @@
             "order": [], 
             "pageLength": 25,
             "ordering": false,
+             dom: 'lBfrtip',
+             buttons: [
+                {
+                    extend: 'excel',
+                    text: '<span class="fa fa-file-excel-o"></span> Excel Export',
+                    pageSize: 'LEGAL',
+                    title: 'pending_queries',
+                    exportOptions: {
+                       columns: [1,2,3,4,5,6,7, 8, 9],
+                        modifier : {
+                             // DataTables core
+                             order : 'index',  // 'current', 'applied', 'index',  'original'
+                             page : 'All',      // 'all',     'current'
+                             search : 'none'     // 'none',    'applied', 'removed'
+                         }
+                    }
+                    
+                }
+            ],
             "ajax": {
                 "url": "<?php echo base_url(); ?>employee/booking/get_queries_data/"+booking_status,
                 "type": "POST",

@@ -426,6 +426,25 @@
             "serverSide": true, 
             "order": [], 
             "pageLength": 25,
+             dom: 'lBfrtip',
+             buttons: [
+                {
+                    extend: 'excel',
+                    text: '<span class="fa fa-file-excel-o"></span> Excel Export',
+                    pageSize: 'LEGAL',
+                    title: 'pending_bookings',
+                    exportOptions: {
+                       columns: [1,2,3,4,5,6,7],
+                        modifier : {
+                             // DataTables core
+                             order : 'index',  // 'current', 'applied', 'index',  'original'
+                             page : 'All',      // 'all',     'current'
+                             search : 'none'     // 'none',    'applied', 'removed'
+                         }
+                    }
+                    
+                }
+            ],
             "ajax": {
                 "url": "<?php echo base_url(); ?>employee/booking/get_bookings_by_status/"+booking_status,
                 "type": "POST",
