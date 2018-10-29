@@ -1398,9 +1398,9 @@ class Do_background_upload_excel extends CI_Controller {
                     $this->miscelleneous->update_file_uploads($header_data['file_name'], TMP_FOLDER.$header_data['file_name'], $upload_file_type, FILE_UPLOAD_FAILED_STATUS, $this->email_message_id);
                     
                     //get email details 
+                    $get_partner_am_id = $this->partner_model->getpartner_details('account_manager_id,primary_contact_email', array('partners.id' => $partner_id));
                     if(empty($this->email_send_to)){
                         if(empty($this->session->userdata('official_email'))){
-                            $get_partner_am_id = $this->partner_model->getpartner_details('account_manager_id,primary_contact_email', array('partners.id' => $partner_id));
                             if (!empty($get_partner_am_id[0]['account_manager_id'])) {
                                 $to = $this->employee_model->getemployeefromid($get_partner_am_id[0]['account_manager_id'])[0]['official_email'];
                             }else{
