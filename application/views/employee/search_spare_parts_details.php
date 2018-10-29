@@ -1,6 +1,4 @@
-<?php
-//print_r($spare_parts_list);
-?>
+
 <div class="row">
     <div class="container col-md-6">
 
