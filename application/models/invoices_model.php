@@ -2133,7 +2133,7 @@ class invoices_model extends CI_Model {
         if(!empty($partner_active)){
            $partner_wh = " AND partners.is_active = 1 ";
         }
-        
+
         $sql = "SELECT $select FROM vendor_partner_invoices as v, partners"
                 . " WHERE partners.id = v.vendor_partner_id "
                 . " AND v.vendor_partner = 'partner' "
@@ -2143,7 +2143,7 @@ class invoices_model extends CI_Model {
                 . "AND vp.vendor_partner ='partner' AND v.vendor_partner_id = vp.vendor_partner_id"
                 . "  $wh $partner_wh ) "
                 .  " $wh $partner_wh GROUP BY vendor_partner_id ORDER BY public_name ";
-        
+
         $query = $this->db->query($sql);
         return $query->result();
     }

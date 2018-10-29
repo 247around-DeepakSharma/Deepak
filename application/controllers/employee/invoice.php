@@ -2918,8 +2918,13 @@ class Invoice extends CI_Controller {
     /**
      * @desc: This is used to Insert CRM SETUP/QC invoice invoice
      */
-    function generate_crm_setup() {
-         $this->checkUserSession();
+    function generate_crm_setup($isCron = false) { 
+        if($isCron == true){
+            
+        }
+        else{
+            $this->checkUserSession();
+        }
         log_message('info', __FUNCTION__ . " Entering....");
         $this->form_validation->set_rules('partner_name', 'Partner Name', 'trim');
         $this->form_validation->set_rules('partner_id', 'Partner ID', 'required|trim');
@@ -4492,4 +4497,98 @@ class Invoice extends CI_Controller {
             redirect(base_url() . 'employee/invoice/insert_update_invoice/' . $vendor_partner);
         }
     }
+
+   /**
+    * This function loads the qvc email form view.
+    */
+    
+    function QC_transction_details(){
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/QC_transaction_form');
+    }
+    
+    /**
+     * @desc This function helps in sending email.
+     * @param This also loads the template view.
+     */
+    public function process_to_send_QC_transction(){ 
+        $agent_id = $this->session->userdata('id');
+        $status = $this->_process_advance_payment($agent_id, null);
+        if ($status) {
+            $data = array(
+                'transction_date' => $this->input->post('transction_date'),
+                'transction_amount' => $this->input->post('transction_amount'),
+                'review' => $this->input->post('review')
+            );
+
+            $email_template = $this->booking_model->get_booking_email_template(QWIKCILVER_TRANSACTION_DETAIL);
+            $partner_detail = $this->partner_model->getpartner(QWIKCILVER_PARTNER_ID, FALSE); //owner_email, invoice_email_to
+            if(!empty($email_template)){
+                $fromemail = $email_template[2];
+                $cc = $partner_detail[0]['invoice_email_cc'].", ".$email_template[3].", ".$this->session->userdata('official_email');
+                $toemail = $partner_detail[0]['owner_email']." ,".$partner_detail[0]['invoice_email_to'];
+                $subject = vsprintf($email_template[4], array($partner_detail[0]['company_name']));
+                $mesg = $this->load->view('templates/QC_email_template.php',$data,true);
+                $this->notify->sendEmail($fromemail, $toemail,$cc, '', $subject, $mesg, '', QWIKCILVER_TRANSACTION_DETAIL);
+            }
+            $userSession = array('success' => "Bank Transaction Added");
+            $this->session->set_userdata($userSession);
+            redirect(base_url() . "employee/invoice/QC_transction_details");
+        } else {
+            $userSession = array('error' => "Bank Transaction Not Added");
+            $this->session->set_userdata($userSession);
+            redirect(base_url() . "employee/invoice/QC_transction_details");
+        }
+    }
+
+    function get_all_invoice_vertical(){ 
+        $vertical_input = $this->input->post('vertical_input');
+        $html = "<option selected disabled>Select Vertical</option>";
+        $select = 'distinct(vertical)';
+        $vertical = $this->invoices_model->get_invoice_tag($select);
+        foreach ($vertical as $vertical) {
+            $html .= '<option value="'.$vertical['vertical'].'"';
+            if($vertical['vertical'] === $vertical_input){
+               $html .= 'selected'; 
+            }
+            $html .= '>'.$vertical['vertical'].'</option>';
+        }
+        echo $html;
+    }
+    
+    function get_invoice_category(){
+        $vertical = $this->input->post('vertical');
+        $category_input = $this->input->post('category_input');
+        $html = "<option selected disabled>Select Category</option>";
+        $select = 'distinct(category)';
+        $where = array('vertical'=>$vertical);
+        $category = $this->invoices_model->get_invoice_tag($select, $where);
+        foreach ($category as $category) {
+            $html .= '<option value="'.$category['category'].'"';
+            if($category['category'] === $category_input){
+               $html .= 'selected'; 
+            }
+            $html .= '>'.$category['category'].'</option>';
+        }
+        echo $html;
+    }
+    
+    function get_invoice_sub_category(){
+        $vertical = $this->input->post('vertical');
+        $category = $this->input->post('category');
+        $sub_category_input = $this->input->post('sub_category_input');
+        $html = "<option selected disabled>Select Category</option>";
+        $select = 'distinct(sub_category), accounting';
+        $where = array('vertical'=>$vertical, 'category'=>$category);
+        $sub_category = $this->invoices_model->get_invoice_tag($select, $where);
+        foreach ($sub_category as $sub_category) {
+            $html .= '<option data-id="'.$sub_category['accounting'].'" value="'.$sub_category['sub_category'].'"';
+            if($sub_category['sub_category'] === $sub_category_input){
+               $html .= 'selected'; 
+            }
+            $html .= '>'.$sub_category['sub_category'].'</option>';
+        }
+        echo $html;
+    }
+          
 }
