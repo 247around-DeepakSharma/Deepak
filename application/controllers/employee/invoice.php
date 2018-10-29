@@ -4577,7 +4577,7 @@ class Invoice extends CI_Controller {
     * This function loads the qvc email form view.
     */
     
-    function QC_transction_details(){
+    function QC_transaction_details(){
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/QC_transaction_form');
     }
@@ -4591,11 +4591,10 @@ class Invoice extends CI_Controller {
         $status = $this->_process_advance_payment($agent_id, null);
         if ($status) {
             $data = array(
-                'transction_date' => $this->input->post('transction_date'),
-                'transction_amount' => $this->input->post('transction_amount'),
-                'review' => $this->input->post('review')
+                'transction_date' => $this->input->post('tdate'),
+                'transction_amount' => $this->input->post('amount'),
+                'review' => $this->input->post('description')
             );
-
             $email_template = $this->booking_model->get_booking_email_template(QWIKCILVER_TRANSACTION_DETAIL);
             $partner_detail = $this->partner_model->getpartner(QWIKCILVER_PARTNER_ID, FALSE); //owner_email, invoice_email_to
             if(!empty($email_template)){
@@ -4608,11 +4607,11 @@ class Invoice extends CI_Controller {
             }
             $userSession = array('success' => "Bank Transaction Added");
             $this->session->set_userdata($userSession);
-            redirect(base_url() . "employee/invoice/QC_transction_details");
+            redirect(base_url() . "employee/invoice/QC_transaction_details");
         } else {
             $userSession = array('error' => "Bank Transaction Not Added");
             $this->session->set_userdata($userSession);
-            redirect(base_url() . "employee/invoice/QC_transction_details");
+            redirect(base_url() . "employee/invoice/QC_transaction_details");
         }
     }
 
