@@ -107,5 +107,3 @@ define("MISSED_UPCOUNTRY_BOOKING", "missed_upcountry_booking");
 define("CN_AGAINST_GST_DN", "credit_note_against_gst_debit_note");
 define("VENDOR_GST_RETURN_WARNING", "vendor_gst_return");
 define('SPARE_INVOICE_EMAIL_TAG','spare_invoice_sent');
-define('QWIKCILVER_TRANSACTION_DETAIL','qwikcilver_transaction_detail');
-define('VALIDITY_EXPIRY_WARNING_FOR_PARTNER', 'validity_expiry_warning_for_partner');

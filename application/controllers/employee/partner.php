@@ -894,10 +894,9 @@ class Partner extends CI_Controller {
                 array("entity_role"=>"contact_person.role = entity_role.id","agent_filters"=>"contact_person.id=agent_filters.contact_person_id","entity_login_table"=>"entity_login_table.contact_person_id = contact_person.id"), NULL, 
                 array("name"=>'ASC'), NULL,  array("agent_filters"=>"left","entity_role"=>"left","entity_login_table"=>"left"),array("contact_person.id"));
        $results['contact_name'] = $this->partner_model->select_contact_person($id);
-       $results['bank_detail'] = $this->reusable_model->get_search_result_data("account_holders_bank_details", '*',array("entity_id"=>$id, "entity_type" => 'partner'),NULL, NULL, array('is_active'=>'DESC'), NULL, NULL, array()); 
-       $auual_charges = $this->invoices_model->get_variable_charge('fixed_charges, validity_in_month', array('entity_type'=>'partner', 'entity_id'=>$id));
+       $results['bank_detail'] = $this->reusable_model->get_search_result_data("account_holders_bank_details", '*',array("entity_id"=>$id, "entity_type" => 'partner'),NULL, NULL, array('is_active'=>'DESC'), NULL, NULL, array());  
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/addpartner', array('query' => $query, 'results' => $results, 'employee_list' => $employee_list, 'form_type' => 'update','department'=>$departmentArray, 'annual_charges'=>$auual_charges));
+        $this->load->view('employee/addpartner', array('query' => $query, 'results' => $results, 'employee_list' => $employee_list, 'form_type' => 'update','department'=>$departmentArray));
     }
 
     /**
@@ -1860,15 +1859,15 @@ class Partner extends CI_Controller {
                         $this->insert_details_in_state_change($booking_id, $internal_status, "Partner acknowledged to shipped spare parts", $actor, $next_action);
 
                         $this->booking_model->update_booking($booking_id, $booking);
-//                        if (!empty($incoming_invoice_pdf) && !empty($spare_id_array)) {
-//                            foreach($spare_id_array as $s_value){
-//                                // Send OOW invoice to Inventory Manager
-//                                $url = base_url() . "employee/invoice/generate_oow_parts_invoice/" . $s_value;
-//                                $async_data['booking_id'] = $booking_id;
-//                                $this->asynchronous_lib->do_background_process($url, $async_data);
-//                            }
-//                            
-//                        }
+                        if (!empty($incoming_invoice_pdf) && !empty($spare_id_array)) {
+                            foreach($spare_id_array as $s_value){
+                                // Send OOW invoice to Inventory Manager
+                                $url = base_url() . "employee/invoice/generate_oow_parts_invoice/" . $s_value;
+                                $async_data['booking_id'] = $booking_id;
+                                $this->asynchronous_lib->do_background_process($url, $async_data);
+                            }
+                            
+                        }
 
                         $userSession = array('success' => 'Parts Updated');
                         $this->session->set_userdata($userSession);
@@ -5904,43 +5903,6 @@ function get_shipped_parts_list($offset = 0) {
             $this->session->set_userdata('error', 'Please Fill All Bank Detail');
             redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
         } 
-    }
-    
-    /*
-     * @desc - This function is used to save bank detail for partner
-     * @param - form post
-     * @retun - void
-     */
-    function process_add_annual_charges(){
-            $partner_id = $this->input->post('partner_id');
-            $data = array(
-                'entity_type' => 'partner',
-                'entity_id' => $partner_id,
-                'charges_type' => 'annual-charges',
-                'description' => 'Partner annual charges',
-                'fixed_charges' => $this->input->post('annual_amount'),
-                'validity_in_month' => $this->input->post('validity'),
-                'hsn_code' => '123',
-                'gst_rate' => '18'
-            );
-            $charge_exist = $this->invoices_model->get_variable_charge('id', array('entity_type' => 'partner', 'entity_id' => $partner_id));
-            if(empty($charge_exist)){
-                $data['create_date'] = date('Y-m-d H:i:s');
-                $result = $this->invoices_model->insert_into_variable_charge($data);
-            }
-            else{
-               $data['update_date'] = date('Y-m-d H:i:s');
-               $result = $this->invoices_model->update_into_variable_charge(array('id'=>$charge_exist[0]['id']), $data); 
-            }
-            if($result){
-                log_message("info", __METHOD__ .$msg);
-                $this->session->set_userdata('success', 'Data Saved Successfully');
-                redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
-            } else {
-                log_message("info", __METHOD__ . " Error in Saving details");
-                $this->session->set_userdata('failed', 'Data can not be inserted. Please Try Again...');
-                redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
-            }
     }
     
      /*

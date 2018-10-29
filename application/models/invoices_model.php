@@ -1353,13 +1353,11 @@ class invoices_model extends CI_Model {
                        $result['booking'][0]['gst_number'] = "";
                        return $result;
                    } else {
-                       $this->session->set_userdata(array('error' => "GST Number is Invalid"));
                        return FALSE;
                    }
                 } else {
                     // IF we are getting false as response then we are not creating invoice 
                     log_message("info", __METHOD__. " GST Number Invalid for Vendor ID ". $vendor_id);
-                    $this->session->set_userdata(array('error' => "GST Number is Invalid"));
                     return FALSE;
                 }
             } else {
@@ -1367,8 +1365,6 @@ class invoices_model extends CI_Model {
             }
         } else {
             log_message("info", __METHOD__. " DATA Not Found vendor ID ". $vendor_id);
-
-            $this->session->set_userdata(array('error' => "Data Not Found"));
             return FALSE;
         }
     }
@@ -1670,11 +1666,9 @@ class invoices_model extends CI_Model {
 
                 return $r_data;
             } else {
-                $this->session->set_userdata(array('error' => "Invoice amount is not greater than zero"));
                 return FALSE;
             }
         } else {
-            $this->session->set_userdata(array('error' => "Data Not Found"));
             return FALSE;
         }
     }
@@ -1776,7 +1770,6 @@ class invoices_model extends CI_Model {
             return $data1;
             
         } else{
-            $this->session->set_userdata(array('error' => "Data Not Found"));
             return FALSE;
         }
     }
@@ -2131,14 +2124,10 @@ class invoices_model extends CI_Model {
      * 
      */
     
-     public function get_partners_annual_charges($select, $partner_id = "", $partner_active = "") {
+     public function get_partners_annual_charges($select, $partner_id = "") {
         $wh = "";
-        $partner_wh = "";
         if(!empty($partner_id)){
             $wh = " AND vendor_partner_id = '$partner_id' ";
-        }
-        if(!empty($partner_active)){
-           $partner_wh = " AND partners.is_active = 1 ";
         }
         $sql = "SELECT $select FROM vendor_partner_invoices "
                 . "INNER JOIN (SELECT id, MAX(to_date) as date "
@@ -2149,7 +2138,7 @@ class invoices_model extends CI_Model {
                 . "AND vendor_partner = '"._247AROUND_PARTNER_STRING."'  "
                 . "GROUP BY vendor_partner_id) "
                 . "AS EachItem ON EachItem.id = vendor_partner_invoices.id "
-                . " JOIN partners on partners.id = vendor_partner_id ".$partner_wh." ORDER BY public_name";
+                . " JOIN partners on partners.id = vendor_partner_id ORDER BY public_name";
        
         $query = $this->db->query($sql);
         return $query->result();
