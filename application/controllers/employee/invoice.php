@@ -4505,7 +4505,7 @@ class Invoice extends CI_Controller {
     * This function loads the qvc email form view.
     */
     
-    function QC_transction_details(){
+    function QC_transaction_details(){
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/QC_transaction_form');
     }
@@ -4519,7 +4519,7 @@ class Invoice extends CI_Controller {
         $status = $this->_process_advance_payment($agent_id, null);
         if ($status) {
             $data = array(
-                'transction_date' => $this->input->post('transaction_date'),
+                'transction_date' => $this->input->post('tdate'),
                 'transction_amount' => $this->input->post('amount'),
                 'review' => $this->input->post('description')
             );
