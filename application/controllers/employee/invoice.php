@@ -1985,12 +1985,7 @@ class Invoice extends CI_Controller {
                     $invoices['meta']['r_sc'] += $value['service_charges'];
                     $invoices['meta']['r_asc'] += $value['additional_charges'];
                     $invoices['meta']['r_pc'] += $value['parts_cost'];
-                    if(isset($value['product_or_services'])){
-                        if($value['product_or_services'] == "Product"){
-                            $parts_count++;
-                        }
-                    }
-                   
+                    
                     $total_amount_paid += $value['amount_paid'];
 
                     if (!is_null($value['rating_stars']) || $value['rating_stars'] != '') {
@@ -3505,9 +3500,9 @@ class Invoice extends CI_Controller {
     function generate_oow_parts_invoice($spare_id) {
         $req['where'] = array("spare_parts_details.id" => $spare_id);
         $req['length'] = -1;
-        $req['select'] = "spare_parts_details.purchase_price, parts_requested,invoice_gst_rate, spare_parts_details.service_center_id, spare_parts_details.booking_id";
+        $req['select'] = "spare_parts_details.purchase_price, spare_parts_details.sell_invoice_id, parts_requested,invoice_gst_rate, spare_parts_details.service_center_id, spare_parts_details.booking_id";
         $sp_data = $this->inventory_model->get_spare_parts_query($req);
-        if (!empty($sp_data)) {
+        if (!empty($sp_data) && empty($sp_data[0]->sell_invoice_id)) {
             $vendor_details = $this->vendor_model->getVendorDetails("gst_no, "
                     . "company_name,address as company_address,district,"
                     . "state, pincode, owner_email, primary_contact_email", array('id' => $sp_data[0]->service_center_id));
@@ -3517,7 +3512,7 @@ class Invoice extends CI_Controller {
             $tax_charge = $this->booking_model->get_calculated_tax_charge($amount, $sp_data[0]->invoice_gst_rate);
             $data[0]['taxable_value'] = ($amount - $tax_charge);
             $data[0]['product_or_services'] = "Product";
-            if(empty($vendor_details[0]['gst_no'])){
+            if(!empty($vendor_details[0]['gst_no'])){
                 $data[0]['gst_number'] = $vendor_details[0]['gst_no'];
             } else {
                 $data[0]['gst_number'] = 1;
@@ -3668,7 +3663,7 @@ class Invoice extends CI_Controller {
         $data[0]['description'] = ucwords($spare_data['parts_requested']) . " (" . $spare_data['booking_id'] . ") ";
         $data[0]['taxable_value'] = $invoice_details[0]['parts_cost'];
         $data[0]['product_or_services'] = "Product";
-        if(empty($vendor_details[0]['gst_no'])){
+        if(!empty($vendor_details[0]['gst_no'])){
             $data[0]['gst_number'] = $vendor_details[0]['gst_no'];
         } else {
             $data[0]['gst_number'] = 1;
@@ -3988,7 +3983,7 @@ class Invoice extends CI_Controller {
                         foreach ($data as $value ) {
 
                             $this->service_centers_model->update_spare_parts(array('id' => $value->id), array("purchase_invoice_id" => $invoice['invoice_id'],
-                                "status" => SPARE_SHIPPED_BY_PARTNER));
+                                "status" => SPARE_SHIPPED_BY_PARTNER, 'invoice_gst_rate' => $part_data[$value->id]['gst_rate']));
                             
                             $this->vendor_model->update_service_center_action($value->booking_id, array('current_status' => "InProcess", 'internal_status' => SPARE_PARTS_SHIPPED));
                             
@@ -4005,6 +4000,11 @@ class Invoice extends CI_Controller {
                             
                             $this->notify->insert_state_change($value->booking_id, "Invoice Approved", "", "Admin Approve Partner OOW Invoice ", $this->session->userdata('id'), $this->session->userdata('employee_id'),
                     $actor,$next_action,_247AROUND);
+                            
+                            // Send OOW invoice to Inventory Manager
+                            $url = base_url() . "employee/invoice/generate_oow_parts_invoice/" . $value->id;
+                            $async_data['booking_id'] = $value->booking_id;
+                            $this->asynchronous_lib->do_background_process($url, $async_data);
                         }
                         
                         
