@@ -229,12 +229,7 @@
                                         </ul>
                                     </li>
                                     <li class="divider"></li>
-                                    <li class="dropdown dropdown-submenu">
-                                        <a href="" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"> <strong>Inbound Processing</strong></a>     
-                                        <ul class="dropdown-menu">
-                                            <li><a href="<?php echo base_url();?>service_center/acknowledge_spares_send_by_partner"><strong>Acknowledge Spares Send By Partner </strong></a>
-                                            </li>
-                                        </ul>
+                                    <li><a href="<?php echo base_url();?>service_center/acknowledge_spares_send_by_partner"><strong>Acknowledge Spares Send By Partner </strong></a>
                                     </li>
 
                                 </ul>
