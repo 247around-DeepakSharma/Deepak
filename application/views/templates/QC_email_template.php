@@ -44,7 +44,7 @@ th, tr {
                     </tr>
                     <tr>
                         <th style = "text-align:center; border-bottom: 1px solid #000; border-right:1px solid #000;">Discount%</th>
-                         <th style = "text-align:center; border-bottom: 1px solid #000; border-right:1px solid #000;">%</th>
+                         <th style = "text-align:center; border-bottom: 1px solid #000; border-right:1px solid #000;"></th>
                     </tr>
                     <?php if(!empty($transction_amount))?>
                     <tr>

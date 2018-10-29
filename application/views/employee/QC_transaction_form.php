@@ -33,13 +33,13 @@
             <div class="panel-body">
                 <div class="row">
                 <div class="col-md-6 form-group <?php if( form_error('transction_amount') ) { echo 'has-error';} ?>">
-                    <label for="transction_amount">Amount</label>
-                    <input type="number" class="form-control" id="transction_amount" name="amount" placeholder="Enter Transction Amount" name="transction_amount" required>
+                    <label for="transction_amount">Amount *</label>
+                    <input type="number" class="form-control" id="transction_amount" name="amount" placeholder="Enter Transction Amount" name="transaction_amount" required>
                     <?php echo form_error('transction_amount'); ?>
                 </div>
                 <div class="col-md-6 form-group <?php if( form_error('transction_date') ) { echo 'has-error';} ?>">
-                    <label for="transction_date"> Date</label>
-                    <input type="date" class="form-control" id="transction_date" name="transaction_date" placeholder="Enter Transction Date" name="transction_date" required>
+                    <label for="transction_date"> Date *</label>
+                    <input type="date" class="form-control" id="transction_date" name="tdate" placeholder="Enter Transaction Date" required>
                     <?php echo form_error('transction_date'); ?>
                 </div>
                 </div>
