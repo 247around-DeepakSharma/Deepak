@@ -2941,8 +2941,13 @@ class Invoice extends CI_Controller {
     /**
      * @desc: This is used to Insert CRM SETUP/QC invoice invoice
      */
-    function generate_crm_setup() {
-         $this->checkUserSession();
+    function generate_crm_setup($isCron = false) { 
+        if($isCron == true){
+            
+        }
+        else{
+            $this->checkUserSession();
+        }
         log_message('info', __FUNCTION__ . " Entering....");
         $this->form_validation->set_rules('partner_name', 'Partner Name', 'trim');
         $this->form_validation->set_rules('partner_id', 'Partner ID', 'required|trim');
@@ -4595,7 +4600,7 @@ class Invoice extends CI_Controller {
             $partner_detail = $this->partner_model->getpartner(QWIKCILVER_PARTNER_ID, FALSE); //owner_email, invoice_email_to
             if(!empty($email_template)){
                 $fromemail = $email_template[2];
-                $cc = $partner_detail[0]['invoice_email_cc'].", ".$email_template[3];
+                $cc = $partner_detail[0]['invoice_email_cc'].", ".$email_template[3].", ".$this->session->userdata('official_email');
                 $toemail = $partner_detail[0]['owner_email']." ,".$partner_detail[0]['invoice_email_to'];
                 $subject = vsprintf($email_template[4], array($partner_detail[0]['company_name']));
                 $mesg = $this->load->view('templates/QC_email_template.php',$data,true);
