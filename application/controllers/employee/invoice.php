@@ -4607,11 +4607,11 @@ class Invoice extends CI_Controller {
             }
             $userSession = array('success' => "Bank Transaction Added");
             $this->session->set_userdata($userSession);
-            redirect(base_url() . "employee/invoice/QC_transction_details");
+            redirect(base_url() . "employee/invoice/QC_transaction_details");
         } else {
             $userSession = array('error' => "Bank Transaction Not Added");
             $this->session->set_userdata($userSession);
-            redirect(base_url() . "employee/invoice/QC_transction_details");
+            redirect(base_url() . "employee/invoice/QC_transaction_details");
         }
     }
 

@@ -34,7 +34,7 @@
                 <div class="row">
                 <div class="col-md-6 form-group <?php if( form_error('transction_amount') ) { echo 'has-error';} ?>">
                     <label for="transction_amount">Amount *</label>
-                    <input type="number" class="form-control" id="transction_amount" name="amount" placeholder="Enter Transction Amount" name="transaction_amount" required>
+                    <input type="number" class="form-control" id="transction_amount" name="amount" placeholder="Enter Transaction Amount" name="transaction_amount" required>
                     <?php echo form_error('transction_amount'); ?>
                 </div>
                 <div class="col-md-6 form-group <?php if( form_error('transction_date') ) { echo 'has-error';} ?>">
@@ -44,7 +44,7 @@
                 </div>
                 </div>
                  <div class="form-group <?php if( form_error('review') ) { echo 'has-error';} ?>">
-                    <label for="review">Description</label>
+                    <label for="review">Description *</label>
                     <textarea rows="3" cols="3" class="form-control" id="review" name="description" placeholder="Description" name="review" required></textarea>
                     <?php echo form_error('review'); ?>
                 </div>
