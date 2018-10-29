@@ -142,7 +142,7 @@
         
         get_partner_file_details();
         
-        if(partner_id === '<?php echo SNAPDEAL_ID ?>'){
+        if(partner_id === '<?php echo SNAPDEAL_ID ?>' || partner_id === '<?php echo PAYTM_ID ?>'){
             $('#file_type').show();
         }else{
             $('#file_type').hide();

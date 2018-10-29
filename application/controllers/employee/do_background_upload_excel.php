@@ -649,7 +649,7 @@ class Do_background_upload_excel extends CI_Controller {
                                 if (isset($value['fso_delivery_date'])) {
                                     $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['fso_delivery_date']);
                                 } else if(isset($value['Delivery_Date'])){
-                                    $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_Date']);
+                                    $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['delivery_date']);
                                 } else {
                                     $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject();
                                 }
@@ -1538,7 +1538,7 @@ class Do_background_upload_excel extends CI_Controller {
      * @param $data array
      * @param void 
      */
-    function get_final_file_data($data,$header_data){
+    function get_final_file_data($data,$header_data,$file_type=NULL){
         $tmpArr['unique_id'] = 'Around';
         $tmpArr['referred_date_and_time'] = '';
         $tmpArr['sub_order_id'] = $data[$header_data['sub_order_id']];
@@ -1597,20 +1597,21 @@ class Do_background_upload_excel extends CI_Controller {
         }else{
             $tmpArr['service_promise_date'] = '';
         }
-        // Check if file contains type_of_data column , it means file have delivered and shipped data both
-        if(isset($data[$header_data['type_of_data']])){
-            if($data[$header_data['type_of_data']] == 'Delivered'){
-                $tmpArr['delivery_date'] = $data['delivery_end_date'];
-                array_push($this->deliveredArray, $tmpArr);
+        $tmpArr['delivery_date'] = '';
+        if($file_type){
+            if (strpos($file_type, 'shipped') !== false) {
+                if($data['shipped_date']){
+                    $tmpArr['delivery_date'] = $data['shipped_date'];
+                }
             }
             else{
-                    $tmpArr['delivery_end_date'] = $data['expected_delivery_date'];
-                    array_push($this->shippedArray, $tmpArr);
+                 if($data['date_of_delivery']){
+                    $tmpArr['delivery_date'] = $data['date_of_delivery'];
+                 }
             }
         }
-        else{
-            array_push($this->deliveredArray, $tmpArr);
-        }
+        // Check if file contains type_of_data column , it means file have delivered and shipped data both
+        array_push($this->deliveredArray, $tmpArr);
     }
     
     /**
@@ -1655,17 +1656,19 @@ class Do_background_upload_excel extends CI_Controller {
                 $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
                 $rowData = array_combine($data['header_data'], $rowData_array[0]);
                 $rowData['partner_source'] = $this->input->post('partner_source');
-                $rowData['partner_id'] = $this->input->post('partner_id');;
-                $this->get_final_file_data($rowData,$data['actual_header_data'][$response['key']]);
+                $rowData['partner_id'] = $this->input->post('partner_id');
+                $this->get_final_file_data($rowData,$data['actual_header_data'][$response['key']],$data['file_type']);
             }
-            
-            if(!empty($this->deliveredArray)){
-                //process file to insert bookings
-                $this->process_upload_sd_file($this->deliveredArray,'delivered', $data['file_name'],$this->input->post('partner_id'));
+            if($data['file_type']){
+                if (strpos($data['file_type'], 'shipped') !== false) {
+                    $this->process_upload_sd_file($this->deliveredArray,'shipped', $data['file_name'],$this->input->post('partner_id'));
+                }
+                else{
+                    $this->process_upload_sd_file($this->deliveredArray,'delivered', $data['file_name'],$this->input->post('partner_id'));
+                }
             }
-            if(!empty($this->shippedArray)){
-                //process file to insert bookings
-                $this->process_upload_sd_file($this->shippedArray,'shipped', $data['file_name'],$this->input->post('partner_id'));
+            else{
+                 $this->process_upload_sd_file($this->deliveredArray,'delivered', $data['file_name'],$this->input->post('partner_id'));
             }
             
             $response['status'] = TRUE;
