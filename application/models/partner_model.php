@@ -1404,7 +1404,7 @@ function get_data_for_partner_callback($booking_id) {
      * @return: array()
      * 
      */
-    function get_spare_parts_by_any($select,$where,$is_join=false,$sf_details = FALSE){
+    function get_spare_parts_by_any($select,$where,$is_join=false,$sf_details = FALSE, $group_by = false){
         $this->db->select($select,FALSE);
         $this->db->where($where,false);
         $this->db->from('spare_parts_details');
@@ -1413,6 +1413,10 @@ function get_data_for_partner_callback($booking_id) {
         }
         if($sf_details){
             $this->db->join('service_centres','spare_parts_details.service_center_id = service_centres.id');
+        }
+        if($group_by){
+            
+            $this->db->group_by($group_by);
         }
         $query = $this->db->get();
         return $query->result_array();
