@@ -1387,7 +1387,7 @@ class Invoice extends CI_Controller {
 
     /**
      * @desc: This method is used to generate invoices for partner or vendor.
-     * This methd is used to get data from Form.
+     * This method is used to get data from Form.
      */
     function process_invoices_form() {
         $this->checkUserSession();
@@ -1422,8 +1422,10 @@ class Invoice extends CI_Controller {
             $output = "Invoice Generated...";
             $userSession = array('success' => $output);
             $this->session->set_userdata($userSession);
+        } else if($this->session->userdata('error')){
+            log_message('info', __METHOD__. "Invoice error already set");
         } else {
-            $output = "Invoice is not gnerating. Either data not found or GST Number invalid";
+            $output = "Invoice is not generating.";
             $userSession = array('error' => $output);
             $this->session->set_userdata($userSession);
         }
@@ -2285,11 +2287,13 @@ class Invoice extends CI_Controller {
                   
                     return $this->generate_foc_details_invoices_for_vendors($in_detailed, $invoices, $vendor_id, $invoice_type, $details['agent_id'], $from_date,$to_date );
                 } else {
+                    $this->session->set_userdata(array('error' => "Invoice File did not create"));
                     log_message('info', __FUNCTION__ . ' Invoice File did not create. invoice id' . $invoices['meta']['invoice_id']);
                     return FALSE;
                 }
             } else {
                 //Negative Amount Invoice
+                $this->session->set_userdata(array('error' => "Vendor has negative invoice amount"));
                 if($invoice_type == "final"){
                     $email_template = $this->booking_model->get_booking_email_template(NEGATIVE_FOC_INVOICE_FOR_VENDORS_EMAIL_TAG);
                     $subject = vsprintf($email_template[4], array($invoices['meta']['company_name'],$invoices['meta']['sd'],$invoices['meta']['ed']));
