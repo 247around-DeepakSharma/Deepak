@@ -2121,10 +2121,14 @@ class invoices_model extends CI_Model {
      * 
      */
     
-     public function get_partners_annual_charges($select, $partner_id = "") {
+     public function get_partners_annual_charges($select, $partner_id = "", $partner_active = "") {
         $wh = "";
+        $partner_wh = "";
         if(!empty($partner_id)){
             $wh = " AND vendor_partner_id = '$partner_id' ";
+        }
+        if(!empty($partner_active)){
+           $partner_wh = " AND partners.is_active = 1 ";
         }
         $sql = "SELECT $select FROM vendor_partner_invoices "
                 . "INNER JOIN (SELECT id, MAX(to_date) as date "
@@ -2135,7 +2139,7 @@ class invoices_model extends CI_Model {
                 . "AND vendor_partner = '"._247AROUND_PARTNER_STRING."'  "
                 . "GROUP BY vendor_partner_id) "
                 . "AS EachItem ON EachItem.id = vendor_partner_invoices.id "
-                . " JOIN partners on partners.id = vendor_partner_id ORDER BY public_name";
+                . " JOIN partners on partners.id = vendor_partner_id ".$partner_wh." ORDER BY public_name";
        
         $query = $this->db->query($sql);
         return $query->result();
