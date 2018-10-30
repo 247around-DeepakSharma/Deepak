@@ -1425,7 +1425,7 @@ class Invoice extends CI_Controller {
         } else if($this->session->userdata('error')){
             log_message('info', __METHOD__. "Invoice error already set");
         } else {
-            $output = "Invoice is not generating.";
+            $output = "Invoice is not generating. Data is not Found";
             $userSession = array('error' => $output);
             $this->session->set_userdata($userSession);
         }
@@ -3572,7 +3572,7 @@ class Invoice extends CI_Controller {
                 $invoice_details = array(
                     'invoice_id' => $response['meta']['invoice_id'],
                     'type_code' => 'A',
-                    'type' => "Part",
+                    'type' => "Parts",
                     'vendor_partner' => 'vendor',
                     'vendor_partner_id' => $sp_data[0]->service_center_id,
                     'invoice_file_main' => $response['meta']['invoice_file_main'],
