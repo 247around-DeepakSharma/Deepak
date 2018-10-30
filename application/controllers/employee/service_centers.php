@@ -690,6 +690,11 @@ class Service_centers extends CI_Controller {
                     break;
                 default :
                     
+                    if($cancellation_reason == CANCELLATION_REASON_WRONG_AREA){
+
+                        $this->send_mail_rm_for_wrong_area_picked($booking_id, $partner_id);
+                    }
+
                     $data['current_status'] = "InProcess";
                     $data['internal_status'] = "Cancelled";
                     $data['service_center_remarks'] = date("F j") . ":- " .$cancellation_text;
@@ -734,6 +739,33 @@ class Service_centers extends CI_Controller {
             }
         }
     }
+    /**
+     * @desc This function is used to send email to RM or AM when sf cancelled booking with wrong call area status
+     * @param String $booking_id
+     * @param int $partner_id
+     */
+    function send_mail_rm_for_wrong_area_picked($booking_id, $partner_id) {
+       
+        $email_template = $this->booking_model->get_booking_email_template(WRONG_CALL_AREA_TEMPLATE);
+       
+        if (!empty($email_template)) {
+
+            $rm_email = $this->get_rm_email($this->session->userdata('service_center_id'));
+            $get_partner_details = $this->partner_model->getpartner_details('account_manager_id,', array('partners.id' => $partner_id));
+            $am_email = "";
+            if (!empty($get_partner_details[0]['account_manager_id'])) {
+                $am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
+            }
+
+            $to = $rm_email.",".$am_email;
+            $cc = $email_template[3];
+            $bcc = $email_template[5];
+            $subject = vsprintf($email_template[4], array($booking_id));
+            $emailBody = vsprintf($email_template[0], $booking_id);
+            $this->notify->sendEmail($email_template[2], $to, $cc, $bcc, $subject, $emailBody, "", WRONG_CALL_AREA_TEMPLATE);
+        }
+    }
+
     /**
      * @desc: This is used to convert booking into Query.
      * @param String $booking_id
@@ -2399,9 +2431,12 @@ class Service_centers extends CI_Controller {
      */
     private function get_rm_email($vendor_id) {
         $employee_rm_relation = $this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_id);
-        $rm_id = $employee_rm_relation[0]['agent_id'];
-        $rm_details = $this->employee_model->getemployeefromid($rm_id);
-        $rm_poc_email = $rm_details[0]['official_email'];
+      //  print_r($employee_rm_relation); exit();
+        $rm_poc_email = "";
+        if(!empty($employee_rm_relation)){
+            $rm_poc_email = $employee_rm_relation[0]['official_email'];
+        }
+        
         return $rm_poc_email;
     }
     
