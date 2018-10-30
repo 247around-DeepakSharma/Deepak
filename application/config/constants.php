@@ -626,7 +626,7 @@ define('TOTAL', 'Total');
 //do not allow cancel from partner panel after this time interval
 define('BOOKING_CAN_NOT_BE_CANCEL_AFTER_THIS_TIME_INTERVAL',10);
 //show this text when partner cancel booking before time interval
-define('TEXT_FOR_BOOKING_CAN_NOT_BE_CANCEL_AFTER_THIS_TIME_INTERVAL','This booking can not be cancelled');
+define('TEXT_FOR_BOOKING_CAN_NOT_BE_CANCEL_AFTER_THIS_TIME_INTERVAL','Booking can not be cancelled, Please contact to 247Around Team');
 define('REVIEW_NOTIFICATION_TO_PARTNER_DAYS','2');
 //Default Municipal limit for Paytm
 define("DEFAULT_PAYTM_MUNICIPAL_LIMIT", 15);
