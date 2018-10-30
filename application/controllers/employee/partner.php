@@ -5374,8 +5374,7 @@ function get_shipped_parts_list($offset = 0) {
             "spare_parts_details.defective_part_required" => 1,
             "approved_defective_parts_by_admin" => 1,
             "spare_parts_details.partner_id" => $partner_id,
-            "status IN ('" . DEFECTIVE_PARTS_SHIPPED . "')  " => NULL,
-            "defactive_part_received_date_by_courier_api IS NOT NULL" => NULL
+            "status IN ('" . DEFECTIVE_PARTS_SHIPPED . "')  " => NULL
         );
        if($this->input->post('state')){
            $where['booking_details.state'] = $this->input->post('state');
