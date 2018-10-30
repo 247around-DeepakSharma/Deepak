@@ -2586,4 +2586,20 @@ exit();
         log_message('info', __METHOD__. " Response ". print_r($response, true));
         echo $response;
     }
+                /*
+     * This function show login li
+     */
+    function manage_partner_contacts(){
+        $partner_id = $this->session->userdata('partner_id');
+        $data['contact_persons'] =  $this->reusable_model->get_search_result_data("contact_person",  "contact_person.*,entity_role.role,entity_role.id as  role_id,entity_role.department,"
+                . "GROUP_CONCAT(agent_filters.state) as  state,agent_filters.agent_id as agentid,entity_login_table.agent_id as login_agent_id",
+                array("contact_person.entity_type" =>  "partner","contact_person.entity_id"=>$partner_id,"contact_person.is_active"=>1),
+                array("entity_role"=>"contact_person.role = entity_role.id","agent_filters"=>"contact_person.id=agent_filters.contact_person_id","entity_login_table"=>"entity_login_table.contact_person_id = contact_person.id"), NULL, 
+                array("name"=>'ASC'), NULL,  array("agent_filters"=>"left","entity_role"=>"left","entity_login_table"=>"left"),array("contact_person.id"));
+         $data['department'] = $this->reusable_model->get_search_result_data("entity_role", 'DISTINCT department',array("entity_type" => 'partner'),NULL, NULL, array('department'=>'ASC'), NULL, NULL,array());  
+         $data['select_state'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
+         $this->miscelleneous->load_partner_nav_header();
+        $this->load->view('partner/contacts', $data);
+        $this->load->view('partner/partner_footer');
+    }
 }

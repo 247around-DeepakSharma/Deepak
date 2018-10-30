@@ -1544,7 +1544,7 @@
              <div class="clear"></div>
               <div id="container_8" style="display:none;margin: 30px 10px;" class="form_container">
                  <button class="btn" onclick="show_add_contact_form()" style="background-color: #337ab7;color: #fff;margin-bottom: 10px;">Add Contacts</button>
-                 <form name="contact_form" class="form-horizontal" id ="contact_form" action="<?php echo base_url() ?>employee/partner/process_partner_contacts" method="POST" enctype="multipart/form-data" onsubmit="return process_contact_persons_validations()">
+                 <form name="contact_form" class="form-horizontal" id ="contact_form" action="<?php echo base_url() ?>employee/partner/process_partner_contacts" method="POST" enctype="multipart/form-data" onsubmit="return process_contact_persons_validations()" style="display:none;">
                     <?php
                         if(isset($query[0]['id'])){
                             if($query[0]['id']){
@@ -1601,7 +1601,7 @@
                                         <div class="form-group "> 
                                             <input type="hidden" value="" id="checkbox_value_holder_1" name="checkbox_value_holder[]">
                                               <div class="col-md-6"> 
-                                                  <label><b>Create Login</b></label><input style="margin-left: 167px;" type="checkbox" value="" id="login_checkbox_1" name="login_checkbox[]">
+                                                  <label><b>Create Login</b></label><input style="margin-left: 167px;" type="checkbox" value="" id="login_checkbox_1" name="login_checkbox[]" checked="">
                                             </div>   
                                                   </div>
                                 </div>
@@ -2130,7 +2130,7 @@
                                 <div class="form-group ">
                                     <label for="service_name" class="col-md-4 vertical-align">Role *</label>
                                     <div class="col-md-6">
-                                        <select type="text" class="form-control"  id="contact_person_role" name="contact_person_role" onChange="getFilter(this.value)" >
+                                        <select type="text" class="form-control"  id="contact_person_role" name="contact_person_role" onChange="getFilters(this.value,'edit')" >
                                             
                                         </select>
                                         <!--<input type="text"value="<?php// echo $value['role'] ?>" onclick="{$('#contact_person_role').removeClass('hidden');this.addClass('hidden');}"/>-->
@@ -3233,13 +3233,14 @@ function sendAjaxRequest(postData, url,type) {
         });
         
     });
-    function create_edit_form(json){
+   function create_edit_form(json){
         var value = JSON.parse(json);
         var data="";
         if(value.state){
             var states=value.state;
             var states = states.split(',');
-            var Values = new Array()
+            var Values = new Array();
+            $("#contact_person_states").prop("disabled", false);
             for(var element in states){
                 var state=states[element];
                 $('#contact_person_states option[value="'+state+'"]').select2().attr("selected", "selected");
@@ -3247,9 +3248,17 @@ function sendAjaxRequest(postData, url,type) {
             }
             $("#contact_person_states").val(Values).trigger('change');
         }
+        else{
+            $("#contact_person_states").val('').change();
+             $("#contact_person_states").prop("disabled", true);
+        }
         if(value.login_agent_id){
           $("#checkbox_value_holder").val(true);
           $( "#login_checkbox" ).prop( "checked", true );
+        }
+        else{
+          $("#checkbox_value_holder").val(false);
+          $( "#login_checkbox" ).prop( "checked", false );
         }
         $("#contact_id").val(value.id);
         $("#contact_person_name").val(value.name);
@@ -3257,19 +3266,9 @@ function sendAjaxRequest(postData, url,type) {
         $("#contact_person_contact").val(value.official_contact_number);
         $("#contact_person_alt_email").val(value.alternate_email);
         $("#contact_person_alt_contact").val(value.alternate_contact_number);
-        
         data = "<option value = '' disabled>Select Roles</option><option value = "+value.role_id+" selected>"+value.role+"</option>";
         $("#contact_person_role").html(data);
-        switch(value.role){
-            case "poc" :
-                $("#contact_person_department").val("Admin");
-                $('#contact_person_department option[value="Admin"]').attr("selected", "selected");
-                break;
-            case "area_sales_manager":
-                $("#contact_person_department").val("Management");
-                $('#contact_person_department option[value="Management"]').attr("selected", "selected");
-                break;
-        }
+        $('select[name="contact_person_department"]').find('option[value='+value.department+']').attr("selected",true);
         $("#contact_person_address").val(value.permanent_address);
         $("#contact_person_c_address").val(value.correspondence_address);
         if(value.agentid){
