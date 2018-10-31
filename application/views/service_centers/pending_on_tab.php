@@ -36,7 +36,7 @@
                                         <th class="text-center" data-orderable="false">Cancel</th>
                                         <th class="text-center" data-orderable="false">Complete</th>
                                         <th class="text-center" data-orderable="false">JobCard</th>
-<!--                                        <th class="text-center" data-orderable="false">Helper <br> Document</th>-->
+                                        <th class="text-center" data-orderable="false">Helper <br> Document</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -155,9 +155,9 @@
                                         </td>
                                         <td style="vertical-align: middle;"><a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $row->booking_jobcard_filename?> " class='btn btn-sm btn-warning btn-sm <?php if($this->session->userdata('is_update') == 1){ ?><?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' download  ><i class="fa fa-download" aria-hidden="true"></i></a></td>
                                        
-<!--                                        <td style="vertical-align: middle;"><button type="button" class="btn btn-sm btn-warning btn-sm" data-toggle="modal" data-target="#showBrandCollateral" onclick="get_brand_collateral(<?php echo "'".$row->booking_id."'" ?>)"><i class="fa fa-file-text-o" aria-hidden="true" ></i></button></td>
+                                     <td style="vertical-align: middle;"><button type="button" class="btn btn-sm btn-warning btn-sm" data-toggle="modal" data-target="#showBrandCollateral" onclick="get_brand_collateral(<?php echo "'".$row->booking_id."'" ?>)"><i class="fa fa-file-text-o" aria-hidden="true" ></i></button></td>
                         <td>
-                                            <a target="_blank" id="edit" class='btn btn-sm btn-success' href="Javascript:void(0)"
+                                            <!--   <a target="_blank" id="edit" class='btn btn-sm btn-success' href="Javascript:void(0)"
                                                title='Reschedule'><i><i class='fa fa-calendar' aria-hidden='true' ></i></i><span class='sup'><?php // echo $row->count_reschedule; ?></span></a>
                                             
                                             </td>-->
@@ -215,7 +215,7 @@
                                         <th class="text-center" data-orderable="false">Cancel</th>
                                         <th class="text-center" data-orderable="false">Complete</th>
                                         <th class="text-center" data-orderable="false">JobCard</th>
-<!--                                         <th class="text-center" data-orderable="false">Helper <br> Document</th>-->
+                                         <th class="text-center" data-orderable="false">Helper <br> Document</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -323,9 +323,9 @@
                                             <a href="<?php echo base_url(); ?>service_center/complete_booking_form/<?php echo urlencode(base64_encode($row->booking_id));?>" class='btn btn-sm btn-success <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
                                         </td>
                                         <td style="vertical-align: middle;"><a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $row->booking_jobcard_filename?> " class='btn btn-sm btn-warning btn-sm <?php if($this->session->userdata('is_update') == 1){ ?><?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' download  ><i class="fa fa-download" aria-hidden="true"></i></a></td>
-<!--                                        <td style="vertical-align: middle;"><button type="button" class="btn btn-sm btn-warning btn-sm" data-toggle="modal" data-target="#showBrandCollateral" onclick="get_brand_collateral(<?php echo "'".$row->booking_id."'" ?>)"><i class="fa fa-file-text-o" aria-hidden="true" ></i></button></td>                                        
+                                       <td style="vertical-align: middle;"><button type="button" class="btn btn-sm btn-warning btn-sm" data-toggle="modal" data-target="#showBrandCollateral" onclick="get_brand_collateral(<?php echo "'".$row->booking_id."'" ?>)"><i class="fa fa-file-text-o" aria-hidden="true" ></i></button></td>                                        
                         <td>
-                                            <a target="_blank" id="edit" class='btn btn-sm btn-success' href="Javascript:void(0)"
+                                          <!--     <a target="_blank" id="edit" class='btn btn-sm btn-success' href="Javascript:void(0)"
                                                title='Reschedule'><i><i class='fa fa-calendar' aria-hidden='true' ></i></i><span class='sup'><?php  //echo $row->count_reschedule; ?></span></a>
                                             
                                             </td>-->
@@ -490,9 +490,9 @@
                                             <a href="<?php echo base_url(); ?>service_center/complete_booking_form/<?php echo urlencode(base64_encode($row->booking_id));?>" class='btn btn-sm btn-success <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
                                         </td>
                                         <td style="vertical-align: middle;"><a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $row->booking_jobcard_filename?> " class='btn btn-sm btn-warning btn-sm <?php if($this->session->userdata('is_update') == 1){ ?><?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' download  ><i class="fa fa-download" aria-hidden="true"></i></a></td>
-<!--<td style="vertical-align: middle;"><button type="button" class="btn btn-sm btn-warning btn-sm" data-toggle="modal" data-target="#showBrandCollateral" onclick="get_brand_collateral(<?php echo "'".$row->booking_id."'" ?>)"><i class="fa fa-file-text-o" aria-hidden="true" ></i></button></td>                                        
+<td style="vertical-align: middle;"><button type="button" class="btn btn-sm btn-warning btn-sm" data-toggle="modal" data-target="#showBrandCollateral" onclick="get_brand_collateral(<?php echo "'".$row->booking_id."'" ?>)"><i class="fa fa-file-text-o" aria-hidden="true" ></i></button></td>                                        
                         <td>
-                                            <a target="_blank" id="edit" class='btn btn-sm btn-success' href="Javascript:void(0)"
+                                       <!--     <a target="_blank" id="edit" class='btn btn-sm btn-success' href="Javascript:void(0)"
                                                title='Reschedule'><i><i class='fa fa-calendar' aria-hidden='true' ></i></i><span class='sup'><?php // echo $row->count_reschedule; ?></span></a>
                                             
                                             </td>-->

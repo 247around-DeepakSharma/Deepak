@@ -3658,7 +3658,12 @@ class Service_centers extends CI_Controller {
             <tbody>';
             $index =0;
             foreach($data as $collatralData){
-                $url = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$collatralData['file'];
+                if($collatralData['is_file']){
+                    $url = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$collatralData['file'];
+                }
+                else{
+                    $url = $collatralData['file'];
+                }
                 $index++;
                 $finalString .= '<tr><td>'.$index.'</td>';
                 $finalString .= '<td>'.$collatralData['collateral_type'].'</td>';

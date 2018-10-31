@@ -890,7 +890,7 @@ class Partner extends CI_Controller {
         $departmentArray = $this->reusable_model->get_search_result_data("entity_role", 'DISTINCT department',array("entity_type" => 'partner'),NULL, NULL, array('department'=>'ASC'), NULL, NULL,array());  
         $results['contact_persons'] =  $this->reusable_model->get_search_result_data("contact_person",  "contact_person.*,entity_role.role,entity_role.id as  role_id,entity_role.department,"
                 . "GROUP_CONCAT(agent_filters.state) as  state,agent_filters.agent_id as agentid,entity_login_table.agent_id as login_agent_id",
-                array("contact_person.entity_type" =>  "partner","contact_person.entity_id"=>$id),
+                array("contact_person.entity_type" =>  "partner","contact_person.entity_id"=>$id,"contact_person.is_active"=>1),
                 array("entity_role"=>"contact_person.role = entity_role.id","agent_filters"=>"contact_person.id=agent_filters.contact_person_id","entity_login_table"=>"entity_login_table.contact_person_id = contact_person.id"), NULL, 
                 array("name"=>'ASC'), NULL,  array("agent_filters"=>"left","entity_role"=>"left","entity_login_table"=>"left"),array("contact_person.id"));
        $results['contact_name'] = $this->partner_model->select_contact_person($id);
@@ -4764,7 +4764,12 @@ class Partner extends CI_Controller {
             $msg =  "Something went Wrong Please try again or contact to admin";
         }
        $this->session->set_userdata('success', $msg);
-       redirect(base_url() . 'employee/partner/editpartner/' . $partnerID);
+       if($this->session->userdata('partner_id')){
+           redirect(base_url() . 'partner/contacts');
+       }
+       else{
+            redirect(base_url() . 'employee/partner/editpartner/' . $partnerID);
+       }
     }
     
     function process_booking_internal_conversation_email() {
@@ -4929,17 +4934,39 @@ class Partner extends CI_Controller {
         else{
             $msg =  "Something went Wrong Please try again or contact to admin";
         }
-       $this->session->set_userdata('success', $msg);
-       redirect(base_url() . 'employee/partner/editpartner/' . $partnerID);
+        if($this->session->userdata('partner_id')){
+            $this->session->set_userdata('success', $msg);
+            redirect(base_url() . 'partner/contacts');
+        }
+        else{
+            $this->session->set_userdata('success', $msg);
+            redirect(base_url() . 'employee/partner/editpartner/' . $partnerID);
+        }
     }
     
     function delete_partner_contacts($contact_id,$partnerID){
-        $this->reusable_model->delete_from_table('entity_login_table',array('contact_person_id'=>$contact_id));
-        $this->reusable_model->delete_from_table('agent_filters',array('contact_person_id'=>$contact_id));
-        $this->reusable_model->delete_from_table('contact_person',array('id'=>$contact_id));
-        $msg = "Contact deleted successfully";
-        $this->session->set_userdata('success', $msg);
-       redirect(base_url() . 'employee/partner/editpartner/' . $partnerID);
+        $where["entity_id"] = $partnerID;
+        $where["contact_person_id"] = $contact_id;
+        if(!empty($where)){
+            //Update Entity Login Table
+            $this->reusable_model->update_table("entity_login_table",array("active"=>0),array("entity_id"=>$partnerID,"contact_person_id"=>$contact_id));
+            //Update Agent Filter Table 
+            $this->reusable_model->update_table('agent_filters',array("is_active"=>0),$where);
+            //Update Contact Person Table
+            $this->reusable_model->update_table('contact_person',array('is_active'=>0),array('id'=>$contact_id,'entity_id'=>$partnerID));
+            $msg = "Contact deleted successfully";
+            $this->session->set_userdata('success', $msg);
+        }
+        else{
+            $msg = "Something Went Wrong , Please Try Again";
+            $this->session->set_userdata('error', $msg);
+        }
+        if($this->session->userdata('partner_id')){
+            redirect(base_url() . 'partner/contacts');
+        }
+       else{
+             redirect(base_url() . 'employee/partner/editpartner/' . $partnerID);
+       }
     }
     
     /**
