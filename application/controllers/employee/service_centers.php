@@ -4923,4 +4923,15 @@ class Service_centers extends CI_Controller {
         }
         return $array;
     }
+      /**
+     * @desc: This function is used to show the payment details page to Service Centers
+     * @params: void
+     * @return: void
+     */
+    function payment_details(){
+        $this->checkUserSession();
+        //$this->load->view('partner/header');
+        $this->load->view('service_centers/header');
+        $this->load->view('paytm_gateway/sf_payment_details');
+    }
 }
