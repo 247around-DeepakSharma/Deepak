@@ -2140,17 +2140,17 @@ class invoices_model extends CI_Model {
         if(!empty($partner_active)){
            $partner_wh = " AND partners.is_active = 1 ";
         }
-        $sql = "SELECT $select FROM vendor_partner_invoices "
-                . "INNER JOIN (SELECT id, MAX(to_date) as date "
-                . "FROM vendor_partner_invoices WHERE "
-                
-                . "invoice_tagged LIKE '%".ANNUAL_CHARGE_INVOICE_TAGGING."%' "
-                . $wh
-                . "AND vendor_partner = '"._247AROUND_PARTNER_STRING."'  "
-                . "GROUP BY vendor_partner_id) "
-                . "AS EachItem ON EachItem.id = vendor_partner_invoices.id "
-                . " JOIN partners on partners.id = vendor_partner_id ".$partner_wh." ORDER BY public_name";
-       
+        
+        $sql = "SELECT $select FROM vendor_partner_invoices as v, partners"
+                . " WHERE partners.id = v.vendor_partner_id "
+                . " AND v.vendor_partner = 'partner' "
+                . " AND invoice_tagged LIKE '%".ANNUAL_CHARGE_INVOICE_TAGGING."%'"
+                . " AND to_date IN (SELECT MAX(to_date) FROM vendor_partner_invoices as vp"
+                . " WHERE invoice_tagged LIKE '%".ANNUAL_CHARGE_INVOICE_TAGGING."%' "
+                . "AND vp.vendor_partner ='partner' AND v.vendor_partner_id = vp.vendor_partner_id"
+                . "  $wh $partner_wh ) "
+                .  " $wh $partner_wh GROUP BY vendor_partner_id ORDER BY public_name ";
+        
         $query = $this->db->query($sql);
         return $query->result();
     }
