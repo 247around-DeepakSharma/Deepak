@@ -423,7 +423,11 @@ class accounting_model extends CI_Model {
             $this->db->order_by($condition['order_by']);
         }else if(!empty ($condition['order'])){
             $this->db->order_by($condition['column_order'][$condition['order'][0]['column']], $condition['order'][0]['dir']);
+        }else{
+            $this->db->order_by('taxpro_gstr2a_data.invoice_date', "desc");
         }
+        
+       
         
         $query = $this->db->get();
         log_message("info",__METHOD__. $this->db->last_query());
