@@ -57,13 +57,24 @@
         $("#success_msg_div").hide();
         $("#error_msg_div").hide();
     });
+    
     function generate_otp(){
         $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url(); ?>employee/accounting/generate_taxpro_otp',
                 data: {},
+                beforeSend: function(){
+                    $('body').loadingModal({
+                    position: 'auto',
+                    text: 'Loading Please Wait...',
+                    color: '#fff',
+                    opacity: '0.7',
+                    backgroundColor: 'rgb(0,0,0)',
+                    animation: 'wave'
+                    });
+                },
                 success: function (data) {
-                    console.log(data);
+                    //console.log(data);
                     //data = '{"status_cd":"1"}';
                     data = JSON.parse(data);
                     if(data.status_cd == '1'){
@@ -76,6 +87,7 @@
                         $("#success_msg_div").hide();
                         $("#error_msg_div").show();
                     }
+                 $('body').loadingModal('destroy');
             }
         });
     }
@@ -86,8 +98,18 @@
                 type: 'POST',
                 url: '<?php echo base_url(); ?>employee/accounting/generate_taxpro_auth_token',
                 data: {otp:$("#otp").val()},
+                beforeSend: function(){
+                    $('body').loadingModal({
+                    position: 'auto',
+                    text: 'Loading Please Wait...',
+                    color: '#fff',
+                    opacity: '0.7',
+                    backgroundColor: 'rgb(0,0,0)',
+                    animation: 'wave'
+                    });
+                },
                 success: function (data) {
-                   // console.log(data);
+                    // console.log(data);
                     if(data == "success"){
                         $("#success_msg").text("GSTR2a data updated successfully.");
                         $("#success_msg_div").show();
@@ -98,6 +120,7 @@
                         $("#success_msg_div").hide();
                         $("#error_msg_div").show();
                     }
+                    $('body').loadingModal('destroy');
                 }
             });
         }
