@@ -339,5 +339,121 @@ class accounting_model extends CI_Model {
         return $query->result();
     }
 
+     /**
+     * @desc: This Function is used to insert gstr2a data
+     * @param: array $data
+     * @return : insert_id
+     */
+    function insert_taxpro_gstr2a_data($data) {
+        $this->db->insert_batch('taxpro_GSTR2a_data', $data);
+        return $this->db->insert_id();
+    }
+    
+     /**
+     * @desc: This Function is used to get gstr2a data
+     * @param: array $select, $where
+     * @return : array
+     */
+    function get_taxpro_gstr2a_data($select, $where = array()){
+        $this->db->select($select);
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        $this->db->from('taxpro_GSTR2a_data');
+
+        $query = $this->db->get();
+        return $query->result_array(); 
+    }
+    
+     /**
+     * @desc: This Function is used to get gstr2a data for gstra2a report
+     * @param: array $select, $where
+     * @return : array
+     */
+    function get_gstr2a_mapping_details($condition, $select){
+        $this->db->_reserved_identifiers = array('NOT');
+        $this->db->_protect_identifiers = FALSE;
+        $this->db->select($select);
+        $this->db->from('taxpro_gstr2a_data');
+        $this->db->join('service_centres', 'service_centres.gst_no = taxpro_gstr2a_data.gst_no',"Left");
+        
+        
+        if(!empty($condition['where'])){
+            $this->db->_protect_identifiers = FALSE;
+            $this->db->where($condition['where']);
+        }
+         
+        if (!empty($condition['search'])) {
+            $key = 0;
+            $like = "";
+            foreach ($condition['search'] as $index => $item) {
+                if ($key === 0) { // first loop
+                   // $this->db->like($index, $item);
+                    $like .= "( ".$index." LIKE '%".$item."%' ";
+                } else {
+                    $like .= " OR ".$index." LIKE '%".$item."%' ";
+                }
+                $key++;
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+        
+        if (!empty($condition['search_value'])) {
+            $like = "";
+            foreach ($condition['column_search'] as $key => $item) { // loop column 
+                // if datatable send POST for search
+                if ($key === 0) { // first loop
+                    $like .= "( " . $item . " LIKE '%" . $condition['search_value'] . "%' ";
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $condition['search_value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+        if(isset($condition['length'])){
+            if ($condition['length'] != -1) {
+                $this->db->limit($condition['length'], $condition['start']);
+            }
+        }
+        
+        if(!empty($condition['order_by'])){
+            $this->db->order_by($condition['order_by']);
+        }else if(!empty ($condition['order'])){
+            $this->db->order_by($condition['column_order'][$condition['order'][0]['column']], $condition['order'][0]['dir']);
+        }
+        
+        $query = $this->db->get();
+        log_message("info",__METHOD__. $this->db->last_query());
+        return $query->result_array();
+    }
+    
+    function update_taxpro_gstr2a_data($id, $data){
+        $this->db->where('id', $id);
+        $this->db->update('taxpro_gstr2a_data', $data);
+        if($this->db->affected_rows() > 0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    
+     /**
+     * @desc: This Function is used to get mapped invoices from gstr2a taxpro data
+     * @param: array $vendor_id
+     * @return : array
+     */
+    function get_gstr2a_mapping_invoices($vendor_id){
+        $where = array(
+            'vendor_partner'=>'vendor',
+            'vendor_partner_id'=>$vendor_id,
+            'credit_generated' => 0,
+            'invoice_id like "%Around-GST-DN%"' => NULL,
+        );
+        $invoices = $this->invoices_model->getInvoicingData($where, false);
+    }
 }
 

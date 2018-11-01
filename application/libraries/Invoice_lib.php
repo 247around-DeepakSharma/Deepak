@@ -250,26 +250,10 @@ class Invoice_lib {
         }
     }
     
-    /**
-     * @desc This function is used to call taxpro gst api 
-     * @param String $vendor_id
-     * @param String $gst_number
-     * @return api response 
-     */
-    function taxpro_gstin_checking_curl_call($gst_no, $vendor_id=""){ 
-        if(!$vendor_id){
-          $vendor_id = _247AROUND;
-        }
-        $activity = array(
-            'entity_type' => 'vendor',
-            'partner_id' => $vendor_id,
-            'activity' => __METHOD__,
-            'header' => "",
-            'json_request_data' => "https://api.taxprogsp.co.in/commonapi/v1.1/search?aspid=".ASP_ID."&password=".ASP_PASSWORD."&Action=TP&Gstin=".$gst_no,
-        );
+    function taxpro_api_curl_call($url){
         $curl = curl_init();
         curl_setopt_array($curl, array(
-          CURLOPT_URL => "https://api.taxprogsp.co.in/commonapi/v1.1/search?aspid=".ASP_ID."&password=".ASP_PASSWORD."&Action=TP&Gstin=".$gst_no,
+          CURLOPT_URL => $url,
           CURLOPT_RETURNTRANSFER => true,
           CURLOPT_ENCODING => "",
           CURLOPT_MAXREDIRS => 10,
@@ -291,7 +275,7 @@ class Invoice_lib {
                 if($response['error']['error_cd'] != INVALID_LENGHT_GSTIN && $response['error']['error_cd'] != INVALID_GSTIN){  /**** mail not send on invalid gst number or invalid length of gst number *****/
                     $email_template = $this->ci->booking_model->get_booking_email_template(TAXPRO_API_FAIL);
                     if(!empty($email_template)){
-                        $message = vsprintf($email_template[0], array("GST NO - ".$gst_no,"Filled by - ".$this->ci->session->userdata('emp_name'), $api_response));  
+                        $message = vsprintf($email_template[0], array("Called by - ".$this->ci->session->userdata('emp_name'), $api_response));  
                         $to = $email_template[1];
                         $this->ci->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $email_template[3] , $email_template[5], $email_template[4], $message, '', TAXPRO_API_FAIL);
                     }
@@ -302,7 +286,32 @@ class Invoice_lib {
                return $api_response;
             }
         }
+    }
+    
+    
+    
+    /**
+     * @desc This function is used to call taxpro gst api 
+     * @param String $vendor_id
+     * @param String $gst_number
+     * @return api response 
+     */
+    function taxpro_gstin_checking_curl_call($gst_no, $vendor_id=""){ 
+        if(!$vendor_id){
+          $vendor_id = _247AROUND;
+        }
+        $url = "https://api.taxprogsp.co.in/commonapi/v1.1/search?aspid=".ASP_ID."&password=".ASP_PASSWORD."&Action=TP&Gstin=".$gst_no;
+        $activity = array(
+            'entity_type' => 'vendor',
+            'partner_id' => $vendor_id,
+            'activity' => __METHOD__,
+            'header' => "",
+            'json_request_data' => $url,
+        );
+        $api_response = $this->taxpro_api_curl_call($url);
+        $activity['json_response_string'] = $api_response;
         $this->ci->partner_model->log_partner_activity($activity);
+        return $api_response;
     }
     
     /**

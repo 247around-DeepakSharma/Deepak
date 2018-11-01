@@ -32,6 +32,7 @@ class Accounting extends CI_Controller {
         $this->load->library('form_validation');
         $this->load->library("session");
         $this->load->library('s3');
+        $this->load->library('invoice_lib');
         //  $this->load->library('email');
 
 //    if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
@@ -1266,4 +1267,253 @@ class Accounting extends CI_Controller {
         redirect(base_url() . 'employee/accounting/add_variable_charges'); 
     }
     
+    /**
+     * @desc This is used to fetch gstr2a data from taxpro api
+     * @param void
+     * @return view
+     */
+    function generate_gstr2a_report(){ 
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/generate_taxpro_GSTR2a_Data');
+    }
+    
+    
+     /**
+     * @desc This function is used to generate otp for getting authentication token from taxpro
+     * @param void
+     * @return api response
+     */
+    function generate_taxpro_otp(){
+       
+        $url = TAXPRO_OTP_REQUEST_URL;
+        //$url = "http://testapi.taxprogsp.co.in/taxpayerapi/dec/v0.2/authenticate?action=OTPREQUEST&aspid=".ASP_ID."&password=".ASP_PASSWORD."&gstin=27GSPMH0041G1ZZ&username=Chartered.MH.1";
+        $activity = array(
+            'entity_type' => _247AROUND_PARTNER_STRING,
+            'partner_id' => _247AROUND,
+            'activity' => __METHOD__,
+            'header' => "",
+            'json_request_data' => $url,
+        );
+        $api_response = $this->invoice_lib->taxpro_api_curl_call($url);
+        $activity['json_response_string'] = $api_response;
+        $this->partner_model->log_partner_activity($activity);
+        echo $api_response;
+    }
+    
+     /**
+     * @desc This function is used to generate authentication token from taxpro
+     * @param otp
+     * @return boolean message
+     */
+    function generate_taxpro_auth_token(){
+        $otp = $this->input->post("otp");
+        $url = TAXPRO_AUTH_TOKEN_REQUEST_URL.$otp;
+        //$url = "http://testapi.taxprogsp.co.in/taxpayerapi/dec/v0.2/authenticate?action=AUTHTOKEN&aspid=".ASP_ID."&password=".ASP_PASSWORD."&gstin=27GSPMH0041G1ZZ&username=Chartered.MH.1&OTP=575757";
+        $activity = array(
+            'entity_type' => _247AROUND_PARTNER_STRING,
+            'partner_id' => _247AROUND,
+            'activity' => __METHOD__,
+            'header' => "",
+            'json_request_data' => $url,
+        );
+        $api_response = $this->invoice_lib->taxpro_api_curl_call($url);
+        $activity['json_response_string'] = $api_response;
+        $this->partner_model->log_partner_activity($activity);
+        $response = json_decode($api_response);
+        if($response->status_cd == '1'){
+           $this->fetch_taxpro_gstr2a_data($response->auth_token);
+           echo "success";
+        }
+        else{
+           echo "error";
+        }
+    }
+    
+    /**
+     * @desc This function is used to fetch gstr2a data and save required data into database from taxpro
+     * @param authtoken
+     * @return void
+     */
+    function fetch_taxpro_gstr2a_data($autnToken){ 
+        $to_date = date("Y-m");
+        $from_date = date("2017-07");
+        while($from_date < $to_date){
+            $year = date('Y', strtotime($from_date));
+            $month = date('m', strtotime($from_date));
+            $ret_period = $month.$year;
+            $url = TAXPRO__FEATCH_GSTR2A_URL.$autnToken.'&ret_period='.$ret_period;
+            $activity = array(
+                'entity_type' => _247AROUND_PARTNER_STRING,
+                'partner_id' => _247AROUND,
+                'activity' => __METHOD__,
+                'header' => "",
+                'json_request_data' => $url,
+            );
+            $api_response = $this->invoice_lib->taxpro_api_curl_call($url);
+            
+            $response = json_decode($api_response, TRUE);
+            $data_on_gstin_array = $response['b2b'];
+            $row_batch = array();
+            foreach ($data_on_gstin_array as $data_on_gstin) {
+                $gst_no = $data_on_gstin['ctin'];
+                $data_on_invoice_array = $data_on_gstin['inv'];
+                foreach ($data_on_invoice_array as $data_on_invoice) {
+                    $checksum = $data_on_invoice['chksum'];
+                    $date =  date("Y-m-d", strtotime($data_on_invoice['idt']));
+                    $invoice_val = $data_on_invoice['val'];
+                    $invoice_number = $data_on_invoice['inum'];
+                    $data_on_invoice_items_array = $data_on_invoice['itms'];
+                    foreach ($data_on_invoice_items_array as $data_on_invoice_items) { 
+                        $data_on_tax = $data_on_invoice_items['itm_det'];
+                        $gst_rate = $data_on_tax['rt'];
+                        $taxable_val = $data_on_tax['txval'];
+                        if (isset($data_on_tax['iamt'])){
+                            $cgst_val = 0;
+                            $sgst_val = 0;
+                            $igst_val = $data_on_tax['iamt'];
+                        }
+                        else{
+                            $cgst_val = $data_on_tax['camt'];
+                            $sgst_val = $data_on_tax['samt'];
+                            $igst_val = 0;
+                        }
+                        $row = array(
+                            'gst_no' => $gst_no,
+                            'invoice_number' => $invoice_number,
+                            'invoice_amount' => $invoice_val,
+                            'gst_rate' => $gst_rate,
+                            'taxable_value' => $taxable_val,
+                            'igst_amount' => $igst_val,
+                            'cgst_amount' => $cgst_val,
+                            'sgst_amount' => $sgst_val,
+                            'invoice_date' => $date,
+                            'checksum' => $checksum,
+                            'create_date' => date('Y-m-d H:i:s')
+                        );
+                        $check_checksum = $this->accounting_model->get_taxpro_gstr2a_data('id', array('checksum' => $checksum));
+                        if(empty($check_checksum)){
+                            array_push($row_batch, $row);
+                        }
+                    }
+                }
+            }
+            if(!empty($row_batch)){
+                $this->accounting_model->insert_taxpro_gstr2a_data($row_batch);
+            }
+            
+            $activity['json_response_string'] = $api_response;
+            $this->partner_model->log_partner_activity($activity);
+            
+            $from_date = date('Y-m', strtotime('+1 months', strtotime($from_date)));
+        }
+    }
+    
+    /**
+     * @desc This function is used to show the gstr2a data from taxpro
+     * @param voide
+     * @return view
+     */
+    function show_gstr2a_report(){
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/show_taxpro_GSTR2a_Data');
+    }
+    
+    /**
+     * @desc This function is used to get data for gstr2a report
+     * @param datatable parameters
+     * @return boolean message
+     */
+    function get_gst2ra_mapped_data(){
+        log_message("info", __METHOD__." final outpoot ". json_encode($_POST, TRUE));
+        $post = $this->get_gst2ra_post_data();
+        $post['where']['taxpro_gstr2a_data.is_rejected'] =  0;
+        $post['where']['taxpro_gstr2a_data.is_mapped'] =  0;
+        //$post['where']['NOT EXISTS(select taxpro_checksum from vendor_partner_invoices where vendor_partner_invoices.taxpro_checksum = taxpro_gstr2a_data.checksum)'] =  NULL;
+        $post['column_order'] = array('taxpro_gstr2a_data.id',NULL);
+        $post['column_search'] = array('service_centres.company_name', 'taxpro_gstr2a_data.gst_no');
+        
+        $select = "taxpro_gstr2a_data.*, service_centres.company_name, service_centres.id as vendor_id";
+        $list = $this->accounting_model->get_gstr2a_mapping_details($post, $select);
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $data_list) {
+            $no++;
+            $inv_where = array(
+                'vendor_partner'=>'vendor',
+                'vendor_partner_id'=>$data_list['vendor_id'],
+                'credit_generated' => 0,
+                'invoice_id like "%Around-GST-DN%"' => NULL,
+            );
+            $data_list['vendor_invoices'] = $this->invoices_model->getInvoicingData($inv_where, false);
+            $row =  $this->gstr2a_table_data($data_list, $no);
+            $data[] = $row;
+        }
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $this->accounting_model->get_taxpro_gstr2a_data('count(id) as total', array())[0]['total'],
+            "recordsFiltered" =>  $this->accounting_model->get_taxpro_gstr2a_data('count(id) as total', array())[0]['total'],
+            "data" => $data,
+        );
+        
+        echo json_encode($output); 
+    }
+    
+    function get_gst2ra_post_data(){
+        $post['length'] = $this->input->post('length');
+        $post['start'] = $this->input->post('start');
+        $search = $this->input->post('search');
+        $post['search_value'] = $search['value'];
+        $post['order'] = $this->input->post('order');
+        $post['draw'] = $this->input->post('draw');
+        return $post;
+    }
+    
+    function gstr2a_table_data($data_list, $no){
+        $row = array();
+        $row[] = $no;
+        $row[] = $data_list['invoice_number'];
+        $row[] = $data_list['company_name'];
+        $row[] = $data_list['gst_no'];
+        $row[] = $data_list['igst_amount'];
+        $row[] = $data_list['cgst_amount'];
+        $row[] = $data_list['sgst_amount'];
+        $total_tax = $data_list['igst_amount']+$data_list['cgst_amount']+$data_list['sgst_amount'];
+        $row[] = $total_tax;
+        $row[] = $data_list['taxable_value'];
+        $row[] = $data_list['invoice_amount'];
+        $html = "<select class='invoice_select' id='selected_invoice_".$no."' onchange='check_tax_amount(".$total_tax.", this)'>";
+        $html .= "<option selected disabled>Select Invoice</option>";
+        foreach($data_list['vendor_invoices'] as $key => $value){
+           $html .= "<option data-tax='".$value['total_amount_collected']."' value='".$value['invoice_id']."'>".$value['invoice_id']."</option>"; 
+        }
+        $html .= "<select>";
+        $cn_btn = '<button class="btn btn-primary btn-sm" style="margin-right:5px" data-id="'.$data_list['id'].'" data-checksum="'.$data_list['checksum'].'" onclick="generate_credit_note('.$no.', this)" disabled>Generate CN</button>';
+        $row[] = $html;
+        $row[] = $cn_btn;
+        $row[] = "<a class='btn btn-warning btn-sm' onclick='reject(".$data_list['id'].")'>Reject</a>";
+        return $row;
+    }
+    
+    /**
+     * @desc This function is used to reject data who is invalid for us
+     * @param id
+     * @return boolean message
+     */
+    function reject_taxpro_gstr2a(){ 
+        $id = $this->input->post('id');
+        echo $this->accounting_model->update_taxpro_gstr2a_data($id, array('is_rejected'=>1));
+    }
+    /**
+     * @desc This function is used to update flag for credit note generated against thie debit note
+     * @param otp
+     * @return boolean message
+     */
+    function update_cn_by_taxpro_gstr2a(){
+        $invoice_id = $this->input->post('invoice_id');
+        $checksum = $this->input->post('checksum');
+        $id = $this->input->post('id');
+        $this->invoices_model->update_partner_invoices(array('invoice_id'=>$invoice_id), array('taxpro_checksum'=>$checksum));
+        echo $this->accounting_model->update_taxpro_gstr2a_data($id, array('is_mapped'=>1));
+    }
+
 }
