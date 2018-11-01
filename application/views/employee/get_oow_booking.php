@@ -1,10 +1,15 @@
 <div id="page-wrapper" >
-    <div class="container" >
         <div role="tabpanel" class="tab-pane" id="oow_estimate_given">
             <div class="container-fluid">
                 <div class="row" >
                     <div class="col-md-12">
+                        
+                    </div>
+                    <div class="col-md-12">
                         <div class="panel panel-default">
+                             <div class="panel-heading">
+                                <h2 class="panel-title"><i class="fa fa-money fa-fw"></i> OOW Bookings </h2>
+                             </div>
                             <div class="panel-body">
                                 <table id="datatable1" class="table table-striped table-bordered" style="width:100%">
                                     <thead>
@@ -29,7 +34,6 @@
                 </div>
             </div>
         </div>
-    </div>
     <div id="myModal2" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <!-- Modal content-->
@@ -68,8 +72,25 @@
                 "serverSide": true, //Feature control DataTables' server-side processing mode.
                 "order": [], //Initial no order.
                 "pageLength": 50,
-               
-                // Load data for the table's content from an Ajax source
+                dom: 'lBfrtip',
+                buttons: [
+                   {
+                      extend: 'excel',
+                       text: '<span class="fa fa-file-excel-o"></span> Excel Export',
+                       pageSize: 'LEGAL',
+                       title: 'OOW-bookings',
+                       exportOptions: {
+                         columns: [1,2,3,4,5],
+                           modifier : {
+                                // DataTables core
+                                order : 'index',  // 'current', 'applied', 'index',  'original'
+                               page : 'All',      // 'all',     'current'
+                                search : 'none'     // 'none',    'applied', 'removed'
+                            }
+                       }
+
+                   }
+               ],
                 "ajax": {
                     type: "POST",
               
