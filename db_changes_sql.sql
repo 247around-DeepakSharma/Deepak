@@ -9213,6 +9213,7 @@ ALTER TABLE `partner_code`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=677;
 COMMIT;
 
+
 --Chhavi 24rth oct
 ALTER TABLE `collateral` ADD `create_date` TIMESTAMP NOT NULL AFTER `is_valid`;
 INSERT INTO `collateral_type` (`id`, `collateral_tag`, `collateral_type`, `document_type`) VALUES (NULL, 'Brand_Collateral', 'TV Demo', 'pdf');

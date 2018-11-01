@@ -102,17 +102,17 @@
         <table class="table table-bordered table-condensed" id="vender_details">
           
           <tr>
-            <th class="jumbotron">ID</th>
-            <th class="jumbotron">Name</th>
+          	<th class="jumbotron">ID</th>
+          	<th class="jumbotron">Name</th>
                 <th class="jumbotron">CRM Login / Password</th>
-            <th class="jumbotron">PoC Name</th>
-            <th class="jumbotron">PoC Number</th>
-            <th class="jumbotron">Owner Name</th>
-            <th class="jumbotron">Owner Phone No.</th>
-            <th class="jumbotron">Sub District Office</th>
+          	<th class="jumbotron">PoC Name</th>
+          	<th class="jumbotron">PoC Number</th>
+          	<th class="jumbotron">Owner Name</th>
+          	<th class="jumbotron">Owner Phone No.</th>
+          	<th class="jumbotron">Sub District Office</th>
                 <th class='jumbotron'>Go To Invoice Page</th>
-            <th class="jumbotron">Temporary</th>
-            <th class="jumbotron">Permanent</th>
+          	<th class="jumbotron">Temporary</th>
+          	<th class="jumbotron">Permanent</th>
                 <th class="jumbotron">Add Pin Code</th>
                 <th class="jumbotron">Resend Login Details</th>
                 <?php if(isset($push_notification)){ ?>
@@ -133,24 +133,21 @@
                     <a href="javascript:void(0)" class="btn btn-md btn-success" onclick='return login_to_vendor(<?php echo $row['id']?>)'  <?php echo ($row['active'] == 0)?'disabled=""':'' ?> title="<?php echo strtolower($row['sc_code']) . " / " . strtolower($row['sc_code']);  ?>">Login</a>
             </td>
             <td><a href="mailto:<?php echo $row['primary_contact_email'];?>" data-toggle="popover" data-trigger="hover" data-content="Send Mail To POC"><?=$row['primary_contact_name'];?></a></td>
-            <td>
-                <?=$row['primary_contact_phone_1'];?>
+          	<td>
+          	    <?=$row['primary_contact_phone_1'];?>
                 <button type="button" onclick="outbound_call(<?php echo $row['primary_contact_phone_1']; ?>)" 
                     class="btn btn-sm btn-info">
                         <i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i>
                 </button>
-
           	</td>
-
-
                 <td><a href="mailto:<?php echo $row['owner_email'];?>" data-toggle="popover" data-trigger="hover" data-content="Send Mail to Owner"><?=$row['owner_name'];?></a></td>
-            <td>
-                <?=$row['owner_phone_1'];?>
+          	<td>
+          	    <?=$row['owner_phone_1'];?>
                 <button type="button" onclick="outbound_call(<?php echo $row['owner_phone_1']; ?>)" 
                     class="btn btn-sm btn-info">
                         <i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i>
                 </button>
-            </td>
+          	</td>
                 <td>
                     <?php if ($row['is_upcountry'] == 1) { ?>
                         <a style= "background-color: #fff;" target="_blank" class='btn btn-sm btn-primary' href="<?php echo base_url(); ?>employee/vendor/get_sc_upcountry_details/<?php echo $row['id'];  ?>"><i style="color:red; font-size:20px;" class="fa fa-road" aria-hidden="true"></i></a>
@@ -167,7 +164,7 @@
                         ?>
                     </td>
                     
-            <td><?php if($row['active']==1)
+          	<td><?php if($row['active']==1)
                 {
                   echo "<a id='edit' class='btn btn-small btn-danger' onclick =pendingBookings(".$row['id'].",'P')>Deactivate</a>";                
                 }
@@ -211,7 +208,7 @@
               ?>
           </td>
           <?php  }?>
-          </tr> 
+          </tr>	
           <?php } ?>
         </table>
 

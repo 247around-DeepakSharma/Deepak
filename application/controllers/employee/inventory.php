@@ -247,17 +247,6 @@ class Inventory extends CI_Controller {
         $this->load->view("employee/show_brackets_list", $data);
     }
     
-            
-    
-    function show_brackets_list_on_tab(){
-        log_message('info', __FUNCTION__. "Entering... ");
-        $this->checkUserSession();
-
-        $this->load->view("employee/multi_categories_show_brackets_list");
-    }
-    
-    
-    
     /**
      * @Desc: This function is used to update shipment
      * @params: Int order id
@@ -1069,7 +1058,6 @@ class Inventory extends CI_Controller {
         $data['partner_id'] = $this->input->post('partner_id');
         $this->load->view('employee/sparepart_on_tab' , $data);
     }
-    
     /**
      * @desc this used to cancel Spare Part 
      * @param int $id

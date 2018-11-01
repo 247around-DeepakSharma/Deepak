@@ -1353,13 +1353,11 @@ class invoices_model extends CI_Model {
                        $result['booking'][0]['gst_number'] = "";
                        return $result;
                    } else {
-                       $this->session->set_userdata(array('error' => "GST Number is Invalid"));
                        return FALSE;
                    }
                 } else {
                     // IF we are getting false as response then we are not creating invoice 
                     log_message("info", __METHOD__. " GST Number Invalid for Vendor ID ". $vendor_id);
-                    $this->session->set_userdata(array('error' => "GST Number is Invalid"));
                     return FALSE;
                 }
             } else {
@@ -1367,8 +1365,6 @@ class invoices_model extends CI_Model {
             }
         } else {
             log_message("info", __METHOD__. " DATA Not Found vendor ID ". $vendor_id);
-
-            $this->session->set_userdata(array('error' => "Data Not Found"));
             return FALSE;
         }
     }
@@ -1670,11 +1666,9 @@ class invoices_model extends CI_Model {
 
                 return $r_data;
             } else {
-                $this->session->set_userdata(array('error' => "Invoice amount is not greater than zero"));
                 return FALSE;
             }
         } else {
-            $this->session->set_userdata(array('error' => "Data Not Found"));
             return FALSE;
         }
     }
@@ -1776,7 +1770,6 @@ class invoices_model extends CI_Model {
             return $data1;
             
         } else{
-            $this->session->set_userdata(array('error' => "Data Not Found"));
             return FALSE;
         }
     }

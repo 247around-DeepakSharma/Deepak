@@ -650,7 +650,7 @@ define('_247AROUND_GST_DEBIT_NOTE_STRING','GST Debit Note');
 define('WAREHOUSE','Warehouse');  
 //constant to define New Query state
 define('_247AROUND_QUERY','Query');
-//
+//Sf Select Wrong Call Area
 define('CANCELLATION_REASON_WRONG_AREA', 'Wrong call - Not in our area.');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
