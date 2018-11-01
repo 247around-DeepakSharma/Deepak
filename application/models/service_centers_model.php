@@ -737,9 +737,9 @@ class Service_centers_model extends CI_Model {
     */
     function get_collateral_for_service_center_bookings($booking_id){
         $collateralData = array();
-       $bookingDataSql = "SELECT booking_id,partner_id,service_id,appliance_brand,appliance_category,appliance_capacity,price_tags,
-CASE WHEN price_tags like 'Repair%' THEN 'repair' WHEN price_tags like 'Repeat%' THEN 'repair' ELSE 'installation'END as request_type
-FROM booking_unit_details WHERE booking_id='".$booking_id."' GROUP BY request_type";
+       $bookingDataSql = "SELECT booking_details.booking_id,booking_details.partner_id,booking_details.service_id,appliance_brand,appliance_category,appliance_capacity,model_number,
+CASE WHEN booking_details.request_type like 'Repair%' THEN 'repair' WHEN booking_details.request_type like 'Repeat%' THEN 'repair' ELSE 'installation'END as request_type
+FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = booking_unit_details.booking_id WHERE booking_details.booking_id='".$booking_id."' GROUP BY request_type";
         $query = $this->db->query($bookingDataSql);
         $data =  $query->result_array();
         if(!empty($data)){
@@ -747,14 +747,18 @@ FROM booking_unit_details WHERE booking_id='".$booking_id."' GROUP BY request_ty
                 $where['entity_id'] = $bookingData['partner_id'];
                 $where['appliance_id'] = $bookingData['service_id'];
                 $where['request_type'] = $bookingData['request_type'];
-                if($bookingData['appliance_brand']){
-                    $where['brand'] = $bookingData['appliance_brand'];
-                }
+                $where['brand'] = $bookingData['appliance_brand'];
                 if($bookingData['appliance_category']){
                     $where['category'] = $bookingData['appliance_category'];
                 }
-                if($bookingData['appliance_capacity']){
+                if($bookingData['appliance_capacity'] && $bookingData['model_number']){
+                    $where["(capacity = '".$bookingData['appliance_capacity']."' OR model = '".$bookingData['model_number']."')"] = NULL;
+                }
+                elseif ($bookingData['appliance_capacity']) {
                     $where['capacity'] = $bookingData['appliance_capacity'];
+                }
+                elseif ($bookingData['model_number']) {
+                    $where['model'] = $bookingData['model_number'];
                 }
             }
             $this->db->select('collateral.*,collateral_type.*');

@@ -215,7 +215,7 @@
                                                                 <?php }?>
                                                             </select>
                                                            <?php } else { ?>
-                                                            <input type="hidden" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" value="">
+                                                            <input type="text" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" value="" class="form-control" id="<?php echo "model_number_text_" . $count ?>">
                                                           <?php } ?>
                                                         </td>
                                                         <td>
@@ -489,7 +489,12 @@
                             alert("Please Select Model Number");
                             flag = 1;
                             document.getElementById('model_number_' + div_no[2]).style.borderColor = "red";
-                            
+                        }
+                    }
+                    else{
+                        model_text_value = $("#model_number_text_" + div_no[2]).val();
+                        if(model_text_value ===""){
+                             alert("Model Number is blank");
                         }
                     }
                   

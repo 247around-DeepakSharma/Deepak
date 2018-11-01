@@ -9259,3 +9259,8 @@ COMMIT;
 ALTER TABLE `vendor_partner_invoices` ADD `taxpro_checksum` TEXT NOT NULL AFTER `credit_generated`;
 ALTER TABLE `taxpro_gstr2a_data` ADD `is_rejected` TINYINT(1) NOT NULL DEFAULT '1' AFTER `checksum`;
 ALTER TABLE `taxpro_gstr2a_data` ADD `is_mapped` TINYINT(1) NOT NULL DEFAULT '0' AFTER `is_rejected`;
+=======
+
+--Abhay 29 Oct
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'wrong_call_area', 'Wrong Call Area %s', 'SF has marked wrong call area, Please reasign correct SF for booking ID %s', 'noreply@247around.com', '', '', '', '1', CURRENT_TIMESTAMP);
+
