@@ -1424,16 +1424,17 @@ class Accounting extends CI_Controller {
      * @return boolean message
      */
     function get_gst2ra_mapped_data(){
-        log_message("info", __METHOD__." final outpoot ". json_encode($_POST, TRUE));
+        
         $post = $this->get_gst2ra_post_data();
         $post['where']['taxpro_gstr2a_data.is_rejected'] =  0;
         $post['where']['taxpro_gstr2a_data.is_mapped'] =  0;
         //$post['where']['NOT EXISTS(select taxpro_checksum from vendor_partner_invoices where vendor_partner_invoices.taxpro_checksum = taxpro_gstr2a_data.checksum)'] =  NULL;
-        $post['column_order'] = array('taxpro_gstr2a_data.id',NULL);
+        $post['column_order'] = array('taxpro_gstr2a_data.invoice_date',NULL);
         $post['column_search'] = array('service_centres.company_name', 'taxpro_gstr2a_data.gst_no');
         
         $select = "taxpro_gstr2a_data.*, service_centres.company_name, service_centres.id as vendor_id";
         $list = $this->accounting_model->get_gstr2a_mapping_details($post, $select);
+        //log_message("info", __METHOD__." query ". json_encode($this->db->last_query(), TRUE));
         $data = array();
         $no = $post['start'];
         foreach ($list as $data_list) {
@@ -1450,8 +1451,8 @@ class Accounting extends CI_Controller {
         }
         $output = array(
             "draw" => $this->input->post('draw'),
-            "recordsTotal" => $this->accounting_model->get_taxpro_gstr2a_data('count(id) as total', array())[0]['total'],
-            "recordsFiltered" =>  $this->accounting_model->get_taxpro_gstr2a_data('count(id) as total', array())[0]['total'],
+            "recordsTotal" => $this->accounting_model->get_taxpro_gstr2a_data('count(id) as total', $post['where'])[0]['total'],
+            "recordsFiltered" => $this->accounting_model->get_taxpro_gstr2a_data('count(id) as total', $post['where'])[0]['total'],
             "data" => $data,
         );
         
@@ -1472,8 +1473,9 @@ class Accounting extends CI_Controller {
         $row = array();
         $row[] = $no;
         $row[] = $data_list['invoice_number'];
-        $row[] = $data_list['company_name'];
+        $row[] = "<a href='".base_url()."employee/invoice/invoice_summary/vendor/".$data_list['vendor_id']."' target='_blank'>".$data_list['company_name']."</a>";
         $row[] = $data_list['gst_no'];
+        $row[] = $data_list['invoice_date'];
         $row[] = $data_list['igst_amount'];
         $row[] = $data_list['cgst_amount'];
         $row[] = $data_list['sgst_amount'];
@@ -1484,7 +1486,7 @@ class Accounting extends CI_Controller {
         $html = "<select class='invoice_select' id='selected_invoice_".$no."' onchange='check_tax_amount(".$total_tax.", this)'>";
         $html .= "<option selected disabled>Select Invoice</option>";
         foreach($data_list['vendor_invoices'] as $key => $value){
-           $html .= "<option data-tax='".$value['total_amount_collected']."' value='".$value['invoice_id']."'>".$value['invoice_id']."</option>"; 
+           $html .= "<option data-parent-inv='".$value['reference_invoice_id']."' data-tax='".$value['total_amount_collected']."' value='".$value['invoice_id']."'>".$value['invoice_id']." (".$value['total_amount_collected'].")</option>"; 
         }
         $html .= "<select>";
         $cn_btn = '<button class="btn btn-primary btn-sm" style="margin-right:5px" data-id="'.$data_list['id'].'" data-checksum="'.$data_list['checksum'].'" onclick="generate_credit_note('.$no.', this)" disabled>Generate CN</button>';
@@ -1509,7 +1511,7 @@ class Accounting extends CI_Controller {
      * @return boolean message
      */
     function update_cn_by_taxpro_gstr2a(){
-        $invoice_id = $this->input->post('invoice_id');
+        $invoice_id = $this->input->post('parent_inv');
         $checksum = $this->input->post('checksum');
         $id = $this->input->post('id');
         $this->invoices_model->update_partner_invoices(array('invoice_id'=>$invoice_id), array('taxpro_checksum'=>$checksum));

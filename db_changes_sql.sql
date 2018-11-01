@@ -9280,6 +9280,7 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 
 --Kalyani 01-Nov
 UPDATE `email_template` SET `template` = '<b>TAXPRO GSP API FAIL</b><br/><p>%s</p><p>%s</p>' WHERE `email_template`.`tag` = 'taxpro_api_fail';
+ALTER TABLE `taxpro_gstr2a_data` CHANGE `invoice_date` `invoice_date` DATE NOT NULL;
 
 
 ALTER TABLE `invoice` ADD `vertical` VARCHAR(255) NOT NULL AFTER `remarks`, ADD `category` VARCHAR(255) NOT NULL AFTER `vertical`, ADD `sub_category` VARCHAR(255) NOT NULL AFTER `category`, ADD `accounting` TINYINT(1) NOT NULL AFTER `sub_category`;

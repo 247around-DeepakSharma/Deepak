@@ -16,13 +16,14 @@
                         <th>Invoice No.</th>
                         <th>Vendor Name</th>
                         <th>GST No.</th>
+                        <th>Invoice Date</th>
                         <th>IGST Amt</th>
                         <th>CGST Amt</th>
                         <th>SGST Amt</th>
                         <th>Total Tax</th>
                         <th>Taxable Amt</th>
                         <th>Invoice Amt</th>
-                        <th>Releted Invoices</th>
+                        <th>Related Invoices</th>
                         <th>Generate CN</th>
                         <th>Reject</th>
                     </thead>
@@ -52,7 +53,7 @@
             },
             "columnDefs": [
                 {
-                    "targets": [0,1,2,3,4,5,6,7,8,9,10,11, 12], 
+                    "targets": [0,1,2,3,4,5,6,7,8,9,10,11,12,13], 
                     "orderable": false 
                 }
             ],
@@ -81,13 +82,14 @@
     
     function generate_credit_note(id, btn){
         var invoice_id = $("#selected_invoice_"+id).val();
+        var parent_inv = $("#selected_invoice_"+id).find(':selected').attr('data-parent-inv');
         var checksum = $(btn).attr("data-checksum");
         var id = $(btn).attr("data-id");
         if(invoice_id){
             $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url(); ?>employee/accounting/update_cn_by_taxpro_gstr2a',
-                data: {invoice_id:invoice_id, checksum:checksum, id:id},
+                data: {invoice_id:invoice_id, checksum:checksum, id:id, parent_inv:parent_inv},
                 success: function (data) {
                     console.log(data);
                     if(data==true){
