@@ -9256,7 +9256,7 @@ CREATE TABLE `taxpro_gstr2a_data` (
 --
 -- Indexes for table `taxpro_GSTR2a_data`
 --
-ALTER TABLE `taxpro_GSTR2a_data`
+ALTER TABLE `taxpro_gstr2a_data`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -9266,10 +9266,18 @@ ALTER TABLE `taxpro_GSTR2a_data`
 --
 -- AUTO_INCREMENT for table `taxpro_GSTR2a_data`
 --
-ALTER TABLE `taxpro_GSTR2a_data`
+ALTER TABLE `taxpro_gstr2a_data`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
 
 ALTER TABLE `vendor_partner_invoices` ADD `taxpro_checksum` TEXT NOT NULL AFTER `credit_generated`;
-ALTER TABLE `taxpro_gstr2a_data` ADD `is_rejected` TINYINT(1) NOT NULL DEFAULT '1' AFTER `checksum`;
+ALTER TABLE `taxpro_gstr2a_data` ADD `is_rejected` TINYINT(1) NOT NULL DEFAULT '0' AFTER `checksum`;
 ALTER TABLE `taxpro_gstr2a_data` ADD `is_mapped` TINYINT(1) NOT NULL DEFAULT '0' AFTER `is_rejected`;
+
+--Abhay 29 Oct
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'wrong_call_area', 'Wrong Call Area %s', 'SF has marked wrong call area, Please reasign correct SF for booking ID %s', 'noreply@247around.com', '', '', '', '1', CURRENT_TIMESTAMP);
+
+--Kalyani 01-Nov
+UPDATE `email_template` SET `template` = '<b>TAXPRO GSP API FAIL</b><br/><p>%s</p><p>%s</p>' WHERE `email_template`.`tag` = 'taxpro_api_fail';
+
+
