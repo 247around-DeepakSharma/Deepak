@@ -1417,6 +1417,25 @@ class Api extends CI_Controller {
                                      _247AROUND_DEFAULT_AGENT_NAME,ACTOR_FOLLOW_UP,NEXT_ACTION_FOLLOW_UP, _247AROUND);
                         }
                     }
+                    else if($b['type'] === 'Booking' && $b['current_status'] === 'Cancelled'){
+                        // If Cancelled date belongs to last 7 days only 
+                        $today = strtotime(date("Y-m-d"));
+                        $cancelled_date = strtotime($b['closed_date']);
+                        $datediff = round(($today - $cancelled_date) / (60 * 60 * 24));
+                        if($datediff < 8){
+                            $postArray['assigned_vendor_id'] =$b['assigned_vendor_id'];
+                            $nextDay = date('Y-m-d', strtotime("+1 days"));
+                            $postArray['booking_date'] = $nextDay;
+                            if(date('w', strtotime($nextDay)) == 7){
+                                $postArray['booking_date'] = date('Y-m-d', strtotime("+2 days"));
+                            }
+                            $postArray['booking_timeslot'] = "4PM-7PM";
+                            $postArray['admin_remarks'] = "Booking get Reopend through customer missed call";
+                            $postArray['partner_id'] = $b['partner_id'];
+                            $reopenBookingUrl = base_url() . "employee/do_background_process/reopen_booking/".$b['booking_id']."/".$b['current_status'];
+                            $this->asynchronous_lib->do_background_process($reopenBookingUrl, $postArray);
+                        }
+                    }
                 }
             }else{
                 /* When No bookings found for the snapdeal customers on missed call then send sms*/
