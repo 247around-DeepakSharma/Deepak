@@ -490,6 +490,9 @@ function send_vendor_creation_notification(){
             log_message('info', " Error in Getting Email Template for New Vendor Welcome Mail");
         }
     }
-
+    
+    function reopen_booking($booking_id,$status){
+        $this->miscelleneous->reopen_booking($booking_id, $status);
+    }
     /* end controller */
 }

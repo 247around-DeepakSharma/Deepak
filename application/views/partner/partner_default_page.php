@@ -451,7 +451,7 @@
                             swal("Thanks!", "Booking updated successfully!", "success");
 
                         } else {
-                            swal("Oops", "There is something issues, Please Conatct 247Around Team", "error");
+                            swal("Oops", "There is some problem, please contact 247Around Team", "error");
 
                         }
                         $('body').loadingModal('destroy');

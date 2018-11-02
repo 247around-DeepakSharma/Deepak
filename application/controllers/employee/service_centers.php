@@ -2146,7 +2146,7 @@ class Service_centers extends CI_Controller {
         foreach ($challan as $file) {
             $explode = explode(",", $file);
             foreach ($explode as $value) {
-               if(copy(S3_WEBSITE_URL."vendor-partner-docs/".$value, TMP_FOLDER.$value)){
+               if(copy(S3_WEBSITE_URL."vendor-partner-docs/".trim($value), TMP_FOLDER.$value)){
                    $zip .= TMP_FOLDER. $value. " ";
                }   
             }
