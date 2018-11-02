@@ -348,9 +348,7 @@
                                 <?php $user_invoice_id  = ""; foreach ( $unit_details as $key =>  $unit_detail) { 
                                    if(!empty($unit_detail['user_invoice_id'])){
                                        $user_invoice_id = $unit_detail['user_invoice_id'];
-                                   }
-                                                            
-                                   ?>
+                                   }?>
                                 <tr>
                                     <td><?php echo $unit_detail['appliance_brand']?></td>
                                     <td><?php echo $unit_detail['appliance_category']."/<br/>".$unit_detail['appliance_capacity']?></td>
