@@ -53,6 +53,15 @@ class Inventory_model extends CI_Model {
         return $query->result_array();
     }
     
+    
+    
+    /**
+     * @desc: This function is used to get count of brackets. 
+     * @params:void
+     * @return:Array
+     *     
+     */    
+    
     function get_total_brackets_count($sf_list = ""){
         if($sf_list != ""){
             $where = "WHERE order_received_from  IN (".$sf_list.")";
@@ -1529,4 +1538,92 @@ class Inventory_model extends CI_Model {
         }
         return $returnData;
     }
+    
+   /**
+     * @Desc: This function is used get the brackets shipped and service centre data for 
+     * given order id
+     * @params: string $Order_id
+     * @return: array
+     * 
+     */
+    
+    function get_brackets_query($post) {        
+             
+        $this->_get_brackets_query($post);
+        if ($post['length'] != -1) {
+            $this->db->limit($post['length'], $post['start']);
+        }
+        
+        $query = $this->db->get();
+        return $query->result();
+    }
+    
+    
+     public function _get_brackets_query($post) {
+        $this->db->from('brackets');
+        
+        $this->db->select($post['select'], FALSE);
+
+        $this->db->join('service_centres','brackets.order_received_from = service_centres.id', "left");
+                
+        if (!empty($post['where'])) {
+            $this->db->where($post['where'], FALSE);
+        }
+        if(isset($post['where_in'])){
+            foreach ($post['where_in'] as $index => $value) {
+
+                $this->db->where_in($index, $value);
+            }
+        }
+        
+        if (!empty($post['search']['value'])) {
+             $like = "";
+            if(array_key_exists("column_search", $post)){
+                foreach ($post['column_search'] as $key => $item) { // loop column 
+                    // if datatable send POST for search
+                    if ($key === 0) { // first loop
+                        $like .= "( " . $item . " LIKE '%" . $post['search']['value'] . "%' ";
+
+                    } else {
+                        $like .= " OR " . $item . " LIKE '%" . $post['search']['value'] . "%' ";
+
+                    }
+                }
+                $like .= ") ";
+            }
+            else{
+                $like .= "(booking_details.booking_id LIKE '%" . $post['search']['value'] . "%')";
+            }
+            $this->db->where($like, null, false);
+        }
+
+//        if (!empty($post['order'])) { // here order processing
+//            $this->db->order_by($post['column_order'][$post['order'][0]['column']], $post['order'][0]['dir']);
+//        } else if (isset($this->order)) {
+//            $order = $this->order;
+//            $this->db->order_by(key($order), $order[key($order)]);
+//        }
+    }
+    
+    
+    public function count_brackets_parts($post) {
+        $this->db->from('brackets');       
+        $this->db->join('service_centres','brackets.order_received_from = service_centres.id');
+        if(isset($post['where'])){
+             $this->db->where($post['where']);
+        }
+       
+        $query = $this->db->count_all_results();
+
+        return $query;
+
+    }
+    
+    
+    function count_brackets_filtered($post) {
+        $this->_get_brackets_query($post);
+        $query = $this->db->get();
+        return $query->num_rows();
+    }
+    
 }
