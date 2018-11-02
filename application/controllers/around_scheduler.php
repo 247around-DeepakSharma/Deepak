@@ -2087,14 +2087,15 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         }
     }
     function send_missed_call_sms_to_cancelled_bookings($partnerID,$days){
-        $where["DATEDIFF(CURRENT_TIMESTAMP , date(booking_details.service_center_closed_date)) < ".$days] = NULL;
+        $where["DATEDIFF(CURRENT_TIMESTAMP , date(booking_details.closed_date)) < ".$days] = NULL;
         $where['partner_id'] = $partnerID;
         $where['current_status'] = _247AROUND_CANCELLED;
+        $where['amount_due'] = 0;
         $join['services'] = "services.id = booking_details.service_id";
         $join['partners'] = "partners.id = booking_details.partner_id";
         $cancelledBookings = $this->reusable_model->get_search_result_data("booking_details","user_id,booking_id,booking_primary_contact_no,services.services,partners.public_name",$where,$join,NULL,NULL,NULL,NULL,array());
         foreach($cancelledBookings as $bookingData){
-            $sms['tag'] = "partner_missed_call_for_installation";
+            $sms['tag'] = "missed_call_initial_prod_desc_not_found";
             $sms['smsData']['service'] = $bookingData['services'];
             $sms['smsData']['missed_call_number'] = SNAPDEAL_MISSED_CALLED_NUMBER;
             $sms['booking_id'] = $bookingData['booking_id'] ;
