@@ -1041,7 +1041,7 @@ EOD;
                         $to = $value['primary_contact_email'] . "," . $value['owner_email'];
 
                         $bcc = "";
-                        $cc = "";
+                        $cc = $rm_email;
                         $subject = $value['name'] . " - Bookings Not Updated Report - " . date("d-M-Y");
 
                         $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $view, $file_path . ".txt",SC_CRIME_REPORT_FOR_SF);

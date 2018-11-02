@@ -587,8 +587,9 @@ class Login extends CI_Controller {
         $owner_email = $this->input->post('email');
         $is_email_exist = $this->vendor_model->getVendorDetails('id,name,owner_name,primary_contact_name,sc_code', array('owner_email' => $owner_email));
         if (!empty($is_email_exist)) {
-            $new_password = substr((strtolower(str_shuffle($is_email_exist[0]['name'] . $is_email_exist[0]['sc_code']))), 0, 6);
-            $new_login_details['clear_text'] = $new_password;
+            //$new_password = substr((strtolower(str_shuffle($is_email_exist[0]['name'] . $is_email_exist[0]['sc_code']))), 0, 6);
+            $new_password = strtolower($is_email_exist[0]['sc_code']);
+            $new_login_details['user_name'] = $new_password;
             $new_login_details['password'] = md5($new_password);
             $update = $this->vendor_model->update_service_centers_login(array('service_center_id' => $is_email_exist[0]['id']), $new_login_details);
             if (!empty($update)) {
@@ -598,8 +599,8 @@ class Login extends CI_Controller {
                 $login_template = $this->booking_model->get_booking_email_template("reset_vendor_login_details");
                 if (!empty($login_template)) {
                     
-                    $login_email['username'] = strtolower($is_email_exist[0]['sc_code']);
-                    $login_email['password'] = $new_login_details['clear_text'];
+                    $login_email['username'] = $new_login_details['user_name'];
+                    $login_email['password'] = $new_login_details['user_name'];
                     
                     $login_subject = vsprintf($login_template[4], $is_email_exist[0]['name']);
                     $login_emailBody = vsprintf($login_template[0], $login_email);

@@ -1069,7 +1069,6 @@ class Inventory extends CI_Controller {
         $data['partner_id'] = $this->input->post('partner_id');
         $this->load->view('employee/sparepart_on_tab' , $data);
     }
-    
     /**
      * @desc this used to cancel Spare Part 
      * @param int $id
