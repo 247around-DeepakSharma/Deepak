@@ -25,7 +25,7 @@
         <form action="<?php echo base_url(); ?>employee/invoice/process_to_send_QC_transction" method="POST">
             <input type="hidden" name="partner_vendor" value="partner">
             <input type="hidden" name="partner_vendor_id" value="<?PHP echo QWIKCILVER_PARTNER_ID; ?>">
-            <input type="hidden" name="credit_debit" value="Credit">
+            <input type="hidden" name="credit_debit" value="Debit">
             <input type="hidden" name="bankname" value="">
             <input type="hidden" name="tds_amount" value="0">
             <input type="hidden" name="transaction_mode" value="transfer">
