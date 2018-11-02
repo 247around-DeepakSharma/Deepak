@@ -599,9 +599,8 @@
             ],
             "fnInitComplete": function (oSettings, response) {
             
-            $(".dataTables_filter").addClass("pull-right");
-          }
-
+                $(".dataTables_filter").addClass("pull-right");
+            }
         });
         
         sf_received_part = $('#sf_received_part').DataTable({

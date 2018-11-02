@@ -40,6 +40,7 @@ class Invoice extends CI_Controller {
         $this->load->library('table');
         $this->load->library('push_notification_lib');
         $this->load->library("invoice_lib");
+        $this->load->library('email');
 
     }
 
@@ -1424,9 +1425,7 @@ class Invoice extends CI_Controller {
         } else if($this->session->userdata('error')){
             log_message('info', __METHOD__. "Invoice error already set");
         } else {
-
             $output = "Invoice is not generating. Data is not Found";
-
             $userSession = array('error' => $output);
             $this->session->set_userdata($userSession);
         }
@@ -1988,12 +1987,6 @@ class Invoice extends CI_Controller {
                     $invoices['meta']['r_sc'] += $value['service_charges'];
                     $invoices['meta']['r_asc'] += $value['additional_charges'];
                     $invoices['meta']['r_pc'] += $value['parts_cost'];
-                    if(isset($value['product_or_services'])){
-                        if($value['product_or_services'] == "Product"){
-                            $parts_count++;
-                        }
-                    }
-                   
                     $total_amount_paid += $value['amount_paid'];
 
                     if (!is_null($value['rating_stars']) || $value['rating_stars'] != '') {
@@ -2456,7 +2449,7 @@ class Invoice extends CI_Controller {
                                 $tds['tds'] = 0;
                                 $tds['tds_rate'] = 0;
                             }
-                        } else if ($data['type'] == 'CreditNote' || $data['type'] == 'Buyback' || $data['type'] == 'Stand' || $data['type'] == "Parts" || $data['type'] == 'Liquidation') {
+                        } else if ($data['type'] == 'CreditNote' || $data['type'] == 'Buyback' || $data['type'] == 'Stand' || $data['type'] == "Parts" || $data['type'] == LIQUIDATION) {
 
                             $tds['tds'] = 0;
                             $tds['tds_rate'] = 0;
@@ -3332,9 +3325,7 @@ class Invoice extends CI_Controller {
                 $subject = vsprintf($email_template[4], array($partner_data['company_name'], $sd, $ed));
                 $message = $email_template[0];
                 $email_from = $email_template[2];
-
                 if($email_tag == CRM_SETUP_INVOICE_EMAIL_TAG){
-
                     $to = $partner_data['invoice_email_to'].",".$email_template[1];
                     $cc = $partner_data['invoice_email_cc'].",".$email_template[3];
                 }
@@ -3342,7 +3333,6 @@ class Invoice extends CI_Controller {
                     $to = $email_template[1];
                     $cc = $email_template[3];
                 }
-
                 $cmd = "curl " . S3_WEBSITE_URL . "invoices-excel/" . $output_pdf_file_name . " -o " . TMP_FOLDER.$output_pdf_file_name;
                 exec($cmd);    
                 $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, TMP_FOLDER.$output_pdf_file_name, "",$email_tag);
@@ -3513,9 +3503,9 @@ class Invoice extends CI_Controller {
     function generate_oow_parts_invoice($spare_id) {
         $req['where'] = array("spare_parts_details.id" => $spare_id);
         $req['length'] = -1;
-        $req['select'] = "spare_parts_details.purchase_price, parts_requested,invoice_gst_rate, spare_parts_details.service_center_id, spare_parts_details.booking_id";
+        $req['select'] = "spare_parts_details.purchase_price, spare_parts_details.sell_invoice_id, parts_requested,invoice_gst_rate, spare_parts_details.service_center_id, spare_parts_details.booking_id";
         $sp_data = $this->inventory_model->get_spare_parts_query($req);
-        if (!empty($sp_data)) {
+        if (!empty($sp_data) && empty($sp_data[0]->sell_invoice_id)) {
             $vendor_details = $this->vendor_model->getVendorDetails("gst_no, "
                     . "company_name,address as company_address,district,"
                     . "state, pincode, owner_email, primary_contact_email", array('id' => $sp_data[0]->service_center_id));
@@ -4586,7 +4576,7 @@ class Invoice extends CI_Controller {
     * This function loads the qvc email form view.
     */
     
-    function QC_transction_details(){
+    function QC_transaction_details(){
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/QC_transaction_form');
     }
@@ -4600,11 +4590,10 @@ class Invoice extends CI_Controller {
         $status = $this->_process_advance_payment($agent_id, null);
         if ($status) {
             $data = array(
-                'transction_date' => $this->input->post('transction_date'),
-                'transction_amount' => $this->input->post('transction_amount'),
-                'review' => $this->input->post('review')
+                'transction_date' => $this->input->post('tdate'),
+                'transction_amount' => $this->input->post('amount'),
+                'review' => $this->input->post('description')
             );
-
             $email_template = $this->booking_model->get_booking_email_template(QWIKCILVER_TRANSACTION_DETAIL);
             $partner_detail = $this->partner_model->getpartner(QWIKCILVER_PARTNER_ID, FALSE); //owner_email, invoice_email_to
             if(!empty($email_template)){
@@ -4617,14 +4606,13 @@ class Invoice extends CI_Controller {
             }
             $userSession = array('success' => "Bank Transaction Added");
             $this->session->set_userdata($userSession);
-            redirect(base_url() . "employee/invoice/QC_transction_details");
+            redirect(base_url() . "employee/invoice/QC_transaction_details");
         } else {
             $userSession = array('error' => "Bank Transaction Not Added");
             $this->session->set_userdata($userSession);
-            redirect(base_url() . "employee/invoice/QC_transction_details");
+            redirect(base_url() . "employee/invoice/QC_transaction_details");
         }
     }
-
 
     function get_all_invoice_vertical(){ 
         $vertical_input = $this->input->post('vertical_input');

@@ -1517,5 +1517,4 @@ class Accounting extends CI_Controller {
         $this->invoices_model->update_partner_invoices(array('invoice_id'=>$invoice_id), array('taxpro_checksum'=>$checksum));
         echo $this->accounting_model->update_taxpro_gstr2a_data($id, array('is_mapped'=>1));
     }
-
 }

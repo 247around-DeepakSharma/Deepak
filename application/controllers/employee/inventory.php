@@ -247,6 +247,17 @@ class Inventory extends CI_Controller {
         $this->load->view("employee/show_brackets_list", $data);
     }
     
+            
+    
+    function show_brackets_list_on_tab(){
+        log_message('info', __FUNCTION__. "Entering... ");
+        $this->checkUserSession();
+
+        $this->load->view("employee/multi_categories_show_brackets_list");
+    }
+    
+    
+    
     /**
      * @Desc: This function is used to update shipment
      * @params: Int order id
@@ -3304,6 +3315,7 @@ class Inventory extends CI_Controller {
             $where['booking_id'] = $data->booking_id;
 
             $update_spare_part = $this->service_centers_model->update_spare_parts($where, array('wh_ack_received_part' => 1));
+            $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $receiver_entity_id, $data->inventory_id, 1);
              log_message('info', __METHOD__ . " Booking ID updated ". $data->booking_id);
         } else {
             $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status, entity_type, spare_parts_details.partner_id, requested_inventory_id", $where, false);
@@ -4687,7 +4699,7 @@ class Inventory extends CI_Controller {
     function download_spare_consolidated_data($partner_id = NULL){
         log_message('info',__METHOD__.' Processing...');
         
-        $select = "spare_parts_details.id as spare_id, spare_parts_details.id as spare_id, booking_details.booking_id as 'Booking ID',employee.full_name as 'Account Manager Name',partners.public_name as 'Partner Name',service_centres.name as 'SF Name',"
+        $select = "spare_parts_details.id as spare_id, booking_details.booking_id as 'Booking ID',employee.full_name as 'Account Manager Name',partners.public_name as 'Partner Name',service_centres.name as 'SF Name',"
                 . "service_centres.district as 'SF City', "
                 . "booking_details.current_status as 'Booking Status',spare_parts_details.status as 'Spare Status', "
                 . "spare_parts_details.parts_shipped as 'Part Shipped By Partner',spare_parts_details.shipped_parts_type as 'Part Type',"

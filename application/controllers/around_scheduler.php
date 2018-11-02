@@ -2009,11 +2009,11 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
            'credit_generated'=>0,
            'vertical'=>_247AROUND_SERVICE_STRING,
            'category'=>_247AROUND_INSTALLATION_AND_REPAIR_STRING,
-           '`sub-category`'=>_247AROUND_GST_DEBIT_NOTE_STRING
+           '`sub-category`'=>_247AROUND_GST_DEBIT_NOTE_STRING,
         );
         $post['group_by'] = 'vendor_partner_id';
         $invoices = $this->invoices_model->searchInvoicesdata($select, $post);
-        foreach ($invoices as $key => $vendor_value) {
+        foreach ($invoices as $key1 => $vendor_value) {
            $this->table->set_template($table_template);
            $this->table->set_heading(array('Invoice No', 'Date', 'Taxable Value', 'CGST (Rs.)', 'SGST (Rs.)', 'IGST (Rs.)', 'Total Tax (Rs.)', 'Invoice Total (Rs.)'));
            $where_in = explode(',', $vendor_value->reference_invoice_id);
@@ -2024,10 +2024,11 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
            $invoices_id = rtrim($invoices_id, ','); 
            $invoices_detail = $this->invoices_model->get_invoices_details(array('invoice_id in ('.$invoices_id.')'=>NULL), $invoice_select);
            
-            foreach ($invoices_detail as $key => $value) {
-               $gst_amt =  $value['igst_tax_amount'] + $value['cgst_tax_amount'] + $value['sgst_tax_amount'];
-               $taxable_value =  $value['total_amount_collected'] - $gst_amt;
-               $this->table->add_row($value['invoice_id'], $value['invoice_date'], $taxable_value, $value['cgst_tax_amount'], $value['sgst_tax_amount'], $value['igst_tax_amount'], $gst_amt, $value['total_amount_collected']);
+            foreach ($invoices_detail as $key2 => $value) {
+               $gst_amt =  sprintf("%.2f",($value['igst_tax_amount'] + $value['cgst_tax_amount'] + $value['sgst_tax_amount']));
+               $taxable_value =  sprintf("%.2f",($value['total_amount_collected'] - $gst_amt));
+               $total_amount_collected = sprintf("%.2f", $value['total_amount_collected']);
+               $this->table->add_row($value['invoice_id'], $value['invoice_date'], $taxable_value, $value['cgst_tax_amount'], $value['sgst_tax_amount'], $value['igst_tax_amount'], $gst_amt, $total_amount_collected);
             }
             $email_template = $this->booking_model->get_booking_email_template(VENDOR_GST_RETURN_WARNING);
             if(!empty($email_template)){

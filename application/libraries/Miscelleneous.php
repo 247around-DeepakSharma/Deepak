@@ -2814,13 +2814,21 @@ function generate_image($base64, $image_name,$directory){
             $where['select'] = "sf_challan_number as challan_number";
         }
         
-        $challan_no_temp = $this->My_CI->inventory_model->get_spare_parts_query($where);
+        $challan_no_temp = $this->My_CI->partner_model->get_spare_parts_by_any($where['select'], $where['where']);
+        
         $challan_no = 1;
         $int_challan_no = array();
+        
         if (!empty($challan_no_temp)) {
+           
             foreach ($challan_no_temp as  $value) {
-                 $explode = explode($challan_id_tmp, $value->challan_number);
-                 array_push($int_challan_no, $explode[1] + 1);
+                $c_explode = explode(",", $value['challan_number']);
+                foreach ($c_explode as $value1) {
+                    $explode = explode($challan_id_tmp, $value1);
+                 
+                    array_push($int_challan_no, $explode[1] + 1);
+                }
+                
             }
             rsort($int_challan_no);
             $challan_no = $int_challan_no[0];
@@ -3260,6 +3268,10 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
             if(!$values['sf_closed_date']){
                 log_message('info', __FUNCTION__ . "SF closed date was null so consider close date as sf date. sf_date= ".$values['around_closed_date']);
                 $values['sf_closed_date'] =  $values['around_closed_date'];
+             }
+             if(!$values['initial_booking_date']){
+                log_message('info', __FUNCTION__ . "SF Initial booking date was null so consider create date as initial_booking_date. initial_booking_date= ".$values['around_closed_date']);
+                $values['initial_booking_date'] =  $values['create_date'];
              }
             // Leg 4 will be TAT between around closed date and sf closed date
             log_message('info', __FUNCTION__ . "leg_4 = ".$booking_id);

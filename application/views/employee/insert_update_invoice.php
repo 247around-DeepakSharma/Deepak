@@ -250,7 +250,7 @@
                                             if($invoice_details[0]['type'] == "Parts"){ echo "selected";}
                                             } ?>>Parts</option>
                                         <option value="Liquidation" <?php if (isset($invoice_details[0]['type'])) {
-                                            if($invoice_details[0]['type'] == "Liquidation"){ echo "selected";}
+                                            if($invoice_details[0]['type'] == LIQUIDATION){ echo "selected";}
                                             } ?>>Liquidation</option>
                                     </select>
                                 </div>
