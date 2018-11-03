@@ -75,32 +75,7 @@
             </div>
        <hr>
     
-    <div class="row">
-        <div class="filter_brackets">
-            <div class="filter_box">
-                    <div class="col-sm-3">
-                        <select class="form-control" id="sf_role" name="sf_role">
-                            <option selected disabled>Select Role</option>
-                            <option value="order_received_from">Order Received From</option>
-                            <option value="order_given_to">Order Given To</option>
-                        </select>
-                    </div>
-                    <div class="col-sm-3">
-                        <select class="form-control" id="sf_id" name="sf_id" required="">
-                            <option selected="" disabled="">Select Service Center</option>
-                        </select>
-                        
-                    </div>
-                    <div class="col-sm-3">
-                        <input type="text" class="form-control valid" id="daterange" placeholder="Select Date" name="daterange">
-                    </div>
-                    <div class="col-sm-3">
-                        <div class="btn btn-success" id="filter" onclick="applyFilter()">Filter</div>
-                    </div>
-                <span id="sf_err" style="padding-left:313px;"></span>
-            </div>
-        </div>
-    </div>
+    
     
        <div class="panel panel-info" style="margin-top:20px;">                    
         <div class="panel-body">
@@ -136,33 +111,22 @@
 <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
 <script type="text/javascript">
-    $(function() {
-
-      $('input[name="daterange"]').daterangepicker({
-          autoUpdateInput: false,
-          locale: {
-              cancelLabel: 'Clear'
-          }
-      });
-
-      $('input[name="daterange"]').on('apply.daterangepicker', function(ev, picker) {
-          $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
-      });
-
-      $('input[name="daterange"]').on('cancel.daterangepicker', function(ev, picker) {
-          $(this).val('');
-      });
-
-    });
+    
 
     $(document).ready(function(){
         $.ajax({
             method:'POST',
             url: "<?php echo base_url();?>employee/vendor/get_service_center_details",
             success:function(response){
-                $('#sf_id').val('val', "");
-                $('#sf_id').val('Select Service Center').change();
-                $('#sf_id').select2().html(response);
+                $('#sf_id_1').val('val', "");
+                $('#sf_id_2').val('val', "");
+                $('#sf_id_3').val('val', "");
+                $('#sf_id_1').val('Select Service Center').change();
+                $('#sf_id_2').val('Select Service Center').change();
+                $('#sf_id_3').val('Select Service Center').change();
+                $('#sf_id_1').select2().html(response);
+                $("#sf_id_2").select2().html(response);
+                $("#sf_id_3").select2().html(response);
             }
         });
     });
