@@ -86,16 +86,18 @@
                         </select>
                     </div>
                     <div class="col-sm-3">
-                        <select class="form-control" id="sf_id" name="sf_id">
+                        <select class="form-control" id="sf_id" name="sf_id" required="">
                             <option selected="" disabled="">Select Service Center</option>
                         </select>
+                        
                     </div>
                     <div class="col-sm-3">
-                            <input type="text" class="form-control valid" id="daterange" name="daterange">
+                        <input type="text" class="form-control valid" id="daterange" placeholder="Select Date" name="daterange">
                     </div>
                     <div class="col-sm-3">
                         <div class="btn btn-success" id="filter" onclick="applyFilter()">Filter</div>
                     </div>
+                <span id="sf_err" style="padding-left:313px;"></span>
             </div>
         </div>
     </div>
