@@ -47,7 +47,7 @@
                        <input type="hidden" id="gstr2a_table_id">
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label for="reject_remarks">Remark </label>
+                                <label for="reject_remarks">Remark *</label>
                                 <textarea class="form-control" id="reject_remarks" name="reject_remarks" placeholder="Enter Reject Remark...."></textarea>
                             </div>
                         </div>
@@ -95,21 +95,26 @@
     function reject_submit(){
         var id =  $("#gstr2a_table_id").val();
         var remarks = $("#reject_remarks").val();
-        $.ajax({
-            type: 'POST',
-            url: '<?php echo base_url(); ?>employee/accounting/reject_taxpro_gstr2a',
-            data: {id:id, remarks:remarks},
-            success: function (data) {
-                console.log(data);
-                if(data==true){
-                    GSTR2a_datatable.ajax.reload();
-                    $('#myModal').modal('hide');
+        if(remarks){
+            $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/accounting/reject_taxpro_gstr2a',
+                data: {id:id, remarks:remarks},
+                success: function (data) {
+                    console.log(data);
+                    if(data==true){
+                        GSTR2a_datatable.ajax.reload();
+                        $('#myModal').modal('hide');
+                    }
+                    else{
+                        alert("Error in rejecting data.");
+                    }
                 }
-                else{
-                    alert("Error in rejecting data.");
-                }
-            }
-        });
+            });
+        }
+        else{
+            alert("Please Enter Reject Remarks...");
+        }
     }
     
     function generate_credit_note(id, btn){
