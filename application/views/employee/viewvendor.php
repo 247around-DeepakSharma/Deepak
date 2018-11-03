@@ -1,4 +1,4 @@
-<?php $offset = ($this->uri->segment(7) != '' ? $this->uri->segment(7) : 0); if(!isset($is_ajax)) { ?>
+<?php if(!isset($is_ajax)) { ?>
 <script>
     function outbound_call(phone_number){
         var confirm_call = confirm("Call Vendor ?");
@@ -31,9 +31,7 @@
     function get_data()
     {
         var data = $("#active_state option:selected").val();
-        var sf_cp = $('#sf_cp').val();
-        window.open("<?php echo base_url();?>employee/vendor/viewvendor/all/"+data+"/"+sf_cp,"_self");
-        
+        $('#get_vender').submit();
     }
     
     function createPinCodeForm(id,name){
@@ -79,24 +77,20 @@
 
             <div class="pull-right" style="margin-bottom: 20px; margin-right: 50px;">
                 <div class="col-sm-7">
-                    <form action="<?php echo base_url();?>employee/vendor/viewvendor/all/all/" method="post" class="form-inline" >
-                    <label for="search">Search </label>
-                    <input type="text"  name="vendor_name" value="<?php if(isset($vendor_name)){echo $vendor_name;}?>"/></br></br>
-                    </form>
-                    <form action="javascript:void(0)" method="post" id="get_vender" class="form-inline">
+                    <form action="<?php echo base_url();?>employee/vendor/viewvendor" method="get" id="get_vender" class="form-inline">
                         <label for="active_state">Show Vendor &nbsp; &nbsp;</label>
                         <select name="active_state" id="active_state" onchange="get_data();" class="form-control">
-                            <option value="all" <?php echo isset($active_state) && $active_state == 'all'? 'selected="selected"':''?>>ALL</option>
-                            <option value="1" <?php echo isset($active_state) && $active_state == '1'? 'selected="selected"':''?>>Active</option>
+                            <option value="all" <?php echo isset($selected) && $selected['active_state'] == 'all'? 'selected="selected"':''?>>ALL</option>
+                            <option value="1" <?php echo isset($selected) && $selected['active_state'] == '1'? 'selected="selected"':''?>>Active</option>
                         </select> 
                     </form>
                 </div>
                 
                 <div class="col-sm-5">
-                    <select id="sf_cp" onchange="get_data();" class="form-control">
-                        <option value="sf" <?php echo isset($sf_cp_type) && $sf_cp_type == 'sf'? 'selected="selected"':''?>>Service Center</option>
-                        <option value="cp" <?php echo isset($sf_cp_type) && $sf_cp_type == 'cp'? 'selected="selected"':''?>>Collection Partner</option>
-                        <option value="wh" <?php echo isset($sf_cp_type) && $sf_cp_type == 'wh'? 'selected="selected"':''?>>Warehouse</option>
+                    <select id="sf_cp" onchange="get_sf_cp();" class="form-control">
+                        <option value="sf">Service Center</option>
+                        <option value="cp">Collection Partner</option>
+                        <option value="wh">Warehouse</option>
                     </select>
                 </div> 
             </div>
@@ -128,7 +122,7 @@
 
           
           <?php 
-          $x = $offset;
+          $x = 0;
           foreach($query as $key =>$row){
               $x++;
               ?>
@@ -144,9 +138,6 @@
                 <button type="button" onclick="outbound_call(<?php echo $row['primary_contact_phone_1']; ?>)" 
                     class="btn btn-sm btn-info">
                         <i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i>
-                </button>
-                <button type="button" onclick="model_for_sms('<?php echo $row['primary_contact_phone_1']; ?>', '<?php echo $row['id']?>')" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#msg_poc">
-                        <i class = 'fa fa-envelope' aria-hidden = 'true'></i>
                 </button>
           	</td>
                 <td><a href="mailto:<?php echo $row['owner_email'];?>" data-toggle="popover" data-trigger="hover" data-content="Send Mail to Owner"><?=$row['owner_name'];?></a></td>
@@ -220,8 +211,7 @@
           </tr>	
           <?php } ?>
         </table>
-        <?php if(!empty($links)){ ?><div class="custom_pagination" style="float:left;margin-top: 20px;margin-bottom: 20px;"> <?php if(isset($links)){echo $links;} ?></div> <?php } ?>
-                
+
 <?php if(!isset($is_ajax)) { ?>
         
     </div>
@@ -243,7 +233,27 @@
             return false;
         }
     }
-   
+    
+    function get_sf_cp(){
+        var sf_cp = $('#sf_cp').val();
+        var active_state = $('#active_state').val();
+        $('#vendor_sf_cp_list').html('<div class="col-md-6 col-md-offset-6" style="margin-top: 46px;"><img src="/images/loadring.gif"></div>');
+        $.ajax({
+                method: "POST",
+                url:'<?php echo base_url()."employee/vendor/get_filterd_sf_cp_data" ?>',
+                data: {'sf_cp':sf_cp,'active_state':active_state},
+                success: function (data) {
+                    //console.log(data);
+                    if(data === 'No Data Found'){
+                        var resHTML = "<div class = 'text-center text-danger' style='margin-top:20px;'><strong>"+data+"</strong><div>";
+                        $('#vendor_sf_cp_list').html(resHTML);
+                    }else{
+                        $('#vendor_sf_cp_list').html(data);
+                    }
+                    
+                }
+            });
+    }
     
     </script>
 
@@ -297,36 +307,6 @@
       
     </div>
   </div>
-  
-   <!-- This model is used send SMS to POC -->
-    <div id="msg_poc" class="modal fade" role="dialog">
-     <div class="modal-dialog">
-
-       <!-- Modal content-->
-       <div class="modal-content">
-         <div class="modal-header">
-           <button type="button" class="close" data-dismiss="modal">&times;</button>
-           <h4 class="modal-title" align="center">Send SMS to POC(<span id="poc_phone_no"></span>)</h4>
-         </div>
-           <div class="modal-body" style="min-height: 110px;">
-            <form class="form-horizontal" action="#">
-                <div class="col-md-12">
-                    <div class="form-group">
-                        <label for="Description">Message</label>
-                        <textarea class="form-control" placeholder="Enter Message" id="poc_msg" maxlength="160"></textarea>
-                        <input type="hidden" id="sms_vendor_id" name="sms_vendor_id">
-                    </div>
-                </div>
-            </form>
-         </div>
-         <div class="modal-footer">
-             <button type="button" class="btn btn-success" onclick="send_sms_to_poc()">Send</button>
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-         </div>
-       </div>
-
-     </div>
-   </div>
   
 </div>
  <script>
@@ -387,27 +367,5 @@
                     $("#table_container").html(response);
                 }
             });
-     }
-     /** This function is used to send sms to poc  **/
-     function send_sms_to_poc(){
-        if($("#poc_msg").val()){
-            $.ajax({
-                type: 'POST',
-                url: '<?php echo base_url(); ?>employee/vendor/send_sms_to_poc',
-                data: {phone_no: $("#poc_phone_no").text(), msg:$("#poc_msg").val(), sms_tag:'sms_to_vendor_poc', vendor_id:$("#sms_vendor_id").val()},
-                success: function(response) {
-                        alert("SMS sent to vendor poc");
-                        $("#msg_poc .close").click();
-                }
-            });
-        }
-        else{
-           alert("please enter message");
-        }
-     }
-     
-     function model_for_sms(phone_no, vendor_id){
-        $("#poc_phone_no").text(phone_no);
-        $("#sms_vendor_id").val(vendor_id);
      }
      </script>

@@ -9213,4 +9213,58 @@ INSERT INTO `collateral_type` (`id`, `collateral_tag`, `collateral_type`, `docum
 
 --Kalyani 26-Oct
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES (NULL, 'qwikcilver_transaction_detail', '%s transaction detail', 'Dear Partner<br/><br> Your transaction detail is following - <br/>%s<br/><br><strong>Reply All</strong> for raising any query or concern regarding the invoice.\r\n<br/><br/>Thanks,<br/>247around Team', 'billing@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '', '1', '', CURRENT_TIMESTAMP);
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES (NULL, 'validity_expiry_warning_for_partner', '%s Your 247around validity will be expire.', 'Dear Partner<br/><br> Your 247around validity will be expire on %s <br><strong>Reply All</strong> for raising any query or concern regarding the invoice.\r\n<br/><br/>Thanks,<br/>247around Team', 'billing@247around.com', 'prateekc@247around.com', 'prateekc@247around.com', 'prateekc@247around.com', '1', '', CURRENT_TIMESTAMP);
+
+--Kalyani 30-10-2018
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'GSTR2a Report', NULL, NULL, '2', '80', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Generate GSTR2a Report', NULL, NULL, '2', '172', 'employee/accounting/generate_gstr2a_report', 'main_nav', '1', CURRENT_TIMESTAMP);
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'View GSTR2a Report', NULL, 'employee/accounting/show_gstr2a_report', '2', '172', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
+
+CREATE TABLE `taxpro_gstr2a_data` (
+  `id` int(11) NOT NULL,
+  `gst_no` varchar(255) NOT NULL,
+  `invoice_number` varchar(255) NOT NULL,
+  `invoice_amount` int(11) NOT NULL,
+  `gst_rate` int(11) NOT NULL,
+  `taxable_value` int(11) NOT NULL,
+  `igst_amount` int(11) NOT NULL,
+  `cgst_amount` int(11) NOT NULL,
+  `sgst_amount` int(11) NOT NULL,
+  `invoice_date` datetime NOT NULL,
+  `checksum` mediumtext NOT NULL,
+  `create_date` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `taxpro_GSTR2a_data`
+--
+ALTER TABLE `taxpro_GSTR2a_data`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `taxpro_GSTR2a_data`
+--
+ALTER TABLE `taxpro_GSTR2a_data`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+COMMIT;
+
+ALTER TABLE `vendor_partner_invoices` ADD `taxpro_checksum` TEXT NOT NULL AFTER `credit_generated`;
+ALTER TABLE `taxpro_gstr2a_data` ADD `is_rejected` TINYINT(1) NOT NULL DEFAULT '0' AFTER `checksum`;
+ALTER TABLE `taxpro_gstr2a_data` ADD `is_mapped` TINYINT(1) NOT NULL DEFAULT '0' AFTER `is_rejected`;
+
+
+--Abhay 29 Oct
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'wrong_call_area', 'Wrong Call Area %s', 'SF has marked wrong call area, Please reasign correct SF for booking ID %s', 'noreply@247around.com', '', '', '', '1', CURRENT_TIMESTAMP);
+
+--Kalyani 01-Nov
+UPDATE `email_template` SET `template` = '<b>TAXPRO GSP API FAIL</b><br/><p>%s</p><p>%s</p>' WHERE `email_template`.`tag` = 'taxpro_api_fail';
+ALTER TABLE `taxpro_gstr2a_data` CHANGE `invoice_date` `invoice_date` DATE NOT NULL;
 

@@ -747,7 +747,7 @@ class Notify {
                     $message = "Please check SMS tag and phone number. Booking id is : " .
                             $sms['booking_id'] . " Tag is '" . $sms['tag'] . "' & phone number is :" . $sms['phone_no'] . " Result:"
                             . " " . $status['content'];
-                    $to = "anuj@247around.com, sachinj@247around.com";
+                    $to = DEVELOPER_EMAIL;
 
                     $this->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "",'sms_sending_failed');
                 }
@@ -759,7 +759,7 @@ class Notify {
                 $message = "Please check SMS tag and phone number. Booking id is : " .
                         $sms['booking_id'] . " Tag is '" . $sms['tag'] . "' & phone number is :" . $sms['phone_no'] . " Result:"
                         . " " . $status['content'];
-                $to = "anuj@247around.com, sachinj@247around.com";
+                $to = DEVELOPER_EMAIL;
 
                 $this->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "",'sms_not_sent_template_not_found');
             }

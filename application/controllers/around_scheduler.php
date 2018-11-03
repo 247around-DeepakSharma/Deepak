@@ -2042,4 +2042,61 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         }
     }
     
+     /*
+     *@desc - this function is used to send sms to vendor for filling gst return with invoicing detail
+     */
+    function send_expiry_mail_and_generate_invoice_for_partner(){ 
+        $wh = " AND partners.is_active = 1 ";
+        $expiry_partner =$this->invoices_model->get_partners_annual_charges("public_name, owner_email, invoice_email_to, invoice_email_cc,  invoice_id, vendor_partner_id, "
+                 . "from_date, to_date, vendor_partner_id", "", $wh);
+        $exp_warning_date = date('Y-m-d', strtotime('-15 days', strtotime(date('Y-m-d'))));
+        foreach($expiry_partner as $expiry_partner){ 
+            if($expiry_partner->to_date >= $exp_warning_date && $expiry_partner->to_date <= date("Y-m-d")){
+                $email_template = $this->booking_model->get_booking_email_template(VALIDITY_EXPIRY_WARNING_FOR_PARTNER);
+                if(!empty($email_template)){
+                    $subject = vsprintf($email_template[4], array($expiry_partner->public_name));
+                    $message = vsprintf($email_template[0], array($expiry_partner->to_date)); 
+                    $email_from = $email_template[2];
+                    $to = $email_template[1]." ,".$expiry_partner->owner_email.",".$expiry_partner->invoice_email_to." ,".$this->session->userdata('official_email');
+                    $cc = $email_template[3]." ,".$expiry_partner->invoice_email_cc;
+                    $this->notify->sendEmail($email_from, $to, $cc, '', $subject, $message, '', VALIDITY_EXPIRY_WARNING_FOR_PARTNER);
+                }
+            }
+            else if($expiry_partner->to_date < date("Y-m-d")){
+                $auual_charges_exist = $this->invoices_model->get_variable_charge('id, fixed_charges, validity_in_month', array('entity_type' => 'partner', 'entity_id' => $expiry_partner->vendor_partner_id));
+                if(!empty($auual_charges_exist)){
+                    $url = base_url() . "employee/invoice/generate_crm_setup/".true;
+                    $from_date = date('Y/m/d');
+                    $tot_days = 30 * $auual_charges_exist[0]['validity_in_month'];
+                    $to_date = date('Y/m/d', strtotime('+'.$auual_charges_exist[0]['validity_in_month'].' months', strtotime($from_date)));
+                    $async_data['partner_name'] = $expiry_partner->public_name;
+                    $async_data['partner_id'] = $expiry_partner->vendor_partner_id;
+                    $async_data['daterange'] = $from_date."-".$to_date;
+                    $async_data['invoice_type'] = CRM_SETUP_INVOICE_DESCRIPTION;
+                    $async_data["service_charge"] = $auual_charges_exist[0]['fixed_charges'];
+                    $this->asynchronous_lib->do_background_process($url, $async_data);
+                }
+            }
+        }
+    }
+    function send_missed_call_sms_to_cancelled_bookings($partnerID,$days){
+        $where["DATEDIFF(CURRENT_TIMESTAMP , date(booking_details.closed_date)) < ".$days] = NULL;
+        $where['partner_id'] = $partnerID;
+        $where['current_status'] = _247AROUND_CANCELLED;
+        $where['amount_due'] = 0;
+        $join['services'] = "services.id = booking_details.service_id";
+        $join['partners'] = "partners.id = booking_details.partner_id";
+        $cancelledBookings = $this->reusable_model->get_search_result_data("booking_details","user_id,booking_id,booking_primary_contact_no,services.services,partners.public_name",$where,$join,NULL,NULL,NULL,NULL,array());
+        foreach($cancelledBookings as $bookingData){
+            $sms['tag'] = "missed_call_initial_prod_desc_not_found";
+            $sms['smsData']['service'] = $bookingData['services'];
+            $sms['smsData']['missed_call_number'] = SNAPDEAL_MISSED_CALLED_NUMBER;
+            $sms['booking_id'] = $bookingData['booking_id'] ;
+            $sms['type'] = "user";
+            $sms['type_id'] = $bookingData['user_id'];
+            $sms['phone_no'] = $bookingData['booking_primary_contact_no'];
+            $sms['smsData']['partner'] = $bookingData['public_name'];
+            $this->notify->send_sms_msg91($sms);
+        }
+    }
 }

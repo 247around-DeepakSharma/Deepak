@@ -1069,7 +1069,6 @@ class Inventory extends CI_Controller {
         $data['partner_id'] = $this->input->post('partner_id');
         $this->load->view('employee/sparepart_on_tab' , $data);
     }
-    
     /**
      * @desc this used to cancel Spare Part 
      * @param int $id
@@ -3046,7 +3045,7 @@ class Inventory extends CI_Controller {
 	}
         $invoice_details_insert = array(
                     'invoice_id' => $invoice_id,
-                    'type' => 'FOC',
+                    'type' => 'Parts',
                     'type_code' => 'B',
                     'vendor_partner' => 'partner',
                     "third_party_entity" => "vendor",
@@ -3639,7 +3638,7 @@ class Inventory extends CI_Controller {
                 $invoice_details = array(
                     'invoice_id' => $response['meta']['invoice_id'],
                     'type_code' => 'A',
-                    'type' => 'Cash',
+                    'type' => 'Parts',
                     'vendor_partner' => 'partner',
                     "third_party_entity" => $sender_entity_type,
                     "third_party_entity_id" => $sender_entity_id,

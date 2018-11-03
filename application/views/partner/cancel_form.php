@@ -24,7 +24,10 @@ if (isset($user_and_booking_details['spare_parts'])) {
 
 $booking_create_date = new DateTime($user_and_booking_details[0]['create_date']);
 $current_time = new DateTime();
-$min_time_diff = $current_time->diff($booking_create_date)->i;
+$since_start = $current_time->diff($booking_create_date);
+$min_time_diff = $since_start->days * 24 * 60;
+$min_time_diff += $since_start->h * 60;
+$min_time_diff += $since_start->i;
 ?>
 <div class="right_col" role="main">
     <div class="row">

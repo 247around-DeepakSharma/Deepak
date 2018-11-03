@@ -82,6 +82,7 @@
                         <li><a id="8" href="#tabs-8" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Add Contacts</span></a></li>
                         <li><a id="9" href="#tabs-9" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Warehouse Details</span></a></li>
                         <li><a id="10" href="#tabs-10" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Bank Details</span></a></li>
+                        <li><a id="11" href="#tabs-11" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Annual Charges</span></a></li>
                         <?php
                             }
                         else{
@@ -96,6 +97,7 @@
                         <li><a id="8" href="#tabs-8" onclick="load_form(this.id)"><span class="panel-title">Add Contacts</span></a></li>
                         <li><a id="9" href="#tabs-9" onclick="load_form(this.id)"><span class="panel-title">Warehouse Details</span></a></li>
                         <li><a id="10" href="#tabs-10" onclick="load_form(this.id)"><span class="panel-title">Bank Details</span></a></li>
+                         <li><a id="11" href="#tabs-11" onclick="load_form(this.id)"><span class="panel-title">Annual Charges</span></a></li>
                         <?php
                             }
                         ?>
@@ -1542,7 +1544,7 @@
              <div class="clear"></div>
               <div id="container_8" style="display:none;margin: 30px 10px;" class="form_container">
                  <button class="btn" onclick="show_add_contact_form()" style="background-color: #337ab7;color: #fff;margin-bottom: 10px;">Add Contacts</button>
-                 <form name="contact_form" class="form-horizontal" id ="contact_form" action="<?php echo base_url() ?>employee/partner/process_partner_contacts" method="POST" enctype="multipart/form-data" onsubmit="return process_contact_persons_validations()">
+                 <form name="contact_form" class="form-horizontal" id ="contact_form" action="<?php echo base_url() ?>employee/partner/process_partner_contacts" method="POST" enctype="multipart/form-data" onsubmit="return process_contact_persons_validations()" style="display:none;">
                     <?php
                         if(isset($query[0]['id'])){
                             if($query[0]['id']){
@@ -1599,7 +1601,7 @@
                                         <div class="form-group "> 
                                             <input type="hidden" value="" id="checkbox_value_holder_1" name="checkbox_value_holder[]">
                                               <div class="col-md-6"> 
-                                                  <label><b>Create Login</b></label><input style="margin-left: 167px;" type="checkbox" value="" id="login_checkbox_1" name="login_checkbox[]">
+                                                  <label><b>Create Login</b></label><input style="margin-left: 167px;" type="checkbox" value="" id="login_checkbox_1" name="login_checkbox[]" checked="">
                                             </div>   
                                                   </div>
                                 </div>
@@ -2005,7 +2007,44 @@
                         </tbody>
                     </table>
                 </div>
-                                
+            </div>
+            <div class="clear"></div>
+            <div id="container_11"  style="display:none;margin: 30px 10px;" class="form_container">
+                    <form  class="form-horizontal" id ="bank_detail_form" action="<?php echo base_url() ?>employee/partner/process_add_annual_charges" method="POST" enctype="multipart/form-data" >
+                    <?php if(isset($query[0]['id'])){ ?>
+                        <input type="hidden" id="partner_id" name="partner_id" value=<?php echo  $query[0]['id']?>>
+                    <?php } ?>
+                        <div class="clonedInput panel panel-info " id="clonedInput1">
+                            <div class="panel-heading" style=" background-color: #f5f5f5;">
+                                <p style="color: #000;"><b>Annual Charges</b></p> 
+                            </div> 
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="annual_amount" class="col-md-4">Amount *</label>
+                                            <div class="col-md-6">
+                                                <input  type="number" rows="1" class="form-control input-contact-name"  name="annual_amount" id="annual_amount" value = "<?php if(!empty($annual_charges)){ echo $annual_charges[0]['fixed_charges']; } ?>" placeholder="Enter annual amount" required="" />
+                                            </div>
+                                        </div>
+                                    </div>    
+                                     <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="validity" class="col-md-4">Validity<small> ( In Months ) </small> *</label>
+                                            <div class="col-md-6">
+                                                <input type="number" name="validity" class="form-control input-contact-name" value="<?php if(!empty($annual_charges)){ echo $annual_charges[0]['validity_in_month']; } ?>" placeholder="Enter validity in months" required="">
+                                            </div>
+                                        </div>
+                                    </div>    
+                                </div>
+                            </div>
+                        </div>
+                            <div class="form-group " style="text-align:center">
+                                <input type="submit" class="btn btn-primary" value="Save Annual Detail">
+                            </div>
+                        </div>
+                </form>
             </div>
         </div>
     </div>
@@ -2091,7 +2130,7 @@
                                 <div class="form-group ">
                                     <label for="service_name" class="col-md-4 vertical-align">Role *</label>
                                     <div class="col-md-6">
-                                        <select type="text" class="form-control"  id="contact_person_role" name="contact_person_role" onChange="getFilter(this.value)" >
+                                        <select type="text" class="form-control"  id="contact_person_role" name="contact_person_role" onChange="getFilters(this.value,'edit')" >
                                             
                                         </select>
                                         <!--<input type="text"value="<?php// echo $value['role'] ?>" onclick="{$('#contact_person_role').removeClass('hidden');this.addClass('hidden');}"/>-->
@@ -3193,13 +3232,14 @@ function sendAjaxRequest(postData, url,type) {
         });
         
     });
-    function create_edit_form(json){
+   function create_edit_form(json){
         var value = JSON.parse(json);
         var data="";
         if(value.state){
             var states=value.state;
             var states = states.split(',');
-            var Values = new Array()
+            var Values = new Array();
+            $("#contact_person_states").prop("disabled", false);
             for(var element in states){
                 var state=states[element];
                 $('#contact_person_states option[value="'+state+'"]').select2().attr("selected", "selected");
@@ -3207,9 +3247,17 @@ function sendAjaxRequest(postData, url,type) {
             }
             $("#contact_person_states").val(Values).trigger('change');
         }
+        else{
+            $("#contact_person_states").val('').change();
+             $("#contact_person_states").prop("disabled", true);
+        }
         if(value.login_agent_id){
           $("#checkbox_value_holder").val(true);
           $( "#login_checkbox" ).prop( "checked", true );
+        }
+        else{
+          $("#checkbox_value_holder").val(false);
+          $( "#login_checkbox" ).prop( "checked", false );
         }
         $("#contact_id").val(value.id);
         $("#contact_person_name").val(value.name);
@@ -3217,19 +3265,9 @@ function sendAjaxRequest(postData, url,type) {
         $("#contact_person_contact").val(value.official_contact_number);
         $("#contact_person_alt_email").val(value.alternate_email);
         $("#contact_person_alt_contact").val(value.alternate_contact_number);
-        
         data = "<option value = '' disabled>Select Roles</option><option value = "+value.role_id+" selected>"+value.role+"</option>";
         $("#contact_person_role").html(data);
-        switch(value.role){
-            case "poc" :
-                $("#contact_person_department").val("Admin");
-                $('#contact_person_department option[value="Admin"]').attr("selected", "selected");
-                break;
-            case "area_sales_manager":
-                $("#contact_person_department").val("Management");
-                $('#contact_person_department option[value="Management"]').attr("selected", "selected");
-                break;
-        }
+        $('select[name="contact_person_department"]').find('option[value='+value.department+']').attr("selected",true);
         $("#contact_person_address").val(value.permanent_address);
         $("#contact_person_c_address").val(value.correspondence_address);
         if(value.agentid){

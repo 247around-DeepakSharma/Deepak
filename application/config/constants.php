@@ -627,7 +627,7 @@ define('TOTAL', 'Total');
 //do not allow cancel from partner panel after this time interval
 define('BOOKING_CAN_NOT_BE_CANCEL_AFTER_THIS_TIME_INTERVAL',10);
 //show this text when partner cancel booking before time interval
-define('TEXT_FOR_BOOKING_CAN_NOT_BE_CANCEL_AFTER_THIS_TIME_INTERVAL','This booking can not be cancelled');
+define('TEXT_FOR_BOOKING_CAN_NOT_BE_CANCEL_AFTER_THIS_TIME_INTERVAL','Booking can not be cancelled, Please contact to 247Around Team');
 define('REVIEW_NOTIFICATION_TO_PARTNER_DAYS','2');
 //Default Municipal limit for Paytm
 define("DEFAULT_PAYTM_MUNICIPAL_LIMIT", 15);
@@ -651,7 +651,7 @@ define('_247AROUND_GST_DEBIT_NOTE_STRING','GST Debit Note');
 define('WAREHOUSE','Warehouse');  
 //constant to define New Query state
 define('_247AROUND_QUERY','Query');
-//constant to define QWIKCILVER partner id
-define('QWIKCILVER_PARTNER_ID','247025');
+//
+define('CANCELLATION_REASON_WRONG_AREA', 'Wrong call - Not in our area.');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

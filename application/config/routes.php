@@ -187,7 +187,7 @@ $route['partner/inventory/show_inventory_appliance_details'] = 'employee/partner
 $route['partner/inventory/tag_spare_invoice'] = 'employee/partner/tag_spare_invoice';
 $route['partner/search_docket_number'] = 'employee/partner/search_docket_number';
 $route['partner/review_bookings/(:any)/(:any)'] = 'employee/partner/partner_review_bookings/$1/$2';
-
+$route['partner/contacts'] = 'partner/manage_partner_contacts';
 
 
 

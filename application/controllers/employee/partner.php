@@ -890,13 +890,14 @@ class Partner extends CI_Controller {
         $departmentArray = $this->reusable_model->get_search_result_data("entity_role", 'DISTINCT department',array("entity_type" => 'partner'),NULL, NULL, array('department'=>'ASC'), NULL, NULL,array());  
         $results['contact_persons'] =  $this->reusable_model->get_search_result_data("contact_person",  "contact_person.*,entity_role.role,entity_role.id as  role_id,entity_role.department,"
                 . "GROUP_CONCAT(agent_filters.state) as  state,agent_filters.agent_id as agentid,entity_login_table.agent_id as login_agent_id",
-                array("contact_person.entity_type" =>  "partner","contact_person.entity_id"=>$id),
+                array("contact_person.entity_type" =>  "partner","contact_person.entity_id"=>$id,"contact_person.is_active"=>1),
                 array("entity_role"=>"contact_person.role = entity_role.id","agent_filters"=>"contact_person.id=agent_filters.contact_person_id","entity_login_table"=>"entity_login_table.contact_person_id = contact_person.id"), NULL, 
                 array("name"=>'ASC'), NULL,  array("agent_filters"=>"left","entity_role"=>"left","entity_login_table"=>"left"),array("contact_person.id"));
        $results['contact_name'] = $this->partner_model->select_contact_person($id);
-       $results['bank_detail'] = $this->reusable_model->get_search_result_data("account_holders_bank_details", '*',array("entity_id"=>$id, "entity_type" => 'partner'),NULL, NULL, array('is_active'=>'DESC'), NULL, NULL, array());  
+       $results['bank_detail'] = $this->reusable_model->get_search_result_data("account_holders_bank_details", '*',array("entity_id"=>$id, "entity_type" => 'partner'),NULL, NULL, array('is_active'=>'DESC'), NULL, NULL, array()); 
+       $auual_charges = $this->invoices_model->get_variable_charge('fixed_charges, validity_in_month', array('entity_type'=>'partner', 'entity_id'=>$id));
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/addpartner', array('query' => $query, 'results' => $results, 'employee_list' => $employee_list, 'form_type' => 'update','department'=>$departmentArray));
+        $this->load->view('employee/addpartner', array('query' => $query, 'results' => $results, 'employee_list' => $employee_list, 'form_type' => 'update','department'=>$departmentArray, 'annual_charges'=>$auual_charges));
     }
 
     /**
@@ -1858,15 +1859,15 @@ class Partner extends CI_Controller {
                         $this->insert_details_in_state_change($booking_id, $internal_status, "Partner acknowledged to shipped spare parts", $actor, $next_action);
 
                         $this->booking_model->update_booking($booking_id, $booking);
-                        if (!empty($incoming_invoice_pdf) && !empty($spare_id_array)) {
-                            foreach($spare_id_array as $s_value){
-                                // Send OOW invoice to Inventory Manager
-                                $url = base_url() . "employee/invoice/generate_oow_parts_invoice/" . $s_value;
-                                $async_data['booking_id'] = $booking_id;
-                                $this->asynchronous_lib->do_background_process($url, $async_data);
-                            }
-                            
-                        }
+//                        if (!empty($incoming_invoice_pdf) && !empty($spare_id_array)) {
+//                            foreach($spare_id_array as $s_value){
+//                                // Send OOW invoice to Inventory Manager
+//                                $url = base_url() . "employee/invoice/generate_oow_parts_invoice/" . $s_value;
+//                                $async_data['booking_id'] = $booking_id;
+//                                $this->asynchronous_lib->do_background_process($url, $async_data);
+//                            }
+//                            
+//                        }
 
                         $userSession = array('success' => 'Parts Updated');
                         $this->session->set_userdata($userSession);
@@ -2166,7 +2167,7 @@ class Partner extends CI_Controller {
             $this->checkUserSession();
         }
 
-        $response = $this->service_centers_model->update_spare_parts(array('booking_id' => $booking_id,'defactive_part_received_date_by_courier_api IS NOT NULL'=>NULL), array('status' => DEFECTIVE_PARTS_RECEIVED,
+        $response = $this->service_centers_model->update_spare_parts(array('booking_id' => $booking_id), array('status' => DEFECTIVE_PARTS_RECEIVED,
             'approved_defective_parts_by_partner' => '1', 'remarks_defective_part_by_partner' => DEFECTIVE_PARTS_RECEIVED,
             'received_defective_part_date' => date("Y-m-d H:i:s")));
         if ($response) {
@@ -4763,7 +4764,12 @@ class Partner extends CI_Controller {
             $msg =  "Something went Wrong Please try again or contact to admin";
         }
        $this->session->set_userdata('success', $msg);
-       redirect(base_url() . 'employee/partner/editpartner/' . $partnerID);
+       if($this->session->userdata('partner_id')){
+           redirect(base_url() . 'partner/contacts');
+       }
+       else{
+            redirect(base_url() . 'employee/partner/editpartner/' . $partnerID);
+       }
     }
     
     function process_booking_internal_conversation_email() {
@@ -4928,17 +4934,39 @@ class Partner extends CI_Controller {
         else{
             $msg =  "Something went Wrong Please try again or contact to admin";
         }
-       $this->session->set_userdata('success', $msg);
-       redirect(base_url() . 'employee/partner/editpartner/' . $partnerID);
+        if($this->session->userdata('partner_id')){
+            $this->session->set_userdata('success', $msg);
+            redirect(base_url() . 'partner/contacts');
+        }
+        else{
+            $this->session->set_userdata('success', $msg);
+            redirect(base_url() . 'employee/partner/editpartner/' . $partnerID);
+        }
     }
     
     function delete_partner_contacts($contact_id,$partnerID){
-        $this->reusable_model->delete_from_table('entity_login_table',array('contact_person_id'=>$contact_id));
-        $this->reusable_model->delete_from_table('agent_filters',array('contact_person_id'=>$contact_id));
-        $this->reusable_model->delete_from_table('contact_person',array('id'=>$contact_id));
-        $msg = "Contact deleted successfully";
-        $this->session->set_userdata('success', $msg);
-       redirect(base_url() . 'employee/partner/editpartner/' . $partnerID);
+        $where["entity_id"] = $partnerID;
+        $where["contact_person_id"] = $contact_id;
+        if(!empty($where)){
+            //Update Entity Login Table
+            $this->reusable_model->update_table("entity_login_table",array("active"=>0),array("entity_id"=>$partnerID,"contact_person_id"=>$contact_id));
+            //Update Agent Filter Table 
+            $this->reusable_model->update_table('agent_filters',array("is_active"=>0),$where);
+            //Update Contact Person Table
+            $this->reusable_model->update_table('contact_person',array('is_active'=>0),array('id'=>$contact_id,'entity_id'=>$partnerID));
+            $msg = "Contact deleted successfully";
+            $this->session->set_userdata('success', $msg);
+        }
+        else{
+            $msg = "Something Went Wrong , Please Try Again";
+            $this->session->set_userdata('error', $msg);
+        }
+        if($this->session->userdata('partner_id')){
+            redirect(base_url() . 'partner/contacts');
+        }
+       else{
+             redirect(base_url() . 'employee/partner/editpartner/' . $partnerID);
+       }
     }
     
     /**
@@ -5383,8 +5411,7 @@ class Partner extends CI_Controller {
             "spare_parts_details.defective_part_required" => 1,
             "approved_defective_parts_by_admin" => 1,
             "spare_parts_details.partner_id" => $partner_id,
-            "status IN ('" . DEFECTIVE_PARTS_SHIPPED . "')  " => NULL,
-            "defactive_part_received_date_by_courier_api IS NOT NULL" => NULL
+            "status IN ('" . DEFECTIVE_PARTS_SHIPPED . "')  " => NULL
         );
        if($this->input->post('state')){
            $where['booking_details.state'] = $this->input->post('state');
@@ -5913,6 +5940,43 @@ class Partner extends CI_Controller {
             $this->session->set_userdata('error', 'Please Fill All Bank Detail');
             redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
         } 
+    }
+    
+    /*
+     * @desc - This function is used to save bank detail for partner
+     * @param - form post
+     * @retun - void
+     */
+    function process_add_annual_charges(){
+            $partner_id = $this->input->post('partner_id');
+            $data = array(
+                'entity_type' => 'partner',
+                'entity_id' => $partner_id,
+                'charges_type' => 'annual-charges',
+                'description' => 'Partner annual charges',
+                'fixed_charges' => $this->input->post('annual_amount'),
+                'validity_in_month' => $this->input->post('validity'),
+                'hsn_code' => '123',
+                'gst_rate' => '18'
+            );
+            $charge_exist = $this->invoices_model->get_variable_charge('id', array('entity_type' => 'partner', 'entity_id' => $partner_id));
+            if(empty($charge_exist)){
+                $data['create_date'] = date('Y-m-d H:i:s');
+                $result = $this->invoices_model->insert_into_variable_charge($data);
+            }
+            else{
+               $data['update_date'] = date('Y-m-d H:i:s');
+               $result = $this->invoices_model->update_into_variable_charge(array('id'=>$charge_exist[0]['id']), $data); 
+            }
+            if($result){
+                log_message("info", __METHOD__ .$msg);
+                $this->session->set_userdata('success', 'Data Saved Successfully');
+                redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
+            } else {
+                log_message("info", __METHOD__ . " Error in Saving details");
+                $this->session->set_userdata('failed', 'Data can not be inserted. Please Try Again...');
+                redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
+            }
     }
     
      /*
