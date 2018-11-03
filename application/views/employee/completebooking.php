@@ -8,7 +8,7 @@
             </div>
         </div>
         <?php }?>
-        <?php $required_sp_id = array(); $can_sp_id = array(); ?>
+        <?php $isModelMandatory =0 ; $required_sp_id = array(); $can_sp_id = array(); ?>
         <?php  $flag = 0; $requestedParts = false; if(isset($booking_history['spare_parts'])){ 
             foreach ($booking_history['spare_parts'] as  $value) {
                 if($value['status'] == _247AROUND_COMPLETED || $value['status'] == _247AROUND_CANCELLED){} else {
@@ -271,7 +271,7 @@
                                                                     <input type="file" style="display:none" id="<?php echo "upload_serial_number_pic" . $count ?>"   class="form-control" name="<?php echo "upload_serial_number_pic[" . $price['unit_id'] . "]" ?>"   />
                                                                     <span style="color:red;" id="<?php echo 'error_serial_no'.$count;?>"></span>
                                                                     <?php
-                                                                    $isModelMandatory =0 ;
+                                                                    
                                                                     if(isset($unit_details['model_dropdown']) && !empty($unit_details['model_dropdown'])){ 
                                                                         $isModelMandatory =1 ;
                                                                         ?>
