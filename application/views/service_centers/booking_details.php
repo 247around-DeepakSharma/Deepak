@@ -494,7 +494,7 @@
                         <td><?php echo $value['remarks']; ?></td>
                         <td><?php echo $value['full_name']; ?></td>
                         <td><?php
-                            if ($value['source'] == "Website") {
+                            if ($value['source'] == _247AROUND_WEBSITE) {
                                 echo '247 Around';
                             } else {
                                 echo $value['source'];
