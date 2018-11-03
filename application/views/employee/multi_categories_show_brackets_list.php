@@ -262,9 +262,18 @@ var received_brackets_list_table;
     });
     
     function applyFilter(){
-        received_brackets_list_table.ajax.reload(null, false);
-        requested_brackets_list_table.ajax.reload(null, false);
-        shipped_brackets_list_table.ajax.reload(null, false);
+        var sf_id = $("#sf_id").val();
+        var daterange = $("#daterange").val(); 
+        var sf_role = $("#sf_role").val();
+        if((sf_role==null) || (daterange=='' && sf_id==null)){
+            $("#sf_err").html("Role,Service Center and Date should not be blank.").css('color','red');
+        }else{
+            $("#sf_err").html("");
+            received_brackets_list_table.ajax.reload(null, false);
+            requested_brackets_list_table.ajax.reload(null, false);
+            shipped_brackets_list_table.ajax.reload(null, false);
+        }
+        
     }
       
     
