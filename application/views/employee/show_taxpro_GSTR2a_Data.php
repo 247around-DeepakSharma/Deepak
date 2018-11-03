@@ -35,6 +35,31 @@
         </div>
     </div>
 </div>
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Reject Remark <button type="button" class="close" data-dismiss="modal">&times;</button></h4>
+            </div>
+            <div class="modal-body">
+                   <div class="row">
+                       <input type="hidden" id="gstr2a_table_id">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="reject_remarks">Remark </label>
+                                <textarea class="form-control" id="reject_remarks" name="reject_remarks" placeholder="Enter Reject Remark...."></textarea>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" onclick="reject_submit()">Submit</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 <script>
     var GSTR2a_datatable;
     $(document).ready(function () {
@@ -64,14 +89,21 @@
     });
     
     function reject(id){
+          $("#gstr2a_table_id").val(id);
+    }
+    
+    function reject_submit(){
+        var id =  $("#gstr2a_table_id").val();
+        var remarks = $("#reject_remarks").val();
         $.ajax({
             type: 'POST',
             url: '<?php echo base_url(); ?>employee/accounting/reject_taxpro_gstr2a',
-            data: {id:id},
+            data: {id:id, remarks:remarks},
             success: function (data) {
                 console.log(data);
                 if(data==true){
                     GSTR2a_datatable.ajax.reload();
+                    $('#myModal').modal('hide');
                 }
                 else{
                     alert("Error in rejecting data.");

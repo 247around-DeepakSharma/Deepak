@@ -1492,7 +1492,7 @@ class Accounting extends CI_Controller {
         $cn_btn = '<button class="btn btn-primary btn-sm" style="margin-right:5px" data-id="'.$data_list['id'].'" data-checksum="'.$data_list['checksum'].'" onclick="generate_credit_note('.$no.', this)" disabled>Generate CN</button>';
         $row[] = $html;
         $row[] = $cn_btn;
-        $row[] = "<a class='btn btn-warning btn-sm' onclick='reject(".$data_list['id'].")'>Reject</a>";
+        $row[] = "<a class='btn btn-warning btn-sm' onclick='reject(".$data_list['id'].")'  data-toggle='modal' data-target='#myModal'>Reject</a>";
         return $row;
     }
     
@@ -1503,7 +1503,8 @@ class Accounting extends CI_Controller {
      */
     function reject_taxpro_gstr2a(){ 
         $id = $this->input->post('id');
-        echo $this->accounting_model->update_taxpro_gstr2a_data($id, array('is_rejected'=>1));
+        $remarks = $this->input->post('remarks');
+        echo $this->accounting_model->update_taxpro_gstr2a_data($id, array('is_rejected'=>1, 'reject_remarks'=>$remarks));
     }
     /**
      * @desc This function is used to update flag for credit note generated against thie debit note
