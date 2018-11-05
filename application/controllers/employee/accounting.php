@@ -1430,9 +1430,9 @@ class Accounting extends CI_Controller {
         $post['where']['taxpro_gstr2a_data.is_mapped'] =  0;
         //$post['where']['NOT EXISTS(select taxpro_checksum from vendor_partner_invoices where vendor_partner_invoices.taxpro_checksum = taxpro_gstr2a_data.checksum)'] =  NULL;
         $post['column_order'] = array('taxpro_gstr2a_data.invoice_date',NULL);
-        $post['column_search'] = array('service_centres.company_name', 'taxpro_gstr2a_data.gst_no');
+        $post['column_search'] = array('service_centres.company_name', 'taxpro_gstr2a_data.gst_no', 'taxpro_gstr2a_data.invoice_number');
         
-        $select = "taxpro_gstr2a_data.*, service_centres.company_name, service_centres.id as vendor_id";
+        $select = "taxpro_gstr2a_data.*, service_centres.company_name, service_centres.name, service_centres.id as vendor_id";
         $list = $this->accounting_model->get_gstr2a_mapping_details($post, $select);
         //log_message("info", __METHOD__." query ". json_encode($this->db->last_query(), TRUE));
         $data = array();
@@ -1473,7 +1473,7 @@ class Accounting extends CI_Controller {
         $row = array();
         $row[] = $no;
         $row[] = $data_list['invoice_number'];
-        $row[] = "<a href='".base_url()."employee/invoice/invoice_summary/vendor/".$data_list['vendor_id']."' target='_blank'>".$data_list['company_name']."</a>";
+        $row[] = "<a href='".base_url()."employee/invoice/invoice_summary/vendor/".$data_list['vendor_id']."' target='_blank'>".$data_list['name']."</a>";
         $row[] = $data_list['gst_no'];
         $row[] = $data_list['invoice_date'];
         $row[] = $data_list['igst_amount'];
@@ -1492,7 +1492,7 @@ class Accounting extends CI_Controller {
         $cn_btn = '<button class="btn btn-primary btn-sm" style="margin-right:5px" data-id="'.$data_list['id'].'" data-checksum="'.$data_list['checksum'].'" onclick="generate_credit_note('.$no.', this)" disabled>Generate CN</button>';
         $row[] = $html;
         $row[] = $cn_btn;
-        $row[] = "<a class='btn btn-warning btn-sm' onclick='reject(".$data_list['id'].")'>Reject</a>";
+        $row[] = "<a class='btn btn-warning btn-sm' onclick='reject(".$data_list['id'].")'  data-toggle='modal' data-target='#myModal'>Reject</a>";
         return $row;
     }
     
@@ -1503,7 +1503,8 @@ class Accounting extends CI_Controller {
      */
     function reject_taxpro_gstr2a(){ 
         $id = $this->input->post('id');
-        echo $this->accounting_model->update_taxpro_gstr2a_data($id, array('is_rejected'=>1));
+        $remarks = $this->input->post('remarks');
+        echo $this->accounting_model->update_taxpro_gstr2a_data($id, array('is_rejected'=>1, 'reject_remarks'=>$remarks));
     }
     /**
      * @desc This function is used to update flag for credit note generated against thie debit note
