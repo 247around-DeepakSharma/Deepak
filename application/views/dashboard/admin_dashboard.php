@@ -25,10 +25,10 @@
             <div class="x_panel">
                 <div class="x_title">
                     <h2>RM TAT Reporting</h2>
-                    <span class="collape_icon" href="#RM_TAT_Reporting" data-toggle="collapse" onclick=""><i class="fa fa-minus-square" aria-hidden="true"></i></span>
+                    <span class="collape_icon" href="#RM_TAT_Reporting" data-toggle="collapse" onclick="initiate_RM_TAT_Reporting()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
-                <div id="RM_TAT_Reporting" class="collapse in">
+                <div id="RM_TAT_Reporting" class="collapse">
                 <div class="table-responsive" id="escalation_data" ng-controller="completedBooking_Controller" ng-cloak="">
                     <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 160px;">
                         <div class="item form-group">
@@ -145,10 +145,10 @@
                         </div>
                     </div>
                     <div class="col-md-1">
-                        <span class="collape_icon" href="#chart_container_div" data-toggle="collapse" onclick="" style="margin-right: 8px;"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
+                        <span class="collape_icon" href="#chart_container_div" data-toggle="collapse" onclick="initiate_partner_chart_reporting()" style="margin-right: 8px;"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     </div>
                 </div>
-                <div class="collapse in" id="chart_container_div">
+                <div class="collapse" id="chart_container_div">
                 <div class="col-md-12 x_content">
                     <center><img id="loader_gif1" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
                     <div id="chart_container" class="chart_container"></div>
@@ -778,22 +778,6 @@
             placement : 'top',
             trigger : 'hover'
         });
-        
-        var d = new Date();
-        n = d.getMonth();
-        y = d.getFullYear();
-        date = d.getDate();
-        // $('input[name="daterange_completed_bookings"]').daterangepicker({
-        $('input[id="completed_daterange_id"]').daterangepicker({
-            timePicker: true,
-            timePickerIncrement: 30,
-            locale: {
-                format: 'YYYY-MM-DD'
-            },
-            startDate: y+'-'+n+'-'+date
-        });
-        
-        partner_booking_status(start.format('MMMM D, YYYY'), end.format('MMMM D, YYYY'));
         //top count data
         get_query_data();
         //missing pincode data
@@ -826,6 +810,26 @@
             },
             startDate: y+'-'+n+'-'+date
         });
+    }
+    
+    function initiate_RM_TAT_Reporting(){
+        var d = new Date();
+        n = d.getMonth();
+        y = d.getFullYear();
+        date = d.getDate();
+        // $('input[name="daterange_completed_bookings"]').daterangepicker({
+        $('input[id="completed_daterange_id"]').daterangepicker({
+            timePicker: true,
+            timePickerIncrement: 30,
+            locale: {
+                format: 'YYYY-MM-DD'
+            },
+            startDate: y+'-'+n+'-'+date
+        });
+    }
+    
+    function initiate_partner_chart_reporting(){
+        partner_booking_status(start.format('MMMM D, YYYY'), end.format('MMMM D, YYYY'));
     }
    
     function agent_daily_report_call(){ 
