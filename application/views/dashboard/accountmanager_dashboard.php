@@ -25,10 +25,10 @@
           <div class="x_panel">
                 <div class="x_title">
                     <h2>AM TAT Reporting</h2>
-                     <span class="collape_icon" href="#escalation_data" data-toggle="collapse" style="margin-right: 8px;"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
+                    <span class="collape_icon" href="#escalation_data" data-toggle="collapse" style="margin-right: 8px;" onclick="initiate_am_tat_report()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
-                <div class="table-responsive collapse in" id="escalation_data" ng-controller="completedBooking_ControllerAM" ng-cloak="">
+                <div class="table-responsive collapse" id="escalation_data" ng-controller="completedBooking_ControllerAM" ng-cloak="">
                     <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 160px;">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
@@ -134,11 +134,11 @@
                 <div class="x_panel">
                 <div class="x_title">
                     <h2>RM TAT Reporting</h2>
-                    <span class="collape_icon" href="#RM_completed_booking_reports_div" data-toggle="collapse"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
+                    <span class="collape_icon" href="#RM_completed_booking_reports_div" data-toggle="collapse" onclick="initiate_rm_tat_report()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                    
                     <div class="clearfix"></div>
                 </div>
-                <div class="x_content collapse in" id="RM_completed_booking_reports_div">
+                <div class="x_content collapse" id="RM_completed_booking_reports_div">
                 <div class="table-responsive" id="escalation_data" ng-controller="completedBooking_Controller" ng-cloak="">
  <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 160px;">
                     <div class="item form-group">
@@ -645,8 +645,8 @@
     
     }
     
-    $(function() {
-     var d = new Date();
+function initiate_am_tat_report(){
+         var d = new Date();
         n = d.getMonth();
         y = d.getFullYear();
         date = d.getDate();
@@ -657,8 +657,9 @@
                 format: 'YYYY-MM-DD'
             },
             startDate: y+'-'+n+'-'+date
-        });
-    
+        }); 
+}
+function initiate_rm_tat_report(){
         var dvSecond = document.getElementById('rm_dashboard_app');
         angular.element(document).ready(function() {
             angular.bootstrap(dvSecond, ['rm_dashboard']);
@@ -675,5 +676,5 @@
                 startDate: y+'-'+n+'-'+date
             });
         });
-});
+}
 </script>
