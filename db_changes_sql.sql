@@ -9268,3 +9268,7 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 UPDATE `email_template` SET `template` = '<b>TAXPRO GSP API FAIL</b><br/><p>%s</p><p>%s</p>' WHERE `email_template`.`tag` = 'taxpro_api_fail';
 ALTER TABLE `taxpro_gstr2a_data` CHANGE `invoice_date` `invoice_date` DATE NOT NULL;
 
+
+--Chhavi 1st November
+ALTER TABLE `booking_details` ADD `parent_booking` VARCHAR(128) NULL AFTER `is_in_process`;
+
