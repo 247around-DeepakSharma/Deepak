@@ -8,6 +8,7 @@
             </div>
         </div>
         <?php }?>
+        <?php $isModelMandatory =0 ; ?>
         <?php $required_sp_id = array(); $can_sp_id = array(); ?>
         <?php  $flag = 0; $requestedParts = false; if(isset($booking_history['spare_parts'])){ 
             foreach ($booking_history['spare_parts'] as  $value) {
