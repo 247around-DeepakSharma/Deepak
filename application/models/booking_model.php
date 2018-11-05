@@ -847,7 +847,7 @@ class Booking_model extends CI_Model {
     /*
      * @desc: This method return Price details. It filters according to service id, category, capacity, partner id
      */
-    function getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, $brand) {
+    function getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, $brand, $is_repeat = NULL) {
 
         $this->db->distinct();
         $this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable, pod, is_upcountry, vendor_basic_percentage, around_net_payable');
@@ -856,6 +856,10 @@ class Booking_model extends CI_Model {
         $this->db->where('active', 1);
         $this->db->where('check_box', 1);
         $this->db->where('partner_id', $partner_id);
+        if(!$is_repeat){
+            $where['service_category != "'.REPEAT_BOOKING_TAG.'"'] = NULL;
+            $this->db->where($where);
+        }
         //if($brand !=""){
             $this->db->where('brand', $brand);
         //}
@@ -2482,5 +2486,12 @@ class Booking_model extends CI_Model {
        $this->db->where_in("booking_id",$bookingArray);
        $this->db->update("booking_details",array("is_in_process"=>1));
        return $this->db->affected_rows();
+    }
+    function get_parent_child_sibling_bookings($bookingID){
+        $sql = "SELECT booking_details.booking_id,booking_details.parent_booking as parent,(SELECT GROUP_CONCAT(s.booking_id) FROM booking_details s WHERE s.parent_booking = booking_details.parent_booking"
+                . " AND s.booking_id != booking_details.booking_id) as siblings,(SELECT GROUP_CONCAT(c.booking_id) FROM booking_details c WHERE c.parent_booking = booking_details.booking_id) as child "
+                . "FROM booking_details WHERE booking_id = '".$bookingID."'";
+        $query = $this->db->query($sql);
+        return $query->result_array();
     }
 }

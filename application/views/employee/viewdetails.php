@@ -222,6 +222,21 @@
                             <td><?php if(isset($booking_history[0]['dealer_id'])) echo $booking_history[0]['dealer_phone_number_1']; ?></td>
                         </tr>
                     </table>
+                    <table class="table  table-striped table-bordered" id="relative_holder" style="display:none;">
+                        <tr>
+                            <th colspan="3" style="font-size: 16px; color: #2c9d9c;">Booking Relatives</th>
+                        </tr> 
+                        <tr>
+                            <th style="width: 25%;">Parent </th>
+                            <th style="width: 21%;">Child</th>
+                            <th style="width: 21%;">Siblings</th>
+                        </tr>
+                        <tr>
+                            <td style="width: 23%;" id="parent_holder"><center><img  src="<?php echo base_url(); ?>images/loadring.gif" ></center></td>
+                            <td style="width: 23%;" id="child_holder"><center><img  src="<?php echo base_url(); ?>images/loadring.gif" ></center></td>
+                            <td style="width: 23%;" id="sibling_holder"><center><img  src="<?php echo base_url(); ?>images/loadring.gif" ></center></td>
+                        </tr>
+                    </table>
                 </div>
             </div>
         </div>
@@ -1186,7 +1201,42 @@ function sf_tab_active(){
                     $('#booking_history').html(response);
                 }
             });
+            get_booking_relatives();
     });
+        function get_booking_relatives(){
+            $.ajax({
+                method:"POST",
+                data : {},
+                url:'<?php echo base_url(); ?>employee/booking/get_booking_relatives/<?php echo $booking_history[0]['booking_id']; ?>',
+                success: function(res){
+                    if(res){
+                    $("#relative_holder").show();
+                    var obj = JSON.parse(res);
+                    parent_string = child_string = sibling_string = "NULL";
+                    if(obj.parent){
+                        parent_string = "<a href = '<?php echo base_url(); ?>employee/booking/viewdetails/"+obj.parent+"' target = '_blank'>"+obj.parent+"</a>";
+                    }
+                    if(obj.siblings){
+                        sibling_string ="";
+                        sibling_array = obj.siblings.split(",");
+                        for(var i = 0;i<sibling_array.length;i++){
+                            sibling_string = sibling_string+(i+1)+") <a href = '<?php echo base_url(); ?>employee/booking/viewdetails/"+sibling_array[i]+"' target = '_blank'>"+sibling_array[i]+"</a><br>";
+                        }
+                    }
+                    if(obj.child){
+                        child_string ="";
+                        child_array = obj.child.split(",");
+                        for(var i = 0;i<child_array.length;i++){
+                            child_string = child_string+(i+1)+") <a href = '<?php echo base_url(); ?>employee/booking/viewdetails/"+child_array[i]+"' target = '_blank'>"+child_array[i]+"</a><br>";
+                        }
+                    }
+                    $('#parent_holder').html(parent_string);
+                    $('#sibling_holder').html(sibling_string);
+                    $('#child_holder').html(child_string);
+                }
+             }
+            });
+        }
     
 </script>
 <script>

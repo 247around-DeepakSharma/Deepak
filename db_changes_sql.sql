@@ -9285,3 +9285,6 @@ ALTER TABLE `taxpro_gstr2a_data` CHANGE `invoice_date` `invoice_date` DATE NOT N
 
 ALTER TABLE `invoice` ADD `vertical` VARCHAR(255) NOT NULL AFTER `remarks`, ADD `category` VARCHAR(255) NOT NULL AFTER `vertical`, ADD `sub_category` VARCHAR(255) NOT NULL AFTER `category`, ADD `accounting` TINYINT(1) NOT NULL AFTER `sub_category`;
 
+--Chhavi 1st November
+ALTER TABLE `booking_details` ADD `parent_booking` VARCHAR(128) NULL AFTER `is_in_process`;
+

@@ -290,7 +290,7 @@ function get_data_for_partner_callback($booking_id) {
     /**
      * @desc: This method gets price details for partner
      */
-    function getPrices($service_id, $category, $capacity, $partner_id, $service_category,$brand ="", $not_like = TRUE) {
+    function getPrices($service_id, $category, $capacity, $partner_id, $service_category,$brand ="", $not_like = TRUE,$is_repeat = NULL) {
 	$this->db->distinct();
 	$this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable, pod, is_upcountry, vendor_basic_percentage');
 	$this->db->where('service_id', $service_id);
@@ -298,6 +298,10 @@ function get_data_for_partner_callback($booking_id) {
 	$this->db->where('active', 1);
 	$this->db->where('check_box', 1);
 	$this->db->where('partner_id', $partner_id);
+        if(!$is_repeat){
+            $where['service_category != "'.REPEAT_BOOKING_TAG.'"'] = NULL;
+            $this->db->where($where);
+        }
         if($service_category !=""){
             if($not_like){
                 $this->db->where('service_category', $service_category);
@@ -1283,7 +1287,7 @@ function get_data_for_partner_callback($booking_id) {
             $where_phone = "AND (`booking_primary_contact_no` = '$searched_text' OR `booking_alternate_contact_no` = '$searched_text' OR `booking_id` LIKE '%$searched_text%')";
       
        
-            $sql = "SELECT `booking_id`,`booking_date`,`booking_timeslot` ,`order_id` , users.name as customername, users.phone_number, services.services, current_status, assigned_engineer_id "
+            $sql = "SELECT `booking_id`,`booking_date`,`booking_timeslot` ,`order_id` , users.name as customername, users.phone_number, services.services, current_status, assigned_engineer_id,date(closed_date) as closed_date "
                     . " FROM `booking_details`,users, services "
                     . " WHERE users.user_id = booking_details.user_id "
                     . " AND services.id = booking_details.service_id "
