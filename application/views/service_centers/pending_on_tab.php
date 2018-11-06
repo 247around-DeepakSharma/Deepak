@@ -382,7 +382,7 @@
                                         <th class="text-center" data-orderable="false">Cancel</th>
                                         <th class="text-center" data-orderable="false">Complete</th>
                                         <th class="text-center" data-orderable="false">JobCard</th>
-<!--                                         <th class="text-center" data-orderable="false">Helper <br> Document</th>-->
+                                        <th class="text-center" data-orderable="false">Helper <br> Document</th>
                                     </tr>
                                 </thead>
                                 <tbody>
