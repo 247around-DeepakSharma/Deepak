@@ -1736,11 +1736,14 @@ class Booking_model extends CI_Model {
      *
      */
     function get_booking_state_change_by_id($booking_id){
-        $trimed_booking_id = preg_replace("/[^0-9]/","",$booking_id);
+        $bookingIDArray[] = $booking_id;
+        if (strpos($booking_id, 'Q-') === false) {
+            $bookingIDArray[] = "Q-".$booking_id;
+        }
         $this->db->select('booking_state_change.agent_id,booking_state_change.partner_id,'
                 . ' booking_state_change.service_center_id,booking_state_change.old_state,'
                 . ' booking_state_change.new_state,booking_state_change.remarks,booking_state_change.create_date');
-        $this->db->like('booking_state_change.booking_id',$trimed_booking_id);
+        $this->db->where_in('booking_state_change.booking_id', $bookingIDArray);
         $this->db->from('booking_state_change');
        
         $this->db->order_by('booking_state_change.id');
@@ -1905,9 +1908,12 @@ class Booking_model extends CI_Model {
      * 
      */
     function get_sms_sent_details($booking_id){
-        $trimed_booking_id = preg_replace("/[^0-9]/","",$booking_id);
+        $bookingIDArray[] = $booking_id;
+        if (strpos($booking_id, 'Q-') === false) {
+            $bookingIDArray[] = "Q-".$booking_id;
+        }
         $this->db->select('*');
-        $this->db->like('booking_id',$trimed_booking_id);
+        $this->db->where_in('booking_id', $bookingIDArray);
         $query = $this->db->get('sms_sent_details');
         return $query->result_array();
     } 
