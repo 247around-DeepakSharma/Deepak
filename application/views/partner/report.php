@@ -295,7 +295,7 @@
         var timeDiff = Math.abs(endDateObj.getTime() - startDateObj.getTime());
         var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
         if(diffDays>30){
-            alert("Please select date range less then 30 days");
+            alert("Maximum range allowed is 1 month");
         }
         else{
             var status = $('#status').val();
