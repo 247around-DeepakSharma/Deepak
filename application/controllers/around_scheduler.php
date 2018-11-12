@@ -304,6 +304,7 @@ class Around_scheduler extends CI_Controller {
 
             $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
 
+            $this->miscelleneous->process_booking_tat_on_completion($booking_id);
             //Log this state change as well for this booking
             $this->notify->insert_state_change($booking_id, $data['current_status'], _247AROUND_FOLLOWUP, $data['cancellation_reason'], '1', '247around',ACTOR_BOOKING_CANCELLED,
                     NEXT_ACTION_CANCELLED_BOOKING, _247AROUND);
