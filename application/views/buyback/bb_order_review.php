@@ -33,21 +33,22 @@
                                 <tr>
                                     <th>No.</th>
                                     <th>Order ID</th>
+                                    <th>Tracking ID</th>
                                     <th>CP Name</th>
                                     <th>Category</th>
                                     <th>Brand</th>
-                                    <th>Physical Condition</th>
-                                    <th>Working condition</th>
+<!--                                    <th>Physical Condition</th>
+                                    <th>Working condition</th>-->
                                     <th>CP Claimed Price</th>
                                     <th>Internal Status</th>
                                     <th>Remarks</th>
                                     <th>View Image</th>
-                                    <th>
+                                    <th>Reject</th>
+                                    <th>Approve</th>
+                                                                        <th>
                                         Select Order 
                                         <input type="checkbox" id="check_all_row_to_approve_reject">
                                     </th>
-                                    <th>Reject</th>
-                                    <th>Approve</th>
                                 </tr>
                             </thead>
                             <tbody>
