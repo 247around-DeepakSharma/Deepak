@@ -1785,7 +1785,11 @@ function get_tat_conditions_by_filter($startDate=NULL,$endDate=NULL,$status="not
             else if($this->session->userdata('userType') == 'partner'){
                 $this->miscelleneous->load_partner_nav_header();
             }
-            $this->load->view('dashboard/tat_calculation_full_view',array('state' => $stateData,'sf'=>$sfData,'partners'=>$partners,'rmID'=>$rmID,'filters'=>$this->input->post(),'services'=>$services,"is_am"=>$is_am));
+            $service_center_state = $this->reusable_model->get_search_result_data("service_centres","id,state",NULL,NULL,NULL,NULL,NULL,NULL,array());
+            foreach($service_center_state as $sfState){
+                $sfStateArray["sf_".$sfState['id']] = $sfState['state'];
+            }
+            $this->load->view('dashboard/tat_calculation_full_view',array('state' => $stateData,'sf'=>$sfData,'partners'=>$partners,'rmID'=>$rmID,'filters'=>$this->input->post(),'services'=>$services,"is_am"=>$is_am,'sf_state'=>$sfStateArray));
             $this->load->view('dashboard/dashboard_footer');   
         }
         else{
