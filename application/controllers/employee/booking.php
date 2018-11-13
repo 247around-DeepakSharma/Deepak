@@ -4648,4 +4648,13 @@ class Booking extends CI_Controller {
             echo "<p style= 'text-align: center;background: #f35b5b;color: white;font-size: 20px;'>There is an open Repeat booking (".$openBookings[0]['booking_id'].") for ".$booking_id." , Untill repeat booking is not closed you can not create new repeat booking</p>";
         }
     }
+    function get_booking_relatives($booking_id){
+        $relativeData = $this->booking_model->get_parent_child_sibling_bookings($booking_id);
+        if(!empty($relativeData)){
+            echo  json_encode($relativeData[0]);
+        }
+        else{
+            echo false;
+        }
+    }
 }
