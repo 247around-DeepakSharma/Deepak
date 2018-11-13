@@ -4050,8 +4050,8 @@ function get_shipped_parts_list($offset = 0) {
 //            if (strpos($type, 'mp4') === false) {
 //                $this->session->set_userdata('error', "Only Mp4 is allowed for video type file");
 //                return false;
-//            }
-            if($file['size']>10000000){
+//            }         
+            if($file['size']>100000000){
                 $this->session->set_userdata('error', "Video File Size Must be less then 100MB");
                 return false;
             }
@@ -4061,13 +4061,13 @@ function get_shipped_parts_list($offset = 0) {
 //                $this->session->set_userdata('error', "Only Mp3 is allowed for audio type file");
 //                return false;
 //            }
-            if($file['size']>5000000){
+            if($file['size']>50000000){
                 $this->session->set_userdata('error', "Audio File Size Must be less then 50MB");
                 return false;
             }
         }
        else if (strpos($type, 'pdf') !== false) {
-            if($file['size']>5000000){
+            if($file['size']>50000000){
                 $this->session->set_userdata('error', "Pdf File Size Must be less then 50MB");
                 return false;
             }
