@@ -31,11 +31,11 @@
                         <div class="col-md-10">
 
                             <div class="checkbox" style="display: inline; margin-left: 8px;">
-                                <label><input type="checkbox" value="Owner" id="vendor_owner" name="vendor_owner" checked>SF Owner</label>
+                                <label><input type="checkbox" id="vendor_owner" name="vendor_owner" checked>SF Owner</label>
                             </div>
 
                             <div class="checkbox" style="display: inline;">
-                                <label><input type="checkbox" value="POC" id="venor_poc" name="venor_poc">SF POC</label>
+                                <label><input type="checkbox" id="venor_poc" name="venor_poc">SF POC</label>
                             </div>
 
                         </div>
@@ -74,6 +74,10 @@
 <script>
 	function validate()
 	{
+            if($('#venor_poc').is(":checked") == false && $('#vendor_owner').is(":checked") == false){
+                alert("Please select SF Owner or SF POC.");
+                return false;
+            }
             if($("#mail_body").val()) {
             } else {
                 alert("Please type your message.");
