@@ -449,7 +449,8 @@ class Service_centers extends CI_Controller {
 //        }
         $part = implode(",", $part_name);
         $email_template = $this->booking_model->get_booking_email_template("partner_spare_cancelled");
-        $to = $get_partner_details[0]['primary_contact_email'] . "," . $get_partner_details[0]['owner_email'];
+        //$to = $get_partner_details[0]['primary_contact_email'] . "," . $get_partner_details[0]['owner_email'];
+        $to = $get_partner_details[0]['primary_contact_email'];            
         $cc = "";
         $subject = vsprintf($email_template[4], array($part,$booking_id));
         $message = vsprintf($email_template[0], array($part,$booking_id));

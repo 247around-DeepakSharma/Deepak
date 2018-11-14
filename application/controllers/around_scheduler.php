@@ -304,6 +304,7 @@ class Around_scheduler extends CI_Controller {
 
             $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
 
+            $this->miscelleneous->process_booking_tat_on_completion($booking_id);
             //Log this state change as well for this booking
             $this->notify->insert_state_change($booking_id, $data['current_status'], _247AROUND_FOLLOWUP, $data['cancellation_reason'], '1', '247around',ACTOR_BOOKING_CANCELLED,
                     NEXT_ACTION_CANCELLED_BOOKING, _247AROUND);
@@ -2037,7 +2038,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                 $email_from = $email_template[2];
                 $to = $vendor_value->owner_email.",".$vendor_value->primary_contact_email;
                 $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID;
-                $this->notify->sendEmail($email_from, $to, $cc, '', $subject, $message, '', CN_AGAINST_GST_DN);
+                $this->notify->sendEmail($email_from, $to, $cc, '', $subject, $message, '', VENDOR_GST_RETURN_WARNING);
             }
         }
     }

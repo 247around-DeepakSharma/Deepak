@@ -962,7 +962,9 @@ EOD;
             $sf_list = $this->vendor_model->get_employee_relation($id);
             if (!empty($sf_list)) {
                 $sf_list = $sf_list[0]['service_centres_id'];
-                $where = "AND service_centres.id IN (" . $sf_list . ")";
+                $service_center_array = explode(",",$sf_list);
+                $sc_id = implode("','",$service_center_array);
+                $where = "AND service_centres.id IN ('" . $sc_id . "')";
             }
             $data['data'] = $this->reporting_utils->get_sc_crimes($where);
             $this->miscelleneous->load_nav_header();
@@ -1196,7 +1198,9 @@ EOD;
             $sf_list = $this->vendor_model->get_employee_relation($value['id']);
             if (!empty($sf_list)) {
                 $sf_list = $sf_list[0]['service_centres_id'];
-                $where = "AND service_centres.id IN (" . $sf_list . ")";
+                $service_center_array = explode(",",$sf_list);
+                $sc_id = implode("','",$service_center_array);
+                $where = "AND service_centres.id IN ('" . $sc_id . "')";
             }
             //Getting Crimes for particular RM for its corresponding SF
             $data[$value['id']] = $this->reporting_utils->get_sc_crimes($where);
@@ -1303,7 +1307,9 @@ EOD;
             $sf_list = $this->vendor_model->get_employee_relation($value['id']);
             if (!empty($sf_list)) {
                 $sf_list = $sf_list[0]['service_centres_id'];
-                $where = "AND service_centres.id IN (" . $sf_list . ")";
+                $service_center_array = explode(",",$sf_list);
+                $sc_id = implode("','",$service_center_array);
+                $where = "AND service_centres.id IN ('" . $sc_id . "')";
             }
             //Getting Crimes for particular RM for its corresponding SF
             $data[$value['id']] = $this->reporting_utils->get_sc_crimes($where);

@@ -32,17 +32,18 @@
         </div>
     </div>
     <!-- /top tiles -->
+    <div id ='admin_dashboard_app_rm' style="display:none;">
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
                 <div class="x_panel">
                 <div class="x_title">
                     <h2>RM TAT Reporting</h2>
 
-                    <span class="collape_icon" href="#RM_completed_booking_reports_div" data-toggle="collapse" onclick="collapse_icon_change(this)"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
+                    <span class="collape_icon" href="#RM_completed_booking_reports_div" data-toggle="collapse" onclick="initialise_RM_TAT_reporting(this)"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                    
                     <div class="clearfix"></div>
                 </div>
-                <div class="x_content collapse in" id="RM_completed_booking_reports_div">
+                <div class="x_content collapse" id="RM_completed_booking_reports_div">
                 <div class="table-responsive" id="escalation_data" ng-controller="completedBooking_Controller" ng-cloak="">
  <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 160px;">
                     <div class="item form-group">
@@ -145,6 +146,7 @@
     </div>            
     </div>   
     </div>
+        </div>
     <!-- Booking Report Start-->
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
@@ -623,6 +625,7 @@ if($this->session->userdata("wrong_pincode_msg")){
     };
     $(document).ready(function () {
         $("#admin_dashboard_app").css("display", "inline");
+        $("#admin_dashboard_app_rm").css("display", "inline");
         //top count data
         get_query_data();
         //company monthly data
@@ -848,21 +851,6 @@ if($this->session->userdata("wrong_pincode_msg")){
         });
     
     }
-    $(function() {
-        var d = new Date();
-         n = d.getMonth();
-         y = d.getFullYear();
-         date = d.getDate();
-         $('input[name="daterange_completed_bookings"]').daterangepicker({
-              timePicker: true,
-             timePickerIncrement: 30,
-             locale: {
-                 format: 'YYYY-MM-DD'
-             },
-             startDate: y+'-'+n+'-'+date
-        });
-       
-    });
     
     function initialise_AM_TAT_reporting(){
             var dvSecond = document.getElementById('admin_dashboard_app');
@@ -880,6 +868,21 @@ if($this->session->userdata("wrong_pincode_msg")){
                 },
                 startDate: y+'-'+n+'-'+date
             });
+        });
+    }
+    
+     function initialise_RM_TAT_reporting(){
+        var d = new Date();
+         n = d.getMonth();
+         y = d.getFullYear();
+         date = d.getDate();
+         $('input[name="daterange_completed_bookings"]').daterangepicker({
+              timePicker: true,
+             timePickerIncrement: 30,
+             locale: {
+                 format: 'YYYY-MM-DD'
+             },
+             startDate: y+'-'+n+'-'+date
         });
     }
 </script>

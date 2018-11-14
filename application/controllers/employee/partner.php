@@ -883,7 +883,7 @@ class Partner extends CI_Controller {
         $results['partner_contracts'] = $this->reusable_model->get_search_result_data("collateral", 'collateral.document_description,collateral.file,collateral.is_file,collateral.start_date,collateral.model,'
                 . 'collateral.end_date,collateral_type.collateral_type,collateral_type.collateral_tag,services.services,collateral.brand,collateral.category,collateral.capacity,'
                 . 'collateral_type.document_type,collateral.request_type',
-                array("entity_id" => $id, "entity_type" => "partner","is_valid"=>1), array("collateral_type" => "collateral_type.id=collateral.collateral_id","services"=>"services.id=collateral.appliance_id"), 
+                array("entity_id" => $id, "entity_type" => "partner","is_valid"=>0), array("collateral_type" => "collateral_type.id=collateral.collateral_id","services"=>"services.id=collateral.appliance_id"), 
                 NULL, NULL, NULL, array('services'=>'LEFT'));
         $results['collateral_type'] = $this->reusable_model->get_search_result_data("collateral_type", '*', array("collateral_tag" => "Contract"), NULL, NULL, array("collateral_type" => "ASC"), NULL, NULL);
         $employee_list = $this->employee_model->get_employee_by_group(array("groups NOT IN ('developer') AND active = '1'" => NULL));
@@ -1389,7 +1389,7 @@ class Partner extends CI_Controller {
      * @desc: This is used to load update booking form
      * @param String $booking_id
      */
-    function get_editbooking_form($booking_id) {
+    function get_editbooking_form($booking_id , $is_repeat = NULL) {
         log_message('info', __FUNCTION__ . " Booking Id: " . $booking_id);
         $this->checkUserSession();
 
@@ -1433,6 +1433,7 @@ class Partner extends CI_Controller {
                     $data['dealer_data'] = $dealer_data[0];
                 }
             }
+            $data['is_repeat'] = $is_repeat;
             $this->miscelleneous->load_partner_nav_header();
             //$this->load->view('partner/header');
             $this->load->view('partner/edit_booking', $data);
@@ -2285,6 +2286,7 @@ class Partner extends CI_Controller {
         $partner_id = $this->input->post('partner_id');
         $service_id = $this->input->post('service_id');
         $appliace_brand = $this->input->post('brand');
+        $is_repeat = $this->input->post('is_repeat');
         $partner_data = $this->partner_model->get_partner_code($partner_id);
         $partner_type = $partner_data[0]['partner_type'];
         if ($partner_type == OEM) {
@@ -2300,6 +2302,9 @@ class Partner extends CI_Controller {
             $option .= "<option ";
             if ($appliace_brand == $value['brand_name']) {
                 $option .= " selected ";
+            }
+            else{
+                $option .= 'disabled';
             }
             $option .= " value='" . $value['brand_name'] . "'>" . $value['brand_name'] . "</option>";
         }
@@ -2345,6 +2350,9 @@ class Partner extends CI_Controller {
                 $option .= " selected ";
             } else if (count($data) == 1) {
                 $option .= " selected ";
+            }
+            else{
+                $option .= " disabled ";
             }
             $option .= " value='" . $value['category'] . "'>" . $value['category'] . "</option>";
         }
@@ -2392,6 +2400,9 @@ class Partner extends CI_Controller {
             } else if (count($data) == 1) {
                 $capacity .= " selected ";
             }
+            else{
+                $capacity .= 'disabled';
+            }
             $capacity .= " value='" . $value['capacity'] . "'>" . $value['capacity'] . "</option>";
         }
 
@@ -2432,6 +2443,9 @@ class Partner extends CI_Controller {
                     $model .= " selected ";
                 } else if (count($data) == 1) {
                     $model .= " selected ";
+                }
+                else{
+                     $model .= " disabled ";
                 }
                 $model .= " value='" . $value['model'] . "'>" . $value['model'] . "</option>";
             }
@@ -2746,12 +2760,13 @@ class Partner extends CI_Controller {
         $booking_id = $this->input->post('booking_id');
         $partner_type = $this->input->post('partner_type');
         $assigned_vendor_id = $this->input->post("assigned_vendor_id");
+        $is_repeat = $this->input->post("is_repeat");
         $result = array();
 
         if ($partner_type == OEM) {
-            $result = $this->partner_model->getPrices($service_id, $category, $capacity, $partner_id, "", $brand);
+            $result = $this->partner_model->getPrices($service_id, $category, $capacity, $partner_id, "", $brand,TRUE,$is_repeat);
         } else {
-            $result = $this->partner_model->getPrices($service_id, $category, $capacity, $partner_id, "", "");
+            $result = $this->partner_model->getPrices($service_id, $category, $capacity, $partner_id, "", "",TRUE,$is_repeat);
         }
         if (!empty($result)) {
             $p_where = array('id' => $partner_id);
@@ -2801,10 +2816,15 @@ class Partner extends CI_Controller {
                 $html .= "<td><input type='hidden'name ='is_up_val' id='is_up_val_" . $i . "' value ='" . $prices['is_upcountry'] . "' /><input class='price_checkbox'";
                 $html .= " type='checkbox' id='checkbox_" . $i . "'";
                 $html .= "name='prices[]'";
-                if (in_array($prices['service_category'], $explode)) {
+                if (in_array($prices['service_category'], $explode) && !$is_repeat) {
                     $html .= " checked ";
                 }
-                
+               else if($is_repeat){
+                    if($prices['service_category'] ==  REPEAT_BOOKING_TAG){
+                        $html.= " checked ";
+                        $html.=  "style= 'pointer-events: none;'";
+                    }
+                }
                 if($prices['service_category'] == REPAIR_OOW_PARTS_PRICE_TAGS ){
                     if($customer_net_payable == 0 ){
                         $html .= " disabled onclick='return false;' ";
@@ -4049,8 +4069,8 @@ class Partner extends CI_Controller {
 //            if (strpos($type, 'mp4') === false) {
 //                $this->session->set_userdata('error', "Only Mp4 is allowed for video type file");
 //                return false;
-//            }
-            if($file['size']>10000000){
+//            }         
+            if($file['size']>100000000){
                 $this->session->set_userdata('error', "Video File Size Must be less then 100MB");
                 return false;
             }
@@ -4060,13 +4080,13 @@ class Partner extends CI_Controller {
 //                $this->session->set_userdata('error', "Only Mp3 is allowed for audio type file");
 //                return false;
 //            }
-            if($file['size']>5000000){
+            if($file['size']>50000000){
                 $this->session->set_userdata('error', "Audio File Size Must be less then 50MB");
                 return false;
             }
         }
        else if (strpos($type, 'pdf') !== false) {
-            if($file['size']>5000000){
+            if($file['size']>50000000){
                 $this->session->set_userdata('error', "Pdf File Size Must be less then 50MB");
                 return false;
             }
@@ -6158,5 +6178,29 @@ function update_channel($id) {
                 }
             }
         }
+        /**
+     *  @desc : This function is to create Repeat booking
+     *  We have already made a function to get_edit_booking_form, this method use that function to insert booking by parent booking
+     *  @param : Parent booking ID
+     */
+    function get_repeat_booking_form($booking_id) {
+         log_message('info', __FUNCTION__ . " Booking ID  " . print_r($booking_id, true));
+        $openBookings = $this->reusable_model->get_search_result_data("booking_details","booking_id",array("parent_booking"=>$booking_id),NULL,NULL,NULL,NULL,NULL,array());
+        if(empty($openBookings)){
+            $this->get_editbooking_form($booking_id,"Repeat");
+        }
+        else{
+            echo "<p style= 'text-align: center;background: #f35b5b;color: white;font-size: 20px;'>There is an open Repeat booking (".$openBookings[0]['booking_id'].") for ".$booking_id." , Untill repeat booking is not closed you can not create new repeat booking</p>";
+        }
+    }
+    function get_booking_relatives($booking_id){
+        $relativeData = $this->booking_model->get_parent_child_sibling_bookings($booking_id);
+        if(!empty($relativeData)){
+            echo  json_encode($relativeData[0]);
+        }
+        else{
+            echo false;
+        }
+    }
 }
 

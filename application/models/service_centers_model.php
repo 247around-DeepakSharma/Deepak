@@ -748,6 +748,7 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
                 $where['appliance_id'] = $bookingData['service_id'];
                 $where['request_type'] = $bookingData['request_type'];
                 $where['brand'] = $bookingData['appliance_brand'];
+                $where['is_valid'] = 0;
                 if($bookingData['appliance_category']){
                     $where['category'] = $bookingData['appliance_category'];
                 }

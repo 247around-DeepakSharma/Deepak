@@ -139,6 +139,9 @@
                     class="btn btn-sm btn-info">
                         <i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i>
                 </button>
+                <button type="button" onclick="model_for_sms('<?php echo $row['primary_contact_phone_1']; ?>', '<?php echo $row['id']?>')" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#msg_poc">
+                        <i class = 'fa fa-envelope' aria-hidden = 'true'></i>
+               </button>
           	</td>
                 <td><a href="mailto:<?php echo $row['owner_email'];?>" data-toggle="popover" data-trigger="hover" data-content="Send Mail to Owner"><?=$row['owner_name'];?></a></td>
           	<td>
@@ -308,6 +311,36 @@
     </div>
   </div>
   
+   <!-- This model is used send SMS to POC -->
+    <div id="msg_poc" class="modal fade" role="dialog">
+     <div class="modal-dialog">
+
+       <!-- Modal content-->
+       <div class="modal-content">
+        <div class="modal-header">
+           <button type="button" class="close" data-dismiss="modal">&times;</button>
+           <h4 class="modal-title" align="center">Send SMS to POC(<span id="poc_phone_no"></span>)</h4>
+            </div>
+           <div class="modal-body" style="min-height: 110px;">
+            <form class="form-horizontal" action="#">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label for="Description">Message</label>
+                        <textarea class="form-control" placeholder="Enter Message" id="poc_msg" maxlength="160"></textarea>
+                        <input type="hidden" id="sms_vendor_id" name="sms_vendor_id">
+                    </div>
+                </div>
+            </form>
+         </div>
+         <div class="modal-footer">
+             <button type="button" class="btn btn-success" onclick="send_sms_to_poc()">Send</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+         </div>
+       </div>
+
+     </div>
+   </div>
+  
 </div>
  <script>
      function permanentVendorOff(vendorID){
@@ -368,4 +401,27 @@
                 }
             });
      }
+     
+      /** This function is used to send sms to poc  **/
+     function send_sms_to_poc(){
+        if($("#poc_msg").val()){
+            $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/vendor/send_sms_to_poc',
+                data: {phone_no: $("#poc_phone_no").text(), msg:$("#poc_msg").val(), sms_tag:'sms_to_vendor_poc', vendor_id:$("#sms_vendor_id").val()},
+                success: function(response) {
+                        alert("SMS sent to vendor poc");
+                        $("#msg_poc .close").click();
+                }
+            });
+        }
+        else{
+           alert("please enter message");
+        }
+     }
+     
+    function model_for_sms(phone_no, vendor_id){
+        $("#poc_phone_no").text(phone_no);
+        $("#sms_vendor_id").val(vendor_id);
+    }
      </script>
