@@ -5219,5 +5219,45 @@ class vendor extends CI_Controller {
             $this->load->view("employee/search_gst_number");
         }
     }
+
+    function send_broadcast_sms_to_vendors(){
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/send_broadcast_sms_to_vendors_form');
+    }
     
+    function process_broadcast_sms_to_vendors(){
+        $select = "id";
+        $vendor_owner = $this->input->post('vendor_owner');
+        $venor_poc = $this->input->post('venor_poc');
+        if($vendor_owner == 'Owner'){
+            $select .= ",owner_phone_1";
+        }
+        if($venor_poc == 'POC'){
+            $select .= ",primary_contact_phone_1";
+        }
+        $where = array('active'=> 1);
+        $vender_detail = $this->vendor_model->getVendorDetails($select, $where);
+        $sms_number = "";
+        $vendor_id = "";
+        foreach ($vender_detail as $key=>$value){
+            $vendor_id .= $value['id'].",";
+            if(isset($value['owner_phone_1'])){
+                $sms_number .= $value['owner_phone_1'].",";
+            }
+            if(isset($value['primary_contact_phone_1'])){
+                $sms_number .= $value['primary_contact_phone_1'].",";
+            }
+        }
+        $sms = array();
+        $sms['phone_no'] = rtrim($sms_number, ',');
+        $sms['smsData'] = $this->input->post('mail_body');
+        $sms['tag'] = BROADCAST_SMS_TO_VENDOR;
+        $sms['status'] = "";
+        $sms['booking_id'] = "";
+        $sms['type'] = "vendor";
+        $sms['type_id'] = rtrim($vendor_id, ',');
+        $this->notify->send_sms_msg91($sms);
+        $this->session->set_flashdata('success', "SMS Sent Successfully");
+        redirect(base_url() . 'employee/vendor/send_broadcast_sms_to_vendors');
+    }
 }
