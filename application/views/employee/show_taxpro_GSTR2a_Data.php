@@ -61,6 +61,9 @@
     </div>
 </div>
 <script>
+    $("#GSTR2a_table").bind("DOMSubtreeModified", function() {
+         $('#GSTR2a_table tr a.duplicate_row').each(function(){ $(this).closest('tr').css("background-color", "#90EE90");  });
+    });
     var GSTR2a_datatable;
     $(document).ready(function () {
          
@@ -68,8 +71,28 @@
        GSTR2a_datatable = $('#GSTR2a_table').DataTable({
             "processing": true, 
             "serverSide": true,
+            "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
             "order": [],
             "pageLength": 25,
+            dom: 'lBfrtip',
+             buttons: [
+                {
+                    extend: 'excel',
+                    text: '<span class="fa fa-file-excel-o"></span> Excel Export',
+                    pageSize: 'LEGAL',
+                    title: 'pending_bookings',
+                    exportOptions: {
+                       columns: [1,2,3,4,5,6,7,8,9,10,11],
+                        modifier : {
+                             // DataTables core
+                             order : 'index',  // 'current', 'applied', 'index',  'original'
+                             page : 'All',      // 'all',     'current'
+                             search : 'none'     // 'none',    'applied', 'removed'
+                         }
+                    }
+                    
+                }
+            ],
             "ajax": {
                 "url": "<?php echo base_url(); ?>employee/accounting/get_gst2ra_mapped_data",
                 "type": "POST",
@@ -82,6 +105,9 @@
                     "orderable": false 
                 }
             ],
+            fnInitComplete: function (oSettings, response) {
+              $('#GSTR2a_table tr a.duplicate_row').each(function(){ $(this).closest('tr').css("background-color", "#90EE90");  });
+            },
             "drawCallback": function (oSettings, response) {
                $(".invoice_select").select2();
             } 
