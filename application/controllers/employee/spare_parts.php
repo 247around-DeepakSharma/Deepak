@@ -801,7 +801,7 @@ class Spare_parts extends CI_Controller {
         $post['type'] = $this->input->post('type');
         $post['where']['is_shipped'] = $this->input->post("is_shipped");
         $post['where']['is_received'] = $this->input->post("is_received");
-        if ($this->input->post("sf_id")) {
+        if (!empty($this->input->post("sf_id")) && !empty($this->input->post("sf_role"))) {
             $sf_role = $this->input->post("sf_role");
             $post['where'][$sf_role] = $this->input->post("sf_id");
         }        
@@ -919,7 +919,7 @@ class Spare_parts extends CI_Controller {
             $re = "received_order";
         }
         $row[] = "<span class='" . $re . "'>" . $no . "</span>";
-        $row[] = $brackets_list->order_id;
+        $row[] ='<a href="' . base_url() . 'employee/service_centers/show_brackets_order_history/' . $brackets_list->order_id . '" target="_blank">'.$brackets_list->order_id.'</a>';        
         $row[] = $brackets_list->owner_name . "<br>" . $brackets_list->name;
         $row[] = ($brackets_list->brackets_26_32_requested + $brackets_list->brackets_19_24_requested);
         $row[] = ($brackets_list->brackets_36_42_requested + $brackets_list->brackets_43_requested);
