@@ -9293,3 +9293,8 @@ ALTER TABLE `taxpro_gstr2a_data` ADD `reject_remarks` VARCHAR(256) NOT NULL AFTE
 
 --Kalyani
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'broadcast_sms_to_vendor', '%s', '', '1', CURRENT_TIMESTAMP);
+
+--Chhavi 1st November
+ALTER TABLE `booking_details` ADD `parent_booking` VARCHAR(128) NULL AFTER `is_in_process`;
+
+UPDATE `email_template` SET `template` = 'Dear Partner<br/><br/><br/> Credit note for Rs. %s is generated against GST amount of the invoice %s. Credit Note is available on CRM.<br/><br/><br/><strong>Reply All</strong> for raising any query or concern regarding the same.\r\n<br/><br/>Thanks,<br/>247around Team',  cc='pankajk@247around.com' WHERE `email_template`.`tag` = 'credit_note_against_gst_debit_note';
