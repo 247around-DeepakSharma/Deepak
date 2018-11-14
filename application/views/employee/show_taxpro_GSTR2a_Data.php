@@ -80,7 +80,7 @@
                     extend: 'excel',
                     text: '<span class="fa fa-file-excel-o"></span> Excel Export',
                     pageSize: 'LEGAL',
-                    title: 'pending_bookings',
+                    title: 'GSTR2A_Report',
                     exportOptions: {
                        columns: [1,2,3,4,5,6,7,8,9,10,11],
                         modifier : {
