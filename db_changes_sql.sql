@@ -9268,3 +9268,9 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 UPDATE `email_template` SET `template` = '<b>TAXPRO GSP API FAIL</b><br/><p>%s</p><p>%s</p>' WHERE `email_template`.`tag` = 'taxpro_api_fail';
 ALTER TABLE `taxpro_gstr2a_data` CHANGE `invoice_date` `invoice_date` DATE NOT NULL;
 
+--Kalyani 02-Nov
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Send Broadcast SMS', NULL, 'employee/vendor/send_broadcast_sms_to_vendors', '2', '36', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
+ALTER TABLE `taxpro_gstr2a_data` ADD `reject_remarks` VARCHAR(256) NOT NULL AFTER `is_rejected`;
+
+--Kalyani
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'broadcast_sms_to_vendor', '%s', '', '1', CURRENT_TIMESTAMP);

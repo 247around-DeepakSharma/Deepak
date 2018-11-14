@@ -653,5 +653,8 @@ define('WAREHOUSE','Warehouse');
 define('_247AROUND_QUERY','Query');
 //
 define('CANCELLATION_REASON_WRONG_AREA', 'Wrong call - Not in our area.');
+//send broadcast sms to all vendors
+define('BROADCAST_SMS_TO_VENDOR', 'broadcast_sms_to_vendor');
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
