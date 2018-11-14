@@ -656,5 +656,7 @@ define('CANCELLATION_REASON_WRONG_AREA', 'Wrong call - Not in our area.');
 //send broadcast sms to all vendors
 define('BROADCAST_SMS_TO_VENDOR', 'broadcast_sms_to_vendor');
 
+define("_247AROUND_WEBSITE", "247around-Website");
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

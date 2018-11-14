@@ -43,7 +43,8 @@
                             <label class="control-label" for="daterange">Registration Date</label><br>
                             <?php
                             $endDate = date('Y/m/d');
-                            $startDate = date('Y/m/d', strtotime("-".(date('d')-1)." days"));
+                            $startDate = date('Y/m/d', strtotime('-1 day', strtotime($endDate)));
+                            //$startDate = date('Y/m/d', strtotime("-".(date('d')-1)." days"));
                             $dateRange = $startDate." - ".$endDate;
                             ?>
                             <input style="border-radius: 5px;"  type="text" placeholder="Registration Date" class="form-control" id="create_date" value="<?php echo $dateRange ?>" name="create_date"/>
@@ -293,8 +294,8 @@
         var endDateObj = new Date(endDate);
         var timeDiff = Math.abs(endDateObj.getTime() - startDateObj.getTime());
         var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
-        if(diffDays>365){
-            alert("Please select date range with in less then a year Range");
+        if(diffDays>30){
+            alert("Maximum range allowed is 1 month");
         }
         else{
             var status = $('#status').val();

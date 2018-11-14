@@ -19,8 +19,16 @@
     #dealer_list li{padding: 10px; border-bottom: #bbb9b9 1px solid;}
     #dealer_list li:hover{background:#e9ebee;cursor: pointer;}
 </style>
+    <?php
+    if(!$is_repeat){
+        $url = base_url()."partner/process_update_booking/".$booking_history[0]['booking_id'];
+    }
+    else{
+        $url = base_url()."employee/partner/process_addbooking/";
+    }
+    ?>
 <div class="right_col" role="main">
-    <form name="myForm" class="form-horizontal" id ="booking_form" action="<?php echo base_url()?>partner/process_update_booking/<?php echo $booking_history[0]['booking_id']; ?>"  method="POST" enctype="multipart/form-data">
+    <form name="myForm" class="form-horizontal" id ="booking_form" action="<?php echo $url; ?>"  method="POST" enctype="multipart/form-data">
         <div class="row">
             <div class="col-md-12 col-sm-12 col-xs-12">
                 <div class="x_panel">
@@ -47,9 +55,12 @@
                                     <input type="hidden" name="partner_channel" id="partner_channel" value="<?php echo $booking_history[0]['partner_source']; ?>" />
                                     <input type="hidden" name="partner_code" id="partner_code" value="<?php echo $partner_code;?>" />
                                     <input type="hidden" name="partner_type" id="partner_type" value="<?php echo $partner_type;?>" />
+                                    <?php if($is_repeat){ ?>
+                                    <input type="hidden" value="<?php echo $booking_history[0]['booking_id']; ?>" name="parent_booking">
+                                    <?php } ?>
                                     <input type="hidden" name="appliance_id" id='appliance_id' value="<?php echo $unit_details[0]['appliance_id']; ?>" />
                                     
-                                    <input type="text" class="form-control" id="name" name="user_name" value = "<?php if(isset($booking_history[0]['name'])){ echo $booking_history[0]['name']; } else { echo set_value('user_name'); }  ?>" <?php //if(isset($booking_history[0]['name'])){ echo "readonly"; }  ?> placeholder="Please Enter User Name">
+                                    <input type="text" class="form-control" id="name" name="user_name" value = "<?php if(isset($booking_history[0]['name'])){ echo $booking_history[0]['name']; } else { echo set_value('user_name'); }  ?>" <?php //if(isset($booking_history[0]['name'])){ echo "readonly"; }  ?> placeholder="Please Enter User Name" <?php if($is_repeat){ echo "readonly";} ?>>
                                     <?php echo form_error('user_name'); ?>
                                 </div>
                             </div>
@@ -60,7 +71,7 @@
                                     <select class="form-control"  id="service_name" name="service_id"   required onchange="return get_brands(), get_category(), get_capacity()">
                                         <option selected disabled>Select Appliance</option>
                                         <?php foreach ($appliances as $values) { ?>
-                                        <option <?php if(count($appliances) ==1){echo "selected";} ?>  data-id="<?php echo $values->services;?>" value=<?= $values->id; ?> <?php if($booking_history[0]['service_id'] == $values->id){ echo "selected";} ?>>
+                                        <option <?php if(count($appliances) ==1){echo "selected";} ?>  data-id="<?php echo $values->services;?>" value=<?= $values->id; ?> <?php if($booking_history[0]['service_id'] == $values->id){ echo "selected";}else{ if($is_repeat){ echo "disabled";}} ?>>
                                             <?php echo $values->services; }    ?>
                                         </option>
                                     </select>
@@ -83,7 +94,7 @@
                                 <div class="form-group col-md-12  <?php if( form_error('city') ) { echo 'has-error';} ?>">
                                     <label for="booking_city">City * <span id="error_city" style="color: red;"></span><span style="color:grey;display:none" id="city_loading">Loading ...</span></label>
                                     <select class="form-control"  id="booking_city" name="city" required >
-                                        <option value="<?php echo $booking_history[0]['city']; ?>" selected><?php echo $booking_history[0]['city']; ?></option>         
+                                        <option value="<?php echo $booking_history[0]['city']; ?>" selected readonly><?php echo $booking_history[0]['city']; ?></option>         
                                     </select>
                                     <?php echo form_error('city'); ?>
                                 </div>
@@ -151,7 +162,7 @@
                                     <select class="form-control"  id="partner_source" name="partner_source" >
                                         <option value="" selected disabled>Please select seller channel</option>
                                         <?php foreach ($channel as $key => $value) { ?>
-                                        <option <?php if($booking_history[0]['partner_source'] == $value['channel_name']){ echo "selected";} ?>><?php echo $value['channel_name'];  ?></option>  
+                                        <option <?php if($booking_history[0]['partner_source'] == $value['channel_name']){ echo "selected";} else{if($is_repeat){echo 'disabled';}}?>><?php echo $value['channel_name'];  ?></option>  
                                        <?php } ?>
                                     </select>
                                     <?php echo form_error('partner_source'); ?>
@@ -168,7 +179,7 @@
                                     <select style="width:55%" class="form-control" onchange="final_price()"  id="appliance_unit" name="appliance_unit" >
                                       
                                         <?php for($i =1; $i <26; $i++) { ?>
-                                        <option value="<?php echo $i;?>" <?php if(count($unique_appliance) == $i){ echo "selected";} ?>><?php echo $i; ?></option>
+                                        <option value="<?php echo $i;?>" <?php if(count($unique_appliance) == $i){ echo "selected";}else{if($is_repeat){echo 'disabled';}} ?>><?php echo $i; ?></option>
                                         <?php }?>
                                     </select>
                                 </div>
@@ -229,7 +240,7 @@
                                         echo set_value('order_id');
                                     } else {
                                         echo $booking_history[0]['order_id'];
-                                    } ?>" placeholder ="Please Enter Order ID" id="order_id"/>
+                                    } ?>" placeholder ="Please Enter Order ID" id="order_id" <?php if($is_repeat){echo 'readonly';} ?>/>
                             </div>
                         </div>
 
@@ -240,7 +251,7 @@
                                         echo set_value('serial_number');
                                     } else {
                                         echo $unit_details[0]['serial_number'];
-                                    } ?>" placeholder="Enter Serial Number" >
+                                    } ?>" placeholder="Enter Serial Number" <?php if($is_repeat){echo 'readonly';} ?>>
                             </div>
                         </div> 
 
@@ -249,7 +260,7 @@
                                 <label for="dealer_phone_number">Dealer Phone Number  <span id="error_dealer_phone_number" style="color:red"></span></label>
                                 <input  type="text" class="form-control"  name="dealer_phone_number" id="dealer_phone_number" value = "<?php if (isset($dealer_data)) {
                                         echo $dealer_data['dealer_phone_number_1'];
-                                    } ?>" placeholder="Enter Dealer Phone Number" autocomplete="off">
+                                    } ?>" placeholder="Enter Dealer Phone Number" autocomplete="off" <?php if($is_repeat){echo 'readonly';} ?>>
                                 <div id="dealer_phone_suggesstion_box"></div>
                             </div>
                         </div>
@@ -259,7 +270,7 @@
                                 <label for="dealer_name">Dealer Name *  <span id="error_dealer_name" style="color:red"></span></label>
                                 <input  type="text" class="form-control"  name="dealer_name" id="dealer_name" value = "<?php if (isset($dealer_data)) {
                                         echo $dealer_data['dealer_name'];
-                                    } ?>" placeholder="Enter Dealer Name" autocomplete="off">
+                                    } ?>" placeholder="Enter Dealer Name" autocomplete="off" <?php if($is_repeat){echo 'readonly';} ?>>
                                                                     <input type="hidden" name="dealer_id" id="dealer_id" value="<?php if (isset($dealer_data)) {
                                         echo $dealer_data['dealer_id'];
                                     } ?>">
@@ -273,7 +284,7 @@
                                     <div class="col-md-12">
                                         <div class="form-group col-md-12  <?php if( form_error('purchase_date') ) { echo 'has-error';} ?>">
                                     <label for="purchase_date">Purchase Date * <span id="error_purchase_date" style="color: red;"></span></label>
-                                        <input type="text" class="form-control"  id="purchase_date" name="purchase_date"  value = "<?php if(isset($booking_history[0]['purchase_date'])){echo $booking_history[0]['purchase_date'];} ?>">
+                                        <input type="text" class="form-control"  id="purchase_date" name="purchase_date"  value = "<?php if(isset($booking_history[0]['purchase_date'])){echo $booking_history[0]['purchase_date'];} ?>" <?php if($is_repeat){echo 'readonly';} ?>>
                                     <?php echo form_error('purchase_date'); ?>
                                 </div>
                         </div>
@@ -284,7 +295,7 @@
                         <div class="col-md-6">
                             <div class="form-group col-md-12  <?php if (form_error('query_remarks')) {echo 'has-error';} ?>">
                                 <label for="remarks">Remarks  <span id="error_remarks" style="color: red;"></label>
-                                <textarea class="form-control" rows="2" id="remarks" name="query_remarks"  placeholder="Enter Problem Description" ><?php if (set_value('query_remarks')) {
+                                <textarea <?php if($is_repeat){echo 'readonly';} ?> class="form-control" rows="2" id="remarks" name="query_remarks"  placeholder="Enter Problem Description" ><?php if (set_value('query_remarks')) {
                                         echo set_value('query_remarks');
                                     } else {
                                         echo $booking_history[0]['booking_remarks'];
@@ -311,7 +322,7 @@
                         <div class="col-md-4 ">
                             <div class="form-group col-md-12  <?php if( form_error('alternate_phone_number') ) { echo 'has-error';} ?>">
                                 <label for="booking_alternate_contact_no">Alternate Mobile</label>
-                                <input type="text" class="form-control booking_alternate_contact_no"  id="booking_alternate_contact_no" name="alternate_phone_number" value = "<?php if(set_value('alternate_phone_number')){ echo set_value('alternate_phone_number'); } else { echo $booking_history[0]['booking_alternate_contact_no'];} ?>" placeholder ="Please Enter Alternate Contact No" >
+                                <input type="text" class="form-control booking_alternate_contact_no"  id="booking_alternate_contact_no" name="alternate_phone_number" value = "<?php if(set_value('alternate_phone_number')){ echo set_value('alternate_phone_number'); } else { echo $booking_history[0]['booking_alternate_contact_no'];} ?>" placeholder ="Please Enter Alternate Contact No" <?php if($is_repeat){echo 'readonly';} ?>>
                                 <?php echo form_error('alternate_phone_number'); ?>
                             </div>
                         </div>
@@ -319,7 +330,7 @@
                         <div class="col-md-4 ">
                             <div class="form-group col-md-12  <?php if( form_error('user_email') ) { echo 'has-error';} ?>">
                                 <label for="booking_user_email">Email </label>
-                                <input type="email" class="form-control"  id="booking_user_email" name="user_email" value = "<?php if(set_value('user_email')){ echo set_value('user_email'); } else { echo $booking_history[0]['user_email'];} ?>" placeholder="Please Enter User Email">
+                                <input type="email" class="form-control"  id="booking_user_email" name="user_email" value = "<?php if(set_value('user_email')){ echo set_value('user_email'); } else { echo $booking_history[0]['user_email'];} ?>" placeholder="Please Enter User Email" <?php if($is_repeat){echo 'readonly';} ?>>
                                 <?php echo form_error('user_email'); ?>
                             </div>
                         </div>
@@ -327,7 +338,7 @@
                         <div class="col-md-4 ">
                             <div class="form-group col-md-12  <?php if( form_error('landmark') ) { echo 'has-error';} ?>">
                                 <label for="landmark">Landmark </label>
-                                <input type="text" class="form-control" id="landmark" name="landmark" value = "<?php if(set_value('landmark')){ echo set_value('landmark'); } else { echo $booking_history[0]['booking_landmark'];} ?>" placeholder="Enter Any Landmark">
+                                <input type="text" class="form-control" id="landmark" name="landmark" value = "<?php if(set_value('landmark')){ echo set_value('landmark'); } else { echo $booking_history[0]['booking_landmark'];} ?>" placeholder="Enter Any Landmark" <?php if($is_repeat){echo 'readonly';} ?>>
                                 <?php echo form_error('landmark'); ?>
                             </div>
                         </div>
@@ -335,7 +346,7 @@
                         <div class="col-md-12 ">
                             <div class="form-group col-md-12  <?php if( form_error('booking_address') ) { echo 'has-error';} ?>">
                                 <label for="booking_address">Booking Address *  <span id="error_address" style="color: red;"></label>
-                                <textarea class="form-control" rows="2" id="booking_address" name="booking_address" placeholder="Please Enter Address"  required ><?php if(set_value('booking_address')){ echo set_value('booking_address'); } else { echo $booking_history[0]['booking_address'];} ?></textarea>
+                                <textarea <?php if($is_repeat){echo 'readonly';} ?> class="form-control" rows="2" id="booking_address" name="booking_address" placeholder="Please Enter Address"  required ><?php if(set_value('booking_address')){ echo set_value('booking_address'); } else { echo $booking_history[0]['booking_address'];} ?></textarea>
                                 <?php echo form_error('booking_address'); ?>
                             </div>
                         </div>
@@ -539,7 +550,7 @@
                         },
                         url: '<?php echo base_url(); ?>employee/partner/get_brands_from_service',
                         data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>, 
-                    brand:'<?php echo $unit_details[0]['appliance_brand']; ?>',
+                    brand:'<?php echo $unit_details[0]['appliance_brand']; ?>',is_repeat:'<?php echo $is_repeat ?>',
                         partner_type:partner_type},
                         success: function (data) {
                                
@@ -569,7 +580,7 @@
                         },
                         url: '<?php echo base_url(); ?>employee/partner/get_category_from_service',
                         data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>, 
-                    brand: brand, category:'<?php echo $unit_details[0]['appliance_category']; ?>', 
+                    brand: brand, category:'<?php echo $unit_details[0]['appliance_category']; ?>', is_repeat:'<?php echo $is_repeat; ?>', 
                         partner_type:partner_type},
                         success: function (data) {
                                
@@ -601,7 +612,7 @@
             },
             url: '<?php echo base_url(); ?>employee/partner/get_capacity_for_partner',
             data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>, 
-        brand: brand,category:category, capacity:'<?php echo $unit_details[0]['appliance_capacity']; ?>',
+        brand: brand,category:category, capacity:'<?php echo $unit_details[0]['appliance_capacity']; ?>', is_repeat:'<?php echo $is_repeat; ?>', 
                         partner_type:partner_type},
             
             success: function (data) {
@@ -635,7 +646,7 @@
         $.ajax({
                         type: 'POST',
                         url: '<?php echo base_url(); ?>employee/partner/get_model_for_partner',
-                        data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>, 
+                        data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>, is_repeat:'<?php echo $is_repeat;?>', 
                     brand: brand,category:category,capacity:capacity, 
                     model:'<?php echo $unit_details[0]['model_number']; ?>',
                         partner_type:partner_type},
@@ -678,7 +689,7 @@
         postData['pincode'] = $("#booking_pincode").val();
         postData['city'] = $("#booking_city").val();
         postData['assigned_vendor_id'] = $("#assigned_vendor_id").val();
-        
+        postData['is_repeat'] = '<?php echo $is_repeat;?>';
         postData['partner_type'] = '<?php echo $partner_type;?>';
         
         if( postData['brand'] !== null 

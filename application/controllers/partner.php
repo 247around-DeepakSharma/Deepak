@@ -1155,6 +1155,7 @@ class Partner extends CI_Controller {
         //check partner status from partner_booking_status_mapping table  
         $partner_id = $this->partner['id'];
         $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $partner_id, $booking_id);
+        $booking['actor'] = $booking['next_action'] = 'not_define';
         if (!empty($partner_status)) {
             $booking['partner_current_status'] = $partner_status[0];
             $booking['partner_internal_status'] = $partner_status[1];
@@ -1163,7 +1164,8 @@ class Partner extends CI_Controller {
         }
         $this->booking_model->update_booking($booking_id, $booking);
         $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
-
+        // Save Data in booking History Table
+        $this->notify->insert_state_change($booking_id,$booking['current_status'] , "Pending", "Cancelled By Partner API", _247AROUND_DEFAULT_AGENT, _247AROUND_DEFAULT_AGENT_NAME,$booking['actor'],$booking['next_action']);
         $this->service_centers_model->update_service_centers_action_table($booking_id, $details);
         return TRUE;
     }
@@ -1442,6 +1444,9 @@ class Partner extends CI_Controller {
                     $booking['booking_landmark'] = $requestData['landmark'];
                     $booking['booking_pincode'] = trim($requestData['pincode']);
                     $booking['city'] = $requestData['city'];
+                    if(isset($requestData['parent_booking'])){
+                        $booking['parent_booking'] = $requestData['parent_booking'];
+                    }
                     $agent_id = $requestData['agent_id'];
 
                     //Add this as a Booking now
