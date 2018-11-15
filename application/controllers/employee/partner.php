@@ -2161,14 +2161,14 @@ function get_shipped_parts_list($offset = 0) {
      * @desc: Partner acknowledge to receive defective spare parts
      * @param String $booking_id
      */
-    function acknowledge_received_defective_parts($booking_id, $partner_id, $is_cron = "") {
+    function acknowledge_received_defective_parts($spare_id, $booking_id, $partner_id, $is_cron = "") {
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id') . " Booking Id " . $booking_id);
 
         if (empty($is_cron)) {
             $this->checkUserSession();
         }
 
-        $response = $this->service_centers_model->update_spare_parts(array('booking_id' => $booking_id), array('status' => DEFECTIVE_PARTS_RECEIVED,
+        $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => DEFECTIVE_PARTS_RECEIVED,
             'approved_defective_parts_by_partner' => '1', 'remarks_defective_part_by_partner' => DEFECTIVE_PARTS_RECEIVED,
             'received_defective_part_date' => date("Y-m-d H:i:s")));
         if ($response) {
@@ -2176,26 +2176,36 @@ function get_shipped_parts_list($offset = 0) {
             log_message('info', __FUNCTION__ . " Received Defective Spare Parts " . $booking_id
                     . " Partner Id" . $this->session->userdata('partner_id'));
             
-            $sc_data['current_status'] = "InProcess";
-            $sc_data['internal_status'] = _247AROUND_COMPLETED;
-            $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+            $is_exist = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id", 
+                    array('spare_parts_details.booking_id' => $booking_id, "status NOT IN  ('"._247AROUND_CANCELLED."', '"._247AROUND_COMPLETED
+                        ."', '".DEFECTIVE_PARTS_RECEIVED."') " => NULL));
             
-            $booking['internal_status'] = DEFECTIVE_PARTS_RECEIVED;
-        
-            $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $booking_id);
             $actor = $next_action = 'not_define';
-            if (!empty($partner_status)) {
-                $booking['partner_current_status'] = $partner_status[0];
-                $booking['partner_internal_status'] = $partner_status[1];
-                $actor = $booking['actor'] = $partner_status[2];
-                $next_action = $booking['next_action'] = $partner_status[3];
+            if(empty($is_exist)){
+                $sc_data['current_status'] = "InProcess";
+                $sc_data['internal_status'] = _247AROUND_COMPLETED;
+                $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+                
+                $booking['internal_status'] = DEFECTIVE_PARTS_RECEIVED;
+                
+
+                $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $booking_id);
+                
+                if (!empty($partner_status)) {
+                    $booking['partner_current_status'] = $partner_status[0];
+                    $booking['partner_internal_status'] = $partner_status[1];
+                    $actor = $booking['actor'] = $partner_status[2];
+                    $next_action = $booking['next_action'] = $partner_status[3];
+                }
+                $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Partner Received Defective Spare Parts", $actor,$next_action,$is_cron);
+
+                $this->booking_model->update_booking($booking_id, $booking);
+            } else {
+                $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Partner Received Defective Spare Parts", $actor,$next_action,$is_cron);
             }
-            $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Partner Received Defective Spare Parts", $actor,$next_action,$is_cron);
-            
-            $this->booking_model->update_booking($booking_id, $booking);
-            
+
             $is_oow_return = $this->partner_model->get_spare_parts_by_any("booking_unit_details_id, purchase_price, sell_price, sell_invoice_id", 
-                    array('spare_parts_details.booking_id' => $booking_id, 
+                    array('spare_parts_details.id' => $spare_id, 
                         'booking_unit_details_id IS NOT NULL' => NULL,
                         'sell_price > 0 ' => NULL,
                         'sell_invoice_id IS NOT NULL' => NULL,
@@ -2207,7 +2217,7 @@ function get_shipped_parts_list($offset = 0) {
                         '(reverse_sale_invoice_id IS NULL OR reverse_purchase_invoice_id)' => NULL),
                     true);
             if(!empty($is_oow_return)){
-                $url = base_url() . "employee/invoice/generate_reverse_oow_invoice/".$booking_id;
+                $url = base_url() . "employee/invoice/generate_reverse_oow_invoice/".$spare_id;
                 $async_data['booking_id'] = $booking_id;
                 $this->asynchronous_lib->do_background_process($url, $async_data);
             }
@@ -2233,12 +2243,12 @@ function get_shipped_parts_list($offset = 0) {
      * @param Sting $booking_id
      * @param Urlencoded $status (Rejection Reason)
      */
-    function reject_defective_part($booking_id, $status) {
+    function reject_defective_part($spare_id, $booking_id, $status) {
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id') . " Booking Id " . $booking_id . ' status: ' . $status);
         $this->checkUserSession();
         $rejection_reason = base64_decode(urldecode($status));
 
-        $response = $this->service_centers_model->update_spare_parts(array('booking_id' => $booking_id), array('status' => DEFECTIVE_PARTS_REJECTED,
+        $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => DEFECTIVE_PARTS_REJECTED,
             'remarks_defective_part_by_partner' => $rejection_reason,
             'approved_defective_parts_by_partner' => '0'));
         if ($response) {
@@ -3372,17 +3382,17 @@ function get_shipped_parts_list($offset = 0) {
         $partners = $this->partner_model->getpartner_details($select, $where_get_partner, '1');
         foreach ($partners as $partner) {
 
-            $select = "spare_parts_details.booking_id,DATE_FORMAT(spare_parts_details.defective_part_shipped_date, '%D %b %Y') as date";
+            $select = "spare_parts_details.booking_id,spare_parts_details.id, DATE_FORMAT(spare_parts_details.defective_part_shipped_date, '%D %b %Y') as date";
             $where = array('spare_parts_details.partner_id' => $partner['id'],
                 'DATEDIFF(defactive_part_received_date_by_courier_api,now()) <= -7' => null,
                 "spare_parts_details.status IN ('Defective Part Shipped By SF')" => null,
-                "booking_details.current_status IN ('Pending', 'Rescheduled')" => null);
+                "booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."')" => null);
             $defective_parts_acknowledge_data = $this->partner_model->get_spare_parts_by_any($select, $where, true);
             if (!empty($defective_parts_acknowledge_data)) {
 
                 //update acknowledge
                 foreach ($defective_parts_acknowledge_data as $value) {
-                    $this->acknowledge_received_defective_parts($value['booking_id'], $partner['id'], true);
+                    $this->acknowledge_received_defective_parts($value['id'], $value['booking_id'], $partner['id'], true);
                 }
 
                 $this->table->set_heading('Booking Id', 'Defective Part Shipped Date');
@@ -5389,7 +5399,7 @@ function get_shipped_parts_list($offset = 0) {
       $internal_status = $this->booking_model->get_internal_status($where_internal_status);
       $columnMappingArray = array("column_1"=>"spare_parts_details.booking_id","column_3"=>"CONCAT('',GROUP_CONCAT((defective_part_shipped ) ))",
           "column_4"=>"courier_name_by_sf","column_9"=>"spare_parts_details.defective_part_shipped_date");    
-      $order_by = "spare_parts_details.defective_part_shipped_date DESC";
+      $order_by = "spare_parts_details.defective_part_shipped_date DESC, spare_parts_details.booking_id DESC";
       if(array_key_exists("order", $postData)){
             $order_by = $columnMappingArray["column_".$postData['order'][0]['column']] ." ". $postData['order'][0]['dir'];
         }
@@ -5409,10 +5419,11 @@ function get_shipped_parts_list($offset = 0) {
        if($this->input->post('booking_id')){
            $where['spare_parts_details.booking_id'] = $this->input->post('booking_id');
        }
-        $select = "CONCAT( '', GROUP_CONCAT((defective_part_shipped ) ) , '' ) as defective_part_shipped,spare_parts_details.defactive_part_received_date_by_courier_api, "
-                . " spare_parts_details.booking_id, users.name, courier_name_by_sf, awb_by_sf,defective_part_shipped_date,remarks_defective_part_by_sf,spare_parts_details.sf_challan_number"
-                . ",spare_parts_details.sf_challan_file,spare_parts_details.partner_challan_number";
-        $group_by = "spare_parts_details.booking_id";
+        $select = "defective_part_shipped,spare_parts_details.defactive_part_received_date_by_courier_api, "
+                . " spare_parts_details.booking_id, users.name, courier_name_by_sf, awb_by_sf,defective_part_shipped_date,"
+                . "remarks_defective_part_by_sf,spare_parts_details.sf_challan_number"
+                . ",spare_parts_details.sf_challan_file,spare_parts_details.partner_challan_number, spare_parts_details.id";
+        $group_by = "spare_parts_details.id";
         $bookingData = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $postData['start'], $postData['length']);
          $bookingCount = $this->service_centers_model->count_spare_parts_booking($where, $select, $group_by,$state);
          $sn = $postData['start'];
@@ -5458,12 +5469,12 @@ function get_shipped_parts_list($offset = 0) {
                              $tempString5 = 'disabled="disabled"';
                             }
                         $tempString4 = '<a style="background: #2a3f54; border-color: #2a3f54;" onclick="return confirm_received()" class="btn btn-sm btn-primary" id="defective_parts"
-                                               href='.base_url().'partner/acknowledge_received_defective_parts/'.$row['booking_id'].'/'.$this->session->userdata("partner_id").' '.$tempString5.'>Receive</a>';
+                                               href='.base_url().'partner/acknowledge_received_defective_parts/'.$row['id'].'/'.$row['booking_id'].'/'.$this->session->userdata("partner_id").' '.$tempString5.'>Receive</a>';
                      }
                      $tempArray[] = $tempString4;
                      if (!empty($row['defective_part_shipped'])) {
                             foreach ($internal_status as $value) {
-                                  $tempString7 = $tempString7.'<li><a href='.base_url().'partner/reject_defective_part/'.$row['booking_id'].'/'.urlencode(base64_encode($value->status)).'>'.$value->status.'</a></li>';
+                                  $tempString7 = $tempString7.'<li><a href='.base_url().'partner/reject_defective_part/'.$row['id'].'/'.$row['booking_id'].'/'.urlencode(base64_encode($value->status)).'>'.$value->status.'</a></li>';
                                   $tempString7 = $tempString7.'<li class="divider"></li>';
                              } 
                               $tempString6 = '<div class="dropdown">
