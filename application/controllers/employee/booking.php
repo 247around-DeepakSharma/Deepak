@@ -2148,7 +2148,7 @@ class Booking extends CI_Controller {
                 $this->service_centers_model->update_spare_parts(array('id' => $sp_id), array('status' => DEFECTIVE_PARTS_PENDING, 'defective_part_required' => 1));
             }
             
-            $this->invoice_lib->generate_challan_file($booking_id, $service_center_details[0]['service_center_id']);
+            $this->invoice_lib->generate_challan_file($sp_id, $service_center_details[0]['service_center_id']);
         }
         
         if ($status == 0) {
@@ -4618,10 +4618,10 @@ class Booking extends CI_Controller {
     
     function testDefective(){
        $where =  array("status" => DEFECTIVE_PARTS_PENDING, 'defective_part_required' => 1, 'sf_challan_number IS NOT NULL ' => NULL);
-        $data  = $this->partner_model->get_spare_parts_by_any("spare_parts_details.booking_id, service_center_id, service_center_closed_date",
+        $data  = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, service_center_id, service_center_closed_date",
                 $where, true);
         foreach ($data as $value) {
-            $this->invoice_lib->generate_challan_file($value['booking_id'], $value['service_center_id'], $data['service_center_closed_date']);
+            $this->invoice_lib->generate_challan_file($value['id'], $value['service_center_id'], $data['service_center_closed_date']);
         }
         
         

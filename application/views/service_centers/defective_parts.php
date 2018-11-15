@@ -58,13 +58,13 @@
                                         <?php if(!is_null($row['remarks_defective_part_by_partner'])){  echo $row['remarks_defective_part_by_partner']; } else { echo $row['remarks_by_partner'];} ?>
                                     </td>
                                     <td>
-                                        <input type="checkbox" class="form-control checkbox_address" onclick="remove_select_all()" name="download_address[<?php echo $row['partner_id'].'-'.$row['entity_type'] ;?>][]"  value="<?php echo $row['booking_id'];?>" />
+                                        <input type="checkbox" class="form-control checkbox_address" onclick="remove_select_all()" name="download_address[<?php echo $row['partner_id'].'-'.$row['entity_type'] ;?>][]"  value="<?php echo $row['id'];?>" />
                                     </td>
                                     <td>
                                         <input type="checkbox" class="form-control checkbox_challan" onclick="remove_select_all_challan()" name="download_challan[]"  value="<?php echo $row['challan_file'];?>" />
                                     </td>
                                     <td>
-                                         <a href="<?php echo base_url() ?>service_center/update_defective_parts/<?php echo $row['booking_id']; ?>" class="btn btn-sm btn-primary" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>
+                                         <a href="<?php echo base_url() ?>service_center/update_defective_parts/<?php echo $row['id']; ?>" class="btn btn-sm btn-primary" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>
                                     </td>
 
                                 </tr>

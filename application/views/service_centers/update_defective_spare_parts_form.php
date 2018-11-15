@@ -13,7 +13,7 @@
                 </div>';
                 }
                 ?>
-              <form action="<?php echo base_url(); ?>service_center/process_update_defective_parts/<?php echo $spare_parts[0]['booking_id']; ?>" class ="form-horizontal" 
+              <form action="<?php echo base_url(); ?>service_center/process_update_defective_parts/<?php echo $spare_parts[0]['id']; ?>" class ="form-horizontal" 
                 id="update_form"  method="POST" enctype="multipart/form-data">
             <div class="panel panel-default">
                 <div class="panel-heading">
