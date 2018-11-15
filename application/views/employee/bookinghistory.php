@@ -38,6 +38,7 @@
                                 <th>View</th>
                                 <th>Go To Booking </th>
                                 <th>Un-Cancel</th>
+                                <th>Repeat</th>
                             </tr>
                         </thead>
                         <?php $count = 1; if(!empty($Bookings[0]->booking_id)){  foreach($Bookings as $key =>$row){ ?>
@@ -61,6 +62,19 @@
                                 <?php if ($row->current_status =='Cancelled' && strpos($row->booking_id, "Q") !== FALSE) {?>
                                 <a class="btn btn-small btn-danger btn-sm" href="<?php echo base_url(); ?>employee/booking/open_cancelled_query/<?php echo $row->booking_id;?>" title="uncancel"><i class="fa fa-folder-open-o" aria-hidden="true"></i></a>
                                 <?php } ?>
+                            </td>
+                            <td>
+                                <?php if ($row->current_status =='Completed') {
+                                            $today = strtotime(date("Y-m-d"));
+                                            $closed_date = strtotime($row->closed_date);
+                                            $completedDays = round(($today - $closed_date) / (60 * 60 * 24));
+                                            if($completedDays < 90){
+                                    ?>
+                                <a target="_blank" href="<?php echo base_url(); ?>employee/booking/get_repeat_booking_form/<?php echo $row->booking_id;?>" class="btn btn-small btn-success btn-sm" title="Create Repeat Booking"><i class="glyphicon glyphicon-plus" aria-hidden="true"></i></a>
+                            <?php
+                                            }
+                                 }
+                                 ?>
                             </td>
                         </tr>
                         <?php } }?>

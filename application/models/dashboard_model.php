@@ -186,7 +186,9 @@ class dashboard_model extends CI_Model {
      * @return array
      */
     function get_booking_data_by_rm_region($startDate = "", $endDate = "",$service_centers_id,$partner_id=""){
-        $where = "Where bd1.assigned_vendor_id IN($service_centers_id)";
+        $service_center_array = explode(",",$service_centers_id);
+        $sc_id = implode("','",$service_center_array);
+        $where = "Where bd1.assigned_vendor_id IN('".$sc_id."')";
         if($partner_id != ""){
             $where .= "AND bd1.partner_id = '$partner_id'";
         }

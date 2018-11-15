@@ -396,6 +396,10 @@ class Booking extends CI_Controller {
                 $is_send_sms = 1;
                 $booking_id_with_flag['new_state'] = _247AROUND_PENDING;
                 $booking_id_with_flag['old_state'] = _247AROUND_NEW_BOOKING;
+                $booking['parent_booking'] = NULL;
+                if($this->input->post('is_repeat')){
+                    $booking['parent_booking'] = $this->input->post('parent_id');
+                }
                 if ($booking['type'] == "Booking") {
                     $booking['initial_booking_date'] = $booking['booking_date'];
                     $booking['current_status'] =  _247AROUND_PENDING;
@@ -1547,7 +1551,7 @@ class Booking extends CI_Controller {
      * @param: booking id
      * @return : void
      */
-    function get_edit_booking_form($booking_id, $appliance_id = "") {
+    function get_edit_booking_form($booking_id, $appliance_id = "",$is_repeat = NULL) {
         log_message('info', __FUNCTION__ . " Appliance ID  " . print_r($appliance_id, true) . " Booking ID: " . print_r($booking_id, true));
 
         if ($booking_id != "") {
@@ -1621,11 +1625,7 @@ class Booking extends CI_Controller {
                 
                 $category = $this->booking_model->getCategoryForService($booking_history[0]['service_id'], $value['partner_id'], $isWbrand);
                 $capacity = $this->booking_model->getCapacityForCategory($booking_history[0]['service_id'], $value['category'], $isWbrand, $value['partner_id']);
-                $prices = $this->booking_model->getPricesForCategoryCapacity($booking_history[0]['service_id'], $value['category'], $value['capacity'], $value['partner_id'], $isWbrand);
-                    
-
-
-
+                $prices = $this->booking_model->getPricesForCategoryCapacity($booking_history[0]['service_id'], $value['category'], $value['capacity'], $value['partner_id'], $isWbrand,$is_repeat);
                 $where1 = array('service_id' => $booking_history[0]['service_id'], 'brand_name' => $value['brand']);
                 $brand_id_array = $this->booking_model->get_brand($where1);
                 if (!empty($brand_id_array)) {
@@ -1641,6 +1641,7 @@ class Booking extends CI_Controller {
                 array_push($booking['prices'], $prices);
                 array_push($booking['model'], $model);
             }
+            $booking['is_repeat'] = $is_repeat;
             $this->miscelleneous->load_nav_header();
             $this->load->view('employee/update_booking', $booking);
         } else {
@@ -1652,7 +1653,10 @@ class Booking extends CI_Controller {
      * @desc: This function is used to update both Bookings and Queries.
      */
     function update_booking($user_id, $booking_id) {
-        $bookings = $this->booking_model->getbooking_history($booking_id);
+        $bookings = array($booking_id);
+        if($booking_id != INSERT_NEW_BOOKING){
+            $bookings = $this->booking_model->getbooking_history($booking_id);
+        }
         if (!empty($bookings)) {
             if ($this->input->post()) {
                 $checkValidation = $this->validate_booking();
@@ -2493,20 +2497,24 @@ class Booking extends CI_Controller {
             default :
                 $dealer_phone_number = $this->input->post("dealer_phone_number");
                 if (!empty($order_id)) {
-                    $partner_booking = $this->partner_model->get_order_id_for_partner($partner_id, $order_id, $booking_id);
-                    if (is_null($partner_booking)) {
-                        return true;
-                    } else {
-                        if($partner_booking['current_status'] !== _247AROUND_CANCELLED){
-                            $output = "Duplicate Order ID";
-                            $userSession = array('error' => $output);
-                            $this->session->set_userdata($userSession);
-                            return FALSE;
+                    //Check only If booking is not Repeat
+                    if(!$this->input->post('is_repeat')){
+                        $partner_booking = $this->partner_model->get_order_id_for_partner($partner_id, $order_id, $booking_id);
+                        if (is_null($partner_booking)) {
+                            return true;
+                        } 
+                        else {
+                            if($partner_booking['current_status'] !== _247AROUND_CANCELLED){
+                                $output = "Duplicate Order ID";
+                                $userSession = array('error' => $output);
+                                $this->session->set_userdata($userSession);
+                                return FALSE;
+                            }
                         }
                         
                     }
-                } else if(empty($dealer_phone_number) && $amount_due ==0){
-                    
+                } 
+                else if(empty($dealer_phone_number) && $amount_due ==0){
                     $output = "Please Enter Order ID OR Dealer Mobile Number";
                     $userSession = array('error' => $output);
                     $this->session->set_userdata($userSession);
@@ -4623,7 +4631,30 @@ class Booking extends CI_Controller {
         foreach ($data as $value) {
             $this->invoice_lib->generate_challan_file($value['id'], $value['service_center_id'], $data['service_center_closed_date']);
         }
-        
-        
+    }
+    
+    /**
+     *  @desc : This function is to create Repeat booking
+     *  We have already made a function to get_edit_booking_form, this method use that function to insert booking by parent booking
+     *  @param : Parent booking ID
+     */
+    function get_repeat_booking_form($booking_id) {
+         log_message('info', __FUNCTION__ . " Booking ID  " . print_r($booking_id, true));
+        $openBookings = $this->reusable_model->get_search_result_data("booking_details","booking_id",array("parent_booking"=>$booking_id),NULL,NULL,NULL,NULL,NULL,array());
+        if(empty($openBookings)){
+            $this->get_edit_booking_form($booking_id,"","Repeat");
+        }
+        else{
+            echo "<p style= 'text-align: center;background: #f35b5b;color: white;font-size: 20px;'>There is an open Repeat booking (".$openBookings[0]['booking_id'].") for ".$booking_id." , Untill repeat booking is not closed you can not create new repeat booking</p>";
+        }
+    }
+    function get_booking_relatives($booking_id){
+        $relativeData = $this->booking_model->get_parent_child_sibling_bookings($booking_id);
+        if(!empty($relativeData)){
+            echo  json_encode($relativeData[0]);
+        }
+        else{
+            echo false;
+        }
     }
 }

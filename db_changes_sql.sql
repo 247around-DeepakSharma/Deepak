@@ -9268,3 +9268,14 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 UPDATE `email_template` SET `template` = '<b>TAXPRO GSP API FAIL</b><br/><p>%s</p><p>%s</p>' WHERE `email_template`.`tag` = 'taxpro_api_fail';
 ALTER TABLE `taxpro_gstr2a_data` CHANGE `invoice_date` `invoice_date` DATE NOT NULL;
 
+--Kalyani 02-Nov
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Send Broadcast SMS', NULL, 'employee/vendor/send_broadcast_sms_to_vendors', '2', '36', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
+ALTER TABLE `taxpro_gstr2a_data` ADD `reject_remarks` VARCHAR(256) NOT NULL AFTER `is_rejected`;
+
+--Kalyani
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'broadcast_sms_to_vendor', '%s', '', '1', CURRENT_TIMESTAMP);
+
+--Chhavi 1st November
+ALTER TABLE `booking_details` ADD `parent_booking` VARCHAR(128) NULL AFTER `is_in_process`;
+
+UPDATE `email_template` SET `template` = 'Dear Partner<br/><br/><br/> Credit note for Rs. %s is generated against GST amount of the invoice %s. Credit Note is available on CRM.<br/><br/><br/><strong>Reply All</strong> for raising any query or concern regarding the same.\r\n<br/><br/>Thanks,<br/>247around Team',  cc='pankajk@247around.com' WHERE `email_template`.`tag` = 'credit_note_against_gst_debit_note';

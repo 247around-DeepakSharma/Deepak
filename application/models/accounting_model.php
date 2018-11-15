@@ -364,21 +364,31 @@ class accounting_model extends CI_Model {
         return $query->result_array(); 
     }
     
+    function get_gstr2a_mapping_details($condition, $select){
+        $this->_get_gstr2a_mapping_details($condition, $select);
+        if(isset($condition['length'])){
+            if ($condition['length'] != -1) {
+                $this->db->limit($condition['length'], $condition['start']);
+            }
+        }
+        $query = $this->db->get();
+         log_message("info", $this->db->last_query());
+        return $query->result_array();
+    }
+    
      /**
      * @desc: This Function is used to get gstr2a data for gstra2a report
      * @param: array $select, $where
      * @return : array
      */
-    function get_gstr2a_mapping_details($condition, $select){
-        $this->db->_reserved_identifiers = array('NOT');
-        $this->db->_protect_identifiers = FALSE;
+    function _get_gstr2a_mapping_details($condition, $select){
+        
         $this->db->select($select);
         $this->db->from('taxpro_gstr2a_data');
         $this->db->join('service_centres', 'service_centres.gst_no = taxpro_gstr2a_data.gst_no',"Left");
         
         
         if(!empty($condition['where'])){
-            $this->db->_protect_identifiers = FALSE;
             $this->db->where($condition['where']);
         }
          
@@ -413,25 +423,16 @@ class accounting_model extends CI_Model {
 
             $this->db->where($like, null, false);
         }
-        if(isset($condition['length'])){
-            if ($condition['length'] != -1) {
-                $this->db->limit($condition['length'], $condition['start']);
-            }
-        }
+        
         
         if(!empty($condition['order_by'])){
             $this->db->order_by($condition['order_by']);
         }else if(!empty ($condition['order'])){
             $this->db->order_by($condition['column_order'][$condition['order'][0]['column']], $condition['order'][0]['dir']);
         }else{
-            $this->db->order_by('taxpro_gstr2a_data.invoice_date', "desc");
+            $this->db->order_by('taxpro_gstr2a_data.invoice_number', "asc");
+            $this->db->order_by('service_centres.name', "asc");
         }
-        
-       
-        
-        $query = $this->db->get();
-        log_message("info",__METHOD__. $this->db->last_query());
-        return $query->result_array();
     }
     
     function update_taxpro_gstr2a_data($id, $data){
@@ -444,18 +445,21 @@ class accounting_model extends CI_Model {
         }
     }
     
-     /**
-     * @desc: This Function is used to get mapped invoices from gstr2a taxpro data
-     * @param: array $vendor_id
-     * @return : array
-     */
-    function get_gstr2a_mapping_invoices($vendor_id){
-        $where = array(
-            'vendor_partner'=>'vendor',
-            'vendor_partner_id'=>$vendor_id,
-            'credit_generated' => 0,
-            'invoice_id like "%Around-GST-DN%"' => NULL,
-        );
-        $invoices = $this->invoices_model->getInvoicingData($where, false);
+    function count_all_taxpro_gstr2a_data($post){
+        $this->_count_all_taxpro_gstr2a_data($post);
+        $query = $this->db->count_all_results();
+        return $query;
+    }
+    
+    function _count_all_taxpro_gstr2a_data($post){
+        $this->db->from('taxpro_gstr2a_data');
+        $this->db->join('service_centres', 'service_centres.gst_no = taxpro_gstr2a_data.gst_no',"Left");
+        $this->db->where($post);
+    }
+    
+    function count_filtered_taxpro_gstr2a_data($condition, $select){
+        $this->_get_gstr2a_mapping_details($condition, $select);
+        $query = $this->db->get();
+        return $query->num_rows();
     }
 }
