@@ -994,7 +994,7 @@ class vendor extends CI_Controller {
     function get_reassign_vendor_form($booking_id) {
         $this->checkUserSession();
         if(!empty($booking_id)){
-            $service_centers = $this->vendor_model->viewvendor("", 1, NULL);
+            $service_centers = $this->vendor_model->getVendorDetails("*", array('on_off' => 1, 'is_sf' => 1, 'active' => 1));
             $this->miscelleneous->load_nav_header();
             $this->load->view('employee/reassignvendor', array('booking_id' => $booking_id, 'service_centers' => $service_centers));
         }
@@ -3994,7 +3994,7 @@ class vendor extends CI_Controller {
      * 
      */
     function get_service_center_with_micro_wh() {
-        log_message('info', __METHOD__ . json_encode($_POST, true));
+        log_message('info', __METHOD__ );
 
         $partner_id = $this->input->post('partner_id');
 
@@ -4014,17 +4014,20 @@ class vendor extends CI_Controller {
                 $option .= _247AROUND_EMPLOYEE_STRING . " " . $value['district'] . " ( <strong>" . $value['state'] . " </strong>)" . "</option>";
             }
         }
+        if ($partner_data[0]['is_micro_wh'] == 1) {
+             $micro_wh_state_mapp_data_list = $this->inventory_model->get_micro_wh_state_mapping_partner_id($partner_id);
 
-        $micro_wh_state_mapp_data_list = $this->vendor_model->get_micro_wh_state_mapping_partner_id($partner_id);
 
-        if (!empty($micro_wh_state_mapp_data_list)) {
-            foreach ($micro_wh_state_mapp_data_list as $value) {
-                $option .= "<option  data-warehose='2' value='" . $value['id'] . "'";
-                $option .= " > ";
-                $option .= $value['name'] . "</option>";
-                $option .= $value['name'] . " " . $value['district'] . " ( <strong>" . $value['state'] . " </strong>)" . "</option>";
+            if (!empty($micro_wh_state_mapp_data_list)) {
+                foreach ($micro_wh_state_mapp_data_list as $value) {
+                    $option .= "<option  data-warehose='2' value='" . $value['id'] . "'";
+                    $option .= " > ";
+                    $option .= $value['name'] . "</option>";
+                    $option .= $value['name'] . " " . $value['district'] . " ( <strong>" . $value['state'] . " </strong>)" . "</option>";
+                }
             }
         }
+        
 
         echo $option;
     }

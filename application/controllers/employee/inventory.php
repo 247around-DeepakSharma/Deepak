@@ -3200,7 +3200,7 @@ class Inventory extends CI_Controller {
      *  @return :$res JSON
      */
     function process_acknowledge_spare_send_by_partner_to_wh() {
-        log_message("info", __METHOD__ . json_encode($this->input->post()));
+        log_message("info", __METHOD__ . json_encode($this->input->post()), true);
         if ($this->session->userdata('employee_id')) {
             $this->checkUserSession();
         } else if ($this->session->userdata('service_center_id')) {
@@ -4131,7 +4131,7 @@ class Inventory extends CI_Controller {
      */
     function check_WH_UserSession() {
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'service_center') 
-                && !empty($this->session->userdata('service_center_id')) && !empty($this->session->userdata('is_wh'))) {
+                &&  !empty($this->session->userdata('service_center_id')) && (!empty($this->session->userdata('is_wh')) || !empty($this->session->userdata('is_micro_wh')) )) {
             return TRUE;
         } else {
             log_message('info', __FUNCTION__. " Session Expire for Service Center");
