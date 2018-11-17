@@ -679,6 +679,7 @@ class Notify {
         ));
         $response = curl_exec($session);
         $responseAarray = json_decode($response);
+
         $data['content'] = $responseAarray->status;
         return $data;
     }
