@@ -3372,8 +3372,7 @@ class vendor extends CI_Controller {
                 $insert_data['to_date'] = $data['to_date'];
                 $insert_data['active'] = $data['active'];
                 $insert_data['create_date'] = date('Y-m-d H:i:s');
-                $insert_id = $this->vendor_model->insert_tax_rates_template($insert_data);
-                print_r($insert_id);
+                $insert_id = $this->vendor_model->insert_tax_rates_template($insert_data);                
                 if ($insert_id) {
                     log_message('info', __FUNCTION__ . ' New Tax Rate Template has been added with ID ' . $insert_id);
                 } else {
@@ -3946,6 +3945,7 @@ class vendor extends CI_Controller {
         }
     }
     
+    
     /**
      * @Desc: This function is used to get the service center for filtered brackets list
      * @param void
@@ -4016,7 +4016,9 @@ class vendor extends CI_Controller {
             }
         }
 
-        $micro_wh_state_mapp_data_list = $this->inventory_model->get_micro_wh_state_mapping_partner_id($partner_id);
+
+        $micro_wh_state_mapp_data_list = $this->vendor_model->get_micro_wh_state_mapping_partner_id($partner_id);
+
 
         if (!empty($micro_wh_state_mapp_data_list)) {
             foreach ($micro_wh_state_mapp_data_list as $value) {

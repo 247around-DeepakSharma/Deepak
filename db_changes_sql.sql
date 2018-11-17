@@ -9299,8 +9299,7 @@ ALTER TABLE `booking_details` ADD `parent_booking` VARCHAR(128) NULL AFTER `is_i
 
 UPDATE `email_template` SET `template` = 'Dear Partner<br/><br/><br/> Credit note for Rs. %s is generated against GST amount of the invoice %s. Credit Note is available on CRM.<br/><br/><br/><strong>Reply All</strong> for raising any query or concern regarding the same.\r\n<br/><br/>Thanks,<br/>247around Team',  cc='pankajk@247around.com' WHERE `email_template`.`tag` = 'credit_note_against_gst_debit_note';
 
-
---Gorakh 14 Nov -2018---
+--Gorakh 14 Nov -2018
 
 CREATE TABLE `warehouse_on_of_status` (
   `id` int(11) NOT NULL,
@@ -9339,7 +9338,6 @@ ALTER TABLE `warehouse_on_of_status` ADD `agent_id` INT(11) NOT NULL AFTER `acti
 ALTER TABLE `partners` ADD `is_defective_part_return_wh` TINYINT NOT NULL AFTER `is_micro_wh`;
 ALTER TABLE `service_centres` ADD `is_micro_wh` TINYINT NOT NULL AFTER `is_buyback_gst_invoice`;
 ALTER TABLE `trigger_partners` ADD `is_defective_part_return_wh` TINYINT NOT NULL AFTER `is_micro_wh`;
-
 
 ALTER TABLE `partners` ADD `is_micro_wh` TINYINT NOT NULL;
 ALTER TABLE `trigger_partners` ADD `is_micro_wh` TINYINT NOT NULL;

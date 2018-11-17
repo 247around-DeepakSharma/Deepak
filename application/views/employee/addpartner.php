@@ -691,7 +691,7 @@
                                         <div class="form-group ">
                                             <label for="is prepaid" class="col-md-4">Is Prepaid Account</label>
                                             <div class="col-md-1">
-                                                <input  type="checkbox" class="form-control"  name="is_prepaid" value = "1" <?php if (isset($query[0])) {
+                                                <input  type="checkbox" class="form-control"  name="is_prepaid" id="is_prepaid" value = "1" <?php if (isset($query[0])) {
                                                     if($query[0]['is_prepaid'] == '1'){ echo "checked"; }
                                                     } ?> >
                                             </div>
@@ -703,7 +703,7 @@
                                             } ?>">
                                             <label for="prepaid_amount_limit" class="col-md-4">Prepaid Minimum Amt Limit</label>
                                             <div class="col-md-8">
-                                                <input type="number" class="form-control" onkeyup="show_help_text(this)"  name="prepaid_amount_limit" value = "<?php if (isset($query[0]['prepaid_amount_limit'])) {
+                                                <input type="number" class="form-control" onkeyup="show_help_text(this)"  name="prepaid_amount_limit" id="prepaid_amount_limit" value = "<?php if (isset($query[0]['prepaid_amount_limit'])) {
                                                     echo $query[0]['prepaid_amount_limit'];
                                                     } ?>" >
                                                 <?php echo form_error('prepaid_amount_limit'); ?>
@@ -753,7 +753,7 @@
                                             <div class="form-group ">
                                                 <label for="is prepaid" class="col-md-4">Is Postpaid Account</label>
                                                 <div class="col-md-1">
-                                                    <input  type="checkbox" class="form-control"  name="is_postpaid" value = "1" <?php if (isset($query[0])) {
+                                                    <input  type="checkbox" class="form-control"  name="is_postpaid" id="is_postpaid" value = "1" <?php if (isset($query[0])) {
                                                         if($query[0]['is_prepaid'] == '0'){ echo "checked"; }
                                                         } ?> >
                                                 </div>
@@ -765,7 +765,7 @@
                                                 } ?>">
                                                 <label for="postpaid_credit_period" class="col-md-4">Postpaid Minimum Days Limit</label>
                                                 <div class="col-md-8">
-                                                    <input type="number" class="form-control" onkeyup="show_help_text(this)"  name="postpaid_credit_period" value = "<?php if (isset($query[0]['postpaid_credit_period'])) {
+                                                    <input type="number" class="form-control" onkeyup="show_help_text(this)"  name="postpaid_credit_period" id="postpaid_credit_period" value = "<?php if (isset($query[0]['postpaid_credit_period'])) {
                                                         echo $query[0]['postpaid_credit_period'];
                                                         } ?>" >
                                                     <p style="font-weight:bold;"><span><?php if(isset($query[0]['postpaid_credit_period'])){ echo $query[0]['postpaid_credit_period']; }?></span> is minimum post paid amount</p>
@@ -779,7 +779,7 @@
                                                 } ?>">
                                                 <label for="postpaid_notification_limit" class="col-md-4">Notification Days Limit</label>
                                                 <div class="col-md-8">
-                                                    <input type="number" class="form-control" onkeyup="show_help_text(this)"  name="postpaid_notification_limit" value = "<?php if (isset($query[0]['postpaid_notification_limit'])) {
+                                                    <input type="number" class="form-control" onkeyup="show_help_text(this)"  name="postpaid_notification_limit" id="postpaid_notification_limit" value = "<?php if (isset($query[0]['postpaid_notification_limit'])) {
                                                         echo $query[0]['postpaid_notification_limit'];
                                                         } ?>" >
                                                     <p style="font-weight:bold;"><span><?php if(isset($query[0]['postpaid_notification_limit'])){ echo $query[0]['postpaid_notification_limit'];} ?> </span> is minimum notification amount</p>
@@ -787,9 +787,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="col-md-12">
-                                        <div class="col-md-6">
+                                         <div class="col-md-6">
                                             <div class="form-group <?php if (form_error('postpaid_grace_period')) {
                                                 echo 'has-error';
                                                 } ?>">
@@ -2094,7 +2092,7 @@
                     </table>
                 </div>
             </div>
-             <div class="clear"></div>
+            <div class="clear"></div>
             <div id="container_12" class="form_container" style="display:none;">
                 <form class="form-horizontal" id="warehouse_setting_form"  novalidate="novalidate" action="<?php echo base_url() ?>employee/partner/process_partner_warehouse_config" method="POST" enctype="multipart/form-data">
                     <div class="panel panel-default">
@@ -2113,55 +2111,66 @@
                                         ?> >
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <div class="panel panel-default">
-                            <div class="panel-heading"><b>Micro Warehouse Details</b></div>
-                            <div class="panel-body">
-                                <div class="col-md-6">
-                                    <div class="form-group ">
-                                        <label for="is_wh" class="col-md-6" style="width: 40%;"> Micro Warehouse</label>
-                                        <div class="col-md-1" style = "margin-top: -7px;margin-bottom: -5px;">
-                                            <input  type="checkbox" class="form-control" id="is_micro_wh"  name="is_micro_wh"  value = "1" <?php if (isset($query[0])) {
-                                                if($query[0]['is_micro_wh'] == '1'){ echo "checked"; }
-                                                } ?> >
-                                        </div>
-                                    </div>
-                                </div>                                
-                                <div class="col-md-12">
-                                    <div id="micro_warehouse_details" style="display:<?php if ($query[0]['is_micro_wh'] == '1'){ echo "block"; }else{ echo "none"; } ?>">                                         
-                                        <div style="padding:5px;">
-                                         <span id="is_defected_part_err"></span>
-                                        <div class="col-md-12">
-                                            <div class="form-group">
-                                                <label for="is_wh" class="col-md-4" style="width:228px;">Defective Part Return to Warehouse</label>
-                                                <div class="col-md-1" style = "margin-top: -7px;margin-bottom: -5px;">
-                                                    <input  type="radio" class="form-control" id="is_defective_part_return_wh"  name="is_defective_part_return_wh"  value = "1" style="width: 23%; height: 23px;" <?php  if( $query[0]['is_defective_part_return_wh']=='1'){ echo "checked"; } ?>>
-                                                </div>
-                                            </div>
-                                        </div>                                
+                            </div>                                
+                            <div class="col-md-12">
+                                <div id="micro_warehouse_details" style="display:<?php
+                                if ($query[0]['is_micro_wh'] == '1') {
+                                    echo "block";
+                                } else {
+                                    echo "none";
+                                }
+                                ?>">                                         
+                                    <div>
+                                        <span id="is_defected_part_err"></span>
                                         <div class="col-md-12">
                                             <div class="form-group ">
-                                                <label for="is_wh" class="col-md-4" style="width:228px;">Defective Part Return to Partner</label>
-                                                <div class="col-md-1" style = "margin-top: -7px;margin-bottom: -5px;">
-                                                    <input  type="radio" class="form-control" id="is_defective_part_return_wh"  name="is_defective_part_return_wh"  value = "0" style="width: 23%; height: 23px;"<?php  if( $query[0]['is_defective_part_return_wh']=='0'){ echo "checked"; } ?>>
+                                                <label for="name" class="col-md-2">Defective Part Return to </label>
+                                                <div class="col-md-6">
+                                                    <input  type="radio" id="is_defective_part_return_wh"  name="is_defective_part_return_wh"  value = "1" style="width: 17%; height: 18px;" <?php
+                                                    if ($query[0]['is_defective_part_return_wh'] == '1') {
+                                                        echo "checked";
+                                                    }
+                                                    ?>>Warehouse &nbsp;&nbsp;&nbsp;
+                                                     <input  type="radio" id="is_defective_part_return_wh"  name="is_defective_part_return_wh"  value = "0" style="width: 17%; height: 18px;"<?php
+                                                    if ($query[0]['is_defective_part_return_wh'] == '0') {
+                                                        echo "checked";
+                                                    }
+                                                    ?>>Partner &nbsp;&nbsp;&nbsp;
+
                                                 </div>
+                                                <span id="errmsg1"></span>
                                             </div>
-                                        </div>
-                                       </div>
-                                        <br><br><br><br><br><br><br>
-                                        <div class="col-md-4">
+                                            
+<!--                                            <label for="defective_part" class="col-md-4" style="width:228px;">Defective Part Return to </label>                            
                                             <div class="form-group">
-                                                <div class="col-md-8">
-                                                    <select class="form-control micro_wh_state" name="micro[0][micro_wh_state]" onchange="get_vendor_state_wise('micro_wh_state_0','sf_id_0' )" id="micro_wh_state_0" required>
-                                                        <option selected="" value="" disabled="">Select State</option>
-                                                        <?php foreach ($results['select_state'] as $value) { ?>
-                                                        <option value = "<?php echo $value['state'] ?>" > <?php echo $value['state']; ?> </option>
-                                                        <?php } ?>
-                                                    </select>
+                                                <label for="defective_part" class="col-md-4" style="width:90px;">Warehouse</label>
+                                                <div class="col-md-1" style = "margin-top: -7px;margin-bottom: -5px;">
+                                                    
+                                                </div>                                            
+                                                <label for="defective_part" class="col-md-4" style="width:65px;"> Partner</label>
+                                                <div class="col-md-1" style = "margin-top: -7px;margin-bottom: -5px;">
+                                                    <input  type="radio" class="form-control" id="is_defective_part_return_wh"  name="is_defective_part_return_wh"  value = "0" style="width: 23%; height: 23px;"<?php
+                                                    if ($query[0]['is_defective_part_return_wh'] == '0') {
+                                                        echo "checked";
+                                                    }
+                                                    ?>>
                                                 </div>
+                                            </div>-->
+                                        </div>
+                                    </div>                                        
+                                    <br><br><br>
+                                    <b>Add Micro Warehouse</b>                               
+                                    <hr>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="micro" class="col-md-8">Select State</label>
+                                            <div class="col-md-8">
+                                                <select class="form-control micro_wh_state" name="micro[0][micro_wh_state]" onchange="get_vendor_state_wise('micro_wh_state_0','sf_id_0' )" id="micro_wh_state_0" required>
+                                                    <option selected="" value="" disabled="">Select State</option>
+                                                    <?php foreach ($results['select_state'] as $value) { ?>
+                                                        <option value = "<?php echo $value['state'] ?>" > <?php echo $value['state']; ?> </option>
+                                                    <?php } ?>
+                                                </select>
                                             </div>
                                         </div>
                                     </div>
@@ -2183,21 +2192,23 @@
                                                 <input type="text" class="form-control" name="micro[0][sf_amount]" id="sf_amount_0" value="">
                                             </div>
                                         </div>
-                                    </div>                                    
+                                    </div>   
+                                   
                                     <div class="col-md-2">
                                         <div class="form-group ">                                             
                                             <div class="col-md-8">                                                    
                                                 <button type="button" class="btn btn-default addButton"><i class="fa fa-plus"></i></button>
                                             </div>
-                                        </div>                                
-                                        <div id="stat_waise_sf_template" class="template_s hide">                                        
-                                      <div class="col-md-4">
+                                        </div>
+                                    </div>                                
+                                    <div id="stat_waise_sf_template" class="template_s hide">                                        
+                                        <div class="col-md-4">
                                             <div class="form-group">
                                                 <div class="col-md-8">
                                                     <select class="form-control micro_wh_state"  id='micro_wh_state' required>
                                                         <option selected="" value="" disabled="">Select State</option>
                                                         <?php foreach ($results['select_state'] as $value) { ?>
-                                                        <option value = "<?php echo $value['state'] ?>"> <?php echo $value['state']; ?> </option>
+                                                            <option value = "<?php echo $value['state'] ?>"> <?php echo $value['state']; ?> </option>
                                                         <?php } ?>
                                                     </select>
                                                 </div>
@@ -2213,7 +2224,7 @@
                                             </div>
                                         </div>
                                         <div class="col-md-2">
-                                            <div class="form-group ">
+                                            <div class="form-group">
                                                 <div class="col-md-8">                                                  
                                                     <input type="text" id="sf_amount" class="form-control" value="">
                                                 </div>
@@ -2229,65 +2240,74 @@
                                         </div>                                        
                                     </div>
                                 </div>
-                               </div>                                 
-                                <div class="col-md-12">
-                                    <center>
-                                        <input type="hidden" name="partner_id" value="<?php echo $this->uri->segment(4); ?>">    
-                                        <input type="submit" id="micro_wh_sttng" class="btn btn-primary btn-md">
-                                    </center>
-                                </div>
+                            </div>                                 
+                            <div class="col-md-12">
+                                <center>
+                                    <input type="hidden" name="partner_id" value="<?php echo $this->uri->segment(4); ?>">    
+                                    <input type="submit" id="micro_wh_sttng" class="btn btn-primary btn-md">
+                                </center>
                             </div>
                         </div>
                     </div>
-                </form>
-                <div class="col-md-12">
-                        <div class="panel panel-default">
-                            <div class="panel-heading"><b>Micro Warehouse List</b></div>
-                            <div class="panel-body">
-                                <div class="col-md-12">                                    
-                                    <table class="table">
-                                        <thead>
-                                            <tr>
-                                                <th>S.N</th>
-                                                <th>State Name</th>
-                                                <th>Vendor Name </th>
-                                                <th>Status</th>                                         
-                                                <th class="col-md-1">Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody> 
-                                           <?php
-                                            if(!empty($micro_wh_lists)){                                                
-                                            $i=1;
-                                            foreach ($micro_wh_lists as $key=>$val){
+            </form>
+                <div class="panel panel-default">
+                    <div class="panel-heading"><b>Micro Warehouse List</b></div>
+                    <div class="panel-body">
+                        <div class="col-md-12">                                    
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>S.N</th>
+                                        <th>State Name</th>
+                                        <th>Vendor Name </th>                                                
+                                        <th>view</th>
+                                        <th>Status</th> 
+                                        <th class="col-md-1">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody> 
+                                    <?php
+                                    if (!empty($micro_wh_lists)) {
+                                        $i = 1;
+                                        foreach ($micro_wh_lists as $key => $val) {
                                             ?>                                           
                                             <tr>
-                                                <td><?php echo $i."."; ?></td>
+                                                <td><?php echo $i . "."; ?></td>
                                                 <td><?php echo $val['state']; ?></td>
                                                 <td><?php echo $val['name']; ?></td>
+                                                <td><a href="#" class="micro_warehouse_view" id="<?php echo $val['micro_wh_mp_id']; ?>">View</a></td>
                                                 <td>
                                                     <a href="#" id="status_<?php echo $val['wh_on_of_id']; ?>">
-                                                        <?php if( $val['active']==1){ echo 'Active'; }else{ echo 'Inactive'; }?>
+                                                        <?php
+                                                        if ($val['active'] == 1) {
+                                                            echo 'Active';
+                                                        } else {
+                                                            echo 'Inactive';
+                                                        }
+                                                        ?>
                                                     </a>
-                                                    
-                                                </td>                                      
+
+                                                </td>                                               
                                                 <td>    
-                                                    <?php if( $val['active']==1){ ?> 
-                                                    <button type="button" class="btn btn-danger btn-sm" href="#" title="Delete" id="<?php echo $val['wh_on_of_id']."-".$val['micro_wh_mp_id']; ?>" onclick="remove_micro_warehose(this.id)"><span id="remove_<?php echo $val['wh_on_of_id']; ?>"><i class="fa fa-trash"></i></span></button>                                                    
-                                                    <?php }else{ ?>
-                                                    <button type="button" class="btn btn-default" id="<?php echo $val['wh_on_of_id']."-".$val['micro_wh_mp_id']; ?>" onclick="add_micro_warehose(this.id)"><span id="add_<?php echo $val['wh_on_of_id']; ?>"><i class="fa fa-plus"></i></span></button>
-                                                   <?php } ?>                                         
+                                                    <?php if ($val['active'] == 1) { ?> 
+                                                        <button type="button" class="btn btn-danger btn-sm" href="#" title="Delete" id="<?php echo $val['wh_on_of_id'] . "-" . $val['micro_wh_mp_id']; ?>" onclick="remove_micro_warehose(this.id)"><span id="remove_<?php echo $val['wh_on_of_id']; ?>"><i class="fa fa-trash"></i></span></button>                                                    
+                                                    <?php } else { ?>
+                                                        <button type="button" class="btn btn-default" id="<?php echo $val['wh_on_of_id'] . "-" . $val['micro_wh_mp_id']; ?>" onclick="add_micro_warehose(this.id)"><span id="add_<?php echo $val['wh_on_of_id']; ?>"><i class="fa fa-plus"></i></span></button>
+                                                    <?php } ?>                                         
                                                 </td>
                                             </tr>
-                                            <?php $i++; } } ?> 
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
+                                            <?php
+                                            $i++;
+                                        }
+                                    }
+                                    ?> 
+                                </tbody>
+                            </table>
                         </div>
-               </div>
-            </div>
-        </div>
+                    </div>
+                </div>
+         </div>
+       </div>
     </div>
 </div>
 </div>
@@ -2540,6 +2560,22 @@
     </div>
 </div>
 <!-- warehouse modal end -->
+<!-- Micro Warehouse Modal -->
+<div id="micro_warehouse_view_modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header well" style="    background-color: #164f4e;color: #Fff;text-align: center;margin: 0px;border-color: #164f4e;">
+                <button type="button" class="close btn-primary well" style="color:#fff;" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Micro Warehouse History Details</h4>
+            </div>
+            <div class="modal-body">               
+                    <div id="table_body"></div>                
+            </div>
+        </div>
+    </div>
+</div>
+<!--Micro Warehouse Modal ends-->
 <script type="text/javascript">
     var regex = /^(.+?)(\d+)$/i;
     var cloneIndex = $(".clonedInput").length +1;
@@ -3459,8 +3495,46 @@
             $("#contact_person_role").val();
             //$('#contact_person_states option:selected').removeAttr('selected');
         });
-        
+        check_postpaid_partner($("#is_postpaid")); 
+        check_postpaid_partner($("#is_prepaid"));
     });
+    
+    $("#is_postpaid").click(function(){
+        check_postpaid_partner($("#is_postpaid"));
+    });
+    
+    $("#is_prepaid").click(function(){
+        check_postpaid_partner($("#is_prepaid"));
+    });
+    
+    function check_postpaid_partner(checkbox){
+        var checkbox_id = $(checkbox).attr('id');
+        if(checkbox_id === "is_postpaid"){
+            if($(checkbox).is(':checked')){
+                $("#postpaid_credit_period").attr("readonly", false);
+                $("#postpaid_notification_limit").attr("readonly", false);
+                $("#postpaid_grace_period_date").attr("readonly", false);
+            }
+            else{
+               $("#postpaid_credit_period").attr("readonly", true);
+               $("#postpaid_notification_limit").attr("readonly", true);
+               $("#postpaid_grace_period_date").attr("readonly", true); 
+            }
+        }
+        else if(checkbox_id === "is_prepaid"){
+            if($(checkbox).is(':checked')){
+                $("#prepaid_amount_limit").attr("readonly", false);
+                $("#prepaid_notification_amount").attr("readonly", false);
+                $("#grace_period_date").attr("readonly", false);
+            }
+            else{
+               $("#prepaid_amount_limit").attr("readonly", true);
+               $("#prepaid_notification_amount").attr("readonly", true);
+               $("#grace_period_date").attr("readonly", true); 
+            }
+        }
+    }
+    
    function create_edit_form(json){
         var value = JSON.parse(json);
         var data="";
@@ -3635,7 +3709,7 @@
     
         
     });
-    
+
     function update_variable_charge(id, button){
         $.ajax({
             type: 'POST',
@@ -3664,4 +3738,46 @@
             $("#validity").attr('required', false);
         }
     }
+
+    $(".micro_warehouse_view").click(function(){
+        var id = $(this).attr("id");
+        if(id!=''){      
+            $.ajax({
+                type:'POST',
+                url:'<?php echo base_url(); ?>employee/service_centers/micro_warehouse_history_list',
+                dataType: "json",
+                data : {micro_wh_mp_id:id},
+                success:function(data){
+                    var HTML='';
+                    HTML+='<table style="border-collapse: collapse;width: 100%;">';
+                    HTML+='<th style="padding: 8px;text-align: left;border-bottom: 1px solid #ddd;">S.No</th>';
+                    HTML+='<th style="padding: 8px;text-align: left;border-bottom: 1px solid #ddd;">Micro Warehouse Name</th>';
+                    HTML+='<th style="padding: 8px;text-align: left;border-bottom: 1px solid #ddd;">Status</th>';
+                    HTML+='<th style="padding: 8px;text-align: left;border-bottom: 1px solid #ddd;">Created Date</th>';
+                    HTML+='</tr>';                   
+                    if(data!=''){                                       
+                        for(i=0;i<data.length; i++){
+                           HTML+='<tr>';
+                           HTML+='<td style="padding: 8px;text-align: left;border-bottom: 1px solid #ddd;">'+(i+1)+'.</td>';
+                           HTML+='<td style="padding: 8px;text-align: left;border-bottom: 1px solid #ddd;">'+data[i]['name']+'</td>';
+                           if(data[i]['active']==1){
+                           HTML+='<td style="padding: 8px;text-align: left;border-bottom: 1px solid #ddd;">On</td>';
+                           }else{
+                           HTML+='<td style="padding: 8px;text-align: left;border-bottom: 1px solid #ddd;">Off</td>';  
+                           }
+                           HTML+='<td style="padding: 8px;text-align: left;border-bottom: 1px solid #ddd;">'+data[i]['create_date']+'</td>';
+                          HTML+='</tr>';  
+                        }                                               
+                    }else{
+                    HTML+='<tr>';
+                    HTML+='<td colspan="4">Data Not Found.</td>';
+                    HTML+='</tr>';  
+                    }
+                   HTML+='<table>';
+                    $("#table_body").html(HTML);
+                    $("#micro_warehouse_view_modal").modal('show');
+                }
+            });  
+      }
+    });
 </script>

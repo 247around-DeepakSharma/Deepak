@@ -895,6 +895,7 @@ class Partner extends CI_Controller {
                 array("entity_role"=>"contact_person.role = entity_role.id","agent_filters"=>"contact_person.id=agent_filters.contact_person_id","entity_login_table"=>"entity_login_table.contact_person_id = contact_person.id"), NULL, 
                 array("name"=>'ASC'), NULL,  array("agent_filters"=>"left","entity_role"=>"left","entity_login_table"=>"left"),array("contact_person.id"));
        $results['contact_name'] = $this->partner_model->select_contact_person($id);
+                    
        $results['bank_detail'] = $this->reusable_model->get_search_result_data("account_holders_bank_details", '*',array("entity_id"=>$id, "entity_type" => 'partner'),NULL, NULL, array('is_active'=>'DESC'), NULL, NULL, array()); 
        $results['variable_charges'] = $this->accounting_model->get_vendor_partner_variable_charges("fixed_charges, vendor_partner_variable_charges.validity_in_month, vendor_partner_variable_charges.id as partner_charge_id, variable_charges_type.*", array('entity_type'=>'partner', 'entity_id'=>$id), true);
        $charges_type = $this->accounting_model->get_variable_charge("id, type, description");
@@ -6159,7 +6160,6 @@ function update_channel($id) {
             echo false;
         }
     }
-
  
      /*
      * @desc - This function is used to get the list of service centers by state.
@@ -6188,8 +6188,7 @@ function update_channel($id) {
      * @param - get post multiple parameter
      * @render on same pages
      */    
-    function process_partner_warehouse_config(){ 
-        
+    function process_partner_warehouse_config(){         
         $is_wh = $this->input->post('is_wh');
         $partner_id = $this->input->post('partner_id');
         $micro = $this->input->post('micro');
@@ -6218,8 +6217,7 @@ function update_channel($id) {
                     $data['vendor_id'] = $vendor_id;
                     $wh_on_of_data['vendor_id'] = $vendor_id;  
                     $micro_wh_mapping_list = $this->inventory_model->get_micro_wh_mapping_list(array('micro_warehouse_state_mapping.vendor_id'=>$vendor_id), '*');
-                    if(empty($micro_wh_mapping_list)){
-                        
+                    if(empty($micro_wh_mapping_list)){                        
                         $last_inserted_id = $this->inventory_model->insert_query('micro_warehouse_state_mapping',$data);  
                         $inserted_id = $this->inventory_model->insert_query('warehouse_on_of_status',$wh_on_of_data);
                         $service_center = array('is_micro_wh'=>1);
@@ -6281,6 +6279,7 @@ function update_channel($id) {
             }
         }
     }
+
     
     /*
      * @desc - This function is used to add and update partner variable charges.
@@ -6306,7 +6305,6 @@ function update_channel($id) {
                    $this->session->set_userdata('success', 'Data Entered Successfully');
                 }
                 if($result){
-                    log_message("info", __METHOD__ .$msg);
                     $this->session->set_userdata('success', 'Data Saved Successfully');
                     redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
                 } else {
